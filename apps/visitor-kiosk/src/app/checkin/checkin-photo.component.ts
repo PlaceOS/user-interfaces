@@ -6,11 +6,15 @@ import { CheckinStateService } from './checkin-state.service';
 @Component({
     selector: 'checkin-photo',
     template: `
-        <div class="bg-white rounded shadow overflow-hidden relative flex flex-col items-center p-4" *ngIf="!loading; else load_state">
+        <div
+            class="bg-white rounded shadow overflow-hidden relative flex flex-col items-center p-4"
+            *ngIf="!loading; else load_state"
+        >
             <h3 class="text-xl mb-4">Take a photo to continue</h3>
             <a-take-photo (photoAccepted)="handlePhoto($event)"></a-take-photo>
             <a
-                mat-icon-button
+                icon
+                matRipple
                 class="absolute top-0 right-0"
                 [routerLink]="['/welcome']"
             >
@@ -26,29 +30,34 @@ import { CheckinStateService } from './checkin-state.service';
             </div>
         </ng-template>
     `,
-    styles: [`
-        :host {
-            position: absolute;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-        }
+    styles: [
+        `
+            :host {
+                position: absolute;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+            }
 
-        .absolute {
-            position: absolute;
-        }
-    `]
+            .absolute {
+                position: absolute;
+            }
+        `,
+    ],
 })
 export class CheckinPhotoComponent {
     /** Whether guest pass is being loaded */
     public loading: boolean;
 
-    constructor(private _checkin: CheckinStateService, private _router: Router) { }
+    constructor(
+        private _checkin: CheckinStateService,
+        private _router: Router
+    ) {}
 
     public async handlePhoto(event: any) {
         if (!event) {

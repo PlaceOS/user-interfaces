@@ -1,7 +1,7 @@
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
 import { DesksStateService } from '../../app/desks/desks-state.service';
 import { DesksTopbarComponent } from '../../app/desks/desks-topbar.component';
@@ -17,15 +17,12 @@ describe('DesksComponent', () => {
             MockComponent(DesksTopbarComponent),
         ],
         providers: [
-            {
-                provide: DesksStateService,
-                useValue: {
-                    startPolling: jest.fn(),
-                    stopPolling: jest.fn(),
-                },
-            },
+            MockProvider(DesksStateService, {
+                startPolling: jest.fn(),
+                stopPolling: jest.fn(),
+            }),
         ],
-        imports: [MatProgressBarModule, MatTabsModule],
+        imports: [MockModule(MatProgressBarModule), MockModule(MatTabsModule)],
     });
 
     beforeEach(() => (spectator = createComponent()));

@@ -16,8 +16,8 @@ import { CateringOrderStateService } from './catering-order-state.service';
     template: `
         <div class="w-full h-full overflow-auto py-2">
             <ng-container *ngIf="(custom_items | async)?.length">
-                <h3 class="font-bold px-2">Custom Items</h3>
-                <p count class="text-sm opacity-60 mb-4 px-2">
+                <h3 class="font-bold px-2">Ordered Items</h3>
+                <p count class="text-sm opacity-60 mb-2 px-2">
                     {{ (custom_items | async)?.length || 0 }} items(s)
                 </p>
 
@@ -29,13 +29,13 @@ import { CateringOrderStateService } from './catering-order-state.service';
                         [active]="active === item.custom_id"
                         [selected]="true"
                         [favourite]="isFavourite(item.id)"
-                        (toggleFav)="toggleFav(item.id)"
+                        (toggleFav)="toggleFav.emit(item.id)"
                         (select)="selectItem(item, true)"
                     ></catering-item-list-item>
                 </ul>
             </ng-container>
             <h3 class="font-bold px-2">Results</h3>
-            <p count class="text-sm opacity-60 mb-4 px-2">
+            <p count class="text-sm opacity-60 mb-2 px-2">
                 {{ (item_list | async)?.length || 0 }} result(s) found
             </p>
             <ng-container *ngIf="!(loading | async); else load_state">
@@ -102,7 +102,6 @@ export class CateringItemListComponent {
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.selected_items) {
-            console.log('Selected:', this.selected_items);
             this.list.next(this.selected_items || []);
         }
     }
@@ -114,7 +113,7 @@ export class CateringItemListComponent {
     public selectItem(item: CateringItem, clear_state: boolean = false) {
         this.onSelect.emit(item);
         if (clear_state) {
-            item.options.forEach((_) => delete _.active);
+            item.options?.forEach((_) => delete _.active);
         }
     }
 }

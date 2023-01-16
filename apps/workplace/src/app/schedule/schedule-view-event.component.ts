@@ -29,7 +29,8 @@ import { CateringItem } from '@placeos/catering';
             <a
                 button
                 class="clear h-[2.75rem] text-white"
-                mat-button
+                btn
+                matRipple
                 [routerLink]="['/schedule']"
             >
                 <div class="flex items-center justify-center h-full">
@@ -86,7 +87,7 @@ import { CateringItem } from '@placeos/catering';
                             {{ event.resources?.length }} Space(s)
                         </div>
                         <button
-                            mat-button
+                            matRipple
                             [disabled]="!event.resources?.length"
                             class="clear bg-transparent border-none underline"
                             (click)="show_spaces = !show_spaces"
@@ -126,7 +127,7 @@ import { CateringItem } from '@placeos/catering';
                                 "
                             ></span>
                             <button
-                                mat-button
+                                matRipple
                                 locate
                                 class="bg-transparent border-none underline text-black"
                                 (click)="viewLocation(space)"
@@ -149,7 +150,7 @@ import { CateringItem } from '@placeos/catering';
                             Attendee(s)
                         </div>
                         <button
-                            mat-button
+                            matRipple
                             [disabled]="!event.attendees?.length"
                             class="clear bg-transparent border-none underline"
                             (click)="show_people = !show_people"
@@ -192,10 +193,11 @@ import { CateringItem } from '@placeos/catering';
                         </div>
                     </div>
                 </div>
-                <div class="w-full" *ngIf="event.extension_data.catering?.length">
-                    <div
-                        class="border-b border-gray-200 w-full"
-                    >
+                <div
+                    class="w-full"
+                    *ngIf="event.extension_data.catering?.length"
+                >
+                    <div class="border-b border-gray-200 w-full">
                         <div class="flex items-center py-2 space-x-2 ">
                             <div
                                 class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
@@ -203,11 +205,14 @@ import { CateringItem } from '@placeos/catering';
                                 <app-icon>group</app-icon>
                             </div>
                             <div class="flex-1 truncate">
-                                {{ event.extension_data.catering[0]?.item_count || 0 }}
+                                {{
+                                    event.extension_data.catering[0]
+                                        ?.item_count || 0
+                                }}
                                 Catering Item(s)
                             </div>
                             <button
-                                mat-button
+                                matRipple
                                 class="clear bg-transparent border-none underline"
                                 (click)="show_catering = !show_catering"
                             >
@@ -219,14 +224,19 @@ import { CateringItem } from '@placeos/catering';
                             [style.height]="
                                 !show_catering
                                     ? '0'
-                                    : event.extension_data.catering[0]?.items.length * 3 +
+                                    : event.extension_data.catering[0]?.items
+                                          .length *
+                                          3 +
                                       'rem'
                             "
                             class="overflow-hidden"
                         >
                             <div
                                 class="flex items-center h-12 pl-12 space-x-2"
-                                *ngFor="let item of event.extension_data.catering[0]?.items"
+                                *ngFor="
+                                    let item of event.extension_data.catering[0]
+                                        ?.items
+                                "
                             >
                                 <div class="flex-1 w-1/2">
                                     <div class="flex-1 w-1/2">
@@ -248,7 +258,9 @@ import { CateringItem } from '@placeos/catering';
                                 >
                                     {{ item.total_cost / 100 | currency }}
                                 </div>
-                                <div class="m-2 bg-neutral-500 text-white h-8 w-8 rounded-full flex items-center justify-center text-sm">
+                                <div
+                                    class="m-2 bg-neutral-500 text-white h-8 w-8 rounded-full flex items-center justify-center text-sm"
+                                >
                                     {{ item.quantity }}
                                 </div>
                             </div>
@@ -277,7 +289,7 @@ import { CateringItem } from '@placeos/catering';
                     *ngIf="event.state !== 'done'"
                 >
                     <button
-                        mat-button
+                        matRipple
                         edit
                         class="w-32"
                         [disabled]="loading"
@@ -287,7 +299,7 @@ import { CateringItem } from '@placeos/catering';
                         Edit Event
                     </button>
                     <button
-                        mat-button
+                        matRipple
                         remove
                         class="w-32 error inverse"
                         [disabled]="loading"
@@ -363,11 +375,13 @@ export class ScheduleViewEventComponent extends BaseClass {
             this._route.paramMap.subscribe(async (params) => {
                 if (params.has('id')) {
                     const parts = params.get('id').split('|');
-                    this.event = this._settings.get('app.no_user_calendar')
+                    this.event = this._settings.get('app.events.use_bookings')
                         ? await showBooking(parts[0])
                               .pipe(map((_) => newCalendarEventFromBooking(_)))
                               .toPromise()
-                        : await showEvent(parts[0], { system_id: parts[1] }).toPromise();
+                        : await showEvent(parts[0], {
+                              system_id: parts[1],
+                          }).toPromise();
                 }
             })
         );
@@ -411,7 +425,7 @@ export class ScheduleViewEventComponent extends BaseClass {
         );
         if (details.reason !== 'done') return;
         details.loading('Removing event...');
-        await (this._settings.get('app.no_user_calendar')
+        await (this._settings.get('app.events.use_bookings')
             ? removeBooking
             : removeEvent)(this.event.id)
             .toPromise()

@@ -9,7 +9,7 @@ import {
     Azure,
     Google,
     OpenStack,
-    initialiseUploadService
+    initialiseUploadService,
 } from '@placeos/cloud-uploads';
 
 import {
@@ -66,7 +66,7 @@ export class AppComponent extends BaseClass implements OnInit {
         private _spaces: SpacesService, // For init
         private _cache: SwUpdate,
         private _snackbar: MatSnackBar,
-        private _clipboard: Clipboard,
+        private _clipboard: Clipboard
     ) {
         super();
     }
@@ -82,7 +82,7 @@ export class AppComponent extends BaseClass implements OnInit {
             !!this._settings.get('mock') ||
             location.origin.includes('demo.place.tech');
         /** Wait for authentication details to load */
-        await setupPlace(settings)
+        await setupPlace(settings);
         setupCache(this._cache);
         setInternalUserDomain(
             this._settings.get('app.general.internal_user_domain') ||
@@ -94,9 +94,10 @@ export class AppComponent extends BaseClass implements OnInit {
                 token: token(),
                 endpoint: '/api/files/v1/uploads',
                 worker_url: 'assets/md5_worker.js',
-                providers: [Amazon, Azure, Google, OpenStack] as any
+                providers: [Amazon, Azure, Google, OpenStack] as any,
             });
         });
+
         initSentry(this._settings.get('app.sentry_dsn'));
     }
 }

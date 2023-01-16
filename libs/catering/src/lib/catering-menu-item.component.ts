@@ -31,14 +31,16 @@ import { CateringOption } from './catering.interfaces';
                     </div>
                 </div>
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     [matMenuTriggerFor]="menu"
                     *ngIf="can_edit"
                 >
                     <app-icon>more_vert</app-icon>
                 </button>
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     [disabled]="!item.options.length"
                     (click)="show_options = !show_options"
                 >
@@ -68,7 +70,8 @@ import { CateringOption } from './catering.interfaces';
                     </div>
                     <button
                         edit
-                        mat-icon-button
+                        icon
+                        matRipple
                         class="mx-2"
                         (click)="editOption(option)"
                         *ngIf="can_edit"
@@ -77,7 +80,8 @@ import { CateringOption } from './catering.interfaces';
                     </button>
                     <button
                         remove
-                        mat-icon-button
+                        icon
+                        matRipple
                         class="mx-2"
                         (click)="removeOption(option)"
                         *ngIf="can_edit"

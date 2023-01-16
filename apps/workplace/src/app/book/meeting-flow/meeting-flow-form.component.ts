@@ -56,7 +56,8 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             </div>
                             <div class="flex-1 w-px"></div>
                             <button
-                                mat-icon-button
+                                icon
+                                matRipple
                                 (click)="
                                     hide_block.details = !hide_block.details
                                 "
@@ -97,7 +98,8 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                 {{ 'WPA.AVAILABILITY' | translate }}
                             </button>
                             <button
-                                mat-icon-button
+                                icon
+                                matRipple
                                 (click)="
                                     hide_block.attendees = !hide_block.attendees
                                 "
@@ -132,7 +134,8 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             </div>
                             <div class="flex-1 w-px"></div>
                             <button
-                                mat-icon-button
+                                icon
+                                matRipple
                                 (click)="
                                     hide_block.resources = !hide_block.resources
                                 "
@@ -178,7 +181,8 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             </div>
                             <div class="flex-1 w-px"></div>
                             <button
-                                mat-icon-button
+                                icon
+                                matRipple
                                 (click)="
                                     hide_block.catering = !hide_block.catering
                                 "
@@ -269,7 +273,8 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             </div>
                             <div class="flex-1 w-px"></div>
                             <button
-                                mat-icon-button
+                                icon
+                                matRipple
                                 (click)="hide_block.assets = !hide_block.assets"
                             >
                                 <app-icon>{{
@@ -320,7 +325,8 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                         class="flex flex-col sm:flex-row items-center sm:space-x-2 p-2"
                     >
                         <button
-                            mat-button
+                            btn
+                            matRipple
                             confirm
                             class="mb-2 sm:mb-0 w-full sm:w-auto"
                             (click)="viewConfirm()"
@@ -328,7 +334,8 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             {{ 'WPA.CONFIRM_MEETING' | translate }}
                         </button>
                         <button
-                            mat-button
+                            btn
+                            matRipple
                             clear-form
                             class="inverse w-full sm:w-auto"
                             (click)="clearForm()"

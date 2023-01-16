@@ -59,7 +59,7 @@ import { SettingsService } from '@placeos/common';
                     <mat-checkbox
                         formControlName="all_day"
                         *ngIf="allow_all_day"
-                        class="absolute top-0 right-0"
+                        class="absolute -top-2 right-0"
                     >
                         {{ 'FORM.ALL_DAY' | translate }}
                     </mat-checkbox>

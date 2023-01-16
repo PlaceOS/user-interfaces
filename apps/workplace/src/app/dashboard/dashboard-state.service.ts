@@ -172,8 +172,15 @@ export class DashboardStateService extends BaseClass {
 
     private async updateFreeSpaces() {
         if (!this._org.building) return;
-        const mins = Math.abs(differenceInMinutes(Date.now(), endOfDay(Date.now())));
-        this._event_form.setOptions({ zone_ids: [], capacity: 0, features: [], show_fav: false });
+        const mins = Math.abs(
+            differenceInMinutes(Date.now(), endOfDay(Date.now()))
+        );
+        this._event_form.setOptions({
+            zone_ids: [],
+            capacity: 0,
+            features: [],
+            show_fav: false,
+        });
         this._event_form.form.patchValue({ date: Date.now(), duration: mins });
         const list = await this._event_form.available_spaces
             .pipe(take(1))
@@ -185,7 +192,7 @@ export class DashboardStateService extends BaseClass {
     private async updateUpcomingEvents() {
         const period_start = Math.floor(new Date().valueOf() / 1000);
         const period_end = Math.floor(endOfDay(new Date()).valueOf() / 1000);
-        const events = await (this._settings.get('app.no_user_calendar')
+        const events = await (this._settings.get('app.events.use_bookings')
             ? queryBookings({
                   period_start,
                   period_end,

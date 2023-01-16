@@ -14,7 +14,8 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
             <a
                 button
                 class="clear h-[2.75rem] text-white"
-                mat-button
+                btn
+                matRipple
                 [routerLink]="['/book', 'desks', 'form']"
             >
                 <div class="flex items-center justify-center h-full">
@@ -47,7 +48,9 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
                     [class.!w-full]="hide_map"
                     [class.rounded-tl-lg]="hide_map"
                 >
-                    <div class="py-2 px-4 sticky top-0 inset-x-0 bg-gray-100 dark:bg-neutral-600 border-b border-gray-200 dark:border-neutral-500 z-10">
+                    <div
+                        class="py-2 px-4 sticky top-0 inset-x-0 bg-gray-100 dark:bg-neutral-600 border-b border-gray-200 dark:border-neutral-500 z-10"
+                    >
                         {{ (desks | async)?.length || '0' }} matches available
                     </div>
                     <li
@@ -127,14 +130,14 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
                     </div>
                     <div class="flex items-center space-x-2">
                         <button
-                            mat-button
+                            matRipple
                             class="inverse flex-1"
                             (click)="setActiveDesk(null)"
                         >
                             Clear
                         </button>
                         <button
-                            mat-button
+                            matRipple
                             class="flex-1"
                             (click)="makeBooking()"
                         >

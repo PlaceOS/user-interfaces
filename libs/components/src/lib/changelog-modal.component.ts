@@ -12,7 +12,7 @@ export interface ChangelogModalData {
     template: `
         <header>
             <h3 mat-dialog-title>Changelog</h3>
-            <button mat-icon-button mat-dialog-close>
+            <button icon mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
         </header>

@@ -14,7 +14,7 @@ import { generateUserForm } from './user.utilities';
                 {{ user?.id ? 'Edit' : 'Add' }} External Attendee
             </div>
             <div class="flex-1"></div>
-            <button mat-icon-button mat-dialog-close>
+            <button icon mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
         </header>
@@ -28,8 +28,10 @@ import { generateUserForm } from './user.utilities';
             class="flex items-center justify-center w-full p-2 border-t border-gray-300 space-x-2"
             *ngIf="!loading"
         >
-            <button mat-button class="inverse" mat-dialog-close>Cancel</button>
-            <button mat-button (click)="saveChanges()">Save</button>
+            <button btn matRipple class="inverse" mat-dialog-close>
+                Cancel
+            </button>
+            <button btn matRipple (click)="saveChanges()">Save</button>
         </footer>
         <ng-template #load_state>
             <main class="flex flex-col items-center w-full p-2 space-y-2">
@@ -67,8 +69,7 @@ export class NewUserModalComponent extends BaseClass implements OnInit {
         this.form = generateUserForm(this.user);
     }
 
-    public ngOnInit(): void {
-    }
+    public ngOnInit(): void {}
 
     public saveChanges() {
         if (!this.form) return;
@@ -76,7 +77,7 @@ export class NewUserModalComponent extends BaseClass implements OnInit {
         if (this.form.valid) {
             const new_user = new User({
                 ...this.form.value,
-                is_external: true
+                is_external: true,
             });
             this.event.emit({ reason: 'done', metadata: new_user });
         }

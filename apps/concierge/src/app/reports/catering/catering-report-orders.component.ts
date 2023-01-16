@@ -13,7 +13,7 @@ import { CateringReportStateService } from './catering-report-state.service';
             >
                 <h2 class="py-2 text-xl font-medium">Orders</h2>
                 <button
-                    mat-button-icon
+                    matRipple-icon
                     (click)="download()"
                     matTooltip="Download list"
                 >
@@ -37,7 +37,7 @@ import { CateringReportStateService } from './catering-report-state.service';
                 {{ data | date }} at {{ data | date: 'shortTime' }}
             </ng-template>
             <ng-template #cost_state let-data="data">
-                {{ data / 100 | currency:code }}
+                {{ data / 100 | currency: code }}
             </ng-template>
         </div>
     `,
@@ -50,7 +50,10 @@ export class CateringReportOrdersComponent {
         return this._org.currency_code;
     }
 
-    constructor(private _report: CateringReportStateService, private _org: OrganisationService) {}
+    constructor(
+        private _report: CateringReportStateService,
+        private _org: OrganisationService
+    ) {}
 
     public readonly download = () => this._report.downloadOrders();
 }

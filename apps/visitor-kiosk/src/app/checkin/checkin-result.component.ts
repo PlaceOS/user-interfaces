@@ -26,7 +26,8 @@ import { CheckinStateService } from './checkin-state.service';
             </p>
             <a
                 button
-                mat-button
+                btn
+                matRipple
                 class="w-32"
                 [routerLink]="['/checkin', 'preferences']"
             >

@@ -18,7 +18,7 @@ export interface BannerDetails {
             *ngIf="!has_viewed"
         >
             <div class="flex-1">{{ banner?.content }}</div>
-            <button mat-icon-button (click)="close()">
+            <button icon (click)="close()">
                 <app-icon>close</app-icon>
             </button>
         </div>

@@ -20,7 +20,11 @@ import { CateringStateService } from './catering-state.service';
                     </ng-container>
                 </ng-container>
             </mat-tab>
-            <mat-tab *ngFor="let group of categories" [label]="group">
+            <mat-tab
+                *ngFor="let group of categories"
+                [attr.label]="group"
+                [label]="group"
+            >
                 <ng-container *ngFor="let item of (tab_menu | async)[group]">
                     <div catering-menu-item [item]="item"></div>
                 </ng-container>

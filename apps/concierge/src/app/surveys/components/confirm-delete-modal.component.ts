@@ -10,7 +10,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
             >
             <div class="button-wrapper">
                 <button
-                    mat-button
+                    matRipple
                     (click)="cancel()"
                     class="cancel-button"
                     aria-label="do not delete survey"

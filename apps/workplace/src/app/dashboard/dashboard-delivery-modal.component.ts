@@ -7,7 +7,7 @@ import { DialogEvent } from '@placeos/common';
     template: `
         <header class="flex items-center justify-between">
             <h3>Register Delivery</h3>
-            <button mat-icon-button mat-dialog-close>
+            <button icon mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
         </header>
@@ -60,7 +60,7 @@ import { DialogEvent } from '@placeos/common';
         <footer
             class="p-2 flex items-center justify-center border-t border-gray-100"
         >
-            <button mat-button class="w-32" (click)="register()">
+            <button btn matRipple class="w-32" (click)="register()">
                 Register
             </button>
         </footer>

@@ -11,15 +11,13 @@ import { Booking } from './booking.class';
 @Component({
     selector: 'booking-link-modal',
     template: `
-        <div class="p-4 w-full pb-2">
-            Add event to your calendar
-        </div>
+        <div class="p-4 w-full pb-2">Add event to your calendar</div>
         <div class="flex flex-col items-center space-y-4 p-4 relative">
             <a
                 button
                 matRipple
                 class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
-                [href]="outlook_link | sanitize:'url'"
+                [href]="outlook_link | sanitize: 'url'"
                 target="_blank"
                 rel="noopener noreferer"
             >
@@ -30,7 +28,7 @@ import { Booking } from './booking.class';
                 button
                 matRipple
                 class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
-                [href]="google_link | sanitize:'url'"
+                [href]="google_link | sanitize: 'url'"
                 target="_blank"
                 rel="noopener noreferer"
             >
@@ -41,7 +39,7 @@ import { Booking } from './booking.class';
                 button
                 matRipple
                 class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
-                [href]="ical_link | safe:'url'"
+                [href]="ical_link | safe: 'url'"
                 target="_blank"
                 rel="noopener noreferer"
             >
@@ -49,7 +47,7 @@ import { Booking } from './booking.class';
                 <span i18n>Download iCal File</span>
             </a>
         </div>
-        <button mat-icon-button mat-dialog-close class="absolute top-2 right-0">
+        <button icon mat-dialog-close class="absolute top-2 right-0">
             <app-icon>close</app-icon>
         </button>
     `,

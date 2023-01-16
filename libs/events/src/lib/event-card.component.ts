@@ -5,7 +5,7 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
 import { BaseClass } from '@placeos/common';
 
 import { CalendarEvent } from './event.class';
-import { EventDetailsModalComponent } from './event-details-modal.component'
+import { EventDetailsModalComponent } from './event-details-modal.component';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 @Component({
@@ -17,7 +17,7 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
             <span class="text-xs px-2">({{ event?.date | date: 'z' }})</span>
         </h4>
         <a
-            matRippleColor
+            matRipple
             details
             class="w-full"
             [routerLink]="['./']"
@@ -186,17 +186,20 @@ export class EventCardComponent extends BaseClass {
     }
 
     public get location() {
+        const zone_list: string[] =
+            this.event?.space?.zones ||
+            (this.event?.system?.zones as any) ||
+            [];
         const zone =
-            this._org.levelWithID(this.event.space?.zones) ||
-            this._org.buildings.find((_) =>
-                this.event.space?.zones.includes(_.id)
-            );
+            this._org.levelWithID(zone_list) ||
+            this._org.buildings.find((_) => zone_list.includes(_.id));
         return `${zone ? (zone.display_name || zone.name) + ', ' : ''} ${
             this.event.space?.display_name || this.event.space?.name
         }`;
     }
 
     public get period() {
+        if (this.event?.all_day) return 'All Day';
         const start = this.event?.date || Date.now();
         const duration = this.event?.duration || 60;
         const end = addMinutes(start, duration);
@@ -211,10 +214,18 @@ export class EventCardComponent extends BaseClass {
 
     public viewDetails() {
         if (!this.event) return;
-        this.timeout('open', () =>{
-            const ref = this._dialog.open(EventDetailsModalComponent, { data: this.event });
-            this.subscription('edit', ref.componentInstance.edit.subscribe(() => this.edit.emit()));
-            this.subscription('remove', ref.componentInstance.remove.subscribe(() => this.remove.emit()));
+        this.timeout('open', () => {
+            const ref = this._dialog.open(EventDetailsModalComponent, {
+                data: this.event,
+            });
+            this.subscription(
+                'edit',
+                ref.componentInstance.edit.subscribe(() => this.edit.emit())
+            );
+            this.subscription(
+                'remove',
+                ref.componentInstance.remove.subscribe(() => this.remove.emit())
+            );
         });
     }
 }

@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
-import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import {
+    MatBottomSheet,
+    MatBottomSheetRef,
+} from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
 import { currentUser, getInvalidFields, notifyError } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
@@ -9,14 +12,28 @@ import { MeetingFlowConfirmComponent } from 'apps/workplace/src/app/book/meeting
     selector: 'meeting-booking',
     template: `
         <div class="absolute inset-0 bg-gray-200 dark:bg-neutral-600">
-            <div class="mx-auto w-full max-w-[32rem] overflow-auto max-h-screen">
+            <div
+                class="mx-auto w-full max-w-[32rem] overflow-auto max-h-screen"
+            >
                 <h3 class="text-2xl p-4 font-medium">Book Meeting</h3>
                 <meeting-booking-form></meeting-booking-form>
-                <div class="flex flex-col p-4 space-y-2 border-t border-gray-200 dark:border-neutral-500">
-                    <button mat-button class="w-full" (click)="makeBooking()">
+                <div
+                    class="flex flex-col p-4 space-y-2 border-t border-gray-200 dark:border-neutral-500"
+                >
+                    <button
+                        btn
+                        matRipple
+                        class="w-full"
+                        (click)="makeBooking()"
+                    >
                         Book Meeting
                     </button>
-                    <button mat-button class="w-full inverse" (click)="clearForm()">
+                    <button
+                        btn
+                        matRipple
+                        class="w-full inverse"
+                        (click)="clearForm()"
+                    >
                         Clear Form
                     </button>
                 </div>
@@ -26,7 +43,6 @@ import { MeetingFlowConfirmComponent } from 'apps/workplace/src/app/book/meeting
     styles: [``],
 })
 export class MeetingBookingComponent {
-
     public sheet_ref: MatBottomSheetRef;
 
     public readonly clearForm = () => this._service.clearForm();
@@ -35,10 +51,15 @@ export class MeetingBookingComponent {
         return this._service.form;
     }
 
-    constructor(private _service: EventFormService, private _router: Router, private _bottom_sheet: MatBottomSheet) {}
+    constructor(
+        private _service: EventFormService,
+        private _router: Router,
+        private _bottom_sheet: MatBottomSheet
+    ) {}
 
     public makeBooking() {
-        if (!this.form.value.host) this.form.patchValue({ host: currentUser()?.email });
+        if (!this.form.value.host)
+            this.form.patchValue({ host: currentUser()?.email });
         if (!this.form.valid)
             return notifyError(
                 `Some fields are invalid. [${getInvalidFields(this.form).join(
@@ -53,5 +74,5 @@ export class MeetingBookingComponent {
                 this._service.setView('success');
             }
         });
-    };
+    }
 }

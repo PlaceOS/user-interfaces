@@ -113,12 +113,12 @@ export class CateringOrderStateService {
                     ? l.filter((_) => _.name.toLowerCase().includes(search))
                     : l;
                 list = tags.length
-                    ? l.filter((_) => tags.every((t) => _.tags.includes(t)))
+                    ? list.filter((_) => tags.every((t) => _.tags.includes(t)))
                     : list;
                 list = categories.length
-                    ? l.filter((_) => categories.includes(_.category))
+                    ? list.filter((_) => categories.includes(_.category))
                     : list;
-                list = l.filter((_) =>
+                list = list.filter((_) =>
                     cateringItemAvailable(_, rules, {
                         date,
                         duration,

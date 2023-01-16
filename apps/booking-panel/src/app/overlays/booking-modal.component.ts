@@ -21,7 +21,7 @@ export async function openBookingModal(
 ) {
     const ref = dialog.open(BookingModalComponent, {
         data,
-        autoFocus: false
+        autoFocus: false,
     });
     const result = await Promise.race([
         ref.componentInstance.event
@@ -87,14 +87,14 @@ export async function openBookingModal(
             class="flex items-center justify-center p-2 w-full border-t border-gray-200 space-x-2"
         >
             <button
-                mat-button
+                matRipple
                 name="close"
                 class="inverse w-32"
                 mat-dialog-close
             >
                 Cancel
             </button>
-            <button mat-button name="save" class="w-32" (click)="save()">
+            <button btn matRipple name="save" class="w-32" (click)="save()">
                 Save
             </button>
         </footer>

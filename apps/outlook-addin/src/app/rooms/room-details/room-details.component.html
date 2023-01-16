@@ -19,7 +19,8 @@
         <div (click)="selectRoom()" class="w-max-[375px]">
             <button
                 *ngIf="room_added == false"
-                mat-button
+                btn
+                matRipple
                 class="bg-secondary border-secondary w-full mx-auto m-3"
             >
                 <span class="text-white">+ Add this room</span>
@@ -27,7 +28,8 @@
 
             <button
                 *ngIf="room_added == true"
-                mat-button
+                btn
+                matRipple
                 class="bg-gray-300 border-gray-300 w-full mx-auto m-3"
             >
                 <span class="text-black">- Remove this room</span>
@@ -106,7 +108,8 @@
     >
         <button
             *ngIf="!room_added"
-            mat-button
+            btn
+            matRipple
             class="bg-white border-secondary w-full mx-auto"
             (click)="back()"
         >
@@ -114,7 +117,8 @@
         </button>
         <button
             *ngIf="room_added"
-            mat-button
+            btn
+            matRipple
             class="bg-secondary border-secondary w-full mx-auto"
             (click)="back()"
         >

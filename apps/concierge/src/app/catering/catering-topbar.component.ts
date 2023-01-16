@@ -4,7 +4,11 @@ import { first } from 'rxjs/operators';
 
 import { BaseClass } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { CateringOrdersService, CateringStateService, ChargeCodeListModalComponent } from '@placeos/catering';
+import {
+    CateringOrdersService,
+    CateringStateService,
+    ChargeCodeListModalComponent,
+} from '@placeos/catering';
 import { CateringRoomsStateModalComponent } from 'libs/catering/src/lib/catering-rooms-state-modal.component';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -20,11 +24,7 @@ import { MatDialog } from '@angular/material/dialog';
                     (ngModelChange)="updateZones([$event])"
                     placeholder="All Levels"
                 >
-                    <mat-option
-                        [value]="building?.id"
-                    >
-                        All Levels
-                    </mat-option>
+                    <mat-option [value]="building?.id"> All Levels </mat-option>
                     <mat-option
                         *ngFor="let level of levels | async"
                         [value]="level.id"
@@ -33,19 +33,46 @@ import { MatDialog } from '@angular/material/dialog';
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-            <button *ngIf="page === 'menu' && (!zones[0] || zones[0] === building?.id)" mat-button (click)="addItem()">
+            <button
+                *ngIf="
+                    page === 'menu' && (!zones[0] || zones[0] === building?.id)
+                "
+                btn
+                matRipple
+                (click)="addItem()"
+            >
                 Add Item
             </button>
-            <button *ngIf="page === 'menu'" mat-button (click)="editConfig()">
+            <button
+                *ngIf="page === 'menu'"
+                btn
+                matRipple
+                (click)="editConfig()"
+            >
                 Edit Config
             </button>
-            <button *ngIf="page === 'menu'" mat-button (click)="importMenu()">
+            <button
+                *ngIf="page === 'menu'"
+                btn
+                matRipple
+                (click)="importMenu()"
+            >
                 Import Menu
             </button>
-            <button *ngIf="page === 'menu'" mat-button (click)="setRoomAvailability()">
+            <button
+                *ngIf="page === 'menu'"
+                btn
+                matRipple
+                (click)="setRoomAvailability()"
+            >
                 Room Availability
             </button>
-            <button *ngIf="page === 'menu'" mat-button (click)="setChargeCodes()">
+            <button
+                *ngIf="page === 'menu'"
+                btn
+                matRipple
+                (click)="setChargeCodes()"
+            >
                 Charge Codes
             </button>
             <div class="flex-1 w-2"></div>
@@ -68,7 +95,9 @@ export class CateringTopbarComponent extends BaseClass implements OnInit {
     /** Currently active page */
     public page: string;
     /** Active Building */
-    public get building() { return this._org.building; }
+    public get building() {
+        return this._org.building;
+    }
     /** List of levels for the active building */
     public readonly levels = this._org.active_levels;
     /** Set filtered date */
@@ -101,7 +130,8 @@ export class CateringTopbarComponent extends BaseClass implements OnInit {
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
-        this._catering.zone = (this._orders.filters?.zones || [])[0] || this._org.building?.id;
+        this._catering.zone =
+            (this._orders.filters?.zones || [])[0] || this._org.building?.id;
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {

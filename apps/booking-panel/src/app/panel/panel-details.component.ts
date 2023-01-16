@@ -21,7 +21,8 @@ import { PanelStateService } from '../panel-state.service';
         >
             <button
                 event
-                mat-button
+                btn
+                matRipple
                 class="w-48"
                 *ngIf="!(options | async)?.disable_book_now"
                 (click)="newEvent()"
@@ -33,7 +34,8 @@ import { PanelStateService } from '../panel-state.service';
             </button>
             <button
                 control
-                mat-button
+                btn
+                matRipple
                 class="w-48"
                 *ngIf="(options | async)?.control_ui"
                 (click)="viewControl()"
@@ -45,7 +47,8 @@ import { PanelStateService } from '../panel-state.service';
             </button>
             <button
                 waiter
-                mat-button
+                btn
+                matRipple
                 class="w-48"
                 *ngIf="(options | async)?.catering_ui"
                 (click)="callWaiter()"

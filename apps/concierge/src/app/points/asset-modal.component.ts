@@ -147,7 +147,12 @@ import { DesksStateService } from '../desks/desks-state.service';
                             ></a-counter>
                         </div>
                     </div>
-                    <button mat-button class="clear w-full" (click)="newRule()">
+                    <button
+                        btn
+                        matRipple
+                        class="clear w-full"
+                        (click)="newRule()"
+                    >
                         <div class="flex items-center justify-center w-full">
                             <app-icon class="text-lg">add</app-icon>
                             <span class="underline">Add new rule</span>
@@ -178,11 +183,11 @@ import { DesksStateService } from '../desks/desks-state.service';
         <footer
             class="flex items-center justify-center p-2 space-x-2 border-t border-gray-200"
         >
-            <button mat-button mat-dialog-close class="inverse flex-1">
+            <button btn matRipple mat-dialog-close class="inverse flex-1">
                 Cancel
             </button>
             <button
-                mat-button
+                matRipple
                 class="flex-1"
                 [disabled]="!form.value.name"
                 (click)="save()"
@@ -244,10 +249,13 @@ export class PointsAssetModalComponent extends BaseClass {
     ) {
         super();
         this._desks.setFilters({ zones: ['All'] });
-        this.subscription('type_change', this.form.get('type').valueChanges.subscribe((v) => {
-            const field = this.form.get('name');
-            v ? field.enable() : field.disable()
-        }));
+        this.subscription(
+            'type_change',
+            this.form.get('type').valueChanges.subscribe((v) => {
+                const field = this.form.get('name');
+                v ? field.enable() : field.disable();
+            })
+        );
     }
 
     public renderPrice(value: number = 0) {

@@ -29,7 +29,8 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
             >
                 <button
                     class="sm:flex-1 w-full sm:w-auto h-[2.75rem] inverse"
-                    mat-button
+                    btn
+                    matRipple
                     clear
                     (click)="clearForm()"
                 >
@@ -42,7 +43,8 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
                 </button>
                 <button
                     class="sm:flex-1 w-full sm:w-auto h-[2.75rem]"
-                    mat-button
+                    btn
+                    matRipple
                     find-space
                     (click)="findSpace()"
                 >
@@ -55,7 +57,8 @@ import { addDays, addMinutes, roundToNearestMinutes, setHours } from 'date-fns';
                 </button>
                 <button
                     class="sm:flex-1 w-full sm:w-auto h-[2.75rem]"
-                    mat-button
+                    btn
+                    matRipple
                     standalone
                     *ngIf="is_edit || allow_standalone_bookings"
                     (click)="confirmBooking()"
@@ -135,7 +138,8 @@ export class SpaceFlowFormComponent {
     ) {}
 
     public quickBook() {
-        if (!this.form.value.host) this.form.patchValue({ host: currentUser()?.email });
+        if (!this.form.value.host)
+            this.form.patchValue({ host: currentUser()?.email });
         this.form.patchValue({
             date: (this.time < 24 * 60
                 ? addMinutes(
@@ -152,7 +156,8 @@ export class SpaceFlowFormComponent {
 
     public findSpace() {
         this.form.markAllAsTouched();
-        if (!this.form.value.host) this.form.patchValue({ host: currentUser()?.email });
+        if (!this.form.value.host)
+            this.form.patchValue({ host: currentUser()?.email });
         if (!this.form.valid)
             return notifyError(
                 `Some fields are invalid. [${getInvalidFields(this.form).join(
@@ -163,7 +168,8 @@ export class SpaceFlowFormComponent {
     }
 
     public confirmBooking() {
-        if (!this.form.value.host) this.form.patchValue({ host: currentUser()?.email });
+        if (!this.form.value.host)
+            this.form.patchValue({ host: currentUser()?.email });
         this.form.markAllAsTouched();
         if (!this.form.valid)
             return notifyError(

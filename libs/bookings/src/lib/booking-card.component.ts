@@ -16,7 +16,7 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
             <span class="text-xs px-2">({{ booking?.date | date: 'z' }})</span>
         </h4>
         <a
-            matRippleColor
+            matRipple
             details
             class="w-full"
             [routerLink]="['./']"
@@ -153,6 +153,7 @@ export class BookingCardComponent extends BaseClass {
     }
 
     public get period() {
+        if (this.booking?.all_day) return 'All Day';
         const start = this.booking?.date || Date.now();
         const duration = this.booking?.duration || 60;
         const end = addMinutes(start, duration);
@@ -167,12 +168,18 @@ export class BookingCardComponent extends BaseClass {
 
     public viewDetails() {
         if (!this.booking) return;
-        this.timeout('open', () =>{
+        this.timeout('open', () => {
             const ref = this._dialog.open(BookingDetailsModalComponent, {
                 data: this.booking,
-            })
-            this.subscription('edit', ref.componentInstance.edit.subscribe(() => this.edit.emit()));
-            this.subscription('remove', ref.componentInstance.remove.subscribe(() => this.remove.emit()));
-       } );
+            });
+            this.subscription(
+                'edit',
+                ref.componentInstance.edit.subscribe(() => this.edit.emit())
+            );
+            this.subscription(
+                'remove',
+                ref.componentInstance.remove.subscribe(() => this.remove.emit())
+            );
+        });
     }
 }

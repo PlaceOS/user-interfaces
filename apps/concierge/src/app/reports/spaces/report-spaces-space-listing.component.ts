@@ -15,8 +15,8 @@ import { ReportsStateService } from '../reports-state.service';
             <div
                 class="border-b border-gray-300 dark:border-neutral-500 px-4 py-2 flex items-center"
             >
-                <h3 class="font-bold text-xl flex-1">Space Utilisation</h3>
-                <button mat-icon-button (click)="download()">
+                <h3 class="font-bold text-xl flex-1">Room Utilisation</h3>
+                <button icon (click)="download()">
                     <app-icon>download</app-icon>
                 </button>
             </div>
@@ -25,6 +25,7 @@ import { ReportsStateService } from '../reports-state.service';
                 [pagination]="true"
                 [columns]="column_list | async"
                 [display_column]="column_name_list | async"
+                [column_size]="['flex']"
             ></custom-table>
         </div>
     `,
@@ -58,18 +59,34 @@ export class ReportSpacesSpaceListing {
                             count: 0,
                             attendance: 0,
                             avg_attendance: 0,
+                            min_attendance: 99,
+                            max_attendance: 0,
                             attendees: 0,
                             avg_attendees: 0,
                             usage: 0,
+                            no_shows: 0,
                             utilisation: 0,
                             occupancy: 0,
                         };
                         if (!details.id || !details.name) continue;
                         list.push(details);
                     }
+                    if (booking.extension_data?.people_count?.max === 0) {
+                        details.no_shows += 1;
+                    }
                     details.count += 1;
                     details.attendance +=
                         booking.extension_data?.people_count?.max ?? 0;
+                    details.avg_attendance +=
+                        booking.extension_data?.people_count?.avg ?? 0;
+                    details.min_attendance = Math.min(
+                        details.max_attendance,
+                        booking.extension_data?.people_count?.max ?? 99
+                    );
+                    details.max_attendance = Math.max(
+                        details.max_attendance,
+                        booking.extension_data?.people_count?.max ?? 0
+                    );
                     details.usage += booking.duration;
                     details.attendees += booking.attendees.length;
                     has_attendance =
@@ -85,14 +102,14 @@ export class ReportSpacesSpaceListing {
                     Math.floor((space.attendees / space.count) * 100) / 100;
                 space.avg_attendance =
                     Math.floor((space.attendance / space.count) * 100) / 100;
-                space.utilisation = `${
-                    Math.floor(
-                        (space.usage / 60 / 8 / period_in_days) * 10000
-                    ) / 100
-                }%`;
+                space.utilisation = `${Math.floor(
+                    (space.usage / 60 / 8 / period_in_days) * 100
+                )}%`;
+                space.min_attendance =
+                    space.min_attendance === 99 ? '?' : space.min_attendance;
                 space.occupancy = `${
-                    Math.floor((space.avg_attendees / space.capacity) * 10000) /
-                    100
+                    Math.floor((space.avg_attendees / space.capacity) * 1000) /
+                    10
                 }%`;
                 if (space.attendance < 0 || !has_attendance) {
                     space.attendance = '?';
@@ -110,23 +127,18 @@ export class ReportSpacesSpaceListing {
     public readonly column_list = this.has_attendance.pipe(
         map((_) =>
             !_
-                ? [
-                      'name',
-                      'capacity',
-                      'count',
-                      'utilisation',
-                      'avg_attendees',
-                      'occupancy',
-                  ]
+                ? ['name', 'capacity', 'count', 'utilisation', 'avg_attendees']
                 : [
                       'name',
                       'capacity',
                       'count',
                       'utilisation',
                       'avg_attendees',
-                      'occupancy',
                       'attendance',
                       'avg_attendance',
+                      'no_shows',
+                      'min_attendance',
+                      'max_attendance',
                   ]
         )
     );
@@ -139,7 +151,6 @@ export class ReportSpacesSpaceListing {
                       'Bookings',
                       '% Time booked during office hrs',
                       'Avg. invitees per booking',
-                      'Occupancy',
                   ]
                 : [
                       'Name',
@@ -147,9 +158,11 @@ export class ReportSpacesSpaceListing {
                       'Bookings',
                       '% Time booked during office hrs',
                       'Avg. invitees per booking',
-                      'Occupancy',
                       'Total In-room Attendance',
                       'Avg. In-room Attendance',
+                      'No Shows',
+                      'Min. In-room Attendance',
+                      'Max. In-room Attendance',
                   ]
         )
     );

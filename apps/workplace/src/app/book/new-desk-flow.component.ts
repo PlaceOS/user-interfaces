@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import { BaseClass } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { Desk, OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
 
 @Component({
@@ -59,9 +59,20 @@ export class NewDeskFlowComponent extends BaseClass implements OnInit {
         );
         this.subscription(
             'route.query',
-            this._route.queryParamMap.subscribe((param) => {
-                if (param.has('success'))
-                    this._state.setView(param.get('success') as any);
+            this._route.queryParamMap.subscribe((params) => {
+                if (params.has('success')) {
+                    this._state.setView(params.get('success') as any);
+                }
+                if (params.has('asset_id')) {
+                    this._state.form.patchValue({
+                        resources: [
+                            new Desk({
+                                id: params.get('asset_id'),
+                                name: params.get('asset_id'),
+                            }),
+                        ],
+                    });
+                }
             })
         );
     }

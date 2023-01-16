@@ -29,7 +29,7 @@ import {
     queryEvents,
 } from '@placeos/events';
 import { showSystem } from '@placeos/ts-client';
-import { addMinutes, getUnixTime } from 'date-fns';
+import { addMinutes, endOfDay, getUnixTime } from 'date-fns';
 import QrScanner from 'qr-scanner';
 
 @Component({
@@ -90,7 +90,7 @@ import QrScanner from 'qr-scanner';
                     class="m-4 p-2 flex items-center space-x-2 bg-white bg-opacity-50 rounded"
                 >
                     <button
-                        mat-button
+                        matRipple
                         [class]="
                             'flex-1 text-black border-none w-40 ' +
                             (is_scanning
@@ -102,7 +102,7 @@ import QrScanner from 'qr-scanner';
                         Scan Code
                     </button>
                     <button
-                        mat-button
+                        matRipple
                         [class]="
                             'flex-1 text-black border-none w-40 ' +
                             (!is_scanning
@@ -133,6 +133,7 @@ import QrScanner from 'qr-scanner';
                 height: 100vh;
                 display: flex;
                 flex-direction: column;
+                background: #f0f0f0;
             }
 
             [box] {
@@ -248,23 +249,16 @@ export class BookCodeFlowComponent
         type: BookingType = 'desk'
     ) {
         this.loading = true;
-        const bookings = await queryBookings({
+        let bookings = await queryBookings({
             period_start: getUnixTime(Date.now()),
             period_end: getUnixTime(addMinutes(Date.now(), 5)),
             type,
+            email: currentUser().email,
         })
             .toPromise()
             .catch((_) => [] as Booking[]);
         const item = bookings.find((_) => _.asset_id === asset_id);
         if (item) {
-            if (
-                item.booked_by_email.toLowerCase() === currentUser().email ||
-                item.user_email.toLowerCase() === currentUser().email
-            ) {
-                return notifyError(
-                    `Resource is booked by another user "${asset_id}"`
-                );
-            }
             await checkinBooking(item.id, true)
                 .toPromise()
                 .catch((_) => {
@@ -275,11 +269,40 @@ export class BookCodeFlowComponent
                     throw _;
                 });
             this._router.navigate(['/book', 'code', 'success']);
-            this.loading = false;
         } else {
+            bookings = await queryBookings({
+                period_start: getUnixTime(Date.now()),
+                period_end: getUnixTime(endOfDay(Date.now())),
+                type,
+            })
+                .toPromise()
+                .catch((_) => [] as Booking[]);
+            let item = bookings.find((_) => _.asset_id === asset_id);
+            if (item) {
+                this._router.navigate(['/book', 'code', 'error'], {
+                    queryParams: { type: 'not_started', asset_id },
+                });
+                return;
+            }
+            bookings = await queryBookings({
+                period_start: getUnixTime(Date.now()),
+                period_end: getUnixTime(addMinutes(Date.now(), 5)),
+                type,
+            })
+                .toPromise()
+                .catch((_) => [] as Booking[]);
+            item = bookings.find((_) => _.asset_id === asset_id);
+            if (item) {
+                this._router.navigate(['/book', 'code', 'error'], {
+                    queryParams: { type: 'wrong_resource', asset_id },
+                });
+                return;
+            }
+            this._router.navigate(['/book', 'code', 'error'], {
+                queryParams: { type: 'no_booking', asset_id },
+            });
             this._booking_form.newForm(new Booking({ asset_id, type }));
             this._booking_form.setOptions({ type });
-            this._router.navigate(['/book', 'newdesk']);
         }
         this.loading = false;
     }

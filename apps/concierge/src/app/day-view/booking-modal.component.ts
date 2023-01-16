@@ -14,7 +14,7 @@ export interface BookingModalData {
         <header>
             <h2>New Booking</h2>
             <div class="flex-1 w-0"></div>
-            <button mat-icon-button mat-dialog-close>
+            <button icon mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
         </header>
@@ -28,7 +28,7 @@ export interface BookingModalData {
             *ngIf="!(loading | async)"
             class="flex justify-center items-center p-2 border-t border-gray-200"
         >
-            <button mat-button (click)="save()">Save</button>
+            <button btn matRipple (click)="save()">Save</button>
         </footer>
         <ng-template #load_state>
             <main

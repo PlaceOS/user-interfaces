@@ -17,12 +17,12 @@ export interface ExploreBookingModalData {
         <header>
             <h2 i18n>New Booking</h2>
             <div class="flex-1"></div>
-            <button *ngIf="!(loading | async)" mat-icon-button mat-dialog-close>
+            <button *ngIf="!(loading | async)" icon matRipple mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
         </header>
         <ng-container *ngIf="!(loading | async); else load_state">
-            <main *ngIf="form" [formGroup]="form" class="p-4">
+            <main *ngIf="form" [formGroup]="form" class="p-4 max-w-[85vw]">
                 <div class="flex flex-col">
                     <label for="title">Title<span>*</span>:</label>
                     <mat-form-field appearance="outline">
@@ -52,18 +52,24 @@ export interface ExploreBookingModalData {
                             {{ form.controls.date?.value | date: 'medium' }}
                         </div>
                     </div>
-                    <div class="flex flex-col" *ngIf="form.controls.duration">
+                    <div
+                        class="flex flex-col w-full sm:w-auto"
+                        *ngIf="form.controls.duration"
+                    >
                         <label i18n>Duration:</label>
                         <a-duration-field
                             formControlName="duration"
                             [time]="form.value.date"
                             [max]="max_duration"
+                            class="w-full"
                         ></a-duration-field>
                     </div>
                 </div>
             </main>
             <footer class="flex justify-center p-2 border-t border-gray-200">
-                <button mat-button (click)="save()" i18n>Save</button>
+                <button btn matRipple class="w-32" (click)="save()" i18n>
+                    Save
+                </button>
             </footer>
         </ng-container>
         <ng-template #load_state>

@@ -20,7 +20,7 @@ export interface DeskConfirmModalData {
         <header>
             <h2 i18n>Confirm Booking</h2>
             <div class="flex-1"></div>
-            <button mat-icon-button mat-dialog-close *ngIf="!loading">
+            <button icon mat-dialog-close *ngIf="!loading">
                 <i class="material-icons">close</i>
             </button>
         </header>
@@ -59,7 +59,7 @@ export interface DeskConfirmModalData {
                 </p>
             </main>
             <footer class="flex items-center justify-center p-2">
-                <button mat-button (click)="confirm()" i18n>Confirm</button>
+                <button btn matRipple (click)="confirm()" i18n>Confirm</button>
             </footer>
         </ng-container>
         <ng-template #load_state>

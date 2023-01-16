@@ -11,10 +11,7 @@ import { PaymentModalComponent } from './payment-modal.component';
 import { CardInputFieldComponent } from './card-input-field.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-const COMPONENTS = [
-    PaymentModalComponent, 
-    CardInputFieldComponent
-];
+const COMPONENTS = [PaymentModalComponent, CardInputFieldComponent];
 
 @NgModule({
     declarations: [...COMPONENTS],
@@ -27,7 +24,7 @@ const COMPONENTS = [
         ReactiveFormsModule,
         MatButtonModule,
         MatSelectModule,
-        MatProgressSpinnerModule
+        MatProgressSpinnerModule,
     ],
     exports: [...COMPONENTS],
 })

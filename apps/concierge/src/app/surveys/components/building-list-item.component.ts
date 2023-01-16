@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { Building } from '@placeos/organisation';
 import { BuildingsService } from '../services/buildings.service';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -6,7 +6,9 @@ import { Router, ActivatedRoute } from '@angular/router';
 @Component({
     selector: 'building-list-item',
     template: `
-        <div class="building-wrapper bg-white my-4 mx-auto">
+        <section
+            class="building-wrapper bg-white my-4 mx-auto rounded-md overflow-hidden"
+        >
             <div
                 class="options"
                 [matMenuTriggerFor]="optionsMenu"
@@ -64,7 +66,7 @@ import { Router, ActivatedRoute } from '@angular/router';
                     </div>
                 </button>
             </div>
-        </div>
+        </section>
     `,
     styles: [
         `
@@ -78,7 +80,6 @@ import { Router, ActivatedRoute } from '@angular/router';
                 max-width: 68rem;
                 border: 1px solid #e6e6e6;
                 box-shadow: 0px 2px 4px rgba(5, 28, 44, 0.1);
-                border-radius: 6px;
             }
             .options {
                 display: flex;

@@ -9,11 +9,12 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
             <div
                 class="flex items-center border-b border-gray-200 dark:border-neutral-500 p-2"
             >
-                <button close mat-icon-button (click)="close.emit()">
+                <button close icon matRipple (click)="close.emit()">
                     <app-icon>arrow_back</app-icon>
                 </button>
                 <div class="flex-1 text-center pr-12 font-medium" i18n>
-                    {{ list.length }} { list.length, plural, =1 { Attendee } other { Attendees } }
+                    {{ list.length }} { list.length, plural, =1 { Attendee }
+                    other { Attendees } }
                 </div>
             </div>
             <div class="flex-1 w-full overflow-auto">

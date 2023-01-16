@@ -60,7 +60,7 @@ describe('WFHSettingsModalComponent', () => {
     it('should allow selected default WFH option for weekdays', () => {
         expect('mat-checkbox').toExist();
         expect(spectator.component.settings[1]).toBeTruthy();
-        spectator.click('mat-checkbox .mat-checkbox-inner-container');
+        spectator.click('mat-checkbox input');
         expect(spectator.component.settings[1]).toBeFalsy();
     });
 

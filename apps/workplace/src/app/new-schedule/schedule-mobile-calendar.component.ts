@@ -34,7 +34,8 @@ import {
             </div>
             <div class="flex items-center justify-between flex-wrap">
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     class="min-w-[calc(14%-1rem)] flex-1 mx-2"
                     *ngFor="let day of list"
                     [class.text-opacity-30]="!day.is_month"
@@ -61,7 +62,8 @@ import {
     ],
 })
 export class ScheduleMobileCalendarComponent
-    implements OnInit, ControlValueAccessor {
+    implements OnInit, ControlValueAccessor
+{
     public active_date = startOfDay(Date.now()).valueOf();
     public offset = 0;
     public date_list = [];

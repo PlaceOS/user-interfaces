@@ -37,7 +37,7 @@ export interface SpaceSelectModalData {
             <div class="text-xl font-semibold flex-1">
                 Select space{{ multiple ? 's' : '' }}
             </div>
-            <button mat-icon-button mat-dialog-close>
+            <button icon mat-dialog-close>
                 <app-icon class="text-3xl">close</app-icon>
             </button>
         </header>
@@ -113,7 +113,7 @@ export interface SpaceSelectModalData {
                 </div>
             </div>
             <footer *ngIf="multiple">
-                <button mat-button (click)="save()">
+                <button btn matRipple (click)="save()">
                     Save selected spaces({{ spaces.length || '0' }})
                 </button>
             </footer>

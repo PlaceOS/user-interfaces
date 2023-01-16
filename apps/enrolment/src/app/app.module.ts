@@ -20,6 +20,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { PaymentsModule } from '@placeos/payments';
 import { AssetsModule } from '@placeos/assets';
+import { SharedSpacesModule } from '@placeos/spaces';
 
 const ROUTES: Route[] = [
     { path: '', component: EnrolmentComponent },
@@ -33,7 +34,7 @@ const ROUTES: Route[] = [
         EnrolmentComponent,
         EnrolmentEventDetailsComponent,
         EnrolmentGuestConfirmComponent,
-        EnrolmentErrorComponent
+        EnrolmentErrorComponent,
     ],
     imports: [
         BrowserModule,
@@ -46,6 +47,7 @@ const ROUTES: Route[] = [
         BrowserAnimationsModule,
         PaymentsModule,
         AssetsModule,
+        SharedSpacesModule,
         RouterModule.forRoot(ROUTES, {
             initialNavigation: 'enabledBlocking',
             useHash: true,

@@ -28,7 +28,8 @@ export interface EmbeddedControlModalData {
         <div class="absolute top-0 left-0 flex items-center h-12">
             <div countdown class="text-2xl mx-2">{{ countdown }}</div>
             <button
-                mat-icon-button
+                icon
+                matRipple
                 class="close"
                 (click)="close()"
                 (contextmenu)="$event.preventDefault()"

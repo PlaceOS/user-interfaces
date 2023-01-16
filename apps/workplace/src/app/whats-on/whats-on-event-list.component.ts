@@ -52,7 +52,7 @@ const CARD_WIDTH = 60 * 4;
                                     | slice: 0:320
                             }}
                         </div>
-                        <button mat-button class="w-full">
+                        <button btn matRipple class="w-full">
                             <div class="flex items-center">
                                 <div>Read more</div>
                                 <app-icon>arrow_forward</app-icon>
@@ -61,7 +61,8 @@ const CARD_WIDTH = 60 * 4;
                     </div>
                 </div>
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     *ngIf="index > 0"
                     (click)="index = index - cards"
                     class="absolute left-0 top-1/2 transform -translate-x-1/2 -translate-y-16 bg-white shadow"
@@ -69,7 +70,8 @@ const CARD_WIDTH = 60 * 4;
                     <app-icon>chevron_left</app-icon>
                 </button>
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     *ngIf="index + cards < events.length"
                     (click)="index = index + cards"
                     class="absolute right-0 top-1/2 transform translate-x-1/2 -translate-y-16 bg-white shadow"
@@ -101,8 +103,7 @@ export class WhatsOnEventListComponent {
     @Input() public events: CalendarEvent[] = [
         new CalendarEvent({
             title: 'Welcome Event',
-            body:
-                'Today we welcome our new employees joining our extensive family.',
+            body: 'Today we welcome our new employees joining our extensive family.',
         }),
         new CalendarEvent({
             title: 'Christmas Party',
@@ -118,8 +119,7 @@ export class WhatsOnEventListComponent {
         }),
         new CalendarEvent({
             title: 'Shoe Shine Day',
-            body:
-                'Good shoes deserve good care. Join us to have your shoe polished and shined by professionals.',
+            body: 'Good shoes deserve good care. Join us to have your shoe polished and shined by professionals.',
         }),
     ] as any;
 

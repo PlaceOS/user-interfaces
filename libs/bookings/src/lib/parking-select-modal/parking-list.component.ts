@@ -77,7 +77,8 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                         </div>
                     </button>
                     <button
-                        mat-icon-button
+                        icon
+                        matRipple
                         fav
                         class="absolute top-1 right-1"
                         [class.text-blue-400]="isFavourite(space.id)"

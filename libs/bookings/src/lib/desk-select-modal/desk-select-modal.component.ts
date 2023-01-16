@@ -7,20 +7,42 @@ import {
     BookingFormService,
 } from '../booking-form.service';
 
-export const FAV_DESK_KEY = 'favourite_desks'
+export const FAV_DESK_KEY = 'favourite_desks';
 
 @Component({
     selector: 'desk-select-modal',
     styles: [],
     template: `
         <div
-            class="absolute inset-0 sm:relative sm:inset-none flex flex-col bg-white dark:bg-neutral-700"
+            class="w-[100vw] h-[100vh] sm:relative sm:w-auto sm:h-auto flex flex-col bg-white dark:bg-neutral-700"
         >
             <header class="flex items-center space-x-4 w-full">
-                <button mat-icon-button mat-dialog-close class="bg-black/20">
+                <button icon mat-dialog-close class="bg-black/20">
                     <app-icon>close</app-icon>
                 </button>
                 <h3 i18n>Find Desk</h3>
+                <div class="hidden sm:flex items-center justify-end flex-1">
+                    <button
+                        btn
+                        matRipple
+                        map
+                        class="rounded-l rounded-r-none"
+                        [class.inverse]="view !== 'map'"
+                        (click)="view = 'map'"
+                    >
+                        Map
+                    </button>
+                    <button
+                        btn
+                        matRipple
+                        list
+                        class="rounded-r rounded-l-none"
+                        [class.inverse]="view !== 'list'"
+                        (click)="view = 'list'"
+                    >
+                        List
+                    </button>
+                </div>
             </header>
             <main
                 class="flex-1 flex items-center divide-x divide-gray-200 dark:divide-neutral-500 min-h-[65vh] h-[65vh] sm:max-h-[65vh] sm:max-w-[95vw] w-full overflow-hidden"
@@ -37,7 +59,7 @@ export const FAV_DESK_KEY = 'favourite_desks'
                     ></desk-filters-display>
                     <desk-list
                         *ngIf="view === 'list'; else map_view"
-                        [attr.active]="displayed?.id"
+                        [active]="displayed?.id"
                         [selected]="selected_ids"
                         [favorites]="favorites"
                         (toggleFav)="toggleFavourite($event)"
@@ -61,7 +83,8 @@ export const FAV_DESK_KEY = 'favourite_desks'
                 class="flex sm:hidden flex-col-reverse items-center justify-end p-2 border-t border-gray-200 dark:border-neutral-500 w-full"
             >
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     return
                     class="inverse sm:hidden w-full"
                     *ngIf="displayed"
@@ -71,7 +94,8 @@ export const FAV_DESK_KEY = 'favourite_desks'
                     Back
                 </button>
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     save
                     [mat-dialog-close]="selected"
                     [class.mb-2]="displayed"
@@ -85,7 +109,8 @@ export const FAV_DESK_KEY = 'favourite_desks'
                 class="hidden sm:flex items-center justify-between p-2 border-t border-gray-200 dark:border-neutral-500 w-full"
             >
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     [mat-dialog-close]="selected"
                     class="clear text-primary"
                 >
@@ -98,7 +123,8 @@ export const FAV_DESK_KEY = 'favourite_desks'
                     {{ selected.length }} desk(s) added
                 </p>
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     [disabled]="!displayed"
                     [class.inverse]="isSelected(displayed?.id)"
                     (click)="setSelected(displayed, !isSelected(displayed?.id))"
@@ -108,7 +134,11 @@ export const FAV_DESK_KEY = 'favourite_desks'
                             isSelected(displayed?.id) ? 'remove' : 'add'
                         }}</app-icon>
                         <div class="mr-1" i18n>
-                            {isSelected(displayed?.id), select, true { Remove from Booking } false { Add to booking }}
+                            {{
+                                isSelected(displayed?.id)
+                                    ? 'Remove from Booking'
+                                    : 'Add to booking'
+                            }}
                         </div>
                     </div>
                 </button>
@@ -142,7 +172,10 @@ export class DeskSelectModalComponent {
         private _settings: SettingsService,
         private _event_form: BookingFormService,
         @Inject(MAT_DIALOG_DATA)
-        private _data: { items: BookingAsset[]; options: Partial<BookingFlowOptions> }
+        private _data: {
+            items: BookingAsset[];
+            options: Partial<BookingFlowOptions>;
+        }
     ) {
         this.selected = [...(_data.items || [])];
         this._event_form.setOptions(_data.options);

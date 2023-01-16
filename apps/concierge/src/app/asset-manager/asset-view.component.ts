@@ -15,10 +15,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             class="h-full w-full"
             *ngIf="!loading && (asset | async); else loading_state"
         >
-            <div class="flex items-center space-x-4 p-2">
+            <div
+                class="flex items-center space-x-4 p-2 bg-white border-b border-gray-200"
+            >
                 <a
-                    button
-                    mat-button
+                    btn
+                    matRipple
                     class="inverse"
                     [routerLink]="['/asset-manager', 'list', 'items']"
                 >
@@ -40,7 +42,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </div>
             </div>
             <div class="flex items-center">
-                <div class="bg-white dark:bg-neutral-700 flex-1 w-1/2 h-[22.5rem]">
+                <div
+                    class="bg-white dark:bg-neutral-700 flex-1 w-1/2 h-[22.5rem]"
+                >
                     <image-carousel
                         [images]="(asset | async)?.images || []"
                     ></image-carousel>
@@ -55,7 +59,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         <div class="flex items-center text-sm ">
                             <a
                                 button
-                                mat-button
+                                btn
+                                matRipple
                                 class="clear"
                                 [routerLink]="[
                                     '/asset-manager',
@@ -69,7 +74,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 </div>
                             </a>
                             <div class="w-px h-4 bg-gray-300"></div>
-                            <button mat-button class="clear">
+                            <button btn matRipple class="clear">
                                 <div
                                     class="flex items-center text-secondary"
                                     customTooltip
@@ -95,14 +100,14 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         (asset | async)?.locations?.length || 0
                                 }}
                             </div>
-                            <button mat-button>Assign to Location</button>
+                            <button btn matRipple>Assign to Location</button>
                         </div>
                         <div class="flex items-center justify-between p-3">
                             <div class="pl-2">
                                 In Use:
                                 {{ (asset | async)?.locations?.length || 0 }}
                             </div>
-                            <button mat-button (click)="viewLocations()">
+                            <button btn matRipple (click)="viewLocations()">
                                 View Locations
                             </button>
                         </div>
@@ -197,7 +202,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 "
                             >
                                 <label>{{ item.name }}</label>
-                                <div>{{ item.price | currency:code }}</div>
+                                <div>{{ item.price | currency: code }}</div>
                                 <a
                                     class="underline"
                                     [href]="invoice.url | safe"
@@ -252,14 +257,14 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 <p>Are you sure you want to permanently delete this asset?</p>
                 <div class="flex items-center space-x-2 mt-6">
                     <button
-                        mat-button
+                        matRipple
                         class="inverse flex-1"
                         (click)="closeTooltip()"
                     >
                         No
                     </button>
                     <button
-                        mat-button
+                        matRipple
                         class="error flex-1"
                         (click)="deleteAsset()"
                     >

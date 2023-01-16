@@ -42,7 +42,8 @@ import { BookingAsset } from '../booking-form.service';
                     class="absolute inset-0"
                 ></image-carousel>
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     close
                     (click)="close.emit()"
                     class="absolute top-2 left-2 bg-black/40 sm:hidden text-white"
@@ -50,7 +51,8 @@ import { BookingAsset } from '../booking-form.service';
                     <app-icon>arrow_back</app-icon>
                 </button>
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     fav
                     [class.text-white]="!fav"
                     [class.text-blue-400]="fav"
@@ -62,13 +64,18 @@ import { BookingAsset } from '../booking-form.service';
                     }}</app-icon>
                 </button>
             </section>
-            <div class="p-2 space-y-2 flex-1 h-[calc(100%-19.75rem)] overflow-auto">
+            <div
+                class="p-2 space-y-2 flex-1 h-[calc(100%-19.75rem)] overflow-auto"
+            >
                 <section actions class="z-0 pb-2 border-b">
                     <h2 class="text-xl font-medium mb-2 mt-4">
                         {{ desk.display_name || desk.name || desk.id }}
                     </h2>
                 </section>
-                <section details class="space-y-2 pb-2 border-b dark:border-neutral-500">
+                <section
+                    details
+                    class="space-y-2 pb-2 border-b dark:border-neutral-500"
+                >
                     <h2 class="text-xl font-medium">Details</h2>
                     <div class="flex items-center space-x-2">
                         <app-icon>person</app-icon>
@@ -110,19 +117,23 @@ import { BookingAsset } from '../booking-form.service';
                     ></interactive-map>
                 </section>
             </div>
-            <div class="p-2 border-t border-gray-200 dark:border-neutral-500 shadow sm:hidden">
+            <div
+                class="p-2 border-t border-gray-200 dark:border-neutral-500 shadow sm:hidden"
+            >
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     [class.inverse]="active"
                     class="w-full"
-                    (click)="active = !active; activeChange.emit(active);"
+                    (click)="active = !active; activeChange.emit(active)"
                 >
                     <div class="flex items-center justify-center">
                         <app-icon class="text-2xl">{{
                             active ? 'remove' : 'add'
                         }}</app-icon>
                         <p i18n>
-                            { active, select, true { Remove from booking } false { Add to booking } }
+                            { active, select, true { Remove from booking } false
+                            { Add to booking } }
                         </p>
                     </div>
                 </button>

@@ -4,10 +4,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
 @Component({
     selector: 'asset-manager-topbar',
     template: `
-        <div class="w-full px-4 py-2 bg-white dark:bg-neutral-700 flex items-center space-x-4">
+        <div
+            class="w-full px-4 py-2 bg-white dark:bg-neutral-700 flex items-center space-x-4"
+        >
             <a
-                button
-                mat-button
+                btn
+                matRipple
                 class="secondary"
                 [routerLink]="['/asset-manager', 'manage', 'details']"
             >
@@ -33,7 +35,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     </div>
                 </mat-button-toggle>
             </mat-button-toggle-group>
-            <!-- <button mat-button class="clear" *ngIf="show_actions">
+            <!-- <button btn matRipple class="clear" *ngIf="show_actions">
                 <div class="flex items-center">
                     <div class="pl-2">Sort By</div>
                     <app-icon class="text-2xl">arrow_drop_down</app-icon>

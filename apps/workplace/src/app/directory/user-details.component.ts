@@ -26,7 +26,8 @@ import { User } from '@placeos/users';
                 class="flex w-full sm:w-auto sm:flex-col items-center space-x-2 sm:space-x-0 sm:space-y-2 mt-4 sm:mt-0"
             >
                 <a
-                    mat-button
+                    btn
+                    matRipple
                     button
                     class="w-32 flex-1 sm:flex-none"
                     locate
@@ -37,7 +38,8 @@ import { User } from '@placeos/users';
                     Locate
                 </a>
                 <a
-                    mat-button
+                    btn
+                    matRipple
                     button
                     class="w-32 flex-1 sm:flex-nones"
                     call

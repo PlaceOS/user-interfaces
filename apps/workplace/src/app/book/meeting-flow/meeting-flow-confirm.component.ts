@@ -8,7 +8,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 @Component({
     selector: 'meeting-flow-confirm',
     template: `
-        <button mat-icon-button *ngIf="show_close" (click)="dismiss()">
+        <button icon matRipple *ngIf="show_close" (click)="dismiss()">
             <app-icon>close</app-icon>
         </button>
         <header class="flex items-center justify-between px-2">
@@ -80,7 +80,8 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
         </section>
         <footer class="p-2 w-full border-t border-gray-200 mt-4">
             <button
-                mat-button
+                btn
+                matRipple
                 class="w-full"
                 *ngIf="!(loading | async)"
                 (click)="postForm()"
@@ -89,7 +90,8 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 Confirm
             </button>
             <button
-                mat-button
+                btn
+                matRipple
                 class="inverse w-full"
                 *ngIf="loading | async"
                 (click)="cancelPost()"
@@ -118,7 +120,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             }
         `,
     ],
-    providers: [SpacePipe]
+    providers: [SpacePipe],
 })
 export class MeetingFlowConfirmComponent extends BaseClass {
     @Input() public show_close: boolean = false;
@@ -126,19 +128,21 @@ export class MeetingFlowConfirmComponent extends BaseClass {
     public readonly loading = this._event_form.loading;
 
     public readonly postForm = async () => {
-        await this._event_form.postForm().catch(_ => {
+        await this._event_form.postForm().catch((_) => {
             notifyError(_);
             throw _;
         });
         this.dismiss(true);
     };
     public readonly cancelPost = () => this._event_form.cancelPostForm();
-    public readonly dismiss = (e?) => this._sheet_ref?.dismiss(e)
+    public readonly dismiss = (e?) => this._sheet_ref?.dismiss(e);
 
     private _space = this.event.resources[0];
 
     public async ngOnInit() {
-        this._space = await this._space_pipe.transform(this.event.resources[0].email) || this._space;
+        this._space =
+            (await this._space_pipe.transform(this.event.resources[0].email)) ||
+            this._space;
     }
 
     public get event(): CalendarEvent {
@@ -154,14 +158,10 @@ export class MeetingFlowConfirmComponent extends BaseClass {
     }
 
     public get location() {
-        const building = this._org.buildings.find(
-            (_) => this.space.zones.includes(_.id)
+        const building = this._org.buildings.find((_) =>
+            this.space.zones.includes(_.id)
         );
-        return (
-            building?.address ||
-            building?.display_name ||
-            building?.name
-        );
+        return building?.address || building?.display_name || building?.name;
     }
 
     constructor(

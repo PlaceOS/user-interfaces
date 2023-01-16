@@ -15,10 +15,7 @@ export enum ZoomDirection {
 @Component({
     selector: 'camera-controls',
     template: `
-        <div
-            class="flex flex-col"
-            *ngIf="(camera_list | async)?.length;"
-        >
+        <div class="flex flex-col" *ngIf="(camera_list | async)?.length">
             <mat-form-field appearance="outline" class="m-4 h-12">
                 <mat-select
                     [(ngModel)]="active_camera"
@@ -48,7 +45,8 @@ export enum ZoomDirection {
                     >
                         <button
                             zoom-in
-                            mat-icon-button
+                            icon
+                            matRipple
                             class="rounded"
                             (mousedown)="startZoom('in', $event)"
                             (touchstart)="startZoom('in', $event)"
@@ -64,7 +62,8 @@ export enum ZoomDirection {
 
                         <button
                             zoom-out
-                            mat-icon-button
+                            icon
+                            matRipple
                             class="rounded"
                             (mousedown)="startZoom('out', $event)"
                             (touchstart)="startZoom('out', $event)"

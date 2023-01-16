@@ -5,7 +5,14 @@
         "LANGUAGE_SELECT": "Select a language",
         "LANGUAGE_LABEL": "Language",
         "CONTINUE": "Continue",
-        "ORGANISATION": "Organization"
+        "ORGANISATION": "Organization",
+        "FAVOURITES": "Favourites"
+    },
+    "DESKS": {
+        "SHOW_FAVOURITES": "Only show favourite desks"
+    },
+    "ROOMS": {
+        "SHOW_FAVOURITES": "Only show favourite rooms"
     },
     "WPA": {
         "COLLEAGUES": "Colleagues",
@@ -53,7 +60,9 @@
         "BOOKING_CONFIRMED": "Booking Confirmed!",
         "BOOKING_DONE_CONTINUE": "Great, thanks!",
         "RESOURCE_CHECKED_IN": "Successfully checked-in",
-        "CHECKED_IN": "Your event has been successfully checked in."
+        "RESOURCE_CHECKED_IN_FAILED": "Check-in failed!",
+        "CHECKED_IN": "Your event has been successfully checked in.",
+        "TRY_AGAIN": "Try again"
     },
     "PANEL": {
         "ROOM_CAPACITY": "Room capacity",

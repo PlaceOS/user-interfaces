@@ -6,7 +6,9 @@ import { BaseClass } from '@placeos/common';
 @Component({
     selector: 'app-catering',
     template: `
-        <main class="relative w-full flex flex-col bg-gray-200 dark:bg-neutral-600">
+        <main
+            class="relative w-full flex flex-col bg-gray-200 dark:bg-neutral-600"
+        >
             <catering-topbar
                 *ngIf="page"
                 class="relative z-10"

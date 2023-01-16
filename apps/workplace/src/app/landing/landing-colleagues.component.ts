@@ -13,16 +13,17 @@ import { LandingStateService } from './landing-state.service';
         <div
             class="flex items-center justify-between py-2 mx-2 border-b border-gray-200"
         >
-            <h2 class="mx-2" i18n>{{ (contacts | async)?.length || 0 }} { (contacts | async)?.length, plural, =1 { Person } other { People } }</h2>
+            <h2 class="mx-2" i18n>
+                {{ (contacts | async)?.length || 0 }} { (contacts |
+                async)?.length, plural, =1 { Person } other { People } }
+            </h2>
             <!-- <div class="flex items-center space-x-2 text-primary">
-                <button
-                    mat-icon-button
+                <button icon
                     class="!border !border-solid !border-primary"
                 >
                     <app-icon>search</app-icon>
                 </button>
-                <button
-                    mat-icon-button
+                <button icon
                     class="!border !border-solid !border-primary"
                 >
                     <app-icon>filter_list</app-icon>
@@ -45,8 +46,13 @@ import { LandingStateService } from './landing-state.service';
                         ></div>
                     </div>
                     <div class="leading-tight flex-1 w-1/2">
-                        <div class="truncate" [matTooltip]="user.name">{{ user.name }}</div>
-                        <div class="text-sm truncate" [matTooltip]="user.organisation">
+                        <div class="truncate" [matTooltip]="user.name">
+                            {{ user.name }}
+                        </div>
+                        <div
+                            class="text-sm truncate"
+                            [matTooltip]="user.organisation"
+                        >
                             {{ user.organisation }}
                         </div>
                         <div class="text-xs opacity-60 truncate">
@@ -54,8 +60,8 @@ import { LandingStateService } from './landing-state.service';
                         </div>
                     </div>
                     <button
-                        mat-icon-button
-                        class="rounded bg-gray-300"
+                        icon
+                        class="!rounded bg-gray-300"
                         [matMenuTriggerFor]="menu"
                     >
                         <app-icon>more_horiz</app-icon>
@@ -71,7 +77,7 @@ import { LandingStateService } from './landing-state.service';
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">today</app-icon>
-                            <div>{{ "WPA.CREATE_MEETING" | translate }}</div>
+                            <div>{{ 'WPA.CREATE_MEETING' | translate }}</div>
                         </button>
                         <button
                             mat-menu-item
@@ -79,7 +85,7 @@ import { LandingStateService } from './landing-state.service';
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">cancel</app-icon>
-                            <div>{{ "WPA.REMOVE_COLLEAGUE" | translate }}</div>
+                            <div>{{ 'WPA.REMOVE_COLLEAGUE' | translate }}</div>
                         </button>
                         <!-- <button mat-menu-item (click)="viewUser(user)" class="flex items-center space-x-2">
                                 <app-icon class="text-2xl">report</app-icon>
@@ -90,11 +96,12 @@ import { LandingStateService } from './landing-state.service';
             </ng-container>
         </div>
         <button
-            mat-button
+            btn
+            matRipple
             class="inverse w-[calc(100%-1rem)] m-2"
             (click)="openSearch()"
         >
-        {{ "WPA.ADD" | translate }}
+            {{ 'WPA.ADD' | translate }}
         </button>
         <div
             search
@@ -109,7 +116,7 @@ import { LandingStateService } from './landing-state.service';
                 class="w-full border-b border-gray-200 p-2 rounded-t-lg"
             />
             <button
-                mat-icon-button
+                icon
                 class="absolute top-0 right-0"
                 (click)="show_search = false"
             >
@@ -123,6 +130,7 @@ import { LandingStateService } from './landing-state.service';
                     *ngIf="(search_results | async)?.length; else search_empty"
                 >
                     <button
+                        btn
                         matRipple
                         class="flex items-center p-2 space-x-2 w-full text-left"
                         *ngFor="let user of search_results | async"
@@ -152,7 +160,7 @@ import { LandingStateService } from './landing-state.service';
             >
                 <img src="assets/icons/no-contacts.svg" />
                 <p class="opacity-60 text-sm text-center" i18n>
-                    {{ "WPA.COLLEAGUES_EMPTY" | translate }}
+                    {{ 'WPA.COLLEAGUES_EMPTY' | translate }}
                 </p>
             </div>
         </ng-template>
@@ -176,7 +184,9 @@ import { LandingStateService } from './landing-state.service';
                 class="w-full h-full flex flex-col items-center justify-center space-y-2 p-8"
             >
                 <mat-spinner diameter="32"></mat-spinner>
-                <p class="opacity-60 text-sm text-center">{{ "WPA.COLLEAGUES_SEARCHING" | translate }}</p>
+                <p class="opacity-60 text-sm text-center">
+                    {{ 'WPA.COLLEAGUES_SEARCHING' | translate }}
+                </p>
             </div>
         </ng-template>
     `,

@@ -48,7 +48,7 @@ import { TVControlsComponent } from './tabbed-view/tv-controls.component';
         DeviceOutputListComponent,
         DeviceOutputListItemComponent,
         TabOutletComponent,
-        TVControlsComponent
+        TVControlsComponent,
     ],
     imports: [
         BrowserModule,

@@ -74,9 +74,10 @@ import { CheckinStateService } from './checkin-state.service';
                     />
                 </mat-form-field>
             </div>
-            <button next mat-button (click)="updateGuest()">Next</button>
+            <button next btn matRipple (click)="updateGuest()">Next</button>
             <a
-                mat-icon-button
+                icon
+                matRipple
                 class="absolute top-0 right-0"
                 [routerLink]="['/welcome']"
             >

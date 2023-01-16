@@ -44,7 +44,7 @@ import { SearchService } from '../services/search.service';
             </main>
             <footer>
                 <button
-                    mat-button
+                    matRipple
                     class="cancel-button"
                     color="basic"
                     (click)="closeDialog()"
@@ -52,7 +52,7 @@ import { SearchService } from '../services/search.service';
                     Cancel
                 </button>
                 <button
-                    mat-button
+                    matRipple
                     class="update-button"
                     color="primary"
                     (click)="updateQuestions()"

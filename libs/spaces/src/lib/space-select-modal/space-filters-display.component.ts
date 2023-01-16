@@ -11,7 +11,8 @@ import { SpaceFiltersComponent } from './space-filters.component';
     template: `
         <section actions class="sm:hidden space-x-2 flex items-center p-2">
             <button
-                mat-button
+                btn
+                matRipple
                 filters
                 class="flex-1 w-1/2"
                 (click)="editFilters()"
@@ -21,7 +22,8 @@ import { SpaceFiltersComponent } from './space-filters.component';
             </button>
             <div class="flex items-center">
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     map
                     class="rounded-l rounded-r-none"
                     [class.inverse]="view !== 'map'"
@@ -31,7 +33,8 @@ import { SpaceFiltersComponent } from './space-filters.component';
                     Map
                 </button>
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     list
                     class="rounded-r rounded-l-none"
                     [class.inverse]="view !== 'list'"
@@ -64,7 +67,8 @@ import { SpaceFiltersComponent } from './space-filters.component';
             <div filter-item *ngFor="let feat of (options | async)?.features">
                 <p>{{ feat }}</p>
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     class="-mr-4 dark:border-neutral-500"
                     (click)="removeFeature(feat)"
                 >

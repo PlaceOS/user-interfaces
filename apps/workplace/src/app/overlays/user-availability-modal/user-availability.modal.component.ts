@@ -18,7 +18,8 @@ import { queryEvents } from '@placeos/events';
 })
 export class UserAvailabilityModalComponent
     extends BaseClass
-    implements OnInit {
+    implements OnInit
+{
     /** Emitter for user action on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** List of Users to check availability */

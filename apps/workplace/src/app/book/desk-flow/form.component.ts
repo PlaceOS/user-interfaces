@@ -1,7 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { BookingFormService, findNearbyFeature } from '@placeos/bookings';
-import { currentUser, getInvalidFields, notifyError, randomInt, SettingsService } from '@placeos/common';
+import {
+    currentUser,
+    getInvalidFields,
+    notifyError,
+    randomInt,
+    SettingsService,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { addDays, setHours, addMinutes, roundToNearestMinutes } from 'date-fns';
 import { first, take } from 'rxjs/operators';
@@ -16,13 +22,16 @@ import { first, take } from 'rxjs/operators';
                 {{ is_edit ? 'Edit' : 'Detailed' }} Desk Booking
             </h2>
             <detailed-book-desks-form [form]="form"></detailed-book-desks-form>
-            <div class="mb-4 border-b border-gray-300 dark:border-neutral-500 w-full"></div>
+            <div
+                class="mb-4 border-b border-gray-300 dark:border-neutral-500 w-full"
+            ></div>
             <div
                 class="flex flex-col sm:flex-row items-center justify-center space-x-0 space-y-2 sm:space-y-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto mb-4"
             >
                 <button
                     class="sm:flex-1 w-full sm:w-auto h-[2.75rem] inverse"
-                    mat-button
+                    btn
+                    matRipple
                     clear
                     (click)="clearForm()"
                 >
@@ -36,7 +45,8 @@ import { first, take } from 'rxjs/operators';
                 <button
                     class="sm:flex-1 w-full sm:w-auto h-[2.75rem]"
                     find
-                    mat-button
+                    btn
+                    matRipple
                     *ngIf="!auto_allocation; else alloc_button"
                     (click)="findDesk()"
                 >
@@ -53,7 +63,8 @@ import { first, take } from 'rxjs/operators';
             <button
                 class="sm:flex-1 w-full sm:w-auto h-[2.75rem]"
                 find
-                mat-button
+                btn
+                matRipple
                 (click)="allocateDesk()"
             >
                 {{ is_edit ? 'Update Desk' : 'Book Desk' }}
@@ -150,10 +161,20 @@ export class DeskFlowFormComponent implements OnInit {
     public async allocateDesk() {
         this.form.markAllAsTouched();
         this.form.patchValue({ asset_id: ' ' });
-        if (!this.form.valid) return notifyError(`Some fields are invalid. [${getInvalidFields(this.form).join(', ')}]`);
+        if (!this.form.valid)
+            return notifyError(
+                `Some fields are invalid. [${getInvalidFields(this.form).join(
+                    ', '
+                )}]`
+            );
         // Find nearby desk for user's department
-        const settings = this._settings.get('app.departments') || { '*': { level: this._org.levelsForBuilding()[0]?.id, centered_at: { x: 0.5, y: 0.5 } } };
-        const group = currentUser().groups.find(_ => _ in settings) ?? '*';
+        const settings = this._settings.get('app.departments') || {
+            '*': {
+                level: this._org.levelsForBuilding()[0]?.id,
+                centered_at: { x: 0.5, y: 0.5 },
+            },
+        };
+        const group = currentUser().groups.find((_) => _ in settings) ?? '*';
         if (!settings[group]) {
             this._router.navigate(['/book', 'desks', 'map']);
             return;
@@ -164,9 +185,19 @@ export class DeskFlowFormComponent implements OnInit {
             this._router.navigate(['/book', 'desks', 'map']);
             return;
         }
-        const desk_list = await this._state.available_assets.pipe(take(1)).toPromise()
-        const desk_id = level.map_id ? await findNearbyFeature(lvl.map_id, centered_at, desk_list.map(_ => _?.map_id || _?.id || '')) : desk_list[randomInt(desk_list.length)].id;
-        const desk = desk_list.find(_ => _.map_id === desk_id || _.id === desk_id);
+        const desk_list = await this._state.available_assets
+            .pipe(take(1))
+            .toPromise();
+        const desk_id = level.map_id
+            ? await findNearbyFeature(
+                  lvl.map_id,
+                  centered_at,
+                  desk_list.map((_) => _?.map_id || _?.id || '')
+              )
+            : desk_list[randomInt(desk_list.length)].id;
+        const desk = desk_list.find(
+            (_) => _.map_id === desk_id || _.id === desk_id
+        );
         if (!desk) {
             this._router.navigate(['/book', 'desks', 'map']);
             return;
@@ -179,6 +210,6 @@ export class DeskFlowFormComponent implements OnInit {
             booking_type: 'desk',
             zones: desk.zone ? [desk.zone?.parent_id, desk.zone?.id] : [],
         });
-        await this._state.confirmPost().catch(_ => console.error(_));
+        await this._state.confirmPost().catch((_) => console.error(_));
     }
 }

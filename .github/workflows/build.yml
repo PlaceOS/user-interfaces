@@ -10,29 +10,28 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-
     install_deps:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v3
               with:
                   fetch-depth: '2'
 
             - name: Cache node modules
               id: cache
-              uses: actions/cache@v2
+              uses: actions/cache@v3
               with:
-                path: node_modules
-                key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-                restore-keys: |
-                    ${{ runner.os }}-build-${{ env.cache-name }}-
-                    ${{ runner.os }}-build-
-                    ${{ runner.os }}-
+                  path: node_modules
+                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-build-${{ env.cache-name }}-
+                      ${{ runner.os }}-build-
+                      ${{ runner.os }}-
 
             - name: Setup Node.js environment
-              uses: actions/setup-node@v1.4.4
+              uses: actions/setup-node@v3
               with:
-                  node-version: '14'
+                  node-version: '16'
 
             - name: NPM install
               if: steps.cache.outputs.cache-hit != 'true'
@@ -40,38 +39,38 @@ jobs:
 
             - name: Get short hash
               id: vars
-              run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+              run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
             - name: Extract branch name
               id: branch_name
               shell: bash
-              run: echo "::set-output name=name::$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')"
+              run: echo "name=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')" >> $GITHUB_OUTPUT
 
             - name: Extract build configuration
               shell: bash
               id: build_ext
               run: |
-                    if [[ ${{ steps.branch_name.outputs.name }} == "release" ]] || [[ ${{ steps.branch_name.outputs.name }} == release/* ]] || [[ ${{ steps.branch_name.outputs.name }} == "main" ]]
-                    then
-                        echo "::set-output name=configuration::production"
-                        echo "::set-output name=deploy_branch::prod"
-                    elif [[ ${{ steps.branch_name.outputs.name }} == rc/* ]]
-                    then
-                        echo "::set-output name=configuration::staging"
-                        echo "::set-output name=deploy_branch::uat"
-                    else
-                        echo "::set-output name=configuration::staging"
-                        echo "::set-output name=deploy_branch::dev"
-                    fi
+                  if [[ ${{ steps.branch_name.outputs.name }} == "release" ]] || [[ ${{ steps.branch_name.outputs.name }} == release/* ]] || [[ ${{ steps.branch_name.outputs.name }} == "main" ]]
+                  then
+                      echo "configuration=production" >> $GITHUB_OUTPUT
+                      echo "deploy_branch=prod" >> $GITHUB_OUTPUT
+                  elif [[ ${{ steps.branch_name.outputs.name }} == rc/* ]]
+                  then
+                      echo "configuration=staging" >> $GITHUB_OUTPUT
+                      echo "deploy_branch=uat" >> $GITHUB_OUTPUT
+                  else
+                      echo "configuration=staging" >> $GITHUB_OUTPUT
+                      echo "deploy_branch=dev" >> $GITHUB_OUTPUT
+                  fi
             - name: List affected applications
               id: affected_apps
               run: |
-                echo "::set-output name=affected_apps::$(node ./tools/get-affected.js ${{ github.ref }})"
-                echo "::set-output name=affected_units::$(node ./tools/get-affected.js ${{ github.ref }} test)"
+                  echo "affected_apps=$(node ./tools/get-affected.js ${{ github.ref }})" >> $GITHUB_OUTPUT
+                  echo "affected_units=$(node ./tools/get-affected.js ${{ github.ref }} test)" >> $GITHUB_OUTPUT
 
             - name: Print affected applications
               run: |
-                echo ${{ steps.affected_apps.outputs.affected_apps }}
+                  echo ${{ steps.affected_apps.outputs.affected_apps }}
 
         outputs:
             affected_apps: ${{ steps.affected_apps.outputs.affected_apps }}
@@ -85,8 +84,8 @@ jobs:
         needs: install_deps
         if: ${{ fromJSON(needs.install_deps.outputs.affected_units)[0] != null }}
         strategy:
-          matrix:
-            package: ${{ fromJSON(needs.install_deps.outputs.affected_units) }}
+            matrix:
+                package: ${{ fromJSON(needs.install_deps.outputs.affected_units) }}
         steps:
             - uses: actions/checkout@v2
 
@@ -94,66 +93,65 @@ jobs:
               id: cache
               uses: actions/cache@v2
               with:
-                path: node_modules
-                key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-                restore-keys: |
-                    ${{ runner.os }}-build-${{ env.cache-name }}-
-                    ${{ runner.os }}-build-
-                    ${{ runner.os }}-
+                  path: node_modules
+                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-build-${{ env.cache-name }}-
+                      ${{ runner.os }}-build-
+                      ${{ runner.os }}-
 
             - name: Cache nx build cahce
               id: cache-nx
               uses: actions/cache@v2
               with:
-                path: node_modules/.cache/nx
-                key: ${{ runner.os }}-nx-${{matrix.package}}-${{ hashFiles('**/package-lock.json') }}
-                restore-keys: |
-                    ${{ runner.os }}-nx-${{matrix.package}}-
-                    ${{ runner.os }}-nx-
+                  path: node_modules/.cache/nx
+                  key: ${{ runner.os }}-nx-${{matrix.package}}-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-nx-${{matrix.package}}-
+                      ${{ runner.os }}-nx-
 
             - name: Setup version
               run: npm run postinstall
 
             - name: Test affected code units
               run: |
-                npx nx test ${{ matrix.package }} --runInBand
+                  npx nx test ${{ matrix.package }} --runInBand
 
     build:
         runs-on: ubuntu-latest
         needs: install_deps
         if: ${{ fromJSON(needs.install_deps.outputs.affected_apps)[0] != null }}
         strategy:
-          matrix:
-            package: ${{ fromJSON(needs.install_deps.outputs.affected_apps) }}
+            matrix:
+                package: ${{ fromJSON(needs.install_deps.outputs.affected_apps) }}
         env:
             configuration: ${{ needs.install_deps.outputs.configuration }}
             deploy_branch: ${{ needs.install_deps.outputs.deploy_branch }}
             short_sha: ${{ needs.install_deps.outputs.short_sha }}
         # Steps represent a sequence of tasks that will be executed as part of the job
         steps:
-
             - uses: actions/checkout@v2
 
             - name: Cache node modules
               id: cache
               uses: actions/cache@v2
               with:
-                path: node_modules
-                key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-                restore-keys: |
-                    ${{ runner.os }}-build-${{ env.cache-name }}-
-                    ${{ runner.os }}-build-
-                    ${{ runner.os }}-
+                  path: node_modules
+                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-build-${{ env.cache-name }}-
+                      ${{ runner.os }}-build-
+                      ${{ runner.os }}-
 
             - name: Cache nx build cahce
               id: cache-nx
               uses: actions/cache@v2
               with:
-                path: node_modules/.cache/nx
-                key: ${{ runner.os }}-nx-${{matrix.package}}-${{ hashFiles('**/package-lock.json') }}
-                restore-keys: |
-                    ${{ runner.os }}-nx-${{matrix.package}}-
-                    ${{ runner.os }}-nx-
+                  path: node_modules/.cache/nx
+                  key: ${{ runner.os }}-nx-${{matrix.package}}-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-nx-${{matrix.package}}-
+                      ${{ runner.os }}-nx-
 
             - name: Setup version
               run: npm run postinstall
@@ -167,16 +165,16 @@ jobs:
 
             - name: Build affected applications
               run: |
-                npx nx build ${{ matrix.package }} --verbose --configuration=${{ env.configuration }}
+                  npx nx build ${{ matrix.package }} --verbose --configuration=${{ env.configuration }}
 
             - name: Deploy the application(${{ matrix.package }})
               uses: s0/git-publish-subdir-action@develop
               env:
-                REPO: self
-                BRANCH: build/${{ matrix.package }}/${{ env.deploy_branch }} # The branch name where you want to push the assets
-                FOLDER: dist/apps/${{ matrix.package }} # The directory where your assets are generated
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub will automatically add this - you don't need to bother getting a token
-                MESSAGE: "build(${{ matrix.package }}): CI build from {sha}" # The commit message
+                  REPO: self
+                  BRANCH: build/${{ matrix.package }}/${{ env.deploy_branch }} # The branch name where you want to push the assets
+                  FOLDER: dist/apps/${{ matrix.package }} # The directory where your assets are generated
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub will automatically add this - you don't need to bother getting a token
+                  MESSAGE: 'build(${{ matrix.package }}): CI build from {sha}' # The commit message
 
             - name: Update Pipeline Chat Status
               uses: fjogeleit/http-request-action@master

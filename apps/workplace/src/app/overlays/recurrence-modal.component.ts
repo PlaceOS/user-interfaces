@@ -24,7 +24,7 @@ export const RECURRENCE_METADATA = {
     template: `
         <header>
             <div class="heading" mat-dialog-title>Booking Recurrence</div>
-            <button mat-icon-button mat-dialog-close>
+            <button icon mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
         </header>
@@ -75,7 +75,7 @@ export const RECURRENCE_METADATA = {
             </form>
         </main>
         <footer *ngIf="!loading">
-            <button mat-button class="w-32" (click)="save()">
+            <button btn matRipple class="w-32" (click)="save()">
                 Add to Booking
             </button>
         </footer>
@@ -102,7 +102,7 @@ export class RecurrenceModalComponent extends BaseClass implements OnInit {
         end: new FormControl(this._data.details?.end || this._data.date, [
             Validators.required,
         ]),
-    });;
+    });
     /** Loading state */
     public loading: string;
     /** Current date of the booking */

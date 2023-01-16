@@ -45,7 +45,8 @@ export enum ZoomDirection {
                         >
                             <button
                                 preset
-                                mat-button
+                                btn
+                                matRipple
                                 class="w-48"
                                 [class.inverse]="preset === name"
                                 (click)="recallPreset(name)"
@@ -53,7 +54,8 @@ export enum ZoomDirection {
                                 {{ name }}
                             </button>
                             <button
-                                mat-icon-button
+                                icon
+                                matRipple
                                 *ngIf="presets?.length > 1"
                                 class="rounded bg-error text-white"
                                 (click)="removePreset(name)"
@@ -66,7 +68,8 @@ export enum ZoomDirection {
                         <p>No presets for this camera</p>
                     </ng-template>
                     <button
-                        mat-icon-button
+                        icon
+                        matRipple
                         class="absolute top-1 right-4"
                         [matMenuTriggerFor]="menu"
                     >
@@ -86,7 +89,8 @@ export enum ZoomDirection {
                                 />
                             </mat-form-field>
                             <button
-                                mat-button
+                                btn
+                                matRipple
                                 [disabled]="!new_preset"
                                 class="w-full"
                                 (click)="addPreset(new_preset); new_preset = ''"
@@ -111,7 +115,8 @@ export enum ZoomDirection {
                         >
                             <button
                                 zoom-in
-                                mat-icon-button
+                                icon
+                                matRipple
                                 class="rounded"
                                 (mousedown)="startZoom('in', $event)"
                                 (touchstart)="startZoom('in', $event)"
@@ -127,7 +132,8 @@ export enum ZoomDirection {
 
                             <button
                                 zoom-out
-                                mat-icon-button
+                                icon
+                                matRipple
                                 class="rounded"
                                 (mousedown)="startZoom('out', $event)"
                                 (touchstart)="startZoom('out', $event)"

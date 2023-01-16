@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { downloadFile, jsonToCsv } from '@placeos/common';
 import { User } from '@placeos/users';
+import { formatDuration } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { debounceTime, map, shareReplay, take } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
@@ -8,10 +9,14 @@ import { ReportsStateService } from '../reports-state.service';
 @Component({
     selector: 'report-spaces-user-listing',
     template: `
-        <div class="m-4 rounded bg-white dark:bg-neutral-700 shadow overflow-hidden">
-            <div class="border-b border-gray-300 dark:border-neutral-500 px-4 py-2 flex items-center">
-                <h3 class="font-bold text-xl flex-1">Staff Utilisation</h3>
-                <button mat-icon-button (click)="download()">
+        <div
+            class="m-4 rounded bg-white dark:bg-neutral-700 shadow overflow-hidden"
+        >
+            <div
+                class="border-b border-gray-300 dark:border-neutral-500 px-4 py-2 flex items-center"
+            >
+                <h3 class="font-bold text-xl flex-1">Meeting Organisers</h3>
+                <button icon (click)="download()">
                     <app-icon>download</app-icon>
                 </button>
             </div>
@@ -20,17 +25,17 @@ import { ReportsStateService } from '../reports-state.service';
                 [pagination]="true"
                 [columns]="[
                     'name',
-                    'capacity',
                     'count',
                     'avg_attendees',
-                    'occupancy'
+                    'total_time',
+                    'no_shows'
                 ]"
                 [display_column]="[
                     'Name',
-                    'Capacity',
-                    'Meeting Count',
-                    'Avg. Attendees',
-                    'Occupancy'
+                    'Bookings',
+                    'Avg. Invitees per Booking',
+                    'Total Booked Time',
+                    'No Shows'
                 ]"
                 [column_size]="['flex']"
             ></custom-table>
@@ -44,29 +49,48 @@ export class ReportSpacesUserListingComponent {
         map(([stats]) => {
             let list = [];
             for (const booking of stats.events) {
-                const attendees: User[] = booking.attendees || [];
-                const capacity =
-                    Math.max(booking.resources.reduce((c, s) => c + s.capacity, 0) || 1, 1);
-                for (const user of attendees) {
-                    if (!list.find((_) => _.id?.toLowerCase() === user.email.toLowerCase())) {
-                        list.push({
-                            id: user.email,
-                            name: user.name,
-                            capacity,
-                            count: 0,
-                            attendees: 0,
-                            avg_attendees: 0,
-                            occupancy: 0,
-                        });
-                    }
-                    const details = list.find((_) => _?.id === user.email);
-                    details.count += 1;
-                    details.attendees += booking.attendees.length;
+                const host = booking.attendees?.find(
+                    (_) => _.email === booking.host
+                );
+                if (!host) continue;
+                const capacity = Math.max(
+                    booking.resources.reduce((c, s) => c + s.capacity, 0) || 1,
+                    1
+                );
+                let details = list.find(
+                    (_) => _.id?.toLowerCase() === host.email.toLowerCase()
+                );
+                if (!details) {
+                    details = {
+                        id: host.email,
+                        name: host.name,
+                        capacity,
+                        count: 0,
+                        attendees: 0,
+                        avg_attendees: 0,
+                        no_shows: 0,
+                        occupancy: 0,
+                        total_time: 0,
+                    };
+                    list.push(details);
                 }
+                if (booking.extension_data?.people_count?.max === 0) {
+                    details.no_shows += 1;
+                }
+                details.count += 1;
+                details.attendees += booking.attendees.length;
+                details.total_time += booking.duration || 15;
             }
             for (const space of list) {
-                space.avg_attendees = Math.floor(space.attendees / space.count * 100) / 100;
-                space.occupancy = Math.floor(space.avg_attendees / space.capacity * 100) / 100;
+                space.avg_attendees =
+                    Math.floor((space.attendees / space.count) * 100) / 100;
+                space.occupancy =
+                    Math.floor((space.avg_attendees / space.capacity) * 100) /
+                    100;
+                space.total_time = formatDuration({
+                    hours: Math.floor(space.total_time / 60),
+                    minutes: space.total_time % 60,
+                });
             }
             return list;
         }),

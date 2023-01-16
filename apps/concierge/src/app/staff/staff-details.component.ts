@@ -29,7 +29,8 @@ import { StaffStateService } from './staff-state.service';
                 >
                 </action-icon>
                 <a
-                    mat-icon-button
+                    icon
+                    matRipple
                     matTooltip="Email Staff"
                     [attr.disabled]="!user?.email"
                     [href]="'mailto:' + user?.email"
@@ -37,7 +38,8 @@ import { StaffStateService } from './staff-state.service';
                     <app-icon>email</app-icon>
                 </a>
                 <a
-                    mat-icon-button
+                    icon
+                    matRipple
                     matTooltip="Phone Staff"
                     [attr.disabled]="!user?.phone"
                     [href]="'tel:' + user?.phone"
@@ -47,10 +49,7 @@ import { StaffStateService } from './staff-state.service';
             </div>
         </div>
     `,
-    styles: [
-        `
-        `,
-    ],
+    styles: [``],
 })
 export class StaffDetailsComponent {
     @Input() public user: StaffUser;

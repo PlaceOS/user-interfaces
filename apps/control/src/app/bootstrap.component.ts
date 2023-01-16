@@ -69,7 +69,8 @@ const STORE_KEY = 'PLACEOS.CONTROL.system';
                     </mat-option>
                 </mat-autocomplete>
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     [disabled]="!system_id$.getValue()"
                     (click)="bootstrap()"
                 >
@@ -205,6 +206,5 @@ export class BootstrapComponent extends BaseClass implements OnInit {
     /**
      * Remove any previously set bootstrapping details
      */
-    private readonly clearBootstrap = () =>
-        localStorage.removeItem(STORE_KEY);
+    private readonly clearBootstrap = () => localStorage.removeItem(STORE_KEY);
 }

@@ -38,6 +38,7 @@ const EMPTY = [];
             <div class="flex-1 flex items-center justify-end">
                 <global-search *ngIf="search"></global-search>
                 <button
+                    icon
                     matRipple
                     avatar
                     class="h-10 w-10 rounded-full mr-2 bg-gray-200 dark:bg-neutral-800 flex items-center justify-center"

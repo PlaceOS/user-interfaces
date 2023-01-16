@@ -22,7 +22,8 @@ export class SourceSelectModalData {
                 (source)="close()"
             ></source-select>
             <button
-                mat-icon-button
+                icon
+                matRipple
                 mat-dialog-close
                 class="absolute"
                 [class.top-8]="!simple"

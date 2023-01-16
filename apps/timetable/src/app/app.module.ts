@@ -21,7 +21,7 @@ import { AssetsModule } from '@placeos/assets';
         AppComponent,
         AppTimetableComponent,
         SpaceTimetableComponent,
-        SpaceEventDetailsComponent
+        SpaceEventDetailsComponent,
     ],
     imports: [
         BrowserModule,
@@ -30,10 +30,13 @@ import { AssetsModule } from '@placeos/assets';
         MatSnackBarModule,
         PaymentsModule,
         AssetsModule,
-        RouterModule.forRoot([
-            { path: '', component: AppTimetableComponent },
-            { path: '**', redirectTo: '' },
-        ], { useHash: true }),
+        RouterModule.forRoot(
+            [
+                { path: '', component: AppTimetableComponent },
+                { path: '**', redirectTo: '' },
+            ],
+            { useHash: true }
+        ),
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
             // Register the ServiceWorker as soon as the app is stable

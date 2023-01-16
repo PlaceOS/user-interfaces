@@ -27,13 +27,14 @@ const WFH_SETTING_KEY = 'wfh-days';
                     Today's Working Location
                 </h3>
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     today-location
                     class="inverse rounded-3xl w-auto"
                     [matMenuTriggerFor]="menu"
                 >
-                    <div class="flex items-center justify-between">
-                        <div class="uppercase">{{ option }}</div>
+                    <div class="flex items-center justify-between w-full">
+                        <div class="uppercase flex-1 w-1/2">{{ option }}</div>
                         <app-icon class="text-2xl">arrow_drop_down</app-icon>
                     </div>
                 </button>
@@ -57,15 +58,13 @@ const WFH_SETTING_KEY = 'wfh-days';
                     class="border border-gray-200 rounded flex items-center justify-between px-2 pt-2"
                 >
                     <div
-                        class="flex flex-col items-center"
+                        class="flex flex-col items-center flex-1 w-px"
                         *ngFor="let day of weekdays; let i = index"
                     >
                         <div class="text-sm font-light">
                             {{ day | date: 'EEE' }}
                         </div>
-                        <div
-                            class="h-8 w-8 flex items-center justify-center pr-2"
-                        >
+                        <div class="h-8 w-8 flex items-center justify-center">
                             <mat-checkbox
                                 [(ngModel)]="settings[available_weekdays[i]]"
                                 (ngModelChange)="changed = true"
@@ -76,7 +75,8 @@ const WFH_SETTING_KEY = 'wfh-days';
             </div>
             <div class="flex items-center justify-end px-4 pb-4">
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     save
                     [disabled]="!changed"
                     (click)="saveChanges()"
@@ -85,7 +85,8 @@ const WFH_SETTING_KEY = 'wfh-days';
                 </button>
             </div>
             <button
-                mat-icon-button
+                icon
+                matRipple
                 mat-dialog-close
                 class="absolute top-0 left-0"
             >
@@ -138,7 +139,15 @@ export class WFHSettingsModalComponent implements OnInit {
     ) {}
 
     public ngOnInit() {
-        this.settings = this._settings.get(WFH_SETTING_KEY) || [true, true, true, true, true, true, true];
+        this.settings = this._settings.get(WFH_SETTING_KEY) || [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+        ];
         this._initWeekdays();
         this._loadOptionForToday();
     }
@@ -150,7 +159,10 @@ export class WFHSettingsModalComponent implements OnInit {
     public async saveChanges() {
         this.loading = true;
         this._dialog_ref.disableClose = true;
-        if (this.option !== this.options[0].id && this.option !== this._booking.asset_id) {
+        if (
+            this.option !== this.options[0].id &&
+            this.option !== this._booking.asset_id
+        ) {
             await saveBooking(
                 new Booking({ ...this._booking, asset_id: this.option })
             )

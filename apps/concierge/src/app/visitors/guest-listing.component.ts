@@ -65,19 +65,21 @@ import { VisitorsStateService } from './visitors-state.service';
                 </button>
             </div>
             <ng-template #vaccine_confirmation>
-                <div class="bg-white rounded p-2 flex flex-col space-y-2 my-2 w-[20rem]">
+                <div
+                    class="bg-white rounded p-2 flex flex-col space-y-2 my-2 w-[20rem]"
+                >
                     <img
                         [src]="row.extension_data?.vaccination_proof?.url"
                         class="max-w-[20rem] max-h-[20rem] p-2 object-contain"
                     />
                     <button
-                        mat-button
+                        matRipple
                         (click)="setExt(row, 'vaccination_confirmed', true)"
                     >
                         Confirm Vaccination Proof
                     </button>
                     <button
-                        mat-button
+                        matRipple
                         class="inverse mt-2"
                         (click)="setExt(row, 'vaccination_confirmed', false)"
                     >
@@ -103,19 +105,21 @@ import { VisitorsStateService } from './visitors-state.service';
                 </button>
             </div>
             <ng-template #id_confirmation>
-                <div class="bg-white rounded p-2 flex flex-col space-y-2 my-2 w-[20rem]">
+                <div
+                    class="bg-white rounded p-2 flex flex-col space-y-2 my-2 w-[20rem]"
+                >
                     <img
                         [src]="row.extension_data?.id_data?.url"
                         class="max-w-[20rem] max-h-[20rem] object-contain"
                     />
                     <button
-                        mat-button
+                        matRipple
                         (click)="setExt(row, 'id_confirmed', true)"
                     >
                         Confirm ID
                     </button>
                     <button
-                        mat-button
+                        matRipple
                         class="inverse mt-2"
                         (click)="setExt(row, 'id_confirmed', false)"
                     >
@@ -126,7 +130,7 @@ import { VisitorsStateService } from './visitors-state.service';
         </ng-template>
         <ng-template #status_template let-row="row">
             <button
-                mat-button
+                matRipple
                 class="rounded-3xl bg-pending border-none"
                 [class.bg-success]="row?.status === 'approved'"
                 [class.!bg-error]="row?.status === 'declined'"
@@ -165,7 +169,8 @@ import { VisitorsStateService } from './visitors-state.service';
         </ng-template>
         <ng-template #action_template let-row="row">
             <button
-                mat-icon-button
+                icon
+                matRipple
                 [disabled]="!row.attachments?.length"
                 title=""
                 matTooltip="View Attachments"
@@ -215,7 +220,8 @@ import { VisitorsStateService } from './visitors-state.service';
             </action-icon>
             <a
                 [href]="'mailto:' + row?.email"
-                mat-icon-button
+                icon
+                matRipple
                 [matTooltip]="row?.organizer ? 'Email Host' : 'Email Guest'"
             >
                 <app-icon>email</app-icon>
@@ -233,7 +239,8 @@ import { VisitorsStateService } from './visitors-state.service';
             class="bg-secondary hover:shadow-lg shadow absolute bottom-4 right-4 text-white h-12 w-12"
             matTooltip="Download Visitor List"
             matTooltipPosition="left"
-            mat-icon-button
+            icon
+            matRipple
             *ngIf="(guests | async)?.length"
             (click)="downloadVisitorList()"
         >
@@ -280,9 +287,9 @@ export class GuestListingComponent {
             vaccinated: 'Vaccinated',
             id_data: 'ID',
             status: 'State',
-            actions: ' '
-        }
-        return this.columns.map(_ => fields[_] || _);
+            actions: ' ',
+        };
+        return this.columns.map((_) => fields[_] || _);
     }
 
     public get column_sizes() {
@@ -295,9 +302,9 @@ export class GuestListingComponent {
             vaccinated: '8r',
             id_data: '8r',
             status: '10r',
-            actions: '12r'
-        }
-        return this.columns.map(_ => fields[_] || _);
+            actions: '12r',
+        };
+        return this.columns.map((_) => fields[_] || _);
     }
 
     constructor(

@@ -11,7 +11,9 @@ import { MapLocateModalComponent } from '@placeos/components';
         >
             <div class="flex flex-col flex-1 space-y-2 ">
                 <div class="flex items-center">
-                    <div class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2">
+                    <div
+                        class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
+                    >
                         <app-icon>place</app-icon>
                     </div>
                     <span
@@ -20,7 +22,9 @@ import { MapLocateModalComponent } from '@placeos/components';
                     >
                 </div>
                 <div class="flex items-center">
-                    <div class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2">
+                    <div
+                        class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
+                    >
                         <app-icon>group</app-icon>
                     </div>
                     <span>{{ space?.capacity || 0 }} People</span>
@@ -28,7 +32,7 @@ import { MapLocateModalComponent } from '@placeos/components';
             </div>
             <div class="flex flex-col space-y-2 ml-2">
                 <button
-                    mat-button
+                    matRipple
                     book
                     [class.bg-pending]="multiple && book"
                     [class.border-pending]="multiple && book"
@@ -38,7 +42,8 @@ import { MapLocateModalComponent } from '@placeos/components';
                 </button>
                 <button
                     locate
-                    mat-button
+                    btn
+                    matRipple
                     class="inverse"
                     (click)="viewLocation()"
                 >

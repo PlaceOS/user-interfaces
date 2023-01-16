@@ -45,7 +45,7 @@ const COMPONENTS: Type<any>[] = [
     SpaceListFieldComponent,
     RichTextInputComponent,
     HostSelectFieldComponent,
-    ImageListFieldComponent
+    ImageListFieldComponent,
 ];
 
 @NgModule({

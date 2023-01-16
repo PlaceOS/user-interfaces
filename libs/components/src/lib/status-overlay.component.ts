@@ -24,7 +24,8 @@ import { ApplicationLink } from '@placeos/common';
                 <div class="flex items-center space-x-2">
                     <a
                         button
-                        mat-button
+                        btn
+                        matRipple
                         class="w-32"
                         *ngFor="let link of links"
                         [routerLink]="[link.route]"

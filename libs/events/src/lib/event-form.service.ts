@@ -123,7 +123,7 @@ export class EventFormService extends BaseClass {
     ]).pipe(
         map(([spaces, { show_fav, features, capacity }]) =>
             spaces
-                .filter((s) => {
+                .filter((s: Space) => {
                     const domain = (currentUser()?.email || '@').split('@')[1];
                     const zone = (this._settings.get(
                         'app.events.restrict_spaces'
@@ -135,6 +135,7 @@ export class EventFormService extends BaseClass {
                         limited_zones.includes(_)
                     );
                     return (
+                        s.bookable &&
                         (!zone || s.zones.includes(zone)) &&
                         (!zone_limit || limit_map[zone_limit] === domain) &&
                         (!show_fav || this.favorite_spaces.includes(s.id)) &&
@@ -267,7 +268,7 @@ export class EventFormService extends BaseClass {
     }
 
     public get has_calendar() {
-        return this._settings.get('app.no_user_calendar') !== true;
+        return this._settings.get('app.events.use_bookings') !== true;
     }
 
     constructor(
@@ -477,9 +478,20 @@ export class EventFormService extends BaseClass {
                 catering.notes = value.catering_notes;
                 catering.charge_code = value.catering_charge_code;
             }
+            const attendees = unique(
+                [...value.attendees, value.organiser || currentUser()],
+                'email'
+            );
             const result = await this._makeBooking(
                 new CalendarEvent({
                     ...value,
+                    host:
+                        this._settings.get('app.events.force_host') ||
+                        (this._settings.get('app.events.room_as_host')
+                            ? value.resources[0].email
+                            : '') ||
+                        value.host,
+                    attendees,
                     date: d,
                     catering,
                 }),

@@ -22,7 +22,7 @@ const COMPONENTS = [
     EventDetailsModalComponent,
     AttendeeListComponent,
     EventCardComponent,
-    EventLinkModalComponent
+    EventLinkModalComponent,
 ];
 
 @NgModule({
@@ -39,7 +39,7 @@ const COMPONENTS = [
         MatDialogModule,
         MatProgressSpinnerModule,
         FormFieldsModule,
-        ComponentsModule
+        ComponentsModule,
     ],
     providers: [ReactiveFormsModule],
     exports: [...COMPONENTS],

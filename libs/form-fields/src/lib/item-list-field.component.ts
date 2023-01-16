@@ -51,25 +51,25 @@ export function removeChipItem<T = string>(
     selector: 'item-list-field',
     template: `
         <mat-form-field appearance="outline" class="w-full">
-            <mat-chip-list #chipList aria-label="Zone Tags">
-                <mat-chip
+            <mat-chip-grid #chipList aria-label="Zone Tags">
+                <mat-chip-row
                     *ngFor="let item of value"
-                    [selectable]="true"
-                    [removable]="true"
                     (removed)="remove(item)"
                 >
-                    {{ item }}
-                    <app-icon matChipRemove>close</app-icon>
-                </mat-chip>
-                <input
-                    [placeholder]="placeholder || 'User groups...'"
-                    i18n-placeholder="@@userGroupsPlaceholder"
-                    [matChipInputFor]="chipList"
-                    [matChipInputSeparatorKeyCodes]="separators"
-                    [matChipInputAddOnBlur]="true"
-                    (matChipInputTokenEnd)="add($event)"
-                />
-            </mat-chip-list>
+                    <span class="truncate max-w-md">{{ item }}</span>
+                    <button matChipRemove [attr.aria-label]="'Remove ' + item">
+                        <app-icon>cancel</app-icon>
+                    </button>
+                </mat-chip-row>
+            </mat-chip-grid>
+            <input
+                [placeholder]="placeholder || 'User groups...'"
+                i18n-placeholder="@@userGroupsPlaceholder"
+                [matChipInputFor]="chipList"
+                [matChipInputSeparatorKeyCodes]="separators"
+                [matChipInputAddOnBlur]="true"
+                (matChipInputTokenEnd)="add($event)"
+            />
         </mat-form-field>
     `,
     styles: [``],

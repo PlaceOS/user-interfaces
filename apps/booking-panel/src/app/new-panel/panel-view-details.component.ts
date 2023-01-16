@@ -28,7 +28,7 @@ import { PanelStateService } from '../panel-state.service';
             >
                 <img class="w-full" [src]="qr_code" />
                 <div class="w-full text-lg" *ngIf="!custom_qr">
-                {{ "PANEL.SCAN_QR_CODE" | translate }}
+                    {{ 'PANEL.SCAN_QR_CODE' | translate }}
                 </div>
             </div>
             <div
@@ -41,7 +41,7 @@ import { PanelStateService } from '../panel-state.service';
                     class="text-4xl"
                     *ngIf="(current | async) && !hide_meeting_details"
                 >
-                    {{ "PANEL.HOST" | translate }}
+                    {{ 'PANEL.HOST' | translate }}
                     {{
                         (current | async).organiser?.name ||
                             (current | async).host
@@ -53,7 +53,9 @@ import { PanelStateService } from '../panel-state.service';
                 class="absolute bottom-0 inset-x-0 bg-black/20 text-white p-4 text-center text-3xl"
             >
                 {{ (current | async).title }}
-                <span class="font-light">{{ "PANEL.MEETING_IN_PROGRESS" | translate }}</span>
+                <span class="font-light">{{
+                    'PANEL.MEETING_IN_PROGRESS' | translate
+                }}</span>
             </div>
         </div>
     `,
@@ -93,7 +95,7 @@ export class PanelViewDetailsComponent {
     constructor(private _state: PanelStateService) {}
 
     public async ngOnInit() {
-        this._state.current.subscribe((v) => console.log('Current:', v));
+        this._state.current.subscribe();
         this._state.settings.subscribe(({ custom_qr_url, custom_qr_color }) => {
             if (custom_qr_url) {
                 this.qr_code = generateQRCode(

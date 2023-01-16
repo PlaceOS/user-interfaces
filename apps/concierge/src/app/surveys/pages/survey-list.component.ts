@@ -7,6 +7,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { SurveyCreatorService } from '../services/survey-creator.service';
 import { BuildingsService } from '../services/buildings.service';
 import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.component';
+import { OrganisationService } from '@placeos/organisation';
+import { BaseClass } from '@placeos/common';
+import { take } from 'rxjs/operators';
 
 @Component({
     selector: 'survey-list',
@@ -48,7 +51,7 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                             </mat-form-field>
                         </div>
 
-                        <button mat-button (click)="navigate()">
+                        <button btn matRipple (click)="navigate()">
                             <span> Add New Survey</span>
                             <mat-icon>add</mat-icon>
                         </button>
@@ -130,7 +133,8 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
                                                 "
                                             >
                                                 <button
-                                                    mat-icon-button
+                                                    icon
+                                                    matRipple
                                                     [matMenuTriggerFor]="
                                                         optionsMenu
                                                     "
@@ -236,7 +240,7 @@ import { ConfirmDeleteModalComponent } from '../components/confirm-delete-modal.
         `,
     ],
 })
-export class SurveyListComponent implements OnInit {
+export class SurveyListComponent extends BaseClass implements OnInit {
     selected_building: string = '';
 
     building_levels: any[];
@@ -299,16 +303,18 @@ export class SurveyListComponent implements OnInit {
     paramsSubscription: Subscription = new Subscription();
 
     constructor(
-        private location: Location,
         private route: ActivatedRoute,
         public router: Router,
 
         public dialog: MatDialog,
         public surveyCreatorService: SurveyCreatorService,
-        public buildingsService: BuildingsService
-    ) {}
+        private _org: OrganisationService
+    ) {
+        super();
+    }
 
-    ngOnInit(): void {
+    async ngOnInit() {
+        await this._org.initialised.pipe(take(1)).toPromise();
         this._getParams();
         this.saved_surveys$ = this.surveyCreatorService.saved_surveys$;
         this.saved_surveys$.subscribe(
@@ -413,25 +419,19 @@ export class SurveyListComponent implements OnInit {
 
     private _getParams(): void {
         let id: string;
-        this.paramsSubscription = this.route.paramMap.subscribe((params) => {
-            id = params.get('id') || '';
-        });
-        if (id) {
-            this._findBuilding(id);
-        }
-    }
-
-    private _findBuilding(building_id: string) {
-        let found_building;
-        this.buildingSubscription = this.buildingsService.buildings$.subscribe(
-            (buildings) => {
-                found_building = buildings.find(
-                    (item) => item.id == building_id
+        this.subscription(
+            'route.params',
+            this.route.paramMap.subscribe((params) => {
+                id = params.get('id') || '';
+                if (!id) return;
+                const bld = this._org.buildings.find((_) => _.id === id);
+                if (!bld) return;
+                this.surveyCreatorService.updateCurrentBuilding(
+                    bld.display_name
                 );
-            }
+                this.selected_building = bld.display_name;
+            })
         );
-        this.surveyCreatorService.updateCurrentBuilding(found_building);
-        this.selected_building = found_building.display_name;
     }
 
     private _filterSurveysByBuilding(building_name: string) {

@@ -21,7 +21,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
         `,
     ],
     template: `
-        <button close mat-icon-button *ngIf="show_close" (click)="dismiss()">
+        <button close icon matRipple *ngIf="show_close" (click)="dismiss()">
             <app-icon>close</app-icon>
         </button>
         <header class="flex items-center justify-between px-2">
@@ -58,7 +58,9 @@ import { Desk, OrganisationService } from '@placeos/organisation';
         >
             <app-icon class="text-success">done</app-icon>
             <div details class="leading-6">
-                <h3 name>{{ booking_asset?.name || booking_asset?.id || '' }}</h3>
+                <h3 name>
+                    {{ booking_asset?.name || booking_asset?.id || '' }}
+                </h3>
                 <div class="flex items-center space-x-2">
                     <app-icon>person</app-icon>
                     <span i18n>Single desk</span>
@@ -84,7 +86,9 @@ import { Desk, OrganisationService } from '@placeos/organisation';
             <div details class="leading-6">
                 <h3 i18n>{{ assets_count }} Asset(s)</h3>
                 <div class="flex space-x-2" *ngFor="let asset of assets">
-                    <div class="h-5 w-5 bg-gray-100 dark:bg-neutral-600 rounded-full">
+                    <div
+                        class="h-5 w-5 bg-gray-100 dark:bg-neutral-600 rounded-full"
+                    >
                         {{ asset.amount }}
                     </div>
                     <span>{{ asset.name }}</span>
@@ -104,10 +108,13 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                 </div>
             </div>
         </section>
-        <footer class="p-2 w-full border-t border-gray-200 dark:border-neutral-500 mt-4">
+        <footer
+            class="p-2 w-full border-t border-gray-200 dark:border-neutral-500 mt-4"
+        >
             <button
                 confirm
-                mat-button
+                btn
+                matRipple
                 class="w-full"
                 *ngIf="!(loading | async)"
                 (click)="postForm()"

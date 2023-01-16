@@ -1,9 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import {
-    ApplicationIcon,
-    SettingsService,
-} from '@placeos/common';
+import { ApplicationIcon, SettingsService } from '@placeos/common';
 import { first } from 'rxjs/operators';
 
 @Component({
@@ -53,13 +50,18 @@ import { first } from 'rxjs/operators';
                                     formControlName="password"
                                     (keyup.enter)="login()"
                                 />
-                                <mat-error>Invalid username or password</mat-error>
+                                <mat-error
+                                    >Invalid username or password</mat-error
+                                >
                             </mat-form-field>
                         </div>
                     </ng-container>
                 </div>
-                <div class="flex items-center justify-center w-full" *ngIf="!loading">
-                    <button mat-button color="primary" (click)="login()">
+                <div
+                    class="flex items-center justify-center w-full"
+                    *ngIf="!loading"
+                >
+                    <button btn matRipple color="primary" (click)="login()">
                         Login
                     </button>
                 </div>

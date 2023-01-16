@@ -5,11 +5,11 @@ import { ApplicationIcon } from 'libs/common/src/lib/types';
     selector: 'action-icon',
     template: `
         <button
-            mat-icon-button
-            class="relative flex items-center justify-center h-8 w-8"
+            icon
+            matRipple
+            class="relative"
             [class.success]="state === 'success'"
             [disabled]="loading || disabled"
-            title=""
         >
             <app-icon root [className]="className" [icon]="icon">
                 {{ content }}
@@ -29,13 +29,6 @@ import { ApplicationIcon } from 'libs/common/src/lib/types';
         `
             .action-icon.fade > app-icon {
                 opacity: 0.35;
-            }
-
-            [center] {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
             }
 
             .success {

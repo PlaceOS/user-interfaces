@@ -24,12 +24,12 @@ export interface AppLocale {
         <div
             class="rounded bg-white dark:bg-neutral-700 dark:text-white shadow mt-1 flex flex-col relative divide-y divide-gray-300 dark:divide-neutral-500"
         >
-            <div
-                avatar
-                class="flex flex-col items-center p-2 w-[18rem]"
-                [matTooltip]="groups"
-            >
-                <a-user-avatar class="text-2xl" [user]="user"></a-user-avatar>
+            <div avatar class="flex flex-col items-center p-2 w-[18rem]">
+                <a-user-avatar
+                    class="text-2xl"
+                    [user]="user"
+                    [matTooltip]="groups"
+                ></a-user-avatar>
                 <div class="">{{ user?.name }}</div>
                 <div class="text-xs opacity-60 truncate">{{ user?.email }}</div>
             </div>
@@ -39,8 +39,10 @@ export interface AppLocale {
                 [content]="region_select"
                 class="relative"
             >
-                <button mat-button class="clear w-full text-left h-[3.5rem]">
-                    <div class="flex items-center space-x-2 dark:text-white">
+                <button btn matRipple class="clear w-full text-left h-[3.5rem]">
+                    <div
+                        class="w-full flex items-center space-x-2 dark:text-white"
+                    >
                         <div
                             class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800"
                         >
@@ -59,8 +61,10 @@ export interface AppLocale {
                 </button>
             </div>
             <div customTooltip [content]="building_select" class="relative">
-                <button mat-button class="clear w-full text-left h-[3.5rem]">
-                    <div class="flex items-center space-x-2 dark:text-white">
+                <button btn matRipple class="clear w-full text-left h-[3.5rem]">
+                    <div
+                        class="w-full flex items-center space-x-2 dark:text-white"
+                    >
                         <div
                             class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800"
                         >
@@ -83,8 +87,10 @@ export interface AppLocale {
                 [content]="help_tooltip"
                 *ngIf="features.includes('help')"
             >
-                <button mat-button class="clear w-full text-left h-[3.5rem]">
-                    <div class="flex items-center space-x-2 dark:text-white">
+                <button btn matRipple class="clear w-full text-left h-[3.5rem]">
+                    <div
+                        class="w-full flex items-center space-x-2 dark:text-white"
+                    >
                         <div
                             class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800"
                         >
@@ -99,11 +105,14 @@ export interface AppLocale {
             </div>
             <div *ngIf="features.includes('wfh')">
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     class="clear w-full text-left h-[3.5rem]"
                     (click)="openWfhModal()"
                 >
-                    <div class="flex items-center space-x-2 dark:text-white">
+                    <div
+                        class="w-full flex items-center space-x-2 dark:text-white"
+                    >
                         <div
                             class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800"
                         >
@@ -121,8 +130,10 @@ export interface AppLocale {
                 [content]="accessibility_tooltip"
                 [class.!border-b]="!locales?.length"
             >
-                <button mat-button class="clear w-full text-left h-[3.5rem]">
-                    <div class="flex items-center space-x-2 dark:text-white">
+                <button btn matRipple class="clear w-full text-left h-[3.5rem]">
+                    <div
+                        class="w-full flex items-center space-x-2 dark:text-white"
+                    >
                         <div
                             class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800"
                         >
@@ -141,14 +152,19 @@ export interface AppLocale {
                 *ngIf="locales?.length"
                 class="!border-b"
             >
-                <button mat-button class="clear w-full text-left h-[3.5rem]">
-                    <div class="flex items-center space-x-2 dark:text-white">
+                <button btn matRipple class="clear w-full text-left h-[3.5rem]">
+                    <div
+                        class="w-full flex items-center space-x-2 dark:text-white"
+                    >
                         <div
                             class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800"
                         >
                             <app-icon>mode_night</app-icon>
                         </div>
-                        <div class="flex-1" i18n>{{ 'COMMON.LANGUAGE_LABEL' | translate }}: {{ 'COMMON.LANGUAGE' | translate }}</div>
+                        <div class="flex-1" i18n>
+                            {{ 'COMMON.LANGUAGE_LABEL' | translate }}:
+                            {{ 'COMMON.LANGUAGE' | translate }}
+                        </div>
                         <app-icon class="opacity-60 text-2xl"
                             >chevron_right</app-icon
                         >
@@ -156,11 +172,12 @@ export interface AppLocale {
                 </button>
             </div>
             <button
-                mat-button
+                btn
+                matRipple
                 class="clear w-full text-left h-[3.5rem]"
                 (click)="openSupportTicketModal()"
             >
-                <div class="flex items-center space-x-2 dark:text-white">
+                <div class="w-full flex items-center space-x-2 dark:text-white">
                     <div
                         class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800"
                     >
@@ -170,7 +187,13 @@ export interface AppLocale {
                 </div>
             </button>
             <div class="flex flex-col items-center p-4">
-                <button mat-button i18n class="inverse mb-4" (click)="logout()">
+                <button
+                    btn
+                    matRipple
+                    i18n
+                    class="inverse mb-4"
+                    (click)="logout()"
+                >
                     Sign Out
                 </button>
                 <div class="text-xs opacity-60 w-full">

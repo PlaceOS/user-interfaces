@@ -17,13 +17,16 @@ import {
                 (click)="$event.stopPropagation()"
             >
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     (click)="request = null; requestChange.emit(request)"
                     class="absolute top-1 right-1"
                 >
                     <app-icon>close</app-icon>
                 </button>
-                <div class="border-b border-gray-200 dark:border-neutral-500 px-2 py-4 flex space-x-4">
+                <div
+                    class="border-b border-gray-200 dark:border-neutral-500 px-2 py-4 flex space-x-4"
+                >
                     <a-user-avatar
                         [user]="{ name: request.user_name }"
                         class="text-xl"

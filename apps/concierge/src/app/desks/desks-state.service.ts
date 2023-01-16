@@ -245,7 +245,7 @@ export class DesksStateService extends BaseClass {
             list.map((desk) => rejectBooking(desk.id).toPromise())
         );
         notifySuccess(
-            'Successfull rejected all desk bookings for selected date.'
+            'Successfully rejected all desk bookings for selected date.'
         );
         resp.close();
     }

@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import { BaseClass, SettingsService } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
@@ -8,6 +9,10 @@ import { Desk, OrganisationService } from '@placeos/organisation';
     selector: 'new-desk-form-details',
     styles: [],
     template: `
+        <!-- <div class="m-2 bg-yellow-500 p-2 text-center rounded shadow text-sm">
+            The selected desk hasn't been booked. Please book the desk to be
+            able to check-in.
+        </div> -->
         <div
             class="p-0 sm:py-4 sm:px-16 divide-y divide-gray-300 space-y-2"
             *ngIf="form"
@@ -104,7 +109,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                         <mat-checkbox
                             formControlName="all_day"
                             *ngIf="allow_all_day"
-                            class="absolute top-0 right-0"
+                            class="absolute -top-2 right-0"
                             i18n
                         >
                             All Day
@@ -188,7 +193,8 @@ export class NewDeskFormDetailsComponent extends BaseClass {
     public readonly features = this._state.features;
 
     /** Selected desk for booking */
-    public selectedDesk: Desk;
+    public selected_desk: Desk;
+    public from_id = false;
 
     public readonly recurrence_options = ['daily', 'weekly', 'monthly'];
 
@@ -258,7 +264,7 @@ export class NewDeskFormDetailsComponent extends BaseClass {
 
     private setBookingAsset(desk: Desk) {
         if (!desk) return;
-        this.selectedDesk = desk;
+        this.selected_desk = desk;
         this._state.form.patchValue({
             asset_id: desk?.id,
             asset_name: desk.name,

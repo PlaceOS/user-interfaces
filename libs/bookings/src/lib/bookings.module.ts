@@ -61,7 +61,7 @@ const COMPONENTS = [
     DeskFiltersDisplayComponent,
     DeskListComponent,
     DeskMapComponent,
-    DeskListFieldComponent
+    DeskListFieldComponent,
 ];
 @NgModule({
     declarations: [...COMPONENTS],
@@ -79,7 +79,7 @@ const COMPONENTS = [
         MatCheckboxModule,
         MatAutocompleteModule,
         FormFieldsModule,
-        ComponentsModule
+        ComponentsModule,
     ],
     providers: [ReactiveFormsModule],
     exports: [...COMPONENTS],

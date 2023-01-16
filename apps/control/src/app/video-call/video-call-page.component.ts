@@ -101,7 +101,8 @@ import { VideoCallStateService } from './video-call-state.service';
                     class="flex-1 p-2 flex flex-col items-center justify-center space-y-4"
                 >
                     <button
-                        mat-button
+                        btn
+                        matRipple
                         class="bg-error w-full"
                         (click)="endCall()"
                     >
@@ -111,7 +112,8 @@ import { VideoCallStateService } from './video-call-state.service';
                         </div>
                     </button>
                     <button
-                        mat-button
+                        btn
+                        matRipple
                         class="w-full"
                         (click)="toggleMute()"
                         [class.inverse]="!(mic_mute | async)"
@@ -128,7 +130,8 @@ import { VideoCallStateService } from './video-call-state.service';
                         </div>
                     </button>
                     <button
-                        mat-button
+                        btn
+                        matRipple
                         class="w-full"
                         [class.inverse]="(call | async)?.Status !== 'OnHold'"
                         (click)="toggleOnHold()"
@@ -147,7 +150,8 @@ import { VideoCallStateService } from './video-call-state.service';
                         </div>
                     </button>
                     <button
-                        mat-button
+                        btn
+                        matRipple
                         class="w-full"
                         (click)="toggleCamera()"
                         [class.inverse]="show_camera_pip | async"
@@ -257,7 +261,6 @@ export class VideoCallPageComponent extends BaseClass {
             .toPromise();
         this.loading = '';
         this.clearTimeout('check_call');
-        console.log('Present Output:', this.present_output);
     }
 
     public selectCamera(camera: string) {
@@ -267,7 +270,6 @@ export class VideoCallPageComponent extends BaseClass {
     }
 
     private _onCallEnded() {
-        console.log('Redirect:', this.redirect);
         if (this.redirect) this._router.navigate(['/panel', this._control.id]);
     }
 }

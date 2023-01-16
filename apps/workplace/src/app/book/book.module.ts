@@ -46,6 +46,7 @@ import { ParkingFormDetailsComponent } from './new-parking-flow/parking-form-det
 import { MeetingFlowConfirmModalComponent } from './meeting-flow/meeting-flow-confirm-modal.component';
 import { NewParkingFlowConfirmComponent } from './new-parking-flow/parking-flow-confirm.component';
 import { CodeFlowSuccessComponent } from './code-flow-success.component';
+import { CodeFlowErrorComponent } from './code-flow-error.component';
 
 const ROUTES: Route[] = [
     {
@@ -54,6 +55,7 @@ const ROUTES: Route[] = [
         children: [
             { path: 'code', component: BookCodeFlowComponent },
             { path: 'code/success', component: CodeFlowSuccessComponent },
+            { path: 'code/error', component: CodeFlowErrorComponent },
             { path: 'newdesk', redirectTo: 'newdesk/form' },
             { path: 'newdesk/:step', component: NewDeskFlowComponent },
             { path: 'desks', redirectTo: 'desks/form' },
@@ -90,6 +92,7 @@ const ROUTES: Route[] = [
         DeskFlowConfirmComponent,
         BookCodeFlowComponent,
         CodeFlowSuccessComponent,
+        CodeFlowErrorComponent,
         BookParkingFlowComponent,
         ParkingFlowMapComponent,
         ParkingFlowConfirmComponent,

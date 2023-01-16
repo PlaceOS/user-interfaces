@@ -13,7 +13,7 @@ const DEFAULT_PATH = `workplace/#/explore?space={{id}}`;
         <header>
             <h2 class="truncate" i18n>Book - {{ space?.name }}</h2>
             <div class="flex-1"></div>
-            <button mat-icon-button mat-dialog-close>
+            <button icon mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
         </header>

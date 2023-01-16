@@ -10,7 +10,12 @@ import { ControlStateService } from '../control-state.service';
             class="p-4 my-2 bg-white shadow rounded flex flex-col items-center space-y-2 max-h-[65vh] overflow-auto"
         >
             <h3 class="mb-2 text-xl font-medium">Microphones</h3>
-            <ng-container *ngIf="(mic_list | async)?.length || (microphones | async)?.length; else empty_state">
+            <ng-container
+                *ngIf="
+                    (mic_list | async)?.length || (microphones | async)?.length;
+                    else empty_state
+                "
+            >
                 <div *ngFor="let mic of mic_list | async">
                     <label [for]="mic.id">{{ mic.name }}</label>
                     <div
@@ -19,7 +24,8 @@ import { ControlStateService } from '../control-state.service';
                     >
                         <button
                             mute
-                            mat-icon-button
+                            icon
+                            matRipple
                             (click)="mute[mic.id] = !mute[mic.id]"
                         >
                             <app-icon>{{
@@ -30,13 +36,16 @@ import { ControlStateService } from '../control-state.service';
                                     : 'volume_mute'
                             }}</app-icon>
                         </button>
-                        <mat-slider
-                            [ngModel]="!mute[mic.id] ? volume[mic.id] : 0"
-                            (ngModelChange)="
-                                volume[mic.id] = $event; mute[mic.id] = false
-                            "
-                            class="flex-1"
-                        ></mat-slider>
+                        <mat-slider class="flex-1">
+                            <input
+                                matSliderThumb
+                                [ngModel]="!mute[mic.id] ? volume[mic.id] : 0"
+                                (ngModelChange)="
+                                    volume[mic.id] = $event;
+                                    mute[mic.id] = false
+                                "
+                            />
+                        </mat-slider>
                     </div>
                     <div hidden *ngIf="mic?.mod">
                         <i
@@ -65,7 +74,8 @@ import { ControlStateService } from '../control-state.service';
                     >
                         <button
                             mute
-                            mat-icon-button
+                            icon
+                            matRipple
                             [disabled]="!mic.mute_id?.length"
                             (click)="mute[i] = !mute[i]"
                         >
@@ -78,15 +88,18 @@ import { ControlStateService } from '../control-state.service';
                             }}</app-icon>
                         </button>
                         <mat-slider
-                            [ngModel]="!mute[i] ? volume[i] : 0"
-                            (ngModelChange)="
-                                volume[i] = $event; mute[i] = false
-                            "
                             [disabled]="!mic.level_id?.length"
                             [min]="mic.min_level || 0"
                             [max]="mic.max_level || 100"
                             class="flex-1"
-                        ></mat-slider>
+                        >
+                            <input
+                                matSliderThumb
+                                [ngModel]="!mute[i] ? volume[i] : 0"
+                                (ngModelChange)="
+                                    volume[i] = $event; mute[i] = false
+                                "
+                        /></mat-slider>
                     </div>
                     <div hidden *ngIf="mic.module_id">
                         <i

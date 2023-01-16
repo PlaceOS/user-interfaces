@@ -14,7 +14,7 @@ import { Identity } from '@placeos/common';
         >
             {{ item.name }}
         </mat-checkbox>
-        <button mat-button (click)="applyChanges()">Apply</button>
+        <button btn matRipple (click)="applyChanges()">Apply</button>
     `,
     styles: [
         `

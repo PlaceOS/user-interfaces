@@ -6,14 +6,17 @@ import { DashboardStateService } from './dashboard-state.service';
     selector: 'a-dashboard-availability',
     template: `
         <h3 class="m-0 font-medium text-xl">Available Now</h3>
-        <div class="flex flex-col items-center p-2 bg-white dark:bg-neutral-600 shadow my-4 rounded-lg">
+        <div
+            class="flex flex-col items-center p-2 bg-white dark:bg-neutral-600 shadow my-4 rounded-lg"
+        >
             <div class="flex items-center w-full mb-2">
                 <div>Building Levels</div>
             </div>
             <div free-levels class="items space-y-2 w-full">
                 <a
                     button
-                    mat-button
+                    btn
+                    matRipple
                     class="w-full"
                     *ngFor="let lvl of levels_free | async | slice: 0:2"
                     [routerLink]="['/explore']"
@@ -21,7 +24,7 @@ import { DashboardStateService } from './dashboard-state.service';
                 >
                     <div class="max-w-full truncate">
                         {{ lvl.display_name || lvl.name }}
-</div>
+                    </div>
                 </a>
                 <span
                     *ngIf="!(levels_free | async).length"
@@ -41,7 +44,8 @@ import { DashboardStateService } from './dashboard-state.service';
             <div class="items space-y-2 w-full">
                 <a
                     button
-                    mat-button
+                    btn
+                    matRipple
                     class="w-full"
                     *ngFor="let space of space_list | async | slice: 0:3"
                     [routerLink]="['/explore']"

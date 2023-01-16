@@ -8,14 +8,17 @@ import { OrganisationService } from '@placeos/organisation';
     selector: 'new-parking-flow-confirm',
     template: ` <button
             close
-            mat-icon-button
+            icon
+            matRipple
             *ngIf="show_close"
             (click)="dismiss()"
         >
             <app-icon>close</app-icon>
         </button>
         <header class="flex items-center justify-between px-2">
-            <h2 class="text-2xl font-medium mb-2" i18n>Confirm Parking Reservation</h2>
+            <h2 class="text-2xl font-medium mb-2" i18n>
+                Confirm Parking Reservation
+            </h2>
             <mat-spinner diameter="32" *ngIf="loading | async"></mat-spinner>
         </header>
         <section period class="flex space-x-1 py-4 px-2">
@@ -86,7 +89,8 @@ import { OrganisationService } from '@placeos/organisation';
         <footer class="p-2 w-full border-t border-gray-200 mt-4">
             <button
                 confirm
-                mat-button
+                btn
+                matRipple
                 class="w-full"
                 *ngIf="!(loading | async)"
                 (click)="postForm()"

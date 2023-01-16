@@ -27,7 +27,8 @@ import { VideoCallStateService } from './video-call-state.service';
                     </div>
                     <div class="p-2 w-full">
                         <button
-                            mat-button
+                            btn
+                            matRipple
                             class="w-full"
                             [disabled]="!dial_number"
                             (click)="joinConference()"
@@ -36,26 +37,27 @@ import { VideoCallStateService } from './video-call-state.service';
                         </button>
                     </div>
                     <div class="px-2 w-full">
-                    <button
-                        mat-button
-                        class="w-full"
-                        (click)="toggleCamera()"
-                        [class.inverse]="(show_camera_pip | async)"
-                    >
-                        <div class="flex items-center space-x-4">
-                            <app-icon>{{
-                                !(show_camera_pip | async)
-                                    ? 'visibility_off'
-                                    : 'visibility'
-                            }}</app-icon>
-                            <span>{{
-                                (show_camera_pip | async)
-                                    ? 'Hide Camera PIP'
-                                    : 'Show Camera PIP'
-                            }}</span>
-                        </div>
-                    </button>
-                        </div>
+                        <button
+                            btn
+                            matRipple
+                            class="w-full"
+                            (click)="toggleCamera()"
+                            [class.inverse]="show_camera_pip | async"
+                        >
+                            <div class="flex items-center space-x-4">
+                                <app-icon>{{
+                                    !(show_camera_pip | async)
+                                        ? 'visibility_off'
+                                        : 'visibility'
+                                }}</app-icon>
+                                <span>{{
+                                    (show_camera_pip | async)
+                                        ? 'Hide Camera PIP'
+                                        : 'Show Camera PIP'
+                                }}</span>
+                            </div>
+                        </button>
+                    </div>
                 </div>
             </ng-container>
         </div>
@@ -81,7 +83,8 @@ export class VideoCallDialViewComponent {
 
     public readonly toggleCamera = async () =>
         this._call.showCameraPIP(
-            !(await this.show_camera_pip.pipe(take(1)).toPromise()));
+            !(await this.show_camera_pip.pipe(take(1)).toPromise())
+        );
 
     public get id() {
         return this._control.id;

@@ -10,8 +10,17 @@ import {
     roundToNearestMinutes,
 } from 'date-fns';
 
-export type BookingType = 'desk' | 'parking' | 'locker' | 'room' | 'visitor' | 'asset-request' | 'staff' | 'wfh-setting' | '';
-const IGNORE_EXT_KEYS = ['user', 'booked_by', 'resources', 'assets']; 
+export type BookingType =
+    | 'desk'
+    | 'parking'
+    | 'locker'
+    | 'room'
+    | 'visitor'
+    | 'asset-request'
+    | 'staff'
+    | 'wfh-setting'
+    | '';
+const IGNORE_EXT_KEYS = ['user', 'booked_by', 'resources', 'assets'];
 
 /** General purpose booking class */
 export class Booking {
@@ -83,7 +92,12 @@ export class Booking {
     constructor(data: Partial<Booking> = {}) {
         this.id = data.id || '';
         this.asset_id = data.asset_id || '';
-        this.asset_name = data.asset_name || data.extension_data?.asset_name || data.extension_data?.name || data.description || '';
+        this.asset_name =
+            data.asset_name ||
+            data.extension_data?.asset_name ||
+            data.extension_data?.name ||
+            data.description ||
+            '';
         this.zones = data.zones || [];
         this.booking_start =
             data.date / 1000 ||
@@ -115,7 +129,10 @@ export class Booking {
         this.user_email = data.user_email || '';
         this.user_id = data.user_id || '';
         this.user_name = data.user_name || '';
-        this.title = data.title || this.booking_type ? `${capitalizeFirstLetter(this.booking_type)} Booking` : '';
+        this.title =
+            data.title || this.booking_type
+                ? `${capitalizeFirstLetter(this.booking_type)} Booking`
+                : '';
         this.description = data.description || '';
         this.checked_in = !!data.checked_in;
         this.rejected = !!data.rejected;
@@ -131,7 +148,7 @@ export class Booking {
         this.access = !!data.extension_data?.access;
         this.event_id = data.event_id;
         this.attendees = data.attendees || [];
-        this.all_day = data.all_day ?? this.duration > 12 * 60;
+        this.all_day = data.all_day ?? this.duration >= 12 * 60;
         this.status = this.rejected
             ? 'declined'
             : this.approved

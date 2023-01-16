@@ -1,7 +1,11 @@
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
-import { BookingAsset, BookingFlowOptions, BookingFormService } from '../booking-form.service';
+import {
+    BookingAsset,
+    BookingFlowOptions,
+    BookingFormService,
+} from '../booking-form.service';
 
 export const FAV_PARKING_KEY = 'favourite_parking_spaces';
 
@@ -9,10 +13,10 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
     selector: 'parking-space-select-modal',
     template: `
         <div
-            class="absolute inset-0 sm:relative sm:inset-none flex flex-col bg-white dark:bg-neutral-700"
+            class="w-[100vw] h-[100vh] sm:relative sm:w-auto sm:h-auto flex flex-col bg-white dark:bg-neutral-700"
         >
             <header class="flex items-center space-x-4 w-full">
-                <button mat-icon-button mat-dialog-close class="bg-black/20">
+                <button icon matRipple mat-dialog-close class="bg-black/20">
                     <app-icon>close</app-icon>
                 </button>
                 <h3 i18n>Find Parking Space</h3>
@@ -56,7 +60,8 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                 class="flex sm:hidden flex-col-reverse items-center justify-end p-2 border-t border-gray-200 dark:border-neutral-500 w-full"
             >
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     return
                     class="inverse sm:hidden w-full"
                     *ngIf="displayed"
@@ -66,7 +71,8 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                     Back
                 </button>
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     save
                     [mat-dialog-close]="selected"
                     [class.mb-2]="displayed"
@@ -80,7 +86,8 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                 class="hidden sm:flex items-center justify-between p-2 border-t border-gray-200 dark:border-neutral-500 w-full"
             >
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     [mat-dialog-close]="selected"
                     class="clear text-primary"
                 >
@@ -93,7 +100,8 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                     {{ selected.length }} bay(s) added
                 </p>
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     [disabled]="!displayed"
                     [class.inverse]="isSelected(displayed?.id)"
                     (click)="setSelected(displayed, !isSelected(displayed?.id))"
@@ -143,7 +151,10 @@ export class ParkingSpaceSelectModalComponent {
         private _settings: SettingsService,
         private _event_form: BookingFormService,
         @Inject(MAT_DIALOG_DATA)
-        private _data: { spaces: BookingAsset[]; options: Partial<BookingFlowOptions> }
+        private _data: {
+            spaces: BookingAsset[];
+            options: Partial<BookingFlowOptions>;
+        }
     ) {
         this.selected = [...(_data.spaces || [])];
         this._event_form.setOptions(_data.options);

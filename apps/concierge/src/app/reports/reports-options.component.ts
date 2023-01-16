@@ -10,7 +10,7 @@ import { ReportsStateService } from './reports-state.service';
     selector: 'reports-options',
     template: `
         <div
-            class="bg-white dark:bg-neutral-700 h-20 w-full flex items-center px-2"
+            class="bg-white dark:bg-neutral-700 h-20 w-full flex items-center px-2 shadow z-20 border-b border-gray-200"
         >
             <mat-form-field appearance="outline" class="w-48">
                 <mat-select
@@ -50,7 +50,8 @@ import { ReportsStateService } from './reports-state.service';
                 <mat-date-range-picker #picker></mat-date-range-picker>
             </mat-form-field>
             <button
-                mat-button
+                btn
+                matRipple
                 class="ml-4"
                 [disabled]="
                     !!(loading | async) || !(options | async)?.zones?.length
@@ -64,7 +65,8 @@ import { ReportsStateService } from './reports-state.service';
                 <p *ngIf="!(loading | async)">Generate Report</p>
             </button>
             <button
-                mat-button
+                btn
+                matRipple
                 class="ml-4"
                 [disabled]="!(bookings | async)?.length"
                 (click)="downloadReport()"

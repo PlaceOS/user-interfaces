@@ -9,7 +9,9 @@ import { OrganisationService } from '@placeos/organisation';
 @Component({
     selector: 'sidebar',
     template: `
-        <div class="flex flex-col bg-primary dark:bg-slate-800 w-48 text-white h-full">
+        <div
+            class="flex flex-col bg-primary dark:bg-slate-800 w-48 text-white h-full"
+        >
             <div class="logo w-full flex items-center justify-center p-3 mb-4">
                 <img class="w-full" [src]="logo.src" />
             </div>
@@ -44,21 +46,27 @@ import { OrganisationService } from '@placeos/organisation';
             </button>
         </div>
         <mat-menu #menu="matMenu">
-            <button
-                mat-menu-item
-                *ngFor="let building of buildings | async"
-                (click)="setBuilding(building)"
-                class="w-40"
-            >
-                {{ building.display_name || building.name }}
-            </button>
+            <div class="flex flex-col">
+                <mat-radio-group
+                    aria-label="Select a building"
+                    [ngModel]="(active_building | async)?.id"
+                >
+                    <mat-radio-button
+                        [value]="building.id"
+                        *ngFor="let building of buildings | async"
+                        (click)="setBuilding(building)"
+                    >
+                        {{ building.display_name || building.name }}
+                    </mat-radio-button>
+                </mat-radio-group>
+            </div>
         </mat-menu>
     `,
     styles: [
         `
             a.active {
                 background-color: var(--ternary) !important;
-                color: #000E !important;
+                color: #000e !important;
             }
         `,
     ],

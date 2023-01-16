@@ -32,7 +32,7 @@ import { isThisSecond } from 'date-fns/esm';
                 </span>
 
                 <span>
-                    <button mat-icon-button>
+                    <button icon>
                         <mat-icon
                             aria-hidden="false"
                             aria-label="Material icon for search field"

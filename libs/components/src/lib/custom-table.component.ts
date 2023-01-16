@@ -96,7 +96,8 @@ import { Observable } from 'rxjs';
 })
 export class CustomTableComponent<T extends {} = any>
     extends BaseClass
-    implements AfterViewInit, OnChanges {
+    implements AfterViewInit, OnChanges
+{
     /** Data source to render in the table */
     @Input() public dataSource: T[] | Observable<T[]>;
     /** Whether table should use pagination */
@@ -166,7 +167,8 @@ export class CustomTableComponent<T extends {} = any>
         }
         if (changes.columns && this.columns) {
             this.display_column = this.columns.map(
-                (_, idx) => (this.display_column || [])[idx] || _.split('_').join(' ')
+                (_, idx) =>
+                    (this.display_column || [])[idx] || _.split('_').join(' ')
             );
         }
         if (!this.column_size) {

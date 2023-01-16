@@ -36,7 +36,10 @@ const ROUTES: Route[] = [
             { path: 'spaces', component: ReportSpacesComponent },
             { path: 'desks', component: ReportDesksComponent },
             { path: 'catering', component: CateringReportComponent },
-            { path: 'contact-tracing', component: ContactTracingReportComponent },
+            {
+                path: 'contact-tracing',
+                component: ContactTracingReportComponent,
+            },
             { path: '**', redirectTo: 'desks', pathMatch: 'full' },
         ],
     },
@@ -65,7 +68,7 @@ const ROUTES: Route[] = [
 
         ContactTracingReportComponent,
         ContactTracingOptionsComponent,
-        GetUserPipe
+        GetUserPipe,
     ],
     imports: [
         CommonModule,

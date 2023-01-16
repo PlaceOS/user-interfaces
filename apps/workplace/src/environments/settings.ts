@@ -5,12 +5,12 @@ const general: any = {
     banner: {
         id: '2',
         type: 'info',
-        content: ``
+        content: ``,
     },
     search: true,
     copyright: 'PlaceOS',
     position: 'right',
-    dark_mode: true
+    dark_mode: true,
 };
 /**
  * HELP/SUPPORT SETTINGS
@@ -80,7 +80,7 @@ const events: any = {
     features_label: '',
     features_on_form: false,
     booking_unavailable: false,
-    allow_externals: true
+    allow_externals: true,
 };
 /*===========================*\
 ||  SPACE LISTING SETTINGS   ||
@@ -99,7 +99,7 @@ const directory: any = {
 ||    SCHEULDE SETTINGS   ||
 \*===========================*/
 const schedule = {
-    use_websocket: false,
+    use_websocket: true,
     legend: [
         { name: 'Accepted', color: '#21A453' },
         { name: 'Pending', color: '#ffbf1f' },
@@ -131,11 +131,13 @@ const explore: any = {
     can_select_building: true,
     show_legend_group_names: true,
     show_legend: true,
+    use_zone_polygons: false,
+    show_simple_sensor_info: false,
     legend: [
         ['Available', '#43a047'],
         ['In Use', '#e53935'],
         ['Pending', '#ffb300'],
-        ['Signs of Life', '#1565c0']
+        ['Signs of Life', '#1565c0'],
     ],
 };
 /**
@@ -156,15 +158,25 @@ const app: any = {
     },
     locales: [
         { id: 'en', name: 'English', flag: '🇦🇺' },
-        { id: 'fr', name: 'French', flag: '🇫🇷' }
+        { id: 'fr', name: 'French', flag: '🇫🇷' },
     ],
-    features: ['spaces', 'desks', 'explore', 'parking', 'help', 'schedule', 'wfh', 'payments'],
+    features: [
+        'spaces',
+        'desks',
+        'explore',
+        'parking',
+        'help',
+        'schedule',
+        'wfh',
+        'payments',
+    ],
     currency: '',
     default_route: '/landing',
     use_geolocation: false,
     new_features: true,
     can_deliver: true,
     no_user_calendar: false,
+    basic_user_search: false,
     no_maps: true,
     general,
     help,
@@ -173,7 +185,7 @@ const app: any = {
     directory,
     explore,
     bookings: {
-        no_approval: false
+        no_approval: false,
     },
     booking: {
         allowed_daily_visitor_count: 100,
@@ -182,6 +194,8 @@ const app: any = {
         can_book_lockers: true,
         can_book_for_others: true,
         allow_groups: true,
+        allow_time_changes: true,
+        allow_all_day: true,
         auto_allocation: false,
         show_calendar_links: true,
         hide_map: false,
@@ -191,7 +205,7 @@ const app: any = {
         tracking_id: '',
     },
     hide_contacts: false,
-    schedule
+    schedule,
 };
 /**
  * ROOT SETTIGNS

@@ -30,7 +30,9 @@ import { querySystems } from '@placeos/ts-client';
                     {{ 'PANEL.BOOTSTRAP_DESCRIPTION' | translate }}
                 </p>
                 <mat-form-field appearance="outline">
-                    <mat-label>{{ 'PANEL.BOOTSTRAP_LABEL' | translate }}</mat-label>
+                    <mat-label>{{
+                        'PANEL.BOOTSTRAP_LABEL' | translate
+                    }}</mat-label>
                     <input
                         matInput
                         [ngModel]="system_id$ | async"
@@ -63,11 +65,12 @@ import { querySystems } from '@placeos/ts-client';
                             !(space_list | async)?.length
                         "
                     >
-                    {{ 'PANEL.BOOTSTRAP_INPUT_PLACEHOLDER' | translate }}
+                        {{ 'PANEL.BOOTSTRAP_INPUT_PLACEHOLDER' | translate }}
                     </mat-option>
                 </mat-autocomplete>
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     [disabled]="!system_id$.getValue()"
                     (click)="bootstrap()"
                     i18n
@@ -79,7 +82,9 @@ import { querySystems } from '@placeos/ts-client';
         <ng-template #load_state>
             <div load class="my-16 flex flex-col items-center">
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <div class="m-4" i18n>{{ 'PANEL.LOADING_SYSTEM' | translate }} {{ loading }}</div>
+                <div class="m-4" i18n>
+                    {{ 'PANEL.LOADING_SYSTEM' | translate }} {{ loading }}
+                </div>
             </div>
         </ng-template>
     `,

@@ -27,14 +27,12 @@ const EMPTY = [];
                 Resource } other { Resources } }
             </h2>
             <!-- <div class="flex items-center space-x-2 text-primary">
-                <button
-                    mat-icon-button
+                <button icon
                     class="!border !border-solid !border-primary"
                 >
                     <app-icon>search</app-icon>
                 </button>
-                <button
-                    mat-icon-button
+                <button icon
                     class="!border !border-solid !border-primary"
                 >
                     <app-icon>filter_list</app-icon>
@@ -87,7 +85,7 @@ const EMPTY = [];
                                 <app-icon class="text-blue-500">place</app-icon>
                                 <div>
                                     {{
-                                        level((item | space | async))
+                                        level(item | space | async)
                                             ?.display_name
                                     }}
                                 </div>
@@ -107,16 +105,17 @@ const EMPTY = [];
                         </div>
                     </div>
                     <button
-                        mat-button
+                        btn
+                        matRipple
                         class="w-full inverse"
                         (click)="newSpaceMeeting(item)"
                     >
                         {{ 'WPA.BOOK' | translate }}
                     </button>
                     <button
-                        mat-icon-button
+                        icon
                         [matMenuTriggerFor]="menu"
-                        class="absolute top-2 right-0 bg-gray-200 dark:bg-neutral-600 rounded !m-0"
+                        class="absolute top-2 right-0 bg-gray-200 dark:bg-neutral-600 !rounded !m-0"
                     >
                         <app-icon>more_horiz</app-icon>
                     </button>
@@ -183,7 +182,8 @@ const EMPTY = [];
                         </div>
                     </div>
                     <button
-                        mat-button
+                        btn
+                        matRipple
                         class="w-full inverse"
                         (click)="newBooking(item.type, item)"
                         i18n
@@ -191,9 +191,9 @@ const EMPTY = [];
                         {{ 'WPA.BOOK' | translate }}
                     </button>
                     <button
-                        mat-icon-button
+                        icon
                         [matMenuTriggerFor]="menu"
-                        class="absolute top-2 right-0 bg-gray-200 dark:bg-neutral-600 rounded !m-0"
+                        class="absolute top-2 right-0 bg-gray-200 dark:bg-neutral-600 !rounded !m-0"
                     >
                         <app-icon>more_horiz</app-icon>
                     </button>
@@ -211,7 +211,7 @@ const EMPTY = [];
                             class="flex items-center space-x-2"
                         >
                             <app-icon class="text-2xl">cancel</app-icon>
-                            <div>{{ 'WPA.FAVOURITES_REMOVE' | translate }} </div>
+                            <div>{{ 'WPA.FAVOURITES_REMOVE' | translate }}</div>
                         </button>
                     </mat-menu>
                 </div>

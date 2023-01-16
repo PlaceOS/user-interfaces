@@ -28,6 +28,7 @@ import { searchStaff, User } from '@placeos/users';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { CalendarService } from '@placeos/calendar';
 import { ScheduleStateService } from '../new-schedule/schedule-state.service';
+import { isAfter } from 'date-fns';
 
 export interface LandingOptions {
     search?: string;
@@ -55,7 +56,7 @@ export class LandingStateService extends BaseClass {
     );
 
     private _space_statuses = this._space_list.pipe(
-        tap(_ => this.unsubWith('bind:')),
+        tap((_) => this.unsubWith('bind:')),
         switchMap((list) =>
             combineLatest(
                 (list || []).map((_) => {
@@ -84,7 +85,7 @@ export class LandingStateService extends BaseClass {
     );
     /**  */
     public readonly upcoming_events = this._schedule.filtered_bookings.pipe(
-        map((_) => _.filter((i) => i instanceof CalendarEvent))
+        map((_) => _.filter((i) => isAfter(i.date, Date.now())))
     );
     /**  */
     public contacts = this._contacts.asObservable();

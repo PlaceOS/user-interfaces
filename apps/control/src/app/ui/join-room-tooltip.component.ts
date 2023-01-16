@@ -10,7 +10,7 @@ import { ControlStateService } from '../control-state.service';
         >
             <h3 class="mb-2 font-medium text-center">Join Rooms</h3>
             <button
-                mat-button
+                matRipple
                 *ngFor="let mode of modes | async"
                 (click)="join(mode.id)"
                 [class.inverse]="mode.id !== (active | async)"

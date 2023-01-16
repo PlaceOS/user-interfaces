@@ -64,7 +64,7 @@ export class PaymentsService {
         const [cost, period] = await this._getCostOfProduct(
             details?.type
         ).catch((_) => [0, 60]);
-        console.log('Cost:', cost, period)
+        console.log('Cost:', cost, period);
         if (cost <= 0) return;
         let customer_id = this._settings.get('STRIPE_Customer_ID');
         if (!customer_id) customer_id = await this._newCustomerID();

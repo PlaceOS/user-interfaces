@@ -43,7 +43,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                 (ngModelChange)="setOptions({ user: $event })"
             ></a-user-search-field>
             <button
-                mat-button
+                matRipple
                 [disabled]="!(options | async)?.user"
                 (click)="generate()"
             >

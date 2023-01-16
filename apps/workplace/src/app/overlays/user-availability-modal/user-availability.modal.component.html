@@ -1,9 +1,9 @@
 <header>
-    <div class="heading" mat-dialog-title>
-        Attendees Availability
-    </div>
-    <button mat-icon-button mat-dialog-close>
-        <app-icon [icon]="{ type: 'icon', class: 'material-icons', content: 'close' }"></app-icon>
+    <div class="heading" mat-dialog-title>Attendees Availability</div>
+    <button icon mat-dialog-close>
+        <app-icon
+            [icon]="{ type: 'icon', class: 'material-icons', content: 'close' }"
+        ></app-icon>
     </button>
 </header>
 <mat-dialog-content>
@@ -35,10 +35,13 @@
 </mat-dialog-content>
 <mat-dialog-actions>
     <footer>
-        <button mat-button mat-dialog-close class="inverse">
-            Cancel
-        </button>
-        <button mat-flat-button [disabled]="is_past" color="primary" (click)="save()">
+        <button btn matRipple mat-dialog-close class="inverse">Cancel</button>
+        <button
+            mat-flat-button
+            [disabled]="is_past"
+            color="primary"
+            (click)="save()"
+        >
             Save
         </button>
     </footer>

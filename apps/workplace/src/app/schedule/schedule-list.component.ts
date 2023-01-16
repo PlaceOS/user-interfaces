@@ -17,20 +17,24 @@ import { BookingLike, ScheduleStateService } from './schedule-state.service';
                     (ngModelChange)="setOptions({ calendar: $event })"
                     [placeholder]="user?.name"
                 >
-                    <mat-option *ngFor="let cal of calendars | async" [value]="cal.id">{{
-                        (cal.id | user | async)?.name || cal.id
-                    }}</mat-option>
+                    <mat-option
+                        *ngFor="let cal of calendars | async"
+                        [value]="cal.id"
+                        >{{
+                            (cal.id | user | async)?.name || cal.id
+                        }}</mat-option
+                    >
                 </mat-select>
             </mat-form-field>
             <div class="flex items-center space-x-2">
                 <button
-                    mat-button
+                    matRipple
                     class="clear underline"
                     [matMenuTriggerFor]="legend"
                 >
                     Legend
                 </button>
-                <button mat-icon-button class="relative" #dateMenu>
+                <button icon class="relative" #dateMenu>
                     <app-icon>event</app-icon>
                     <input
                         matInput

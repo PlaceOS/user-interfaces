@@ -125,11 +125,14 @@ class SpacePingComponent extends BaseClass {
                         Parking Bay No.
                         {{ (active_space | async).name }} selected.
                     </p>
-                    <p class="p-2 rounded text-sm max-w-[20rem] text-center text-pending leading-tight" *ngIf="(existing | async)?.length">
+                    <p
+                        class="p-2 rounded text-sm max-w-[20rem] text-center text-pending leading-tight"
+                        *ngIf="(existing | async)?.length"
+                    >
                         Note that your existing parking space reservation will
                         be replaced
                     </p>
-                    <button mat-button (click)="reserveSpace()">
+                    <button btn matRipple (click)="reserveSpace()">
                         Reserve Space
                     </button>
                 </div>

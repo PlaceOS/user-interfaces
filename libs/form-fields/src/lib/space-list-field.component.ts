@@ -43,8 +43,14 @@ const EMPTY_FAVS: string[] = [];
                 class="relative p-2 rounded-lg w-full flex items-center shadow border border-gray-200"
                 *ngFor="let space of spaces"
             >
-                <div class="w-24 h-24 rounded-xl bg-black/20 mr-4 overflow-hidden flex items-center justify-center">
-                    <img *ngIf="space.images?.length; else placeholder" [src]="space.images[0]" class="min-h-full object-cover" />
+                <div
+                    class="w-24 h-24 rounded-xl bg-black/20 mr-4 overflow-hidden flex items-center justify-center"
+                >
+                    <img
+                        *ngIf="space.images?.length; else placeholder"
+                        [src]="space.images[0]"
+                        class="min-h-full object-cover"
+                    />
                     <ng-template #placeholder>
                         <img
                             class="m-auto"
@@ -52,25 +58,36 @@ const EMPTY_FAVS: string[] = [];
                         />
                     </ng-template>
                 </div>
-                <div class="space-y-2 pb-4">
+                <div class="sm:space-y-2 pb-4">
                     <div class="font-medium">
-                        {{ space.display_name || space.name || 'Meeting Space' }}
+                        {{
+                            space.display_name || space.name || 'Meeting Space'
+                        }}
                     </div>
                     <div class="flex items-center text-sm space-x-2">
                         <app-icon class="text-blue-500">place</app-icon>
-                        <p>{{ space.location || level(space.zones)?.display_name || level(space.zones)?.name }}</p>
+                        <p>
+                            {{
+                                space.location ||
+                                    level(space.zones)?.display_name ||
+                                    level(space.zones)?.name
+                            }}
+                        </p>
                     </div>
                     <div class="flex items-center text-sm space-x-2">
                         <app-icon class="text-blue-500">people</app-icon>
                         <p i18n>
-                            {{ space.capacity < 1 ? 2 : space.capacity }} { space.capacity, plural, =1 { Person } other { People } }
+                            {{ space.capacity < 1 ? 2 : space.capacity }} {
+                            space.capacity, plural, =1 { Person } other { People
+                            } }
                         </p>
                     </div>
                     <div
                         class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
                     >
                         <button
-                            mat-button
+                            btn
+                            matRipple
                             edit-space
                             class="clear"
                             (click)="changeSpaces(space)"
@@ -81,7 +98,8 @@ const EMPTY_FAVS: string[] = [];
                             </div>
                         </button>
                         <button
-                            mat-button
+                            btn
+                            matRipple
                             remove-space
                             class="clear"
                             (click)="removeSpace(space)"
@@ -94,7 +112,8 @@ const EMPTY_FAVS: string[] = [];
                     </div>
                 </div>
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     fav
                     class="absolute top-1 right-1"
                     [class.text-blue-400]="favorites.includes(asset?.id)"
@@ -109,7 +128,8 @@ const EMPTY_FAVS: string[] = [];
             </div>
         </div>
         <button
-            mat-button
+            btn
+            matRipple
             add-space
             class="w-full inverse mt-2"
             (click)="changeSpaces()"
@@ -154,7 +174,10 @@ export class SpaceListFieldComponent implements ControlValueAccessor {
     /** Add or edit selected spaces */
     public changeSpaces() {
         const ref = this._dialog.open(NewSpaceSelectModalComponent, {
-            data: { spaces: this.spaces, options: { capacity: this.room_size } },
+            data: {
+                spaces: this.spaces,
+                options: { capacity: this.room_size },
+            },
         });
         ref.afterClosed().subscribe((spaces?: Space[]) => {
             if (!spaces) spaces = ref.componentInstance.selected;

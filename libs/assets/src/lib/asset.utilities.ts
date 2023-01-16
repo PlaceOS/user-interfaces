@@ -13,6 +13,9 @@ export function generateAssetForm(asset: Asset = new Asset()) {
         brand: new FormControl(asset.brand, [Validators.required]),
         specifications: new FormControl(asset.specifications),
         purchase_date: new FormControl(Date.now(), [Validators.required]),
+        purchase_price: new FormControl(asset.purchase_price || 0, [
+            Validators.required,
+        ]),
         expiry_date: new FormControl(0),
         invoices: new FormControl(asset.invoices),
         purchase_details: new FormControl(asset.purchase_details),

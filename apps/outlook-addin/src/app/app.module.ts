@@ -38,7 +38,7 @@ import { MeetingFlowConfirmComponent } from 'apps/workplace/src/app/book/meeting
         MeetingBookingComponent,
         MeetingBookingFormComponent,
         MeetingBookingSuccessComponent,
-        MeetingFlowConfirmComponent
+        MeetingFlowConfirmComponent,
     ],
     imports: [
         BrowserModule,

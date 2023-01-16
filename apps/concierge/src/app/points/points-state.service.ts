@@ -35,7 +35,7 @@ export class PointsStateService {
         ]);
         if (details.reason !== 'done') return ref.close();
         this._assets.next([
-            ...this._assets.getValue().filter(_ => _.id !== asset?.id),
+            ...this._assets.getValue().filter((_) => _.id !== asset?.id),
             {
                 ...details.metadata,
                 id: details.metadata.id || `PA-${randomInt(999_999_999)}`,

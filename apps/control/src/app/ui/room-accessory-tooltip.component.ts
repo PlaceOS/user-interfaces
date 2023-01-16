@@ -2,9 +2,7 @@ import { Component } from '@angular/core';
 import { CustomTooltipData } from '@placeos/components';
 import { getModule } from '@placeos/ts-client';
 
-import {
-    ControlStateService,
-} from '../control-state.service';
+import { ControlStateService } from '../control-state.service';
 
 @Component({
     selector: 'room-accessory-tooltip',
@@ -21,10 +19,17 @@ import {
                     <div class="flex-1 pr-8 font-medium">{{ item.name }}</div>
                     <button
                         state
-                        mat-icon-button
+                        icon
+                        matRipple
                         *ngFor="let ctrl of item.controls"
                         class="border border-solid border-primary text-primary rounded"
-                        (click)="performAction(item.module, ctrl.function_name, ctrl.arguments)"
+                        (click)="
+                            performAction(
+                                item.module,
+                                ctrl.function_name,
+                                ctrl.arguments
+                            )
+                        "
                     >
                         <app-icon>{{ ctrl.icon }}</app-icon>
                     </button>

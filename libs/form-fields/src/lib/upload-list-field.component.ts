@@ -17,7 +17,7 @@ import { uploadFiles } from '@placeos/cloud-uploads';
                 <app-icon class="text-3xl mb-2">upload_file</app-icon>
                 <p class="text-center" i18n>Drop files</p>
                 <p class="text-center text-xs my-1" i18n>or</p>
-                <button mat-button class="w-28" i18n>Browse</button>
+                <button btn matRipple class="w-28" i18n>Browse</button>
                 <input
                     multiple="true"
                     type="file"
@@ -62,14 +62,15 @@ import { uploadFiles } from '@placeos/cloud-uploads';
                         </ng-container>
                         <a
                             [href]="item.url"
-                            mat-icon-button
+                            icon
+                            matRipple
                             *ngIf="item.progress >= 100"
                             target="_blank"
                             rel="noopener noreferrer"
                         >
                             <app-icon>link</app-icon>
                         </a>
-                        <button mat-icon-button (click)="removeFile(item)">
+                        <button icon (click)="removeFile(item)">
                             <app-icon>close</app-icon>
                         </button>
                     </div>
@@ -117,11 +118,14 @@ export class UploadListFieldComponent implements ControlValueAccessor {
      * @param value The new value for the component
      */
     public writeValue(value: Attachment[]) {
-        this.list = value.map(_ => ({ id: `file-${randomInt(999_999_999)}` , ..._ }));
+        this.list = value.map((_) => ({
+            id: `file-${randomInt(999_999_999)}`,
+            ..._,
+        }));
     }
 
     public removeFile(item: Attachment) {
-        this.list = this.list.filter(_ => _.id !== item.id);
+        this.list = this.list.filter((_) => _.id !== item.id);
     }
 
     public onFileEvent(event) {

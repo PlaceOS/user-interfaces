@@ -13,7 +13,7 @@ import { ParkingSpace } from './parking-state.service';
                 class="flex items-center justify-between bg-secondary px-2 w-full"
             >
                 <h2 class="px-2">{{ id ? 'Edit' : 'New' }} Parking Space</h2>
-                <button *ngIf="!loading" mat-icon-button mat-dialog-close>
+                <button *ngIf="!loading" icon matRipple mat-dialog-close>
                     <app-icon>close</app-icon>
                 </button>
             </header>
@@ -56,10 +56,10 @@ import { ParkingSpace } from './parking-state.service';
                     ></textarea>
                 </mat-form-field>
                 <div class="flex items-center justify-center space-x-2">
-                    <button mat-button class="w-32 inverse" mat-dialog-close>
+                    <button btn matRipple class="w-32 inverse" mat-dialog-close>
                         Cancel
                     </button>
-                    <button mat-button class="w-32">Save</button>
+                    <button btn matRipple class="w-32">Save</button>
                 </div>
             </main>
         </div>

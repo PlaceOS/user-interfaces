@@ -54,7 +54,7 @@ import { ControlStateService } from './control-state.service';
                 {{ rec_title || '~Unnamed Recording~' }}
             </div>
             <div class="h-12 w-12 flex items-center justify-center">
-                <button mat-icon-button mute class="rounded-none">
+                <button icon matRipple mute class="rounded-none">
                     <app-icon>fiber_manual_record</app-icon>
                 </button>
             </div>
@@ -63,7 +63,8 @@ import { ControlStateService } from './control-state.service';
                     [attr.place-action]="
                         rec_status === 'playing' ? 'pause' : 'start'
                     "
-                    mat-icon-button
+                    icon
+                    matRipple
                     class="rounded-none"
                     binding
                     [sys]="id"
@@ -102,8 +103,10 @@ import { ControlStateService } from './control-state.service';
             </div>
         </div>
         <div class="flex-1"></div>
-        <div class="flex items-center space-x-2 w-[32rem] max-w-[50%] py-2 px-4">
-            <button mat-icon-button (click)="toggleMute()">
+        <div
+            class="flex items-center space-x-2 w-[32rem] max-w-[50%] py-2 px-4"
+        >
+            <button icon matRipple (click)="toggleMute()">
                 <app-icon>{{
                     (system | async).mute
                         ? 'volume_off'
@@ -117,7 +120,12 @@ import { ControlStateService } from './control-state.service';
                 [ngModel]="!mute ? (system | async).volume : 0"
                 (ngModelChange)="setVolume($event); mute = false"
                 class="flex-1"
-            ></mat-slider>
+            >
+                <input
+                    matSliderThumb
+                    [ngModel]="!mute ? (system | async).volume : 0"
+                    (ngModelChange)="setVolume($event); mute = false"
+            /></mat-slider>
         </div>
     `,
     styles: [
@@ -155,6 +163,5 @@ export class ControlStatusBarComponent extends BaseClass {
 
     constructor(private _state: ControlStateService) {
         super();
-        
     }
 }

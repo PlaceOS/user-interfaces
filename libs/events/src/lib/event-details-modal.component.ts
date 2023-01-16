@@ -16,7 +16,7 @@ import { getModule } from '@placeos/ts-client';
     selector: 'event-details-modal',
     template: `
         <div
-            class="absolute inset-0 sm:relative sm:inset-auto sm:w-[51rem] sm:max-h-[80vh] bg-white sm:bg-gray-100 sm:dark:bg-neutral-600 dark:bg-neutral-700 sm:rounded overflow-auto space-y-2 pb-2"
+            class="w-[100vw] h-[100vh] sm:relative sm:inset-auto sm:w-[51rem] sm:h-auto sm:max-h-[80vh] bg-white sm:bg-gray-100 sm:dark:bg-neutral-600 dark:bg-neutral-700 sm:rounded overflow-auto space-y-2 pb-2"
         >
             <div
                 class="sm:flex flex-col items-center pb-4 max-h-screen sm:max-h-[80vh] sm:px-16 sm:border-b bg-white dark:bg-neutral-700 border-gray-300 dark:border-neutral-500"
@@ -101,15 +101,15 @@ import { getModule } from '@placeos/ts-client';
                         *ngIf="event.state !== 'done'"
                     >
                         <button
-                            mat-button
+                            btn
+                            matRipple
                             class="flex-1 h-10"
-                            *ngIf="
-                                event.can_check_in &&
-                                room_status !== 'free'
-                            "
+                            *ngIf="event.can_check_in && room_status !== 'free'"
                             [class.bg-green-600]="room_status !== 'pending'"
                             [class.border-none]="room_status !== 'pending'"
-                            [class.pointer-events-none]="room_status !== 'pending'"
+                            [class.pointer-events-none]="
+                                room_status !== 'pending'
+                            "
                             (click)="checkin()"
                         >
                             <div
@@ -130,7 +130,8 @@ import { getModule } from '@placeos/ts-client';
                             </div>
                         </button>
                         <button
-                            mat-icon-button
+                            icon
+                            matRipple
                             [matMenuTriggerFor]="menu"
                             class="bg-primary rounded text-white h-10 w-10"
                             *ngIf="allow_edit"
@@ -181,7 +182,7 @@ import { getModule } from '@placeos/ts-client';
                     >
                         <h3 class="text-lg font-medium" i18n>Attendees</h3>
                         <button
-                            mat-button
+                            matRipple
                             show-attendees
                             class="clear text-xs underline"
                             (click)="show_attendees = true"
@@ -290,7 +291,8 @@ import { getModule } from '@placeos/ts-client';
                     ></div>
                 </div>
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     mat-dialog-close
                     class="absolute top-2 left-2 bg-black/30 text-white"
                 >
@@ -380,6 +382,7 @@ export class EventDetailsModalComponent {
     }
 
     public get period() {
+        if (this.event?.all_day) return 'All Day';
         const start = this.event?.date || Date.now();
         const duration = this.event?.duration || 60;
         const end = addMinutes(start, duration);

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { BaseClass, unique } from '@placeos/common';
-import { distinctUntilChanged, map } from 'rxjs/operators';
+import { distinctUntilChanged, map, tap } from 'rxjs/operators';
 
 import { BookingAsset, BookingFormService } from '../booking-form.service';
 
@@ -31,7 +31,11 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
         <div
             class="absolute inset-x-0 top-0 bg-white p-2 border-b border-gray-200"
         >
-            <mat-form-field levels appearance="outline" class="w-full h-[3.25rem]">
+            <mat-form-field
+                levels
+                appearance="outline"
+                class="w-full h-[3.25rem]"
+            >
                 <mat-select
                     [(ngModel)]="level"
                     [ngModelOptions]="{ standalone: true }"
@@ -49,19 +53,15 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
             zoom
             class="absolute bottom-2 right-2 rounded-lg border border-gray-200 bg-white flex flex-col overflow-hidden"
         >
-            <button zoom-in mat-icon-button (click)="setZoom(zoom * 1.1)">
+            <button zoom-in icon matRipple (click)="setZoom(zoom * 1.1)">
                 <app-icon>zoom_in</app-icon>
             </button>
             <div class="border-t border-gray-200 w-full"></div>
-            <button
-                zoom-out
-                mat-icon-button
-                (click)="setZoom(zoom * (1 / 1.1))"
-            >
+            <button zoom-out icon matRipple (click)="setZoom(zoom * (1 / 1.1))">
                 <app-icon>zoom_out</app-icon>
             </button>
             <div class="border-t border-gray-200 w-full"></div>
-            <button reset mat-icon-button (click)="resetMap()">
+            <button reset icon matRipple (click)="resetMap()">
                 <app-icon>refresh</app-icon>
             </button>
         </div>
@@ -85,7 +85,12 @@ export class DeskMapComponent extends BaseClass implements OnInit {
     }
 
     public readonly levels = this._state.available_assets.pipe(
-        map((desks) => unique(desks.map((desk) => desk.zone)))
+        map((desks) =>
+            unique(
+                desks.map((desk) => desk.zone),
+                'id'
+            )
+        )
     );
 
     public readonly actions = this._state.available_assets.pipe(
@@ -117,8 +122,10 @@ export class DeskMapComponent extends BaseClass implements OnInit {
     ngOnInit(): void {
         this.subscription(
             'levels_update',
-            this.levels.pipe(distinctUntilChanged()).subscribe((levels) => {
-                this.level = levels[0];
+            this.levels.subscribe((levels) => {
+                if (!levels.find((_) => _.id === this.level?.id)) {
+                    this.level = levels[0];
+                }
             })
         );
     }

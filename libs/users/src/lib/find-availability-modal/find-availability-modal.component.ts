@@ -23,7 +23,8 @@ export interface FindAvailabilityData {
         <header class="relative flex items-center justify-center p-4">
             <h2 class="text-center">Find Availability</h2>
             <button
-                mat-icon-button
+                icon
+                matRipple
                 mat-dialog-close
                 class="absolute top-1/2 left-1 -translate-y-1/2"
             >
@@ -34,7 +35,9 @@ export interface FindAvailabilityData {
             class="flex flex-col h-[calc(100vh-7rem)] sm:h-[65vh]"
             (window:resize)="updateWidth()"
         >
-            <div class="w-full flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 p-2">
+            <div
+                class="w-full flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 p-2"
+            >
                 <a-date-field
                     [(ngModel)]="date"
                     class="max-h-[3.25rem] flex-1"
@@ -93,7 +96,7 @@ export interface FindAvailabilityData {
                         >
                             {{ user.name || host.email }}
                         </div>
-                        <button mat-icon-button class="absolute -top-1 -left-1">
+                        <button icon class="absolute -top-1 -left-1">
                             <app-icon>close</app-icon>
                         </button>
                         <user-availability-list
@@ -111,7 +114,10 @@ export interface FindAvailabilityData {
                     [attr.disabled]="today && i < current_hour"
                     *ngFor="let h of hours; let i = index"
                 >
-                    <div header class="h-10 border-b border-gray-300 dark:border-neutral-500 p-2">
+                    <div
+                        header
+                        class="h-10 border-b border-gray-300 dark:border-neutral-500 p-2"
+                    >
                         {{ i % 12 ? i % 12 : '12' }}{{ i >= 12 ? 'pm' : 'am' }}
                     </div>
                 </div>
@@ -151,7 +157,7 @@ export interface FindAvailabilityData {
             class="flex items-center justify-between p-2 border-t border-gray-200 dark:border-neutral-500 w-full"
         >
             <button
-                mat-button
+                matRipple
                 [mat-dialog-close]="true"
                 class="clear text-primary"
             >
@@ -215,7 +221,10 @@ export class FindAvailabilityModalComponent extends BaseClass {
     }
 
     public addUser(user: User) {
-        this.users = [...this.users.filter(u => u.email !== user.email), user];
+        this.users = [
+            ...this.users.filter((u) => u.email !== user.email),
+            user,
+        ];
         this.user = null;
     }
 

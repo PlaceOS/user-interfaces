@@ -17,13 +17,19 @@ const EMPTY_FAVS = [];
                 *ngFor="let item of items"
             >
                 <div
-                    class="w-16 h-16 rounded-xl bg-black/20 mr-4 overflow-hidden"
+                    class="w-16 h-16 rounded-xl bg-black/20 mr-4 overflow-hidden flex items-center justify-center"
                 >
                     <img
-                        *ngIf="item.images?.length"
+                        *ngIf="item.images?.length; else placeholder"
                         class="object-cover min-h-full min-w-full"
                         [src]="item.images[0]"
                     />
+                    <ng-template #placeholder>
+                        <img
+                            class="m-auto"
+                            src="assets/icons/catering-placeholder.svg"
+                        />
+                    </ng-template>
                 </div>
                 <div class="pb-4">
                     <div class="font-medium flex items-center">
@@ -41,8 +47,9 @@ const EMPTY_FAVS = [];
                         class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
                     >
                         <button
-                            mat-button
-                            edit-space
+                            btn
+                            matRipple
+                            edit
                             class="clear"
                             (click)="addItems(item)"
                         >
@@ -52,8 +59,9 @@ const EMPTY_FAVS = [];
                             </div>
                         </button>
                         <button
-                            mat-button
-                            remove-space
+                            btn
+                            matRipple
+                            remove
                             class="clear"
                             (click)="removeItem(item)"
                         >
@@ -65,7 +73,8 @@ const EMPTY_FAVS = [];
                     </div>
                 </div>
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     fav
                     class="absolute top-1 right-1"
                     [class.text-blue-400]="favorites.includes(item.id)"
@@ -80,7 +89,8 @@ const EMPTY_FAVS = [];
             </div>
         </div>
         <button
-            mat-button
+            btn
+            matRipple
             add-space
             class="w-full inverse mt-2"
             [disabled]="disabled"

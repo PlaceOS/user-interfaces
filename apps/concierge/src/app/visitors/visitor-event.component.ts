@@ -7,7 +7,11 @@ import { VisitorsStateService } from './visitors-state.service';
 @Component({
     selector: 'visitor-event',
     template: `
-        <div event class="flex items-center px-2 bg-gray-100 dark:bg-neutral-700" *ngIf="event">
+        <div
+            event
+            class="flex items-center px-2 bg-gray-100 dark:bg-neutral-700"
+            *ngIf="event"
+        >
             <div class="w-12 text-lg flex justify-center">
                 <i
                     class="p-2 rounded-full material-icons bg-gray-400 dark:bg-neutral-800"
@@ -32,7 +36,8 @@ import { VisitorsStateService } from './visitors-state.service';
             <div class="w-24 p-2">
                 {{
                     event?.date
-                        | date: ((filters | async)?.period > 1
+                        | date
+                            : ((filters | async)?.period > 1
                                   ? 'MMM d, h:mm a'
                                   : 'shortTime')
                 }}
@@ -62,7 +67,8 @@ import { VisitorsStateService } from './visitors-state.service';
                 >
                 </action-icon>
                 <a
-                    mat-icon-button
+                    icon
+                    matRipple
                     [href]="'mailto:' + event?.organiser?.email"
                     matTooltip="Email Host"
                 >
@@ -71,7 +77,8 @@ import { VisitorsStateService } from './visitors-state.service';
             </div>
             <div class="w-16 p-2">
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     (click)="show_attendees = !show_attendees"
                     [disabled]="!event?.attendees?.length"
                     [matTooltip]="
@@ -103,7 +110,9 @@ import { VisitorsStateService } from './visitors-state.service';
                     class="relative w-full pl-12 bg-gray-200 dark:bg-neutral-600"
                     *ngFor="let user of event?.attendees || []"
                 >
-                    <div class="absolute left-8 top-1/2 -translate-y-full border-b-2 border-l-2 border-gray-400 dark:border-neutral-700 w-4 h-full"></div>
+                    <div
+                        class="absolute left-8 top-1/2 -translate-y-full border-b-2 border-l-2 border-gray-400 dark:border-neutral-700 w-4 h-full"
+                    ></div>
                     <visitor-details
                         [attr.disabled]="!matches[user.email]"
                         [visitor]="user"

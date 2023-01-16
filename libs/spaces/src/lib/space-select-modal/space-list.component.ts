@@ -29,7 +29,7 @@ import { Space } from '../space.class';
                         (click)="selectSpace(space)"
                     >
                         <div
-                            class="relative w-20 h-20 rounded-xl bg-black/20 dark:bg-white/30 mr-4 overflow-hidden flex items-center justify-center"
+                            class="relative min-w-[5rem] h-20 rounded-xl bg-black/20 dark:bg-white/30 mr-4 overflow-hidden flex items-center justify-center"
                         >
                             <div
                                 class="absolute top-1 left-1 border border-white bg-black/50 rounded-full h-6 w-6 flex items-center justify-center text-white"
@@ -62,7 +62,7 @@ import { Space } from '../space.class';
                             </div>
                             <div class="flex items-center text-sm space-x-2">
                                 <app-icon class="text-blue-500">place</app-icon>
-                                <p>
+                                <p class="truncate">
                                     {{
                                         space.location ||
                                             level(space.zones)?.display_name ||
@@ -84,7 +84,8 @@ import { Space } from '../space.class';
                         </div>
                     </button>
                     <button
-                        mat-icon-button
+                        icon
+                        matRipple
                         fav
                         class="absolute top-1 right-1"
                         [class.text-blue-400]="isFavourite(space.id)"
@@ -137,10 +138,13 @@ export class SpaceListComponent {
     @Output() public onSelect = new EventEmitter<Space>();
     @Output() public toggleFav = new EventEmitter<Space>();
     public readonly loading = this._event_form.loading;
-    
+
     public readonly available_spaces = this._event_form.available_spaces;
 
-    constructor(private _event_form: EventFormService, private _org: OrganisationService) {}
+    constructor(
+        private _event_form: EventFormService,
+        private _org: OrganisationService
+    ) {}
 
     public level(zones: string[]) {
         return this._org.levelWithID(zones);

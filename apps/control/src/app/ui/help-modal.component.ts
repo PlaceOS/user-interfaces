@@ -63,7 +63,8 @@ import { marked } from 'marked';
                 [innerHTML]="content | safe"
             ></div>
             <button
-                mat-icon-button
+                icon
+                matRipple
                 class="absolute top-2 right-2 text-white sm:text-black"
                 mat-dialog-close
             >

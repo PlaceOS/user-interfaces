@@ -32,7 +32,7 @@ const COMPONENTS: Type<any>[] = [
     SpaceSelectMapComponent,
     SpaceLocationPinComponent,
 
-    SpacePipe
+    SpacePipe,
 ];
 
 @NgModule({
@@ -45,7 +45,7 @@ const COMPONENTS: Type<any>[] = [
         MatBottomSheetModule,
         MatCheckboxModule,
         FormsModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
     ],
     providers: [],
     exports: [...COMPONENTS],

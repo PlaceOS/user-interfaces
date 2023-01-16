@@ -29,7 +29,8 @@ import { BookingAsset } from '../booking-form.service';
                     class="absolute inset-0"
                 ></image-carousel>
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     close
                     (click)="close.emit()"
                     class="absolute top-2 left-2 bg-black/40 sm:hidden text-white"
@@ -37,7 +38,8 @@ import { BookingAsset } from '../booking-form.service';
                     <app-icon>arrow_back</app-icon>
                 </button>
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     fav
                     [class.text-white]="!fav"
                     [class.text-blue-400]="fav"
@@ -109,7 +111,8 @@ import { BookingAsset } from '../booking-form.service';
             </div>
             <div class="p-2 border-t border-gray-200 shadow sm:hidden">
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     [class.inverse]="active"
                     class="w-full"
                     (click)="active = !active; activeChange.emit(active)"

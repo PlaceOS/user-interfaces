@@ -125,11 +125,12 @@ const QR_CODES = {};
                     >
                         <app-icon>warning</app-icon>
                     </div>
-                    <button mat-icon-button (click)="removeDesk(row)">
+                    <button icon (click)="removeDesk(row)">
                         <app-icon>delete</app-icon>
                     </button>
                     <button
-                        mat-icon-button
+                        icon
+                        matRipple
                         [matMenuTriggerFor]="menu"
                         (click)="loadQrCode(row)"
                     >
@@ -142,7 +143,7 @@ const QR_CODES = {};
                             <img class="w-48" [src]="row.qr_code" />
                         </div>
                         <div mat-menu-item class="underline">
-                            <button mat-button class="w-full">
+                            <button btn matRipple class="w-full">
                                 Print QR Code
                             </button>
                         </div>
@@ -157,7 +158,7 @@ const QR_CODES = {};
                     {{ changed }} Desk(s) with unsaved changes
                 </p>
                 <div class="flex items-center justify-center">
-                    <button save mat-button (click)="save()">
+                    <button save btn matRipple (click)="save()">
                         Save Changes
                     </button>
                 </div>

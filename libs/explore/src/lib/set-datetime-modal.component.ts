@@ -7,11 +7,15 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
     template: `
         <header classs="flex items-center justify-between">
             <h2>Set date and time</h2>
-            <button mat-icon-button mat-dialog-close>
+            <button icon mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <main *ngIf="form" [formGroup]="form" class="w-[24rem] pt-4">
+        <main
+            *ngIf="form"
+            [formGroup]="form"
+            class="w-[24rem] max-w-[85vw] pt-4"
+        >
             <div
                 class="flex flex-col sm:flex-row space-x-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
             >
@@ -46,8 +50,12 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
                 </div>
             </div>
         </main>
-        <footer class="w-full p-2 border-t border-gray-200 flex items-center justify-center">
-            <button mat-button [mat-dialog-close]="form.value" class="w-32">Continue</button>
+        <footer
+            class="w-full p-2 border-t border-gray-200 flex items-center justify-center"
+        >
+            <button btn matRipple [mat-dialog-close]="form.value" class="w-32">
+                Continue
+            </button>
         </footer>
     `,
     styles: [``],

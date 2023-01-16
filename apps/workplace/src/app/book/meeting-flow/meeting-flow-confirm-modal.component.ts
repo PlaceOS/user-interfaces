@@ -15,7 +15,8 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             class="p-4 flex items-center justify-center border-b border-grey-200 relative"
         >
             <button
-                mat-icon-button
+                icon
+                matRipple
                 mat-dialog-close
                 *ngIf="show_close"
                 class="absolute left-2 top-1/2 -translate-y-1/2"
@@ -120,7 +121,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     <div class="space-y-2">
                         <div
                             class="flex items-center space-x-2"
-                            *ngFor="let item of catering_order.items"
+                            *ngFor="let item of catering_order"
                         >
                             <div
                                 count
@@ -135,7 +136,9 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                                     [matTooltip]="opt.name"
                                     *ngFor="let opt of item.option_list"
                                 >
-                                    <div class="font-medium">{{ opt.name }}</div>
+                                    <div class="font-medium">
+                                        {{ opt.name }}
+                                    </div>
                                     <!-- <div
                                         class="font-mono ml-2"
                                         *ngIf="opt.unit_price"
@@ -152,13 +155,17 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                                 class="font-mono text-right p-2 text-sm"
                                 *ngIf="item.quantity > 1"
                             >
-                                {{ item.unit_price_with_options / 100 | currency: code }} ea
-                            </div>
-                            <div total-price class="font-mono min-w-[6rem] text-right p-2">
                                 {{
-                                    (item.total_cost / 100)
+                                    item.unit_price_with_options / 100
                                         | currency: code
                                 }}
+                                ea
+                            </div>
+                            <div
+                                total-price
+                                class="font-mono min-w-[6rem] text-right p-2"
+                            >
+                                {{ item.total_cost / 100 | currency: code }}
                             </div>
                         </div>
                         <div class="w-full bg-gray-200 flex justify-end p-2">
@@ -210,7 +217,8 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             class="p-2 border-t border-gray-200 flex items-center justify-end"
         >
             <button
-                mat-button
+                btn
+                matRipple
                 class="w-32"
                 *ngIf="!(loading | async)"
                 (click)="postForm()"
@@ -219,7 +227,8 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 Confirm
             </button>
             <button
-                mat-button
+                btn
+                matRipple
                 class="inverse w-32"
                 *ngIf="loading | async"
                 (click)="cancelPost()"
@@ -230,15 +239,14 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
         </footer>
     `,
     styles: [``],
-    providers: [SpacePipe]
+    providers: [SpacePipe],
 })
 export class MeetingFlowConfirmModalComponent extends BaseClass {
     @Input() public show_close: boolean = false;
 
     public readonly loading = this._event_form.loading;
-    public readonly catering_order = new CateringOrder({
-        items: this.event.catering as any,
-    });
+    public readonly catering_order =
+        this.event.catering[0]?.items || this.event.catering || [];
 
     public readonly postForm = async () => {
         await this._event_form.postForm().catch((_) => {
@@ -253,7 +261,9 @@ export class MeetingFlowConfirmModalComponent extends BaseClass {
     private _space = this.event.resources[0];
 
     public async ngOnInit() {
-        this._space = await this._space_pipe.transform(this.event.resources[0].email) || this._space;
+        this._space =
+            (await this._space_pipe.transform(this.event.resources[0].email)) ||
+            this._space;
     }
 
     public get event() {
@@ -269,14 +279,10 @@ export class MeetingFlowConfirmModalComponent extends BaseClass {
     }
 
     public get location() {
-        const building = this._org.buildings.find(
-            (_) => this.space.zones.includes(_.id)
+        const building = this._org.buildings.find((_) =>
+            this.space.zones.includes(_.id)
         );
-        return (
-            building?.address ||
-            building?.display_name ||
-            building?.name
-        );
+        return building?.address || building?.display_name || building?.name;
     }
 
     public get code() {

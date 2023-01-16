@@ -59,7 +59,7 @@ const COMPONENTS: Type<any>[] = [
     HelpTooltipComponent,
     AccessibilityTooltipComponent,
     SupportTicketModalComponent,
-    LanguageSelectComponent
+    LanguageSelectComponent,
 ];
 
 const MATERIAL_MODULES: any[] = [
@@ -82,7 +82,7 @@ const MATERIAL_MODULES: any[] = [
     MatTooltipModule,
     MatRadioModule,
     MatSlideToggleModule,
-    MatSliderModule
+    MatSliderModule,
 ];
 
 @NgModule({

@@ -85,7 +85,7 @@ export class ScheduleStateService extends BaseClass {
                     )
             );
             return forkJoin([
-                this._settings.get('app.no_user_calendar') === true
+                this._settings.get('app.events.use_bookings') === true
                     ? queryBookings({ ...query, type: 'room' }).pipe(
                           map((_) =>
                               _.map((i) => newCalendarEventFromBooking(i))

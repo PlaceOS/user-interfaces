@@ -22,7 +22,7 @@ export interface DeskInfoData {
             [xPosition]="'center'"
             [yPosition]="'center'"
             [hover]="true"
-            class="h-full w-full pointer-events-auto relative"
+            class="hidden sm:block h-full w-full pointer-events-auto relative"
             [attr.id]="id"
             [attr.map_id]="map_id"
         ></div>
@@ -39,7 +39,9 @@ export interface DeskInfoData {
             >
                 <div class="arrow"></div>
                 <div class="details">
-                    <h4 map-id class="m-0 font-medium">{{ name || map_id || id }}</h4>
+                    <h4 map-id class="m-0 font-medium">
+                        {{ name || map_id || id }}
+                    </h4>
                     <p user class="mt-2 text-sm" *ngIf="user">{{ user }}</p>
                     <p start class="mt-1 text-sm" *ngIf="start">
                         {{ start | date: 'shortTime' }} &ndash;
@@ -51,7 +53,6 @@ export interface DeskInfoData {
     `,
     styles: [
         `
-
             [name='space-info'] {
                 width: 16rem;
             }
@@ -96,8 +97,8 @@ export class ExploreDeskInfoComponent implements OnInit {
     public ngOnInit(tries: number = 0) {
         if (tries > 10) return;
         setTimeout(() => {
-            const parent = this._element.nativeElement.parentElement
-                ?.parentElement;
+            const parent =
+                this._element.nativeElement.parentElement?.parentElement;
             if (!parent) return this.ngOnInit(++tries);
             const position = {
                 y: parseInt(parent.style.top, 10) / 100,

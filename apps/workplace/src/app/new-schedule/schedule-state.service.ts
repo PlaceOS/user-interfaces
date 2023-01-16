@@ -14,7 +14,7 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 import { requestSpacesForZone } from '@placeos/spaces';
 import { getModule } from '@placeos/ts-client';
-import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { endOfDay, getUnixTime, isSameDay, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import {
     catchError,
@@ -56,41 +56,59 @@ export class ScheduleStateService extends BaseClass {
             }), // Get list of spaces for building
             distinctUntilChanged(([s1], [s2]) => s1 !== s2),
             switchMap((list) => {
+                this._loading.next(false);
                 return combineLatest(
-                    (list || []).map((_) => {
-                        const binding = getModule(_.id, 'Bookings').binding(
+                    (list || []).map((space) => {
+                        const binding = getModule(space.id, 'Bookings').binding(
                             'bookings'
                         );
-                        const obs = binding
-                            .listen()
-                            .pipe(
-                                map((_) =>
-                                    (_ || []).map((i) => new CalendarEvent(i))
+                        const obs = binding.listen().pipe(
+                            map((event_list) =>
+                                (event_list || []).map(
+                                    (i) =>
+                                        new CalendarEvent({
+                                            ...i,
+                                            resources: i.attendees.filter(
+                                                (_) =>
+                                                    _.email === space.email ||
+                                                    _.resource
+                                            ),
+                                            system: space,
+                                        })
                                 )
+                            )
+                        );
+                        if (!this.hasSubscription(`bind:${space.id}`)) {
+                            this.subscription(
+                                `bind:${space.id}`,
+                                binding.bind()
                             );
-                        if (!this.hasSubscription(`bind:${_.id}`)) {
-                            this.subscription(`bind:${_.id}`, binding.bind());
                         }
                         return obs;
                     })
                 );
             }),
-            map((_) => flatten(_)),
+            map((_) => flatten<CalendarEvent>(_)),
             shareReplay(1)
         );
 
-    public readonly ws_events = this._space_bookings.pipe(
-        tap(_ => console.log('Events:', _.map(_ => `${_.host} | [${_.attendees.map(a => a.email).join(',')}]`))),
-        map((_) => {
+    public readonly ws_events = combineLatest([
+        this._space_bookings,
+        this._update,
+    ]).pipe(
+        map(([_, [date]]) => {
             const user = currentUser();
-            console.log('User:', user);
             return _.filter(
                 (_) =>
-                    _.host.toLowerCase() === user.email.toLowerCase() ||
-                    _.attendees.find((a) => a.email.toLowerCase() === user.email.toLowerCase())
+                    isSameDay(_.date, date) &&
+                    (_.host.toLowerCase() === user.email.toLowerCase() ||
+                        _.attendees.find(
+                            (a) =>
+                                a.email.toLowerCase() ===
+                                user.email.toLowerCase()
+                        ))
             );
-        }),
-        tap(_ => console.log('Your events:', _)),
+        })
     );
     /** List of calendar events for the selected date */
     public readonly api_events: Observable<CalendarEvent[]> = this._update.pipe(
@@ -99,19 +117,20 @@ export class ScheduleStateService extends BaseClass {
                 period_start: getUnixTime(startOfDay(date)),
                 period_end: getUnixTime(endOfDay(date)),
             };
-            return this._settings.get('app.no_user_calendar')
+            return this._settings.get('app.events.use_bookings')
                 ? queryBookings({ ...query, type: 'room' }).pipe(
                       map((_) => _.map((i) => newCalendarEventFromBooking(i))),
                       catchError((_) => [])
                   )
                 : queryEvents({ ...query }).pipe(catchError((_) => []));
         }),
-        tap(() => this.timeout('end_loading', () => this._loading.next(false))),
         shareReplay(1)
     );
     /** List of calendar events for the selected date */
-    public readonly events = this._poll_type.pipe(
-        switchMap((t) => (t === 'api' ? this.api_events : this.ws_events))
+    public readonly events = combineLatest([this._poll_type]).pipe(
+        switchMap(([t]) => (t === 'api' ? this.api_events : this.ws_events)),
+        tap(() => this.timeout('end_loading', () => this._loading.next(false))),
+        shareReplay(1)
     );
     /** List of desk bookings for the selected date */
     public readonly visitors: Observable<Booking[]> = this._update.pipe(

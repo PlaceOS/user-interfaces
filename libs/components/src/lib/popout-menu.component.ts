@@ -10,7 +10,8 @@ export interface PopoutAction extends ApplicationIcon {
     selector: 'a-popout-menu',
     template: `
         <button
-            mat-icon-button
+            icon
+            matRipple
             class="small absolute text-base center shadow"
             *ngFor="let item of actions; let i = index"
             [style.top]="show ? -110 * i - 60 + '%' : ''"
@@ -20,7 +21,8 @@ export interface PopoutAction extends ApplicationIcon {
         </button>
         <button
             name="root"
-            mat-icon-button
+            icon
+            matRipple
             [class.show]="show"
             (click)="show = !show"
             (window:click)="show ? close() : ''"

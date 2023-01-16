@@ -25,7 +25,8 @@ import {
             <ng-container *ngIf="light?.states?.length; else empty_state">
                 <button
                     state
-                    mat-button
+                    btn
+                    matRipple
                     class="w-64"
                     *ngFor="let state of light.states"
                     [class.inverse]="state === light.state"

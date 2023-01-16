@@ -1,6 +1,10 @@
 <header>
     <app-icon
-        [icon]="{ type: 'icon', class: 'material-icons', content: 'people_outline' }"
+        [icon]="{
+            type: 'icon',
+            class: 'material-icons',
+            content: 'people_outline'
+        }"
     ></app-icon>
     <h1>Attendees</h1>
 </header>
@@ -8,7 +12,11 @@
     <div class="body">
         <div *ngFor="let item of attendees">
             <app-icon
-                [icon]="{ type: 'icon', class: 'material-icons', content: 'perm_identity' }"
+                [icon]="{
+                    type: 'icon',
+                    class: 'material-icons',
+                    content: 'perm_identity'
+                }"
             ></app-icon>
             <label>{{ item.name }}</label>
             <a href="mailto:{{ item.email }}">{{ item.email }}</a>
@@ -17,6 +25,6 @@
 </mat-dialog-content>
 <mat-dialog-actions>
     <footer>
-        <button mat-button class="inverse" mat-dialog-close>Close</button>
+        <button btn matRipple class="inverse" mat-dialog-close>Close</button>
     </footer>
 </mat-dialog-actions>

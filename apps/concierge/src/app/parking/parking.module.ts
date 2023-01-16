@@ -18,7 +18,7 @@ const COMPONENTS = [
     ParkingBookingsListComponent,
     ParkingSpaceListComponent,
     ParkingTopbarComponent,
-    ParkingSpaceModalComponent
+    ParkingSpaceModalComponent,
 ];
 
 const ROUTES: Route[] = [

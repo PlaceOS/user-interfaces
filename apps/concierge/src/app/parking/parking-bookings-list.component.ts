@@ -47,13 +47,21 @@ import { ParkingStateService } from './parking-state.service';
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="w-full flex items-center justify-end">
-                <!-- <button mat-icon-button matTooltip="Reallocate Parking Reservation">
+                <!-- <button icon matTooltip="Reallocate Parking Reservation">
                     <app-icon>published_with_changes</app-icon>
                 </button> -->
-                <button mat-icon-button matTooltip="Reject Parking Reservation" (click)="reject(row)">
+                <button
+                    icon
+                    matTooltip="Reject Parking Reservation"
+                    (click)="reject(row)"
+                >
                     <app-icon>event_busy</app-icon>
                 </button>
-                <button mat-icon-button matTooltip="Approve Parking Reservation" (click)="approve(row)">
+                <button
+                    icon
+                    matTooltip="Approve Parking Reservation"
+                    (click)="approve(row)"
+                >
                     <app-icon>event_available</app-icon>
                 </button>
             </div>

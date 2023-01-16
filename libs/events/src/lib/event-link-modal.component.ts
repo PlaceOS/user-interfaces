@@ -50,17 +50,13 @@ import { notifyError } from '@placeos/common';
                 <app-icon class="text-xl">download</app-icon>
                 <span i18n>Download iCal File</span>
             </a>
-            <button
-                class="w-64"
-                mat-button
-                (click)="close()"
-                i18n
-            >
+            <button class="w-64" btn matRipple (click)="close()" i18n>
                 Close
             </button>
         </div>
         <button
-            mat-icon-button
+            icon
+            matRipple
             [mat-dialog-close]="has_actioned"
             class="absolute top-2 right-0"
         >
@@ -93,7 +89,9 @@ export class EventLinkModalComponent {
 
     public close() {
         if (!this.has_actioned) {
-            return notifyError('You need to select a calendar option to finish creating this booking');
+            return notifyError(
+                'You need to select a calendar option to finish creating this booking'
+            );
         }
         this._dialog.close(true);
     }

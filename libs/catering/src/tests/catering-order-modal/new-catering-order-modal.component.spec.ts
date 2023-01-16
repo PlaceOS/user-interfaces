@@ -9,6 +9,7 @@ import { NewCateringOrderModalComponent } from '../../lib/catering-order-modal/n
 import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { OrganisationService } from '@placeos/organisation';
 import { CateringOrderStateService } from '../../lib/catering-order-modal/catering-order-state.service';
+import { CateringItem } from '../../lib/catering-item.class';
 
 describe('NewCateringOrderModalComponent', () => {
     let spectator: Spectator<NewCateringOrderModalComponent>;
@@ -50,9 +51,9 @@ describe('NewCateringOrderModalComponent', () => {
     });
 
     it('should allow setting selected catering items', () => {
-        spectator.component.setSelected({ id: '1' } as any, true);
+        spectator.component.setSelected(new CateringItem({ id: '1' }), true);
         expect(spectator.component.selected).toHaveLength(1);
-        spectator.component.setSelected({ id: '1' } as any, false);
+        spectator.component.setSelected(new CateringItem({ id: '1' }), false);
         expect(spectator.component.selected).toHaveLength(0);
     });
 

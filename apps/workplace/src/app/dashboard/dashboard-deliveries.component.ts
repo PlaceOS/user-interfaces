@@ -32,7 +32,7 @@ import { DashboardDeliveryModalComponent } from './dashboard-delivery-modal.comp
                     ></div>
                 </div>
                 <button
-                    mat-button
+                    matRipple
                     class="w-full mt-2"
                     (click)="registerDelivery()"
                 >

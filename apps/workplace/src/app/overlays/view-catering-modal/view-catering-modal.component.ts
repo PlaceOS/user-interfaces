@@ -8,7 +8,7 @@ import { BaseClass } from '@placeos/common';
 @Component({
     selector: 'view-catering-modal',
     templateUrl: './view-catering-modal.component.html',
-    styleUrls: ['./view-catering-modal.component.scss']
+    styleUrls: ['./view-catering-modal.component.scss'],
 })
 export class ViewCateringModalComponent extends BaseClass implements OnInit {
     public catering: CateringItem[];
@@ -30,7 +30,10 @@ export class ViewCateringModalComponent extends BaseClass implements OnInit {
         if (data) {
             this.catering = this._data.catering;
             this.catering_note = this._data.catering_note;
-            this.catering_items_total = this.catering.reduce((total, item) => item.quantity + total, 0);
+            this.catering_items_total = this.catering.reduce(
+                (total, item) => item.quantity + total,
+                0
+            );
         }
     }
 

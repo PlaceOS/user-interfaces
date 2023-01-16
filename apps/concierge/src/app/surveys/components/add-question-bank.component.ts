@@ -42,8 +42,7 @@ import { Question, QuestionType, Tag } from '@placeos/survey-suite';
                     (allChoicesEvent)="updateAllChoices($event)"
                 ></question-container>
                 <!-- <div>
-                    <button
-                        mat-button
+                    <button btn matRipple
                         class="add-another-question"
                         (click)="addAnotherQuestion()"
                     >
@@ -53,7 +52,7 @@ import { Question, QuestionType, Tag } from '@placeos/survey-suite';
             </main>
             <footer>
                 <button
-                    mat-button
+                    matRipple
                     class="cancel-button"
                     color="basic"
                     (click)="closeDialog()"
@@ -61,7 +60,7 @@ import { Question, QuestionType, Tag } from '@placeos/survey-suite';
                     Cancel
                 </button>
                 <button
-                    mat-button
+                    matRipple
                     class="add-button"
                     color="primary"
                     (click)="addQuestion()"
@@ -216,9 +215,7 @@ export class AddQuestionBankComponent implements OnInit {
     updateRating(event) {
         this.new_question.rateValues = event || [1, 2, 3, 4, 5];
     }
-    addAnotherQuestion() {
-        // console.log('add');
-    }
+    addAnotherQuestion() {}
     addQuestion() {
         this._update_flag.next(true);
 

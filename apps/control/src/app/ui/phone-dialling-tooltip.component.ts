@@ -17,7 +17,8 @@ import { ControlStateService } from '../control-state.service';
                 />
                 <button
                     *ngIf="(system | async)?.phone"
-                    mat-icon-button
+                    icon
+                    matRipple
                     matSuffix
                     (click)="clear()"
                 >
@@ -26,7 +27,8 @@ import { ControlStateService } from '../control-state.service';
             </mat-form-field>
             <dialpad [inline]="true" (pressed)="handleInput($event)"></dialpad>
             <button
-                mat-button
+                btn
+                matRipple
                 class="w-full"
                 (click)="dialPhone()"
                 *ngIf="
@@ -37,7 +39,8 @@ import { ControlStateService } from '../control-state.service';
             </button>
             <button
                 *ngIf="(system | async)?.offhook || (system | async)?.ringing"
-                mat-button
+                btn
+                matRipple
                 class="w-full inverse"
                 (click)="hangup()"
             >

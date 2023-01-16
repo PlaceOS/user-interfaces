@@ -9,10 +9,10 @@ const EMPTY_FAVS: string[] = [];
     selector: 'asset-select-modal',
     template: `
         <div
-            class="absolute inset-0 sm:relative sm:inset-none flex flex-col bg-white dark:bg-neutral-700"
+            class="w-[100vw] h-[100vh] sm:relative sm:w-auto sm:h-auto flex flex-col bg-white dark:bg-neutral-700"
         >
             <header class="flex items-center space-x-4 w-full">
-                <button mat-icon-button mat-dialog-close class="bg-black/20">
+                <button icon mat-dialog-close class="bg-black/20">
                     <app-icon>close</app-icon>
                 </button>
                 <h3>Add Assets</h3>
@@ -54,7 +54,8 @@ const EMPTY_FAVS: string[] = [];
                 class="flex sm:hidden flex-col-reverse items-center justify-end p-2 border-t border-gray-200 dark:border-neutral-500w-full"
             >
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     back-btn
                     class="inverse sm:hidden w-full sm:w-auto"
                     *ngIf="displayed"
@@ -63,7 +64,8 @@ const EMPTY_FAVS: string[] = [];
                     Back
                 </button>
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     save
                     [mat-dialog-close]="selected"
                     [class.mb-2]="displayed"
@@ -76,7 +78,8 @@ const EMPTY_FAVS: string[] = [];
                 class="hidden sm:flex items-center justify-between p-2 border-t border-gray-200 dark:border-neutral-500 w-full"
             >
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     [mat-dialog-close]="selected"
                     class="clear text-primary"
                 >
@@ -87,7 +90,8 @@ const EMPTY_FAVS: string[] = [];
                 </button>
                 <p class="opacity-60 text-sm">{{ count }} assets(s) added</p>
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     [disabled]="!displayed"
                     [class.inverse]="isSelected(displayed?.id)"
                     (click)="setSelected(displayed, !isSelected(displayed?.id))"

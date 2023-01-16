@@ -349,13 +349,13 @@ export class BookingFormService extends BaseClass {
         details.loading('Performing booking request...');
         if (options.group) {
             await this.postFormForGroup().catch((_) => {
-                notifyError(_);
+                notifyError(JSON.stringify(_));
                 details.close();
                 throw _;
             });
         } else
             await this.postForm().catch((_) => {
-                notifyError(_);
+                notifyError(JSON.stringify(_));
                 details.close();
                 throw _;
             });
@@ -374,7 +374,7 @@ export class BookingFormService extends BaseClass {
                 form.getRawValue().booking_type ||
                 this._options.getValue().type,
         });
-        const value = form.getRawValue();
+        let value = form.getRawValue();
         if (!ignore_check) {
             await this.checkResourceAvailable(
                 value,
@@ -386,6 +386,7 @@ export class BookingFormService extends BaseClass {
                 date: set(value.date, { hours: 11, minutes: 59 }).valueOf(),
                 duration: 12 * 60,
             });
+            value = form.getRawValue();
         }
         if (this._payments.payment_module) {
             const receipt = await this._payments.makePayment({
@@ -545,7 +546,7 @@ export class BookingFormService extends BaseClass {
                     )
                 )
             )
-        )
+        );
     }
 
     private async _getNearbyResources(

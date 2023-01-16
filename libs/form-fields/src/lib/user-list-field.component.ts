@@ -52,38 +52,41 @@ function validateEmail(email) {
                     matAutocompleteOrigin
                     #origin="matAutocompleteOrigin"
                 >
-                    <mat-chip-list #chipList aria-label="User selection">
-                        <mat-chip
+                    <mat-chip-grid #chipList aria-label="User Seleciom">
+                        <mat-chip-row
                             user
-                            *ngFor="let user of active_list"
-                            (removed)="removeUser(user)"
+                            *ngFor="let item of active_list"
+                            (removed)="removeUser(item)"
                         >
-                            <app-icon class="mr-2">business</app-icon>
-                            {{ user.name || user.email }}
-                            <button remove matChipRemove>
+                            {{ item.name || item.email }}
+                            <button
+                                matChipRemove
+                                remove
+                                [attr.aria-label]="
+                                    'Remove ' + (item.name || item.email)
+                                "
+                            >
                                 <app-icon>cancel</app-icon>
                             </button>
-                        </mat-chip>
-                        <input
-                            #search_field
-                            placeholder="Type a name or email"
-                            i18n-placeholder
-                            name="user_email"
-                            [ngModel]="search$ | async"
-                            (ngModelChange)="updateSearch($event)"
-                            [matAutocomplete]="auto"
-                            [matChipInputFor]="chipList"
-                            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                            (matChipInputTokenEnd)="
-                                addUserFromEmail($event.value)
-                            "
-                        />
-                        <mat-spinner
-                            *ngIf="loading"
-                            diameter="24"
-                            matSuffix
-                        ></mat-spinner>
-                    </mat-chip-list>
+                        </mat-chip-row>
+                    </mat-chip-grid>
+                    <input
+                        #search_field
+                        placeholder="Type a name or email"
+                        i18n-placeholder
+                        name="user_email"
+                        [ngModel]="search$ | async"
+                        (ngModelChange)="updateSearch($event)"
+                        [matAutocomplete]="auto"
+                        [matChipInputFor]="chipList"
+                        [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                        (matChipInputTokenEnd)="addUserFromEmail($event.value)"
+                    />
+                    <mat-spinner
+                        *ngIf="loading"
+                        diameter="24"
+                        matSuffix
+                    ></mat-spinner>
                 </mat-form-field>
                 <mat-autocomplete #auto="matAutocomplete">
                     <mat-option
@@ -109,7 +112,8 @@ function validateEmail(email) {
                 *ngIf="!hide_actions"
             >
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     type="button"
                     name="new-contact"
                     class="inverse flex-1 sm:flex-none"
@@ -121,10 +125,11 @@ function validateEmail(email) {
                     </div>
                 </button>
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     type="button"
                     name="upload-csv"
-                    class="inverse flex-1 sm:flex-none"
+                    class="relative inverse flex-1 sm:flex-none"
                     i18n="Upload attendee list from CSV file"
                 >
                     <div class="flex items-center justify-center">
@@ -137,7 +142,8 @@ function validateEmail(email) {
                     />
                 </button>
                 <button
-                    mat-button
+                    btn
+                    matRipple
                     type="button"
                     name="download-template"
                     class="inverse flex-1 sm:flex-none"

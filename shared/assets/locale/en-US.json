@@ -5,7 +5,14 @@
         "LANGUAGE_SELECT": "Select a language",
         "LANGUAGE_LABEL": "Language",
         "CONTINUE": "Continue",
-        "ORGANISATION": "Organization"
+        "ORGANISATION": "Organization",
+        "FAVOURITES": "Favorites"
+    },
+    "DESKS": {
+        "SHOW_FAVOURITES": "Only show favorite desks"
+    },
+    "ROOMS": {
+        "SHOW_FAVOURITES": "Only show favorite rooms"
     },
     "WPA": {
         "COLLEAGUES": "Colleagues",

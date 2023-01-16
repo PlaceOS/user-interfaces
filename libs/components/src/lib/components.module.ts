@@ -116,9 +116,7 @@ const DIRECTIVES: Type<any>[] = [BindingDirective];
         HttpClientModule,
         ...MAT_MODULES,
     ],
-    providers: [
-        { provide: MAP_FEATURE_DATA, useValue: {} },
-    ],
+    providers: [{ provide: MAP_FEATURE_DATA, useValue: {} }],
     exports: [...COMPONENTS, ...DIRECTIVES, ...MAT_MODULES, TranslateModule],
 })
 export class ComponentsModule {}

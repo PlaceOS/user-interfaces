@@ -15,7 +15,8 @@ import { filter, first, map, take } from 'rxjs/operators';
             <a
                 button
                 class="clear h-[2.75rem] text-white"
-                mat-button
+                btn
+                matRipple
                 [routerLink]="['/book', 'spaces', 'form']"
             >
                 <div class="flex items-center justify-center h-full">
@@ -150,7 +151,8 @@ import { filter, first, map, take } from 'rxjs/operators';
                 <button
                     class="w-32"
                     [disabled]="!space_list?.length"
-                    mat-button
+                    btn
+                    matRipple
                     (click)="confirmBooking()"
                 >
                     Book
@@ -170,7 +172,8 @@ import { filter, first, map, take } from 'rxjs/operators';
                         </div>
                     </div>
                     <button
-                        mat-icon-button
+                        icon
+                        matRipple
                         class="pointer-events-auto"
                         (click)="
                             this.handleBookEvent(space, false);

@@ -13,7 +13,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             >
                 <div class="flex items-center px-4 space-x-4">
                     <a
-                        mat-icon-button
+                        icon
+                        matRipple
                         class="bg-white rounded-none border border-solid border-gray-300"
                         [routerLink]="['/asset-manager', 'list']"
                         (click)="clearActiveAsset()"
@@ -38,14 +39,17 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             >
                                 <a
                                     button
-                                    mat-button
+                                    btn
+                                    matRipple
                                     class="inverse"
                                     [routerLink]="['/asset-manager', 'list']"
                                     (click)="clearActiveAsset()"
                                 >
                                     Cancel
                                 </a>
-                                <button mat-button matStepperNext>Next</button>
+                                <button btn matRipple matStepperNext>
+                                    Next
+                                </button>
                             </div>
                         </div>
                     </mat-step>
@@ -59,13 +63,15 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 class="flex items-center justify-end border-t border-gray-200 p-2 space-x-2 w-full"
                             >
                                 <button
-                                    mat-button
+                                    matRipple
                                     matStepperPrevious
                                     class="inverse"
                                 >
                                     Back
                                 </button>
-                                <button mat-button matStepperNext>Next</button>
+                                <button btn matRipple matStepperNext>
+                                    Next
+                                </button>
                             </div>
                         </div>
                     </mat-step>
@@ -81,13 +87,15 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 class="flex items-center justify-end border-t border-gray-200 p-2 space-x-2 w-full"
                             >
                                 <button
-                                    mat-button
+                                    matRipple
                                     matStepperPrevious
                                     class="inverse"
                                 >
                                     Back
                                 </button>
-                                <button mat-button matStepperNext>Next</button>
+                                <button btn matRipple matStepperNext>
+                                    Next
+                                </button>
                             </div>
                         </div>
                     </mat-step>
@@ -103,13 +111,13 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 class="flex items-center justify-end border-t border-gray-200 p-2 space-x-2 w-full"
                             >
                                 <button
-                                    mat-button
+                                    matRipple
                                     matStepperPrevious
                                     class="inverse"
                                 >
                                     Back
                                 </button>
-                                <button mat-button (click)="save()">
+                                <button btn matRipple (click)="save()">
                                     Save
                                 </button>
                             </div>
@@ -141,7 +149,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     </p>
                     <div class="flex items-center justify-center space-x-2">
                         <button
-                            mat-button
+                            matRipple
                             class="inverse w-32"
                             (click)="success = false"
                         >
@@ -149,7 +157,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         </button>
                         <a
                             button
-                            mat-button
+                            btn
+                            matRipple
                             class="w-32"
                             [routerLink]="['/asset-manager', 'view', id]"
                         >
@@ -157,7 +166,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         </a>
                     </div>
                     <a
-                        mat-icon-button
+                        icon
+                        matRipple
                         class="absolute top-1 right-1 !m-0 opacity-30 hover:opacity-100"
                         [routerLink]="['/asset-manager', 'list']"
                     >

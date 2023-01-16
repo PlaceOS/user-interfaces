@@ -30,6 +30,7 @@ import { BookingFormService, BookingAsset } from '../booking-form.service';
                     desk
                     *ngFor="let desk of desks | async"
                     class="relative rounded-lg w-full shadow border bg-white dark:bg-neutral-600 border-gray-200 dark:border-neutral-500 overflow-hidden"
+                    [class.!border-blue-400]="active === desk.id"
                 >
                     <button
                         select
@@ -75,7 +76,8 @@ import { BookingFormService, BookingAsset } from '../booking-form.service';
                         </div>
                     </button>
                     <button
-                        mat-icon-button
+                        icon
+                        matRipple
                         fav
                         class="absolute top-1 right-1"
                         [class.text-blue-400]="isFavourite(desk.id)"
@@ -112,6 +114,7 @@ import { BookingFormService, BookingAsset } from '../booking-form.service';
     `,
 })
 export class DeskListComponent {
+    @Input() public active: string = '';
     @Input() public selected: string = '';
     @Input() public favorites: string[] = [];
     @Output() public onSelect = new EventEmitter<BookingAsset>();

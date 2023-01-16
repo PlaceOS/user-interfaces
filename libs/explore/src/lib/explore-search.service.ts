@@ -1,6 +1,11 @@
 import { Injectable } from '@angular/core';
-import { getModule, querySystems } from '@placeos/ts-client';
-import { unique } from '@placeos/common';
+import {
+    authority,
+    getModule,
+    querySystems,
+    queryUsers,
+} from '@placeos/ts-client';
+import { SettingsService, unique } from '@placeos/common';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
     catchError,
@@ -54,7 +59,7 @@ export class ExploreSearchService {
         tap(() => this._loading.next(true)),
         switchMap((q) =>
             q?.length > 2
-                ? querySystems({ q }).pipe(
+                ? querySystems({ q, zone_id: this._org.organisation.id }).pipe(
                       map(({ data }) =>
                           data
                               .filter((_) => _.map_id)
@@ -82,6 +87,7 @@ export class ExploreSearchService {
     ]).pipe(
         map(([spaces, users, contacts, filter]) => {
             const search = filter.toLowerCase();
+            console.log('Users:', users);
             const results = unique(
                 [
                     ...spaces
@@ -128,9 +134,17 @@ export class ExploreSearchService {
     /** Obverable for whether results are being loaded */
     public readonly loading = this._loading.asObservable();
     /** Function used to query for users */
-    public search_fn = (q: string) => searchStaff(q);
+    public search_fn = (q: string) =>
+        this._settings.get('app.basic_user_search')
+            ? queryUsers({ q, authority_id: authority()?.id }).pipe(
+                  map((_) => _.data)
+              )
+            : searchStaff(q);
 
-    constructor(private _org: OrganisationService) {
+    constructor(
+        private _org: OrganisationService,
+        private _settings: SettingsService
+    ) {
         this.search_results.subscribe();
         this.init();
     }

@@ -11,7 +11,7 @@ import { checkinBooking } from './bookings.fn';
     selector: 'booking-details-modal',
     template: `
         <div
-            class="absolute inset-0 sm:relative sm:inset-auto sm:w-[51rem] sm:max-h-[80vh] bg-white sm:bg-gray-100 sm:dark:bg-neutral-600 dark:bg-neutral-700 sm:rounded overflow-auto space-y-2 pb-2"
+            class="w-[100vw] h-[100vh] sm:relative sm:inset-auto sm:w-[51rem] sm:h-auto sm:max-h-[80vh] bg-white sm:bg-gray-100 sm:dark:bg-neutral-600 dark:bg-neutral-700 sm:rounded overflow-auto space-y-2 pb-2"
         >
             <div
                 class="sm:flex flex-col items-center pb-4 max-h-screen sm:max-h-[80vh] sm:px-16 sm:border-b bg-white dark:bg-neutral-700 border-gray-300 dark:border-neutral-500"
@@ -25,7 +25,11 @@ import { checkinBooking } from './bookings.fn';
                         class="w-full h-64"
                     ></image-carousel>
                 </div>
-                <h3 title class="px-3 mt-2 text-xl font-medium w-full" [class.pt-4]="!booking?.extension_data?.images">
+                <h3
+                    title
+                    class="px-3 mt-2 text-xl font-medium w-full"
+                    [class.pt-4]="!booking?.extension_data?.images"
+                >
                     {{ booking.title }}
                 </h3>
                 <div class="sm:flex items-center justify-between w-full">
@@ -83,7 +87,8 @@ import { checkinBooking } from './bookings.fn';
                         *ngIf="!booking.is_done"
                     >
                         <button
-                            mat-button
+                            btn
+                            matRipple
                             class="flex-1 h-10"
                             [class.inverse]="booking.checked_in"
                             [disabled]="checking_in"
@@ -100,7 +105,7 @@ import { checkinBooking } from './bookings.fn';
                                     {{
                                         booking.checked_in
                                             ? 'Checked in'
-                                            : 'Not checked in'
+                                            : 'Check in'
                                     }}
                                 </div>
                             </div>
@@ -112,7 +117,8 @@ import { checkinBooking } from './bookings.fn';
                             </ng-template>
                         </button>
                         <button
-                            mat-icon-button
+                            icon
+                            matRipple
                             [matMenuTriggerFor]="menu"
                             class="bg-primary rounded text-white h-10 w-10"
                         >
@@ -125,7 +131,9 @@ import { checkinBooking } from './bookings.fn';
                 <div
                     class="sm:p-4 sm:bg-white sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-gray-200 dark:border-neutral-500 flex-grow-[4] min-w-1/3 sm:w-[16rem]"
                 >
-                    <h3 class="px-3 mt-2 text-lg font-medium mb-2" i18n>Details</h3>
+                    <h3 class="px-3 mt-2 text-lg font-medium mb-2" i18n>
+                        Details
+                    </h3>
                     <div class="flex items-center px-2 space-x-2">
                         <app-icon>event</app-icon>
                         <div>{{ booking.date | date: 'EEEE, dd LLLL y' }}</div>
@@ -145,7 +153,9 @@ import { checkinBooking } from './bookings.fn';
                         <app-icon>place</app-icon>
                         <div>
                             {{ building?.display_name || building?.name }}
-                            {{ building?.address ? ', ' + building.address : '' }}
+                            {{
+                                building?.address ? ', ' + building.address : ''
+                            }}
                         </div>
                     </div>
                 </div>
@@ -162,7 +172,8 @@ import { checkinBooking } from './bookings.fn';
                 </div>
             </div>
             <button
-                mat-icon-button
+                icon
+                matRipple
                 mat-dialog-close
                 class="absolute top-2 left-2 bg-black/30 text-white"
             >
@@ -214,6 +225,7 @@ export class BookingDetailsModalComponent {
     ) {}
 
     public get period() {
+        if (this.booking?.all_day) return 'All Day';
         const start = this.booking?.date || Date.now();
         const duration = this.booking?.duration || 60;
         const end = addMinutes(start, duration);
@@ -228,7 +240,10 @@ export class BookingDetailsModalComponent {
 
     public async toggleCheckedIn() {
         this.checking_in = true;
-        await checkinBooking(this.booking.id, !this.booking.checked_in).toPromise();
+        await checkinBooking(
+            this.booking.id,
+            !this.booking.checked_in
+        ).toPromise();
         (this.booking as any).checked_in = !this.booking.checked_in;
         notifySuccess(
             `Successfully ${

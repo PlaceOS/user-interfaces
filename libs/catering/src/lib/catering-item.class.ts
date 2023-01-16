@@ -52,13 +52,6 @@ export class CateringItem {
         this.images = data.images || [];
         this.options = data.options || [];
         this.option_list = this.options.filter((_) => _.active === true);
-        console.log(
-            'Options:',
-            this.name,
-            this.options,
-            this.option_list,
-            this.options.filter((_) => _.active === true)
-        );
         this.hide_for_zones = data.hide_for_zones || [];
         this.unit_price_with_options =
             this.unit_price +

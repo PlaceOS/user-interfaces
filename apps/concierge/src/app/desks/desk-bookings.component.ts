@@ -32,7 +32,17 @@ import { DesksStateService } from './desks-state.service';
                     'Access',
                     ' '
                 ]"
-                [column_size]="['flex', '', '', '12r', '', '10r', '', '', '12r']"
+                [column_size]="[
+                    'flex',
+                    '',
+                    '',
+                    '12r',
+                    '',
+                    '10r',
+                    '',
+                    '',
+                    '12r'
+                ]"
                 [template]="{
                     user_name: user_template,
                     desk_name: desk_template,
@@ -81,21 +91,24 @@ import { DesksStateService } from './desks-state.service';
                 <div class="flex items-center justify-end space-x-2">
                     <action-icon (click)="checkin(row)">how_to_reg</action-icon>
                     <button
-                        mat-icon-button
+                        icon
+                        matRipple
                         (click)="approve(row)"
                         matTooltip="Approve Desk"
                     >
                         <app-icon>event_available</app-icon>
                     </button>
                     <button
-                        mat-icon-button
+                        icon
+                        matRipple
                         (click)="reject(row)"
                         matTooltip="Reject Desk"
                     >
                         <app-icon>event_busy</app-icon>
                     </button>
                     <button
-                        mat-icon-button
+                        icon
+                        matRipple
                         [disabled]="!row.extension_data?.checkin_qr_code"
                         [matMenuTriggerFor]="menu"
                         matTooltip="View Desk QR code"
@@ -114,7 +127,7 @@ import { DesksStateService } from './desks-state.service';
                             />
                         </div>
                         <div mat-menu-item class="underline">
-                            <button mat-button class="w-full">
+                            <button btn matRipple class="w-full">
                                 Print QR Code
                             </button>
                         </div>
@@ -123,7 +136,8 @@ import { DesksStateService } from './desks-state.service';
             </ng-template>
         </div>
         <button
-            mat-icon-button
+            icon
+            matRipple
             class="absolute bottom-2 right-2 bg-white shadow"
             [matMenuTriggerFor]="menu"
         >

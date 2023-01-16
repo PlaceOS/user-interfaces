@@ -27,7 +27,7 @@ export const CONFIRM_METADATA = {
     selector: 'confirm-modal',
     template: `
         <header>
-            <h3 mat-dialog-title>{{ title }}</h3>
+            <h3>{{ title }}</h3>
         </header>
         <main
             *ngIf="!loading; else load_state"
@@ -44,10 +44,16 @@ export const CONFIRM_METADATA = {
             class="flex items-center justify-center p-2 space-x-2"
             *ngIf="!loading"
         >
-            <button mat-button class="inverse w-32" mat-dialog-close>
+            <button btn matRipple class="inverse w-32" mat-dialog-close>
                 {{ cancel_text }}
             </button>
-            <button mat-button name="accept" class="w-32" (click)="onConfirm()">
+            <button
+                btn
+                matRipple
+                name="accept"
+                class="w-32"
+                (click)="onConfirm()"
+            >
                 {{ confirm_text }}
             </button>
         </footer>

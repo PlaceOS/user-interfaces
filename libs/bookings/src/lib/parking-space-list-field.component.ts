@@ -4,7 +4,10 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { BookingAsset } from './booking-form.service';
-import { FAV_PARKING_KEY, ParkingSpaceSelectModalComponent } from './parking-select-modal/parking-select-modal.component';
+import {
+    FAV_PARKING_KEY,
+    ParkingSpaceSelectModalComponent,
+} from './parking-select-modal/parking-select-modal.component';
 
 const EMPTY_FAVS: string[] = [];
 
@@ -17,7 +20,9 @@ const EMPTY_FAVS: string[] = [];
                 class="relative p-2 rounded-lg w-full flex items-center shadow border border-gray-200"
                 *ngFor="let space of spaces"
             >
-                <div class="w-24 h-24 rounded-xl bg-black/20 mr-4 overflow-hidden flex items-center justify-center">
+                <div
+                    class="w-24 h-24 rounded-xl bg-black/20 mr-4 overflow-hidden flex items-center justify-center"
+                >
                     <img
                         *ngIf="space.images?.length; else placeholder"
                         class="object-cover h-full"
@@ -41,14 +46,17 @@ const EMPTY_FAVS: string[] = [];
                     <div class="flex items-center text-sm space-x-2">
                         <app-icon class="text-blue-500">people</app-icon>
                         <p i18n>
-                            {{ space.capacity < 1 ? 2 : space.capacity }} { space.capacity, plural, =1 { Person } other { People } }
+                            {{ space.capacity < 1 ? 2 : space.capacity }} {
+                            space.capacity, plural, =1 { Person } other { People
+                            } }
                         </p>
                     </div>
                     <div
                         class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
                     >
                         <button
-                            mat-button
+                            btn
+                            matRipple
                             edit-space
                             class="clear"
                             (click)="changeResources(space)"
@@ -59,7 +67,8 @@ const EMPTY_FAVS: string[] = [];
                             </div>
                         </button>
                         <button
-                            mat-button
+                            btn
+                            matRipple
                             remove-space
                             class="clear"
                             (click)="removeResource(space)"
@@ -72,7 +81,8 @@ const EMPTY_FAVS: string[] = [];
                     </div>
                 </div>
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     fav
                     class="absolute top-1 right-1"
                     [class.text-blue-400]="favorites.includes(asset?.id)"
@@ -87,7 +97,8 @@ const EMPTY_FAVS: string[] = [];
             </div>
         </div>
         <button
-            mat-button
+            btn
+            matRipple
             add-space
             class="w-full inverse mt-2"
             (click)="changeResources()"
@@ -98,9 +109,7 @@ const EMPTY_FAVS: string[] = [];
             </div>
         </button>
         <div class="flex items-center flex-wrap sm:space-x-2 mb-2">
-            <div class="flex-1 min-w-[256px] space-y-2">
-                
-            </div>
+            <div class="flex-1 min-w-[256px] space-y-2"></div>
         </div>
     `,
     styles: [``],
@@ -132,7 +141,10 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
     /** Add or edit selected spaces */
     public changeResources() {
         const ref = this._dialog.open(ParkingSpaceSelectModalComponent, {
-            data: { spaces: this.spaces, options: { capacity: this.room_size } },
+            data: {
+                spaces: this.spaces,
+                options: { capacity: this.room_size },
+            },
         });
         ref.afterClosed().subscribe((spaces?: BookingAsset[]) => {
             if (!spaces) return;

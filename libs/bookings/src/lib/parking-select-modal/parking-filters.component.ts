@@ -11,7 +11,8 @@ import { BookingFormService } from '../booking-form.service';
         <div class="flex items-center border-b border-gray-200 pb-2 sm:hidden">
             <div class="flex-1 pl-2">
                 <button
-                    mat-icon-button
+                    icon
+                    matRipple
                     close
                     *ngIf="can_close"
                     (click)="close()"
@@ -57,7 +58,9 @@ import { BookingFormService } from '../booking-form.service';
                 </div>
                 <div class="flex items-center space-x-2">
                     <div class="flex-1 w-1/3">
-                        <label for="start-time" i18n>Start Time<span>*</span></label>
+                        <label for="start-time" i18n
+                            >Start Time<span>*</span></label
+                        >
                         <a-time-field
                             name="start-time"
                             [ngModel]="form.value.date"
@@ -66,7 +69,9 @@ import { BookingFormService } from '../booking-form.service';
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3">
-                        <label for="end-time" i18n>End Time<span>*</span></label>
+                        <label for="end-time" i18n
+                            >End Time<span>*</span></label
+                        >
                         <a-duration-field
                             name="end-time"
                             formControlName="duration"
@@ -116,7 +121,7 @@ import { BookingFormService } from '../booking-form.service';
             class="px-2 pt-2 w-full border-t border-gray-200"
             *ngIf="can_close"
         >
-            <button mat-button close class="w-full" (click)="close()" i18n>
+            <button btn matRipple close class="w-full" (click)="close()" i18n>
                 Apply Filters
             </button>
         </div>
@@ -169,14 +174,14 @@ export class ParkingSpaceFiltersComponent {
         private _bsheet_ref: MatBottomSheetRef<ParkingSpaceFiltersComponent>,
         private _settings: SettingsService,
         private _form: BookingFormService,
-        private _org: OrganisationService,
+        private _org: OrganisationService
     ) {
         this.can_close = !!this._bsheet_ref;
     }
 
     public async toggleFeature(feat: string, state: boolean) {
         const { features } = await this.options.pipe(take(1)).toPromise();
-        const new_list = (features || []).filter(_ => feat !== _);
+        const new_list = (features || []).filter((_) => feat !== _);
         if (state) new_list.push(feat);
         this.setOptions({ features: new_list });
     }

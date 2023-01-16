@@ -33,7 +33,7 @@ import { CameraControlsComponent } from './camera-controls.component';
 import { PhoneDiallingTooltipComponent } from './phone-dialling-tooltip.component';
 import { JoinRoomTooltipComponent } from './join-room-tooltip.component';
 import { LightingSceneTooltipComponent } from './lighting-scene-tooltip.component';
- 
+
 const COMPONENTS: Type<any>[] = [
     LightingTooltipComponent,
     PowerTooltipComponent,
@@ -56,7 +56,7 @@ const COMPONENTS: Type<any>[] = [
     LightingSceneTooltipComponent,
 
     DurationPipe,
-    MarkdownPipe
+    MarkdownPipe,
 ];
 
 const MAT_MODULES: any[] = [
@@ -65,7 +65,7 @@ const MAT_MODULES: any[] = [
     MatAutocompleteModule,
     MatButtonModule,
     MatSliderModule,
-    MatRippleModule
+    MatRippleModule,
 ];
 
 const ANGULAR_MODULES: any[] = [FormsModule, ReactiveFormsModule];
@@ -77,7 +77,7 @@ const ANGULAR_MODULES: any[] = [FormsModule, ReactiveFormsModule];
         ComponentsModule,
         ...MAT_MODULES,
         ...ANGULAR_MODULES,
-        RouterModule.forChild([])
+        RouterModule.forChild([]),
     ],
     exports: [
         ComponentsModule,

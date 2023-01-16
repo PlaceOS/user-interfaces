@@ -27,6 +27,7 @@ import { FormFieldsModule } from '@placeos/form-fields';
 import { SharedSpacesModule } from '@placeos/spaces';
 import { PaymentsModule } from '@placeos/payments';
 import { AssetsModule } from '@placeos/assets';
+import { MatRadioModule } from '@angular/material/radio';
 
 const COMPONENTS: Type<any>[] = [
     SidebarComponent,
@@ -51,6 +52,7 @@ const MAT_MODULES: any[] = [
     MatDialogModule,
     MatAutocompleteModule,
     MatRippleModule,
+    MatRadioModule,
 ];
 
 const ANGULAR_MODULES: any[] = [FormsModule, ReactiveFormsModule];

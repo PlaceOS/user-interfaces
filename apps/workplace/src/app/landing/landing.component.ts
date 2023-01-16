@@ -24,7 +24,9 @@ import { startOfMinute } from 'date-fns';
                         *ngIf="!hide_colleagues"
                     >
                         <app-icon>people</app-icon>
-                        <div>{{ 'WPA.COLLEAGUES' | uppercase | translate }}</div>
+                        <div>
+                            {{ 'WPA.COLLEAGUES' | uppercase | translate }}
+                        </div>
                     </button>
                     <button
                         matRipple
@@ -54,7 +56,10 @@ import { startOfMinute } from 'date-fns';
                 >
                     <div class="">
                         <div class="sm:text-xl font-medium">
-                            {{ 'WPA.WELCOME_MESSAGE' | translate:{name:user?.name} }}
+                            {{
+                                'WPA.WELCOME_MESSAGE'
+                                    | translate: { name: user?.name }
+                            }}
                         </div>
                         <div date class="text-sm sm:text-base">
                             {{ date | date: 'fullDate' }}

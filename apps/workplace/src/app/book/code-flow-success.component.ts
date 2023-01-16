@@ -22,7 +22,8 @@ import { Component } from '@angular/core';
             >
                 <a
                     button
-                    mat-button
+                    btn
+                    matRipple
                     class="w-full max-w-[32rem]"
                     [routerLink]="['/']"
                 >

@@ -46,9 +46,9 @@ import { DialogEvent, notifyError } from '@placeos/common';
                 </div>
             </main>
             <footer class="flex justify-center items-center p-2">
-                <button mat-button (click)="submit()" i18n>Submit</button>
+                <button btn matRipple (click)="submit()" i18n>Submit</button>
             </footer>
-            <button close mat-icon-button mat-dialog-close>
+            <button close icon matRipple mat-dialog-close>
                 <i class="material-icons">close</i>
             </button>
         </div>
@@ -60,7 +60,7 @@ import { DialogEvent, notifyError } from '@placeos/common';
                     Please feel free to submit a new request when circumstances
                     change in a way that changes your answer to the questions.
                 </p>
-                <button close mat-icon-button mat-dialog-close>
+                <button close icon matRipple mat-dialog-close>
                     <i class="material-icons">close</i>
                 </button>
             </main>
@@ -92,7 +92,8 @@ export class DeskQuestionsModalComponent {
     public failure: boolean;
 
     public submit() {
-        this.form.markAllAsTouched();if (
+        this.form.markAllAsTouched();
+        if (
             Object.keys(this.form.value).find(
                 (key) =>
                     this.form.value[key] === true ||

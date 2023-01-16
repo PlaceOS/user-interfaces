@@ -1,128 +1,138 @@
-import { Component, HostListener, OnInit } from '@angular/core';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { Component, OnInit } from '@angular/core';
+import { MatDialogRef } from '@angular/material/dialog';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { BuildingsService } from '../services/buildings.service';
-import { Building, BookingRuleDetails } from '@placeos/organisation';
 
 @Component({
     selector: 'add-building-modal',
     template: `
-        <div class="header">
-            <span class="dialog-title">Add Building</span>
-            <span class="close" (click)="closeDialog()">
-                <mat-icon
-                    aria-hidden="false"
-                    aria-label="Material icon for closing dialog"
-                    class="icon"
-                    >close</mat-icon
-                >
-            </span>
-        </div>
-        <main>
-            <form [formGroup]="buildingForm">
-                <span class="small-title">Building image</span>
-                <div
-                    class="upload-container"
-                    dragDrop
-                    (fileDropped)="onFileDropped($event)"
-                >
-                    <div class="drag-drop-container">
-                        <label
-                            for="file-upload"
-                            *ngIf="!imageURL"
-                            class="drag-text"
-                        >
-                            <span
-                                ><svg
-                                    width="26"
-                                    height="30"
-                                    viewBox="0 0 26 30"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path
-                                        d="M7.75 23H18.25V12.5H25.25L13 0.25L0.75 12.5H7.75V23ZM0.75 26.5H25.25V30H0.75V26.5Z"
-                                        fill="#BDBDBD"
-                                    />
-                                </svg>
-                            </span>
-                            <span>
-                                Click to browse or drag and drop your building
-                                photo
-                            </span>
-                        </label>
+        <section>
+            <div class="header">
+                <span class="dialog-title">Add Building</span>
+                <span class="close" (click)="closeDialog()">
+                    <mat-icon
+                        aria-hidden="false"
+                        aria-label="Material icon for closing dialog"
+                        class="icon"
+                        >close</mat-icon
+                    >
+                </span>
+            </div>
+            <main>
+                <form [formGroup]="buildingForm">
+                    <span class="small-title">Building image</span>
+                    <div
+                        class="upload-container"
+                        dragDrop
+                        (fileDropped)="onFileDropped($event)"
+                    >
+                        <div class="drag-drop-container">
+                            <label
+                                for="file-upload"
+                                *ngIf="!imageURL"
+                                class="drag-text"
+                            >
+                                <span
+                                    ><svg
+                                        width="26"
+                                        height="30"
+                                        viewBox="0 0 26 30"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            d="M7.75 23H18.25V12.5H25.25L13 0.25L0.75 12.5H7.75V23ZM0.75 26.5H25.25V30H0.75V26.5Z"
+                                            fill="#BDBDBD"
+                                        />
+                                    </svg>
+                                </span>
+                                <span>
+                                    Click to browse or drag and drop your
+                                    building photo
+                                </span>
+                            </label>
 
-                        <input
-                            class="file-input"
-                            type="file"
-                            id="file-upload"
-                            #fileDropRef
-                            accept="image/jpeg, image/png, image/jpeg"
-                            (change)="fileHandler($event.target.files)"
-                        />
+                            <input
+                                class="file-input"
+                                type="file"
+                                id="file-upload"
+                                #fileDropRef
+                                accept="image/jpeg, image/png, image/jpeg"
+                                (change)="fileHandler($event.target.files)"
+                            />
 
-                        <img
-                            *ngIf="imageURL"
-                            [src]="imageURL"
-                            height="230"
-                            width="350"
-                            alt="preview of image"
-                        />
+                            <img
+                                *ngIf="imageURL"
+                                [src]="imageURL"
+                                height="230"
+                                width="350"
+                                alt="preview of image"
+                            />
+                        </div>
                     </div>
-                </div>
-                <span class="small-title">Building name</span>
+                    <span class="small-title">Building name</span>
 
-                <input
-                    matInput
-                    type="text"
-                    class="building-name-input"
-                    [formControl]="buildingForm.get('building_name')"
-                    [placeholder]="'Type name here'"
-                    (keyup)="onKey($event)"
-                />
+                    <input
+                        matInput
+                        type="text"
+                        class="building-name-input"
+                        [formControl]="buildingForm.get('building_name')"
+                        [placeholder]="'Type name here'"
+                        (keyup)="onKey($event)"
+                    />
 
-                <mat-error
-                    class="input-error"
-                    *ngIf="
-                        buildingForm.get('building_name').hasError('required')
-                    "
-                    >Please enter a building title</mat-error
+                    <mat-error
+                        class="input-error"
+                        *ngIf="
+                            buildingForm
+                                .get('building_name')
+                                .hasError('required')
+                        "
+                        >Please enter a building title</mat-error
+                    >
+
+                    <span class="small-title">Building location</span>
+                    <input
+                        matInput
+                        type="text"
+                        class="building-name-input"
+                        [formControl]="buildingForm.get('building_location')"
+                        [placeholder]="'Type to search or add manually'"
+                        (keyup)="onKey($event)"
+                    />
+
+                    <mat-error
+                        class="input-error"
+                        type="submit"
+                        *ngIf="
+                            buildingForm
+                                .get('building_location')
+                                .hasError('required')
+                        "
+                        >Please enter a location</mat-error
+                    >
+                </form>
+            </main>
+            <footer>
+                <button
+                    matRipple
+                    class="cancel-button align-middle"
+                    color="basic"
+                    (click)="closeDialog()"
                 >
-
-                <span class="small-title">Building location</span>
-                <input
-                    matInput
-                    type="text"
-                    class="building-name-input"
-                    [formControl]="buildingForm.get('building_location')"
-                    [placeholder]="'Type to search or add manually'"
-                    (keyup)="onKey($event)"
-                />
-
-                <mat-error
-                    class="input-error"
-                    type="submit"
-                    *ngIf="
-                        buildingForm
-                            .get('building_location')
-                            .hasError('required')
-                    "
-                    >Please enter a location</mat-error
+                    <span>Cancel</span>
+                </button>
+                <button
+                    matRipple
+                    class="add-button align-middle"
+                    color="primary"
+                    (click)="addBuilding()"
+                    [disabled]="!buildingForm.valid"
                 >
-            </form>
-        </main>
-        <footer class="flex space-x-4 mr-[24px] mt-16">
-            <button mat-stroked-button (click)="closeDialog()">
-                <span>Cancel</span>
-            </button>
-            <button
-                mat-button
-                (click)="addBuilding()"
-                [disabled]="!buildingForm.valid"
-            >
-                <span> Add </span>
-            </button>
-        </footer>
+                    <span> Add </span>
+                </button>
+            </footer>
+        </section>
     `,
     styles: [
         `
@@ -268,10 +278,6 @@ export class AddBuildingModalComponent implements OnInit {
     }
 
     addBuilding(): void {
-        console.log(
-            this.buildingForm.get('building_name')?.value,
-            this.buildingForm.get('building_location')?.value
-        );
         const building = {
             id: 'bld-02',
             name: this.buildingForm.get('building_name')?.value,
@@ -315,7 +321,6 @@ export class AddBuildingModalComponent implements OnInit {
     uploadFiles(files: File[]) {
         for (const item of files) {
             this.files.push(item);
-            console.log(this.files, 'files');
         }
         this.previewImage(files);
     }
