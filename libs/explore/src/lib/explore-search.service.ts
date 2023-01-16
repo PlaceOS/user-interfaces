@@ -59,7 +59,7 @@ export class ExploreSearchService {
         tap(() => this._loading.next(true)),
         switchMap((q) =>
             q?.length > 2
-                ? querySystems({ q }).pipe(
+                ? querySystems({ q, zone_id: this._org.organisation.id }).pipe(
                       map(({ data }) =>
                           data
                               .filter((_) => _.map_id)
