@@ -136,7 +136,9 @@ export class ExploreSearchService {
     /** Function used to query for users */
     public search_fn = (q: string) =>
         this._settings.get('app.basic_user_search')
-            ? queryUsers({ q, authority_id: authority()?.id })
+            ? queryUsers({ q, authority_id: authority()?.id }).pipe(
+                  map((_) => _.data)
+              )
             : searchStaff(q);
 
     constructor(
