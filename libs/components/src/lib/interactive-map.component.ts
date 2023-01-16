@@ -2,6 +2,7 @@ import {
     AfterViewInit,
     Component,
     ElementRef,
+    EventEmitter,
     HostListener,
     InjectionToken,
     Injector,
@@ -9,6 +10,7 @@ import {
     OnChanges,
     OnDestroy,
     OnInit,
+    Output,
     QueryList,
     SimpleChanges,
     TemplateRef,
@@ -39,10 +41,20 @@ export const MAP_FEATURE_DATA = new InjectionToken<any>(
     'Data for Map Features'
 );
 
+function isSamePoint(p1: Point, p2: Point): boolean {
+    return p1.x === p2.x && p1.y === p2.y;
+}
+
 @Component({
     selector: `i-map,interactive-map`,
     template: `
-        <div #outlet tabindex="0" role="map" class="absolute inset-0" [class.hidden]="!src"></div>
+        <div
+            #outlet
+            tabindex="0"
+            role="map"
+            class="absolute inset-0"
+            [class.hidden]="!src"
+        ></div>
         <ng-container *ngIf="src; else empty_state">
             <mat-spinner
                 *ngIf="!viewer || loading"
@@ -135,6 +147,10 @@ export class InteractiveMapComponent
 
     @Input() public focus: string;
 
+    @Output() public zoomChange = new EventEmitter<number>();
+
+    @Output() public centerChange = new EventEmitter<Point>();
+
     public loading: boolean;
 
     public injectors: Injector[] = [];
@@ -198,7 +214,15 @@ export class InteractiveMapComponent
         if (this.viewer) {
             if (changes.focus && this.focus) {
                 this.focusOn(this.focus);
-            } else if (changes.zoom || changes.center) {
+            } else if (
+                (changes.zoom &&
+                    changes.zoom.previousValue != changes.zoom.currentValue) ||
+                (changes.center &&
+                    !isSamePoint(
+                        changes.center.previousValue,
+                        changes.center.currentValue
+                    ))
+            ) {
                 this.updateDisplay();
             }
             if (
@@ -279,6 +303,8 @@ export class InteractiveMapComponent
                     const box =
                         this._outlet_el.nativeElement.getBoundingClientRect();
                     this._on_changes.next({ ...v } as any);
+                    this.zoomChange.emit(v.zoom);
+                    this.centerChange.emit(v.center);
                 })
             );
             if (this.focus) this.focusOn(this.focus);
@@ -322,7 +348,9 @@ export class InteractiveMapComponent
         this.injectors = (this.features || []).map(
             (f: any) =>
                 old_injectors.find(
-                    (_) => _.get(MAP_FEATURE_DATA)?.track_id && _.get(MAP_FEATURE_DATA)?.track_id === f.track_id
+                    (_) =>
+                        _.get(MAP_FEATURE_DATA)?.track_id &&
+                        _.get(MAP_FEATURE_DATA)?.track_id === f.track_id
                 ) ||
                 Injector.create({
                     providers: [
