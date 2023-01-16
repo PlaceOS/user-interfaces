@@ -121,7 +121,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     <div class="space-y-2">
                         <div
                             class="flex items-center space-x-2"
-                            *ngFor="let item of catering_order.items"
+                            *ngFor="let item of catering_order"
                         >
                             <div
                                 count
@@ -245,9 +245,8 @@ export class MeetingFlowConfirmModalComponent extends BaseClass {
     @Input() public show_close: boolean = false;
 
     public readonly loading = this._event_form.loading;
-    public readonly catering_order = new CateringOrder({
-        items: this.event.catering as any,
-    });
+    public readonly catering_order =
+        this.event.catering[0]?.items || this.event.catering || [];
 
     public readonly postForm = async () => {
         await this._event_form.postForm().catch((_) => {
