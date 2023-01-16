@@ -27,10 +27,10 @@ export class QuestionCreatorService {
     public addOption(question: Question) {
         const found_question = this._findQuestion(question);
         if (found_question) {
-            found_question.choices.push(this.placeholder_choice);
+            found_question.choices.push({text: this.placeholder_choice});
             return found_question;
         } else {
-            question.choices.push(this.placeholder_choice);
+            question.choices.push({text: this.placeholder_choice});
             return question;
         }
     }

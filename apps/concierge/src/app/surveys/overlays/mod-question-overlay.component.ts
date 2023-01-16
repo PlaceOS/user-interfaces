@@ -9,7 +9,7 @@ import { generateNewQuestion, Question, QuestionComponent } from "@placeos/surve
     template:`
     
         <header class="flex items-center justify-between px-2 w-full">
-            <h2 (click)="verbose()" class="px-2">{{isEdit ? 'Update' : 'Add'}} Question</h2>
+            <h2 class="px-2">{{isEdit ? 'Update' : 'Add'}} Question</h2>
             <button mat-icon-button mat-dialog-close>
                 <app-icon>close</app-icon>
             </button>
@@ -35,18 +35,13 @@ export class ModQuestionOverlayComponent implements OnInit{
     ){
         this.isEdit = !!this._data;
         this.question = this._data || generateNewQuestion();
-        this.questionElement
     }
 
     ngOnInit(): void {
         
     }
 
-    verbose(){
-        console.log("is valid", this.questionElement)
-    }
-
     public done(){
-        console.log("question data", this.question)
+        this._dialog_ref.close(this.question);
     }
 }

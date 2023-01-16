@@ -83,12 +83,12 @@ export class QuestionComponent implements OnInit {
     public get valid(){
         if(!this.question?.title) return false;
         const q = this.question;
-        let valid = false;
+        let valid = true;
 
         switch(q.type){
             case QuestionType.Single_Select:
             case QuestionType.Multi_Select: 
-                const checkop = q.options?.map(e => !!e.text.length);
+                const checkop = q.choices?.map(e => !!(e?.text?.length));
                 valid = !!checkop?.length && checkop.reduce((acc,val) => acc && val);
                 break;
             case QuestionType.Rating:

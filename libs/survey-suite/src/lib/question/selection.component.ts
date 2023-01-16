@@ -14,11 +14,11 @@ import { BaseQuestionComponent } from "./base-question.component";
 
     <ng-container *ngIf="question">
         <div class="flex flex-col w-full">
-            <ng-container *ngIf="!readonly;else previewState;">
+            <ng-container *ngIf="!preview;else previewState;">
                 <div class="flex flex-col w-full mb-4 pl-2">
                     
                         <div 
-                            *ngFor="let item of question.options; let i = index;" 
+                            *ngFor="let item of question.choices; let i = index;" 
                             class="flex flex-row w-full items-center space-x-3 pb-3">
                                 
                                     <span>{{i+1}}. </span>
@@ -46,7 +46,7 @@ import { BaseQuestionComponent } from "./base-question.component";
             <ng-template #previewState>
                 <div class="flex flex-col w-full pl-2">
                     <div 
-                        *ngFor="let item of question.options; let i = index;" 
+                        *ngFor="let item of question.choices; let i = index;" 
                         class="flex flex-row w-full items-center space-x-3 pb-3">
                             <input [type]="multiple ? 'checkbox' : 'radio'" name="options">
                             <span>{{item.text}}</span>
@@ -68,18 +68,16 @@ export class SelectionComponent extends BaseQuestionComponent implements OnInit{
     }
 
     ngOnInit(){
-        console.log("selection question", this.question);
-        if(!this.question?.options){
-            this.question.options = [];
+        if(!this.question?.choices){
+            this.question.choices = [];
         }
     }
 
     addOption(){
-        this.question.options.push({text:''});
+        this.question.choices.push({text:''});
     }
 
     deleteOption(index: number){
-        console.log("delete option index", index);
-        this.question.options.splice(index,1);
+        this.question.choices.splice(index,1);
     }
 }

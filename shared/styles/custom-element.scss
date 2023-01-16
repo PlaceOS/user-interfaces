@@ -258,7 +258,7 @@ mat-select {
         overflow: visible;
     }
 
-    .mat-form-field-wrapper {
+    :not(.mat-origin) .mat-form-field-wrapper {
         .mat-form-field-label {
             top: 2em;
             margin-top: -0.1em;

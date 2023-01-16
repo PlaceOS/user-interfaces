@@ -15,7 +15,7 @@ textarea {
     }
 }
 
-label {
+:not(.mat-form-field-label-wrapper) > label {
     width: 100%;
     font-size: 0.875rem;
     margin-bottom: 0.25rem;
@@ -30,6 +30,8 @@ label {
         color: var(--error);
     }
 }
+
+    
 
 #placeos {
     .svg-viewer__label {
