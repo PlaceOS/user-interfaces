@@ -1,0 +1,101 @@
+<sidebar></sidebar>
+<main cdkDropListGroup class="flex flex-col h-full w-full bg-white dark:bg-neutral-600 overflow-y-auto">
+
+    <header class="flex items-center w-full px-6 py-4">
+        <h2 class="text-xl">New Survey</h2>
+    </header>
+
+    <div class="flex w-full items-center px-6 py-4">
+        <span>Filters...</span>
+        <div class="flex ml-auto">
+            <button mat-button>Save</button>
+        </div>
+    </div>
+
+    <nav class="flex bg-gray-200" mat-tab-nav-bar>
+        <a 
+            mat-tab-link
+            (click)="switchPage('design')"
+            [active]="page === 'design'">
+            Design
+        </a>
+
+        <a 
+            mat-tab-link
+            (click)="switchPage('preview')"
+            [active]="page === 'preview'">
+            Preview
+        </a>
+    </nav>
+    <div *ngIf="page === 'design'" class="mt-0 flex min-h-0 h-full w-full bg-gray-100">
+        <div class="flex flex-col h-full w-4/6 p-6 space-y-3 overflow-y-auto">
+            <div class="flex flex-col w-full">
+                <!-- <label for="title">Title</label> -->
+                <mat-form-field name="title" class="h-12 mat-origin">
+                    <input class="text-xl" 
+                        matInput 
+                        required 
+                        placeholder="Title"
+                        [(ngModel)]="service.survey.title">
+                </mat-form-field>
+            </div>
+            <div class="flex flex-col w-full">
+                <!-- <label for="desc">Description</label> -->
+                <mat-form-field name="desc" class="h-12 mat-origin">
+                    <input 
+                        matInput 
+                        placeholder="Description"
+                        [(ngModel)]="service.survey.description">
+                </mat-form-field>
+            </div>
+
+            <div cdkDropList
+                    [cdkDropListData]="service.questions"
+                    (cdkDropListDropped)="onDrop($event)"
+                    class="flex flex-col w-full space-y-3">
+
+                    <div 
+                    cdkDrag
+                    *ngFor="let q of service.questions; let i = index;" 
+                    class="flex flex-row rounded-md items-start w-full bg-gray-200 py-1">
+                    <div class="flex flex-col px-2 h-full">
+                        <span class="text-lg">{{i + 1}}</span>
+                    </div>
+                    <placeos-question
+                        class="flex-1"
+                        [preview]="true"
+                        [value]="q">
+                    </placeos-question>
+                    <div class="flex flex-col items-center h-full py-2">
+                        <mat-icon cdkDragHandle class="hover:cursor-move">drag_indicator</mat-icon>
+                        <button class="mt-auto" mat-icon-button (click)="onRemove(i)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </div>
+                </div>
+
+                <div *ngIf="service.questions?.length > 0; else noQuestion;"></div>
+            </div>
+
+        </div>
+        <div class="flex flex-col w-2/6">
+            <question-bank class=" w-full"></question-bank>
+        </div>
+
+    </div>
+
+    <div *ngIf="page === 'preview'" class="flex flex-col w-full px-6">
+        <survey *ngIf="service.surveyModel" [model]="service.surveyModel"></survey>
+    </div>
+</main>
+
+<ng-template #noQuestion>
+    <div class="flex flex-col m-auto h-52 justify-center space-y-2 text-gray-600">
+        <img
+            src="assets/icons/dragdrop.svg"
+            class="h-12"
+            alt="Icon of drag and drop"
+        />
+        <span>Drag and drop questions from the question bank here</span>
+    </div>
+</ng-template>
