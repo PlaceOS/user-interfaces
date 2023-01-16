@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { SettingsService } from '@placeos/common';
 import { ScheduleFilterCardComponent } from './schedule-filter-card.component';
 import { ScheduleStateService } from './schedule-state.service';
 
@@ -24,7 +25,10 @@ import { ScheduleStateService } from './schedule-state.service';
                 </div>
                 <div
                     class="flex items-center rounded-3xl border border-gray-300"
-                    *ngIf="(filters | async)?.shown_types?.includes('desk')"
+                    *ngIf="
+                        (filters | async)?.shown_types?.includes('desk') &&
+                        hasFeature('desks')
+                    "
                 >
                     <div class="px-2">{{ 'WPA.DESKS' | translate }}</div>
                     <button icon (click)="toggleType('desk', true)">
@@ -33,7 +37,10 @@ import { ScheduleStateService } from './schedule-state.service';
                 </div>
                 <div
                     class="flex items-center rounded-3xl border border-gray-300"
-                    *ngIf="(filters | async)?.shown_types?.includes('parking')"
+                    *ngIf="
+                        (filters | async)?.shown_types?.includes('parking') &&
+                        hasFeature('parking')
+                    "
                 >
                     <div class=" px-2">{{ 'WPA.PARKING' | translate }}</div>
                     <button
@@ -46,7 +53,10 @@ import { ScheduleStateService } from './schedule-state.service';
                 </div>
                 <div
                     class="flex items-center rounded-3xl border border-gray-300"
-                    *ngIf="(filters | async)?.shown_types?.includes('visitor')"
+                    *ngIf="
+                        (filters | async)?.shown_types?.includes('visitor') &&
+                        hasFeature('visitor-invite')
+                    "
                 >
                     <div class=" px-2">{{ 'WPA.VISITORS' | translate }}</div>
                     <button
@@ -82,7 +92,10 @@ import { ScheduleStateService } from './schedule-state.service';
             </div>
             <div
                 class="flex items-center rounded-3xl border border-gray-300 bg-white dark:bg-neutral-700 text-sm pl-2"
-                *ngIf="(filters | async)?.shown_types?.includes('desk')"
+                *ngIf="
+                    (filters | async)?.shown_types?.includes('desk') &&
+                    hasFeature('desks')
+                "
             >
                 <div>{{ 'WPA.DESKS' | translate }}</div>
                 <button icon (click)="toggleType('desk', true)">
@@ -91,10 +104,25 @@ import { ScheduleStateService } from './schedule-state.service';
             </div>
             <div
                 class="flex items-center rounded-3xl border border-gray-300 bg-white dark:bg-neutral-700 text-sm pl-2"
-                *ngIf="(filters | async)?.shown_types?.includes('parking')"
+                *ngIf="
+                    (filters | async)?.shown_types?.includes('parking') &&
+                    hasFeature('parking')
+                "
             >
                 <div>{{ 'WPA.PARKING' | translate }}</div>
                 <button icon (click)="toggleType('parking', true)">
+                    <app-icon>close</app-icon>
+                </button>
+            </div>
+            <div
+                class="flex items-center rounded-3xl border border-gray-300 bg-white dark:bg-neutral-700 text-sm pl-2"
+                *ngIf="
+                    (filters | async)?.shown_types?.includes('visitor') &&
+                    hasFeature('visitor-invite')
+                "
+            >
+                <div>{{ 'WPA.VISITORS' | translate }}</div>
+                <button icon (click)="toggleType('visitor', true)">
                     <app-icon>close</app-icon>
                 </button>
             </div>
@@ -107,9 +135,14 @@ export class ScheduleFiltersComponent {
 
     public readonly toggleType = (t, c = false) => this._state.toggleType(t, c);
 
+    public hasFeature(feature: string) {
+        return this._settings.get('app.features')?.includes(feature);
+    }
+
     constructor(
         private _sheet: MatBottomSheet,
-        private _state: ScheduleStateService
+        private _state: ScheduleStateService,
+        private _settings: SettingsService
     ) {}
 
     public openFilters() {

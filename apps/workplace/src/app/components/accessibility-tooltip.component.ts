@@ -55,7 +55,7 @@ import { CustomTooltipData } from '@placeos/components';
                     <mat-slider
                         class="flex-1 w-1/2 text-[16px]"
                         [min]="10"
-                        [max]="22"
+                        [max]="24"
                         [step]="2"
                     >
                         <input
@@ -66,6 +66,11 @@ import { CustomTooltipData } from '@placeos/components';
                         />
                     </mat-slider>
                     <span class="text-2xl">A</span>
+                    <span
+                        class="text-base py-1 px-2 rounded bg-gray-700 text-white my-2"
+                    >
+                        {{ font_size }}px
+                    </span>
                 </div>
             </ng-container>
         </div>
@@ -99,7 +104,7 @@ export class AccessibilityTooltipComponent extends BaseClass {
         this.timeout(
             'apply_setting',
             () => this._settings.saveUserSetting(n, v),
-            500
+            1000
         );
 
     public readonly close = () => this._data?.close();
