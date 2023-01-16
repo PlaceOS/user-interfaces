@@ -267,7 +267,7 @@ export class MeetingFlowConfirmModalComponent extends BaseClass {
     }
 
     public get event() {
-        return this._event_form.form.value as any;
+        return this._event_form.form.getRawValue() as any;
     }
 
     public get space(): Space {
