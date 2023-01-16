@@ -4,8 +4,8 @@ import { FormGroup } from '@angular/forms';
 @Component({
     selector: 'user-form',
     template: `
-        <form user-form *ngIf="form" [formGroup]="form">
-            <div class="field" *ngIf="form.controls.name">
+        <form user-form *ngIf="form" [formGroup]="form" class="w-full">
+            <div class="flex flex-col w-full" *ngIf="form.controls.name">
                 <label for="name" [class.error]="hasError('name')">
                     Name<span>*</span>:
                 </label>
@@ -19,7 +19,7 @@ import { FormGroup } from '@angular/forms';
                     <mat-error>Name is required</mat-error>
                 </mat-form-field>
             </div>
-            <div class="field" *ngIf="form.controls.email">
+            <div class="flex flex-col w-full" *ngIf="form.controls.email">
                 <label for="email" [class.error]="hasError('email')">
                     Email<span>*</span>:
                 </label>
@@ -33,7 +33,10 @@ import { FormGroup } from '@angular/forms';
                     <mat-error>A valid email is required</mat-error>
                 </mat-form-field>
             </div>
-            <div class="field" *ngIf="form.controls.organisation">
+            <div
+                class="flex flex-col w-full"
+                *ngIf="form.controls.organisation"
+            >
                 <label for="org" [class.error]="hasError('organisation')">
                     Organisation<span>*</span>:
                 </label>
@@ -47,7 +50,7 @@ import { FormGroup } from '@angular/forms';
                     <mat-error>Organisation is required</mat-error>
                 </mat-form-field>
             </div>
-            <div class="field" *ngIf="form.controls.phone">
+            <div class="flex flex-col w-full" *ngIf="form.controls.phone">
                 <label for="phone" [class.error]="hasError('phone')">
                     Phone:
                 </label>
@@ -62,7 +65,10 @@ import { FormGroup } from '@angular/forms';
                     <mat-error>Phone format is invalid</mat-error>
                 </mat-form-field>
             </div>
-            <div class="field" *ngIf="form.controls.assistance_required">
+            <div
+                class="flex flex-col w-full"
+                *ngIf="form.controls.assistance_required"
+            >
                 <mat-checkbox
                     name="assistance-required"
                     color="primary"
@@ -71,7 +77,10 @@ import { FormGroup } from '@angular/forms';
                     Assistance required
                 </mat-checkbox>
             </div>
-            <div class="field" *ngIf="form.controls.visit_expected">
+            <div
+                class="flex flex-col w-full"
+                *ngIf="form.controls.visit_expected"
+            >
                 <mat-checkbox
                     name="visit-expected"
                     color="primary"
@@ -84,11 +93,7 @@ import { FormGroup } from '@angular/forms';
     `,
     styles: [
         `
-            .field {
-                display: flex;
-                flex-wrap: wrap;
-            }
-
+            :host,
             mat-form-field {
                 width: 100%;
             }
