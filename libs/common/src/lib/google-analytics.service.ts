@@ -28,17 +28,19 @@ export class GoogleAnalyticsService {
     /** Store for timer ids */
     private timers: { [name: string]: number } = {};
 
-    constructor(private title: Title) {
+    constructor(private title: Title) {}
+
+    public init(tracking_id: string = '') {
         if (!window.gtag) {
             const script = document.createElement('script');
-            script.src = 'https://www.googletagmanager.com/gtag/js?id=G-TAG';
+            script.src = `https://www.googletagmanager.com/gtag/js?id=${tracking_id}`;
             document.body.appendChild(script);
             window.dataLayer = window.dataLayer || [];
             window.gtag = (...args) => {
                 window.dataLayer.push(args);
             };
             window.gtag('js', new Date());
-            window.gtag('config', 'G-TAG');
+            window.gtag('config', tracking_id);
             console.log('Service', 'Injected Google Analytics into page');
         }
         this.service = window.gtag;

@@ -168,6 +168,9 @@ export class AppComponent extends BaseClass implements OnInit {
                 `@${currentUser()?.email?.split('@')[1]}`
         );
         if (this._settings.get('app.analytics.tracking_id')) {
+            this._analytics.init(
+                this._settings.get('app.analytics.tracking_id')
+            );
             this._analytics.load(
                 this._settings.get('app.analytics.tracking_id')
             );
