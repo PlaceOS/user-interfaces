@@ -18,7 +18,7 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
         <a
             matRipple
             details
-            class="w-full"
+            class="w-full cursor-pointer"
             [routerLink]="['./']"
             [queryParams]="{ booking: booking?.id }"
             (click)="viewDetails()"
