@@ -52,24 +52,27 @@ export class GoogleAnalyticsService {
         this.service = window.gtag;
     }
 
+    public push(obj: Record<string, any>) {
+        window.dataLayer.push(obj);
+    }
+
     /**
      * Initialise Google Analytics
      * @param tracking_id GA Tracking ID
      */
     public load(tracking_id: string) {
-        // if (!this.enabled) {
-        //     throw new Error(
-        //         'Google Analytics needs to be enabled before being initialised'
-        //     );
-        // }
-        // if (!this.service) {
-        //     throw new Error(
-        //         "Google Analytics hasn't been installed on this page"
-        //     );
-        // }
-        // log('Analytics', 'Service', `Setup with tracking ID: ${tracking_id}`);
-        // this.service('create', tracking_id, 'auto');
-        // this.service('send', 'pageview');
+        if (!this.enabled) {
+            throw new Error(
+                'Google Analytics needs to be enabled before being initialised'
+            );
+        }
+        if (!this.service) {
+            throw new Error(
+                "Google Analytics hasn't been installed on this page"
+            );
+        }
+        log('Analytics', 'Service', `Setup with tracking ID: ${tracking_id}`);
+        this.page('');
     }
     /**
      * Set User ID for the Google Analytics session
@@ -125,14 +128,12 @@ export class GoogleAnalyticsService {
                         }`
                     );
                     const prefix = this.app_prefix ? this.app_prefix + '_' : '';
-                    this.service(
-                        'send',
-                        'event',
-                        `${prefix}${category}`,
-                        action,
-                        label,
-                        value
-                    );
+                    this.push({
+                        event: 'event',
+                        category: category,
+                        action: action,
+                        label: label,
+                    });
                 },
                 100
             );
@@ -159,7 +160,8 @@ export class GoogleAnalyticsService {
                         'Service',
                         `Screen: ${name}${app_name ? ', ' + app_name : ''}`
                     );
-                    this.service('send', 'screenview', {
+                    this.push({
+                        event: 'screenview',
                         appName: app_name || this.app_name,
                         screenName: name,
                     });
@@ -186,11 +188,10 @@ export class GoogleAnalyticsService {
                 `page|${route}`,
                 () => {
                     log('Analytics', 'Service', `Page: ${route}`);
-                    this.service(
-                        'send',
-                        'pageview',
-                        `${origin ? location.origin : ''}${route}`
-                    );
+                    this.push({
+                        event: 'pageview',
+                        url: `${origin ? location.origin : ''}${route}`,
+                    });
                 },
                 100
             );
@@ -226,14 +227,13 @@ export class GoogleAnalyticsService {
                             label ? ', ' + label : ''
                         }`
                     );
-                    this.service(
-                        'send',
-                        'timing',
+                    this.push({
+                        event: 'timing',
                         category,
                         variable,
                         value,
-                        label
-                    );
+                        label,
+                    });
                 },
                 100
             );
