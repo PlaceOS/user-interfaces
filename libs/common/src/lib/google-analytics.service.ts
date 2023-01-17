@@ -33,17 +33,20 @@ export class GoogleAnalyticsService {
 
     public init(tracking_id: string = '') {
         if (!window.gtag) {
-            const script = document.createElement('script');
-            script.id = 'gtag';
-            script.src = `https://www.googletagmanager.com/gtag/js?id=${tracking_id}`;
-            // script.async = true;
-            document.body.appendChild(script);
             window.dataLayer = window.dataLayer || [];
-            window.gtag = (...args) => {
-                window.dataLayer.push(args);
-            };
-            window.gtag('js', new Date());
-            window.gtag('config', tracking_id);
+            (function (w, d, s, l, i) {
+                w[l] = w[l] || [];
+                w[l].push({
+                    'gtm.start': new Date().getTime(),
+                    event: 'gtm.js',
+                });
+                var f = d.getElementsByTagName(s)[0],
+                    j = d.createElement(s) as any,
+                    dl = l != 'dataLayer' ? '&l=' + l : '';
+                j.async = true;
+                j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+                f.parentNode.insertBefore(j, f);
+            })(window, document, 'script', 'dataLayer', tracking_id);
             log('Analytics', 'Service', 'Injected Google Analytics into page');
         }
         this.service = window.gtag;
@@ -54,19 +57,19 @@ export class GoogleAnalyticsService {
      * @param tracking_id GA Tracking ID
      */
     public load(tracking_id: string) {
-        if (!this.enabled) {
-            throw new Error(
-                'Google Analytics needs to be enabled before being initialised'
-            );
-        }
-        if (!this.service) {
-            throw new Error(
-                "Google Analytics hasn't been installed on this page"
-            );
-        }
-        log('Analytics', 'Service', `Setup with tracking ID: ${tracking_id}`);
-        this.service('create', tracking_id, 'auto');
-        this.service('send', 'pageview');
+        // if (!this.enabled) {
+        //     throw new Error(
+        //         'Google Analytics needs to be enabled before being initialised'
+        //     );
+        // }
+        // if (!this.service) {
+        //     throw new Error(
+        //         "Google Analytics hasn't been installed on this page"
+        //     );
+        // }
+        // log('Analytics', 'Service', `Setup with tracking ID: ${tracking_id}`);
+        // this.service('create', tracking_id, 'auto');
+        // this.service('send', 'pageview');
     }
     /**
      * Set User ID for the Google Analytics session
