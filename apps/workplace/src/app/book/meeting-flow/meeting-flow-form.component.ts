@@ -437,6 +437,11 @@ export class MeetingFlowFormComponent extends BaseClass {
                     ', '
                 )}]`
             );
+        if (
+            this._settings.get('app.events.no_standalone') &&
+            !this.form.value.resources.length
+        )
+            return notifyError('You need to select a room to make a booking');
         if (this._settings.get('app.events.booking_unavailable'))
             return this._state.openEventLinkModal();
         if (window.innerWidth >= 768) {
