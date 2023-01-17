@@ -407,6 +407,9 @@ export class BookingFormService extends BaseClass {
             new Booking({
                 ...this._options.getValue(),
                 ...value,
+                extension_data: {
+                    department: value.user.department,
+                },
                 approved: !!this._settings.get('app.bookings.no_approval'),
             })
         ).toPromise();

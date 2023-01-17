@@ -1,9 +1,22 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { getModule, showMetadata } from '@placeos/ts-client';
-import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import {
+    addDays,
+    addMinutes,
+    endOfDay,
+    getUnixTime,
+    startOfDay,
+} from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { catchError, first, map, shareReplay, switchMap } from 'rxjs/operators';
+import {
+    catchError,
+    first,
+    map,
+    shareReplay,
+    switchMap,
+    tap,
+} from 'rxjs/operators';
 
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
@@ -43,6 +56,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
     private _signs_of_life = new BehaviorSubject<string[]>([]);
     private _statuses: Record<string, string> = {};
     private _users: Record<string, string> = {};
+    private _departments: Record<string, string> = {};
     private _poll = new BehaviorSubject<number>(0);
 
     private _checked_in = new BehaviorSubject<string[]>([]);
@@ -53,10 +67,19 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
     ]).pipe(
         switchMap(([lvl]) =>
             queryBookings({
-                period_start: getUnixTime(startOfDay(new Date())),
-                period_end: getUnixTime(endOfDay(new Date())),
+                period_start: getUnixTime(addMinutes(new Date(), -60)),
+                period_end: getUnixTime(addMinutes(new Date(), 60)),
                 type: 'desk',
                 zones: lvl.id,
+            })
+        ),
+        tap((l) =>
+            l.forEach((b) => {
+                const departments =
+                    this._settings.get('app.department_map') || {};
+                this._users[b.asset_id] = b.user_name;
+                this._departments[b.asset_id] =
+                    departments[b.extension_data.department] || '';
             })
         ),
         shareReplay(1)
@@ -212,6 +235,11 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 .filter((v) => v.signs_of_life)
                 .map((v) => v.map_id || v.asset_id)
         );
+        const departments = this._settings.get('app.department_map') || {};
+        for (const desk of desks) {
+            this._users[desk.map_id] = desk.staff_name;
+            this._departments[desk.map_id] = departments[desk.department] || '';
+        }
         this.processDevices(devices, system_id);
         this.timeout('update', () => this.updateStatus(), 100);
     }
@@ -253,7 +281,6 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         const list = [];
         const actions = [];
         const options = this._options.getValue();
-        const departments = this._settings.get('app.department_map') || {};
         for (const desk of desks) {
             list.push({
                 location: desk.id,
@@ -266,9 +293,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                     name: desk.name || desk.map_id,
                     user: this._users[desk.map_id] || desk.staff_name,
                     status: this._statuses[desk.map_id],
-                    department: desk.department
-                        ? departments[desk.department] || ''
-                        : '',
+                    department: this._departments[desk.map_id] || '',
                 },
                 z_index: 20,
             });

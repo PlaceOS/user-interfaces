@@ -45,7 +45,7 @@ export interface DeskInfoData {
                         {{ name || map_id || id }}
                     </h4>
                     <p user class="mt-2 text-sm" *ngIf="user">{{ user }}</p>
-                    <p user class="mt-1 text-sm" *ngIf="department">
+                    <p user class="mt-1 text-sm" *ngIf="user && department">
                         {{ department }}
                     </p>
                     <p start class="mt-1 text-sm" *ngIf="start">

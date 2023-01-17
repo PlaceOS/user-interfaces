@@ -6,14 +6,13 @@ export interface Attachment {
     name: string;
     url: string;
     size?: number;
-    created_at?: number; 
+    created_at?: number;
     progress?: number;
 }
 
 export interface UserComplete extends User {
     sys_admin?: boolean;
     support?: boolean;
-    department?: string;
 }
 
 export type EventResponseStatus =
@@ -42,6 +41,8 @@ export class User {
     public readonly organisation: string;
     /** Details about the user */
     public readonly notes: string;
+    /** Organisation department of the user */
+    public readonly department: string;
     /** URL to the user's photo */
     public readonly photo: string;
     /** Whether user attendance is required */
@@ -82,6 +83,7 @@ export class User {
         this.resource = data.resource ?? false;
         this.response_status = data.response_status || '';
         const groups = data.groups || [];
+        this.department = data.department || '';
         if (data.sys_admin) groups.push('placeos_admin');
         if (data.support) groups.push('placeos_support');
         if (data.department) groups.push(data.department);
