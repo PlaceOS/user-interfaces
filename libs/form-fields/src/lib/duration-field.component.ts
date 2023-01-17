@@ -1,10 +1,15 @@
-import { Component, forwardRef, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import {
+    Component,
+    forwardRef,
+    Input,
+    OnChanges,
+    OnInit,
+    SimpleChanges,
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { formatDuration } from 'date-fns';
 
 import * as dayjs from 'dayjs';
-
-
 
 @Component({
     selector: 'a-duration-field',
@@ -18,7 +23,10 @@ import * as dayjs from 'dayjs';
                     [placeholder]="duration + ' minutes'"
                     (valueChange)="setValue($event)"
                 >
-                    <mat-option *ngFor="let option of duration_options" [value]="option.id">
+                    <mat-option
+                        *ngFor="let option of duration_options"
+                        [value]="option.id"
+                    >
                         {{ option.name }}
                     </mat-option>
                 </mat-select>
@@ -45,7 +53,9 @@ import * as dayjs from 'dayjs';
         },
     ],
 })
-export class DurationFieldComponent implements OnInit, OnChanges, ControlValueAccessor {
+export class DurationFieldComponent
+    implements OnInit, OnChanges, ControlValueAccessor
+{
     /** Maximum duration option available */
     @Input() public max = 240;
     /** Minimum duration option available */
@@ -61,7 +71,7 @@ export class DurationFieldComponent implements OnInit, OnChanges, ControlValueAc
 
     public duration = 60;
     /** List of available duration options */
-    public duration_options: { id: number, name: string }[];
+    public duration_options: { id: number; name: string }[];
 
     /** Form control on change handler */
     private _onChange: (_: number) => void;
@@ -69,14 +79,22 @@ export class DurationFieldComponent implements OnInit, OnChanges, ControlValueAc
     private _onTouch: (_: number) => void;
 
     public ngOnInit(): void {
-        this.duration_options = this.generateDurationOptions(this.max, this.min, this.step);
+        this.duration_options = this.generateDurationOptions(
+            this.max,
+            this.min,
+            this.step
+        );
         this._updateOption();
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
         /* istanbul ignore else */
         if (changes.max || changes.min || changes.step || changes.time) {
-            this.duration_options = this.generateDurationOptions(this.max, this.min, this.step);
+            this.duration_options = this.generateDurationOptions(
+                this.max,
+                this.min,
+                this.step
+            );
             this._updateOption();
         }
     }
@@ -126,7 +144,7 @@ export class DurationFieldComponent implements OnInit, OnChanges, ControlValueAc
     }
 
     private generateDurationOptions(max: number, min: number, step: number) {
-        const blocks: { id: number, name: string }[] = [];
+        const blocks: { id: number; name: string }[] = [];
         let time = min;
         const date = this.time ? dayjs(this.time) : null;
 
@@ -135,11 +153,16 @@ export class DurationFieldComponent implements OnInit, OnChanges, ControlValueAc
             blocks.push({
                 id: option,
                 name: date
-                    ? `${date.add(option, 'm').format('h:mm A')} (${formatDuration({
+                    ? `${date
+                          .add(option, 'm')
+                          .format('h:mm A')} (${formatDuration({
                           hours: Math.floor(option / 60),
                           minutes: option % 60,
                       })})`
-                    : `${formatDuration({ hours: Math.floor(option / 60), minutes: option % 60 })}`,
+                    : `${formatDuration({
+                          hours: Math.floor(option / 60),
+                          minutes: option % 60,
+                      })}`,
             });
         }
 
@@ -147,11 +170,16 @@ export class DurationFieldComponent implements OnInit, OnChanges, ControlValueAc
             blocks.push({
                 id: time,
                 name: date
-                    ? `${date.add(time, 'm').format('h:mm A')} (${formatDuration({
+                    ? `${date
+                          .add(time, 'm')
+                          .format('h:mm A')} (${formatDuration({
                           hours: Math.floor(time / 60),
                           minutes: time % 60,
                       })})`
-                    : `${formatDuration({ hours: Math.floor(time / 60), minutes: time % 60 })}`,
+                    : `${formatDuration({
+                          hours: Math.floor(time / 60),
+                          minutes: time % 60,
+                      })}`,
             });
             time += step;
         }
@@ -160,7 +188,9 @@ export class DurationFieldComponent implements OnInit, OnChanges, ControlValueAc
 
     private _updateOption() {
         if (!this.duration_options?.length) return;
-        const idx = this.duration_options.findIndex((_) => _.id === this.duration);
+        const idx = this.duration_options.findIndex(
+            (_) => _.id === this.duration
+        );
         if (idx < 0) this.setValue(this.min);
     }
 }

@@ -26,7 +26,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             <h2 class="text-xl font-medium" i18n>Confirm Meeting booking</h2>
             <mat-spinner
                 diameter="32"
-                class="absolute right-0 top-1/2 -translate-y-1/2"
+                class="absolute right-2 top-1/2 -translate-y-1/2"
                 [class.opacity-0]="!(loading | async)"
             ></mat-spinner>
         </div>

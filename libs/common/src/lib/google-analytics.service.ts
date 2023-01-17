@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Title } from '@angular/platform-browser';
+import { log } from './general';
 
 declare global {
     interface Window {
@@ -33,7 +34,9 @@ export class GoogleAnalyticsService {
     public init(tracking_id: string = '') {
         if (!window.gtag) {
             const script = document.createElement('script');
+            script.id = 'gtag';
             script.src = `https://www.googletagmanager.com/gtag/js?id=${tracking_id}`;
+            // script.async = true;
             document.body.appendChild(script);
             window.dataLayer = window.dataLayer || [];
             window.gtag = (...args) => {
@@ -41,7 +44,7 @@ export class GoogleAnalyticsService {
             };
             window.gtag('js', new Date());
             window.gtag('config', tracking_id);
-            console.log('Service', 'Injected Google Analytics into page');
+            log('Analytics', 'Service', 'Injected Google Analytics into page');
         }
         this.service = window.gtag;
     }
@@ -61,7 +64,7 @@ export class GoogleAnalyticsService {
                 "Google Analytics hasn't been installed on this page"
             );
         }
-        console.log('Service', `Setup with tracking ID: ${tracking_id}`);
+        log('Analytics', 'Service', `Setup with tracking ID: ${tracking_id}`);
         this.service('create', tracking_id, 'auto');
         this.service('send', 'pageview');
     }
@@ -79,7 +82,7 @@ export class GoogleAnalyticsService {
             this.timeout(
                 `user|${id}`,
                 () => {
-                    console.log('Service', `Set user ID: ${id}`);
+                    log('Analytics', 'Service', `Set user ID: ${id}`);
                     this.service('set', 'userId', id);
                     this.event('authentication', 'user-id available');
                 },
@@ -111,7 +114,8 @@ export class GoogleAnalyticsService {
                 `event|${category}|${action}|${label}|${value}`,
                 () => {
                     const l = label ? ', ' + label : '';
-                    console.log(
+                    log(
+                        'Analytics',
                         'Service',
                         `Event: ${category}, ${action}${l}${
                             value ? ', ' + value : ''
@@ -147,7 +151,8 @@ export class GoogleAnalyticsService {
             this.timeout(
                 `event|${name}|${app_name || this.app_name}`,
                 () => {
-                    console.log(
+                    log(
+                        'Analytics',
                         'Service',
                         `Screen: ${name}${app_name ? ', ' + app_name : ''}`
                     );
@@ -177,7 +182,7 @@ export class GoogleAnalyticsService {
             this.timeout(
                 `page|${route}`,
                 () => {
-                    console.log('Service', `Page: ${route}`);
+                    log('Analytics', 'Service', `Page: ${route}`);
                     this.service(
                         'send',
                         'pageview',
@@ -211,7 +216,8 @@ export class GoogleAnalyticsService {
             this.timeout(
                 `page|${category}|${variable}|${value}|${label}`,
                 () => {
-                    console.log(
+                    log(
+                        'Analytics',
                         'Service',
                         `Timing: ${category}, ${variable}, ${value}${
                             label ? ', ' + label : ''
