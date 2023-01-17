@@ -156,6 +156,7 @@ export class AppComponent extends BaseClass implements OnInit {
             location.origin.includes('demo.place.tech');
         /** Wait for authentication details to load */
         await setupPlace(settings).catch((_) => console.error(_));
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
         setupCache(this._cache);
         if (!settings.local_login) {
             this.timeout('wait_for_user', () => this.onInitError(), 30 * 1000);
