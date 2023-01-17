@@ -51,7 +51,11 @@ export class CateringItem {
         this.tags = data.tags || [];
         this.images = data.images || [];
         this.options = data.options || [];
-        this.option_list = this.options.filter((_) => _.active === true);
+        const has_options = this.options.some((_) => _.active === true);
+        this.option_list =
+            (has_options
+                ? this.options.filter((_) => _.active === true)
+                : data.option_list) || [];
         this.hide_for_zones = data.hide_for_zones || [];
         this.unit_price_with_options =
             this.unit_price +
