@@ -17,6 +17,10 @@ import { checkinBooking } from './bookings.fn';
                 class="sm:flex flex-col items-center pb-4 max-h-screen sm:max-h-[80vh] sm:px-16 sm:border-b bg-white dark:bg-neutral-700 border-gray-300 dark:border-neutral-500"
             >
                 <div
+                    class="h-8 w-full sm:hidden block"
+                    *ngIf="!booking?.extension_data?.images?.length"
+                ></div>
+                <div
                     class="bg-black/20 dark:bg-white/20 w-full h-64 sm:rounded-b overflow-hidden"
                     *ngIf="booking?.extension_data?.images?.length"
                 >
@@ -175,7 +179,7 @@ import { checkinBooking } from './bookings.fn';
                 icon
                 matRipple
                 mat-dialog-close
-                class="absolute top-2 left-2 bg-black/30 text-white"
+                class="absolute top-0 left-2 bg-black/30 text-white"
             >
                 <app-icon>close</app-icon>
             </button>
