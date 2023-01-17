@@ -85,7 +85,7 @@ export class LandingStateService extends BaseClass {
     );
     /**  */
     public readonly upcoming_events = this._schedule.filtered_bookings.pipe(
-        map((_) => _.filter((i) => isAfter(i.date, Date.now())))
+        map((_) => _.filter((i) => i.state !== 'done'))
     );
     /**  */
     public contacts = this._contacts.asObservable();
