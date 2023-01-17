@@ -253,6 +253,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         const list = [];
         const actions = [];
         const options = this._options.getValue();
+        const departments = this._settings.get('app.department_map') || {};
         for (const desk of desks) {
             list.push({
                 location: desk.id,
@@ -265,6 +266,9 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                     name: desk.name || desk.map_id,
                     user: this._users[desk.map_id] || desk.staff_name,
                     status: this._statuses[desk.map_id],
+                    department: desk.department
+                        ? departments[desk.department] || ''
+                        : '',
                 },
                 z_index: 20,
             });
