@@ -184,6 +184,10 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
                 callback: () => this.bookSpace(space),
             });
         }
-        this._state.setActions('spaces', actions);
+        this.timeout(
+            'set-actions',
+            () => this._state.setActions('spaces', actions),
+            50
+        );
     }
 }
