@@ -30,7 +30,7 @@ export interface SpaceInfoData {
             [hover]="true"
             [attr.id]="space?.map_id || space?.id"
             (mouseenter)="updateOffset()"
-            class="h-full w-full pointer-events-auto relative"
+            class="h-full w-full pointer-events-auto relative hidden sm:block"
         ></div>
         <ng-template #space_tooltip>
             <div
@@ -55,7 +55,10 @@ export interface SpaceInfoData {
                             [src]="space.images[0]"
                             class="object-cover min-h-full min-w-full"
                         />
-                        <div class="absolute inset-0 bg-black/30" *ngIf="space.images[0]"></div>
+                        <div
+                            class="absolute inset-0 bg-black/30"
+                            *ngIf="space.images[0]"
+                        ></div>
                     </div>
                     <div class="absolute top-2 left-2 flex flex-wrap text-sm ">
                         <div
@@ -65,7 +68,9 @@ export interface SpaceInfoData {
                                 status
                             "
                         >
-                            { status, select, free { Free } busy { Busy } pending { Pending } reserved { Reserved } other { Not Bookable } }
+                            { status, select, free { Free } busy { Busy }
+                            pending { Pending } reserved { Reserved } other {
+                            Not Bookable } }
                         </div>
                         <div available-until *ngIf="status !== 'not-bookable'">
                             {{ available_until }}
@@ -144,8 +149,7 @@ export class ExploreSpaceInfoComponent implements OnInit {
         @Inject(MAP_FEATURE_DATA) private _details: SpaceInfoData,
         private _settings: SettingsService,
         private _element: ElementRef<HTMLElement>
-    ) {
-    }
+    ) {}
 
     public ngOnInit() {
         setTimeout(() => this.updateOffset(), 200);
