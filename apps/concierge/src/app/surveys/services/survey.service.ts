@@ -97,8 +97,6 @@ export class SurveyService {
     }
 
     public saveSurvey() {
-        console.log('save with options', this._options.getValue());
-        console.log('save survey obj', this.builder.survey);
         if (!this.validateSurvey()) return false;
         const { id, title, description, pages } = this.builder.survey;
         const { zone_id, building_id, trigger } = this._options.getValue();
