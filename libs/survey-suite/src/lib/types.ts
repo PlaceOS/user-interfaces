@@ -1,4 +1,15 @@
-import { getEnumOptions } from "./helper";
+import { getEnumMap, getEnumOptions } from "./helper";
+
+export enum TriggerEnum {
+    None = 'NONE',
+    Reserved = 'RESERVED',
+    Checked_In = 'CHECKEDIN',
+    Checked_Out = 'CHECKEDOUT',
+    No_Show = 'NOSHOW',
+    Rejected = 'REJECTED',
+    Cancelled = 'CANCELLED',
+    Ended = 'ENDED'
+}
 
 export enum QuestionType {
     Single_Line_Text = 'text',
@@ -8,7 +19,29 @@ export enum QuestionType {
     Rating = 'rating',
 }
 
+/** Enum Options key-value pair */
 export const QuestionTypeOptions = getEnumOptions(QuestionType);
+export const TriggerOptions = getEnumOptions(TriggerEnum);
+
+/** Enum Map */
+export const QuestionTypeEnumMap = getEnumMap(QuestionType);
+export const TriggerEnumMap = getEnumMap(TriggerEnum);
+
+export interface UISurveyObj{
+    id: number;
+    title: string;
+    description?: string;
+    trigger: TriggerEnum;
+    zone_id: string;
+    building_id: string;
+    pages: UISurveyPage[];
+}
+
+export interface UISurveyPage{
+    title:string;
+    description?:string;
+    elements: Question[];
+}
 
 export interface Question {
     id?:number;
