@@ -1,4 +1,9 @@
-import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
+import {
+    FormGroup,
+    FormControl,
+    Validators,
+    AbstractControl,
+} from '@angular/forms';
 import {
     add,
     formatDuration,
@@ -21,12 +26,13 @@ import { Booking } from 'libs/bookings/src/lib/booking.class';
 
 let BOOKING_DATE = add(setMinutes(setHours(new Date(), 6), 0), { days: -1 });
 
-const validateCateringField = (catering_control: AbstractControl) => (control: AbstractControl) => {
-    if (catering_control.value?.length && !control.value) {
-        return { catering_field: 'Catering sub-fields are required' };
-    }
-    return null;
-}
+const validateCateringField =
+    (catering_control: AbstractControl) => (control: AbstractControl) => {
+        if (catering_control.value?.length && !control.value) {
+            return { catering_field: 'Catering sub-fields are required' };
+        }
+        return null;
+    };
 
 export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
     if (!event) event = new CalendarEvent();
@@ -39,7 +45,7 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
         organiser: new FormControl(
             event.organiser || new User({ email: event.host || '' })
         ),
-        creator: new FormControl(event.creator, [Validators.required]),
+        creator: new FormControl(event.creator),
         calendar: new FormControl(event.calendar),
         attendees: new FormControl(event.attendees || []),
         resources: new FormControl(event.resources || []),
@@ -54,9 +60,15 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
         recurring_master_id: new FormControl(event.recurring_master_id),
         master: new FormControl(event.master),
         attachments: new FormControl(event.attachments),
-        catering: new FormControl((event.extension_data?.catering[0]?.items || []) as any),
-        catering_notes: new FormControl(event.extension_data?.catering[0]?.notes || ''),
-        catering_charge_code: new FormControl(event.extension_data?.catering[0]?.charge_code || ''),
+        catering: new FormControl(
+            (event.extension_data?.catering[0]?.items || []) as any
+        ),
+        catering_notes: new FormControl(
+            event.extension_data?.catering[0]?.notes || ''
+        ),
+        catering_charge_code: new FormControl(
+            event.extension_data?.catering[0]?.charge_code || ''
+        ),
         assets: new FormControl(event.extension_data?.assets || []),
         // has_catering: new FormControl(event.has_catering || false),
         visitor_type: new FormControl(event.extension_data?.visitor_type),
@@ -77,7 +89,9 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
         if (all_day) form.controls.duration.disable();
         else form.controls.duration.enable();
     });
-    form.get('catering_charge_code').setValidators([validateCateringField(form.get('catering'))]);
+    form.get('catering_charge_code').setValidators([
+        validateCateringField(form.get('catering')),
+    ]);
     if (event.id) {
         form.get('host').disable();
         form.get('organiser').disable();
@@ -163,9 +177,21 @@ export function replaceBookings(
 }
 
 export function newCalendarEventFromBooking(booking: Booking) {
-    let attendees = [{ id: booking.user_id, name: booking.user_name, email: booking.user_email, organizer: true }];
+    let attendees = [
+        {
+            id: booking.user_id,
+            name: booking.user_name,
+            email: booking.user_email,
+            organizer: true,
+        },
+    ];
     if (booking.booking_type === 'visitor') {
-        attendees.push(new User({ name: booking.asset_name || booking.description, email: booking.asset_id }));
+        attendees.push(
+            new User({
+                name: booking.asset_name || booking.description,
+                email: booking.asset_id,
+            })
+        );
     }
     attendees = attendees.concat(booking.attendees);
     return new CalendarEvent({
@@ -174,6 +200,6 @@ export function newCalendarEventFromBooking(booking: Booking) {
         attendees,
         id: booking.id || booking.extension_data.id,
         host: booking.user_email,
-        from_booking: true
+        from_booking: true,
     } as any);
 }
