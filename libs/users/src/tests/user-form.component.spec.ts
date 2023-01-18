@@ -27,12 +27,12 @@ describe('', () => {
     });
 
     it('should show form fields', () => {
-        expect('.field').not.toExist();
+        expect('form').not.toExist();
         spectator.setInput({
             form: generateUserForm(new User({})),
         });
         spectator.detectChanges();
-        expect('.field').toExist();
+        expect('form').toExist();
         expect('[name="name"]').toExist();
         expect('[name="email"]').toExist();
         expect('[name="org"]').toExist();

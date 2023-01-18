@@ -56,7 +56,7 @@ describe('ExploreSpacesService', () => {
         expect(binding).toHaveBeenCalledWith('bookings');
         expect(binding).toHaveBeenCalledWith('status');
         expect(bind).toHaveBeenCalledTimes(2);
-
+        tick(100);
         expect(state.setActions).toHaveBeenCalled();
     }));
 

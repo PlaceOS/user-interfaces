@@ -12,20 +12,22 @@ jest.mock('@placeos/users');
 import * as ts_client from '@placeos/ts-client';
 import * as user_mod from '@placeos/users';
 import { fakeAsync, tick } from '@angular/core/testing';
+import { MockProvider } from 'ng-mocks';
+import { SettingsService } from '@placeos/common';
 
 describe('ExploreSearchService', () => {
     let spectator: SpectatorService<ExploreSearchService>;
     const createService = createServiceFactory({
         service: ExploreSearchService,
         providers: [
-            {
-                provide: OrganisationService,
-                useValue: {
-                    initialised: of(true),
-                    organisation: new Organisation(),
-                    binding: jest.fn(() => 'sys-1'),
-                },
-            },
+            MockProvider(OrganisationService, {
+                initialised: of(true),
+                organisation: new Organisation(),
+                binding: jest.fn(() => 'sys-1'),
+            }),
+            MockProvider(SettingsService, {
+                get: jest.fn(),
+            }),
         ],
     });
 

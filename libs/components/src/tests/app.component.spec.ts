@@ -2,10 +2,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SwUpdate } from '@angular/service-worker';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { HotkeysService, SettingsService } from '@placeos/common';
+import {
+    GoogleAnalyticsService,
+    HotkeysService,
+    SettingsService,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { SpacesService } from '@placeos/spaces';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import { GlobalBannerComponent } from '../lib/global-banner.component';
@@ -27,16 +31,17 @@ describe('AppComponent', () => {
             MockComponent(GlobalLoadingComponent),
         ],
         providers: [
-            { provide: OrganisationService, useValue: {} },
-            {
-                provide: SettingsService,
-                useValue: { get: jest.fn(), initialised: of(true) },
-            },
-            { provide: SpacesService, useValue: {} },
-            { provide: SwUpdate, useValue: {} },
-            { provide: MatSnackBar, useValue: {} },
-            { provide: HotkeysService, useValue: { listen: jest.fn() } },
-            { provide: Clipboard, useValue: {} },
+            MockProvider(OrganisationService, {}),
+            MockProvider(SettingsService, {
+                get: jest.fn(),
+                initialised: of(true),
+            }),
+            MockProvider(SpacesService, {}),
+            MockProvider(SwUpdate, {}),
+            MockProvider(MatSnackBar, {}),
+            MockProvider(HotkeysService, { listen: jest.fn() }),
+            MockProvider(Clipboard, {}),
+            MockProvider(GoogleAnalyticsService, {}),
         ],
     });
 
