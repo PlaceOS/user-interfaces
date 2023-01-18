@@ -4,6 +4,7 @@ import {
     addDays,
     addMonths,
     isBefore,
+    isSameDay,
     isSameMonth,
     startOfDay,
     startOfMonth,
@@ -15,7 +16,7 @@ import {
     template: `
         <div class="p-2">
             <button
-                class="flex items-center w-full p-2"
+                class="flex items-center w-full p-2 rounded"
                 matRipple
                 (click)="show_shortlist = !show_shortlist"
             >
@@ -36,17 +37,21 @@ import {
                 <button
                     icon
                     matRipple
-                    class="min-w-[calc(14%-1rem)] flex-1 mx-2"
+                    class="min-w-[calc(14%-1rem)] flex-1 mx-2 h-9 overflow-visible"
                     *ngFor="let day of list"
                     [class.text-opacity-30]="!day.is_month"
-                    [class.text-primary]="day.id === active_date"
+                    [class.text-white]="day.id === active_date"
                     [class.text-black]="day.id !== active_date"
                     [class.dark:text-white]="day.id !== active_date"
                     [class.dark:text-opacity-30]="!day.is_month"
-                    [class.bg-gray-200]="day.id === active_date"
+                    [class.bg-primary]="day.id === active_date"
                     [class.font-normal]="day.id !== active_date"
                     (click)="setValue(day.id)"
                 >
+                    <div
+                        class="absolute -inset-0.5 border border-primary rounded-full"
+                        *ngIf="day.is_today"
+                    ></div>
                     {{ day.id | date: 'd' }}
                 </button>
             </div>
@@ -124,6 +129,7 @@ export class ScheduleMobileCalendarComponent
                 id: start.valueOf(),
                 is_past: isBefore(start, now),
                 is_month: isSameMonth(start, date),
+                is_today: isSameDay(Date.now(), start),
             });
             start = addDays(start, 1);
         }
@@ -135,6 +141,7 @@ export class ScheduleMobileCalendarComponent
                 id: start.valueOf(),
                 is_past: isBefore(start, now),
                 is_month: isSameMonth(start, date),
+                is_today: isSameDay(Date.now(), start),
             });
             start = addDays(start, 1);
         }
