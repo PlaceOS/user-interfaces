@@ -55,7 +55,7 @@ export class User {
     public visit_expected: boolean;
     /** Whether user has been checked in */
     public readonly checked_in: boolean;
-    /** Department that the user belongs to in the organisation */
+    /** Organisational groups that the user belongs */
     public readonly groups: string[];
     /** Extra metadata associated with the user */
     public readonly extension_data: Record<string, any>;
@@ -83,7 +83,7 @@ export class User {
         this.resource = data.resource ?? false;
         this.response_status = data.response_status || '';
         const groups = data.groups || [];
-        this.department = data.department || '';
+        this.department = data.department ?? '';
         if (data.sys_admin) groups.push('placeos_admin');
         if (data.support) groups.push('placeos_support');
         if (data.department) groups.push(data.department);

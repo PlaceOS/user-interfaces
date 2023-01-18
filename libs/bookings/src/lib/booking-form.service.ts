@@ -403,6 +403,7 @@ export class BookingFormService extends BaseClass {
             };
         }
         this._loading.next('Saving booking');
+        console.log('User:', value.user, currentUser());
         const result = await saveBooking(
             new Booking({
                 ...this._options.getValue(),
