@@ -12,83 +12,55 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatListModule } from '@angular/material/list';
 import { Route, RouterModule } from '@angular/router';
 import { ComponentsModule } from '@placeos/components';
 import { UIModule } from '../ui/ui.module';
 
 import { BuildingListComponent } from './pages/building-list.component';
-import { CompleteSurveyComponent } from './pages/complete-survey.component';
-import { DesignPreviewContainerComponent } from './pages/design-preview-container.component';
 import { NotFoundComponent } from './pages/not-found.component';
-import { SurveyListComponent } from './pages/survey-list.component';
 
-import { AddBuildingModalComponent } from './components/add-building-modal.component';
-import { AddQuestionBankComponent } from './components/add-question-bank.component';
 import { BuildingListItemComponent } from './components/building-list-item.component';
-import { ButtonBorderlessComponent } from './components/button-borderless.component';
-import { DragdropDirective } from './components/dragdrop.directive';
-import { EditQuestionBankComponent } from './components/edit-question-bank.component';
-import { InputTitleComponent } from './components/input-title.component';
-import { MinusButtonComponent } from './components/minus-button.component';
-import { PlusButtonComponent } from './components/plus-button.component';
-import { QuestionBoxComponent } from './components/question-box.component';
-import { QuestionContainerComponent } from './components/question-container.component';
-import { QuestionListItemComponent } from './components/question-list-item.component';
-import { CheckboxQuestionComponent } from './components/question-type-components/checkbox-question.component';
-import { CommentBoxQuestionComponent } from './components/question-type-components/comment-box-question.component';
-import { DropdownQuestionComponent } from './components/question-type-components/dropdown-question.component';
-import { RatingQuestionComponent } from './components/question-type-components/rating-question.component';
-import { TextQuestionComponent } from './components/question-type-components/text-question.component';
-import { SearchBarComponent } from './components/search-bar.component';
 
 import { SurveySuiteModule } from '@placeos/survey-suite';
 import { SurveyModule } from 'survey-angular-ui';
 import { QuestionBankComponent } from './components/question-bank/question-bank.component';
 import { SurveyBuilderComponent } from './components/survey-builder/survey-builder.component';
 import { ModQuestionOverlayComponent } from './overlays/mod-question-overlay.component';
-import { QuestionBankService } from './components/question-bank/question-bank.service';
-import { SurveyBuilderService } from './components/survey-builder/survey-builder.service';
+import { QuestionBankService } from './services/question-bank.service';
+import { SurveyBuilderService } from './services/survey-builder.service';
+import { SurveyCreatorTopbarComponent } from './components/survey-creator-topbar.component';
+import { SurveyService } from './services/survey.service';
+import { ModSurveyComponent } from './pages/mod-survey.component';
+import { SearchInputComponent } from './components/search-input.component';
+import { SurveyListingsComponent } from './pages/survey-listings.component';
+import { RunSurveyComponent } from './pages/run-survey.component';
 
 const routes: Route[] = [
     { path: '', component: BuildingListComponent },
-    { path: 'survey-list/:id', component: SurveyListComponent },
-    { path: 'create', component: DesignPreviewContainerComponent },
-    { path: 'builder', component: SurveyBuilderComponent},
-    { path: 'complete/:id', component: CompleteSurveyComponent },
+    { path: 'survey-list/:id', component: SurveyListingsComponent },
+    { path: 'builder', component: ModSurveyComponent},
+    { path: 'run/:id', component: RunSurveyComponent },
     { path: '404', component: NotFoundComponent },
     { path: '**', pathMatch: 'full', component: NotFoundComponent },
 ];
 
 const COMPONENTS = [
-    AddBuildingModalComponent,
     BuildingListComponent,
-    SurveyListComponent,
     BuildingListItemComponent,
-    AddQuestionBankComponent,
-    EditQuestionBankComponent,
-    DesignPreviewContainerComponent,
-    SearchBarComponent,
-    InputTitleComponent,
-    QuestionContainerComponent,
-    ButtonBorderlessComponent,
-    CheckboxQuestionComponent,
-    CommentBoxQuestionComponent,
-    DropdownQuestionComponent,
-    RatingQuestionComponent,
-    TextQuestionComponent,
-    QuestionListItemComponent,
-    QuestionBoxComponent,
-    PlusButtonComponent,
-    MinusButtonComponent,
-    CompleteSurveyComponent,
     NotFoundComponent,
     ModQuestionOverlayComponent,
     QuestionBankComponent,
-    SurveyBuilderComponent
+    SurveyBuilderComponent,
+    SurveyCreatorTopbarComponent,
+    ModSurveyComponent,
+    SearchInputComponent,
+    SurveyListingsComponent,
+    RunSurveyComponent
 ];
 
 @NgModule({
-    declarations: [...COMPONENTS, DragdropDirective],
+    declarations: [...COMPONENTS],
     imports: [
         CommonModule,
         RouterModule.forChild(routes),
@@ -106,11 +78,12 @@ const COMPONENTS = [
         RouterModule,
         MatTableModule,
         MatMenuModule,
+        MatListModule,
         MatFormFieldModule,
         UIModule,
         SurveySuiteModule,
         SurveyModule,
     ],
-    providers: [SurveyBuilderService, QuestionBankService]
+    providers: [SurveyBuilderService, QuestionBankService, SurveyService]
 })
 export class SurveysModule {}

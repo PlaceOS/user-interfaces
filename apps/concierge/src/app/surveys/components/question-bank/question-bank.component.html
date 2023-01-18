@@ -5,17 +5,35 @@
             <span>{{loading$ | async}}</span>
         </div>
     </div>
-    <header class="flex items-center py-2 px-3 border-b w-full">
+    <header class="flex items-center py-2 px-4 w-full">
         <span>Question Bank</span>
         <div class="ml-auto">
-            <button mat-flat-button (click)="onAddQuestion()">
-                <div class="flex flex-row items-center space-x-1">
-                    <mat-icon>add</mat-icon>
+            <button mat-icon-button (click)="onAddQuestion()">
+                <mat-icon>add_circle_outline</mat-icon>
+                <!-- <div class="flex flex-row items-center space-x-1">
+                    <mat-icon>add_circle_outline</mat-icon>
                     <span>Add</span>
-                </div>
+                </div> -->
             </button>
         </div>
     </header>
+    <div class="flex w-full py-2 px-4 border-b space-x-2">
+        <search-input class="flex-1" (onSearch)="setFilter({search:$event})"></search-input>
+        <mat-form-field class="w-44" appearance="outline" subscriptSizing="dynamic">
+            <mat-select 
+                [value]="(filters$ | async)?.type || ''"
+                (selectionChange)="setFilter({type:$event.value})">
+                <mat-option value="">All types</mat-option>
+                <mat-option 
+                    *ngFor="let item of typeOptions"
+                    [value]="item.value"
+                >
+                    {{ item.name }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+
+    </div>
     <div 
         cdkDropList 
         [cdkDropListData]="questions$ | async"
@@ -31,7 +49,7 @@
                 </div>
                 <div class="flex flex-col w-full py-3">
                     <span>{{q.title}}</span>
-                    <span class="text-sm text-gray-600">{{q.type}}</span>
+                    <span class="text-sm text-gray-600">{{typeMap[q.type]}}</span>
                 </div>
                 <button mat-icon-button color="warn" (click)="onDeleteQuestion(q)">
                     <mat-icon>delete</mat-icon>
