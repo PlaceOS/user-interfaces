@@ -6,7 +6,7 @@ import {
     addMinutes,
     endOfDay,
     getUnixTime,
-    startOfDay,
+    startOfMinute,
 } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import {
@@ -67,21 +67,23 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
     ]).pipe(
         switchMap(([lvl]) =>
             queryBookings({
-                period_start: getUnixTime(addMinutes(new Date(), -60)),
+                period_start: getUnixTime(startOfMinute(new Date())),
                 period_end: getUnixTime(addMinutes(new Date(), 60)),
                 type: 'desk',
                 zones: lvl.id,
             })
         ),
-        tap((l) =>
+        tap((l) => {
+            this._users = {};
+            this._departments = {};
             l.forEach((b) => {
                 const departments =
                     this._settings.get('app.department_map') || {};
                 this._users[b.asset_id] = b.user_name;
                 this._departments[b.asset_id] =
                     departments[b.extension_data.department] || '';
-            })
-        ),
+            });
+        }),
         shareReplay(1)
     );
 

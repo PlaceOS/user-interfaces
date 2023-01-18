@@ -48,7 +48,7 @@ export interface AppLocale {
                         >
                             <app-icon>layers</app-icon>
                         </div>
-                        <div class="flex-1">
+                        <div class="flex-1 truncate w-px">
                             {{
                                 (region | async)?.display_name ||
                                     (region | async)?.name
@@ -70,7 +70,7 @@ export interface AppLocale {
                         >
                             <app-icon>business</app-icon>
                         </div>
-                        <div class="flex-1">
+                        <div class="flex-1 truncate w-px">
                             {{
                                 (building | async)?.display_name ||
                                     (building | async)?.name
