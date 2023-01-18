@@ -44,7 +44,7 @@ const EMPTY = [];
         ></explore-zoom-controls>
         <div
             controls
-            class="absolute top-2 left-2 bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-500 rounded p-2 space-y-2"
+            class="absolute top-2 left-2 max-w-[calc(100vw-1rem)] bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-500 rounded p-2 space-y-2 overflow-hidden"
         >
             <explore-map-controls></explore-map-controls>
             <div class="flex items-center space-x-2">

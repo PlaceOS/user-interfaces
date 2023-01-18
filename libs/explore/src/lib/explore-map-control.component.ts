@@ -9,11 +9,11 @@ import { ExploreStateService } from './explore-state.service';
 @Component({
     selector: 'explore-map-controls',
     template: `
-        <div class="flex space-x-2">
+        <div class="flex space-x-2 w-full">
             <mat-form-field
                 overlay
                 buildings
-                class="flex-1"
+                class="flex-1 min-w-[10.5rem]"
                 has-bld="true"
                 *ngIf="(buildings | async)?.length > 1"
                 appearance="outline"
@@ -35,7 +35,7 @@ import { ExploreStateService } from './explore-state.service';
             <mat-form-field
                 overlay
                 levels
-                class="flex-1"
+                class="flex-1 min-w-[10.25rem]"
                 [attr.has-bld]="(buildings | async)?.length > 1"
                 *ngIf="(levels | async)?.length"
                 appearance="outline"
@@ -59,7 +59,6 @@ import { ExploreStateService } from './explore-state.service';
     styles: [
         `
             mat-form-field {
-                min-width: 12rem;
                 height: 3.5rem;
             }
 
