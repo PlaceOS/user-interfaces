@@ -467,9 +467,13 @@ export class EventFormService extends BaseClass {
                 ? startOfDay(value.date).valueOf()
                 : value.date;
             if (catering.length && !('items' in catering[0])) {
+                const items = catering.map((_) => ({
+                    ..._,
+                    options: _.options.map((o) => ({ ...o, active: false })),
+                }));
                 catering = [
                     new CateringOrder({
-                        items: catering as any,
+                        items,
                         notes: value.catering_notes,
                         charge_code: value.catering_charge_code,
                     }),
