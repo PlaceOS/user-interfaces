@@ -1,6 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Building } from '@placeos/organisation';
-import { BuildingsService } from '../services/buildings.service';
 import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -9,7 +8,7 @@ import { Router, ActivatedRoute } from '@angular/router';
         <section
             class="building-wrapper bg-white my-4 mx-auto rounded-md overflow-hidden"
         >
-            <div
+            <!-- <div
                 class="options"
                 [matMenuTriggerFor]="optionsMenu"
                 aria-label="more options"
@@ -27,7 +26,7 @@ import { Router, ActivatedRoute } from '@angular/router';
                         <span>Delete</span>
                     </button>
                 </div>
-            </mat-menu>
+            </mat-menu> -->
             <div *ngIf="building.image" class="image-container">
                 <img
                     class="flex object-fill "
@@ -52,11 +51,11 @@ import { Router, ActivatedRoute } from '@angular/router';
                 <span class="building-title">
                     {{ building.display_name }}
                 </span>
-                <ul class="details-text mt-3">
+                <!-- <ul class="details-text mt-3">
                     <li>surveys live: {{ mock_count }}</li>
                     <li>drafts: {{ mock_count - 1 }}</li>
                     <li>responses: {{ mock_count - 3 }}</li>
-                </ul>
+                </ul> -->
             </div>
             <div class="button-container">
                 <button mat-stroked-button (click)="navigate()">
@@ -177,19 +176,12 @@ export class BuildingListItemComponent implements OnInit {
     mock_count: number;
 
     constructor(
-        public buildingsService: BuildingsService,
         public router: Router,
         public route: ActivatedRoute
     ) {}
 
     ngOnInit(): void {
         this.mock_count = Math.floor(Math.random() * (8 - 3) + 3);
-    }
-
-    editBuilding() {}
-
-    deleteBuilding() {
-        this.buildingsService.deleteBuilding(this.building);
     }
 
     navigate(): void {
