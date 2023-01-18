@@ -5,7 +5,7 @@ import { Question, QuestionType, QuestionTypeOptions } from '../types';
     selector: 'placeos-question',
     styles: [],
     template: `
-        <div class="border bg-white shadow flex flex-col w-full items-center justify-between px-4 py-2">
+        <div class="border bg-white shadow flex flex-col w-full items-center justify-between px-4 py-2 pt-4">
             <ng-container *ngIf="!preview; else previewTitle">
                 <mat-form-field class="w-full" appearance="outline">
                     <input
@@ -44,7 +44,7 @@ import { Question, QuestionType, QuestionTypeOptions } from '../types';
             </div>
 
             <div class="flex flex-row w-full items-center justify-end space-x-4" *ngIf="!preview">
-                <mat-form-field appearance="none" class="h-[2rem]">
+                <!-- <mat-form-field appearance="outline" class="h-[2rem]">
                     <div class="mat-form-field-wrapper" style="margin-bottom: 0;">
                         <mat-select [(ngModel)]="question.type">
                             <mat-option
@@ -55,7 +55,16 @@ import { Question, QuestionType, QuestionTypeOptions } from '../types';
                             </mat-option>
                         </mat-select>
                     </div>
-                </mat-form-field>
+                </mat-form-field> -->
+
+                <select [(ngModel)]="question.type">
+                    <option 
+                        *ngFor="let item of typeOptions"
+                        [value]="item.value"
+                    >
+                        {{ item.name }}
+                    </option>
+                </select>
 
                 <mat-slide-toggle [(ngModel)]="question.isRequired"> Required</mat-slide-toggle>
                 <!-- <mat-slide-toggle [(ngModel)]="preview"> Preview</mat-slide-toggle> -->

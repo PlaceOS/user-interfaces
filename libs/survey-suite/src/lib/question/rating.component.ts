@@ -14,10 +14,11 @@ import { BaseQuestionComponent } from "./base-question.component";
             </div>
             <div class="flex flex-col" *ngIf="!preview">
                 <mat-slider
-                    [(ngModel)]="question.rateMax"
                     [max]="10" [min]="3" 
                     [thumbLabel]="true" 
-                    [step]="1"></mat-slider>
+                    [step]="1">
+                    <input matSliderThumb [(ngModel)]="question.rateMax">
+                </mat-slider>
                 <span class="text-xs">Move the slider to adjust the rating options</span>
             </div>
 

@@ -22,7 +22,10 @@ import { BaseQuestionComponent } from "./base-question.component";
                             class="flex flex-row w-full items-center space-x-3 pb-3">
                                 
                                     <span>{{i+1}}. </span>
-                                    <mat-form-field class="h-12 w-full" appearance="fill">
+                                    <mat-form-field 
+                                        class="w-full" 
+                                        appearance="outline"
+                                        [subscriptSizing]="'dynamic'">
                                         <input matInput type="text" [(ngModel)]="item.text" name="item{{i}}"/>
                                     </mat-form-field>
                                     <button matSuffix mat-icon-button (click)="deleteOption(i)">
@@ -33,8 +36,9 @@ import { BaseQuestionComponent } from "./base-question.component";
                         </div>
                     
                 </div>
-                <button class="w-24" 
-                    mat-stroked-button (click)="addOption()">
+                <button  
+                    mat-stroked-button 
+                    (click)="addOption()">
                     <div class="flex flex-row items-center text-gray-800">
                         <mat-icon>add_circle</mat-icon>
                         <span>Add option</span>
