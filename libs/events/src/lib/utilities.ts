@@ -45,7 +45,7 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
         organiser: new FormControl(
             event.organiser || new User({ email: event.host || '' })
         ),
-        creator: new FormControl(event.creator),
+        creator: new FormControl(event.creator || currentUser()?.email),
         calendar: new FormControl(event.calendar),
         attendees: new FormControl(event.attendees || []),
         resources: new FormControl(event.resources || []),
