@@ -276,6 +276,7 @@ export class InviteVisitorFormComponent extends BaseClass {
 
     public async ngOnInit() {
         this.sent = false;
+        this._service.clearOldState();
         await this.initFormZone();
         this.form
             .get('asset_id')

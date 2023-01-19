@@ -314,6 +314,11 @@ export class BookingFormService extends BaseClass {
         });
     }
 
+    public clearOldState() {
+        sessionStorage.removeItem('PLACEOS.last_booked_booking');
+        this.last_success = new Booking();
+    }
+
     public openBookingLinkModal(force: boolean = false) {
         const form = this._form.getValue();
         form.markAllAsTouched();
