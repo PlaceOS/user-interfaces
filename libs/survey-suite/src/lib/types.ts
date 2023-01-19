@@ -5,10 +5,10 @@ export enum TriggerEnum {
     Reserved = 'RESERVED',
     Checked_In = 'CHECKEDIN',
     Checked_Out = 'CHECKEDOUT',
-    No_Show = 'NOSHOW',
+    // No_Show = 'NOSHOW',
     Rejected = 'REJECTED',
     Cancelled = 'CANCELLED',
-    Ended = 'ENDED'
+    // Ended = 'ENDED'
 }
 
 export enum QuestionType {
