@@ -48,6 +48,13 @@ import { BaseQuestionComponent } from "./base-question.component";
             </ng-container>
 
             <ng-template #previewState>
+                <mat-form-field *ngIf="isDropDown; else inputType;">
+                    <mat-select>
+                        <mat-option *ngFor="let item of question.choices" [value]="item.value">{{item.text}}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </ng-template>
+            <ng-template #inputType>
                 <div class="flex flex-col w-full pl-2">
                     <div 
                         *ngFor="let item of question.choices; let i = index;" 
@@ -64,11 +71,12 @@ import { BaseQuestionComponent } from "./base-question.component";
 
 export class SelectionComponent extends BaseQuestionComponent implements OnInit{
 
-    // @Input() question: Question;
-    // @Input() isPreview: boolean = false;
 
+    public get isDropDown(){
+        return this.question?.type === QuestionType.Drop_Down;
+    }
     public get multiple(){
-        return this.question?.type === QuestionType.Multi_Select;
+        return this.question?.type === QuestionType.Check_Box;
     }
 
     ngOnInit(){
