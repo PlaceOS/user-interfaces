@@ -58,11 +58,9 @@ import { Router, ActivatedRoute } from '@angular/router';
                 </ul> -->
             </div>
             <div class="button-container">
-                <button mat-stroked-button (click)="navigate()">
-                    <div class="flex items-center justify-center space-x-1">
-                        <span>View</span>
-                        <mat-icon>chevron_right</mat-icon>
-                    </div>
+                <button btn matRipple class="inverse" (click)="navigate()">
+                    <span class="ml-2">View</span>
+                    <app-icon class="ml-1 text-2xl">chevron_right</app-icon>
                 </button>
             </div>
         </section>
@@ -175,10 +173,7 @@ export class BuildingListItemComponent implements OnInit {
     // @Output() deleteBuildingEvent = new EventEmitter<any>();
     mock_count: number;
 
-    constructor(
-        public router: Router,
-        public route: ActivatedRoute
-    ) {}
+    constructor(public router: Router, public route: ActivatedRoute) {}
 
     ngOnInit(): void {
         this.mock_count = Math.floor(Math.random() * (8 - 3) + 3);

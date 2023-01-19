@@ -33,7 +33,8 @@ import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
                 *ngIf="searchInput.value?.length"
                 class="sm text-xs"
                 matSuffix
-                mat-icon-button
+                icon
+                matRipple
                 aria-label="Clear"
                 (click)="clearSearch()"
             >
