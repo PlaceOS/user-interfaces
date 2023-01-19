@@ -57,8 +57,10 @@ export class QuestionBankService extends BaseClass {
             return questions
                 .filter(e => type?.length ? e.type === type : true)
                 .filter(e => e.title.includes(search))
-        })
+        }),
+        tap(q => this.filteredQuestion = q)
     )
+    private filteredQuestion = [];
 
     constructor(private _dialog: MatDialog) {
         super();
@@ -72,7 +74,7 @@ export class QuestionBankService extends BaseClass {
     }
 
     public popQuestion(index: number) {
-        const q = this.questions[index];
+        const q = this.filteredQuestion[index];
         this.removeQuestionFromStore(q);
         return q;
     }
