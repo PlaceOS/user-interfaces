@@ -6,12 +6,12 @@ import { ScheduleStateService } from './schedule-state.service';
     selector: 'schedule-filter-card',
     template: `
         <div
-            class="flex items-center border-b border-gray-300 dark:bg-neutral-700 space-x-2 mb-4"
+            class="flex items-center border-b border-gray-300 dark:bg-neutral-700 space-x-2 mb-4 text-xl"
         >
-            <button icon (click)="dismiss()">
+            <button icon matRipple (click)="dismiss()">
                 <app-icon>chevron_left</app-icon>
             </button>
-            <h2 class="flex-1 w-1/2 text-center font-medium">
+            <h2 class="flex-1 w-1/2 text-center">
                 {{ 'WPA.BOOKING_TYPES' | translate }}
             </h2>
             <app-icon></app-icon>

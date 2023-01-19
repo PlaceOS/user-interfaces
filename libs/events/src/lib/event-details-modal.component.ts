@@ -29,6 +29,10 @@ import { getModule } from '@placeos/ts-client';
                     bind="status"
                 ></i>
                 <div
+                    class="h-8 w-full sm:hidden block"
+                    *ngIf="!event?.system?.images?.length"
+                ></div>
+                <div
                     class="bg-black/20 dark:bg-white/20 w-full h-64 sm:rounded-b overflow-hidden"
                     *ngIf="event?.system?.images?.length"
                 >

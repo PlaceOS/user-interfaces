@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { ApplicationLink, SettingsService } from '@placeos/common';
+import { ApplicationLink, BaseClass, SettingsService } from '@placeos/common';
 import { CustomTooltipData } from '@placeos/components';
 
 @Component({
@@ -53,18 +53,24 @@ import { CustomTooltipData } from '@placeos/components';
                 <div class="flex items-center px-4 space-x-4">
                     <span class="text-sm">A</span>
                     <mat-slider
-                        class="flex-1 w-1/2"
+                        class="flex-1 w-1/2 text-[16px]"
                         [min]="10"
-                        [max]="22"
+                        [max]="24"
                         [step]="2"
                     >
                         <input
                             matSliderThumb
+                            class="text-[16px]"
                             [ngModel]="font_size"
                             (ngModelChange)="applySetting('font_size', $event)"
                         />
                     </mat-slider>
                     <span class="text-2xl">A</span>
+                    <span
+                        class="text-base py-1 px-2 rounded bg-gray-700 text-white my-2"
+                    >
+                        {{ font_size }}px
+                    </span>
                 </div>
             </ng-container>
         </div>
@@ -77,7 +83,7 @@ import { CustomTooltipData } from '@placeos/components';
         `,
     ],
 })
-export class AccessibilityTooltipComponent {
+export class AccessibilityTooltipComponent extends BaseClass {
     public get dark_mode() {
         return !!this._settings.get('dark_mode');
     }
@@ -95,12 +101,18 @@ export class AccessibilityTooltipComponent {
     }
 
     public readonly applySetting = (n, v) =>
-        this._settings.saveUserSetting(n, v);
+        this.timeout(
+            'apply_setting',
+            () => this._settings.saveUserSetting(n, v),
+            1000
+        );
 
     public readonly close = () => this._data?.close();
 
     constructor(
         @Inject(CustomTooltipData) private _data: any,
         private _settings: SettingsService
-    ) {}
+    ) {
+        super();
+    }
 }

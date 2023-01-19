@@ -1,6 +1,7 @@
 import { Component, Input, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import { BaseClass, notifyError } from '@placeos/common';
+import { MatDialog } from '@angular/material/dialog';
+import { BaseClass, notifyError, openConfirmModal } from '@placeos/common';
 import { CalendarEvent, EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
@@ -128,6 +129,18 @@ export class MeetingFlowConfirmComponent extends BaseClass {
     public readonly loading = this._event_form.loading;
 
     public readonly postForm = async () => {
+        if (!this.space) {
+            const result = await openConfirmModal(
+                {
+                    title: 'Make Booking without a Room',
+                    content:
+                        'You are creating a booking without a room, are you sure?',
+                    icon: { content: 'event_available' },
+                },
+                this._dialog
+            );
+            if (result.reason !== 'done') return;
+        }
         await this._event_form.postForm().catch((_) => {
             notifyError(_);
             throw _;
@@ -168,7 +181,8 @@ export class MeetingFlowConfirmComponent extends BaseClass {
         private _event_form: EventFormService,
         private _org: OrganisationService,
         private _space_pipe: SpacePipe,
-        @Optional() private _sheet_ref: MatBottomSheetRef
+        @Optional() private _sheet_ref: MatBottomSheetRef,
+        private _dialog: MatDialog
     ) {
         super();
     }

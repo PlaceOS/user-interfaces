@@ -1,15 +1,18 @@
 import { Injectable } from '@angular/core';
 import { Title } from '@angular/platform-browser';
+import { log } from './general';
 
 declare global {
     interface Window {
         ga: any;
+        gtag: any;
+        dataLayer: any[];
         debug: boolean;
     }
 }
 
 @Injectable({
-    providedIn: 'root'
+    providedIn: 'root',
 })
 export class GoogleAnalyticsService {
     /** Google Analytics API object */
@@ -26,21 +29,31 @@ export class GoogleAnalyticsService {
     /** Store for timer ids */
     private timers: { [name: string]: number } = {};
 
-    constructor(private title: Title) {
-        if (!window.ga) {
-            (function(i, s, o, g, r, a, m) {
-                i['GoogleAnalyticsObject'] = r;
-                (i[r] =
-                    i[r] ||
-                    function() { (i[r].q = i[r].q || []).push(arguments); }), (i[r].l = 1 * (new Date() as any));
-                (a = s.createElement(o)), (m = s.getElementsByTagName(o)[0]);
-                a.async = 1;
-                a.src = g;
-                m.parentNode.insertBefore(a, m);
-            })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
-            console.log('Service', 'Injected Google Analytics into page');
+    constructor(private title: Title) {}
+
+    public init(tracking_id: string = '') {
+        if (!window.gtag) {
+            window.dataLayer = window.dataLayer || [];
+            (function (w, d, s, l, i) {
+                w[l] = w[l] || [];
+                w[l].push({
+                    'gtm.start': new Date().getTime(),
+                    event: 'gtm.js',
+                });
+                var f = d.getElementsByTagName(s)[0],
+                    j = d.createElement(s) as any,
+                    dl = l != 'dataLayer' ? '&l=' + l : '';
+                j.async = true;
+                j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+                f.parentNode.insertBefore(j, f);
+            })(window, document, 'script', 'dataLayer', tracking_id);
+            log('Analytics', 'Service', 'Injected Google Analytics into page');
         }
-        this.service = window.ga;
+        this.service = window.gtag;
+    }
+
+    public push(obj: Record<string, any>) {
+        window.dataLayer.push(obj);
     }
 
     /**
@@ -48,24 +61,39 @@ export class GoogleAnalyticsService {
      * @param tracking_id GA Tracking ID
      */
     public load(tracking_id: string) {
-        if (!this.enabled) { throw new Error('Google Analytics needs to be enabled before being initialised') }
-        if (!this.service) { throw new Error('Google Analytics hasn\'t been installed on this page'); }
-        console.log('Service', `Setup with tracking ID: ${tracking_id}`);
-        this.service('create', tracking_id, 'auto');
-        this.service('send', 'pageview');
+        if (!this.enabled) {
+            throw new Error(
+                'Google Analytics needs to be enabled before being initialised'
+            );
+        }
+        if (!this.service) {
+            throw new Error(
+                "Google Analytics hasn't been installed on this page"
+            );
+        }
+        log('Analytics', 'Service', `Setup with tracking ID: ${tracking_id}`);
+        this.page('');
     }
     /**
      * Set User ID for the Google Analytics session
      * @param id Identifier of the User
      */
     public setUser(id: string) {
-        if (!this.service) { throw new Error('Google Analytics hasn\'t been installed on this page'); }
+        if (!this.service) {
+            throw new Error(
+                "Google Analytics hasn't been installed on this page"
+            );
+        }
         if (this.enabled) {
-            this.timeout(`user|${id}`, () => {
-                console.log('Service', `Set user ID: ${id}`);
-                this.service('set', 'userId', id);
-                this.event('authentication', 'user-id available');
-            }, 100);
+            this.timeout(
+                `user|${id}`,
+                () => {
+                    log('Analytics', 'Service', `Set user ID: ${id}`);
+                    this.service('set', 'userId', id);
+                    this.event('authentication', 'user-id available');
+                },
+                100
+            );
         }
     }
 
@@ -76,15 +104,39 @@ export class GoogleAnalyticsService {
      * @param label Event Label
      * @param value Event Value
      */
-    public event(category: string, action: string, label?: string, value?: string) {
-        if (!this.service) { throw new Error('Google Analytics hasn\'t been installed on this page'); }
+    public event(
+        category: string,
+        action: string,
+        label?: string,
+        value?: string
+    ) {
+        if (!this.service) {
+            throw new Error(
+                "Google Analytics hasn't been installed on this page"
+            );
+        }
         if (this.enabled) {
-            this.timeout(`event|${category}|${action}|${label}|${value}`, () => {
-                const l = label ? ', ' + label : '';
-                console.log('Service', `Event: ${category}, ${action}${l}${value ? ', ' + value : ''}`);
-                const prefix = this.app_prefix ? this.app_prefix + '_' : ''
-                this.service('send', 'event', `${prefix}${category}`, action, label, value);
-            }, 100);
+            this.timeout(
+                `event|${category}|${action}|${label}|${value}`,
+                () => {
+                    const l = label ? ', ' + label : '';
+                    log(
+                        'Analytics',
+                        'Service',
+                        `Event: ${category}, ${action}${l}${
+                            value ? ', ' + value : ''
+                        }`
+                    );
+                    const prefix = this.app_prefix ? this.app_prefix + '_' : '';
+                    this.push({
+                        event: 'event',
+                        category: category,
+                        action: action,
+                        label: label,
+                    });
+                },
+                100
+            );
         }
     }
 
@@ -94,15 +146,28 @@ export class GoogleAnalyticsService {
      * @param app_name
      */
     public screen(name: string, app_name?: string) {
-        if (!this.service) { throw new Error('Google Analytics hasn\'t been installed on this page'); }
+        if (!this.service) {
+            throw new Error(
+                "Google Analytics hasn't been installed on this page"
+            );
+        }
         if (name && this.enabled) {
-            this.timeout(`event|${name}|${app_name || this.app_name}`, () => {
-                console.log('Service', `Screen: ${name}${app_name ? ', ' + app_name : ''}`);
-                this.service('send', 'screenview', {
-                    appName: app_name || this.app_name,
-                    screenName: name
-                });
-            }, 100);
+            this.timeout(
+                `event|${name}|${app_name || this.app_name}`,
+                () => {
+                    log(
+                        'Analytics',
+                        'Service',
+                        `Screen: ${name}${app_name ? ', ' + app_name : ''}`
+                    );
+                    this.push({
+                        event: 'screenview',
+                        appName: app_name || this.app_name,
+                        screenName: name,
+                    });
+                },
+                100
+            );
         }
     }
 
@@ -112,13 +177,24 @@ export class GoogleAnalyticsService {
      * @param origin Add origin to routh path
      */
     public page(route: string, origin: boolean = false) {
-        if (!this.service) { throw new Error('Google Analytics hasn\'t been installed on this page'); }
+        if (!this.service) {
+            throw new Error(
+                "Google Analytics hasn't been installed on this page"
+            );
+        }
         if (this.enabled) {
             this.last_route = route || '/';
-            this.timeout(`page|${route}`, () => {
-                console.log('Service', `Page: ${route}`);
-                this.service('send', 'pageview', `${origin ? location.origin : ''}${route}`);
-            }, 100);
+            this.timeout(
+                `page|${route}`,
+                () => {
+                    log('Analytics', 'Service', `Page: ${route}`);
+                    this.push({
+                        event: 'pageview',
+                        url: `${origin ? location.origin : ''}${route}`,
+                    });
+                },
+                100
+            );
         }
     }
 
@@ -129,13 +205,38 @@ export class GoogleAnalyticsService {
      * @param value
      * @param label
      */
-    public timing(category: string, variable: string, value: string, label?: string) {
-        if (!this.service) { throw new Error('Google Analytics hasn\'t been installed on this page'); }
+    public timing(
+        category: string,
+        variable: string,
+        value: string,
+        label?: string
+    ) {
+        if (!this.service) {
+            throw new Error(
+                "Google Analytics hasn't been installed on this page"
+            );
+        }
         if (this.enabled) {
-            this.timeout(`page|${category}|${variable}|${value}|${label}`, () => {
-                console.log('Service', `Timing: ${category}, ${variable}, ${value}${label ? ', ' + label : ''}`);
-                this.service('send', 'timing', category, variable, value, label);
-            }, 100);
+            this.timeout(
+                `page|${category}|${variable}|${value}|${label}`,
+                () => {
+                    log(
+                        'Analytics',
+                        'Service',
+                        `Timing: ${category}, ${variable}, ${value}${
+                            label ? ', ' + label : ''
+                        }`
+                    );
+                    this.push({
+                        event: 'timing',
+                        category,
+                        variable,
+                        value,
+                        label,
+                    });
+                },
+                100
+            );
         }
     }
 
@@ -151,7 +252,9 @@ export class GoogleAnalyticsService {
             delete this.timers[name];
         }
         this.timers[name] = <any>setTimeout(() => {
-            if (fn instanceof Function) { fn(); }
+            if (fn instanceof Function) {
+                fn();
+            }
             delete this.timers[name];
         }, delay);
     }

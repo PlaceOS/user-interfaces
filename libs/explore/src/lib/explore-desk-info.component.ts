@@ -1,4 +1,5 @@
 import { Component, ElementRef, Inject, OnInit } from '@angular/core';
+import { SettingsService } from '@placeos/common';
 
 import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
 
@@ -9,6 +10,7 @@ export interface DeskInfoData {
     name: string;
     start?: number;
     end?: number;
+    department?: string;
     status: 'free' | 'busy' | 'pending' | 'reserved' | 'unknown' | '';
 }
 
@@ -43,6 +45,9 @@ export interface DeskInfoData {
                         {{ name || map_id || id }}
                     </h4>
                     <p user class="mt-2 text-sm" *ngIf="user">{{ user }}</p>
+                    <p user class="mt-1 text-sm" *ngIf="user && department">
+                        {{ department }}
+                    </p>
                     <p start class="mt-1 text-sm" *ngIf="start">
                         {{ start | date: 'shortTime' }} &ndash;
                         {{ end | date: 'shortTime' }}
@@ -84,6 +89,7 @@ export class ExploreDeskInfoComponent implements OnInit {
     public readonly user = this._details.user;
     public readonly start = this._details.start;
     public readonly end = this._details.end;
+    public readonly department = this._details.department;
 
     public y_pos: 'top' | 'bottom';
 

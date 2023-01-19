@@ -84,6 +84,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                 [time]="form?.value?.date"
                                 [max]="max_duration"
                             >
+                                Meeting must end at a future time.
                             </a-duration-field>
                             <mat-checkbox
                                 formControlName="all_day"

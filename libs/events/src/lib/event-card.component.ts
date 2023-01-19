@@ -19,7 +19,7 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
         <a
             matRipple
             details
-            class="w-full"
+            class="w-full cursor-pointer"
             [routerLink]="['./']"
             [queryParams]="{ event: event?.id }"
             (click)="viewDetails()"

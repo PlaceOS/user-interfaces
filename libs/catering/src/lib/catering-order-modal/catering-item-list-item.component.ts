@@ -44,7 +44,10 @@ import { CateringItem } from '../catering-item.class';
                         </div>
                     </div>
                     <div class="flex items-center text-sm space-x-1">
-                        <p class="flex-1 w-px" *ngIf="item.unit_price">
+                        <p
+                            class="flex-1 w-px bg-white rounded"
+                            *ngIf="item.unit_price"
+                        >
                             {{ item.unit_price / 100 | currency: code }}
                         </p>
                         <div

@@ -403,10 +403,15 @@ export class BookingFormService extends BaseClass {
             };
         }
         this._loading.next('Saving booking');
+        console.log('User:', value.user, currentUser());
         const result = await saveBooking(
             new Booking({
                 ...this._options.getValue(),
                 ...value,
+                extension_data: {
+                    department:
+                        value.user.department || currentUser()?.department,
+                },
                 approved: !!this._settings.get('app.bookings.no_approval'),
             })
         ).toPromise();

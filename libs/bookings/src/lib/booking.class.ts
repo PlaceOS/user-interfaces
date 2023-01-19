@@ -1,11 +1,13 @@
 import { capitalizeFirstLetter, removeEmptyFields } from '@placeos/common';
 import { User } from 'libs/users/src/lib/user.class';
 import {
+    add,
     addHours,
     addMinutes,
     differenceInMinutes,
     getUnixTime,
     isAfter,
+    isBefore,
     isSameDay,
     roundToNearestMinutes,
 } from 'date-fns';
@@ -187,5 +189,22 @@ export class Booking {
             ? addHours(this.date, 24)
             : addMinutes(this.date, this.duration);
         return isAfter(start, end);
+    }
+
+    /** Status of the booking */
+    public get state():
+        | 'future'
+        | 'upcoming'
+        | 'done'
+        | 'started'
+        | 'in_progress' {
+        const now = new Date();
+        const date = this.date;
+        if (isBefore(now, add(date, { minutes: -15 }))) return 'future';
+        if (isBefore(now, date)) return 'upcoming';
+        if (isBefore(now, add(date, { minutes: 15 }))) return 'started';
+        if (isBefore(now, add(date, { minutes: this.duration })))
+            return 'in_progress';
+        return 'done';
     }
 }

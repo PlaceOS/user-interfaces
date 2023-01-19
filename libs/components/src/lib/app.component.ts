@@ -26,6 +26,7 @@ import {
     setupCache,
     setupPlace,
     log,
+    GoogleAnalyticsService,
 } from '@placeos/common';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
@@ -85,6 +86,7 @@ export class AppComponent extends BaseClass implements OnInit {
     }
 
     constructor(
+        private _analytics: GoogleAnalyticsService,
         private _settings: SettingsService,
         private _org: OrganisationService, // For init
         private _cache: SwUpdate,
@@ -154,6 +156,7 @@ export class AppComponent extends BaseClass implements OnInit {
             location.origin.includes('demo.place.tech');
         /** Wait for authentication details to load */
         await setupPlace(settings).catch((_) => console.error(_));
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
         setupCache(this._cache);
         if (!settings.local_login) {
             this.timeout('wait_for_user', () => this.onInitError(), 30 * 1000);
@@ -165,6 +168,15 @@ export class AppComponent extends BaseClass implements OnInit {
             this._settings.get('app.general.internal_user_domain') ||
                 `@${currentUser()?.email?.split('@')[1]}`
         );
+        if (this._settings.get('app.analytics.tracking_id')) {
+            this._analytics.init(
+                this._settings.get('app.analytics.tracking_id')
+            );
+            this._analytics.load(
+                this._settings.get('app.analytics.tracking_id')
+            );
+            this._analytics.setUser(currentUser().id);
+        }
         initSentry(this._settings.get('app.sentry_dsn'));
         if (this._settings.get('app.has_uploads')) {
             this.timeout('init_uploads', () => {

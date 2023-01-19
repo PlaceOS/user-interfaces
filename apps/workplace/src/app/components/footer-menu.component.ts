@@ -48,27 +48,12 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     <div
                         class="bg-white rounded-full h-12 w-12 text-black text-2xl flex items-center justify-center"
                     >
-                        <app-icon class="text-neutral-500">
-                            <svg
-                                style="font-size: 1em; height: 1em"
-                                id="Layer_1"
-                                data-name="Layer 1"
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 26 26"
-                            >
-                                <defs>
-                                    <style>
-                                        .cls-1 {
-                                            fill: currentColor;
-                                        }
-                                    </style>
-                                </defs>
-                                <polygon
-                                    class="cls-1"
-                                    points="24.999 7 0.999 7 0.999 9 2.999 9 2.999 22 4.999 22 4.999 12 20.999 12 20.999 22 22.999 22 22.999 9 24.999 9 24.999 7"
-                                />
-                            </svg>
-                        </app-icon>
+                        <app-icon filled class="text-neutral-500"
+                            >desk</app-icon
+                        >
+                        <app-icon outline className="material-icons-outlined"
+                            >desk</app-icon
+                        >
                     </div>
                     <div class="text-xs" i18n>Book Desk</div>
                 </a>

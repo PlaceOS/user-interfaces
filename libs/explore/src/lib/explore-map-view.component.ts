@@ -21,6 +21,7 @@ import { ExploreSpacesService } from './explore-spaces.service';
 import { ExploreZonesService } from './explore-zones.service';
 import { ExploreDesksService } from './explore-desks.service';
 import { ExploreParkingService } from './explore-parking.service';
+import { Point } from '@placeos/svg-viewer';
 
 const EMPTY = [];
 
@@ -31,6 +32,8 @@ const EMPTY = [];
             [src]="url | async"
             [zoom]="(positions | async)?.zoom"
             [center]="(positions | async)?.center"
+            (zoomChange)="updateZoom($event)"
+            (centerChange)="updateCenter($event)"
             [styles]="styles | async"
             [features]="features | async"
             [actions]="actions | async"
@@ -39,7 +42,10 @@ const EMPTY = [];
         <explore-zoom-controls
             class="absolute bottom-2 right-2"
         ></explore-zoom-controls>
-        <div controls class="absolute top-2 left-2 bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-500 rounded p-2 space-y-2">
+        <div
+            controls
+            class="absolute top-2 left-2 max-w-[calc(100vw-1rem)] bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-500 rounded p-2 space-y-2 overflow-hidden"
+        >
             <explore-map-controls></explore-map-controls>
             <div class="flex items-center space-x-2">
                 <mat-slide-toggle
@@ -187,6 +193,14 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
                 }
             })
         );
+    }
+
+    public updateZoom(zoom: number) {
+        this._state.setPositions(zoom, this._state.positions.center);
+    }
+
+    public updateCenter(center: Point) {
+        this._state.setPositions(this._state.positions.zoom, center);
     }
 
     private _locateFeature(id: string, name = '') {
