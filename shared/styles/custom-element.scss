@@ -512,7 +512,7 @@ a[btn] {
     }
 }
 
-.mdc-icon-button,
+#placeos .mdc-icon-button,
 button[icon],
 a[icon] {
     display: flex;
@@ -873,4 +873,8 @@ a[icon] {
         list-style: initial;
         @apply pl-6 mb-2;
     }
+}
+
+mat-list-option.mdc-list-item--selected{
+    border-right: 3px solid rgba(#212121, 0.85);
 }

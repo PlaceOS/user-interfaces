@@ -3,7 +3,7 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Model } from 'survey-core';
 import { SurveyNG } from 'survey-angular';
-import { Question, QuestionType, Tag, Survey } from '../survey-types';
+import { Question, QuestionType, Tag, Survey } from '@placeos/survey-suite';
 import {
     DragDropModule,
     CdkDragDrop,
@@ -95,40 +95,40 @@ export class SurveyCreatorService {
         //Mock question bank
         this.question_bank = [
             {
-                type: QuestionType.text,
+                type: QuestionType.Single_Line_Text,
                 name: '',
                 title: 'What feature did you like most?',
                 tags: [Tag.desk, Tag.room],
             },
             {
-                type: QuestionType.rating,
+                type: QuestionType.Rating,
                 name: '',
                 title: 'On a scale of 1-10, how likely would you recommend this space?',
                 rateValues: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                 tags: [Tag.desk, Tag.room, Tag.parking],
             },
             {
-                type: QuestionType.dropdown,
+                type: QuestionType.Single_Select,
                 name: '',
                 title: 'What was this meeting booked for?',
                 choices: ['External calls', 'Internal calls', 'Rather not say'],
                 tags: [Tag.room],
             },
             {
-                type: QuestionType.comment,
+                type: QuestionType.Multi_Line_Text,
                 name: '',
                 title: 'Any additional feedback?',
                 tags: [Tag.desk, Tag.room],
             },
             {
-                type: QuestionType.checkbox,
+                type: QuestionType.Multi_Select,
                 name: '',
                 title: 'Which features were available?',
                 choices: ['whiteboard', 'jamboard'],
                 tags: [Tag.room],
             },
             {
-                type: QuestionType.dropdown,
+                type: QuestionType.Single_Select,
                 name: '',
                 title: 'Was the parking space easy to find?',
                 choices: ['Yes', 'No'],
@@ -141,6 +141,7 @@ export class SurveyCreatorService {
         //Mock saved surveys
         this.saved_surveys = [
             {
+                id: '69495',
                 building_name: 'Ellwood Tower',
                 level: '01',
                 type: 'Desk',
@@ -150,6 +151,7 @@ export class SurveyCreatorService {
                 options: ['open'],
             },
             {
+                id: '234335',
                 building_name: 'Glemsford Building',
                 level: '02',
                 type: 'Room',
@@ -159,6 +161,7 @@ export class SurveyCreatorService {
                 options: ['open'],
             },
             {
+                id: '773457',
                 building_name: 'Ellwood Tower',
                 level: '01',
                 type: 'Desk',
@@ -168,6 +171,7 @@ export class SurveyCreatorService {
                 options: ['open'],
             },
             {
+                id: '748994',
                 building_name: 'Ellwood Tower',
                 level: '03',
                 type: 'Room',
@@ -177,6 +181,7 @@ export class SurveyCreatorService {
                 options: ['open'],
             },
             {
+                id: '158380',
                 building_name: 'Glemsford Building',
                 level: '03',
                 type: 'Visitors',
@@ -202,8 +207,6 @@ export class SurveyCreatorService {
 
             if (this.findQuestion(question)) return;
             this.selected_questions.push(question);
-
-            console.log(this.selected_questions, 'selected question in store');
         }
     }
 
@@ -214,6 +217,11 @@ export class SurveyCreatorService {
         this.selected_questions[index_to_delete].selected = false;
 
         this.selected_questions.splice(index_to_delete, 1);
+    }
+
+    clearSelectedQuestions() {
+        this.selected_questions.map((item) => (item.selected = false));
+        this.selected_questions = [];
     }
 
     newForm() {
@@ -235,8 +243,6 @@ export class SurveyCreatorService {
         !this.new_question_form.controls['choices']?.valid
             ? this._choice_error.next(true)
             : this._choice_error.next(false);
-
-        console.log(this.new_question_form);
     }
 
     updateValidators() {
@@ -244,26 +250,24 @@ export class SurveyCreatorService {
             Validators.required
         );
         this.new_question_form.controls['choices']?.updateValueAndValidity();
-
-        console.log('validator set');
     }
     clearChoicesValidators() {
         this.new_question_form.controls['choices']?.clearValidators();
         this.new_question_form.controls['choices']?.updateValueAndValidity();
     }
 
-    updateSurveysList() {
+    updateSurveysList(survey_id: string) {
         const date = new Date();
 
         this.saved_surveys$.subscribe((surveys) =>
             surveys.push({
-                id: Math.floor(Math.random() * (4 - 2) + 2).toString(),
+                id: survey_id,
                 building_name: this.current_building,
                 level: '01',
                 type: 'Room',
                 title: this.survey_title.getValue(),
                 date: date.toLocaleDateString('en-GB'),
-                link: Math.floor(100000 + Math.random() * 900000).toString(),
+                link: survey_id,
                 options: ['open'],
             })
         );
@@ -275,10 +279,9 @@ export class SurveyCreatorService {
         this.surveyJSON.pages[0].elements = this.selected_questions.map(
             ({ selected, ...keepProperties }) => keepProperties
         );
-
-        console.log(this.surveyJSON, 'survey json');
+        const survey_id = this._saveSurveyLocally();
         this._buildSurvey();
-        this.updateSurveysList();
+        this.updateSurveysList(survey_id);
     }
 
     async saveSurvey() {
@@ -290,6 +293,14 @@ export class SurveyCreatorService {
         // };
         // // const confirm = await createSurvey(data).toPromise();
         // console.log(confirm, 'post to backend');
+    }
+
+    private _saveSurveyLocally(): string {
+        const survey_id: string = Math.floor(
+            100000 + Math.random() * 900000
+        ).toString();
+        sessionStorage.setItem(survey_id, JSON.stringify(this.surveyJSON));
+        return survey_id;
     }
 
     public findQuestion(question: Question) {

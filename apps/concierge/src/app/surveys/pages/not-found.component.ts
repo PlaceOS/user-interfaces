@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
     template: `<div
         class="flex flex-1 flex-col z-0 bg-gray-50 h-full overflow-y-auto"
     >
-        <section
+        <div
             class="flex flex-col border-b border-gray-300 py-5 h-full items-center justify-center"
         >
             <div class="mx-3 flex flex-row">
@@ -32,7 +32,7 @@ import { Router } from '@angular/router';
                     not found.
                 </span>
             </div>
-        </section>
+        </div>
     </div> `,
 })
 export class NotFoundComponent implements OnInit {
