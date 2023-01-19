@@ -29,8 +29,8 @@ import {
             mat-dialog-actions
         >
             <button
-                mat-flat-button
-                color="primary"
+                btn
+                matRipple
                 [disabled]="!questionElement.valid"
                 (click)="done()"
             >

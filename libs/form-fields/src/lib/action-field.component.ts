@@ -3,8 +3,9 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 @Component({
     selector: 'an-action-field',
     template: `
-        <div
+        <button
             class="flex items-center rounded p-2 border border-gray-300 hover:border-black"
+            type="button"
             role="button"
             [attr.disabled]="disabled"
             [attr.name]="name"
@@ -22,7 +23,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
             <app-icon class="text-xl" (click)="performAction()">
                 arrow_drop_{{ show_tooltip ? 'up' : 'down' }}
             </app-icon>
-        </div>
+        </button>
     `,
     styles: [
         `

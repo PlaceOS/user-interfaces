@@ -2,7 +2,6 @@ import { NgModule, Type } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -12,14 +11,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ClipboardModule } from '@angular/cdk/clipboard';
-import { MAT_DATE_LOCALE } from '@angular/material/core';
+import { MatRippleModule } from '@angular/material/core';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { CdkTableModule } from '@angular/cdk/table';
 import { PortalModule } from '@angular/cdk/portal';
 
-import { HttpClientModule, HttpClient } from '@angular/common/http';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { HttpClientModule } from '@angular/common/http';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { BindingDirective } from './binding.directive';
 import { ActionIconComponent } from './action-icon.component';
@@ -59,7 +57,7 @@ const MAT_MODULES: any[] = [
     MatMenuModule,
     MatFormFieldModule,
     MatSelectModule,
-    MatButtonModule,
+    MatRippleModule,
     MatAutocompleteModule,
     MatSelectModule,
     MatDialogModule,
