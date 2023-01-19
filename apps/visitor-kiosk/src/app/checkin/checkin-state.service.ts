@@ -45,7 +45,7 @@ export class CheckinStateService {
         this._error.next(message);
     }
 
-    /** Load gie */
+    /** Load guest and event data */
     public async loadGuestAndEvent(email: string, event_id?: string) {
         const guest = await showGuest(email).toPromise();
         if (event_id) {
@@ -62,7 +62,7 @@ export class CheckinStateService {
         );
         todays_events.sort((a, b) => a.date - b.date);
         if (todays_events.length <= 0) {
-            throw new Error(`No meetings for with guest "${email}" today`);
+            throw new Error(`No meetings for guest "${email}" today`);
         }
         this._guest.next(guest);
         this._event.next(todays_events[0]);
