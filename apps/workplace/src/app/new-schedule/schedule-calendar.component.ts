@@ -16,7 +16,7 @@ import {
         <div class="p-2">
             <div class="flex items-center justify-between">
                 <div class="px-2 font-medium">
-                    {{ date_list[6]?.id || active_date | date: 'LLLL' }}
+                    {{ date_list[6]?.id || active_date | date: 'LLLL YYYY' }}
                 </div>
                 <div class="flex items-center">
                     <button icon matRipple (click)="changeMonth(-1)">

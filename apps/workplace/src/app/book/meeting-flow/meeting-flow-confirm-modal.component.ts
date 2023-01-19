@@ -226,7 +226,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             >
                 Confirm
             </button>
-            <button
+            <!-- <button
                 btn
                 matRipple
                 class="inverse w-32"
@@ -235,7 +235,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 i18n
             >
                 Undo
-            </button>
+            </button> -->
         </footer>
     `,
     styles: [``],
