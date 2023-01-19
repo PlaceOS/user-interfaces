@@ -56,6 +56,7 @@ function validateEmail(email) {
                         <mat-chip-row
                             user
                             *ngFor="let item of active_list"
+                            [class.bg-yellow-300]="item.is_external"
                             (removed)="removeUser(item)"
                         >
                             {{ item.name || item.email }}

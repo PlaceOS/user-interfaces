@@ -222,7 +222,7 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
 
     private async locateSpace(id: string) {
         const space = await this._space_pipe.transform(id);
-        if (!space) return;
+        if (!space) return notifyError('Unable to load space details.');
         this._state.setLevel(this._org.levelWithID(space.zones)?.id);
         const feature: any = {
             track_id: `locate-${space.id}`,
@@ -240,7 +240,8 @@ export class ExploreMapViewComponent extends BaseClass implements OnInit {
 
     private async locateUser(user: User) {
         let locate_details: any = this._org.binding('location_services');
-        if (!locate_details) return;
+        if (!locate_details)
+            throw 'Location services is not setup for this application.';
         if (typeof locate_details === 'string') {
             locate_details = {
                 system_id: locate_details,
