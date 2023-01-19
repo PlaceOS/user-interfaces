@@ -79,12 +79,12 @@ import { ExploreSearchService } from '@placeos/explore';
                             <div class="truncate w-full">
                                 {{ option.name }}
                             </div>
-                            <div class="text-xs">
+                            <div class="text-xs opacity-60">
                                 {{ option.description }}
                             </div>
                         </div>
                         <div
-                            class="text-xs font-bold p-2 capitalize text-white bg-gray-500 rounded"
+                            class="text-xs font-bold p-2 capitalize text-white bg-gray-700 rounded"
                         >
                             {{ option.type }}
                         </div>
