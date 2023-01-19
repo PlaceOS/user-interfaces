@@ -84,6 +84,4 @@ export class SurveyBuilderService{
         this.survey.pages = pages;
         this.selectedPageIndex = 0;
     }
-
-    private addSurvey(){}
 }
