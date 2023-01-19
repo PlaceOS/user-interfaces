@@ -17,7 +17,7 @@ import { RunSurveyService } from "../services/run-survey.service";
     
         <main class="flex flex-col h-full w-full bg-white relative items-center">
             <div *ngIf="(loading$ | async).length" class="flex absolute inset-0 opacity-60 bg-white dark:bg-black z-10">
-                    <div class="flex flex-col m-auto">
+                    <div class="flex flex-col m-auto items-center">
                         <mat-spinner [diameter]="32"></mat-spinner>
                         <span>{{loading$ | async}}</span>
                     </div>
