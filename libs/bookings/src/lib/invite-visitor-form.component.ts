@@ -254,7 +254,7 @@ export class InviteVisitorFormComponent extends BaseClass {
     public booking?: Booking;
     public readonly loading = this._service.loading;
     public readonly buildings = this._org.active_buildings;
-    public readonly last_success = this._service.last_success;
+    public last_success = this._service.last_success;
     public visitors = [];
     public filtered_visitors = [];
 
@@ -353,6 +353,7 @@ export class InviteVisitorFormComponent extends BaseClass {
             notifyError(e);
             throw e;
         });
+        this.last_success = this._service.last_success;
         await this.initFormZone();
         this.sent = true;
     }
