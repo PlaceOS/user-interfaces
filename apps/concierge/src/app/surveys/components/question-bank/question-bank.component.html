@@ -3,12 +3,12 @@
         *ngIf="(loading$ | async).length"
         class="flex absolute inset-0 opacity-60 bg-white dark:bg-black z-10"
     >
-        <div class="flex flex-col m-auto">
+        <div class="flex flex-col m-auto items-center">
             <mat-spinner [diameter]="32"></mat-spinner>
             <span>{{ loading$ | async }}</span>
         </div>
     </div>
-    <header class="flex items-center py-2 px-4 w-full">
+    <header class="flex items-center pt-2 px-4 w-full">
         <span>Question Bank</span>
         <div class="ml-auto">
             <button icon matRipple (click)="onAddQuestion()">
@@ -16,13 +16,13 @@
             </button>
         </div>
     </header>
-    <div class="flex w-full py-2 px-4 border-b space-x-2">
+    <div class="flex w-full pb-3 px-4 border-b space-x-2">
         <search-input
-            class="flex-1 w-px"
+            class="flex-1"
             (onSearch)="setFilter({ search: $event })"
         ></search-input>
         <mat-form-field
-            class="w-32"
+            class="w-44"
             appearance="outline"
             subscriptSizing="dynamic"
         >
