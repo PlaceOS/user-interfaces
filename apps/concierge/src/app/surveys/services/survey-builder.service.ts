@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { openConfirmModal } from "@placeos/common";
 import { Question, UISurveyObj, UISurveyPage } from "@placeos/survey-suite";
+import { BehaviorSubject } from "rxjs";
 import { Model } from "survey-core";
 import { QuestionBankService } from "./question-bank.service";
 
@@ -12,8 +13,8 @@ import { QuestionBankService } from "./question-bank.service";
 export class SurveyBuilderService{
 
     public selectedPageIndex: number = 0;
-    public survey:UISurveyObj;
-    public surveyModel:Model;
+    protected survey:UISurveyObj;
+    protected surveyModel:Model;
 
     constructor(
         private bank: QuestionBankService,
@@ -23,6 +24,21 @@ export class SurveyBuilderService{
     public get selectedPage(){
         return this.survey?.pages[this.selectedPageIndex];
     }
+
+    public setUISurvey(survey: UISurveyObj){
+        if(!survey) return;
+        this.survey = survey;
+        const { pages } = survey;
+        if(pages?.length > 0){
+            let questions = [];
+            pages.forEach(p => {
+                questions = [...questions, ...(p.elements || [])]
+            });
+            if(questions.length > 0) this.bank.setWithdrawnQuestions(questions);
+        }
+    }
+
+    public getUISurvey(){ return this.survey; }
 
     public addSurveyPage(){
         if(!this.survey) return;
@@ -52,7 +68,7 @@ export class SurveyBuilderService{
 
     public removeQuestionFromSurvey(index:number){
         const q = this.selectedPage.elements.splice(index,1);
-        this.bank.pushQuestion(q[0]);
+        this.bank.depositQuestions(q);
     }
 
     public onDropQuestionToSurvey(event: CdkDragDrop<Question[]>, p:UISurveyPage){
@@ -60,7 +76,7 @@ export class SurveyBuilderService{
         const { previousIndex, previousContainer, currentIndex, container } = event;
         if(container !== previousContainer){
             //Dropped from question bank
-            const q = this.bank.popQuestion(previousIndex);
+            const q = this.bank.withdrawFilteredQuestion(previousIndex);
             p.elements.splice(currentIndex,0,q);
         }else{
             //Reorder Question
@@ -71,15 +87,20 @@ export class SurveyBuilderService{
 
     public onPreview(){
         this.surveyModel = new Model(this.survey);
-        this.surveyModel.onComplete.add((sender: Model) => {
-            console.log("Completed survey", sender.data);
-        })
+        // this.surveyModel.onComplete.add((sender: Model) => {
+        //     console.log("Completed survey", sender.data);
+        // })
     }
 
 
     private removeSurveyPage(index:number){
         if(index === 0) return;
         let pages = this.survey.pages || [];
+
+        /** Check if removed page has any questions and deposit them to bank */
+        const target = pages[index];
+        if(target?.elements?.length) this.bank.depositQuestions(target.elements);
+
         pages.splice(index,1);
         this.survey.pages = pages;
         this.selectedPageIndex = 0;

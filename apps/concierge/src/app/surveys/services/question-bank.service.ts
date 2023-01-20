@@ -17,6 +17,7 @@ import {
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { catchError,filter, finalize, first, map, tap } from 'rxjs/operators';
 import { ModQuestionOverlayComponent } from '../overlays/mod-question-overlay.component';
+import { SurveyBuilderService } from './survey-builder.service';
 
 export interface QuestionFilter{
     search: string;
@@ -35,6 +36,11 @@ export class QuestionBankService extends BaseClass {
         this._questions.next(value);
     }
 
+    private readonly _withdrawnQuestions = new BehaviorSubject<Question[]>([]);
+    public readonly withdrawnQuestions$ = this._withdrawnQuestions.asObservable();
+    private set withdrawnQuestions(value: Question[]){ this._withdrawnQuestions.next(value)};
+    private get withdrawnQuestions(){ return this._withdrawnQuestions.getValue(); }
+
     private readonly _loading = new BehaviorSubject<string>('');
     readonly loading$ = this._loading.asObservable();
     private get loading() {
@@ -49,12 +55,15 @@ export class QuestionBankService extends BaseClass {
 
     public filteredQuestions$ = combineLatest([
         this.questions$,
+        this.withdrawnQuestions$,
         this.filter$
     ]).pipe(
-        map(([questions, filter]) => {
+        map(([questions, active, filter]) => {
             if(!questions) return [];
+            const activeIds = active.map(e => e.id);
             const {search, type} = filter;
             return questions
+                .filter(e => !activeIds.includes(e.id))
                 .filter(e => type?.length ? e.type === type : true)
                 .filter(e => e.title.includes(search))
         }),
@@ -62,7 +71,9 @@ export class QuestionBankService extends BaseClass {
     )
     private filteredQuestion = [];
 
-    constructor(private _dialog: MatDialog) {
+    constructor(
+        private _dialog: MatDialog
+        ) {
         super();
         this.loadQuestions();
     }
@@ -73,14 +84,27 @@ export class QuestionBankService extends BaseClass {
             ...filter});
     }
 
-    public popQuestion(index: number) {
+    public getQuestion(index:number){
+        return this.filteredQuestion[index];
+    }
+
+    public withdrawFilteredQuestion(index: number) {
         const q = this.filteredQuestion[index];
-        this.removeQuestionFromStore(q);
+        this.withdrawnQuestions = [...this.withdrawnQuestions,q];
         return q;
     }
 
-    public pushQuestion(q: Question) {
-        this.addQuestionToStore(q);
+    public setWithdrawnQuestions(list: Question[]){
+        this.withdrawnQuestions = [...list];
+    }
+
+    public depositQuestions(list: Question[]) {
+        let withdrawn = [...this.withdrawnQuestions];
+        list.forEach(q => {
+            const idx = withdrawn.findIndex(e => e.id === q.id);
+            if(idx > -1) withdrawn.splice(idx,1);
+        })
+        this.withdrawnQuestions = withdrawn;
     }
 
     public onDrop(event: CdkDragDrop<Question[]>) {
@@ -89,7 +113,7 @@ export class QuestionBankService extends BaseClass {
         if (container !== previousContainer) {
             //Dropped from survey
             const q = previousContainer.data.splice(previousIndex, 1);
-            this.addQuestionToStore(q[0]);
+            this.depositQuestions(q);
         }
     }
 

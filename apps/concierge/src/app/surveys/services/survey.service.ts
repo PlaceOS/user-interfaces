@@ -55,13 +55,13 @@ export class SurveyService {
 
     public async loadSurvey(survey_id: string) {
         if (!survey_id?.length) {
-            this.builder.survey = generateNewSurvey();
+            this.builder.setUISurvey(generateNewSurvey());
             return;
         }
         const uiSurvey = await this.getSurveyDetails(survey_id);
         if(!uiSurvey) return;
         
-        this.builder.survey = uiSurvey;
+        this.builder.setUISurvey(uiSurvey);
         this.setOptions({
             zone_id: uiSurvey.zone_id,
             building_id: uiSurvey.building_id,
@@ -97,8 +97,9 @@ export class SurveyService {
     }
 
     public saveSurvey() {
-        if (!this.validateSurvey()) return false;
-        const { id, title, description, pages } = this.builder.survey;
+        const survey = this.builder.getUISurvey();
+        if (!this.validateSurvey(survey)) return false;
+        const { id, title, description, pages } = survey;
         const { zone_id, building_id, trigger } = this._options.getValue();
         let toSave: Survey = {
             id,
@@ -158,9 +159,13 @@ export class SurveyService {
             .toPromise() as Promise<Question[]>;
     }
 
-    private validateSurvey() {
-        const survey = this.builder.survey;
+    private validateSurvey(survey:UISurveyObj) {
         const options = this._options.getValue();
+
+        if(!survey){
+            notifyError('Survey is not valid');
+            return false;
+        }
 
         if (!survey.title?.length) {
             notifyError('Please enter a valid title for the survey');

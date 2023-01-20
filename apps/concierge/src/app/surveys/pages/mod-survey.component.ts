@@ -1,7 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { BaseClass } from "@placeos/common";
-import { generateNewSurvey } from "@placeos/survey-suite";
 import { shareReplay } from "rxjs/operators";
 import { SurveyService } from "../services/survey.service";
 
