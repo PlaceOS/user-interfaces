@@ -1,9 +1,9 @@
 <div *ngIf="survey" cdkDropListGroup class="flex flex-col h-full w-full bg-white dark:bg-neutral-600 overflow-y-auto">
     
-    <div class="flex flex-row items-center w-full space-x-4 px-4 pt-4">
+    <div class="flex flex-row items-center w-full space-x-4 px-4 pt-4 pb-2">
         <div class="flex flex-col w-1/2">
-            <!-- <label for="title">Title</label> -->
-            <mat-form-field name="title" appearance="outline">
+            <label for="title">Title</label>
+            <mat-form-field name="title" appearance="outline" subscriptSizing="dynamic" >
                 <input class="text-xl" 
                     matInput 
                     required 
@@ -12,8 +12,8 @@
             </mat-form-field>
         </div>
         <div class="flex flex-col w-1/2">
-            <!-- <label for="desc">Description</label> -->
-            <mat-form-field name="desc" appearance="outline">
+            <label for="desc">Description</label>
+            <mat-form-field name="desc" appearance="outline" subscriptSizing="dynamic">
                 <input 
                     matInput 
                     placeholder = "Description..."

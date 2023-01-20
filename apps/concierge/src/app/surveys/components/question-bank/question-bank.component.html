@@ -5,19 +5,15 @@
             <span>{{loading$ | async}}</span>
         </div>
     </div>
-    <header class="flex items-center py-2 px-4 w-full">
+    <header class="flex items-center pt-2 px-4 w-full">
         <span>Question Bank</span>
         <div class="ml-auto">
             <button mat-icon-button (click)="onAddQuestion()">
                 <mat-icon>add_circle_outline</mat-icon>
-                <!-- <div class="flex flex-row items-center space-x-1">
-                    <mat-icon>add_circle_outline</mat-icon>
-                    <span>Add</span>
-                </div> -->
             </button>
         </div>
     </header>
-    <div class="flex w-full py-2 px-4 border-b space-x-2">
+    <div class="flex w-full pb-3 px-4 border-b space-x-2">
         <search-input class="flex-1" (onSearch)="setFilter({search:$event})"></search-input>
         <mat-form-field class="w-44" appearance="outline" subscriptSizing="dynamic">
             <mat-select 

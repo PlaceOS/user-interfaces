@@ -23,7 +23,7 @@ import { SurveyService } from "../services/survey.service";
                     <span>{{loading$ | async}}</span>
                 </div>
             </div>
-            <survey-creator-topbar class="flex flex-1 items-center border-b"></survey-creator-topbar>            
+            <survey-creator-topbar class="flex flex-1 items-center"></survey-creator-topbar>            
             <survey-builder></survey-builder>
         </main>
 
