@@ -130,7 +130,6 @@ import { LandingStateService } from './landing-state.service';
                     *ngIf="(search_results | async)?.length; else search_empty"
                 >
                     <button
-                        btn
                         matRipple
                         class="flex items-center p-2 space-x-2 w-full text-left"
                         *ngFor="let user of search_results | async"

@@ -1,26 +1,37 @@
 <div class="flex flex-col w-full h-full bg-gray-100 border-l relative">
-    <div *ngIf="(loading$ | async).length" class="flex absolute inset-0 opacity-60 bg-white dark:bg-black z-10">
+    <div
+        *ngIf="(loading$ | async).length"
+        class="flex absolute inset-0 opacity-60 bg-white dark:bg-black z-10"
+    >
         <div class="flex flex-col m-auto items-center">
             <mat-spinner [diameter]="32"></mat-spinner>
-            <span>{{loading$ | async}}</span>
+            <span>{{ loading$ | async }}</span>
         </div>
     </div>
     <header class="flex items-center pt-2 px-4 w-full">
         <span>Question Bank</span>
         <div class="ml-auto">
-            <button mat-icon-button (click)="onAddQuestion()">
+            <button icon matRipple (click)="onAddQuestion()">
                 <mat-icon>add_circle_outline</mat-icon>
             </button>
         </div>
     </header>
     <div class="flex w-full pb-3 px-4 border-b space-x-2">
-        <search-input class="flex-1" (onSearch)="setFilter({search:$event})"></search-input>
-        <mat-form-field class="w-44" appearance="outline" subscriptSizing="dynamic">
-            <mat-select 
+        <search-input
+            class="flex-1"
+            (onSearch)="setFilter({ search: $event })"
+        ></search-input>
+        <mat-form-field
+            class="w-44"
+            appearance="outline"
+            subscriptSizing="dynamic"
+        >
+            <mat-select
                 [value]="(filters$ | async)?.type || ''"
-                (selectionChange)="setFilter({type:$event.value})">
+                (selectionChange)="setFilter({ type: $event.value })"
+            >
                 <mat-option value="">All types</mat-option>
-                <mat-option 
+                <mat-option
                     *ngFor="let item of typeOptions"
                     [value]="item.value"
                 >
@@ -28,30 +39,33 @@
                 </mat-option>
             </mat-select>
         </mat-form-field>
-
     </div>
-    <div 
-        cdkDropList 
+    <div
+        cdkDropList
         [cdkDropListData]="questions$ | async"
         (cdkDropListDropped)="onDrop($event)"
-        class="flex flex-col min-h-0 h-full w-full space-y-3 p-4 overflow-y-auto">
-
+        class="flex flex-col min-h-0 h-full w-full space-y-3 p-4 overflow-y-auto"
+    >
+        <div
+            cdkDrag
+            *ngFor="let q of questions$ | async"
+            class="bg-white border flex w-full pr-2 space-x-3"
+        >
             <div
-                cdkDrag
-                *ngFor="let q of questions$ | async;" 
-                class="bg-white border flex w-full pr-2 space-x-3">
-                <div cdkDragHandle class="flex flex-col justify-center h-full hover:cursor-move p-1 bg-gray-200">
-                    <mat-icon >drag_indicator</mat-icon>
-                </div>
-                <div class="flex flex-col w-full py-3">
-                    <span>{{q.title}}</span>
-                    <span class="text-sm text-gray-600">{{typeMap[q.type]}}</span>
-                </div>
-                <button mat-icon-button color="warn" (click)="onDeleteQuestion(q)">
-                    <mat-icon>delete</mat-icon>
-                </button>
+                cdkDragHandle
+                class="flex flex-col justify-center h-full hover:cursor-move p-1 bg-gray-200"
+            >
+                <mat-icon>drag_indicator</mat-icon>
             </div>
-            <div *ngIf="(questions$ | async)?.length > 0; else noQuestions;"></div>
+            <div class="flex flex-col w-full py-3">
+                <span>{{ q.title }}</span>
+                <span class="text-sm text-gray-600">{{ typeMap[q.type] }}</span>
+            </div>
+            <button icon matRipple color="warn" (click)="onDeleteQuestion(q)">
+                <mat-icon>delete</mat-icon>
+            </button>
+        </div>
+        <div *ngIf="(questions$ | async)?.length > 0; else noQuestions"></div>
     </div>
 </div>
 <ng-template #noQuestions>

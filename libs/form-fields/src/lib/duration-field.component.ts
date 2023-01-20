@@ -155,7 +155,7 @@ export class DurationFieldComponent
                 name: date
                     ? `${date
                           .add(option, 'm')
-                          .format('h:mm A')} (${formatDuration({
+                          .format('hh : mm A')} (${formatDuration({
                           hours: Math.floor(option / 60),
                           minutes: option % 60,
                       })})`
@@ -172,7 +172,7 @@ export class DurationFieldComponent
                 name: date
                     ? `${date
                           .add(time, 'm')
-                          .format('h:mm A')} (${formatDuration({
+                          .format('hh : mm A')} (${formatDuration({
                           hours: Math.floor(time / 60),
                           minutes: time % 60,
                       })})`

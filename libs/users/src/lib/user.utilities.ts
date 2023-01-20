@@ -78,7 +78,7 @@ export function generateUserForm(user?: User) {
     }
 
     const fields = {
-        name: new FormControl(user.name || ''),
+        name: new FormControl(user.name || '', [Validators.required]),
         email: new FormControl(user.email || '', [
             Validators.email,
             Validators.required,

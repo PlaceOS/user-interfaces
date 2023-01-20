@@ -4,9 +4,8 @@ import { format } from 'date-fns';
 @Component({
     selector: 'a-topbar-header',
     template: `
-        <div class="flex items-center justify-between bg-secondary shadow">
+        <div class="flex items-center justify-between bg-gray-800 shadow">
             <a
-                btn
                 matRipple
                 [routerLink]="['/']"
                 class="h-full flex flex-col justify-center px-4"

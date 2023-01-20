@@ -10,7 +10,6 @@ import { SpaceLocationPinComponent } from './space-location-pin.component';
     selector: `space-map`,
     template: `
         <i-map
-            *ngIf="!is_displayed"
             [src]="map_url"
             [features]="features | async"
             [actions]="actions | async"

@@ -21,7 +21,7 @@ import {
                 (click)="show_shortlist = !show_shortlist"
             >
                 <div class="px-2 font-medium">
-                    {{ date_list[6]?.id || active_date | date: 'LLLL' }}
+                    {{ date_list[6]?.id || active_date | date: 'LLLL YYYY' }}
                 </div>
                 <app-icon>arrow_drop_down</app-icon>
             </button>

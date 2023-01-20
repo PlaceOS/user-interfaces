@@ -45,7 +45,16 @@ import { SpaceFiltersComponent } from './space-filters.component';
                 </button>
             </div>
         </section>
-        <section filters class="flex items-center flex-wrap p-2">
+        <section filters class="flex items-center flex-wrap p-2 max-w-[50vw]">
+            <button
+                btn
+                matRipple
+                class="min-h-[2rem] mb-2 mr-2"
+                *ngIf="(options | async)?.features?.length > 1"
+                (click)="removeAllFeatures()"
+            >
+                Clear Filters
+            </button>
             <div
                 filter-item
                 zone
@@ -141,6 +150,14 @@ export class SpaceFiltersDisplayComponent extends BaseClass {
         this._event_form.setOptions({
             ...value,
             features: (value.features || []).filter((_) => _ !== feat),
+        });
+    }
+
+    public async removeAllFeatures() {
+        const value = await this._event_form.options.pipe(take(1)).toPromise();
+        this._event_form.setOptions({
+            ...value,
+            features: [],
         });
     }
 

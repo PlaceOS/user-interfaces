@@ -34,6 +34,7 @@ import { searchGuests } from 'libs/users/src/lib/guests.fn';
 import { searchStaff } from 'libs/users/src/lib/staff.fn';
 import { User } from 'libs/users/src/lib/user.class';
 import { USER_DOMAIN } from 'libs/users/src/lib/user.utilities';
+import { authority, queryUsers } from '@placeos/ts-client';
 
 function validateEmail(email) {
     const re =
@@ -56,6 +57,7 @@ function validateEmail(email) {
                         <mat-chip-row
                             user
                             *ngFor="let item of active_list"
+                            [class.bg-yellow-300]="item.is_external"
                             (removed)="removeUser(item)"
                         >
                             {{ item.name || item.email }}
@@ -200,6 +202,14 @@ export class UserListFieldComponent
 
     @ViewChild('search_field') private _search_el: ElementRef<HTMLInputElement>;
 
+    private searchStaff(q: string) {
+        return this._settings.get('app.basic_user_search')
+            ? queryUsers({ q, authority_id: authority()?.id }).pipe(
+                  map((_) => _.data)
+              )
+            : searchStaff(q);
+    }
+
     /** User list to display */
     public user_list$ = this.search$.pipe(
         debounceTime(300),
@@ -208,7 +218,10 @@ export class UserListFieldComponent
             return (
                 _
                     ? this.guests
-                        ? combineLatest([searchStaff(_), searchGuests(_)]).pipe(
+                        ? combineLatest([
+                              this.searchStaff(_),
+                              searchGuests(_),
+                          ]).pipe(
                               map(([staff, guests]) => {
                                   const visitors_list = [];
                                   const visitors =
@@ -231,7 +244,7 @@ export class UserListFieldComponent
                                   );
                               })
                           )
-                        : searchStaff(_)
+                        : this.searchStaff(_)
                     : of([])
             ).pipe(catchError((_) => of([])));
         }),

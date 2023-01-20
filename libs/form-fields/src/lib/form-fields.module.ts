@@ -2,6 +2,9 @@ import { NgModule, Type } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+import { ClipboardModule } from '@angular/cdk/clipboard';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -27,8 +30,6 @@ import { SpaceListFieldComponent } from './space-list-field.component';
 import { RichTextInputComponent } from './rich-text-input.component';
 import { HostSelectFieldComponent } from './host-select-field.component';
 import { ImageListFieldComponent } from './image-list-field.component';
-import { ClipboardModule } from '@angular/cdk/clipboard';
-import { MatChipsModule } from '@angular/material/chips';
 
 const COMPONENTS: Type<any>[] = [
     ActionFieldComponent,
@@ -53,6 +54,7 @@ const COMPONENTS: Type<any>[] = [
     imports: [
         CommonModule,
         FormsModule,
+        MatRippleModule,
         ReactiveFormsModule,
         MatFormFieldModule,
         MatInputModule,

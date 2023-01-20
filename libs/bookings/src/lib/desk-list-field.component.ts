@@ -18,7 +18,7 @@ const EMPTY_FAVS: string[] = [];
             <div
                 desk
                 class="relative p-2 rounded-lg w-full flex items-center shadow border border-gray-200"
-                *ngFor="let space of items"
+                *ngFor="let item of items"
             >
                 <div *ngIf="features?.length" class="flex flex-col">
                     <label for="title">Type</label>
@@ -34,11 +34,11 @@ const EMPTY_FAVS: string[] = [];
                     </div>
                 </div>
                 <div
-                    class="w-24 h-24 rounded-xl bg-black/20 mr-4 overflow-hidden flex items-center justify-center"
+                    class="w-20 h-20 rounded-xl bg-black/20 mr-4 overflow-hidden flex items-center justify-center"
                 >
                     <img
-                        *ngIf="space.images?.length; else placeholder"
-                        [src]="space.images[0]"
+                        *ngIf="item.images?.length; else placeholder"
+                        [src]="item.images[0]"
                         class="min-h-full object-cover"
                     />
                     <ng-template #placeholder>
@@ -50,17 +50,11 @@ const EMPTY_FAVS: string[] = [];
                 </div>
                 <div class="space-y-2 pb-4">
                     <div class="font-medium">
-                        {{ space.name || 'Desk' }}
+                        {{ item.name || 'Desk' }}
                     </div>
                     <div class="flex items-center text-sm space-x-2">
                         <app-icon class="text-blue-500">place</app-icon>
-                        <p>{{ space.location }}</p>
-                    </div>
-                    <div class="flex items-center text-sm space-x-2">
-                        <app-icon class="text-blue-500">people</app-icon>
-                        <p i18n>
-                            {{ space.capacity < 1 ? 2 : space.capacity }} People
-                        </p>
+                        <p>{{ item.zone?.display_name || item.zone?.name }}</p>
                     </div>
                     <div
                         class="absolute bottom-0 right-0 flex items-center justify-end text-xs"

@@ -3,6 +3,7 @@ import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { BookingFormService } from '@placeos/bookings';
 import { BaseClass } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
+import { take } from 'rxjs/operators';
 
 @Component({
     selector: 'new-desk-flow-confirm',
@@ -131,7 +132,11 @@ export class NewDeskFlowConfirmComponent extends BaseClass {
     public readonly loading = this._state.loading;
 
     public readonly postForm = async () => {
-        await this._state.postForm();
+        if ((await this._state.options.pipe(take(1)).toPromise())?.group) {
+            await this._state.postFormForGroup();
+        } else {
+            await this._state.postForm();
+        }
         this.dismiss(true);
     };
     public readonly dismiss = (e?) => this._sheet_ref?.dismiss(e);
