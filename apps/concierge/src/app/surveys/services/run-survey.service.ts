@@ -53,7 +53,6 @@ export class RunSurveyService{
                 })
             }
         });
-        console.log("Processed answers", answers);
         this.saveSurveyAnswer(answers);
     }
 

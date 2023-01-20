@@ -169,7 +169,6 @@ export class QuestionBankService extends BaseClass {
         const q = (await queryQuestions()
             .pipe(
                 first(),
-                tap((v) => console.log('queryQuestions', v)),
                 map(
                     (res: SurveyQuestion[]) =>
                         res?.map((e) => translateToQuestion(e)) || []

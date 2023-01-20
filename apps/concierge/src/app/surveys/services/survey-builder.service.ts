@@ -87,9 +87,6 @@ export class SurveyBuilderService{
 
     public onPreview(){
         this.surveyModel = new Model(this.survey);
-        // this.surveyModel.onComplete.add((sender: Model) => {
-        //     console.log("Completed survey", sender.data);
-        // })
     }
 
 
