@@ -13,7 +13,6 @@ import { QuestionComponent } from './question/question.component';
 import { RatingsComponent } from './question/rating.component';
 import { SelectionComponent } from './question/selection.component';
 import { SingleLineTextComponent } from './question/single-line-text.component';
-import { SurveyBuilderComponent } from './survey-builder/survey-builder.component';
 
 @NgModule({
     imports: [
@@ -29,13 +28,12 @@ import { SurveyBuilderComponent } from './survey-builder/survey-builder.componen
         MatSliderModule
     ],
     declarations: [
-        SurveyBuilderComponent,
         QuestionComponent,
         SingleLineTextComponent,
         SelectionComponent,
         MultiLineTextComponent,
         RatingsComponent,
     ],
-    exports: [SurveyBuilderComponent, QuestionComponent],
+    exports: [QuestionComponent],
 })
 export class SurveySuiteModule {}
