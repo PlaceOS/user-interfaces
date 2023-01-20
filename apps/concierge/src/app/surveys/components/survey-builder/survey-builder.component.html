@@ -39,95 +39,70 @@
     </nav>
     <div mat-tab-nav-panel #tabPanel class="flex min-h-0 h-full w-full bg-gray-100">
 
-        <!-- <div *ngIf="view === 'details'" class="mt-0 min-h-0 h-full w-full">
-            <div class="flex flex-col h-full p-6 items-center space-y-3 overflow-y-auto">
-                <div class="flex flex-col w-full max-w-[60rem] mx-auto">
-                    <div class="flex flex-col w-full">
-                        <label for="title">Title</label>
-                        <mat-form-field name="title" appearance="fill">
-                            <input class="text-xl" 
-                                matInput 
-                                required 
-                                [(ngModel)]="survey.title">
-                        </mat-form-field>
-                    </div>
-                    <div class="flex flex-col w-full">
-                        <label for="desc">Description</label>
-                        <mat-form-field name="desc" appearance="fill">
-                            <textarea 
-                                matInput 
-                                class="w-full min-h-[10rem]"
-                                [(ngModel)]="survey.description">
-                            </textarea>
-                        </mat-form-field>
-                    </div>
-                </div>
-            </div>
-        </div> -->
-
         <div *ngIf="view === 'design'" class="mt-0 flex min-h-0 h-full w-full">
-            <div class="flex flex-col h-full w-4/6 space-y-3 overflow-y-auto">
+            <div class="flex flex-col h-full w-4/6 min-w-[43rem] space-y-3 overflow-y-auto">
 
-                    <div class="flex flex-row items-center space-x-2">
-                        <nav mat-tab-nav-bar [tabPanel]="pagePanel">
-                            <a 
-                                mat-tab-link
-                                *ngFor="let p of survey.pages; let k=index;"
-                                (click)="selectedPageIndex = k;"
-                                [active]="selectedPage === p">
-                                Page {{k+1}}
-                            </a>
-                        </nav>
-                        <button mat-icon-button (click)="addSurveyPage()" title="Add new page">
-                                <mat-icon>add_circle_outline</mat-icon>
-                        </button>
-                    </div>
-                    <div class="flex flex-col py-2 px-4 pt-0 w-full overflow-x-hidden" #pagePanel>
-                        <ng-container *ngIf="selectedPage">
-                            <div  class="flex flex-row items-center justify-end space-x-2 w-full mb-4">
-                                <mat-form-field class="flex-1" [subscriptSizing]="'dynamic'" appearance="fill">
-                                    <input 
-                                        matInput 
-                                        placeholder="Page title..."
-                                        type="text" 
-                                        [(ngModel)]="selectedPage.title">
-                                </mat-form-field>
-                                <button *ngIf="selectedPageIndex > 0" 
-                                        mat-flat-button color="warn" 
-                                        (click)="removeSurveyPage(selectedPageIndex)"
-                                >
-                                    Remove page
-                                </button>
-                            </div>
-                            <div cdkDropList
-                                [cdkDropListData]="selectedPage.elements"
-                                (cdkDropListDropped)="onDrop($event,selectedPage)"
-                                class="flex flex-col w-full space-y-3">
-                
-                                <div 
-                                    cdkDrag
-                                    *ngFor="let q of selectedPage.elements; let i = index;" 
-                                    class="flex flex-row rounded-md items-start w-full bg-gray-200 py-1">
-                                    <div class="flex flex-col px-2 h-full">
-                                        <span class="text-lg">{{i + 1}}</span>
-                                    </div>
-                                    <placeos-question
-                                        class="flex-1"
-                                        [preview]="true"
-                                        [value]="q">
-                                    </placeos-question>
-                                    <div class="flex flex-col items-center h-full py-2">
-                                        <mat-icon cdkDragHandle class="hover:cursor-move">drag_indicator</mat-icon>
-                                        <button class="mt-auto" mat-icon-button (click)="onRemove(i)">
-                                            <mat-icon>delete</mat-icon>
-                                        </button>
-                                    </div>
+                <div class="flex flex-row items-center justify-end w-full space-x-2 pr-2">
+                    <nav class="max-w-xl" mat-tab-nav-bar [tabPanel]="pagePanel">
+                        <a 
+                            mat-tab-link
+                            class="rounded-b-md border-x"
+                            *ngFor="let p of survey.pages; let k=index;"
+                            (click)="selectedPageIndex = k;"
+                            [active]="selectedPage === p">
+                            Page {{k+1}}
+                        </a>
+                    </nav>
+                    <button mat-icon-button (click)="addSurveyPage()" title="Add new page">
+                            <mat-icon>add_circle_outline</mat-icon>
+                    </button>
+                </div>
+                <div class="flex flex-col py-2 px-6 pt-0 w-full overflow-x-hidden" #pagePanel>
+                    <ng-container *ngIf="selectedPage">
+                        <div  class="flex flex-row items-center justify-end space-x-2 w-full mb-4">
+                            <mat-form-field class="flex-1" [subscriptSizing]="'dynamic'" appearance="fill">
+                                <input 
+                                    matInput 
+                                    placeholder="Page title..."
+                                    type="text" 
+                                    [(ngModel)]="selectedPage.title">
+                            </mat-form-field>
+                            <button *ngIf="selectedPageIndex > 0" 
+                                    mat-flat-button color="warn" 
+                                    (click)="removeSurveyPage(selectedPageIndex)"
+                            >
+                                Remove page
+                            </button>
+                        </div>
+                        <div cdkDropList
+                            [cdkDropListData]="selectedPage.elements"
+                            (cdkDropListDropped)="onDrop($event,selectedPage)"
+                            class="flex flex-col w-full space-y-3">
+            
+                            <div 
+                                cdkDrag
+                                *ngFor="let q of selectedPage.elements; let i = index;" 
+                                class="flex flex-row rounded-md items-start w-full bg-gray-200 py-1">
+                                <div class="flex flex-col px-2 h-full">
+                                    <span class="text-lg">{{i + 1}}</span>
                                 </div>
-                
-                                <div *ngIf="selectedPage?.elements?.length > 0; else noQuestion;"></div>
+                                <placeos-question
+                                    class="flex-1"
+                                    [preview]="true"
+                                    [value]="q">
+                                </placeos-question>
+                                <div class="flex flex-col items-center h-full py-2">
+                                    <mat-icon cdkDragHandle class="hover:cursor-move">drag_indicator</mat-icon>
+                                    <button class="mt-auto" mat-icon-button (click)="onRemove(i)">
+                                        <mat-icon>delete</mat-icon>
+                                    </button>
+                                </div>
                             </div>
-                        </ng-container>
-                    </div>
+            
+                            <div *ngIf="selectedPage?.elements?.length > 0; else noQuestion;"></div>
+                        </div>
+                    </ng-container>
+                </div>
     
             </div>
             <div class="flex flex-col w-2/6">
