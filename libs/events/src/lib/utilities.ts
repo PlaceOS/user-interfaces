@@ -49,7 +49,7 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
         calendar: new FormControl(event.calendar),
         attendees: new FormControl(event.attendees || []),
         resources: new FormControl(event.resources || []),
-        title: new FormControl(event.title, [Validators.required]),
+        title: new FormControl(event.title),
         body: new FormControl(event.body),
         private: new FormControl(event.private),
         date: new FormControl(event.date, [Validators.required]),

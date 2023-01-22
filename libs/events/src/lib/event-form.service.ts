@@ -495,6 +495,7 @@ export class EventFormService extends BaseClass {
                             ? value.resources[0].email
                             : '') ||
                         value.host,
+                    title: value.title || 'Space Booking',
                     attendees,
                     date: d,
                     catering,

@@ -135,7 +135,7 @@ export class CalendarEvent {
                         .map((s) => new Space(s as any)),
                 'email'
             ) || [];
-        this.title = data.title || 'Space Booking';
+        this.title = data.title;
         this.body = data.body || '';
         this.private = !!data.private;
         this.all_day = !!data.all_day;
@@ -188,7 +188,8 @@ export class CalendarEvent {
         this.attachments = data.attachments || [];
         this.extension_data = data.extension_data || {};
         this.status = eventStatus({ ...data, ...this }) || 'none';
-        this.location = data.location || this.space?.display_name || this.space?.name || '';
+        this.location =
+            data.location || this.space?.display_name || this.space?.name || '';
         this.type =
             this.status === 'declined'
                 ? 'cancelled'
@@ -240,7 +241,13 @@ export class CalendarEvent {
                 ? obj.recurrence
                 : null
             : null;
-        obj.attendees = unique([...attendees, ...this.resources.map(_ => ({ ..._, resource: true }))], 'email');
+        obj.attendees = unique(
+            [
+                ...attendees,
+                ...this.resources.map((_) => ({ ..._, resource: true })),
+            ],
+            'email'
+        );
         if (!this.all_day) {
             obj.extension_data.breakdown = 15;
         }
