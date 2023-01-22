@@ -183,29 +183,33 @@ export class SettingsService extends BaseClass {
                 ...this._pending_settings,
             },
         }).toPromise();
-        this._user_settings.next({ ...this._user_settings.getValue(), ...this._pending_settings });
+        this._user_settings.next({
+            ...this._user_settings.getValue(),
+            ...this._pending_settings,
+        });
         this._pending_settings = {};
     }
 
     private async _applyUserSettings(settings: HashMap) {
-        
         if (settings.font_size) {
         }
     }
 
     private _setFontSize() {
         if (this.get('font_size')) {
-            document.body.parentElement.style.fontSize = `${this.get('font_size')}px`;
+            document.body.parentElement.style.fontSize = `${this.get(
+                'font_size'
+            )}px`;
             document.body.style.fontSize = `${this.get('font_size')}px`;
         }
     }
 
     private _setDarkMode() {
-        const os_dark = false; // window?.matchMedia ? window?.matchMedia('(prefers-color-scheme: dark)')?.matches : false;
-        if (this.get('dark_mode') ?? os_dark) {
-            document.body.classList.add('dark');
-        } else {
-            document.body.classList.remove('dark');
-        }
+        // const os_dark = false; // window?.matchMedia ? window?.matchMedia('(prefers-color-scheme: dark)')?.matches : false;
+        // if (this.get('dark_mode') ?? os_dark) {
+        //     document.body.classList.add('dark');
+        // } else {
+        //     document.body.classList.remove('dark');
+        // }
     }
 }
