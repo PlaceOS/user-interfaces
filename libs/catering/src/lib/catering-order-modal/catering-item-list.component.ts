@@ -50,6 +50,7 @@ import { CateringOrderStateService } from './catering-order-state.service';
                         [active]="active === item.custom_id"
                         [selected]="selected.includes(item.custom_id)"
                         [favourite]="isFavourite(item.id)"
+                        [code]="code"
                         (toggleFav)="toggleFav(item.id)"
                         (select)="selectItem(item, true)"
                     ></catering-item-list-item>

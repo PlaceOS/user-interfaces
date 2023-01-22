@@ -110,6 +110,7 @@ export class CateringItemListItemComponent {
     @Input() public active = false;
     @Input() public selected = false;
     @Input() public favourite = false;
+    @Input() public code: string = 'USD';
     @Output() public toggleFav = new EventEmitter();
     @Output() public select = new EventEmitter();
 
