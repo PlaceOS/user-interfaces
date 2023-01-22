@@ -13,9 +13,10 @@ export enum TriggerEnum {
 
 export enum QuestionType {
     Single_Line_Text = 'text',
-    Multi_Line_Text = 'comment',
-    Single_Select = 'dropdown',
-    Multi_Select = 'checkbox',
+    Comment_Box = 'comment',
+    Radio_Group = 'radiogroup',
+    Drop_Down = 'dropdown',
+    Check_Box = 'checkbox',
     Rating = 'rating',
 }
 

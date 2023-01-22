@@ -30,7 +30,7 @@ export class SurveyBuilderComponent implements OnInit {
     constructor(public service: SurveyBuilderService) {}
 
     ngOnInit(): void {
-        this.service.survey = generateNewSurvey();
+        this.service.setUISurvey(generateNewSurvey());
     }
 
     get selectedPageIndex(){
@@ -45,7 +45,7 @@ export class SurveyBuilderComponent implements OnInit {
         return this.service.selectedPage;
     }
     get survey(){
-        return this.service.survey; 
+        return this.service.getUISurvey(); 
     }
 
     switchView(view: 'design' | 'preview'){

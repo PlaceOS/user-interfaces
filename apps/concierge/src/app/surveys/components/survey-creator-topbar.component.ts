@@ -1,17 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { MatSelectChange } from '@angular/material/select';
 import { ActivatedRoute } from '@angular/router';
 import { BaseClass } from '@placeos/common';
-import { Building, OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/organisation';
 import { TriggerOptions } from '@placeos/survey-suite';
 import { combineLatest } from 'rxjs';
-import {
-    distinctUntilKeyChanged,
-    filter,
-    shareReplay,
-    take,
-    tap,
-} from 'rxjs/operators';
+import { map, shareReplay } from 'rxjs/operators';
 import { SurveyOptions, SurveyService } from '../services/survey.service';
 
 @Component({
@@ -22,56 +15,69 @@ import { SurveyOptions, SurveyService } from '../services/survey.service';
             class="flex flex-row items-center bg-white dark:bg-neutral-700 h-20 px-4 w-full dark:border-neutral-500"
         >
             <div class="flex space-x-2">
-                <mat-form-field
-                    appearance="outline"
-                    [subscriptSizing]="'dynamic'"
-                >
-                    <mat-select
-                        [value]="(options$ | async).building_id"
-                        (valueChange)="onBuildingChange($event)"
+                <div class="flex flex-col pt-2">
+                    <label>Building</label>
+                    <mat-form-field
+                        appearance="outline"
+                        [subscriptSizing]="'dynamic'"
                     >
-                        <mat-option
-                            *ngFor="let b of buildings$ | async"
-                            [value]="b.id"
-                            >{{ b.display_name || b.name }}</mat-option
+                        <mat-select
+                            [value]="(options$ | async).building_id"
+                            (valueChange)="onBuildingChange($event)"
                         >
-                    </mat-select>
-                </mat-form-field>
+                            <mat-option
+                                *ngFor="let b of buildings$ | async"
+                                [value]="b.id"
+                                >{{ b.display_name || b.name }}</mat-option
+                            >
+                        </mat-select>
+                    </mat-form-field>
+                </div>
 
-                <mat-form-field
-                    appearance="outline"
-                    [subscriptSizing]="'dynamic'"
-                >
-                    <mat-select
-                        [value]="(options$ | async).zone_id"
-                        (valueChange)="updateOptions({ zone_id: $event })"
+                <div class="flex flex-col pt-2">
+                    <label>Level</label>
+                    <mat-form-field
+                        appearance="outline"
+                        [subscriptSizing]="'dynamic'"
                     >
-                        <mat-option [value]="''"> All Levels </mat-option>
-                        <mat-option
-                            *ngFor="let level of levels"
-                            [value]="level.id"
+                        <mat-select
+                            [value]="(options$ | async).zone_id"
+                            (valueChange)="updateOptions({ zone_id: $event })"
                         >
-                            {{ level.display_name || level.name }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
+                            <mat-option
+                                [value]="(options$ | async).building_id"
+                            >
+                                All Levels
+                            </mat-option>
+                            <mat-option
+                                *ngFor="let level of levels$ | async"
+                                [value]="level.id"
+                            >
+                                {{ level.display_name || level.name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
 
-                <mat-form-field
-                    appearance="outline"
-                    [subscriptSizing]="'dynamic'"
-                >
-                    <mat-select
-                        [value]="(options$ | async).trigger"
-                        (valueChange)="updateOptions({ trigger: $event })"
+                <div class="flex flex-col pt-2">
+                    <label>Trigger</label>
+                    <mat-form-field
+                        appearance="outline"
+                        [subscriptSizing]="'dynamic'"
                     >
-                        <mat-option
-                            *ngFor="let op of triggerOptions"
-                            [value]="op.value"
+                        <mat-select
+                            [value]="(options$ | async).trigger"
+                            (valueChange)="updateOptions({ trigger: $event })"
                         >
-                            {{ op.name }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
+                            <mat-option
+                                *ngFor="let op of triggerOptions"
+                                [value]="op.value"
+                            >
+                                {{ op.name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
             </div>
 
             <div class="flex items-center ml-auto space-x-4">
@@ -88,6 +94,16 @@ export class SurveyCreatorTopbarComponent extends BaseClass implements OnInit {
     public levels = [];
     public readonly options$ = this._survey._options$.pipe(shareReplay(1));
     public readonly buildings$ = this._org.building_list;
+    public readonly levels$ = combineLatest([
+        this.options$,
+        this._org.level_list,
+    ]).pipe(
+        map(([options, levels]) => {
+            const { building_id } = options;
+            if (!building_id?.length) return [];
+            return levels.filter((l) => l.parent_id === building_id);
+        })
+    );
     public readonly triggerOptions = TriggerOptions;
 
     updateOptions = (op: Partial<SurveyOptions>) => this._survey.setOptions(op);
@@ -103,26 +119,12 @@ export class SurveyCreatorTopbarComponent extends BaseClass implements OnInit {
     }
 
     async ngOnInit() {
-        await this._org.initialised.pipe(take(1)).toPromise();
-
         this.subscription(
             'query_params',
             this._actRoute.queryParams.subscribe((qparams) => {
                 const id = qparams['building_id'];
                 if (id?.length) this.updateOptions({ building_id: id });
             })
-        );
-
-        this.subscription(
-            'option_change',
-            this._survey._options$
-                .pipe(
-                    distinctUntilKeyChanged('building_id'),
-                    tap((v) => console.log('option changed', v))
-                )
-                .subscribe((options) => {
-                    this.doBuildingChange(options.building_id);
-                })
         );
     }
 
@@ -133,10 +135,6 @@ export class SurveyCreatorTopbarComponent extends BaseClass implements OnInit {
 
     private doBuildingChange(building_id: string) {
         if (!building_id?.length) return;
-        this.selected_building = this._org.buildings.find(
-            (e) => e.id === building_id
-        );
-        this.levels = this._org.levelsForBuilding(this.selected_building);
-        this.updateOptions({ zone_id: '', building_id });
+        this.updateOptions({ zone_id: building_id, building_id });
     }
 }

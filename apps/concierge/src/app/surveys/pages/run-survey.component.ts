@@ -15,14 +15,16 @@ import { RunSurveyService } from "../services/run-survey.service";
     `],
     template:`
     
-        <main class="flex flex-col h-full w-full relative">
+        <main class="flex flex-col min-h-0 h-full w-full bg-white relative items-center pb-6 overflow-y-auto">
             <div *ngIf="(loading$ | async).length" class="flex absolute inset-0 opacity-60 bg-white dark:bg-black z-10">
-                <div class="flex flex-col m-auto">
-                    <mat-spinner [diameter]="32"></mat-spinner>
-                    <span>{{loading$ | async}}</span>
-                </div>
+                    <div class="flex flex-col m-auto items-center">
+                        <mat-spinner [diameter]="32"></mat-spinner>
+                        <span>{{loading$ | async}}</span>
+                    </div>
+                </div>    
+            <div class="flex flex-col max-w-[60rem]">
+                <survey [model]="service.surveyModel"></survey>
             </div>
-            <survey [model]="service.survey"></survey>
         </main>
     `,
     providers:[RunSurveyService]
@@ -38,9 +40,8 @@ export class RunSurveyComponent extends BaseClass implements OnInit{
     ngOnInit(): void {
         this.subscription('route-param',
             this.route.params.subscribe(params => {
-                console.log("params ", params);
                 const id = params?.id || '';
-                if(!id?.length){
+                if(id?.length){
                     this.service.loadSurvey(id);
                 }
             })

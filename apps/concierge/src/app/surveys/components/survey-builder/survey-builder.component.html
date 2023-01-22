@@ -3,10 +3,14 @@
     cdkDropListGroup
     class="flex flex-col h-full w-full bg-white dark:bg-neutral-600 overflow-y-auto"
 >
-    <div class="flex flex-row items-center w-full space-x-4 px-4 pt-4">
+    <div class="flex flex-row items-center w-full space-x-4 px-4 pt-4 pb-2">
         <div class="flex flex-col w-1/2">
-            <!-- <label for="title">Title</label> -->
-            <mat-form-field name="title" appearance="outline">
+            <label for="title">Title</label>
+            <mat-form-field
+                name="title"
+                appearance="outline"
+                subscriptSizing="dynamic"
+            >
                 <input
                     class="text-xl"
                     matInput
@@ -17,8 +21,12 @@
             </mat-form-field>
         </div>
         <div class="flex flex-col w-1/2">
-            <!-- <label for="desc">Description</label> -->
-            <mat-form-field name="desc" appearance="outline">
+            <label for="desc">Description</label>
+            <mat-form-field
+                name="desc"
+                appearance="outline"
+                subscriptSizing="dynamic"
+            >
                 <input
                     matInput
                     placeholder="Description..."
@@ -50,38 +58,21 @@
         #tabPanel
         class="flex min-h-0 h-full w-full bg-gray-100"
     >
-        <!-- <div *ngIf="view === 'details'" class="mt-0 min-h-0 h-full w-full">
-            <div class="flex flex-col h-full p-6 items-center space-y-3 overflow-y-auto">
-                <div class="flex flex-col w-full max-w-[60rem] mx-auto">
-                    <div class="flex flex-col w-full">
-                        <label for="title">Title</label>
-                        <mat-form-field name="title" appearance="fill">
-                            <input class="text-xl" 
-                                matInput 
-                                required 
-                                [(ngModel)]="survey.title">
-                        </mat-form-field>
-                    </div>
-                    <div class="flex flex-col w-full">
-                        <label for="desc">Description</label>
-                        <mat-form-field name="desc" appearance="fill">
-                            <textarea 
-                                matInput 
-                                class="w-full min-h-[10rem]"
-                                [(ngModel)]="survey.description">
-                            </textarea>
-                        </mat-form-field>
-                    </div>
-                </div>
-            </div>
-        </div> -->
-
         <div *ngIf="view === 'design'" class="mt-0 flex min-h-0 h-full w-full">
-            <div class="flex flex-col h-full w-4/6 space-y-3 overflow-y-auto">
-                <div class="flex flex-row items-center space-x-2">
-                    <nav mat-tab-nav-bar [tabPanel]="pagePanel">
+            <div
+                class="flex flex-col h-full w-4/6 min-w-[43rem] space-y-3 overflow-y-auto"
+            >
+                <div
+                    class="flex flex-row items-center justify-end w-full space-x-2 pr-2"
+                >
+                    <nav
+                        class="max-w-xl"
+                        mat-tab-nav-bar
+                        [tabPanel]="pagePanel"
+                    >
                         <a
                             mat-tab-link
+                            class="rounded-b-md border-x"
                             *ngFor="let p of survey.pages; let k = index"
                             (click)="selectedPageIndex = k"
                             [active]="selectedPage === p"
@@ -90,8 +81,7 @@
                         </a>
                     </nav>
                     <button
-                        icon
-                        matRipple
+                        mat-icon-button
                         (click)="addSurveyPage()"
                         title="Add new page"
                     >
@@ -99,7 +89,7 @@
                     </button>
                 </div>
                 <div
-                    class="flex flex-col py-2 px-4 pt-0 w-full overflow-x-hidden"
+                    class="flex flex-col py-2 px-6 pt-0 w-full overflow-x-hidden"
                     #pagePanel
                 >
                     <ng-container *ngIf="selectedPage">
@@ -120,9 +110,8 @@
                             </mat-form-field>
                             <button
                                 *ngIf="selectedPageIndex > 0"
-                                btn
-                                matRipple
-                                class="error"
+                                mat-flat-button
+                                color="warn"
                                 (click)="removeSurveyPage(selectedPageIndex)"
                             >
                                 Remove page
@@ -161,8 +150,7 @@
                                     >
                                     <button
                                         class="mt-auto"
-                                        icon
-                                        matRipple
+                                        mat-icon-button
                                         (click)="onRemove(i)"
                                     >
                                         <mat-icon>delete</mat-icon>

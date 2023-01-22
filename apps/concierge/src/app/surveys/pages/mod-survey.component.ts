@@ -1,7 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { BaseClass } from "@placeos/common";
-import { generateNewSurvey } from "@placeos/survey-suite";
 import { shareReplay } from "rxjs/operators";
 import { SurveyService } from "../services/survey.service";
 
@@ -19,12 +18,12 @@ import { SurveyService } from "../services/survey.service";
 
         <main class="flex flex-col h-full w-full bg-white dark:bg-neutral-600 relative">
             <div *ngIf="(loading$ | async).length" class="flex absolute inset-0 opacity-60 bg-white dark:bg-black z-10">
-                <div class="flex flex-col m-auto">
+                <div class="flex flex-col m-auto items-center">
                     <mat-spinner [diameter]="32"></mat-spinner>
                     <span>{{loading$ | async}}</span>
                 </div>
             </div>
-            <survey-creator-topbar class="flex flex-1 items-center border-b"></survey-creator-topbar>            
+            <survey-creator-topbar class="flex flex-1 items-center"></survey-creator-topbar>            
             <survey-builder></survey-builder>
         </main>
 

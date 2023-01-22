@@ -22,7 +22,7 @@ import { Question, QuestionType, QuestionTypeOptions } from '../types';
             </ng-template>
 
             <div class="flex flex-col w-full mb-4" [ngSwitch]="question.type">
-                <ng-container *ngSwitchCase="QuestionType.Multi_Line_Text">
+                <ng-container *ngSwitchCase="QuestionType.Comment_Box">
                     <multi-line-text [question]="question" [preview]="preview"></multi-line-text>
                 </ng-container>
 
@@ -30,11 +30,15 @@ import { Question, QuestionType, QuestionTypeOptions } from '../types';
                     <single-line-text [question]="question" [preview]="preview"></single-line-text>
                 </ng-container>
 
-                <ng-container *ngSwitchCase="QuestionType.Multi_Select">
+                <ng-container *ngSwitchCase="QuestionType.Check_Box">
                     <selection [value]="question" [preview]="preview"></selection>
                 </ng-container>
 
-                <ng-container *ngSwitchCase="QuestionType.Single_Select">
+                <ng-container *ngSwitchCase="QuestionType.Radio_Group">
+                    <selection [value]="question" [preview]="preview"></selection>
+                </ng-container>
+
+                <ng-container *ngSwitchCase="QuestionType.Drop_Down">
                     <selection [value]="question" [preview]="preview"></selection>
                 </ng-container>
 
@@ -95,8 +99,9 @@ export class QuestionComponent implements OnInit {
         let valid = true;
 
         switch(q.type){
-            case QuestionType.Single_Select:
-            case QuestionType.Multi_Select: 
+            case QuestionType.Check_Box:
+            case QuestionType.Radio_Group:
+            case QuestionType.Drop_Down: 
                 const checkop = q.choices?.map(e => !!(e?.text?.length));
                 valid = !!checkop?.length && checkop.reduce((acc,val) => acc && val);
                 break;
