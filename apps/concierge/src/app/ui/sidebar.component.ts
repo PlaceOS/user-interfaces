@@ -5,6 +5,7 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'sidebar',
@@ -46,9 +47,10 @@ import { OrganisationService } from '@placeos/organisation';
             </button>
         </div>
         <mat-menu #menu="matMenu">
-            <div class="flex flex-col">
+            <div class="w-64">
                 <mat-radio-group
                     aria-label="Select a building"
+                    class="flex flex-col"
                     [ngModel]="(active_building | async)?.id"
                 >
                     <mat-radio-button
@@ -79,7 +81,11 @@ export class SidebarComponent {
         return this._settings.get('app.logo_dark') || {};
     }
 
-    public readonly buildings = this._org.building_list;
+    public readonly buildings = this._org.building_list.pipe(
+        map((l) =>
+            l.sort((a, b) => a.display_name?.localeCompare(b.display_name))
+        )
+    );
     public readonly active_building = this._org.active_building;
     public readonly setBuilding = (b) => (this._org.building = b);
 
