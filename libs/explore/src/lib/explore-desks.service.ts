@@ -72,6 +72,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 period_end: getUnixTime(addMinutes(new Date(), 60)),
                 type: 'desk',
                 zones: lvl.id,
+                include_checked_out: true,
             })
         ),
         tap((l) => {
