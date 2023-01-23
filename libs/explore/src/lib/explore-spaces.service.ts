@@ -80,7 +80,7 @@ export class ExploreSpacesService extends BaseClass implements OnDestroy {
     }
 
     public bookSpace(space: Space) {
-        if (this._statuses[space.id] === 'busy' || !space.bookable) {
+        if (this._statuses[space.id] !== 'free' || !space.bookable) {
             return notifyError(
                 `${
                     space.display_name || space.name
