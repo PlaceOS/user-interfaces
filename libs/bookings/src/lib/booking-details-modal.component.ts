@@ -195,7 +195,7 @@ import { checkinBooking } from './bookings.fn';
                 (click)="remove.emit()"
             >
                 <app-icon>delete</app-icon>
-                <div i18n>Delete booking</div>
+                <div i18n>End booking</div>
             </button>
         </mat-menu>
     `,
@@ -251,7 +251,7 @@ export class BookingDetailsModalComponent {
         (this.booking as any).checked_in = !this.booking.checked_in;
         notifySuccess(
             `Successfully ${
-                this.booking.checked_in ? 'checked in' : 'checked out'
+                this.booking.checked_in ? 'checked in' : 'ended booking'
             }`
         );
         this.checking_in = false;
