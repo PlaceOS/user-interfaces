@@ -155,6 +155,7 @@ export class ScheduleStateService extends BaseClass {
             queryBookings({
                 period_start: getUnixTime(startOfDay(date)),
                 period_end: getUnixTime(endOfDay(date)),
+                include_checked_out: true,
                 type: 'desk',
             }).pipe(
                 catchError((_) => {

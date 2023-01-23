@@ -19,6 +19,8 @@ export interface BookingsQueryParams {
     period_end: number;
     /** Category of booking */
     type: BookingType;
+    /**  */
+    include_checked_out?: boolean;
 }
 
 const BOOKINGS_ENDPOINT = `/api/staff/v1/bookings`;
@@ -134,10 +136,16 @@ export function checkinBooking(id: string, state: boolean) {
  * @param id ID of the booking to grab
  * @param state New checkin state of the booking
  */
-export function checkinBookingAttendee(id: string, email: string, state: boolean) {
+export function checkinBookingAttendee(
+    id: string,
+    email: string,
+    state: boolean
+) {
     const query = toQueryString({ state });
     return post(
-        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/guests/${encodeURIComponent(email)}/check_in?${query}`,
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(
+            id
+        )}/guests/${encodeURIComponent(email)}/check_in?${query}`,
         ''
     ).pipe(map((item) => new GuestUser(item)));
 }
@@ -154,7 +162,12 @@ export function queryResourceAvailability(
 ): Observable<string[]> {
     return queryBookings(query).pipe(
         map((_) =>
-            asset_id_list.filter((id) => !_.find((b) => b.asset_id === id && (!ignore || ignore !== b.id)))
+            asset_id_list.filter(
+                (id) =>
+                    !_.find(
+                        (b) => b.asset_id === id && (!ignore || ignore !== b.id)
+                    )
+            )
         )
     );
 }
