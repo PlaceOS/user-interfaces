@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { SettingsService } from '@placeos/common';
+import { ExploreSpacesService } from '@placeos/explore';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { LandingStateService } from './landing-state.service';
@@ -91,8 +92,7 @@ import { LandingStateService } from './landing-state.service';
                         trackBy: trackBySpaceId
                     "
                     class="flex items-center h-24 min-w-[12.5rem] rounded-lg bg-white dark:bg-[#1F2021] shadow p-4 space-x-2"
-                    [routerLink]="['/explore']"
-                    [queryParams]="{ space: space.email }"
+                    (click)="book(space)"
                 >
                     <div
                         class="w-[4.5rem] h-[4.5rem] rounded bg-gray-200 dark:bg-neutral-800 overflow-hidden flex items-center justify-center"
@@ -117,7 +117,8 @@ import { LandingStateService } from './landing-state.service';
                                 >place</app-icon
                             >
                             <span>{{
-                                level(space.zones)?.display_name || level(space.zones)?.name
+                                level(space.zones)?.display_name ||
+                                    level(space.zones)?.name
                             }}</span>
                         </div>
                     </div>
@@ -141,11 +142,14 @@ import { LandingStateService } from './landing-state.service';
             }
         `,
     ],
+    providers: [ExploreSpacesService],
 })
 export class LandingAvailabilityComponent {
     public readonly space_list = this._state.free_space_list;
     public readonly loading_spaces = this._state.loading_spaces;
     public readonly levels_free = this._state.level_occupancy;
+
+    public book = (s) => this._explore.bookSpace(s);
 
     public trackBySpaceId(index: number, space: Space) {
         return space.id;
@@ -170,6 +174,7 @@ export class LandingAvailabilityComponent {
     constructor(
         private _state: LandingStateService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _explore: ExploreSpacesService
     ) {}
 }
