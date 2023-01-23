@@ -214,13 +214,19 @@ export class TabOutletComponent extends BaseClass {
         this.subscription(
             'tab',
             this._service.system.subscribe((_) => {
-                if (_.selected_tab) {
-                    this.active_tab.next(_.selected_tab);
-                    this._router.navigate(
-                        ['/tabbed', this.id, _.selected_tab],
-                        { queryParamsHandling: 'merge' }
-                    );
-                }
+                this.timeout(
+                    'update_tab',
+                    () => {
+                        if (_.selected_tab) {
+                            this.active_tab.next(_.selected_tab);
+                            this._router.navigate(
+                                ['/tabbed', this.id, _.selected_tab],
+                                { queryParamsHandling: 'merge' }
+                            );
+                        }
+                    },
+                    500
+                );
             })
         );
         this.subscription(
