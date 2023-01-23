@@ -23,6 +23,7 @@ import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import {
     BaseClass,
     currentUser,
+    notifyError,
     notifySuccess,
     SettingsService,
 } from '@placeos/common';
@@ -301,7 +302,10 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
             });
             if (!desk.bookable) continue;
             const book_fn = async () => {
-                if (this._statuses[desk.id] !== 'free') return;
+                if (this._statuses[desk.id] !== 'free')
+                    return notifyError(
+                        `${desk.name} is unavailable at this time.`
+                    );
                 this._bookings.newForm();
                 this._bookings.setOptions({ type: 'desk' });
                 const { date, duration } = await this._setBookingTime(
