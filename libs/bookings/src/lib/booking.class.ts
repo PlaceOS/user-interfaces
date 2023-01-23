@@ -151,11 +151,12 @@ export class Booking {
         this.event_id = data.event_id;
         this.attendees = data.attendees || [];
         this.all_day = data.all_day ?? this.duration >= 12 * 60;
-        this.status = this.rejected
-            ? 'declined'
-            : this.approved
-            ? 'approved'
-            : 'tentative';
+        this.status =
+            this.rejected || this.extension_data.current_state === 'checked_out'
+                ? 'declined'
+                : this.approved
+                ? 'approved'
+                : 'tentative';
         for (const key in data) {
             if (!(key in this) && !IGNORE_EXT_KEYS.includes(key) && data[key]) {
                 this.extension_data[key] =
