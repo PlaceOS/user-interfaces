@@ -482,8 +482,12 @@ export class BookingFormService extends BaseClass {
                 map_id: asset?.map_id || asset?.id,
                 description: asset.name,
                 zones: asset.zone
-                    ? [asset.zone?.parent_id, asset.zone?.id]
-                    : [],
+                    ? unique([
+                          this._org.organisation.id,
+                          asset.zone?.parent_id,
+                          asset.zone?.id,
+                      ])
+                    : [this._org.organisation.id],
             });
             this.postForm(true);
         }
