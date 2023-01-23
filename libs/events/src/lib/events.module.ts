@@ -17,6 +17,7 @@ import { AttendeeListComponent } from './attendee-list.component';
 import { EventCardComponent } from './event-card.component';
 import { EventDetailsModalComponent } from './event-details-modal.component';
 import { EventLinkModalComponent } from './event-link-modal.component';
+import { MatRippleModule } from '@angular/material/core';
 
 const COMPONENTS = [
     EventDetailsModalComponent,
@@ -40,6 +41,7 @@ const COMPONENTS = [
         MatProgressSpinnerModule,
         FormFieldsModule,
         ComponentsModule,
+        MatRippleModule,
     ],
     providers: [ReactiveFormsModule],
     exports: [...COMPONENTS],

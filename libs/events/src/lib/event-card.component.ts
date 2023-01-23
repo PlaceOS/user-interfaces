@@ -17,9 +17,8 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
             <span class="text-xs px-2">({{ event?.date | date: 'z' }})</span>
         </h4>
         <a
-            matRipple
             details
-            class="w-full cursor-pointer"
+            class="w-full cursor-pointer relative"
             [routerLink]="['./']"
             [queryParams]="{ event: event?.id }"
             (click)="viewDetails()"

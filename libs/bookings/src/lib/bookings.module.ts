@@ -37,6 +37,7 @@ import { ParkingSpaceListFieldComponent } from './parking-space-list-field.compo
 import { DeskListFieldComponent } from './desk-list-field.component';
 import { BookingLinkModalComponent } from './booking-link-modal.component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatRippleModule } from '@angular/material/core';
 
 const COMPONENTS = [
     DeskQuestionsModalComponent,
@@ -80,6 +81,7 @@ const COMPONENTS = [
         MatAutocompleteModule,
         FormFieldsModule,
         ComponentsModule,
+        MatRippleModule,
     ],
     providers: [ReactiveFormsModule],
     exports: [...COMPONENTS],

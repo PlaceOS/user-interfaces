@@ -16,9 +16,8 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
             <span class="text-xs px-2">({{ booking?.date | date: 'z' }})</span>
         </h4>
         <a
-            matRipple
             details
-            class="w-full cursor-pointer"
+            class="w-full cursor-pointer overflow-hidden relative"
             [routerLink]="['./']"
             [queryParams]="{ booking: booking?.id }"
             (click)="viewDetails()"
@@ -105,6 +104,8 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
             :host {
                 display: block;
                 width: 100%;
+                overflow: hidden;
+                position: relative;
             }
         `,
     ],
