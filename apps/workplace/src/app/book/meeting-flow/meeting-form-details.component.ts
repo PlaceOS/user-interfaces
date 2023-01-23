@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { SettingsService } from '@placeos/common';
+import { addDays, endOfDay } from 'date-fns';
 
 @Component({
     selector: 'meeting-form-details',
@@ -27,17 +28,21 @@ import { SettingsService } from '@placeos/common';
                     <label for="date"
                         >{{ 'FORM.DATE' | translate }}<span>*</span></label
                     >
-                    <a-date-field name="date" formControlName="date">
+                    <a-date-field
+                        name="date"
+                        formControlName="date"
+                        [to]="end_date"
+                    >
                         {{ 'FORM.DATE_ERROR' | translate }}
                     </a-date-field>
                 </div>
             </div>
             <div class="flex items-center space-x-2">
                 <div class="flex-1 w-1/3">
-                    <label for="start-time"
-                        >{{ 'FORM.START_TIME' | translate
-                        }}<span>*</span></label
-                    >
+                    <label for="start-time">
+                        {{ 'FORM.START_TIME' | translate }}
+                        <span>*</span>
+                    </label>
                     <a-time-field
                         name="start-time"
                         [ngModel]="form.value.date"
@@ -92,6 +97,15 @@ export class MeetingFormDetailsComponent {
 
     public get allow_all_day() {
         return this._settings.get('app.events.allow_all_day');
+    }
+
+    public get end_date() {
+        return endOfDay(
+            addDays(
+                Date.now(),
+                this._settings.get('app.events.allowed_future_days') || 180
+            )
+        );
     }
 
     constructor(private _settings: SettingsService) {}
