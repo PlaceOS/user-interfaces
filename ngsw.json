@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1674444713874,
+  "timestamp": 1674445158184,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -308,10 +308,10 @@
     "./assets/support/firefox-logo.svg": "5d92cf1198425c8696bbd4c4c79f7ee029a207b9",
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
-    "./common.js": "9f2fcc5c12e790c4d5db9cd65dbe8e50f5be904e",
+    "./common.js": "e271e9f1ca9679d0534a635a06934ac30838d239",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "2d0733538048080dc1886ef3bc247e17699895a8",
-    "./main.js": "fc88597a373819d1219cfe2ba134f052ef548233",
+    "./main.js": "d685e0ccb16fd9b14858c147bdbc4a3010c2f8fe",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./node_modules_qr-scanner_qr-scanner-worker_min_js.js": "6f5be6af7cdacf78979715ff02e9beba1c568bbf",
     "./polyfills.js": "e0e8d24eecba226092319da89d4d7e2e9a179b3b",
