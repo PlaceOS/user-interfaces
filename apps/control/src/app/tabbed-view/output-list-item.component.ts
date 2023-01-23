@@ -11,6 +11,7 @@ import { ICON_MAP } from '../ui/output-display.component';
         <button
             matRipple
             class="m-2 rounded bg-white shadow h-40 w-full flex-1 border p-2"
+            [class.border-gray-200]="!active"
             [class.border-primary]="active"
             *ngIf="item || true"
             (click)="setActiveOutput()"
@@ -69,12 +70,13 @@ export class DeviceOutputListItemComponent extends BaseClass {
     public readonly setVolume = (v) =>
         this.timeout('volume', () => this._state.setVolume(v, this.item?.id));
     public readonly setMute = (s) => this._state.setMute(s, this.item?.id);
-    public readonly setActiveOutput = async () =>{
-        const { selected_input } = await this._state.system.pipe(take(1)).toPromise() || {};
+    public readonly setActiveOutput = async () => {
+        const { selected_input } =
+            (await this._state.system.pipe(take(1)).toPromise()) || {};
         this.item?.source === selected_input
             ? this._state.unroute(this.item.id)
             : this._state.setOutput(this.item?.id);
-    }
+    };
 
     constructor(private _state: ControlStateService) {
         super();

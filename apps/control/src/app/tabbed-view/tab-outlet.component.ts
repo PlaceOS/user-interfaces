@@ -27,7 +27,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                     matRipple
                     class="h-24 w-32 rounded-t rounded-b-none shadow mx-1 bg-gray-300 dark:bg-neutral-800 text-black/60 dark:text-white/60 flex flex-col border-t border-l border-r items-center justify-center leading-tight overflow-hidden"
                     [routerLink]="['/tabbed', id, tab.id || tab.name]"
-                    routerLinkActive="border-primary !bg-white dark:!bg-[#1F2021] !text-primary"
+                    routerLinkActive="!bg-white dark:!bg-[#1F2021] !text-primary"
                     queryParamsHandling="merge"
                     *ngFor="let tab of tabs | async"
                 >

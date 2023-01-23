@@ -483,6 +483,7 @@ a[btn] {
     &.inverse {
         background: none;
         color: var(--color);
+        border-color: currentColor;
     }
 
     &.success {
