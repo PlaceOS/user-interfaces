@@ -45,7 +45,10 @@ import { SpaceFiltersComponent } from './space-filters.component';
                 </button>
             </div>
         </section>
-        <section filters class="flex items-center flex-wrap p-2 max-w-[50vw]">
+        <section
+            filters
+            class="flex items-center flex-wrap p-2 sm:max-w-[50vw]"
+        >
             <button
                 btn
                 matRipple
@@ -61,7 +64,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
                 class="dark:border-neutral-500"
                 *ngIf="location"
             >
-                {{ location }}
+                {{ location }} plus more to make it longer than it should be
             </div>
             <div filter-item date class="dark:border-neutral-500">
                 {{ start | date: 'mediumDate' }}
@@ -74,7 +77,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
                 Min. {{ (options | async)?.capacity || 2 }} People
             </div>
             <div filter-item *ngFor="let feat of (options | async)?.features">
-                <p>{{ feat }}</p>
+                <p class="truncate">{{ feat }}</p>
                 <button
                     icon
                     matRipple
@@ -92,12 +95,14 @@ import { SpaceFiltersComponent } from './space-filters.component';
                 display: flex;
                 align-items: center;
                 padding: 0 1rem;
-                height: 2rem;
+                min-height: 2rem;
                 font-size: 0.875rem;
                 border: 1px solid rgba(0, 0, 0, 0.2);
                 border-radius: 1.25rem;
                 margin-right: 0.5rem;
                 margin-bottom: 0.5rem;
+                max-width: 100%;
+                text-align: center;
             }
 
             [filter-item]:hover {
