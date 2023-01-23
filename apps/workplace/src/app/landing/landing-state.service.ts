@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
 import {
+    authority,
     getModule,
     PlaceMetadata,
     PlaceVariableBinding,
     querySystems,
+    queryUsers,
     showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
@@ -21,10 +23,16 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import { BaseClass, currentUser, HashMap, unique } from '@placeos/common';
+import {
+    BaseClass,
+    currentUser,
+    HashMap,
+    SettingsService,
+    unique,
+} from '@placeos/common';
 import { requestSpacesForZone } from '@placeos/spaces';
 import { CalendarEvent } from '@placeos/events';
-import { searchStaff, User } from '@placeos/users';
+import { searchStaff, StaffUser, User } from '@placeos/users';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { CalendarService } from '@placeos/calendar';
 import { ScheduleStateService } from '../new-schedule/schedule-state.service';
@@ -95,13 +103,20 @@ export class LandingStateService extends BaseClass {
     public loading = this._loading.asObservable();
     /**  */
     public loading_spaces = this._loading_spaces.asObservable();
+    /** Function used to query for users */
+    public search_fn = (q: string) =>
+        this._settings.get('app.basic_user_search')
+            ? queryUsers({ q, authority_id: authority()?.id }).pipe(
+                  map(({ data }) => data.map((_) => new StaffUser(_)))
+              )
+            : searchStaff(q);
 
     public readonly search_results = this._options.pipe(
         debounceTime(500),
         switchMap(({ search }) => {
             this._loading.next('Loading users...');
             return search
-                ? searchStaff(search).pipe(catchError(() => of([])))
+                ? this.search_fn(search).pipe(catchError(() => of([])))
                 : of([]);
         }),
         tap(() => this._loading.next('')),
@@ -113,7 +128,8 @@ export class LandingStateService extends BaseClass {
     constructor(
         private _calendar: CalendarService,
         private _schedule: ScheduleStateService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _settings: SettingsService
     ) {
         super();
         this.init();
