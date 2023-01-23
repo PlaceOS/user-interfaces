@@ -11,8 +11,7 @@ import { HashMap } from './types';
 import { BaseClass } from './base.class';
 
 import { VERSION } from './version';
-import { currentUser } from './user-state';
-import { current_user } from '..';
+import { currentUser, current_user } from './user-state';
 
 declare global {
     interface Window {

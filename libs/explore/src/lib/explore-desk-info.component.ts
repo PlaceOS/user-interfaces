@@ -24,7 +24,8 @@ export interface DeskInfoData {
             [xPosition]="'center'"
             [yPosition]="'center'"
             [hover]="true"
-            class="hidden sm:block h-full w-full pointer-events-auto relative"
+            class="sm:initial h-full w-full pointer-events-auto relative"
+            [class.hidden]="status === 'free'"
             [attr.id]="id"
             [attr.map_id]="map_id"
         ></div>
@@ -89,6 +90,7 @@ export class ExploreDeskInfoComponent implements OnInit {
     public readonly user = this._details.user;
     public readonly start = this._details.start;
     public readonly end = this._details.end;
+    public readonly status = this._details.status;
     public readonly department = this._details.department;
 
     public y_pos: 'top' | 'bottom';
