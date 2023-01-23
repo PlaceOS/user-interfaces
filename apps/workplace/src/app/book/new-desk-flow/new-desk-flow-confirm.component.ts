@@ -1,7 +1,7 @@
 import { Component, Input, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { BookingFormService } from '@placeos/bookings';
-import { BaseClass } from '@placeos/common';
+import { BaseClass, notifyError } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { take } from 'rxjs/operators';
 
@@ -132,12 +132,16 @@ export class NewDeskFlowConfirmComponent extends BaseClass {
     public readonly loading = this._state.loading;
 
     public readonly postForm = async () => {
-        if ((await this._state.options.pipe(take(1)).toPromise())?.group) {
-            await this._state.postFormForGroup();
-        } else {
-            await this._state.postForm();
+        try {
+            if ((await this._state.options.pipe(take(1)).toPromise())?.group) {
+                await this._state.postFormForGroup();
+            } else {
+                await this._state.postForm();
+            }
+            this.dismiss(true);
+        } catch (e) {
+            notifyError(e);
         }
-        this.dismiss(true);
     };
     public readonly dismiss = (e?) => this._sheet_ref?.dismiss(e);
 
