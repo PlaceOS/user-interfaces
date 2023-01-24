@@ -103,6 +103,10 @@ import { first, take } from 'rxjs/operators';
                 <div class="h-3 w-3 rounded-full bg-error"></div>
                 <div class="text-center">Space In Use</div>
             </div>
+            <div class="flex items-center space-x-2 rounded bg-gray-50 p-2">
+                <div class="h-3 w-3 rounded-full bg-pending"></div>
+                <div class="text-center">Space Pending</div>
+            </div>
             <div class="flex items-center space-x-2 p-2">
                 <div class="h-3 w-3 rounded-full bg-gray-400"></div>
                 <div class="text-center">Space Not-bookable</div>

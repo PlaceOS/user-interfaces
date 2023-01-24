@@ -80,14 +80,13 @@ export function getItemWithKeys(keys: string[], map: HashMap) {
  * @param key Key on array objects to compare for uniqueness
  */
 export function unique<T = any>(array: T[] = [], key: string = ''): T[] {
-    return array.filter(
-        (el, pos, arr) =>
-            arr.indexOf(
-                key
-                    ? arr.find((i) => i[key] === el[key])
-                    : arr.find((i) => i === el)
-            ) === pos
-    );
+    const keys = [];
+    return array.filter((el) => {
+        const id = key ? el[key] : el;
+        const exists = keys.includes(id);
+        if (!exists) keys.push(id);
+        return !exists;
+    });
 }
 
 /**
