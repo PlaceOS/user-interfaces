@@ -49,7 +49,11 @@ import { PanelStateService } from '../panel-state.service';
                 </p>
             </div>
             <div
-                *ngIf="(current | async) && !hide_meeting_details"
+                *ngIf="
+                    (current | async) &&
+                    !hide_meeting_details &&
+                    !hide_meeting_title
+                "
                 class="absolute bottom-0 inset-x-0 bg-black/20 text-white p-4 text-center text-3xl"
             >
                 {{ (current | async).title }}
@@ -78,6 +82,10 @@ export class PanelViewDetailsComponent {
 
     public get hide_meeting_details() {
         return this._state.setting('hide_meeting_details');
+    }
+
+    public get hide_meeting_title() {
+        return this._state.setting('hide_meeting_title');
     }
 
     public get room_image() {

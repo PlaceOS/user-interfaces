@@ -67,6 +67,8 @@ export interface PanelSettings {
     room_capacity?: number;
     /** Whether meeting details should not be displayed on the UI */
     hide_meeting_details?: boolean;
+    /** Whether the meeting title should not be display on the UI */
+    hide_meeting_title?: boolean;
 }
 
 export function currentBooking(
@@ -166,6 +168,7 @@ export class PanelStateService extends BaseClass {
                 'custom_qr_color',
                 'disable_book_now',
                 'hide_meeting_details',
+                'hide_meeting_title',
                 'pending',
                 'status',
                 'control_ui',
