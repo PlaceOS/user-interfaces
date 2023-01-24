@@ -165,6 +165,13 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                     <div class="text-xl" i18n>Desk</div>
                 </h3>
                 <desk-list-field formControlName="resources"></desk-list-field>
+                <p
+                    *ngIf="(options | async)?.group"
+                    class="text-center rounded px-2 py-1 bg-yellow-400 shadow text-xs"
+                >
+                    Desks nearby to the selected desk will booked for group
+                    members
+                </p>
             </section>
             <section class="p-2" *ngIf="has_assets">
                 <h3 class="space-x-2 flex items-center mb-4">

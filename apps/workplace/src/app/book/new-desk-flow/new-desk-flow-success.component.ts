@@ -28,8 +28,8 @@ import {
                         group of
                         {{ last_event?.attendees.length + 1 }}
                     </span>
-                    desk{{ last_event?.attendees.length === 1 ? '' : 's' }} has
-                    been successfully booked
+                    desk{{ last_event?.attendees.length ? 's' : '' }} has been
+                    successfully booked
                     <span
                         assets
                         *ngIf="last_event?.extension_data?.assets?.length"
