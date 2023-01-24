@@ -23,7 +23,13 @@ import {
                 </h2>
                 <img src="assets/icons/success.svg" />
                 <p class="text-center" i18n>
-                    Your desk has been successfully booked
+                    Your
+                    <span group *ngIf="last_event?.attendees.length">
+                        group of
+                        {{ last_event?.attendees.length + 1 }}
+                    </span>
+                    desk{{ last_event?.attendees.length === 1 ? '' : 's' }} has
+                    been successfully booked
                     <span
                         assets
                         *ngIf="last_event?.extension_data?.assets?.length"
