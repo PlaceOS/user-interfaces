@@ -22,7 +22,11 @@ export type BookingType =
     | 'staff'
     | 'wfh-setting'
     | '';
-const IGNORE_EXT_KEYS = ['user', 'booked_by', 'resources', 'assets'];
+const IGNORE_EXT_KEYS = ['user', 'booked_by', 'resources', 'assets', 'members'];
+
+export interface BookingComplete extends Booking {
+    members?: User[];
+}
 
 /** General purpose booking class */
 export class Booking {
@@ -91,7 +95,7 @@ export class Booking {
     /** List of attendees for the booking */
     public readonly attendees: User[];
 
-    constructor(data: Partial<Booking> = {}) {
+    constructor(data: Partial<BookingComplete> = {}) {
         this.id = data.id || '';
         this.asset_id = data.asset_id || '';
         this.asset_name =
@@ -149,7 +153,7 @@ export class Booking {
         this.extension_data = data.extension_data || {};
         this.access = !!data.extension_data?.access;
         this.event_id = data.event_id;
-        this.attendees = data.attendees || [];
+        this.attendees = data.attendees || data.members || [];
         this.all_day = data.all_day ?? this.duration >= 12 * 60;
         this.status =
             this.rejected || this.extension_data.current_state === 'checked_out'
