@@ -331,7 +331,7 @@ export class InteractiveMapComponent
 
     /* istanbul ignore next */
     public trackByFn(index: number, feature: ViewerFeature) {
-        return feature?.track_id || JSON.stringify({ ...feature });
+        return feature?.track_id;
     }
 
     private updateFeatureList() {

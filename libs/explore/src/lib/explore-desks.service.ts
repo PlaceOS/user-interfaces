@@ -268,6 +268,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
             const x = device.x / device.map_width;
             const y = device.y / device.map_height;
             list.push({
+                track_id: `device:hover:${x},${y}`,
                 location: {
                     x: device.coordinates_from?.includes('right') ? 1 - x : x,
                     y: device.coordinates_from?.includes('bottom') ? 1 - y : y,
@@ -286,6 +287,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         const options = this._options.getValue();
         for (const desk of desks) {
             list.push({
+                track_id: `desk:hover:${desk.map_id || desk.id}`,
                 location: desk.id,
                 content: ExploreDeskInfoComponent,
                 full_size: true,

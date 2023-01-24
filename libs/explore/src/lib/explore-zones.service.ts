@@ -153,6 +153,7 @@ export class ExploreZonesService extends BaseClass {
                 DEFAULT_COLOURS[`${this._statuses[zone_id]}`];
             if (this._draw[zone_id]) {
                 features.push({
+                    track_id: `zone:${zone_id}`,
                     location: getCenterPoint(this._points[zone_id]),
                     content: MapPolygonComponent,
                     data: {
