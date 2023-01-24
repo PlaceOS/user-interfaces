@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1674538659318,
+  "timestamp": 1674603878036,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -180,7 +180,7 @@
     "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "9009adf00c25ece2bdba3724a027706579be2599",
     "./apps_workplace_src_app_directory_directory_module_ts.js": "08ada9196ea8d0abeb797305be2146110f0f39d8",
     "./apps_workplace_src_app_explore_explore_module_ts.js": "2ae1387670950d893360f8a673b55c5eb489d284",
-    "./apps_workplace_src_app_landing_landing_module_ts.js": "4d1455869e8c36267fb3951825c0a113fedf250c",
+    "./apps_workplace_src_app_landing_landing_module_ts.js": "08e7157b191b14ca1c389d7dde3f34f46d57ed3f",
     "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "f0fd9c822dd239aa76b0033aa435f18ee51fc15b",
     "./apps_workplace_src_app_schedule_schedule_module_ts.js": "114a8834ffc9659220a2e2ca704f8a4797988b26",
     "./apps_workplace_src_app_whats-on_whats-on_module_ts.js": "59b772c35222be8299276f1e8d42225209efb826",
@@ -286,7 +286,7 @@
     "./assets/img/tick.svg": "d940fcfe7bffcd4785f687cf13b014ea92e2738b",
     "./assets/img/time.svg": "7ab08ee0812bd9f5ee992c5d3ac9eed348953bab",
     "./assets/img/today.svg": "32aa7cef9041d2f6f8b51a4cb2638a50e6ca6c84",
-    "./assets/locale/en-US.json": "793c1d964007695cd4bd1dca28b873689fed11d3",
+    "./assets/locale/en-US.json": "86a8866fc0cfdf1f68b244194d3b8f45a34aa1fa",
     "./assets/locale/en.json": "cc59c6ef1e3e06902912b9592dcb54ceddef4e91",
     "./assets/locale/es.json": "6c8d1222c4cc3ce7ee71e84ce3a710cbf0eb3e49",
     "./assets/locale/fr.json": "5210d149399ee461f0be48dd611ff94f32430826",
@@ -311,7 +311,7 @@
     "./common.js": "e271e9f1ca9679d0534a635a06934ac30838d239",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "2d0733538048080dc1886ef3bc247e17699895a8",
-    "./main.js": "b3ab4073450889c122917d99269eb0226eabc833",
+    "./main.js": "0652f689f8a274a8c78122aef19c517143b890f7",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./node_modules_qr-scanner_qr-scanner-worker_min_js.js": "6f5be6af7cdacf78979715ff02e9beba1c568bbf",
     "./polyfills.js": "e0e8d24eecba226092319da89d4d7e2e9a179b3b",
