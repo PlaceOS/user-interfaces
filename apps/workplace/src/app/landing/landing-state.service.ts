@@ -60,6 +60,7 @@ export class LandingStateService extends BaseClass {
     private _space_list = this._org.active_building.pipe(
         filter((_) => !!_),
         switchMap((bld) => requestSpacesForZone(bld.id)),
+        map((_) => _.filter((s) => s.bookable)),
         shareReplay(1)
     );
 
