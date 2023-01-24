@@ -64,7 +64,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
                 class="dark:border-neutral-500"
                 *ngIf="location"
             >
-                {{ location }} plus more to make it longer than it should be
+                {{ location }}
             </div>
             <div filter-item date class="dark:border-neutral-500">
                 {{ start | date: 'mediumDate' }}

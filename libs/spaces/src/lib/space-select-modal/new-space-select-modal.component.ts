@@ -66,7 +66,7 @@ import { Space } from '../space.class';
                 </div>
                 <space-details
                     [space]="displayed"
-                    class="h-full w-full sm:h-[65vh] absolute sm:relative flex sm:max-w-[20rem] z-20 bg-white dark:bg-neutral-600"
+                    class="h-full w-full sm:h-[65vh] absolute sm:relative flex sm:max-w-[20rem] z-20 bg-white dark:bg-neutral-600 sm:block"
                     [class.hidden]="!displayed"
                     [class.inset-0]="displayed"
                     [active]="selected_ids.includes(displayed?.id)"

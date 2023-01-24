@@ -413,7 +413,12 @@ export class BookingFormService extends BaseClass {
             new Booking({
                 ...this._options.getValue(),
                 ...value,
+                user_name: value.user?.name,
+                user_id:
+                    (!value.user?.id?.includes('@') ? value?.user?.id : '') ||
+                    currentUser()?.id,
                 extension_data: {
+                    ...((value as any).extension_data || {}),
                     department:
                         value.user.department || currentUser()?.department,
                 },
