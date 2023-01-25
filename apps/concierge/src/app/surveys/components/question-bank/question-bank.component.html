@@ -61,8 +61,11 @@
                 <span>{{ q.title }}</span>
                 <span class="text-sm text-gray-600">{{ typeMap[q.type] }}</span>
             </div>
-            <button icon matRipple color="warn" (click)="onDeleteQuestion(q)">
+            <button icon matRipple color="warn" title="Delete question" (click)="onDeleteQuestion(q)">
                 <mat-icon>delete</mat-icon>
+            </button>
+            <button icon matRipple (click)="onAddQuestion(q)" title="Duplicate question">
+                <mat-icon>content_copy</mat-icon>
             </button>
         </div>
         <div *ngIf="(questions$ | async)?.length > 0; else noQuestions"></div>
