@@ -16,7 +16,7 @@ import {
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <main class="min-w-[40rem] overflow-hidden">
+        <main mat-dialog-content class="min-w-[40rem] overflow-x-hidden">
             <section>
                 <placeos-question
                     #questionElement
