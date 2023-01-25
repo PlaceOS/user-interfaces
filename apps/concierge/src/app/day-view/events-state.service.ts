@@ -266,13 +266,14 @@ export class EventsStateService extends BaseClass {
             },
             this._dialog
         );
-        if (details.reason !== 'done') return;
+        if (details.reason !== 'done') return false;
         details.loading('Deleting booking...');
         await removeEvent(event.id, {
             system_id: event.system?.id,
         }).toPromise();
         this.remove(event);
         details.close();
+        return true;
     }
 
     /**

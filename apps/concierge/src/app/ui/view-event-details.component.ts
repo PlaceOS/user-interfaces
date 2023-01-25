@@ -139,7 +139,10 @@ export class ViewEventDetailsComponent {
 
     public readonly edit = () => this._state.newBooking(this.event);
 
-    public readonly remove = () => this._state.removeBooking(this.event);
+    public readonly remove = async () => {
+        const close = await this._state.removeBooking(this.event);
+        if (close) this.close();
+    };
 
     public get building() {
         return this._org.building;
