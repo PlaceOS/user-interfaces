@@ -129,6 +129,7 @@ export class ScheduleComponent {
 
     public async remove(item: CalendarEvent | Booking) {
         const time = `${format(item.date, 'dd MMM yyyy h:mma')}`;
+
         const resource_name =
             item instanceof CalendarEvent
                 ? item.space?.display_name
