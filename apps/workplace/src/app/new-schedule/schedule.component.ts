@@ -2,7 +2,12 @@ import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Booking, removeBooking } from '@placeos/bookings';
-import { notifyError, notifySuccess, openConfirmModal } from '@placeos/common';
+import {
+    notifyError,
+    notifySuccess,
+    openConfirmModal,
+    SettingsService,
+} from '@placeos/common';
 import { CalendarEvent, EventFormService, removeEvent } from '@placeos/events';
 import { isSameDay, format } from 'date-fns';
 import { map } from 'rxjs/operators';
@@ -109,7 +114,8 @@ export class ScheduleComponent {
         private _state: ScheduleStateService,
         private _event_form: EventFormService,
         private _router: Router,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
+        private _settings: SettingsService
     ) {}
 
     public trackByFn(index: number, item: any) {
@@ -136,7 +142,10 @@ export class ScheduleComponent {
         if (resp.reason !== 'done') return;
         resp.loading('Requesting booking deletion...');
         await (item instanceof CalendarEvent ? removeEvent : removeBooking)(
-            item.id
+            item.id,
+            this._settings.get('app.no_user_calendar')
+                ? { system_id: (item as any).system?.id }
+                : undefined
         )
             .toPromise()
             .catch((e) => {

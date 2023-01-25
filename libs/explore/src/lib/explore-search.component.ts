@@ -13,7 +13,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
             matRipple
             class="bg-white m-2 flex items-center z-10 relative overflow-hidden outline-none"
             [class.show]="show || search_str"
-        >
+       > 
             <app-icon
                 class="text-2xl outline-none"
                 tabindex="0"
