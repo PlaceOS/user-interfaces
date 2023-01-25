@@ -49,7 +49,7 @@ export class ModQuestionOverlayComponent implements OnInit {
         @Inject(MAT_DIALOG_DATA) private _data: Question,
         private _dialog_ref: MatDialogRef<ModQuestionOverlayComponent>
     ) {
-        this.isEdit = !!this._data;
+        this.isEdit = !!(this._data?.id > 0);
         this.question = this._data || generateNewQuestion();
     }
 

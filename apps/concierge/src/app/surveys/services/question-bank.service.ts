@@ -5,19 +5,18 @@ import {
     BaseClass,
     notifyError,
     notifySuccess,
-    openConfirmModal,
+    openConfirmModal
 } from '@placeos/common';
-import { Question, QuestionType, translateToQuestion, translateToSurveyQuestion } from '@placeos/survey-suite';
+import { Question, translateToQuestion, translateToSurveyQuestion } from '@placeos/survey-suite';
 import {
     addQuestion,
     queryQuestions,
     removeQuestion,
-    SurveyQuestion,
+    SurveyQuestion
 } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { catchError,filter, finalize, first, map, tap } from 'rxjs/operators';
+import { catchError, filter, finalize, first, map, tap } from 'rxjs/operators';
 import { ModQuestionOverlayComponent } from '../overlays/mod-question-overlay.component';
-import { SurveyBuilderService } from './survey-builder.service';
 
 export interface QuestionFilter{
     search: string;
