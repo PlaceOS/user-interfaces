@@ -268,7 +268,9 @@ export class EventsStateService extends BaseClass {
         );
         if (details.reason !== 'done') return;
         details.loading('Deleting booking...');
-        await removeEvent(event.id, { system_id: event.system?.id });
+        await removeEvent(event.id, {
+            system_id: event.system?.id,
+        }).toPromise();
         this.remove(event);
         details.close();
     }
