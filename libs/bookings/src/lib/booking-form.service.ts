@@ -413,6 +413,7 @@ export class BookingFormService extends BaseClass {
             new Booking({
                 ...this._options.getValue(),
                 ...value,
+                description: value.asset_name || value.description,
                 user_name: value.user?.name,
                 user_id:
                     (!value.user?.id?.includes('@') ? value?.user?.id : '') ||
@@ -484,8 +485,8 @@ export class BookingFormService extends BaseClass {
                 user: user as any,
                 asset_id: asset?.id,
                 asset_name: asset.name,
-                map_id: asset?.map_id || asset?.id,
                 description: asset.name,
+                map_id: asset?.map_id || asset?.id,
                 zones: asset.zone
                     ? unique([
                           this._org.organisation.id,
