@@ -211,6 +211,7 @@ export class ExploreComponent extends BaseClass implements OnInit {
 
     public async ngOnInit() {
         await this._spaces.initialised.pipe(first((_) => _)).toPromise();
+        this._desks.setOptions({ custom: true });
         this.reset_delay =
             this._settings.get('app.inactivity_timeout_secs') || 180;
         this.resetKiosk();

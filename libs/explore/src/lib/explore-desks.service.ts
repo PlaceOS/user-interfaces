@@ -42,6 +42,7 @@ export interface DeskOptions {
     date?: number | Date;
     zones?: string[];
     host?: StaffUser;
+    custom?: boolean;
 }
 export interface DesksStats {
     free: number;
@@ -310,9 +311,10 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                     );
                 this._bookings.newForm();
                 this._bookings.setOptions({ type: 'desk' });
-                const { date, duration } = await this._setBookingTime(
+                const { date, duration, user } = await this._setBookingTime(
                     this._bookings.form.value.date,
-                    this._bookings.form.value.duration
+                    this._bookings.form.value.duration,
+                    this._options.getValue()?.custom ?? false
                 );
                 this._bookings.form.patchValue({
                     asset_id: desk.id,
@@ -321,7 +323,7 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                     duration,
                     map_id: desk?.map_id || desk?.id,
                     description: desk.name,
-                    user: options.host || currentUser(),
+                    user: user || options.host || currentUser(),
                     booking_type: 'desk',
                     zones: desk.zone
                         ? [desk.zone?.parent_id, desk.zone?.id]
@@ -354,7 +356,12 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
         this.timeout('update', () => this.updateStatus(), 100);
     }
 
-    private async _setBookingTime(date: number, duration: number) {
+    private async _setBookingTime(
+        date: number,
+        duration: number,
+        host: boolean = false
+    ) {
+        let user = null;
         if (!!this._settings.get('app.desks.allow_time_changes')) {
             const until = endOfDay(
                 addDays(
@@ -363,13 +370,14 @@ export class ExploreDesksService extends BaseClass implements OnDestroy {
                 )
             );
             const ref = this._dialog.open(SetDatetimeModalComponent, {
-                data: { date, duration, until },
+                data: { date, duration, until, host },
             });
             const details = await ref.afterClosed().toPromise();
             if (!details) throw 'User cancelled';
             date = details.date;
             duration = details.duration;
+            user = details.user;
         }
-        return { date, duration };
+        return { date, duration, user };
     }
 }
