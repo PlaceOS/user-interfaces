@@ -174,14 +174,16 @@ export class PanelViewStatusComponent {
     public readonly state = this._state.status;
     public readonly current = this._state.current;
     public readonly next = this._state.next;
+    public readonly bookings = this._state.bookings;
 
     public readonly event_state = combineLatest([
         this.current,
         this.next,
+        this.bookings,
         interval(5000),
     ]).pipe(
-        map(([c, n]) => ({
-            current: currentPeriod(c, n),
+        map(([c, n, l]) => ({
+            current: currentPeriod(l, c, n),
             next: nextPeriod(n),
         })),
         shareReplay(1)

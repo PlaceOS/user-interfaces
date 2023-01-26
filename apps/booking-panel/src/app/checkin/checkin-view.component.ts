@@ -282,9 +282,10 @@ export class CheckinViewComponent extends BaseClass implements OnInit {
     public readonly event_state = combineLatest([
         this._state.current,
         this._state.next,
+        this._state.bookings,
     ]).pipe(
-        map(([c, n]) => ({
-            current: currentPeriod(c, n),
+        map(([c, n, l]) => ({
+            current: currentPeriod(l, c, n),
             next: nextPeriod(n),
         }))
     );

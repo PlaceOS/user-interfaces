@@ -1,4 +1,4 @@
-import { CalendarEvent } from '@placeos/events';
+import { CalendarEvent, getNextFreeTimeSlot } from '@placeos/events';
 import {
     addMinutes,
     differenceInMinutes,
@@ -16,17 +16,19 @@ export function nextPeriod(next: CalendarEvent) {
         : '';
 }
 
-export function currentPeriod(current: CalendarEvent, next: CalendarEvent) {
+export function currentPeriod(
+    bookings: CalendarEvent[],
+    current: CalendarEvent,
+    next: CalendarEvent
+) {
+    const slot = getNextFreeTimeSlot(bookings);
     const next_diff = differenceInMinutes(next?.date, Date.now());
     if (!current)
         return next && next_diff < 24 * 60
             ? [false, Math.floor(next_diff / 60), next_diff % 60]
             : [];
     const checked_in = true;
-    const current_diff = differenceInMinutes(
-        current.event_end * 1000,
-        Date.now()
-    );
+    const current_diff = differenceInMinutes(slot.start, Date.now());
     return checked_in
         ? [true, Math.floor(current_diff / 60), current_diff % 60]
         : [];
