@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1674627112226,
+  "timestamp": 1674795633413,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -153,8 +153,8 @@
     "./assets/icons/today-filled.svg": "1410738877666c872263634fc33cfe9b2c3ac6f1",
     "./assets/icons/today-outline.svg": "40fc045c0b90aa2313cc5385260781ba5b55b8ad",
     "./assets/icons/visa.svg": "11187e2ea86894625af0aeb5b85c17bcbf8fe192",
-    "./assets/locale/en-US.json": "86a8866fc0cfdf1f68b244194d3b8f45a34aa1fa",
-    "./assets/locale/en.json": "cc59c6ef1e3e06902912b9592dcb54ceddef4e91",
+    "./assets/locale/en-US.json": "e323aee406f2a2ca1e792ab1d566b43d516bd184",
+    "./assets/locale/en.json": "053cad58f79ddeee666a3490f1c1f5a2c49accdd",
     "./assets/locale/es.json": "6c8d1222c4cc3ce7ee71e84ce3a710cbf0eb3e49",
     "./assets/locale/fr.json": "5210d149399ee461f0be48dd611ff94f32430826",
     "./assets/locale/pt.json": "cf5c780071ead9a8ccdd222c994be3c7cd1d6c4e",
@@ -176,12 +176,12 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "4e23d0f9b6ddaf3c9ddef90dbaed2342941297b5",
-    "./index.html": "583dc535d1ee974bd6aa0aada8692ce8d6a880ce",
-    "./main.js": "f7b5f5b11161716b70db2001c05a7d90947e3635",
+    "./index.html": "26bf6c32847a68a115281dc8590e1a156d38e981",
+    "./main.js": "c5f748d1107ee1d4971dc80aeed8f74469bb699b",
     "./manifest.webmanifest": "82971c858291f0ddb5d37cc8e43d81fce9a88bc5",
     "./polyfills.js": "0c2b0b8943aab2d9d03f001b6cd0e96fe6ea5988",
     "./runtime.js": "0560898620be9dc5a01c9c9255d46591291f9ff3",
-    "./styles.css": "210b7b589e9583ddcaf57f7bf707e77134b99e3d"
+    "./styles.css": "1b52bf68bfc3c70386c3baa5af77624206bc98ad"
   },
   "navigationUrls": [
     {
