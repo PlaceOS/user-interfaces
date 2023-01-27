@@ -36,7 +36,7 @@ import { searchStaff, StaffUser, User } from '@placeos/users';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { CalendarService } from '@placeos/calendar';
 import { ScheduleStateService } from '../new-schedule/schedule-state.service';
-import { isAfter } from 'date-fns';
+import { isAfter, isSameDay } from 'date-fns';
 
 export interface LandingOptions {
     search?: string;
@@ -94,7 +94,9 @@ export class LandingStateService extends BaseClass {
     );
     /**  */
     public readonly upcoming_events = this._schedule.filtered_bookings.pipe(
-        map((_) => _.filter((i) => i.state !== 'done'))
+        map((_) =>
+            _.filter((i) => i.state !== 'done' && isSameDay(i.date, Date.now()))
+        )
     );
     /**  */
     public contacts = this._contacts.asObservable();
