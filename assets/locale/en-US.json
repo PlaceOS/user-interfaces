@@ -20,7 +20,7 @@
         "WELCOME_MESSAGE": "Hello {{ name }},",
         "YOUR_BOOKINGS": "Your Bookings",
         "VIEW_ALL": "View All",
-        "NO_UPCOMING_BOOKINGS": "You have no upcoming bookings",
+        "NO_UPCOMING_BOOKINGS": "You have no upcoming meetings today",
         "AVAILABLE_NOW": "Available Now",
         "SPACES": "Spaces",
         "NO_FREE_SPACES": "No current available desks",
