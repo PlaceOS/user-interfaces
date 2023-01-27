@@ -47,6 +47,7 @@ body {
 }
 
 body {
+    touch-action: pan-x pan-y;
     background-color: #525252;
     &.dark {
         background-color: #525252;
