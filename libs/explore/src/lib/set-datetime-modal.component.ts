@@ -73,6 +73,7 @@ import { User } from 'libs/users/src/lib/user.class';
     styles: [``],
 })
 export class SetDatetimeModalComponent {
+    public host = this._data.host;
     public form = new FormGroup({
         user: new FormControl(this._data.user),
         date: new FormControl(this._data.date),
