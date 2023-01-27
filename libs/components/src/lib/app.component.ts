@@ -194,7 +194,6 @@ export class AppComponent extends BaseClass implements OnInit {
     private onInitError() {
         if (isMock() || currentUser()?.is_logged_in) return;
         invalidateToken();
-
         location.reload();
     }
 

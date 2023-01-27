@@ -261,11 +261,11 @@ export class MeetingFlowConfirmModalComponent extends BaseClass {
             );
             if (result.reason !== 'done') return;
         }
-        await this._event_form.postForm().catch((_) => {
+        const resp = await this._event_form.postForm().catch((_) => {
             notifyError(_);
-            throw _;
+            return false;
         });
-        this.dismiss(true);
+        if (resp) this.dismiss(true);
     };
     public readonly cancelPost = () => this._event_form.cancelPostForm();
     public readonly dismiss = (e?) => this._dialog_ref?.close(e);
