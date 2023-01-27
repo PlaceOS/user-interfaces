@@ -17,10 +17,11 @@ import {
     catchError,
 } from 'rxjs/operators';
 
-import { BaseClass, flatten } from '@placeos/common';
+import { BaseClass, flatten, SettingsService } from '@placeos/common';
 import { searchGuests } from 'libs/users/src/lib/guests.fn';
 import { searchStaff } from 'libs/users/src/lib/staff.fn';
 import { User } from 'libs/users/src/lib/user.class';
+import { authority, queryUsers } from '@placeos/ts-client';
 
 @Component({
     selector: 'a-user-search-field',
@@ -121,7 +122,8 @@ import { User } from 'libs/users/src/lib/user.class';
 })
 export class UserSearchFieldComponent
     extends BaseClass
-    implements OnInit, ControlValueAccessor {
+    implements OnInit, ControlValueAccessor
+{
     /** Whether form field is disabled */
     @Input() public disabled: boolean;
     /** Placeholder text to display */
@@ -140,7 +142,11 @@ export class UserSearchFieldComponent
     @Input() public filter: (_: any, s?: string) => boolean;
 
     @Input() public query_fn: (_: string) => Observable<User[]> = (q) =>
-        searchStaff(q);
+        this._settings.get('app.basic_user_search')
+            ? queryUsers({ q, authority_id: authority()?.id }).pipe(
+                  map((_) => _.data.map((_) => new User(_)))
+              )
+            : searchStaff(q);
     /** Currently selected user */
     public active_user: User;
     /** User list to display */
@@ -175,6 +181,10 @@ export class UserSearchFieldComponent
             );
         })
     );
+
+    constructor(private _settings: SettingsService) {
+        super();
+    }
 
     /** Form control on change handler */
     private _onChange: (_: User) => void;
