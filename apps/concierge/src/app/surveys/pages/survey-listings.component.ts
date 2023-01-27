@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BaseClass } from '@placeos/common';
 import { TriggerEnumMap } from '@placeos/survey-suite';
 import { shareReplay } from 'rxjs/operators';
@@ -155,6 +155,13 @@ import { SurveyListingsService } from '../services/survey-listings.service';
                                 <mat-menu #actionsMenu="matMenu">
                                     <button
                                         mat-menu-item
+                                        (click)="onViewStats(element.id)"
+                                    >
+                                        <mat-icon>analytics</mat-icon>
+                                        <span>Responses</span>
+                                    </button>
+                                    <button
+                                        mat-menu-item
                                         (click)="onEdit(element.id)"
                                     >
                                         <mat-icon>edit</mat-icon>
@@ -211,11 +218,14 @@ export class SurveyListingsComponent extends BaseClass implements OnInit {
     onDelete = (id: number) => this._service.deleteSurvey(id);
     newSurvey = () => this._service.newSurvey();
     back = () => this._service.back();
+    onViewStats = (id: number) =>
+        this._router.navigate(['surveys', 'responses', id]);
 
     displayedColumns: string[] = ['title', 'level', 'trigger', 'actions'];
 
     constructor(
         private _route: ActivatedRoute,
+        private _router: Router,
         private _service: SurveyListingsService
     ) {
         super();
