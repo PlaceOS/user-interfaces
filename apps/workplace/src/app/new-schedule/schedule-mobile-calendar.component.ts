@@ -15,16 +15,31 @@ import {
     selector: 'schedule-mobile-calendar',
     template: `
         <div class="p-2">
-            <button
-                class="flex items-center w-full p-2 rounded"
-                matRipple
-                (click)="show_shortlist = !show_shortlist"
-            >
-                <div class="px-2 font-medium">
+            <div class="flex items-center justify-between">
+                <button
+                    btn
+                    matRipple
+                    class="clear font-medium"
+                    (dblclick)="resetMonth()"
+                >
                     {{ date_list[6]?.id || active_date | date: 'LLLL YYYY' }}
+                </button>
+                <div class="flex items-center">
+                    <button icon matRipple (click)="changeMonth(-1)">
+                        <app-icon>chevron_left</app-icon>
+                    </button>
+                    <button icon matRipple (click)="changeMonth(1)">
+                        <app-icon>chevron_right</app-icon>
+                    </button>
+                    <button
+                        icon
+                        matRipple
+                        (click)="show_shortlist = !show_shortlist"
+                    >
+                        <app-icon>arrow_drop_down</app-icon>
+                    </button>
                 </div>
-                <app-icon>arrow_drop_down</app-icon>
-            </button>
+            </div>
             <div class="flex items-center justify-center text-sm mb-2">
                 <div
                     class="opacity-60 text-center w-10 mx-2"
@@ -109,6 +124,10 @@ export class ScheduleMobileCalendarComponent
         this.generateDates();
     }
 
+    public resetMonth() {
+        this.changeMonth(-this.offset);
+    }
+
     public changeMonth(change: number) {
         this.offset += change;
         this.generateDates();
@@ -124,7 +143,7 @@ export class ScheduleMobileCalendarComponent
         let start = startOfWeek(startOfMonth(date));
         const now = startOfDay(Date.now());
         let list = [];
-        while (list.length < 42) {
+        while (list.length < 7 * 6) {
             list.push({
                 id: start.valueOf(),
                 is_past: isBefore(start, now),
@@ -134,7 +153,10 @@ export class ScheduleMobileCalendarComponent
             start = addDays(start, 1);
         }
         this.date_list = list;
-        start = startOfWeek(date);
+        start =
+            this.offset === 0
+                ? startOfWeek(date)
+                : startOfWeek(startOfMonth(date));
         list = [];
         while (list.length < 7) {
             list.push({
