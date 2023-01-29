@@ -30,8 +30,8 @@ import { BookingAsset } from '../booking-form.service';
             <section
                 image
                 class="relative w-full bg-black/20"
-                [class.sm:h-40]="desk.images?.length"
-                [class.h-64]="desk.images?.length"
+                [class.sm:h-64]="desk.images?.length"
+                [class.h-40]="desk.images?.length"
                 [class.sm:h-0]="!desk.images?.length"
                 [class.h-12]="!desk.images?.length"
                 [class.!bg-transparent]="!desk.images?.length"
@@ -118,7 +118,7 @@ import { BookingAsset } from '../booking-form.service';
                 </section>
             </div>
             <div
-                class="p-2 border-t border-gray-200 dark:border-neutral-500 shadow sm:hidden"
+                class="px-2 pt-2 pb-[5.5rem] border-t border-gray-200 dark:border-neutral-500 shadow sm:hidden"
             >
                 <button
                     btn

@@ -17,8 +17,8 @@ import { Space } from '../space.class';
             <section
                 image
                 class="relative w-full bg-black/20"
-                [class.sm:h-40]="space.images?.length"
-                [class.h-64]="space.images?.length"
+                [class.sm:h-64]="space.images?.length"
+                [class.h-40]="space.images?.length"
                 [class.sm:h-0]="!space.images?.length"
                 [class.h-12]="!space.images?.length"
                 [class.!bg-transparent]="!space.images?.length"
@@ -108,7 +108,9 @@ import { Space } from '../space.class';
                     ></interactive-map>
                 </section>
             </div>
-            <div class="p-2 border-t border-gray-200 shadow sm:hidden">
+            <div
+                class="px-2 pt-2 pb-[5.5rem] border-t border-gray-200 shadow sm:hidden"
+            >
                 <button
                     btn
                     matRipple

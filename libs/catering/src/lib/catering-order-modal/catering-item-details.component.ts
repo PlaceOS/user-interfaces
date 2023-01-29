@@ -158,7 +158,9 @@ interface CateringOptionGroup {
                     </div>
                 </section>
             </div>
-            <div class="p-2 border-t border-gray-200 shadow sm:hidden">
+            <div
+                class="px-2 pt-2 pb-[5.5rem] border-t border-gray-200 shadow sm:hidden"
+            >
                 <button
                     btn
                     matRipple

@@ -64,7 +64,7 @@ const EMPTY_FAVS: string[] = [];
                 ></catering-item-details>
             </main>
             <footer
-                class="flex sm:hidden flex-col-reverse items-center justify-end p-2 border-t border-gray-200 dark:border-neutral-500 w-full"
+                class="flex sm:hidden flex-col-reverse items-center justify-end px-2 pt-2 pb-[5.5rem] border-t border-gray-200 dark:border-neutral-500 w-full"
             >
                 <button
                     btn
