@@ -20,7 +20,7 @@ import {
                     btn
                     matRipple
                     class="clear font-medium"
-                    (dblclick)="resetMonth()"
+                    (click)="resetMonth()"
                 >
                     {{ date_list[6]?.id || active_date | date: 'LLLL YYYY' }}
                 </button>
