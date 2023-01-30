@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1675035749136,
+  "timestamp": 1675040104421,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -143,8 +143,8 @@
     "./assets/icons/today-filled.svg": "1410738877666c872263634fc33cfe9b2c3ac6f1",
     "./assets/icons/today-outline.svg": "40fc045c0b90aa2313cc5385260781ba5b55b8ad",
     "./assets/icons/visa.svg": "11187e2ea86894625af0aeb5b85c17bcbf8fe192",
-    "./assets/locale/en-US.json": "012b6b6b26d6173069192ade5afaccf7d6ba35d9",
-    "./assets/locale/en.json": "d02b9645ee8a9ebe8d6739a2a4122444616016b3",
+    "./assets/locale/en-US.json": "dce1723eebfc34671df3d6cb978a29c92a070220",
+    "./assets/locale/en.json": "c6df45cf02c4273b9ca4170758963415075c9dee",
     "./assets/locale/es.json": "6c8d1222c4cc3ce7ee71e84ce3a710cbf0eb3e49",
     "./assets/locale/fr.json": "5210d149399ee461f0be48dd611ff94f32430826",
     "./assets/locale/pt.json": "cf5c780071ead9a8ccdd222c994be3c7cd1d6c4e",
@@ -172,7 +172,7 @@
     "./assets/tick_success.svg": "84c88546933b8055d960b3194eca112f05ae685f",
     "./favicon.ico": "4e23d0f9b6ddaf3c9ddef90dbaed2342941297b5",
     "./index.html": "acffc5b9a23e1aaebd147426cd5d40bbeab8e65c",
-    "./main.js": "e77f676941b97ea4dc7e2e0b1042a93fdbfe2445",
+    "./main.js": "af593c3942607a060e5b6f48038c52b8ed159884",
     "./manifest.webmanifest": "2014fddbdc89ea5ee44c8f7270013dada56d40e1",
     "./polyfills.js": "0097124319dbce405855793dc3767c08d6157244",
     "./runtime.js": "20ef58bb3340d47d24198403395819decd3f526c",
