@@ -53,7 +53,9 @@ export class HelpTooltipComponent {
         return this._settings.get('app.help.tiles') || [];
     }
 
-    public readonly close = () => this._data?.close();
+    public readonly close = () => {
+        this._data?.close();
+    };
 
     constructor(
         @Inject(CustomTooltipData) private _data: any,
