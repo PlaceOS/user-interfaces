@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ReportsStateService } from '../reports-state.service';
 
-import * as Chartist from 'chartist';
+import { LineChart, PieChart } from 'chartist';
 import { BaseClass } from '@placeos/common';
 import { format } from 'date-fns';
 import { OrganisationService } from '@placeos/organisation';
@@ -74,7 +74,7 @@ export class ReportDesksChartsComponent extends BaseClass {
             labels: list.map((_) => format(_.date, 'dd MMM')),
             series: [list.map((_) => _.utilisation)],
         };
-        this._day_chart = new Chartist.Line('#day-chart', data);
+        this._day_chart = new LineChart('#day-chart', data);
     }
 
     public updateLevelChart(mapping, count) {
@@ -90,6 +90,6 @@ export class ReportDesksChartsComponent extends BaseClass {
             }),
             series: (zones || []).map((_) => count[_]),
         };
-        this._level_chart = new Chartist.Pie('#level-chart', data);
+        this._level_chart = new PieChart('#level-chart', data);
     }
 }
