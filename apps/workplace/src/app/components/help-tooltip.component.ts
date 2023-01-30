@@ -20,6 +20,8 @@ import { CustomTooltipData } from '@placeos/components';
                 matRipple
                 *ngFor="let tile of tiles"
                 class="clear w-full text-left h-auto"
+                target="_blank"
+                ref="noreferer noopener"
                 [href]="tile.link"
             >
                 <div
