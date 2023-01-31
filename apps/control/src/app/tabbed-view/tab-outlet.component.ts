@@ -56,6 +56,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                         Available Inputs
                     </h3>
                     <button
+                        btn
                         matRipple
                         class="w-full"
                         *ngFor="let input of inputs | async"
