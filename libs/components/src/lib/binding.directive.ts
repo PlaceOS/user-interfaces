@@ -20,7 +20,8 @@ import { filter, first } from 'rxjs/operators';
 })
 export class BindingDirective<T = any>
     extends BaseClass
-    implements OnInit, OnChanges, OnDestroy {
+    implements OnInit, OnChanges, OnDestroy
+{
     /** ID of the system to bind */
     @Input() public sys: string = '';
     /** Class name of the module to bind */
@@ -31,6 +32,8 @@ export class BindingDirective<T = any>
     @Input() public bind: string = '';
     /** Method to execute */
     @Input() public exec: string = '';
+    /** Method to execute */
+    @Input() public delay: number = 0;
     /** Event to listen for on the parent */
     @Input('onEvent') public on_event: string = '';
     /** ID of the system to bind to */
@@ -118,15 +121,21 @@ export class BindingDirective<T = any>
     /** Excute the set method on the module */
     private execute() {
         if (authority() && this.exec && this.sys && this.mod) {
-            const module = getModule(this.sys, this.mod, this.index);
-            if (this.bind) this.params = this.params || [this.model];
-            module.execute(this.exec, this.params).then((result) => {
-                // Emit exec result if not bound to status variable
-                if (!this.bind) {
-                    this.model = result;
-                    this.modelChange.emit(this.model);
-                }
-            });
+            this.timeout(
+                'execute',
+                () => {
+                    const module = getModule(this.sys, this.mod, this.index);
+                    if (this.bind) this.params = this.params || [this.model];
+                    module.execute(this.exec, this.params).then((result) => {
+                        // Emit exec result if not bound to status variable
+                        if (!this.bind) {
+                            this.model = result;
+                            this.modelChange.emit(this.model);
+                        }
+                    });
+                },
+                this.delay
+            );
         }
     }
     /**

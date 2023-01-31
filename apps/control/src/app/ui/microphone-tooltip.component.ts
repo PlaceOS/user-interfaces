@@ -54,6 +54,7 @@ import { ControlStateService } from '../control-state.service';
                             [mod]="mic.mod"
                             bind="volume"
                             exec="volume"
+                            [delay]="50"
                             [(model)]="volume[mic.id]"
                         ></i>
                         <i
