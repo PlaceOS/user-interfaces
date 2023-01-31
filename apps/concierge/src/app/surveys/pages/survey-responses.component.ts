@@ -40,6 +40,10 @@ import { SurveyResponsesService } from "../services/survey-responses.service";
                                 <p>{{ (stats$ | async)?.answer_count || 0 }}</p>
                             </div>
                         </div>
+                        <div class="flex flex-wrap w-full p-4">
+                            <survey-widget class="w-1/3 md:w-1/2 sm:w-full" *ngFor="let r of responses" [response]="r"></survey-widget>
+                        </div>
+
                     </ng-container>
                 
                 </ng-container>

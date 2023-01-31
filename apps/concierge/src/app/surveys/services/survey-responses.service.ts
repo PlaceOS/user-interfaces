@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { notifyError } from "@placeos/common";
-import { Question, UISurveyAnswer, UISurveyResponse } from "@placeos/survey-suite";
-import { queryAnswers, queryQuestions, showSurvey, Survey } from "@placeos/ts-client";
+import { Question, translateToQuestion, UISurveyAnswer, UISurveyResponse } from "@placeos/survey-suite";
+import { queryAnswers, queryQuestions, showSurvey, Survey, SurveyQuestion } from "@placeos/ts-client";
 import { BehaviorSubject, forkJoin, of } from "rxjs";
 import { catchError, finalize, first, map, tap } from "rxjs/operators";
 
@@ -26,8 +26,7 @@ export class SurveyResponsesService{
             let answer_count = 0;
             responses.forEach(r => answer_count += r.answers?.length || 0);
             return {answer_count};
-        }),
-        tap(v => console.log("stats ",v))
+        })
     )
 
     constructor(){}
@@ -36,6 +35,10 @@ export class SurveyResponsesService{
         this.loading = 'Loading survey responses';
         const res = await forkJoin([
             queryQuestions({survey_id}).pipe(
+                map(
+                    (res: SurveyQuestion[]) =>
+                        res?.map((e) => translateToQuestion(e)) || []
+                ),
                 catchError(err => this.handleError('Error loading survey questions'))
             ),
             queryAnswers({survey_id}).pipe(
