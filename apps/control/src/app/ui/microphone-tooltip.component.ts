@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { BaseClass } from '@placeos/common';
 import { CustomTooltipData } from '@placeos/components';
 
 import { ControlStateService } from '../control-state.service';
@@ -54,7 +55,7 @@ import { ControlStateService } from '../control-state.service';
                             [mod]="mic.mod"
                             bind="volume"
                             exec="volume"
-                            [delay]="50"
+                            [ignore]="changing"
                             [(model)]="volume[mic.id]"
                         ></i>
                         <i
@@ -98,7 +99,9 @@ import { ControlStateService } from '../control-state.service';
                                 matSliderThumb
                                 [ngModel]="!mute[i] ? volume[i] : 0"
                                 (ngModelChange)="
-                                    volume[i] = $event; mute[i] = false
+                                    volume[i] = $event;
+                                    mute[i] = false;
+                                    onChange()
                                 "
                         /></mat-slider>
                     </div>
@@ -133,7 +136,7 @@ import { ControlStateService } from '../control-state.service';
     `,
     styles: [``],
 })
-export class MicrophoneTooltipComponent {
+export class MicrophoneTooltipComponent extends BaseClass {
     /** List of microphone inputs */
     public readonly mic_list = this._state.mic_list;
     /** List of microphones */
@@ -145,6 +148,8 @@ export class MicrophoneTooltipComponent {
     /** Close the tooltip */
     public readonly close = () => this._tooltip.close();
 
+    public changing = false;
+
     public get id(): string {
         return this._state.id;
     }
@@ -152,5 +157,12 @@ export class MicrophoneTooltipComponent {
     constructor(
         private _state: ControlStateService,
         private _tooltip: CustomTooltipData
-    ) {}
+    ) {
+        super();
+    }
+
+    public onChange() {
+        this.changing = true;
+        this.timeout('change', () => (this.changing = false), 1000);
+    }
 }

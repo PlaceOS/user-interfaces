@@ -38,6 +38,7 @@ export class BindingDirective<T = any>
     @Input('onEvent') public on_event: string = '';
     /** ID of the system to bind to */
     @Input() public params: any[] = [];
+    @Input() public ignore: boolean = false;
     /** Current value of the binding */
     @Input() public model: T | null = null;
     /** Emitter for changes to the value of the binding */
@@ -106,6 +107,7 @@ export class BindingDirective<T = any>
                                 setTimeout(() => {
                                     this._binding = false;
                                     this.clearTimeout('bound');
+                                    if (this.ignore) return;
                                     this.model = value;
                                     this.modelChange.emit(this.model);
                                 }, 10);

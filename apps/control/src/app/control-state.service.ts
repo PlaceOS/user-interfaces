@@ -115,6 +115,7 @@ export class ControlStateService extends BaseClass {
     private _url = new BehaviorSubject<string>('');
     private _active_output = new BehaviorSubject<string>('');
     private _calendar = new BehaviorSubject<Calendar>(null);
+    private _ignore_changes: string[] = [];
 
     /** General data associated with the active system */
     public readonly system = this._system.asObservable();
@@ -364,29 +365,29 @@ export class ControlStateService extends BaseClass {
     }
 
     public setVolume(value: number = 0, source: string = '') {
+        const outputs = this._output_data.getValue();
+        if (!source) {
+            this._volume.next(value);
+            source = outputs[0]?.id || '';
+        }
+        if (source) {
+            const data = outputs.find((_) => _.id === source);
+            if (data) {
+                this.updateSourceData('output', data.id, {
+                    ...data,
+                    volume: value,
+                });
+            }
+        }
+        this._execute('volume', source ? [value, source] : [value]).then();
+        this._ignore_changes.push('volume');
         this.timeout(
-            `set-volume:${source}`,
-            () => {
-                const outputs = this._output_data.getValue();
-                if (!source) {
-                    this._volume.next(value);
-                    source = outputs[0]?.id || '';
-                }
-                if (source) {
-                    const data = outputs.find((_) => _.id === source);
-                    if (data) {
-                        this.updateSourceData('output', data.id, {
-                            ...data,
-                            volume: value,
-                        });
-                    }
-                }
-                this._execute(
-                    'volume',
-                    source ? [value, source] : [value]
-                ).then();
-            },
-            50
+            `set-volume`,
+            () =>
+                (this._ignore_changes = this._ignore_changes.filter(
+                    (_) => _ !== 'volume'
+                )),
+            500
         );
     }
 
@@ -521,6 +522,7 @@ export class ControlStateService extends BaseClass {
 
     /** Update properties of the system data */
     private updateProperty(name: string, value: any) {
+        if (this._ignore_changes.includes(name)) return;
         const item = { ...this._system.getValue() };
         item[name] = value;
         this._system.next(item);
