@@ -364,21 +364,30 @@ export class ControlStateService extends BaseClass {
     }
 
     public setVolume(value: number = 0, source: string = '') {
-        const outputs = this._output_data.getValue();
-        if (!source) {
-            this._volume.next(value);
-            source = outputs[0]?.id || '';
-        }
-        if (source) {
-            const data = outputs.find((_) => _.id === source);
-            if (data) {
-                this.updateSourceData('output', data.id, {
-                    ...data,
-                    volume: value,
-                });
-            }
-        }
-        return this._execute('volume', source ? [value, source] : [value]);
+        this.timeout(
+            `set-volume:${source}`,
+            () => {
+                const outputs = this._output_data.getValue();
+                if (!source) {
+                    this._volume.next(value);
+                    source = outputs[0]?.id || '';
+                }
+                if (source) {
+                    const data = outputs.find((_) => _.id === source);
+                    if (data) {
+                        this.updateSourceData('output', data.id, {
+                            ...data,
+                            volume: value,
+                        });
+                    }
+                }
+                this._execute(
+                    'volume',
+                    source ? [value, source] : [value]
+                ).then();
+            },
+            50
+        );
     }
 
     /** Execute driver method */
