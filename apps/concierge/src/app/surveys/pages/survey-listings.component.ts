@@ -38,11 +38,11 @@ import { SurveyListingsService } from '../services/survey-listings.service';
                     <span>{{ loading$ | async }}</span>
                 </div>
             </div>
-            <div class="flex flex-col bg-white w-full max-w-[68rem] m-auto ">
+            <div class="flex flex-col bg-white w-full max-w-[70rem] m-auto ">
                 <header
-                    class="flex items-center justify-between px-4 pt-8 mb-4 w-full"
+                    class="flex items-center justify-between pt-8 mb-4 w-full"
                 >
-                    <div class="flex items-center">
+                    <div class="flex items-start">
                         <button icon matRipple (click)="back()">
                             <app-icon class="flex mr-2">arrow_back</app-icon>
                         </button>
@@ -52,10 +52,12 @@ import { SurveyListingsService } from '../services/survey-listings.service';
                                 else unknownBuilding
                             "
                         >
-                            <span class="text-2xl"
-                                >{{ building.display_name || building.name }} -
-                                Survey Listing</span
-                            >
+                            <div class="flex flex-col">
+                                <span class="text-2xl"
+                                    >Survey Listing
+                                </span>
+                                <span class="text-4xl">{{ building.display_name || building.name }}</span>
+                            </div>
                         </ng-container>
                         <ng-template #unknownBuilding>
                             <span class="text-2xl">Survey Listing</span>
@@ -70,7 +72,7 @@ import { SurveyListingsService } from '../services/survey-listings.service';
                     </div>
                 </header>
 
-                <div class="flex flex-col w-full">
+                <div class="flex flex-col w-full pl-6">
                     <table mat-table [dataSource]="surveys$ | async">
                         <ng-container matColumnDef="title">
                             <th

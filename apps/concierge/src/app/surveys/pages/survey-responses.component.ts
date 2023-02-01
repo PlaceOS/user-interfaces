@@ -34,11 +34,11 @@ import { SurveyResponsesService } from '../services/survey-responses.service';
                     <button icon matRipple (click)="back()">
                         <app-icon class="flex mr-2">arrow_back</app-icon>
                     </button>
-                    <div class="flex flex-col">
-                        <span class="text-2xl">Survey Responses</span>
-                        <span class="text-4xl">{{
-                            (survey$ | async)?.title || ''
-                        }}</span>
+                    <div class="flex flex-row items-center">
+                        <span class="text-2xl"
+                            >Survey Responses -
+                            {{ (survey$ | async)?.title || '' }}</span
+                        >
                     </div>
                 </header>
                 <ng-container *ngIf="responses$ | async as responses">
@@ -54,6 +54,12 @@ import { SurveyResponsesService } from '../services/survey-responses.service';
                                 <h3>Total Answers</h3>
                                 <p class="text-4xl">
                                     {{ (stats$ | async)?.answer_count || 0 }}
+                                </p>
+                            </div>
+                            <div class="flex flex-col items-center flex-1">
+                                <h3>Triggers On</h3>
+                                <p class="text-2xl">
+                                    {{ (survey$ | async)?.trigger }}
                                 </p>
                             </div>
                         </div>
