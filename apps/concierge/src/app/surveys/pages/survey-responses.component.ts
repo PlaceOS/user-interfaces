@@ -30,7 +30,7 @@ import { SurveyResponsesService } from '../services/survey-responses.service';
                 </div>
             </div>
             <ng-container *ngIf="surveyId$ | async; else noId">
-                <header class="flex items-start w-full">
+                <header class="flex items-center w-full">
                     <button icon matRipple (click)="back()">
                         <app-icon class="flex mr-2">arrow_back</app-icon>
                     </button>
