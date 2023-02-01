@@ -439,7 +439,10 @@ export class EventFormService extends BaseClass {
             const query = id
                 ? is_owner
                     ? { calendar: host || creator }
-                    : { system_id: space_id }
+                    : {
+                          system_id:
+                              this._event.getValue()?.system?.id || space_id,
+                      }
                 : {};
             const value = this._form.getRawValue();
             console.log(
