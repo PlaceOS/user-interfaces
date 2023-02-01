@@ -13,6 +13,10 @@ import { QuestionComponent } from './question/question.component';
 import { RatingsComponent } from './question/rating.component';
 import { SelectionComponent } from './question/selection.component';
 import { SingleLineTextComponent } from './question/single-line-text.component';
+import { RatingsWidgetComponent } from './survey-widget/ratings-widget.component';
+import { SelectionWidgetComponent } from './survey-widget/selection.widget.component';
+import { SurveyWidgetComponent } from './survey-widget/survey-widget.component';
+import { TableWidgetComponent } from './survey-widget/table-widget.component';
 
 @NgModule({
     imports: [
@@ -33,7 +37,11 @@ import { SingleLineTextComponent } from './question/single-line-text.component';
         SelectionComponent,
         MultiLineTextComponent,
         RatingsComponent,
+        SurveyWidgetComponent,
+        SelectionWidgetComponent,
+        RatingsWidgetComponent,
+        TableWidgetComponent
     ],
-    exports: [QuestionComponent],
+    exports: [QuestionComponent,SurveyWidgetComponent],
 })
 export class SurveySuiteModule {}

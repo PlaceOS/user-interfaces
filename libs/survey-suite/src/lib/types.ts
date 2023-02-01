@@ -28,6 +28,21 @@ export const TriggerOptions = getEnumOptions(TriggerEnum);
 export const QuestionTypeEnumMap = getEnumMap(QuestionType);
 export const TriggerEnumMap = getEnumMap(TriggerEnum);
 
+export interface UISurveyStats{
+    answer_count: number;
+}
+export interface UISurveyResponse{
+    question:Question,
+    answers: UISurveyAnswer[];
+}
+export interface UISurveyAnswer{
+    id:number;
+    question_id: number;
+    survey_id:number;
+    type:string;
+    answer_json: any;
+}
+
 export interface UISurveyObj{
     id: number;
     title: string;
