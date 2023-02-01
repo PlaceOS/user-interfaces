@@ -492,6 +492,7 @@ export class EventFormService extends BaseClass {
             const result = await this._makeBooking(
                 new CalendarEvent({
                     ...value,
+                    old_system: this._event.getValue()?.system,
                     host:
                         this._settings.get('app.events.force_host') ||
                         (this._settings.get('app.events.room_as_host')
