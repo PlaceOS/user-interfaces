@@ -33,7 +33,7 @@ export class BindingDirective<T = any>
     /** Method to execute */
     @Input() public exec: string = '';
     /** Method to execute */
-    @Input() public delay: number = 0;
+    @Input() public delay: number = 100;
     /** Event to listen for on the parent */
     @Input('onEvent') public on_event: string = '';
     /** ID of the system to bind to */
@@ -122,7 +122,13 @@ export class BindingDirective<T = any>
 
     /** Excute the set method on the module */
     private execute() {
-        if (authority() && this.exec && this.sys && this.mod) {
+        if (
+            authority() &&
+            this.exec &&
+            this.sys &&
+            this.mod &&
+            !this._timers['execute']
+        ) {
             this.timeout(
                 'execute',
                 () => {
