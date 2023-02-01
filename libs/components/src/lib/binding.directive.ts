@@ -37,7 +37,7 @@ export class BindingDirective<T = any>
     /** Event to listen for on the parent */
     @Input('onEvent') public on_event: string = '';
     /** ID of the system to bind to */
-    @Input() public params: any[] = [];
+    @Input() public params: any[] = null;
     @Input() public ignore: boolean = false;
     /** Current value of the binding */
     @Input() public model: T | null = null;
@@ -45,6 +45,7 @@ export class BindingDirective<T = any>
     @Output() public modelChange = new EventEmitter<T | null>();
 
     private _binding = false;
+    private _old_model: T | null = null;
 
     constructor(
         private _element: ElementRef<HTMLElement>,
@@ -65,9 +66,10 @@ export class BindingDirective<T = any>
         }
         if (
             changes.model &&
-            changes.model.previousValue !== this.model &&
+            this._old_model !== this.model &&
             this.model != null
         ) {
+            this._old_model = this.model;
             this.execute();
         }
         if (changes.on_event && this.on_event) {
@@ -109,6 +111,7 @@ export class BindingDirective<T = any>
                                     this.clearTimeout('bound');
                                     if (this.ignore) return;
                                     this.model = value;
+                                    this._old_model = this.model;
                                     this.modelChange.emit(this.model);
                                 }, 10);
                             })
@@ -133,11 +136,13 @@ export class BindingDirective<T = any>
                 'execute',
                 () => {
                     const module = getModule(this.sys, this.mod, this.index);
-                    if (this.bind) this.params = this.params || [this.model];
-                    module.execute(this.exec, this.params).then((result) => {
+                    let params = this.params;
+                    if (this.bind) params = this.params || [this.model];
+                    module.execute(this.exec, params).then((result) => {
                         // Emit exec result if not bound to status variable
                         if (!this.bind) {
                             this.model = result;
+                            this._old_model = this.model;
                             this.modelChange.emit(this.model);
                         }
                     });
@@ -145,14 +150,5 @@ export class BindingDirective<T = any>
                 this.delay
             );
         }
-    }
-    /**
-     * Update local value when form control value is changed
-     * @param value The new value for the component
-     */
-    public writeValue(value: T) {
-        this.model = value;
-        this.modelChange.emit(this.model);
-        this.execute();
     }
 }

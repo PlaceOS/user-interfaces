@@ -42,8 +42,7 @@ import { ControlStateService } from '../control-state.service';
                                 matSliderThumb
                                 [ngModel]="!mute[mic.id] ? volume[mic.id] : 0"
                                 (ngModelChange)="
-                                    volume[mic.id] = $event;
-                                    mute[mic.id] = false
+                                    setVolume(mic.id, $event); onChange()
                                 "
                             />
                         </mat-slider>
@@ -110,6 +109,7 @@ import { ControlStateService } from '../control-state.service';
                             [mod]="mic.module_id"
                             [bind]="mic.level_feedback"
                             exec="fader"
+                            [ignore]="changing"
                             [params]="[mic.level_id, volume[i]]"
                             [(model)]="volume[i]"
                         ></i>
@@ -143,8 +143,6 @@ export class MicrophoneTooltipComponent extends BaseClass {
     public readonly volume = {};
     /** Mapping of microphones to their mute state */
     public readonly mute = {};
-
-    public readonly first = {};
     /** Close the tooltip */
     public readonly close = () => this._tooltip.close();
 
@@ -162,9 +160,6 @@ export class MicrophoneTooltipComponent extends BaseClass {
     }
 
     public setVolume(idx: number, value: number) {
-        if (this.volume[idx] === value || !this.first[idx]) {
-            return (this.first[idx] = true);
-        }
         this.volume[idx] = value;
         this.mute[idx] = false;
     }
