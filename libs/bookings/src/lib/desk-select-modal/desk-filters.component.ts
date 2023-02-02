@@ -38,7 +38,7 @@ import { BookingFormService } from '../booking-form.service';
             <div class="flex-1"></div>
         </div>
         <form
-            class="max-h-[65vh] p-2 overflow-y-auto overflow-x-hidden divide-y divide-gray-200 w-full max-w-[100vw]"
+            class="max-h-[65vh] p-2 overflow-y-auto overflow-x-hidden divide-y divide-gray-200 w-full max-w-[100vw] sm:max-w-[30vw]"
             [formGroup]="form"
         >
             <section details>
