@@ -42,35 +42,48 @@ import { SurveyResponsesService } from '../services/survey-responses.service';
                         >
                     </div>
                 </header>
-                <ng-container *ngIf="responses$ | async as responses">
-                    <ng-container *ngIf="responses?.length > 0; else noRecords">
-                        <div class="flex p-4 border-b justify-end space-x-2">
-                            <div class="flex flex-col items-center flex-1">
-                                <h3>Total Questions</h3>
-                                <p class="text-4xl">
-                                    {{ (stats$ | async)?.question_count || 0 }}
-                                </p>
+                <div class="flex p-4 border-b justify-end space-x-2">
+                    <div class="flex flex-col items-center flex-1">
+                        <h3>Total Questions</h3>
+                        <p class="text-4xl">
+                            {{ (stats$ | async)?.question_count || 0 }}
+                        </p>
+                    </div>
+                    <div class="flex flex-col items-center flex-1">
+                        <h3>Total Responses</h3>
+                        <p class="text-4xl">
+                            {{ (stats$ | async)?.answer_count || 0 }}
+                        </p>
+                    </div>
+                    <div class="flex flex-col items-center flex-1">
+                        <h3>Triggers On</h3>
+                        <p class="text-2xl">
+                            {{ triggerMap[(survey$ | async)?.trigger] }}
+                        </p>
+                    </div>
+                </div>
+
+                <ng-container *ngIf="pagedResponses$ | async as pagedResponses">
+                    <ng-container
+                        *ngIf="pagedResponses?.length > 0; else noRecords"
+                    >
+                        <ng-container *ngFor="let p of pagedResponses; let i = index;">
+                            <div
+                                class="flex w-full px-3 pt-2 space-x-2"
+                                *ngIf="pagedResponses.length > 1"
+                            >
+                                <span class="font-thin text-xl">Page {{i+1}} {{
+                                    (p.title?.length) ? '- ' + p.title : ''
+                                }}</span>
                             </div>
-                            <div class="flex flex-col items-center flex-1">
-                                <h3>Total Responses</h3>
-                                <p class="text-4xl">
-                                    {{ (stats$ | async)?.answer_count || 0 }}
-                                </p>
+                            <div class="flex flex-wrap w-full pt-2">
+                                <survey-widget
+                                    class="w-full lg:w-1/2 2xl:w-1/3"
+                                    *ngFor="let r of p.responses"
+                                    [response]="r"
+                                ></survey-widget>
                             </div>
-                            <div class="flex flex-col items-center flex-1">
-                                <h3>Triggers On</h3>
-                                <p class="text-2xl">
-                                    {{ triggerMap[(survey$ | async)?.trigger] }}
-                                </p>
-                            </div>
-                        </div>
-                        <div class="flex flex-wrap w-full pt-4">
-                            <survey-widget
-                                class="w-full lg:w-1/2 2xl:w-1/3"
-                                *ngFor="let r of responses"
-                                [response]="r"
-                            ></survey-widget>
-                        </div>
+                        </ng-container>
                     </ng-container>
                 </ng-container>
             </ng-container>
@@ -100,11 +113,11 @@ import { SurveyResponsesService } from '../services/survey-responses.service';
 export class SurveyResponsesComponent extends BaseClass implements OnInit {
     surveyId$ = this.route.params.pipe(map((params) => params.id || ''));
     survey$ = this.service.survey$;
-    responses$ = this.service.responses$;
+    pagedResponses$ = this.service.paged_responses$;
     stats$ = this.service.stats$.pipe(shareReplay(1));
     loading$ = this.service.loading$.pipe(shareReplay(1));
-    
-    triggerMap = TriggerEnumMap
+
+    triggerMap = TriggerEnumMap;
 
     constructor(
         private service: SurveyResponsesService,

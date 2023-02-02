@@ -26,18 +26,19 @@ import { parseSelectionAnswers } from './survey-helper';
             <ng-container *ngIf="chart_data$ | async as data">
                 <div
                     *ngFor="let d of data"
-                    class="flex flex-1 border-b mx-4 py-2 space-x-4"
+                    class="flex flex-1 mx-4 pt-2 pb-3 space-x-4"
                 >
-                    <div class="flex flex-1 flex-col">
+                    <div class="flex flex-1 flex-col space-y-1">
                         <span>{{ d.name }}</span>
-                        <div class="progress-bar bg-gray-200 h-2">
+                        <div class="progress-bar bg-gray-200 h-1">
                             <span
-                                class="progress-bar-fill h-2 rounded-lg"
+                                class="progress-bar-fill h-1 rounded-lg"
                                 [ngClass]="{
-                                    'bg-red-500': d.percentage < 30,
-                                    'bg-yellow-500':
-                                        d.percentage >= 30 && d.percentage < 60,
-                                    'bg-green-500': d.percentage >= 60
+                                    'bg-red-500': d.percentage <= 25,
+                                    'bg-yellow-400':
+                                        d.percentage > 25 && d.percentage <= 50,
+                                    'bg-blue-400': d.percentage > 50 && d.percentage <= 75,
+                                    'bg-green-500': d.percentage > 75
                                 }"
                                 [ngStyle]="{ width: d.percentage + '%' }"
                             ></span>
