@@ -1,3 +1,4 @@
+import { randomString } from '@placeos/common';
 import { MapLocation } from './location.class';
 import { USER_DOMAIN } from './user.utilities';
 
@@ -67,7 +68,7 @@ export class User {
     public readonly resource: boolean;
 
     constructor(data: Partial<UserComplete> = {}) {
-        this.id = data.id || '';
+        this.id = data.id || data.email || `USER::${randomString(8)}`;
         this.name = data.name || '';
         this.email = data.email || '';
         this.first_name = data.first_name || data.name || '';

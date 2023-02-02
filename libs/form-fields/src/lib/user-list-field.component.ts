@@ -303,9 +303,7 @@ export class UserListFieldComponent
      * @param user
      */
     public addUser(user: User) {
-        const list = this.active_list.filter(
-            (_) => _.email !== (user.email || 'Empty')
-        );
+        const list = this.active_list.filter((_) => _.id !== user.id);
         this.setValue([
             ...list,
             new User({
@@ -332,9 +330,7 @@ export class UserListFieldComponent
      * @param user
      */
     public removeUser(user: User) {
-        const list = this.active_list.filter(
-            (a_user) => a_user.email !== user.email
-        );
+        const list = this.active_list.filter((a_user) => a_user.id !== user.id);
         this.setValue(list);
     }
 
