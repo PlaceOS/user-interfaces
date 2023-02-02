@@ -13,12 +13,17 @@ import {
     Survey,
     SurveyQuestion,
 } from '@placeos/ts-client';
-import { BehaviorSubject, forkJoin, of } from 'rxjs';
-import { catchError, finalize, first, map, tap } from 'rxjs/operators';
+import { BehaviorSubject, forkJoin, of, combineLatest } from 'rxjs';
+import { catchError, filter, finalize, first, map, tap } from 'rxjs/operators';
 
 interface SurveyStats {
     question_count: number;
     answer_count: number;
+}
+
+interface PagedSurveyResponse {
+    title: string;
+    responses: UISurveyResponse[];
 }
 
 @Injectable()
@@ -49,6 +54,21 @@ export class SurveyResponsesService {
     private set stats(value: SurveyStats) {
         this._stats.next(value);
     }
+
+    paged_responses$ = combineLatest([this.responses$, this.survey$]).pipe(
+        filter(([responses, survey]) => responses?.length && !!survey),
+        map(([responses, survey]) => {
+            let resMap = {};
+            responses.forEach((e) => (resMap[e.question.id] = e));
+            let paged: PagedSurveyResponse[] = [];
+            survey.pages.forEach((p) => {
+                let t = { title: p.title, responses: [] };
+                p.question_order.forEach((q) => t.responses.push(resMap[q]));
+                paged.push(t);
+            });
+            return paged;
+        })
+    );
 
     constructor() {}
 

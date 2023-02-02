@@ -28,7 +28,7 @@ import { parseSelectionAnswers } from './survey-helper';
                     *ngFor="let d of data"
                     class="flex flex-1 mx-4 pt-2 pb-3 space-x-4"
                 >
-                    <div class="flex flex-1 flex-col space-y-2">
+                    <div class="flex flex-1 flex-col space-y-1">
                         <span>{{ d.name }}</span>
                         <div class="progress-bar bg-gray-200 h-1">
                             <span
