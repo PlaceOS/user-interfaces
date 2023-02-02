@@ -1,4 +1,3 @@
-
 import { Asset } from 'libs/assets/src/lib/asset.class';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { User } from 'libs/users/src/lib/user.class';
@@ -41,6 +40,8 @@ export interface EventExtensionData {
     online_meeting_id: string;
     /** URL to a meeting/call associated with the booking */
     online_meeting_provider: string;
+    /** Email to override the host of the event with */
+    host_override: string;
 }
 
 export interface RecurrenceDetails {

@@ -503,6 +503,11 @@ export class EventFormService extends BaseClass {
                     attendees,
                     date: d,
                     catering,
+                    extension_data:
+                        this._settings.get('app.events.force_host') ||
+                        this._settings.get('app.events.room_as_host')
+                            ? { host_override: value.host }
+                            : {},
                 }),
                 query
             ).catch((e) => {

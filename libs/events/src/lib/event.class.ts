@@ -118,6 +118,7 @@ export class CalendarEvent {
         this.creator =
             (data.creator || _default_user.email)?.toLowerCase() || '';
         this.host = (
+            data.extension_data?.host_override ||
             data.host ||
             this.creator ||
             _default_user.email ||
