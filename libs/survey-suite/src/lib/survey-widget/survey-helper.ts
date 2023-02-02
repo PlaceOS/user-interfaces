@@ -1,12 +1,19 @@
 import { Data } from 'chartist';
 import { QuestionType, UISurveyAnswer } from '../types';
 
+export interface SelectionStats {
+    name: string;
+    count: number;
+    percentage: number;
+}
+
 export function parseSelectionAnswers(
     data: UISurveyAnswer[],
     choices?: string[]
-): Data<any> {
-    if (!data?.length) return { labels: [], series: [] };
+): SelectionStats[] {
+    if (!data?.length) return [];
     const type = data[0].type;
+    const total = data.length;
     let map = {};
     let list =
         type === QuestionType.Check_Box
@@ -25,11 +32,23 @@ export function parseSelectionAnswers(
             if (!map[e]) map[e] = 0;
         });
     }
-    return {
-        labels: Object.keys(map),
-        series: Object.values(map),
-    };
+    const stats = Object.keys(map)
+        .map((key) => ({
+            name: key,
+            count: map[key],
+            percentage: Math.round((map[key] / total) * 1000) / 10,
+        }))
+        .sort((a, b) =>
+            a.percentage < b.percentage
+                ? 1
+                : a.percentage > b.percentage
+                ? -1
+                : 0
+        );
+    return stats;
 }
+
+export function calcSelectionAnswers() {}
 
 export function parseRatingAnswers(data: UISurveyAnswer[], rateMax: number) {
     const list = data.reduce(

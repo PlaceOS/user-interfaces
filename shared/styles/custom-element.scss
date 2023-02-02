@@ -890,3 +890,35 @@ mat-list-option.mdc-list-item--selected{
 #placeos .dark .ct-label{
     color: white;
 }
+
+.progress-bar {
+    width: 100%;
+    border-radius: 5px;
+}
+
+.progress-bar-fill {
+    display: block;
+    border-radius: 5px;
+}
+
+/* Scrollbar CSS */
+/* Firefox */
+survey-widget * {
+    scrollbar-width: auto;
+    scrollbar-color: #9c9c9c #ffffff;
+}
+
+/* Chrome, Edge, and Safari */
+survey-widget *::-webkit-scrollbar {
+    width: 13px;
+}
+
+survey-widget *::-webkit-scrollbar-track {
+    background: #ffffff;
+}
+
+survey-widget *::-webkit-scrollbar-thumb {
+    background-color: #9c9c9c;
+    border-radius: 10px;
+    border: 3px solid #ffffff;
+}
