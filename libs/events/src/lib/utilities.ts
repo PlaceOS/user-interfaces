@@ -85,6 +85,9 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
     form.get('resources').valueChanges.subscribe((l) =>
         form.controls.system.setValue(l?.length ? (l[0] as any) : null)
     );
+    form.get('date').valueChanges.subscribe(() =>
+        form.get('duration').updateValueAndValidity()
+    );
     form.controls.all_day.valueChanges.subscribe((all_day) => {
         if (all_day) form.controls.duration.disable();
         else form.controls.duration.enable();

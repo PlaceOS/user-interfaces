@@ -2,13 +2,8 @@ import { AbstractControl } from '@angular/forms';
 import { addMinutes, isAfter, isBefore } from 'date-fns';
 
 export const endInFuture = (control: AbstractControl) => {
-    if (
-        control.parent?.get('date') &&
-        isAfter(
-            new Date(),
-            addMinutes(control.parent.get('date').value, control.value)
-        )
-    ) {
+    const date = control.parent?.get('date');
+    if (date && isAfter(Date.now(), addMinutes(date.value, control.value))) {
         return { duration: true };
     }
     return null;
