@@ -35,7 +35,7 @@ import { parseSelectionAnswers } from './survey-helper';
                                 class="progress-bar-fill h-1 rounded-lg"
                                 [ngClass]="{
                                     'bg-red-500': d.percentage <= 25,
-                                    'bg-orange-500':
+                                    'bg-yellow-400':
                                         d.percentage > 25 && d.percentage <= 50,
                                     'bg-blue-400': d.percentage > 50 && d.percentage <= 75,
                                     'bg-green-500': d.percentage > 75
