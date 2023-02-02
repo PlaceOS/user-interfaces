@@ -205,7 +205,7 @@ export class UserListFieldComponent
     private searchStaff(q: string) {
         return this._settings.get('app.basic_user_search')
             ? queryUsers({ q, authority_id: authority()?.id }).pipe(
-                  map((_) => _.data)
+                  map((_) => _.data.map((u) => new User(u)))
               )
             : searchStaff(q);
     }
@@ -303,7 +303,9 @@ export class UserListFieldComponent
      * @param user
      */
     public addUser(user: User) {
-        const list = this.active_list.filter((_) => _.email !== user.email);
+        const list = this.active_list.filter(
+            (_) => _.email !== (user.email || 'Empty')
+        );
         this.setValue([
             ...list,
             new User({
