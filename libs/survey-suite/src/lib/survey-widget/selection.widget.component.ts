@@ -1,5 +1,4 @@
-import { AfterViewInit, Component } from '@angular/core';
-import { BarChart, BarChartOptions } from 'chartist';
+import { Component } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { UISurveyAnswer } from '../types';
 import { BaseWidget } from './base-widget.component';
@@ -7,23 +6,54 @@ import { parseSelectionAnswers } from './survey-helper';
 
 @Component({
     selector: 'selection-widget',
-    styles: [],
-    template: ` 
-        <div class="flex flex-col w-full p-4">
-            <div id="{{ widget_id }}" class="ct-chart ct-octave"></div> 
+    styles: [
+        `
+            :host {
+                display: flex;
+                height: 100%;
+                width: 100%;
+                padding-bottom: 0.5rem;
+            }
+        `,
+    ],
+    template: `
+        <div
+            class="flex flex-col min-h-0 max-h-[22rem] h-full w-full overflow-y-auto relative p-2"
+        >
+            <div class="flex flex-1 justify-end mx-4">
+                <span>{{ (data$ | async)?.length || 0 }} answers</span>
+            </div>
+            <ng-container *ngIf="chart_data$ | async as data">
+                <div
+                    *ngFor="let d of data"
+                    class="flex flex-1 border-b mx-4 py-2 space-x-4"
+                >
+                    <div class="flex flex-1 flex-col">
+                        <span>{{ d.name }}</span>
+                        <div class="progress-bar bg-gray-200 h-2">
+                            <span
+                                class="progress-bar-fill h-2 rounded-lg"
+                                [ngClass]="{
+                                    'bg-red-500': d.percentage < 30,
+                                    'bg-yellow-500':
+                                        d.percentage >= 30 && d.percentage < 60,
+                                    'bg-green-500': d.percentage >= 60
+                                }"
+                                [ngStyle]="{ width: d.percentage + '%' }"
+                            ></span>
+                        </div>
+                    </div>
+                    <div class="flex items-center w-12">
+                        <span class="text-2xl font-thin">{{
+                            d.percentage / 100 | percent
+                        }}</span>
+                    </div>
+                </div>
+            </ng-container>
         </div>
     `,
 })
-export class SelectionWidgetComponent
-    extends BaseWidget
-    implements AfterViewInit
-{
-    private chartRef: BarChart;
-    private chartOptions: BarChartOptions = {
-        distributeSeries: true,
-        chartPadding: 10,
-        axisY: { onlyInteger: true },
-    };
+export class SelectionWidgetComponent extends BaseWidget {
     chart_data$ = this.data$.pipe(
         map((data: UISurveyAnswer[]) =>
             parseSelectionAnswers(
@@ -35,19 +65,5 @@ export class SelectionWidgetComponent
 
     constructor() {
         super();
-    }
-
-    ngAfterViewInit(): void {
-        this.subscription(
-            'chart-data',
-            this.chart_data$.subscribe((data) => {
-                const id = `#${this.widget_id}`;
-                if (!this.chartRef) {
-                    this.chartRef = new BarChart(id, data, this.chartOptions);
-                    return;
-                }
-                this.chartRef.update(data);
-            })
-        );
     }
 }
