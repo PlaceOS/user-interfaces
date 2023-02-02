@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1675224849520,
+  "timestamp": 1675299087951,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -31,7 +31,6 @@
         "./default-libs_users_src_index_ts.js",
         "./default-node_modules_angular_material_fesm2020_icon_mjs.js",
         "./default-node_modules_angular_material_fesm2020_tabs_mjs.js",
-        "./default-node_modules_chartist_dist_index_js.js",
         "./favicon.ico",
         "./index.html",
         "./main.js",
@@ -140,9 +139,9 @@
     "./apps_concierge_src_app_facilities_facilities_module_ts.js": "c4192d25f9653b02009e8e274cd0c75e28b5bc06",
     "./apps_concierge_src_app_parking_parking_module_ts.js": "9cf7700ea09c4045f062e4def656e0c5da88faae",
     "./apps_concierge_src_app_points_points_module_ts-libs_common_src_lib_qr-code_ts.js": "51387cc8657d201781b629e70e3a53f51db0cbd6",
-    "./apps_concierge_src_app_reports_reports_module_ts.js": "e8ca777a74ce4a9ab4e6b9615a2cd756028687c7",
+    "./apps_concierge_src_app_reports_reports_module_ts.js": "d427a50717cd43729e527f2f43a7ff80dbca5026",
     "./apps_concierge_src_app_staff_staff_module_ts.js": "803691bb1ec8d99b7a9955b6dd0c0393a396026d",
-    "./apps_concierge_src_app_surveys_surveys_module_ts.js": "9e397e0b11cee3e41a15154f4425b8a1229a1e46",
+    "./apps_concierge_src_app_surveys_surveys_module_ts.js": "a3d5fd8df99ea1c922fd120605e8b71220c00535",
     "./apps_concierge_src_app_visitors_visitors_module_ts.js": "e0c4d25a8810b823cf43850579e0fa42fe040ccf",
     "./apps_concierge_src_app_week-view_week-view_module_ts.js": "6b90002c38341fc7ae357c62e3da4be19476df08",
     "./assets/asset_success.svg": "108cd4145d9f826dcb89b816653ce36135dcd0c1",
@@ -225,14 +224,13 @@
     "./default-libs_users_src_index_ts.js": "ae1e3ebb443c0732dba3b83786ade8979baeac35",
     "./default-node_modules_angular_material_fesm2020_icon_mjs.js": "cfd9feb6533be4f3f40f30ad84b46f656d0c5aff",
     "./default-node_modules_angular_material_fesm2020_tabs_mjs.js": "dc94bf35d7847f1f7d2b5e1ed5cddfaf03cbcd11",
-    "./default-node_modules_chartist_dist_index_js.js": "a4149fc8d7ddc065e79bc312af00ee58f1a814ab",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "713174aea0452eb98ad8dcbac671cea1d0c37793",
-    "./main.js": "4ffb52c97fb2c8762d711a23a17159c7991f1189",
+    "./main.js": "ef8dc3c64c634575186bebb45d7082fdd8f4a79f",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./polyfills.js": "e3e6b3a8478b9b6f4f92a42ef35cdd272111859f",
     "./runtime.js": "4d5e529aa8350ee83659185276a1940d360131b8",
-    "./styles.css": "8864b13f1e95f12d7939de1ab3b22bc8fe4fde94",
+    "./styles.css": "9a1f505ed788562327cda8f2cb78d8b3648d95f6",
     "./vendor.js": "b7dd42477ba8227f84c73a75eaf2a85b56d8d547"
   },
   "navigationUrls": [
