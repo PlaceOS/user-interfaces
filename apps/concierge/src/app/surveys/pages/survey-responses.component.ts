@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseClass } from '@placeos/common';
+import { TriggerEnumMap } from '@placeos/survey-suite';
 import { map, shareReplay, take } from 'rxjs/operators';
 import { SurveyResponsesService } from '../services/survey-responses.service';
 
@@ -51,7 +52,7 @@ import { SurveyResponsesService } from '../services/survey-responses.service';
                                 </p>
                             </div>
                             <div class="flex flex-col items-center flex-1">
-                                <h3>Total Answers</h3>
+                                <h3>Total Responses</h3>
                                 <p class="text-4xl">
                                     {{ (stats$ | async)?.answer_count || 0 }}
                                 </p>
@@ -59,7 +60,7 @@ import { SurveyResponsesService } from '../services/survey-responses.service';
                             <div class="flex flex-col items-center flex-1">
                                 <h3>Triggers On</h3>
                                 <p class="text-2xl">
-                                    {{ (survey$ | async)?.trigger }}
+                                    {{ triggerMap[(survey$ | async)?.trigger] }}
                                 </p>
                             </div>
                         </div>
@@ -102,6 +103,8 @@ export class SurveyResponsesComponent extends BaseClass implements OnInit {
     responses$ = this.service.responses$;
     stats$ = this.service.stats$.pipe(shareReplay(1));
     loading$ = this.service.loading$.pipe(shareReplay(1));
+    
+    triggerMap = TriggerEnumMap
 
     constructor(
         private service: SurveyResponsesService,

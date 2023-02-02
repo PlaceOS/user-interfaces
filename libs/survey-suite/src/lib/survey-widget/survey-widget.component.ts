@@ -15,7 +15,7 @@ import { QuestionType, UISurveyResponse } from '../types';
             <div
                 class="flex flex-col h-full w-full bg-white dark:bg-neutral-700 rounded shadow border border-gray-300 dark:border-neutral-500"
             >
-                <div class="p-4 text-xl">
+                <div class="p-4 pb-2 text-xl">
                     {{ response?.question?.title || '' }}
                 </div>
                 <div class="flex flex-col w-full">
