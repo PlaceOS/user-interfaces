@@ -64,7 +64,7 @@ const EMPTY_FAVS: string[] = [];
                             matRipple
                             edit-desk
                             class="clear"
-                            (click)="changeResources(space)"
+                            (click)="changeResources(item)"
                         >
                             <div class="flex items-center space-x-2" i18n>
                                 <app-icon>edit</app-icon>
@@ -76,7 +76,7 @@ const EMPTY_FAVS: string[] = [];
                             matRipple
                             remove-desk
                             class="clear"
-                            (click)="removeResource(space)"
+                            (click)="removeResource(item)"
                         >
                             <div class="flex items-center space-x-2" i18n>
                                 <app-icon>close</app-icon>
