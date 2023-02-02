@@ -11,6 +11,7 @@ import { BaseWidget } from './base-widget.component';
                 display: flex;
                 height: 100%;
                 width: 100%;
+                padding-bottom: 0.5rem;
             }
 
             blockquote:after, blockquote:before {
@@ -35,7 +36,7 @@ import { BaseWidget } from './base-widget.component';
             class="flex flex-col min-h-0 max-h-[22rem] h-full w-full overflow-y-auto relative"
         >
             <ng-container *ngIf="chart_data$ | async as data">
-                <div *ngFor="let d of data" class="flex flex-1 p-2 border-b mx-2">
+                <div *ngFor="let d of data" class="flex flex-1 p-2 border-b mx-4">
                     <blockquote>
                         <span class="text-gray-700">{{d}}</span>
                     </blockquote>

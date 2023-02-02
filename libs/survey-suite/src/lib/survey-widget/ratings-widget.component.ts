@@ -6,19 +6,11 @@ import { parseRatingAnswers, parseRatingStats } from './survey-helper';
 
 @Component({
     selector: 'ratings-widget',
-    styles: [
-        `
-            .progress-bar {
-                width: 100%;
-                border-radius: 5px;
-            }
-
-            .progress-bar-fill {
-                display: block;
-                border-radius: 5px;
-            }
-        `,
-    ],
+    styles: [`
+        :host{
+            padding-bottom: 0.5rem;
+        }
+    `],
     template: `
         <ng-container *ngIf="chart_data$ | async as data">
             <div class="flex flex-row space-x-4 p-4">
