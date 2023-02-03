@@ -118,7 +118,8 @@ export class LandingUpcomingComponent implements OnInit, OnDestroy {
         if (resp.reason !== 'done') return;
         resp.loading('Requesting booking deletion...');
         await (item instanceof CalendarEvent ? removeEvent : removeBooking)(
-            item.id
+            item.id,
+            item instanceof CalendarEvent ? { system_id: item.system?.id } : {}
         )
             .toPromise()
             .catch((e) => {
