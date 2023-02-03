@@ -4,6 +4,7 @@ import { BaseClass } from '@placeos/common';
 
 import { DeskFiltersComponent } from './desk-filters.component';
 import { BookingFormService } from '../booking-form.service';
+import { endOfDay } from 'date-fns';
 
 @Component({
     selector: 'desk-filters-display',
@@ -118,7 +119,8 @@ export class DeskFiltersDisplayComponent extends BaseClass {
     }
 
     public get end() {
-        const { date, duration } = this._state.form.value;
+        const { date, duration, all_day } = this._state.form.value;
+        if(all_day) return endOfDay(date);
         return date + duration * 60 * 1000;
     }
 
