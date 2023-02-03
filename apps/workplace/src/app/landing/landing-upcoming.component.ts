@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Booking, removeBooking } from '@placeos/bookings';
-import { notifyError, notifySuccess, openConfirmModal } from '@placeos/common';
+import { notifyError, notifySuccess, openConfirmModal, SettingsService } from '@placeos/common';
 import { CalendarEvent, EventFormService, removeEvent } from '@placeos/events';
 import { format } from 'date-fns';
 import { LandingStateService } from './landing-state.service';
@@ -82,7 +82,8 @@ export class LandingUpcomingComponent implements OnInit, OnDestroy {
         private _state: LandingStateService,
         private _event_form: EventFormService,
         private _router: Router,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
+        private _settings: SettingsService
     ) {}
 
     public ngOnInit() {
@@ -114,12 +115,14 @@ export class LandingUpcomingComponent implements OnInit, OnDestroy {
             { title: `Delete booking`, content, icon: { content: 'delete' } },
             this._dialog
         );
-        console;
+        
         if (resp.reason !== 'done') return;
         resp.loading('Requesting booking deletion...');
         await (item instanceof CalendarEvent ? removeEvent : removeBooking)(
             item.id,
-            item instanceof CalendarEvent ? { system_id: item.system?.id } : {}
+            this._settings.get('app.no_user_calendar')
+                ? { system_id: (item as any).system?.id }
+                : undefined
         )
             .toPromise()
             .catch((e) => {
@@ -128,6 +131,7 @@ export class LandingUpcomingComponent implements OnInit, OnDestroy {
                 throw e;
             });
         notifySuccess('Successfully deleted booking.');
-        resp.close();
+        this._state.refreshUpcomingEvents();
+        this._dialog.closeAll();
     }
 }
