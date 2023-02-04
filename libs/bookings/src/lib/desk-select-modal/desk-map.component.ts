@@ -21,7 +21,6 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
     ],
     template: `
         <i-map
-            *ngIf="!is_displayed"
             [src]="map_url"
             [(zoom)]="zoom"
             [(center)]="center"
