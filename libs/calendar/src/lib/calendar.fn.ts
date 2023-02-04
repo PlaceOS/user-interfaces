@@ -44,7 +44,7 @@ const calendarsToSpaces = (org?) =>
     );
 
 /** List available spaces based on the given query */
-export function querySpaceAvailability(
+export function querySpaceCalendarAvailability(
     q: CalendarAvailabilityQueryParams,
     org?: OrganisationService
 ): Observable<Space[]> {

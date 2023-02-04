@@ -6,6 +6,7 @@ import { toQueryString } from 'libs/common/src/lib/api';
 import { GuestUser } from 'libs/users/src/lib/user.class';
 
 import { CalendarEvent } from './event.class';
+import { addMinutes, getUnixTime } from 'date-fns';
 
 export interface CalendarEventQueryParams {
     /** Comma seperated list of zone ids to check availability */
@@ -41,7 +42,7 @@ export function queryEvents(
     const query = toQueryString(q);
     return get(`${EVENTS_ENDPOINT}${query ? '?' + query : ''}`).pipe(
         map((list) => list.map((e) => new CalendarEvent(e))),
-        catchError(_ => of([]))
+        catchError((_) => of([]))
     );
 }
 
@@ -186,4 +187,55 @@ export function checkinEventGuest(
         )}/guests/${guest_id}/checkin${query ? '?' + query : ''}`,
         ''
     ).pipe(map((item) => new GuestUser(item)));
+}
+
+/**
+ * Check whether a selected space is available
+ * @param id ID of the space to check
+ * @param start Start of the availability period to check
+ * @param duration Duration of the availability block in minutes
+ * @param ignore ID of a booking to ignore when checking availability
+ */
+export function isSpaceAvailable(
+    id: string,
+    start: number,
+    duration: number,
+    ignore?: string
+) {
+    return queryEvents({
+        system_ids: id,
+        period_start: getUnixTime(start),
+        period_end: getUnixTime(addMinutes(start, duration)),
+    }).pipe(map((_) => _.filter((_) => _.id !== ignore).length === 0));
+}
+
+/**
+ * Check whether a list of spaces are available
+ * @param id_list List of space IDs to check
+ * @param start Start of the availability period to check
+ * @param duration Duration of the availability block in minutes
+ * @param ignore ID of a booking to ignore when checking availability
+ */
+export function querySpaceAvailability(
+    id_list: string[],
+    start: number,
+    duration: number,
+    ignore?: string
+) {
+    return queryEvents({
+        system_ids: id_list.join(),
+        period_start: getUnixTime(start),
+        period_end: getUnixTime(addMinutes(start, duration)),
+    }).pipe(
+        map((_) =>
+            id_list.map(
+                (id) =>
+                    _.filter(
+                        (b) =>
+                            b.resources?.find((s) => s.id === id) &&
+                            b.id !== ignore
+                    ).length === 0
+            )
+        )
+    );
 }

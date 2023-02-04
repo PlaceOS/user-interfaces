@@ -29,9 +29,8 @@ import {
     queryResourceAvailability,
     saveBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
-import { querySpaceAvailability } from 'libs/calendar/src/lib/calendar.fn';
 import { CalendarEvent } from './event.class';
-import { saveEvent } from './events.fn';
+import { querySpaceAvailability, saveEvent } from './events.fn';
 import { generateEventForm, newCalendarEventFromBooking } from './utilities';
 import { newBookingFromCalendarEvent } from 'libs/bookings/src/lib/booking.utilities';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
@@ -39,7 +38,7 @@ import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
 import { MatDialog } from '@angular/material/dialog';
 import { EventLinkModalComponent } from './event-link-modal.component';
 import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
-import { getFreeTimeSlots, periodInFreeTimeSlot } from './helpers';
+import { periodInFreeTimeSlot } from './helpers';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { Validators } from '@angular/forms';
 
@@ -94,7 +93,7 @@ export class EventFormService extends BaseClass {
     public readonly loading = this._loading.asObservable();
     public readonly options = this._options.asObservable();
 
-    public readonly spaces = combineLatest([
+    public readonly spaces: Observable<Space[]> = combineLatest([
         this._options.pipe(distinctUntilKeyChanged('zone_ids')),
         this._org.active_building.pipe(
             filter((_) => !!_),
@@ -203,43 +202,19 @@ export class EventFormService extends BaseClass {
                 if (!spaces.length) return of([]);
                 this._loading.next('Retrieving available spaces...');
                 const { date, duration } = this._form.getRawValue();
-                const query = {
-                    period_start: getUnixTime(date),
-                    period_end: getUnixTime(date + duration * MINUTES),
-                };
-                return (
-                    !this.has_calendar
-                        ? queryResourceAvailability(
-                              spaces.map(({ id }) => id),
-                              { ...query, type: 'room' }
-                          ).pipe(
-                              map((_) =>
-                                  _.map((id) => spaces.find((s) => id === s.id))
-                              )
-                          )
-                        : querySpaceAvailability(
-                              {
-                                  ...query,
-                                  system_ids: spaces
-                                      .map(({ id }) => id)
-                                      .join(','),
-                              },
-                              this._org
-                          )
+                const availability_method = this.has_calendar
+                    ? querySpaceAvailability
+                    : queryResourceAvailability;
+                return availability_method(
+                    spaces.map(({ id }) => id),
+                    date,
+                    duration,
+                    this.event?.id || undefined
                 ).pipe(
-                    map((_) =>
-                        _.map(({ id }) => spaces.find((s) => id === s.id))
-                    ),
+                    map((_) => spaces.filter((_, i) => _[i])),
                     catchError((_) => [])
                 );
             }),
-            map((_) =>
-                _.filter(
-                    (space) =>
-                        !space.availability?.length ||
-                        space.availability?.find((_) => _.status !== 'busy')
-                )
-            ),
             tap((_) => this._loading.next('')),
             shareReplay(1)
         );
@@ -562,22 +537,19 @@ export class EventFormService extends BaseClass {
             period_end: getUnixTime(date + duration * 60 * 1000),
         };
         if (exclude) query.exclude_range = `${exclude.start}...${exclude.end}`;
-        const space_list: any[] = spaces.length
-            ? await (!this.has_calendar
-                  ? (queryResourceAvailability(space_ids, {
-                        ...query,
-                        type: 'room',
-                        ignore,
-                    }) as any)
-                  : querySpaceAvailability({
-                        ...query,
-                        system_ids: space_ids.join(','),
-                    })
-              ).toPromise()
-            : [];
-        if (space_list.length !== spaces.length)
+        const availability_method = this.has_calendar
+            ? querySpaceAvailability
+            : queryResourceAvailability;
+        let availability: boolean[] = await availability_method(
+            spaces.map((_) => _.id),
+            date,
+            duration,
+            ignore
+        ).toPromise();
+
+        if (availability.every((_) => _))
             throw `${
-                spaces.length - space_list.length
+                availability.filter((_) => _).length
             } space(s) are not available at the selected time`;
         return true;
     }

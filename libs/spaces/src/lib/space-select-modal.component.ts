@@ -15,7 +15,7 @@ import {
 import { Building, OrganisationService } from '@placeos/organisation';
 
 import { filterSpacesFromRules } from 'libs/events/src/lib/helpers';
-import { querySpaceAvailability } from 'libs/calendar/src/lib/calendar.fn';
+import { querySpaceCalendarAvailability } from 'libs/calendar/src/lib/calendar.fn';
 import { Space } from './space.class';
 
 export interface SpaceSelectModalData {
@@ -167,7 +167,7 @@ export class SpaceSelectModalComponent extends BaseClass {
     public readonly available_spaces = combineLatest([this.building]).pipe(
         switchMap(([bld]) => {
             this.loading = true;
-            return querySpaceAvailability({
+            return querySpaceCalendarAvailability({
                 zone_ids: bld?.id,
                 period_start: getUnixTime(this._data.date),
                 period_end: getUnixTime(

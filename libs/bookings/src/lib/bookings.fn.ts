@@ -5,6 +5,7 @@ import { catchError, map } from 'rxjs/operators';
 import { toQueryString } from 'libs/common/src/lib/api';
 import { Booking, BookingType } from './booking.class';
 import { GuestUser } from 'libs/users/src/lib/user.class';
+import { addMinutes, getUnixTime } from 'date-fns';
 
 export interface BookingsQueryParams {
     /** Comma seperated list of zone ids to check availability */
@@ -156,18 +157,44 @@ export function checkinBookingAttendee(
  * @param query Booking query
  */
 export function queryResourceAvailability(
-    asset_id_list: string[],
-    query: BookingsQueryParams,
-    ignore?: string
-): Observable<string[]> {
-    return queryBookings(query).pipe(
+    id_list: string[],
+    start: number,
+    duration: number,
+    ignore?: string,
+    type: BookingType = 'room'
+): Observable<boolean[]> {
+    return queryBookings({
+        type,
+        period_start: getUnixTime(start),
+        period_end: getUnixTime(addMinutes(start, duration)),
+    }).pipe(
         map((_) =>
-            asset_id_list.filter(
+            id_list.map(
                 (id) =>
                     !_.find(
                         (b) => b.asset_id === id && (!ignore || ignore !== b.id)
                     )
             )
+        )
+    );
+}
+
+export function isResourceAvailable(
+    id: string,
+    start: number,
+    duration: number,
+    ignore?: string,
+    type: BookingType = 'room'
+) {
+    return queryBookings({
+        type,
+        period_start: getUnixTime(start),
+        period_end: getUnixTime(addMinutes(start, duration)),
+    }).pipe(
+        map(
+            (_) =>
+                _.filter((_) => _.asset_id === id && _.id !== ignore).length ===
+                0
         )
     );
 }
