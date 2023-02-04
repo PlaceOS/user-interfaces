@@ -171,6 +171,7 @@ export class LandingStateService extends BaseClass {
     }
 
     public refreshUpcomingEvents() {
+        this._schedule.setDate(Date.now());
         this._schedule.triggerPoll();
     }
 
