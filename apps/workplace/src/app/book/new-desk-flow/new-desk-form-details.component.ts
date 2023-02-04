@@ -264,13 +264,16 @@ export class NewDeskFormDetailsComponent extends BaseClass {
             this._state.form
                 .get('resources')
                 ?.valueChanges?.subscribe((list) =>
-                    list.length ? this.setBookingAsset(list[0]) : ''
+                    this.setBookingAsset(list[0])
                 )
         );
     }
 
     private setBookingAsset(desk: Desk) {
-        if (!desk) return;
+        if (!desk) {
+            this.resetBookingAsset();
+            return;
+        }
         this.selected_desk = desk;
         this._state.form.patchValue({
             asset_id: desk?.id,
@@ -280,6 +283,18 @@ export class NewDeskFormDetailsComponent extends BaseClass {
             booking_type: 'desk',
             zones: desk.zone ? [desk.zone?.parent_id, desk.zone?.id] : [],
             booking_asset: desk,
+        });
+    }
+
+    private resetBookingAsset() {
+        this.selected_desk = null;
+        this._state.form.patchValue({
+            asset_id: '',
+            asset_name: '',
+            map_id: null,
+            description: '',
+            zones: [],
+            booking_asset: null,
         });
     }
 }
