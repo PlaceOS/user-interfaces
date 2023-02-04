@@ -1,4 +1,4 @@
-import { randomString } from '@placeos/common';
+import { randomString } from 'libs/common/src/lib/general';
 import { MapLocation } from './location.class';
 import { USER_DOMAIN } from './user.utilities';
 
