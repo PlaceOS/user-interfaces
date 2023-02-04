@@ -546,8 +546,7 @@ export class EventFormService extends BaseClass {
             duration,
             ignore
         ).toPromise();
-
-        if (availability.every((_) => _))
+        if (!availability.every((_) => _))
             throw `${
                 availability.filter((_) => _).length
             } space(s) are not available at the selected time`;
