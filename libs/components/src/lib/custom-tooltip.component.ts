@@ -52,7 +52,8 @@ export class CustomTooltipData<T = any> {
 })
 export class CustomTooltipComponent<T = any>
     extends BaseClass
-    implements OnChanges, OnDestroy {
+    implements OnChanges, OnDestroy
+{
     /** Horizontal position of the rendered overlay */
     @Input('xPosition') public x_pos: 'start' | 'center' | 'end';
     /** Vertical position of the rendered overlay */
@@ -65,6 +66,8 @@ export class CustomTooltipComponent<T = any>
     @Input() public backdrop = true;
     /** Whether tooltip has a backdrop */
     @Input() public hover = false;
+    /** Delay time in milliseconds to close after hover */
+    @Input() public delay = 0;
     /** Type of content to render */
     public type: 'template' | 'component' | 'html' = 'template';
 
@@ -106,40 +109,49 @@ export class CustomTooltipComponent<T = any>
 
     public open() {
         if (!this.content) return;
-        this.timeout('open', () => {
-            this._updateType();
-            if (this._overlay_ref) this.close();
-            if (!this._portal) return;
-            const pos = this._element.nativeElement.getBoundingClientRect();
-            const default_x = 'end';
-            const default_y = 'top';
-            this._overlay_ref = this._overlay.create({
-                hasBackdrop: !!this.backdrop,
-                positionStrategy: this._overlay
-                    .position()
-                    .flexibleConnectedTo(this._element)
-                    .withPositions([
-                        {
-                            originX: this.x_pos || default_x,
-                            originY:
-                                (this.y_pos === 'top'
-                                    ? 'bottom'
-                                    : this.y_pos == 'bottom'
-                                    ? 'top'
-                                    : this.y_pos) || default_y,
-                            overlayX: this.x_pos || default_x,
-                            overlayY: this.y_pos || default_y,
-                        },
-                    ]),
-            });
-            this._overlay_ref.attach(this._portal);
-            if (this.backdrop) {
-                this.subscription(
-                    'backdrop',
-                    this._overlay_ref.backdropClick().subscribe(() => this.close())
-                );
-            }
-        }, 50);
+        this.timeout(
+            'open',
+            () => {
+                if (this.hover && this.delay) {
+                    this.timeout('onclose', () => this.close(), this.delay);
+                }
+                this._updateType();
+                if (this._overlay_ref) this.close();
+                if (!this._portal) return;
+                const pos = this._element.nativeElement.getBoundingClientRect();
+                const default_x = 'end';
+                const default_y = 'top';
+                this._overlay_ref = this._overlay.create({
+                    hasBackdrop: !!this.backdrop,
+                    positionStrategy: this._overlay
+                        .position()
+                        .flexibleConnectedTo(this._element)
+                        .withPositions([
+                            {
+                                originX: this.x_pos || default_x,
+                                originY:
+                                    (this.y_pos === 'top'
+                                        ? 'bottom'
+                                        : this.y_pos == 'bottom'
+                                        ? 'top'
+                                        : this.y_pos) || default_y,
+                                overlayX: this.x_pos || default_x,
+                                overlayY: this.y_pos || default_y,
+                            },
+                        ]),
+                });
+                this._overlay_ref.attach(this._portal);
+                if (this.backdrop) {
+                    this.subscription(
+                        'backdrop',
+                        this._overlay_ref
+                            .backdropClick()
+                            .subscribe(() => this.close())
+                    );
+                }
+            },
+            50
+        );
     }
 
     public close() {

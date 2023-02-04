@@ -28,6 +28,7 @@ export interface SpaceInfoData {
             [xPosition]="'center'"
             [yPosition]="'center'"
             [hover]="true"
+            [delay]="3000"
             [attr.id]="space?.map_id || space?.id"
             (mouseenter)="updateOffset()"
             class="h-full w-full pointer-events-auto relative hidden sm:block"
