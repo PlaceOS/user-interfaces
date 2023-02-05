@@ -253,7 +253,6 @@ export class UserControlsComponent {
 
     public logout() {
         logout();
-        location.href = '/logout';
     }
 
     public openSupportTicketModal() {
