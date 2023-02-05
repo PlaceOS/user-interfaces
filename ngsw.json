@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1675505997523,
+  "timestamp": 1675571180551,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -24,7 +24,7 @@
         "./common.dbc36e86ff0cbc72.js",
         "./favicon.ico",
         "./index.html",
-        "./main.aea287c8f6996a68.js",
+        "./main.9f4d638e26d57aa2.js",
         "./manifest.webmanifest",
         "./polyfills.377b53a9bd46a672.js",
         "./runtime.a4211a15a37af5f8.js",
@@ -310,8 +310,8 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./common.dbc36e86ff0cbc72.js": "da2c8dd0ee51edf7ed089bcb1cf9d99758ae75f2",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "268f74e1eb92a0132c79f280d67b0f4ca31a8ff7",
-    "./main.aea287c8f6996a68.js": "f13f3dc678555894e9e922423289a820dddc56dd",
+    "./index.html": "2646374b62e869d2ad26c61137a4fed58904f621",
+    "./main.9f4d638e26d57aa2.js": "579af7f837c54a445e0f9ef88b17d990de97a535",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./polyfills.377b53a9bd46a672.js": "f6675ed8bfd7cede2a5d4bf7f3e48f680d21f242",
     "./runtime.a4211a15a37af5f8.js": "5c156f6e3d5172cd48b82f7869df1e58b0e4fae5",
