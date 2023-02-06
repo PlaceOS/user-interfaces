@@ -57,7 +57,7 @@ export function parseRatingAnswers(data: UISurveyAnswer[], rateMax: number) {
     );
     let arr = Array.from({ length: rateMax }, (_, i) => 0);
     list.forEach((e) => {
-        arr[e] += 1;
+        arr[e-1] += 1;
     });
     const total = list.length;
     arr.forEach((e, i) => (arr[i] = Math.round((e / total) * 1000) / 10));
