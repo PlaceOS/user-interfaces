@@ -181,6 +181,7 @@ export class EventFormService extends BaseClass {
     ]).pipe(
         map(([list, bookings]) => {
             const { date, duration } = this._form.getRawValue();
+            console.log('Current Available');
             return (list || [])
                 .filter((_, idx) =>
                     periodInFreeTimeSlot(
@@ -211,7 +212,10 @@ export class EventFormService extends BaseClass {
                     duration,
                     this.event?.id || undefined
                 ).pipe(
-                    map((_) => spaces.filter((_, i) => _[i])),
+                    map((_) => {
+                        console.log('Spaces:', spaces, _);
+                        return spaces.filter((_, i) => _[i]);
+                    }),
                     catchError((_) => [])
                 );
             }),
