@@ -101,8 +101,12 @@ import { BookingFormService } from '../booking-form.service';
                 <!-- Date -->
                 <div class="flex-1 min-w-[256px]">
                     <label i18n>Date</label>
-                    <a-date-field [to]="book_until" formControlName="date" i18n>
-                        Date and time must be in the future
+                    <a-date-field
+                        name="date"
+                        formControlName="date"
+                        [to]="end_date"
+                    >
+                        {{ 'FORM.DATE_ERROR' | translate }}
                     </a-date-field>
                 </div>
                 <!-- Start End -->
@@ -214,7 +218,7 @@ export class DeskFiltersComponent {
         );
     }
 
-    public get book_until() {
+    public get end_date() {
         return endOfDay(
             addDays(
                 Date.now(),

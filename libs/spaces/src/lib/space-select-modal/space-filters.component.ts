@@ -3,6 +3,7 @@ import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { flatten, SettingsService, unique } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { Building, OrganisationService } from '@placeos/organisation';
+import { addDays, endOfDay } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { SpacesService } from '../spaces.service';
@@ -77,8 +78,13 @@ import { SpacesService } from '../spaces.service';
                 </div>
                 <div class="flex-1 min-w-[256px]">
                     <label for="date" i18n>Date<span>*</span></label>
-                    <a-date-field name="date" formControlName="date" i18n>
-                        Date and time must be in the future
+                    <a-date-field
+                        name="date"
+                        formControlName="date"
+                        i18n
+                        [to]="end_date"
+                    >
+                        {{ 'FORM.DATE_ERROR' | translate }}
                     </a-date-field>
                 </div>
                 <div class="flex items-center space-x-2">
@@ -193,6 +199,15 @@ export class SpaceFiltersComponent {
 
     public get max_duration() {
         return this._settings.get('app.events.max_duration') || 480;
+    }
+
+    public get end_date() {
+        return endOfDay(
+            addDays(
+                Date.now(),
+                this._settings.get('app.events.allowed_future_days') || 180
+            )
+        );
     }
 
     constructor(
