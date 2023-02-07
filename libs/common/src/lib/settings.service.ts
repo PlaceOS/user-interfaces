@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Optional } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
@@ -12,6 +12,7 @@ import { BaseClass } from './base.class';
 
 import { VERSION } from './version';
 import { currentUser, current_user } from './user-state';
+import { GoogleAnalyticsService } from './google-analytics.service';
 
 declare global {
     interface Window {
@@ -77,9 +78,15 @@ export class SettingsService extends BaseClass {
         this._title.setTitle(
             `${value} | ${this.get('app.name') || this._app_name}`
         );
+        const tracking_id = this.get('app.analytics.tracking_id');
+        if (!tracking_id) return;
+        this._analytics?.send('pagename', { title: value });
     }
 
-    constructor(private _title: Title) {
+    constructor(
+        private _title: Title,
+        @Optional() private _analytics: GoogleAnalyticsService
+    ) {
         super();
         const now = new Date();
         const time = new Date(VERSION.time);

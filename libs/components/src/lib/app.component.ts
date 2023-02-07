@@ -11,7 +11,7 @@ import {
     setAPI_Key,
     token,
 } from '@placeos/ts-client';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { addHours } from 'date-fns';
 
 import {
@@ -95,6 +95,7 @@ export class AppComponent extends BaseClass implements OnInit {
         private _clipboard: Clipboard,
         private _route: ActivatedRoute,
         private _renderer: Renderer2,
+        private _router: Router,
         @Optional() private _translate: TranslateService
     ) {
         super();
@@ -205,6 +206,11 @@ export class AppComponent extends BaseClass implements OnInit {
             ) {
                 const id = e.target.getAttribute('name') || e.target.id;
                 this._analytics.event('click', e.target?.tagName, id);
+            }
+        });
+        this._router.events.subscribe((e) => {
+            if (e instanceof NavigationEnd) {
+                this._analytics.page(e.url);
             }
         });
     }

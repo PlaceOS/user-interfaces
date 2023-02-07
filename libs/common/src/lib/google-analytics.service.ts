@@ -97,6 +97,22 @@ export class GoogleAnalyticsService {
         }
     }
 
+    public send(type: string, value: Record<string, any>) {
+        if (!this.service) {
+            throw new Error(
+                "Google Analytics hasn't been installed on this page"
+            );
+        }
+        if (this.enabled) {
+            this.timeout(`end|${type}`, () => {
+                this.push({
+                    ...value,
+                    event: 'event',
+                });
+            });
+        }
+    }
+
     /**
      * Post event to Google Analytics API
      * @param category Event Category
