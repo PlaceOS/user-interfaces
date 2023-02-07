@@ -25,7 +25,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                     <button
                         btn
                         matRipple
-                        map
+                        name="view-desk-map"
                         class="rounded-l rounded-r-none"
                         [class.inverse]="view !== 'map'"
                         (click)="view = 'map'"
@@ -35,7 +35,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                     <button
                         btn
                         matRipple
-                        list
+                        name="view-desk-list"
                         class="rounded-r rounded-l-none"
                         [class.inverse]="view !== 'list'"
                         (click)="view = 'list'"
@@ -85,7 +85,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                 <button
                     btn
                     matRipple
-                    return
+                    name="desk-return"
                     class="inverse sm:hidden w-full"
                     *ngIf="displayed"
                     (click)="displayed = null"
@@ -96,7 +96,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                 <button
                     btn
                     matRipple
-                    save
+                    name="save-desks"
                     [mat-dialog-close]="selected"
                     [class.mb-2]="displayed"
                     class="w-full sm:w-32 sm:mb-0"
@@ -111,6 +111,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                 <button
                     btn
                     matRipple
+                    name="desk-return"
                     [mat-dialog-close]="selected"
                     class="clear text-primary"
                 >
@@ -125,6 +126,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                 <button
                     btn
                     matRipple
+                    name="toggle-desk"
                     [disabled]="!displayed"
                     [class.inverse]="isSelected(displayed?.id)"
                     (click)="setSelected(displayed, !isSelected(displayed?.id))"

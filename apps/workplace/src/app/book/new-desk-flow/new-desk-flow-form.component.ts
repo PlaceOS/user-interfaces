@@ -39,6 +39,7 @@ import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';
                 >
                     <button
                         btn
+                        name="open-desk-confirm"
                         matRipple
                         confirm
                         class="w-full sm:w-auto"

@@ -13,7 +13,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
             <button
                 btn
                 matRipple
-                filters
+                name="edit-space-filters"
                 class="flex-1 w-1/2"
                 (click)="editFilters()"
                 i18n
@@ -24,7 +24,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
                 <button
                     btn
                     matRipple
-                    map
+                    name="view-space-map"
                     class="rounded-l rounded-r-none"
                     [class.inverse]="view !== 'map'"
                     (click)="view = 'map'; viewChange.emit(view)"
@@ -35,7 +35,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
                 <button
                     btn
                     matRipple
-                    list
+                    name="view-space-list"
                     class="rounded-r rounded-l-none"
                     [class.inverse]="view !== 'list'"
                     (click)="view = 'list'; viewChange.emit(view)"
@@ -52,6 +52,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
             <button
                 btn
                 matRipple
+                name="clear-space-filters"
                 class="min-h-[2rem] mb-2 mr-2"
                 *ngIf="(options | async)?.features?.length > 1"
                 (click)="removeAllFeatures()"
@@ -81,6 +82,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
                 <button
                     icon
                     matRipple
+                    name="remove-space-filter"
                     class="-mr-4 dark:border-neutral-500"
                     (click)="removeFeature(feat)"
                 >

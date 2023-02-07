@@ -24,7 +24,7 @@ import { Space } from '../space.class';
                 >
                     <button
                         matRipple
-                        select
+                        name="select-space"
                         class="w-full h-full flex items-center"
                         (click)="selectSpace(space)"
                     >
@@ -86,7 +86,7 @@ import { Space } from '../space.class';
                     <button
                         icon
                         matRipple
-                        fav
+                        name="toggle-space-favourite"
                         class="absolute top-1 right-1"
                         [class.text-blue-400]="isFavourite(space.id)"
                         (click)="toggleFav.emit(space)"

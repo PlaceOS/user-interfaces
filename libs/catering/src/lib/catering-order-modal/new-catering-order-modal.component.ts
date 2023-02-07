@@ -69,7 +69,7 @@ const EMPTY_FAVS: string[] = [];
                 <button
                     btn
                     matRipple
-                    back-btn
+                    name="catering-item-return"
                     class="inverse sm:hidden w-full sm:w-auto"
                     *ngIf="displayed"
                     (click)="displayed = null"
@@ -80,7 +80,7 @@ const EMPTY_FAVS: string[] = [];
                 <button
                     btn
                     matRipple
-                    save
+                    name="save-catering-item"
                     [mat-dialog-close]="selected"
                     [class.mb-2]="displayed"
                     class="w-full sm:w-auto sm:mb-0"
@@ -95,6 +95,7 @@ const EMPTY_FAVS: string[] = [];
                 <button
                     btn
                     matRipple
+                    name="catering-item-return"
                     [mat-dialog-close]="selected"
                     class="clear text-primary"
                 >
@@ -109,6 +110,7 @@ const EMPTY_FAVS: string[] = [];
                 <button
                     btn
                     matRipple
+                    name="toggle-catering-item"
                     [disabled]="!displayed"
                     [class.inverse]="isSelected(displayed?.custom_id)"
                     (click)="

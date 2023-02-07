@@ -16,7 +16,7 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
             <span class="text-xs px-2">({{ booking?.date | date: 'z' }})</span>
         </h4>
         <a
-            details
+            name="view-booking-details"
             class="w-full cursor-pointer overflow-hidden relative"
             [routerLink]="['./']"
             [queryParams]="{ booking: booking?.id }"

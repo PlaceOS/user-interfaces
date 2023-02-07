@@ -49,7 +49,7 @@ const EMPTY_FAVS = [];
                         <button
                             btn
                             matRipple
-                            edit
+                            name="edit-catering-item"
                             class="clear"
                             (click)="addItems(item)"
                         >
@@ -61,7 +61,7 @@ const EMPTY_FAVS = [];
                         <button
                             btn
                             matRipple
-                            remove
+                            name="remove-catering-item"
                             class="clear"
                             (click)="removeItem(item)"
                         >
@@ -75,7 +75,7 @@ const EMPTY_FAVS = [];
                 <button
                     icon
                     matRipple
-                    fav
+                    name="toggle-catering-item-favourite"
                     class="absolute top-1 right-1"
                     [class.text-blue-400]="favorites.includes(item.id)"
                     (click)="toggleFavourite(item)"
@@ -91,7 +91,7 @@ const EMPTY_FAVS = [];
         <button
             btn
             matRipple
-            add-space
+            name="add-catering-item"
             class="w-full inverse mt-2"
             [disabled]="disabled"
             (click)="addItems()"

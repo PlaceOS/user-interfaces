@@ -17,6 +17,7 @@ import { ScheduleStateService } from './schedule-state.service';
             <div class="p-4 space-y-4">
                 <button
                     matRipple
+                    name="schedule-toggle-event-filter"
                     class="flex items-center space-x-2 w-full text-left"
                     *ngIf="hasFeature('spaces')"
                     (click)="toggleType('event')"
@@ -40,6 +41,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 </button>
                 <button
                     matRipple
+                    name="schedule-toggle-desk-filter"
                     class="flex items-center space-x-2 w-full text-left"
                     *ngIf="hasFeature('desks')"
                     (click)="toggleType('desk')"
@@ -63,6 +65,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 </button>
                 <button
                     matRipple
+                    name="schedule-toggle-parking-filter"
                     class="flex items-center space-x-2 w-full text-left"
                     *ngIf="hasFeature('parking')"
                     (click)="toggleType('parking')"
@@ -86,6 +89,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 </button>
                 <button
                     matRipple
+                    name="schedule-toggle-visitor-filter"
                     class="flex items-center space-x-2 w-full text-left"
                     *ngIf="hasFeature('visitor-invite')"
                     (click)="toggleType('visitor')"

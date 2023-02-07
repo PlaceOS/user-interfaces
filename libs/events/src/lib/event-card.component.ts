@@ -17,7 +17,7 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
             <span class="text-xs px-2">({{ event?.date | date: 'z' }})</span>
         </h4>
         <a
-            details
+            name="view-event-details"
             class="w-full cursor-pointer relative"
             [routerLink]="['./']"
             [queryParams]="{ event: event?.id }"

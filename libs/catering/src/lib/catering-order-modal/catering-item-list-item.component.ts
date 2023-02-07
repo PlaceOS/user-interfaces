@@ -11,7 +11,7 @@ import { CateringItem } from '../catering-item.class';
         >
             <button
                 matRipple
-                select
+                name="select-catering-item"
                 class="w-full h-full flex items-center"
                 (click)="select.emit()"
             >
@@ -92,7 +92,7 @@ import { CateringItem } from '../catering-item.class';
             <button
                 icon
                 matRipple
-                fav
+                name="toggle-catering-item-favourite"
                 class="absolute top-1 right-1"
                 [class.text-blue-400]="favourite"
                 (click)="toggleFav.emit()"

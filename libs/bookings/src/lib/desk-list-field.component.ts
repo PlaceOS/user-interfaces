@@ -62,7 +62,7 @@ const EMPTY_FAVS: string[] = [];
                         <button
                             btn
                             matRipple
-                            edit-desk
+                            name="edit-desk"
                             class="clear"
                             (click)="changeResources(item)"
                         >
@@ -74,7 +74,7 @@ const EMPTY_FAVS: string[] = [];
                         <button
                             btn
                             matRipple
-                            remove-desk
+                            name="remove-desk"
                             class="clear"
                             (click)="removeResource(item)"
                         >
@@ -88,7 +88,7 @@ const EMPTY_FAVS: string[] = [];
                 <button
                     icon
                     matRipple
-                    fav
+                    name="toggle-desk-favourite"
                     class="absolute top-1 right-1"
                     [class.text-blue-400]="favorites.includes(asset?.id)"
                     (click)="toggleFavourite(asset)"
@@ -104,7 +104,7 @@ const EMPTY_FAVS: string[] = [];
         <button
             btn
             matRipple
-            add-desk
+            name="add-desk"
             class="w-full inverse mt-2"
             (click)="changeResources()"
         >

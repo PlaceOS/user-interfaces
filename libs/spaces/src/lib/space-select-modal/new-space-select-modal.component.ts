@@ -82,7 +82,7 @@ import { Space } from '../space.class';
                 <button
                     btn
                     matRipple
-                    return
+                    name="spaces-return"
                     class="inverse sm:hidden w-full"
                     *ngIf="displayed"
                     (click)="displayed = null"
@@ -93,7 +93,7 @@ import { Space } from '../space.class';
                 <button
                     btn
                     matRipple
-                    save
+                    name="save-spaces"
                     [mat-dialog-close]="selected"
                     [class.mb-2]="displayed"
                     class="w-full sm:w-32 sm:mb-0"
@@ -108,6 +108,7 @@ import { Space } from '../space.class';
                 <button
                     btn
                     matRipple
+                    name="spaces-return"
                     [mat-dialog-close]="selected"
                     class="clear text-primary"
                 >
@@ -122,6 +123,7 @@ import { Space } from '../space.class';
                 <button
                     btn
                     matRipple
+                    name="toggle-space"
                     [disabled]="!displayed"
                     [class.inverse]="isSelected(displayed?.id)"
                     (click)="setSelected(displayed, !isSelected(displayed?.id))"

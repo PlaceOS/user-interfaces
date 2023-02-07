@@ -61,6 +61,7 @@ import { LandingStateService } from './landing-state.service';
                     </div>
                     <button
                         icon
+                        name="colleague-more"
                         class="!rounded bg-gray-300"
                         [matMenuTriggerFor]="menu"
                     >
@@ -73,6 +74,7 @@ import { LandingStateService } from './landing-state.service';
                             </button> -->
                         <button
                             mat-menu-item
+                            name="meeting-with-colleague"
                             (click)="newMeeting(user)"
                             class="flex items-center space-x-2"
                         >
@@ -80,6 +82,7 @@ import { LandingStateService } from './landing-state.service';
                             <div>{{ 'WPA.CREATE_MEETING' | translate }}</div>
                         </button>
                         <button
+                            name="remove-colleague"
                             mat-menu-item
                             (click)="removeUser(user)"
                             class="flex items-center space-x-2"
@@ -97,6 +100,7 @@ import { LandingStateService } from './landing-state.service';
         </div>
         <button
             btn
+            name="open-colleague-search"
             matRipple
             class="inverse w-[calc(100%-1rem)] m-2"
             (click)="openSearch()"
@@ -117,6 +121,7 @@ import { LandingStateService } from './landing-state.service';
             />
             <button
                 icon
+                name="close-colleague-search"
                 class="absolute top-0 right-0"
                 (click)="show_search = false"
             >
@@ -131,6 +136,7 @@ import { LandingStateService } from './landing-state.service';
                 >
                     <button
                         matRipple
+                        name="add-colleague"
                         class="flex items-center p-2 space-x-2 w-full text-left"
                         *ngFor="let user of search_results | async"
                         (click)="addUser(user)"

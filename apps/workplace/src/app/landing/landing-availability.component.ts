@@ -26,6 +26,7 @@ import { LandingStateService } from './landing-state.service';
                 *ngIf="!hide_spaces"
             >
                 <button
+                    name="landing-view-space"
                     matRipple
                     *ngFor="let lvl of levels_free | async"
                     class="flex items-center h-24 min-w-[12.5rem] rounded-lg bg-white dark:bg-[#1F2021] shadow p-4 space-x-2"
@@ -86,6 +87,7 @@ import { LandingStateService } from './landing-state.service';
                 *ngIf="!hide_rooms"
             >
                 <button
+                    name="landing-book-room"
                     matRipple
                     *ngFor="
                         let space of space_list | async;

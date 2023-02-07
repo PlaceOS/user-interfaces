@@ -34,6 +34,7 @@ import { EventFormService } from '@placeos/events';
             >
                 <a
                     btn
+                    name="meeting-created-continue"
                     matRipple
                     class="w-full max-w-[32rem]"
                     [routerLink]="['/']"

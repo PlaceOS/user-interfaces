@@ -12,7 +12,7 @@ const EMPTY = [];
             class="flex items-center justify-between h-[3.5rem] bg-white border-b border-gray-200 dark:border-neutral-700 text-black z-50 shadow relative dark:bg-[#1F2021] dark:text-white"
         >
             <a
-                logo
+                name="nav-logo"
                 class="p-2 h-full flex items-center flex-1"
                 [routerLink]="['/-']"
             >
@@ -41,6 +41,7 @@ const EMPTY = [];
                     icon
                     matRipple
                     avatar
+                    name="user-controls"
                     class="h-10 w-10 rounded-full mr-2 bg-gray-200 dark:bg-neutral-800 flex items-center justify-center"
                     customTooltip
                     [content]="user_controls"
@@ -49,19 +50,6 @@ const EMPTY = [];
                 </button>
             </div>
         </div>
-        <mat-menu #menu="matMenu">
-            <button
-                mat-menu-item
-                [routerLink]="new_features ? ['/your-bookings'] : ['/schedule']"
-                routerLinkActive="text-primary"
-                *ngIf="features?.includes('schedule')"
-            >
-                <div class="flex items-center space-x-2">
-                    <app-icon class="text-xl">event</app-icon>
-                    <div i18n>My Day</div>
-                </div>
-            </button>
-        </mat-menu>
     `,
     styles: [
         `

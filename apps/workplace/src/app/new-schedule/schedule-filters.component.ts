@@ -19,7 +19,11 @@ import { ScheduleStateService } from './schedule-state.service';
                     *ngIf="(filters | async)?.shown_types?.includes('event')"
                 >
                     <div class=" px-2">{{ 'WPA.ROOMS' | translate }}</div>
-                    <button icon (click)="toggleType('event', true)">
+                    <button
+                        icon
+                        name="schedule-remove-event-filter"
+                        (click)="toggleType('event', true)"
+                    >
                         <app-icon>close</app-icon>
                     </button>
                 </div>
@@ -31,7 +35,11 @@ import { ScheduleStateService } from './schedule-state.service';
                     "
                 >
                     <div class="px-2">{{ 'WPA.DESKS' | translate }}</div>
-                    <button icon (click)="toggleType('desk', true)">
+                    <button
+                        icon
+                        name="schedule-remove-desk-filter"
+                        (click)="toggleType('desk', true)"
+                    >
                         <app-icon>close</app-icon>
                     </button>
                 </div>
@@ -46,6 +54,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     <button
                         icon
                         matRipple
+                        name="schedule-remove-parking-filter"
                         (click)="toggleType('parking', true)"
                     >
                         <app-icon>close</app-icon>
@@ -62,6 +71,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     <button
                         icon
                         matRipple
+                        name="schedule-remove-visitor-filter"
                         (click)="toggleType('visitor', true)"
                     >
                         <app-icon>close</app-icon>
@@ -73,6 +83,7 @@ import { ScheduleStateService } from './schedule-state.service';
             <button
                 btn
                 matRipple
+                name="schedule-open-filter-edit"
                 class="min-w-0 sm:w-24"
                 (click)="openFilters()"
             >
@@ -86,7 +97,11 @@ import { ScheduleStateService } from './schedule-state.service';
                 *ngIf="(filters | async)?.shown_types?.includes('event')"
             >
                 <div>{{ 'WPA.ROOMS' | translate }}</div>
-                <button icon (click)="toggleType('event', true)">
+                <button
+                    icon
+                    name="schedule-remove-event-filter-mobile"
+                    (click)="toggleType('event', true)"
+                >
                     <app-icon>close</app-icon>
                 </button>
             </div>
@@ -98,7 +113,11 @@ import { ScheduleStateService } from './schedule-state.service';
                 "
             >
                 <div>{{ 'WPA.DESKS' | translate }}</div>
-                <button icon (click)="toggleType('desk', true)">
+                <button
+                    icon
+                    name="schedule-remove-desk-filter-mobile"
+                    (click)="toggleType('desk', true)"
+                >
                     <app-icon>close</app-icon>
                 </button>
             </div>
@@ -110,7 +129,11 @@ import { ScheduleStateService } from './schedule-state.service';
                 "
             >
                 <div>{{ 'WPA.PARKING' | translate }}</div>
-                <button icon (click)="toggleType('parking', true)">
+                <button
+                    icon
+                    name="schedule-remove-parking-filter-mobile"
+                    (click)="toggleType('parking', true)"
+                >
                     <app-icon>close</app-icon>
                 </button>
             </div>
@@ -122,7 +145,11 @@ import { ScheduleStateService } from './schedule-state.service';
                 "
             >
                 <div>{{ 'WPA.VISITORS' | translate }}</div>
-                <button icon (click)="toggleType('visitor', true)">
+                <button
+                    icon
+                    name="schedule-remove-visitor-filter-mobile"
+                    (click)="toggleType('visitor', true)"
+                >
                     <app-icon>close</app-icon>
                 </button>
             </div>

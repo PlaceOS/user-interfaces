@@ -19,10 +19,20 @@ import {
                     {{ date_list[6]?.id || active_date | date: 'LLLL YYYY' }}
                 </div>
                 <div class="flex items-center">
-                    <button icon matRipple (click)="changeMonth(-1)">
+                    <button
+                        icon
+                        matRipple
+                        name="schedule-next-month"
+                        (click)="changeMonth(-1)"
+                    >
                         <app-icon>chevron_left</app-icon>
                     </button>
-                    <button icon matRipple (click)="changeMonth(1)">
+                    <button
+                        icon
+                        matRipple
+                        name="schedule-previous-month"
+                        (click)="changeMonth(1)"
+                    >
                         <app-icon>chevron_right</app-icon>
                     </button>
                 </div>
@@ -38,6 +48,7 @@ import {
             <div class="flex items-center flex-wrap">
                 <button
                     icon
+                    name="schedule-set-date"
                     class="min-w-[14%] flex-1 relative overflow-visible"
                     *ngFor="let day of date_list"
                     [class.hover:bg-blue-600]="day.id !== active_date"

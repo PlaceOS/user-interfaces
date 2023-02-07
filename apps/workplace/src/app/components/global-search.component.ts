@@ -9,6 +9,7 @@ import { ExploreSearchService } from '@placeos/explore';
         <div class="h-full w-12 relative">
             <button
                 icon
+                name="global-search"
                 matRipple
                 class="text-black h-10 w-10 rounded-full bg-gray-200 dark:bg-neutral-800 dark:text-white"
                 (click)="showInput()"

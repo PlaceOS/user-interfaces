@@ -2,7 +2,12 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Booking, removeBooking } from '@placeos/bookings';
-import { notifyError, notifySuccess, openConfirmModal, SettingsService } from '@placeos/common';
+import {
+    notifyError,
+    notifySuccess,
+    openConfirmModal,
+    SettingsService,
+} from '@placeos/common';
 import { CalendarEvent, EventFormService, removeEvent } from '@placeos/events';
 import { format } from 'date-fns';
 import { LandingStateService } from './landing-state.service';
@@ -17,12 +22,14 @@ import { LandingStateService } from './landing-state.service';
                 </div>
                 <a
                     btn
+                    name="upcoming-view-all"
                     class="inverse hidden sm:flex"
                     [routerLink]="['/your-bookings']"
                 >
                     {{ 'WPA.VIEW_ALL' | translate }}
                 </a>
                 <a
+                    name="upcoming-view-all-mobile"
                     class="inverse flex sm:hidden text-blue-500 underline relative top-8"
                     [routerLink]="['/your-bookings']"
                 >
@@ -115,7 +122,7 @@ export class LandingUpcomingComponent implements OnInit, OnDestroy {
             { title: `Delete booking`, content, icon: { content: 'delete' } },
             this._dialog
         );
-        
+
         if (resp.reason !== 'done') return;
         resp.loading('Requesting booking deletion...');
         await (item instanceof CalendarEvent ? removeEvent : removeBooking)(

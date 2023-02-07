@@ -9,7 +9,13 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 @Component({
     selector: 'meeting-flow-confirm',
     template: `
-        <button icon matRipple *ngIf="show_close" (click)="dismiss()">
+        <button
+            icon
+            matRipple
+            name="close-meeting-confirm"
+            *ngIf="show_close"
+            (click)="dismiss()"
+        >
             <app-icon>close</app-icon>
         </button>
         <header class="flex items-center justify-between px-2">
@@ -82,6 +88,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
         <footer class="p-2 w-full border-t border-gray-200 mt-4">
             <button
                 btn
+                name="confirm-meeting"
                 matRipple
                 class="w-full"
                 *ngIf="!(loading | async)"

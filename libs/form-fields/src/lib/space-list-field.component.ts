@@ -88,7 +88,7 @@ const EMPTY_FAVS: string[] = [];
                         <button
                             btn
                             matRipple
-                            edit-space
+                            name="edit-space"
                             class="clear"
                             (click)="changeSpaces(space)"
                         >
@@ -100,7 +100,7 @@ const EMPTY_FAVS: string[] = [];
                         <button
                             btn
                             matRipple
-                            remove-space
+                            name="remove-space"
                             class="clear"
                             (click)="removeSpace(space)"
                         >
@@ -114,7 +114,7 @@ const EMPTY_FAVS: string[] = [];
                 <button
                     icon
                     matRipple
-                    fav
+                    name="toggle-space-favourite"
                     class="absolute top-1 right-1"
                     [class.text-blue-400]="favorites.includes(asset?.id)"
                     (click)="toggleFavourite(asset)"
@@ -130,7 +130,7 @@ const EMPTY_FAVS: string[] = [];
         <button
             btn
             matRipple
-            add-space
+            name="add-space"
             class="w-full inverse mt-2"
             (click)="changeSpaces()"
         >

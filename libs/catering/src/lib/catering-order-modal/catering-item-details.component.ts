@@ -27,7 +27,7 @@ interface CateringOptionGroup {
                 <button
                     icon
                     matRipple
-                    close
+                    name="close-catering-item-details"
                     (click)="close.emit()"
                     class="absolute top-2 left-2 bg-black/40 sm:hidden text-white"
                 >
@@ -36,7 +36,7 @@ interface CateringOptionGroup {
                 <button
                     icon
                     matRipple
-                    fav
+                    name="toggle-catering-item-favourite-details"
                     [class.text-white]="!fav"
                     [class.text-blue-400]="fav"
                     (click)="toggleFav.emit()"
@@ -164,7 +164,7 @@ interface CateringOptionGroup {
                 <button
                     btn
                     matRipple
-                    select
+                    name="select-catering-item-details"
                     [class.inverse]="active"
                     class="w-full"
                     (click)="active = !active; activeChange.emit(active)"

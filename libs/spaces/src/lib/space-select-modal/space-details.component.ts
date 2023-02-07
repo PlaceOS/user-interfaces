@@ -31,7 +31,7 @@ import { Space } from '../space.class';
                 <button
                     icon
                     matRipple
-                    close
+                    name="close-space-details"
                     (click)="close.emit()"
                     class="absolute top-2 left-2 bg-black/40 sm:hidden text-white"
                 >
@@ -40,7 +40,7 @@ import { Space } from '../space.class';
                 <button
                     icon
                     matRipple
-                    fav
+                    name="toggle-space-favourite-details"
                     [class.text-white]="!fav"
                     [class.text-blue-400]="fav"
                     (click)="toggleFav.emit()"
@@ -114,6 +114,7 @@ import { Space } from '../space.class';
                 <button
                     btn
                     matRipple
+                    name="toggle-space-details"
                     [class.inverse]="active"
                     class="w-full"
                     (click)="active = !active; activeChange.emit(active)"

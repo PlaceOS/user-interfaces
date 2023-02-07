@@ -20,6 +20,7 @@ import { ScheduleStateService } from './schedule-state.service';
             class="space-y-4 border-b border-gray-300 mb-4 pb-4 dark:bg-neutral-700"
         >
             <button
+                name="schedule-toggle-event-filter"
                 matRipple
                 class="flex items-center space-x-2 w-full text-left pr-2"
                 (click)="toggleType('event')"
@@ -43,6 +44,7 @@ import { ScheduleStateService } from './schedule-state.service';
             </button>
             <button
                 matRipple
+                name="schedule-toggle-desk-filter"
                 class="flex items-center space-x-2 w-full text-left pr-2"
                 (click)="toggleType('desk')"
             >
@@ -63,6 +65,7 @@ import { ScheduleStateService } from './schedule-state.service';
             </button>
             <button
                 matRipple
+                name="schedule-toggle-parking-filter"
                 class="flex items-center space-x-2 w-full text-left pr-2"
                 (click)="toggleType('parking')"
             >
@@ -85,6 +88,7 @@ import { ScheduleStateService } from './schedule-state.service';
             </button>
             <button
                 matRipple
+                name="schedule-toggle-visitor-filter"
                 class="flex items-center space-x-2 w-full text-left pr-2"
                 (click)="toggleType('visitor')"
             >
@@ -107,7 +111,13 @@ import { ScheduleStateService } from './schedule-state.service';
             </button>
         </div>
         <div class="px-2 pb-2">
-            <button btn matRipple class="w-full" (click)="dismiss()">
+            <button
+                btn
+                matRipple
+                name="schedule-apply-filter"
+                class="w-full"
+                (click)="dismiss()"
+            >
                 {{ 'WPA.FILTERS_APPLY' | translate }}
             </button>
         </div>

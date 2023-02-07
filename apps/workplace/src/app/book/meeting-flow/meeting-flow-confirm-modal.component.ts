@@ -16,6 +16,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
         >
             <button
                 icon
+                name="close-meeting-confirm"
                 matRipple
                 mat-dialog-close
                 *ngIf="show_close"
@@ -218,6 +219,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
         >
             <button
                 btn
+                name="confirm-meeting"
                 matRipple
                 class="w-32"
                 *ngIf="!(loading | async)"

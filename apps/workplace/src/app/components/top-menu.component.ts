@@ -12,6 +12,7 @@ import { OrganisationService } from '@placeos/organisation';
         >
             <a
                 matRipple
+                name="nav-home"
                 class="flex items-center justify-center space-x-2 relative px-8"
                 [routerLink]="[default_page]"
                 routerLinkActive="text-primary active"
@@ -35,6 +36,7 @@ import { OrganisationService } from '@placeos/organisation';
             </a>
             <a
                 matRipple
+                name="nav-meeting"
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('spaces')"
                 [routerLink]="
@@ -61,6 +63,7 @@ import { OrganisationService } from '@placeos/organisation';
             </a>
             <a
                 matRipple
+                name="nav-desks"
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('desks')"
                 [routerLink]="
@@ -95,6 +98,7 @@ import { OrganisationService } from '@placeos/organisation';
             </a>
             <a
                 matRipple
+                name="nav-parking"
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('parking')"
                 [routerLink]="
@@ -123,6 +127,7 @@ import { OrganisationService } from '@placeos/organisation';
             </a>
             <a
                 matRipple
+                name="nav-visitor-invite"
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('visitor-invite')"
                 [routerLink]="['/book', 'visitor']"
@@ -147,6 +152,7 @@ import { OrganisationService } from '@placeos/organisation';
             </a>
             <a
                 matRipple
+                name="nav-explore"
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('explore')"
                 [routerLink]="['/explore']"
@@ -171,6 +177,7 @@ import { OrganisationService } from '@placeos/organisation';
             </a>
             <a
                 matRipple
+                name="nav-my-day"
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('schedule')"
                 [routerLink]="new_features ? ['/your-bookings'] : ['/schedule']"

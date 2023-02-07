@@ -26,7 +26,7 @@ import { BookingFormService } from '../booking-form.service';
                 <button
                     icon
                     matRipple
-                    close
+                    name="close-desk-filters"
                     class="sm:hidden"
                     *ngIf="can_close"
                     (click)="close()"
@@ -182,7 +182,14 @@ import { BookingFormService } from '../booking-form.service';
             class="px-2 py-2 w-full border-t border-gray-200"
             *ngIf="can_close"
         >
-            <button btn matRipple close class="w-full" (click)="close()" i18n>
+            <button
+                btn
+                matRipple
+                name="apply-desk-filters"
+                class="w-full"
+                (click)="close()"
+                i18n
+            >
                 Apply Filters
             </button>
         </div>

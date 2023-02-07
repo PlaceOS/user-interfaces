@@ -106,6 +106,7 @@ const EMPTY = [];
                     </div>
                     <button
                         btn
+                        name="book-favourite"
                         matRipple
                         class="w-full inverse"
                         (click)="newSpaceMeeting(item)"
@@ -114,6 +115,7 @@ const EMPTY = [];
                     </button>
                     <button
                         icon
+                        name="favourite-more"
                         [matMenuTriggerFor]="menu"
                         class="absolute top-2 right-0 bg-gray-200 dark:bg-neutral-600 !rounded !m-0"
                     >
@@ -128,6 +130,7 @@ const EMPTY = [];
                             <div>{{ 'WPA.VIEW_DETAILS' | translate }}</div>
                         </button> -->
                         <button
+                            name="landing-remove-favourite"
                             mat-menu-item
                             (click)="toggleFavourite('space', item)"
                             class="flex items-center space-x-2"
@@ -183,6 +186,7 @@ const EMPTY = [];
                     </div>
                     <button
                         btn
+                        name="book-favourite"
                         matRipple
                         class="w-full inverse"
                         (click)="newBooking(item.type, item)"
@@ -192,6 +196,7 @@ const EMPTY = [];
                     </button>
                     <button
                         icon
+                        name="favourite-more"
                         [matMenuTriggerFor]="menu"
                         class="absolute top-2 right-0 bg-gray-200 dark:bg-neutral-600 !rounded !m-0"
                     >
@@ -206,6 +211,7 @@ const EMPTY = [];
                             <div>{{ 'WPA.VIEW_DETAILS' | translate }}</div>
                         </button> -->
                         <button
+                            name="landing-remove-favourite"
                             mat-menu-item
                             (click)="toggleFavourite(item.type, item.id)"
                             class="flex items-center space-x-2"

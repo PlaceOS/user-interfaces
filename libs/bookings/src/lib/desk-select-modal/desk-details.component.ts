@@ -44,7 +44,7 @@ import { BookingAsset } from '../booking-form.service';
                 <button
                     icon
                     matRipple
-                    close
+                    name="close-desk-details"
                     (click)="close.emit()"
                     class="absolute top-2 left-2 bg-black/40 sm:hidden text-white"
                 >
@@ -53,7 +53,7 @@ import { BookingAsset } from '../booking-form.service';
                 <button
                     icon
                     matRipple
-                    fav
+                    name="toggle-desk-favourite-details"
                     [class.text-white]="!fav"
                     [class.text-blue-400]="fav"
                     (click)="toggleFav.emit()"
@@ -123,6 +123,7 @@ import { BookingAsset } from '../booking-form.service';
                 <button
                     btn
                     matRipple
+                    name="toggle-desk-details"
                     [class.inverse]="active"
                     class="w-full"
                     (click)="active = !active; activeChange.emit(active)"

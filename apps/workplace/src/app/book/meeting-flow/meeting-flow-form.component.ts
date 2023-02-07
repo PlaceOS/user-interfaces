@@ -1,5 +1,4 @@
 import { Component, ElementRef, TemplateRef, ViewChild } from '@angular/core';
-import { Validators } from '@angular/forms';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
@@ -57,6 +56,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             <div class="flex-1 w-px"></div>
                             <button
                                 icon
+                                name="toggle-details-meeting"
                                 matRipple
                                 (click)="
                                     hide_block.details = !hide_block.details
@@ -92,6 +92,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             <div class="flex-1 w-px"></div>
                             <button
                                 matRipple
+                                name="find-attendee-availability"
                                 class="bg-none underline text-xs text-blue-500"
                                 (click)="findAvailableTime()"
                             >
@@ -99,6 +100,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             </button>
                             <button
                                 icon
+                                name="toggle-attendees-meeting"
                                 matRipple
                                 (click)="
                                     hide_block.attendees = !hide_block.attendees
@@ -135,6 +137,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             <div class="flex-1 w-px"></div>
                             <button
                                 icon
+                                name="toggle-spaces-meeting"
                                 matRipple
                                 (click)="
                                     hide_block.resources = !hide_block.resources
@@ -182,6 +185,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             <div class="flex-1 w-px"></div>
                             <button
                                 icon
+                                name="toggle-catering-meeting"
                                 matRipple
                                 (click)="
                                     hide_block.catering = !hide_block.catering
@@ -274,6 +278,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             <div class="flex-1 w-px"></div>
                             <button
                                 icon
+                                name="toggle-assets-meeting"
                                 matRipple
                                 (click)="hide_block.assets = !hide_block.assets"
                             >
@@ -326,6 +331,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                     >
                         <button
                             btn
+                            name="open-meeting-confirm"
                             matRipple
                             confirm
                             class="mb-2 sm:mb-0 w-full sm:w-auto"
@@ -335,6 +341,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                         </button>
                         <button
                             btn
+                            name="clear-form-meeting"
                             matRipple
                             clear-form
                             class="inverse w-full sm:w-auto"

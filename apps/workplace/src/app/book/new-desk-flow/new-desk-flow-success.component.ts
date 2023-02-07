@@ -52,6 +52,7 @@ import {
                     <a
                         btn
                         matRipple
+                        name="desk-outlook-link"
                         class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
                         [href]="outlook_link | sanitize: 'url'"
                         target="_blank"
@@ -63,6 +64,7 @@ import {
                     <a
                         btn
                         matRipple
+                        name="desk-google-link"
                         class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
                         [href]="google_link | sanitize: 'url'"
                         target="_blank"
@@ -74,6 +76,7 @@ import {
                     <a
                         btn
                         matRipple
+                        name="desk-ical-link"
                         class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
                         [href]="ical_link | safe: 'url'"
                         target="_blank"
@@ -89,6 +92,7 @@ import {
             >
                 <a
                     btn
+                    name="desk-confirm-continue"
                     matRipple
                     class="w-full max-w-[32rem] mx-auto"
                     [routerLink]="['/']"

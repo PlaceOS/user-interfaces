@@ -1,4 +1,4 @@
-import { Component, OnInit, Optional } from '@angular/core';
+import { Component, OnInit, Optional, Renderer2 } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Clipboard } from '@angular/cdk/clipboard';
@@ -94,6 +94,7 @@ export class AppComponent extends BaseClass implements OnInit {
         private _hotkey: HotkeysService,
         private _clipboard: Clipboard,
         private _route: ActivatedRoute,
+        private _renderer: Renderer2,
         @Optional() private _translate: TranslateService
     ) {
         super();
@@ -168,15 +169,7 @@ export class AppComponent extends BaseClass implements OnInit {
             this._settings.get('app.general.internal_user_domain') ||
                 `@${currentUser()?.email?.split('@')[1]}`
         );
-        if (this._settings.get('app.analytics.tracking_id')) {
-            this._analytics.init(
-                this._settings.get('app.analytics.tracking_id')
-            );
-            this._analytics.load(
-                this._settings.get('app.analytics.tracking_id')
-            );
-            this._analytics.setUser(currentUser().id);
-        }
+        this._initAnalytics();
         initSentry(this._settings.get('app.sentry_dsn'));
         if (this._settings.get('app.has_uploads')) {
             this.timeout('init_uploads', () => {
@@ -195,6 +188,25 @@ export class AppComponent extends BaseClass implements OnInit {
         if (isMock() || currentUser()?.is_logged_in) return;
         invalidateToken();
         location.reload();
+    }
+
+    private _initAnalytics() {
+        const tracking_id = this._settings.get('app.analytics.tracking_id');
+        if (!tracking_id) return;
+        this._analytics.init(tracking_id);
+        this._analytics.load(tracking_id);
+        this._analytics.setUser(currentUser().id);
+        // Post button click events
+        this._renderer.listen('window', 'click', (e) => {
+            if (
+                (e.target?.tagName.toLowerCase() === 'button' ||
+                    e.target?.tagName.toLowerCase() === 'a') &&
+                (e.target.getAttribute('name') || e.target.id)
+            ) {
+                const id = e.target.getAttribute('name') || e.target.id;
+                this._analytics.event('click', e.target?.tagName, id);
+            }
+        });
     }
 
     private _initLocale() {

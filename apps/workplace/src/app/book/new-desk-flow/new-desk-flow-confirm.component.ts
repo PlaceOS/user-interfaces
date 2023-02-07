@@ -22,7 +22,13 @@ import { take } from 'rxjs/operators';
         `,
     ],
     template: `
-        <button close icon matRipple *ngIf="show_close" (click)="dismiss()">
+        <button
+            icon
+            name="close-desk-confirm"
+            matRipple
+            *ngIf="show_close"
+            (click)="dismiss()"
+        >
             <app-icon>close</app-icon>
         </button>
         <header class="flex items-center justify-between px-2">
@@ -113,7 +119,7 @@ import { take } from 'rxjs/operators';
             class="p-2 w-full border-t border-gray-200 dark:border-neutral-500 mt-4"
         >
             <button
-                confirm
+                name="confirm-desk"
                 btn
                 matRipple
                 class="w-full"

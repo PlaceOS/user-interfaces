@@ -39,7 +39,7 @@ import { endOfDay } from 'date-fns';
             <button
                 btn
                 matRipple
-                filters
+                name="edit-desk-filters"
                 class="flex-1 w-1/2"
                 (click)="editFilter()"
                 i18n
@@ -50,7 +50,7 @@ import { endOfDay } from 'date-fns';
                 <button
                     btn
                     matRipple
-                    map
+                    name="view-desk-map"
                     class="rounded-l rounded-r-none"
                     [class.inverse]="view !== 'map'"
                     (click)="view = 'map'; viewChange.emit(view)"
@@ -61,7 +61,7 @@ import { endOfDay } from 'date-fns';
                 <button
                     btn
                     matRipple
-                    list
+                    name="view-desk-list"
                     class="rounded-r rounded-l-none"
                     [class.inverse]="view !== 'list'"
                     (click)="view = 'list'; viewChange.emit(view)"
@@ -87,6 +87,7 @@ import { endOfDay } from 'date-fns';
                 <button
                     icon
                     matRipple
+                    name="remove-desk-filter"
                     class="-mr-4"
                     (click)="setFeature(feat, false)"
                 >
@@ -98,6 +99,7 @@ import { endOfDay } from 'date-fns';
                 <button
                     icon
                     matRipple
+                    name="remove-desk-favs-filter"
                     class="-mr-4"
                     (click)="setOptions({ show_fav: false })"
                 >
@@ -120,7 +122,7 @@ export class DeskFiltersDisplayComponent extends BaseClass {
 
     public get end() {
         const { date, duration, all_day } = this._state.form.value;
-        if(all_day) return endOfDay(date);
+        if (all_day) return endOfDay(date);
         return date + duration * 60 * 1000;
     }
 

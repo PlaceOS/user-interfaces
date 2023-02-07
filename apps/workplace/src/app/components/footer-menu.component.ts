@@ -14,6 +14,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                 class="absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-center p-4"
             >
                 <a
+                    name="footer-nav-meeting"
                     matRipple
                     [routerLink]="
                         new_features
@@ -38,6 +39,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                 </a>
                 <a
                     matRipple
+                    name="footer-nav-desks"
                     [routerLink]="
                         new_features ? ['/book', 'newdesk'] : ['/book', 'desks']
                     "
@@ -59,6 +61,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                 </a>
                 <a
                     matRipple
+                    name="footer-nav-parking"
                     [routerLink]="['/book', 'parking']"
                     routerLinkActive="active"
                     *ngIf="features.includes('parking')"
@@ -78,6 +81,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                 </a>
                 <a
                     matRipple
+                    name="footer-nav-visitor-invite"
                     *ngIf="features.includes('visitor-invite')"
                     [routerLink]="['/book', 'visitor']"
                     routerLinkActive="active"
@@ -97,6 +101,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                 </a>
                 <a
                     matRipple
+                    name="footer-nav-my-day"
                     [routerLink]="
                         new_features ? ['/your-bookings'] : ['/schedule']
                     "
@@ -127,6 +132,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                 matRipple
                 class="flex flex-col items-center justify-center relative flex-1"
                 [routerLink]="[default_page]"
+                name="footer-nav-home"
                 routerLinkActive="text-primary active"
             >
                 <app-icon filled class="text-2xl">home</app-icon>

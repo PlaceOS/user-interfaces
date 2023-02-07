@@ -38,15 +38,25 @@ import { SpaceLocationPinComponent } from './space-location-pin.component';
             zoom
             class="absolute bottom-2 right-2 rounded-lg border border-gray-200 bg-white flex flex-col overflow-hidden"
         >
-            <button zoom-in icon matRipple (click)="setZoom(zoom * 1.1)">
+            <button
+                icon
+                matRipple
+                name="space-map-zoom-in"
+                (click)="setZoom(zoom * 1.1)"
+            >
                 <app-icon>zoom_in</app-icon>
             </button>
             <div class="border-t border-gray-200 w-full"></div>
-            <button zoom-out icon matRipple (click)="setZoom(zoom * (1 / 1.1))">
+            <button
+                icon
+                matRipple
+                name="space-map-zoom-out"
+                (click)="setZoom(zoom * (1 / 1.1))"
+            >
                 <app-icon>zoom_out</app-icon>
             </button>
             <div class="border-t border-gray-200 w-full"></div>
-            <button reset icon matRipple (click)="resetMap()">
+            <button icon matRipple name="space-map-reset" (click)="resetMap()">
                 <app-icon>refresh</app-icon>
             </button>
         </div>

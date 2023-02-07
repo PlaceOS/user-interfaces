@@ -16,7 +16,7 @@ import { SpacesService } from '../spaces.service';
                 <button
                     icon
                     matRipple
-                    close
+                    name="close-space-filters"
                     *ngIf="can_close"
                     (click)="close()"
                 >
@@ -154,7 +154,14 @@ import { SpacesService } from '../spaces.service';
             class="px-2 pt-2 w-full border-t border-gray-200"
             *ngIf="can_close"
         >
-            <button btn matRipple close class="w-full" (click)="close()" i18n>
+            <button
+                btn
+                matRipple
+                class="w-full"
+                name="apply-space-filters"
+                (click)="close()"
+                i18n
+            >
                 Apply Filters
             </button>
         </div>

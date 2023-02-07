@@ -33,7 +33,7 @@ import { BookingFormService, BookingAsset } from '../booking-form.service';
                     [class.!border-blue-400]="active === desk.id"
                 >
                     <button
-                        select
+                        name="select-desk"
                         matRipple
                         class="w-full h-full flex p-2"
                         (click)="selectDesk(desk)"
@@ -78,7 +78,7 @@ import { BookingFormService, BookingAsset } from '../booking-form.service';
                     <button
                         icon
                         matRipple
-                        fav
+                        name="toggle-desk-favourite"
                         class="absolute top-1 right-1"
                         [class.text-blue-400]="isFavourite(desk.id)"
                         (click)="toggleFav.emit(desk)"
