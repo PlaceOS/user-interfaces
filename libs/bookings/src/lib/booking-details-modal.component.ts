@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { notifySuccess } from '@placeos/common';
+import { notifySuccess, SettingsService } from '@placeos/common';
 import { MapPinComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { addMinutes, format, formatDuration } from 'date-fns';
@@ -96,6 +96,7 @@ import { checkinBooking } from './bookings.fn';
                             class="flex-1 h-10 border-none"
                             [class.bg-green-600]="booking.checked_in"
                             [disabled]="checking_in"
+                            *ngIf="!auto_checkin"
                             (click)="toggleCheckedIn()"
                         >
                             <div
@@ -223,8 +224,15 @@ export class BookingDetailsModalComponent {
         );
     }
 
+    public get auto_checkin() {
+        return this._settings.get(
+            `app.${this.booking?.type || 'bookings'}.auto_checkin`
+        );
+    }
+
     constructor(
         @Inject(MAT_DIALOG_DATA) private _booking: Booking,
+        private _settings: SettingsService,
         private _org: OrganisationService
     ) {}
 
