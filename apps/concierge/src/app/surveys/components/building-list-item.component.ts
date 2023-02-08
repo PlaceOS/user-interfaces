@@ -20,7 +20,7 @@ import { shareReplay } from 'rxjs/operators';
             <div *ngIf="!building.image" class="image-container">
                 <span> <mat-icon class="domain-icon">domain</mat-icon></span>
             </div>
-            <div class="details-container">
+            <div class="details-container my-4 mx-8 w-full relative">
                 <div class="location-wrapper">
                     <mat-icon
                         class="location-icon"
@@ -36,24 +36,43 @@ import { shareReplay } from 'rxjs/operators';
                 </span>
                 <ng-container *ngIf="!(loading$ | async)?.length; else loadState;">
                     <ng-container *ngIf="stats$ | async as stats">
-                        <ul class="details-text mt-3">
-                            <li>Surveys live: {{ stats.lives }}</li>
-                            <li>Survey drafts: {{ stats.drafts }}</li>
-                            <li>Responses: {{ stats.responses }}</li>
-                        </ul>
+                    <div class="flex py-4 justify-end space-x-2">
+                        <div class="flex flex-col items-center flex-1">
+                            <h3>Live Surveys</h3>
+                            <p class="text-4xl">
+                                {{ stats?.lives || 0 }}
+                            </p>
+                        </div>
+                        <div class="flex flex-col items-center flex-1">
+                            <h3>Draft Surveys</h3>
+                            <p class="text-4xl">
+                                {{ stats?.drafts || 0 }}
+                            </p>
+                        </div>
+                        <div class="flex flex-col items-center flex-1">
+                            <h3>Total Responses</h3>
+                            <p class="text-4xl">
+                                {{ stats?.responses || 0 }}
+                            </p>
+                        </div>
+                    </div>
                     </ng-container>
                 </ng-container>
-
-            </div>
-            <div class="button-container">
-                <button btn matRipple class="inverse" (click)="navigate()">
-                    <span class="ml-2">View</span>
-                    <app-icon class="ml-1 text-2xl">chevron_right</app-icon>
-                </button>
+                <div class="flex justify-end w-full mt-4">
+                    <button btn matRipple class="inverse" (click)="navigate()">
+                        <span class="ml-2">View</span>
+                        <app-icon class="ml-1 text-2xl">chevron_right</app-icon>
+                    </button>
+                </div>
             </div>
         </section>
         <ng-template #loadState>
-            <div class="flex flex-col"></div>
+            <div class="flex absolute inset-0 opacity-60 bg-white dark:bg-black z-10">
+                <div class="flex flex-col m-auto items-center">
+                    <mat-spinner [diameter]="32"></mat-spinner>
+                    <span>{{loading$ | async}}</span>
+                </div>
+            </div> 
         </ng-template>
     `,
     styles: [
@@ -101,7 +120,6 @@ import { shareReplay } from 'rxjs/operators';
                 display: flex;
                 flex-direction: column;
                 min-width: 600px;
-                margin: 30px;
             }
             .location-wrapper {
                 display: flex;
