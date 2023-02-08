@@ -16,6 +16,12 @@ To run the dev server use the command `nx serve <project>` e.g. `nx serve contro
 
 By default the dev web server proxies all requests to the set live system, if you wish to use a mock requests and systems press `Ctrl + Alt/Option + Shift + M` to reload the page in mock mode. To leave mock mode you can repeat the keypresses.
 
+### Connecting to a live environment
+
+If you wish to develop with a live environment you can change the details in [`config/proxy.conf.js`](./config/proxy.conf.js)
+to point the the server with the live environment and update the SSL settings the match that environment.
+
+
 ## Compilation
 
 Compile the application into static files using `nx build <project>` e.g. `nx build bookings`
