@@ -5,7 +5,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import { IconComponent } from '@placeos/components';
@@ -15,12 +15,14 @@ import * as users_fn from '@placeos/users';
 import * as guest_fn from '@placeos/users';
 
 import { UserSearchFieldComponent } from '../lib/user-search-field.component';
+import { SettingsService } from '@placeos/common';
 
 describe('UserSearchFieldComponent', () => {
     let spectator: Spectator<UserSearchFieldComponent>;
     const createComponent = createComponentFactory({
         component: UserSearchFieldComponent,
         declarations: [MockComponent(IconComponent)],
+        providers: [MockProvider(SettingsService, { get: jest.fn() })],
         imports: [
             MatFormFieldModule,
             MatInputModule,
@@ -45,7 +47,11 @@ describe('UserSearchFieldComponent', () => {
         staff_spy.mockImplementation((q) => of([...user_list] as any));
         guest_spy.mockImplementation((q) => of([...user_list] as any));
         spectator.dispatchFakeEvent('input', 'focusin');
-        spectator.triggerEventHandler('input', 'ngModelChange', user_list[0].name);
+        spectator.triggerEventHandler(
+            'input',
+            'ngModelChange',
+            user_list[0].name
+        );
         spectator.tick(401);
         spectator.detectChanges();
         expect(document.querySelector('mat-option')).toBeTruthy();
@@ -58,7 +64,11 @@ describe('UserSearchFieldComponent', () => {
             .map(() => new User(generateMockUser()));
         spectator.component.options = user_list.slice(0, 4);
         spectator.dispatchFakeEvent('input', 'focusin');
-        spectator.triggerEventHandler('input', 'ngModelChange', user_list[0].name);
+        spectator.triggerEventHandler(
+            'input',
+            'ngModelChange',
+            user_list[0].name
+        );
         spectator.tick(401);
         spectator.detectChanges();
         expect(document.querySelector('mat-option')).toBeTruthy();

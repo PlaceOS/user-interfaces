@@ -2,10 +2,10 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
+import { SettingsService } from '@placeos/common';
 import { IconComponent, InteractiveMapComponent } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
-import { MockComponent, MockModule } from 'ng-mocks';
+import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { SpaceSelectMapComponent } from '../../lib/space-select-modal/space-map.component';
@@ -16,12 +16,15 @@ describe('SpaceSelectMapComponent', () => {
     const createComponent = createRoutingFactory({
         component: SpaceSelectMapComponent,
         providers: [
-            {
-                provide: EventFormService,
-                useValue: { available_spaces: new BehaviorSubject([]) },
-            }
+            MockProvider(EventFormService, {
+                available_spaces: new BehaviorSubject([]),
+            }),
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
-        declarations: [MockComponent(InteractiveMapComponent), MockComponent(IconComponent)],
+        declarations: [
+            MockComponent(InteractiveMapComponent),
+            MockComponent(IconComponent),
+        ],
         imports: [
             FormsModule,
             MockModule(MatFormFieldModule),
@@ -42,9 +45,9 @@ describe('SpaceSelectMapComponent', () => {
 
     it('should allow changing the zoom level', () => {
         expect(spectator.component.zoom).toBe(1);
-        spectator.click('[zoom-in]');
+        spectator.click('[name="space-map-zoom-in"]');
         expect(spectator.component.zoom).toBe(1.1);
-        spectator.click('[zoom-out]');
+        spectator.click('[name="space-map-zoom-out"]');
         expect(spectator.component.zoom).toBe(1);
     });
 

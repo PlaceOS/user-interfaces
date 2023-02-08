@@ -1,4 +1,8 @@
-import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {
+    MatDialogModule,
+    MatDialogRef,
+    MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
@@ -52,7 +56,7 @@ describe('NewSpaceSelectModalComponent', () => {
         expect('header [mat-dialog-close]').toExist());
 
     it('should allow saving the list items', () =>
-        expect('button[save]').toExist());
+        expect('button[name="save-spaces"]').toExist());
 
     it('should allow setting selected spaces', () => {
         expect(spectator.component.selected_ids).not.toContain('space-1');

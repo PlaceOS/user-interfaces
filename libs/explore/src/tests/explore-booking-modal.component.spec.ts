@@ -33,7 +33,10 @@ describe('ExploreBookingModalComponent', () => {
                 postForm: jest.fn(async () => ({})),
                 loading: of(''),
             } as any),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, {
+                get: jest.fn(),
+                app_name: 'workplace',
+            }),
             MockProvider(MatDialogRef, { close: jest.fn() }),
         ],
         imports: [

@@ -23,7 +23,7 @@ describe('SpaceListComponent', () => {
                 get: jest.fn(),
                 saveUserSetting: jest.fn(),
             }),
-            MockProvider(OrganisationService, { levelWithID: jest.fn() })
+            MockProvider(OrganisationService, { levelWithID: jest.fn() }),
         ],
         declarations: [MockComponent(IconComponent)],
         imports: [MockModule(MatProgressSpinnerModule)],
@@ -72,7 +72,7 @@ describe('SpaceListComponent', () => {
         ]);
         spectator.detectChanges();
         spectator.component.onSelect.subscribe(() => done());
-        spectator.click('[space] button[select]');
+        spectator.click('[space] button[name="select-space"]');
     });
 
     it('should allow favouriting a space', (done) => {
@@ -81,6 +81,6 @@ describe('SpaceListComponent', () => {
         ]);
         spectator.detectChanges();
         spectator.component.toggleFav.subscribe(() => done());
-        spectator.click('[space] button[fav]');
+        spectator.click('[space] button[name="toggle-space-favourite"]');
     });
 });

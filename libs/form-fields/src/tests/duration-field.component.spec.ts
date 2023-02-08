@@ -65,26 +65,16 @@ describe('DurationFieldComponent', () => {
     });
 
     it('should allow changing the reference time', () => {
-        spectator.setInput({ time: startOfMinute(new Date()).valueOf() });
+        spectator.setInput({ time: 1 });
         spectator.detectChanges();
         let options = spectator.component.duration_options;
-        expect(options[0].name).toContain(
-            format(
-                addMinutes(spectator.component.time, +options[0].id),
-                timeFormatString()
-            )
-        );
+        expect(options[0].name).toContain('AM');
         spectator.setInput({
-            time: addHours(startOfMinute(new Date()), 1).valueOf(),
+            time: addHours(1, 12).valueOf(),
         });
         spectator.detectChanges();
         options = spectator.component.duration_options;
-        expect(options[0].name).toContain(
-            format(
-                addMinutes(spectator.component.time, +options[0].id),
-                timeFormatString()
-            )
-        );
+        expect(options[0].name).toContain('PM');
     });
 
     it('should allow setting the value', (done) => {

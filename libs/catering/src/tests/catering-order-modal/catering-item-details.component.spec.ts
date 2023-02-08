@@ -43,16 +43,19 @@ describe('CateringItemDetailsComponent', () => {
         spectator.setInput({ item: new CateringItem({ id: '1' }) });
         spectator.detectChanges();
         spectator.component.toggleFav.subscribe(() => done());
-        spectator.click('[fav]');
+        spectator.click('[name="toggle-catering-item-favourite-details"]');
     });
 
     it('should allow toggling active state', (done) => {
         spectator.setInput({ item: new CateringItem({ id: '1' }) });
         spectator.detectChanges();
         spectator.component.activeChange.subscribe((state) => {
-            if (state) setTimeout(() => spectator.click('[select]'));
+            if (state)
+                setTimeout(() =>
+                    spectator.click('[name="select-catering-item-details"]')
+                );
             else done();
         });
-        spectator.click('[select]');
+        spectator.click('[name="select-catering-item-details"]');
     });
 });

@@ -27,7 +27,7 @@ describe('BindingDirective', () => {
         expect(spectator.directive).toBeTruthy();
     });
 
-    it('should listen to binding changes', (done) => {
+    it('should listen to binding changes', fakeAsync(() => {
         const value = new BehaviorSubject('');
         (ts_client as any).getModule = jest.fn(() => ({
             binding: jest.fn(() => ({
@@ -41,22 +41,21 @@ describe('BindingDirective', () => {
             index: 2,
             bind: 'power',
         });
-        new Promise<void>((r) => setTimeout(() => r(), 31)).then(() => {
-            expect(ts_client.getModule).toHaveBeenCalledWith(
-                'system-1',
-                'System',
-                2
-            );
-            spectator.directive.modelChange.subscribe((value) => {
-                if (!value) return;
-                expect(value).toBe('Testing');
-                done();
-            });
-            value.next('Testing');
+        spectator.tick(1000);
+        expect(ts_client.getModule).toHaveBeenCalledWith(
+            'system-1',
+            'System',
+            2
+        );
+        spectator.directive.modelChange.subscribe((value) => {
+            if (!value) return;
+            expect(value).toBe('Testing');
         });
-    });
+        value.next('Testing');
+        spectator.tick(1000);
+    }));
 
-    it('should allow performing executions', () => {
+    it('should allow performing executions', fakeAsync(() => {
         const execute = jest.fn(async (_) => null);
         (ts_client as any).getModule = jest.fn(() => ({
             execute,
@@ -66,6 +65,7 @@ describe('BindingDirective', () => {
         expect(execute).not.toHaveBeenCalled();
         spectator.setInput({ model: true });
         spectator.detectChanges();
+        spectator.tick(1000);
         expect(ts_client.getModule).toHaveBeenCalledWith(
             'system-1',
             'System',
@@ -74,10 +74,11 @@ describe('BindingDirective', () => {
         expect(execute).toHaveBeenCalledWith('power', []);
         spectator.setInput({ params: [false], model: 2 });
         spectator.detectChanges();
+        spectator.tick(1000);
         expect(execute).toHaveBeenCalledWith('power', [false]);
-    });
+    }));
 
-    it('should allow executing on parent element DOM events', () => {
+    it('should allow executing on parent element DOM events', fakeAsync(() => {
         const execute = jest.fn(async (_) => null);
         (ts_client as any).getModule = jest.fn(() => ({
             execute,
@@ -91,9 +92,11 @@ describe('BindingDirective', () => {
         spectator.detectChanges();
         expect(execute).not.toHaveBeenCalled();
         spectator.click('[binding]');
+        spectator.tick(1000);
         expect(execute).toHaveBeenCalledWith('power', []);
         spectator.setInput({ on_event: 'random_event', params: ['Jim'] });
         spectator.triggerEventHandler('[binding]', 'random_event', {});
+        spectator.tick(1000);
         expect(execute).toHaveBeenCalledWith('power', ['Jim']);
-    });
+    }));
 });

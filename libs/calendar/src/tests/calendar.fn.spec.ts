@@ -3,7 +3,7 @@ import { of } from 'rxjs';
 import {
     queryCalendarAvailability,
     queryCalendars,
-    querySpaceAvailability,
+    querySpaceCalendarAvailability,
     querySpaceFreeBusy,
 } from '../lib/calendar.fn';
 
@@ -45,7 +45,7 @@ describe('Calendar API Methods', () => {
             (ts_client as any).get = jest.fn(() =>
                 of([{ resource: { bookable: true } }])
             );
-            const list = await querySpaceAvailability({
+            const list = await querySpaceCalendarAvailability({
                 period_start: 1,
                 period_end: 2,
             }).toPromise();

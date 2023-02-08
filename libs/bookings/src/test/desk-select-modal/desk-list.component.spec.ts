@@ -55,11 +55,11 @@ describe('DeskListComponent', () => {
 
     it('should allow selecting a desk', (done) => {
         spectator.component.onSelect.subscribe(() => done());
-        spectator.click('[desk] button[select]');
+        spectator.click('[desk] button[name="select-desk"]');
     });
 
     it('should allow favoriting a desk', (done) => {
         spectator.component.toggleFav.subscribe(() => done());
-        spectator.click('[desk] button[fav]');
+        spectator.click('[desk] button[name="toggle-desk-favourite"]');
     });
 });

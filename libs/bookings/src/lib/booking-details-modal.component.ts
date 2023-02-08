@@ -93,8 +93,8 @@ import { checkinBooking } from './bookings.fn';
                         <button
                             btn
                             matRipple
-                            class="flex-1 h-10"
-                            [class.inverse]="booking.checked_in"
+                            class="flex-1 h-10 border-none"
+                            [class.bg-green-600]="booking.checked_in"
                             [disabled]="checking_in"
                             (click)="toggleCheckedIn()"
                         >

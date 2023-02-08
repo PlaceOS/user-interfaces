@@ -19,7 +19,7 @@ describe('SettingsService', () => {
 
     beforeEach(() => {
         (SETTINGS as any).DEFAULT_SETTINGS = test_data;
-        service = new SettingsService({ setTitle: jest.fn() } as any);
+        service = new SettingsService({ setTitle: jest.fn() } as any, null);
     });
 
     it('should initialise settings from DEFAULT_SETTINGS', (done) => {

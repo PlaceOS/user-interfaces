@@ -1,6 +1,6 @@
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { SpaceFiltersDisplayComponent } from '../../lib/space-select-modal/space-filters-display.component';
 import { EventFormService } from '@placeos/events';
 import { FormGroup } from '@angular/forms';
@@ -13,27 +13,16 @@ describe('SpaceFiltersDisplayComponent', () => {
     const createComponent = createRoutingFactory({
         component: SpaceFiltersDisplayComponent,
         providers: [
-            {
-                provide: MatBottomSheet,
-                useValue: {
-                    open: jest.fn(),
-                },
-            },
-            {
-                provide: EventFormService,
-                useValue: {
-                    form: new FormGroup({}),
-                    options: new BehaviorSubject({ features: ['Whiteboard'] }),
-                    setOptions: jest.fn(),
-                },
-            },
-            {
-                provide: OrganisationService,
-                useValue: {
-                    levelWithID: jest.fn(),
-                    building: new Building({ name: 'Test' }),
-                },
-            },
+            MockProvider(MatBottomSheet, { open: jest.fn() }),
+            MockProvider(EventFormService, {
+                form: new FormGroup({}),
+                options: new BehaviorSubject({ features: ['Whiteboard'] }),
+                setOptions: jest.fn(),
+            } as any),
+            MockProvider(OrganisationService, {
+                levelWithID: jest.fn(),
+                building: new Building({ name: 'Test' }),
+            }),
         ],
         declarations: [MockComponent(IconComponent)],
     });
@@ -45,15 +34,15 @@ describe('SpaceFiltersDisplayComponent', () => {
 
     it('should allow user to open edit filters', () => {
         expect(spectator.inject(MatBottomSheet).open).not.toBeCalled();
-        expect('button[filters]').toExist();
-        spectator.click('button[filters]');
+        expect('button[name="edit-space-filters"]').toExist();
+        spectator.click('button[name="edit-space-filters"]');
         expect(spectator.inject(MatBottomSheet).open).toBeCalled();
     });
 
     it('should allow toggling results view', () => {
-        expect('button[map]').toExist();
-        expect('button[list]').toExist();
-        spectator.click('button[map]');
+        expect('button[name="view-space-map"]').toExist();
+        expect('button[name="view-space-list"]').toExist();
+        spectator.click('button[name="view-space-map"]');
     });
 
     it('should show selected filters', () => {

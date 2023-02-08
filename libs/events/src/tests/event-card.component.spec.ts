@@ -17,7 +17,7 @@ describe('EventCardComponent', () => {
                 provide: OrganisationService,
                 useValue: { levelWithID: jest.fn(), buildings: [] },
             },
-            { provide: MatDialog, useValue: { open: jest.fn() } }
+            { provide: MatDialog, useValue: { open: jest.fn() } },
         ],
     });
 
@@ -35,7 +35,7 @@ describe('EventCardComponent', () => {
             }),
         });
         spectator.detectChanges();
-        expect('[details]').toExist();
+        expect('[name="view-event-details"]').toExist();
         expect('[day]').not.toExist();
         spectator.setInput({ show_day: true });
         spectator.detectChanges();

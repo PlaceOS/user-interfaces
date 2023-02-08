@@ -6,29 +6,22 @@ import { BookingFormService, generateBookingForm } from '@placeos/bookings';
 import { IconComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { NewDeskFlowConfirmComponent } from 'apps/workplace/src/app/book/new-desk-flow/new-desk-flow-confirm.component';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
+import { BehaviorSubject } from 'rxjs';
 
 describe('NewDeskFlowConfirmComponent', () => {
     let spectator: SpectatorRouting<NewDeskFlowConfirmComponent>;
     const createComponent = createRoutingFactory({
         component: NewDeskFlowConfirmComponent,
         providers: [
-            {
-                provide: BookingFormService,
-                useValue: {
-                    form: generateBookingForm(),
-                    postForm: jest.fn(),
-                },
-            },
-            {
-                provide: OrganisationService,
-                useValue: {},
-            },
-            {
-                provide: MatBottomSheetRef,
-                useValue: { dismiss: jest.fn() },
-            },
-            { provide: MatDialog, useValue: { open: jest.fn() } },
+            MockProvider(BookingFormService, {
+                form: generateBookingForm(),
+                postForm: jest.fn(),
+                options: new BehaviorSubject<any>({}),
+            }),
+            MockProvider(OrganisationService, {}),
+            MockProvider(MatBottomSheetRef, { dismiss: jest.fn() }),
+            MockProvider(MatDialog, { open: jest.fn() }),
         ],
         declarations: [MockComponent(IconComponent)],
     });
@@ -42,14 +35,16 @@ describe('NewDeskFlowConfirmComponent', () => {
 
     it('should show assets if available', () => {
         expect('[assets]').not.toExist();
-        spectator.inject(BookingFormService).form.patchValue({assets: [new Asset()]});
+        spectator
+            .inject(BookingFormService)
+            .form.patchValue({ assets: [new Asset()] });
         spectator.detectChanges();
         expect('[assets]').toExist();
-    })
+    });
 
     it('should allow posting booking', () => {
-        expect('button[confirm]').toExist();
-        spectator.click('button[confirm]');
+        expect('button[name="confirm-desk"]').toExist();
+        spectator.click('button[name="confirm-desk"]');
         expect(
             spectator.inject(BookingFormService).postForm
         ).toHaveBeenCalledTimes(1);
@@ -60,8 +55,8 @@ describe('NewDeskFlowConfirmComponent', () => {
 
     it('should allow closing', () => {
         spectator.setInput({ show_close: true });
-        expect('button[close]').toExist();
-        spectator.click('button[close]');
+        expect('button[name="close-desk-confirm"]').toExist();
+        spectator.click('button[name="close-desk-confirm"]');
         expect(spectator.inject(MatBottomSheetRef).dismiss).toBeCalled();
     });
 });

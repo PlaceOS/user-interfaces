@@ -89,8 +89,8 @@ describe('DeskFiltersComponent', () => {
         expect('[name="fav"]').toExist());
 
     it('should allow closing', () => {
-        expect('button[close]').toExist();
-        spectator.click('button[close]');
+        expect('button[name="close-desk-filters"]').toExist();
+        spectator.click('button[name="close-desk-filters"]');
         expect(spectator.inject(MatBottomSheetRef).dismiss).toBeCalled();
     });
 });

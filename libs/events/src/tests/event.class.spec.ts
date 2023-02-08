@@ -16,7 +16,7 @@ describe('CalendarEvent', () => {
         expect(event.creator).toBe('');
         expect(event.attendees).toEqual([]);
         expect(event.resources).toEqual([]);
-        expect(event.title).toBe('Space Booking');
+        expect(event.title).toBeUndefined();
         expect(event.body).toBe('');
         expect(event.private).toBe(false);
         expect(event.all_day).toBe(false);

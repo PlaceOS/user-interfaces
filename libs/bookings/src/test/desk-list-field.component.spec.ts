@@ -17,9 +17,13 @@ describe('DeskListFieldComponent', () => {
         providers: [
             {
                 provide: MatDialog,
-                useValue: { open: jest.fn(() => ({ afterClosed: () => of([{ id: `1` }]) })) },
+                useValue: {
+                    open: jest.fn(() => ({
+                        afterClosed: () => of([{ id: `1` }]),
+                    })),
+                },
             },
-            { provide: SettingsService, useValue: { get: jest.fn() } }
+            { provide: SettingsService, useValue: { get: jest.fn() } },
         ],
         declarations: [MockComponent(IconComponent)],
         imports: [MockModule(MatRadioModule), FormsModule],
@@ -31,39 +35,37 @@ describe('DeskListFieldComponent', () => {
         expect(spectator.component).toBeTruthy());
 
     it('should allow adding desks', () => {
-        expect(spectator.query('button[add-desk]')).toExist();
-        spectator.click('button[add-desk]');
+        expect(spectator.query('button[name="add-desk"]')).toExist();
+        spectator.click('button[name="add-desk"]');
         expect(spectator.inject(MatDialog).open).toBeCalledTimes(1);
     });
 
     it('should allow removing desks', () => {
         spectator.component.setValue([{} as any]);
         spectator.detectChanges();
-        expect(spectator.query('button[remove-desk]')).toExist();
-        spectator.click('button[remove-desk]');
+        expect(spectator.query('button[name="remove-desk"]')).toExist();
+        spectator.click('button[name="remove-desk"]');
         spectator.detectChanges();
         expect(spectator.queryAll('div[desk]').length).toBe(0);
     });
 
     it('should handle desk changes', fakeAsync(() => {
         let count = 0;
-        spectator
-            .inject(MatDialog)
-            .open.mockImplementation(
-                (_, { data: { items } }) =>
-                    ({
-                        afterClosed: () =>
-                            of([...(items || []), { id: `${count++}` }]),
-                    } as any)
-            );
-        spectator.click('button[add-desk]');
+        spectator.inject(MatDialog).open.mockImplementation(
+            (_, { data: { items } }) =>
+                ({
+                    afterClosed: () =>
+                        of([...(items || []), { id: `${count++}` }]),
+                } as any)
+        );
+        spectator.click('button[name="add-desk"]');
         spectator.tick(1001);
         spectator.detectChanges();
         expect(spectator.queryAll('div[desk]').length).toBe(1);
-        spectator.click('button[add-desk]');
+        spectator.click('button[name="add-desk"]');
         spectator.detectChanges();
         expect(spectator.queryAll('div[desk]').length).toBe(2);
-        spectator.click('button[edit-desk]');
+        spectator.click('button[name="edit-desk"]');
         spectator.detectChanges();
         expect(spectator.queryAll('div[desk]').length).toBe(3);
     }));

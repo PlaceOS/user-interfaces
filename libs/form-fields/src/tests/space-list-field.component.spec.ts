@@ -33,16 +33,16 @@ describe('SpaceListFieldComponent', () => {
         expect(spectator.component).toBeTruthy());
 
     it('should allow adding spaces', () => {
-        expect(spectator.query('button[add-space]')).toExist();
-        spectator.click('button[add-space]');
+        expect(spectator.query('button[name="add-space"]')).toExist();
+        spectator.click('button[name="add-space"]');
         expect(spectator.inject(MatDialog).open).toBeCalledTimes(1);
     });
 
     it('should allow removing spaces', () => {
         spectator.component.setValue([new Space()]);
         spectator.detectChanges();
-        expect(spectator.query('button[remove-space]')).toExist();
-        spectator.click('button[remove-space]');
+        expect(spectator.query('button[name="remove-space"]')).toExist();
+        spectator.click('button[name="remove-space"]');
         spectator.detectChanges();
         expect(spectator.queryAll('div[space]').length).toBe(0);
     });
@@ -59,14 +59,14 @@ describe('SpaceListFieldComponent', () => {
                         ]),
                 } as any)
         );
-        spectator.click('button[add-space]');
+        spectator.click('button[name="add-space"]');
         spectator.tick(1001);
         spectator.detectChanges();
         expect(spectator.queryAll('div[space]').length).toBe(1);
-        spectator.click('button[add-space]');
+        spectator.click('button[name="add-space"]');
         spectator.detectChanges();
         expect(spectator.queryAll('div[space]').length).toBe(2);
-        spectator.click('button[edit-space]');
+        spectator.click('button[name="edit-space"]');
         spectator.detectChanges();
         expect(spectator.queryAll('div[space]').length).toBe(3);
     }));

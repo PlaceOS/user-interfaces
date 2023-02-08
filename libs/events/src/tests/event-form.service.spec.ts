@@ -88,7 +88,7 @@ describe('EventFormService', () => {
     it('should allow reloading previous form details', () => {
         spectator.service.loadForm();
         expect(spectator.service.form).toBeInstanceOf(FormGroup);
-        expect(spectator.service.form.value.title).toBe('Space Booking');
+        expect(spectator.service.form.value.title).toBe(null);
         sessionStorage.setItem('PLACEOS.event_form', '{ "title": "Test" }');
         spectator.service.loadForm();
         expect(spectator.service.form.value.title).toBe('Test');
@@ -157,7 +157,7 @@ describe('EventFormService', () => {
     it('should reject posting invalid form', async () => {
         spectator.service.newForm();
         await expect(spectator.service.postForm()).rejects.toBe(
-            'Some form fields are invalid. [host, creator]'
+            'Some form fields are invalid. [host]'
         );
     });
 

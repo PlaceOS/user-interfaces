@@ -10,13 +10,8 @@ describe('NewDeskFlowSuccessComponent', () => {
     const createComponent = createRoutingFactory({
         component: NewDeskFlowSuccessComponent,
         providers: [
-            {
-                provide: BookingFormService,
-                useValue: {
-                    last_success: {},
-                },
-            },
-            { provide: MatDialog, useValue: { open: jest.fn() } },
+            MockProvider(BookingFormService, { last_success: {} as any }),
+            MockProvider(MatDialog, { open: jest.fn() }),
             MockProvider(SettingsService, { get: jest.fn() }),
         ],
         declarations: [],

@@ -24,11 +24,11 @@ import {
                 <img src="assets/icons/success.svg" />
                 <p class="text-center" i18n>
                     Your
-                    <span group *ngIf="last_event?.attendees.length">
+                    <span group *ngIf="last_event?.attendees?.length">
                         group of
-                        {{ last_event?.attendees.length + 1 }}
+                        {{ last_event?.attendees?.length + 1 }}
                     </span>
-                    desk{{ last_event?.attendees.length ? 's' : '' }} has been
+                    desk{{ last_event?.attendees?.length ? 's' : '' }} has been
                     successfully booked
                     <span
                         assets

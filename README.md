@@ -21,6 +21,9 @@ By default the dev web server proxies all requests to the set live system, if yo
 If you wish to develop with a live environment you can change the details in [`config/proxy.conf.js`](./config/proxy.conf.js)
 to point the the server with the live environment and update the SSL settings the match that environment.
 
+Note that OAuth redirects don't work when connecting you local instance to the live environment.
+To login in the local instance you will either need to copy a token from a live instance or use the basic auth form at `/login/?continue=/`. For the local login you will need to create a user or set a password for an auto-generated user.
+
 
 ## Compilation
 

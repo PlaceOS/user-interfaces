@@ -138,7 +138,7 @@ export class BindingDirective<T = any>
                     const module = getModule(this.sys, this.mod, this.index);
                     let params = this.params;
                     if (this.bind) params = this.params || [this.model];
-                    module.execute(this.exec, params).then((result) => {
+                    module.execute(this.exec, params || []).then((result) => {
                         // Emit exec result if not bound to status variable
                         if (!this.bind) {
                             this.model = result;

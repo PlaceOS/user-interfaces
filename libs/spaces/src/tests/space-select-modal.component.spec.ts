@@ -7,7 +7,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { Building, OrganisationService } from '@placeos/organisation';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import { SpaceSelectItemComponent } from '../lib/space-select-item.component';
@@ -32,16 +32,13 @@ describe('SpaceSelectModalComponent', () => {
             MockComponent(SpaceSelectItemComponent),
         ],
         providers: [
-            {
-                provide: OrganisationService,
-                useValue: {
-                    building,
-                    buildings: [building],
-                    building_settings: { 'zone-1': {} },
-                },
-            },
-            { provide: SettingsService, useValue: { get: jest.fn() } },
-            { provide: MAT_DIALOG_DATA, useValue: {} },
+            MockProvider(OrganisationService, {
+                building,
+                buildings: [building],
+                building_settings: { 'zone-1': {} },
+            }),
+            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(MAT_DIALOG_DATA, {}),
         ],
         imports: [
             MatFormFieldModule,
@@ -59,7 +56,9 @@ describe('SpaceSelectModalComponent', () => {
                     })
                 )
         );
-        (cal_mod as any).querySpaceAvailability = jest.fn(() => of(spaces));
+        (cal_mod as any).querySpaceCalendarAvailability = jest.fn(() =>
+            of(spaces)
+        );
         (book_util as any).filterSpacesRules = jest.fn((l) => l);
         spectator = createComponent();
     });
@@ -69,7 +68,7 @@ describe('SpaceSelectModalComponent', () => {
     });
 
     it('should list spaces', fakeAsync(() => {
-        expect(cal_mod.querySpaceAvailability).toHaveBeenCalled();
+        expect(cal_mod.querySpaceCalendarAvailability).toHaveBeenCalled();
         expect('a-space-select-item').toHaveLength(30);
     }));
 
@@ -113,7 +112,9 @@ describe('SpaceSelectModalComponent', () => {
     });
 
     it('should have empty state', () => {
-        (cal_mod as any).querySpaceAvailability.mockImplementation(() => of([]));
+        (cal_mod.querySpaceCalendarAvailability as any).mockImplementation(() =>
+            of([])
+        );
         spectator.component.building.next(building);
         spectator.detectChanges();
         expect('a-space-select-item').not.toExist();
