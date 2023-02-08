@@ -93,7 +93,10 @@ import { currentPeriod, nextPeriod } from './helpers';
                                 }}
                             </ng-container>
                             <ng-container
-                                *ngIf="!(event_state | async)?.current[1]"
+                                *ngIf="
+                                    !(event_state | async)?.current[1] &&
+                                    (event_state | async)?.current[2] >= 1
+                                "
                             >
                                 {{
                                     'PANEL.FREE_FOR_MINUTES'
