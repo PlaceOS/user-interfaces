@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { first, take } from 'rxjs/operators';
 
 import {
-    BaseClass,
+    AsyncHandler,
     csvToJson,
     loadTextFileFromInputEvent,
     notifyError,
@@ -75,7 +75,7 @@ import { randomInt } from '@placeos/common';
         `,
     ],
 })
-export class DesksTopbarComponent extends BaseClass implements OnInit {
+export class DesksTopbarComponent extends AsyncHandler implements OnInit {
     /** List of levels for the active building */
     public readonly levels = this._org.active_levels;
     /** List of levels for the active building */

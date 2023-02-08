@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { first } from 'rxjs/operators';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
@@ -72,7 +72,7 @@ import { ExploreStateService } from './explore-state.service';
         `,
     ],
 })
-export class ExploreMapControlComponent extends BaseClass implements OnInit {
+export class ExploreMapControlComponent extends AsyncHandler implements OnInit {
     /** List of available buildings */
     public readonly buildings = this._org.active_buildings;
     /** Currently active building */

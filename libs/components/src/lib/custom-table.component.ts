@@ -12,7 +12,7 @@ import {
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -95,7 +95,7 @@ import { Observable } from 'rxjs';
     ],
 })
 export class CustomTableComponent<T extends {} = any>
-    extends BaseClass
+    extends AsyncHandler
     implements AfterViewInit, OnChanges
 {
     /** Data source to render in the table */

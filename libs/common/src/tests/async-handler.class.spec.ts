@@ -1,6 +1,6 @@
-import { BaseClass } from '../lib/base.class';
+import { AsyncHandler } from '../lib/async-handler.class';
 
-class BaseTestClass extends BaseClass {
+class BaseTestClass extends AsyncHandler {
     constructor(timer = null, interval = null, sub = null) {
         super();
         if (timer) this.timeout('test', timer);
@@ -9,13 +9,13 @@ class BaseTestClass extends BaseClass {
     }
 }
 
-describe('BaseClass', () => {
-    let obj: BaseClass;
+describe('AsyncHandler', () => {
+    let obj: AsyncHandler;
 
     beforeEach(() => (obj = new BaseTestClass()));
 
     it('should create class object', () => {
-        expect(obj).toBeInstanceOf(BaseClass);
+        expect(obj).toBeInstanceOf(AsyncHandler);
     });
 
     it('should clear timers on destroy', () => {

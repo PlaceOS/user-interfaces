@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 
 import { DialogEvent, Identity } from 'libs/common/src/lib/types';
 
@@ -147,7 +147,7 @@ export interface CateringConfigModalData {
         `,
     ],
 })
-export class CateringConfigModalComponent extends BaseClass {
+export class CateringConfigModalComponent extends AsyncHandler {
     /** Emitter for events on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Whether changes are being saved */

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
-    BaseClass,
+    AsyncHandler,
     csvToJson,
     loadTextFileFromInputEvent,
     notifyError,
@@ -191,7 +191,7 @@ const QR_CODES = {};
     `,
     styles: [``],
 })
-export class DesksManageComponent extends BaseClass {
+export class DesksManageComponent extends AsyncHandler {
     public changes = {};
     public loading: string;
     public dragging = false;

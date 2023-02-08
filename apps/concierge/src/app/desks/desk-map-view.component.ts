@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ExploreDesksService, ExploreStateService } from '@placeos/explore';
 
 import { DesksStateService } from './desks-state.service';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 @Component({
@@ -54,7 +54,7 @@ import { OrganisationService } from '@placeos/organisation';
     ],
     providers: [ExploreDesksService],
 })
-export class DeskMapViewComponent extends BaseClass implements OnInit {
+export class DeskMapViewComponent extends AsyncHandler implements OnInit {
     /** Observable for the active map */
     public readonly url = this._state.map_url;
     /** Observable for the active map */

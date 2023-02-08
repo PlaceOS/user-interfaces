@@ -2,7 +2,7 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 
 export interface EmbeddedControlModalData {
     control_url: string;
@@ -71,7 +71,10 @@ export interface EmbeddedControlModalData {
         ]),
     ],
 })
-export class EmbeddedControlModalComponent extends BaseClass implements OnInit {
+export class EmbeddedControlModalComponent
+    extends AsyncHandler
+    implements OnInit
+{
     /** Control URL to embed into the modal */
     public readonly control_url: string = this._data.control_url;
     /** Display value for the time remain until the modal automatically closes */

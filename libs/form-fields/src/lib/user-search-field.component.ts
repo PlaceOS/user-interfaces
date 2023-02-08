@@ -17,7 +17,7 @@ import {
     catchError,
 } from 'rxjs/operators';
 
-import { BaseClass, flatten, SettingsService } from '@placeos/common';
+import { AsyncHandler, flatten, SettingsService } from '@placeos/common';
 import { searchGuests } from 'libs/users/src/lib/guests.fn';
 import { searchStaff } from 'libs/users/src/lib/staff.fn';
 import { User } from 'libs/users/src/lib/user.class';
@@ -121,7 +121,7 @@ import { authority, queryUsers } from '@placeos/ts-client';
     ],
 })
 export class UserSearchFieldComponent
-    extends BaseClass
+    extends AsyncHandler
     implements OnInit, ControlValueAccessor
 {
     /** Whether form field is disabled */

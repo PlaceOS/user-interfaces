@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 
 @Component({
     selector: 'app-booking-panel-array',
@@ -54,7 +54,7 @@ import { BaseClass } from '@placeos/common';
         `,
     ],
 })
-export class BookingPanelArrayComponent extends BaseClass implements OnInit {
+export class BookingPanelArrayComponent extends AsyncHandler implements OnInit {
     /** List of systems to show panels for */
     public systems: string[];
 

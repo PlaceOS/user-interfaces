@@ -13,7 +13,7 @@ import {
 } from 'rxjs/operators';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 
-import { BaseClass, currentUser, HashMap } from '@placeos/common';
+import { AsyncHandler, currentUser, HashMap } from '@placeos/common';
 import { Calendar, CalendarService } from '@placeos/calendar';
 import { SourceSelectModalComponent } from './ui/source-select-modal.component';
 import { CalendarEvent, queryEvents } from '@placeos/events';
@@ -100,7 +100,7 @@ export interface SystemState {
 @Injectable({
     providedIn: 'root',
 })
-export class ControlStateService extends BaseClass {
+export class ControlStateService extends AsyncHandler {
     private _id = new BehaviorSubject<string>('');
     private _system = new BehaviorSubject<SystemState>({});
     private _inputs = new BehaviorSubject<string[]>([]);

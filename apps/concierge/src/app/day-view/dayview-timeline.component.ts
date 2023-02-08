@@ -9,7 +9,7 @@ import {
     switchMap,
 } from 'rxjs/operators';
 
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { EventsStateService } from './events-state.service';
@@ -45,7 +45,9 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                         class="absolute h-px w-2 top-0 right-0 bg-gray-300 dark:bg-neutral-500"
                     ></div>
                 </div>
-                <div class="absolute h-8 w-px top-8 right-0 bg-gray-300 dark:bg-neutral-500"></div>
+                <div
+                    class="absolute h-8 w-px top-8 right-0 bg-gray-300 dark:bg-neutral-500"
+                ></div>
             </div>
             <div class="h-full flex-1 flex flex-col w-1/2">
                 <div
@@ -81,7 +83,9 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                     <div
                         *ngFor="let time of blocks; let i = index"
                         class="absolute bg-gray-300 dark:bg-neutral-500 h-px min-w-full left-0"
-                        [style.width]="(space_list | async)?.length * 12 + 'rem'"
+                        [style.width]="
+                            (space_list | async)?.length * 12 + 'rem'
+                        "
                         [style.top]="i * 4 + 'rem'"
                     ></div>
                 </div>
@@ -112,7 +116,7 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
     ],
 })
 export class DayviewTimelineComponent
-    extends BaseClass
+    extends AsyncHandler
     implements OnInit, OnDestroy
 {
     /** Time blocks to display */
@@ -131,7 +135,15 @@ export class DayviewTimelineComponent
                 catchError(() => of({ data: [] }))
             )
         ),
-        map(({ data }) => data.map((_) => new Space({ ..._, level: this._org.levelWithID(_.zones)} as any))),
+        map(({ data }) =>
+            data.map(
+                (_) =>
+                    new Space({
+                        ..._,
+                        level: this._org.levelWithID(_.zones),
+                    } as any)
+            )
+        ),
         shareReplay(1)
     );
     /** List of spaces to display */

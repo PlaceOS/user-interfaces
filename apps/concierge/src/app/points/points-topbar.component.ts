@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
 
@@ -25,7 +25,7 @@ import { first } from 'rxjs/operators';
         `,
     ],
 })
-export class PointsTopbarComponent extends BaseClass {
+export class PointsTopbarComponent extends AsyncHandler {
     constructor(private _org: OrganisationService) {
         super();
     }

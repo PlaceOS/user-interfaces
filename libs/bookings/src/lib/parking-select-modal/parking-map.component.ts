@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { BaseClass, unique } from '@placeos/common';
+import { AsyncHandler, unique } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { BuildingLevel } from '@placeos/organisation';
 import { debounceTime, map } from 'rxjs/operators';
@@ -66,7 +66,7 @@ import { ParkingSpaceLocationPinComponent } from './parking-location-pin.compone
         `,
     ],
 })
-export class ParkingSpaceSelectMapComponent extends BaseClass {
+export class ParkingSpaceSelectMapComponent extends AsyncHandler {
     @Input() public selected: string[] = [];
     @Input() public is_displayed: boolean = false;
     @Output() public onSelect = new EventEmitter<BookingAsset>();

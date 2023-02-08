@@ -1,7 +1,7 @@
 import { Component, OnInit, OnChanges, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { User } from '@placeos/users';
 
 @Component({
@@ -10,7 +10,7 @@ import { User } from '@placeos/users';
     styleUrls: ['./view-attendees-modal.component.scss'],
 })
 export class ViewAttendeesModalComponent
-    extends BaseClass
+    extends AsyncHandler
     implements OnChanges, OnInit
 {
     public attendees: User[];

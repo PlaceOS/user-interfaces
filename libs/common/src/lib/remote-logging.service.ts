@@ -3,7 +3,7 @@ import { getModule } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of, Subject } from 'rxjs';
 import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
 
-import { BaseClass } from './base.class';
+import { AsyncHandler } from './async-handler.class';
 import { randomInt } from './general';
 
 export interface ClientEvent {
@@ -30,7 +30,7 @@ function hookMethod<T, K extends keyof T>(
 @Injectable({
     providedIn: 'root',
 })
-export class RemoteLoggingService extends BaseClass {
+export class RemoteLoggingService extends AsyncHandler {
     private _system_id = new BehaviorSubject<string>('');
     private _events = new Subject<ClientEvent>();
 
@@ -71,20 +71,21 @@ export class RemoteLoggingService extends BaseClass {
             'error',
         ];
         for (const key of types) {
-            hookMethod(console, key, (...args) =>
-                this._handleEvent(key, args)
-            );
+            hookMethod(console, key, (...args) => this._handleEvent(key, args));
         }
     }
 
     private _handleEvent(type: string, data: any, event_type: any = 'console') {
-        data[0] = typeof data[0] === 'string' ? data[0].replace(/%c/g, '') : data[0];
+        data[0] =
+            typeof data[0] === 'string' ? data[0].replace(/%c/g, '') : data[0];
         this._events.next({
             id: `${event_type}-${randomInt(99999_99999)}`,
             type: event_type,
             subtype: type,
             timestamp: Date.now(),
-            data: data.filter(_ => typeof _ !== 'string' || !_.startsWith('color:')),
+            data: data.filter(
+                (_) => typeof _ !== 'string' || !_.startsWith('color:')
+            ),
         });
     }
 

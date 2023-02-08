@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { PointsStateService } from './points-state.service';
 
 @Component({
@@ -51,7 +51,7 @@ import { PointsStateService } from './points-state.service';
         `,
     ],
 })
-export class PointsComponent extends BaseClass implements OnInit {
+export class PointsComponent extends AsyncHandler implements OnInit {
     /** Page being displayed */
     public page: string;
 

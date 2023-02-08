@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 
 import { DeskFiltersComponent } from './desk-filters.component';
 import { BookingFormService } from '../booking-form.service';
@@ -109,7 +109,7 @@ import { endOfDay } from 'date-fns';
         </section>
     `,
 })
-export class DeskFiltersDisplayComponent extends BaseClass {
+export class DeskFiltersDisplayComponent extends AsyncHandler {
     @Input() public view: 'map' | 'list' = 'list';
     @Output() public viewChange = new EventEmitter<'map' | 'list'>();
     public readonly options = this._state.options;

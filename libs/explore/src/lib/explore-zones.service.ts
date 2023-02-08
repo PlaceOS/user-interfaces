@@ -3,7 +3,7 @@ import { getModule, showMetadata } from '@placeos/ts-client';
 import { ViewerLabel, Point, ViewerFeature } from '@placeos/svg-viewer';
 import { first, map } from 'rxjs/operators';
 
-import { BaseClass, HashMap, SettingsService } from '@placeos/common';
+import { AsyncHandler, HashMap, SettingsService } from '@placeos/common';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 import { ExploreStateService } from './explore-state.service';
@@ -28,7 +28,7 @@ export interface ZoneData {
 }
 
 @Injectable()
-export class ExploreZonesService extends BaseClass {
+export class ExploreZonesService extends AsyncHandler {
     private _statuses: HashMap<string> = {};
     private _location: HashMap<Point> = {};
     private _capacity: HashMap<number> = {};

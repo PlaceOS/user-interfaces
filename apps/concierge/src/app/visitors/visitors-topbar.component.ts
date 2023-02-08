@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { VisitorsStateService } from './visitors-state.service';
 
@@ -68,7 +68,7 @@ import { VisitorsStateService } from './visitors-state.service';
         `,
     ],
 })
-export class VisitorsTopbarComponent extends BaseClass implements OnInit {
+export class VisitorsTopbarComponent extends AsyncHandler implements OnInit {
     /** List of selected levels */
     public zones: string[] = [];
     /** List of levels for the active building */

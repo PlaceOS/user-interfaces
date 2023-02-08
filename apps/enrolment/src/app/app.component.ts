@@ -13,7 +13,7 @@ import {
 } from '@placeos/cloud-uploads';
 
 import {
-    BaseClass,
+    AsyncHandler,
     currentUser,
     setAppName,
     setNotifyOutlet,
@@ -58,7 +58,7 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
         `,
     ],
 })
-export class AppComponent extends BaseClass implements OnInit {
+export class AppComponent extends AsyncHandler implements OnInit {
     constructor(
         private _tracing: Sentry.TraceService,
         private _settings: SettingsService,

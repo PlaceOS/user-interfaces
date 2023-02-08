@@ -1,12 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 
 @Component({
     selector: 'placeos-book-meeting-flow',
     template: `
-        <div class="bg-white dark:bg-neutral-900 h-full w-full z-50" [ngSwitch]="view">
+        <div
+            class="bg-white dark:bg-neutral-900 h-full w-full z-50"
+            [ngSwitch]="view"
+        >
             <meeting-flow-success *ngSwitchCase="'success'">
             </meeting-flow-success>
             <meeting-flow-confirm *ngSwitchCase="'confirm'">
@@ -23,7 +26,7 @@ import { EventFormService } from '@placeos/events';
         `,
     ],
 })
-export class BookMeetingFlowComponent extends BaseClass implements OnInit {
+export class BookMeetingFlowComponent extends AsyncHandler implements OnInit {
     public get view() {
         return this._state.view;
     }

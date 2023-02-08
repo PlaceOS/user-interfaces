@@ -7,7 +7,7 @@ import {
     Output,
     ViewChild,
 } from '@angular/core';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { fromEvent, Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 
@@ -43,7 +43,10 @@ import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
         </mat-form-field>
     `,
 })
-export class SearchInputComponent extends BaseClass implements AfterViewInit {
+export class SearchInputComponent
+    extends AsyncHandler
+    implements AfterViewInit
+{
     @Input() placeholder: string = '';
     @Input() classNames: string = '';
     @Input() search: string = '';

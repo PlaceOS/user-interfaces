@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { CustomTooltipData } from '@placeos/components';
 
 import { ControlStateService } from '../control-state.service';
@@ -134,7 +134,7 @@ import { ControlStateService } from '../control-state.service';
     `,
     styles: [``],
 })
-export class MicrophoneTooltipComponent extends BaseClass {
+export class MicrophoneTooltipComponent extends AsyncHandler {
     /** List of microphone inputs */
     public readonly mic_list = this._state.mic_list;
     /** List of microphones */

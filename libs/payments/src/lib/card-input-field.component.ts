@@ -7,7 +7,7 @@ import {
     NG_VALUE_ACCESSOR,
     Validators,
 } from '@angular/forms';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { addYears, setMonth } from 'date-fns';
 
 export interface PaymentCardDetails {
@@ -126,7 +126,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
     ],
 })
 export class CardInputFieldComponent
-    extends BaseClass
+    extends AsyncHandler
     implements ControlValueAccessor
 {
     public details = new FormGroup({
@@ -201,7 +201,9 @@ export class CardInputFieldComponent
         this.subscription(
             'changes',
             this.details.valueChanges.subscribe((v) =>
-                this.timeout('update', () => this.setValue(this.details.getRawValue()))
+                this.timeout('update', () =>
+                    this.setValue(this.details.getRawValue())
+                )
             )
         );
     }

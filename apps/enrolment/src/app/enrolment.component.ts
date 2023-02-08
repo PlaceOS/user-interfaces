@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BaseClass, SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { EnrolmentStateService } from './enrolment-state.service';
 
 @Component({
@@ -51,7 +51,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
     `,
     styles: [``],
 })
-export class EnrolmentComponent extends BaseClass {
+export class EnrolmentComponent extends AsyncHandler {
     public loading = this._state.loading;
     public view = this._state.view;
 

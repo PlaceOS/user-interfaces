@@ -14,7 +14,7 @@ import {
     Type,
     ViewChild,
 } from '@angular/core';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 
 @Injectable()
 export class CustomTooltipData<T = any> {
@@ -51,7 +51,7 @@ export class CustomTooltipData<T = any> {
     `,
 })
 export class CustomTooltipComponent<T = any>
-    extends BaseClass
+    extends AsyncHandler
     implements OnChanges, OnDestroy
 {
     /** Horizontal position of the rendered overlay */

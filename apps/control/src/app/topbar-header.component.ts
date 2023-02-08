@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { BaseClass, SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { isTrusted } from '@placeos/ts-client';
 import { combineLatest } from 'rxjs';
 import { ControlStateService } from './control-state.service';
@@ -99,7 +99,7 @@ enum TOOLTIP {
         `,
     ],
 })
-export class TopbarHeaderComponent extends BaseClass {
+export class TopbarHeaderComponent extends AsyncHandler {
     public readonly system = this._state.system;
     public readonly mic_list = this._state.mic_list;
     public readonly camera_list = this._state.camera_list;

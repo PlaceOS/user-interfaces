@@ -1,4 +1,4 @@
-export { BaseClass } from './base.class';
+export { AsyncHandler as AsyncHandler } from './async-handler.class';
 export { GoogleAnalyticsService } from './google-analytics.service';
 export { HotkeysService } from './hotkeys.service';
 export { SettingsService } from './settings.service';

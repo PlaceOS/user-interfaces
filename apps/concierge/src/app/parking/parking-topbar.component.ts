@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 import { EventsStateService } from '../day-view/events-state.service';
@@ -48,7 +48,7 @@ import { ParkingStateService } from './parking-state.service';
         `,
     ],
 })
-export class ParkingTopbarComponent extends BaseClass implements OnInit {
+export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     /** List of selected levels */
     public zones: string[] = [];
     /** List of levels for the active building */

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { first } from 'rxjs/operators';
 
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { Space, SpacesService } from '@placeos/spaces';
 
@@ -62,7 +62,7 @@ import { Space, SpacesService } from '@placeos/spaces';
         `,
     ],
 })
-export class ControlSpaceListComponent extends BaseClass implements OnInit {
+export class ControlSpaceListComponent extends AsyncHandler implements OnInit {
     /** List of controllable spaces */
     public space_list: Space[] = [];
     /** Filter string */

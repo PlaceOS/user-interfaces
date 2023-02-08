@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-    BaseClass,
+    AsyncHandler,
     notifyError,
     notifySuccess,
     openConfirmModal,
@@ -338,7 +338,7 @@ import { CateringItem } from '@placeos/catering';
         `,
     ],
 })
-export class ScheduleViewEventComponent extends BaseClass {
+export class ScheduleViewEventComponent extends AsyncHandler {
     @Input() public event: CalendarEvent;
 
     public get is_host() {

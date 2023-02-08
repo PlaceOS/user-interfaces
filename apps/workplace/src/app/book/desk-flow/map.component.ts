@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { BookingFormService } from '@placeos/bookings';
-import { BaseClass, formatRecurrence, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    formatRecurrence,
+    SettingsService,
+} from '@placeos/common';
 import { ExploreStateService } from '@placeos/explore';
 import { Desk } from '@placeos/organisation';
 import { format } from 'date-fns';
@@ -163,7 +167,7 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
         `,
     ],
 })
-export class DeskFlowMapComponent extends BaseClass implements OnInit {
+export class DeskFlowMapComponent extends AsyncHandler implements OnInit {
     /** Observable for the active map */
     public readonly url = this._explore.map_url;
     /** Observable for the active map */

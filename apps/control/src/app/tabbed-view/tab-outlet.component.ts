@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, map, take } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
@@ -152,7 +152,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
         `,
     ],
 })
-export class TabOutletComponent extends BaseClass {
+export class TabOutletComponent extends AsyncHandler {
     public readonly active_tab = new BehaviorSubject('');
     public readonly system$ = this._service.system;
     public readonly tabs = this._service.tabs;

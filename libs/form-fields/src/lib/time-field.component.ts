@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatSelect } from '@angular/material/select';
-import { BaseClass, Identity, timeFormatString } from '@placeos/common';
+import { AsyncHandler, Identity, timeFormatString } from '@placeos/common';
 import {
     addMinutes,
     endOfDay,
@@ -82,7 +82,7 @@ import {
     ],
 })
 export class TimeFieldComponent
-    extends BaseClass
+    extends AsyncHandler
     implements OnInit, OnChanges, ControlValueAccessor
 {
     /** Time step between each allowed time option */

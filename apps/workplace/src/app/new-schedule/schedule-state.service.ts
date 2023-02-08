@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Booking, queryBookings } from '@placeos/bookings';
 import {
-    BaseClass,
+    AsyncHandler,
     currentUser,
     flatten,
     SettingsService,
@@ -31,7 +31,7 @@ import {
 @Injectable({
     providedIn: 'root',
 })
-export class ScheduleStateService extends BaseClass {
+export class ScheduleStateService extends AsyncHandler {
     private _poll = new BehaviorSubject(0);
     private _poll_type = new BehaviorSubject<'api' | 'ws'>('api');
     private _loading = new BehaviorSubject(false);

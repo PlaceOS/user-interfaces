@@ -2,39 +2,43 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { StaffStateService } from './staff-state.service';
 
 @Component({
     selector: 'staff-topbar',
     template: `
-    <div 
-            class="flex items-center bg-white dark:bg-neutral-700 h-20 px-4 border-b border-gray-300 dark:border-neutral-500 space-x-2">
-        <mat-form-field appearance="outline">
-            <mat-select
-                multiple
-                [(ngModel)]="zones"
-                (ngModelChange)="updateZones($event)"
-                placeholder="All Levels"
-            >
-                <mat-option
-                    *ngFor="let level of levels | async"
-                    [value]="level.id"
-                >
-                    {{ level.display_name || level.name }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-        <mat-slide-toggle
-            class="m-2"
-            [ngModel]="(filters | async)?.only_onsite"
-            (ngModelChange)="setFilters({ only_onsite: $event })"
-            ><div class="text-xs">Onsite Only</div></mat-slide-toggle
+        <div
+            class="flex items-center bg-white dark:bg-neutral-700 h-20 px-4 border-b border-gray-300 dark:border-neutral-500 space-x-2"
         >
-        <div class="flex-1 w-2"></div>
-        <searchbar class="mr-2" (modelChange)="setSearch($event)"></searchbar>
-</div>
+            <mat-form-field appearance="outline">
+                <mat-select
+                    multiple
+                    [(ngModel)]="zones"
+                    (ngModelChange)="updateZones($event)"
+                    placeholder="All Levels"
+                >
+                    <mat-option
+                        *ngFor="let level of levels | async"
+                        [value]="level.id"
+                    >
+                        {{ level.display_name || level.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-slide-toggle
+                class="m-2"
+                [ngModel]="(filters | async)?.only_onsite"
+                (ngModelChange)="setFilters({ only_onsite: $event })"
+                ><div class="text-xs">Onsite Only</div></mat-slide-toggle
+            >
+            <div class="flex-1 w-2"></div>
+            <searchbar
+                class="mr-2"
+                (modelChange)="setSearch($event)"
+            ></searchbar>
+        </div>
     `,
     styles: [
         `
@@ -45,7 +49,7 @@ import { StaffStateService } from './staff-state.service';
         `,
     ],
 })
-export class StaffTopbarComponent extends BaseClass implements OnInit {
+export class StaffTopbarComponent extends AsyncHandler implements OnInit {
     /** List of selected levels */
     public zones: string[] = [];
     /** List of levels for the active building */
@@ -64,7 +68,7 @@ export class StaffTopbarComponent extends BaseClass implements OnInit {
             relativeTo: this._route,
             queryParams: { zone_ids: zones.join(',') },
         });
-        this._state.setFilters({ zones })
+        this._state.setFilters({ zones });
     };
 
     constructor(

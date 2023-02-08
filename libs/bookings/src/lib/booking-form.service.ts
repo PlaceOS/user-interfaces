@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import {
-    BaseClass,
+    AsyncHandler,
     currentUser,
     flatten,
     getInvalidFields,
@@ -76,7 +76,7 @@ export interface BookingAsset {
 @Injectable({
     providedIn: 'root',
 })
-export class BookingFormService extends BaseClass {
+export class BookingFormService extends AsyncHandler {
     private _view = new BehaviorSubject<BookingFlowView>('form');
     private _options = new BehaviorSubject<BookingFlowOptions>({
         type: 'desk',

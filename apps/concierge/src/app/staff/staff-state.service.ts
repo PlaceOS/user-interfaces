@@ -2,10 +2,15 @@ import { Injectable } from '@angular/core';
 import { searchStaff, StaffUser } from '@placeos/users';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 
-import { Booking, checkinBooking, queryBookings, saveBooking } from '@placeos/bookings';
+import {
+    Booking,
+    checkinBooking,
+    queryBookings,
+    saveBooking,
+} from '@placeos/bookings';
 import { map, shareReplay, switchMap } from 'rxjs/operators';
 import { endOfDay, startOfDay } from 'date-fns';
-import { BaseClass, timePeriodsIntersect } from '@placeos/common';
+import { AsyncHandler, timePeriodsIntersect } from '@placeos/common';
 import { HashMap } from '@placeos/ts-client/dist/esm/utilities/types';
 import { OrganisationService } from '@placeos/organisation';
 
@@ -18,7 +23,7 @@ export interface StaffFilters {
 @Injectable({
     providedIn: 'root',
 })
-export class StaffStateService extends BaseClass {
+export class StaffStateService extends AsyncHandler {
     private _onsite: HashMap<boolean> = {};
     private _events: HashMap<Booking> = {};
 
@@ -57,7 +62,9 @@ export class StaffStateService extends BaseClass {
         switchMap(async (_) => {
             this._loading.next(true);
             const bookings = await queryBookings({
-                period_start: Math.floor(startOfDay(new Date()).valueOf() / 1000),
+                period_start: Math.floor(
+                    startOfDay(new Date()).valueOf() / 1000
+                ),
                 period_end: Math.floor(endOfDay(new Date()).valueOf() / 1000),
                 type: 'staff',
             }).toPromise();
@@ -83,9 +90,7 @@ export class StaffStateService extends BaseClass {
         shareReplay()
     );
 
-    constructor(
-        private _org: OrganisationService
-    ) {
+    constructor(private _org: OrganisationService) {
         super();
         this.loadUsers();
     }
@@ -100,7 +105,11 @@ export class StaffStateService extends BaseClass {
 
     public startPolling(delay: number = 30 * 1000) {
         this.setFilters(this._filters.getValue());
-        this.interval('poll', () => this.setFilters(this._filters.getValue()), delay);
+        this.interval(
+            'poll',
+            () => this.setFilters(this._filters.getValue()),
+            delay
+        );
     }
 
     public stopPolling() {
@@ -109,13 +118,12 @@ export class StaffStateService extends BaseClass {
 
     public async checkin(user: StaffUser) {
         const result = await saveBooking({
-            booking_start: Math.floor(
-                new Date().valueOf() / 1000
-            ),
+            booking_start: Math.floor(new Date().valueOf() / 1000),
             booking_end: Math.floor(endOfDay(new Date()).valueOf() / 1000),
             asset_id: user.email,
             title: 'Checked-in Onsite',
-            description: this._org.building.display_name || this._org.building.name,
+            description:
+                this._org.building.display_name || this._org.building.name,
             zones: [this._org.building.id],
             booking_type: 'staff',
         } as any).toPromise();

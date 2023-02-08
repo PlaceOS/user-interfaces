@@ -9,7 +9,7 @@ import {
     ViewChild,
     ElementRef,
 } from '@angular/core';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 
 import * as dayjs from 'dayjs';
 
@@ -45,7 +45,10 @@ interface ITimelineBlock {
     templateUrl: './event-timeline.component.html',
     styleUrls: ['./event-timeline.component.scss'],
 })
-export class EventTimelineComponent extends BaseClass implements OnInit, OnChanges {
+export class EventTimelineComponent
+    extends AsyncHandler
+    implements OnInit, OnChanges
+{
     /** Groups and events */
     @Input() public groups: ITimelineEventGroup[];
     /** Selected date */
@@ -64,7 +67,8 @@ export class EventTimelineComponent extends BaseClass implements OnInit, OnChang
     public vertical = false;
     public model: { [name: string]: any } = {};
 
-    @ViewChild('overlay', { static: false }) public content: ElementRef<HTMLDivElement>;
+    @ViewChild('overlay', { static: false })
+    public content: ElementRef<HTMLDivElement>;
 
     public ngOnInit(): void {
         this.model.start = dayjs(this.date).hour(6).minute(30);
@@ -78,7 +82,11 @@ export class EventTimelineComponent extends BaseClass implements OnInit, OnChang
             'update_date',
             () => {
                 this.updateStartEnd();
-                this.interval('update_date', () => this.updateStartEnd(), 24 * 60 * 60 * 1000);
+                this.interval(
+                    'update_date',
+                    () => this.updateStartEnd(),
+                    24 * 60 * 60 * 1000
+                );
             },
             Math.floor(tomorrow.diff(now, 's'))
         );
@@ -104,7 +112,11 @@ export class EventTimelineComponent extends BaseClass implements OnInit, OnChang
         const start = this.model.start;
         const end = this.model.end;
         const blocks: ITimelineBlock[] = [];
-        for (let time = dayjs(start); time.isBefore(end); time = time.add(5, 'm')) {
+        for (
+            let time = dayjs(start);
+            time.isBefore(end);
+            time = time.add(5, 'm')
+        ) {
             blocks.push({
                 id: time.format('HH:mm'),
                 display: time.format('hh:00 a'),
@@ -125,7 +137,11 @@ export class EventTimelineComponent extends BaseClass implements OnInit, OnChang
                 const end = this.model.end;
                 for (const grp of this.groups || []) {
                     const blocks: ITimelineBlock[] = [];
-                    for (let time = dayjs(date); time.isBefore(end); time = time.add(5, 'm')) {
+                    for (
+                        let time = dayjs(date);
+                        time.isBefore(end);
+                        time = time.add(5, 'm')
+                    ) {
                         const blk_end = dayjs(time).add(5, 'm');
                         let events = [];
                         if (grp.events) {
@@ -165,7 +181,11 @@ export class EventTimelineComponent extends BaseClass implements OnInit, OnChang
             for (const event of grp.events || []) {
                 const start = this.hoursToDate(event.start);
                 const end = dayjs(start).add(event.duration, 'm');
-                for (let time = dayjs(start); time.isBefore(end); time = time.add(5, 'm')) {
+                for (
+                    let time = dayjs(start);
+                    time.isBefore(end);
+                    time = time.add(5, 'm')
+                ) {
                     const display = time.format('HH:mm');
                     const blk = blocks.find((i) => i.id === display);
                     if (blk) {
@@ -245,17 +265,26 @@ export class EventTimelineComponent extends BaseClass implements OnInit, OnChang
                                 ? e.touches[0].clientY || e.clientY
                                 : e.clientY,
                     };
-                    const content_box = this.content.nativeElement.getBoundingClientRect();
-                    const percent_w = (center.x - content_box.left) / content_box.width;
-                    const percent_h = (center.y - content_box.top) / content_box.height;
+                    const content_box =
+                        this.content.nativeElement.getBoundingClientRect();
+                    const percent_w =
+                        (center.x - content_box.left) / content_box.width;
+                    const percent_h =
+                        (center.y - content_box.top) / content_box.height;
                     const percent = !this.vertical ? percent_w : percent_h;
 
-                    const start_time = this.model.start.hour() + this.model.start.minute() / 60;
-                    const end_time = this.model.end.hour() + this.model.end.minute() / 60;
+                    const start_time =
+                        this.model.start.hour() +
+                        this.model.start.minute() / 60;
+                    const end_time =
+                        this.model.end.hour() + this.model.end.minute() / 60;
                     const diff_time = end_time - start_time;
                     const block_size = 15;
                     const hour =
-                        Math.ceil((diff_time * percent + start_time) * (60 / block_size)) /
+                        Math.ceil(
+                            (diff_time * percent + start_time) *
+                                (60 / block_size)
+                        ) /
                         (60 / block_size);
                     if (this.model.move === 'end') {
                         let date = dayjs(this.date);
@@ -267,7 +296,10 @@ export class EventTimelineComponent extends BaseClass implements OnInit, OnChang
                             this.date = date.valueOf();
                         } else {
                             const duration = Math.floor(end.diff(date, 'm'));
-                            this.duration = Math.max(60, duration || block_size);
+                            this.duration = Math.max(
+                                60,
+                                duration || block_size
+                            );
                             this.durationChange.emit(this.duration);
                         }
                     } else if (this.model.move === 'start') {

@@ -5,7 +5,7 @@ import { BuildingLevel } from '@placeos/organisation';
 import { ViewerFeature, ViewerStyles, ViewAction } from '@placeos/svg-viewer';
 import { MapPinComponent } from '@placeos/components';
 import { Space } from '@placeos/spaces';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { RoomTileComponent } from './room-tile/room-tile.component';
 import { RoomConfirmService } from './room-confirm.service';
@@ -24,9 +24,9 @@ export interface MapsList {
 }
 
 @Injectable({
-    providedIn: 'root'
+    providedIn: 'root',
 })
-export class MapService extends BaseClass {
+export class MapService extends AsyncHandler {
     public level: BuildingLevel;
     public style_map: ViewerStyles = {};
     public item: Locatable;

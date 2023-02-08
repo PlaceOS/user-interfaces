@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 
 import { ControlStateService } from '../control-state.service';
 
@@ -14,7 +14,10 @@ import { ControlStateService } from '../control-state.service';
                 class="absolute inset-0 flex flex-col bg-slate-700 dark:bg-[#1F2021] divide divide-gray-200 dark:divide-neutral-700"
             >
                 <topbar-header></topbar-header>
-                <div class="h-1/2 flex-1 bg-gray-100 dark:bg-neutral-900" tab-outlet></div>
+                <div
+                    class="h-1/2 flex-1 bg-gray-100 dark:bg-neutral-900"
+                    tab-outlet
+                ></div>
                 <control-status-bar></control-status-bar>
             </div>
         </ng-container>
@@ -60,7 +63,7 @@ import { ControlStateService } from '../control-state.service';
         `,
     ],
 })
-export class ControlTabbedViewComponent extends BaseClass implements OnInit {
+export class ControlTabbedViewComponent extends AsyncHandler implements OnInit {
     public readonly system = this._state.system;
 
     public readonly powerOn = () => this._state.powerOn();

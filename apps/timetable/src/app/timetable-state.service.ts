@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import { getModule } from '@placeos/ts-client';
 import { isSameDay } from 'date-fns';
@@ -8,7 +8,7 @@ import { map } from 'rxjs/operators';
 @Injectable({
     providedIn: 'root',
 })
-export class TimetableStateService extends BaseClass {
+export class TimetableStateService extends AsyncHandler {
     public bookingsFor(id: string) {
         return this._listenToBinding(id, 'bookings').pipe(
             map((_) =>

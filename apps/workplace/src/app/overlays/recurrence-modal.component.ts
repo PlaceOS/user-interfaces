@@ -3,7 +3,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { RecurrenceDetails } from '@placeos/events';
-import { BaseClass, DialogEvent, Identity } from '@placeos/common';
+import { AsyncHandler, DialogEvent, Identity } from '@placeos/common';
 
 export interface RecurrenceModalData {
     /** Current recurrence details */
@@ -92,7 +92,7 @@ export const RECURRENCE_METADATA = {
     `,
     styles: [``],
 })
-export class RecurrenceModalComponent extends BaseClass implements OnInit {
+export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
     /** Emitter for user action on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Form fields for recurrence */

@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 
 import { PanelStateService } from '../panel-state.service';
 
@@ -41,8 +41,9 @@ import { PanelStateService } from '../panel-state.service';
     providers: [PanelStateService],
 })
 export class BookingPanelComponent
-    extends BaseClass
-    implements OnInit, OnChanges {
+    extends AsyncHandler
+    implements OnInit, OnChanges
+{
     @Input() public system_id: string = localStorage.getItem(
         'PLACEOS.BOOKINGS.system'
     );

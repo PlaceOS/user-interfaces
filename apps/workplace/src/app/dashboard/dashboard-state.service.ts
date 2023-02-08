@@ -20,7 +20,7 @@ import {
 import { differenceInMinutes, endOfDay } from 'date-fns';
 
 import {
-    BaseClass,
+    AsyncHandler,
     currentUser,
     HashMap,
     SettingsService,
@@ -45,7 +45,7 @@ export interface DashboardOptions {
 @Injectable({
     providedIn: 'root',
 })
-export class DashboardStateService extends BaseClass {
+export class DashboardStateService extends AsyncHandler {
     private _options = new BehaviorSubject<DashboardOptions>({});
     /**  */
     private _free_spaces = new BehaviorSubject<Space[]>([]);

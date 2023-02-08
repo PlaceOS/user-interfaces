@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { BaseClass, unique } from '@placeos/common';
+import { AsyncHandler, unique } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { debounceTime, map, tap } from 'rxjs/operators';
@@ -75,7 +75,7 @@ import { SpaceLocationPinComponent } from './space-location-pin.component';
         `,
     ],
 })
-export class SpaceSelectMapComponent extends BaseClass {
+export class SpaceSelectMapComponent extends AsyncHandler {
     @Input() public selected: string[] = [];
     @Input() public is_displayed: boolean = false;
     @Output() public onSelect = new EventEmitter<Space>();

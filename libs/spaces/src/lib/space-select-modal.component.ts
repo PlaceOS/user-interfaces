@@ -5,7 +5,7 @@ import { map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { addMinutes, getUnixTime } from 'date-fns';
 
 import {
-    BaseClass,
+    AsyncHandler,
     currentUser,
     DialogEvent,
     HashMap,
@@ -148,7 +148,7 @@ export interface SpaceSelectModalData {
         `,
     ],
 })
-export class SpaceSelectModalComponent extends BaseClass {
+export class SpaceSelectModalComponent extends AsyncHandler {
     /** Emitter for user action on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** List of selected spaces */

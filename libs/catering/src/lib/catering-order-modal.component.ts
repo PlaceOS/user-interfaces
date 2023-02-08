@@ -2,7 +2,7 @@ import { Component, Inject, Output, EventEmitter, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 
-import { BaseClass, DialogEvent, HashMap, unique } from '@placeos/common';
+import { AsyncHandler, DialogEvent, HashMap, unique } from '@placeos/common';
 
 import { CateringItem } from './catering-item.class';
 import { CateringOrder } from './catering-order.class';
@@ -217,7 +217,10 @@ export interface CateringOrderModalData {
         `,
     ],
 })
-export class CateringOrderModalComponent extends BaseClass implements OnInit {
+export class CateringOrderModalComponent
+    extends AsyncHandler
+    implements OnInit
+{
     /** Emitter for events on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Whether changes are being saved */

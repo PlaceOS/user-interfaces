@@ -20,7 +20,7 @@ import {
     saveBooking,
 } from '@placeos/bookings';
 import {
-    BaseClass,
+    AsyncHandler,
     notifyError,
     notifyInfo,
     notifySuccess,
@@ -40,7 +40,7 @@ export interface DeskFilters {
 @Injectable({
     providedIn: 'root',
 })
-export class DesksStateService extends BaseClass {
+export class DesksStateService extends AsyncHandler {
     private _filters = new BehaviorSubject<DeskFilters>({});
     private _new_desks = new BehaviorSubject<Desk[]>([]);
     private _desk_bookings: Booking[] = [];

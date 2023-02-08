@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
-    BaseClass,
+    AsyncHandler,
     currentUser,
     SettingsService,
 } from '@placeos/common';
@@ -253,7 +253,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
 })
-export class MeetingBookingFormComponent extends BaseClass {
+export class MeetingBookingFormComponent extends AsyncHandler {
     public readonly form = this._service.form;
 
     public hide_block: Record<string, boolean> = {};

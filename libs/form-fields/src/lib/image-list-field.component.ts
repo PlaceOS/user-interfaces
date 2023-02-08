@@ -8,7 +8,7 @@ import {
     Upload,
     uploadFiles,
 } from '@placeos/cloud-uploads';
-import { BaseClass, notifyInfo, randomInt, unique } from '@placeos/common';
+import { AsyncHandler, notifyInfo, randomInt, unique } from '@placeos/common';
 
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { filter, map, takeWhile } from 'rxjs/operators';
@@ -228,7 +228,7 @@ export function uploadFile(file: File): Observable<UploadDetails> {
         },
     ],
 })
-export class ImageListFieldComponent extends BaseClass {
+export class ImageListFieldComponent extends AsyncHandler {
     /** List of images */
     public list: string[] = [];
     /** List of images */

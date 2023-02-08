@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { MAP_FEATURE_DATA } from '@placeos/components';
 import { ExploreParkingService, ExploreStateService } from '@placeos/explore';
 import { OrganisationService } from '@placeos/organisation';
@@ -22,7 +22,7 @@ import { first, take } from 'rxjs/operators';
         </div>
     `,
 })
-class SpacePingComponent extends BaseClass {
+class SpacePingComponent extends AsyncHandler {
     public zoom = 1;
     public ratio = 1;
     constructor(@Inject(MAP_FEATURE_DATA) private _details: any) {
@@ -175,7 +175,7 @@ class SpacePingComponent extends BaseClass {
     ],
     providers: [ExploreParkingService],
 })
-export class ParkingFlowMapComponent extends BaseClass {
+export class ParkingFlowMapComponent extends AsyncHandler {
     /** Observable for the active map */
     public readonly url = this._state.map_url;
     /** Observable for the active map */

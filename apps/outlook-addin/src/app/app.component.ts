@@ -10,7 +10,7 @@ import {
     token,
 } from '@placeos/ts-client';
 import {
-    BaseClass,
+    AsyncHandler,
     current_user,
     currentUser,
     setAppName,
@@ -40,7 +40,7 @@ declare let OfficeRuntime: any;
     `,
     styles: [``],
 })
-export class AppComponent extends BaseClass implements OnInit {
+export class AppComponent extends AsyncHandler implements OnInit {
     title = 'outlook-addin';
 
     constructor(

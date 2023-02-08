@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { BaseClass, DialogEvent } from '@placeos/common';
+import { AsyncHandler, DialogEvent } from '@placeos/common';
 
 import { User } from './user.class';
 import { generateUserForm } from './user.utilities';
@@ -53,7 +53,7 @@ import { generateUserForm } from './user.utilities';
         `,
     ],
 })
-export class NewUserModalComponent extends BaseClass implements OnInit {
+export class NewUserModalComponent extends AsyncHandler implements OnInit {
     /** Emitter for user action on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Form fields for the new user */

@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 
 import { CalendarEvent } from './event.class';
 import { EventDetailsModalComponent } from './event-details-modal.component';
@@ -153,7 +153,7 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
         `,
     ],
 })
-export class EventCardComponent extends BaseClass {
+export class EventCardComponent extends AsyncHandler {
     @Input() public event: CalendarEvent;
     @Input() public show_day: boolean = false;
     @Output() public edit = new EventEmitter();

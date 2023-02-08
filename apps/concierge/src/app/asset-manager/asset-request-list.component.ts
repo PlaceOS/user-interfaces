@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import {
     AssetManagerStateService,
     AssetRequest,
@@ -11,7 +11,9 @@ import {
         <div
             class="relative -left-4 w-[calc(100%+2rem)] mt-4 h-[calc(100%-1rem)] flex flex-col"
         >
-            <div class="bg-white dark:bg-neutral-700 p-4 border-t border-b border-gray-300 dark:border-neutral-500">
+            <div
+                class="bg-white dark:bg-neutral-700 p-4 border-t border-b border-gray-300 dark:border-neutral-500"
+            >
                 <div class="opacity-60 text-sm">
                     {{ (requests | async)?.length }} asset request{{
                         (requests | async)?.length === '1' ? '' : 's'
@@ -178,7 +180,7 @@ import {
         `,
     ],
 })
-export class AssetRequestListComponent extends BaseClass {
+export class AssetRequestListComponent extends AsyncHandler {
     public readonly requests = this._state.filtered_requests;
     public readonly filters = this._state.options;
     public request;

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { ExploreStateService } from '@placeos/explore';
 import { EventsStateService } from '../day-view/events-state.service';
 
@@ -29,7 +29,7 @@ import { EventsStateService } from '../day-view/events-state.service';
         `,
     ],
 })
-export class FacilitiesMapComponent extends BaseClass {
+export class FacilitiesMapComponent extends AsyncHandler {
     /** Observable for the active map */
     public readonly url = this._explore.map_url;
     /** Observable for the active map */

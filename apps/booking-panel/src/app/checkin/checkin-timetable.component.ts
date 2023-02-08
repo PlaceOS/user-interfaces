@@ -5,7 +5,7 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import {
     addHours,
@@ -53,7 +53,7 @@ interface EventBlock {
             <ng-container *ngFor="let blk of event_blocks">
                 <div
                     event
-                    *ngIf="(blk.start + blk.length) >= 0 && blk.start < 24 * 60"
+                    *ngIf="blk.start + blk.length >= 0 && blk.start < 24 * 60"
                     class="absolute bottom-0 h-[3.5rem] bg-gray-300 opacity-40"
                     [style.left]="8 + blk.start + 'px'"
                     [style.width]="blk.length + 'px'"
@@ -86,7 +86,7 @@ interface EventBlock {
         `,
     ],
 })
-export class CheckinTimetableComponent extends BaseClass {
+export class CheckinTimetableComponent extends AsyncHandler {
     @Input() public events: CalendarEvent[] = [];
     @Input() public step = 15;
     @Output() public event = new EventEmitter<number>();

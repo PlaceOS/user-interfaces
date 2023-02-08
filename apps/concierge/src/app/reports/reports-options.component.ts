@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { BaseClass, Identity } from '@placeos/common';
+import { AsyncHandler, Identity } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { ReportsStateService } from './reports-state.service';
 
@@ -95,7 +95,7 @@ import { ReportsStateService } from './reports-state.service';
         `,
     ],
 })
-export class ReportsOptionsComponent extends BaseClass {
+export class ReportsOptionsComponent extends AsyncHandler {
     /** List of selected levels */
     public zones: string[] = [];
 

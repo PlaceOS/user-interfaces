@@ -6,7 +6,7 @@ import {
     ViewChild,
 } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { addMinutes, isSameDay } from 'date-fns';
 import { User } from '../user.class';
 
@@ -180,7 +180,7 @@ export interface FindAvailabilityData {
         `,
     ],
 })
-export class FindAvailabilityModalComponent extends BaseClass {
+export class FindAvailabilityModalComponent extends AsyncHandler {
     public search = '';
     public date = this._data.date || Date.now();
     public duration = this._data.duration || 60;

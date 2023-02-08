@@ -3,7 +3,7 @@ import { getModule } from '@placeos/ts-client';
 import { differenceInMinutes, formatDistanceToNow } from 'date-fns';
 import { Observable } from 'rxjs';
 
-import { BaseClass, SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 
 import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
 
@@ -59,7 +59,9 @@ const EMPTY = [];
             >
                 <div class="arrow"></div>
                 <div class="details">
-                    <p class="break-words"><label i18n>MAC:</label> {{ mac }}</p>
+                    <p class="break-words">
+                        <label i18n>MAC:</label> {{ mac }}
+                    </p>
                     <p><label i18n>Accuracy:</label> {{ variance }}m</p>
                     <p><label i18n>Last Seen:</label> {{ last_seen }}</p>
                     <p
@@ -113,7 +115,7 @@ const EMPTY = [];
         `,
     ],
 })
-export class ExploreDeviceInfoComponent extends BaseClass implements OnInit {
+export class ExploreDeviceInfoComponent extends AsyncHandler implements OnInit {
     /** Name of the user associated with the mac address */
     public username = '';
     /** User details associated with device */

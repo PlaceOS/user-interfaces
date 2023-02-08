@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { BaseClass, current_user, SettingsService } from '@placeos/common';
+import { AsyncHandler, current_user, SettingsService } from '@placeos/common';
 import { first } from 'rxjs/operators';
 
 @Component({
@@ -22,7 +22,7 @@ import { first } from 'rxjs/operators';
         `,
     ],
 })
-export class DeskBookingComponent extends BaseClass implements OnInit {
+export class DeskBookingComponent extends AsyncHandler implements OnInit {
     public get countdown_time() {
         return (
             this._settings.get('app.general.kiosk_reset_delay') || 5 * 60 * 1000

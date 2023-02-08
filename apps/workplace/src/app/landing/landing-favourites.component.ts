@@ -5,7 +5,7 @@ import {
     BookingType,
     FAV_PARKING_KEY,
 } from '@placeos/bookings';
-import { BaseClass, SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
@@ -250,7 +250,7 @@ const EMPTY = [];
     ],
     providers: [SpacePipe],
 })
-export class LandingFavouritesComponent extends BaseClass {
+export class LandingFavouritesComponent extends AsyncHandler {
     public readonly assets = combineLatest([
         this._booking_form.loadAssets('desks' as any),
         this._booking_form.loadAssets('parking_spaces' as any),

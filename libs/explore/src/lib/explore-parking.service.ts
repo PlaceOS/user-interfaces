@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {
-    BaseClass,
+    AsyncHandler,
     currentUser,
     flatten,
     SettingsService,
@@ -27,7 +27,7 @@ export interface ExploreParkingOptions {
 }
 
 @Injectable()
-export class ExploreParkingService extends BaseClass {
+export class ExploreParkingService extends AsyncHandler {
     private _options = new BehaviorSubject<ExploreParkingOptions>({
         date: startOfDay(Date.now()).valueOf(),
     });

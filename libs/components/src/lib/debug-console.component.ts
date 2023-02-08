@@ -3,7 +3,7 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
-import { BaseClass } from 'libs/common/src/lib/base.class';
+import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import {
     ClientEvent,
     RemoteLoggingService,
@@ -130,7 +130,7 @@ const URL_STARTS = [
     `,
     styles: [``],
 })
-export class DebugConsoleComponent extends BaseClass {
+export class DebugConsoleComponent extends AsyncHandler {
     @Input() public show = false;
     public readonly colors = COLOR_MAP;
     public readonly json_tooltip = JsonDisplayComponent;

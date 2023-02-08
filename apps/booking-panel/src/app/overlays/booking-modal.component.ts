@@ -2,7 +2,7 @@ import { Component, EventEmitter, Output, Inject } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 
-import { DialogEvent, HashMap, BaseClass } from '@placeos/common';
+import { DialogEvent, HashMap, AsyncHandler } from '@placeos/common';
 import { Space } from '@placeos/spaces';
 import { first } from 'rxjs/operators';
 import { User } from '@placeos/users';
@@ -115,7 +115,7 @@ export async function openBookingModal(
     ],
     animations: [],
 })
-export class BookingModalComponent extends BaseClass {
+export class BookingModalComponent extends AsyncHandler {
     /** Emitter for user action on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Whether modal is closing */

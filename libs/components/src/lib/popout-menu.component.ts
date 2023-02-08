@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { ApplicationIcon, BaseClass } from '@placeos/common';
+import { ApplicationIcon, AsyncHandler } from '@placeos/common';
 
 export interface PopoutAction extends ApplicationIcon {
     /** ID of the action */
@@ -58,7 +58,7 @@ export interface PopoutAction extends ApplicationIcon {
         `,
     ],
 })
-export class PopoutMenuComponent extends BaseClass {
+export class PopoutMenuComponent extends AsyncHandler {
     /** List of available actions */
     @Input() public actions: PopoutAction[] = [];
     /** Emitter for user actions */

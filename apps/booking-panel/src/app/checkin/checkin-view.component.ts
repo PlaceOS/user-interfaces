@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { startOfMinute } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -268,7 +268,7 @@ import { PanelStateService } from '../panel-state.service';
     ],
     providers: [PanelStateService],
 })
-export class CheckinViewComponent extends BaseClass implements OnInit {
+export class CheckinViewComponent extends AsyncHandler implements OnInit {
     public readonly state = this._state.status;
     public readonly system = this._state.space;
     public readonly bookings = this._state.bookings;

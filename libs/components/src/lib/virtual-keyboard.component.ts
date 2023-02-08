@@ -8,7 +8,7 @@ import {
     OnDestroy,
     ViewChild,
 } from '@angular/core';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 
 const DEFAULT_KEYS = [
     '0123456789'.split(''),
@@ -94,7 +94,10 @@ const DEFAULT_KEYS = [
         `,
     ],
 })
-export class VirtualKeyboardComponent extends BaseClass implements OnDestroy {
+export class VirtualKeyboardComponent
+    extends AsyncHandler
+    implements OnDestroy
+{
     /** Whether virtual keyboard should activate */
     public static enabled: boolean;
     /** List of rows of keys to display on the keyboard */

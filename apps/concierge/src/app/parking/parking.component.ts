@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { ParkingStateService } from './parking-state.service';
 
 @Component({
@@ -40,7 +40,10 @@ import { ParkingStateService } from './parking-state.service';
             <div class="flex-1 h-1/2 w-full relative overflow-auto">
                 <router-outlet></router-outlet>
             </div>
-            <div *ngIf="!(levels | async)?.length" class="absolute inset-0 bg-white/80 dark:bg-white/20 flex flex-col items-center justify-center z-50">
+            <div
+                *ngIf="!(levels | async)?.length"
+                class="absolute inset-0 bg-white/80 dark:bg-white/20 flex flex-col items-center justify-center z-50"
+            >
                 <p>No parking floors for the currently selected building</p>
             </div>
         </main>
@@ -67,7 +70,7 @@ import { ParkingStateService } from './parking-state.service';
         `,
     ],
 })
-export class ParkingComponent extends BaseClass {
+export class ParkingComponent extends AsyncHandler {
     /** List of levels for the active building */
     public readonly levels = this._state.levels;
 

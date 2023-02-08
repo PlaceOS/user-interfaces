@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { BookingFormService } from '@placeos/bookings';
-import { BaseClass, SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { Desk } from '@placeos/organisation';
 
 @Component({
@@ -116,7 +116,7 @@ import { Desk } from '@placeos/organisation';
     `,
     styles: [``],
 })
-export class DeskBookingFormComponent extends BaseClass {
+export class DeskBookingFormComponent extends AsyncHandler {
     public readonly form = this._service.form;
 
     public get allow_assets() {

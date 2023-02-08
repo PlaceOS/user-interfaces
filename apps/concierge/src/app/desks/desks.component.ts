@@ -1,13 +1,15 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { DesksStateService } from './desks-state.service';
 
 @Component({
     selector: '[app-desks]',
     template: `
         <sidebar></sidebar>
-        <main class="relative w-full flex flex-col bg-gray-200 dark:bg-neutral-600">
+        <main
+            class="relative w-full flex flex-col bg-gray-200 dark:bg-neutral-600"
+        >
             <desks-topbar class="w-full"></desks-topbar>
             <div class="dark">
                 <nav mat-tab-nav-bar>
@@ -57,7 +59,7 @@ import { DesksStateService } from './desks-state.service';
         `,
     ],
 })
-export class DesksComponent extends BaseClass implements OnInit, OnDestroy {
+export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     public readonly loading = this._state.loading;
     public path: string;
 

@@ -1,5 +1,9 @@
 import { Component, Inject } from '@angular/core';
-import { ApplicationLink, BaseClass, SettingsService } from '@placeos/common';
+import {
+    ApplicationLink,
+    AsyncHandler,
+    SettingsService,
+} from '@placeos/common';
 import { CustomTooltipData } from '@placeos/components';
 
 @Component({
@@ -83,7 +87,7 @@ import { CustomTooltipData } from '@placeos/components';
         `,
     ],
 })
-export class AccessibilityTooltipComponent extends BaseClass {
+export class AccessibilityTooltipComponent extends AsyncHandler {
     public get dark_mode() {
         return !!this._settings.get('dark_mode');
     }

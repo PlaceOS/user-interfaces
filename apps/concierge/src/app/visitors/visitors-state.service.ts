@@ -12,7 +12,7 @@ import {
 import { startOfDay, getUnixTime, addDays, format } from 'date-fns';
 
 import {
-    BaseClass,
+    AsyncHandler,
     downloadFile,
     flatten,
     jsonToCsv,
@@ -42,7 +42,7 @@ export interface VisitorFilters {
 @Injectable({
     providedIn: 'root',
 })
-export class VisitorsStateService extends BaseClass {
+export class VisitorsStateService extends AsyncHandler {
     private _poll = new BehaviorSubject<number>(0);
 
     private _filters = new BehaviorSubject<VisitorFilters>({});

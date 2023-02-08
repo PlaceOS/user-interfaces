@@ -7,7 +7,7 @@ import { getInvalidFields } from 'libs/common/src/lib/general';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { BookingFormService } from './booking-form.service';
 import { Booking } from './booking.class';
-import { BaseClass, SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { User } from '@placeos/users';
 
 @Component({
@@ -247,7 +247,7 @@ import { User } from '@placeos/users';
     `,
     styles: [``],
 })
-export class InviteVisitorFormComponent extends BaseClass {
+export class InviteVisitorFormComponent extends AsyncHandler {
     @Output() public done = new EventEmitter<void>();
 
     public sent = false;

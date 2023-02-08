@@ -2,7 +2,7 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-    BaseClass,
+    AsyncHandler,
     notifyError,
     SettingsService,
     unique,
@@ -151,7 +151,7 @@ import { first, take } from 'rxjs/operators';
         SpacePipe,
     ],
 })
-export class ExploreComponent extends BaseClass implements OnInit {
+export class ExploreComponent extends AsyncHandler implements OnInit {
     /** Number of seconds after a user action to reset the kiosk state */
     public reset_delay = 180;
 

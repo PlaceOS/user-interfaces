@@ -1,12 +1,16 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
+import { take } from 'rxjs/operators';
 import { PanelStateService } from '../panel-state.service';
 
 @Component({
     selector: 'panel-view',
     template: `
-        <div class="flex flex-col items-center h-full w-full overflow-hidden">
+        <div
+            class="flex flex-col items-center h-full w-full overflow-hidden"
+            (click)="can_book ? action() : ''"
+        >
             <panel-view-details class="flex-1 w-full"></panel-view-details>
             <panel-view-status class="flex-1 w-full"></panel-view-status>
             <div
@@ -21,14 +25,19 @@ import { PanelStateService } from '../panel-state.service';
                     class="absolute top-4 left-4 w-1/2 flex items-center justify-center p-4 text-5xl bg-pending rounded shadow text-white font-medium"
                 >
                     {{
-                        name || (system | async)?.display_name ||
+                        name ||
+                            (system | async)?.display_name ||
                             (system | async)?.name ||
                             '&lt;Unknown Space&gt;'
                     }}
                 </div>
-                <div class="absolute bottom-4 right-4 flex items-center flex-col max-w-[25%] text-center">
+                <div
+                    class="absolute bottom-4 right-4 flex items-center flex-col max-w-[25%] text-center"
+                >
                     <div class="text-8xl">{{ capacity }}</div>
-                    <div class="text-3xl">{{ "PANEL.ROOM_CAPACITY" | translate }}</div>
+                    <div class="text-3xl">
+                        {{ 'PANEL.ROOM_CAPACITY' | translate }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -36,7 +45,7 @@ import { PanelStateService } from '../panel-state.service';
     styles: [``],
     providers: [PanelStateService],
 })
-export class PanelViewComponent extends BaseClass {
+export class PanelViewComponent extends AsyncHandler {
     public readonly system = this._state.space;
 
     public get name() {
@@ -51,7 +60,10 @@ export class PanelViewComponent extends BaseClass {
     }
 
     public get offline_image() {
-        return this._state.setting('offline_image') || this._state.setting('room_image');
+        return (
+            this._state.setting('offline_image') ||
+            this._state.setting('room_image')
+        );
     }
 
     public get offline_color() {
@@ -60,6 +72,19 @@ export class PanelViewComponent extends BaseClass {
 
     public get capacity() {
         return this._state.setting('room_capacity');
+    }
+
+    public get can_book() {
+        return this._state.setting('disable_book_now') !== true;
+    }
+
+    public readonly book = () => this._state.newBooking();
+    public readonly checkin = () => this._state.checkin();
+
+    public async action() {
+        const pending =
+            (await this._state.status.pipe(take(1)).toPromise()) === 'pending';
+        pending ? this.checkin() : this.book();
     }
 
     constructor(

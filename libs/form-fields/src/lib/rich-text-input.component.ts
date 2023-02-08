@@ -1,6 +1,15 @@
-import { AfterViewInit, Component, ElementRef, forwardRef, Input, OnChanges, SimpleChanges, ViewChild } from "@angular/core";
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
-import { BaseClass } from "@placeos/common";
+import {
+    AfterViewInit,
+    Component,
+    ElementRef,
+    forwardRef,
+    Input,
+    OnChanges,
+    SimpleChanges,
+    ViewChild,
+} from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { AsyncHandler } from '@placeos/common';
 import * as Quill from 'quill';
 
 @Component({
@@ -20,7 +29,10 @@ import * as Quill from 'quill';
         },
     ],
 })
-export class RichTextInputComponent extends BaseClass implements ControlValueAccessor, OnChanges, AfterViewInit {
+export class RichTextInputComponent
+    extends AsyncHandler
+    implements ControlValueAccessor, OnChanges, AfterViewInit
+{
     @Input() public placeholder = '';
     @Input() public readonly = false;
 
@@ -30,16 +42,19 @@ export class RichTextInputComponent extends BaseClass implements ControlValueAcc
     private _editor: any;
     private _updateFn = () => this.setValue(this._editor.root.innerHTML);
 
+    private _onChange: (
+        _: string
+    ) => void; /** Form control on change handler */
+    private _onTouch: (
+        _: string
+    ) => void; /** Form control on touched handler */
 
-    private _onChange: (_: string) => void; /** Form control on change handler */
-    private _onTouch: (_: string) => void; /** Form control on touched handler */
-    
-    public readonly registerOnChange = (fn: (_: string) => void) => this._onChange = fn;
-    public readonly registerOnTouched = (fn: (_: string) => void) => this._onTouch = fn;
+    public readonly registerOnChange = (fn: (_: string) => void) =>
+        (this._onChange = fn);
+    public readonly registerOnTouched = (fn: (_: string) => void) =>
+        (this._onTouch = fn);
 
-    public ngOnChanges(changes: SimpleChanges) {
-
-    }
+    public ngOnChanges(changes: SimpleChanges) {}
 
     public ngAfterViewInit() {
         this._initialiseEditor();
@@ -74,10 +89,11 @@ export class RichTextInputComponent extends BaseClass implements ControlValueAcc
             bounds: this._container_el.nativeElement,
             placeholder: this.placeholder,
             readOnly: this.readonly,
-            theme: 'snow'
+            theme: 'snow',
         });
         this._editor.on('text-change', this._updateFn);
-        this.subscription('changes', () => this._editor.off('text-change', this._updateFn));
+        this.subscription('changes', () =>
+            this._editor.off('text-change', this._updateFn)
+        );
     }
-    
 }

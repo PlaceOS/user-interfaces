@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { TriggerOptions } from '@placeos/survey-suite';
 import { combineLatest } from 'rxjs';
@@ -89,7 +89,10 @@ import { SurveyOptions, SurveyService } from '../services/survey.service';
         </div>
     `,
 })
-export class SurveyCreatorTopbarComponent extends BaseClass implements OnInit {
+export class SurveyCreatorTopbarComponent
+    extends AsyncHandler
+    implements OnInit
+{
     public selected_building = null;
     public levels = [];
     public readonly options$ = this._survey._options$.pipe(shareReplay(1));

@@ -1,5 +1,5 @@
 import { Component, Input, SimpleChanges } from '@angular/core';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -73,7 +73,7 @@ export const ICON_MAP = {
         `,
     ],
 })
-export class OutputDisplayComponent extends BaseClass {
+export class OutputDisplayComponent extends AsyncHandler {
     @Input() public item: RoomOutput;
     /** Current volume level for output */
     public volume: number;

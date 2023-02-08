@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { queryBookings } from '@placeos/bookings';
 import { queryEvents } from '@placeos/events';
 import { Observable, BehaviorSubject } from 'rxjs';
@@ -10,7 +10,7 @@ import { getUnixTime, startOfDay, endOfDay } from 'date-fns';
 @Injectable({
     providedIn: 'root',
 })
-export class ExistingBookingsService extends BaseClass {
+export class ExistingBookingsService extends AsyncHandler {
     private _loading: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
         null
     );

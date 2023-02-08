@@ -1,6 +1,6 @@
 import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 
 import { ExploreSearchService, SearchResult } from './explore-search.service';
 
@@ -13,7 +13,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
             matRipple
             class="bg-white m-2 flex items-center z-10 relative overflow-hidden outline-none"
             [class.show]="show || search_str"
-       > 
+        >
             <app-icon
                 class="text-2xl outline-none"
                 tabindex="0"
@@ -100,7 +100,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
         `,
     ],
 })
-export class ExploreSearchComponent extends BaseClass {
+export class ExploreSearchComponent extends AsyncHandler {
     public show = false;
     public search_str = '';
     public readonly results = this._search.search_results;

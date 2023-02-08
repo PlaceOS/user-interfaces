@@ -16,7 +16,7 @@ import {
     queryBookings,
 } from '@placeos/bookings';
 import {
-    BaseClass,
+    AsyncHandler,
     currentUser,
     notifyError,
     notifyInfo,
@@ -168,7 +168,7 @@ import QrScanner from 'qr-scanner';
     ],
 })
 export class BookCodeFlowComponent
-    extends BaseClass
+    extends AsyncHandler
     implements OnInit, OnDestroy
 {
     /** Menu event */

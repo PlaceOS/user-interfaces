@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BaseClass, SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { Space, SpacesService } from '@placeos/spaces';
 import { getHours, getMinutes, startOfSecond } from 'date-fns';
 import { first } from 'rxjs/operators';
@@ -90,7 +90,7 @@ import { first } from 'rxjs/operators';
         `,
     ],
 })
-export class AppTimetableComponent extends BaseClass {
+export class AppTimetableComponent extends AsyncHandler {
     public spaces: Space[] = [];
     public date = Date.now();
     public readonly hours = new Array(24)
@@ -119,7 +119,7 @@ export class AppTimetableComponent extends BaseClass {
 
     public async ngOnInit() {
         await this._spaces.initialised.pipe(first((_) => _)).toPromise();
-        this.interval('time', () => this.date = Date.now(), 2000);
+        this.interval('time', () => (this.date = Date.now()), 2000);
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {

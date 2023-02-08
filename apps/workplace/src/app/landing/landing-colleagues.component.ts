@@ -1,6 +1,6 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { BaseClass, notifySuccess, SettingsService } from '@placeos/common';
+import { AsyncHandler, notifySuccess, SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { User } from '@placeos/users';
 import { combineLatest } from 'rxjs';
@@ -210,7 +210,7 @@ import { LandingStateService } from './landing-state.service';
         `,
     ],
 })
-export class LandingColleaguesComponent extends BaseClass {
+export class LandingColleaguesComponent extends AsyncHandler {
     public show_search = false;
     public readonly contacts = this._state.contacts;
 

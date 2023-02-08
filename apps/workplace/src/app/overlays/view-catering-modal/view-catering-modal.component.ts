@@ -3,14 +3,14 @@ import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 
 import { CateringItem } from '@placeos/catering';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 
 @Component({
     selector: 'view-catering-modal',
     templateUrl: './view-catering-modal.component.html',
     styleUrls: ['./view-catering-modal.component.scss'],
 })
-export class ViewCateringModalComponent extends BaseClass implements OnInit {
+export class ViewCateringModalComponent extends AsyncHandler implements OnInit {
     public catering: CateringItem[];
     public catering_note: string;
     public catering_items_total = 0;

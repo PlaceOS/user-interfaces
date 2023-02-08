@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { TriggerEnumMap } from '@placeos/survey-suite';
 import { shareReplay } from 'rxjs/operators';
 import { SurveyListingsService } from '../services/survey-listings.service';
@@ -53,10 +53,10 @@ import { SurveyListingsService } from '../services/survey-listings.service';
                             "
                         >
                             <div class="flex flex-col">
-                                <span class="text-2xl"
-                                    >Survey Listing
-                                </span>
-                                <span class="text-4xl">{{ building.display_name || building.name }}</span>
+                                <span class="text-2xl">Survey Listing </span>
+                                <span class="text-4xl">{{
+                                    building.display_name || building.name
+                                }}</span>
                             </div>
                         </ng-container>
                         <ng-template #unknownBuilding>
@@ -210,7 +210,7 @@ import { SurveyListingsService } from '../services/survey-listings.service';
     `,
     providers: [SurveyListingsService],
 })
-export class SurveyListingsComponent extends BaseClass implements OnInit {
+export class SurveyListingsComponent extends AsyncHandler implements OnInit {
     levelMap = {};
     loading$ = this._service.loading$.pipe(shareReplay(1));
     building$ = this._service.building$.pipe(shareReplay(1));

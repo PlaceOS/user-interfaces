@@ -15,7 +15,7 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { addHours } from 'date-fns';
 
 import {
-    BaseClass,
+    AsyncHandler,
     current_user,
     currentUser,
     HotkeysService,
@@ -80,7 +80,7 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
         `,
     ],
 })
-export class AppComponent extends BaseClass implements OnInit {
+export class AppComponent extends AsyncHandler implements OnInit {
     public get debug() {
         return window.debug;
     }

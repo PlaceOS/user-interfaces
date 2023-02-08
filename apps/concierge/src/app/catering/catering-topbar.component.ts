@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import {
     CateringOrdersService,
@@ -89,7 +89,7 @@ import { MatDialog } from '@angular/material/dialog';
         `,
     ],
 })
-export class CateringTopbarComponent extends BaseClass implements OnInit {
+export class CateringTopbarComponent extends AsyncHandler implements OnInit {
     /** List of selected levels */
     public zones: string[] = [];
     /** Currently active page */

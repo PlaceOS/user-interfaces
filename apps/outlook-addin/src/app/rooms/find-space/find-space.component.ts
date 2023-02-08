@@ -11,7 +11,7 @@ import { FeaturesFilterService } from '../features-filter.service';
 import { MapService, Locatable } from '../map.service';
 import { ViewerFeature, ViewAction, ViewerStyles } from '@placeos/svg-viewer';
 import { RoomConfirmService } from '../room-confirm.service';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { MapsList } from '../map.service';
 import { Router } from '@angular/router';
 
@@ -42,7 +42,7 @@ import { Router } from '@angular/router';
         `,
     ],
 })
-export class FindSpaceComponent extends BaseClass implements OnInit {
+export class FindSpaceComponent extends AsyncHandler implements OnInit {
     start_time$: Observable<any>;
     duration_minutes: number;
     end_time$: Observable<any>;
@@ -100,7 +100,7 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
     public readonly spaces$: Observable<Space[]> = this._state.available_spaces;
     public readonly features = this._spaces.features;
 
-    public readonly setBuilding = (b) => this._org.building = b;
+    public readonly setBuilding = (b) => (this._org.building = b);
     public readonly setOptions = (o) => this._state.setOptions(o);
 
     constructor(
@@ -130,7 +130,12 @@ export class FindSpaceComponent extends BaseClass implements OnInit {
 
         this.setBuilding(this._org.building);
         this.book_space = {};
-        this.subscription('features', this.selected_features$?.subscribe((v) => this.setOptions({ features: v || [] })));
+        this.subscription(
+            'features',
+            this.selected_features$?.subscribe((v) =>
+                this.setOptions({ features: v || [] })
+            )
+        );
 
         await this._mapService.locateSpaces(this.spaces$);
 

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { BaseClass, HashMap } from '@placeos/common';
+import { AsyncHandler, HashMap } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import { currentBooking } from './panel-state.service';
 
@@ -136,7 +136,10 @@ import { currentBooking } from './panel-state.service';
         `,
     ],
 })
-export class BookingPanelSelectComponent extends BaseClass implements OnInit {
+export class BookingPanelSelectComponent
+    extends AsyncHandler
+    implements OnInit
+{
     /** List of systems to show panels for */
     public systems: string[];
     /** Names for the list of systems */

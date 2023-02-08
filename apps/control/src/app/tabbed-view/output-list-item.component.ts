@@ -1,5 +1,5 @@
 import { Component, Input, SimpleChanges } from '@angular/core';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { ControlStateService, RoomOutput } from '../control-state.service';
@@ -50,7 +50,7 @@ import { ICON_MAP } from '../ui/output-display.component';
         `,
     ],
 })
-export class DeviceOutputListItemComponent extends BaseClass {
+export class DeviceOutputListItemComponent extends AsyncHandler {
     @Input() public item: RoomOutput;
     @Input() public active: boolean;
     /** Current volume level for output */

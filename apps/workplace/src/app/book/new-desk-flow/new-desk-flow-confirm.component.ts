@@ -1,7 +1,7 @@
 import { Component, Input, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { BookingFormService } from '@placeos/bookings';
-import { BaseClass, notifyError } from '@placeos/common';
+import { AsyncHandler, notifyError } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { take } from 'rxjs/operators';
 
@@ -132,7 +132,7 @@ import { take } from 'rxjs/operators';
         </footer>
     `,
 })
-export class NewDeskFlowConfirmComponent extends BaseClass {
+export class NewDeskFlowConfirmComponent extends AsyncHandler {
     @Input() public show_close: boolean = false;
 
     public readonly loading = this._state.loading;

@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { CustomTooltipComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
@@ -301,7 +301,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         `,
     ],
 })
-export class AssetViewComponent extends BaseClass {
+export class AssetViewComponent extends AsyncHandler {
     public loading = false;
     public deleting = false;
     public readonly asset = this._state.active_asset;

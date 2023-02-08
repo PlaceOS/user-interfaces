@@ -9,7 +9,7 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { Space } from '@placeos/spaces';
 import { BehaviorSubject, of } from 'rxjs';
 import { querySystems } from '@placeos/ts-client';
@@ -114,7 +114,7 @@ const STORE_KEY = 'PLACEOS.CONTROL.system';
         `,
     ],
 })
-export class BootstrapComponent extends BaseClass implements OnInit {
+export class BootstrapComponent extends AsyncHandler implements OnInit {
     /** List of available systems */
     public system_list: Space[] = [];
     /** List of available systems */

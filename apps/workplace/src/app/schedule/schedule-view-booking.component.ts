@@ -8,7 +8,7 @@ import {
     showBooking,
 } from '@placeos/bookings';
 import {
-    BaseClass,
+    AsyncHandler,
     currentUser,
     notifyError,
     notifySuccess,
@@ -146,7 +146,7 @@ import { MapLocateModalComponent } from '@placeos/components';
         `,
     ],
 })
-export class ScheduleViewBookingComponent extends BaseClass {
+export class ScheduleViewBookingComponent extends AsyncHandler {
     @Input() public event: Booking;
 
     public get is_host() {

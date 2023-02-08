@@ -1,5 +1,5 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 
 import { ExploreSearchService } from '@placeos/explore';
 
@@ -112,7 +112,7 @@ import { ExploreSearchService } from '@placeos/explore';
         `,
     ],
 })
-export class GlobalSearchComponent extends BaseClass {
+export class GlobalSearchComponent extends AsyncHandler {
     public readonly results = this._service.search_results;
     public readonly loading = this._service.loading;
     public show = false;

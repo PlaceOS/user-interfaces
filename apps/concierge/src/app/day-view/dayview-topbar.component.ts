@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { BaseClass, Identity } from '@placeos/common';
+import { AsyncHandler, Identity } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { BookingUIOptions, EventsStateService } from './events-state.service';
 
@@ -93,7 +93,7 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
         `,
     ],
 })
-export class DayviewTopbarComponent extends BaseClass {
+export class DayviewTopbarComponent extends AsyncHandler {
     /** List of selected levels */
     public zones: string[] = [];
 

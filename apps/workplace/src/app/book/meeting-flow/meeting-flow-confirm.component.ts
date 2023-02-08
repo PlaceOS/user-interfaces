@@ -1,7 +1,7 @@
 import { Component, Input, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
-import { BaseClass, notifyError, openConfirmModal } from '@placeos/common';
+import { AsyncHandler, notifyError, openConfirmModal } from '@placeos/common';
 import { CalendarEvent, EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
@@ -130,7 +130,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
     ],
     providers: [SpacePipe],
 })
-export class MeetingFlowConfirmComponent extends BaseClass {
+export class MeetingFlowConfirmComponent extends AsyncHandler {
     @Input() public show_close: boolean = false;
 
     public readonly loading = this._event_form.loading;

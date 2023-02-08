@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { take } from 'rxjs/operators';
@@ -117,7 +117,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
         `,
     ],
 })
-export class SpaceFiltersDisplayComponent extends BaseClass {
+export class SpaceFiltersDisplayComponent extends AsyncHandler {
     @Input() public view: 'map' | 'list' = 'list';
     @Output() public viewChange = new EventEmitter<'map' | 'list'>();
     public readonly options = this._event_form.options;

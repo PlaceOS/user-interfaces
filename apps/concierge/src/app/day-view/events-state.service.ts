@@ -23,7 +23,7 @@ import {
 } from 'rxjs/operators';
 
 import {
-    BaseClass,
+    AsyncHandler,
     flatten,
     openConfirmModal,
     timePeriodsIntersect,
@@ -66,7 +66,7 @@ export interface BookingUIOptions {
 @Injectable({
     providedIn: 'root',
 })
-export class EventsStateService extends BaseClass {
+export class EventsStateService extends AsyncHandler {
     /** Emitter for poll events */
     private _poll = new BehaviorSubject<number>(0);
     /** Period to list bookings for */

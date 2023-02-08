@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
 import { ControlStateService } from '../control-state.service';
 
@@ -7,8 +7,20 @@ import { ControlStateService } from '../control-state.service';
     selector: 'tv-controls',
     template: `
         <div hidden [attr.mod]="mod">
-            <i binding [(model)]="channel_list" [sys]="system_id" [mod]="mod" bind="channel_details"></i>
-            <i binding [(model)]="channel_url" [sys]="system_id" [mod]="mod" bind="current_channel"></i>
+            <i
+                binding
+                [(model)]="channel_list"
+                [sys]="system_id"
+                [mod]="mod"
+                bind="channel_details"
+            ></i>
+            <i
+                binding
+                [(model)]="channel_url"
+                [sys]="system_id"
+                [mod]="mod"
+                bind="current_channel"
+            ></i>
         </div>
         <div
             class="flex flex-wrap p-8 items-center justify-center"
@@ -33,7 +45,7 @@ import { ControlStateService } from '../control-state.service';
         </div>
     `,
 })
-export class TVControlsComponent extends BaseClass {
+export class TVControlsComponent extends AsyncHandler {
     @Input() public mod = '';
 
     public channel_list = [];

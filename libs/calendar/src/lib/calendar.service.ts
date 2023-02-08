@@ -5,7 +5,7 @@ import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
 import { Calendar } from './calendar.class';
 
-import { BaseClass } from 'libs/common/src/lib/base.class';
+import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
@@ -19,7 +19,7 @@ import {
 @Injectable({
     providedIn: 'root',
 })
-export class CalendarService extends BaseClass {
+export class CalendarService extends AsyncHandler {
     private readonly _calendars = new BehaviorSubject<Calendar[]>([]);
 
     /** Observable for the list of calendars */

@@ -4,7 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 import { debounceTime, switchMap } from 'rxjs/operators';
 import { endOfDay, startOfDay } from 'date-fns';
 
-import { BaseClass, DialogEvent } from '@placeos/common';
+import { AsyncHandler, DialogEvent } from '@placeos/common';
 import { StaffUser } from '@placeos/users';
 import { ITimelineEventGroup } from '../../components/event-timeline/event-timeline.component';
 
@@ -17,7 +17,7 @@ import { queryEvents } from '@placeos/events';
     styleUrls: ['./user-availability.modal.component.scss'],
 })
 export class UserAvailabilityModalComponent
-    extends BaseClass
+    extends AsyncHandler
     implements OnInit
 {
     /** Emitter for user action on the modal */

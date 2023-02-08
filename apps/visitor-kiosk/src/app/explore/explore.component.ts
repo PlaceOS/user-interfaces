@@ -2,7 +2,7 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 
-import { BaseClass, log, SettingsService } from '@placeos/common';
+import { AsyncHandler, log, SettingsService } from '@placeos/common';
 import { ExploreStateService } from '@placeos/explore';
 import { OrganisationService } from '@placeos/organisation';
 
@@ -34,7 +34,7 @@ import { OrganisationService } from '@placeos/organisation';
         `,
     ],
 })
-export class ExploreComponent extends BaseClass implements OnInit {
+export class ExploreComponent extends AsyncHandler implements OnInit {
     /** Number of seconds after a user action to reset the kiosk state */
     public reset_delay = 180;
     /** Whether to show the overlay menu */

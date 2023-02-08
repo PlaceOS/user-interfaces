@@ -5,7 +5,7 @@ import { ViewAction, ViewerFeature } from '@placeos/svg-viewer';
 import { map } from 'rxjs/operators';
 
 import {
-    BaseClass,
+    AsyncHandler,
     currentUser,
     HashMap,
     SettingsService,
@@ -31,7 +31,7 @@ export const DEFAULT_COLOURS = {
 };
 
 @Injectable()
-export class ExploreSpacesService extends BaseClass implements OnDestroy {
+export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
     private _bookings: HashMap<CalendarEvent[]> = {};
     private _statuses: HashMap<string> = {};
 

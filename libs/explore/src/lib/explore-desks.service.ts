@@ -21,7 +21,7 @@ import {
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import {
-    BaseClass,
+    AsyncHandler,
     currentUser,
     notifyError,
     notifySuccess,
@@ -51,7 +51,7 @@ export interface DesksStats {
 }
 
 @Injectable()
-export class ExploreDesksService extends BaseClass implements OnDestroy {
+export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     private _in_use = new BehaviorSubject<string[]>([]);
     private _options = new BehaviorSubject<DeskOptions>({});
     private _presence = new BehaviorSubject<string[]>([]);

@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
-    BaseClass,
+    AsyncHandler,
     getInvalidFields,
     notifyError,
     SettingsService,
@@ -124,7 +124,7 @@ import { NewParkingFlowConfirmComponent } from './parking-flow-confirm.component
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
 })
-export class ParkingFlowFormComponent extends BaseClass {
+export class ParkingFlowFormComponent extends AsyncHandler {
     public hide_block: Record<string, boolean> = {};
     public sheet_ref: any;
 

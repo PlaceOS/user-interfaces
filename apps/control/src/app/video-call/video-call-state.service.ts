@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
 import {
     VideoCallDetails,
@@ -18,7 +18,7 @@ import { ControlStateService } from '../control-state.service';
 @Injectable({
     providedIn: 'root',
 })
-export class VideoCallStateService extends BaseClass {
+export class VideoCallStateService extends AsyncHandler {
     public readonly connected: Observable<VideoCallDetails | null> =
         this._control.system_id.pipe(
             distinctUntilChanged(),

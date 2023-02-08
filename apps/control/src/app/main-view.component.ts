@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 
 import { ControlStateService } from './control-state.service';
 
@@ -60,7 +60,7 @@ import { ControlStateService } from './control-state.service';
         `,
     ],
 })
-export class ControlMainViewComponent extends BaseClass implements OnInit {
+export class ControlMainViewComponent extends AsyncHandler implements OnInit {
     public readonly system = this._state.system;
 
     public readonly powerOn = () => this._state.powerOn();
@@ -88,9 +88,7 @@ export class ControlMainViewComponent extends BaseClass implements OnInit {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) =>
-                params.get('join') === 'true'
-                    ? this._state.selectMeeting()
-                    : ''
+                params.get('join') === 'true' ? this._state.selectMeeting() : ''
             )
         );
         this.timeout('init', () =>

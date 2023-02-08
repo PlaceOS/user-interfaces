@@ -3,10 +3,14 @@ import { Subscription, BehaviorSubject } from 'rxjs';
 
 type VoidFn = () => void;
 
+/**
+ * Class for handling cleanup of async methods when components are destroyed.
+ * Async methods include Subscriptions, Timeouts and Intervals
+ */
 @Injectable({
     providedIn: 'root',
 })
-export class BaseClass implements OnDestroy {
+export class AsyncHandler implements OnDestroy {
     /** Store for named timers */
     protected _timers: { [name: string]: number } = {};
     /** Store for named intervals */
@@ -121,7 +125,10 @@ export class BaseClass implements OnDestroy {
     }
 
     protected hasSubscription(name: string) {
-        return this._subscriptions[name] instanceof Subscription || !!this._subscriptions[name];
+        return (
+            this._subscriptions[name] instanceof Subscription ||
+            !!this._subscriptions[name]
+        );
     }
 
     /**

@@ -18,7 +18,12 @@ import {
     switchMap,
 } from 'rxjs/operators';
 
-import { BaseClass, HashMap, SettingsService, unique } from '@placeos/common';
+import {
+    AsyncHandler,
+    HashMap,
+    SettingsService,
+    unique,
+} from '@placeos/common';
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Space } from 'libs/spaces/src/lib/space.class';
@@ -40,7 +45,7 @@ export interface MapOptions {
 @Injectable({
     providedIn: 'root',
 })
-export class ExploreStateService extends BaseClass {
+export class ExploreStateService extends AsyncHandler {
     /** Currently active level */
     private _level = new BehaviorSubject<BuildingLevel>(null);
     /** Currently active level */
@@ -71,11 +76,7 @@ export class ExploreStateService extends BaseClass {
     public readonly spaces = this._level.pipe(
         switchMap((level) =>
             querySystems({ zone_id: level?.id, limit: 50 }).pipe(
-                map(({ data }) =>
-                    data.map(
-                        (_) => new Space(_ as any)
-                    )
-                ),
+                map(({ data }) => data.map((_) => new Space(_ as any))),
                 catchError((_) => of([] as Space[]))
             )
         ),

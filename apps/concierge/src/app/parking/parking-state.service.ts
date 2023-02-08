@@ -7,7 +7,7 @@ import {
     rejectBooking,
 } from '@placeos/bookings';
 import {
-    BaseClass,
+    AsyncHandler,
     notifyError,
     notifySuccess,
     openConfirmModal,
@@ -46,7 +46,7 @@ export interface ParkingSpace {
 @Injectable({
     providedIn: 'root',
 })
-export class ParkingStateService extends BaseClass {
+export class ParkingStateService extends AsyncHandler {
     private _poll = new BehaviorSubject<number>(0);
     private _options = new BehaviorSubject<ParkingOptions>({
         date: Date.now(),

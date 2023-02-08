@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
-import { BaseClass, Identity } from '@placeos/common';
+import { AsyncHandler, Identity } from '@placeos/common';
 import { VirtualKeyboardComponent } from '@placeos/components';
 import {
     Building,
@@ -133,7 +133,7 @@ import { first } from 'rxjs/operators';
         `,
     ],
 })
-export class BootstrapComponent extends BaseClass implements OnInit {
+export class BootstrapComponent extends AsyncHandler implements OnInit {
     /** Loading state of the bootstrap */
     public loading: string;
     /** Actively selected building */

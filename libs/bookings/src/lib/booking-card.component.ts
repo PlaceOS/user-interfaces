@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { Booking } from './booking.class';
 import { BookingDetailsModalComponent } from './booking-details-modal.component';
-import { BaseClass } from 'libs/common/src/lib/base.class';
+import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
 
@@ -110,7 +110,7 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
         `,
     ],
 })
-export class BookingCardComponent extends BaseClass {
+export class BookingCardComponent extends AsyncHandler {
     @Input() public booking: Booking;
     @Input() public show_day: boolean = false;
     @Output() public edit = new EventEmitter();

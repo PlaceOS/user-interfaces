@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Booking, queryBookings } from '@placeos/bookings';
 import { queryCalendars } from '@placeos/calendar';
 import {
-    BaseClass,
+    AsyncHandler,
     SettingsService,
     timePeriodsIntersect,
     unique,
@@ -40,7 +40,7 @@ export interface ScheduleOptions {
 @Injectable({
     providedIn: 'root',
 })
-export class ScheduleStateService extends BaseClass {
+export class ScheduleStateService extends AsyncHandler {
     private _poll = new BehaviorSubject(0);
     private _options = new BehaviorSubject<ScheduleOptions>({
         start: Date.now(),

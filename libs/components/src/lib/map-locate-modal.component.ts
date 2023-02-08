@@ -2,7 +2,7 @@ import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
 import { MapPinComponent } from './map-pin.component';
@@ -58,7 +58,7 @@ export interface Locatable {
         `,
     ],
 })
-export class MapLocateModalComponent extends BaseClass implements OnInit {
+export class MapLocateModalComponent extends AsyncHandler implements OnInit {
     /** Emitter for user action on the modal */
     @Output() public event = new EventEmitter();
     /** Space to show the location of on the map */

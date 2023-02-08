@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 
 @Component({
     selector: 'a-booking-form-modal',
@@ -95,7 +95,7 @@ import { BaseClass } from '@placeos/common';
         `,
     ],
 })
-export class BookingFormModalComponent extends BaseClass {
+export class BookingFormModalComponent extends AsyncHandler {
     @Input() public first_form: boolean;
     @Input() public form: FormGroup;
 }

@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { getModule } from '@placeos/ts-client';
 
-import { BaseClass } from './base.class';
+import { AsyncHandler } from './async-handler.class';
 import { SettingsService } from './settings.service';
 
 @Injectable({
     providedIn: 'root',
 })
-export class VorlonService extends BaseClass {
+export class VorlonService extends AsyncHandler {
     /** DOM Element containing the Vorlon Script */
     private _script: HTMLScriptElement;
 

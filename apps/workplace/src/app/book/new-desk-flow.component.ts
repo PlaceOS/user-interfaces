@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
 
@@ -28,7 +28,7 @@ import { first } from 'rxjs/operators';
         `,
     ],
 })
-export class NewDeskFlowComponent extends BaseClass implements OnInit {
+export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
     public get view() {
         return this._state.view;
     }

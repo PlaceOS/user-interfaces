@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 
 @Component({
@@ -35,7 +35,7 @@ import { EventFormService } from '@placeos/events';
         `,
     ],
 })
-export class BookSpaceFlowComponent extends BaseClass implements OnInit {
+export class BookSpaceFlowComponent extends AsyncHandler implements OnInit {
     public get view() {
         return this._state.view;
     }

@@ -1,5 +1,5 @@
 import { Component, Renderer2 } from '@angular/core';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { CustomTooltipData } from '@placeos/components';
 import { getModule } from '@placeos/ts-client';
 import { combineLatest } from 'rxjs';
@@ -84,7 +84,7 @@ export enum ZoomDirection {
     `,
     styles: [``],
 })
-export class CameraControlsComponent extends BaseClass {
+export class CameraControlsComponent extends AsyncHandler {
     /** Currently active camera */
     public active_camera: RoomInput;
     /** List of available presets for the active camera */

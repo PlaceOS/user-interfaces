@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
-import { BaseClass, SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
 
 @Component({
@@ -187,7 +187,7 @@ import { Desk, OrganisationService } from '@placeos/organisation';
         </div>
     `,
 })
-export class NewDeskFormDetailsComponent extends BaseClass {
+export class NewDeskFormDetailsComponent extends AsyncHandler {
     @Input() public form: FormGroup;
     @Output() public find = new EventEmitter<void>();
     /** List of available buildings to select */

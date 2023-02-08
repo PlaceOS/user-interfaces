@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { map, take } from 'rxjs/operators';
 import { ControlStateService } from './control-state.service';
 
@@ -139,7 +139,7 @@ import { ControlStateService } from './control-state.service';
         `,
     ],
 })
-export class ControlStatusBarComponent extends BaseClass {
+export class ControlStatusBarComponent extends AsyncHandler {
     /** Details of the active system */
     public readonly system = this._state.system;
 

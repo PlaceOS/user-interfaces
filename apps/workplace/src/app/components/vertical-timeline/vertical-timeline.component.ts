@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { formatDuration } from 'date-fns';
 
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 
 import { ITimelineEventGroup } from '../event-timeline/event-timeline.component';
 
@@ -22,7 +22,10 @@ import * as dayjs from 'dayjs';
     templateUrl: './vertical-timeline.component.html',
     styleUrls: ['./vertical-timeline.component.scss'],
 })
-export class VerticalTimelineComponent extends BaseClass implements OnInit, OnChanges {
+export class VerticalTimelineComponent
+    extends AsyncHandler
+    implements OnInit, OnChanges
+{
     /** Active date */
     @Input() public date: number;
     /** Active duration */
@@ -76,7 +79,11 @@ export class VerticalTimelineComponent extends BaseClass implements OnInit, OnCh
         const start = this.timeline_start;
         const end = this.timeline_end;
         const now = dayjs();
-        for (let time = start; time.isBefore(end, 'm'); time = time.add(5, 'm')) {
+        for (
+            let time = start;
+            time.isBefore(end, 'm');
+            time = time.add(5, 'm')
+        ) {
             this.blocks.push({
                 id: time.format('HH:mm'),
                 display: time.format('HH:mm'),
@@ -92,7 +99,9 @@ export class VerticalTimelineComponent extends BaseClass implements OnInit, OnCh
         const date = dayjs(this.date);
         const end = dayjs(this.date).add(this.duration, 'm');
         const duration = formatDuration({ minutes: this.duration });
-        return `${date.format('hh:mm A')} - ${end.format('hh:mm A')} (${duration})`;
+        return `${date.format('hh:mm A')} - ${end.format(
+            'hh:mm A'
+        )} (${duration})`;
     }
 
     public move(e) {
@@ -110,19 +119,33 @@ export class VerticalTimelineComponent extends BaseClass implements OnInit, OnCh
                                 ? e.touches[0].clientY || e.clientY
                                 : e.clientY,
                     };
-                    const off = this.active_move === 'bottom' ? { x: 0, y: 0 } : this.offset;
-                    const content_box = this.block.nativeElement.getBoundingClientRect();
-                    const percent_w = (center.x - off.x - content_box.left) / content_box.width;
-                    const percent_h = (center.y - off.y - content_box.top) / content_box.height;
+                    const off =
+                        this.active_move === 'bottom'
+                            ? { x: 0, y: 0 }
+                            : this.offset;
+                    const content_box =
+                        this.block.nativeElement.getBoundingClientRect();
+                    const percent_w =
+                        (center.x - off.x - content_box.left) /
+                        content_box.width;
+                    const percent_h =
+                        (center.y - off.y - content_box.top) /
+                        content_box.height;
                     const percent = percent_h;
 
                     const start_time =
-                        this.timeline_start.hour() + this.timeline_start.minute() / 60;
-                    const end_time = this.timeline_end.hour() + this.timeline_end.minute() / 60;
+                        this.timeline_start.hour() +
+                        this.timeline_start.minute() / 60;
+                    const end_time =
+                        this.timeline_end.hour() +
+                        this.timeline_end.minute() / 60;
                     const diff_time = end_time - start_time;
                     const block_size = 15;
                     const hour =
-                        Math.ceil((diff_time * percent + start_time) * (60 / block_size)) /
+                        Math.ceil(
+                            (diff_time * percent + start_time) *
+                                (60 / block_size)
+                        ) /
                         (60 / block_size);
                     if (this.active_move === 'bottom') {
                         let date = dayjs(this.date);
@@ -134,7 +157,10 @@ export class VerticalTimelineComponent extends BaseClass implements OnInit, OnCh
                             this.date = date.valueOf();
                         } else {
                             const duration = Math.floor(end.diff(date, 'm'));
-                            this.duration = Math.max(60, duration || block_size);
+                            this.duration = Math.max(
+                                60,
+                                duration || block_size
+                            );
                             this.durationChange.emit(this.duration);
                         }
                     } else if (this.active_move === 'top') {
@@ -174,7 +200,11 @@ export class VerticalTimelineComponent extends BaseClass implements OnInit, OnCh
             for (const event of grp.events || []) {
                 const start = this.hoursToDate(event.start);
                 const end = dayjs(start).add(event.duration, 'm');
-                for (let time = dayjs(start); time.isBefore(end); time = time.add(5, 'm')) {
+                for (
+                    let time = dayjs(start);
+                    time.isBefore(end);
+                    time = time.add(5, 'm')
+                ) {
                     const display = time.format('HH:mm');
                     const blk = blocks.find((i) => i.id === display);
                     if (blk) {

@@ -3,7 +3,7 @@ import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { map, switchMap, debounceTime, tap, shareReplay } from 'rxjs/operators';
 import { startOfDay, endOfDay, getUnixTime } from 'date-fns';
 
-import { BaseClass, flatten } from '@placeos/common';
+import { AsyncHandler, flatten } from '@placeos/common';
 import { queryEvents, saveEvent } from 'libs/events/src/lib/events.fn';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
 
@@ -36,7 +36,7 @@ function checkOrder(
 @Injectable({
     providedIn: 'root',
 })
-export class CateringOrdersService extends BaseClass {
+export class CateringOrdersService extends AsyncHandler {
     private _poll = new BehaviorSubject<number>(0);
     private _loading = new BehaviorSubject<boolean>(false);
     private _filters = new BehaviorSubject<CateringOrderFilters>({});

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 
 @Component({
     selector: 'app-catering',
@@ -100,7 +100,7 @@ import { BaseClass } from '@placeos/common';
         `,
     ],
 })
-export class CateringComponent extends BaseClass {
+export class CateringComponent extends AsyncHandler {
     /** Page being displayed */
     public page: string;
 

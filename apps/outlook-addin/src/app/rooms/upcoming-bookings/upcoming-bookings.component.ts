@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { BaseClass, currentUser } from '@placeos/common';
+import { AsyncHandler, currentUser } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 
 import { ScheduleStateService } from 'apps/workplace/src/app/new-schedule/schedule-state.service';
@@ -52,7 +52,7 @@ import { ScheduleStateService } from 'apps/workplace/src/app/new-schedule/schedu
     `,
     styles: [``],
 })
-export class UpcomingBookingsComponent extends BaseClass implements OnInit {
+export class UpcomingBookingsComponent extends AsyncHandler implements OnInit {
     public user = currentUser();
     public readonly loading$ = this._schedule.loading;
     public readonly events$ = this._schedule.filtered_bookings;

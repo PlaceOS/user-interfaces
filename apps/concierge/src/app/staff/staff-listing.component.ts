@@ -1,5 +1,5 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { map } from 'rxjs/operators';
 
 import { StaffStateService } from './staff-state.service';
@@ -97,7 +97,7 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
         `,
     ],
 })
-export class StaffListingComponent extends BaseClass {
+export class StaffListingComponent extends AsyncHandler {
     public active_group = '#';
 
     public readonly groups = CHARS;

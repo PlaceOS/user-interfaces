@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { Observable } from 'rxjs';
 import { MAP_FEATURE_DATA } from './interactive-map.component';
 
@@ -86,7 +86,7 @@ export interface MapPolygonData {
         `,
     ],
 })
-export class MapPolygonComponent extends BaseClass implements OnInit {
+export class MapPolygonComponent extends AsyncHandler implements OnInit {
     /** Message to display above the pin */
     public name = this._details.name;
     /** Fill colour for the pin SVG */

@@ -6,7 +6,7 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
-import { BaseClass, notifyError, SettingsService } from '@placeos/common';
+import { AsyncHandler, notifyError, SettingsService } from '@placeos/common';
 import { CalendarEvent, saveEvent } from '@placeos/events';
 import { showGuest, User } from '@placeos/users';
 
@@ -158,7 +158,7 @@ import { VisitorsStateService } from './visitors-state.service';
         `,
     ],
 })
-export class VisitorDetailsComponent extends BaseClass implements OnChanges {
+export class VisitorDetailsComponent extends AsyncHandler implements OnChanges {
     @Input() public event: CalendarEvent;
     @Input() public visitor: User;
     @Output() public eventChange = new EventEmitter<CalendarEvent>();

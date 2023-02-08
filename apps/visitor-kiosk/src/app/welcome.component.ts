@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { BaseClass, SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'app-welcome',
@@ -44,7 +44,10 @@ import { BaseClass, SettingsService } from '@placeos/common';
         `,
     ],
 })
-export class WelcomeComponent extends BaseClass implements OnInit, OnDestroy {
+export class WelcomeComponent
+    extends AsyncHandler
+    implements OnInit, OnDestroy
+{
     /** Level to initially load on explore */
     public level = '';
 

@@ -8,7 +8,7 @@ import {
     ViewChild,
 } from '@angular/core';
 import { Point } from '@placeos/svg-viewer';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 
 /**
  * Grab point details from mouse or touch event
@@ -86,7 +86,7 @@ export enum JoystickPan {
     `,
     styles: [``],
 })
-export class JoystickComponent extends BaseClass {
+export class JoystickComponent extends AsyncHandler {
     @Input() public pan: JoystickPan;
     @Input() public tilt: JoystickTilt;
 

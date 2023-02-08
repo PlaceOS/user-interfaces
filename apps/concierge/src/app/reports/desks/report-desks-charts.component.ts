@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ReportsStateService } from '../reports-state.service';
 
 import { LineChart, PieChart } from 'chartist';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { format } from 'date-fns';
 import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
@@ -12,7 +12,9 @@ import { combineLatest } from 'rxjs';
     template: `
         <div class="flex items-center space-x-4 w-full px-4">
             <div class="bg-white dark:bg-neutral-700 rounded shadow flex-1">
-                <div class="border-b border-gray-300 dark:border-neutral-500 p-4 text-xl font-bold">
+                <div
+                    class="border-b border-gray-300 dark:border-neutral-500 p-4 text-xl font-bold"
+                >
                     Daily Utilisation
                 </div>
                 <div
@@ -22,7 +24,9 @@ import { combineLatest } from 'rxjs';
                 ></div>
             </div>
             <div class="bg-white dark:bg-neutral-700 rounded shadow flex-1">
-                <div class="border-b border-gray-300 dark:border-neutral-500 p-4 text-xl font-bold">
+                <div
+                    class="border-b border-gray-300 dark:border-neutral-500 p-4 text-xl font-bold"
+                >
                     Level Utilisation
                 </div>
                 <div
@@ -41,7 +45,7 @@ import { combineLatest } from 'rxjs';
         `,
     ],
 })
-export class ReportDesksChartsComponent extends BaseClass {
+export class ReportDesksChartsComponent extends AsyncHandler {
     public readonly day_list = this._state.day_list;
     public readonly stats = combineLatest([
         this._state.options,

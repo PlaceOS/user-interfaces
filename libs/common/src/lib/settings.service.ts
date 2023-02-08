@@ -8,7 +8,7 @@ import { first } from 'rxjs/operators';
 import { log, getItemWithKeys, setAppName } from './general';
 import { DEFAULT_SETTINGS } from './settings';
 import { HashMap } from './types';
-import { BaseClass } from './base.class';
+import { AsyncHandler } from './async-handler.class';
 
 import { VERSION } from './version';
 import { currentUser, current_user } from './user-state';
@@ -24,7 +24,7 @@ declare global {
 @Injectable({
     providedIn: 'root',
 })
-export class SettingsService extends BaseClass {
+export class SettingsService extends AsyncHandler {
     /** Name of the application */
     private _app_name = 'PlaceOS';
     /** List of override settings in order of priority */

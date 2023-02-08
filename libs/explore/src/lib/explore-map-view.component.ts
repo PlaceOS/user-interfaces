@@ -4,7 +4,7 @@ import { getModule } from '@placeos/ts-client';
 import { first, take } from 'rxjs/operators';
 
 import {
-    BaseClass,
+    AsyncHandler,
     notifyError,
     SettingsService,
     unique,
@@ -95,7 +95,7 @@ const EMPTY = [];
         SpacePipe,
     ],
 })
-export class ExploreMapViewComponent extends BaseClass implements OnInit {
+export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
     /** Observable for the active map */
     public readonly url = this._state.map_url;
     /** Observable for the active map */

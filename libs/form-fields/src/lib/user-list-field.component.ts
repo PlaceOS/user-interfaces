@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import {
-    BaseClass,
+    AsyncHandler,
     csvToJson,
     currentUser,
     downloadFile,
@@ -174,7 +174,7 @@ function validateEmail(email) {
     ],
 })
 export class UserListFieldComponent
-    extends BaseClass
+    extends AsyncHandler
     implements ControlValueAccessor
 {
     /** Whether form field is disabled */

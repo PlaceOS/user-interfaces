@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { first } from 'rxjs/operators';
 import { isOnline, token } from '@placeos/ts-client';
-import { BaseClass, SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
@@ -35,7 +35,7 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
         `,
     ],
 })
-export class GlobalLoadingComponent extends BaseClass implements OnInit {
+export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
     public loading: boolean;
 
     public get online() {
@@ -44,7 +44,7 @@ export class GlobalLoadingComponent extends BaseClass implements OnInit {
 
     constructor(
         private _org: OrganisationService,
-        private _settings: SettingsService,
+        private _settings: SettingsService
     ) {
         super();
     }
@@ -53,11 +53,15 @@ export class GlobalLoadingComponent extends BaseClass implements OnInit {
         this.loading = true;
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         await this._settings.initialised.pipe(first((_) => _)).toPromise();
-        this.interval('has_token', () => {
-            if (token()) {
-                this.loading = false;
-                this.clearInterval('has_token');
-            }
-        }, 1000);
+        this.interval(
+            'has_token',
+            () => {
+                if (token()) {
+                    this.loading = false;
+                    this.clearInterval('has_token');
+                }
+            },
+            1000
+        );
     }
 }

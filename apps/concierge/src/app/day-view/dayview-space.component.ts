@@ -4,7 +4,7 @@ import { map } from 'rxjs/operators';
 import { CalendarEvent } from '@placeos/events';
 import { Space } from '@placeos/spaces';
 import { EventsStateService } from './events-state.service';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 
 @Component({
     selector: 'dayview-space',
@@ -24,17 +24,17 @@ import { BaseClass } from '@placeos/common';
         `,
     ],
 })
-export class DayviewSpaceComponent extends BaseClass implements OnInit {
+export class DayviewSpaceComponent extends AsyncHandler implements OnInit {
     /** Space to display events for */
     @Input() public space: Space;
 
     public shown_event: CalendarEvent;
     /** List of events for the selected space */
     public readonly events = this._state.filtered.pipe(
-        map((bookings) =>{
+        map((bookings) => {
             return bookings.filter((bkn) =>
                 bkn.resources.find((space) => this.space.email === space.email)
-            )
+            );
         })
     );
 

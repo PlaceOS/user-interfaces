@@ -18,7 +18,7 @@ import {
     ViewChild,
     ViewChildren,
 } from '@angular/core';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 
 import {
     applyGlobalStyles,
@@ -125,7 +125,7 @@ function isSamePoint(p1: Point, p2: Point): boolean {
     ],
 })
 export class InteractiveMapComponent
-    extends BaseClass
+    extends AsyncHandler
     implements AfterViewInit, OnChanges, OnInit, OnDestroy
 {
     /** URL to the SVG file */

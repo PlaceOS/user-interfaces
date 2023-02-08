@@ -7,7 +7,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
-    BaseClass,
+    AsyncHandler,
     currentUser,
     getInvalidFields,
     notifyError,
@@ -358,7 +358,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
     styles: [],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
 })
-export class MeetingFlowFormComponent extends BaseClass {
+export class MeetingFlowFormComponent extends AsyncHandler {
     public sheet_ref: MatBottomSheetRef<any>;
     public dialog_ref: MatDialogRef<any>;
     public hide_block: Record<string, boolean> = {};

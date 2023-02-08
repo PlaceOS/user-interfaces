@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Booking, queryBookings, updateBooking } from '@placeos/bookings';
-import { BaseClass, notifySuccess, unique } from '@placeos/common';
+import { AsyncHandler, notifySuccess, unique } from '@placeos/common';
 import { SpacesService } from '@placeos/spaces';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
@@ -44,7 +44,7 @@ export interface AssetRequest {
 @Injectable({
     providedIn: 'root',
 })
-export class AssetManagerStateService extends BaseClass {
+export class AssetManagerStateService extends AsyncHandler {
     private _options = new BehaviorSubject<AssetOptions>({ view: 'grid' });
     private _change = new BehaviorSubject(0);
     private _poll = new BehaviorSubject(0);

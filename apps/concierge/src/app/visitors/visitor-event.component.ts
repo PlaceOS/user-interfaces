@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { HashMap } from '@placeos/ts-client/dist/esm/utilities/types';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import { VisitorsStateService } from './visitors-state.service';
 
@@ -146,7 +146,7 @@ import { VisitorsStateService } from './visitors-state.service';
         `,
     ],
 })
-export class VisitorEventComponent extends BaseClass implements OnInit {
+export class VisitorEventComponent extends AsyncHandler implements OnInit {
     @Input() public event: CalendarEvent;
 
     public show_attendees: boolean;

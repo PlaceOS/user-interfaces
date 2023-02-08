@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 
 @Component({
     selector: '[app-catering]',
@@ -108,7 +108,7 @@ import { BaseClass } from '@placeos/common';
         `,
     ],
 })
-export class CateringComponent extends BaseClass implements OnInit {
+export class CateringComponent extends AsyncHandler implements OnInit {
     /** Page being displayed */
     public page: string;
 

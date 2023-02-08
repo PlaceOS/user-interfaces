@@ -24,7 +24,7 @@ import {
 } from 'rxjs/operators';
 
 import {
-    BaseClass,
+    AsyncHandler,
     currentUser,
     HashMap,
     SettingsService,
@@ -45,7 +45,7 @@ export interface LandingOptions {
 @Injectable({
     providedIn: 'root',
 })
-export class LandingStateService extends BaseClass {
+export class LandingStateService extends AsyncHandler {
     private _options = new BehaviorSubject<LandingOptions>({});
     private _loading = new BehaviorSubject<string>('');
     private _loading_spaces = new BehaviorSubject<boolean>(false);

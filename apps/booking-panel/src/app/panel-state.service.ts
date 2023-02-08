@@ -14,7 +14,7 @@ import {
 import { CalendarEvent, EventFormService } from '@placeos/events';
 import { Space, SpacesService } from '@placeos/spaces';
 import {
-    BaseClass,
+    AsyncHandler,
     currentUser,
     notifyError,
     openConfirmModal,
@@ -94,7 +94,7 @@ export type CalendarEventStatus =
 @Injectable({
     providedIn: 'root',
 })
-export class PanelStateService extends BaseClass {
+export class PanelStateService extends AsyncHandler {
     private _space_pipe: SpacePipe = new SpacePipe(this._org);
     /** Polling observable */
     private _poll = interval(1000);

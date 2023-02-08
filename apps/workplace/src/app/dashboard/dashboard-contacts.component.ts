@@ -1,5 +1,5 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { BaseClass, SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 
 import { DashboardStateService } from './dashboard-state.service';
 
@@ -148,7 +148,7 @@ import { DashboardStateService } from './dashboard-state.service';
         `,
     ],
 })
-export class DashboardContactsComponent extends BaseClass {
+export class DashboardContactsComponent extends AsyncHandler {
     public readonly contacts = this._state.contacts;
 
     public readonly search_results = this._state.search_results;

@@ -2,30 +2,33 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
-    BaseClass,
+    AsyncHandler,
     notifyError,
     notifySuccess,
-    openConfirmModal
+    openConfirmModal,
 } from '@placeos/common';
-import { Question, translateToQuestion, translateToSurveyQuestion } from '@placeos/survey-suite';
+import {
+    Question,
+    translateToQuestion,
+    translateToSurveyQuestion,
+} from '@placeos/survey-suite';
 import {
     addQuestion,
     queryQuestions,
     removeQuestion,
-    SurveyQuestion
+    SurveyQuestion,
 } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { catchError, filter, finalize, first, map, tap } from 'rxjs/operators';
 import { ModQuestionOverlayComponent } from '../overlays/mod-question-overlay.component';
 
-export interface QuestionFilter{
+export interface QuestionFilter {
     search: string;
     type: string;
 }
 
 @Injectable()
-export class QuestionBankService extends BaseClass {
-
+export class QuestionBankService extends AsyncHandler {
     private readonly _questions = new BehaviorSubject<Question[]>([]);
     readonly questions$ = this._questions.asObservable();
     private get questions() {
@@ -36,9 +39,14 @@ export class QuestionBankService extends BaseClass {
     }
 
     private readonly _withdrawnQuestions = new BehaviorSubject<Question[]>([]);
-    public readonly withdrawnQuestions$ = this._withdrawnQuestions.asObservable();
-    private set withdrawnQuestions(value: Question[]){ this._withdrawnQuestions.next(value)};
-    private get withdrawnQuestions(){ return this._withdrawnQuestions.getValue(); }
+    public readonly withdrawnQuestions$ =
+        this._withdrawnQuestions.asObservable();
+    private set withdrawnQuestions(value: Question[]) {
+        this._withdrawnQuestions.next(value);
+    }
+    private get withdrawnQuestions() {
+        return this._withdrawnQuestions.getValue();
+    }
 
     private readonly _loading = new BehaviorSubject<string>('');
     readonly loading$ = this._loading.asObservable();
@@ -49,60 +57,62 @@ export class QuestionBankService extends BaseClass {
         this._loading.next(value);
     }
 
-    private readonly _filter = new BehaviorSubject<QuestionFilter>({search:'', type:''});
+    private readonly _filter = new BehaviorSubject<QuestionFilter>({
+        search: '',
+        type: '',
+    });
     readonly filter$ = this._filter.asObservable();
 
     public filteredQuestions$ = combineLatest([
         this.questions$,
         this.withdrawnQuestions$,
-        this.filter$
+        this.filter$,
     ]).pipe(
         map(([questions, active, filter]) => {
-            if(!questions) return [];
-            const activeIds = active.map(e => e.id);
-            const {search, type} = filter;
+            if (!questions) return [];
+            const activeIds = active.map((e) => e.id);
+            const { search, type } = filter;
             return questions
-                .filter(e => !activeIds.includes(e.id))
-                .filter(e => type?.length ? e.type === type : true)
-                .filter(e => e.title.includes(search))
+                .filter((e) => !activeIds.includes(e.id))
+                .filter((e) => (type?.length ? e.type === type : true))
+                .filter((e) => e.title.includes(search));
         }),
-        tap(q => this.filteredQuestion = q)
-    )
+        tap((q) => (this.filteredQuestion = q))
+    );
     private filteredQuestion = [];
 
-    constructor(
-        private _dialog: MatDialog
-        ) {
+    constructor(private _dialog: MatDialog) {
         super();
         this.loadQuestions();
     }
 
-    public setFilter(filter: Partial<QuestionFilter>){
+    public setFilter(filter: Partial<QuestionFilter>) {
         this._filter.next({
             ...this._filter.getValue(),
-            ...filter});
+            ...filter,
+        });
     }
 
-    public getQuestion(index:number){
+    public getQuestion(index: number) {
         return this.filteredQuestion[index];
     }
 
     public withdrawFilteredQuestion(index: number) {
         const q = this.filteredQuestion[index];
-        this.withdrawnQuestions = [...this.withdrawnQuestions,q];
+        this.withdrawnQuestions = [...this.withdrawnQuestions, q];
         return q;
     }
 
-    public setWithdrawnQuestions(list: Question[]){
+    public setWithdrawnQuestions(list: Question[]) {
         this.withdrawnQuestions = [...list];
     }
 
     public depositQuestions(list: Question[]) {
         let withdrawn = [...this.withdrawnQuestions];
-        list.forEach(q => {
-            const idx = withdrawn.findIndex(e => e.id === q.id);
-            if(idx > -1) withdrawn.splice(idx,1);
-        })
+        list.forEach((q) => {
+            const idx = withdrawn.findIndex((e) => e.id === q.id);
+            if (idx > -1) withdrawn.splice(idx, 1);
+        });
         this.withdrawnQuestions = withdrawn;
     }
 
@@ -183,7 +193,9 @@ export class QuestionBankService extends BaseClass {
 
     private async saveQuestion(question: Question) {
         this.loading = 'Saving question to bank...';
-        const res: Question = (await addQuestion(translateToSurveyQuestion(question))
+        const res: Question = (await addQuestion(
+            translateToSurveyQuestion(question)
+        )
             .pipe(
                 first(),
                 map((res) => translateToQuestion(res)),
@@ -216,6 +228,4 @@ export class QuestionBankService extends BaseClass {
         qs.push(q);
         this.questions = qs;
     }
-
-
 }

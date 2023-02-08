@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 
 @Component({
     selector: 'code-flow-success',
@@ -70,7 +70,7 @@ import { BaseClass } from '@placeos/common';
     `,
     styles: [``],
 })
-export class CodeFlowErrorComponent extends BaseClass {
+export class CodeFlowErrorComponent extends AsyncHandler {
     public type = '';
     public asset_id = '';
 

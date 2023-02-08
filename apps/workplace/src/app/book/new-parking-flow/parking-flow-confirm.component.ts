@@ -1,7 +1,7 @@
 import { Component, Input, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { BookingFormService } from '@placeos/bookings';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 @Component({
@@ -114,7 +114,7 @@ import { OrganisationService } from '@placeos/organisation';
         `,
     ],
 })
-export class NewParkingFlowConfirmComponent extends BaseClass {
+export class NewParkingFlowConfirmComponent extends AsyncHandler {
     @Input() public show_close: boolean = false;
 
     public readonly loading = this._state.loading;

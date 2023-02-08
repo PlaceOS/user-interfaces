@@ -12,14 +12,14 @@ import {
 } from '@angular/core';
 import { onlineState, authority, getModule } from '@placeos/ts-client';
 
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { filter, first } from 'rxjs/operators';
 
 @Directive({
     selector: 'i[bind], [binding], co-bind',
 })
 export class BindingDirective<T = any>
-    extends BaseClass
+    extends AsyncHandler
     implements OnInit, OnChanges, OnDestroy
 {
     /** ID of the system to bind */

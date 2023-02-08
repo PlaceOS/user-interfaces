@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { CateringOrdersService, CateringStateService } from '@placeos/catering';
 
@@ -62,7 +62,7 @@ import { CateringOrdersService, CateringStateService } from '@placeos/catering';
         `,
     ],
 })
-export class CateringTopbarComponent extends BaseClass {
+export class CateringTopbarComponent extends AsyncHandler {
     /** List of selected levels */
     public zones: string[] = [];
     /** Currently active page */

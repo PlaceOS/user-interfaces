@@ -7,7 +7,7 @@ import {
     map,
 } from 'rxjs/operators';
 
-import { BaseClass, SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { searchStaff, User } from '@placeos/users';
 
 const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
@@ -98,7 +98,7 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
         `,
     ],
 })
-export class DirectoryUserListComponent extends BaseClass implements OnInit {
+export class DirectoryUserListComponent extends AsyncHandler implements OnInit {
     /** List of searchable users */
     public user_list: User[] = [];
     /** String  */

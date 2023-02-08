@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { BaseClass, DialogEvent } from '@placeos/common';
+import { AsyncHandler, DialogEvent } from '@placeos/common';
 import { SpacesService } from '@placeos/spaces';
 import { addHours, startOfHour } from 'date-fns';
 import { combineLatest } from 'rxjs';
@@ -206,7 +206,7 @@ import { DesksStateService } from '../desks/desks-state.service';
         `,
     ],
 })
-export class PointsAssetModalComponent extends BaseClass {
+export class PointsAssetModalComponent extends AsyncHandler {
     @Output() public event = new EventEmitter<DialogEvent>();
 
     public form = new FormGroup({

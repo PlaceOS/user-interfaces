@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { BaseClass, notifyError } from '@placeos/common';
+import { AsyncHandler, notifyError } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
 import { filter, take } from 'rxjs/operators';
 import { ControlStateService, RoomInput } from '../control-state.service';
@@ -189,7 +189,7 @@ import { VideoCallStateService } from './video-call-state.service';
         `,
     ],
 })
-export class VideoCallPageComponent extends BaseClass {
+export class VideoCallPageComponent extends AsyncHandler {
     @Input() public redirect = true;
     @Input() public present_output = '';
     public loading = 'Loading call details...';

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { TriggerEnumMap } from '@placeos/survey-suite';
 import { map, shareReplay, take } from 'rxjs/operators';
 import { SurveyResponsesService } from '../services/survey-responses.service';
@@ -67,14 +67,19 @@ import { SurveyResponsesService } from '../services/survey-responses.service';
                     <ng-container
                         *ngIf="pagedResponses?.length > 0; else noRecords"
                     >
-                        <ng-container *ngFor="let p of pagedResponses; let i = index;">
+                        <ng-container
+                            *ngFor="let p of pagedResponses; let i = index"
+                        >
                             <div
                                 class="flex w-full px-3 pt-2 space-x-2"
                                 *ngIf="pagedResponses.length > 1"
                             >
-                                <span class="font-thin text-xl">Page {{i+1}} {{
-                                    (p.title?.length) ? '- ' + p.title : ''
-                                }}</span>
+                                <span class="font-thin text-xl"
+                                    >Page {{ i + 1 }}
+                                    {{
+                                        p.title?.length ? '- ' + p.title : ''
+                                    }}</span
+                                >
                             </div>
                             <div class="flex flex-wrap w-full pt-2">
                                 <survey-widget
@@ -110,7 +115,7 @@ import { SurveyResponsesService } from '../services/survey-responses.service';
     `,
     providers: [SurveyResponsesService],
 })
-export class SurveyResponsesComponent extends BaseClass implements OnInit {
+export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
     surveyId$ = this.route.params.pipe(map((params) => params.id || ''));
     survey$ = this.service.survey$;
     pagedResponses$ = this.service.paged_responses$;

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
-import { BaseClass } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 
 @Component({
     selector: 'placeos-new-parking-flow',
@@ -26,7 +26,7 @@ import { BaseClass } from '@placeos/common';
         `,
     ],
 })
-export class NewParkingFlowComponent extends BaseClass implements OnInit {
+export class NewParkingFlowComponent extends AsyncHandler implements OnInit {
     public get view() {
         return this._state.view;
     }

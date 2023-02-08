@@ -18,7 +18,7 @@ import {
 } from 'rxjs/operators';
 
 import {
-    BaseClass,
+    AsyncHandler,
     flatten,
     notifyError,
     notifySuccess,
@@ -62,7 +62,7 @@ export interface CateringSettings {
 @Injectable({
     providedIn: 'root',
 })
-export class CateringStateService extends BaseClass {
+export class CateringStateService extends AsyncHandler {
     private _updated = new BehaviorSubject(0);
     /** Active menu */
     private _menu = new BehaviorSubject<CateringItem[]>([]);

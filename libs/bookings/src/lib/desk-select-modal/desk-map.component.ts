@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { BaseClass, unique } from '@placeos/common';
+import { AsyncHandler, unique } from '@placeos/common';
 import { distinctUntilChanged, map, tap } from 'rxjs/operators';
 
 import { BookingAsset, BookingFormService } from '../booking-form.service';
@@ -66,7 +66,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
         </div>
     `,
 })
-export class DeskMapComponent extends BaseClass implements OnInit {
+export class DeskMapComponent extends AsyncHandler implements OnInit {
     @Input() public is_displayed: boolean = false;
     @Output() public onSelect = new EventEmitter<BookingAsset>();
 
