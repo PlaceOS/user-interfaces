@@ -1,6 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Building } from '@placeos/organisation';
 import { Router, ActivatedRoute } from '@angular/router';
+import { BuildingListItemService } from '../services/building-list-item.service';
+import { shareReplay } from 'rxjs/operators';
 
 @Component({
     selector: 'building-list-item',
@@ -8,25 +10,6 @@ import { Router, ActivatedRoute } from '@angular/router';
         <section
             class="building-wrapper bg-white my-4 mx-auto rounded-md overflow-hidden"
         >
-            <!-- <div
-                class="options"
-                [matMenuTriggerFor]="optionsMenu"
-                aria-label="more options"
-            >
-                <mat-icon>more_horiz</mat-icon>
-            </div>
-            <mat-menu #optionsMenu="matMenu">
-                <div class="menu-wrapper">
-                    <button mat-menu-item (click)="editBuilding()">
-                        <mat-icon>edit</mat-icon>
-                        <span>Edit</span>
-                    </button>
-                    <button mat-menu-item (click)="deleteBuilding()">
-                        <mat-icon>delete_forever</mat-icon>
-                        <span>Delete</span>
-                    </button>
-                </div>
-            </mat-menu> -->
             <div *ngIf="building.image" class="image-container">
                 <img
                     class="flex object-fill "
@@ -51,11 +34,16 @@ import { Router, ActivatedRoute } from '@angular/router';
                 <span class="building-title">
                     {{ building.display_name }}
                 </span>
-                <!-- <ul class="details-text mt-3">
-                    <li>surveys live: {{ mock_count }}</li>
-                    <li>drafts: {{ mock_count - 1 }}</li>
-                    <li>responses: {{ mock_count - 3 }}</li>
-                </ul> -->
+                <ng-container *ngIf="!(loading$ | async)?.length; else loadState;">
+                    <ng-container *ngIf="stats$ | async as stats">
+                        <ul class="details-text mt-3">
+                            <li>Surveys live: {{ stats.lives }}</li>
+                            <li>Survey drafts: {{ stats.drafts }}</li>
+                            <li>Responses: {{ stats.responses }}</li>
+                        </ul>
+                    </ng-container>
+                </ng-container>
+
             </div>
             <div class="button-container">
                 <button btn matRipple class="inverse" (click)="navigate()">
@@ -64,6 +52,9 @@ import { Router, ActivatedRoute } from '@angular/router';
                 </button>
             </div>
         </section>
+        <ng-template #loadState>
+            <div class="flex flex-col"></div>
+        </ng-template>
     `,
     styles: [
         `
@@ -167,16 +158,21 @@ import { Router, ActivatedRoute } from '@angular/router';
             } */
         `,
     ],
+    providers: [BuildingListItemService]
 })
 export class BuildingListItemComponent implements OnInit {
     @Input() building: Building | any;
-    // @Output() deleteBuildingEvent = new EventEmitter<any>();
-    mock_count: number;
 
-    constructor(public router: Router, public route: ActivatedRoute) {}
+    loading$ = this.service.loading$.pipe(shareReplay(1));
+    stats$ = this.service.stats$.pipe(shareReplay(1));
+
+    constructor(
+        private router: Router, 
+        private route: ActivatedRoute,
+        private service: BuildingListItemService) {}
 
     ngOnInit(): void {
-        this.mock_count = Math.floor(Math.random() * (8 - 3) + 3);
+        this.service.initStats(this.building.id);
     }
 
     navigate(): void {
