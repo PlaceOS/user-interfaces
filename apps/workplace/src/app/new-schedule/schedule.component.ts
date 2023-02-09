@@ -1,15 +1,15 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { Booking, removeBooking } from '@placeos/bookings';
+import { Booking, checkinBooking, removeBooking } from '@placeos/bookings';
 import {
     notifyError,
     notifySuccess,
     openConfirmModal,
-    SettingsService,
+    SettingsService
 } from '@placeos/common';
 import { CalendarEvent, EventFormService, removeEvent } from '@placeos/events';
-import { isSameDay, format } from 'date-fns';
+import { format, isSameDay } from 'date-fns';
 import { map } from 'rxjs/operators';
 import { ScheduleStateService } from './schedule-state.service';
 
@@ -58,6 +58,7 @@ import { ScheduleStateService } from './schedule-state.service';
                             <booking-card
                                 [booking]="item"
                                 (remove)="remove(item)"
+                                (end)="end(item)"
                             ></booking-card>
                         </ng-template>
                     </ng-container>
@@ -154,6 +155,27 @@ export class ScheduleComponent {
                 throw e;
             });
         notifySuccess('Successfully deleted booking.');
+        this._state.removeItem(item);
+        this._dialog.closeAll();
+    }
+
+    public async end(item: Booking){
+        const time = `${format(item.date, 'dd MMM yyyy h:mma')}`;
+        const resource_name = item.asset_name || item.asset_id;
+        const content = `End the booking for ${resource_name} at ${time}`;
+        const resp = await openConfirmModal(
+            { title: `End booking`, content, icon: { content: 'delete' } },
+            this._dialog
+        );
+
+        if (resp.reason !== 'done') return;
+        resp.loading('Ending booking...');
+        await checkinBooking(item.id, false).toPromise().catch((e) => {
+            notifyError(`Unable to end booking. ${e}`);
+            resp.close();
+            throw e;
+        });
+        notifySuccess('Successfully ended booking.');
         this._state.removeItem(item);
         this._dialog.closeAll();
     }

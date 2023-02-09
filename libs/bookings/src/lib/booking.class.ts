@@ -193,7 +193,12 @@ export class Booking {
         const end = this.all_day
             ? addHours(this.date, 24)
             : addMinutes(this.date, this.duration);
-        return isAfter(start, end);
+        const checked_out = (this.extension_data['checked_out_at'] || 0) * 1000;
+        let end_time = end.getTime();
+        if(this.date <= checked_out && checked_out <= end_time){
+            end_time = Math.min(checked_out,end_time);
+        }
+        return isAfter(start, new Date(end_time));
     }
 
     /** Status of the booking */

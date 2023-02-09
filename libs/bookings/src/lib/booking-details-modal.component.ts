@@ -192,8 +192,18 @@ import { checkinBooking } from './bookings.fn';
             </button> -->
             <button
                 mat-menu-item
+                *ngIf="!is_in_progress"
                 class="flex items-center space-x-2 text-base"
                 (click)="remove.emit()"
+            >
+                <app-icon>delete</app-icon>
+                <div i18n>Delete booking</div>
+            </button>
+            <button
+                mat-menu-item
+                *ngIf="is_in_progress"
+                class="flex items-center space-x-2 text-base"
+                (click)="end.emit()"
             >
                 <app-icon>delete</app-icon>
                 <div i18n>End booking</div>
@@ -205,6 +215,7 @@ import { checkinBooking } from './bookings.fn';
 export class BookingDetailsModalComponent {
     @Output() public edit = new EventEmitter();
     @Output() public remove = new EventEmitter();
+    @Output() public end = new EventEmitter();
     public readonly booking = this._booking;
     public checking_in = false;
     public readonly features = [
@@ -228,6 +239,14 @@ export class BookingDetailsModalComponent {
         return this._settings.get(
             `app.${this.booking?.type || 'bookings'}.auto_checkin`
         );
+    }
+
+    public get is_in_progress(){
+        const ts = Date.now();
+        const start = this.booking?.booking_start * 1000;
+        const end = this.booking?.booking_end * 1000;
+        if(this.booking?.all_day) return start <= ts;
+        return start <= ts && ts <= end;
     }
 
     constructor(

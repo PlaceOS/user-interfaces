@@ -115,6 +115,7 @@ export class BookingCardComponent extends AsyncHandler {
     @Input() public show_day: boolean = false;
     @Output() public edit = new EventEmitter();
     @Output() public remove = new EventEmitter();
+    @Output() public end = new EventEmitter();
 
     constructor(
         private _dialog: MatDialog,
@@ -180,6 +181,10 @@ export class BookingCardComponent extends AsyncHandler {
             this.subscription(
                 'remove',
                 ref.componentInstance.remove.subscribe(() => this.remove.emit())
+            );
+            this.subscription(
+                'end',
+                ref.componentInstance.end.subscribe(() => this.end.emit())
             );
         });
     }
