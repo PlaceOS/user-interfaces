@@ -901,6 +901,16 @@ mat-list-option.mdc-list-item--selected{
     border-radius: 5px;
 }
 
+.sv-rating__item-text{
+    display: inline-flex;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.5rem;
+    min-width: 2.5rem;
+    height: 2.5rem;
+}
+
 /* Scrollbar CSS */
 /* Firefox */
 survey-widget * {
