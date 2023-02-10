@@ -1,54 +1,54 @@
-import { CdkDragDrop } from "@angular/cdk/drag-drop";
-import { Injectable } from "@angular/core";
-import { MatDialog } from "@angular/material/dialog";
-import { openConfirmModal } from "@placeos/common";
-import { Question, UISurveyObj, UISurveyPage } from "@placeos/survey-suite";
-import { BehaviorSubject } from "rxjs";
-import { Model } from "survey-core";
-import { QuestionBankService } from "./question-bank.service";
-
-
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
+import { Injectable } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { openConfirmModal, SettingsService } from '@placeos/common';
+import { Question, UISurveyObj, UISurveyPage } from '@placeos/survey-suite';
+import { Model } from 'survey-core';
+import { QuestionBankService } from './question-bank.service';
 
 @Injectable()
-export class SurveyBuilderService{
-
+export class SurveyBuilderService {
     public selectedPageIndex: number = 0;
-    protected survey:UISurveyObj;
-    protected surveyModel:Model;
+    protected survey: UISurveyObj;
+    protected surveyModel: Model;
 
     constructor(
         private bank: QuestionBankService,
-        private _dialog: MatDialog){
-    }
+        private _settings: SettingsService,
+        private _dialog: MatDialog
+    ) {}
 
-    public get selectedPage(){
+    public get selectedPage() {
         return this.survey?.pages[this.selectedPageIndex];
     }
 
-    public setUISurvey(survey: UISurveyObj){
-        if(!survey) return;
+    public setUISurvey(survey: UISurveyObj) {
+        if (!survey) return;
         this.survey = survey;
         const { pages } = survey;
-        if(pages?.length > 0){
+        if (pages?.length > 0) {
             let questions = [];
-            pages.forEach(p => {
-                questions = [...questions, ...(p.elements || [])]
+            pages.forEach((p) => {
+                questions = [...questions, ...(p.elements || [])];
             });
-            if(questions.length > 0) this.bank.setWithdrawnQuestions(questions);
+            if (questions.length > 0)
+                this.bank.setWithdrawnQuestions(questions);
         }
     }
 
-    public getUISurvey(){ return this.survey; }
+    public getUISurvey() {
+        return this.survey;
+    }
 
-    public addSurveyPage(){
-        if(!this.survey) return;
+    public addSurveyPage() {
+        if (!this.survey) return;
         let pages = this.survey.pages || [];
         pages.push({
-            title:'',
-            elements:[]
+            title: '',
+            elements: [],
         });
         this.survey.pages = pages;
-        this.selectedPageIndex = (pages.length - 1);
+        this.selectedPageIndex = pages.length - 1;
     }
 
     public async confirmDeletePage(index: number) {
@@ -66,39 +66,52 @@ export class SurveyBuilderService{
         this.removeSurveyPage(index);
     }
 
-    public removeQuestionFromSurvey(index:number){
-        const q = this.selectedPage.elements.splice(index,1);
+    public removeQuestionFromSurvey(index: number) {
+        const q = this.selectedPage.elements.splice(index, 1);
         this.bank.depositQuestions(q);
     }
 
-    public onDropQuestionToSurvey(event: CdkDragDrop<Question[]>, p:UISurveyPage){
-        if(!p) return;
-        const { previousIndex, previousContainer, currentIndex, container } = event;
-        if(container !== previousContainer){
+    public onDropQuestionToSurvey(
+        event: CdkDragDrop<Question[]>,
+        p: UISurveyPage
+    ) {
+        if (!p) return;
+        const { previousIndex, previousContainer, currentIndex, container } =
+            event;
+        if (container !== previousContainer) {
             //Dropped from question bank
             const q = this.bank.withdrawFilteredQuestion(previousIndex);
-            p.elements.splice(currentIndex,0,q);
-        }else{
+            p.elements.splice(currentIndex, 0, q);
+        } else {
             //Reorder Question
-            const q = p.elements.splice(previousIndex,1);
-            p.elements.splice(currentIndex,0,q[0]);
+            const q = p.elements.splice(previousIndex, 1);
+            p.elements.splice(currentIndex, 0, q[0]);
         }
     }
 
-    public onPreview(){
-        this.surveyModel = new Model(this.survey);
+    public onPreview() {
+        const logo_data = this._settings.get('app.survey.logo');
+        let logo = {};
+        if (logo_data?.length) {
+            logo = {
+                logo: logo_data,
+                logoWidth: '200px',
+                logoPosition: 'right',
+            };
+        }
+        this.surveyModel = new Model({ ...logo, ...this.survey });
     }
 
-
-    private removeSurveyPage(index:number){
-        if(index === 0) return;
+    private removeSurveyPage(index: number) {
+        if (index === 0) return;
         let pages = this.survey.pages || [];
 
         /** Check if removed page has any questions and deposit them to bank */
         const target = pages[index];
-        if(target?.elements?.length) this.bank.depositQuestions(target.elements);
+        if (target?.elements?.length)
+            this.bank.depositQuestions(target.elements);
 
-        pages.splice(index,1);
+        pages.splice(index, 1);
         this.survey.pages = pages;
         this.selectedPageIndex = 0;
     }

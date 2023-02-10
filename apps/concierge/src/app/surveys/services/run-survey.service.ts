@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { notifyError, notifySuccess } from '@placeos/common';
+import { notifyError, notifySuccess, SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 import { UISurveyObj } from '@placeos/survey-suite';
 import { addAnswer, SurveyAnswer } from '@placeos/ts-client';
 import { BehaviorSubject, of } from 'rxjs';
-import { catchError, finalize, first } from 'rxjs/operators';
+import { catchError, filter, finalize, first } from 'rxjs/operators';
 import { Model } from 'survey-core';
 import { SurveyService } from './survey.service';
 
@@ -20,18 +21,41 @@ export class RunSurveyService {
 
     surveyModel: Model;
     uiSurvey: UISurveyObj;
-    constructor(private _survey: SurveyService) {}
+    constructor(
+        private _survey: SurveyService,
+        private _settings: SettingsService,
+        private _org: OrganisationService
+    ) {}
 
     public async loadSurvey(survey_id: string) {
         this.loading = 'Loading survey...';
+        const init = await this._org.initialised
+            .pipe(
+                filter((res) => !!res),
+                first()
+            )
+            .toPromise();
         const uiSurvey = await this._survey.getSurveyDetails(survey_id);
         this.loading = '';
         if (!uiSurvey) return;
         this.uiSurvey = uiSurvey;
-        this.surveyModel = new Model(uiSurvey);
+        this.surveyModel = new Model(this.generateSurveyModal(uiSurvey));
         this.surveyModel.onComplete.add((sender: Model) => {
             this.processSurveyAnswer(sender);
         });
+    }
+
+    private generateSurveyModal(uiSurvey: UISurveyObj) {
+        const logo_data = this._settings.get('app.survey.logo');
+        let logo = {};
+        if (logo_data?.length) {
+            logo = {
+                logo: logo_data,
+                logoWidth: '200px',
+                logoPosition: 'right',
+            };
+        }
+        return { ...logo, ...uiSurvey };
     }
 
     private async processSurveyAnswer(survey: Model) {
