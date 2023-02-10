@@ -27,7 +27,7 @@ import { RunSurveyService } from '../services/run-survey.service';
                     <span>{{ loading$ | async }}</span>
                 </div>
             </div>
-            <div class="flex flex-col max-w-[60rem]">
+            <div class="flex flex-col w-full max-w-6xl">
                 <survey [model]="service.surveyModel"></survey>
             </div>
         </main>
