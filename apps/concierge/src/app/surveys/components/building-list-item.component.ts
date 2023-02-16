@@ -50,7 +50,7 @@ import { shareReplay } from 'rxjs/operators';
                             </p>
                         </div>
                         <div class="flex flex-col items-center flex-1">
-                            <h3>Total Responses</h3>
+                            <h3>Total Answers</h3>
                             <p class="text-4xl">
                                 {{ stats?.responses || 0 }}
                             </p>

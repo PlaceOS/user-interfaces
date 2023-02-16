@@ -14,7 +14,7 @@ import {
     SurveyQuestion,
 } from '@placeos/ts-client';
 import { BehaviorSubject, forkJoin, of, combineLatest } from 'rxjs';
-import { catchError, filter, finalize, first, map, tap } from 'rxjs/operators';
+import { catchError, filter, finalize, first, map, switchMap, tap } from 'rxjs/operators';
 
 interface SurveyStats {
     question_count: number;
@@ -26,19 +26,39 @@ interface PagedSurveyResponse {
     responses: UISurveyResponse[];
 }
 
+interface ResponseOptions{
+    survey_id: string;
+    start?: Date;
+    end?: Date; 
+}
+
 @Injectable()
 export class SurveyResponsesService {
+
+    /** Store for response options */
+    private _options = new BehaviorSubject<ResponseOptions>({
+        survey_id: null,
+        start: null,
+        end: null,
+    });
+    public readonly options$ = this._options.asObservable();
+    private set options(value: ResponseOptions){
+        this._options.next(value);
+    }
+
+    /** Store for load state */
     private readonly _loading = new BehaviorSubject<string>('');
     public readonly loading$ = this._loading.asObservable();
     private set loading(value: string) {
         this._loading.next(value);
     }
 
-    private readonly _responses = new BehaviorSubject<UISurveyResponse[]>([]);
-    public readonly responses$ = this._responses.asObservable();
-    private set responses(value: UISurveyResponse[]) {
-        this._responses.next(value);
-    }
+    /** Store for responses */
+    // private readonly _responses = new BehaviorSubject<UISurveyResponse[]>([]);
+    // public readonly responses$ = this._responses.asObservable();
+    // private set responses(value: UISurveyResponse[]) {
+    //     this._responses.next(value);
+    // }
 
     private readonly _survey = new BehaviorSubject<Survey>(null);
     public readonly survey$ = this._survey.asObservable();
@@ -55,9 +75,14 @@ export class SurveyResponsesService {
         this._stats.next(value);
     }
 
-    paged_responses$ = combineLatest([this.responses$, this.survey$]).pipe(
-        filter(([responses, survey]) => responses?.length && !!survey),
+    survey_responses$ = this.options$.pipe(
+        filter( options => !!options?.survey_id?.length),
+        switchMap(options => this.getSurveyResponses(options))
+    )
+
+    paged_responses$ = combineLatest([this.survey_responses$, this.survey$]).pipe(
         map(([responses, survey]) => {
+            if(!responses.length) return [];
             let resMap = {};
             responses.forEach((e) => (resMap[e.question.id] = e));
             let paged: PagedSurveyResponse[] = [];
@@ -72,10 +97,17 @@ export class SurveyResponsesService {
 
     constructor() {}
 
-    async getSurveyResponses(survey_id: string) {
+    public setOptions(options: Partial<ResponseOptions>){
+        this.options = {... this._options.getValue(), ...options};
+    }
+
+    private getSurveyResponses(options: ResponseOptions) {
         this.loading = 'Loading survey responses';
-        const res = await forkJoin([
-            queryQuestions({ survey_id }).pipe(
+        const { survey_id, start, end} = options;
+        const created_after = start ? Math.floor(start.getTime() / 1000) : undefined;
+        const created_before = end ? Math.floor(end.getTime() / 1000) : undefined
+        return forkJoin([
+            queryQuestions({ survey_id}).pipe(
                 map(
                     (res: SurveyQuestion[]) =>
                         res?.map((e) => translateToQuestion(e)) || []
@@ -84,7 +116,7 @@ export class SurveyResponsesService {
                     this.handleError('Error loading survey questions')
                 )
             ),
-            queryAnswers({ survey_id }).pipe(
+            queryAnswers({ survey_id, created_after, created_before}).pipe(
                 catchError((err) =>
                     this.handleError('Error loading survey answers')
                 )
@@ -110,8 +142,6 @@ export class SurveyResponsesService {
                 }),
                 finalize(() => (this.loading = ''))
             )
-            .toPromise();
-        this.responses = res;
     }
 
     public sortQuestionsAnswers(
