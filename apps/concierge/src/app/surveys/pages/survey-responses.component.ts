@@ -31,16 +31,45 @@ import { SurveyResponsesService } from '../services/survey-responses.service';
                 </div>
             </div>
             <ng-container *ngIf="surveyId$ | async; else noId">
-                <header class="flex items-center w-full">
-                    <button icon matRipple (click)="back()">
-                        <app-icon class="flex mr-2">arrow_back</app-icon>
-                    </button>
+                <header class="flex justify-between items-center w-full pb-4 border-b">
                     <div class="flex flex-row items-center">
-                        <span class="text-2xl"
-                            >Survey Responses -
-                            {{ (survey$ | async)?.title || '' }}</span
-                        >
+                        <button icon matRipple (click)="back()">
+                            <app-icon class="flex mr-2">arrow_back</app-icon>
+                        </button>
+                        <div class="flex flex-row items-center">
+                            <span class="text-2xl"
+                                >Survey Responses -
+                                {{ (survey$ | async)?.title || '' }}</span
+                            >
+                        </div>
                     </div>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-72">
+                        <mat-date-range-input [rangePicker]="picker" (stateChanges)="datePicked($event)">
+                            <input
+                                matStartDate
+                                readonly
+                                [ngModel]="(options$ | async)?.start"
+                                (ngModelChange)="$event ? setStartDate($event) : ''"
+                                placeholder="Start date"
+                            />
+                            <input
+                                matEndDate
+                                readonly
+                                [ngModel]="(options$ | async)?.end"
+                                (ngModelChange)="$event ? setEndDate($event) : ''"
+                                placeholder="End date"
+                            />
+                        </mat-date-range-input>
+                        <div matSuffix class="flex items-center">
+                            <mat-datepicker-toggle
+                                [for]="picker"
+                            ></mat-datepicker-toggle>
+                            <button *ngIf="(options$ | async)?.end" mat-icon-button (click)="clearDates()">
+                                <mat-icon>close</mat-icon>
+                            </button>
+                        </div>
+                        <mat-date-range-picker #picker></mat-date-range-picker>
+                    </mat-form-field>
                 </header>
                 <div class="flex p-4 border-b justify-end space-x-2">
                     <div class="flex flex-col items-center flex-1">
@@ -105,10 +134,10 @@ import { SurveyResponsesService } from '../services/survey-responses.service';
         </ng-template>
         <ng-template #noRecords>
             <div
-                class="flex flex-col w-full h-full items-center justify-center"
+                class="flex flex-col w-full min-h-[10rem] items-center justify-center"
             >
                 <span class="text-lg text-gray-700"
-                    >No responses found for survey</span
+                    >No responses found</span
                 >
             </div>
         </ng-template>
@@ -119,10 +148,13 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
     surveyId$ = this.route.params.pipe(map((params) => params.id || ''));
     survey$ = this.service.survey$;
     pagedResponses$ = this.service.paged_responses$;
+    options$ = this.service.options$.pipe(shareReplay(1))
     stats$ = this.service.stats$.pipe(shareReplay(1));
     loading$ = this.service.loading$.pipe(shareReplay(1));
 
     triggerMap = TriggerEnumMap;
+
+    private start_date;
 
     constructor(
         private service: SurveyResponsesService,
@@ -135,12 +167,26 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
     ngOnInit(): void {
         this.subscription(
             'params',
-            this.surveyId$.subscribe((surveyId) => {
-                if (surveyId?.length) {
-                    this.service.getSurveyResponses(surveyId);
+            this.surveyId$.subscribe((survey_id) => {
+                if (survey_id?.length) {
+                    this.service.setOptions({survey_id});
                 }
             })
         );
+    }
+
+    setStartDate(start:Date){
+        if(!start) return;
+        this.start_date = start;
+    }
+
+    setEndDate(end:Date){
+        if(!this.start_date || !end) return;
+        this.service.setOptions({start: this.start_date, end});
+    }
+
+    clearDates(){
+        this.service.setOptions({start: null, end: null});
     }
 
     public async back() {
