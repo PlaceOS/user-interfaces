@@ -79,7 +79,7 @@ import { SurveyResponsesService } from '../services/survey-responses.service';
                         </p>
                     </div>
                     <div class="flex flex-col items-center flex-1">
-                        <h3>Total Responses</h3>
+                        <h3>Total Answers</h3>
                         <p class="text-4xl">
                             {{ (stats$ | async)?.answer_count || 0 }}
                         </p>
