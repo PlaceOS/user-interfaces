@@ -197,22 +197,6 @@ export class AppComponent extends AsyncHandler implements OnInit {
         this._analytics.init(tracking_id);
         this._analytics.load(tracking_id);
         this._analytics.setUser(currentUser().id);
-        // Post button click events
-        this._renderer.listen('window', 'click', (e) => {
-            if (
-                (e.target?.tagName.toLowerCase() === 'button' ||
-                    e.target?.tagName.toLowerCase() === 'a') &&
-                (e.target.getAttribute('name') || e.target.id)
-            ) {
-                const id = e.target.getAttribute('name') || e.target.id;
-                this._analytics.event('click', e.target?.tagName, id);
-            }
-        });
-        this._router.events.subscribe((e) => {
-            if (e instanceof NavigationEnd) {
-                this._analytics.page(e.url);
-            }
-        });
     }
 
     private _initLocale() {
