@@ -143,11 +143,11 @@ import { LandingStateService } from './landing-state.service';
                     >
                         <div class="text-base relative">
                             <a-user-avatar [user]="user"></a-user-avatar>
-                            <div
+                            <!-- <div
                                 class="rounded-full h-3 w-3 border border-white dark:border-neutral-400 absolute bottom-1 right-1"
                                 [class.bg-error]="!user.location"
                                 [class.bg-success]="user.location"
-                            ></div>
+                            ></div> -->
                         </div>
                         <div class="leading-tight">
                             <div class="truncate">{{ user.name }}</div>
