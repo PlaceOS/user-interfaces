@@ -16,13 +16,16 @@ export class SurveyBuilderService {
         private bank: QuestionBankService,
         private _settings: SettingsService,
         private _dialog: MatDialog
-    ) {}
+    ) {
+    }
 
     public get selectedPage() {
         return this.survey?.pages[this.selectedPageIndex];
     }
 
-    public setUISurvey(survey: UISurveyObj) {
+    public async setUISurvey(survey: UISurveyObj) {
+        console.log("SetUISurvey", survey);
+        this.bank.initQuestionBank();
         if (!survey) return;
         this.survey = survey;
         const { pages } = survey;

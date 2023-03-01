@@ -77,13 +77,18 @@ export class QuestionBankService extends AsyncHandler {
                 .filter((e) => (type?.length ? e.type === type : true))
                 .filter((e) => e.title.includes(search));
         }),
-        tap((q) => (this.filteredQuestion = q))
+        tap((q) => (this.filteredQuestions = q))
     );
-    private filteredQuestion = [];
+    private filteredQuestions = [];
 
     constructor(private _dialog: MatDialog) {
         super();
         this.loadQuestions();
+    }
+
+    public initQuestionBank(){
+        console.log("Init question bank");
+        this.reset();
     }
 
     public setFilter(filter: Partial<QuestionFilter>) {
@@ -94,11 +99,11 @@ export class QuestionBankService extends AsyncHandler {
     }
 
     public getQuestion(index: number) {
-        return this.filteredQuestion[index];
+        return this.filteredQuestions[index];
     }
 
     public withdrawFilteredQuestion(index: number) {
-        const q = this.filteredQuestion[index];
+        const q = this.filteredQuestions[index];
         this.withdrawnQuestions = [...this.withdrawnQuestions, q];
         return q;
     }
@@ -173,7 +178,16 @@ export class QuestionBankService extends AsyncHandler {
             .toPromise();
     }
 
+    private reset(){
+        this.withdrawnQuestions = [];
+        this._filter.next({
+            search: '',
+            type: '',
+        });
+    }
+
     private async loadQuestions() {
+        console.log("## Load Questions");
         this.loading = 'Loading questions';
         const q = (await queryQuestions()
             .pipe(
