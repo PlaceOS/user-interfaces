@@ -24,8 +24,7 @@ export class SurveyBuilderService {
     }
 
     public async setUISurvey(survey: UISurveyObj) {
-        console.log("SetUISurvey", survey);
-        this.bank.initQuestionBank();
+        this.bank.resetTransaction();
         if (!survey) return;
         this.survey = survey;
         const { pages } = survey;

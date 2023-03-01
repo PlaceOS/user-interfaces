@@ -86,9 +86,12 @@ export class QuestionBankService extends AsyncHandler {
         this.loadQuestions();
     }
 
-    public initQuestionBank(){
-        console.log("Init question bank");
-        this.reset();
+    public resetTransaction(){
+        this.withdrawnQuestions = [];
+        this._filter.next({
+            search: '',
+            type: '',
+        });
     }
 
     public setFilter(filter: Partial<QuestionFilter>) {
@@ -178,16 +181,7 @@ export class QuestionBankService extends AsyncHandler {
             .toPromise();
     }
 
-    private reset(){
-        this.withdrawnQuestions = [];
-        this._filter.next({
-            search: '',
-            type: '',
-        });
-    }
-
     private async loadQuestions() {
-        console.log("## Load Questions");
         this.loading = 'Loading questions';
         const q = (await queryQuestions()
             .pipe(
