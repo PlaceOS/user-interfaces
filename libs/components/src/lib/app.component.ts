@@ -194,6 +194,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
     private _initAnalytics() {
         const tracking_id = this._settings.get('app.analytics.tracking_id');
         if (!tracking_id) return;
+
         this._analytics.init(tracking_id);
         this._analytics.load(tracking_id);
         this._analytics.setUser(currentUser().id);
