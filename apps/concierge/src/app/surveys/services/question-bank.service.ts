@@ -75,7 +75,8 @@ export class QuestionBankService extends AsyncHandler {
             return questions
                 .filter((e) => !activeIds.includes(e.id))
                 .filter((e) => (type?.length ? e.type === type : true))
-                .filter((e) => e.title.includes(search));
+                .filter((e) => e.title.includes(search))
+                .filter((e) => !e.deleted)
         }),
         tap((q) => (this.filteredQuestions = q))
     );
