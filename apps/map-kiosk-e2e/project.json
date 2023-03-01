@@ -1,0 +1,30 @@
+{
+    "name": "map-kiosk-e2e",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "apps/map-kiosk-e2e/src",
+    "projectType": "application",
+    "targets": {
+        "e2e": {
+            "executor": "@nrwl/cypress:cypress",
+            "options": {
+                "cypressConfig": "apps/map-kiosk-e2e/cypress.json",
+                "tsConfig": "apps/map-kiosk-e2e/tsconfig.e2e.json",
+                "devServerTarget": "map-kiosk:serve"
+            },
+            "configurations": {
+                "production": {
+                    "devServerTarget": "map-kiosk:serve:production"
+                }
+            }
+        },
+        "lint": {
+            "executor": "@nrwl/linter:eslint",
+            "options": {
+                "lintFilePatterns": ["apps/map-kiosk-e2e/**/*.{js,ts}"]
+            },
+            "outputs": ["{options.outputFile}"]
+        }
+    },
+    "tags": [],
+    "implicitDependencies": ["map-kiosk"]
+}

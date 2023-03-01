@@ -1,0 +1,30 @@
+{
+    "name": "visitor-kiosk-e2e",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "apps/visitor-kiosk-e2e/src",
+    "projectType": "application",
+    "targets": {
+        "e2e": {
+            "executor": "@nrwl/cypress:cypress",
+            "options": {
+                "cypressConfig": "apps/visitor-kiosk-e2e/cypress.json",
+                "tsConfig": "apps/visitor-kiosk-e2e/tsconfig.e2e.json",
+                "devServerTarget": "visitor-kiosk:serve"
+            },
+            "configurations": {
+                "production": {
+                    "devServerTarget": "visitor-kiosk:serve:production"
+                }
+            }
+        },
+        "lint": {
+            "executor": "@nrwl/linter:eslint",
+            "options": {
+                "lintFilePatterns": ["apps/visitor-kiosk-e2e/**/*.{js,ts}"]
+            },
+            "outputs": ["{options.outputFile}"]
+        }
+    },
+    "tags": [],
+    "implicitDependencies": ["visitor-kiosk"]
+}

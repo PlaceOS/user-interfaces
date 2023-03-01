@@ -1,0 +1,139 @@
+{
+    "name": "timetable",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "application",
+    "sourceRoot": "apps/timetable/src",
+    "prefix": "placeos",
+    "targets": {
+        "build": {
+            "executor": "@angular-devkit/build-angular:browser",
+            "outputs": ["{options.outputPath}"],
+            "options": {
+                "outputPath": "dist/apps/timetable",
+                "index": "apps/timetable/src/index.html",
+                "main": "apps/timetable/src/main.ts",
+                "polyfills": "apps/timetable/src/polyfills.ts",
+                "tsConfig": "apps/timetable/tsconfig.app.json",
+                "baseHref": ".",
+                "assets": [
+                    "apps/timetable/src/favicon.ico",
+                    "apps/timetable/src/assets",
+                    {
+                        "glob": "**",
+                        "input": "shared/assets",
+                        "output": "/assets/"
+                    },
+                    {
+                        "glob": "oauth-resp.html",
+                        "input": "node_modules/@placeos/ts-client/dist/",
+                        "output": "/"
+                    },
+                    "apps/timetable/src/manifest.webmanifest"
+                ],
+                "styles": [
+                    "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
+                    "apps/timetable/src/styles.css",
+                    "shared/styles/application.scss",
+                    "shared/styles/custom-element.scss",
+                    "shared/styles/native-element.scss",
+                    "shared/styles/utility.scss"
+                ],
+                "scripts": [],
+                "serviceWorker": true,
+                "ngswConfigPath": "apps/timetable/ngsw-config.json"
+            },
+            "configurations": {
+                "staging": {
+                    "optimization": true,
+                    "buildOptimizer": true,
+                    "fileReplacements": [
+                        {
+                            "replace": "apps/timetable/src/environments/environment.ts",
+                            "with": "apps/timetable/src/environments/environment.prod.ts"
+                        },
+                        {
+                            "replace": "libs/common/src/lib/settings.ts",
+                            "with": "apps/timetable/src/environments/settings.ts"
+                        }
+                    ],
+                    "serviceWorker": true,
+                    "ngswConfigPath": "apps/timetable/ngsw-config.json"
+                },
+                "production": {
+                    "budgets": [
+                        {
+                            "type": "initial",
+                            "maximumWarning": "1mb",
+                            "maximumError": "4mb"
+                        },
+                        {
+                            "type": "anyComponentStyle",
+                            "maximumWarning": "2kb",
+                            "maximumError": "4kb"
+                        }
+                    ],
+                    "fileReplacements": [
+                        {
+                            "replace": "libs/mocks/src/index.ts",
+                            "with": "libs/mocks/src/empty.ts"
+                        },
+                        {
+                            "replace": "apps/timetable/src/environments/environment.ts",
+                            "with": "apps/timetable/src/environments/environment.prod.ts"
+                        },
+                        {
+                            "replace": "libs/common/src/lib/settings.ts",
+                            "with": "apps/timetable/src/environments/settings.ts"
+                        }
+                    ],
+                    "outputHashing": "all"
+                },
+                "development": {
+                    "buildOptimizer": false,
+                    "optimization": false,
+                    "vendorChunk": true,
+                    "extractLicenses": false,
+                    "sourceMap": true,
+                    "namedChunks": true
+                }
+            },
+            "defaultConfiguration": "production"
+        },
+        "serve": {
+            "executor": "@angular-devkit/build-angular:dev-server",
+            "configurations": {
+                "production": {
+                    "browserTarget": "timetable:build:production"
+                },
+                "development": {
+                    "browserTarget": "timetable:build:development"
+                }
+            },
+            "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+            "executor": "@angular-devkit/build-angular:extract-i18n",
+            "options": {
+                "browserTarget": "timetable:build"
+            }
+        },
+        "lint": {
+            "executor": "@nrwl/linter:eslint",
+            "options": {
+                "lintFilePatterns": [
+                    "apps/timetable/src/**/*.ts",
+                    "apps/timetable/src/**/*.html"
+                ]
+            }
+        },
+        "test": {
+            "executor": "@nrwl/jest:jest",
+            "outputs": ["{workspaceRoot}/coverage/apps/timetable"],
+            "options": {
+                "jestConfig": "apps/timetable/jest.config.ts",
+                "passWithNoTests": true
+            }
+        }
+    },
+    "tags": []
+}

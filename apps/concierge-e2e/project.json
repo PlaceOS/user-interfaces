@@ -1,0 +1,30 @@
+{
+    "name": "concierge-e2e",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "apps/concierge-e2e/src",
+    "projectType": "application",
+    "targets": {
+        "e2e": {
+            "executor": "@nrwl/cypress:cypress",
+            "options": {
+                "cypressConfig": "apps/concierge-e2e/cypress.json",
+                "tsConfig": "apps/concierge-e2e/tsconfig.e2e.json",
+                "devServerTarget": "concierge:serve"
+            },
+            "configurations": {
+                "production": {
+                    "devServerTarget": "concierge:serve:production"
+                }
+            }
+        },
+        "lint": {
+            "executor": "@nrwl/linter:eslint",
+            "options": {
+                "lintFilePatterns": ["apps/concierge-e2e/**/*.{js,ts}"]
+            },
+            "outputs": ["{options.outputFile}"]
+        }
+    },
+    "tags": [],
+    "implicitDependencies": ["concierge"]
+}

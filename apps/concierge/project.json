@@ -1,0 +1,154 @@
+{
+    "name": "concierge",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "application",
+    "sourceRoot": "apps/concierge/src",
+    "prefix": "placeos",
+    "targets": {
+        "build": {
+            "executor": "@angular-devkit/build-angular:browser",
+            "options": {
+                "baseHref": ".",
+                "outputPath": "dist/apps/concierge",
+                "index": "apps/concierge/src/index.html",
+                "main": "apps/concierge/src/main.ts",
+                "polyfills": "apps/concierge/src/polyfills.ts",
+                "tsConfig": "apps/concierge/tsconfig.app.json",
+                "fileReplacements": [
+                    {
+                        "replace": "libs/common/src/lib/settings.ts",
+                        "with": "apps/concierge/src/environments/settings.ts"
+                    }
+                ],
+                "assets": [
+                    "apps/concierge/src/favicon.ico",
+                    "apps/concierge/src/assets",
+                    {
+                        "glob": "**",
+                        "input": "shared/assets",
+                        "output": "/assets/"
+                    },
+                    {
+                        "glob": "oauth-resp.html",
+                        "input": "node_modules/@placeos/ts-client/dist/",
+                        "output": "/"
+                    },
+                    {
+                        "input": "node_modules/ts-md5/dist/",
+                        "output": "/assets",
+                        "glob": "*worker.js"
+                    },
+                    "apps/concierge/src/manifest.webmanifest"
+                ],
+                "styles": [
+                    "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
+                    "./node_modules/survey-core/modern.min.css",
+                    "apps/concierge/src/styles.css",
+                    "shared/styles/application.scss",
+                    "shared/styles/custom-element.scss",
+                    "shared/styles/native-element.scss",
+                    "shared/styles/utility.scss"
+                ],
+                "scripts": [],
+                "vendorChunk": true,
+                "extractLicenses": false,
+                "buildOptimizer": false,
+                "sourceMap": true,
+                "optimization": false,
+                "namedChunks": true
+            },
+            "configurations": {
+                "staging": {
+                    "optimization": true,
+                    "buildOptimizer": true,
+                    "fileReplacements": [
+                        {
+                            "replace": "apps/concierge/src/environments/environment.ts",
+                            "with": "apps/concierge/src/environments/environment.prod.ts"
+                        },
+                        {
+                            "replace": "libs/common/src/lib/settings.ts",
+                            "with": "apps/concierge/src/environments/settings.ts"
+                        }
+                    ],
+                    "serviceWorker": true,
+                    "ngswConfigPath": "apps/concierge/ngsw-config.json"
+                },
+                "production": {
+                    "fileReplacements": [
+                        {
+                            "replace": "libs/mocks/src/index.ts",
+                            "with": "libs/mocks/src/empty.ts"
+                        },
+                        {
+                            "replace": "apps/concierge/src/environments/environment.ts",
+                            "with": "apps/concierge/src/environments/environment.prod.ts"
+                        },
+                        {
+                            "replace": "libs/common/src/lib/settings.ts",
+                            "with": "apps/concierge/src/environments/settings.ts"
+                        }
+                    ],
+                    "optimization": true,
+                    "outputHashing": "all",
+                    "sourceMap": false,
+                    "namedChunks": false,
+                    "extractLicenses": true,
+                    "vendorChunk": false,
+                    "buildOptimizer": true,
+                    "budgets": [
+                        {
+                            "type": "initial",
+                            "maximumWarning": "2mb",
+                            "maximumError": "5mb"
+                        },
+                        {
+                            "type": "anyComponentStyle",
+                            "maximumWarning": "6kb",
+                            "maximumError": "10kb"
+                        }
+                    ],
+                    "serviceWorker": true,
+                    "ngswConfigPath": "apps/concierge/ngsw-config.json"
+                }
+            }
+        },
+        "serve": {
+            "executor": "@angular-devkit/build-angular:dev-server",
+            "options": {
+                "proxyConfig": "config/proxy.conf.js",
+                "browserTarget": "concierge:build"
+            },
+            "configurations": {
+                "production": {
+                    "browserTarget": "concierge:build:production"
+                }
+            }
+        },
+        "extract-i18n": {
+            "executor": "@angular-devkit/build-angular:extract-i18n",
+            "options": {
+                "browserTarget": "concierge:build"
+            }
+        },
+        "lint": {
+            "executor": "@nrwl/linter:eslint",
+            "options": {
+                "lintFilePatterns": [
+                    "apps/concierge/src/**/*.ts",
+                    "apps/concierge/src/**/*.html"
+                ]
+            },
+            "outputs": ["{options.outputFile}"]
+        },
+        "test": {
+            "executor": "@nrwl/jest:jest",
+            "outputs": ["{workspaceRoot}/coverage/apps/concierge"],
+            "options": {
+                "jestConfig": "apps/concierge/jest.config.ts",
+                "passWithNoTests": true
+            }
+        }
+    },
+    "tags": []
+}
