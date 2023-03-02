@@ -10,7 +10,7 @@ import {
     ExploreZoomControlComponent,
 } from '@placeos/explore';
 import { OrganisationService } from '@placeos/organisation';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import { ExploreComponent } from '../app/explore.component';
@@ -18,6 +18,8 @@ import { ExploreLevelSelectComponent } from '../app/explore-level-select.compone
 import { MatDialog } from '@angular/material/dialog';
 import { SpacesService } from '@placeos/spaces';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { FormsModule } from '@angular/forms';
 
 describe('ExploreComponent', () => {
     let spectator: SpectatorRouting<ExploreComponent>;
@@ -30,30 +32,30 @@ describe('ExploreComponent', () => {
             MockComponent(ExploreSearchComponent),
         ],
         componentProviders: [
-            { provide: ExploreSpacesService, useValue: {} },
-            { provide: ExploreDesksService, useValue: {} },
-            { provide: ExploreZonesService, useValue: {} },
-            { provide: SpacePipe, useValue: { transform: jest.fn(() => ({})) } },
+            MockProvider(ExploreSpacesService),
+            MockProvider(ExploreDesksService, { setOptions: jest.fn() }),
+            MockProvider(ExploreZonesService),
+            MockProvider(SpacePipe, { transform: jest.fn(() => ({})) } as any),
         ],
         providers: [
-            {
-                provide: MatDialog,
-                useValue: { open: jest.fn(), closeAll: jest.fn() },
-            },
-            {
-                provide: ExploreStateService,
-                useValue: { setPositions: jest.fn(), setFeatures: jest.fn() },
-            },
-            { provide: SettingsService, useValue: { get: jest.fn() } },
-            {
-                provide: SpacesService,
-                useValue: { initialised: of(true), get: jest.fn() },
-            },
-            {
-                provide: OrganisationService,
-                useValue: { initialised: of(true) },
-            },
+            MockProvider(MatDialog, { open: jest.fn(), closeAll: jest.fn() }),
+            MockProvider(ExploreStateService, {
+                options: of({}),
+                level: of({}) as any,
+                setPositions: jest.fn(),
+                setFeatures: jest.fn(),
+            }),
+            MockProvider(SettingsService, {
+                get: jest.fn(),
+                initialised: of(true),
+            }),
+            MockProvider(SpacesService, {
+                initialised: of(true),
+                get: jest.fn(),
+            } as any),
+            MockProvider(OrganisationService, { initialised: of(true) }),
         ],
+        imports: [MockModule(MatSlideToggleModule), FormsModule],
     });
 
     beforeEach(() => (spectator = createComponent()));

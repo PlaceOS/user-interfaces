@@ -6,7 +6,7 @@ import { EventFormService } from '@placeos/events';
 import { ExploreSpacesService } from '@placeos/explore';
 import { OrganisationService } from '@placeos/organisation';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { LandingAvailabilityComponent } from '../../app/landing/landing-availability.component';
 import { LandingStateService } from '../../app/landing/landing-state.service';
 
@@ -15,16 +15,21 @@ describe('LandingAvailabilityComponent', () => {
     const createComponent = createComponentFactory({
         component: LandingAvailabilityComponent,
         declarations: [MockComponent(IconComponent)],
+        componentProviders: [
+            MockProvider(ExploreSpacesService, { bookSpace: jest.fn() }),
+        ],
         providers: [
             MockProvider(LandingStateService, {
                 free_space_list: new BehaviorSubject([]),
+                loading_spaces: new BehaviorSubject(false),
                 level_occupancy: new BehaviorSubject([]),
             }),
             MockProvider(SettingsService, { get: jest.fn() }),
-            MockProvider(OrganisationService, {}),
-            MockProvider(EventFormService, {}),
-            MockProvider(MatDialog, { open: jest.fn() }),
-            MockProvider(ExploreSpacesService, { bookSpace: jest.fn() }),
+            MockProvider(OrganisationService, {
+                initialised: of(true),
+                buildings: [],
+                organisation: {},
+            } as any),
         ],
     });
 

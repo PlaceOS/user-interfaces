@@ -1,4 +1,4 @@
-import { Pipe } from '@angular/core';
+import { Optional, Pipe } from '@angular/core';
 import { querySystems, showSystem } from '@placeos/ts-client';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
@@ -20,7 +20,7 @@ export function updateSpaceList(space_list: Space[]) {
     name: 'space',
 })
 export class SpacePipe {
-    constructor(private _org: OrganisationService) {}
+    constructor(@Optional() private _org?: OrganisationService) {}
     /**
      * Get details of the space with the given ID
      * @param space_id ID or Email of the space
@@ -39,7 +39,7 @@ export class SpacePipe {
             if (system) {
                 space = new Space({
                     ...(system as any),
-                    level: this._org.levelWithID([...system.zones]),
+                    level: this._org?.levelWithID([...system.zones]),
                 });
                 SPACE_LIST.push(space);
                 return space;
@@ -49,7 +49,7 @@ export class SpacePipe {
         if (systems.length === 1) {
             space = new Space({
                 ...(systems[0] as any),
-                level: this._org.levelWithID([...systems[0].zones]),
+                level: this._org?.levelWithID([...systems[0].zones]),
             });
             SPACE_LIST.push(space);
             return space;
