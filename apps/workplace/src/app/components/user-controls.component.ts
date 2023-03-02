@@ -175,7 +175,7 @@ export interface AppLocale {
                 btn
                 matRipple
                 class="clear w-full text-left h-[3.5rem]"
-                (click)="openSupportTicketModal()"
+                (click)="newSupportTicket()"
             >
                 <div class="w-full flex items-center space-x-2 dark:text-white">
                     <div
@@ -255,8 +255,15 @@ export class UserControlsComponent {
         logout();
     }
 
-    public openSupportTicketModal() {
-        this._dialog.open(SupportTicketModalComponent);
+    public newSupportTicket() {
+        if (this._settings.get('app.external_support_url')) {
+            window.open(
+                this._settings.get('app.external_support_url'),
+                '_blank'
+            );
+        } else {
+            this._dialog.open(SupportTicketModalComponent);
+        }
     }
 
     public openWfhModal() {
