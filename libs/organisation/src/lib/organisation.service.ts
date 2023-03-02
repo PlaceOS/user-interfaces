@@ -464,9 +464,9 @@ export class OrganisationService {
 
     private _updateSettingOverrides() {
         this._service.overrides = [
-            ...this._settings,
-            this.regionSettings(this.region?.id),
             this.buildingSettings(this.building?.id),
+            this.regionSettings(this.region?.id),
+            ...this._settings,
         ];
     }
 }
