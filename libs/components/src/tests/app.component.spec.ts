@@ -31,7 +31,7 @@ describe('AppComponent', () => {
             MockComponent(GlobalLoadingComponent),
         ],
         providers: [
-            MockProvider(OrganisationService, {}),
+            MockProvider(OrganisationService, { initialised: of(true) }),
             MockProvider(SettingsService, {
                 get: jest.fn(),
                 initialised: of(true),

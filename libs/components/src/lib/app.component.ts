@@ -11,7 +11,7 @@ import {
     setAPI_Key,
     token,
 } from '@placeos/ts-client';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { addHours } from 'date-fns';
 
 import {
