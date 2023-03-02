@@ -47,13 +47,9 @@ export class UserAvailabilityModalComponent
         this.date$
             .pipe(
                 debounceTime(500),
-                switchMap(() => {
-                    return this.loadAvailability();
-                })
+                switchMap(() => this.loadAvailability())
             )
-            .subscribe((res) => {
-                this.groups = res;
-            });
+            .subscribe((res) => (this.groups = res));
     }
 
     /** Load events for all attendees */
@@ -61,7 +57,7 @@ export class UserAvailabilityModalComponent
         this.loading = true;
         const period_start = getUnixTime(startOfDay(this.date));
         const period_end = getUnixTime(endOfDay(this.date));
-        const result = await Promise.all(
+        const result: any[] = await Promise.all(
             this.users.map(async (user) => {
                 if (!user.email) return [];
                 return {
