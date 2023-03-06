@@ -27,6 +27,7 @@ import * as user_mod from '@placeos/users';
 import * as common_mod from '@placeos/common';
 import { fakeAsync } from '@angular/core/testing';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { ExploreParkingService } from '../lib/explore-parking.service';
 
 describe('ExploreMapViewComponent', () => {
     let spectator: SpectatorRouting<ExploreMapViewComponent>;
@@ -43,6 +44,7 @@ describe('ExploreMapViewComponent', () => {
                 startPolling: jest.fn(() => () => null),
             }),
             MockProvider(ExploreZonesService),
+            MockProvider(ExploreParkingService),
             MockProvider(SpacePipe, { transform: jest.fn(() => ({})) } as any),
         ],
         providers: [

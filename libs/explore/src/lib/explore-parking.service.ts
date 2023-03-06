@@ -156,6 +156,7 @@ export class ExploreParkingService extends AsyncHandler {
     }
 
     private _updateParkingSpaces(spaces, available) {
+        console.log('Spaces:', spaces, available);
         const styles = {};
         const labels = [];
         const colours = this._settings.get('app.explore.colors') || {};
@@ -164,7 +165,7 @@ export class ExploreParkingService extends AsyncHandler {
             const status = can_book ? 'free' : 'busy';
             styles[`#${space.map_id}`] = {
                 fill:
-                    colours[`desk-${status}`] ||
+                    colours[`parking-${status}`] ||
                     colours[`${status}`] ||
                     DEFAULT_COLOURS[`${status}`],
                 opacity: 0.6,

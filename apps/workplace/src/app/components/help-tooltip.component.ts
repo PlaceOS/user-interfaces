@@ -50,7 +50,7 @@ import { CustomTooltipData } from '@placeos/components';
 export class HelpTooltipComponent {
     /** Tiles to display on the help page */
     public get tiles(): ApplicationLink[] {
-        return this._settings.get('app.help.tiles') || [];
+        return this._settings.get('app.help') || [];
     }
 
     public readonly close = () => {

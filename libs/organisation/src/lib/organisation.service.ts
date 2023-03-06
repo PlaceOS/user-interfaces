@@ -126,7 +126,7 @@ export class OrganisationService {
 
     /** List of available buildings */
     public get buildings(): Building[] {
-        return this._buildings.getValue();
+        return this._buildings.getValue() || [];
     }
 
     /** Currently active building */
