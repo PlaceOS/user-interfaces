@@ -30,8 +30,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 >
                     <mat-step>
                         <ng-template matStepLabel>Details</ng-template>
-                        <div class="bg-white border border-gray-200">
-                            <div class="overflow-auto w-full">
+                        <div
+                            class="bg-white border border-gray-200 flex flex-col"
+                        >
+                            <div
+                                class="overflow-auto w-full flex-1 h-1/2 max-h-[65vh]"
+                            >
                                 <asset-flow-details></asset-flow-details>
                             </div>
                             <div
@@ -41,13 +45,18 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                     button
                                     btn
                                     matRipple
-                                    class="inverse"
+                                    class="inverse w-32"
                                     [routerLink]="['/asset-manager', 'list']"
                                     (click)="clearActiveAsset()"
                                 >
                                     Cancel
                                 </a>
-                                <button btn matRipple matStepperNext>
+                                <button
+                                    btn
+                                    matRipple
+                                    matStepperNext
+                                    class="w-32"
+                                >
                                     Next
                                 </button>
                             </div>
@@ -55,21 +64,31 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     </mat-step>
                     <mat-step>
                         <ng-template matStepLabel>Specifications</ng-template>
-                        <div class="bg-white border border-gray-200">
-                            <div class="overflow-auto w-full">
+                        <div
+                            class="bg-white border border-gray-200 flex flex-col"
+                        >
+                            <div
+                                class="overflow-auto w-full flex-1 h-1/2 max-h-[65vh]"
+                            >
                                 <asset-flow-specs></asset-flow-specs>
                             </div>
                             <div
                                 class="flex items-center justify-end border-t border-gray-200 p-2 space-x-2 w-full"
                             >
                                 <button
+                                    btn
                                     matRipple
                                     matStepperPrevious
-                                    class="inverse"
+                                    class="inverse w-32"
                                 >
                                     Back
                                 </button>
-                                <button btn matRipple matStepperNext>
+                                <button
+                                    btn
+                                    matRipple
+                                    matStepperNext
+                                    class="w-32"
+                                >
                                     Next
                                 </button>
                             </div>
@@ -79,21 +98,31 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         <ng-template matStepLabel
                             >Purchase Information</ng-template
                         >
-                        <div class="bg-white border border-gray-200">
-                            <div class="overflow-auto w-full">
+                        <div
+                            class="bg-white border border-gray-200 flex flex-col"
+                        >
+                            <div
+                                class="overflow-auto w-full flex-1 h-1/2 max-h-[65vh]"
+                            >
                                 <asset-flow-purchases></asset-flow-purchases>
                             </div>
                             <div
                                 class="flex items-center justify-end border-t border-gray-200 p-2 space-x-2 w-full"
                             >
                                 <button
+                                    btn
                                     matRipple
                                     matStepperPrevious
-                                    class="inverse"
+                                    class="inverse w-32"
                                 >
                                     Back
                                 </button>
-                                <button btn matRipple matStepperNext>
+                                <button
+                                    btn
+                                    matRipple
+                                    matStepperNext
+                                    class="w-32"
+                                >
                                     Next
                                 </button>
                             </div>
@@ -103,21 +132,31 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         <ng-template matStepLabel
                             >Consumable Assets</ng-template
                         >
-                        <div class="bg-white border border-gray-200">
-                            <div class="overflow-auto w-full">
+                        <div
+                            class="bg-white border border-gray-200 flex flex-col"
+                        >
+                            <div
+                                class="overflow-auto w-full flex-1 h-1/2 max-h-[65vh]"
+                            >
                                 <asset-flow-consumables></asset-flow-consumables>
                             </div>
                             <div
                                 class="flex items-center justify-end border-t border-gray-200 p-2 space-x-2 w-full"
                             >
                                 <button
+                                    btn
                                     matRipple
                                     matStepperPrevious
-                                    class="inverse"
+                                    class="inverse w-32"
                                 >
                                     Back
                                 </button>
-                                <button btn matRipple (click)="save()">
+                                <button
+                                    btn
+                                    matRipple
+                                    class="w-32"
+                                    (click)="save()"
+                                >
                                     Save
                                 </button>
                             </div>

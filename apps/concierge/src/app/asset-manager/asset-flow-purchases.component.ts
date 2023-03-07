@@ -53,6 +53,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </button>
             </div>
             <button
+                btn
                 matRipple
                 class="w-full bg-white border border-gray-300 rounded-none text-black mt-4"
                 (click)="addInvoice()"
@@ -102,6 +103,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </button>
             </div>
             <button
+                btn
                 matRipple
                 class="w-full bg-white border border-gray-300 rounded-none text-black mt-4"
                 (click)="addProperty()"

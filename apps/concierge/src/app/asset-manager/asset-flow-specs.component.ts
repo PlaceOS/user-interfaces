@@ -40,7 +40,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 "
             >
                 <div class="flex-1 flex flex-col">
-                    <label *ngIf="i === 0">ID</label>
+                    <label *ngIf="i === 0">Field Name</label>
                     <mat-form-field class="h-[3.25rem]" appearance="outline">
                         <input
                             matInput
@@ -51,7 +51,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     </mat-form-field>
                 </div>
                 <div class="flex-1 flex flex-col ml-4">
-                    <label *ngIf="i === 0">Name</label>
+                    <label *ngIf="i === 0">Field Value</label>
                     <mat-form-field class="h-[3.25rem]" appearance="outline">
                         <input
                             matInput
@@ -72,6 +72,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </button>
             </div>
             <button
+                btn
                 matRipple
                 class="w-full bg-white border border-gray-300 rounded-none text-black mt-4"
                 (click)="addItem()"

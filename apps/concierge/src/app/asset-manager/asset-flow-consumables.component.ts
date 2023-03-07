@@ -6,7 +6,14 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     selector: 'asset-flow-consumables',
     template: `
         <div class="flex flex-col p-4" *ngIf="form" [formGroup]="form">
-            <h3>Items</h3>
+            <h3>Consumable Assets</h3>
+            <p class="text-xs">
+                Note:
+                <em
+                    >This section should not be needed for items with more than
+                    a few uses</em
+                >
+            </p>
             <div
                 class="flex items-center hover:bg-gray-50 rounded"
                 *ngFor="
@@ -47,11 +54,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </button>
             </div>
             <button
+                btn
                 matRipple
                 class="w-full bg-white border border-gray-300 rounded-none text-black mt-4"
                 (click)="addItem()"
             >
-                Add Item
+                Add Consumable Asset
             </button>
         </div>
     `,
