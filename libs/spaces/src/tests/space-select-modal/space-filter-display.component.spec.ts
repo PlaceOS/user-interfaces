@@ -52,10 +52,11 @@ describe('SpaceFiltersDisplayComponent', () => {
         expect('[filter-item][count]').toExist();
     });
 
-    it('should allow removing filters', () => {
+    it('should allow removing filters', async () => {
         expect('[filter-item] button').toExist();
         spectator.click('[filter-item] button');
         spectator.detectChanges();
+        await spectator.fixture.whenStable();
         expect(spectator.inject(EventFormService).setOptions).toBeCalledWith({
             features: [],
         });

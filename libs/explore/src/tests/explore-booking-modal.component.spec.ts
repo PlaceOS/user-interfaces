@@ -65,7 +65,7 @@ describe('ExploreBookingModalComponent', () => {
         expect('[name="space"]').toContainText('Test Space');
     });
 
-    it('should allow booking space', fakeAsync(() => {
+    it('should allow booking space', fakeAsync(async () => {
         spectator.component.form.patchValue({
             host: 'host@place.tech',
             creator: 'creator@place.tech',
@@ -75,6 +75,7 @@ describe('ExploreBookingModalComponent', () => {
         spectator.click('footer button');
         expect(spy).toHaveBeenCalled();
         spectator.tick();
+        await spectator.fixture.whenStable();
         expect(spectator.inject(MatDialogRef).close).toHaveBeenCalled();
     }));
 });

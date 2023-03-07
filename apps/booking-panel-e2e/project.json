@@ -1,0 +1,30 @@
+{
+    "name": "booking-panel-e2e",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "apps/booking-panel-e2e/src",
+    "projectType": "application",
+    "targets": {
+        "e2e": {
+            "executor": "@nrwl/cypress:cypress",
+            "options": {
+                "cypressConfig": "apps/booking-panel-e2e/cypress.json",
+                "tsConfig": "apps/booking-panel-e2e/tsconfig.e2e.json",
+                "devServerTarget": "booking-panel:serve"
+            },
+            "configurations": {
+                "production": {
+                    "devServerTarget": "booking-panel:serve:production"
+                }
+            }
+        },
+        "lint": {
+            "executor": "@nrwl/linter:eslint",
+            "options": {
+                "lintFilePatterns": ["apps/booking-panel-e2e/**/*.{js,ts}"]
+            },
+            "outputs": ["{options.outputFile}"]
+        }
+    },
+    "tags": [],
+    "implicitDependencies": ["booking-panel"]
+}

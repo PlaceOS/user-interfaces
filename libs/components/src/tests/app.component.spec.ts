@@ -31,7 +31,7 @@ describe('AppComponent', () => {
             MockComponent(GlobalLoadingComponent),
         ],
         providers: [
-            MockProvider(OrganisationService, {}),
+            MockProvider(OrganisationService, { initialised: of(true) }),
             MockProvider(SettingsService, {
                 get: jest.fn(),
                 initialised: of(true),
@@ -47,7 +47,7 @@ describe('AppComponent', () => {
 
     beforeEach(() => {
         (common_mod as any).setupPlace = jest.fn(async () => null);
-        (common_mod as any).current_user = jest.fn(() => of({}));
+        (common_mod as any).current_user = of({});
         (common_mod as any).setNotifyOutlet = jest.fn();
         (common_mod as any).setAppName = jest.fn();
         (common_mod as any).setupCache = jest.fn();

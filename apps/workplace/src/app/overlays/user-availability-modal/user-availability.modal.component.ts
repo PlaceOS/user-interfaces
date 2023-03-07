@@ -2,7 +2,7 @@ import { Component, OnInit, EventEmitter, Output, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { BehaviorSubject } from 'rxjs';
 import { debounceTime, switchMap } from 'rxjs/operators';
-import { endOfDay, startOfDay } from 'date-fns';
+import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
 import { AsyncHandler, DialogEvent } from '@placeos/common';
 import { StaffUser } from '@placeos/users';
@@ -47,22 +47,19 @@ export class UserAvailabilityModalComponent
         this.date$
             .pipe(
                 debounceTime(500),
-                switchMap(() => {
-                    return this.loadAvailability();
-                })
+                switchMap(() => this.loadAvailability())
             )
-            .subscribe((res) => {
-                this.groups = res;
-            });
+            .subscribe((res) => (this.groups = res));
     }
 
     /** Load events for all attendees */
     public async loadAvailability() {
         this.loading = true;
-        const period_start = Math.floor(startOfDay(this.date).valueOf() / 1000);
-        const period_end = Math.floor(endOfDay(this.date).valueOf() / 1000);
-        const result = await Promise.all(
+        const period_start = getUnixTime(startOfDay(this.date));
+        const period_end = getUnixTime(endOfDay(this.date));
+        const result: any[] = await Promise.all(
             this.users.map(async (user) => {
+                if (!user.email) return [];
                 return {
                     name: user.name,
                     events: await queryEvents({

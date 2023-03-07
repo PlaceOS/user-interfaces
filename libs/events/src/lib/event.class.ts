@@ -145,7 +145,8 @@ export class CalendarEvent {
             : data.duration ||
               differenceInMinutes(data.event_end * 1000, this.date) ||
               30;
-        this.timezone = data.timezone || '';
+        this.timezone =
+            data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.meeting_url = data.meeting_url || data.online_meeting_url || '';
         this.meeting_id = data.meeting_id || data.online_meeting_id || '';
         this.meeting_provider =

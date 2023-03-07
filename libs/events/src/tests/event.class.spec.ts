@@ -21,7 +21,9 @@ describe('CalendarEvent', () => {
         expect(event.private).toBe(false);
         expect(event.all_day).toBe(false);
         expect(event.duration).toBe(30);
-        expect(event.timezone).toBe('');
+        expect(event.timezone).toBe(
+            Intl.DateTimeFormat().resolvedOptions().timeZone
+        );
         expect(event.location).toBe('');
         expect(event.recurring).toBe(false);
         expect(event.recurring_master_id).toBe('');

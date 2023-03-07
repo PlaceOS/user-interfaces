@@ -1,0 +1,145 @@
+{
+    "name": "enrolment",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "application",
+    "sourceRoot": "apps/enrolment/src",
+    "prefix": "placeos",
+    "targets": {
+        "build": {
+            "executor": "@angular-devkit/build-angular:browser",
+            "outputs": ["{options.outputPath}"],
+            "options": {
+                "outputPath": "dist/apps/enrolment",
+                "index": "apps/enrolment/src/index.html",
+                "main": "apps/enrolment/src/main.ts",
+                "polyfills": "apps/enrolment/src/polyfills.ts",
+                "tsConfig": "apps/enrolment/tsconfig.app.json",
+                "baseHref": ".",
+                "assets": [
+                    "apps/enrolment/src/favicon.ico",
+                    "apps/enrolment/src/assets",
+                    {
+                        "glob": "**",
+                        "input": "shared/assets",
+                        "output": "/assets/"
+                    },
+                    {
+                        "glob": "oauth-resp.html",
+                        "input": "node_modules/@placeos/ts-client/dist/",
+                        "output": "/"
+                    },
+                    "apps/enrolment/src/manifest.webmanifest"
+                ],
+                "styles": [
+                    "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
+                    "apps/enrolment/src/styles.css",
+                    "shared/styles/application.scss",
+                    "shared/styles/custom-element.scss",
+                    "shared/styles/native-element.scss",
+                    "shared/styles/utility.scss"
+                ],
+                "fileReplacements": [
+                    {
+                        "replace": "libs/common/src/lib/settings.ts",
+                        "with": "apps/enrolment/src/environments/settings.ts"
+                    }
+                ],
+                "scripts": [],
+                "serviceWorker": true,
+                "ngswConfigPath": "apps/enrolment/ngsw-config.json"
+            },
+            "configurations": {
+                "staging": {
+                    "optimization": true,
+                    "buildOptimizer": true,
+                    "fileReplacements": [
+                        {
+                            "replace": "apps/enrolment/src/environments/environment.ts",
+                            "with": "apps/enrolment/src/environments/environment.prod.ts"
+                        },
+                        {
+                            "replace": "libs/common/src/lib/settings.ts",
+                            "with": "apps/enrolment/src/environments/settings.ts"
+                        }
+                    ],
+                    "serviceWorker": true,
+                    "ngswConfigPath": "apps/enrolment/ngsw-config.json"
+                },
+                "production": {
+                    "budgets": [
+                        {
+                            "type": "initial",
+                            "maximumWarning": "800kb",
+                            "maximumError": "2mb"
+                        },
+                        {
+                            "type": "anyComponentStyle",
+                            "maximumWarning": "2kb",
+                            "maximumError": "4kb"
+                        }
+                    ],
+                    "fileReplacements": [
+                        {
+                            "replace": "libs/mocks/src/index.ts",
+                            "with": "libs/mocks/src/empty.ts"
+                        },
+                        {
+                            "replace": "apps/enrolment/src/environments/environment.ts",
+                            "with": "apps/enrolment/src/environments/environment.prod.ts"
+                        },
+                        {
+                            "replace": "libs/common/src/lib/settings.ts",
+                            "with": "apps/enrolment/src/environments/settings.ts"
+                        }
+                    ],
+                    "outputHashing": "all"
+                },
+                "development": {
+                    "buildOptimizer": false,
+                    "optimization": false,
+                    "vendorChunk": true,
+                    "extractLicenses": false,
+                    "sourceMap": true,
+                    "namedChunks": true
+                }
+            },
+            "defaultConfiguration": "production"
+        },
+        "serve": {
+            "executor": "@angular-devkit/build-angular:dev-server",
+            "configurations": {
+                "production": {
+                    "browserTarget": "enrolment:build:production"
+                },
+                "development": {
+                    "browserTarget": "enrolment:build:development"
+                }
+            },
+            "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+            "executor": "@angular-devkit/build-angular:extract-i18n",
+            "options": {
+                "browserTarget": "enrolment:build"
+            }
+        },
+        "lint": {
+            "executor": "@nrwl/linter:eslint",
+            "options": {
+                "lintFilePatterns": [
+                    "apps/enrolment/src/**/*.ts",
+                    "apps/enrolment/src/**/*.html"
+                ]
+            }
+        },
+        "test": {
+            "executor": "@nrwl/jest:jest",
+            "outputs": ["{workspaceRoot}/coverage/apps/enrolment"],
+            "options": {
+                "jestConfig": "apps/enrolment/jest.config.ts",
+                "passWithNoTests": true
+            }
+        }
+    },
+    "tags": []
+}

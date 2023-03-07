@@ -89,14 +89,18 @@ export interface FindAvailabilityData {
                     >
                         <a-user-avatar
                             class="text-2xl"
-                            [user]="host"
+                            [user]="user"
                         ></a-user-avatar>
                         <div
                             class="text-xs break-words max-w-full px-2 text-center"
                         >
                             {{ user.name || host.email }}
                         </div>
-                        <button icon class="absolute -top-1 -left-1">
+                        <button
+                            icon
+                            class="absolute -top-1 -left-1"
+                            (click)="removeUser(user)"
+                        >
                             <app-icon>close</app-icon>
                         </button>
                         <user-availability-list
@@ -225,6 +229,11 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
             ...this.users.filter((u) => u.email !== user.email),
             user,
         ];
+        this.user = null;
+    }
+
+    public removeUser(user: User) {
+        this.users = this.users.filter((u) => u.email !== user.email);
         this.user = null;
     }
 

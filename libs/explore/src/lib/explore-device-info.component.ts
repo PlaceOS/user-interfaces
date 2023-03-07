@@ -59,7 +59,10 @@ const EMPTY = [];
             >
                 <div class="arrow"></div>
                 <div class="details">
-                    <p class="break-words">
+                    <p
+                        class="break-words"
+                        *ngIf="mac && !hide_fields.includes('mac')"
+                    >
                         <label i18n>MAC:</label> {{ mac }}
                     </p>
                     <p><label i18n>Accuracy:</label> {{ variance }}m</p>

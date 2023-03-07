@@ -2,7 +2,7 @@ import { FormsModule } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { IconComponent, UserAvatarComponent } from '@placeos/components';
 import { generateMockUser, User } from '@placeos/users';
 import { SettingsService } from '@placeos/common';
@@ -25,8 +25,8 @@ describe('UserListFieldComponent', () => {
             MockComponent(UserAvatarComponent),
         ],
         providers: [
-            { provide: MatDialog, useValue: { open: jest.fn(() => ({})) } },
-            { provide: SettingsService, useValue: { get: jest.fn() } },
+            MockProvider(MatDialog, { open: jest.fn(() => ({})) } as any),
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
         imports: [
             MatChipsModule,

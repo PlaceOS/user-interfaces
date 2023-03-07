@@ -12,8 +12,9 @@ import { ExploreDeviceInfoComponent } from '../lib/explore-device-info.component
 jest.mock('@placeos/ts-client');
 
 import * as ts_client from '@placeos/ts-client';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { SettingsService } from '@placeos/common';
+import { of } from 'rxjs';
 
 describe('ExploreDeviceInfoComponent', () => {
     let spectator: Spectator<ExploreDeviceInfoComponent>;
@@ -21,11 +22,12 @@ describe('ExploreDeviceInfoComponent', () => {
         component: ExploreDeviceInfoComponent,
         declarations: [FixedPipe, MockComponent(CustomTooltipComponent)],
         providers: [
-            {
-                provide: MAP_FEATURE_DATA,
-                useValue: { mac: 'User', variance: 10 },
-            },
-            { provide: SettingsService, useValue: { get: jest.fn() } }
+            MockProvider(MAP_FEATURE_DATA, {
+                mac: 'User',
+                variance: 10,
+                zoom$: of(1),
+            }),
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
         imports: [PortalModule, OverlayModule],
     });

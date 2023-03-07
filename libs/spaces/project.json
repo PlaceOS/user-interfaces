@@ -1,0 +1,28 @@
+{
+    "name": "spaces",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "library",
+    "sourceRoot": "libs/spaces/src",
+    "prefix": "placeos",
+    "targets": {
+        "lint": {
+            "executor": "@nrwl/linter:eslint",
+            "options": {
+                "lintFilePatterns": [
+                    "libs/spaces/src/**/*.ts",
+                    "libs/spaces/src/**/*.html"
+                ]
+            },
+            "outputs": ["{options.outputFile}"]
+        },
+        "test": {
+            "executor": "@nrwl/jest:jest",
+            "outputs": ["{workspaceRoot}/coverage/libs/spaces"],
+            "options": {
+                "jestConfig": "libs/spaces/jest.config.ts",
+                "passWithNoTests": true
+            }
+        }
+    },
+    "tags": []
+}

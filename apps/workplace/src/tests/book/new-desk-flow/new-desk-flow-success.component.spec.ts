@@ -39,8 +39,7 @@ describe('NewDeskFlowSuccessComponent', () => {
     });
 
     it('should navigate to root when done', () => {
-        location.pathname = '/book/newdesk/success';
-        spectator.click('a[btn]');
-        expect(location.pathname).toBe('/');
+        expect('[name="desk-confirm-continue"]').toExist();
+        expect('[name="desk-confirm-continue"]').toHaveAttribute('href', '/');
     });
 });

@@ -126,7 +126,7 @@ export class OrganisationService {
 
     /** List of available buildings */
     public get buildings(): Building[] {
-        return this._buildings.getValue();
+        return this._buildings.getValue() || [];
     }
 
     /** Currently active building */
@@ -464,9 +464,9 @@ export class OrganisationService {
 
     private _updateSettingOverrides() {
         this._service.overrides = [
-            ...this._settings,
-            this.regionSettings(this.region?.id),
             this.buildingSettings(this.building?.id),
+            this.regionSettings(this.region?.id),
+            ...this._settings,
         ];
     }
 }

@@ -6,7 +6,7 @@ import { User } from 'libs/users/src/lib/user.class';
 import { Calendar } from 'libs/calendar/src/lib/calendar.class';
 import { queryCalendars } from 'libs/calendar/src/lib/calendar.fn';
 import { of, zip } from 'rxjs';
-import { catchError, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
 
 @Component({
     selector: 'host-select-field',

@@ -1,0 +1,30 @@
+{
+    "name": "timetable-e2e",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "apps/timetable-e2e/src",
+    "projectType": "application",
+    "targets": {
+        "e2e": {
+            "executor": "@nrwl/cypress:cypress",
+            "options": {
+                "cypressConfig": "apps/timetable-e2e/cypress.json",
+                "devServerTarget": "timetable:serve:development",
+                "tsConfig": "apps/timetable-e2e/tsconfig.json"
+            },
+            "configurations": {
+                "production": {
+                    "devServerTarget": "timetable:serve:production"
+                }
+            }
+        },
+        "lint": {
+            "executor": "@nrwl/linter:eslint",
+            "outputs": ["{options.outputFile}"],
+            "options": {
+                "lintFilePatterns": ["apps/timetable-e2e/**/*.{js,ts}"]
+            }
+        }
+    },
+    "tags": [],
+    "implicitDependencies": ["timetable"]
+}

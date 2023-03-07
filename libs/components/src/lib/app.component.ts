@@ -11,7 +11,7 @@ import {
     setAPI_Key,
     token,
 } from '@placeos/ts-client';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { addHours } from 'date-fns';
 
 import {
@@ -194,25 +194,10 @@ export class AppComponent extends AsyncHandler implements OnInit {
     private _initAnalytics() {
         const tracking_id = this._settings.get('app.analytics.tracking_id');
         if (!tracking_id) return;
+
         this._analytics.init(tracking_id);
         this._analytics.load(tracking_id);
         this._analytics.setUser(currentUser().id);
-        // Post button click events
-        this._renderer.listen('window', 'click', (e) => {
-            if (
-                (e.target?.tagName.toLowerCase() === 'button' ||
-                    e.target?.tagName.toLowerCase() === 'a') &&
-                (e.target.getAttribute('name') || e.target.id)
-            ) {
-                const id = e.target.getAttribute('name') || e.target.id;
-                this._analytics.event('click', e.target?.tagName, id);
-            }
-        });
-        this._router.events.subscribe((e) => {
-            if (e instanceof NavigationEnd) {
-                this._analytics.page(e.url);
-            }
-        });
     }
 
     private _initLocale() {

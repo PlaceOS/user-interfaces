@@ -1,0 +1,30 @@
+{
+    "name": "outlook-addin-e2e",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "apps/outlook-addin-e2e/src",
+    "projectType": "application",
+    "targets": {
+        "e2e": {
+            "executor": "@nrwl/cypress:cypress",
+            "options": {
+                "cypressConfig": "apps/outlook-addin-e2e/cypress.json",
+                "devServerTarget": "outlook-addin:serve",
+                "tsConfig": "apps/outlook-addin-e2e/tsconfig.json"
+            },
+            "configurations": {
+                "production": {
+                    "devServerTarget": "outlook-addin:serve:production"
+                }
+            }
+        },
+        "lint": {
+            "executor": "@nrwl/linter:eslint",
+            "options": {
+                "lintFilePatterns": ["apps/outlook-addin-e2e/**/*.{js,ts}"]
+            },
+            "outputs": ["{options.outputFile}"]
+        }
+    },
+    "tags": [],
+    "implicitDependencies": ["outlook-addin"]
+}

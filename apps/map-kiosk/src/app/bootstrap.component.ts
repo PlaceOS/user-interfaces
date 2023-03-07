@@ -255,12 +255,10 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
      */
     private checkBootstrap() {
         this.loading = 'Checking for existing parameters...';
-        if (localStorage) {
-            const building_id = localStorage.getItem('KIOSK.building');
-            const level_id = localStorage.getItem('KIOSK.level');
-            if (building_id && level_id) {
-                this._router.navigate(['/explore']);
-            }
+        const building_id = localStorage?.getItem('KIOSK.building');
+        const level_id = localStorage?.getItem('KIOSK.level');
+        if (building_id && level_id) {
+            this._router.navigate(['/explore']);
         }
         VirtualKeyboardComponent.enabled =
             localStorage.getItem('OSK.enabled') === 'true';

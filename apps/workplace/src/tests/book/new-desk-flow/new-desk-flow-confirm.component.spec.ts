@@ -42,9 +42,10 @@ describe('NewDeskFlowConfirmComponent', () => {
         expect('[assets]').toExist();
     });
 
-    it('should allow posting booking', () => {
+    it('should allow posting booking', async () => {
         expect('button[name="confirm-desk"]').toExist();
         spectator.click('button[name="confirm-desk"]');
+        await spectator.fixture.whenStable();
         expect(
             spectator.inject(BookingFormService).postForm
         ).toHaveBeenCalledTimes(1);
