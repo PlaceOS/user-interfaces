@@ -70,8 +70,8 @@ export class SurveyBuilderService {
     }
 
     public async removeQuestionFromSurvey(index: number) {
-        const q = this.selectedPage.elements.splice(index, 1);
-        if(q.length && q[0].deleted){
+        const q = this.selectedPage.elements[index];
+        if(q?.deleted){
             const details = await openConfirmModal(
                 {
                     title: 'Question marked for deletion',
@@ -82,10 +82,12 @@ export class SurveyBuilderService {
                 },
                 this._dialog
             );
+            
             if (details.reason !== 'done') return;
             details.close();
         }
-        this.bank.depositQuestions(q);
+        const target = this.selectedPage.elements.splice(index, 1);
+        this.bank.depositQuestions(target);
     }
 
     public onDropQuestionToSurvey(

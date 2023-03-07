@@ -20,6 +20,7 @@ export class QuestionBankComponent {
     filters$ = this.service.filter$.pipe(shareReplay(1));
     onDrop = (event: CdkDragDrop<Question[]>) => this.service.onDrop(event);
     onAddQuestion = (q?:Question) => this.service.modQuestionOverlay(q ? {...q, id:0} : null);
+    onEditQuestion = (q:Question) => this.service.modQuestionOverlay(q, true);
     onDeleteQuestion = (q:Question) => this.service.confirmDeleteQuestion(q);
     setFilter = (filter: Partial<QuestionFilter>) => this.service.setFilter(filter);
     

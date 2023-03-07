@@ -18,6 +18,7 @@ import {
     removeQuestion,
     SurveyQuestion,
 } from '@placeos/ts-client';
+import { updateQuestion } from '@placeos/ts-client/dist/esm/staff/questions/functions';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { catchError, filter, finalize, first, map, tap } from 'rxjs/operators';
 import { ModQuestionOverlayComponent } from '../overlays/mod-question-overlay.component';
@@ -152,7 +153,7 @@ export class QuestionBankService extends AsyncHandler {
         this.deleteQuestion(q);
     }
 
-    public modQuestionOverlay(question?: Question) {
+    public modQuestionOverlay(question?: Question, isEdit?:boolean) {
         const ref = this._dialog.open(ModQuestionOverlayComponent, {
             data: question,
         });
@@ -163,7 +164,7 @@ export class QuestionBankService extends AsyncHandler {
                 .afterClosed()
                 .pipe(filter((result) => !!result))
                 .subscribe((result) => {
-                    this.saveQuestion(result);
+                    isEdit? this.editQuestion(result) : this.saveQuestion(result);
                 })
         );
     }
@@ -220,6 +221,24 @@ export class QuestionBankService extends AsyncHandler {
         }
     }
 
+    private async editQuestion(question: Question){
+        this.loading = 'Updating question...';
+        const res: Question = (await updateQuestion(`${question.id}`, translateToSurveyQuestion(question)).pipe(
+            first(),
+            map((res) => translateToQuestion(res)),
+            catchError((err) =>
+                this.handleError('Error updating question', null)
+            ),
+            finalize(() => (this.loading = ''))
+        ).toPromise()) as Question;
+        if(res?.id === question.id){
+            this.updateQuestionInStore(res);
+        }else{
+            this.addQuestionToStore(res);
+            this.markQuestionDeletedInStore(question.id);
+        }
+    }
+
     private handleError(msg: string, defaultReturn: any) {
         notifyError(msg);
         return defaultReturn;
@@ -236,5 +255,23 @@ export class QuestionBankService extends AsyncHandler {
         let qs = [...this.questions];
         qs.push(q);
         this.questions = qs;
+    }
+
+    private updateQuestionInStore(q: Question){
+        let qs = [...this.questions];
+        const idx = qs.findIndex(e =>  e.id === q.id);
+        if(idx > -1){
+            qs[idx] = q;
+            this.questions = qs;
+        }
+    }
+
+    private markQuestionDeletedInStore(qid: number){
+        let qs = [...this.questions];
+        const idx = qs.findIndex(e =>  e.id === qid);
+        if(idx > -1){
+            qs[idx].deleted = true;
+            this.questions = qs;
+        }
     }
 }
