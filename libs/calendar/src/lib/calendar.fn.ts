@@ -51,6 +51,13 @@ export function querySpaceCalendarAvailability(
     return queryCalendarAvailability(q).pipe(calendarsToSpaces(org));
 }
 
+export function queryUserFreeBusy(q: CalendarAvailabilityQueryParams) {
+    const query = toQueryString(q);
+    return get(
+        `${CALENDAR_ENDPOINT}/free_busy${query ? '?' + query : ''}`
+    ).pipe(map((i) => i.map((c) => new Calendar(c))));
+}
+
 /** List room calendars for available spaces based on the given query */
 export function querySpaceFreeBusy(
     q: CalendarAvailabilityQueryParams,
