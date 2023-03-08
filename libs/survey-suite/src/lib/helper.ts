@@ -8,6 +8,7 @@ export function generateNewQuestion(): Question{
         tags: [],
         type: QuestionType.Single_Line_Text,
         isRequired: false,
+        deleted:false
     };
 }
 
@@ -77,7 +78,8 @@ export function translateToQuestion(q: SurveyQuestion) {
         rateMax: q.max_rating,
         choices: q.choices || [],
         isRequired: q.required || false,
-        tags: q.tags || []
+        tags: q.tags || [],
+        deleted: q.deleted || false
     } as Question;
 }
 

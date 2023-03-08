@@ -153,7 +153,7 @@
                                         mat-icon-button
                                         (click)="onRemove(i)"
                                     >
-                                        <mat-icon>delete</mat-icon>
+                                        <mat-icon>{{q.deleted ? 'delete_forever' : 'delete'}}</mat-icon>
                                     </button>
                                 </div>
                             </div>

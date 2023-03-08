@@ -144,8 +144,8 @@ export class SurveyService {
             .toPromise() as Promise<Survey>;
     }
 
-    private getSurveyQuestions(survey_id: String) {
-        return queryQuestions()
+    private getSurveyQuestions(survey_id: string) {
+        return queryQuestions({survey_id})
             .pipe(
                 first(),
                 map((questions) =>

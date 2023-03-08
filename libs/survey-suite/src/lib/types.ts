@@ -67,11 +67,11 @@ export interface Question {
     title: string;
     description?: string;
     choices?: any[];
-    rateValues?: number[]; //To be removed
     tags?: string[];
     isRequired?: boolean;
     options?: any;
     rateMax?: number;
+    deleted: boolean;
 }
 
 export interface Choice{

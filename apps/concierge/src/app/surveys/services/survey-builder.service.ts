@@ -16,13 +16,15 @@ export class SurveyBuilderService {
         private bank: QuestionBankService,
         private _settings: SettingsService,
         private _dialog: MatDialog
-    ) {}
+    ) {
+    }
 
     public get selectedPage() {
         return this.survey?.pages[this.selectedPageIndex];
     }
 
-    public setUISurvey(survey: UISurveyObj) {
+    public async setUISurvey(survey: UISurveyObj) {
+        this.bank.resetTransaction();
         if (!survey) return;
         this.survey = survey;
         const { pages } = survey;
@@ -56,7 +58,8 @@ export class SurveyBuilderService {
         const details = await openConfirmModal(
             {
                 title: 'Confirm delete page',
-                content: `Are you sure you want to delete this page?`,
+                content: `Are you sure you want to delete this page?\n 
+                          All marked-for-deletion questions will also be removed.`,
                 icon: { class: 'material-icons', content: 'delete' },
             },
             this._dialog
@@ -66,9 +69,25 @@ export class SurveyBuilderService {
         this.removeSurveyPage(index);
     }
 
-    public removeQuestionFromSurvey(index: number) {
-        const q = this.selectedPage.elements.splice(index, 1);
-        this.bank.depositQuestions(q);
+    public async removeQuestionFromSurvey(index: number) {
+        const q = this.selectedPage.elements[index];
+        if(q?.deleted){
+            const details = await openConfirmModal(
+                {
+                    title: 'Question marked for deletion',
+                    content: `This question has been marked for deletion.\n 
+                                You will not be able to add this question back after removing it from the survey.\n 
+                                Are you sure you want to delete this question?`,
+                    icon: { class: 'material-icons', content: 'delete' },
+                },
+                this._dialog
+            );
+            
+            if (details.reason !== 'done') return;
+            details.close();
+        }
+        const target = this.selectedPage.elements.splice(index, 1);
+        this.bank.depositQuestions(target);
     }
 
     public onDropQuestionToSurvey(
