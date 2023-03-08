@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { addMinutes, format, formatDuration, getUnixTime } from 'date-fns';
 
 import { CalendarEvent } from './event.class';
@@ -11,6 +11,7 @@ import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
 import { notifyError, SettingsService } from '@placeos/common';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { getModule } from '@placeos/ts-client';
+import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-modal.component';
 
 @Component({
     selector: 'event-details-modal',
@@ -266,9 +267,10 @@ import { getModule } from '@placeos/ts-client';
                         </div>
                     </div>
                 </ng-container>
-                <div
+                <button
                     map
                     class="mt-4 sm:mt-2 h-64 sm:h-48 relative border border-gray-200 dark:border-neutral-500 overflow-hidden rounded sm:bg-white sm:dark:bg-neutral-700 m-2 flex-grow-[3] min-w-1/3 p-2 sm:w-[16rem]"
+                    (click)="viewLocation()"
                 >
                     <interactive-map
                         class="pointer-events-none"
@@ -276,7 +278,7 @@ import { getModule } from '@placeos/ts-client';
                         [features]="features"
                         [options]="{ disable_pan: true, disable_zoom: true }"
                     ></interactive-map>
-                </div>
+                </button>
                 <div
                     class="mt-4 sm:p-4 sm:bg-white sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-gray-200 dark:border-neutral-500 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
                 >
@@ -380,7 +382,8 @@ export class EventDetailsModalComponent {
         @Inject(MAT_DIALOG_DATA) private _event: CalendarEvent,
         private _org: OrganisationService,
         private _space_pipe: SpacePipe,
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _dialog: MatDialog
     ) {
         this._load().then();
     }
@@ -421,5 +424,13 @@ export class EventDetailsModalComponent {
                 content: MapPinComponent,
             },
         ];
+    }
+
+    public viewLocation() {
+        this._dialog.open(MapLocateModalComponent, {
+            maxWidth: '95vw',
+            maxHeight: '95vh',
+            data: { item: this.space },
+        });
     }
 }

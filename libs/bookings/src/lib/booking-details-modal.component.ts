@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { notifySuccess, SettingsService } from '@placeos/common';
-import { MapPinComponent } from '@placeos/components';
+import { MapLocateModalComponent, MapPinComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { addMinutes, format, formatDuration } from 'date-fns';
 import { Booking } from './booking.class';
@@ -164,9 +164,10 @@ import { checkinBooking } from './bookings.fn';
                         </div>
                     </div>
                 </div>
-                <div
+                <button
                     map
                     class="mt-4 sm:my-2 h-64 sm:h-48 relative border border-gray-200 dark:border-neutral-500 overflow-hidden rounded sm:bg-white m-2 flex-grow-[3] min-w-1/3 p-2 sm:w-[16rem]"
+                    (click)="viewLocation()"
                 >
                     <interactive-map
                         class="pointer-events-none"
@@ -174,7 +175,7 @@ import { checkinBooking } from './bookings.fn';
                         [features]="features"
                         [options]="{ disable_pan: true, disable_zoom: true }"
                     ></interactive-map>
-                </div>
+                </button>
             </div>
             <button
                 icon
@@ -241,18 +242,19 @@ export class BookingDetailsModalComponent {
         );
     }
 
-    public get is_in_progress(){
+    public get is_in_progress() {
         const ts = Date.now();
         const start = this.booking?.booking_start * 1000;
         const end = this.booking?.booking_end * 1000;
-        if(this.booking?.all_day) return start <= ts;
+        if (this.booking?.all_day) return start <= ts;
         return start <= ts && ts <= end;
     }
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _booking: Booking,
         private _settings: SettingsService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _dialog: MatDialog
     ) {}
 
     public get period() {
@@ -282,5 +284,20 @@ export class BookingDetailsModalComponent {
             }`
         );
         this.checking_in = false;
+    }
+
+    public viewLocation() {
+        this._dialog.open(MapLocateModalComponent, {
+            maxWidth: '95vw',
+            maxHeight: '95vh',
+            data: {
+                item: {
+                    id: this._booking.asset_id,
+                    name: this._booking.asset_name,
+                    map_id: this._booking.extension_data.map_id,
+                    level: this.level,
+                },
+            },
+        });
     }
 }

@@ -1,4 +1,4 @@
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
@@ -42,7 +42,7 @@ describe('EventDetailsModalComponent', () => {
             MockComponent(AttendeeListComponent),
             MockDirective(BindingDirective),
         ],
-        imports: [MockModule(MatMenuModule)],
+        imports: [MockModule(MatMenuModule), MockModule(MatDialogModule)],
     });
 
     beforeEach(() => (spectator = createComponent()));

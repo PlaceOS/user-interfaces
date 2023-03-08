@@ -1,4 +1,4 @@
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import {
@@ -28,7 +28,7 @@ describe('BookingDetailsModalComponent', () => {
             MockComponent(InteractiveMapComponent),
             MockComponent(IconComponent),
         ],
-        imports: [MockModule(MatMenuModule)],
+        imports: [MockModule(MatMenuModule), MockModule(MatDialogModule)],
     });
 
     beforeEach(() => (spectator = createComponent()));
@@ -38,7 +38,9 @@ describe('BookingDetailsModalComponent', () => {
 
     it('should show images', () => {
         expect('image-carousel').not.toExist();
-        (spectator.component as any).booking = new Booking({ extension_data: { images: [''] } });
+        (spectator.component as any).booking = new Booking({
+            extension_data: { images: [''] },
+        });
         spectator.detectChanges();
         expect('image-carousel').toExist();
     });
