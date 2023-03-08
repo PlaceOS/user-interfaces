@@ -81,13 +81,13 @@ import { PanelStateService } from './panel-state.service';
                 </p>
             </footer>
             <div hidden bindings>
-                <!-- <i
+                <i
                     binding
                     [sys]="system_id"
                     mod="Bookings"
                     bind="current"
                     (modelChange)="current = asCalendarEvent($event)"
-                ></i> -->
+                ></i>
                 <i
                     binding
                     [sys]="system_id"
