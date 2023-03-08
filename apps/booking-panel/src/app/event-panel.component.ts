@@ -23,7 +23,7 @@ import { PanelStateService } from './panel-state.service';
                     <p class="text-2xl">
                         {{ time | date: 'shortTime' }}
                     </p>
-                    <img [src]="logo?.src" class="h-10" />
+                    <img [src]="logo?.src | safe: 'resource'" class="h-10" />
                 </div>
             </header>
             <main
@@ -75,7 +75,7 @@ import { PanelStateService } from './panel-state.service';
             <footer
                 class="w-full landscape:hidden bg-white px-8 py-3 flex justify-between items-center"
             >
-                <img [src]="logo?.src" class="h-10" />
+                <img [src]="logo?.src | safe: 'resource'" class="h-10" />
                 <p class="text-2xl">
                     {{ time | date: 'shortTime' }}
                 </p>
