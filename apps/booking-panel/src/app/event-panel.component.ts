@@ -103,18 +103,8 @@ import { PanelStateService } from './panel-state.service';
 export class EventPanelComponent extends AsyncHandler {
     public system_id = '';
     public room_name: string | null = '';
-    public current: CalendarEvent | null = new CalendarEvent({
-        title: 'Test Event',
-        event_start: getUnixTime(startOfHour(Date.now())),
-        event_end: getUnixTime(endOfHour(Date.now())),
-        body: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed finibus in justo quis placerat. Cras eget metus fermentum, porta est a, volutpat massa. Praesent tempor arcu urna, a dapibus massa feugiat at. Curabitur non felis orci. Nullam sed nibh dolor. Mauris quis purus tempor, posuere erat vitae, lacinia eros. Sed massa nulla, efficitur eu iaculis eu, tincidunt a libero. Donec vitae felis et nisi accumsan iaculis. Fusce non rhoncus turpis. Nam fermentum viverra convallis. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam ut enim ligula. Etiam facilisis purus eu diam suscipit pretium. Quisque interdum, purus nec molestie imperdiet, lectus orci accumsan sem, eget fermentum lacus eros feugiat ex. Vivamus mattis arcu in justo viverra ullamcorper. Ut rhoncus porttitor risus, vitae vehicula leo finibus quis. `,
-    });
-    public next: CalendarEvent | null = new CalendarEvent({
-        title: 'Test Event 2',
-        event_start: getUnixTime(addHours(startOfHour(Date.now()), 2)),
-        event_end: getUnixTime(addHours(endOfHour(Date.now()), 2)),
-        body: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed finibus in justo quis placerat. Cras eget metus fermentum, porta est a, volutpat massa. Praesent tempor arcu urna, a dapibus massa feugiat at. Curabitur non felis orci. Nullam sed nibh dolor. Mauris quis purus tempor, posuere erat vitae, lacinia eros. Sed massa nulla, efficitur eu iaculis eu, tincidunt a libero. Donec vitae felis et nisi accumsan iaculis. Fusce non rhoncus turpis. Nam fermentum viverra convallis. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam ut enim ligula. Etiam facilisis purus eu diam suscipit pretium. Quisque interdum, purus nec molestie imperdiet, lectus orci accumsan sem, eget fermentum lacus eros feugiat ex. Vivamus mattis arcu in justo viverra ullamcorper. Ut rhoncus porttitor risus, vitae vehicula leo finibus quis. `,
-    });
+    public current: CalendarEvent | null = null;
+    public next: CalendarEvent | null = null;
     public readonly space_name = this._state.space.pipe(
         map((_) => _?.display_name || _?.name || '')
     );
