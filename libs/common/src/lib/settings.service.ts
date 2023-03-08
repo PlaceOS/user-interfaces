@@ -162,6 +162,22 @@ export class SettingsService extends AsyncHandler {
         this.timeout('save_settings', () => this._savePendingChanges(), 5000);
     }
 
+    public overrideCssVariable(
+        key: string,
+        value: string,
+        important: boolean = false
+    ) {
+        let element = document.getElementById(`css-var-overrides+${key}`);
+        if (!element) {
+            element = document.createElement('style');
+            element.id = `css-var-overrides+${key}`;
+            document.head.appendChild(element);
+        }
+        element.innerText = `html, body { --${key}: ${value} ${
+            important ? '!important' : ''
+        }}`;
+    }
+
     private _applyCssVariables() {
         const variable_map = this.get('app.css_variables') || {};
         let css_string = 'body { ';
@@ -202,11 +218,9 @@ export class SettingsService extends AsyncHandler {
     }
 
     private _setFontSize() {
+        console.error('Set Font Size');
         if (this.get('font_size')) {
-            document.body.parentElement.style.fontSize = `${this.get(
-                'font_size'
-            )}px`;
-            document.body.style.fontSize = `${this.get('font_size')}px`;
+            this.overrideCssVariable('font-size', `${this.get('font_size')}px`);
         }
     }
 

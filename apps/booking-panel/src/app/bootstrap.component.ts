@@ -144,6 +144,8 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         shareReplay()
     );
 
+    private _event = false;
+
     constructor(private route: ActivatedRoute, private _router: Router) {
         super();
     }
@@ -155,6 +157,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                 if (params.has('clear') && !!params.get('clear')) {
                     this.clearBootstrap();
                 }
+                if (params.has('event')) this._event = true;
                 if (params.has('system_id') || params.has('sys_id')) {
                     this.system_id$.next(
                         params.get('system_id') || params.get('sys_id')
@@ -180,9 +183,12 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         if (localStorage) {
             const system_id = localStorage.getItem('PLACEOS.BOOKINGS.system');
             if (system_id) {
-                this._router.navigate(['panel', system_id], {
-                    queryParamsHandling: 'preserve',
-                });
+                this._router.navigate(
+                    [this._event ? 'events' : 'panel', system_id],
+                    {
+                        queryParamsHandling: 'preserve',
+                    }
+                );
                 return;
             }
         }
@@ -200,7 +206,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
             localStorage.setItem('trust', 'true');
             localStorage.setItem('fixed_device', 'true');
         }
-        this._router.navigate(['panel', system_id], {
+        this._router.navigate([this._event ? 'events' : 'panel', system_id], {
             queryParamsHandling: 'preserve',
         });
         this.loading = '';

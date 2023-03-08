@@ -39,6 +39,7 @@ import { AppPanelViewModule } from './new-panel/panel-view.module';
 import { AppCheckinModule } from './checkin/checkin.module';
 import { PaymentsModule } from '@placeos/payments';
 import { AssetsModule } from '@placeos/assets';
+import { EventPanelComponent } from './event-panel.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -64,6 +65,7 @@ const MAT_MODULES: any[] = [
         PanelTimelineComponent,
         BookingPanelArrayComponent,
         BookingPanelSelectComponent,
+        EventPanelComponent,
     ],
     imports: [
         BrowserModule,
