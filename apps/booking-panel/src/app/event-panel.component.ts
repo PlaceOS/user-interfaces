@@ -23,19 +23,21 @@ import { PanelStateService } from './panel-state.service';
                     <p class="text-2xl">
                         {{ time | date: 'shortTime' }}
                     </p>
-                    <img [src]="logo?.src | safe: 'resource'" class="h-10" />
+                    <img
+                        [src]="logo?.src | safe: 'resource'"
+                        [alt]="logo?.alt"
+                        class="h-10"
+                    />
                 </div>
             </header>
             <main
-                class="w-full flex-1 h-1/2 overflow-hidden p-8 flex portrait:flex-col justify-between space-x-8 portrait:space-y-4 portrait:space-x-0"
+                class="w-full flex-1 h-1/2 overflow-hidden p-8 flex bg-cover portrait:flex-col justify-between space-x-8 portrait:space-y-4 portrait:space-x-0 relative"
                 [style.background-color]="background_color | safe"
                 [style.color]="text_color | safe"
+                [style.background-image]="
+                    'url(' + background_image + ')' | safe
+                "
             >
-                <img
-                    *ngIf="background_image"
-                    class="absolute min-w-full min-h-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-                    [src]="background_image | safe: 'resource'"
-                />
                 <div class="overflow-hidden">
                     <ng-container *ngIf="current; else current_empty_state">
                         <h2 class="text-2xl font-medium">
@@ -75,7 +77,11 @@ import { PanelStateService } from './panel-state.service';
             <footer
                 class="w-full landscape:hidden bg-white px-8 py-3 flex justify-between items-center"
             >
-                <img [src]="logo?.src | safe: 'resource'" class="h-10" />
+                <img
+                    [src]="logo?.src | safe: 'resource'"
+                    [alt]="logo?.alt"
+                    class="h-10"
+                />
                 <p class="text-2xl">
                     {{ time | date: 'shortTime' }}
                 </p>
