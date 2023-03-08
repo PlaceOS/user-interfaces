@@ -34,7 +34,7 @@ import { PanelStateService } from './panel-state.service';
                 <img
                     *ngIf="background_image"
                     class="absolute min-w-full min-h-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-                    [src]="background_image"
+                    [src]="background_image | safe: 'resource'"
                 />
                 <div class="overflow-hidden">
                     <ng-container *ngIf="current; else current_empty_state">
