@@ -7,9 +7,13 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { formatDuration } from 'date-fns';
+import { addMinutes, formatDuration } from 'date-fns';
 
-import * as dayjs from 'dayjs';
+export interface DurationOption {
+    id: number;
+    name: string;
+    date?: number;
+}
 
 @Component({
     selector: 'a-duration-field',
@@ -27,7 +31,11 @@ import * as dayjs from 'dayjs';
                         *ngFor="let option of duration_options"
                         [value]="option.id"
                     >
-                        {{ option.name }}
+                        {{
+                            option.date
+                                ? (option.date | date: 'h : mm a') + ' ('
+                                : ''
+                        }}{{ option.name }}{{ option.date ? ')' : '' }}
                     </mat-option>
                 </mat-select>
                 <mat-error><ng-content></ng-content></mat-error>
@@ -71,7 +79,7 @@ export class DurationFieldComponent
 
     public duration = 60;
     /** List of available duration options */
-    public duration_options: { id: number; name: string }[];
+    public duration_options: DurationOption[] = [];
 
     /** Form control on change handler */
     private _onChange: (_: number) => void;
@@ -144,42 +152,30 @@ export class DurationFieldComponent
     }
 
     private generateDurationOptions(max: number, min: number, step: number) {
-        const blocks: { id: number; name: string }[] = [];
+        const blocks: DurationOption[] = [];
         let time = min;
-        const date = this.time ? dayjs(this.time) : null;
+        const date = this.time ? this.time : null;
 
         // Add special cases
         for (const option of this.custom_options) {
             blocks.push({
                 id: option,
-                name: date
-                    ? `${date
-                          .add(option, 'm')
-                          .format('hh : mm A')} (${formatDuration({
-                          hours: Math.floor(option / 60),
-                          minutes: option % 60,
-                      })})`
-                    : `${formatDuration({
-                          hours: Math.floor(option / 60),
-                          minutes: option % 60,
-                      })}`,
+                date: date ? addMinutes(date, option).valueOf() : undefined,
+                name: `${formatDuration({
+                    hours: Math.floor(option / 60),
+                    minutes: option % 60,
+                })}`,
             });
         }
 
         while (time <= max) {
             blocks.push({
                 id: time,
-                name: date
-                    ? `${date
-                          .add(time, 'm')
-                          .format('hh : mm A')} (${formatDuration({
-                          hours: Math.floor(time / 60),
-                          minutes: time % 60,
-                      })})`
-                    : `${formatDuration({
-                          hours: Math.floor(time / 60),
-                          minutes: time % 60,
-                      })}`,
+                date: date ? addMinutes(date, time).valueOf() : undefined,
+                name: `${formatDuration({
+                    hours: Math.floor(time / 60),
+                    minutes: time % 60,
+                })}`,
             });
             time += step;
         }

@@ -25,32 +25,7 @@ import {
 @Component({
     selector: 'a-time-field',
     template: `
-        <mat-form-field
-            appearance="outline"
-            [style.display]="show_select ? 'none' : ''"
-            (keydown.enter)="showSelect()"
-        >
-            <input
-                matInput
-                type="time"
-                [disabled]="disabled"
-                [ngModel]="time"
-                (ngModelChange)="setValue($event)"
-            />
-            <button
-                icon
-                matRipple
-                matSuffix
-                class="relative top-1 -right-1"
-                (click)="showSelect()"
-            >
-                <app-icon class="text-2xl text-opacity-50">
-                    arrow_drop_down
-                </app-icon>
-            </button>
-            <mat-error><ng-content></ng-content></mat-error>
-        </mat-form-field>
-        <mat-form-field appearance="outline" *ngIf="show_select">
+        <mat-form-field appearance="outline">
             <mat-select
                 #select
                 [value]="time"
@@ -61,7 +36,7 @@ import {
                     *ngFor="let option of time_options"
                     [value]="option.id"
                 >
-                    {{ option.name }}
+                    {{ option.date | date: 'h : mm a' }}
                 </mat-option>
             </mat-select>
         </mat-form-field>
@@ -243,7 +218,7 @@ export class TimeFieldComponent
         // Add options for the rest of the day
         while (isAfter(end, date)) {
             blocks.push({
-                name: `${format(date, timeFormatString())}`,
+                date: date.valueOf(),
                 id: format(date, 'HH:mm'),
             });
             date = addMinutes(date, step);
