@@ -8,7 +8,7 @@ const general: any = {
         content: ``,
     },
     search: true,
-    dark_mode: true,
+    dark_mode: false,
 };
 /**
  * HELP/SUPPORT SETTINGS
