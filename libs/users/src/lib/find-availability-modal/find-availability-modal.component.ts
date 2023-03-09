@@ -204,7 +204,7 @@ export interface FindAvailabilityData {
     ],
 })
 export class FindAvailabilityModalComponent extends AsyncHandler {
-    public readonly users = new BehaviorSubject([...this._data.users]);
+    public readonly users = new BehaviorSubject([]);
     public search = '';
     public date = this._data.date || Date.now();
     public duration = this._data.duration || 60;
@@ -277,6 +277,7 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
         private _dialog_ref: MatDialogRef<FindAvailabilityModalComponent>
     ) {
         super();
+        this.users.next([...this._data.users]);
     }
 
     public addUser(user: User) {

@@ -38,7 +38,7 @@ import { FormGroup } from '@angular/forms';
                 *ngIf="form.controls.organisation"
             >
                 <label for="org" [class.error]="hasError('organisation')">
-                    Organisation<span>*</span>:
+                    {{ 'COMMON.ORGANISATION' | translate }}<span>*</span>:
                 </label>
                 <mat-form-field appearance="outline">
                     <input
