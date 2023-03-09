@@ -4,15 +4,13 @@ import {
     getModule,
     PlaceMetadata,
     PlaceVariableBinding,
-    querySystems,
     queryUsers,
     showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, forkJoin, of, zip } from 'rxjs';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     catchError,
-    combineAll,
     debounceTime,
     filter,
     first,

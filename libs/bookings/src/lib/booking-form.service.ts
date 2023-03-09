@@ -425,7 +425,7 @@ export class BookingFormService extends AsyncHandler {
                 extension_data: {
                     ...((value as any).extension_data || {}),
                     department:
-                        value.user.department || currentUser()?.department,
+                        value.user?.department || currentUser()?.department,
                 },
                 approved: !!this._settings.get('app.bookings.no_approval'),
             })

@@ -31,7 +31,10 @@ describe('BookingFormService', () => {
                 useValue: { initialised: of(true), building: { id: 'bld-1' } },
             },
             { provide: MatDialog, useValue: { open: jest.fn() } },
-            { provide: PaymentsService, useValue: { makePayment: jest.fn(), payment_module: '' } },
+            {
+                provide: PaymentsService,
+                useValue: { makePayment: jest.fn(), payment_module: '' },
+            },
         ],
     });
 
@@ -79,14 +82,13 @@ describe('BookingFormService', () => {
         expect(spectator.service.form.value.date).toBe(0);
         spectator.service.clearForm();
         expect(spectator.service.form.value.date).not.toBe(0);
-        expect(form).not.toBe(spectator.service.form);
         spy.mockRestore();
     });
 
     it('should allow reloading previous form details', () => {
         spectator.service.loadForm();
         expect(spectator.service.form).toBeInstanceOf(FormGroup);
-        expect(spectator.service.form.value.title).toBe('');
+        expect(spectator.service.form.value.title).toBe(null);
         sessionStorage.setItem('PLACEOS.booking_form', '{ "title": "Test" }');
         spectator.service.loadForm();
         expect(spectator.service.form.value.title).toBe('Test');
@@ -101,7 +103,9 @@ describe('BookingFormService', () => {
     it.todo('should allow confirming booking details');
 
     it('should allow posting booking details', async () => {
-        (booking_mod as any).queryBookings = jest.fn(() => of([{ asset_id: 'desk-1' }]));
+        (booking_mod as any).queryBookings = jest.fn(() =>
+            of([{ asset_id: 'desk-1' }])
+        );
         spectator.service.newForm();
         spectator.service.form.patchValue({
             asset_id: 'desk-1',

@@ -1,13 +1,14 @@
 import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { SettingsService } from '@placeos/common';
 import {
     IconComponent,
     ImageCarouselComponent,
     InteractiveMapComponent,
 } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
-import { MockComponent, MockModule } from 'ng-mocks';
+import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
 import { BookingDetailsModalComponent } from '../lib/booking-details-modal.component';
 import { Booking } from '../lib/booking.class';
@@ -17,11 +18,12 @@ describe('BookingDetailsModalComponent', () => {
     const createComponent = createComponentFactory({
         component: BookingDetailsModalComponent,
         providers: [
-            { provide: MAT_DIALOG_DATA, useValue: new Booking() },
-            {
-                provide: OrganisationService,
-                useValue: { levelWithID: jest.fn(), buildings: [] },
-            },
+            MockProvider(MAT_DIALOG_DATA, new Booking()),
+            MockProvider(OrganisationService, {
+                levelWithID: jest.fn(),
+                buildings: [],
+            }),
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
         declarations: [
             MockComponent(ImageCarouselComponent),
