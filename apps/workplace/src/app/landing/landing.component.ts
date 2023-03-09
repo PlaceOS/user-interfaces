@@ -79,6 +79,9 @@ import { startOfMinute } from 'date-fns';
                         <img src="assets/img/landing.svg" />
                     </div>
                 </header>
+                <landing-quick-links
+                    *ngIf="show_quick_links"
+                ></landing-quick-links>
                 <landing-availability></landing-availability>
                 <div
                     class="mx-4 w-[calc(100%-2rem)] h-px bg-gray-300 mb-2"
@@ -133,6 +136,10 @@ export class LandingComponent {
 
     public get hide_colleagues() {
         return this._settings.get('app.general.hide_colleagues');
+    }
+
+    public get show_quick_links() {
+        return this._settings.get('app.general.show_quick_links');
     }
 
     constructor(
