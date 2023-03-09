@@ -540,7 +540,7 @@ export class MeetingFlowFormComponent extends AsyncHandler {
             if (!d) return;
             this.form.patchValue({
                 date: ref.componentInstance.date,
-                attendees: ref.componentInstance.users,
+                attendees: ref.componentInstance.users.getValue(),
                 duration: ref.componentInstance.duration,
             });
         });

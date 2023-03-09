@@ -7,8 +7,26 @@ import {
 } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AsyncHandler } from '@placeos/common';
-import { addMinutes, isSameDay } from 'date-fns';
+import {
+    addMinutes,
+    differenceInMinutes,
+    endOfDay,
+    fromUnixTime,
+    getUnixTime,
+    isSameDay,
+    startOfDay,
+} from 'date-fns';
+import { queryUserFreeBusy } from 'libs/calendar/src/lib/calendar.fn';
+import { BehaviorSubject, of } from 'rxjs';
+import {
+    catchError,
+    debounceTime,
+    map,
+    shareReplay,
+    switchMap,
+} from 'rxjs/operators';
 import { User } from '../user.class';
+import { AvailabilityBlock } from './user-availability.component';
 
 export interface FindAvailabilityData {
     host: User;
@@ -85,7 +103,7 @@ export interface FindAvailabilityData {
                     <div
                         person
                         class="flex flex-col items-center justify-center h-32 w-[6rem] relative border-b border-gray-300 dark:border-neutral-500 py-2"
-                        *ngFor="let user of users"
+                        *ngFor="let user of users | async"
                     >
                         <a-user-avatar
                             class="text-2xl"
@@ -106,6 +124,7 @@ export interface FindAvailabilityData {
                         <user-availability-list
                             class="absolute top-0 -bottom-px left-full pointer-events-none"
                             [user]="user"
+                            [availability]="(availability | async)[user.email]"
                             [date]="date"
                             [offset]="offset"
                             [width]="width"
@@ -185,16 +204,52 @@ export interface FindAvailabilityData {
     ],
 })
 export class FindAvailabilityModalComponent extends AsyncHandler {
+    public readonly users = new BehaviorSubject([...this._data.users]);
     public search = '';
     public date = this._data.date || Date.now();
     public duration = this._data.duration || 60;
-    public users = [...this._data.users];
     public user?: User;
     public offset = 0;
     public width = 0;
 
     public readonly host = this._data.host;
     public readonly hours = new Array(24).fill(0);
+
+    public readonly availability = this.users.pipe(
+        debounceTime(300),
+        switchMap((users) => {
+            return queryUserFreeBusy({
+                calendars: users.map((_) => _.email).join(','),
+                period_start: getUnixTime(startOfDay(this.date)),
+                period_end: getUnixTime(endOfDay(this.date)),
+            }).pipe(catchError(() => of([])));
+        }),
+        map((availability_list) => {
+            const availability_map: Record<string, AvailabilityBlock[]> = {};
+            for (const item of availability_list) {
+                availability_map[item.id] = item.availability
+                    .filter((_) => _.status === 'busy')
+                    .map((block) => {
+                        const date = fromUnixTime(block.starts_at);
+                        const duration = differenceInMinutes(
+                            fromUnixTime(block.starts_at),
+                            fromUnixTime(block.ends_at)
+                        );
+                        return {
+                            date,
+                            duration,
+                            start:
+                                ((date.getHours() + date.getMinutes() / 60) /
+                                    24) *
+                                100,
+                            size: (duration / 60 / 24) * 100,
+                        };
+                    });
+            }
+            return availability_map;
+        }),
+        shareReplay(1)
+    );
 
     @ViewChild('container', { static: true })
     private _container_el!: ElementRef<HTMLDivElement>;
@@ -225,15 +280,17 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
     }
 
     public addUser(user: User) {
-        this.users = [
-            ...this.users.filter((u) => u.email !== user.email),
+        this.users.next([
+            ...this.users.getValue().filter((u) => u.email !== user.email),
             user,
-        ];
+        ]);
         this.user = null;
     }
 
     public removeUser(user: User) {
-        this.users = this.users.filter((u) => u.email !== user.email);
+        this.users.next(
+            this.users.getValue().filter((u) => u.email !== user.email)
+        );
         this.user = null;
     }
 
