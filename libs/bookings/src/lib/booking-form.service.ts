@@ -48,7 +48,7 @@ export type BookingFlowView = 'form' | 'map' | 'confirm' | 'success';
 const BOOKING_URLS = [
     'book/desks',
     'book/parking',
-    'book/newdesk',
+    'book/new-desks',
     'book/new-parking',
 ];
 
@@ -279,7 +279,7 @@ export class BookingFormService extends AsyncHandler {
 
     public resetForm() {
         const booking = this._booking.getValue();
-        this.form.reset;
+        this.form.reset();
         this.form.patchValue({
             ...(booking || {}),
             ...(booking?.extension_data || {}),
@@ -307,6 +307,7 @@ export class BookingFormService extends AsyncHandler {
     public loadForm() {
         this.form.reset();
         this.form.patchValue({
+            ...new Booking(),
             ...JSON.parse(
                 sessionStorage.getItem('PLACEOS.booking_form') || '{}'
             ),

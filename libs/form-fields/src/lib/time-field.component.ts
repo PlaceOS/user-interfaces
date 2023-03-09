@@ -71,7 +71,7 @@ export class TimeFieldComponent
     /** String representing the currently set time */
     public time: string = format(new Date(), 'HH:mm');
     /** Available time blocks for the selected date */
-    public _time_options: Identity[];
+    public _time_options: any[];
     /** Whether select field should be shown */
     public show_select: boolean;
     /** Form control on change handler */
@@ -113,7 +113,7 @@ export class TimeFieldComponent
             )
         ) {
             this._time_options.push({
-                name: `${format(date, timeFormatString())}`,
+                date,
                 id: format(date, 'HH:mm'),
             });
             this._time_options.sort((a, b) =>

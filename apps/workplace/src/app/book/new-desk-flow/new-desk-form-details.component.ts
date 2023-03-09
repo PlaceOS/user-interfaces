@@ -264,7 +264,7 @@ export class NewDeskFormDetailsComponent extends AsyncHandler {
             this._state.form
                 .get('resources')
                 ?.valueChanges?.subscribe((list) =>
-                    this.setBookingAsset(list[0])
+                    list?.length ? this.setBookingAsset(list[0]) : ''
                 )
         );
     }

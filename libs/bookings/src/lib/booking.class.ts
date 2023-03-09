@@ -121,7 +121,7 @@ export class Booking {
             );
         this.booking_type = data.booking_type || '';
         this.type = data.type || data.booking_type || 'booking';
-        this.date = data.date || this.booking_start * 1000;
+        this.date = data.date || this.booking_start * 1000 || Date.now();
         this.duration =
             data.duration ||
             Math.abs(
@@ -129,7 +129,8 @@ export class Booking {
                     this.booking_start * 1000,
                     this.booking_end * 1000
                 )
-            );
+            ) ||
+            60;
         this.timezone =
             data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.user_email = data.user_email || '';
@@ -195,8 +196,8 @@ export class Booking {
             : addMinutes(this.date, this.duration);
         const checked_out = (this.extension_data['checked_out_at'] || 0) * 1000;
         let end_time = end.getTime();
-        if(this.date <= checked_out && checked_out <= end_time){
-            end_time = Math.min(checked_out,end_time);
+        if (this.date <= checked_out && checked_out <= end_time) {
+            end_time = Math.min(checked_out, end_time);
         }
         return isAfter(start, new Date(end_time));
     }

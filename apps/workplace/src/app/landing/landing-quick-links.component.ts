@@ -27,7 +27,7 @@ import { SettingsService } from '@placeos/common';
             <a
                 matRipple
                 class="w-64 p-2 rounded shadow border border-gray-200 flex items-center space-x-4 bg-white"
-                [routerLink]="['/book', 'newdesk']"
+                [routerLink]="['/book', 'new-desks']"
                 *ngIf="features.includes('desks')"
             >
                 <div

@@ -41,7 +41,9 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     matRipple
                     name="footer-nav-desks"
                     [routerLink]="
-                        new_features ? ['/book', 'newdesk'] : ['/book', 'desks']
+                        new_features
+                            ? ['/book', 'new-desks']
+                            : ['/book', 'desks']
                     "
                     routerLinkActive="active"
                     *ngIf="features.includes('desks')"

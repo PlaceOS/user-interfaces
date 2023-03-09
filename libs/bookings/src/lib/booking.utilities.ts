@@ -2,7 +2,12 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { currentUser } from '@placeos/common';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
 import { endInFuture } from 'libs/events/src/lib/validators';
-import { createViewer, getViewer, Point, removeViewer } from '@placeos/svg-viewer';
+import {
+    createViewer,
+    getViewer,
+    Point,
+    removeViewer,
+} from '@placeos/svg-viewer';
 import { Booking } from './booking.class';
 
 export function generateBookingForm(booking: Booking = new Booking()) {
@@ -10,7 +15,9 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         id: new FormControl(booking.id || ''),
         date: new FormControl(booking.date, [Validators.required]),
         all_day: new FormControl(booking.all_day ?? false),
-        name: new FormControl(booking.extension_data.name || booking.asset_name || ''),
+        name: new FormControl(
+            booking.extension_data.name || booking.asset_name || ''
+        ),
         duration: new FormControl(booking.duration, [endInFuture]),
         booking_type: new FormControl(booking.booking_type),
         zones: new FormControl(booking.zones),
@@ -30,7 +37,10 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         booked_by: new FormControl(currentUser()),
         booked_by_id: new FormControl(booking.booked_by_id),
         booked_by_email: new FormControl(booking.booked_by_email),
-        secondary_resource: new FormControl(booking.extension_data?.other_asset_type || booking.extension_data?.secondary_resource),
+        secondary_resource: new FormControl(
+            booking.extension_data?.other_asset_type ||
+                booking.extension_data?.secondary_resource
+        ),
     });
     form.valueChanges.subscribe((v) => {
         const user = v.user;
@@ -54,7 +64,11 @@ export function generateBookingForm(booking: Booking = new Booking()) {
     return form;
 }
 
-export async function findNearbyFeature(map_url: string, centered_at: Point | string, desk_ids: string[] = []): Promise<string> {
+export async function findNearbyFeature(
+    map_url: string,
+    centered_at: Point | string,
+    desk_ids: string[] = []
+): Promise<string> {
     const element = document.createElement('div');
     element.style.position = 'absolute';
     element.style.top = '-9999px';
@@ -63,15 +77,19 @@ export async function findNearbyFeature(map_url: string, centered_at: Point | st
     document.body.appendChild(element);
     const id = await createViewer({
         url: map_url,
-        element
+        element,
     });
     const viewer = getViewer(id);
-    const point = (typeof centered_at === 'string' ? viewer.mappings[centered_at] : centered_at) || { x: .5, y: .5 };
+    const point = (typeof centered_at === 'string'
+        ? viewer.mappings[centered_at]
+        : centered_at) || { x: 0.5, y: 0.5 };
     let dist = 10;
     let closest = '';
     for (const desk of desk_ids) {
         const { x, y } = viewer.mappings[desk] || { x: 2, y: 2 };
-        const d = Math.sqrt((x - point.x) * (x - point.x) + (y - point.y) * (y - point.y));
+        const d = Math.sqrt(
+            (x - point.x) * (x - point.x) + (y - point.y) * (y - point.y)
+        );
         if (d < dist) {
             dist = d;
             closest = desk;
@@ -91,7 +109,7 @@ export function newBookingFromCalendarEvent(event: CalendarEvent) {
         booking_type: 'room',
         approved: event.status === 'approved',
         extension_data: {
-            ...event
-        }
+            ...event,
+        },
     });
 }

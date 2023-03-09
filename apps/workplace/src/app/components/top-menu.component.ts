@@ -67,7 +67,7 @@ import { OrganisationService } from '@placeos/organisation';
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('desks')"
                 [routerLink]="
-                    new_features ? ['/book', 'newdesk'] : ['/book', 'desks']
+                    new_features ? ['/book', 'new-desks'] : ['/book', 'desks']
                 "
                 routerLinkActive="text-primary active"
                 matTooltip="Book Desk"

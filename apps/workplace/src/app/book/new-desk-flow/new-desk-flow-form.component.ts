@@ -44,7 +44,6 @@ import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';
                         confirm
                         class="w-full sm:w-auto"
                         (click)="viewConfirm()"
-                        [disabled]="!form.valid"
                         i18n
                     >
                         Confirm Desk
@@ -79,7 +78,7 @@ export class NewDeskFlowFormComponent implements OnInit {
         this.sheet_ref.instance.show_close = true;
         this.sheet_ref.afterDismissed().subscribe((value) => {
             if (value) {
-                this._router.navigate(['/book', 'newdesk', 'success']);
+                this._router.navigate(['/book', 'new-desks', 'success']);
                 this._state.setView('success');
             }
         });
