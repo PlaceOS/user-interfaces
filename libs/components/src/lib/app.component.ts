@@ -187,6 +187,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
 
     private onInitError() {
         if (isMock() || currentUser()?.is_logged_in) return;
+
         invalidateToken();
         location.reload();
     }
