@@ -11,6 +11,7 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { isBefore, startOfMinute } from 'date-fns';
 import { first } from 'rxjs/operators';
 import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';
 
@@ -100,11 +101,8 @@ export class NewDeskFlowFormComponent implements OnInit {
             { id: this._org.building?.id, name: 'Any Level' },
             ...this._org.levelsForBuilding(this._org.building),
         ];
+        if (isBefore(this.form.value.date, Date.now())) {
+            this.form.patchValue({ date: startOfMinute(Date.now()).valueOf() });
+        }
     }
-
-    // public findDesk() {
-    //     this.form.markAllAsTouched();
-    //     if (!this.form.valid) return;
-    //     this._router.navigate(['/book', 'desks', 'map']);
-    // }
 }
