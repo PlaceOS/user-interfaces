@@ -106,7 +106,7 @@ export class Booking {
             '';
         this.zones = data.zones || [];
         this.booking_start =
-            data.date / 1000 ||
+            Math.floor(data.date / 1000) ||
             data.booking_start ||
             getUnixTime(
                 roundToNearestMinutes(addMinutes(Date.now(), 5), {
@@ -114,7 +114,7 @@ export class Booking {
                 })
             );
         this.booking_end =
-            data.date / 1000 + data.duration * 60 ||
+            Math.floor(data.date / 1000) + data.duration * 60 ||
             data.booking_end ||
             getUnixTime(
                 addMinutes(this.booking_start * 1000, data.duration || 60)
