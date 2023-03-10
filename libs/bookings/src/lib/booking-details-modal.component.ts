@@ -170,6 +170,7 @@ import { checkinBooking } from './bookings.fn';
                     (click)="viewLocation()"
                 >
                     <interactive-map
+                        *ngIf="!hide_map"
                         class="pointer-events-none"
                         [src]="level?.map_id"
                         [features]="features"
@@ -218,6 +219,7 @@ export class BookingDetailsModalComponent {
     @Output() public remove = new EventEmitter();
     @Output() public end = new EventEmitter();
     public readonly booking = this._booking;
+    public hide_map = false;
     public checking_in = false;
     public readonly features = [
         {
@@ -287,7 +289,8 @@ export class BookingDetailsModalComponent {
     }
 
     public viewLocation() {
-        this._dialog.open(MapLocateModalComponent, {
+        this.hide_map = true;
+        const ref = this._dialog.open(MapLocateModalComponent, {
             maxWidth: '95vw',
             maxHeight: '95vh',
             data: {
@@ -299,5 +302,6 @@ export class BookingDetailsModalComponent {
                 },
             },
         });
+        ref.afterClosed().subscribe(() => (this.hide_map = false));
     }
 }

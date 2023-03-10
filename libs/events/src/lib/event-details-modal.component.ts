@@ -273,6 +273,7 @@ import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-moda
                     (click)="viewLocation()"
                 >
                     <interactive-map
+                        *ngIf="!hide_map"
                         class="pointer-events-none"
                         [src]="level?.map_id"
                         [features]="features"
@@ -341,6 +342,7 @@ export class EventDetailsModalComponent {
     @Output() public remove = new EventEmitter();
 
     public room_status = '';
+    public hide_map = false;
     public show_attendees: boolean = false;
     public readonly event = this._event;
     public features = [
@@ -427,10 +429,12 @@ export class EventDetailsModalComponent {
     }
 
     public viewLocation() {
-        this._dialog.open(MapLocateModalComponent, {
+        this.hide_map = true;
+        const ref = this._dialog.open(MapLocateModalComponent, {
             maxWidth: '95vw',
             maxHeight: '95vh',
             data: { item: this.space },
         });
+        ref.afterClosed().subscribe(() => (this.hide_map = false));
     }
 }
