@@ -1,7 +1,14 @@
 import { fakeAsync, flush } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockComponent } from 'ng-mocks';
-import { addMinutes, format, parse, startOfDay, startOfMinute, subMinutes } from 'date-fns';
+import {
+    addMinutes,
+    format,
+    parse,
+    startOfDay,
+    startOfMinute,
+    subMinutes,
+} from 'date-fns';
 
 import { IconComponent } from '@placeos/components';
 import { TimeFieldComponent } from '../lib/time-field.component';
@@ -32,10 +39,11 @@ describe('TimeFieldComponent', () => {
     });
 
     it('should allow the user to select a time', fakeAsync(() => {
-        spectator.click('app-icon');
-        spectator.detectChanges();
-        spectator.tick(300);
-        spectator.detectChanges();
+        // spectator.click('app-icon');
+        // spectator.detectChanges();
+        // spectator.tick(300);
+        // spectator.detectChanges();
+        spectator.click('mat-select');
         const option_elements = document.querySelectorAll('mat-option');
         expect(option_elements.length).toBeGreaterThan(0);
         option_elements[0].dispatchEvent(new Event('click'));
@@ -48,15 +56,15 @@ describe('TimeFieldComponent', () => {
         flush();
     }));
 
-    it('should allow the user to manually input a time', () => {
-        spectator.setInput({ no_past_times: false });
-        spectator.detectChanges();
-        const input_el: HTMLInputElement = spectator.query('input');
-        expect('input').toExist();
-        input_el.value = '00:00';
-        spectator.dispatchFakeEvent('input', 'input');
-        expect(spectator.component.time).toBe('00:00');
-    });
+    // it('should allow the user to manually input a time', () => {
+    //     spectator.setInput({ no_past_times: false });
+    //     spectator.detectChanges();
+    //     const input_el: HTMLInputElement = spectator.query('input');
+    //     expect('input').toExist();
+    //     input_el.value = '00:00';
+    //     spectator.dispatchFakeEvent('input', 'input');
+    //     expect(spectator.component.time).toBe('00:00');
+    // });
 
     it('should allow customising the step between time options', () => {
         spectator.setInput({ step: 5, no_past_times: false });

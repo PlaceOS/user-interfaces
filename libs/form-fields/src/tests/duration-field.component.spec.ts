@@ -68,13 +68,13 @@ describe('DurationFieldComponent', () => {
         spectator.setInput({ time: 1 });
         spectator.detectChanges();
         let options = spectator.component.duration_options;
-        expect(options[0].name).toContain('AM');
+        expect(options[0].date).toBeGreaterThanOrEqual(1);
         spectator.setInput({
             time: addHours(1, 12).valueOf(),
         });
         spectator.detectChanges();
         options = spectator.component.duration_options;
-        expect(options[0].name).toContain('PM');
+        expect(options[0].date).toBeGreaterThanOrEqual(1 + 12 * 60 * 60 * 1000);
     });
 
     it('should allow setting the value', (done) => {

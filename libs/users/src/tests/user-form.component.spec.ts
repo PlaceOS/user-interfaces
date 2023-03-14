@@ -3,6 +3,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { TranslateModule } from '@ngx-translate/core';
+import { MockModule } from 'ng-mocks';
 
 import { UserFormComponent } from '../lib/user-form.component';
 import { User } from '../lib/user.class';
@@ -17,6 +19,7 @@ describe('', () => {
             MatInputModule,
             MatCheckboxModule,
             ReactiveFormsModule,
+            MockModule(TranslateModule),
         ],
     });
 

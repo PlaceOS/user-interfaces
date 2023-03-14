@@ -88,7 +88,7 @@ describe('BookingFormService', () => {
     it('should allow reloading previous form details', () => {
         spectator.service.loadForm();
         expect(spectator.service.form).toBeInstanceOf(FormGroup);
-        expect(spectator.service.form.value.title).toBe(null);
+        expect(spectator.service.form.value.title).toBe('');
         sessionStorage.setItem('PLACEOS.booking_form', '{ "title": "Test" }');
         spectator.service.loadForm();
         expect(spectator.service.form.value.title).toBe('Test');
