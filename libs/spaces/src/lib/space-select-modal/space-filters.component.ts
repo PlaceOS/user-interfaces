@@ -136,18 +136,24 @@ import { SpacesService } from '../spaces.service';
                 *ngIf="(features | async)?.length"
             >
                 <h2 class="text-lg font-medium" i18n>Facilities</h2>
-                <div
-                    class="flex items-center"
-                    *ngFor="let feat of features | async"
-                >
-                    <div for="feat" class="flex-1 w-1/2">{{ feat }}</div>
-                    <mat-checkbox
-                        name="feat"
-                        [ngModel]="(options | async)?.features?.includes(feat)"
-                        (ngModelChange)="toggleFeature(feat, $event)"
-                        [ngModelOptions]="{ standalone: true }"
-                    ></mat-checkbox>
-                </div>
+                <ng-container *ngFor="let feat of features | async">
+                    <div
+                        class="flex items-center"
+                        *ngIf="!hide_features.includes(feat)"
+                    >
+                        <div for="feat" class="flex-1 w-1/2">
+                            {{ feature_display[feat] || feat }}
+                        </div>
+                        <mat-checkbox
+                            name="feat"
+                            [ngModel]="
+                                (options | async)?.features?.includes(feat)
+                            "
+                            (ngModelChange)="toggleFeature(feat, $event)"
+                            [ngModelOptions]="{ standalone: true }"
+                        ></mat-checkbox>
+                    </div>
+                </ng-container>
             </section>
         </form>
         <div
@@ -206,6 +212,14 @@ export class SpaceFiltersComponent {
 
     public get max_duration() {
         return this._settings.get('app.events.max_duration') || 480;
+    }
+
+    public get feature_display() {
+        return this._settings.get('app.events.feature_decriptions') || {};
+    }
+
+    public get hide_features() {
+        return this._settings.get('app.events.hide_features') || [];
     }
 
     public get end_date() {
