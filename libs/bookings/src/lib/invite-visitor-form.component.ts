@@ -216,6 +216,7 @@ import { User } from '@placeos/users';
                         class="mx-auto flex items-center space-x-2 w-full max-w-[32rem]"
                     >
                         <button
+                            btn
                             matRipple
                             class="flex-1"
                             (click)="onDone()"
@@ -224,6 +225,7 @@ import { User } from '@placeos/users';
                             Great, thanks
                         </button>
                         <button
+                            btn
                             matRipple
                             class="flex-1"
                             (click)="sent = false"
@@ -310,7 +312,7 @@ export class InviteVisitorFormComponent extends AsyncHandler {
     }
 
     public filterVisitors(filter: string) {
-        const s = filter.toLowerCase();
+        const s = (filter || '').toLowerCase();
         this.filtered_visitors = this.visitors.filter(
             ({ email, name, company }) =>
                 email.toLowerCase().includes(s) ||

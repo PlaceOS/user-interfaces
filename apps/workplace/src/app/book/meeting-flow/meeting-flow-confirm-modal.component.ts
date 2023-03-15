@@ -39,7 +39,9 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     >
                         <app-icon>done</app-icon>
                     </div>
-                    <h3 class="text-xl !mt-0">{{ event.title }}</h3>
+                    <h3 class="text-xl !mt-0">
+                        {{ event.title || 'Meeting Details' }}
+                    </h3>
                     <div class="flex items-center space-x-2">
                         <app-icon>today</app-icon>
                         <div date>{{ event.date | date: 'fullDate' }}</div>
@@ -70,7 +72,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     <h3 class="text-xl !mt-0" i18n>Booked Room</h3>
                     <ng-container *ngFor="let s of event.resources">
                         <div class="flex items-center space-x-2">
-                            <app-icon>meeting_room</app-icon>
+                            <app-icon>layers</app-icon>
                             <div>
                                 {{ level?.display_name || level?.name }},
                                 {{ s.display_name || s.name }}
@@ -99,8 +101,10 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 <div attendee-list>
                     <mat-chip-list #chipList aria-label="User selection">
                         <mat-chip *ngFor="let user of event.attendees">
-                            <app-icon class="mr-2">business</app-icon>
-                            {{ user.name || user.email }}
+                            <div class="flex items-center">
+                                <app-icon class="mr-2">business</app-icon>
+                                {{ user.name || user.email }}
+                            </div>
                         </mat-chip>
                     </mat-chip-list>
                 </div>

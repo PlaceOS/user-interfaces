@@ -25,7 +25,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
         <section period class="flex space-x-1 px-2">
             <app-icon class="text-success mt-1">done</app-icon>
             <div details class="leading-6">
-                <h3>{{ event.title || '~Untitled~' }}</h3>
+                <h3>{{ event.title || 'Meeting Details' }}</h3>
                 <div class="flex items-center space-x-2">
                     <app-icon>today</app-icon>
                     <div date>{{ event.date | date: 'fullDate' }}</div>
@@ -59,8 +59,10 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 <div attendee-list>
                     <mat-chip-list #chipList aria-label="User selection">
                         <mat-chip *ngFor="let user of event.attendees">
-                            <app-icon class="mr-2">business</app-icon>
-                            {{ user.name || user.email }}
+                            <div class="flex items-center">
+                                <app-icon class="mr-2">business</app-icon>
+                                {{ user.name || user.email }}
+                            </div>
                         </mat-chip>
                     </mat-chip-list>
                 </div>
