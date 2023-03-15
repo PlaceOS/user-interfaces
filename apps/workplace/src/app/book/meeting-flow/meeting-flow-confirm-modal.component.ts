@@ -262,6 +262,7 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
                 this._dialog
             );
             if (result.reason !== 'done') return;
+            result.close();
         }
         const resp = await this._event_form.postForm().catch((_) => {
             notifyError(_);
