@@ -41,7 +41,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     </div>
                     <h3 class="text-xl !mt-0">{{ event.title }}</h3>
                     <div class="flex items-center space-x-2">
-                        <app-icon>calendar_today</app-icon>
+                        <app-icon>today</app-icon>
                         <div date>{{ event.date | date: 'fullDate' }}</div>
                     </div>
                     <div class="flex items-center space-x-2">

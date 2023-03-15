@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
+import { addMinutes, roundToNearestMinutes } from 'date-fns';
 
 @Component({
     selector: 'new-desk-form-details',

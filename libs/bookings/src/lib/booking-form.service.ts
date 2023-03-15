@@ -11,8 +11,14 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
-import { listChildMetadata, PlaceZone } from '@placeos/ts-client';
-import { format, getUnixTime, addMinutes, set } from 'date-fns';
+import { cleanObject, listChildMetadata, PlaceZone } from '@placeos/ts-client';
+import {
+    format,
+    getUnixTime,
+    addMinutes,
+    set,
+    roundToNearestMinutes,
+} from 'date-fns';
 import {
     BehaviorSubject,
     combineLatest,
@@ -224,7 +230,15 @@ export class BookingFormService extends AsyncHandler {
 
     public newForm(booking: Booking = new Booking()) {
         this.form.reset();
-        this.form.patchValue({ ...booking, ...booking.extension_data });
+        this.form.patchValue(
+            cleanObject(
+                {
+                    ...booking,
+                    ...booking.extension_data,
+                },
+                [null, undefined, '']
+            )
+        );
         this.subscription(
             'form_change',
             this.form.valueChanges.subscribe(() => this.storeForm())
@@ -280,10 +294,15 @@ export class BookingFormService extends AsyncHandler {
     public resetForm() {
         const booking = this._booking.getValue();
         this.form.reset();
-        this.form.patchValue({
-            ...(booking || {}),
-            ...(booking?.extension_data || {}),
-        });
+        this.form.patchValue(
+            cleanObject(
+                {
+                    ...(booking || {}),
+                    ...(booking?.extension_data || {}),
+                },
+                [null, undefined, '']
+            )
+        );
         this._options.next({ type: this._options.getValue().type });
     }
 
@@ -306,12 +325,23 @@ export class BookingFormService extends AsyncHandler {
 
     public loadForm() {
         this.form.reset();
-        this.form.patchValue({
-            ...new Booking(),
-            ...JSON.parse(
-                sessionStorage.getItem('PLACEOS.booking_form') || '{}'
-            ),
-        });
+        this._booking.next(
+            new Booking(
+                JSON.parse(
+                    sessionStorage.getItem('PLACEOS.booking_form') || '{}'
+                )
+            )
+        );
+        const booking = this._booking.getValue();
+        this.form.patchValue(
+            cleanObject(
+                {
+                    ...(booking || {}),
+                    ...(booking?.extension_data || {}),
+                },
+                [null, undefined, '']
+            )
+        );
         this.setOptions({
             zone_id: this._org.building?.id,
             ...JSON.parse(

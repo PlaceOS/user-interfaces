@@ -109,7 +109,9 @@ import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-moda
                             btn
                             matRipple
                             class="flex-1 h-10"
-                            *ngIf="event.can_check_in && room_status !== 'free'"
+                            *ngIf="
+                                event?.can_check_in && room_status !== 'free'
+                            "
                             [class.bg-green-600]="room_status !== 'pending'"
                             [class.border-none]="room_status !== 'pending'"
                             [class.pointer-events-none]="

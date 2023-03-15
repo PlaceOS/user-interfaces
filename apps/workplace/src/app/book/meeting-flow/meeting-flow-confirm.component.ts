@@ -27,7 +27,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             <div details class="leading-6">
                 <h3>{{ event.title || '~Untitled~' }}</h3>
                 <div class="flex items-center space-x-2">
-                    <app-icon>calendar_today</app-icon>
+                    <app-icon>today</app-icon>
                     <div date>{{ event.date | date: 'fullDate' }}</div>
                 </div>
                 <div class="flex items-center space-x-2">

@@ -25,7 +25,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     <div
                         class="h-10 w-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-neutral-800 text-2xl"
                     >
-                        <app-icon>meeting_room</app-icon>
+                        <app-icon>place</app-icon>
                     </div>
                     <div class="flex-1">
                         <div class="">{{ 'WPA.ROOM' | translate }}</div>
