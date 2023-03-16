@@ -176,6 +176,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
                     this.locateUser(
                         user instanceof Array ? user[0] : user
                     ).catch((_) => {
+                        console.error(_);
                         notifyError(`Unable to locate ${params.get('user')}`);
                         this._router.navigate([], {
                             relativeTo: this._route,
