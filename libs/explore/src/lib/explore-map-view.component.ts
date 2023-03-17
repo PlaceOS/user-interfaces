@@ -248,6 +248,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
             locate_details = {
                 system_id: locate_details,
                 module: 'LocationServices',
+                priority: [],
             };
         }
         const mod = getModule(locate_details.system_id, locate_details.module);
