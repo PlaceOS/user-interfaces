@@ -44,7 +44,7 @@ import { FormGroup } from '@angular/forms';
                     <input
                         matInput
                         name="org"
-                        placeholder="Org"
+                        placeholder="e.g. Conteso"
                         formControlName="organisation"
                     />
                     <mat-error>
