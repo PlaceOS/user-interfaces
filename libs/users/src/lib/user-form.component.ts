@@ -44,10 +44,12 @@ import { FormGroup } from '@angular/forms';
                     <input
                         matInput
                         name="org"
-                        placeholder="Organisation"
+                        placeholder="Org"
                         formControlName="organisation"
                     />
-                    <mat-error>Organisation is required</mat-error>
+                    <mat-error>
+                        {{ 'COMMON.ORGANISATION' | translate }} is required
+                    </mat-error>
                 </mat-form-field>
             </div>
             <div class="flex flex-col w-full" *ngIf="form.controls.phone">
