@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1679353543138,
+  "timestamp": 1679451506730,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -30,10 +30,6 @@
         "ignoreVary": true
       },
       "urls": [
-        "./MaterialIcons-Regular.ttf",
-        "./MaterialIconsOutlined-Regular.otf",
-        "./assets/fonts/MaterialIcons-Regular.ttf",
-        "./assets/fonts/MaterialIconsOutlined-Regular.otf",
         "./assets/icons/amex.svg",
         "./assets/icons/building-filled.svg",
         "./assets/icons/building-outline.svg",
@@ -96,17 +92,21 @@
         "./assets/support/safari-logo.svg",
         "./assets/template.csv",
         "./assets/tick.svg",
-        "./assets/tick_success.svg"
+        "./assets/tick_success.svg",
+        "./material-icons-outlined.woff2",
+        "./material-icons-round.woff2",
+        "./material-icons-sharp.woff2",
+        "./material-icons-two-tone.woff2",
+        "./material-icons.woff2",
+        "./material-symbols-outlined.woff2",
+        "./material-symbols-rounded.woff2",
+        "./material-symbols-sharp.woff2"
       ],
       "patterns": []
     }
   ],
   "dataGroups": [],
   "hashTable": {
-    "./MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
-    "./MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
-    "./assets/fonts/MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
-    "./assets/fonts/MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
     "./assets/icons/amex.svg": "3530eff717af33317b79bdd1d0ec96abfa884287",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
     "./assets/icons/building-outline.svg": "a5b27618ef63cc4fc16d334b480eef238b5a9d31",
@@ -172,11 +172,19 @@
     "./assets/tick_success.svg": "84c88546933b8055d960b3194eca112f05ae685f",
     "./favicon.ico": "4e23d0f9b6ddaf3c9ddef90dbaed2342941297b5",
     "./index.html": "c99370f70fad8ce6d0ed910875975828e843382a",
-    "./main.js": "0849036aaf57c72fd97a327cf0024ddec3bcc104",
+    "./main.js": "d877bee5974cee83e349ea3f29a44a1cebe73798",
     "./manifest.webmanifest": "2014fddbdc89ea5ee44c8f7270013dada56d40e1",
+    "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
+    "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
+    "./material-icons-sharp.woff2": "cf1c7b4d066d18af44cf7bc664dd2e46652a3a30",
+    "./material-icons-two-tone.woff2": "296ff0bff395a77c2e33e7e31fffe73980bd93cf",
+    "./material-icons.woff2": "0bc0c675480d94ec7e8609dda6227f88c5d08d2c",
+    "./material-symbols-outlined.woff2": "fa4f00394db359af2a6e7437e256687c1c1b2e71",
+    "./material-symbols-rounded.woff2": "4f4335c5b6c5d5727490b8f6011df8c265dd1ba4",
+    "./material-symbols-sharp.woff2": "9b682ae3c7fb0a2c2f8c7d231307b073edaa244d",
     "./polyfills.js": "42592327d38831f01cd525ed3e967bf6a002a590",
     "./runtime.js": "20ef58bb3340d47d24198403395819decd3f526c",
-    "./styles.css": "4748cf605e29f9cc16fba7014f1891a184c7b61d",
+    "./styles.css": "168afe327785694885ba0353494a85ed3098be41",
     "./vendor.js": "09f31e13f91d9b592fc75e4344fc365e18bce69e"
   },
   "navigationUrls": [
