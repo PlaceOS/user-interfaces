@@ -1,5 +1,7 @@
 @import 'chartist/dist/index.css';
 @import "./quill.min.css";
+@import 'material-symbols';
+@import '@material-design-icons/font';
 
 :root {
     --primary:#292F5B;
@@ -62,72 +64,10 @@ body {
     box-sizing: border-box;
 }
 
-@font-face {
-    font-family: 'Material Icons';
-    font-style: normal;
-    font-weight: 400;
-    src: local('Material Icons'),
-      local('MaterialIcons-Regular'),
-      url(../assets/fonts/MaterialIcons-Regular.ttf) format('truetype');
-}
-
-@font-face {
-    font-family: 'Material Icons Outlined';
-    font-style: normal;
-    font-weight: 400;
-    src: local('Material Icons Outlined'),
-      local('MaterialIconsOutlined-Regular'),
-      url(../assets/fonts/MaterialIconsOutlined-Regular.otf) format('opentype');
-}
-
-.material-icons {
-    font-family: 'Material Icons';
-    font-weight: normal;
-    font-style: normal;
-    font-size: 1.5em;
-    display: inline-block;
-    line-height: 1;
-    text-transform: none;
-    letter-spacing: normal;
-    word-wrap: normal;
-    white-space: nowrap;
-    direction: ltr;
-  
-    /* Support for all WebKit browsers. */
-    -webkit-font-smoothing: antialiased;
-    /* Support for Safari and Chrome. */
-    text-rendering: optimizeLegibility;
-  
-    /* Support for Firefox. */
-    -moz-osx-font-smoothing: grayscale;
-  
-    /* Support for IE. */
-    font-feature-settings: 'liga';
-}
-
-.material-icons-outlined {
-    font-family: 'Material Icons Outlined';
-    font-weight: normal;
-    font-style: normal;
-    font-size: 1.5em;
-    display: inline-block;
-    line-height: 1;
-    text-transform: none;
-    letter-spacing: normal;
-    word-wrap: normal;
-    white-space: nowrap;
-    direction: ltr;
-  
-    /* Support for all WebKit browsers. */
-    -webkit-font-smoothing: antialiased;
-    /* Support for Safari and Chrome. */
-    text-rendering: optimizeLegibility;
-  
-    /* Support for Firefox. */
-    -moz-osx-font-smoothing: grayscale;
-  
-    /* Support for IE. */
-    font-feature-settings: 'liga';
+.material-icons,
+.material-symbols,
+.material-symbols-outlined {
+    font-size: 1em;
 }
 
 span.highlight {
