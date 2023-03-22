@@ -11,6 +11,7 @@ export interface BookingModalData extends HashMap {
     title?: string;
     space?: Space;
     date?: number;
+    disable_booking_host?: boolean;
     min_duration?: number;
     max_duration?: number;
 }
@@ -135,7 +136,9 @@ export class BookingModalComponent extends AsyncHandler {
 
     constructor(@Inject(MAT_DIALOG_DATA) private _data: BookingModalData) {
         super();
-        // this.form.reset();
+        if (this._data.disable_booking_host) {
+            this.form.controls.organiser.setValidators([]);
+        }
     }
 
     /**
