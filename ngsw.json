@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1679353409276,
+  "timestamp": 1679451321347,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -30,11 +30,7 @@
         "ignoreVary": true
       },
       "urls": [
-        "./MaterialIcons-Regular.ttf",
-        "./MaterialIconsOutlined-Regular.otf",
         "./assets/boardroom.jpg",
-        "./assets/fonts/MaterialIcons-Regular.ttf",
-        "./assets/fonts/MaterialIconsOutlined-Regular.otf",
         "./assets/icons/amex.svg",
         "./assets/icons/building-filled.svg",
         "./assets/icons/building-outline.svg",
@@ -103,18 +99,22 @@
         "./assets/support/edge-logo.svg",
         "./assets/support/firefox-logo.svg",
         "./assets/support/opera-logo.svg",
-        "./assets/support/safari-logo.svg"
+        "./assets/support/safari-logo.svg",
+        "./material-icons-outlined.woff2",
+        "./material-icons-round.woff2",
+        "./material-icons-sharp.woff2",
+        "./material-icons-two-tone.woff2",
+        "./material-icons.woff2",
+        "./material-symbols-outlined.woff2",
+        "./material-symbols-rounded.woff2",
+        "./material-symbols-sharp.woff2"
       ],
       "patterns": []
     }
   ],
   "dataGroups": [],
   "hashTable": {
-    "./MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
-    "./MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
     "./assets/boardroom.jpg": "9b1b67ca868d5f8d2d2ed8d958ccc34c6a5443d8",
-    "./assets/fonts/MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
-    "./assets/fonts/MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
     "./assets/icons/amex.svg": "3530eff717af33317b79bdd1d0ec96abfa884287",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
     "./assets/icons/building-outline.svg": "a5b27618ef63cc4fc16d334b480eef238b5a9d31",
@@ -186,11 +186,19 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "80343f14e476740a1f9af68a1ce1344286233efa",
-    "./main.js": "5db95f6b72bf1bf89b45b080300f7f9f868e1cc5",
+    "./main.js": "889d3807e788ea6e8a11d852c4be2f5d7500a2a2",
     "./manifest.webmanifest": "1403ffbb424e3924fdbd03de6cc312e4a7a0b0b6",
+    "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
+    "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
+    "./material-icons-sharp.woff2": "cf1c7b4d066d18af44cf7bc664dd2e46652a3a30",
+    "./material-icons-two-tone.woff2": "296ff0bff395a77c2e33e7e31fffe73980bd93cf",
+    "./material-icons.woff2": "0bc0c675480d94ec7e8609dda6227f88c5d08d2c",
+    "./material-symbols-outlined.woff2": "fa4f00394db359af2a6e7437e256687c1c1b2e71",
+    "./material-symbols-rounded.woff2": "4f4335c5b6c5d5727490b8f6011df8c265dd1ba4",
+    "./material-symbols-sharp.woff2": "9b682ae3c7fb0a2c2f8c7d231307b073edaa244d",
     "./polyfills.js": "c4fd0d70bf19de38466efa71bd893841c2cee332",
     "./runtime.js": "9022e11db4a6afac8a1b7fde5fc9e248a84403d9",
-    "./styles.css": "ce4c3c7b84bc7459b3db59ae66f5ea4e7e18ed1e",
+    "./styles.css": "ac7b2f4b75a96e15738b5bb5eaa778bc5bd89e65",
     "./vendor.js": "85dd03430fe7a2bf3d7f59bd556aa2d2dc3720e2"
   },
   "navigationUrls": [
