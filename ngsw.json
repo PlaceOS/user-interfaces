@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1679353415201,
+  "timestamp": 1679451322550,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -50,11 +50,7 @@
         "ignoreVary": true
       },
       "urls": [
-        "./MaterialIcons-Regular.ttf",
-        "./MaterialIconsOutlined-Regular.otf",
         "./assets/asset_success.svg",
-        "./assets/fonts/MaterialIcons-Regular.ttf",
-        "./assets/fonts/MaterialIconsOutlined-Regular.otf",
         "./assets/icons/amex.svg",
         "./assets/icons/building-filled.svg",
         "./assets/icons/building-outline.svg",
@@ -123,15 +119,21 @@
         "./assets/support/edge-logo.svg",
         "./assets/support/firefox-logo.svg",
         "./assets/support/opera-logo.svg",
-        "./assets/support/safari-logo.svg"
+        "./assets/support/safari-logo.svg",
+        "./material-icons-outlined.woff2",
+        "./material-icons-round.woff2",
+        "./material-icons-sharp.woff2",
+        "./material-icons-two-tone.woff2",
+        "./material-icons.woff2",
+        "./material-symbols-outlined.woff2",
+        "./material-symbols-rounded.woff2",
+        "./material-symbols-sharp.woff2"
       ],
       "patterns": []
     }
   ],
   "dataGroups": [],
   "hashTable": {
-    "./MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
-    "./MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
     "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "539cbe9976d65829789defdff8db3dd136be25cf",
     "./apps_concierge_src_app_catering_catering_module_ts.js": "d1267229dce331abd8ec91a253b13bf97e0f24ae",
     "./apps_concierge_src_app_day-view_day-view_module_ts.js": "8948f955bd62b38fa47f18bced8a9e0e8c438366",
@@ -145,8 +147,6 @@
     "./apps_concierge_src_app_visitors_visitors_module_ts.js": "9b379713cc26df7849886299b62e721410a7c149",
     "./apps_concierge_src_app_week-view_week-view_module_ts.js": "852248c080442cd07725f472f8e08a8b3984c318",
     "./assets/asset_success.svg": "108cd4145d9f826dcb89b816653ce36135dcd0c1",
-    "./assets/fonts/MaterialIcons-Regular.ttf": "3f50221ffefc239dbf3eaa316d2712865a22f4f4",
-    "./assets/fonts/MaterialIconsOutlined-Regular.otf": "0df18468220f185445ad337aee225515b68eccdf",
     "./assets/icons/amex.svg": "3530eff717af33317b79bdd1d0ec96abfa884287",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
     "./assets/icons/building-outline.svg": "a5b27618ef63cc4fc16d334b480eef238b5a9d31",
@@ -226,11 +226,19 @@
     "./default-node_modules_angular_material_fesm2020_tabs_mjs.js": "0f56ef6226902dba2654798b4918f54670f3f001",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "8c28d3286bc9f08f9205122ab242caefb1046601",
-    "./main.js": "d80d98dc9fa7f73dbc30fc4120fc1ef99d1f2705",
+    "./main.js": "80747fdba089068daad62609908108bb011eef16",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
+    "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
+    "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
+    "./material-icons-sharp.woff2": "cf1c7b4d066d18af44cf7bc664dd2e46652a3a30",
+    "./material-icons-two-tone.woff2": "296ff0bff395a77c2e33e7e31fffe73980bd93cf",
+    "./material-icons.woff2": "0bc0c675480d94ec7e8609dda6227f88c5d08d2c",
+    "./material-symbols-outlined.woff2": "fa4f00394db359af2a6e7437e256687c1c1b2e71",
+    "./material-symbols-rounded.woff2": "4f4335c5b6c5d5727490b8f6011df8c265dd1ba4",
+    "./material-symbols-sharp.woff2": "9b682ae3c7fb0a2c2f8c7d231307b073edaa244d",
     "./polyfills.js": "039813b509e6615a03798c1c4095e7104a33b2e8",
     "./runtime.js": "4d5e529aa8350ee83659185276a1940d360131b8",
-    "./styles.css": "23445fbd06a7ae7ad3606dac869ef3ae6c1fc8d2",
+    "./styles.css": "34eadc0e3175fdd2f5a6aa73ea3bbfcb6118c2c3",
     "./vendor.js": "ccef306aa02328411a660f30c1cad605bb742d91"
   },
   "navigationUrls": [
