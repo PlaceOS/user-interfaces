@@ -26,6 +26,7 @@ import { ReportDesksChartsComponent } from './desks/report-desks-charts.componen
 import { ContactTracingReportComponent } from './contact-tracing/contact-tracing-report.component';
 import { GetUserPipe } from './contact-tracing/get-user.pipe';
 import { ContactTracingOptionsComponent } from './contact-tracing/contact-tracing-options.component';
+import { CustomReportComponent } from './custom-report.component';
 
 const ROUTES: Route[] = [
     {
@@ -40,6 +41,7 @@ const ROUTES: Route[] = [
                 path: 'contact-tracing',
                 component: ContactTracingReportComponent,
             },
+            { path: ':id', component: CustomReportComponent },
             { path: '**', redirectTo: 'desks', pathMatch: 'full' },
         ],
     },
@@ -69,6 +71,7 @@ const ROUTES: Route[] = [
         ContactTracingReportComponent,
         ContactTracingOptionsComponent,
         GetUserPipe,
+        CustomReportComponent,
     ],
     imports: [
         CommonModule,

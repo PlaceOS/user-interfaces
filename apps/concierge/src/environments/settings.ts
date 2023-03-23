@@ -49,15 +49,17 @@ const general = {
             route: 'reports',
             name: 'Reports',
             icon: { class: 'material-icons', content: 'analytics' },
-        }
+        },
     ],
 };
+
+const custom_reports = [];
 
 const app = {
     name: 'Concierge',
     title: 'PlaceOS',
     description: 'Concierge UI',
-    short_name: 'PlaceOS', 
+    short_name: 'PlaceOS',
     logo_light: {
         type: 'img',
         src: 'assets/logo-light.svg',
@@ -71,6 +73,7 @@ const app = {
     guests: { vaccine_check: true },
     delegated: false,
     has_uploads: true,
+    custom_reports,
 };
 
 /**

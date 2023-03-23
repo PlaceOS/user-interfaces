@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { first } from 'rxjs/operators';
 
-const DEFAULT_FEATURES = ["desks", "spaces", "catering", "contact-tracing"];
+const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
 
 @Component({
     selector: 'reports-menu,[reports-menu]',
@@ -59,6 +59,19 @@ const DEFAULT_FEATURES = ["desks", "spaces", "catering", "contact-tracing"];
                 <app-icon class="ml-2">chevron_right</app-icon>
             </div>
         </a>
+        <a
+            [routerLink]="['/reports', report.id]"
+            matRipple
+            *ngFor="let report of custom_reports"
+            class="h-64 w-64 m-4 p-4 flex flex-col items-center justify-center bg-white dark:bg-neutral-700 rounded shadow hover:opacity-80"
+        >
+            <app-icon class="text-8xl">{{ report.icon }}</app-icon>
+            <h3 class="text-xl font-bold mb-4">{{ report.name }}</h3>
+            <div class="flex items-center">
+                <p>View Report</p>
+                <app-icon class="ml-2">chevron_right</app-icon>
+            </div>
+        </a>
     `,
     styles: [
         `
@@ -67,12 +80,15 @@ const DEFAULT_FEATURES = ["desks", "spaces", "catering", "contact-tracing"];
                 flex-direction: row !important;
                 align-items: center;
                 justify-content: center;
-                background: inherit
+                background: inherit;
             }
         `,
     ],
 })
 export class ReportsMenuComponent {
+    public get custom_reports() {
+        return this._settings.get('app.custom_reports') || [];
+    }
 
     public get features() {
         return this._settings.get('app.reports.features') || DEFAULT_FEATURES;
