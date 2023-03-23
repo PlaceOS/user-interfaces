@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, VERSION } from '@placeos/common';
+import { ChangelogModalComponent } from '@placeos/components';
 
 import { ControlStateService } from '../control-state.service';
 
@@ -30,6 +32,21 @@ import { ControlStateService } from '../control-state.service';
             >
                 <h2 class="font-light text-4xl mb-4">Touch to Start</h2>
                 <p class="text-lg">{{ (system | async).name }}</p>
+                <div class="absolute bottom-0 left-0 p-2">
+                    <div class="text-xs opacity-60 w-full">
+                        <ng-container i18n>Version: </ng-container>
+                        <button
+                            class="underline p-0 m-0 bg-none border-none text-xs"
+                            (click)="viewChangelog()"
+                        >
+                            {{ version.hash }}
+                        </button>
+                    </div>
+                    <div class="text-xs opacity-60 w-full">
+                        {{ version.time | date: 'longDate' }}
+                        ({{ version.time | date: 'shortTime' }})
+                    </div>
+                </div>
             </div>
         </ng-template>
         <ng-template #load_state>
@@ -71,10 +88,24 @@ export class ControlTabbedViewComponent extends AsyncHandler implements OnInit {
         return this._state.id;
     }
 
+    public get version() {
+        return VERSION;
+    }
+
+    public async viewChangelog() {
+        const changelog = await (
+            await fetch(
+                'https://raw.githubusercontent.com/PlaceOS/user-interfaces/develop/CHANGELOG.md'
+            )
+        ).text();
+        this._dialog.open(ChangelogModalComponent, { data: { changelog } });
+    }
+
     constructor(
         private _route: ActivatedRoute,
         private _router: Router,
-        private _state: ControlStateService
+        private _state: ControlStateService,
+        private _dialog: MatDialog
     ) {
         super();
     }

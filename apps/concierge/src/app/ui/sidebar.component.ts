@@ -1,9 +1,12 @@
 import { Component } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import {
     ApplicationIcon,
     ApplicationLinkInternal,
     SettingsService,
+    VERSION,
 } from '@placeos/common';
+import { ChangelogModalComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { map } from 'rxjs/operators';
 
@@ -45,6 +48,21 @@ import { map } from 'rxjs/operators';
                     }}
                 </div>
             </button>
+            <div class="p-2">
+                <div class="text-xs opacity-60 w-full">
+                    <ng-container i18n>Version: </ng-container>
+                    <button
+                        class="underline p-0 m-0 bg-none border-none text-xs"
+                        (click)="viewChangelog()"
+                    >
+                        {{ version.hash }}
+                    </button>
+                </div>
+                <div class="text-xs opacity-60 w-full">
+                    {{ version.time | date: 'longDate' }}
+                    ({{ version.time | date: 'shortTime' }})
+                </div>
+            </div>
         </div>
         <mat-menu #menu="matMenu">
             <div class="w-64">
@@ -89,8 +107,22 @@ export class SidebarComponent {
     public readonly active_building = this._org.active_building;
     public readonly setBuilding = (b) => (this._org.building = b);
 
+    public get version() {
+        return VERSION;
+    }
+
+    public async viewChangelog() {
+        const changelog = await (
+            await fetch(
+                'https://raw.githubusercontent.com/PlaceOS/user-interfaces/develop/CHANGELOG.md'
+            )
+        ).text();
+        this._dialog.open(ChangelogModalComponent, { data: { changelog } });
+    }
+
     constructor(
         private _settings: SettingsService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _dialog: MatDialog
     ) {}
 }

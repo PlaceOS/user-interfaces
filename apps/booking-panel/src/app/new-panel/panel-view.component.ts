@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, VERSION } from '@placeos/common';
+import { ChangelogModalComponent } from '@placeos/components';
 import { take } from 'rxjs/operators';
 import { PanelStateService } from '../panel-state.service';
 
@@ -40,6 +42,16 @@ import { PanelStateService } from '../panel-state.service';
                     </div>
                 </div>
             </div>
+            <div class="absolute bottom-0 left-0 p-2">
+                <div class="text-xs opacity-40 w-full">
+                    <ng-container i18n>Version: </ng-container>
+                    {{ version.hash }}
+                </div>
+                <div class="text-xs opacity-40 w-full">
+                    {{ version.time | date: 'longDate' }}
+                    ({{ version.time | date: 'shortTime' }})
+                </div>
+            </div>
         </div>
     `,
     styles: [``],
@@ -47,6 +59,10 @@ import { PanelStateService } from '../panel-state.service';
 })
 export class PanelViewComponent extends AsyncHandler {
     public readonly system = this._state.space;
+
+    public get version() {
+        return VERSION;
+    }
 
     public get name() {
         return this._state.setting('room_name');
@@ -89,7 +105,8 @@ export class PanelViewComponent extends AsyncHandler {
 
     constructor(
         private _state: PanelStateService,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
+        private _dialog: MatDialog
     ) {
         super();
     }

@@ -384,3 +384,10 @@ export function removeEmptyFields(obj: Record<string, any>) {
 export function capitalizeFirstLetter(word: string): string {
     return `${word[0].toUpperCase()}${word.substring(1)}`;
 }
+
+export function cleanArray(
+    array: any[],
+    removal_items: any[] = [undefined, null, '']
+) {
+    return array.filter((_) => !removal_items.includes(_));
+}
