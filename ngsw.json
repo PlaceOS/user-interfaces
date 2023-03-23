@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1679530786952,
+  "timestamp": 1679531832613,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -226,7 +226,7 @@
     "./default-node_modules_angular_material_fesm2020_tabs_mjs.js": "0f56ef6226902dba2654798b4918f54670f3f001",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "8c28d3286bc9f08f9205122ab242caefb1046601",
-    "./main.js": "bc89ebc73f84a7a91a14f253509c709fe2104034",
+    "./main.js": "26171a17884e2fced5591e6956801ac52bdbe288",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
