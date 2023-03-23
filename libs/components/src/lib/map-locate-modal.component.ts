@@ -18,42 +18,42 @@ export interface Locatable {
 @Component({
     selector: 'map-locate-modal',
     template: `
-        <header class="h-12 px-2">
-            <app-icon>place</app-icon>
-            <h1 class="ml-2">{{ item.name }}</h1>
-        </header>
-        <div
-            body
-            class="relative overflow-hidden pointer-events-none"
-            *ngIf="level"
-        >
-            <i-map
-                [src]="level.map_id"
-                [styles]="style_map"
-                [features]="features"
-            >
-                <mat-spinner diameter="64"></mat-spinner>
-            </i-map>
+        <div class="h-[calc(100vh-4rem)] w-screen sm:h-auto sm:w-auto">
+            <header class="p-4">
+                <app-icon class="text-2xl">place</app-icon>
+                <h1 class="ml-2 text-xl font-medium">{{ item.name }}</h1>
+            </header>
             <div
-                class="absolute top-2 right-2 py-2 px-4 bg-white rounded-3xl shadow"
+                body
+                class="relative overflow-hidden h-[65vh] w-full sm:max-h-[65vh]"
+                *ngIf="level"
             >
-                {{ level?.name }}
+                <i-map
+                    [src]="level.map_id"
+                    [styles]="style_map"
+                    [features]="features"
+                >
+                    <mat-spinner diameter="64"></mat-spinner>
+                </i-map>
+                <div
+                    class="absolute top-2 right-2 py-2 px-4 bg-white rounded-3xl shadow border border-gray-200"
+                >
+                    {{ level?.name }}
+                </div>
             </div>
+            <footer
+                class="w-full border-t border-gray-200 flex items-center justify-center p-2"
+            >
+                <button btn matRipple class="inverse w-32" mat-dialog-close>
+                    Close
+                </button>
+            </footer>
         </div>
-        <footer
-            class="w-full border-t border-gray-200 flex items-center justify-center p-2"
-        >
-            <button btn matRipple class="inverse w-32" mat-dialog-close>
-                Close
-            </button>
-        </footer>
     `,
     styles: [
         `
             [body] {
                 min-width: 80vw !important;
-                width: 80vw;
-                height: 65vh;
             }
         `,
     ],
@@ -77,6 +77,10 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
         private _org: OrganisationService
     ) {
         super();
+        if (!this.item.level?.id) {
+            delete this.item.level;
+        }
+        console.log('Data:', this._data);
     }
 
     public ngOnInit(): void {

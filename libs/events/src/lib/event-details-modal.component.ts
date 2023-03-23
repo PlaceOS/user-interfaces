@@ -273,7 +273,7 @@ import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-moda
                 </ng-container>
                 <button
                     map
-                    class="mt-4 sm:mt-2 h-64 sm:h-48 relative border border-gray-200 dark:border-neutral-500 overflow-hidden rounded sm:bg-white sm:dark:bg-neutral-700 m-2 flex-grow-[3] min-w-1/3 p-2 sm:w-[16rem]"
+                    class="mt-4 sm:mt-2 h-64 sm:h-48 relative border border-gray-200 dark:border-neutral-500 overflow-hidden rounded sm:bg-white sm:dark:bg-neutral-700 m-2 flex-grow-[3] min-w-1/3 p-2 w-[calc(100%-1rem)] sm:w-[16rem]"
                     (click)="viewLocation()"
                 >
                     <interactive-map
