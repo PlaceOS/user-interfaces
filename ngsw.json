@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1679534809651,
+  "timestamp": 1679609445483,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -177,7 +177,7 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_workplace_src_app_book_book_module_ts.js": "ea2640aa342b1140f5c3d3dc1e1a411832af5436",
+    "./apps_workplace_src_app_book_book_module_ts.js": "b54ac3e49fd81ca6bb0d232fbded61a9d459c9dd",
     "./apps_workplace_src_app_control_control_module_ts.js": "9736e86cc7798566828aa71c49bad786344d7966",
     "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "cd7ef119b53867cc2f7fa6154ec9eddfd556546e",
     "./apps_workplace_src_app_directory_directory_module_ts.js": "e1728c802341905be716157914c7762eba44c739",
@@ -311,7 +311,7 @@
     "./common.js": "f487195a2baef29e41935b0cb6232cebad96b3ae",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "49ced46ca67ae950e8fe4d3ac73766366ed3f841",
-    "./main.js": "6c2dbeccbbfdc96a9d11f908898bee9b2be3dec5",
+    "./main.js": "0f3122a9e79f852e508c10d6d1ffa565bea63746",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
