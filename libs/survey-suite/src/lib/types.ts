@@ -1,4 +1,4 @@
-import { getEnumMap, getEnumOptions } from "./helper";
+import { getEnumMap, getEnumOptions } from './helper';
 
 export enum TriggerEnum {
     None = 'NONE',
@@ -9,6 +9,7 @@ export enum TriggerEnum {
     Rejected = 'REJECTED',
     Cancelled = 'CANCELLED',
     // Ended = 'ENDED'
+    Visitor = 'VISITOR',
 }
 
 export enum QuestionType {
@@ -28,22 +29,22 @@ export const TriggerOptions = getEnumOptions(TriggerEnum);
 export const QuestionTypeEnumMap = getEnumMap(QuestionType);
 export const TriggerEnumMap = getEnumMap(TriggerEnum);
 
-export interface UISurveyStats{
+export interface UISurveyStats {
     answer_count: number;
 }
-export interface UISurveyResponse{
-    question:Question,
+export interface UISurveyResponse {
+    question: Question;
     answers: UISurveyAnswer[];
 }
-export interface UISurveyAnswer{
-    id:number;
+export interface UISurveyAnswer {
+    id: number;
     question_id: number;
-    survey_id:number;
-    type:string;
+    survey_id: number;
+    type: string;
     answer_json: any;
 }
 
-export interface UISurveyObj{
+export interface UISurveyObj {
     id: number;
     title: string;
     description?: string;
@@ -53,14 +54,14 @@ export interface UISurveyObj{
     pages: UISurveyPage[];
 }
 
-export interface UISurveyPage{
-    title:string;
-    description?:string;
+export interface UISurveyPage {
+    title: string;
+    description?: string;
     elements: Question[];
 }
 
 export interface Question {
-    id?:number;
+    id?: number;
     selected?: boolean;
     type: QuestionType;
     name?: string;
@@ -74,8 +75,8 @@ export interface Question {
     deleted: boolean;
 }
 
-export interface Choice{
-    text:string;
+export interface Choice {
+    text: string;
     value?: string;
 }
 
