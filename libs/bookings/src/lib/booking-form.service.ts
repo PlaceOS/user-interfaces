@@ -499,7 +499,10 @@ export class BookingFormService extends AsyncHandler {
                 extra_members.length
             )),
         ];
-        const group_members = [currentUser(), ...extra_members];
+        const group_members = unique(
+            [currentUser(), ...extra_members],
+            'email'
+        );
         await Promise.all(
             group_members.map((_, idx) =>
                 this.checkResourceAvailable(

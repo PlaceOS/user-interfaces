@@ -4,7 +4,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
     selector: 'an-action-field',
     template: `
         <button
-            class="flex items-center rounded p-2 border border-gray-300 hover:border-black"
+            class="flex items-center rounded p-2 border border-gray-300 hover:border-black w-full"
             type="button"
             role="button"
             [attr.disabled]="disabled"

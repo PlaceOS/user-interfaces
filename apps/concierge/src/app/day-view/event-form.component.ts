@@ -63,9 +63,12 @@ import { first } from 'rxjs/operators';
             </div>
             <div class="flex flex-col flex-1">
                 <label for="space">Space<span>*</span>:</label>
-                <an-action-field name="space" (onAction)="selectSpace()">{{
-                    spaces
-                }}</an-action-field>
+                <an-action-field
+                    name="space"
+                    class="w-full"
+                    (onAction)="selectSpace()"
+                    >{{ spaces }}</an-action-field
+                >
             </div>
         </form>
     `,
