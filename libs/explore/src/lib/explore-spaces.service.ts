@@ -155,7 +155,6 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         for (const space of spaces) {
             if (!space.map_id) continue;
             features.push({
-                track_id: `space:hover:${space.map_id}`,
                 location: space.map_id,
                 full_size: true,
                 no_scale: true,
