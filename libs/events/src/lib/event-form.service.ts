@@ -1,7 +1,15 @@
 import { Injectable } from '@angular/core';
 import { Event, NavigationEnd, Router } from '@angular/router';
-import { getModule, querySystems } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, forkJoin, Observable, of } from 'rxjs';
+import { cleanObject, getModule, querySystems } from '@placeos/ts-client';
+import {
+    BehaviorSubject,
+    combineLatest,
+    forkJoin,
+    merge,
+    Observable,
+    of,
+    timer,
+} from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -178,8 +186,10 @@ export class EventFormService extends AsyncHandler {
     public readonly current_available_spaces = combineLatest([
         this.filtered_spaces,
         this._space_bookings,
+        merge(this.form.valueChanges, timer(1000)),
     ]).pipe(
         map(([list, bookings]) => {
+            this._loading.next('Updating available spaces...');
             const { date, duration } = this._form.getRawValue();
             return (list || [])
                 .filter((_, idx) =>
@@ -191,6 +201,7 @@ export class EventFormService extends AsyncHandler {
                 )
                 .sort((a, b) => a.capacity - b.capacity);
         }),
+        tap((_) => this._loading.next('')),
         shareReplay(1)
     );
 
