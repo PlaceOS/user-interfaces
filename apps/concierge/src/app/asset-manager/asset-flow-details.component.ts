@@ -28,8 +28,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     <mat-form-field appearance="outline">
                         <mat-select formControlName="category">
                             <mat-option value="Furniture">Furniture</mat-option>
-                            <mat-option value="Technology">Technology</mat-option>
-                            <mat-option value="Stationary">Stationary</mat-option>
+                            <mat-option value="Technology"
+                                >Technology</mat-option
+                            >
+                            <mat-option value="Stationary"
+                                >Stationary</mat-option
+                            >
                         </mat-select>
                         <mat-error>Category is required</mat-error>
                     </mat-form-field>
@@ -40,11 +44,15 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     <label>Item Size</label>
                     <mat-form-field appearance="outline">
                         <mat-select formControlName="size">
-                            <mat-option value="Very Small">Very Small</mat-option>
+                            <mat-option value="Very Small"
+                                >Very Small</mat-option
+                            >
                             <mat-option value="Small">Small</mat-option>
                             <mat-option value="Medium">Medium</mat-option>
                             <mat-option value="Large">Large</mat-option>
-                            <mat-option value="Very Large">Very Large</mat-option>
+                            <mat-option value="Very Large"
+                                >Very Large</mat-option
+                            >
                         </mat-select>
                         <mat-error>Item size is required</mat-error>
                     </mat-form-field>
@@ -54,7 +62,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     <mat-form-field appearance="outline">
                         <input
                             matInput
-                            formControlName="count"
+                            formControlName="quantity"
                             type="number"
                             placeholder="1"
                         />

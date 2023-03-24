@@ -6,7 +6,7 @@ export function generateAssetForm(asset: Asset = new Asset()) {
         id: new FormControl(asset.id),
         name: new FormControl(asset.name, [Validators.required]),
         category: new FormControl(asset.category, [Validators.required]),
-        count: new FormControl(asset.count),
+        quantity: new FormControl(asset.quantity),
         size: new FormControl(asset.size),
         description: new FormControl(asset.description),
         barcode: new FormControl(asset.barcode, [Validators.required]),

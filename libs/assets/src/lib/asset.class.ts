@@ -32,7 +32,7 @@ export class Asset {
     public readonly consumables: AssetDetail[];
     public readonly general_details: AssetDetail[];
     public readonly invoices: AssetResource[];
-    public readonly count: number;
+    public readonly quantity: number;
     public readonly locations: [string, string][];
     public amount = 1;
 
@@ -52,7 +52,7 @@ export class Asset {
         this.consumables = _data.consumables || [];
         this.general_details = _data.general_details || [];
         this.invoices = _data.invoices || [];
-        this.count = _data.count ?? 0;
+        this.quantity = _data.quantity ?? 0;
         this.locations = _data.locations || [];
         this.amount = _data.amount ?? 1;
     }
