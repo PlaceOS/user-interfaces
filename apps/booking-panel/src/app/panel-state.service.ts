@@ -228,7 +228,8 @@ export class PanelStateService extends AsyncHandler {
             await module
                 .execute('book_now', [
                     details.duration,
-                    getUnixTime(details.date),
+                    details.title,
+                    details.host,
                 ])
                 .catch((e) => notifyError(`Error creating meeting. ${e}`));
         }
