@@ -88,6 +88,7 @@ export async function openBookingModal(
             class="flex items-center justify-center p-2 w-full border-t border-gray-200 space-x-2"
         >
             <button
+                btn
                 matRipple
                 name="close"
                 class="inverse w-32"

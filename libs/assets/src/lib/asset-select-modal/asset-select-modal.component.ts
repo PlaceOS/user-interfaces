@@ -127,7 +127,7 @@ export class AssetSelectModalComponent {
     }
 
     public get count() {
-        return this.selected.reduce((t, i) => t + i.amount, 0);
+        return this.selected.reduce((t, i) => t + i.in_use, 0);
     }
 
     public isSelected(id: string) {

@@ -34,7 +34,8 @@ export class Asset {
     public readonly invoices: AssetResource[];
     public readonly quantity: number;
     public readonly locations: [string, string][];
-    public amount = 1;
+    public in_use = 1;
+    public other_data: Record<string, any> = {};
 
     constructor(_data: Partial<Asset> = {}) {
         this.id = _data.id || '';
@@ -54,6 +55,11 @@ export class Asset {
         this.invoices = _data.invoices || [];
         this.quantity = _data.quantity ?? 0;
         this.locations = _data.locations || [];
-        this.amount = _data.amount ?? 1;
+        this.in_use = _data.in_use ?? 1;
+        for (const key in _data.other_data) {
+            if (key in this) {
+                this[key] = _data.other_data[key];
+            }
+        }
     }
 }

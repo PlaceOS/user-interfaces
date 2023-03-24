@@ -19,6 +19,7 @@ import {
     queryAssets,
     saveAsset,
 } from '@placeos/assets';
+import { cleanObject } from '@placeos/ts-client';
 
 export interface AssetOptions {
     search?: string;
@@ -228,7 +229,22 @@ export class AssetManagerStateService extends AsyncHandler {
 
     public async postForm() {
         if (!this.form?.valid) return;
-        const data = this.form.value;
+        const data: any = this.form.value;
+        const other_data = { ...data };
+        const drop_keys = [
+            'other_data',
+            'id',
+            'name',
+            'quantity',
+            'category',
+            'purchase_date',
+            'brand',
+            'images',
+        ];
+        for (const key of drop_keys) {
+            delete other_data[key];
+        }
+        data.other_data = cleanObject(other_data, [undefined, null, '']);
         const asset = await saveAsset(data as any).toPromise();
         this._change.next(Date.now());
         notifySuccess(`Successfully ${data.id ? 'updated' : 'created'} asset`);

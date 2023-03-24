@@ -188,6 +188,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     </p>
                     <div class="flex items-center justify-center space-x-2">
                         <button
+                            btn
                             matRipple
                             class="inverse w-32"
                             (click)="success = false"
@@ -236,10 +237,10 @@ export class AssetFlowComponent {
     public async save() {
         this.loading = true;
         this.data = this._state.form.value;
-        this.id = await this._state.postForm().catch((_) => {
+        this.id = (await this._state.postForm().catch((_) => {
             notifyError(`Error saving asset details. ${JSON.stringify(_)}`);
             throw _;
-        });
+        })) as any;
         this.loading = false;
         if (this.id) this.success = true;
         else notifyError('Some form fields are invalid');
