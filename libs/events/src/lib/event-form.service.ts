@@ -190,7 +190,11 @@ export class EventFormService extends AsyncHandler {
     ]).pipe(
         map(([list, bookings]) => {
             this._loading.next('Updating available spaces...');
-            const { date, duration } = this._form.getRawValue();
+            let { date, duration, all_day } = this._form.getRawValue();
+            if (all_day) {
+                date = startOfDay(date).valueOf();
+                duration = 24 * 60 - 1;
+            }
             return (list || [])
                 .filter((_, idx) =>
                     periodInFreeTimeSlot(
@@ -212,10 +216,14 @@ export class EventFormService extends AsyncHandler {
             switchMap(([spaces]) => {
                 if (!spaces.length) return of([]);
                 this._loading.next('Retrieving available spaces...');
-                const { date, duration } = this._form.getRawValue();
+                let { date, duration, all_day } = this._form.getRawValue();
                 const availability_method = this.has_calendar
                     ? querySpaceAvailability
                     : queryResourceAvailability;
+                if (all_day) {
+                    date = startOfDay(date).valueOf();
+                    duration = 24 * 60 - 1;
+                }
                 return availability_method(
                     spaces.map(({ id }) => id),
                     date,
@@ -397,10 +405,14 @@ export class EventFormService extends AsyncHandler {
                     ).join(', ')}]`
                 );
             }
-            const { id, host, date, duration, creator, all_day } =
+            let { id, host, date, duration, creator, all_day } =
                 form.getRawValue();
             const spaces = form.get('resources')?.value || [];
             let catering = form.get('catering')?.value || [];
+            if (all_day) {
+                date = startOfDay(date).valueOf();
+                duration = 24 * 60 - 1;
+            }
             if (
                 (!id || date !== event.date || duration !== event.duration) &&
                 spaces.length

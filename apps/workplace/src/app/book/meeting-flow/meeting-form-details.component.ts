@@ -50,16 +50,18 @@ import { addDays, endOfDay } from 'date-fns';
                         [ngModel]="form.value.date"
                         (ngModelChange)="form.patchValue({ date: $event })"
                         [ngModelOptions]="{ standalone: true }"
+                        [disabled]="form.value.all_day"
                     ></a-time-field>
                 </div>
                 <div class="flex-1 w-1/3 relative">
-                    <label for="end-time"
-                        >{{ 'FORM.END_TIME' | translate }}<span>*</span></label
-                    >
+                    <label for="end-time">
+                        {{ 'FORM.END_TIME' | translate }}<span>*</span>
+                    </label>
                     <a-duration-field
                         name="end-time"
                         [ngModel]="form.value.duration"
                         (ngModelChange)="form.patchValue({ duration: $event })"
+                        [disabled]="form.value.all_day"
                         [time]="form?.value?.date"
                         [max]="max_duration"
                         [ngModelOptions]="{ standalone: true }"
