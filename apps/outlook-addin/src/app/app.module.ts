@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -26,6 +26,13 @@ import { MeetingBookingComponent } from './meetings/meeting-booking.component';
 import { MeetingBookingFormComponent } from './meetings/meeting-form.component';
 import { MeetingBookingSuccessComponent } from './meetings/meeting-success.component';
 import { MeetingFlowConfirmComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-flow-confirm.component';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+
+// AoT requires an exported function for factories
+export function HttpLoaderFactory(http: HttpClient) {
+    return new TranslateHttpLoader(http, './assets/locale/', '.json');
+}
 
 @NgModule({
     declarations: [
@@ -56,6 +63,14 @@ import { MeetingFlowConfirmComponent } from 'apps/workplace/src/app/book/meeting
         FormFieldsModule,
         ReactiveFormsModule,
         SharedCateringModule,
+        TranslateModule.forRoot({
+            defaultLanguage: 'en',
+            loader: {
+                provide: TranslateLoader,
+                useFactory: HttpLoaderFactory,
+                deps: [HttpClient],
+            },
+        }),
 
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
