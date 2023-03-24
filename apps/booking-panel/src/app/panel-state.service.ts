@@ -227,7 +227,7 @@ export class PanelStateService extends AsyncHandler {
         if (details && module) {
             await module
                 .execute('book_now', [
-                    details.duration,
+                    details.duration * 60,
                     details.title,
                     details.host,
                 ])
