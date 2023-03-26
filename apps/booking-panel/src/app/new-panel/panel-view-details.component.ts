@@ -32,7 +32,25 @@ import { PanelStateService } from '../panel-state.service';
                 </div>
             </div>
             <div
-                class="absolute top-1/2 left-1/2 -translate-x-1/2 font-normal space-y-4 text-center"
+                *ngIf="
+                    (current | async) &&
+                    !hide_meeting_details &&
+                    !hide_meeting_title
+                "
+                class="absolute bottom-0 inset-x-0 bg-black/20 text-white p-4 text-center text-3xl"
+            >
+                {{ (current | async).title }}
+                <span class="font-light">{{
+                    'PANEL.MEETING_IN_PROGRESS' | translate
+                }}</span>
+            </div>
+            <div
+                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-normal space-y-4 text-center"
+                [class.pb-8]="
+                    (current | async) &&
+                    !hide_meeting_details &&
+                    !hide_meeting_title
+                "
             >
                 <p class="text-3xl">
                     {{ time | date: 'EEE, MMM d, y h:mm a' }}
@@ -47,19 +65,6 @@ import { PanelStateService } from '../panel-state.service';
                             (current | async).host
                     }}
                 </p>
-            </div>
-            <div
-                *ngIf="
-                    (current | async) &&
-                    !hide_meeting_details &&
-                    !hide_meeting_title
-                "
-                class="absolute bottom-0 inset-x-0 bg-black/20 text-white p-4 text-center text-3xl"
-            >
-                {{ (current | async).title }}
-                <span class="font-light">{{
-                    'PANEL.MEETING_IN_PROGRESS' | translate
-                }}</span>
             </div>
         </div>
     `,
