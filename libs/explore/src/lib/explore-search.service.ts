@@ -87,7 +87,6 @@ export class ExploreSearchService {
     ]).pipe(
         map(([spaces, users, contacts, filter]) => {
             const search = filter.toLowerCase();
-            console.log('Users:', users);
             const results = unique(
                 [
                     ...spaces

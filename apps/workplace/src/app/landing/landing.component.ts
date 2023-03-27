@@ -4,7 +4,7 @@ import { OrganisationService } from '@placeos/organisation';
 import { startOfMinute } from 'date-fns';
 
 @Component({
-    selector: 'app-dashboard',
+    selector: 'app-landing',
     template: `
         <topbar class="z-10" *ngIf="!hide_nav"></topbar>
         <div class="flex flex-1 h-1/2 bg-[#F8F8FA] dark:bg-neutral-900">

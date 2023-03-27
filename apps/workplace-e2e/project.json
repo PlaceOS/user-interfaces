@@ -7,7 +7,7 @@
         "e2e": {
             "executor": "@nrwl/cypress:cypress",
             "options": {
-                "cypressConfig": "apps/workplace-e2e/cypress.json",
+                "cypressConfig": "apps/workplace-e2e/cypress.config.js",
                 "tsConfig": "apps/workplace-e2e/tsconfig.e2e.json",
                 "devServerTarget": "workplace:serve"
             },

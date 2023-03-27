@@ -218,10 +218,8 @@ export class SettingsService extends AsyncHandler {
     }
 
     private _setFontSize() {
-        console.error('Set Font Size');
-        if (this.get('font_size')) {
-            this.overrideCssVariable('font-size', `${this.get('font_size')}px`);
-        }
+        if (!this.get('font_size')) return;
+        this.overrideCssVariable('font-size', `${this.get('font_size')}px`);
     }
 
     private _setDarkMode() {
