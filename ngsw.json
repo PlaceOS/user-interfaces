@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1679638718415,
+  "timestamp": 1679876521245,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -177,12 +177,12 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_workplace_src_app_book_book_module_ts.js": "de880a98dafc03d2585e6bfa0c78dd22f042d480",
+    "./apps_workplace_src_app_book_book_module_ts.js": "536f1c23140c9b4b6df2e0677d395f9924ea1d97",
     "./apps_workplace_src_app_control_control_module_ts.js": "9736e86cc7798566828aa71c49bad786344d7966",
     "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "cd7ef119b53867cc2f7fa6154ec9eddfd556546e",
     "./apps_workplace_src_app_directory_directory_module_ts.js": "e1728c802341905be716157914c7762eba44c739",
     "./apps_workplace_src_app_explore_explore_module_ts.js": "ece496a154b5c22551359dc3984fbe261baa467c",
-    "./apps_workplace_src_app_landing_landing_module_ts.js": "97e26f71c72ed7b69b07be78111ea38062eb0f9b",
+    "./apps_workplace_src_app_landing_landing_module_ts.js": "58a1e165f5e04c9f577478cddb33f221417abe49",
     "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "95c441fba757377f4ce6205a240a0cd0a4fc1c62",
     "./apps_workplace_src_app_schedule_schedule_module_ts.js": "db2d55852cc398572010faacda83a5e9629acb76",
     "./apps_workplace_src_app_whats-on_whats-on_module_ts.js": "3037805bde6600790dd5a9ca65ac076af0130ee6",
@@ -311,7 +311,7 @@
     "./common.js": "f487195a2baef29e41935b0cb6232cebad96b3ae",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "49ced46ca67ae950e8fe4d3ac73766366ed3f841",
-    "./main.js": "ced2f0441200a2b0090a85bc3fc3d2ebcecdfc21",
+    "./main.js": "4a68d6f775c460f644be5dcd28bf0a8de9bb51cd",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
@@ -324,7 +324,7 @@
     "./node_modules_qr-scanner_qr-scanner-worker_min_js.js": "6f5be6af7cdacf78979715ff02e9beba1c568bbf",
     "./polyfills.js": "e0d5f40e9f386abfef867d71dd64fe680a8cbddd",
     "./runtime.js": "ab3fdb44add31ffecf5981f94787bb180e8bf88e",
-    "./styles.css": "46d933e86b3f5f5f509a00cc797cbaef2641f98c",
+    "./styles.css": "c911dafaf69d310091fa0359759db76c1b3b51f1",
     "./vendor.js": "ea2aa5ce4c75e427309ce6ece4f323a4f93d77bb"
   },
   "navigationUrls": [
