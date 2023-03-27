@@ -133,7 +133,7 @@ export class ParkingSpaceListComponent {
 
     public readonly assets = combineLatest([
         this._form.options,
-        this._form.available_assets,
+        this._form.available_resources,
     ]).pipe(
         map(([{ show_fav }, _]) =>
             _.filter((i) => !show_fav || this.isFavourite(i.id))

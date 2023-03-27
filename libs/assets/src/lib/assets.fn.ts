@@ -3,7 +3,13 @@ import { toQueryString } from 'libs/common/src/lib/api';
 import { catchError, map } from 'rxjs/operators';
 import { Asset } from './asset.class';
 import { Observable, of } from 'rxjs';
-import { getUnixTime } from 'date-fns';
+import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import {
+    createBooking,
+    queryBookings,
+    removeBooking,
+} from 'libs/bookings/src/lib/bookings.fn';
+import { Booking } from 'libs/bookings/src/lib/booking.class';
 
 const ASSET_ENDPOINT = '/api/engine/v2/assets';
 
@@ -52,4 +58,40 @@ export function updateAsset(id: string, asset: Asset) {
  */
 export function saveAsset(asset: Asset) {
     return asset.id ? updateAsset(asset.id, asset) : createAsset(asset);
+}
+
+export async function updateAssetRequestsForResource(
+    parent_id: string,
+    { date, duration, host }: { date: number; duration: number; host: string },
+    new_assets: Asset[],
+    old_assets: Asset[]
+) {
+    const bookings = await queryBookings({
+        period_start: getUnixTime(startOfDay(date)),
+        period_end: getUnixTime(endOfDay(date)),
+        type: 'asset-request',
+        email: host,
+    }).toPromise();
+    const filtered = bookings.filter(
+        (item) =>
+            item.extension_data.parent_id === parent_id &&
+            old_assets.find((_) => _.id === item.asset_id)
+    );
+    await Promise.all(
+        filtered.map((item) => removeBooking(item.id).toPromise())
+    );
+    await Promise.all(
+        new_assets.map((item) =>
+            createBooking(
+                new Booking({
+                    date,
+                    duration,
+                    user_email: host,
+                    asset_id: item.id,
+                    asset_name: item.name,
+                    extension_data: { parent_id },
+                })
+            ).toPromise()
+        )
+    );
 }

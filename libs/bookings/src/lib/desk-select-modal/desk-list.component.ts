@@ -122,7 +122,7 @@ export class DeskListComponent {
 
     public readonly desks = combineLatest([
         this._state.options,
-        this._state.available_assets,
+        this._state.available_resources,
     ]).pipe(
         map(([{ show_fav }, _]) =>
             _.filter((i) => !show_fav || this.isFavourite(i.id))

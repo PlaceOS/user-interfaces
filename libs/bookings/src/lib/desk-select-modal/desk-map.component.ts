@@ -70,7 +70,7 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
     @Input() public is_displayed: boolean = false;
     @Output() public onSelect = new EventEmitter<BookingAsset>();
 
-    public readonly desks = this._state.available_assets;
+    public readonly desks = this._state.available_resources;
     public readonly loading = this._state.loading;
 
     public zoom = 1;
@@ -83,7 +83,7 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
         return this.level?.map_id || '';
     }
 
-    public readonly levels = this._state.available_assets.pipe(
+    public readonly levels = this._state.available_resources.pipe(
         map((desks) =>
             unique(
                 desks.map((desk) => desk.zone),
@@ -92,7 +92,7 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
         )
     );
 
-    public readonly actions = this._state.available_assets.pipe(
+    public readonly actions = this._state.available_resources.pipe(
         map((desks) =>
             desks.map((desk) => ({
                 id: desk.map_id || desk.id,
@@ -102,7 +102,7 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
         )
     );
 
-    public readonly features = this._state.available_assets.pipe(
+    public readonly features = this._state.available_resources.pipe(
         map((desks) =>
             desks.map((desk) => ({
                 location: desk.map_id || desk.id,

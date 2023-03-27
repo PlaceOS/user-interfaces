@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Event, NavigationEnd, Router } from '@angular/router';
-import { cleanObject, getModule, querySystems } from '@placeos/ts-client';
+import { getModule } from '@placeos/ts-client';
 import {
     BehaviorSubject,
     combineLatest,
@@ -21,7 +21,13 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-import { differenceInDays, getUnixTime, isBefore, startOfDay } from 'date-fns';
+import {
+    differenceInDays,
+    endOfDay,
+    getUnixTime,
+    isBefore,
+    startOfDay,
+} from 'date-fns';
 import {
     AsyncHandler,
     currentUser,
@@ -49,6 +55,7 @@ import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
 import { periodInFreeTimeSlot } from './helpers';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { Validators } from '@angular/forms';
+import { updateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
 
 const BOOKING_URLS = [
     'book/spaces',
@@ -405,7 +412,7 @@ export class EventFormService extends AsyncHandler {
                     ).join(', ')}]`
                 );
             }
-            let { id, host, date, duration, creator, all_day } =
+            let { id, host, date, duration, creator, all_day, assets } =
                 form.getRawValue();
             const spaces = form.get('resources')?.value || [];
             let catering = form.get('catering')?.value || [];
@@ -431,6 +438,14 @@ export class EventFormService extends AsyncHandler {
                     reject(_);
                     throw _;
                 });
+            }
+            if (assets.length || event.extension_data.assets?.length) {
+                await updateAssetRequestsForResource(
+                    `${host}|${date}`,
+                    { date, duration, host },
+                    assets,
+                    event.extension_data.assets
+                );
             }
             const is_owner =
                 host === currentUser()?.email ||

@@ -185,7 +185,7 @@ export class DeskFlowFormComponent implements OnInit {
             this._router.navigate(['/book', 'desks', 'map']);
             return;
         }
-        const desk_list = await this._state.available_assets
+        const desk_list = await this._state.available_resources
             .pipe(take(1))
             .toPromise();
         const desk_id = level.map_id

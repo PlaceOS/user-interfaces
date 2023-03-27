@@ -182,7 +182,7 @@ export class DeskFlowMapComponent extends AsyncHandler implements OnInit {
     public readonly labels = this._explore.map_labels;
     public readonly level = this._explore.level;
 
-    public readonly desks = this._state.available_assets;
+    public readonly desks = this._state.available_resources;
 
     public readonly loading = this._state.loading;
 
@@ -237,8 +237,8 @@ export class DeskFlowMapComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'assets-statue',
             combineLatest([
-                this._state.assets,
-                this._state.available_assets,
+                this._state.resource,
+                this._state.available_resources,
                 this._active_desk,
             ])
                 .pipe(debounceTime(200))

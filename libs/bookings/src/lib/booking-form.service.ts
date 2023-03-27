@@ -48,6 +48,7 @@ import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
 import { findNearbyFeature } from './booking.utilities';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 import { BookingLinkModalComponent } from './booking-link-modal.component';
+import { updateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
 
 export type BookingFlowView = 'form' | 'map' | 'confirm' | 'success';
 
@@ -106,7 +107,7 @@ export class BookingFormService extends AsyncHandler {
     public readonly options = this._options.pipe(shareReplay(1));
     public readonly form = generateBookingForm();
 
-    public readonly assets: Observable<BookingAsset[]> = this.options.pipe(
+    public readonly resource: Observable<BookingAsset[]> = this.options.pipe(
         debounceTime(300),
         distinctUntilKeyChanged('type'),
         switchMap(({ type }) => {
@@ -114,10 +115,10 @@ export class BookingFormService extends AsyncHandler {
             switch (type) {
                 case 'desk':
                     this._loading.next(`Loading desks...`);
-                    return this.loadAssets('desks' as any);
+                    return this.loadResourceList('desks' as any);
                 case 'parking':
                     this._loading.next(`Loading parking spaces...`);
-                    return this.loadAssets('parking_spaces' as any);
+                    return this.loadResourceList('parking_spaces' as any);
             }
             return of([]);
         }),
@@ -125,10 +126,10 @@ export class BookingFormService extends AsyncHandler {
         shareReplay(1)
     );
 
-    public readonly features: Observable<string[]> = this.assets.pipe(
-        map((assets) => {
+    public readonly features: Observable<string[]> = this.resource.pipe(
+        map((resource) => {
             const list: string[] = [];
-            for (const { features } of assets) {
+            for (const { features } of resource) {
                 features instanceof Array
                     ? features.forEach((_) => list.push(_))
                     : null;
@@ -138,9 +139,9 @@ export class BookingFormService extends AsyncHandler {
         shareReplay(1)
     );
 
-    public readonly available_assets = combineLatest([
+    public readonly available_resources = combineLatest([
         this.options,
-        this.assets,
+        this.resource,
         merge(this.form.valueChanges, timer(1000)),
     ]).pipe(
         filter(
@@ -152,7 +153,7 @@ export class BookingFormService extends AsyncHandler {
         tap(([{ type }]) =>
             this._loading.next(`Checking ${type} availability...`)
         ),
-        switchMap(([options, assets]) =>
+        switchMap(([options, resources]) =>
             queryBookings({
                 period_start: getUnixTime(this.form.getRawValue().date),
                 period_end: getUnixTime(
@@ -165,7 +166,7 @@ export class BookingFormService extends AsyncHandler {
                 zones: options.zone_id,
             }).pipe(
                 map((bookings) =>
-                    assets.filter(
+                    resources.filter(
                         (asset) =>
                             asset.bookable !== false &&
                             (!options.features ||
@@ -190,11 +191,11 @@ export class BookingFormService extends AsyncHandler {
 
     public readonly grouped_availability = combineLatest([
         this.options,
-        this.available_assets,
+        this.available_resources,
     ]).pipe(
-        map(([options, assets]) => {
+        map(([options, resource]) => {
             const groups = [];
-            const asset_list = [...assets].sort((a, b) =>
+            const asset_list = [...resource].sort((a, b) =>
                 a.zone?.id?.localeCompare(b.zone?.id)
             );
             const members = options.members?.length
@@ -416,6 +417,7 @@ export class BookingFormService extends AsyncHandler {
                 this._options.getValue().type,
         });
         let value = this.form.getRawValue();
+        let booking = this._booking.getValue();
         if (!ignore_check) {
             await this.checkResourceAvailable(
                 value,
@@ -442,6 +444,18 @@ export class BookingFormService extends AsyncHandler {
                 invoice: receipt,
                 invoice_id: receipt.invoice_id,
             };
+        }
+        if (value.assets.length || booking.extension_data.assets?.length) {
+            await updateAssetRequestsForResource(
+                `${value.booked_by_email}|${value.date}`,
+                {
+                    date: value.date,
+                    duration: value.duration,
+                    host: value.booked_by_email,
+                },
+                value.assets,
+                booking.extension_data.assets
+            );
         }
         this._loading.next('Saving booking');
         const result = await saveBooking(
@@ -483,15 +497,15 @@ export class BookingFormService extends AsyncHandler {
         if (extra_members.length <= 0)
             throw 'No members in your group to book for.';
         const form = this.form.value;
-        const asset_list = await this.available_assets
+        const asset_list = await this.available_resources
             .pipe(take(1))
             .toPromise();
-        const active_asset = asset_list.find(
+        const active_resource = asset_list.find(
             (_) => _.id === form.asset_id || _.map_id === form.asset_id
         );
-        const level = this._org.levelWithID([active_asset.zone?.id]);
-        const assets = [
-            active_asset,
+        const level = this._org.levelWithID([active_resource.zone?.id]);
+        const resources = [
+            active_resource,
             ...(await this._getNearbyResources(
                 level.map_id,
                 form.asset_id,
@@ -508,7 +522,7 @@ export class BookingFormService extends AsyncHandler {
                 this.checkResourceAvailable(
                     {
                         ...form,
-                        asset_id: assets[idx].map_id || assets[idx].id,
+                        asset_id: resources[idx].map_id || resources[idx].id,
                         user_email: _.email,
                     },
                     type
@@ -517,7 +531,7 @@ export class BookingFormService extends AsyncHandler {
         );
         for (let i = 0; i < group_members.length; i++) {
             const user = group_members[i];
-            const asset = assets[i];
+            const asset = resources[i];
             this.form.patchValue({
                 ...form,
                 user: user as any,
@@ -590,7 +604,7 @@ export class BookingFormService extends AsyncHandler {
         return true;
     }
 
-    public loadAssets(type: BookingType) {
+    public loadResourceList(type: BookingType) {
         return listChildMetadata(this._org.building.id, {
             name: type,
         }).pipe(
@@ -610,11 +624,13 @@ export class BookingFormService extends AsyncHandler {
     private async _getNearbyResources(
         map_url: string,
         id: string,
-        assets: BookingAsset[],
+        resources: BookingAsset[],
         count: number
     ): Promise<BookingAsset[]> {
-        const nearby_assets = [];
-        let asset_list = assets.filter((_) => _.id !== id && _.map_id !== id);
+        const nearby_resources = [];
+        let asset_list = resources.filter(
+            (_) => _.id !== id && _.map_id !== id
+        );
         for (let i = 0; i < count; i++) {
             const item = await findNearbyFeature(
                 map_url,
@@ -622,14 +638,14 @@ export class BookingFormService extends AsyncHandler {
                 asset_list.map((_) => _.map_id || _.id)
             );
             if (item) {
-                nearby_assets.push(
-                    assets.find((_) => _.id === item || _.map_id === item)
+                nearby_resources.push(
+                    resources.find((_) => _.id === item || _.map_id === item)
                 );
                 asset_list = asset_list.filter(
                     (_) => _.id !== item && _.map_id !== item
                 );
             }
         }
-        return nearby_assets;
+        return nearby_resources;
     }
 }

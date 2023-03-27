@@ -2,11 +2,13 @@ import { predictableRandomInt } from '@placeos/common';
 import { registerMockEndpoint } from '@placeos/ts-client';
 import { MOCK_ASSETS } from './assets.data';
 
+const BASE_PATH = '/api/engine/v2/assets';
+
 export const ASSET_MOCKS = registerMocks();
 
 function registerMocks() {
     registerMockEndpoint({
-        path: '/api/engine/v1/assets',
+        path: BASE_PATH,
         metadata: {},
         method: 'GET',
         callback: (_) => {
@@ -16,7 +18,7 @@ function registerMocks() {
     });
 
     registerMockEndpoint({
-        path: '/api/engine/v1/assets/:id',
+        path: `${BASE_PATH}/:id`,
         metadata: {},
         method: 'GET',
         callback: (_) => {
@@ -31,7 +33,7 @@ function registerMocks() {
     });
 
     registerMockEndpoint({
-        path: '/api/engine/v1/assets',
+        path: BASE_PATH,
         metadata: {},
         method: 'POST',
         callback: (request) => {
@@ -57,14 +59,14 @@ function registerMocks() {
     };
 
     registerMockEndpoint({
-        path: '/api/engine/v1/assets/:id',
+        path: `${BASE_PATH}/:id`,
         metadata: {},
         method: 'PUT',
         callback: (req) => updateAsset(req.route_params.id, { ...req.body }),
     });
 
     registerMockEndpoint({
-        path: '/api/engine/v1/assets/:id',
+        path: `${BASE_PATH}/:id`,
         metadata: {},
         method: 'DELETE',
         callback: (req) => {
