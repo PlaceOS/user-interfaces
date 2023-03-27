@@ -10,7 +10,14 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
             [src]="report?.url | safe: 'resource'"
         ></iframe>
     `,
-    styles: [``],
+    styles: [
+        `
+            :host {
+                height: 100%;
+                width: 100%;
+            }
+        `,
+    ],
 })
 export class CustomReportComponent extends AsyncHandler {
     public id = '';
