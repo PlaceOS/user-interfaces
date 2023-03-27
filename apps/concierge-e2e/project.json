@@ -7,7 +7,7 @@
         "e2e": {
             "executor": "@nrwl/cypress:cypress",
             "options": {
-                "cypressConfig": "apps/concierge-e2e/cypress.json",
+                "cypressConfig": "apps/concierge-e2e/cypress.config.js",
                 "tsConfig": "apps/concierge-e2e/tsconfig.e2e.json",
                 "devServerTarget": "concierge:serve"
             },

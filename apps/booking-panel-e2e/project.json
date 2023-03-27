@@ -7,7 +7,7 @@
         "e2e": {
             "executor": "@nrwl/cypress:cypress",
             "options": {
-                "cypressConfig": "apps/booking-panel-e2e/cypress.json",
+                "cypressConfig": "apps/booking-panel-e2e/cypress.config.js",
                 "tsConfig": "apps/booking-panel-e2e/tsconfig.e2e.json",
                 "devServerTarget": "booking-panel:serve"
             },
