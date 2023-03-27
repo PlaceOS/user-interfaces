@@ -7,7 +7,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
     template: `
         <iframe
             class="w-full h-full"
-            [src]="report?.url | safe: 'resource'"
+            [src]="report_url | safe: 'resource'"
         ></iframe>
     `,
     styles: [
