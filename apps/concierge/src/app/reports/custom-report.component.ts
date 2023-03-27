@@ -22,9 +22,17 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
 export class CustomReportComponent extends AsyncHandler {
     public id = '';
 
-    public get report() {
-        return (this._settings.get('app.custom_reports') || []).find(
-            (_) => _.id === this.id
+    public get report_url() {
+        const report =
+            (this._settings.get('app.custom_reports') || []).find(
+                (_) => _.id === this.id
+            ) || {};
+        return (
+            `${report.url}` +
+            (report.api_key
+                ? (report.url.includes('?') ? '&' : '?') +
+                  `key=${report.api_key}`
+                : '')
         );
     }
 
