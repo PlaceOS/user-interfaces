@@ -23,16 +23,13 @@ export class CustomReportComponent extends AsyncHandler {
     public id = '';
 
     public get report_url() {
-        const report =
+        let report =
             (this._settings.get('app.custom_reports') || []).find(
                 (_) => _.id === this.id
             ) || {};
+        report += (report.url.includes('?') ? '&' : '?') + `kiosk=tv`;
         return (
-            `${report.url}` +
-            (report.api_key
-                ? (report.url.includes('?') ? '&' : '?') +
-                  `key=${report.api_key}`
-                : '')
+            `${report.url}` + (report.api_key ? `&key=${report.api_key}` : '')
         );
     }
 
