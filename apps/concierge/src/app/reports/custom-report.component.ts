@@ -31,9 +31,10 @@ export class CustomReportComponent extends AsyncHandler {
                 (_) => _.id === this.id
             ) || EMPTY;
         if (!report.url) return '';
-        report.url += (report.url.includes('?') ? '&' : '?') + `kiosk=tv`;
+        const url =
+            report.url + (report.url.includes('?') ? '&' : '?') + `kiosk=tv`;
         return (
-            `${report.url}` +
+            url +
             (report.api_key ? `&key=${encodeURIComponent(report.api_key)}` : '')
         );
     }
