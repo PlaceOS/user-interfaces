@@ -30,7 +30,6 @@ export class CustomReportComponent extends AsyncHandler {
             (this._settings.get('app.custom_reports') || []).find(
                 (_) => _.id === this.id
             ) || EMPTY;
-        console.log('Report:', report);
         if (!report.url) return '';
         report.url += (report.url.includes('?') ? '&' : '?') + `kiosk=tv`;
         return (
