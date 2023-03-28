@@ -28,6 +28,7 @@ import { MeetingBookingSuccessComponent } from './meetings/meeting-success.compo
 import { MeetingFlowConfirmComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-flow-confirm.component';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { MatSelectModule } from '@angular/material/select';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -58,6 +59,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         FormsModule,
         MatNativeDateModule,
         MatSnackBarModule,
+        MatSelectModule,
         PaymentsModule,
         AssetsModule,
         FormFieldsModule,

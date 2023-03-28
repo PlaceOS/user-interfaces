@@ -7,6 +7,7 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
+import { Building, OrganisationService } from '@placeos/organisation';
 import { FindAvailabilityModalComponent } from '@placeos/users';
 
 @Component({
@@ -40,8 +41,33 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                     class="overflow-hidden"
                     [@show]="hide_block.details ? 'hide' : 'show'"
                 >
+                    <div
+                        class="flex-1 min-w-[256px]"
+                        *ngIf="(buildings | async)?.length > 1"
+                    >
+                        <label for="title">Building</label>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-select
+                                name="building"
+                                [ngModel]="building | async"
+                                (ngModelChange)="setBuilding($event)"
+                                [ngModelOptions]="{ standalone: true }"
+                                [placeholder]="
+                                    (building | async)?.display_name ||
+                                    (building | async)?.name
+                                "
+                            >
+                                <mat-option
+                                    *ngFor="let bld of buildings | async"
+                                    [value]="bld"
+                                >
+                                    {{ bld.display_name || bld.name }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
                     <div class="flex items-center flex-wrap sm:space-x-2">
-                        <div class="flex-1 min-w-[256px]">
+                        <div class="flex-1 w-1/3">
                             <label for="title">Add Title<span>*</span></label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
@@ -55,7 +81,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                 >
                             </mat-form-field>
                         </div>
-                        <div class="flex-1 min-w-[256px]">
+                        <div class="flex-1 w-1/3">
                             <label for="date">Date<span>*</span></label>
                             <a-date-field name="date" formControlName="date">
                                 Date and time must be in the future
@@ -89,10 +115,9 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                             <mat-checkbox
                                 formControlName="all_day"
                                 *ngIf="allow_all_day"
-                                class="absolute top-0 right-0"
+                                class="absolute -top-2 right-0"
+                                >All Day</mat-checkbox
                             >
-                                All Day
-                            </mat-checkbox>
                         </div>
                     </div>
                     <div *ngIf="can_book_for_others" class="w-full">
@@ -258,6 +283,9 @@ export class MeetingBookingFormComponent extends AsyncHandler {
 
     public hide_block: Record<string, boolean> = {};
 
+    public readonly building = this._org.active_building;
+    public readonly buildings = this._org.building_list;
+
     public get has_catering() {
         return (
             !!this._settings.get('app.events.catering_enabled') ||
@@ -312,8 +340,14 @@ export class MeetingBookingFormComponent extends AsyncHandler {
     constructor(
         private _service: EventFormService,
         private _settings: SettingsService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
+        private _org: OrganisationService
     ) {
         super();
+    }
+
+    public setBuilding(bld: Building) {
+        this._org.building = bld;
+        this._org.saveBuilding(bld.id);
     }
 }
