@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 
+const EMPTY = {};
+
 @Component({
     selector: 'custom-report',
     template: `
@@ -27,11 +29,13 @@ export class CustomReportComponent extends AsyncHandler {
         let report =
             (this._settings.get('app.custom_reports') || []).find(
                 (_) => _.id === this.id
-            ) || {};
+            ) || EMPTY;
+        console.log('Report:', report);
         if (!report.url) return '';
-        report += (report.url.includes('?') ? '&' : '?') + `kiosk=tv`;
+        report.url += (report.url.includes('?') ? '&' : '?') + `kiosk=tv`;
         return (
-            `${report.url}` + (report.api_key ? `&key=${report.api_key}` : '')
+            `${report.url}` +
+            (report.api_key ? `&key=${encodeURIComponent(report.api_key)}` : '')
         );
     }
 
