@@ -7,6 +7,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
     template: `
         <iframe
             class="w-full h-full"
+            *ngIf="id"
             [src]="report_url | safe: 'resource'"
         ></iframe>
     `,
@@ -27,6 +28,7 @@ export class CustomReportComponent extends AsyncHandler {
             (this._settings.get('app.custom_reports') || []).find(
                 (_) => _.id === this.id
             ) || {};
+        if (!report.url) return '';
         report += (report.url.includes('?') ? '&' : '?') + `kiosk=tv`;
         return (
             `${report.url}` + (report.api_key ? `&key=${report.api_key}` : '')

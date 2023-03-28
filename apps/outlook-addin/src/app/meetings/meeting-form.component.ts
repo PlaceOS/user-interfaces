@@ -66,7 +66,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                             </mat-select>
                         </mat-form-field>
                     </div>
-                    <div class="flex items-center flex-wrap sm:space-x-2">
+                    <div class="flex items-center flex-wrap space-x-2">
                         <div class="flex-1 w-1/3">
                             <label for="title">Add Title<span>*</span></label>
                             <mat-form-field appearance="outline" class="w-full">
