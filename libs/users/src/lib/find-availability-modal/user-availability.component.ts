@@ -1,11 +1,6 @@
-import { Component, Input, SimpleChanges } from '@angular/core';
-import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject } from 'rxjs';
-import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
+import { Component, Input } from '@angular/core';
 
 import { User } from '../user.class';
-import { queryUserFreeBusy } from 'libs/calendar/src/lib/calendar.fn';
-import { Calendar } from 'libs/calendar/src/lib/calendar.class';
 
 export interface AvailabilityBlock {
     date: number;
@@ -21,21 +16,25 @@ export interface AvailabilityBlock {
             class="overflow-hidden relative border-b border-gray-300 dark:border-neutral-500 h-full pointer-events-none"
             [style.width]="width + 'px'"
         >
-            <div class="w-[120rem] h-px"></div>
             <div
-                event
-                *ngFor="let event of availability"
-                class="absolute inset-y-0 bg-primary rounded-lg text-white"
-                [style.left]="event.start + '%'"
-                [style.width]="event.size + '%'"
+                class="absolute w-[120rem] h-full inset-y-0"
+                [style.left]="-offset + 'px'"
             >
-                <div>Unavailable</div>
-                <div>
-                    {{ event.date | date: 'shortTime' }} -
-                    {{
-                        event.date + event.duration * 60 * 1000
-                            | date: 'shortTime'
-                    }}
+                <div
+                    event
+                    *ngFor="let event of availability"
+                    class="absolute inset-y-0 bg-primary text-white p-2 overflow-hidden border border-white rounded"
+                    [style.left]="event.start + '%'"
+                    [style.width]="event.size + '%'"
+                >
+                    <div class="text-xs">Unavailable</div>
+                    <div class="text-xs max-w-full">
+                        {{ event.date | date: 'shortTime' }} -
+                        {{
+                            event.date.valueOf() + event.duration * 60 * 1000
+                                | date: 'shortTime'
+                        }}
+                    </div>
                 </div>
             </div>
         </div>

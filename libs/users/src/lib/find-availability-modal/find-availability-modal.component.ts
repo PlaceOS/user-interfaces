@@ -21,6 +21,7 @@ import { BehaviorSubject, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
+    defaultIfEmpty,
     map,
     shareReplay,
     switchMap,
@@ -124,7 +125,11 @@ export interface FindAvailabilityData {
                         <user-availability-list
                             class="absolute top-0 -bottom-px left-full pointer-events-none"
                             [user]="user"
-                            [availability]="(availability | async)[user.email]"
+                            [availability]="
+                                (availability | async)
+                                    ? (availability | async)[user.email]
+                                    : []
+                            "
                             [date]="date"
                             [offset]="offset"
                             [width]="width"
@@ -218,6 +223,7 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
     public readonly availability = this.users.pipe(
         debounceTime(300),
         switchMap((users) => {
+            if (!users.length) return of([]);
             return queryUserFreeBusy({
                 calendars: users.map((_) => _.email).join(','),
                 period_start: getUnixTime(startOfDay(this.date)),
@@ -232,9 +238,10 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
                     .map((block) => {
                         const date = fromUnixTime(block.starts_at);
                         const duration = differenceInMinutes(
-                            fromUnixTime(block.starts_at),
-                            fromUnixTime(block.ends_at)
+                            fromUnixTime(block.ends_at),
+                            fromUnixTime(block.starts_at)
                         );
+                        console.log('Block:', block, date, duration);
                         return {
                             date,
                             duration,
@@ -248,6 +255,7 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
             }
             return availability_map;
         }),
+        defaultIfEmpty({}),
         shareReplay(1)
     );
 

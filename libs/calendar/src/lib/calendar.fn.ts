@@ -55,7 +55,7 @@ export function queryUserFreeBusy(q: CalendarAvailabilityQueryParams) {
     const query = toQueryString(q);
     return get(
         `${CALENDAR_ENDPOINT}/free_busy${query ? '?' + query : ''}`
-    ).pipe(map((i) => i.map((c) => new Calendar(c))));
+    ).pipe(map((i) => i as Calendar[]));
 }
 
 /** List room calendars for available spaces based on the given query */
