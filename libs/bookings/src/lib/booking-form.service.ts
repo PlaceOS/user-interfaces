@@ -12,13 +12,7 @@ import {
     unique,
 } from '@placeos/common';
 import { cleanObject, listChildMetadata, PlaceZone } from '@placeos/ts-client';
-import {
-    format,
-    getUnixTime,
-    addMinutes,
-    set,
-    roundToNearestMinutes,
-} from 'date-fns';
+import { format, getUnixTime, addMinutes, set } from 'date-fns';
 import {
     BehaviorSubject,
     combineLatest,
@@ -326,14 +320,11 @@ export class BookingFormService extends AsyncHandler {
 
     public loadForm() {
         this.form.reset();
-        this._booking.next(
-            new Booking(
-                JSON.parse(
-                    sessionStorage.getItem('PLACEOS.booking_form') || '{}'
-                )
-            )
+        const data = JSON.parse(
+            sessionStorage.getItem('PLACEOS.booking_form') || '{}'
         );
-        const booking = this._booking.getValue();
+        const booking = new Booking(data);
+        this._booking.next(booking);
         this.form.patchValue(
             cleanObject(
                 {
@@ -445,7 +436,7 @@ export class BookingFormService extends AsyncHandler {
                 invoice_id: receipt.invoice_id,
             };
         }
-        if (value.assets.length || booking.extension_data.assets?.length) {
+        if (value.assets?.length || booking.extension_data.assets?.length) {
             await updateAssetRequestsForResource(
                 `${value.booked_by_email}|${value.date}`,
                 {

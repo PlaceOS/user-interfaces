@@ -21,7 +21,7 @@ export type BookingType =
     | 'asset-request'
     | 'staff'
     | 'wfh-setting'
-    | '';
+    | ' ';
 const IGNORE_EXT_KEYS = ['user', 'booked_by', 'resources', 'assets', 'members'];
 
 export interface BookingComplete extends Booking {
@@ -119,7 +119,7 @@ export class Booking {
             getUnixTime(
                 addMinutes(this.booking_start * 1000, data.duration || 60)
             );
-        this.booking_type = data.booking_type || '';
+        this.booking_type = data.booking_type || ' ';
         this.type = data.type || data.booking_type || 'booking';
         this.date = data.date || this.booking_start * 1000 || Date.now();
         this.duration =
@@ -137,9 +137,10 @@ export class Booking {
         this.user_id = data.user_id || '';
         this.user_name = data.user_name || '';
         this.title =
-            data.title || this.booking_type
-                ? `${capitalizeFirstLetter(this.booking_type)} Booking`
-                : '';
+            data.title ??
+            (this.booking_type
+                ? `${capitalizeFirstLetter(this.booking_type)} Booking`.trim()
+                : '');
         this.description = data.description || '';
         this.checked_in = !!data.checked_in;
         this.rejected = !!data.rejected;

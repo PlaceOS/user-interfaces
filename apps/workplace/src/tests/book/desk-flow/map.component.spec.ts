@@ -28,7 +28,7 @@ describe('DeskFlowMapComponent', () => {
                     form: generateBookingForm(new Booking()),
                     assets: new BehaviorSubject([]),
                     options: new BehaviorSubject({}),
-                    available_assets: new BehaviorSubject([]),
+                    available_resources: new BehaviorSubject([]),
                     loading: new BehaviorSubject(false),
                 },
             },
@@ -65,7 +65,7 @@ describe('DeskFlowMapComponent', () => {
     it('should list available desks', () => {
         expect('li').toHaveLength(0);
         const service = spectator.inject(BookingFormService);
-        (service as any).available_assets.next([{ id: '1' }, { id: '2' }]);
+        (service as any).available_resources.next([{ id: '1' }, { id: '2' }]);
         spectator.detectChanges();
         expect('li').toHaveLength(2);
     });

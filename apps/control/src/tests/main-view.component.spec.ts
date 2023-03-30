@@ -1,8 +1,9 @@
 import { fakeAsync, tick } from '@angular/core/testing';
+import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { ControlStateService } from '../app/control-state.service';
 
@@ -23,14 +24,12 @@ describe('ControlMainViewComponent', () => {
         ],
         imports: [MatProgressSpinnerModule],
         providers: [
-            {
-                provide: ControlStateService,
-                useValue: {
-                    powerOn: jest.fn(),
-                    system: new BehaviorSubject({}),
-                    setID: jest.fn(),
-                },
-            },
+            MockProvider(MatDialog),
+            MockProvider(ControlStateService, {
+                powerOn: jest.fn(),
+                system: new BehaviorSubject({}),
+                setID: jest.fn(),
+            }),
         ],
     });
 

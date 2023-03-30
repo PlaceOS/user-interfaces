@@ -14,7 +14,7 @@ describe('DeskListComponent', () => {
         providers: [
             MockProvider(BookingFormService, {
                 options: new BehaviorSubject([{}]) as any,
-                available_assets: new BehaviorSubject([{}]) as any,
+                available_resources: new BehaviorSubject([{}]) as any,
                 loading: new BehaviorSubject('') as any,
                 setView: jest.fn(),
             }),
@@ -26,7 +26,7 @@ describe('DeskListComponent', () => {
     beforeEach(() => {
         spectator = createComponent();
         (spectator.inject(BookingFormService).loading as any).next('');
-        (spectator.inject(BookingFormService).available_assets as any).next([
+        (spectator.inject(BookingFormService).available_resources as any).next([
             new Desk({ id: '1' }),
         ]);
         spectator.detectChanges();
@@ -46,7 +46,9 @@ describe('DeskListComponent', () => {
 
     it('should show empty list state', () => {
         expect('[empty]').not.toExist();
-        (spectator.inject(BookingFormService).available_assets as any).next([]);
+        (spectator.inject(BookingFormService).available_resources as any).next(
+            []
+        );
         spectator.detectChanges();
         expect('[empty]').toExist();
     });

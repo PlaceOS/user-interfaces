@@ -1,37 +1,33 @@
-import { FormsModule } from "@angular/forms";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatSelectModule } from "@angular/material/select";
-import { createComponentFactory, Spectator } from "@ngneat/spectator/jest";
-import { BookingFormService } from "@placeos/bookings";
-import { IconComponent, InteractiveMapComponent } from "@placeos/components";
-import { Desk } from "@placeos/organisation";
-import { MockComponent, MockModule } from "ng-mocks";
-import { BehaviorSubject } from "rxjs";
-import { take } from "rxjs/operators";
-import { DeskMapComponent } from "../../lib/desk-select-modal/desk-map.component";
-
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { BookingFormService } from '@placeos/bookings';
+import { IconComponent, InteractiveMapComponent } from '@placeos/components';
+import { Desk } from '@placeos/organisation';
+import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
+import { BehaviorSubject } from 'rxjs';
+import { take } from 'rxjs/operators';
+import { DeskMapComponent } from '../../lib/desk-select-modal/desk-map.component';
 
 describe('DeskMapComponent', () => {
     let spectator: Spectator<DeskMapComponent>;
     const createComponent = createComponentFactory({
         component: DeskMapComponent,
         providers: [
-            {
-                provide: BookingFormService,
-                useValue: {
-                    available_assets: new BehaviorSubject([])
-                }
-            }
+            MockProvider(BookingFormService, {
+                available_resources: new BehaviorSubject([]),
+            }),
         ],
         declarations: [
             MockComponent(InteractiveMapComponent),
-            MockComponent(IconComponent)
+            MockComponent(IconComponent),
         ],
         imports: [
             MockModule(FormsModule),
             MockModule(MatFormFieldModule),
-            MockModule(MatSelectModule)
-        ]
+            MockModule(MatSelectModule),
+        ],
     });
 
     beforeEach(() => (spectator = createComponent()));
@@ -59,7 +55,7 @@ describe('DeskMapComponent', () => {
             expect(space).toBe(test_space);
             done();
         });
-        (spectator.inject(BookingFormService).available_assets as any).next([
+        (spectator.inject(BookingFormService).available_resources as any).next([
             test_space,
         ]);
         spectator.component.actions.pipe(take(1)).subscribe((actions) => {
@@ -67,4 +63,4 @@ describe('DeskMapComponent', () => {
             actions[0].callback();
         });
     });
-})
+});

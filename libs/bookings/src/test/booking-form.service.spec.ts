@@ -15,26 +15,27 @@ jest.mock('libs/bookings/src/lib/bookings.fn');
 
 import * as ts_client from '@placeos/ts-client';
 import * as booking_mod from 'libs/bookings/src/lib/bookings.fn';
+import { MockProvider } from 'ng-mocks';
 
 describe('BookingFormService', () => {
     let spectator: SpectatorService<BookingFormService>;
     const createService = createServiceFactory({
         service: BookingFormService,
         providers: [
-            {
-                provide: Router,
-                useValue: { navigate: jest.fn(), events: new Subject() },
-            },
-            { provide: SettingsService, useValue: { get: jest.fn() } },
-            {
-                provide: OrganisationService,
-                useValue: { initialised: of(true), building: { id: 'bld-1' } },
-            },
-            { provide: MatDialog, useValue: { open: jest.fn() } },
-            {
-                provide: PaymentsService,
-                useValue: { makePayment: jest.fn(), payment_module: '' },
-            },
+            MockProvider(Router, {
+                navigate: jest.fn(),
+                events: new Subject(),
+            }),
+            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(OrganisationService, {
+                initialised: of(true),
+                building: { id: 'bld-1' },
+            } as any),
+            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(PaymentsService, {
+                makePayment: jest.fn(),
+                payment_module: '',
+            }),
         ],
     });
 
@@ -52,6 +53,7 @@ describe('BookingFormService', () => {
             ])
         );
         spectator = createService();
+        (ts_client as any).cleanObject = jest.fn((a) => a);
     });
 
     afterEach(() => spectator?.service?.clearForm());
@@ -88,7 +90,7 @@ describe('BookingFormService', () => {
     it('should allow reloading previous form details', () => {
         spectator.service.loadForm();
         expect(spectator.service.form).toBeInstanceOf(FormGroup);
-        expect(spectator.service.form.value.title).toBe('');
+        expect(spectator.service.form.value.title).toBe('Booking');
         sessionStorage.setItem('PLACEOS.booking_form', '{ "title": "Test" }');
         spectator.service.loadForm();
         expect(spectator.service.form.value.title).toBe('Test');
@@ -108,6 +110,7 @@ describe('BookingFormService', () => {
         );
         spectator.service.newForm();
         spectator.service.form.patchValue({
+            date: Date.now(),
             asset_id: 'desk-1',
         });
         await expect(spectator.service.postForm()).rejects.toBe(
