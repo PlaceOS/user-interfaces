@@ -88,6 +88,13 @@ export class RichTextInputComponent
         this._editor = new Quill(this._editor_el.nativeElement, {
             bounds: this._container_el.nativeElement,
             placeholder: this.placeholder,
+            modules: {
+                toolbar: [
+                    [{ size: ['small', false, 'large', 'huge'] }],
+                    ['bold', 'italic', 'underline'],
+                    [{ list: 'ordered' }, { list: 'bullet' }],
+                ],
+            },
             readOnly: this.readonly,
             theme: 'snow',
         });
