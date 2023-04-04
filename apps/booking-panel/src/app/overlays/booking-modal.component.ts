@@ -55,13 +55,13 @@ export async function openBookingModal(
                 ></a-user-search-field>
             </div>
             <div class="flex space-x-2">
-                <div class="flex-1" *ngIf="form.controls.date">
+                <!-- <div class="flex-1" *ngIf="form.controls.date">
                     <label for="start-time">Start Time:</label>
                     <a-time-field
                         name="start-time"
                         formControlName="date"
                     ></a-time-field>
-                </div>
+                </div> -->
                 <div class="flex-1" *ngIf="form.controls.duration">
                     <label for="duration">Duration:</label>
                     <a-duration-field
