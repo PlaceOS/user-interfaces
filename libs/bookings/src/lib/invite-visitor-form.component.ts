@@ -3,7 +3,7 @@ import { Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
 
 import { notifyError } from 'libs/common/src/lib/notifications';
-import { getInvalidFields } from 'libs/common/src/lib/general';
+import { getInvalidFields, randomString } from 'libs/common/src/lib/general';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { BookingFormService } from './booking-form.service';
 import { Booking } from './booking.class';
@@ -76,89 +76,95 @@ import { User } from '@placeos/users';
                             ></a-duration-field>
                         </div>
                     </div>
-                    <div class="flex flex-col">
-                        <label for="visitor-name" i18n
-                            >Visitor Name<span>*</span></label
-                        >
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                name="visitor-name"
-                                formControlName="asset_name"
-                                placeholder="Name of the visitor"
-                                (focus)="filterVisitors(form.value.asset_name)"
-                                [matAutocomplete]="name_auto"
-                            />
-                        </mat-form-field>
-                        <mat-autocomplete #name_auto="matAutocomplete">
-                            <mat-option
-                                *ngFor="let item of filtered_visitors"
-                                [value]="item.name"
-                                (click)="setVisitor(item)"
+                    <ng-container *ngIf="!multiple; else multi_state">
+                        <div class="flex flex-col">
+                            <label for="visitor-name" i18n
+                                >Visitor Name<span>*</span></label
                             >
-                                <div class="flex flex-col leading-tight">
-                                    <div>{{ item.name }}</div>
-                                    <div class="text-xs opacity-60">
-                                        {{ item.email }}
-                                        {{
-                                            item.company
-                                                ? '| ' + item.company
-                                                : ''
-                                        }}
+                            <mat-form-field appearance="outline">
+                                <input
+                                    matInput
+                                    name="visitor-name"
+                                    formControlName="asset_name"
+                                    placeholder="Name of the visitor"
+                                    (focus)="
+                                        filterVisitors(form.value.asset_name)
+                                    "
+                                    [matAutocomplete]="name_auto"
+                                />
+                            </mat-form-field>
+                            <mat-autocomplete #name_auto="matAutocomplete">
+                                <mat-option
+                                    *ngFor="let item of filtered_visitors"
+                                    [value]="item.name"
+                                    (click)="setVisitor(item)"
+                                >
+                                    <div class="flex flex-col leading-tight">
+                                        <div>{{ item.name }}</div>
+                                        <div class="text-xs opacity-60">
+                                            {{ item.email }}
+                                            {{
+                                                item.company
+                                                    ? '| ' + item.company
+                                                    : ''
+                                            }}
+                                        </div>
                                     </div>
-                                </div>
-                            </mat-option>
-                        </mat-autocomplete>
-                    </div>
-                    <div class="flex flex-col">
-                        <label for="visitor-email" i18n>
-                            Visitor Email<span>*</span>
-                        </label>
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                name="visitor-email"
-                                type="email"
-                                formControlName="asset_id"
-                                placeholder="Email of the visitor"
-                                (focus)="filterVisitors(form.value.asset_id)"
-                                [matAutocomplete]="email_auto"
-                            />
-                            <mat-error i18n
-                                >A valid email is required</mat-error
-                            >
-                        </mat-form-field>
-                        <mat-autocomplete #email_auto="matAutocomplete">
-                            <mat-option
-                                *ngFor="let item of filtered_visitors"
-                                [value]="item.email"
-                                (click)="setVisitor(item)"
-                            >
-                                <div class="flex flex-col leading-tight">
-                                    <div>{{ item.name }}</div>
-                                    <div class="text-xs opacity-60">
-                                        {{ item.email }}
-                                        {{
-                                            item.company
-                                                ? '| ' + item.company
-                                                : ''
-                                        }}
+                                </mat-option>
+                            </mat-autocomplete>
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="visitor-email" i18n>
+                                Visitor Email<span>*</span>
+                            </label>
+                            <mat-form-field appearance="outline">
+                                <input
+                                    matInput
+                                    name="visitor-email"
+                                    type="email"
+                                    formControlName="asset_id"
+                                    placeholder="Email of the visitor"
+                                    (focus)="
+                                        filterVisitors(form.value.asset_id)
+                                    "
+                                    [matAutocomplete]="email_auto"
+                                />
+                                <mat-error i18n
+                                    >A valid email is required</mat-error
+                                >
+                            </mat-form-field>
+                            <mat-autocomplete #email_auto="matAutocomplete">
+                                <mat-option
+                                    *ngFor="let item of filtered_visitors"
+                                    [value]="item.email"
+                                    (click)="setVisitor(item)"
+                                >
+                                    <div class="flex flex-col leading-tight">
+                                        <div>{{ item.name }}</div>
+                                        <div class="text-xs opacity-60">
+                                            {{ item.email }}
+                                            {{
+                                                item.company
+                                                    ? '| ' + item.company
+                                                    : ''
+                                            }}
+                                        </div>
                                     </div>
-                                </div>
-                            </mat-option>
-                        </mat-autocomplete>
-                    </div>
-                    <div class="flex flex-col">
-                        <label for="visitor-name" i18n>Company</label>
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                name="company"
-                                formControlName="company"
-                                placeholder="Company of the visitor"
-                            />
-                        </mat-form-field>
-                    </div>
+                                </mat-option>
+                            </mat-autocomplete>
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="visitor-name" i18n>Company</label>
+                            <mat-form-field appearance="outline">
+                                <input
+                                    matInput
+                                    name="company"
+                                    formControlName="company"
+                                    placeholder="Company of the visitor"
+                                />
+                            </mat-form-field>
+                        </div>
+                    </ng-container>
                     <div class="flex flex-col">
                         <label for="reason" i18n>Reason for visit</label>
                         <mat-form-field appearance="outline">
@@ -195,14 +201,34 @@ import { User } from '@placeos/users';
                 <div class="w-full max-w-[32rem] flex-1 h-1/2 space-y-2 m-8">
                     <h2 class="text-3xl" i18n>
                         Visitor invite sent to
-                        {{ last_success?.asset_name || last_success?.asset_id }}
+                        <ng-container *ngIf="!multiple">
+                            {{
+                                last_success?.asset_name ||
+                                    last_success?.asset_id
+                            }}
+                        </ng-container>
+                        <ng-container *ngIf="multiple">
+                            {{ last_count }} visitor{{
+                                last_count == 1 ? '' : 's'
+                            }}
+                        </ng-container>
                     </h2>
                     <img class="mx-auto" src="assets/icons/sent.svg" />
                     <p i18n>
                         Invite has been sent to
-                        <i>{{
-                            last_success?.asset_name || last_success?.asset_id
-                        }}</i>
+                        <i>
+                            <ng-container *ngIf="!multiple">
+                                {{
+                                    last_success?.asset_name ||
+                                        last_success?.asset_id
+                                }}
+                            </ng-container>
+                            <ng-container *ngIf="multiple">
+                                {{ last_count }} visitor{{
+                                    last_count == 1 ? '' : 's'
+                                }}
+                            </ng-container>
+                        </i>
                         to attend
                         {{ building?.display_name || building?.name }} from
                         {{ last_success?.date | date: 'mediumDate' }} at
@@ -246,6 +272,15 @@ import { User } from '@placeos/users';
                 <p i18n>Sending invitation...</p>
             </div>
         </ng-template>
+        <ng-template #multi_state>
+            <div class="flex flex-col" [formGroup]="form">
+                <label for="visitor-name" i18n>Visitors<span>*</span></label>
+                <a-user-list-field
+                    formControlName="assets"
+                    [guests_only]="true"
+                ></a-user-list-field>
+            </div>
+        </ng-template>
     `,
     styles: [``],
 })
@@ -257,8 +292,13 @@ export class InviteVisitorFormComponent extends AsyncHandler {
     public readonly loading = this._service.loading;
     public readonly buildings = this._org.active_buildings;
     public last_success = this._service.last_success;
+    public last_count = 0;
     public visitors = [];
     public filtered_visitors = [];
+
+    public get multiple() {
+        return this._settings.get('app.booking.multiple_visitors');
+    }
 
     public get building() {
         return this._org.building;
@@ -301,6 +341,8 @@ export class InviteVisitorFormComponent extends AsyncHandler {
                 .get('asset_name')
                 .valueChanges.subscribe((_) => this.filterVisitors(_))
         );
+        if (this.multiple)
+            this.form.patchValue({ asset_id: 'multiple@place.tech' });
     }
 
     public setVisitor(item) {
@@ -328,18 +370,36 @@ export class InviteVisitorFormComponent extends AsyncHandler {
 
     public async sendInvite() {
         this.form.markAllAsTouched();
-        if (!this.form.valid) {
+        if (
+            !this.form.valid ||
+            (this.multiple && !this.form.value.assets.length)
+        ) {
             return notifyError(
-                `Some fields are invalid. [${getInvalidFields(this.form)}]`
+                `Some fields are invalid. [${
+                    getInvalidFields(this.form).join(', ') || 'visitors'
+                }]`
             );
         }
-        const { asset_id, asset_name, company } = this.form.value;
+        const { asset_id, asset_name, company, assets } = this.form.value;
         const visitor_details = `${asset_id}|${asset_name}|${company}`;
         const old_visitors = this._settings.get('visitor-invitees') || [];
         this._settings.saveUserSetting('visitor-invitees', [
             ...old_visitors.filter((_) => !_.includes(asset_id)),
             visitor_details,
         ]);
+        await (this.multiple ? this._bookForMany() : this._bookForOne());
+        this.last_success = this._service.last_success;
+        await this.initFormZone();
+        this.sent = true;
+    }
+
+    private async initFormZone() {
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        this._service.setOptions({ type: 'visitor' });
+        this.form.patchValue({ zones: [this._org.building?.id] });
+    }
+
+    private async _bookForOne() {
         const value = this.form.value;
         this.form.patchValue({
             name: value.asset_name,
@@ -351,18 +411,37 @@ export class InviteVisitorFormComponent extends AsyncHandler {
                 }),
             ],
         });
-        this.booking = await this._service.postForm().catch((e) => {
+        await this._service.postForm().catch((e) => {
             notifyError(e);
             throw e;
         });
-        this.last_success = this._service.last_success;
-        await this.initFormZone();
-        this.sent = true;
     }
 
-    private async initFormZone() {
-        await this._org.initialised.pipe(first((_) => _)).toPromise();
-        this._service.setOptions({ type: 'visitor' });
-        this.form.patchValue({ zones: [this._org.building?.id] });
+    private async _bookForMany() {
+        const group = `grp-${randomString(8)}`;
+        const value = this.form.value;
+        const assets = value.assets;
+        this.last_count = assets.length;
+        for (const user of assets) {
+            this.form.patchValue({
+                ...value,
+                asset_id: user.email,
+                asset_name: user.name,
+                description: group,
+                name: user.name,
+                assets: [],
+                attendees: [
+                    new User({
+                        name: user.name,
+                        email: user.email,
+                        organisation: user.company || user.organisation,
+                    }),
+                ],
+            });
+            await this._service.postForm().catch((e) => {
+                notifyError(e);
+                throw e;
+            });
+        }
     }
 }

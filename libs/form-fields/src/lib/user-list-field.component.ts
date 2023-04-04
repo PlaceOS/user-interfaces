@@ -183,6 +183,8 @@ export class UserListFieldComponent
     @Input() public limit = 3;
     /** Whether guests should also show when searching for users */
     @Input() public guests = false;
+    /** Whether guests should also show when searching for users */
+    @Input() public guests_only = false;
     /** Whether optional actions should be shown */
     @Input('hideActions') public hide_actions = false;
     /** Whether as custom template will be provided outside the component */
@@ -223,6 +225,7 @@ export class UserListFieldComponent
                               searchGuests(_),
                           ]).pipe(
                               map(([staff, guests]) => {
+                                  if (this.guests_only) staff = [];
                                   const visitors_list = [];
                                   const visitors =
                                       this._settings.get('visitor-invitees') ||
@@ -303,7 +306,7 @@ export class UserListFieldComponent
      * @param user
      */
     public addUser(user: User) {
-        const list = this.active_list.filter((_) => _.id !== user.id);
+        const list = this.active_list?.filter((_) => _.id !== user.id) || [];
         this.setValue([
             ...list,
             new User({

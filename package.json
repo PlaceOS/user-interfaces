@@ -76,7 +76,7 @@
     "@nrwl/workspace": "15.8.9",
     "@placeos/cloud-uploads": "^0.1.2-dev",
     "@placeos/svg-viewer": "^0.4.2-dev",
-    "@placeos/ts-client": "^3.20.0",
+    "@placeos/ts-client": "^3.21.2",
     "@schematics/angular": "~15.1.0",
     "@sentry/angular": "^7.11.1",
     "@sentry/tracing": "^7.3.0",

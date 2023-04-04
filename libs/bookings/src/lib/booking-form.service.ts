@@ -408,7 +408,7 @@ export class BookingFormService extends AsyncHandler {
                 this._options.getValue().type,
         });
         let value = this.form.getRawValue();
-        let booking = this._booking.getValue();
+        let booking = this._booking.getValue() || new Booking();
         if (!ignore_check) {
             await this.checkResourceAvailable(
                 value,
