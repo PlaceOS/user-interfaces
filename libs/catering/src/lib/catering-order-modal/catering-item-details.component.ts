@@ -59,6 +59,9 @@ interface CateringOptionGroup {
                     </div>
                     <a-counter
                         [(ngModel)]="item.quantity"
+                        (ngModelChange)="
+                            active ? activeChange.emit(active) : ''
+                        "
                         [min]="1"
                         [max]="item.count || 10"
                     ></a-counter>
