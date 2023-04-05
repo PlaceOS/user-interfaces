@@ -60,6 +60,15 @@ import { addMinutes, roundToNearestMinutes } from 'date-fns';
                     </div>
                     <div class="text-xl" i18n>Details</div>
                 </h3>
+                <div
+                    class="w-full"
+                    *ngIf="can_book_for_others && !(options | async)?.group"
+                >
+                    <label for="title">Host<span>*</span></label>
+                    <a-user-search-field
+                        formControlName="user"
+                    ></a-user-search-field>
+                </div>
                 <div class="flex items-center flex-wrap sm:space-x-2">
                     <div class="flex-1 min-w-[256px]">
                         <label for="title">Add Title<span>*</span></label>
