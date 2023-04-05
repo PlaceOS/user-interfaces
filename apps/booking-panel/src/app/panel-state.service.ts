@@ -69,6 +69,8 @@ export interface PanelSettings {
     hide_meeting_details?: boolean;
     /** Whether the meeting title should not be display on the UI */
     hide_meeting_title?: boolean;
+
+    disable_book_now_host?: boolean;
 }
 
 export function currentBooking(
@@ -169,7 +171,7 @@ export class PanelStateService extends AsyncHandler {
                 'disable_book_now',
                 'hide_meeting_details',
                 'hide_meeting_title',
-                'disable_booking_host',
+                'disable_book_now_host',
                 'min_duration',
                 'max_duration',
                 'pending',

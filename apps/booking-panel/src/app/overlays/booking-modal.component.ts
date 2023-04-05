@@ -11,7 +11,7 @@ export interface BookingModalData extends HashMap {
     title?: string;
     space?: Space;
     date?: number;
-    disable_booking_host?: boolean;
+    disable_book_now_host?: boolean;
     min_duration?: number;
     max_duration?: number;
 }
@@ -47,7 +47,7 @@ export async function openBookingModal(
             [formGroup]="form"
             class="p-2"
         >
-            <div class="field" *ngIf="form.controls.organiser">
+            <div class="field" *ngIf="!hide_host && form.controls.organiser">
                 <label for="host">Host<span>*</span>:</label>
                 <a-user-search-field
                     name="host"
@@ -124,6 +124,8 @@ export class BookingModalComponent extends AsyncHandler {
     public closing: boolean;
     /** Whether the modal is processing a booking request */
     public loading: boolean;
+
+    public hide_host = this._data.disable_book_now_host;
     /** Form */
     public form: FormGroup = new FormGroup({
         organiser: new FormControl<User>(this._data.user || null, [
@@ -137,7 +139,7 @@ export class BookingModalComponent extends AsyncHandler {
 
     constructor(@Inject(MAT_DIALOG_DATA) private _data: BookingModalData) {
         super();
-        if (this._data.disable_booking_host) {
+        if (this._data.disable_book_now_host) {
             this.form.controls.organiser.setValidators([]);
         }
     }
