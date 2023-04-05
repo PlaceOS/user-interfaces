@@ -78,6 +78,7 @@ export interface BookingAsset {
     name: string;
     bookable: boolean;
     zone?: PlaceZone;
+    groups?: string[];
     features: string[];
 }
 
@@ -162,6 +163,10 @@ export class BookingFormService extends AsyncHandler {
                 map((bookings) =>
                     resources.filter(
                         (asset) =>
+                            (!asset.groups?.length ||
+                                asset.groups.some((grp) =>
+                                    currentUser().groups.includes(grp)
+                                )) &&
                             asset.bookable !== false &&
                             (!options.features ||
                                 options.features?.every((_) =>
