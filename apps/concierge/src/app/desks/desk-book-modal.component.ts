@@ -1,15 +1,10 @@
-import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-
+import { Component, Output, EventEmitter } from '@angular/core';
+import { MatDialogRef } from '@angular/material/dialog';
+import { BookingFormService } from '@placeos/bookings';
 import { DialogEvent, notifyError, notifySuccess } from '@placeos/common';
-import { CalendarEvent, EventFormService } from '@placeos/events';
-
-export interface BookingModalData {
-    event?: CalendarEvent;
-}
 
 @Component({
-    selector: 'booking-modal',
+    selector: 'desk-book-modal',
     template: `
         <header>
             <h2>New Booking</h2>
@@ -22,7 +17,7 @@ export interface BookingModalData {
             *ngIf="!(loading | async); else load_state"
             class="overflow-auto p-4"
         >
-            <event-form [form]="form"></event-form>
+            <new-desk-form-details [form]="form"></new-desk-form-details>
         </main>
         <footer
             *ngIf="!(loading | async)"
@@ -40,37 +35,23 @@ export interface BookingModalData {
             </main>
         </ng-template>
     `,
-    styles: [
-        `
-            main {
-                width: 32rem;
-                max-height: 65vh;
-                max-width: calc(100vw - 4rem);
-            }
-        `,
-    ],
+    styles: [``],
 })
-export class BookingModalComponent implements OnInit {
+export class DeskBookModalComponent {
     @Output() public event = new EventEmitter<DialogEvent>();
-    /** Observable for the loading state of the form */
-    public readonly loading = this._service.loading;
+    public readonly loading = this._booking_form.loading;
 
     public get form() {
-        return this._service.form;
+        return this._booking_form.form;
     }
 
     constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: BookingModalData,
-        private _service: EventFormService,
-        private _dialog_ref: MatDialogRef<BookingModalComponent>
+        private _booking_form: BookingFormService,
+        private _dialog_ref: MatDialogRef<DeskBookModalComponent>
     ) {}
 
-    public ngOnInit(): void {
-        this._service.newForm(this._data.event);
-    }
-
     public async save() {
-        const event = await this._service.postForm().catch((_) => {
+        const event = await this._booking_form.postForm().catch((_) => {
             notifyError(_);
             throw _;
         });

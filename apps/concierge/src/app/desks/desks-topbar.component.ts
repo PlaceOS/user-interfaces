@@ -13,6 +13,8 @@ import { Desk, OrganisationService } from '@placeos/organisation';
 import { DesksStateService } from './desks-state.service';
 import { showBooking } from '@placeos/bookings';
 import { randomInt } from '@placeos/common';
+import { MatDialog } from '@angular/material/dialog';
+import { DeskBookModalComponent } from './desk-book-modal.component';
 
 @Component({
     selector: 'desks-topbar',
@@ -42,6 +44,16 @@ import { randomInt } from '@placeos/common';
                 </mat-select>
             </mat-form-field>
             <button
+                btn
+                matRipple
+                *ngIf="!manage"
+                class="mx-2 w-36"
+                (click)="newDeskBooking()"
+            >
+                New Booking
+            </button>
+            <button
+                btn
                 matRipple
                 *ngIf="manage"
                 class="mx-2 w-32"
@@ -100,7 +112,8 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
         private _desks: DesksStateService,
         private _org: OrganisationService,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
+        private _dialog: MatDialog
     ) {
         super();
     }
@@ -158,6 +171,10 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
         notifySuccess(
             'New desk added to local data. Make sure to save the desk before using it.'
         );
+    }
+
+    public newDeskBooking() {
+        this._dialog.open(DeskBookModalComponent, {});
     }
 
     public async loadCSVData(event: InputEvent) {

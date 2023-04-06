@@ -8,7 +8,7 @@ import { DesksStateService } from './desks-state.service';
     template: `
         <sidebar></sidebar>
         <main
-            class="relative w-full flex flex-col bg-gray-200 dark:bg-neutral-600"
+            class="flex-1 relative w-1/2 flex flex-col bg-gray-200 dark:bg-neutral-600 overflow-hidden"
         >
             <desks-topbar class="w-full"></desks-topbar>
             <div class="dark">

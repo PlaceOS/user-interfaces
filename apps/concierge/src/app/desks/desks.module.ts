@@ -18,6 +18,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
 
+import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/new-desk-flow/new-desk-form-details.component';
+import { DeskBookModalComponent } from './desk-book-modal.component';
+import { SharedBookingsModule } from '@placeos/bookings';
+
 const ROUTES: Route[] = [
     {
         path: '',
@@ -39,6 +43,8 @@ const ROUTES: Route[] = [
         DesksTopbarComponent,
         DeskMapViewComponent,
         DesksManageComponent,
+        NewDeskFormDetailsComponent,
+        DeskBookModalComponent,
     ],
     imports: [
         CommonModule,
@@ -47,6 +53,7 @@ const ROUTES: Route[] = [
         ReactiveFormsModule,
         UIModule,
         SharedExploreModule,
+        SharedBookingsModule,
         MatRadioModule,
         MatFormFieldModule,
         MatCheckboxModule,

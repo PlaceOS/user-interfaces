@@ -5,6 +5,10 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { ErrorHandler, NgModule } from '@angular/core';
 import { Router } from '@angular/router';
 
+import { HttpClient } from '@angular/common/http';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MAT_CHIPS_DEFAULT_OPTIONS } from '@angular/material/chips';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
@@ -18,6 +22,11 @@ import { UIModule } from './ui/ui.module';
 
 import * as Sentry from '@sentry/angular';
 
+// AoT requires an exported function for factories
+export function HttpLoaderFactory(http: HttpClient) {
+    return new TranslateHttpLoader(http, './assets/locale/', '.json');
+}
+
 @NgModule({
     declarations: [AppComponent, UnauthorisedComponent],
     imports: [
@@ -27,6 +36,14 @@ import * as Sentry from '@sentry/angular';
         BrowserAnimationsModule,
         HttpClientModule,
         UIModule,
+        TranslateModule.forRoot({
+            defaultLanguage: 'en',
+            loader: {
+                provide: TranslateLoader,
+                useFactory: HttpLoaderFactory,
+                deps: [HttpClient],
+            },
+        }),
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),
