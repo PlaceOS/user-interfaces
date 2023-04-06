@@ -293,7 +293,7 @@ export class BookingFormService extends AsyncHandler {
 
     public resetForm() {
         const booking = this._booking.getValue();
-        this.form.reset();
+        this.form.reset({ user: currentUser(), booked_by: currentUser() });
         this.form.patchValue(
             cleanObject(
                 {
@@ -324,21 +324,21 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public loadForm() {
-        this.form.reset();
+        this.form.reset({ user: currentUser(), booked_by: currentUser() });
         const data = JSON.parse(
             sessionStorage.getItem('PLACEOS.booking_form') || '{}'
         );
         const booking = new Booking(data);
         this._booking.next(booking);
-        this.form.patchValue(
-            cleanObject(
-                {
-                    ...(booking || {}),
-                    ...(booking?.extension_data || {}),
-                },
-                [null, undefined, '']
-            )
+        const booking_data = cleanObject(
+            {
+                ...data,
+                ...(booking || {}),
+                ...(booking?.extension_data || {}),
+            },
+            [null, undefined, '']
         );
+        this.form.patchValue(booking_data);
         this.setOptions({
             zone_id: this._org.building?.id,
             ...JSON.parse(

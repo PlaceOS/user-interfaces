@@ -206,6 +206,7 @@ export class UserSearchFieldComponent
             'search_results',
             this.search_results$.subscribe((list) => (this.user_list = list))
         );
+        this.resetSearchString();
     }
 
     /**

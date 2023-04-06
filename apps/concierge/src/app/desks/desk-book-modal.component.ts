@@ -7,7 +7,7 @@ import { DialogEvent, notifyError, notifySuccess } from '@placeos/common';
     selector: 'desk-book-modal',
     template: `
         <header>
-            <h2>New Booking</h2>
+            <h2>New Desk Booking</h2>
             <div class="flex-1 w-0"></div>
             <button icon mat-dialog-close>
                 <app-icon>close</app-icon>
