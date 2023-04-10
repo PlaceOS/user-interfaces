@@ -74,6 +74,7 @@ const app = {
     delegated: false,
     has_uploads: true,
     custom_reports,
+    desks: { can_book_for_others: true },
 };
 
 /**
