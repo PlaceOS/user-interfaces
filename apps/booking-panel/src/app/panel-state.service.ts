@@ -23,7 +23,7 @@ import {
 
 import { openBookingModal } from './overlays/booking-modal.component';
 import { EmbeddedControlModalComponent } from './overlays/embedded-control-modal.component';
-import { getUnixTime } from 'date-fns';
+import { addMinutes, getUnixTime, isAfter, isBefore } from 'date-fns';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { OrganisationService } from '@placeos/organisation';
 import { Router } from '@angular/router';
@@ -198,6 +198,13 @@ export class PanelStateService extends AsyncHandler {
         date: number = new Date().valueOf(),
         user: boolean = false
     ) {
+        const current = await this.current.pipe(take(1)).toPromise();
+        if (
+            current &&
+            isAfter(date, current!.date) &&
+            isBefore(date, addMinutes(current!.date, current!.duration))
+        )
+            return notifyError('Booking already exists for this time');
         const space = await this._space_pipe.transform(this.system);
         const details = await openBookingModal(
             {
