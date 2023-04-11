@@ -439,7 +439,7 @@ export class EventFormService extends AsyncHandler {
                     throw _;
                 });
             }
-            if (assets.length || event.extension_data.assets?.length) {
+            if (assets?.length || event.extension_data.assets?.length) {
                 await updateAssetRequestsForResource(
                     `${host}|${date}`,
                     { date, duration, host },
