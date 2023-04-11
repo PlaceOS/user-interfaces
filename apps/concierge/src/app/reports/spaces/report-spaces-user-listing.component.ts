@@ -50,7 +50,9 @@ export class ReportSpacesUserListingComponent {
             let list = [];
             for (const booking of stats.events) {
                 const host = booking.attendees?.find(
-                    (_) => _.email === booking.host
+                    (_) =>
+                        _.email === booking.extension_data?.host_override ||
+                        _.email === booking.host
                 );
                 if (!host) continue;
                 const capacity = Math.max(
