@@ -423,6 +423,7 @@ export class InviteVisitorFormComponent extends AsyncHandler {
         const assets = value.assets;
         this.last_count = assets.length;
         for (const user of assets) {
+            if (!user.email) continue;
             this.form.patchValue({
                 ...value,
                 asset_id: user.email,
