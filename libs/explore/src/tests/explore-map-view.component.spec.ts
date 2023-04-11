@@ -28,6 +28,7 @@ import * as common_mod from '@placeos/common';
 import { fakeAsync } from '@angular/core/testing';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { ExploreParkingService } from '../lib/explore-parking.service';
+import { ExploreLockersService } from '../lib/explore-lockers.service';
 
 describe('ExploreMapViewComponent', () => {
     let spectator: SpectatorRouting<ExploreMapViewComponent>;
@@ -45,6 +46,7 @@ describe('ExploreMapViewComponent', () => {
             }),
             MockProvider(ExploreZonesService),
             MockProvider(ExploreParkingService),
+            MockProvider(ExploreLockersService),
             MockProvider(SpacePipe, { transform: jest.fn(() => ({})) } as any),
         ],
         providers: [

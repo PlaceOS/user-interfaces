@@ -6,7 +6,13 @@ import {
     updateMetadata,
 } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
+import {
+    catchError,
+    filter,
+    map,
+    shareReplay,
+    switchMap,
+} from 'rxjs/operators';
 
 export interface LockerBank {
     id: string;
@@ -19,6 +25,7 @@ export interface LockerBank {
 
 export interface Locker {
     id: string;
+    bank_id: string;
     name: string;
     accessible: boolean;
     bookable: boolean;
@@ -32,17 +39,32 @@ export interface Locker {
 export class LockersService {
     private _level = new BehaviorSubject('');
     private _change = new BehaviorSubject(0);
-    public readonly lockers$ = combineLatest([
+    public readonly lockers_banks$ = combineLatest([
         this._org.active_building,
         this._change,
     ]).pipe(
+        filter(([bld]) => !!bld),
         switchMap(([bld]) =>
             showMetadata(bld.id, 'lockers').pipe(
                 catchError(() => of(new PlaceMetadata()))
             )
         ),
-        map((_) => _.details || []),
+        map((_) => (_.details || []) as LockerBank[]),
         shareReplay(1)
+    );
+
+    public readonly lockers$ = this.lockers_banks$.pipe(
+        map((_) => {
+            const lockers = [];
+            for (const bank of _) {
+                lockers.push(
+                    ...bank.lockers.map(
+                        (_) => ({ ..._, bank_id: bank.id } as Locker)
+                    )
+                );
+            }
+            return lockers;
+        })
     );
 
     public readonly filtered_lockers$ = combineLatest([

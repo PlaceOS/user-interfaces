@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { getModule } from '@placeos/ts-client';
+import { Point } from '@placeos/svg-viewer';
 import { first, take } from 'rxjs/operators';
 
 import {
@@ -21,7 +22,7 @@ import { ExploreSpacesService } from './explore-spaces.service';
 import { ExploreZonesService } from './explore-zones.service';
 import { ExploreDesksService } from './explore-desks.service';
 import { ExploreParkingService } from './explore-parking.service';
-import { Point } from '@placeos/svg-viewer';
+import { ExploreLockersService } from './explore-lockers.service';
 
 const EMPTY = [];
 
@@ -92,6 +93,7 @@ const EMPTY = [];
         ExploreDesksService,
         ExploreZonesService,
         ExploreParkingService,
+        ExploreLockersService,
         SpacePipe,
     ],
 })
@@ -139,6 +141,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         private _desks: ExploreDesksService,
         private _zones: ExploreZonesService,
         private _parking: ExploreParkingService,
+        private _lockers: ExploreLockersService,
         private _route: ActivatedRoute,
         private _router: Router,
         private _spaces: SpacesService,
