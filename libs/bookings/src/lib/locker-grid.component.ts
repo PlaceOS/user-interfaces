@@ -1,0 +1,56 @@
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Locker, LockerBank } from './lockers.service';
+
+@Component({
+    selector: 'locker-grid',
+    template: `
+        <div
+            class="grid gap-2 overflow-hidden h-full min-h-[50vh] min-w-[50vw] p-2"
+            [style.grid-template-columns]="'repeat(' + columns + ', 1fr)'"
+            [style.grid-template-rows]="'repeat(' + bank?.height + ', 1fr)'"
+        >
+            <div
+                *ngFor="let locker of bank?.lockers || []"
+                class="relative border border-black/20 rounded"
+                [style.grid-column-start]="locker.position[0] + 1"
+                [style.grid-row-start]="locker.position[1] + 1"
+                [style.grid-column-end]="
+                    locker.position[0] + (locker.size[0] + 1)
+                "
+                [style.grid-row-end]="locker.position[1] + (locker.size[1] + 1)"
+                (click)="clicked.emit(locker)"
+            >
+                <div
+                    handle
+                    class="absolute top-1/2 -translate-y-1/2 left-2 w-1 h-8 bg-black/20 rounded"
+                ></div>
+                <div
+                    vent
+                    class="absolute left-1/2 -translate-x-1/2 top-2 w-3/5 h-1 bg-black/20 rounded-t"
+                ></div>
+                <div
+                    vent
+                    class="absolute left-1/2 -translate-x-1/2 top-4 w-3/5 h-1 bg-black/20 rounded-t"
+                ></div>
+                <div
+                    vent
+                    class="absolute left-1/2 -translate-x-1/2 top-6 w-3/5 h-1 bg-black/20 rounded-t"
+                ></div>
+            </div>
+        </div>
+    `,
+    styles: [``],
+})
+export class LockerGridComponent {
+    @Input() public bank: LockerBank;
+    @Output() public clicked = new EventEmitter<Locker>();
+
+    public get columns() {
+        let columns = 1;
+        for (const locker of this.bank?.lockers || []) {
+            const x = locker.position[0] + locker.size[0];
+            if (x > columns) columns = x;
+        }
+        return columns;
+    }
+}

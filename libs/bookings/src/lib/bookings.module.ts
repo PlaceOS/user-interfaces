@@ -38,6 +38,7 @@ import { DeskListFieldComponent } from './desk-list-field.component';
 import { BookingLinkModalComponent } from './booking-link-modal.component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatRippleModule } from '@angular/material/core';
+import { LockerGridComponent } from './locker-grid.component';
 
 const COMPONENTS = [
     DeskQuestionsModalComponent,
@@ -63,6 +64,8 @@ const COMPONENTS = [
     DeskListComponent,
     DeskMapComponent,
     DeskListFieldComponent,
+
+    LockerGridComponent,
 ];
 @NgModule({
     declarations: [...COMPONENTS],
