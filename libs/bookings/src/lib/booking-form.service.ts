@@ -470,7 +470,12 @@ export class BookingFormService extends AsyncHandler {
                 },
                 approved: !!this._settings.get('app.bookings.no_approval'),
             })
-        ).toPromise();
+        )
+            .toPromise()
+            .catch((e) => {
+                this._loading.next('');
+                throw e;
+            });
         this._loading.next('');
         const { booking_type } = value;
         this.clearForm();
