@@ -39,6 +39,7 @@ import { BookingLinkModalComponent } from './booking-link-modal.component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatRippleModule } from '@angular/material/core';
 import { LockerGridComponent } from './locker-grid.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 const COMPONENTS = [
     DeskQuestionsModalComponent,
@@ -85,6 +86,7 @@ const COMPONENTS = [
         FormFieldsModule,
         ComponentsModule,
         MatRippleModule,
+        MatTooltipModule,
     ],
     providers: [ReactiveFormsModule],
     exports: [...COMPONENTS],
