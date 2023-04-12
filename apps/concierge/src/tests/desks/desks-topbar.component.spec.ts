@@ -4,7 +4,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/organisation';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of, timer } from 'rxjs';
 
 import { DesksStateService } from '../../app/desks/desks-state.service';
@@ -15,6 +15,7 @@ import { SearchbarComponent } from '../../app/ui/searchbar.component';
 jest.mock('@placeos/bookings');
 
 import * as booking_mod from '@placeos/bookings';
+import { MatDialog } from '@angular/material/dialog';
 
 describe('DesksTopbarComponent', () => {
     let spectator: SpectatorRouting<DesksTopbarComponent>;
@@ -25,24 +26,23 @@ describe('DesksTopbarComponent', () => {
             MockComponent(DateOptionsComponent),
         ],
         providers: [
-            {
-                provide: DesksStateService,
-                useValue: {
-                    filters: new BehaviorSubject({}),
-                    setFilters: jest.fn(),
-                    approveDesk: jest.fn(),
-                    rejectDesk: jest.fn(),
-                },
-            },
-            {
-                provide: OrganisationService,
-                useValue: {
-                    active_levels: of([]),
-                    initialised: of(true),
-                    levelWithID: jest.fn(),
-                    buildings: [],
-                },
-            },
+            MockProvider(DesksStateService, {
+                filters: new BehaviorSubject({}),
+                setFilters: jest.fn(),
+                approveDesk: jest.fn(),
+                rejectDesk: jest.fn(),
+            }),
+            MockProvider(OrganisationService, {
+                active_levels: of([]),
+                initialised: of(true),
+                levelWithID: jest.fn(),
+                buildings: [],
+            }),
+            MockProvider(MatDialog, {
+                open: jest.fn(
+                    () => ({ afterClosed: jest.fn(() => of()) } as any)
+                ),
+            }),
         ],
         imports: [
             MatFormFieldModule,

@@ -9,6 +9,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
 import { PaymentsModule } from '@placeos/payments';
+import { SharedExploreModule } from '@placeos/explore';
 import { AssetsModule } from '@placeos/assets';
 import { SharedCateringModule } from '@placeos/catering';
 import { FormFieldsModule } from '@placeos/form-fields';
@@ -65,6 +66,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         FormFieldsModule,
         ReactiveFormsModule,
         SharedCateringModule,
+        SharedExploreModule,
         TranslateModule.forRoot({
             defaultLanguage: 'en',
             loader: {

@@ -15,6 +15,8 @@ import {
     DateFieldComponent,
     DurationFieldComponent,
     TimeFieldComponent,
+    UserListFieldComponent,
+    UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { Building, Desk, OrganisationService } from '@placeos/organisation';
 import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/new-desk-flow/new-desk-form-details.component';
@@ -56,6 +58,8 @@ describe('NewDeskFormDetailsComponent', () => {
             MockComponent(TimeFieldComponent),
             MockComponent(AssetListFieldComponent),
             MockComponent(DeskListFieldComponent),
+            MockComponent(UserListFieldComponent),
+            MockComponent(UserSearchFieldComponent),
         ],
         imports: [
             MockModule(MatCheckboxModule),
