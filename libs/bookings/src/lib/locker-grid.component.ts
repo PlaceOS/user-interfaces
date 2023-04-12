@@ -23,7 +23,7 @@ import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
                 [style.background-color]="status(locker)"
                 [style.grid-row-end]="locker.position[1] + (locker.size[1] + 1)"
                 [matTooltip]="locker.name"
-                [disabled]="!locker.bookable"
+                [disabled]="locker.bookable === false"
                 (click)="clicked.emit(locker)"
             >
                 <div

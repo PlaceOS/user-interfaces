@@ -536,6 +536,8 @@ export class BookingFormService extends AsyncHandler {
             this.form.patchValue({
                 ...form,
                 user: user as any,
+                user_email: user.email,
+                user_id: user.id,
                 asset_id: asset?.id,
                 asset_name: asset.name,
                 description: asset.name,
