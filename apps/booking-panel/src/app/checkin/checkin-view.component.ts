@@ -6,6 +6,7 @@ import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { currentPeriod, nextPeriod } from '../new-panel/helpers';
 import { PanelStateService } from '../panel-state.service';
+import { getNextFreeTimeSlot } from '@placeos/events';
 
 @Component({
     selector: 'checkin-view',
@@ -182,14 +183,15 @@ import { PanelStateService } from '../panel-state.service';
                         {{ (event_state | async)?.next || 'No upcoming event' }}
                     </div>
                 </div>
-                <!-- <button
+                <button
                     btn
                     matRipple
                     class="w-24"
                     *ngIf="!(event_state | async)?.next"
+                    (click)="newBooking(start, true)"
                 >
                     {{ 'PANEL.BOOK' | translate }}
-                </button> -->
+                </button>
             </div>
         </div>
         <h3 class="p-4 text-xl font-medium">
@@ -272,10 +274,11 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
     public readonly state = this._state.status;
     public readonly system = this._state.space;
     public readonly bookings = this._state.bookings;
+    public start = Date.now();
 
     public readonly checkInCurrent = () => this._state.startMeeting();
-    public readonly newBooking = (d = Date.now()) =>
-        this._state.newBooking(d, this.has_user);
+    public readonly newBooking = (d = Date.now(), f = false) =>
+        this._state.newBooking(d, this.has_user, f);
 
     public has_user = false;
 
@@ -288,6 +291,10 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
             current: currentPeriod(l, c, n),
             next: nextPeriod(n),
         }))
+    );
+
+    public readonly next_available = this._state.bookings.pipe(
+        map((_) => getNextFreeTimeSlot(_).start)
     );
 
     public get time() {
@@ -307,6 +314,10 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
 
     public ngOnInit() {
         this._state.system = '';
+        this.subscription(
+            'next-available',
+            this.next_available.subscribe((_) => (this.start = _))
+        );
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((params) => {

@@ -196,7 +196,8 @@ export class PanelStateService extends AsyncHandler {
      */
     public async newBooking(
         date: number = new Date().valueOf(),
-        user: boolean = false
+        user: boolean = false,
+        future: boolean = false
     ) {
         const current = await this.current.pipe(take(1)).toPromise();
         if (
@@ -212,6 +213,7 @@ export class PanelStateService extends AsyncHandler {
                 user: user ? currentUser() : null,
                 space,
                 date,
+                future,
             },
             this._dialog
         );
@@ -232,15 +234,19 @@ export class PanelStateService extends AsyncHandler {
      * @param details
      */
     public async makeBooking(details: Partial<CalendarEvent>) {
-        const module = getModule(this.system, 'Bookings');
-        if (details && module) {
-            await module
-                .execute('book_now', [
-                    details.duration * 60,
-                    details.title,
-                    details.host,
-                ])
-                .catch((e) => notifyError(`Error creating meeting. ${e}`));
+        if (isAfter(details.date, addMinutes(Date.now(), 5))) {
+            await this._events.postForm();
+        } else {
+            const module = getModule(this.system, 'Bookings');
+            if (details && module) {
+                await module
+                    .execute('book_now', [
+                        details.duration * 60,
+                        details.title,
+                        details.host,
+                    ])
+                    .catch((e) => notifyError(`Error creating meeting. ${e}`));
+            }
         }
     }
 
