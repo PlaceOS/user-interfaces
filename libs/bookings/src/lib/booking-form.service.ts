@@ -102,7 +102,7 @@ export class BookingFormService extends AsyncHandler {
     public readonly options = this._options.pipe(shareReplay(1));
     public readonly form = generateBookingForm();
 
-    public readonly resource: Observable<BookingAsset[]> = this.options.pipe(
+    public readonly resources: Observable<BookingAsset[]> = this.options.pipe(
         debounceTime(300),
         distinctUntilKeyChanged('type'),
         switchMap(({ type }) => {
@@ -121,7 +121,7 @@ export class BookingFormService extends AsyncHandler {
         shareReplay(1)
     );
 
-    public readonly features: Observable<string[]> = this.resource.pipe(
+    public readonly features: Observable<string[]> = this.resources.pipe(
         map((resource) => {
             const list: string[] = [];
             for (const { features } of resource) {
@@ -136,7 +136,7 @@ export class BookingFormService extends AsyncHandler {
 
     public readonly available_resources = combineLatest([
         this.options,
-        this.resource,
+        this.resources,
         merge(this.form.valueChanges, timer(1000)),
     ]).pipe(
         filter(

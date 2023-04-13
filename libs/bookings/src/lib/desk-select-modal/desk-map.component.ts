@@ -1,8 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { AsyncHandler, unique } from '@placeos/common';
+import { AsyncHandler, SettingsService, unique } from '@placeos/common';
 import { distinctUntilChanged, map, tap } from 'rxjs/operators';
 
 import { BookingAsset, BookingFormService } from '../booking-form.service';
+import { combineLatest } from 'rxjs';
+import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 
 @Component({
     selector: 'desk-map',
@@ -24,7 +26,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
             [src]="map_url"
             [(zoom)]="zoom"
             [(center)]="center"
-            [features]="features | async"
+            [styles]="styles | async"
             [actions]="actions | async"
         ></i-map>
         <div
@@ -102,19 +104,32 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
         )
     );
 
-    public readonly features = this._state.available_resources.pipe(
-        map((desks) =>
-            desks.map((desk) => ({
-                location: desk.map_id || desk.id,
-                content: `<span class="flex h-4 w-4 rounded-full absolute top-1/4 left-1/4 transform -translate-x-1/2 -translate-y-1/2 border-[3px] shadow" >
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-800 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-full w-full bg-green-800"></span>
-                        </span>`,
-            }))
+    public readonly styles = combineLatest([
+        this._state.resources,
+        this._state.available_resources,
+    ]).pipe(
+        map(([desks, free_desks]) =>
+            desks.reduce((styles, desk) => {
+                console.log(desk);
+                const colours = this._settings.get('app.explore.colors') || {};
+                const status = free_desks.find((_) => _.id === desk.id)
+                    ? 'free'
+                    : 'busy';
+                styles[`#${desk.map_id || desk.id}`] = {
+                    fill:
+                        colours[`desk-${status}`] ||
+                        colours[`${status}`] ||
+                        DEFAULT_COLOURS[`${status}`],
+                };
+                return styles;
+            }, {})
         )
     );
 
-    constructor(private _state: BookingFormService) {
+    constructor(
+        private _state: BookingFormService,
+        private _settings: SettingsService
+    ) {
         super();
     }
 

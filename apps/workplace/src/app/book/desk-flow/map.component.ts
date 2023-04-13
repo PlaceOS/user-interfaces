@@ -237,7 +237,7 @@ export class DeskFlowMapComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'assets-statue',
             combineLatest([
-                this._state.resource,
+                this._state.resources,
                 this._state.available_resources,
                 this._active_desk,
             ])
