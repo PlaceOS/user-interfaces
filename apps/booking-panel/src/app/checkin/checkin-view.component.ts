@@ -182,14 +182,14 @@ import { PanelStateService } from '../panel-state.service';
                         {{ (event_state | async)?.next || 'No upcoming event' }}
                     </div>
                 </div>
-                <button
+                <!-- <button
                     btn
                     matRipple
                     class="w-24"
                     *ngIf="!(event_state | async)?.next"
                 >
                     {{ 'PANEL.BOOK' | translate }}
-                </button>
+                </button> -->
             </div>
         </div>
         <h3 class="p-4 text-xl font-medium">
