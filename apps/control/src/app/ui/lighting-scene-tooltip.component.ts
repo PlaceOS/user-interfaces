@@ -21,11 +21,11 @@ import { ControlStateService, LightScene } from '../control-state.service';
                     [class.inverse]="(scene | async) !== item.id"
                     (click)="setScene(item.name)"
                 >
-                    <div class="flex items-center space-x-4">
+                    <div class="flex flex-1 items-center space-x-4">
                         <app-icon [style.opacity]="item.opacity || 1">{{
                             item.icon
                         }}</app-icon>
-                        <div>{{ item.name }}</div>
+                        <div class="flex-1">{{ item.name }}</div>
                     </div>
                 </button>
             </ng-container>

@@ -8,7 +8,7 @@ import { ControlStateService } from '../control-state.service';
     selector: 'microphone-tooltip',
     template: `
         <div
-            class="p-4 my-2 bg-white shadow rounded flex flex-col items-center space-y-2 max-h-[65vh] overflow-auto"
+            class="p-4 my-2 bg-white shadow rounded flex flex-col items-center space-y-2 max-h-[65vh] overflow-x-hidden overflow-y-auto"
         >
             <h3 class="mb-2 text-xl font-medium">Microphones</h3>
             <ng-container

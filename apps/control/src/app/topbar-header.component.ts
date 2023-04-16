@@ -200,6 +200,7 @@ export class TopbarHeaderComponent extends AsyncHandler {
                 this._state.joined,
                 this._call.speaker_track,
                 this._state.lighting_scenes,
+                this._state.help_items,
             ]).subscribe(
                 ([
                     mics,
@@ -214,6 +215,7 @@ export class TopbarHeaderComponent extends AsyncHandler {
                     joined,
                     speaker_track,
                     l_scenes,
+                    help_items,
                 ]) => {
                     (this.action_list as any)[TOOLTIP.PHONE].show = !!(
                         system as any
@@ -224,7 +226,9 @@ export class TopbarHeaderComponent extends AsyncHandler {
                         has_vc && false;
                     (this.action_list as any)[TOOLTIP.VC].enabled = !!call;
                     this.action_list[TOOLTIP.MEET].show =
-                        !this.is_trusted && (system as any).meeting_url;
+                        !this.is_trusted &&
+                        (system as any).meeting_url &&
+                        false;
                     this.action_list[TOOLTIP.LIGHTS].show =
                         (lights as any)?.length > 0;
                     this.action_list[TOOLTIP.ACCESSORIES].show =
@@ -238,6 +242,8 @@ export class TopbarHeaderComponent extends AsyncHandler {
                         (joined as any)?.room_ids?.length > 1;
                     this.action_list[TOOLTIP.CAMERA].show =
                         (cams as any)?.length > 0 && !speaker_track;
+                    this.action_list[TOOLTIP.HELP].show =
+                        (help_items as any)?.length > 0;
                     this.action_list = [...this.action_list];
                     this.action_list[TOOLTIP.LIGHT_SCENES].show =
                         l_scenes != null;
