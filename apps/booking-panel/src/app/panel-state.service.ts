@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { getModule, PlaceSystem, showSystem } from '@placeos/ts-client';
-import { BehaviorSubject, interval, Observable, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, interval, Observable, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -150,8 +150,11 @@ export class PanelStateService extends AsyncHandler {
         shareReplay(1)
     );
 
-    public readonly status: Observable<string> = this._settings.pipe(
-        map((_) => _.status || 'free'),
+    public readonly status: Observable<string> = combineLatest([
+        this._settings,
+        this.current,
+    ]).pipe(
+        map(([{ status }, booking]) => (status || booking ? 'busy' : 'free')),
         shareReplay(1)
     );
 
