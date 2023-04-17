@@ -59,7 +59,9 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                                     {{
                                         space.location ||
                                             space.level?.display_name ||
-                                            space.level?.name
+                                            space.level?.name ||
+                                            space.zone?.display_name ||
+                                            space.zone?.name
                                     }}
                                 </p>
                             </div>
