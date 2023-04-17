@@ -617,7 +617,11 @@ export class BookingFormService extends AsyncHandler {
                         (_.metadata[type]?.details instanceof Array
                             ? _.metadata[type]?.details
                             : []
-                        ).map((d) => ({ ...d, zone: _.zone }))
+                        ).map((d) => ({
+                            ...d,
+                            id: d.id || d.map_id,
+                            zone: _.zone,
+                        }))
                     )
                 )
             )
