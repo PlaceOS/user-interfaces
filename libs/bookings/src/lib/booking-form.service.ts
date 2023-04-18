@@ -91,6 +91,7 @@ export class BookingFormService extends AsyncHandler {
         type: 'desk',
     });
     private _booking = new BehaviorSubject<Booking>(null);
+    private _resource_use: Record<string, string> = {};
     private _loading = new BehaviorSubject<string>('');
 
     public last_success: Booking = new Booking(
@@ -160,8 +161,12 @@ export class BookingFormService extends AsyncHandler {
                 type: options.type,
                 zones: options.zone_id,
             }).pipe(
-                map((bookings) =>
-                    resources.filter(
+                map((bookings) => {
+                    this._resource_use = {};
+                    bookings.forEach(
+                        (_) => (this._resource_use[_.asset_id] = _.user_name)
+                    );
+                    return resources.filter(
                         (asset) =>
                             (!asset.groups?.length ||
                                 asset.groups.some((grp) =>
@@ -180,8 +185,8 @@ export class BookingFormService extends AsyncHandler {
                                     bkn.asset_id === asset.id &&
                                     bkn.status !== 'declined'
                             )
-                    )
-                )
+                    );
+                })
             )
         ),
         tap(() => this._loading.next('')),
@@ -226,6 +231,10 @@ export class BookingFormService extends AsyncHandler {
 
     public get booking() {
         return this._booking.getValue();
+    }
+
+    public resourceUserName(id: string) {
+        return this._resource_use[id];
     }
 
     public newForm(booking: Booking = new Booking()) {

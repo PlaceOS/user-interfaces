@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AsyncHandler, SettingsService, unique } from '@placeos/common';
-import { distinctUntilChanged, map, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 import { BookingAsset, BookingFormService } from '../booking-form.service';
 import { combineLatest } from 'rxjs';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
+import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info.component';
 
 @Component({
     selector: 'desk-map',
@@ -26,6 +27,7 @@ import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
             [src]="map_url"
             [(zoom)]="zoom"
             [(center)]="center"
+            [features]="features | async"
             [styles]="styles | async"
             [actions]="actions | async"
         ></i-map>
@@ -100,6 +102,25 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
                 id: desk.map_id || desk.id,
                 action: ['touchend', 'mouseup'],
                 callback: () => this.selectDesk(desk as any),
+            }))
+        )
+    );
+
+    public readonly features = this._state.available_resources.pipe(
+        map((desks) =>
+            desks.map((desk) => ({
+                track_id: `desk:hover:${desk.map_id || desk.id}`,
+                location: desk.id,
+                content: ExploreDeskInfoComponent,
+                full_size: true,
+                no_scale: true,
+                data: {
+                    id: desk.map_id || desk.id,
+                    map_id: desk.name,
+                    name: desk.name || desk.map_id,
+                    user: this._state.resourceUserName(desk.id),
+                },
+                z_index: 20,
             }))
         )
     );
