@@ -3,10 +3,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Booking, checkinBooking, removeBooking } from '@placeos/bookings';
 import {
+    AsyncHandler,
     notifyError,
     notifySuccess,
     openConfirmModal,
-    SettingsService
+    SettingsService,
 } from '@placeos/common';
 import { CalendarEvent, EventFormService, removeEvent } from '@placeos/events';
 import { format, isSameDay } from 'date-fns';
@@ -94,7 +95,7 @@ import { ScheduleStateService } from './schedule-state.service';
         `,
     ],
 })
-export class ScheduleComponent {
+export class ScheduleComponent extends AsyncHandler {
     public readonly bookings = this._state.filtered_bookings;
     public readonly date = this._state.date;
     public readonly loading = this._state.loading;
@@ -117,7 +118,14 @@ export class ScheduleComponent {
         private _router: Router,
         private _dialog: MatDialog,
         private _settings: SettingsService
-    ) {}
+    ) {
+        super();
+    }
+
+    public ngOnInit() {
+        this._state.triggerPoll();
+        this.subscription('poll', this._state.startPolling());
+    }
 
     public trackByFn(index: number, item: any) {
         return item?.id;
@@ -159,7 +167,7 @@ export class ScheduleComponent {
         this._dialog.closeAll();
     }
 
-    public async end(item: Booking){
+    public async end(item: Booking) {
         const time = `${format(item.date, 'dd MMM yyyy h:mma')}`;
         const resource_name = item.asset_name || item.asset_id;
         const content = `End the booking for ${resource_name} at ${time}`;
@@ -170,11 +178,13 @@ export class ScheduleComponent {
 
         if (resp.reason !== 'done') return;
         resp.loading('Ending booking...');
-        await checkinBooking(item.id, false).toPromise().catch((e) => {
-            notifyError(`Unable to end booking. ${e}`);
-            resp.close();
-            throw e;
-        });
+        await checkinBooking(item.id, false)
+            .toPromise()
+            .catch((e) => {
+                notifyError(`Unable to end booking. ${e}`);
+                resp.close();
+                throw e;
+            });
         notifySuccess('Successfully ended booking.');
         this._state.removeItem(item);
         this._dialog.closeAll();
