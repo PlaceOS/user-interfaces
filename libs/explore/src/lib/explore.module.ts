@@ -8,6 +8,7 @@ import { OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
 
 import { FormFieldsModule } from 'libs/form-fields/src/lib/form-fields.module';
+import { SharedBookingsModule } from 'libs/bookings/src/lib/bookings.module';
 
 import { ExploreMapControlComponent } from './explore-map-control.component';
 import { ExploreMapViewComponent } from './explore-map-view.component';
@@ -21,6 +22,7 @@ import { SetDatetimeModalComponent } from './set-datetime-modal.component';
 import { ExploreBookQrComponent } from './explore-book-qr.component';
 import { ExploreSensorInfoComponent } from './explore-sensor-info.component';
 import { ExploreLockerBankInfoComponent } from './explore-locker-bank-info.component';
+import { ExploreLockerBankModalComponent } from './explore-locker-bank-modal.component';
 
 const COMPONENTS: Type<any>[] = [
     ExploreMapControlComponent,
@@ -35,6 +37,7 @@ const COMPONENTS: Type<any>[] = [
     ExploreBookQrComponent,
     ExploreSensorInfoComponent,
     ExploreLockerBankInfoComponent,
+    ExploreLockerBankModalComponent,
 ];
 
 @NgModule({
@@ -48,6 +51,7 @@ const COMPONENTS: Type<any>[] = [
         OverlayModule,
         PortalModule,
         FormFieldsModule,
+        SharedBookingsModule,
     ],
     exports: [...COMPONENTS],
 })

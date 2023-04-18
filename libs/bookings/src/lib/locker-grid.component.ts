@@ -7,7 +7,7 @@ import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
     selector: 'locker-grid',
     template: `
         <div
-            class="grid gap-2 overflow-hidden h-full min-h-[75vh] min-w-[60vw] p-2"
+            class="grid gap-2 overflow-hidden max-h-full h-[75vh] min-w-[60vw] p-2"
             [style.grid-template-columns]="'repeat(' + columns + ', 1fr)'"
             [style.grid-template-rows]="'repeat(' + bank?.height + ', 1fr)'"
         >

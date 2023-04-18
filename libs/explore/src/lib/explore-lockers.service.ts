@@ -39,16 +39,20 @@ export class ExploreLockersService extends AsyncHandler {
     );
 
     public readonly locker_status = combineLatest([
+        this._explore.level,
         this._lockers.lockers_banks$,
         this.lockers$,
         this._status,
     ]).pipe(
-        map(([locker_banks, lockers, status]) => {
+        map(([lvl, locker_banks, lockers, status]) => {
             const features = [];
             const map_status = {};
-            const actions = [];
             const colours = this._settings.get('app.explore.colors') || {};
-            const banks = unique(lockers.map((_) => _.bank_id));
+            const banks = unique(
+                locker_banks
+                    .filter((_) => _.level_id === lvl.id)
+                    .map((_) => _.id)
+            );
             for (const bank of banks) {
                 const bank_lockers = lockers.filter((_) => _.bank_id === bank);
                 let in_use_count = 0;
@@ -62,9 +66,12 @@ export class ExploreLockersService extends AsyncHandler {
                 features.push({
                     location: bank_info.map_id,
                     content: ExploreLockerBankInfoComponent,
+                    full_size: true,
+                    no_scale: true,
                     z_index: 20,
                     data: {
                         bank: bank_info,
+                        lockers,
                         in_use_count,
                         locker_count: bank_lockers.length,
                         system: this._org.binding('area_management'),
@@ -77,14 +84,14 @@ export class ExploreLockersService extends AsyncHandler {
                         : in_use_percent > 0.3
                         ? 'pending'
                         : 'free';
-                map_status[bank_info.map_id] = {
+                map_status[`#${bank_info.map_id}`] = {
                     fill:
                         colours[`lockers-${value}`] ||
                         colours[`${value}`] ||
                         DEFAULT_COLOURS[`${value}`],
                 };
             }
-            this._explore.setActions('lockers', actions);
+            console.log('Features:', features);
             this._explore.setStyles('lockers', map_status);
             this._explore.setFeatures('lockers', features);
         })
