@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1681861646126,
+  "timestamp": 1681881292693,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -177,15 +177,15 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_workplace_src_app_book_book_module_ts.js": "934e5a8f9dd903d366e449304a9d3663b486e862",
-    "./apps_workplace_src_app_control_control_module_ts.js": "f5183b4ce066d3c65cc1e7f51af1f91538f6dc95",
+    "./apps_workplace_src_app_book_book_module_ts.js": "1a5eb33f4b4dd92e1593947eadc62f847a7caef2",
+    "./apps_workplace_src_app_control_control_module_ts.js": "d4a878e0f65a1f25cb3b628905b3510f9eb8fac0",
     "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "0aa985723adadece05287cd770f57eff10cec0cd",
-    "./apps_workplace_src_app_directory_directory_module_ts.js": "8d98d9d190b3dcadb960b2c4b949412f5950c916",
-    "./apps_workplace_src_app_explore_explore_module_ts.js": "a43787e1ee4fb6228233c6b17e0d55757c6d4b77",
+    "./apps_workplace_src_app_directory_directory_module_ts.js": "ddba9d5bdd2fc54fc904bb22876254d456ebfc28",
+    "./apps_workplace_src_app_explore_explore_module_ts.js": "7b58980dac144f942282827c28d2fc89999a7ded",
     "./apps_workplace_src_app_landing_landing_module_ts.js": "88ba424651810810a7122e00b1143a0febaf0a82",
-    "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "40bf9205068867be1de341db5c4c660684a07bfa",
-    "./apps_workplace_src_app_schedule_schedule_module_ts.js": "74b4ebd2a1d8474b8735f866c3b3390b547d604b",
-    "./apps_workplace_src_app_whats-on_whats-on_module_ts.js": "90d733b94c1dc1d293c401db0b6ab8da519c7774",
+    "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "a9b9d763abe731e8469ab98893a0c765973d7a19",
+    "./apps_workplace_src_app_schedule_schedule_module_ts.js": "fb2b6e3247de29e32aa317e7fce6bcb0a8a6722e",
+    "./apps_workplace_src_app_whats-on_whats-on_module_ts.js": "fe241cce80b7d8ba4d803343e6d3e772ed4679ad",
     "./assets/icons/amex.svg": "3530eff717af33317b79bdd1d0ec96abfa884287",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
     "./assets/icons/building-outline.svg": "a5b27618ef63cc4fc16d334b480eef238b5a9d31",
@@ -308,10 +308,10 @@
     "./assets/support/firefox-logo.svg": "5d92cf1198425c8696bbd4c4c79f7ee029a207b9",
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
-    "./common.js": "5df8d68c2578a503c030695cc8415e05d37ef914",
+    "./common.js": "9900298e4cd0d17e2d89e216665a9fdffda06d5a",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "3a2275608c66e203c145333e50b0dd1a7bacaf34",
-    "./main.js": "70e2b9d537423a6dd2e5ffc11c88b25372d488a7",
+    "./main.js": "e75e4dca5f9d7b4659f31c494148ee4113187bab",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
@@ -324,7 +324,7 @@
     "./node_modules_qr-scanner_qr-scanner-worker_min_js.js": "94ac1c3a207147d889d5b92f2dec288ec7140cd8",
     "./polyfills.js": "e0d5f40e9f386abfef867d71dd64fe680a8cbddd",
     "./runtime.js": "ab3fdb44add31ffecf5981f94787bb180e8bf88e",
-    "./styles.css": "1dfc9746c749edd5af2b3c7a3c8bc23ca49a89a4",
+    "./styles.css": "7435ce971511717c6266f4d8af15231599f271c1",
     "./vendor.js": "52f6e3e5efee5071fa2bcdc4c71e106d80dd91ae"
   },
   "navigationUrls": [
