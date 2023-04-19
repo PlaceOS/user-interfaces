@@ -164,6 +164,7 @@ const app: any = {
         'schedule',
         'wfh',
         'payments',
+        'lockers',
     ],
     currency: '',
     default_route: '/landing',

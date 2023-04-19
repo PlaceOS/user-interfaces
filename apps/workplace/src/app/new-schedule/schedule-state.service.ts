@@ -15,7 +15,7 @@ import { OrganisationService } from '@placeos/organisation';
 import { requestSpacesForZone } from '@placeos/spaces';
 import { getModule } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, isSameDay, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -76,7 +76,8 @@ export class ScheduleStateService extends AsyncHandler {
                                             system: space,
                                         })
                                 )
-                            )
+                            ),
+                            catchError((_) => of([]))
                         );
                         if (!this.hasSubscription(`bind:${space.id}`)) {
                             this.subscription(
@@ -120,9 +121,9 @@ export class ScheduleStateService extends AsyncHandler {
             return this._settings.get('app.events.use_bookings')
                 ? queryBookings({ ...query, type: 'room' }).pipe(
                       map((_) => _.map((i) => newCalendarEventFromBooking(i))),
-                      catchError((_) => [])
+                      catchError((_) => of([]))
                   )
-                : queryEvents({ ...query }).pipe(catchError((_) => []));
+                : queryEvents({ ...query }).pipe(catchError((_) => of([])));
         }),
         shareReplay(1)
     );
@@ -142,7 +143,7 @@ export class ScheduleStateService extends AsyncHandler {
             }).pipe(
                 catchError((_) => {
                     console.error(_);
-                    return [];
+                    return of([]);
                 })
             )
         ),
@@ -160,7 +161,7 @@ export class ScheduleStateService extends AsyncHandler {
             }).pipe(
                 catchError((_) => {
                     console.error(_);
-                    return [];
+                    return of([]);
                 })
             )
         ),
@@ -174,7 +175,7 @@ export class ScheduleStateService extends AsyncHandler {
                 period_start: getUnixTime(startOfDay(date)),
                 period_end: getUnixTime(endOfDay(date)),
                 type: 'parking',
-            }).pipe(catchError((_) => []))
+            }).pipe(catchError((_) => of([])))
         ),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
         shareReplay(1)
@@ -183,9 +184,9 @@ export class ScheduleStateService extends AsyncHandler {
     public readonly lockers: Observable<Booking[]> = this._update.pipe(
         switchMap(([date]) => {
             const system_id = this._org.binding('area_management');
-            if (!system_id) return [];
+            if (!system_id) return of([]);
             const mod = getModule(system_id, 'Lockers');
-            return mod.execute('lockers_allocated_to_me');
+            return mod.execute('lockers_allocated_to_me').catch((_) => []);
         }),
         map((_) =>
             _.map(

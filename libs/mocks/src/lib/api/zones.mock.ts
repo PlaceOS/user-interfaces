@@ -89,7 +89,13 @@ function registerMocks() {
             if (request.query_params.name === 'charge_codes') {
                 const parts = request.route_params.id.split('-');
                 const id = parts[parts.length - 1];
-                return { charge_codes: { details: new Array(30).fill(0).map((_, idx) => `C-${idx}`) } };
+                return {
+                    charge_codes: {
+                        details: new Array(30)
+                            .fill(0)
+                            .map((_, idx) => `C-${idx}`),
+                    },
+                };
             }
             if (request.query_params.name === 'map_regions') {
                 return {
@@ -105,12 +111,12 @@ function registerMocks() {
                                     },
                                     geometry: {
                                         coordinates: [
-                                            [0.0,0.0],
-                                            [0.0,0.5],
-                                            [0.5,0.5],
-                                            [0.5,0.0]
-                                        ]
-                                    }
+                                            [0.0, 0.0],
+                                            [0.0, 0.5],
+                                            [0.5, 0.5],
+                                            [0.5, 0.0],
+                                        ],
+                                    },
                                 },
                                 {
                                     id: 'zone-10.B',
@@ -169,7 +175,8 @@ function registerMocks() {
                     id: `table-${padString(id, 2)}.${padString(idx + 1, 3)}`,
                     name: `Desk ${id}.${padString(idx + 1, 3)}`,
                     bookable: predictableRandomInt(9999) % 4 !== 0,
-                    group: '',
+                    groups:
+                        predictableRandomInt(9999) % 4 === 0 ? ['test-1'] : [],
                     features: DESK_FEATURES.filter(
                         (_) => predictableRandomInt(99999) % 3 === 0
                     ),
