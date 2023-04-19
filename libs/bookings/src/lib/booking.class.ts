@@ -94,6 +94,8 @@ export class Booking {
     public readonly deleted: boolean;
     /** List of attendees for the booking */
     public readonly attendees: User[];
+    /** Time  */
+    public readonly checked_out_at?: number;
 
     constructor(data: Partial<BookingComplete> = {}) {
         this.id = data.id || '';

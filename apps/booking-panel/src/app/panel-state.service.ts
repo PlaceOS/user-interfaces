@@ -154,7 +154,7 @@ export class PanelStateService extends AsyncHandler {
         this._settings,
         this.current,
     ]).pipe(
-        map(([{ status }, booking]) => (status || booking ? 'busy' : 'free')),
+        map(([{ status }, booking]) => status || (booking ? 'busy' : 'free')),
         shareReplay(1)
     );
 
