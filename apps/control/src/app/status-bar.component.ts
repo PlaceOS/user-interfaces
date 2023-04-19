@@ -115,16 +115,12 @@ import { ControlStateService } from './control-state.service';
                         : 'volume_mute'
                 }}</app-icon>
             </button>
-            <mat-slider
-                white
-                [ngModel]="!mute ? (system | async).volume : 0"
-                (ngModelChange)="setVolume($event); mute = false"
-                class="flex-1"
-            >
+            <mat-slider white class="flex-1">
                 <input
                     matSliderThumb
-                    [ngModel]="!mute ? (system | async).volume : 0"
+                    [ngModel]="(system | async).volume || 0"
                     (ngModelChange)="setVolume($event); mute = false"
+                    [disabled]="(system | async).mute"
             /></mat-slider>
         </div>
     `,
