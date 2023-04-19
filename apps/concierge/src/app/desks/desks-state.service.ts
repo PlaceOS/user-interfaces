@@ -106,6 +106,8 @@ export class DesksStateService extends AsyncHandler {
                 period_end: Math.floor(endOfDay(date).valueOf() / 1000),
                 type: 'desk',
                 zones: (zones || []).join(','),
+                include_checked_out: true,
+                deleted: true,
             });
         }),
         map((list) => {

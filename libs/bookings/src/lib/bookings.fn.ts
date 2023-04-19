@@ -20,8 +20,10 @@ export interface BookingsQueryParams {
     period_end: number;
     /** Category of booking */
     type: BookingType;
-    /**  */
+    /** Include checked out bookings in the response */
     include_checked_out?: boolean;
+    /** Include deleted bookings in the response */
+    deleted?: boolean;
 }
 
 const BOOKINGS_ENDPOINT = `/api/staff/v1/bookings`;
