@@ -127,6 +127,31 @@ import { OrganisationService } from '@placeos/organisation';
             </a>
             <a
                 matRipple
+                name="nav-lockers"
+                class="flex items-center justify-center space-x-2 relative px-8"
+                *ngIf="features.includes('lockers')"
+                [routerLink]="['/book', 'locker']"
+                routerLinkActive="text-primary active"
+                matTooltip="Book Car Space"
+                matTooltipPosition="below"
+            >
+                <app-icon filled class="text-xl">lock</app-icon>
+                <app-icon
+                    outline
+                    className="material-icons-outlined"
+                    class="text-xl !m-0"
+                    >lock</app-icon
+                >
+                <span *ngIf="show_text" class="truncate hidden xl:block" i18n
+                    >Book Lockers</span
+                >
+                <div
+                    bar
+                    class="absolute bottom-0 inset-x-0 h-0.5 bg-primary"
+                ></div>
+            </a>
+            <a
+                matRipple
                 name="nav-visitor-invite"
                 class="flex items-center justify-center space-x-2 relative px-8"
                 *ngIf="features.includes('visitor-invite')"

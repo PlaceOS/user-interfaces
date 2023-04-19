@@ -47,6 +47,10 @@ import { MeetingFlowConfirmModalComponent } from './meeting-flow/meeting-flow-co
 import { NewParkingFlowConfirmComponent } from './new-parking-flow/parking-flow-confirm.component';
 import { CodeFlowSuccessComponent } from './code-flow-success.component';
 import { CodeFlowErrorComponent } from './code-flow-error.component';
+import { BookLockerFlowComponent } from './locker-flow.component';
+import { BookLockerFlowSuccessComponent } from './locker-flow/locker-flow-success.component';
+import { BookLockerFlowFormComponent } from './locker-flow/locker-flow-form.component';
+import { BookLockerFlowConfirmComponent } from './locker-flow/locker-flow-confirm.component';
 
 const ROUTES: Route[] = [
     {
@@ -70,6 +74,8 @@ const ROUTES: Route[] = [
             { path: 'new-parking/:step', component: NewParkingFlowComponent },
             { path: 'visitor', redirectTo: 'visitor/form' },
             { path: 'visitor/:step', component: VisitorFlowComponent },
+            { path: 'locker', redirectTo: 'locker/form' },
+            { path: 'locker/:step', component: BookLockerFlowComponent },
             { path: '*', redirectTo: 'spaces/form' },
         ],
     },
@@ -115,6 +121,11 @@ const ROUTES: Route[] = [
         NewParkingFlowConfirmComponent,
         ParkingFlowSuccessComponent,
         ParkingFormDetailsComponent,
+
+        BookLockerFlowComponent,
+        BookLockerFlowFormComponent,
+        BookLockerFlowConfirmComponent,
+        BookLockerFlowSuccessComponent,
     ],
     imports: [
         CommonModule,
