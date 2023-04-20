@@ -89,7 +89,7 @@ export class Booking {
     /** Default type */
     public readonly access: boolean;
     /** Status of the booking */
-    public readonly status: 'declined' | 'approved' | 'tentative';
+    public readonly status: 'declined' | 'approved' | 'tentative' | 'ended';
     /** New deleted field */
     public readonly deleted: boolean;
     /** List of attendees for the booking */
@@ -159,12 +159,14 @@ export class Booking {
         this.event_id = data.event_id;
         this.attendees = data.attendees || data.members || [];
         this.all_day = data.all_day ?? this.duration >= 12 * 60;
-        this.status =
-            this.rejected || this.extension_data.current_state === 'checked_out'
-                ? 'declined'
-                : this.approved
-                ? 'approved'
-                : 'tentative';
+        this.checked_out_at = data.checked_out_at || 0;
+        this.status = this.checked_out_at
+            ? 'ended'
+            : this.rejected
+            ? 'declined'
+            : this.approved
+            ? 'approved'
+            : 'tentative';
         for (const key in data) {
             if (!(key in this) && !IGNORE_EXT_KEYS.includes(key) && data[key]) {
                 this.extension_data[key] =

@@ -78,7 +78,9 @@ import { DesksStateService } from './desks-state.service';
                     [class.bg-success]="data === 'approved'"
                     [class.bg-pending]="data === 'tentative'"
                     [class.bg-error]="
-                        data === 'cancelled' || data === 'declined'
+                        data === 'cancelled' ||
+                        data === 'declined' ||
+                        data === 'ended'
                     "
                 >
                     {{ data }}
