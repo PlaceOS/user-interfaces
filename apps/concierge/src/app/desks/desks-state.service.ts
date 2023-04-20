@@ -107,7 +107,6 @@ export class DesksStateService extends AsyncHandler {
                 type: 'desk',
                 zones: (zones || []).join(','),
                 include_checked_out: true,
-                deleted: true,
             });
         }),
         map((list) => {
