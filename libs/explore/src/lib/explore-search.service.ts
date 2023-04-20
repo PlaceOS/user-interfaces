@@ -4,12 +4,14 @@ import {
     getModule,
     querySystems,
     queryUsers,
+    showMetadata,
 } from '@placeos/ts-client';
 import { SettingsService, unique } from '@placeos/common';
-import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of, timer } from 'rxjs';
 import {
     catchError,
     debounceTime,
+    filter,
     first,
     map,
     shareReplay,
@@ -79,13 +81,25 @@ export class ExploreSearchService {
         catchError(() => [])
     );
 
+    private _custom_features: Observable<SearchResult[]> =
+        this._org.active_building.pipe(
+            filter((bld) => !!bld),
+            switchMap(() =>
+                showMetadata(this._org.building.id, 'custom_map_features').pipe(
+                    catchError(() => of({ details: [] }))
+                )
+            ),
+            map(({ details }) => (details instanceof Array ? details : []))
+        );
+
     public readonly search_results: Observable<SearchResult[]> = combineLatest([
+        this._filter,
         this._space_search,
         this._user_search,
         this._emergency_contacts,
-        this._filter,
+        this._custom_features,
     ]).pipe(
-        map(([spaces, users, contacts, filter]) => {
+        map(([filter, spaces, users, contacts, features]) => {
             const search = filter.toLowerCase();
             const results = unique(
                 [
@@ -121,6 +135,14 @@ export class ExploreSearchService {
                         name: u.name,
                         description: u.email,
                     })),
+                    ...features
+                        .filter((_) => _.name.toLowerCase().includes(search))
+                        .map((s) => ({
+                            id: s.id,
+                            type: 'feature',
+                            name: s.name,
+                            description: '',
+                        })),
                 ],
                 'id'
             );
