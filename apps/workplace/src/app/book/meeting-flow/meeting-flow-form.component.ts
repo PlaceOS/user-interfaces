@@ -556,6 +556,8 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                 duration: value.duration,
                 resources: list,
                 zone_id: this._org.levelWithID(list[0].zones)?.parent_id,
+                tags: [],
+                categories: [],
             });
             await timer(500).toPromise();
             const menu = await this._catering.filtered_menu
