@@ -107,22 +107,24 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
     );
 
     public readonly features = this._state.available_resources.pipe(
-        map((desks) =>
-            desks.map((desk) => ({
-                track_id: `desk:hover:${desk.map_id || desk.id}`,
-                location: desk.id,
-                content: ExploreDeskInfoComponent,
-                full_size: true,
-                no_scale: true,
-                data: {
-                    id: desk.map_id || desk.id,
-                    map_id: desk.name,
-                    name: desk.name || desk.map_id,
-                    user: this._state.resourceUserName(desk.id),
-                },
-                z_index: 20,
-            }))
-        )
+        map((desks) => {
+            return this._settings.get('app.desks.hide_user')
+                ? []
+                : desks.map((desk) => ({
+                      track_id: `desk:hover:${desk.map_id || desk.id}`,
+                      location: desk.id,
+                      content: ExploreDeskInfoComponent,
+                      full_size: true,
+                      no_scale: true,
+                      data: {
+                          id: desk.map_id || desk.id,
+                          map_id: desk.name,
+                          name: desk.name || desk.map_id,
+                          user: this._state.resourceUserName(desk.id),
+                      },
+                      z_index: 20,
+                  }));
+        })
     );
 
     public readonly styles = combineLatest([
@@ -131,7 +133,6 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
     ]).pipe(
         map(([desks, free_desks]) =>
             desks.reduce((styles, desk) => {
-                console.log(desk);
                 const colours = this._settings.get('app.explore.colors') || {};
                 const status = free_desks.find((_) => _.id === desk.id)
                     ? 'free'
