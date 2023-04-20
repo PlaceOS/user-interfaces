@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import {
+    PlaceZoneMetadata,
     authority,
     getModule,
+    listChildMetadata,
     querySystems,
     queryUsers,
     showMetadata,
@@ -81,15 +83,32 @@ export class ExploreSearchService {
         catchError(() => [])
     );
 
-    private _custom_features: Observable<SearchResult[]> =
+    private _points_of_interest: Observable<SearchResult[]> =
         this._org.active_building.pipe(
             filter((bld) => !!bld),
             switchMap(() =>
-                showMetadata(this._org.building.id, 'points_of_interest').pipe(
-                    catchError(() => of({ details: [] }))
-                )
+                listChildMetadata(this._org.building.id, {
+                    name: 'points_of_interest',
+                }).pipe(catchError(() => of({ details: [] })))
             ),
-            map(({ details }) => (details instanceof Array ? details : []))
+            map((data: PlaceZoneMetadata[]) => {
+                console.log('Data:', data);
+                const list = [];
+                for (const item of data) {
+                    const metadata = item.metadata.points_of_interest;
+                    if (!metadata) continue;
+                    for (const poi of metadata.details as any[]) {
+                        list.push({
+                            id: poi.id,
+                            type: 'feature',
+                            name: poi.name,
+                            description: '',
+                            zone: item.zone,
+                        });
+                    }
+                }
+                return list;
+            })
         );
 
     public readonly search_results: Observable<SearchResult[]> = combineLatest([
@@ -97,7 +116,7 @@ export class ExploreSearchService {
         this._space_search,
         this._user_search,
         this._emergency_contacts,
-        this._custom_features,
+        this._points_of_interest,
     ]).pipe(
         map(([filter, spaces, users, contacts, features]) => {
             const search = filter.toLowerCase();

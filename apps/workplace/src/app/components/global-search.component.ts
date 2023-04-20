@@ -72,7 +72,9 @@ import { ExploreSearchService } from '@placeos/explore';
                         [queryParams]="
                             option.type === 'space'
                                 ? { space: option.id }
-                                : { user: option.id }
+                                : option.type === 'user'
+                                ? { user: option.id }
+                                : { locate: option.id, name: option.name }
                         "
                         class="w-full h-full flex items-center leading-tight p-4 hover:bg-black/5 dark:hover:bg-white/5"
                     >
