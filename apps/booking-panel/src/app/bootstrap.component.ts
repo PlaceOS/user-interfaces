@@ -11,8 +11,9 @@ import {
 
 import { AsyncHandler } from '@placeos/common';
 import { Space } from '@placeos/spaces';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { querySystems } from '@placeos/ts-client';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: '[app-bootstrap]',
@@ -131,13 +132,20 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     /** Whether input field is focused */
     public input_focus: boolean;
 
-    public readonly space_list = this.system_id$.pipe(
+    public readonly space_list = combineLatest([
+        this.system_id$,
+        this._org.initialised,
+    ]).pipe(
         debounceTime(300),
-        switchMap((search) => {
+        switchMap(([search]) => {
             this.loading = 'search';
             return search.length < 2
                 ? of({ data: [] })
-                : querySystems({ q: search, limit: 20 });
+                : querySystems({
+                      q: search,
+                      limit: 20,
+                      zone_id: this._org.organisation.id,
+                  });
         }),
         map((_) => _.data.map((_) => new Space(_ as any))),
         tap((_) => (this.loading = '')),
@@ -146,7 +154,11 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
 
     private _event = false;
 
-    constructor(private route: ActivatedRoute, private _router: Router) {
+    constructor(
+        private route: ActivatedRoute,
+        private _router: Router,
+        private _org: OrganisationService
+    ) {
         super();
     }
 
