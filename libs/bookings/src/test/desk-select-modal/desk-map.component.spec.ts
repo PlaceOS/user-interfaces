@@ -16,6 +16,7 @@ describe('DeskMapComponent', () => {
         component: DeskMapComponent,
         providers: [
             MockProvider(BookingFormService, {
+                resources: new BehaviorSubject([]),
                 available_resources: new BehaviorSubject([]),
             }),
         ],
