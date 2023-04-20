@@ -85,7 +85,7 @@ export class ExploreSearchService {
         this._org.active_building.pipe(
             filter((bld) => !!bld),
             switchMap(() =>
-                showMetadata(this._org.building.id, 'custom_map_features').pipe(
+                showMetadata(this._org.building.id, 'points_of_interest').pipe(
                     catchError(() => of({ details: [] }))
                 )
             ),
