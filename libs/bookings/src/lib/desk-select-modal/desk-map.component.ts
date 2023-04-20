@@ -106,12 +106,11 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
         )
     );
 
-    public readonly features = this._state.available_resources.pipe(
+    public readonly features = this._state.resources.pipe(
         map((desks) => {
             return this._settings.get('app.desks.hide_user')
                 ? []
                 : desks.map((desk) => ({
-                      track_id: `desk:hover:${desk.map_id || desk.id}`,
                       location: desk.id,
                       content: ExploreDeskInfoComponent,
                       full_size: true,
