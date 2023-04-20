@@ -6,7 +6,6 @@ import {
     listChildMetadata,
     querySystems,
     queryUsers,
-    showMetadata,
 } from '@placeos/ts-client';
 import { SettingsService, unique } from '@placeos/common';
 import { BehaviorSubject, combineLatest, Observable, of, timer } from 'rxjs';

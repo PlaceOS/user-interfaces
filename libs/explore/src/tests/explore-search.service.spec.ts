@@ -1,5 +1,9 @@
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
-import { Organisation, OrganisationService } from '@placeos/organisation';
+import {
+    Building,
+    Organisation,
+    OrganisationService,
+} from '@placeos/organisation';
 import { Space, SpacesService } from '@placeos/spaces';
 import { BehaviorSubject, of, timer } from 'rxjs';
 import { take } from 'rxjs/operators';
@@ -13,7 +17,7 @@ import * as ts_client from '@placeos/ts-client';
 import * as user_mod from '@placeos/users';
 import { fakeAsync, tick } from '@angular/core/testing';
 import { MockProvider } from 'ng-mocks';
-import { SettingsService } from '@placeos/common';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
 
 describe('ExploreSearchService', () => {
     let spectator: SpectatorService<ExploreSearchService>;
@@ -24,6 +28,7 @@ describe('ExploreSearchService', () => {
                 initialised: of(true),
                 organisation: new Organisation(),
                 binding: jest.fn(() => 'sys-1'),
+                active_building: new BehaviorSubject(new Building()),
             }),
             MockProvider(SettingsService, {
                 get: jest.fn(),
