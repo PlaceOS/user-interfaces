@@ -17,7 +17,12 @@ export function getCateringRulesForZone(
     if (!zone_id) return of([] as CateringRuleset[]);
     if (!RULE_REQUESTS[zone_id] || fresh)
         RULE_REQUESTS[zone_id] = showMetadata(zone_id, 'catering_config').pipe(
-            map((_) => _.details as CateringRuleset[]),
+            map(
+                (_) =>
+                    (_.details instanceof Array
+                        ? _.details
+                        : []) as CateringRuleset[]
+            ),
             catchError((e) => of([] as CateringRuleset[]))
         );
     return RULE_REQUESTS[zone_id];

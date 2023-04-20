@@ -494,9 +494,21 @@ export class MeetingFlowFormComponent extends AsyncHandler {
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         this.subscription(
-            'changes',
-            this.form.valueChanges.subscribe(() =>
-                this._checkCateringEligibility(this.form.value.resources || [])
+            'space_changes',
+            this.form.controls.resources.valueChanges.subscribe((l) =>
+                this._checkCateringEligibility(l)
+            )
+        );
+        this.subscription(
+            'date_changes',
+            this.form.controls.date.valueChanges.subscribe((l) =>
+                this._checkCateringEligibility(this.form.value.resources)
+            )
+        );
+        this.subscription(
+            'duration_changes',
+            this.form.controls.duration.valueChanges.subscribe((l) =>
+                this._checkCateringEligibility(this.form.value.resources)
             )
         );
         this._catering.setOptions({ zone: '' });
