@@ -206,7 +206,7 @@ export class InteractiveMapComponent
 
     public ngOnChanges(changes: SimpleChanges): void {
         if (changes.src && this.src) {
-            this.createView();
+            this.createView().catch((e) => console.warn(e));
         }
         if (changes.features) {
             this.updateInjectors();
@@ -237,7 +237,7 @@ export class InteractiveMapComponent
     }
 
     public ngAfterViewInit() {
-        this.createView();
+        this.createView().catch((e) => console.warn(e));
     }
 
     /** Update overlays, styles and actions of viewer */
@@ -312,7 +312,9 @@ export class InteractiveMapComponent
             (this.src && !this._outlet_el?.nativeElement) ||
             this.loading
         ) {
-            this.timeout('create_view', () => this.createView());
+            this.timeout('create_view', () =>
+                this.createView().catch((e) => console.warn(e))
+            );
         }
     }
 

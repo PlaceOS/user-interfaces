@@ -16,7 +16,7 @@ import { User } from '@placeos/users';
         <ng-container *ngIf="!sent; else send_state">
             <div
                 class="relative flex flex-col bg-white dark:bg-neutral-700 overflow-auto max-h-full"
-                *ngIf="!(loading | async); else load_state"
+                *ngIf="!(loading | async) && !loading_many; else load_state"
             >
                 <div
                     class="w-full border-b border-gray-200 dark:border-neutral-500 px-4 py-2"
@@ -290,6 +290,7 @@ export class InviteVisitorFormComponent extends AsyncHandler {
     public sent = false;
     public booking?: Booking;
     public readonly loading = this._service.loading;
+    public loading_many = false;
     public readonly buildings = this._org.active_buildings;
     public last_success = this._service.last_success;
     public last_count = 0;
@@ -418,6 +419,7 @@ export class InviteVisitorFormComponent extends AsyncHandler {
     }
 
     private async _bookForMany() {
+        this.loading_many = true;
         const group = `grp-${randomString(8)}`;
         const value = this.form.value;
         const assets = value.assets;
@@ -444,5 +446,6 @@ export class InviteVisitorFormComponent extends AsyncHandler {
                 throw e;
             });
         }
+        this.loading_many = false;
     }
 }
