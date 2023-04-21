@@ -11,7 +11,12 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
-import { cleanObject, listChildMetadata, PlaceZone } from '@placeos/ts-client';
+import {
+    cleanObject,
+    listChildMetadata,
+    PlaceZone,
+    showMetadata,
+} from '@placeos/ts-client';
 import { format, getUnixTime, addMinutes, set } from 'date-fns';
 import {
     BehaviorSubject,
@@ -22,6 +27,7 @@ import {
     timer,
 } from 'rxjs';
 import {
+    catchError,
     debounceTime,
     distinctUntilKeyChanged,
     filter,
@@ -82,6 +88,12 @@ export interface BookingAsset {
     features: string[];
 }
 
+export interface AssetRestriction {
+    start: number;
+    end: number;
+    assets: string[];
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -135,9 +147,22 @@ export class BookingFormService extends AsyncHandler {
         shareReplay(1)
     );
 
+    public readonly restrictions: Observable<AssetRestriction[]> =
+        this.options.pipe(
+            switchMap(({ type }) => {
+                return showMetadata(
+                    this._org.building.id,
+                    `${type}_restrictions`
+                ).pipe(catchError(() => of({ details: [] })));
+            }),
+            map((_) => (_.details instanceof Array ? _.details : [])),
+            shareReplay(1)
+        );
+
     public readonly available_resources = combineLatest([
         this.options,
         this.resources,
+        this.restrictions,
         merge(this.form.valueChanges, timer(1000)),
     ]).pipe(
         filter(
@@ -149,7 +174,7 @@ export class BookingFormService extends AsyncHandler {
         tap(([{ type }]) =>
             this._loading.next(`Checking ${type} availability...`)
         ),
-        switchMap(([options, resources]) =>
+        switchMap(([options, resources, restrictions]) =>
             queryBookings({
                 period_start: getUnixTime(this.form.getRawValue().date),
                 period_end: getUnixTime(
@@ -162,12 +187,24 @@ export class BookingFormService extends AsyncHandler {
                 zones: options.zone_id,
             }).pipe(
                 map((bookings) => {
+                    const start = this.form.getRawValue().date;
+                    const end = addMinutes(
+                        start,
+                        this.form.getRawValue().duration
+                    ).valueOf();
+                    const restriction = restrictions.find(
+                        (_) =>
+                            (start >= _.start && start < _.end) ||
+                            (end <= _.end && end > _.start)
+                    );
                     this._resource_use = {};
                     bookings.forEach(
                         (_) => (this._resource_use[_.asset_id] = _.user_name)
                     );
                     return resources.filter(
                         (asset) =>
+                            (!restriction ||
+                                !restriction.assets.includes(asset.id)) &&
                             (!asset.groups?.length ||
                                 asset.groups.some((grp) =>
                                     currentUser().groups.includes(grp)

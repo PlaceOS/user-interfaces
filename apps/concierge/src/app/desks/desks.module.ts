@@ -21,6 +21,7 @@ import { MatInputModule } from '@angular/material/input';
 import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/new-desk-flow/new-desk-form-details.component';
 import { DeskBookModalComponent } from './desk-book-modal.component';
 import { SharedBookingsModule } from '@placeos/bookings';
+import { DeskRestrictionModalComponent } from './desk-restriction-modal.component';
 
 const ROUTES: Route[] = [
     {
@@ -45,6 +46,7 @@ const ROUTES: Route[] = [
         DesksManageComponent,
         NewDeskFormDetailsComponent,
         DeskBookModalComponent,
+        DeskRestrictionModalComponent,
     ],
     imports: [
         CommonModule,

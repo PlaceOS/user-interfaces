@@ -298,7 +298,10 @@ import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-moda
                         notes
                         class="mx-4 overflow-hidden max-w-full"
                         *ngIf="event.body"
-                        [innerHTML]="event.body | sanitize"
+                        [innerHTML]="
+                            (event.body | sanitize) ||
+                            'Unable to sanitize notes contents'
+                        "
                     ></div>
                 </div>
                 <button

@@ -15,6 +15,7 @@ import { showBooking } from '@placeos/bookings';
 import { randomInt } from '@placeos/common';
 import { MatDialog } from '@angular/material/dialog';
 import { DeskBookModalComponent } from './desk-book-modal.component';
+import { DeskRestrictionModalComponent } from './desk-restriction-modal.component';
 
 @Component({
     selector: 'desks-topbar',
@@ -68,6 +69,15 @@ import { DeskBookModalComponent } from './desk-book-modal.component';
                     class="absolute inset-0 opacity-0"
                     (change)="loadCSVData($event)"
                 />
+            </button>
+            <button
+                btn
+                matRipple
+                *ngIf="manage"
+                class="mx-2 w-32"
+                (click)="manageRestrictions()"
+            >
+                Desk Restrictions
             </button>
             <div class="flex-1 w-2"></div>
             <searchbar
@@ -147,6 +157,13 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
             })
         );
         this.subscription(
+            'router.events',
+            this._router.events.subscribe(() => {
+                this.manage = this._router.url?.includes('manage');
+                this.is_map = this._router.url?.includes('map');
+            })
+        );
+        this.subscription(
             'levels',
             this._org.active_levels.subscribe(async (levels) => {
                 const filters = await this.filters.pipe(take(1)).toPromise();
@@ -175,6 +192,10 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
 
     public newDeskBooking() {
         this._dialog.open(DeskBookModalComponent, {});
+    }
+
+    public manageRestrictions() {
+        this._dialog.open(DeskRestrictionModalComponent, {});
     }
 
     public async loadCSVData(event: InputEvent) {
