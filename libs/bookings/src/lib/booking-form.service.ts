@@ -520,7 +520,7 @@ export class BookingFormService extends AsyncHandler {
             .toPromise()
             .catch((e) => {
                 this._loading.next('');
-                throw e;
+                throw e?.error || e;
             });
         this._loading.next('');
         const { booking_type } = value;
