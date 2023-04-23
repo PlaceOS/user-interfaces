@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1682054031277,
+  "timestamp": 1682293105011,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -136,7 +136,7 @@
     "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "91bf62e06f97d7d4c326cda9ddc16b30b51e167a",
     "./apps_concierge_src_app_catering_catering_module_ts.js": "483bf49fb0552658990772007c0720b45f2c27e0",
     "./apps_concierge_src_app_day-view_day-view_module_ts.js": "8948f955bd62b38fa47f18bced8a9e0e8c438366",
-    "./apps_concierge_src_app_desks_desks_module_ts.js": "890eb59a2f2bd546fb78fdfc1359a66c7352cc94",
+    "./apps_concierge_src_app_desks_desks_module_ts.js": "8ccd120f3873d92a9cc9f84527efdaa92ffab65e",
     "./apps_concierge_src_app_facilities_facilities_module_ts.js": "33ea014fe9190402a478b6afefab34772328f979",
     "./apps_concierge_src_app_parking_parking_module_ts.js": "e00bb33b8103ab13d9213de443c846c9f26ec3a5",
     "./apps_concierge_src_app_points_points_module_ts.js": "591620779b1ae3601cc9e858431fe4ae7f8242fd",
@@ -216,7 +216,7 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./common.js": "31056542a9f7c044eb51e24a35a496ddb3f06713",
-    "./default-libs_bookings_src_lib_bookings_module_ts-libs_bookings_src_lib_lockers_service_ts.js": "f6613491bb8dca4da132f6ba1395ca11f069bb99",
+    "./default-libs_bookings_src_lib_bookings_module_ts-libs_bookings_src_lib_lockers_service_ts.js": "3c3ab826f1fc09ddc6c99fcd1720a4d22a88811f",
     "./default-libs_catering_src_index_ts.js": "dafe5b6190ddae9c89369f7b41a23dda9d64e24a",
     "./default-libs_explore_src_index_ts.js": "6f2bde017c50094556b97ff77c64870718628903",
     "./default-libs_users_src_index_ts.js": "3bdd223665da9bedc827fd220fe58c1567b10894",
@@ -224,7 +224,7 @@
     "./default-node_modules_angular_material_fesm2020_tabs_mjs.js": "0f56ef6226902dba2654798b4918f54670f3f001",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "85c10b9748bc9d102550c65678c81fec96aee819",
-    "./main.js": "02072a9d995ab907508c5da3262ab2fbf27d7dc7",
+    "./main.js": "2ed719e46a325e6eaafb617f9265e80fd8fc308d",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
