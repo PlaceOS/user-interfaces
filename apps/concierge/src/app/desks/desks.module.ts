@@ -22,6 +22,7 @@ import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/new-des
 import { DeskBookModalComponent } from './desk-book-modal.component';
 import { SharedBookingsModule } from '@placeos/bookings';
 import { DeskRestrictionModalComponent } from './desk-restriction-modal.component';
+import { FormFieldsModule } from '@placeos/form-fields';
 
 const ROUTES: Route[] = [
     {
@@ -56,6 +57,7 @@ const ROUTES: Route[] = [
         UIModule,
         SharedExploreModule,
         SharedBookingsModule,
+        FormFieldsModule,
         MatRadioModule,
         MatFormFieldModule,
         MatCheckboxModule,

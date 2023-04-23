@@ -104,7 +104,7 @@ import { AssetRestriction } from '@placeos/bookings';
                 </div>
                 <custom-table
                     class="block w-[calc(65vw)]"
-                    [dataSource]="desks"
+                    [dataSource]="desk_list"
                     [filter]="search"
                     [columns]="['toggle', 'name', 'map_id']"
                     [display_column]="[' ', 'name', 'MapID']"
