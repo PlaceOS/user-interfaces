@@ -72,7 +72,7 @@ import { AssetRestriction } from '@placeos/bookings';
             </div>
         </ng-template>
         <ng-template #add_state>
-            <main class="flex flex-col h-[65vh]">
+            <main class="flex flex-col h-[65vh] overflow-auto">
                 <div class="flex items-center space-x-2 px-2 pt-2">
                     <mat-form-field appearance="outline" class="flex-1">
                         <mat-date-range-input [rangePicker]="picker">
