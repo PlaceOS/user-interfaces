@@ -28,12 +28,12 @@ import { AssetRestriction } from '@placeos/bookings';
                 <custom-table
                     class="block w-[calc(80vw)]"
                     [dataSource]="restrictions"
-                    [columns]="['start', 'duration', 'desk_count', 'actions']"
+                    [columns]="['start', 'duration', 'assets', 'actions']"
                     [display_column]="['Date', 'Period', 'No. of Desks', ' ']"
                     [template]="{
                         start: date_template,
                         duration: duration_template,
-                        desk_count: count_template,
+                        assets: count_template,
                         actions: actions_template
                     }"
                     empty="No desk restrictions set"
