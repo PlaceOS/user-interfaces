@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { notifySuccess } from '@placeos/common';
+import { notifyError, notifySuccess } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { endOfDay, isBefore, startOfDay } from 'date-fns';
@@ -42,7 +42,7 @@ import { AssetRestriction } from '@placeos/bookings';
                     {{ data | date: 'mediumDate' }}
                 </ng-template>
                 <ng-template #duration_template let-data="data">
-                    {{ data | duration: true }}
+                    {{ data }}
                 </ng-template>
                 <ng-template #count_template let-data="data">
                     {{ data?.length || '0' }} desk(s)
@@ -66,7 +66,9 @@ import { AssetRestriction } from '@placeos/bookings';
             </footer>
         </ng-container>
         <ng-template #load_state>
-            <div class="flex items-center justify-center w-64 h-48">
+            <div
+                class="flex flex-col items-center justify-center w-[20rem] h-[16rem] space-y-2"
+            >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>Saving desk restriction changes...</p>
             </div>
@@ -188,12 +190,25 @@ export class DeskRestrictionModalComponent {
     public async save() {
         this.loading = true;
         this._dialog_ref.disableClose = true;
+        console.log(
+            'Restrictions:',
+            this.restrictions,
+            this.restrictions.filter((_) => isBefore(Date.now(), _.end))
+        );
         await updateMetadata(this._org.building.id, {
             name: 'desk_restrictions',
+            description: 'Desk restrictions',
             details: this.restrictions.filter((_) =>
                 isBefore(Date.now(), _.end)
             ),
-        });
+        })
+            .toPromise()
+            .catch((_) => {
+                this.loading = false;
+                this._dialog_ref.disableClose = false;
+                notifyError('Failed to update desk restrictions');
+                throw _;
+            });
         this.loading = false;
         this._dialog_ref.disableClose = false;
         this._dialog_ref.close();
