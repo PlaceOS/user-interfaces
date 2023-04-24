@@ -133,7 +133,7 @@ import { AssetRestriction } from '@placeos/bookings';
                     Back
                 </button>
                 <button btn matRipple (click)="addRestriction()" class="w-32">
-                    Save
+                    Add to Restrictions
                 </button>
             </footer>
         </ng-template>

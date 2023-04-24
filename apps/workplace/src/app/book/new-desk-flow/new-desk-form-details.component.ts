@@ -1,10 +1,14 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    Output,
+    SimpleChanges,
+} from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
-import { addMinutes, roundToNearestMinutes } from 'date-fns';
 
 @Component({
     selector: 'new-desk-form-details',
@@ -165,7 +169,7 @@ import { addMinutes, roundToNearestMinutes } from 'date-fns';
                     ></a-user-list-field>
                 </div>
             </section>
-            <section class="p-2">
+            <section class="p-2" *ngIf="form.contains('resources')">
                 <h3 class="space-x-2 flex items-center mb-4">
                     <div
                         class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
@@ -268,15 +272,15 @@ export class NewDeskFormDetailsComponent extends AsyncHandler {
         super();
     }
 
-    public ngOnInit() {
-        this.subscription(
-            'change',
-            this._state.form
-                .get('resources')
-                ?.valueChanges?.subscribe((list) =>
-                    list?.length ? this.setBookingAsset(list[0]) : ''
-                )
-        );
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes.form && this.form) {
+            this.subscription(
+                'change',
+                this.form.get('resources')?.valueChanges?.subscribe((list) => {
+                    list?.length ? this.setBookingAsset(list[0]) : '';
+                })
+            );
+        }
     }
 
     private setBookingAsset(desk: Desk) {

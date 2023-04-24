@@ -2,6 +2,7 @@ import { Component, Output, EventEmitter } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { BookingFormService } from '@placeos/bookings';
 import { DialogEvent, notifyError, notifySuccess } from '@placeos/common';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
     selector: 'desk-book-modal',
@@ -39,7 +40,7 @@ import { DialogEvent, notifyError, notifySuccess } from '@placeos/common';
 })
 export class DeskBookModalComponent {
     @Output() public event = new EventEmitter<DialogEvent>();
-    public readonly loading = this._booking_form.loading;
+    public readonly loading = new BehaviorSubject(false);
 
     public get form() {
         return this._booking_form.form;
@@ -51,12 +52,15 @@ export class DeskBookModalComponent {
     ) {}
 
     public async save() {
+        this.loading.next(true);
         const event = await this._booking_form.postForm().catch((_) => {
             notifyError(_);
+            this.loading.next(false);
             throw _;
         });
         this.event.emit({ reason: 'done', metadata: event });
         notifySuccess('Successfully created booking');
         this._dialog_ref.close();
+        this.loading.next(false);
     }
 }
