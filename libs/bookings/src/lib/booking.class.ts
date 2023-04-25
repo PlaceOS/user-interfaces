@@ -203,7 +203,7 @@ export class Booking {
             (this.checked_out_at || this.extension_data.checked_out_at || 0) *
             1000;
         let end_time = end.getTime();
-        if (Date.now() > checked_out) return true;
+        if (checked_out && Date.now() > checked_out) return true;
         return isAfter(start, new Date(end_time));
     }
 
