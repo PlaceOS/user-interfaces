@@ -81,6 +81,16 @@ import { LockersService } from '../lockers.service';
                                     }}
                                 </p>
                             </div>
+                            <div class="flex items-center text-sm space-x-2">
+                                <app-icon class="text-blue-500"
+                                    >people</app-icon
+                                >
+                                <p class="text-xs">
+                                    {{ locker_bank.available || 0 }} /
+                                    {{ locker_bank.lockers.length || 1 }}
+                                    Available
+                                </p>
+                            </div>
                         </div>
                     </button>
                     <button
@@ -135,13 +145,23 @@ export class LockerBankListComponent {
     ]).pipe(
         map(([{ show_fav }, resources, banks]) => {
             console.log('Banks', banks, resources);
-            return banks.filter(
-                (i) =>
-                    (!show_fav || this.isFavourite(i.id)) &&
-                    resources.find((_: any) => _.bank_id === i.id)
-            );
-        }),
-        tap((b) => console.log('Banks Out:', b))
+            return banks
+                .filter(
+                    (i) =>
+                        (!show_fav || this.isFavourite(i.id)) &&
+                        resources.find((_: any) => _.bank_id === i.id)
+                )
+                .map((bank) => ({
+                    ...bank,
+                    available: resources.filter(
+                        (_: any) => _.bank_id === bank.id
+                    ).length,
+                    lockers: bank.lockers.map((_) => ({
+                        ..._,
+                        zone: bank.zone,
+                    })),
+                }));
+        })
     );
     public readonly loading = this._state.loading;
 

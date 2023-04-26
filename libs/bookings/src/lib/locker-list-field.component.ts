@@ -53,8 +53,19 @@ const EMPTY_FAVS: string[] = [];
                         {{ item.name || 'Locker' }}
                     </div>
                     <div class="flex items-center text-sm space-x-2">
-                        <app-icon class="text-blue-500">place</app-icon>
+                        <app-icon class="text-blue-500 text-base"
+                            >place</app-icon
+                        >
                         <p>{{ item.zone?.display_name || item.zone?.name }}</p>
+                    </div>
+                    <div
+                        class="flex items-center text-sm space-x-2"
+                        *ngIf="item.accessible"
+                    >
+                        <app-icon class="text-blue-500 text-base"
+                            >accessible</app-icon
+                        >
+                        <p>Disability Accessible</p>
                     </div>
                     <div
                         class="absolute bottom-0 right-0 flex items-center justify-end text-xs"

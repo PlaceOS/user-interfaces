@@ -21,7 +21,7 @@ import {
                     {{ last_event.asset_name || last_event.asset_id
                     }}{{ location }} Booked!
                 </h2>
-                <img src="assets/icons/success.svg" />
+                <img src="assets/icons/locker-success.svg" />
                 <p class="text-center" i18n>
                     Your
                     <span group *ngIf="last_event?.attendees?.length">
