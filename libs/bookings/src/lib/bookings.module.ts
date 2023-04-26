@@ -40,6 +40,12 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatRippleModule } from '@angular/material/core';
 import { LockerGridComponent } from './locker-grid.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { LockerSelectModalComponent } from './locker-select-modal/locker-select-modal.component';
+import { LockerListFieldComponent } from './locker-list-field.component';
+import { LockerFiltersComponent } from './locker-select-modal/locker-filters.component';
+import { LockerFiltersDisplayComponent } from './locker-select-modal/locker-filters-display.component';
+import { LockerBankListComponent } from './locker-select-modal/locker-bank-list.component';
+import { LockerMapComponent } from './locker-select-modal/locker-map.component';
 
 const COMPONENTS = [
     DeskQuestionsModalComponent,
@@ -67,6 +73,12 @@ const COMPONENTS = [
     DeskListFieldComponent,
 
     LockerGridComponent,
+    LockerListFieldComponent,
+    LockerSelectModalComponent,
+    LockerFiltersComponent,
+    LockerFiltersDisplayComponent,
+    LockerBankListComponent,
+    LockerMapComponent,
 ];
 @NgModule({
     declarations: [...COMPONENTS],

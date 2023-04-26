@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
+import { flatten } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import {
     PlaceMetadata,
+    PlaceZoneMetadata,
+    listChildMetadata,
     showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
@@ -45,21 +48,27 @@ export class LockersService {
     ]).pipe(
         filter(([bld]) => !!bld),
         switchMap(([bld]) =>
-            showMetadata(bld.id, 'lockers').pipe(
+            listChildMetadata(bld.id, { name: 'lockers' }).pipe(
                 catchError(() => of(new PlaceMetadata()))
             )
         ),
-        map(
-            (_) =>
-                ((_.details instanceof Array ? _.details : null) ||
-                    []) as LockerBank[]
+        map((_: PlaceZoneMetadata[]) =>
+            flatten(
+                _.map((_) =>
+                    _.metadata.lockers?.details instanceof Array
+                        ? _.metadata.lockers?.details.map((bank) => ({
+                              ...bank,
+                              zone: _.zone,
+                          }))
+                        : []
+                )
+            )
         ),
         shareReplay(1)
     );
 
     public readonly lockers$ = this.lockers_banks$.pipe(
         map((bank_list) => {
-            console.log('Bank List', bank_list);
             const lockers = [];
             for (const bank of bank_list) {
                 lockers.push(

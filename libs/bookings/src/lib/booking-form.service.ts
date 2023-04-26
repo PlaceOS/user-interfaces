@@ -127,6 +127,9 @@ export class BookingFormService extends AsyncHandler {
                 case 'parking':
                     this._loading.next(`Loading parking spaces...`);
                     return this.loadResourceList('parking_spaces' as any);
+                case 'locker':
+                    this._loading.next(`Loading lockers...`);
+                    return this.loadResourceList('lockers' as any);
             }
             return of([]);
         }),
@@ -664,11 +667,19 @@ export class BookingFormService extends AsyncHandler {
                         (_.metadata[type]?.details instanceof Array
                             ? _.metadata[type]?.details
                             : []
-                        ).map((d) => ({
-                            ...d,
-                            id: d.id || d.map_id,
-                            zone: _.zone,
-                        }))
+                        ).map((d) =>
+                            type === 'locker'
+                                ? {
+                                      ...d,
+                                      id: d.id || d.map_id,
+                                      zone: _.zone,
+                                  }
+                                : d.lockers.map((_) => ({
+                                      ..._,
+                                      bank_id: d.id,
+                                      zone: _.zone,
+                                  }))
+                        )
                     )
                 )
             )

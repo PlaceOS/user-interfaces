@@ -31,9 +31,9 @@ import { BookLockerFlowConfirmComponent } from './locker-flow-confirm.component'
                 >
                     Book Locker
                 </h2>
-                <!-- <new-locker-form-details
+                <new-locker-form-details
                     [form]="form"
-                ></new-locker-form-details> -->
+                ></new-locker-form-details>
                 <div
                     class="sm:mb-2 border-b border-gray-300 dark:border-neutral-500 w-full"
                 ></div>
@@ -83,7 +83,7 @@ export class BookLockerFlowFormComponent implements OnInit {
         this.sheet_ref.instance.show_close = true;
         this.sheet_ref.afterDismissed().subscribe((value) => {
             if (value) {
-                this._router.navigate(['/book', 'lockers', 'success']);
+                this._router.navigate(['/book', 'locker', 'success']);
                 this._state.setView('success');
             }
         });
@@ -100,6 +100,7 @@ export class BookLockerFlowFormComponent implements OnInit {
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _));
         await this._org.active_levels.pipe(first((_) => _?.length > 0));
+        this._state.setOptions({ type: 'locker' });
         this.level = this._org.building?.id;
         this.levels = [
             { id: this._org.building?.id, name: 'Any Level' },

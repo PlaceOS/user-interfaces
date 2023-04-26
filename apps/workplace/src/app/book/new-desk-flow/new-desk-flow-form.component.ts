@@ -96,6 +96,7 @@ export class NewDeskFlowFormComponent implements OnInit {
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _));
         await this._org.active_levels.pipe(first((_) => _?.length > 0));
+        this._state.setOptions({ type: 'desk' });
         this.level = this._org.building?.id;
         this.levels = [
             { id: this._org.building?.id, name: 'Any Level' },

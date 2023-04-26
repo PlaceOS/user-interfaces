@@ -51,6 +51,7 @@ import { BookLockerFlowComponent } from './locker-flow.component';
 import { BookLockerFlowSuccessComponent } from './locker-flow/locker-flow-success.component';
 import { BookLockerFlowFormComponent } from './locker-flow/locker-flow-form.component';
 import { BookLockerFlowConfirmComponent } from './locker-flow/locker-flow-confirm.component';
+import { LockerFormDetailsComponent } from './locker-flow/locker-form-details.component';
 
 const ROUTES: Route[] = [
     {
@@ -126,6 +127,7 @@ const ROUTES: Route[] = [
         BookLockerFlowFormComponent,
         BookLockerFlowConfirmComponent,
         BookLockerFlowSuccessComponent,
+        LockerFormDetailsComponent,
     ],
     imports: [
         CommonModule,

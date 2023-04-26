@@ -6,8 +6,11 @@ import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 @Component({
     selector: 'locker-grid',
     template: `
+        <div class="p-4 text-xl font-medium">
+            {{ bank?.name }}
+        </div>
         <div
-            class="grid gap-2 overflow-hidden max-h-full h-[75vh] min-w-[60vw] p-2"
+            class="flex-1 grid gap-2 overflow-hidden max-h-full h-[75vh] min-w-[60vw] p-2"
             [style.grid-template-columns]="'repeat(' + columns + ', 1fr)'"
             [style.grid-template-rows]="'repeat(' + bank?.height + ', 1fr)'"
         >
@@ -15,6 +18,7 @@ import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
                 *ngFor="let locker of bank?.lockers || []"
                 matRipple
                 class="relative border border-black/20 rounded bg-teal-300 overflow-hidden"
+                [class.opacity-60]="selected && selected !== locker.id"
                 [style.grid-column-start]="locker.position[0] + 1"
                 [style.grid-row-start]="locker.position[1] + 1"
                 [style.grid-column-end]="
@@ -54,6 +58,11 @@ import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
     `,
     styles: [
         `
+            :host {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            }
             button[disabled] {
                 pointer-events: none;
                 opacity: 0.75;
@@ -68,6 +77,7 @@ export class LockerGridComponent {
         '10': 'busy',
         '7': 'pending',
     };
+    @Input() public selected = '';
     @Output() public clicked = new EventEmitter<Locker>();
 
     public get columns() {
