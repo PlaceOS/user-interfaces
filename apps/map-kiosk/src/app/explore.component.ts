@@ -19,7 +19,7 @@ import {
     ExploreZonesService,
 } from '@placeos/explore';
 import { OrganisationService } from '@placeos/organisation';
-import { Space, SpacesService } from '@placeos/spaces';
+import { SpacesService } from '@placeos/spaces';
 import { getModule } from '@placeos/ts-client';
 import { MapLocation, showStaff, User } from '@placeos/users';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';

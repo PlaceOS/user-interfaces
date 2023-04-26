@@ -33,7 +33,11 @@ export interface DurationOption {
                     >
                         {{
                             option.date
-                                ? (option.date | date: 'h : mm a') + ' ('
+                                ? (option.date
+                                      | date
+                                          : (option.id >= 24 * 60
+                                                ? 'mediumDate'
+                                                : 'h : mm a')) + ' ('
                                 : ''
                         }}{{ option.name }}{{ option.date ? ')' : '' }}
                     </mat-option>
@@ -97,7 +101,13 @@ export class DurationFieldComponent
 
     public ngOnChanges(changes: SimpleChanges): void {
         /* istanbul ignore else */
-        if (changes.max || changes.min || changes.step || changes.time) {
+        if (
+            changes.max ||
+            changes.min ||
+            changes.step ||
+            changes.time ||
+            changes.custom_options
+        ) {
             this.duration_options = this.generateDurationOptions(
                 this.max,
                 this.min,
@@ -161,10 +171,15 @@ export class DurationFieldComponent
             blocks.push({
                 id: option,
                 date: date ? addMinutes(date, option).valueOf() : undefined,
-                name: `${formatDuration({
-                    hours: Math.floor(option / 60),
-                    minutes: option % 60,
-                })}`,
+                name:
+                    option >= 24 * 60
+                        ? `${formatDuration({
+                              days: Math.floor(option / (24 * 60)),
+                          })}`
+                        : `${formatDuration({
+                              hours: Math.floor(option / 60),
+                              minutes: option % 60,
+                          })}`,
             });
         }
 
@@ -172,13 +187,19 @@ export class DurationFieldComponent
             blocks.push({
                 id: time,
                 date: date ? addMinutes(date, time).valueOf() : undefined,
-                name: `${formatDuration({
-                    hours: Math.floor(time / 60),
-                    minutes: time % 60,
-                })}`,
+                name:
+                    time >= 24 * 60
+                        ? `${formatDuration({
+                              days: Math.floor(time / (24 * 60)),
+                          })}`
+                        : `${formatDuration({
+                              hours: Math.floor(time / 60),
+                              minutes: time % 60,
+                          })}`,
             });
             time += step;
         }
+        blocks.sort((a, b) => a.id - b.id);
         return blocks;
     }
 

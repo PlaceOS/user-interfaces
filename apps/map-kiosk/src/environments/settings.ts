@@ -5,6 +5,10 @@ const desks = {
     can_set_host: true,
 };
 
+const events = {
+    can_book_for_others: true,
+};
+
 const app = {
     name: 'MapKiosk',
     title: 'PlaceOS',
@@ -20,10 +24,11 @@ const app = {
     },
     general,
     desks,
+    events,
     explore: {
         search_enabled: true,
     },
-    show_qr_for_booking: true
+    show_qr_for_booking: true,
 };
 
 /**

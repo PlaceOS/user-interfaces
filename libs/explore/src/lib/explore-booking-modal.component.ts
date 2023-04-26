@@ -35,6 +35,14 @@ export interface ExploreBookingModalData {
                         <mat-error i18n>Booking title is required</mat-error>
                     </mat-form-field>
                 </div>
+                <div class="flex flex-col" *ngIf="can_book_for_others">
+                    <label i18n>Host:</label>
+                    <label for="host">Host<span>*</span>:</label>
+                    <a-user-search-field
+                        name="host"
+                        formControlName="organiser"
+                    ></a-user-search-field>
+                </div>
                 <div class="flex flex-col">
                     <label i18n>Space:</label>
                     <div name="space" class="sm:mt-4 mb-4">
@@ -100,6 +108,10 @@ export class ExploreBookingModalComponent implements OnInit {
 
     public get max_duration() {
         return this._settings.get('app.events.max_duration') || 4 * 60;
+    }
+
+    public get can_book_for_others() {
+        return this._settings.get('app.events.can_book_for_others');
     }
 
     constructor(
