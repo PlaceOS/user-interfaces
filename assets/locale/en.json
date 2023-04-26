@@ -14,6 +14,9 @@
     "ROOMS": {
         "SHOW_FAVOURITES": "Only show favourite rooms"
     },
+    "LOCKERS": {
+        "SHOW_FAVOURITES": "Only show favourite lockers"
+    },
     "WPA": {
         "COLLEAGUES": "Colleagues",
         "FAVOURITES": "Favourites",
