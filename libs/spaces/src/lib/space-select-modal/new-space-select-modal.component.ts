@@ -69,6 +69,7 @@ import { Space } from '../space.class';
                     class="h-full w-full sm:h-[65vh] absolute sm:relative flex sm:max-w-[20rem] z-20 bg-white dark:bg-neutral-600 sm:block"
                     [class.hidden]="!displayed"
                     [class.inset-0]="displayed"
+                    [hide_map]="view === 'map'"
                     [active]="selected_ids.includes(displayed?.id)"
                     (activeChange)="setSelected(displayed, $event)"
                     [fav]="displayed && this.favorites.includes(displayed?.id)"
@@ -148,6 +149,7 @@ import { Space } from '../space.class';
                 class="flex-1 h-1/2 w-full"
                 [selected]="selected_ids"
                 [is_displayed]="!!displayed"
+                [active]="displayed?.id"
                 (onSelect)="displayed = $event"
             >
             </space-map>

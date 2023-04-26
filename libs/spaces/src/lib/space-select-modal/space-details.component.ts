@@ -99,6 +99,7 @@ import { Space } from '../space.class';
                 <section
                     map
                     class="w-full mx-auto h-64 sm:h-48 relative border border-gray-200 overflow-hidden rounded"
+                    *ngIf="!hide_map"
                 >
                     <interactive-map
                         class="pointer-events-none"
@@ -159,6 +160,7 @@ export class SpaceDetailsComponent {
     @Input() public space?: Space;
     @Input() public fav: boolean = false;
     @Input() public active: boolean = false;
+    @Input() public hide_map: boolean = false;
 
     @Output() public activeChange = new EventEmitter<boolean>();
     @Output() public close = new EventEmitter<void>();

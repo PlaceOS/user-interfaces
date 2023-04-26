@@ -5,6 +5,7 @@ import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { debounceTime, map, tap } from 'rxjs/operators';
 import { Space } from '../space.class';
 import { SpaceLocationPinComponent } from './space-location-pin.component';
+import { BehaviorSubject, combineLatest } from 'rxjs';
 
 @Component({
     selector: `space-map`,
@@ -77,14 +78,19 @@ import { SpaceLocationPinComponent } from './space-location-pin.component';
 })
 export class SpaceSelectMapComponent extends AsyncHandler {
     @Input() public selected: string[] = [];
+    @Input() public active: string;
     @Input() public is_displayed: boolean = false;
     @Output() public onSelect = new EventEmitter<Space>();
 
     public zoom = 1;
     public center = { x: 0.5, y: 0.5 };
 
-    private _seletedSpace = (s) => () => this.onSelect.emit(s);
+    private _seletedSpace = (s) => () => {
+        this.onSelect.emit(s);
+        this._change.next(Date.now());
+    };
     public level: BuildingLevel = null;
+    private _change = new BehaviorSubject(0);
 
     public get map_url() {
         return this.level?.map_id || '';
@@ -100,18 +106,28 @@ export class SpaceSelectMapComponent extends AsyncHandler {
         tap((_) => (this.level = this.level ? this.level : _[0]))
     );
 
-    public readonly features = this._event_form.available_spaces.pipe(
-        debounceTime(1000),
-        map((l) =>
-            l.map((space) => ({
+    public readonly features = combineLatest([
+        this._event_form.available_spaces,
+        this._change,
+    ]).pipe(
+        debounceTime(300),
+        map(([l]) => {
+            console.log(
+                'Data:',
+                this.selected,
+                this.active,
+                l.map((_) => _.id)
+            );
+            return l.map((space) => ({
                 location: space.map_id,
                 content: SpaceLocationPinComponent,
                 data: {
                     ...space,
+                    active: this.active === space.id,
                     selected: this.selected.includes(space.id),
                 },
-            }))
-        )
+            }));
+        })
     );
 
     public readonly actions = this._event_form.available_spaces.pipe(
