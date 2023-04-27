@@ -1,4 +1,9 @@
-import { padString, predictableRandomInt, randomString } from '@placeos/common';
+import {
+    capitalizeFirstLetter,
+    padString,
+    predictableRandomInt,
+    randomString,
+} from '@placeos/common';
 import { addMinutes, getUnixTime, set, subDays } from 'date-fns';
 import { MOCK_ASSETS } from './assets.data';
 import { MOCK_SPACES } from './spaces.data';
@@ -20,7 +25,7 @@ const nextEventTime = (save = false): number => {
     return getUnixTime(next);
 };
 
-const TYPES = ['desk', 'parking', 'asset-request', 'visitor'];
+const TYPES = ['desk', 'parking', 'asset-request', 'visitor', 'locker'];
 const TRACKING = ['in_storage', 'in_transit', 'at_location'];
 
 export const MOCK_BOOKINGS = new Array(200).fill(0).map((_, index) => {
@@ -68,7 +73,7 @@ export const MOCK_BOOKINGS = new Array(200).fill(0).map((_, index) => {
                 : type === 'parking'
                 ? position
                 : `Desk ${index}`,
-        title: `${type} Booking ${index}`,
+        title: `${capitalizeFirstLetter(type)} Booking ${index}`,
         type,
         booking_type: type,
         checked_in: predictableRandomInt(999999) % 3 === 0,

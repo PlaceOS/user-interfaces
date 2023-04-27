@@ -104,7 +104,6 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
             :host {
                 display: block;
                 width: 100%;
-                overflow: hidden;
                 position: relative;
             }
         `,
