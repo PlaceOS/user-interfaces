@@ -77,6 +77,23 @@ import { ScheduleStateService } from './schedule-state.service';
                         <app-icon>close</app-icon>
                     </button>
                 </div>
+                <div
+                    class="flex items-center rounded-3xl border border-gray-300"
+                    *ngIf="
+                        (filters | async)?.shown_types?.includes('locker') &&
+                        hasFeature('lockers')
+                    "
+                >
+                    <div class=" px-2">{{ 'WPA.LOCKERS' | translate }}</div>
+                    <button
+                        icon
+                        matRipple
+                        name="schedule-remove-locker-filter"
+                        (click)="toggleType('locker', true)"
+                    >
+                        <app-icon>close</app-icon>
+                    </button>
+                </div>
             </div>
         </div>
         <div class="sm:hidden flex items-center space-x-2">
@@ -149,6 +166,22 @@ import { ScheduleStateService } from './schedule-state.service';
                     icon
                     name="schedule-remove-visitor-filter-mobile"
                     (click)="toggleType('visitor', true)"
+                >
+                    <app-icon>close</app-icon>
+                </button>
+            </div>
+            <div
+                class="flex items-center rounded-3xl border border-gray-300 bg-white dark:bg-neutral-700 text-sm pl-2"
+                *ngIf="
+                    (filters | async)?.shown_types?.includes('locker') &&
+                    hasFeature('lockers')
+                "
+            >
+                <div>{{ 'WPA.LOCKERS' | translate }}</div>
+                <button
+                    icon
+                    name="schedule-remove-locker-filter-mobile"
+                    (click)="toggleType('locker', true)"
                 >
                     <app-icon>close</app-icon>
                 </button>

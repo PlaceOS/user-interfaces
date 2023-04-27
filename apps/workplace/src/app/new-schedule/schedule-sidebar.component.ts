@@ -113,6 +113,32 @@ import { ScheduleStateService } from './schedule-state.service';
                         "
                     ></mat-checkbox>
                 </button>
+                <button
+                    matRipple
+                    name="schedule-toggle-locker-filter"
+                    class="flex items-center space-x-2 w-full text-left"
+                    *ngIf="hasFeature('lockers')"
+                    (click)="toggleType('locker')"
+                >
+                    <div
+                        class="h-10 w-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-neutral-800 text-2xl"
+                    >
+                        <app-icon>door_back</app-icon>
+                    </div>
+                    <div class="flex-1">
+                        <div class="" i18n>
+                            {{ 'WPA.LOCKERS' | translate }}
+                        </div>
+                        <div class="text-sm opacity-60" i18n>
+                            {{ 'WPA.SCHEDULE_LOCKER_FILTER' | translate }}
+                        </div>
+                    </div>
+                    <mat-checkbox
+                        [ngModel]="
+                            (filters | async)?.shown_types?.includes('locker')
+                        "
+                    ></mat-checkbox>
+                </button>
             </div>
         </div>
     `,

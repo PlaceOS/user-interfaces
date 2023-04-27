@@ -36,7 +36,7 @@ export class ScheduleStateService extends AsyncHandler {
     private _poll_type = new BehaviorSubject<'api' | 'ws'>('api');
     private _loading = new BehaviorSubject(false);
     private _filters = new BehaviorSubject({
-        shown_types: ['event', 'desk', 'parking', 'visitor'],
+        shown_types: ['event', 'desk', 'parking', 'visitor', 'locker'],
     });
     private _date = new BehaviorSubject(Date.now());
     private _update = combineLatest([this._date, this._poll]).pipe(
