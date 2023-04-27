@@ -397,7 +397,10 @@ export class InviteVisitorFormComponent extends AsyncHandler {
     private async initFormZone() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         this._service.setOptions({ type: 'visitor' });
-        this.form.patchValue({ zones: [this._org.building?.id] });
+        this.form.patchValue({
+            booking_type: 'visitor',
+            zones: [this._org.building?.id],
+        });
     }
 
     private async _bookForOne() {
@@ -428,6 +431,7 @@ export class InviteVisitorFormComponent extends AsyncHandler {
             if (!user.email) continue;
             this.form.patchValue({
                 ...value,
+                booking_type: 'visitor',
                 asset_id: user.email,
                 asset_name: user.name,
                 description: group,

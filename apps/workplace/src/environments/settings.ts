@@ -163,8 +163,8 @@ const app: any = {
         'help',
         'schedule',
         'wfh',
-        'payments',
         'lockers',
+        'visitor-invite',
     ],
     currency: '',
     default_route: '/landing',
@@ -185,6 +185,7 @@ const app: any = {
     },
     booking: {
         allowed_daily_visitor_count: 100,
+        multiple_visitors: true,
     },
     desks: {
         can_book_lockers: true,
