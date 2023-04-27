@@ -668,17 +668,17 @@ export class BookingFormService extends AsyncHandler {
                             ? _.metadata[type]?.details
                             : []
                         ).map((d) =>
-                            type === 'locker'
+                            type !== 'locker'
                                 ? {
                                       ...d,
                                       id: d.id || d.map_id,
                                       zone: _.zone,
                                   }
-                                : d.lockers.map((_) => ({
+                                : d.lockers?.map((_) => ({
                                       ..._,
                                       bank_id: d.id,
                                       zone: _.zone,
-                                  }))
+                                  })) || []
                         )
                     )
                 )
