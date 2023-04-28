@@ -203,6 +203,7 @@ export class ScheduleStateService extends AsyncHandler {
                     })
             )
         ),
+        catchError(() => of([])),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
         shareReplay(1)
     );

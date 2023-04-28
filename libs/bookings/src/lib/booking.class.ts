@@ -159,7 +159,7 @@ export class Booking {
         this.event_id = data.event_id;
         this.attendees = data.attendees || data.members || [];
         this.all_day = data.all_day ?? this.duration >= 12 * 60;
-        this.checked_out_at = data.checked_out_at || 0;
+        this.checked_out_at = data.checked_out_at;
         this.status = this.checked_out_at
             ? 'ended'
             : this.rejected
