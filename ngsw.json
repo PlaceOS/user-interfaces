@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1682665940328,
+  "timestamp": 1682903045920,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -185,7 +185,7 @@
     "./apps_workplace_src_app_directory_directory_module_ts.js": "03be777efd342c543e1c7e3ee5690ee4a7b4cbe3",
     "./apps_workplace_src_app_explore_explore_module_ts.js": "3fc1bb4694d83e781efdc35b3e5eb84d1f256cf7",
     "./apps_workplace_src_app_landing_landing_module_ts.js": "dbfe57af1a97fd748fb899ea4085663f202741a0",
-    "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "5286540a56663d2605cefe6566701713986041f5",
+    "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "610974c7e3364296538270db437fd73c4c273899",
     "./apps_workplace_src_app_schedule_schedule_module_ts.js": "df10738e00fd993e7b744b9b6c2cb328beb6c8da",
     "./apps_workplace_src_app_whats-on_whats-on_module_ts.js": "bed899107f5e106b063cdcb3f5ad859d42e30a38",
     "./assets/icons/amex.svg": "3530eff717af33317b79bdd1d0ec96abfa884287",
@@ -315,7 +315,7 @@
     "./common.js": "b88e7bea5300c79bf18d5490fd4346b308ae79d8",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "03dcde107e27f8f2ae5f7ab66533dc3d3d406343",
-    "./main.js": "ebd25a6cc22175dfa483541173e6a94690e89462",
+    "./main.js": "1cb2946fd2dde1206fac3bdda01e5430b07f707d",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
