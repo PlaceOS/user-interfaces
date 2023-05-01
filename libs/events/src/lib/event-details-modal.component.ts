@@ -286,10 +286,10 @@ import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-moda
                 </button>
                 <div
                     class="mt-4 sm:p-4 sm:bg-white sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-gray-200 dark:border-neutral-500 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
+                    *ngIf="event.body"
                 >
                     <h3
                         class="mx-3 text-lg font-medium border-t sm:border-none border-gray-300 dark:border-neutral-500"
-                        *ngIf="event.body"
                         i18n
                     >
                         Notes
