@@ -77,7 +77,9 @@ export function notifyError(
     config: Partial<MatSnackBarConfig> = {}
 ): void {
     !_disable_logging && console.error(msg);
-    if (typeof msg !== 'string') msg = 'An error occurred';
+    if (typeof msg !== 'string')
+        msg =
+            (msg as any)?.error || (msg as any)?.message || 'An error occurred';
     notify('error', msg, action, on_action, config);
 }
 
