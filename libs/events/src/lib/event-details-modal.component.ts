@@ -168,14 +168,20 @@ import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-moda
                     <div class="flex items-center px-2 space-x-2">
                         <app-icon>map</app-icon>
                         <div>
-                            {{ level?.display_name || level?.name }},
+                            <ng-container *ngIf="level">
+                                {{ level?.display_name || level?.name }},
+                            </ng-container>
                             {{
-                                event?.system?.display_name ||
+                                event?.location ||
+                                    event?.system?.display_name ||
                                     event?.system?.name
                             }}
                         </div>
                     </div>
-                    <div class="flex items-center px-2 space-x-2">
+                    <div
+                        class="flex items-center px-2 space-x-2"
+                        *ngIf="building"
+                    >
                         <app-icon>place</app-icon>
                         <div>
                             {{ building?.display_name || building?.name }},

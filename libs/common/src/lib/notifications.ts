@@ -59,6 +59,7 @@ export function notifySuccess(
     config: Partial<MatSnackBarConfig> = {}
 ): void {
     !_disable_logging && console.debug(msg);
+    if (typeof msg !== 'string') msg = 'Success';
     notify('success', msg, action, on_action, config);
 }
 
@@ -76,6 +77,7 @@ export function notifyError(
     config: Partial<MatSnackBarConfig> = {}
 ): void {
     !_disable_logging && console.error(msg);
+    if (typeof msg !== 'string') msg = 'An error occurred';
     notify('error', msg, action, on_action, config);
 }
 
