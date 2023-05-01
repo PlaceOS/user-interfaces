@@ -1,7 +1,12 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { Booking, checkinBooking, removeBooking } from '@placeos/bookings';
+import {
+    Booking,
+    checkinBooking,
+    queryBookings,
+    removeBooking,
+} from '@placeos/bookings';
 import {
     AsyncHandler,
     notifyError,
@@ -9,7 +14,12 @@ import {
     openConfirmModal,
     SettingsService,
 } from '@placeos/common';
-import { CalendarEvent, EventFormService, removeEvent } from '@placeos/events';
+import {
+    CalendarEvent,
+    EventFormService,
+    queryEvents,
+    removeEvent,
+} from '@placeos/events';
 import { format, isSameDay } from 'date-fns';
 import { map } from 'rxjs/operators';
 import { ScheduleStateService } from './schedule-state.service';
@@ -131,8 +141,18 @@ export class ScheduleComponent extends AsyncHandler {
         return item?.id;
     }
 
-    public edit(event: CalendarEvent) {
+    public async edit(event: CalendarEvent) {
         this._router.navigate(['/book', 'meeting', 'form']);
+        if (event.creator !== event.mailbox) {
+            event =
+                (
+                    await queryEvents({
+                        period_start: event.event_start,
+                        period_end: event.event_end,
+                        ical_uid: event.ical_uid,
+                    }).toPromise()
+                )[0] || event;
+        }
         this._event_form.newForm(event);
     }
 
@@ -147,7 +167,16 @@ export class ScheduleComponent extends AsyncHandler {
             { title: `Delete booking`, content, icon: { content: 'delete' } },
             this._dialog
         );
-        console;
+        if (item instanceof CalendarEvent && item.creator !== item.mailbox) {
+            item =
+                (
+                    await queryEvents({
+                        period_start: item.event_start,
+                        period_end: item.event_end,
+                        ical_uid: item.ical_uid,
+                    }).toPromise()
+                )[0] || item;
+        }
         if (resp.reason !== 'done') return;
         resp.loading('Requesting booking deletion...');
         await (item instanceof CalendarEvent ? removeEvent : removeBooking)(

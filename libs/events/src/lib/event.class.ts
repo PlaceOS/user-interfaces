@@ -93,6 +93,10 @@ export class CalendarEvent {
     public readonly from_bookings: boolean;
     /** Master event */
     public master?: CalendarEvent;
+    /** Unique identifier of the event */
+    public readonly ical_uid: string;
+    /** Mailbox email address of the event */
+    public readonly mailbox: string;
 
     /** Get field from extension data */
     public ext<K extends keyof EventExtensionData>(key: K) {
@@ -158,6 +162,8 @@ export class CalendarEvent {
         );
         this.from_bookings = data.from_bookings ?? false;
         this.master = data.master ? new CalendarEvent(data.master) : null;
+        this.mailbox = data.mailbox || '';
+        this.ical_uid = data.ical_uid;
         if (data.recurring) {
             this.recurrence = {
                 start:
