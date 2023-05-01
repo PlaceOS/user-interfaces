@@ -36,7 +36,6 @@ export interface ExploreBookingModalData {
                     </mat-form-field>
                 </div>
                 <div class="flex flex-col" *ngIf="can_book_for_others">
-                    <label i18n>Host:</label>
                     <label for="host">Host<span>*</span>:</label>
                     <a-user-search-field
                         name="host"
