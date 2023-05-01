@@ -314,7 +314,8 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 const { date, duration, user } = await this._setBookingTime(
                     this._bookings.form.value.date,
                     this._bookings.form.value.duration,
-                    this._options.getValue()?.custom ?? false
+                    this._options.getValue()?.custom ?? false,
+                    desk as any
                 );
                 this._bookings.form.patchValue({
                     asset_id: desk.id,
@@ -359,7 +360,8 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     private async _setBookingTime(
         date: number,
         duration: number,
-        host: boolean = false
+        host: boolean = false,
+        resource: Desk = null
     ) {
         let user = null;
         if (!!this._settings.get('app.desks.allow_time_changes')) {
@@ -370,7 +372,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 )
             );
             const ref = this._dialog.open(SetDatetimeModalComponent, {
-                data: { date, duration, until, host },
+                data: { date, duration, until, host, resource },
             });
             const details = await ref.afterClosed().toPromise();
             if (!details) throw 'User cancelled';

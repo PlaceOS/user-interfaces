@@ -56,7 +56,7 @@ export class CateringOrderStateService {
         ),
         map((_) => _.details as CateringSettings),
         tap((_) =>
-            this._settings.post('require_catering_notes', !!_.require_notes)
+            this._settings.post('require_catering_notes', !!_?.require_notes)
         ),
         shareReplay(1)
     );

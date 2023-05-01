@@ -1,6 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { BookingAsset } from 'libs/bookings/src/lib/booking-form.service';
 import { User } from 'libs/users/src/lib/user.class';
 
 @Component({
@@ -17,6 +18,21 @@ import { User } from 'libs/users/src/lib/user.class';
             [formGroup]="form"
             class="w-[24rem] max-w-[85vw] pt-4"
         >
+            <div
+                *ngIf="resource"
+                class="flex flex-col sm:flex-row space-x-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
+            >
+                <div class="flex flex-col flex-1 w-full sm:w-1/4 mb-4">
+                    <label>Resource:</label>
+                    <p class="p-4">
+                        {{
+                            resource.name ||
+                                resource.map_id ||
+                                'Unknown Resource'
+                        }}
+                    </p>
+                </div>
+            </div>
             <div
                 *ngIf="host"
                 class="flex flex-col sm:flex-row space-x-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
@@ -81,6 +97,7 @@ export class SetDatetimeModalComponent {
     });
 
     public readonly book_until = this._data.until;
+    public readonly resource = this._data.resource;
 
     constructor(
         @Inject(MAT_DIALOG_DATA)
@@ -90,6 +107,9 @@ export class SetDatetimeModalComponent {
             until: number;
             host: boolean;
             user?: User;
+            resource: BookingAsset;
         }
-    ) {}
+    ) {
+        console.log('Data:', this._data);
+    }
 }
