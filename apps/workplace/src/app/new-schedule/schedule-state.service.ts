@@ -44,6 +44,8 @@ export class ScheduleStateService extends AsyncHandler {
         tap((_) => this._loading.next(true))
     );
 
+    private _deleted: string[] = [];
+
     private _space_bookings: Observable<CalendarEvent[]> =
         this._org.active_building.pipe(
             filter((_) => !!_),
@@ -228,7 +230,8 @@ export class ScheduleStateService extends AsyncHandler {
         map(([bkns, filters]) =>
             bkns.filter(
                 (_) =>
-                    (_ instanceof CalendarEvent &&
+                    (!this._deleted.includes(_.id) &&
+                        _ instanceof CalendarEvent &&
                         filters?.shown_types?.includes('event')) ||
                     filters?.shown_types?.includes((_ as any).booking_type)
             )
@@ -255,6 +258,9 @@ export class ScheduleStateService extends AsyncHandler {
                         : 'api'
                 )
             )
+        );
+        this._deleted = JSON.parse(
+            sessionStorage.getItem('PLACEOS.events.deleted') || '[]'
         );
     }
 
@@ -284,7 +290,16 @@ export class ScheduleStateService extends AsyncHandler {
     }
 
     public removeItem(item) {
+        this.setAsDeleted(item.id);
         this._poll.next(Date.now());
+    }
+
+    public setAsDeleted(id: string) {
+        this._deleted.push(id);
+        sessionStorage.setItem(
+            'PLACEOS.events.deleted',
+            JSON.stringify(this._deleted)
+        );
     }
 
     public async toggleType(name: string, clear: boolean = false) {
