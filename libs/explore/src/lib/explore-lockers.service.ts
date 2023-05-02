@@ -28,9 +28,9 @@ export class ExploreLockersService extends AsyncHandler {
                 `lvl-in_use`,
                 binding
                     .listen()
-                    .subscribe((d) =>
+                    .subscribe(({ value }) =>
                         this._status.next(
-                            d.filter((_) => _.location === 'locker')
+                            value?.filter((_) => _.location === 'locker') || []
                         )
                     )
             );
