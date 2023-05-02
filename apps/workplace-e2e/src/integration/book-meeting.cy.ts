@@ -3,6 +3,6 @@ describe('Booking Meetings', () => {
 
     it('should display booking form', () => {
         cy.get('global-loading');
-        cy.get('app-landing', { timeout: 6000 });
+        cy.get('meeting-flow-form');
     });
 });

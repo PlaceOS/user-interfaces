@@ -314,7 +314,10 @@ export class OrganisationService {
             const bindings: Record<string, any> = (
                 await showMetadata(bld.id, 'bindings').toPromise()
             )?.details;
-            buildings.push(new Building({ ...bld, bindings }));
+            const booking_rules: Record<string, any> = (
+                await showMetadata(bld.id, 'booking_rules').toPromise()
+            )?.details;
+            buildings.push(new Building({ ...bld, bindings, booking_rules }));
         }
         return buildings;
     }
