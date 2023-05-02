@@ -210,7 +210,8 @@ export class CalendarEvent {
             }
         }
         this.extension_data.catering = (this.extension_data.catering || []).map(
-            (i) => new CateringOrder({ ...i, event: this })
+            (i) =>
+                new CateringOrder({ ...i, event: this, date: this.date } as any)
         );
     }
 

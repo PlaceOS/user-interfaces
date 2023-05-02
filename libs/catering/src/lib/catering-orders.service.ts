@@ -102,7 +102,10 @@ export class CateringOrdersService extends AsyncHandler {
      * @param order Order to update
      * @param status New order status
      */
-    public updateStatus(order: CateringOrder, status: CateringOrderStatus) {
+    public async updateStatus(
+        order: CateringOrder,
+        status: CateringOrderStatus
+    ) {
         const updated_order = new CateringOrder({ ...order, status });
         const event = new CalendarEvent({
             ...order.event,
@@ -111,6 +114,6 @@ export class CateringOrdersService extends AsyncHandler {
                 updated_order,
             ].map((i) => new CateringOrder({ ...i })),
         });
-        return saveEvent(event);
+        return await saveEvent(event);
     }
 }

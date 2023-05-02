@@ -52,6 +52,6 @@ export class CateringOrder {
             data.deliver_at ||
             (data as any).date ||
             this.event?.date ||
-            new Date().getTime();
+            Date.now();
     }
 }

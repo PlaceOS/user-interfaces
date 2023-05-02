@@ -26,9 +26,16 @@ import { CateringItem } from './catering-item.class';
                 </button>
             </div>
             <div
-                class="flex flex-1 border-b border-gray-300 dark:border-neutral-500 border-solid py-4"
+                class="flex flex-1 border-b border-gray-300 dark:border-neutral-500 border-solid py-4 space-x-2"
             >
-                <div class="flex-1">{{ item?.name }}</div>
+                <div class="">{{ item?.name }}</div>
+                <div class="flex-1">
+                    <div
+                        class="p-1 rounded-full bg-black/10 w-8 h-8 flex items-center justify-center"
+                    >
+                        ⨯{{ item?.amount || item?.quantity || 1 }}
+                    </div>
+                </div>
                 <div class="flex space-x-2 mr-2">
                     <ng-container *ngFor="let opt of item.option_list">
                         <div
