@@ -42,6 +42,8 @@ export interface EventExtensionData {
     online_meeting_provider: string;
     /** Email to override the host of the event with */
     host_override: string;
+    /** Name of the organisational department of the host */
+    department: string;
 }
 
 export interface RecurrenceDetails {

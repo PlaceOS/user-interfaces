@@ -521,8 +521,17 @@ export class EventFormService extends AsyncHandler {
                     extension_data:
                         this._settings.get('app.events.force_host') ||
                         this._settings.get('app.events.room_as_host')
-                            ? { host_override: value.host }
-                            : {},
+                            ? {
+                                  host_override: value.host,
+                                  department:
+                                      value.organiser?.department ||
+                                      currentUser()?.department,
+                              }
+                            : {
+                                  department:
+                                      value.organiser?.department ||
+                                      currentUser()?.department,
+                              },
                 }),
                 query
             ).catch((e) => {
