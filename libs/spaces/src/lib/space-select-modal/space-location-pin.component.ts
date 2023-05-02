@@ -6,8 +6,8 @@ import { MAP_FEATURE_DATA } from '@placeos/components';
     template: `
         <div class="absolute bottom-0 left-1/2 -translate-x-1/2">
             <svg
-                width="66"
-                height="80"
+                width="44"
+                height="60"
                 viewBox="0 0 66 80"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
