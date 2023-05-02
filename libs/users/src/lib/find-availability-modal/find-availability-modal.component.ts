@@ -248,7 +248,6 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
                             fromUnixTime(block.ends_at),
                             fromUnixTime(block.starts_at)
                         );
-                        console.log('Block:', block, date, duration);
                         return {
                             date,
                             duration,

@@ -344,6 +344,11 @@ export class EventFormService extends AsyncHandler {
 
     public newForm(event: CalendarEvent = new CalendarEvent()) {
         this._event.next(event);
+        for (const space of event.resources) {
+            if (!space.level?.id) {
+                (space as any).level = this._org.levelWithID(space.zones);
+            }
+        }
         this._date.next(event.date);
         this.resetForm();
     }
