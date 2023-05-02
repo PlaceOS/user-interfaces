@@ -33,10 +33,12 @@ export class CateringItem {
     public readonly unit_price_with_options: number;
     /** Zones in which this item is not allow to be ordered in */
     public readonly hide_for_zones: string[];
+    /** Whether item in part of an order */
+    public readonly in_order: boolean;
 
     public get custom_id() {
         const options = this.option_list.map((_) => _.id).join('+');
-        return `${this.id}[${options}]`;
+        return `${this.id}[${options}]${!this.in_order ? 'menu' : ''}`;
     }
 
     constructor(data: Partial<CateringItem> = {}) {
@@ -68,5 +70,6 @@ export class CateringItem {
                 ?.map((_) => _.id || '')
                 .sort((a, b) => a.localeCompare(b))
                 .join(',') || '';
+        this.in_order = data.in_order ?? false;
     }
 }
