@@ -31,7 +31,7 @@ export interface SpaceInfoData {
             [delay]="3000"
             [attr.id]="space?.map_id || space?.id"
             (mouseenter)="updateOffset()"
-            class="h-full w-full pointer-events-auto relative hidden sm:block"
+            class="h-full w-full pointer-events-auto relative hidden sm:block cursor-pointer"
         ></div>
         <ng-template #space_tooltip>
             <div
