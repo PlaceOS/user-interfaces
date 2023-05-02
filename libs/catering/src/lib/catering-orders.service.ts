@@ -107,13 +107,16 @@ export class CateringOrdersService extends AsyncHandler {
         status: CateringOrderStatus
     ) {
         const updated_order = new CateringOrder({ ...order, status });
+        const catering = [
+            ...order.event.ext('catering').filter((o) => o.id !== order.id),
+            updated_order,
+        ].map((i) => new CateringOrder({ ...i }));
         const event = new CalendarEvent({
             ...order.event,
-            catering: [
-                ...order.event.ext('catering').filter((o) => o.id !== order.id),
-                updated_order,
-            ].map((i) => new CateringOrder({ ...i })),
+            catering,
         });
-        return await saveEvent(event);
+        const booking = await saveEvent(event).toPromise();
+        this._poll.next(Date.now());
+        return booking;
     }
 }
