@@ -134,8 +134,10 @@ export class CateringOrderComponent {
     /** List of status available to select */
     public readonly statuses = CATERING_STATUSES;
 
-    public readonly updateStatus = (s) =>
-        this._orders.updateStatus(this.order, s);
+    public readonly updateStatus = async (s) => {
+        await this._orders.updateStatus(this.order, s);
+        (this.order as any).status = s;
+    };
 
     public get status() {
         return this.statuses.find((i) => i.id === this.order.status);
