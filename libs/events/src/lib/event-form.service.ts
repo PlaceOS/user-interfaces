@@ -342,12 +342,13 @@ export class EventFormService extends AsyncHandler {
         this._options.next({ ...this._options.getValue(), ...value });
     }
 
-    public newForm(event: CalendarEvent = new CalendarEvent()) {
+    public async newForm(event: CalendarEvent = new CalendarEvent()) {
         this._event.next(event);
-        for (const space of event.resources) {
-            if (!space.level?.id) {
-                (space as any).level = this._org.levelWithID(space.zones);
-            }
+        for (const idx in event.resources) {
+            const space = event.resources[idx];
+            event.resources[idx] = await this._space_pipe.transform(
+                space.id || space.email
+            );
         }
         this._date.next(event.date);
         this.resetForm();

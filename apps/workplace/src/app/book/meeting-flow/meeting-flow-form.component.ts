@@ -252,6 +252,12 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             <mat-form-field
                                 appearance="outline"
                                 class="w-full"
+                                [class.mt-2]="
+                                    !(
+                                        form.value.catering?.length && has_codes
+                                        | async
+                                    )
+                                "
                                 *ngIf="form.value.catering?.length"
                             >
                                 <textarea

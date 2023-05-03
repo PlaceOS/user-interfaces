@@ -52,7 +52,7 @@ import { CateringItem } from '../catering-item.class';
                         </p>
                         <div
                             class="text-xs px-2 py-1 rounded-2xl shadow border border-gray-100"
-                            *ngIf="item.option_list.length"
+                            *ngIf="item.option_list?.length"
                         >
                             {{ options }}
                         </div>
@@ -115,6 +115,6 @@ export class CateringItemListItemComponent {
     @Output() public select = new EventEmitter();
 
     public get options() {
-        return this.item.option_list.map((_) => _.name).join(', ');
+        return this.item.option_list?.map((_) => _.name).join(', ');
     }
 }
