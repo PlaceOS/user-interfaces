@@ -53,7 +53,7 @@ describe('NewCateringOrderModalComponent', () => {
     it('should allow setting selected catering items', () => {
         spectator.component.setSelected(new CateringItem({ id: '1' }), true);
         expect(spectator.component.selected).toHaveLength(1);
-        spectator.component.setSelected(new CateringItem({ id: '1' }), false);
+        spectator.component.setSelected(spectator.component.selected[0], false);
         expect(spectator.component.selected).toHaveLength(0);
     });
 
