@@ -126,7 +126,7 @@ export class BookingFormService extends AsyncHandler {
                     return this.loadResourceList('desks' as any);
                 case 'parking':
                     this._loading.next(`Loading parking spaces...`);
-                    return this.loadResourceList('parking_spaces' as any);
+                    return this.loadResourceList('parking-spaces' as any);
                 case 'locker':
                     this._loading.next(`Loading lockers...`);
                     return this.loadResourceList('lockers' as any);
