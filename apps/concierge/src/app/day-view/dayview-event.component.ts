@@ -48,7 +48,7 @@ const DAY_IN_MINUTES = 24 * 60;
         <div
             *ngIf="event && (ui_options | async)?.show_cleaning"
             cleaning
-            class="absolute rounded overflow-hidden flex w-full shadow p-2 bg-white z-20"
+            class="absolute rounded overflow-hidden flex w-full shadow p-2 bg-white z-20 hover:!h-48"
             [style.top]="top * 100 + '%'"
             [style.height]="height * 100 + '%'"
         >
