@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-import { ANIMATION_SHOW_CONTRACT_EXPAND } from '@placeos/common';
+import { ANIMATION_SHOW_CONTRACT_EXPAND, AsyncHandler } from '@placeos/common';
 
 import { CateringOrdersService } from './catering-orders.service';
 import { CateringOrder } from './catering-order.class';
@@ -127,7 +127,7 @@ import { CATERING_STATUSES } from './catering.vars';
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
 })
-export class CateringOrderComponent {
+export class CateringOrderComponent extends AsyncHandler {
     @Input() public order: CateringOrder;
     /** Whether to show the items in the catering order */
     public show_items = false;
@@ -136,12 +136,14 @@ export class CateringOrderComponent {
 
     public readonly updateStatus = async (s) => {
         await this._orders.updateStatus(this.order, s);
-        (this.order as any).status = s;
+        this.timeout('status-change', () => ((this.order as any).status = s));
     };
 
     public get status() {
         return this.statuses.find((i) => i.id === this.order.status);
     }
 
-    constructor(private _orders: CateringOrdersService) {}
+    constructor(private _orders: CateringOrdersService) {
+        super();
+    }
 }
