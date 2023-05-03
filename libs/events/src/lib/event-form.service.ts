@@ -365,6 +365,7 @@ export class EventFormService extends AsyncHandler {
                     ? Date.now()
                     : event.date,
             host: event?.host || currentUser().email,
+            catering: event.extension_data.catering[0]?.items || [],
         });
         this._options.next({ features: [] });
         this.storeForm();
