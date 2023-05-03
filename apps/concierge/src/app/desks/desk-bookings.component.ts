@@ -91,12 +91,15 @@ import { DesksStateService } from './desks-state.service';
             </ng-template>
             <ng-template #action_template let-row="row">
                 <div class="flex items-center justify-end space-x-2">
-                    <action-icon (click)="checkin(row)">how_to_reg</action-icon>
+                    <action-icon matTooltip="Check-in" (click)="checkin(row)">
+                        how_to_reg
+                    </action-icon>
                     <button
                         icon
                         matRipple
                         (click)="approve(row)"
                         matTooltip="Approve Desk"
+                        title=""
                     >
                         <app-icon>event_available</app-icon>
                     </button>
@@ -105,6 +108,7 @@ import { DesksStateService } from './desks-state.service';
                         matRipple
                         (click)="reject(row)"
                         matTooltip="Reject Desk"
+                        title=""
                     >
                         <app-icon>event_busy</app-icon>
                     </button>
@@ -114,6 +118,7 @@ import { DesksStateService } from './desks-state.service';
                         [disabled]="!row.extension_data?.checkin_qr_code"
                         [matMenuTriggerFor]="menu"
                         matTooltip="View Desk QR code"
+                        title=""
                     >
                         <app-icon *ngIf="row.extension_data?.checkin_qr_code">
                             qr_code
