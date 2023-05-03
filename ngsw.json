@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1683085921228,
+  "timestamp": 1683090735708,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -137,7 +137,7 @@
   "hashTable": {
     "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "fb7ea5188528123fac40d74447cce09c5cdec334",
     "./apps_concierge_src_app_catering_catering_module_ts.js": "178762213725451754b336a98d07a001091ac85b",
-    "./apps_concierge_src_app_day-view_day-view_module_ts.js": "8948f955bd62b38fa47f18bced8a9e0e8c438366",
+    "./apps_concierge_src_app_day-view_day-view_module_ts.js": "8017b5c9f6a8ea31aa811b00222da571863cabe2",
     "./apps_concierge_src_app_desks_desks_module_ts.js": "dd32116cd1c748d9f3e1c842ee1e92ed3369e4ba",
     "./apps_concierge_src_app_facilities_facilities_module_ts.js": "dd632dcfdd2b84290836ba33d8a93e486cbe20f1",
     "./apps_concierge_src_app_parking_parking_module_ts.js": "d300aad38cd26cc2c1735c51f623d1ac3427aaad",
@@ -228,7 +228,7 @@
     "./default-node_modules_angular_material_fesm2020_tabs_mjs.js": "0f56ef6226902dba2654798b4918f54670f3f001",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "85c10b9748bc9d102550c65678c81fec96aee819",
-    "./main.js": "dcbd1253673cae3b662e4f65087472e95680d7fd",
+    "./main.js": "26c27eb9bd003d7e8119b945f514322fc9329273",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
@@ -240,7 +240,7 @@
     "./material-symbols-sharp.woff2": "9b682ae3c7fb0a2c2f8c7d231307b073edaa244d",
     "./polyfills.js": "039813b509e6615a03798c1c4095e7104a33b2e8",
     "./runtime.js": "4d5e529aa8350ee83659185276a1940d360131b8",
-    "./styles.css": "70c19727fa03fead74080b2d1ac6e15d7a082fdb",
+    "./styles.css": "f940b00c5023609ec776be28ab5d3c98c012cd5c",
     "./vendor.js": "06a6a92ce53226de7dc8648c0136ba38665b7366"
   },
   "navigationUrls": [
