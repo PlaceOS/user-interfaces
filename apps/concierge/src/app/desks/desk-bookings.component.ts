@@ -32,7 +32,7 @@ import { DesksStateService } from './desks-state.service';
                     'Access',
                     ' '
                 ]"
-                [column_size]="['18r', '', '', '14r', '', '10r', '', '', '12r']"
+                [column_size]="['18r', '', '16r', '', '', '10r', '', '', '12r']"
                 [template]="{
                     user_name: user_template,
                     desk_name: desk_template,
