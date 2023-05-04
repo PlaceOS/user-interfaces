@@ -419,6 +419,7 @@ export class EventFormService extends AsyncHandler {
                     ).join(', ')}]`
                 );
             }
+            const ical_uid = this.event.ical_uid;
             let { id, host, date, duration, creator, all_day, assets } =
                 form.getRawValue();
             const spaces = form.get('resources')?.value || [];
@@ -439,7 +440,7 @@ export class EventFormService extends AsyncHandler {
                     id
                         ? { start, end: start + event.duration * 60 }
                         : undefined,
-                    id || ''
+                    ical_uid || id || ''
                 ).catch((_) => {
                     this._loading.next('');
                     reject(_);

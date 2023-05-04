@@ -235,7 +235,8 @@ export function querySpaceAvailability(
                     _.filter(
                         (b) =>
                             b.resources?.find((s) => s.id === id) &&
-                            b.id !== ignore
+                            b.id !== ignore &&
+                            b.ical_uid !== ignore
                     ).length === 0
             )
         )
