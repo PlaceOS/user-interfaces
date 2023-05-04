@@ -6,6 +6,7 @@ import { BookingDetailsModalComponent } from './booking-details-modal.component'
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
+import { currentUser } from '@placeos/common';
 
 @Component({
     selector: 'booking-card',
@@ -93,6 +94,12 @@ import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
                 >
                     chevron_right
                 </app-icon>
+                <div
+                    class="absolute top-2 right-2 bg-yellow-500/50 rounded-xl px-2 py-1 text-xs"
+                    *ngIf="!for_current_user"
+                >
+                    Associate
+                </div>
             </div>
         </a>
         <ng-template #desk_icon>
@@ -115,6 +122,10 @@ export class BookingCardComponent extends AsyncHandler {
     @Output() public edit = new EventEmitter();
     @Output() public remove = new EventEmitter();
     @Output() public end = new EventEmitter();
+
+    public get for_current_user() {
+        return this.booking?.user_email === currentUser()?.email;
+    }
 
     constructor(
         private _dialog: MatDialog,
