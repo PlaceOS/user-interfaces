@@ -7,7 +7,7 @@ import { DesksStateService } from './desks-state.service';
     template: `
         <div class="overflow-auto h-full w-full">
             <custom-table
-                class="min-w-[76rem]"
+                class="min-w-[76rem] block"
                 [dataSource]="bookings"
                 [filter]="(filters | async)?.search"
                 [columns]="[
@@ -32,17 +32,7 @@ import { DesksStateService } from './desks-state.service';
                     'Access',
                     ' '
                 ]"
-                [column_size]="[
-                    'flex',
-                    '',
-                    '',
-                    '12r',
-                    '',
-                    '10r',
-                    '',
-                    '',
-                    '12r'
-                ]"
+                [column_size]="['18r', '', '', '14r', '', '10r', '', '', '12r']"
                 [template]="{
                     user_name: user_template,
                     desk_name: desk_template,
