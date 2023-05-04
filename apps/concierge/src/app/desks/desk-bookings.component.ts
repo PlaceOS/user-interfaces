@@ -25,7 +25,7 @@ import { DesksStateService } from './desks-state.service';
                     'Person',
                     'Group',
                     'Desk',
-                    'Date',
+                    'Time',
                     'Status',
                     'Approver',
                     'Checked In',
@@ -49,7 +49,7 @@ import { DesksStateService } from './desks-state.service';
                 "
             ></custom-table>
             <ng-template #date_template let-data="data">
-                {{ data | date }} at {{ data | date: 'shortTime' }}
+                {{ data | date: 'shortTime' }}
             </ng-template>
             <ng-template #desk_template let-row="row">
                 {{ row.asset_name || row.asset_id }}
