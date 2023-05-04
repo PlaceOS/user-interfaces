@@ -8,9 +8,12 @@ import {
     getUnixTime,
     startOfMinute,
 } from 'date-fns';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     catchError,
+    debounceTime,
+    distinctUntilChanged,
+    filter,
     first,
     map,
     shareReplay,
@@ -36,6 +39,7 @@ import { ExploreDeskInfoComponent } from './explore-desk-info.component';
 import { ExploreDeviceInfoComponent } from './explore-device-info.component';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
 import { ExploreStateService } from './explore-state.service';
+import { Booking } from 'libs/bookings/src/lib/booking.class';
 
 export interface DeskOptions {
     enable_booking?: boolean;
@@ -65,15 +69,18 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
 
     private _desk_bookings = combineLatest([
         this._state.level,
+        this._options,
         this._poll,
     ]).pipe(
+        filter(([lvl]) => !!lvl),
+        debounceTime(600),
         switchMap(([lvl]) =>
             queryBookings({
                 period_start: getUnixTime(startOfMinute(new Date())),
                 period_end: getUnixTime(addMinutes(new Date(), 60)),
                 type: 'desk',
                 zones: lvl.id,
-            })
+            }).pipe(catchError(() => of([] as Booking[])))
         ),
         tap((l) => {
             this._users = {};
@@ -200,11 +207,8 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 );
             })
         );
-        this.interval(
-            'poll',
-            () => this._poll.next(new Date().valueOf()),
-            delay
-        );
+        this._poll.next(Date.now());
+        this.interval('poll', () => this._poll.next(Date.now()), delay);
         return () => this.stopPolling();
     }
 
@@ -214,6 +218,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
 
     public setOptions(options: DeskOptions) {
         this._options.next({ ...this._options.getValue(), ...options });
+        if (options.date) this._poll.next(Date.now());
     }
 
     public processBindingChange(

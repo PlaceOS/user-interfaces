@@ -85,7 +85,7 @@ export class DeskMapViewComponent extends AsyncHandler implements OnInit {
                 const level = this._org.levelWithID(opts.zones);
                 if (level) this._state.setLevel(level.id);
                 this._desks_state.setOptions({
-                    date: opts.date ? new Date(opts.date) : new Date(),
+                    date: opts.date || Date.now(),
                     zones: opts.zones,
                 });
             })
