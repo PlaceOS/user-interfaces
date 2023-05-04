@@ -581,6 +581,10 @@ export class BookingFormService extends AsyncHandler {
                 )
             )
         );
+        const group_name = `${currentUser().email}[${format(
+            Date.now(),
+            'yyyy-MM-dd'
+        )}]`;
         for (let i = 0; i < group_members.length; i++) {
             const user = group_members[i];
             const asset = resources[i];
@@ -593,6 +597,7 @@ export class BookingFormService extends AsyncHandler {
                 asset_name: asset.name,
                 description: asset.name,
                 map_id: asset?.map_id || asset?.id,
+                group: group_name,
                 zones: asset.zone
                     ? unique([
                           this._org.organisation.id,
@@ -601,7 +606,7 @@ export class BookingFormService extends AsyncHandler {
                       ])
                     : [this._org.organisation.id],
             });
-            this.postForm(true);
+            await this.postForm(true);
         }
     }
 

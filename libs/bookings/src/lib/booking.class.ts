@@ -97,6 +97,10 @@ export class Booking {
     /** Time  */
     public readonly checked_out_at?: number;
 
+    public get group() {
+        return this.extension_data.group || '';
+    }
+
     constructor(data: Partial<BookingComplete> = {}) {
         this.id = data.id || '';
         this.asset_id = data.asset_id || '';
