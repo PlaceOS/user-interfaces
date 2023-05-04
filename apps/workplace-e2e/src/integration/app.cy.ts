@@ -274,6 +274,46 @@ describe('workplace', () => {
         });
     });
 
+    it('should open the global search panel when clicked', () => {
+        cy.get('global-loading');
+        cy.get('app-landing', { timeout: 6000 });
+
+        cy.get('topbar').then(($topBarComponent) => {
+            const topBarComponent = $topBarComponent[0];
+
+            cy.get('global-search', {
+                withinSubject: topBarComponent,
+            }).then(($globalSearchComponent) => {
+                cy.get('button[name="global-search"]')
+                    .click()
+                    .then(() => {
+                        cy.wait(3000);
+                        cy.get('input[placeholder*="Search"]').should(
+                            'be.visible'
+                        );
+                    });
+            });
+        });
+    });
+
+    it('should open the user modal when clicked', () => {
+        cy.get('global-loading');
+        cy.get('app-landing', { timeout: 6000 });
+
+        cy.get('topbar').then(($topBarComponent) => {
+            const topBarComponent = $topBarComponent[0];
+            cy.get('button[name="user-controls"]', {
+                withinSubject: topBarComponent,
+            })
+                .click()
+                .then(() => {
+                    cy.get('.cdk-overlay-pane', {
+                        timeout: 6000,
+                    }).should('be.visible');
+                });
+        });
+    });
+
     // #endregion
 
     // #region AVAILABLE NOW
