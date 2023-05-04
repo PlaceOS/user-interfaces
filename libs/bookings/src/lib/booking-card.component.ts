@@ -124,7 +124,10 @@ export class BookingCardComponent extends AsyncHandler {
     @Output() public end = new EventEmitter();
 
     public get for_current_user() {
-        return this.booking?.user_email === currentUser()?.email;
+        return (
+            this.booking?.user_email.toLowerCase() ===
+            currentUser()?.email.toLowerCase()
+        );
     }
 
     constructor(
