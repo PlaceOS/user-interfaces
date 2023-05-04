@@ -464,7 +464,9 @@ export class EventFormService extends AsyncHandler {
                     ? { calendar: host || creator }
                     : {
                           system_id:
-                              this._event.getValue()?.system?.id || space_id,
+                              this.event?.system?.id ||
+                              this.event.resources[0]?.id ||
+                              space_id,
                       }
                 : {};
             const value = this._form.getRawValue();
