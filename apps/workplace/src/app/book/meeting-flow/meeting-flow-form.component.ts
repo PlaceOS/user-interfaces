@@ -377,7 +377,7 @@ export class MeetingFlowFormComponent extends AsyncHandler {
     public readonly has_codes = this._catering.charge_codes.pipe(
         map((l) => l.length > 0),
         tap((has_codes) => {
-            if (has_codes) {
+            if (!has_codes) {
                 this.form.get('catering_charge_code').setValidators([]);
                 this.form.updateValueAndValidity();
             }
