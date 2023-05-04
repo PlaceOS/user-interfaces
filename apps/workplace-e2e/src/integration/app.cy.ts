@@ -94,7 +94,9 @@ describe('workplace', () => {
     });
 
     it('should remove colleague when the Remove Colleague mat-menu-item is clicked', () => {
+        // ********************************
         //Test is failing because the 'Remove Colleague' function is not working in app when tested locally
+        // ********************************
         // cy.get('global-loading');
         // cy.get('app-landing', { timeout: 6000 });
         // cy.get('landing-colleagues').then(($childComponent) => {
@@ -151,7 +153,9 @@ describe('workplace', () => {
     });
 
     it('should auto-populate a selected colleague recommended by the auto-complete', () => {
+        // ********************************
         //Test is failing because this function is not working in app when tested locally
+        // ********************************
         // cy.get('global-loading');
         // cy.get('app-landing', { timeout: 6000 });
         // cy.get('landing-colleagues').then(($childComponent) => {
@@ -172,6 +176,29 @@ describe('workplace', () => {
         //         });
         // });
     });
+
+    // #endregion
+
+    // #region SIDE BAR - FAVOURITES TAB
+    it('should display the Favourites tab when clicked', () => {
+        cy.get('global-loading');
+        cy.get('app-landing', { timeout: 6000 });
+        cy.get('landing-favourites').should('not.exist');
+        cy.get('button').find('div').contains('Favourites').click();
+        cy.get('landing-favourites').should('exist');
+    });
+
+    // #endregion
+
+    // #region AVAILABLE NOW
+
+    // #endregion
+
+    // #region YOUR BOOKINGS
+
+    // #endregion
+
+    // #region BOOKING DETAILS MODAL
 
     // #endregion
 });
