@@ -190,6 +190,92 @@ describe('workplace', () => {
 
     // #endregion
 
+    // #region TOP BAR
+
+    it('should redirect to the corresponding view when each link in top-menu is clicked', () => {
+        cy.get('global-loading');
+        cy.get('app-landing', { timeout: 6000 });
+
+        cy.get('topbar').then(($topBarComponent) => {
+            const childComponent = $topBarComponent[0];
+            cy.get('a[name="nav-logo"')
+                .click()
+                .then(() => {
+                    cy.url().should('include', '/landing');
+                });
+            cy.get('top-menu', {
+                withinSubject: childComponent,
+            }).then(($topMenuComponent) => {
+                const topMenu = $topMenuComponent;
+                cy.get('a[name="nav-meeting"]')
+                    .first()
+                    .click()
+                    .then(() => {
+                        cy.wait(3000);
+                        cy.url().should('include', '/book/meeting');
+                    });
+
+                cy.get('a[name="nav-desks"]')
+                    .first()
+                    .click()
+                    .then(() => {
+                        cy.wait(3000);
+                        cy.url().should('include', '/book/new-desks');
+                    });
+
+                cy.get('a[name="nav-meeting"]')
+                    .eq(1)
+                    .click()
+                    .then(() => {
+                        cy.wait(3000);
+                        cy.url().should('include', '/book/locker');
+                    });
+
+                cy.get('a[name="nav-parking"]')
+                    .first()
+                    .click()
+                    .then(() => {
+                        cy.wait(3000);
+                        cy.url().should('include', '/book/new-parking');
+                    });
+
+                cy.get('a[name="nav-visitor-invite"]')
+                    .first()
+                    .click()
+                    .then(() => {
+                        cy.wait(3000);
+                        cy.url().should('include', '/book/visitor');
+                    });
+
+                cy.get('a[name="nav-explore"]')
+                    .first()
+                    .click()
+                    .then(() => {
+                        cy.wait(3000);
+                        cy.url().should('include', '/explore');
+                    });
+
+                cy.get('a[name="nav-my-day"]')
+                    .first()
+                    .click()
+                    .then(() => {
+                        cy.wait(3000);
+                        cy.url().should('include', '/your-bookings');
+                    });
+
+                cy.get('a[name="nav-home"]')
+                    .first()
+                    .click()
+                    .then(() => {
+                        cy.wait(3000);
+                        cy.url().should('include', '/landing');
+                    });
+            });
+        });
+    });
+
+    // #endregion
+
     // #region AVAILABLE NOW
 
     // #endregion
