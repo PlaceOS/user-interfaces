@@ -172,6 +172,7 @@ export class ExploreParkingService extends AsyncHandler {
             };
             if (can_book) {
                 labels.push({
+                    zoom_level: 2,
                     location: `${space.map_id}`,
                     content: `${space.name}\nFree`,
                 });
