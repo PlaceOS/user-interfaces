@@ -131,7 +131,7 @@ export class EventsStateService extends AsyncHandler {
         this._date,
         this._poll,
     ]).pipe(
-        filter((i) => !!i[0]),
+        filter(([period]) => !!period),
         debounceTime(300),
         switchMap(([period, zones, date]) => {
             if (!zones?.length) return of([]);
@@ -154,9 +154,11 @@ export class EventsStateService extends AsyncHandler {
                 zone_ids: zones.join(','),
                 period_start: getUnixTime(start),
                 period_end: getUnixTime(end),
-            }).pipe(map((_) => [_, start, end]));
+            }).pipe(
+                map((_) => [_, start, end]),
+                catchError(() => of([[]]))
+            );
         }),
-        catchError(() => of([[]])),
         tap(([events, start, end]) => {
             this.processBookings(
                 events || [],

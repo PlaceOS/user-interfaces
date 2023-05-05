@@ -69,8 +69,8 @@ import { SettingsService } from '@placeos/common';
                     <span class="opacity-60"
                         >{{ building.display_name || building.name }},
                         {{
-                            (event.system.id | space | async)?.display_name ||
-                                (event.system.id | space | async)?.name
+                            (space_id | space | async)?.display_name ||
+                                (space_id | space | async)?.name
                         }}</span
                     >
                 </div>
@@ -146,6 +146,14 @@ export class ViewEventDetailsComponent {
 
     public get building() {
         return this._org.building;
+    }
+
+    public get space_id() {
+        return (
+            this.event?.resources[0]?.id ||
+            this.event?.space?.id ||
+            this.event?.system?.id
+        );
     }
 
     public get time() {
