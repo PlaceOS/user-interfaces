@@ -76,6 +76,7 @@ const events: any = {
     features_on_form: false,
     booking_unavailable: false,
     allow_externals: true,
+    allow_recurrence: true,
 };
 /*===========================*\
 ||  SPACE LISTING SETTINGS   ||

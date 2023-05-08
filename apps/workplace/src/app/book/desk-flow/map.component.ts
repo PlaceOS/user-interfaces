@@ -199,7 +199,7 @@ export class DeskFlowMapComponent extends AsyncHandler implements OnInit {
                 end: options.recurr_end,
                 start: form.value.date,
                 interval: 1,
-                days_of_week: -1,
+                days_of_week: [],
             });
             const details = `${format(form.value.date, 'dd MMM yyyy')}${
                 options.pattern && options.pattern !== 'none'

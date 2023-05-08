@@ -20,7 +20,7 @@ import { SettingsService } from '@placeos/common';
             (click)="$event.stopPropagation()"
         >
             <div class="p-4 overflow-auto flex-1">
-                <h3 class="mb-0 pl-6 mb-1">
+                <h3 class="pl-6 mb-1">
                     {{ event.organiser?.name || event.host }}
                 </h3>
                 <div class="text-bold mb-4 pl-6 opacity-60">
