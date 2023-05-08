@@ -350,6 +350,21 @@ describe('workplace', () => {
     // #endregion
 
     // #region YOUR BOOKINGS
+    it('should redirect to Your Bookings view when the View All button is clicked', () => {
+        cy.get('global-loading');
+        cy.get('app-landing', { timeout: 6000 });
+        cy.get('landing-upcoming').then(($upcomingComponent) => {
+            const upcomingComponent = $upcomingComponent[0];
+            cy.get('a[name="upcoming-view-all"]')
+                .should('be.visible')
+                .first()
+                .click()
+                .then(() => {
+                    cy.wait(3000);
+                    cy.url().should('include', '/your-bookings');
+                });
+        });
+    });
 
     // #endregion
 
