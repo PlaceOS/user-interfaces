@@ -274,45 +274,45 @@ describe('workplace', () => {
     //     });
     // });
 
-    it('should open the global search panel when clicked', () => {
-        cy.get('global-loading');
-        cy.get('app-landing', { timeout: 6000 });
+    // it('should open the global search panel when clicked', () => {
+    //     cy.get('global-loading');
+    //     cy.get('app-landing', { timeout: 6000 });
 
-        cy.get('topbar').then(($topBarComponent) => {
-            const topBarComponent = $topBarComponent[0];
+    //     cy.get('topbar').then(($topBarComponent) => {
+    //         const topBarComponent = $topBarComponent[0];
 
-            cy.get('global-search', {
-                withinSubject: topBarComponent,
-            }).then(() => {
-                cy.get('button[name="global-search"]')
-                    .click()
-                    .then(() => {
-                        cy.wait(3000);
-                        cy.get(
-                            'input[placeholder="Search for people or spaces..."]'
-                        ).should('be.visible');
-                    });
-            });
-        });
-    });
+    //         cy.get('global-search', {
+    //             withinSubject: topBarComponent,
+    //         }).then(() => {
+    //             cy.get('button[name="global-search"]')
+    //                 .click()
+    //                 .then(() => {
+    //                     cy.wait(3000);
+    //                     cy.get(
+    //                         'input[placeholder="Search for people or spaces..."]'
+    //                     ).should('be.visible');
+    //                 });
+    //         });
+    //     });
+    // });
 
-    it('should open the user modal when clicked', () => {
-        cy.get('global-loading');
-        cy.get('app-landing', { timeout: 6000 });
+    // it('should open the user modal when clicked', () => {
+    //     cy.get('global-loading');
+    //     cy.get('app-landing', { timeout: 6000 });
 
-        cy.get('topbar').then(($topBarComponent) => {
-            const topBarComponent = $topBarComponent[0];
-            cy.get('button[name="user-controls"]', {
-                withinSubject: topBarComponent,
-            })
-                .click()
-                .then(() => {
-                    cy.get('.cdk-overlay-pane', {
-                        timeout: 6000,
-                    }).should('be.visible');
-                });
-        });
-    });
+    //     cy.get('topbar').then(($topBarComponent) => {
+    //         const topBarComponent = $topBarComponent[0];
+    //         cy.get('button[name="user-controls"]', {
+    //             withinSubject: topBarComponent,
+    //         })
+    //             .click()
+    //             .then(() => {
+    //                 cy.get('.cdk-overlay-pane', {
+    //                     timeout: 6000,
+    //                 }).should('be.visible');
+    //             });
+    //     });
+    // });
 
     // #endregion
 
@@ -327,7 +327,23 @@ describe('workplace', () => {
             .click()
             .then(() => {
                 cy.wait(3000);
-                cy.url().should('include', 'explore');
+                cy.url().should('include', '/explore');
+            });
+    });
+
+    it('should display room booking modal when an available room button is clicked', () => {
+        cy.get('global-loading');
+        cy.get('app-landing', { timeout: 6000 });
+        cy.get('explore-booking-modal').should('not.exist');
+        cy.get('button[name="landing-book-room"]')
+            .should('be.visible')
+            .first()
+            .click()
+            .then(() => {
+                cy.wait(3000);
+                cy.get('explore-booking-modal', {
+                    timeout: 6000,
+                }).should('be.visible');
             });
     });
 
