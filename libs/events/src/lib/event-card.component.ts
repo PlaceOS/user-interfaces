@@ -178,7 +178,7 @@ export class EventCardComponent extends AsyncHandler {
         super();
     }
 
-    public ngOnInit() {
+    public async ngOnInit() {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) =>
@@ -187,6 +187,7 @@ export class EventCardComponent extends AsyncHandler {
                     : ''
             )
         );
+        this.location = await this.getLocationString();
     }
 
     public async ngOnChanges(changes: SimpleChanges) {
@@ -203,9 +204,9 @@ export class EventCardComponent extends AsyncHandler {
 
     public async getLocationString() {
         const system =
+            this.event?.resources[0] ||
             this.event?.system ||
             this.event?.space ||
-            this.event?.resources[0] ||
             ({} as any);
         const space = await this._space_pipe.transform(
             system.id || system.email
