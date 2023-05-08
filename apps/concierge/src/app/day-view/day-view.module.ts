@@ -15,6 +15,7 @@ import { BookingModalComponent } from './booking-modal.component';
 import { EventFormComponent } from './event-form.component';
 import { SharedSpacesModule } from '@placeos/spaces';
 import { SharedUsersModule } from '@placeos/users';
+import { SharedCateringModule } from '@placeos/catering';
 
 const ROUTES: Route[] = [{ path: '', component: DayViewComponent }];
 
@@ -27,8 +28,16 @@ const ROUTES: Route[] = [{ path: '', component: DayViewComponent }];
         DayviewEventComponent,
 
         BookingModalComponent,
-        EventFormComponent
+        EventFormComponent,
     ],
-    imports: [CommonModule, FormsModule, UIModule, SharedSpacesModule, SharedUsersModule, RouterModule.forChild(ROUTES)],
+    imports: [
+        CommonModule,
+        FormsModule,
+        UIModule,
+        SharedSpacesModule,
+        SharedUsersModule,
+        SharedCateringModule,
+        RouterModule.forChild(ROUTES),
+    ],
 })
 export class DayViewModule {}
