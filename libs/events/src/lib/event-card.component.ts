@@ -203,7 +203,10 @@ export class EventCardComponent extends AsyncHandler {
 
     public async getLocationString() {
         const system =
-            this.event?.system || this.event?.space || this.event?.resources[0];
+            this.event?.system ||
+            this.event?.space ||
+            this.event?.resources[0] ||
+            ({} as any);
         const space = await this._space_pipe.transform(
             system.id || system.email
         );
