@@ -353,8 +353,7 @@ describe('workplace', () => {
     it('should redirect to Your Bookings view when the View All button is clicked', () => {
         cy.get('global-loading');
         cy.get('app-landing', { timeout: 6000 });
-        cy.get('landing-upcoming').then(($upcomingComponent) => {
-            const upcomingComponent = $upcomingComponent[0];
+        cy.get('landing-upcoming').then(() => {
             cy.get('a[name="upcoming-view-all"]')
                 .should('be.visible')
                 .first()
@@ -369,6 +368,17 @@ describe('workplace', () => {
     // #endregion
 
     // #region BOOKING DETAILS MODAL
+
+    it('should show the Booking Details modal when a booking is clicked', () => {
+        cy.get('global-loading');
+        cy.get('app-landing', { timeout: 6000 });
+        cy.get('event-card')
+            .first()
+            .click()
+            .then(() => {
+                cy.get('event-details-modal').should('be.visible');
+            });
+    });
 
     // #endregion
 });
