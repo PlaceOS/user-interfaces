@@ -1,6 +1,6 @@
 import { PlaceZone } from '@placeos/ts-client';
 
-export class Desk {
+export class Desk implements Record<string, any> {
     /** ID of the desk also map_id */
     public readonly id: string;
     /** ID of the desk on the associated map */
@@ -30,6 +30,9 @@ export class Desk {
         this.qr_code = data.qr_code || '';
         this.features = data.features || [];
         this.images = data.images || [];
+        for (const key in data) {
+            if (key in data && !(key in this)) this[key] = data[key];
+        }
     }
 
     public format() {
@@ -39,7 +42,7 @@ export class Desk {
             name,
             bookable,
             groups,
-            features
+            features,
         };
     }
 
