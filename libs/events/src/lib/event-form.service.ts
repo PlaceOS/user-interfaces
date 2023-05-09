@@ -423,6 +423,7 @@ export class EventFormService extends AsyncHandler {
             let { id, host, date, duration, creator, all_day, assets } =
                 form.getRawValue();
             const spaces = form.get('resources')?.value || [];
+            console.log('Space:', this.event.resources[0], spaces[0]);
             let catering = form.get('catering')?.value || [];
             if (all_day) {
                 date = startOfDay(date).valueOf();
@@ -464,8 +465,8 @@ export class EventFormService extends AsyncHandler {
                     ? { calendar: host || creator }
                     : {
                           system_id:
-                              this.event?.system?.id ||
                               this.event.resources[0]?.id ||
+                              this.event?.system?.id ||
                               space_id,
                       }
                 : {};
