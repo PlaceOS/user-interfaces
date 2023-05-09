@@ -460,16 +460,15 @@ export class EventFormService extends AsyncHandler {
                 host === currentUser()?.email ||
                 creator === currentUser()?.email;
             const space_id = spaces[0]?.id;
-            const query = id
-                ? is_owner
-                    ? { calendar: host || creator }
-                    : {
-                          system_id:
-                              this.event.resources[0]?.id ||
-                              this.event?.system?.id ||
-                              space_id,
-                      }
+            const query: any = id
+                ? {
+                      system_id:
+                          this.event.resources[0]?.id ||
+                          this.event?.system?.id ||
+                          space_id,
+                  }
                 : {};
+            if (is_owner) query.calendar = host || creator;
             const value = this._form.getRawValue();
             console.log(
                 'Payments:',
