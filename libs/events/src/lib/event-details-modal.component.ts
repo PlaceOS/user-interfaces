@@ -172,9 +172,9 @@ import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-moda
                                 {{ level?.display_name || level?.name }},
                             </ng-container>
                             {{
-                                event?.location ||
-                                    event?.system?.display_name ||
-                                    event?.system?.name
+                                event?.system?.display_name ||
+                                    event?.system?.name ||
+                                    event?.location
                             }}
                         </div>
                     </div>
