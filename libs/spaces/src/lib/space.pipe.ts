@@ -1,10 +1,9 @@
 import { Optional, Pipe } from '@angular/core';
-import { showSystem } from '@placeos/ts-client';
+import { showSystem, querySystemsWithEmails } from '@placeos/ts-client';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Space } from './space.class';
 import { first } from 'rxjs/operators';
-import { querySystemsWithEmails } from '@placeos/ts-client/dist/esm/systems/functions';
 
 const SPACE_LIST: Space[] = [];
 
