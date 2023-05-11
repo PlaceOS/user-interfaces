@@ -357,6 +357,7 @@ export class EventFormService extends AsyncHandler {
     public resetForm() {
         this._form.reset();
         const event = this._event.getValue() || ({} as Partial<CalendarEvent>);
+        const has_catering = !!event.extension_data.catering[0];
         this._form.patchValue({
             ...event,
             ...event.extension_data,
@@ -366,6 +367,9 @@ export class EventFormService extends AsyncHandler {
                     : event.date,
             host: event?.host || currentUser().email,
             catering: event.extension_data.catering[0]?.items || [],
+            catering_charge_code:
+                event.extension_data.catering[0]?.charge_code ||
+                (event.id && has_catering ? ' ' : ''),
         });
         this._options.next({ features: [] });
         this.storeForm();
