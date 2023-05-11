@@ -1,11 +1,19 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    OnInit,
+    Output,
+    SimpleChanges,
+} from '@angular/core';
 import { AsyncHandler, SettingsService, unique } from '@placeos/common';
 import { map } from 'rxjs/operators';
 
 import { BookingAsset, BookingFormService } from '../booking-form.service';
-import { combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest } from 'rxjs';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info.component';
+import { BuildingLevel } from '@placeos/organisation';
 
 @Component({
     selector: 'desk-map',
@@ -72,6 +80,7 @@ import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info
 })
 export class DeskMapComponent extends AsyncHandler implements OnInit {
     @Input() public is_displayed: boolean = false;
+    @Input() public active = '';
     @Output() public onSelect = new EventEmitter<BookingAsset>();
 
     public readonly desks = this._state.available_resources;
@@ -79,7 +88,9 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
 
     public zoom = 1;
     public center = { x: 0.5, y: 0.5 };
-    public level;
+    public level?: BuildingLevel;
+
+    private _change = new BehaviorSubject(0);
 
     public readonly setOptions = (o) => this._state.setOptions(o);
 
@@ -90,7 +101,7 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
     public readonly levels = this._state.available_resources.pipe(
         map((desks) =>
             unique(
-                desks.map((desk) => desk.zone),
+                desks.map((desk) => desk.zone as any as BuildingLevel),
                 'id'
             )
         )
@@ -129,18 +140,24 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
     public readonly styles = combineLatest([
         this._state.resources,
         this._state.available_resources,
+        this._change,
     ]).pipe(
         map(([desks, free_desks]) =>
             desks.reduce((styles, desk) => {
                 const colours = this._settings.get('app.explore.colors') || {};
-                const status = free_desks.find((_) => _.id === desk.id)
-                    ? 'free'
-                    : 'busy';
+                const status =
+                    this.active === desk.id
+                        ? 'active'
+                        : free_desks.find((_) => _.id === desk.id)
+                        ? 'free'
+                        : 'busy';
                 styles[`#${desk.map_id || desk.id}`] = {
                     fill:
-                        colours[`desk-${status}`] ||
-                        colours[`${status}`] ||
-                        DEFAULT_COLOURS[`${status}`],
+                        status === 'active'
+                            ? '#512DA8'
+                            : colours[`desk-${status}`] ||
+                              colours[`${status}`] ||
+                              DEFAULT_COLOURS[`${status}`],
                 };
                 return styles;
             }, {})
@@ -154,7 +171,7 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
         super();
     }
 
-    ngOnInit(): void {
+    public ngOnInit(): void {
         this.subscription(
             'levels_update',
             this.levels.subscribe((levels) => {
@@ -163,6 +180,10 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
                 }
             })
         );
+    }
+
+    public ngOnChanges(changes: SimpleChanges): void {
+        if (changes.active) this._change.next(Date.now());
     }
 
     public selectDesk(desk: BookingAsset) {

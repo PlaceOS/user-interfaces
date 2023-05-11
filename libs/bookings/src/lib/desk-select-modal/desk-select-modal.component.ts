@@ -73,6 +73,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                     [class.hidden]="!displayed"
                     [class.inset-0]="displayed"
                     [active]="selected_ids.includes(displayed?.id)"
+                    [hide_map]="view === 'map'"
                     (activeChange)="setSelected(displayed, $event)"
                     [fav]="displayed && this.favorites.includes(displayed?.id)"
                     (toggleFav)="toggleFavourite(displayed)"
@@ -150,6 +151,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
             <desk-map
                 class="flex-1 h-1/2 w-full"
                 [is_displayed]="!!displayed"
+                [active]="displayed?.id"
                 (onSelect)="displayed = $event"
             >
             </desk-map>
