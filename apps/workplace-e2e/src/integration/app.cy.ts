@@ -380,5 +380,23 @@ describe('workplace', () => {
             });
     });
 
+    it('should show attendees when "See All" button is clicked in the Booking Details modal', () => {
+        cy.get('global-loading');
+        cy.get('app-landing', { timeout: 6000 });
+        cy.get('attendee-list').should('not.exist');
+        cy.get('event-card')
+            .first()
+            .click()
+            .then(() => {
+                cy.contains('button', 'See All')
+                    .first()
+                    .click()
+                    .then(() => {
+                        cy.wait(6000);
+                        cy.get('attendee-list').should('be.visible');
+                    });
+            });
+    });
+
     // #endregion
 });
