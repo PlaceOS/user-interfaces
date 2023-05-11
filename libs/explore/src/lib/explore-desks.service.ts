@@ -74,10 +74,10 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     ]).pipe(
         filter(([lvl]) => !!lvl),
         debounceTime(600),
-        switchMap(([lvl]) =>
+        switchMap(([lvl, { date }]) =>
             queryBookings({
-                period_start: getUnixTime(startOfMinute(new Date())),
-                period_end: getUnixTime(addMinutes(new Date(), 60)),
+                period_start: getUnixTime(startOfMinute(date || Date.now())),
+                period_end: getUnixTime(addMinutes(date || Date.now(), 60)),
                 type: 'desk',
                 zones: lvl.id,
             }).pipe(catchError(() => of([] as Booking[])))
