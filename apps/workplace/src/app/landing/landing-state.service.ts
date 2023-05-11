@@ -29,7 +29,7 @@ import {
     unique,
 } from '@placeos/common';
 import { requestSpacesForZone } from '@placeos/spaces';
-import { CalendarEvent } from '@placeos/events';
+import { CalendarEvent, filterSpacesFromRules } from '@placeos/events';
 import { searchStaff, StaffUser, User } from '@placeos/users';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { CalendarService } from '@placeos/calendar';
@@ -59,6 +59,18 @@ export class LandingStateService extends AsyncHandler {
         filter((_) => !!_),
         switchMap((bld) => requestSpacesForZone(bld.id)),
         map((_) => _.filter((s) => s.bookable)),
+        map((_) =>
+            filterSpacesFromRules(
+                _,
+                {
+                    date: Date.now(),
+                    duration: 60,
+                    space: null,
+                    host: currentUser(),
+                },
+                this._org.building.booking_rules
+            )
+        ),
         shareReplay(1)
     );
 

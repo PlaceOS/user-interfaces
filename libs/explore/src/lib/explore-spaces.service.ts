@@ -19,6 +19,8 @@ import { ExploreSpaceInfoComponent } from './explore-space-info.component';
 import { ExploreBookingModalComponent } from './explore-booking-modal.component';
 import { ExploreBookQrComponent } from './explore-book-qr.component';
 import { EventFormService } from 'libs/events/src/lib/event-form.service';
+import { rulesForSpace } from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
 
 export const DEFAULT_COLOURS = {
     free: '#43a047',
@@ -73,13 +75,23 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         private _state: ExploreStateService,
         private _settings: SettingsService,
         private _event_form: EventFormService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
+        private _org: OrganisationService
     ) {
         super();
         this.subscription('spaces', this._bind.subscribe());
     }
 
     public bookSpace(space: Space) {
+        const { hidden } =
+            rulesForSpace(
+                { date: Date.now(), duration: 60, space, host: currentUser() },
+                this._org.building.booking_rules
+            ) || {};
+        if (hidden)
+            return notifyError(
+                'You do not has permission to book this space at this time.'
+            );
         if (this._statuses[space.id] !== 'free' || !space.bookable) {
             return notifyError(
                 `${
