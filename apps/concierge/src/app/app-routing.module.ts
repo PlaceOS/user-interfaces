@@ -3,9 +3,8 @@ import { RouterModule, Routes } from '@angular/router';
 import {
     AuthorisedUserGuard,
     RedirectComponent,
-    UnauthorisedComponent
+    UnauthorisedComponent,
 } from '@placeos/components';
-
 
 const routes: Routes = [
     { path: '-', component: RedirectComponent },
@@ -20,7 +19,9 @@ const routes: Routes = [
     {
         path: 'week-view',
         loadChildren: () =>
-            import('./week-view/week-view.module').then((m) => m.DayViewModule),
+            import('./week-view/week-view.module').then(
+                (m) => m.WeekViewModule
+            ),
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
     },
@@ -43,7 +44,9 @@ const routes: Routes = [
     {
         path: 'asset-manager',
         loadChildren: () =>
-            import('./asset-manager/asset-manager.module').then((m) => m.AppAssetManangerModule),
+            import('./asset-manager/asset-manager.module').then(
+                (m) => m.AppAssetManangerModule
+            ),
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
     },
@@ -91,10 +94,19 @@ const routes: Routes = [
     },
     {
         path: 'surveys',
-        loadChildren: () => 
+        loadChildren: () =>
             import('./surveys/surveys.module').then((m) => m.SurveysModule),
-            canActivate: [AuthorisedUserGuard],
-            canLoad: [AuthorisedUserGuard],
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+    },
+    {
+        path: 'room-management',
+        loadChildren: () =>
+            import('./room-manager/room-manager.module').then(
+                (m) => m.RoomManagerModule
+            ),
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
     },
     { path: '**', redirectTo: '-' },
 ];

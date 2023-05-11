@@ -51,6 +51,8 @@ import { DebugConsoleComponent } from './debug-console.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { JsonDisplayComponent } from './json-display.component';
 import { ChangelogModalComponent } from './changelog-modal.component';
+import { LevelPipe } from './level.pipe';
+import { BuildingPipe } from './building.pipe';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -101,6 +103,8 @@ const COMPONENTS: Type<any>[] = [
     SafePipe,
     SanitizePipe,
     DurationPipe,
+    LevelPipe,
+    BuildingPipe,
 ];
 
 const DIRECTIVES: Type<any>[] = [BindingDirective];

@@ -77,7 +77,13 @@ import { DesksStateService } from './desks-state.service';
                 </span>
             </ng-template>
             <ng-template #bool_template let-data="data">
-                {{ data ? 'Yes' : 'No' }}
+                <div
+                    [class.bg-red-500]="!data"
+                    [class.bg-green-500]="data"
+                    class="rounded h-8 w-8 flex items-center justify-center text-2xl text-white mx-auto"
+                >
+                    <app-icon>{{ data ? 'done' : 'close' }}</app-icon>
+                </div>
             </ng-template>
             <ng-template #action_template let-row="row">
                 <div class="flex items-center justify-end space-x-2">
