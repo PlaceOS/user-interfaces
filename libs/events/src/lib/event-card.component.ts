@@ -6,7 +6,7 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
 import { AsyncHandler } from '@placeos/common';
 

@@ -1,12 +1,14 @@
 import { Optional, Pipe } from '@angular/core';
-import { querySystems, showSystem } from '@placeos/ts-client';
+import { showSystem } from '@placeos/ts-client';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Space } from './space.class';
+import { first } from 'rxjs/operators';
+import { querySystemsWithEmails } from '@placeos/ts-client/dist/esm/systems/functions';
 
 const SPACE_LIST: Space[] = [];
 
-const EMPTY_SPACE = new Space();
+const EMPTY_SPACE = new Space({ email: 'empty.space@place.os' });
 
 export function updateSpaceList(space_list: Space[]) {
     for (const space of space_list) {
@@ -26,6 +28,9 @@ export class SpacePipe {
      * @param space_id ID or Email of the space
      */
     public async transform(space_id: string): Promise<Space> {
+        if (this._org) {
+            await this._org.initialised.pipe(first((_) => _)).toPromise();
+        }
         const is_email = space_id?.includes('@');
         if (!space_id) return EMPTY_SPACE;
         let space = SPACE_LIST.find(
@@ -45,7 +50,9 @@ export class SpacePipe {
                 return space;
             }
         }
-        const systems = (await querySystems({ q: space_id }).toPromise()).data;
+        const systems = (
+            await querySystemsWithEmails({ in: space_id }).toPromise()
+        ).data;
         if (systems.length === 1) {
             space = new Space({
                 ...(systems[0] as any),
