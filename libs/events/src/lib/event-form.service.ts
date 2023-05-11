@@ -56,6 +56,7 @@ import { periodInFreeTimeSlot } from './helpers';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { Validators } from '@angular/forms';
 import { updateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
+import { filterSpacesFromRules } from './helpers';
 
 const BOOKING_URLS = [
     'book/spaces',
@@ -202,6 +203,11 @@ export class EventFormService extends AsyncHandler {
                 date = startOfDay(date).valueOf();
                 duration = 24 * 60 - 1;
             }
+            list = filterSpacesFromRules(
+                list,
+                { date, duration, space: null, host: currentUser() },
+                this._org.building.booking_rules
+            );
             return (list || [])
                 .filter((_, idx) =>
                     periodInFreeTimeSlot(
@@ -237,9 +243,20 @@ export class EventFormService extends AsyncHandler {
                     duration,
                     this.event?.id || undefined
                 ).pipe(
-                    map((availability) =>
-                        spaces.filter((_, i) => availability[i])
-                    ),
+                    map((availability) => {
+                        var list = spaces.filter((_, i) => availability[i]);
+                        list = filterSpacesFromRules(
+                            list,
+                            {
+                                date,
+                                duration,
+                                space: null,
+                                host: currentUser(),
+                            },
+                            this._org.building.booking_rules
+                        );
+                        return list;
+                    }),
                     catchError((_) => [])
                 );
             }),
@@ -343,6 +360,7 @@ export class EventFormService extends AsyncHandler {
     }
 
     public async newForm(event: CalendarEvent = new CalendarEvent()) {
+        console.error('New Form:', event);
         this._event.next(event);
         for (const idx in event.resources) {
             const space = event.resources[idx];

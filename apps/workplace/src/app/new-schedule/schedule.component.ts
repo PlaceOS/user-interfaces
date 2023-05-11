@@ -23,6 +23,7 @@ import {
 import { format, isSameDay } from 'date-fns';
 import { map } from 'rxjs/operators';
 import { ScheduleStateService } from './schedule-state.service';
+import { combineLatest } from 'rxjs';
 
 @Component({
     selector: 'app-schedule',
@@ -53,9 +54,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 >
                     <ng-container
                         *ngFor="
-                            let item of (loading | async)
-                                ? []
-                                : (bookings | async);
+                            let item of bookings | async;
                             trackBy: trackByFn
                         "
                     >
@@ -106,7 +105,10 @@ import { ScheduleStateService } from './schedule-state.service';
     ],
 })
 export class ScheduleComponent extends AsyncHandler {
-    public readonly bookings = this._state.filtered_bookings;
+    public readonly bookings = combineLatest([
+        this._state.filtered_bookings,
+        this._state.loading,
+    ]).pipe(map(([bookings, loading]) => (loading ? [] : bookings)));
     public readonly date = this._state.date;
     public readonly loading = this._state.loading;
     public readonly is_today = this.date.pipe(
