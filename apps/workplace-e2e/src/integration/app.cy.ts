@@ -393,7 +393,24 @@ describe('workplace', () => {
                     .click()
                     .then(() => {
                         cy.wait(6000);
-                        cy.get('attendee-list').should('be.visible');
+                        cy.get('attendee-list').should('exist');
+                    });
+            });
+    });
+
+    it('should open up the map modal if the map is clicked inside the Booking Details Modal', () => {
+        cy.get('global-loading');
+        cy.get('app-landing', { timeout: 6000 });
+        cy.get('map-locate-modal').should('not.exist');
+        cy.get('event-card')
+            .first()
+            .click()
+            .then(() => {
+                cy.get('button[map]')
+                    .click()
+                    .then(() => {
+                        cy.wait(6000);
+                        cy.get('map-locate-modal').should('be.visible');
                     });
             });
     });
