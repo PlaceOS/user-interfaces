@@ -11,6 +11,8 @@ import { SharedUsersModule } from '@placeos/users';
 import { RoomManagerComponent } from './room-manager.component';
 import { RoomManagerTopbarComponent } from './room-manager-topbar.component';
 import { RoomListComponent } from './room-list.component';
+import { RoomModalComponent } from './room-modal.component';
+import { MatChipsModule } from '@angular/material/chips';
 
 const ROUTES: Route[] = [{ path: '', component: RoomManagerComponent }];
 
@@ -19,6 +21,7 @@ const ROUTES: Route[] = [{ path: '', component: RoomManagerComponent }];
         RoomManagerComponent,
         RoomManagerTopbarComponent,
         RoomListComponent,
+        RoomModalComponent,
     ],
     imports: [
         CommonModule,
@@ -26,6 +29,7 @@ const ROUTES: Route[] = [{ path: '', component: RoomManagerComponent }];
         UIModule,
         SharedSpacesModule,
         SharedUsersModule,
+        MatChipsModule,
         RouterModule.forChild(ROUTES),
     ],
 })

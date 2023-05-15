@@ -45,9 +45,9 @@ import { RoomManagementService } from './room-management.service';
                 <app-icon>{{ data ? 'done' : 'close' }}</app-icon>
             </div>
         </ng-template>
-        <ng-template #action_template>
+        <ng-template #action_template let-row="row">
             <div class="w-full flex justify-end space-x-2">
-                <button btn icon matTooltip="Edit Room">
+                <button btn icon matTooltip="Edit Room" (click)="editRoom(row)">
                     <app-icon>edit</app-icon>
                 </button>
                 <button btn icon matTooltip="Room Details">
@@ -60,6 +60,8 @@ import { RoomManagementService } from './room-management.service';
 })
 export class RoomListComponent {
     public readonly rooms = this._manager.filtered_rooms;
+
+    public readonly editRoom = (room) => this._manager.editRoom(room);
 
     constructor(private _manager: RoomManagementService) {}
 }

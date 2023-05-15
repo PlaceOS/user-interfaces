@@ -167,7 +167,8 @@ export class EventsStateService extends AsyncHandler {
             );
             this._loading.next(false);
         }),
-        map(([events]) => events)
+        map(([events]) => events),
+        shareReplay(1)
     );
 
     /** Active filters */

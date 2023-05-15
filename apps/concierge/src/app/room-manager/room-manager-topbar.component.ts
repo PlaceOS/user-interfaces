@@ -16,7 +16,7 @@ import { first } from 'rxjs/operators';
                 (ngModelChange)="updateZones($event)"
                 placeholder="All Levels"
             >
-                <mat-option [value]="building.id">All Levels</mat-option>
+                <mat-option [value]="building?.id">All Levels</mat-option>
                 <mat-option
                     *ngFor="let level of levels | async"
                     [value]="level.id"
@@ -25,6 +25,7 @@ import { first } from 'rxjs/operators';
                 </mat-option>
             </mat-select>
         </mat-form-field>
+        <button btn (click)="newRoom()" class="w-32">New Room</button>
         <div class="flex-1 w-2"></div>
         <searchbar class="mr-2" (modelChange)="setSearch($event)"></searchbar>
     </div>`,
@@ -53,6 +54,8 @@ export class RoomManagerTopbarComponent extends AsyncHandler {
         });
         this._manager.setFilters({ zone });
     };
+
+    public readonly newRoom = () => this._manager.editRoom();
 
     public get building() {
         return this._org.building;

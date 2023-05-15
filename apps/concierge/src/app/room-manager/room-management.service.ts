@@ -35,7 +35,7 @@ export class RoomManagementService {
         ),
         map((list) =>
             list
-                .filter((_) => this._org.levelWithID(_.zones))
+                .filter((_) => this._org.levelWithID(_.zones as any))
                 .sort((a, b) => a.name.localeCompare(b.name))
         ),
         shareReplay(1)
