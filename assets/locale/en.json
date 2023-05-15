@@ -112,6 +112,7 @@
         "TITLE": "Add Title",
         "TITLE_ERROR": "Meeting title is required.",
         "ATTENDEES": "Attendees",
-        "NOTES": "Notes"
+        "NOTES": "Notes",
+        "RECURRENCE": "Recurrence"
     }
 }
