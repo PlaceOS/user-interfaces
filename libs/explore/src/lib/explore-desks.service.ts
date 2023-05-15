@@ -287,7 +287,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         this._state.setFeatures('devices', list);
     }
 
-    private processDesks(desks: Record<string, any>[]) {
+    private processDesks(desks: Desk[]) {
         const list = [];
         const actions = [];
         const options = this._options.getValue();
@@ -310,10 +310,19 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             });
             if (!desk.bookable) continue;
             const book_fn = async () => {
-                if (this._statuses[desk.id] !== 'free')
+                if (this._statuses[desk.id] !== 'free') {
                     return notifyError(
                         `${desk.name} is unavailable at this time.`
                     );
+                }
+                if (
+                    desk.groups?.length &&
+                    !desk.groups.find((_) => currentUser().groups.includes(_))
+                ) {
+                    return notifyError(
+                        `You are not allowed to book ${desk.name}.`
+                    );
+                }
                 this._bookings.newForm();
                 this._bookings.setOptions({ type: 'desk' });
                 const { date, duration, user } = await this._setBookingTime(

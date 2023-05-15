@@ -20,6 +20,8 @@ export class Desk implements Record<string, any> {
     /** List of URLs to images */
     public readonly images: string[];
 
+    public staff_name?: string;
+
     constructor(data: Partial<Desk> = {}) {
         this.id = data.id || '';
         this.map_id = data.map_id || data.id || '';
