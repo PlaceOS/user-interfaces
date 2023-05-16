@@ -61,12 +61,6 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
                 (ngModelChange)="updateUIOptions({ show_overflow: $event })"
                 ><div class="text-xs">Setup / Breakdown</div></mat-slide-toggle
             >
-            <mat-slide-toggle
-                class="m-2"
-                [ngModel]="(ui_options | async)?.show_cleaning"
-                (ngModelChange)="updateUIOptions({ show_cleaning: $event })"
-                ><div class="text-xs">Cleaners View</div></mat-slide-toggle
-            >
             <div class="flex-1 w-0"></div>
             <!-- <searchbar class="mr-2"></searchbar> -->
             <date-options (dateChange)="setDate($event)"></date-options>
