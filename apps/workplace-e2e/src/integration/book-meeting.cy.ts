@@ -26,7 +26,7 @@ describe('Booking Meetings', () => {
     //         });
     // });
 
-    it('should show the correct start time in the booking confirmation modal after selection', () => {
+    it('should show the correct start and end times in the booking confirmation modal after selection', () => {
         cy.get('global-loading');
         cy.get('meeting-flow-form');
         cy.get('meeting-form-details').then(($childComponent) => {
@@ -37,14 +37,24 @@ describe('Booking Meetings', () => {
                 .then(() => {
                     cy.get('mat-option').last().scrollIntoView().click();
                 });
-
             cy.get('mat-select').should('contain', '11 : 45 PM');
+
+            cy.get('mat-select')
+                .eq(1)
+                .click({ force: true })
+                .then(() => {
+                    cy.get('mat-option span')
+                        .contains('1 hour')
+                        .scrollIntoView()
+                        .click();
+                });
         });
 
         cy.get('button[name="open-meeting-confirm"]')
             .click({ force: true })
             .then(() => {
                 cy.contains('div', '11:45');
+                cy.contains('div', '12:45');
             });
     });
 
