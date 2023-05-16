@@ -156,9 +156,9 @@ export class AssetManagerStateService extends AsyncHandler {
     public readonly asset_mapping = this.filtered_assets.pipe(
         map((_) => {
             const map = {};
-            const categories = unique(_.map((i) => i.category));
+            const categories = unique(_.map((i) => i.type_id));
             for (const group of categories) {
-                map[group] = _.filter((i) => i.category === group);
+                map[group] = _.filter((i) => i.type_id === group);
             }
             return map;
         })

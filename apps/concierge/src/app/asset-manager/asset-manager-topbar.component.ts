@@ -11,10 +11,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 btn
                 matRipple
                 class="secondary"
-                [routerLink]="['/asset-manager', 'manage', 'details']"
-                (click)="clearForm()"
+                [routerLink]="['/asset-manager', 'manage', 'group']"
             >
-                Add Asset
+                Add Group
             </a>
             <mat-button-toggle-group
                 [ngModel]="(options | async)?.view"
@@ -64,7 +63,6 @@ export class AssetManagerTopbarComponent {
     public readonly options = this._state.options;
 
     public readonly setOptions = (o) => this._state.setOptions(o);
-    public readonly clearForm = () => this._state.clearActiveAsset();
 
     constructor(private _state: AssetManagerStateService) {}
 }

@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
-import { Asset } from '../asset.class';
+import { Asset, AssetGroup } from '../asset.class';
 
 const EMPTY_FAVS: string[] = [];
 
@@ -115,7 +115,7 @@ const EMPTY_FAVS: string[] = [];
     styles: [``],
 })
 export class AssetSelectModalComponent {
-    public displayed: Asset | null = null;
+    public displayed: AssetGroup | null = null;
     public selected: Asset[] = [...(this._items || [])];
 
     public get favorites() {
@@ -127,7 +127,7 @@ export class AssetSelectModalComponent {
     }
 
     public get count() {
-        return this.selected.reduce((t, i) => t + i.in_use, 0);
+        return this.selected.reduce((t, i: any) => t + i.in_use, 0);
     }
 
     public isSelected(id: string) {
@@ -139,13 +139,13 @@ export class AssetSelectModalComponent {
         @Inject(MAT_DIALOG_DATA) private _items: Asset[]
     ) {}
 
-    public setSelected(asset: Asset, state: boolean) {
-        const list = this.selected.filter((_) => _.id !== asset.id);
-        if (state) list.push(asset);
+    public setSelected(group: AssetGroup, state: boolean) {
+        const list = this.selected.filter((_) => _.id !== group.id);
+        if (state) list.push(group.assets[0]);
         this.selected = list;
     }
 
-    public toggleFavourite(asset: Asset) {
+    public toggleFavourite(asset: AssetGroup) {
         const fav_list = this.favorites;
         const new_state = !fav_list.includes(asset.id);
         if (new_state) {

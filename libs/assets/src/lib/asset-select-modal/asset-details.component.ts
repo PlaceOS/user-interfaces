@@ -111,6 +111,6 @@ export class AssetDetailsComponent {
     @Output() public close = new EventEmitter<void>();
 
     public get images() {
-        return this.item?.images.map((_) => _.url) || [];
+        return this.item?.images || [];
     }
 }
