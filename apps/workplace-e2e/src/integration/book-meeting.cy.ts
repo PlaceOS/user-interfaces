@@ -58,6 +58,19 @@ describe('Booking Meetings', () => {
             });
     });
 
+    it('should display the correct time duration for All Day bookings in the booking confirmation modal', () => {
+        cy.get('global-loading');
+        cy.get('meeting-flow-form');
+        cy.get('mat-checkbox[formcontrolname="all_day"]')
+            .find('input')
+            .click({ force: true });
+        cy.get('button[name="open-meeting-confirm"]')
+            .click({ force: true })
+            .then(() => {
+                cy.contains('div', 'All Day');
+            });
+    });
+
     // #endregion
 
     // #region ATTENDEES
