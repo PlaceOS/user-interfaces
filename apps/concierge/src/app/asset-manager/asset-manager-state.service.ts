@@ -7,6 +7,7 @@ import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import {
     debounceTime,
     map,
+    share,
     shareReplay,
     switchMap,
     take,
@@ -16,6 +17,7 @@ import {
     Asset,
     deleteAsset,
     generateAssetForm,
+    queryAssetCategories,
     queryAssets,
     saveAsset,
 } from '@placeos/assets';
@@ -114,6 +116,10 @@ export class AssetManagerStateService extends AsyncHandler {
                   )
                 : list;
         })
+    );
+    public readonly categories = combineLatest([this._options]).pipe(
+        switchMap(() => queryAssetCategories()),
+        shareReplay(1)
     );
     /** Currently active asset */
     public readonly active_asset = combineLatest([

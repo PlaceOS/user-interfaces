@@ -23,7 +23,7 @@ const BASE_ENDPOINT = '/api/engine/v2/assets';
 ////    Asset Categories    ////
 ////////////////////////////////
 
-export function queryAssetCategory(query: any = {}) {
+export function queryAssetCategories(query: any = {}) {
     const q = toQueryString(query);
     return get(`${BASE_ENDPOINT}/asset_categories${q ? '?' + q : ''}`).pipe(
         map((_) => _ as AssetCategory[])

@@ -34,6 +34,11 @@ const COMPONENTS = [
     AssetLocationModalComponent,
     SplitJoinPipe,
     DurationFormatPipe,
+
+    AssetFormComponent,
+    AssetGroupFormComponent,
+    AssetCategoryFormComponent,
+    AssetPurchaseOrderFormComponent,
 ];
 
 const ROUTES: Route[] = [

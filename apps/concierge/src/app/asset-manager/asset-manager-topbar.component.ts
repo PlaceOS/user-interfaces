@@ -13,7 +13,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 class="secondary"
                 [routerLink]="['/asset-manager', 'manage', 'group']"
             >
-                Add Group
+                Add Product
             </a>
             <mat-button-toggle-group
                 [ngModel]="(options | async)?.view"
@@ -35,22 +35,16 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     </div>
                 </mat-button-toggle>
             </mat-button-toggle-group>
-            <!-- <button btn matRipple class="clear" *ngIf="show_actions">
-                <div class="flex items-center">
-                    <div class="pl-2">Sort By</div>
-                    <app-icon class="text-2xl">arrow_drop_down</app-icon>
-                </div>
-            </button> -->
             <div class="flex-1"></div>
             <mat-form-field appearance="outline" class="h-[3.25rem]">
-                <app-icon matPrefix class="text-2xl relative top-1 -left-1"
-                    >search</app-icon
-                >
+                <app-icon matPrefix class="text-2xl relative top-1 -left-1">
+                    search
+                </app-icon>
                 <input
                     matInput
                     [ngModel]="(options | async)?.search"
                     (ngModelChange)="setOptions({ search: $event })"
-                    placeholder="Search for an asset or request"
+                    placeholder="Search products and requests"
                 />
             </mat-form-field>
         </div>

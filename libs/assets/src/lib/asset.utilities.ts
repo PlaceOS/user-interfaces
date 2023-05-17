@@ -59,7 +59,7 @@ export function generateAssetForm(asset: Asset = new Asset()) {
         serial_number: new FormControl(asset.serial_number || ''),
         identifier: new FormControl(asset.identifier || ''),
         other_data: new FormControl(asset.other_data || {}),
-        images: new FormControl(asset.images),
+        images: new FormControl(asset.images || []),
         purchase_order_id: new FormControl(asset.purchase_order_id, [
             Validators.required,
         ]),

@@ -25,7 +25,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     [active]="active === 'items'"
                     (click)="active = 'items'"
                 >
-                    Assets
+                    Products
                 </a>
             </nav>
             <div class="flex-1 h-1/2 w-full overflow-visible">
