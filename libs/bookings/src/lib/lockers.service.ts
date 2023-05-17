@@ -5,7 +5,6 @@ import {
     PlaceMetadata,
     PlaceZoneMetadata,
     listChildMetadata,
-    showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
@@ -73,7 +72,12 @@ export class LockersService {
             for (const bank of bank_list) {
                 lockers.push(
                     ...bank.lockers.map(
-                        (_) => ({ ..._, bank_id: bank.id } as Locker)
+                        (_) =>
+                            ({
+                                ..._,
+                                bank_id: bank.id,
+                                level_id: bank.zone.id,
+                            } as Locker)
                     )
                 );
             }
