@@ -674,7 +674,7 @@ export class BookingFormService extends AsyncHandler {
                             ? _.metadata[type]?.details
                             : []
                         ).map((d) =>
-                            type !== 'locker'
+                            (type as any) !== 'lockers'
                                 ? {
                                       ...d,
                                       id: d.id || d.map_id,
