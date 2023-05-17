@@ -227,7 +227,12 @@ export class PanelStateService extends AsyncHandler {
             resources: [space],
             system: space,
         });
-        await this.makeBooking(this._events.form.getRawValue());
+        await this.makeBooking(this._events.form.getRawValue()).catch((e) => {
+            notifyError(`Error creating meeting. ${e}`);
+            this._events.clearForm();
+            details.close();
+            throw e;
+        });
         this._events.clearForm();
         details.close();
     }
