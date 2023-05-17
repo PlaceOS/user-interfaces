@@ -21,6 +21,7 @@ export class AssetGroup {
     in_use: number;
     description: string;
     assets?: Asset[];
+    purchase_orders?: AssetPurchaseOrder[];
 }
 
 export class Asset {

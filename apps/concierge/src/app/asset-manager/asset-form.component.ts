@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { AssetManagerStateService } from './asset-manager-state.service';
-import { ActivatedRoute } from '@angular/router';
-import { AssetGroup, generateAssetForm } from '@placeos/assets';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AssetGroup, generateAssetForm, showAsset } from '@placeos/assets';
+import { AsyncHandler, notifyError } from '@placeos/common';
 
 export class Asset {
     id: string;
@@ -175,12 +176,35 @@ export class Asset {
     `,
     styles: [``],
 })
-export class AssetFormComponent {
+export class AssetFormComponent extends AsyncHandler {
     public readonly form = generateAssetForm();
     public product: AssetGroup;
+    public loading: string = '';
 
     constructor(
         private _state: AssetManagerStateService,
-        private _route: ActivatedRoute
-    ) {}
+        private _route: ActivatedRoute,
+        private _router: Router
+    ) {
+        super();
+    }
+
+    public ngOnInit() {
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe(async (params) => {
+                if (params.get('id')) {
+                    this.loading = 'Loading Product Details...';
+                    const asset = await showAsset(params.get('id'))
+                        .toPromise()
+                        .catch(() => null);
+                    if (!asset) {
+                        notifyError('Unable to load asset details.');
+                        this._router.navigate(['/asset-manager']);
+                    }
+                    this.form.patchValue(asset);
+                }
+            })
+        );
+    }
 }

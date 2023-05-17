@@ -190,14 +190,20 @@ export function getGroupsWithAssets(query: any = {}) {
     );
 }
 
-export function getGroupWithAssets(id: string) {
+export function showGroupFull(id: string) {
     return combineLatest([
         showAssetGroup(id),
         queryAssets({ type_id: id }),
+        queryAssetPurchaseOrders(),
     ]).pipe(
-        map(([product, assets]) => {
+        map(([product, assets, purchase_orders]) => {
             product.assets = assets.filter(
                 (asset) => asset.type_id === product.id
+            );
+            product.purchase_orders = purchase_orders.filter((order) =>
+                product.assets.find(
+                    (asset) => asset.purchase_order_id === order.id
+                )
             );
             return product;
         })
@@ -209,8 +215,7 @@ export function queryAvailableAssets(query: BookingsQueryParams) {
     return combineLatest([queryAssets(), queryBookings(query)]).pipe(
         map(([assets, bookings]) =>
             assets.filter(
-                (asset) =>
-                    !bookings.find((booking) => booking.asset_id === asset.id)
+                (asset) => !bookings.find((booking) => booking.id === asset.id)
             )
         )
     );
@@ -247,7 +252,7 @@ export async function updateAssetRequestsForResource(
     const filtered = bookings.filter(
         (item) =>
             item.extension_data.parent_id === parent_id &&
-            old_assets.find((_) => _.id === item.asset_id)
+            old_assets.find((_) => _.id === item.id)
     );
     await Promise.all(
         filtered.map((item) => removeBooking(item.id).toPromise())
@@ -259,7 +264,7 @@ export async function updateAssetRequestsForResource(
                     date,
                     duration,
                     user_email: host,
-                    asset_id: item.id,
+                    id: item.id,
                     asset_name: item.name,
                     extension_data: { parent_id },
                 })

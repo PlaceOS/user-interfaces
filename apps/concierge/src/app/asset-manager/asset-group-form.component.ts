@@ -1,19 +1,10 @@
 import { Component } from '@angular/core';
 import { AssetManagerStateService } from './asset-manager-state.service';
-import { generateAssetGroupForm } from '@placeos/assets';
-import { ActivatedRoute } from '@angular/router';
+import { generateAssetGroupForm, showAssetGroup } from '@placeos/assets';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { AssetCategoryFormComponent } from './asset-category-form.component';
-
-// export class AssetGroup {
-//     id: string;
-//     category_id: string;
-//     brand: string;
-//     name: string;
-//     in_use: number;
-//     description: string;
-//     assets?: Asset[];
-// }
+import { AsyncHandler, notifyError } from '@placeos/common';
 
 @Component({
     selector: 'asset-group-form',
@@ -103,15 +94,38 @@ import { AssetCategoryFormComponent } from './asset-category-form.component';
     `,
     styles: [``],
 })
-export class AssetGroupFormComponent {
+export class AssetGroupFormComponent extends AsyncHandler {
     public readonly form = generateAssetGroupForm();
     public readonly categories = this._state.categories;
+    public loading: string = '';
 
     constructor(
         private _state: AssetManagerStateService,
         private _route: ActivatedRoute,
+        private _router: Router,
         private _dialog: MatDialog
-    ) {}
+    ) {
+        super();
+    }
+
+    public ngOnInit() {
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe(async (params) => {
+                if (params.get('id')) {
+                    this.loading = 'Loading Product Details...';
+                    const product = await showAssetGroup(params.get('id'))
+                        .toPromise()
+                        .catch(() => null);
+                    if (!product) {
+                        notifyError('Unable to load product details.');
+                        this._router.navigate(['/asset-manager']);
+                    }
+                    this.form.patchValue(product);
+                }
+            })
+        );
+    }
 
     public newCategory() {
         this._dialog.open(AssetCategoryFormComponent);

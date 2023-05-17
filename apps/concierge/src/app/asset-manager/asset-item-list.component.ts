@@ -12,8 +12,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 <h2 class="py-2">
                     <span class="font-medium">{{ group }}</span>
                     <span class="text-xs">
-                        ({{ (assets | async)[group]?.length }} item{{
-                            (assets | async)[group]?.length === 1 ? '' : 's'
+                        ({{ (products | async)[group]?.length }} item{{
+                            (products | async)[group]?.length === 1 ? '' : 's'
                         }})
                     </span>
                 </h2>
@@ -25,7 +25,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             <a
                                 matRipple
                                 class="flex items-center text-left space-x-4 p-4"
-                                *ngFor="let asset of (assets | async)[group]"
+                                *ngFor="let asset of (products | async)[group]"
                                 [routerLink]="[
                                     '/asset-manager',
                                     'view',
@@ -66,7 +66,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             <a
                                 matRipple
                                 class="bg-white dark:bg-neutral-700 rounded shadow w-40 h-44 text-left"
-                                *ngFor="let asset of (assets | async)[group]"
+                                *ngFor="let asset of (products | async)[group]"
                                 [routerLink]="[
                                     '/asset-manager',
                                     'view',
@@ -125,9 +125,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     btn
                     matRipple
                     *ngIf="!(options | async)?.search"
-                    [routerLink]="['/asset-manager', 'manage', 'details']"
+                    [routerLink]="['/asset-manager', 'manage', 'group']"
                 >
-                    Create new Asset
+                    Create New Product
                 </a>
             </div>
         </ng-template>
@@ -145,8 +145,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
 export class AssetItemListComponent {
     public readonly loading = this._state.loading;
     public readonly options = this._state.options;
-    public readonly categories = this._state.asset_categories;
-    public readonly assets = this._state.asset_mapping;
+    public readonly categories = this._state.categories;
+    public readonly products = this._state.product_mapping;
 
     constructor(private _state: AssetManagerStateService) {}
 }

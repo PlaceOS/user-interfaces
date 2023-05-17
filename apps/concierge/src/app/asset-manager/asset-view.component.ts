@@ -13,7 +13,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     template: `
         <div
             class="h-full w-full"
-            *ngIf="!loading && (asset | async); else loading_state"
+            *ngIf="!loading && (item | async); else loading_state"
         >
             <div
                 class="flex items-center space-x-4 p-2 bg-white border-b border-gray-200"
@@ -34,11 +34,11 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     <span>
                         <app-icon class="text-2xl">chevron_right</app-icon>
                     </span>
-                    <span>{{ (asset | async)?.category }}</span>
+                    <span>{{ (item | async)?.category }}</span>
                     <span>
                         <app-icon class="text-2xl">chevron_right</app-icon>
                     </span>
-                    <span>{{ (asset | async)?.name }}</span>
+                    <span>{{ (item | async)?.name }}</span>
                 </div>
             </div>
             <div class="flex items-center">
@@ -46,7 +46,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     class="bg-white dark:bg-neutral-700 flex-1 w-1/2 h-[22.5rem]"
                 >
                     <image-carousel
-                        [images]="(asset | async)?.images || []"
+                        [images]="(item | async)?.images || []"
                     ></image-carousel>
                 </div>
                 <div class="w-[32rem] h-[22.5rem] px-4 flex flex-col">
@@ -54,7 +54,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         class="w-full flex items-center justify-between border-b border-gray-300 dark:border-neutral-500"
                     >
                         <div class="font-medium">
-                            {{ (asset | async)?.name }}
+                            {{ (item | async)?.name }}
                         </div>
                         <div class="flex items-center text-sm ">
                             <a
@@ -87,7 +87,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         </div>
                     </div>
                     <div class="py-4 w-full flex-1 h-1/2 overflow-auto">
-                        {{ (asset | async)?.description || '~No Description~' }}
+                        {{ (item | async)?.description || '~No Description~' }}
                     </div>
                     <div
                         class="rounded bg-white dark:bg-neutral-700 shadow border border-gray-300 dark:border-neutral-500 w-full divide-y divide-gray-200 dark:divide-neutral-500"
@@ -97,7 +97,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 Available:
                                 {{
                                     (asset | async)?.count -
-                                        (asset | async)?.locations?.length || 0
+                                        (asset | async)?.assets?.length || 0
                                 }}
                             </div>
                             <button btn matRipple>Assign to Location</button>
@@ -105,7 +105,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         <div class="flex items-center justify-between p-3">
                             <div class="pl-2">
                                 In Use:
-                                {{ (asset | async)?.locations?.length || 0 }}
+                                {{ (item | async)?.assets?.length || 0 }}
                             </div>
                             <button btn matRipple (click)="viewLocations()">
                                 View Locations
@@ -126,36 +126,14 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             <div class="flex items-center p-2">
                                 <label>Barcode</label>
                                 <div>
-                                    {{ (asset | async)?.barcode || '~None~' }}
+                                    {{ (item | async)?.barcode || '~None~' }}
                                 </div>
                             </div>
                             <div class="flex items-center p-2">
                                 <label>Brand</label>
                                 <div>
-                                    {{ (asset | async)?.brand || '~None~' }}
+                                    {{ (item | async)?.brand || '~None~' }}
                                 </div>
-                            </div>
-                        </div>
-                        <h3
-                            class="p-2"
-                            *ngIf="(asset | async)?.general_details?.length"
-                        >
-                            Other
-                        </h3>
-                        <div
-                            data-table
-                            class="bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500"
-                            *ngIf="(asset | async)?.general_details?.length"
-                        >
-                            <div
-                                class="flex items-center"
-                                *ngFor="
-                                    let item of (asset | async)
-                                        ?.general_details || []
-                                "
-                            >
-                                <label>{{ item.name }}</label>
-                                <div>{{ item.value || 'None' }}</div>
                             </div>
                         </div>
                     </div>
@@ -171,7 +149,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 <label>Purchase Date</label>
                                 <div>
                                     {{
-                                        (asset | async)?.purchase_date
+                                        (item | async)?.purchase_date
                                             | date: 'mediumDate'
                                     }}
                                 </div>
@@ -179,10 +157,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             <div class="flex items-center p-2">
                                 <label>Good Until</label>
                                 <div>
-                                    {{
-                                        (asset | async)?.good_until
-                                            | date: 'mediumDate'
-                                    }}
+                                    {{ item | async | date: 'mediumDate' }}
                                 </div>
                             </div>
                         </div>
@@ -191,14 +166,15 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             data-table
                             class="bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500"
                             *ngIf="
-                                (asset | async)?.invoices?.length;
+                                (asset | async)?.purchase_orders?.length;
                                 else empty_invoices
                             "
                         >
                             <div
                                 class="flex items-center p-2"
                                 *ngFor="
-                                    let item of (asset | async)?.invoices || []
+                                    let item of (item | async)
+                                        ?.purchase_orders || []
                                 "
                             >
                                 <label>{{ item.name }}</label>
@@ -222,19 +198,18 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             data-table
                             class="bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500"
                             *ngIf="
-                                (asset | async)?.consumables?.length;
+                                (item | async)?.assets?.length;
                                 else empty_items
                             "
                         >
                             <div
                                 class="flex items-center p-2"
                                 *ngFor="
-                                    let item of (asset | async)?.consumables ||
-                                        []
+                                    let item of (item | async)?.assets || []
                                 "
                             >
                                 <label>{{ item.name }}</label>
-                                <div>{{ item.value }}</div>
+                                <div>{{ item.serial_number }}</div>
                             </div>
                         </div>
                     </div>
@@ -246,7 +221,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 class="h-full w-full flex flex-col items-center justify-center"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p>Loading asset details...</p>
+                <p>Loading product details...</p>
             </div>
         </ng-template>
         <ng-template #delete_tooltip>
@@ -254,7 +229,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 class="p-4 bg-white dark:bg-neutral-700 rounded my-2 w-64 h-36 text-center"
                 *ngIf="!deleting; else delete_loading"
             >
-                <p>Are you sure you want to permanently delete this asset?</p>
+                <p>Are you sure you want to permanently delete this product?</p>
                 <div class="flex items-center space-x-2 mt-6">
                     <button
                         matRipple
@@ -277,7 +252,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     class="p-4 bg-white dark:bg-neutral-700 rounded my-2 w-64 h-36 flex flex-col items-center justify-center space-y-2"
                 >
                     <mat-spinner [diameter]="32"></mat-spinner>
-                    <p>Deleting asset details...</p>
+                    <p>Deleting product details...</p>
                 </div>
             </ng-template>
         </ng-template>
@@ -304,14 +279,14 @@ import { AssetManagerStateService } from './asset-manager-state.service';
 export class AssetViewComponent extends AsyncHandler {
     public loading = false;
     public deleting = false;
-    public readonly asset = this._state.active_asset;
+    public readonly item = this._state.active_product;
 
     @ViewChild(CustomTooltipComponent)
     public _tooltip_el: CustomTooltipComponent;
 
     public async deleteAsset() {
         this.deleting = true;
-        await this._state.deleteActiveAsset();
+        await this._state.deleteActiveProduct();
         this.deleting = false;
         this._router.navigate(['/asset-manager', 'list', 'items']);
         this.closeTooltip();
@@ -345,7 +320,7 @@ export class AssetViewComponent extends AsyncHandler {
             'route.params',
             this._route.paramMap.subscribe((params) => {
                 if (params.has('id')) {
-                    this._state.setOptions({ active_asset: params.get('id') });
+                    this._state.setOptions({ active_item: params.get('id') });
                 }
             })
         );
@@ -354,7 +329,7 @@ export class AssetViewComponent extends AsyncHandler {
             () => this._router.navigate(['/asset-mananger']),
             1000
         );
-        this._state.active_asset.pipe(first((_) => !!_)).subscribe(() => {
+        this._state.active_product.pipe(first((_) => !!_)).subscribe(() => {
             this.clearTimeout('no_asset');
             this.loading = false;
         });

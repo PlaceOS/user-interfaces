@@ -124,8 +124,8 @@ import {
     styles: [``],
 })
 export class AssetLocationModalComponent {
-    public readonly asset = this._state.active_asset;
-    public readonly requests = this._state.active_asset_requests;
+    public readonly asset = this._state.active_product;
+    public readonly requests = this._state.active_product_requests;
 
     public selected: Booking;
     public selected_feature;

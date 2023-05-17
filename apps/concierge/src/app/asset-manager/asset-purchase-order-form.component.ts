@@ -1,7 +1,11 @@
 import { Component } from '@angular/core';
 import { AssetManagerStateService } from './asset-manager-state.service';
-import { generateAssetPurchaseOrderForm } from '@placeos/assets';
-import { ActivatedRoute } from '@angular/router';
+import {
+    generateAssetPurchaseOrderForm,
+    showAssetPurchaseOrder,
+} from '@placeos/assets';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AsyncHandler, notifyError } from '@placeos/common';
 
 @Component({
     selector: 'asset-purchase-order-form',
@@ -90,11 +94,34 @@ import { ActivatedRoute } from '@angular/router';
     `,
     styles: [``],
 })
-export class AssetPurchaseOrderFormComponent {
+export class AssetPurchaseOrderFormComponent extends AsyncHandler {
     public readonly form = generateAssetPurchaseOrderForm();
+    public loading: string = '';
 
     constructor(
         private _state: AssetManagerStateService,
-        private _route: ActivatedRoute
-    ) {}
+        private _route: ActivatedRoute,
+        private _router: Router
+    ) {
+        super();
+    }
+
+    public ngOnInit() {
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe(async (params) => {
+                if (params.get('id')) {
+                    this.loading = 'Loading Product Details...';
+                    const asset = await showAssetPurchaseOrder(params.get('id'))
+                        .toPromise()
+                        .catch(() => null);
+                    if (!asset) {
+                        notifyError('Unable to load purchase order details.');
+                        this._router.navigate(['/asset-manager']);
+                    }
+                    this.form.patchValue(asset);
+                }
+            })
+        );
+    }
 }

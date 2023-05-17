@@ -6,8 +6,9 @@ import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import {
     debounceTime,
+    distinctUntilKeyChanged,
+    filter,
     map,
-    share,
     shareReplay,
     switchMap,
     take,
@@ -15,11 +16,12 @@ import {
 } from 'rxjs/operators';
 import {
     Asset,
-    deleteAsset,
+    deleteAssetGroup,
     generateAssetForm,
     queryAssetCategories,
-    queryAssets,
+    queryAssetGroups,
     saveAsset,
+    showGroupFull,
 } from '@placeos/assets';
 import { cleanObject } from '@placeos/ts-client';
 
@@ -27,7 +29,7 @@ export interface AssetOptions {
     search?: string;
     sort_by?: string;
     view: 'grid' | 'list';
-    active_asset?: string;
+    active_item?: string;
 }
 
 export interface AssetRequest {
@@ -53,19 +55,19 @@ export class AssetManagerStateService extends AsyncHandler {
     private _poll = new BehaviorSubject(0);
     private _form = generateAssetForm();
     private _loading = new BehaviorSubject(false);
-    /** List of available assets */
-    public readonly assets: Observable<Asset[]> = this._change.pipe(
-        switchMap(() => {
-            this._loading.next(true);
-            return queryAssets();
-        }),
-        tap(() => this._loading.next(false)),
-        shareReplay(1)
-    ) as any;
     /** Whether asset list is loading */
     public readonly loading = this._loading.asObservable();
     /** List of options set for the view */
     public readonly options = this._options.asObservable();
+    /** List of available assets */
+    public readonly products: Observable<Asset[]> = this._change.pipe(
+        switchMap(() => {
+            this._loading.next(true);
+            return queryAssetGroups();
+        }),
+        tap(() => this._loading.next(false)),
+        shareReplay(1)
+    ) as any;
     /** List of requests made by users for assets */
     public readonly requests = combineLatest([
         this._poll,
@@ -122,21 +124,21 @@ export class AssetManagerStateService extends AsyncHandler {
         shareReplay(1)
     );
     /** Currently active asset */
-    public readonly active_asset = combineLatest([
-        this.assets,
-        this._options,
-    ]).pipe(
-        map(([list, options]) =>
-            list.find((_) => _.id === options.active_asset)
-        )
+    public readonly active_product = this._options.pipe(
+        filter(({ active_item }) => !!active_item),
+        distinctUntilKeyChanged('active_item'),
+        switchMap((options) => showGroupFull(options.active_item)),
+        shareReplay(1)
     );
     /** List of requests for the currently active asset */
-    public readonly active_asset_requests = this.active_asset.pipe(
-        switchMap((asset) => {
+    public readonly active_product_requests = this.active_product.pipe(
+        switchMap((item) => {
             return this.requests.pipe(
                 map((_) =>
                     _.filter((i) =>
-                        i.extension_data.assets.find((a) => a.id === asset.id)
+                        i.extension_data.assets.find(
+                            (a) => a.type_id === item.id
+                        )
                     )
                 )
             );
@@ -144,8 +146,8 @@ export class AssetManagerStateService extends AsyncHandler {
         map((_) => _.filter((i) => i.status !== 'declined'))
     );
     /** list of filtered assets */
-    public readonly filtered_assets = combineLatest([
-        this.assets,
+    public readonly filtered_products = combineLatest([
+        this.products,
         this._options,
     ]).pipe(
         map(([list, options]) =>
@@ -159,7 +161,7 @@ export class AssetManagerStateService extends AsyncHandler {
         )
     );
     /** Mapping of available assets to categories */
-    public readonly asset_mapping = this.filtered_assets.pipe(
+    public readonly product_mapping = this.filtered_products.pipe(
         map((_) => {
             const map = {};
             const categories = unique(_.map((i) => i.type_id));
@@ -168,10 +170,6 @@ export class AssetManagerStateService extends AsyncHandler {
             }
             return map;
         })
-    );
-    /** List of asset categories */
-    public readonly asset_categories = this.asset_mapping.pipe(
-        map((_) => Object.keys(_ || {}))
     );
 
     public get form() {
@@ -219,18 +217,12 @@ export class AssetManagerStateService extends AsyncHandler {
         return result;
     }
 
-    public clearActiveAsset() {
-        this.setOptions({ active_asset: '' });
-        this.resetForm();
-    }
-
-    public async deleteActiveAsset() {
-        const asset = await this.active_asset.pipe(take(1)).toPromise();
-        if (!asset?.id) return;
-        await deleteAsset(asset.id).toPromise();
+    public async deleteActiveProduct() {
+        const item = await this.active_product.pipe(take(1)).toPromise();
+        if (!item?.id) return;
+        await deleteAssetGroup(item.id).toPromise();
         this._change.next(Date.now());
         notifySuccess('Successfully deleted asset');
-        this.clearActiveAsset();
     }
 
     public async postForm() {
