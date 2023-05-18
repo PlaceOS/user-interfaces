@@ -201,6 +201,7 @@ export class PanelStateService extends AsyncHandler {
         date: number = new Date().valueOf(),
         user: boolean = false,
         future: boolean = false
+        force_api: boolean = false
     ) {
         const current = await this.current.pipe(take(1)).toPromise();
         if (
@@ -227,7 +228,7 @@ export class PanelStateService extends AsyncHandler {
             resources: [space],
             system: space,
         });
-        await this.makeBooking(this._events.form.getRawValue()).catch((e) => {
+        await this.makeBooking(this._events.form.getRawValue(), force_api).catch((e) => {
             notifyError(`Error creating meeting. ${e}`);
             this._events.clearForm();
             details.close();
@@ -241,8 +242,8 @@ export class PanelStateService extends AsyncHandler {
      * Create new booking with the given details
      * @param details
      */
-    public async makeBooking(details: Partial<CalendarEvent>) {
-        if (isAfter(details.date, addMinutes(Date.now(), 5))) {
+    public async makeBooking(details: Partial<CalendarEvent>, force_api = false) {
+        if (isAfter(details.date, addMinutes(Date.now(), 5)) || force_api) {
             await this._events.postForm();
         } else {
             const module = getModule(this.system, 'Bookings');

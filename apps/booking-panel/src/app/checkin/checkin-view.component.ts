@@ -278,7 +278,7 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
 
     public readonly checkInCurrent = () => this._state.startMeeting();
     public readonly newBooking = (d = Date.now(), f = false) =>
-        this._state.newBooking(d, this.has_user, f);
+        this._state.newBooking(d, this.has_user, f, true);
 
     public has_user = false;
 
