@@ -76,7 +76,7 @@ export class DesksStateService extends AsyncHandler {
         catchError((_) => []),
         map((list) => {
             if (!(list instanceof Array)) list = [];
-            list.sort((a, b) => a.name.localeCompare(b.name));
+            list.sort((a, b) => a.name?.localeCompare(b.name));
             this._desks = list.map(
                 (i) =>
                     new Desk({
