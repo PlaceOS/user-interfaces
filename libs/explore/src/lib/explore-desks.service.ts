@@ -325,12 +325,14 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 }
                 this._bookings.newForm();
                 this._bookings.setOptions({ type: 'desk' });
-                const { date, duration, user } = await this._setBookingTime(
+                let { date, duration, user } = await this._setBookingTime(
                     this._bookings.form.value.date,
                     this._bookings.form.value.duration,
                     this._options.getValue()?.custom ?? false,
                     desk as any
                 );
+                user = user || options.host || currentUser();
+                const user_email = user?.email;
                 this._bookings.form.patchValue({
                     asset_id: desk.id,
                     asset_name: desk.name,
@@ -338,7 +340,8 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                     duration,
                     map_id: desk?.map_id || desk?.id,
                     description: desk.name,
-                    user: user || options.host || currentUser(),
+                    user,
+                    user_email,
                     booking_type: 'desk',
                     zones: desk.zone
                         ? [desk.zone?.parent_id, desk.zone?.id]
