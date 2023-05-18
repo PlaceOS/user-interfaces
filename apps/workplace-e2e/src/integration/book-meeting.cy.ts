@@ -26,7 +26,7 @@ describe('Booking Meetings', () => {
     //         });
     // });
 
-    it('should show the correct start and end times in the booking confirmation modal after selection', () => {
+    it('should display the correct start and end times in the booking confirmation modal after selection', () => {
         cy.get('global-loading');
         cy.get('meeting-flow-form');
         cy.get('meeting-form-details').then(($childComponent) => {
@@ -69,6 +69,50 @@ describe('Booking Meetings', () => {
             .then(() => {
                 cy.contains('div', 'All Day');
             });
+    });
+
+    it('should book the meeting for the correct time', () => {
+        cy.get('global-loading');
+        cy.get('meeting-flow-form');
+        cy.get('meeting-form-details').then(($childComponent) => {
+            const meetingFormDetails = $childComponent[0];
+            cy.get('mat-select')
+                .first()
+                .click({ force: true })
+                .then(() => {
+                    cy.get('mat-option').last().scrollIntoView().click();
+                });
+            cy.get('mat-select').should('contain', '11 : 45 PM');
+
+            cy.get('mat-select')
+                .eq(1)
+                .click({ force: true })
+                .then(() => {
+                    cy.get('mat-option span')
+                        .contains('1 hour')
+                        .scrollIntoView()
+                        .click();
+                });
+
+            cy.get('button[name="open-meeting-confirm"]')
+                .click({ force: true })
+                .then(() => {
+                    cy.get('button[name="confirm-meeting"]')
+                        .click({ force: true })
+                        .then(() => {
+                            cy.get('button[name="accept"]')
+                                .click({ force: true })
+                                .then(() => {
+                                    cy.get('meeting-flow-success').should(
+                                        'be.visible'
+                                    );
+                                    cy.contains('Booking Confirmed');
+                                    cy.contains('11:45');
+                                    cy.contains('12:45');
+                                });
+                        });
+                });
+        });
     });
 
     // #endregion
