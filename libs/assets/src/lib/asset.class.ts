@@ -20,6 +20,7 @@ export class AssetGroup {
     name: string;
     in_use: number;
     description: string;
+    category?: AssetCategory;
     assets?: Asset[];
     purchase_orders?: AssetPurchaseOrder[];
 }

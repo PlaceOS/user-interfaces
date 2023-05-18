@@ -1,6 +1,10 @@
 import { Component } from '@angular/core';
 import { AssetManagerStateService } from './asset-manager-state.service';
-import { generateAssetGroupForm, showAssetGroup } from '@placeos/assets';
+import {
+    generateAssetGroupForm,
+    saveAssetGroup,
+    showAssetGroup,
+} from '@placeos/assets';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { AssetCategoryFormComponent } from './asset-category-form.component';
@@ -10,7 +14,10 @@ import { AsyncHandler, notifyError } from '@placeos/common';
     selector: 'asset-group-form',
     template: `
         <div class="absolute inset-0 bg-white">
-            <div class="h-full max-w-[32rem] mx-auto flex flex-col">
+            <div
+                class="h-full max-w-[32rem] mx-auto flex flex-col"
+                *ngIf="!loading; else load_state"
+            >
                 <header class="p-4">
                     <h2 class="text-center text-xl font-medium">
                         {{ form.value.id ? 'Edit' : 'Add' }} Product
@@ -35,6 +42,9 @@ import { AsyncHandler, notifyError } from '@placeos/common';
                             <mat-select
                                 formControlName="category_id"
                                 placeholder="Category of Product"
+                                (click)="
+                                    current_category = form.value.category_id
+                                "
                             >
                                 <mat-option
                                     *ngFor="let category of categories | async"
@@ -42,7 +52,10 @@ import { AsyncHandler, notifyError } from '@placeos/common';
                                 >
                                     {{ category.name }}
                                 </mat-option>
-                                <mat-option (click)="newCategory()">
+                                <mat-option
+                                    (click)="newCategory()"
+                                    class="relative"
+                                >
                                     <div class="flex items-center space-x-2">
                                         <app-icon>add</app-icon>
                                         <p>New Category</p>
@@ -91,6 +104,14 @@ import { AsyncHandler, notifyError } from '@placeos/common';
                 </footer>
             </div>
         </div>
+        <ng-template #load_state>
+            <div
+                class="absolute inset-0 flex flex-col items-center justify-center space-y-2"
+            >
+                <mat-spinner [diameter]="32"></mat-spinner>
+                <p>{{ loading }}</p>
+            </div>
+        </ng-template>
     `,
     styles: [``],
 })
@@ -98,6 +119,7 @@ export class AssetGroupFormComponent extends AsyncHandler {
     public readonly form = generateAssetGroupForm();
     public readonly categories = this._state.categories;
     public loading: string = '';
+    public current_category: string;
 
     constructor(
         private _state: AssetManagerStateService,
@@ -128,6 +150,26 @@ export class AssetGroupFormComponent extends AsyncHandler {
     }
 
     public newCategory() {
-        this._dialog.open(AssetCategoryFormComponent);
+        this.form.patchValue({ category_id: this.current_category });
+        const ref = this._dialog.open(AssetCategoryFormComponent);
+        ref.afterClosed().subscribe((category?) => {
+            if (category) this.form.patchValue({ category_id: category.id });
+        });
+    }
+
+    public async save() {
+        if (!this.form.valid) return;
+        this.loading = 'Saving Product...';
+        const data = this.form.value;
+        const item = await saveAssetGroup(data as any)
+            .toPromise()
+            .catch((e) => {
+                this.loading = '';
+                notifyError(`Error saving Product: ${e.message}`);
+                throw e;
+            });
+        this.form.reset();
+        this.loading = '';
+        this._router.navigate(['/asset-manager', 'view', item.id]);
     }
 }

@@ -8,102 +8,116 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             class="overflow-auto pb-2 w-full h-full"
             *ngIf="(categories | async)?.length; else empty_state"
         >
-            <div class="" *ngFor="let group of categories | async">
-                <h2 class="py-2">
-                    <span class="font-medium">{{ group }}</span>
-                    <span class="text-xs">
-                        ({{ (products | async)[group]?.length }} item{{
-                            (products | async)[group]?.length === 1 ? '' : 's'
-                        }})
-                    </span>
-                </h2>
-                <ng-container [ngSwitch]="(options | async).view">
-                    <ng-container *ngSwitchCase="'list'">
-                        <div
-                            class="rounded overflow-hidden bg-white dark:bg-neutral-700 border border-gray-300 divide-y divide-gray-200 dark:border-neutral-500"
-                        >
-                            <a
-                                matRipple
-                                class="flex items-center text-left space-x-4 p-4"
-                                *ngFor="let asset of (products | async)[group]"
-                                [routerLink]="[
-                                    '/asset-manager',
-                                    'view',
-                                    asset.id
-                                ]"
+            <ng-container *ngFor="let group of categories | async">
+                <div class="" *ngIf="(products | async)[group.id]?.length">
+                    <h2 class="py-2">
+                        <span class="font-medium">{{ group?.name }}</span>
+                        <span class="text-xs">
+                            ({{ (products | async)[group.id]?.length }} item{{
+                                (products | async)[group.id]?.length === 1
+                                    ? ''
+                                    : 's'
+                            }})
+                        </span>
+                    </h2>
+                    <ng-container [ngSwitch]="(options | async).view">
+                        <ng-container *ngSwitchCase="'list'">
+                            <div
+                                class="rounded overflow-hidden bg-white dark:bg-neutral-700 border border-gray-300 divide-y divide-gray-200 dark:border-neutral-500"
                             >
-                                <div
-                                    class="h-12 w-12 flex items-center justify-center border border-gray-200 dark:border-neutral-500 p-2"
+                                <a
+                                    matRipple
+                                    class="flex items-center text-left space-x-4 p-4"
+                                    *ngFor="
+                                        let asset of (products | async)[
+                                            group.id
+                                        ]
+                                    "
+                                    [routerLink]="[
+                                        '/asset-manager',
+                                        'view',
+                                        asset.id
+                                    ]"
                                 >
-                                    <img
-                                        [src]="
-                                            asset.images?.length
-                                                ? asset.images[0].url
-                                                : ''
-                                        "
-                                        class="max-w-full max-h-full object-contain"
-                                    />
-                                </div>
-                                <div>
-                                    <div class="truncate">
-                                        {{ asset.name }}
+                                    <div
+                                        class="h-12 w-12 flex items-center justify-center border border-gray-200 dark:border-neutral-500 p-2"
+                                    >
+                                        <img
+                                            [src]="
+                                                asset.images?.length
+                                                    ? asset.images[0].url
+                                                    : ''
+                                            "
+                                            class="max-w-full max-h-full object-contain"
+                                        />
                                     </div>
-                                    <div class="text-xs opacity-60">
-                                        In Storage:
-                                        {{
-                                            (asset.count || 0) -
-                                                (asset.locations?.length || 0)
-                                        }}/{{ assets.count || 0 }}
+                                    <div>
+                                        <div class="truncate">
+                                            {{ asset.name }}
+                                        </div>
+                                        <div class="text-xs opacity-60">
+                                            In Storage:
+                                            {{
+                                                (asset.count || 0) -
+                                                    (asset.locations?.length ||
+                                                        0)
+                                            }}/{{ asset.count || 0 }}
+                                        </div>
                                     </div>
-                                </div>
-                            </a>
-                        </div>
-                    </ng-container>
-                    <ng-container *ngSwitchDefault>
-                        <div
-                            class="flex items-center overflow-x-auto space-x-4 py-2"
-                        >
-                            <a
-                                matRipple
-                                class="bg-white dark:bg-neutral-700 rounded shadow w-40 h-44 text-left"
-                                *ngFor="let asset of (products | async)[group]"
-                                [routerLink]="[
-                                    '/asset-manager',
-                                    'view',
-                                    asset.id
-                                ]"
+                                </a>
+                            </div>
+                        </ng-container>
+                        <ng-container *ngSwitchDefault>
+                            <div
+                                class="flex items-center overflow-hidden flex-wrap -mx-2 w-full"
                             >
-                                <div
-                                    class="w-full h-32 flex items-center justify-center p-2"
+                                <a
+                                    matRipple
+                                    class="bg-white dark:bg-neutral-700 rounded shadow w-40 h-44 text-left m-2"
+                                    *ngFor="
+                                        let asset of (products | async)[
+                                            group.id
+                                        ]
+                                    "
+                                    [routerLink]="[
+                                        '/asset-manager',
+                                        'view',
+                                        asset.id
+                                    ]"
                                 >
-                                    <img
-                                        [src]="
-                                            asset.images?.length
-                                                ? asset.images[0].url
-                                                : ''
-                                        "
-                                        class="max-w-full max-h-full object-contain"
-                                    />
-                                </div>
-                                <div
-                                    class="border-t border-gray-200 dark:border-neutral-500 w-full px-3 py-1"
-                                >
-                                    <div class="truncate">
-                                        {{ asset.name }}
+                                    <div
+                                        class="w-full h-32 flex items-center justify-center p-2"
+                                    >
+                                        <img
+                                            [src]="
+                                                asset.images?.length
+                                                    ? asset.images[0].url
+                                                    : ''
+                                            "
+                                            class="max-w-full max-h-full object-contain"
+                                        />
                                     </div>
-                                    <div class="text-xs opacity-60">
-                                        In Storage:
-                                        {{
-                                            (asset.count || 0) -
-                                                (asset.locations?.length || 0)
-                                        }}/{{ assets.count || 0 }}
+                                    <div
+                                        class="border-t border-gray-200 dark:border-neutral-500 w-full px-3 py-1"
+                                    >
+                                        <div class="truncate">
+                                            {{ asset.name }}
+                                        </div>
+                                        <div class="text-xs opacity-60">
+                                            In Storage:
+                                            {{
+                                                (asset.count || 0) -
+                                                    (asset.locations?.length ||
+                                                        0)
+                                            }}/{{ asset.count || 0 }}
+                                        </div>
                                     </div>
-                                </div>
-                            </a>
-                        </div>
+                                </a>
+                            </div>
+                        </ng-container>
                     </ng-container>
-                </ng-container>
-            </div>
+                </div>
+            </ng-container>
         </div>
         <mat-progress-bar
             *ngIf="loading | async"

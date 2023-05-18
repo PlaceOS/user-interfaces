@@ -25,13 +25,13 @@ const BASE_ENDPOINT = '/api/engine/v2/assets';
 
 export function queryAssetCategories(query: any = {}) {
     const q = toQueryString(query);
-    return get(`${BASE_ENDPOINT}/asset_categories${q ? '?' + q : ''}`).pipe(
+    return get(`${BASE_ENDPOINT}/categories${q ? '?' + q : ''}`).pipe(
         map((_) => _ as AssetCategory[])
     );
 }
 
 export function addAssetCategory(category: AssetCategory) {
-    return post(`${BASE_ENDPOINT}/asset_categories`, category).pipe(
+    return post(`${BASE_ENDPOINT}/categories`, category).pipe(
         map((_) => _ as AssetCategory)
     );
 }
@@ -40,7 +40,7 @@ export function updateAssetCategory(
     id: string,
     category: Partial<AssetCategory>
 ) {
-    return put(`${BASE_ENDPOINT}/asset_categories/${id}`, category).pipe(
+    return put(`${BASE_ENDPOINT}/categories/${id}`, category).pipe(
         map((_) => _ as AssetCategory)
     );
 }
@@ -52,13 +52,13 @@ export function saveAssetCategory(category: AssetCategory) {
 }
 
 export function showAssetCategory(id: string) {
-    return get(`${BASE_ENDPOINT}/asset_categories/${id}`).pipe(
+    return get(`${BASE_ENDPOINT}/categories/${id}`).pipe(
         map((_) => _ as AssetCategory)
     );
 }
 
 export function deleteAssetCategory(id: string) {
-    return del(`${BASE_ENDPOINT}/asset_categories/${id}`);
+    return del(`${BASE_ENDPOINT}/categories/${id}`);
 }
 
 //////////////////////////////
@@ -67,19 +67,19 @@ export function deleteAssetCategory(id: string) {
 
 export function queryAssetGroups(query: any = {}) {
     const q = toQueryString(query);
-    return get(`${BASE_ENDPOINT}/asset_types${q ? '?' + q : ''}`).pipe(
+    return get(`${BASE_ENDPOINT}/types${q ? '?' + q : ''}`).pipe(
         map((_) => _ as AssetGroup[])
     );
 }
 
 export function addAssetGroup(product: AssetGroup) {
-    return post(`${BASE_ENDPOINT}/asset_types`, product).pipe(
+    return post(`${BASE_ENDPOINT}/types`, product).pipe(
         map((_) => _ as AssetGroup)
     );
 }
 
 export function updateAssetGroup(id: string, product: Partial<AssetGroup>) {
-    return put(`${BASE_ENDPOINT}/asset_types/${id}`, product).pipe(
+    return put(`${BASE_ENDPOINT}/types/${id}`, product).pipe(
         map((_) => _ as AssetGroup)
     );
 }
@@ -91,13 +91,13 @@ export function saveAssetGroup(product: AssetGroup) {
 }
 
 export function showAssetGroup(id: string) {
-    return get(`${BASE_ENDPOINT}/asset_types/${id}`).pipe(
+    return get(`${BASE_ENDPOINT}/types/${id}`).pipe(
         map((_) => _ as AssetGroup)
     );
 }
 
 export function deleteAssetGroup(id: string) {
-    return del(`${BASE_ENDPOINT}/asset_types/${id}`);
+    return del(`${BASE_ENDPOINT}/types/${id}`);
 }
 
 ////////////////////////////////
@@ -193,10 +193,14 @@ export function getGroupsWithAssets(query: any = {}) {
 export function showGroupFull(id: string) {
     return combineLatest([
         showAssetGroup(id),
+        queryAssetCategories(),
         queryAssets({ type_id: id }),
         queryAssetPurchaseOrders(),
     ]).pipe(
-        map(([product, assets, purchase_orders]) => {
+        map(([product, categories, assets, purchase_orders]) => {
+            product.category = categories.find(
+                (category) => category.id === product.category_id
+            );
             product.assets = assets.filter(
                 (asset) => asset.type_id === product.id
             );

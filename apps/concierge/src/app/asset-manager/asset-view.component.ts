@@ -12,7 +12,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     selector: 'asset-view',
     template: `
         <div
-            class="h-full w-full"
+            class="h-full w-full flex flex-col"
             *ngIf="!loading && (item | async); else loading_state"
         >
             <div
@@ -34,7 +34,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     <span>
                         <app-icon class="text-2xl">chevron_right</app-icon>
                     </span>
-                    <span>{{ (item | async)?.category }}</span>
+                    <span>{{ (item | async)?.category?.name }}</span>
                     <span>
                         <app-icon class="text-2xl">chevron_right</app-icon>
                     </span>
@@ -65,8 +65,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 [routerLink]="[
                                     '/asset-manager',
                                     'manage',
-                                    'details'
+                                    'group'
                                 ]"
+                                [queryParams]="{ id: (item | async)?.id }"
                             >
                                 <div class="flex items-center text-secondary">
                                     <app-icon class="text-lg">edit</app-icon>
@@ -115,9 +116,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </div>
             </div>
 
-            <mat-tab-group>
+            <mat-tab-group class="flex-1 h-px">
                 <mat-tab label="Specifications">
-                    <div class="p-8">
+                    <div class="max-w-[768px] mx-auto p-4">
                         <h3 class="p-2">General</h3>
                         <div
                             data-table
@@ -139,7 +140,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     </div>
                 </mat-tab>
                 <mat-tab label="Purchase information">
-                    <div class="p-8">
+                    <div class="max-w-[768px] mx-auto p-4">
                         <h3 class="p-2">Timeline</h3>
                         <div
                             data-table
@@ -157,7 +158,11 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             <div class="flex items-center p-2">
                                 <label>Good Until</label>
                                 <div>
-                                    {{ item | async | date: 'mediumDate' }}
+                                    {{
+                                        (item | async)?.assets[0]
+                                            ?.end_of_life_date * 1000
+                                            | date: 'mediumDate'
+                                    }}
                                 </div>
                             </div>
                         </div>
@@ -191,8 +196,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         </div>
                     </div>
                 </mat-tab>
-                <mat-tab label="Consumable assets">
-                    <div class="p-8">
+                <mat-tab label="Assets">
+                    <div class="max-w-[768px] mx-auto p-4">
                         <h3 class="p-2">Items</h3>
                         <div
                             data-table
@@ -209,7 +214,15 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 "
                             >
                                 <label>{{ item.name }}</label>
-                                <div>{{ item.serial_number }}</div>
+                                <div class="flex-1">
+                                    {{ item.serial_number }}
+                                </div>
+                                <div>
+                                    {{
+                                        item.end_of_life_date * 1000
+                                            | date: 'mediumDate'
+                                    }}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -226,21 +239,23 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         </ng-template>
         <ng-template #delete_tooltip>
             <div
-                class="p-4 bg-white dark:bg-neutral-700 rounded my-2 w-64 h-36 text-center"
+                class="p-4 bg-white dark:bg-neutral-700 rounded my-2 text-center w-[18rem]"
                 *ngIf="!deleting; else delete_loading"
             >
                 <p>Are you sure you want to permanently delete this product?</p>
                 <div class="flex items-center space-x-2 mt-6">
                     <button
+                        btn
                         matRipple
-                        class="inverse flex-1"
+                        class="inverse flex-1 w-24"
                         (click)="closeTooltip()"
                     >
                         No
                     </button>
                     <button
+                        btn
                         matRipple
-                        class="error flex-1"
+                        class="error flex-1 w-24"
                         (click)="deleteAsset()"
                     >
                         Yes, delete

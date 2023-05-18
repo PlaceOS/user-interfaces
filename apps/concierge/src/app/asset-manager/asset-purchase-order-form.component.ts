@@ -2,16 +2,20 @@ import { Component } from '@angular/core';
 import { AssetManagerStateService } from './asset-manager-state.service';
 import {
     generateAssetPurchaseOrderForm,
+    saveAssetPurchaseOrder,
     showAssetPurchaseOrder,
 } from '@placeos/assets';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, notifyError } from '@placeos/common';
+import { AsyncHandler, notifyError, notifySuccess } from '@placeos/common';
 
 @Component({
     selector: 'asset-purchase-order-form',
     template: `
         <div class="absolute inset-0 bg-white">
-            <div class="h-full max-w-[32rem] mx-auto flex flex-col">
+            <div
+                class="h-full max-w-[32rem] mx-auto flex flex-col"
+                *ngIf="!loading; else load_state"
+            >
                 <header class="p-4">
                     <h2 class="text-center text-xl font-medium">
                         {{ form.value.id ? 'Edit' : 'Add' }} Purchase Order
@@ -91,6 +95,14 @@ import { AsyncHandler, notifyError } from '@placeos/common';
                 </footer>
             </div>
         </div>
+        <ng-template #load_state>
+            <div
+                class="absolute inset-0 flex flex-col items-center justify-center space-y-2"
+            >
+                <mat-spinner [diameter]="32"></mat-spinner>
+                <p>{{ loading }}</p>
+            </div>
+        </ng-template>
     `,
     styles: [``],
 })
@@ -111,7 +123,7 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
             'route.query',
             this._route.queryParamMap.subscribe(async (params) => {
                 if (params.get('id')) {
-                    this.loading = 'Loading Product Details...';
+                    this.loading = 'Loading purchase order details...';
                     const asset = await showAssetPurchaseOrder(params.get('id'))
                         .toPromise()
                         .catch(() => null);
@@ -123,5 +135,22 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
                 }
             })
         );
+    }
+
+    public async save() {
+        if (!this.form.valid) return;
+        this.loading = 'Saving Product...';
+        const data = this.form.value;
+        const item = await saveAssetPurchaseOrder(data as any)
+            .toPromise()
+            .catch((e) => {
+                this.loading = '';
+                notifyError(`Error saving purchase order.: ${e.message}`);
+                throw e;
+            });
+        this.form.reset();
+        this.loading = '';
+        notifySuccess('Successfully saved purchase order.');
+        this._router.navigate(['/asset-manager', 'view', item.id]);
     }
 }

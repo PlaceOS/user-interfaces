@@ -16,6 +16,7 @@ import {
 } from 'rxjs/operators';
 import {
     Asset,
+    AssetGroup,
     deleteAssetGroup,
     generateAssetForm,
     queryAssetCategories,
@@ -60,7 +61,7 @@ export class AssetManagerStateService extends AsyncHandler {
     /** List of options set for the view */
     public readonly options = this._options.asObservable();
     /** List of available assets */
-    public readonly products: Observable<Asset[]> = this._change.pipe(
+    public readonly products: Observable<AssetGroup[]> = this._change.pipe(
         switchMap(() => {
             this._loading.next(true);
             return queryAssetGroups();
@@ -164,9 +165,9 @@ export class AssetManagerStateService extends AsyncHandler {
     public readonly product_mapping = this.filtered_products.pipe(
         map((_) => {
             const map = {};
-            const categories = unique(_.map((i) => i.type_id));
+            const categories = unique(_.map((i) => i.category_id));
             for (const group of categories) {
-                map[group] = _.filter((i) => i.type_id === group);
+                map[group] = _.filter((i) => i.category_id === group);
             }
             return map;
         })
