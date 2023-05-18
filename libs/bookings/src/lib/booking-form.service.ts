@@ -632,6 +632,7 @@ export class BookingFormService extends AsyncHandler {
         { asset_id, date, duration, user_email, all_day }: Partial<Booking>,
         type: BookingType
     ) {
+        if (!user_email) throw 'No user was selected to book for';
         duration = all_day ? 12 * 60 : duration || 60;
         const bookings = await queryBookings({
             period_start: getUnixTime(date),
