@@ -131,6 +131,18 @@ describe('Booking Meetings', () => {
             });
     });
 
+    it('should show auto-complete for potential attendees when input box is typed in', () => {
+        cy.get('global-loading');
+        cy.get('meeting-flow-form');
+        cy.get('mat-option').should('not.exist');
+        cy.get('input[placeholder="Type a name or email"]')
+            .type('A', { force: true })
+            .then(() => {
+                cy.wait(3000);
+                cy.get('mat-option').should('exist');
+                cy.get('mat-option').should('be.visible');
+            });
+    });
     // #endregion
 
     // #region ROOM
