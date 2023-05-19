@@ -301,15 +301,15 @@ export class PanelStateService extends AsyncHandler {
         try {
             const module = getModule(this.system, 'Bookings');
             if (!module) throw 'Unable to find module';
-            await module
-                .execute('book_now', [
-                    Math.min(max_duration || 180, 30) * 60,
-                    'Ad-hoc Panel Booking',
-                    currentUser().email,
-                ])
-                .catch((e) => notifyError(`Error creating meeting. ${e}`));
+            await module.execute('book_now', [
+                Math.min(max_duration || 180, 30) * 60,
+                'Ad-hoc Panel Booking',
+                currentUser().email,
+            ]);
             notifySuccess('Successfully created meeting.');
-        } catch {}
+        } catch (e) {
+            notifyError(`Error creating meeting. ${e}`);
+        }
         ref.close();
     }
 
