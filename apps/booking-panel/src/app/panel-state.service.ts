@@ -299,16 +299,15 @@ export class PanelStateService extends AsyncHandler {
         if (ref.reason !== 'done') return;
         ref.loading('Creating Meeting...');
         try {
-            const space = await this._space_pipe.transform(this.system);
-            this._events.newForm();
-            this._events.form.patchValue({
-                date: Date.now(),
-                title: 'Ad-hoc Panel Booking',
-                duration: Math.min(max_duration || 180, 30),
-                resources: [space],
-                host: currentUser()?.email,
-            });
-            await this._events.postForm();
+            const module = getModule(this.system, 'Bookings');
+            if (!module) throw 'Unable to find module';
+            await module
+                .execute('book_now', [
+                    Math.min(max_duration || 180, 30) * 60,
+                    'Ad-hoc Panel Booking',
+                    currentUser().email,
+                ])
+                .catch((e) => notifyError(`Error creating meeting. ${e}`));
             notifySuccess('Successfully created meeting.');
         } catch {}
         ref.close();
