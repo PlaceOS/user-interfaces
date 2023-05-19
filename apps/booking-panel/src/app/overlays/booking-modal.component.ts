@@ -65,7 +65,7 @@ export async function openBookingModal(
                 <div class="flex-1" *ngIf="form.controls.duration">
                     <label for="duration">Duration:</label>
                     <a-duration-field
-                        [min]="15"
+                        [min]="min_duration"
                         [max]="max_duration"
                         name="duration"
                         formControlName="duration"
@@ -129,6 +129,7 @@ export class BookingModalComponent extends AsyncHandler {
 
     public hide_host = true;
     public future = this._data.future;
+    public min_duration = this._data.min_duration || 15;
     public max_duration = this._data.max_duration || 480;
     /** Form */
     public form: FormGroup = new FormGroup({
