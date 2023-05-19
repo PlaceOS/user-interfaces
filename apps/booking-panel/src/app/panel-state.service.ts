@@ -17,6 +17,7 @@ import {
     AsyncHandler,
     currentUser,
     notifyError,
+    notifySuccess,
     openConfirmModal,
     timePeriodsIntersect,
 } from '@placeos/common';
@@ -260,6 +261,57 @@ export class PanelStateService extends AsyncHandler {
         });
         this._events.clearForm();
         details.close();
+    }
+
+    public async confirmBookNow() {
+        const date = Date.now();
+        const current = await this.current.pipe(take(1)).toPromise();
+        if (
+            current &&
+            isAfter(date, current!.date) &&
+            isBefore(date, addMinutes(current!.date, current!.duration))
+        )
+            return notifyError('Booking already exists for this time');
+
+        var max_duration = undefined;
+        const next = await this.next.pipe(take(1)).toPromise();
+        if (next && date <= Date.now()) {
+            const diff = Math.abs(differenceInMinutes(next.date, date));
+            const max = this._settings.getValue().max_duration || 480;
+            max_duration = diff < max ? diff : max;
+        }
+        if (max_duration != null && max_duration < 15) {
+            return notifyError(
+                'Unable to make bookings as the time available before the next meeting is less than 15 minutes'
+            );
+        }
+        const ref = await openConfirmModal(
+            {
+                title: 'Book Meeting',
+                content: `Do you wish to book a meeting in this room for ${Math.min(
+                    max_duration || 180,
+                    30
+                )} minutes?`,
+                icon: { content: 'event' },
+            },
+            this._dialog
+        );
+        if (ref.reason !== 'done') return;
+        ref.loading('Creating Meeting...');
+        try {
+            const space = await this._space_pipe.transform(this.system);
+            this._events.newForm();
+            this._events.form.patchValue({
+                date: Date.now(),
+                title: 'Ad-hoc Panel Booking',
+                duration: Math.min(max_duration || 180, 30),
+                resources: [space],
+                host: currentUser()?.email,
+            });
+            await this._events.postForm();
+            notifySuccess('Successfully created meeting.');
+        } catch {}
+        ref.close();
     }
 
     /**
