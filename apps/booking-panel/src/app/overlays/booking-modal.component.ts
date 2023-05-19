@@ -65,6 +65,8 @@ export async function openBookingModal(
                 <div class="flex-1" *ngIf="form.controls.duration">
                     <label for="duration">Duration:</label>
                     <a-duration-field
+                        [min]="15"
+                        [max]="max_duration"
                         name="duration"
                         formControlName="duration"
                     ></a-duration-field>
@@ -125,8 +127,9 @@ export class BookingModalComponent extends AsyncHandler {
     /** Whether the modal is processing a booking request */
     public loading: boolean;
 
-    public hide_host = this._data.disable_book_now_host;
+    public hide_host = this._data.disable_book_now_host !== false;
     public future = this._data.future;
+    public max_duration = this._data.max_duration || 480;
     /** Form */
     public form: FormGroup = new FormGroup({
         organiser: new FormControl<User>(this._data.user || null, [

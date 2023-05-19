@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, VERSION } from '@placeos/common';
-import { ChangelogModalComponent } from '@placeos/components';
 import { take } from 'rxjs/operators';
 import { PanelStateService } from '../panel-state.service';
 

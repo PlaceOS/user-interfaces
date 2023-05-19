@@ -23,10 +23,17 @@ import {
 
 import { openBookingModal } from './overlays/booking-modal.component';
 import { EmbeddedControlModalComponent } from './overlays/embedded-control-modal.component';
-import { addMinutes, isAfter, isBefore } from 'date-fns';
+import {
+    addMinutes,
+    differenceInMinutes,
+    isAfter,
+    isBefore,
+    max,
+} from 'date-fns';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { OrganisationService } from '@placeos/organisation';
 import { Router } from '@angular/router';
+import { is } from 'date-fns/locale';
 
 export interface PanelSettings {
     /** Name of the room */
@@ -198,7 +205,7 @@ export class PanelStateService extends AsyncHandler {
      * @param date Start time of the new booking
      */
     public async newBooking(
-        date: number = new Date().valueOf(),
+        date: number = Date.now(),
         user: boolean = false,
         future: boolean = false,
         force_api: boolean = false
@@ -210,6 +217,19 @@ export class PanelStateService extends AsyncHandler {
             isBefore(date, addMinutes(current!.date, current!.duration))
         )
             return notifyError('Booking already exists for this time');
+
+        var max_duration = undefined;
+        const next = await this.next.pipe(take(1)).toPromise();
+        if (next && date <= Date.now()) {
+            const diff = Math.abs(differenceInMinutes(next.date, date));
+            const max = this._settings.getValue().max_duration || 480;
+            max_duration = diff < max ? diff : max;
+        }
+        if (max_duration != null && max_duration < 15) {
+            return notifyError(
+                'Unable to make bookings as the time available before the next meeting is less than 15 minutes'
+            );
+        }
         const space = await this._space_pipe.transform(this.system);
         const details = await openBookingModal(
             {
@@ -218,6 +238,7 @@ export class PanelStateService extends AsyncHandler {
                 space,
                 date,
                 future,
+                max_duration,
             },
             this._dialog
         );
