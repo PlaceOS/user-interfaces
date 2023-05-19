@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { AssetStateService } from '../asset-state.service';
-import { Asset } from '../asset.class';
+import { Asset, AssetGroup } from '../asset.class';
 
 @Component({
     selector: 'asset-list',
@@ -20,10 +20,10 @@ import { Asset } from '../asset.class';
                     <li
                         asset
                         *ngFor="let asset of assets | async"
+                        matRipple
                         class="relative p-2 rounded-lg w-full shadow border bg-white dark:bg-neutral-700 border-gray-200 dark:border-neutral-500"
                     >
                         <button
-                            matRipple
                             select
                             class="w-full h-full flex items-center pr-10"
                             (click)="selectAsset(asset)"
@@ -53,7 +53,7 @@ import { Asset } from '../asset.class';
                                     class="flex items-center text-sm space-x-2"
                                 >
                                     <p>
-                                        {{ asset.count < 1 ? 2 : asset.count }}
+                                        {{ asset.assets.length }}
                                         Available
                                     </p>
                                 </div>
@@ -109,8 +109,8 @@ import { Asset } from '../asset.class';
 export class AssetListComponent {
     @Input() public selected: string = '';
     @Input() public favorites: string[] = [];
-    @Output() public toggleFav = new EventEmitter<Asset>();
-    @Output() public onSelect = new EventEmitter<Asset>();
+    @Output() public toggleFav = new EventEmitter<AssetGroup>();
+    @Output() public onSelect = new EventEmitter<AssetGroup>();
 
     public readonly loading = this._asset_state.loading;
     public readonly assets = this._asset_state.filtered_assets;
@@ -121,7 +121,7 @@ export class AssetListComponent {
         return this.favorites.includes(asset_id);
     }
 
-    public selectAsset(asset: Asset) {
+    public selectAsset(asset: AssetGroup) {
         this.onSelect.emit(asset);
     }
 }

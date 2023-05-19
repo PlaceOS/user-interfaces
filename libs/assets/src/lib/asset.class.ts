@@ -23,6 +23,7 @@ export class AssetGroup {
     category?: AssetCategory;
     assets?: Asset[];
     purchase_orders?: AssetPurchaseOrder[];
+    amount?: number;
 }
 
 export class Asset {

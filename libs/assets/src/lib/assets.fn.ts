@@ -16,6 +16,7 @@ import {
     removeBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
 import { Booking } from 'libs/bookings/src/lib/booking.class';
+import { flatten } from '@placeos/common';
 
 const BASE_ENDPOINT = '/api/engine/v2/assets';
 
@@ -244,9 +245,12 @@ export function queryGroupAvailability(query: BookingsQueryParams) {
 export async function updateAssetRequestsForResource(
     parent_id: string,
     { date, duration, host }: { date: number; duration: number; host: string },
-    new_assets: Asset[],
+    new_assets: AssetGroup[],
     old_assets: Asset[]
 ) {
+    const assets: Asset[] = flatten(
+        new_assets.map((_) => _.assets.slice(0, (_ as any).amount))
+    );
     const bookings = await queryBookings({
         period_start: getUnixTime(startOfDay(date)),
         period_end: getUnixTime(endOfDay(date)),
@@ -262,7 +266,7 @@ export async function updateAssetRequestsForResource(
         filtered.map((item) => removeBooking(item.id).toPromise())
     );
     await Promise.all(
-        new_assets.map((item) =>
+        assets.map((item) =>
             createBooking(
                 new Booking({
                     date,
@@ -275,4 +279,5 @@ export async function updateAssetRequestsForResource(
             ).toPromise()
         )
     );
+    return assets;
 }

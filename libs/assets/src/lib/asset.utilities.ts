@@ -69,3 +69,22 @@ export function generateAssetForm(asset: Asset = new Asset()) {
         end_of_life_date: new FormControl(0),
     });
 }
+
+export function assetsToGroups(assets: Asset[]) {
+    const groups: AssetGroup[] = [];
+    for (const asset of assets) {
+        const group = groups.find((_) => _.id === asset.type_id);
+        if (group) {
+            group.assets.push(asset);
+        } else {
+            groups.push({
+                id: asset.type_id,
+                assets: [asset],
+            } as AssetGroup);
+        }
+    }
+    for (const group of groups) {
+        group.amount = group.assets.length;
+    }
+    return groups;
+}

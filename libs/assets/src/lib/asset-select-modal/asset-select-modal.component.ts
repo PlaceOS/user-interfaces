@@ -88,7 +88,7 @@ const EMPTY_FAVS: string[] = [];
                         <div class="mr-1 underline">Back to form</div>
                     </div>
                 </button>
-                <p class="opacity-60 text-sm">{{ count }} assets(s) added</p>
+                <p class="opacity-60 text-sm">{{ count }} asset(s) added</p>
                 <button
                     btn
                     matRipple
@@ -97,9 +97,9 @@ const EMPTY_FAVS: string[] = [];
                     (click)="setSelected(displayed, !isSelected(displayed?.id))"
                 >
                     <div class="flex items-center">
-                        <app-icon class="text-xl">{{
-                            isSelected(displayed?.id) ? 'remove' : 'add'
-                        }}</app-icon>
+                        <app-icon class="text-xl">
+                            {{ isSelected(displayed?.id) ? 'remove' : 'add' }}
+                        </app-icon>
                         <div class="mr-1">
                             {{
                                 isSelected(displayed?.id)
@@ -116,7 +116,7 @@ const EMPTY_FAVS: string[] = [];
 })
 export class AssetSelectModalComponent {
     public displayed: AssetGroup | null = null;
-    public selected: Asset[] = [...(this._items || [])];
+    public selected: AssetGroup[] = [...(this._items || [])];
 
     public get favorites() {
         return this._settings.get<string[]>('favourite_assets') || EMPTY_FAVS;
@@ -127,7 +127,7 @@ export class AssetSelectModalComponent {
     }
 
     public get count() {
-        return this.selected.reduce((t, i: any) => t + i.in_use, 0);
+        return this.selected.reduce((t, i: any) => t + i.amount, 0);
     }
 
     public isSelected(id: string) {
@@ -136,12 +136,12 @@ export class AssetSelectModalComponent {
 
     constructor(
         private _settings: SettingsService,
-        @Inject(MAT_DIALOG_DATA) private _items: Asset[]
+        @Inject(MAT_DIALOG_DATA) private _items: AssetGroup[]
     ) {}
 
     public setSelected(group: AssetGroup, state: boolean) {
         const list = this.selected.filter((_) => _.id !== group.id);
-        if (state) list.push(group.assets[0]);
+        if (state) list.push(group);
         this.selected = list;
     }
 

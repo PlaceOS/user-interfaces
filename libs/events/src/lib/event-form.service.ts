@@ -57,6 +57,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { Validators } from '@angular/forms';
 import { updateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
 import { filterSpacesFromRules } from './helpers';
+import { assetsToGroups } from 'libs/assets/src/lib/asset.utilities';
 
 const BOOKING_URLS = [
     'book/spaces',
@@ -388,6 +389,7 @@ export class EventFormService extends AsyncHandler {
             catering_charge_code:
                 event.extension_data.catering[0]?.charge_code ||
                 (event.id && has_catering ? ' ' : ''),
+            assets: assetsToGroups(event.extension_data.assets || []),
         });
         this._options.next({ features: [] });
         this.storeForm();
@@ -420,7 +422,7 @@ export class EventFormService extends AsyncHandler {
         const form = this._form;
         form.markAllAsTouched();
         if (!form.valid && !force) return;
-        const event = new CalendarEvent({ ...form.getRawValue() });
+        const event = new CalendarEvent({ ...form.getRawValue(), assets: [] });
         const ref = this._dialog.open(EventLinkModalComponent, { data: event });
         ref.afterClosed().subscribe((d) =>
             d ? this._router.navigate(['/']) : ''
@@ -470,8 +472,9 @@ export class EventFormService extends AsyncHandler {
                     throw _;
                 });
             }
+            let asset_list = [];
             if (assets?.length || event.extension_data.assets?.length) {
-                await updateAssetRequestsForResource(
+                asset_list = await updateAssetRequestsForResource(
                     `${host}|${date}`,
                     { date, duration, host },
                     assets,
@@ -550,6 +553,7 @@ export class EventFormService extends AsyncHandler {
                     attendees,
                     date: d,
                     catering,
+                    assets: asset_list,
                     extension_data:
                         this._settings.get('app.events.force_host') ||
                         this._settings.get('app.events.room_as_host')

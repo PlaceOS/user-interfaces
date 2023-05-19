@@ -12,6 +12,7 @@ import { queryAssets, queryGroupAvailability } from './assets.fn';
 import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { AssetGroup } from './asset.class';
+import { AssetGroupPipe, updateAssetGroupList } from './asset-group.pipe';
 
 export interface AssetOptions {
     zone?: string;
@@ -68,6 +69,7 @@ export class AssetStateService {
             )
         ),
         map((list) => list.sort((a, b) => a.name.localeCompare(b.name))),
+        tap((_) => updateAssetGroupList(_)),
         shareReplay(1)
     );
 

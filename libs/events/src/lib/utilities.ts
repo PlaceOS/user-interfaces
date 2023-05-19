@@ -23,6 +23,7 @@ import { endInFuture } from './validators';
 import { getNextFreeTimeSlot } from './helpers';
 import { User } from 'libs/users/src/lib/user.class';
 import { Booking } from 'libs/bookings/src/lib/booking.class';
+import { assetsToGroups } from 'libs/assets/src/lib/asset.utilities';
 
 let BOOKING_DATE = add(setMinutes(setHours(new Date(), 6), 0), { days: -1 });
 
@@ -69,7 +70,9 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
         catering_charge_code: new FormControl(
             event.extension_data?.catering[0]?.charge_code || ''
         ),
-        assets: new FormControl(event.extension_data?.assets || []),
+        assets: new FormControl(
+            assetsToGroups(event.extension_data?.assets || [])
+        ),
         // has_catering: new FormControl(event.has_catering || false),
         visitor_type: new FormControl(event.extension_data?.visitor_type),
         location: new FormControl(event.location),

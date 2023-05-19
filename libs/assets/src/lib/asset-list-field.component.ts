@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 
 import { AssetSelectModalComponent } from 'libs/assets/src/lib/asset-select-modal/asset-select-modal.component';
-import { Asset } from 'libs/assets/src/lib/asset.class';
+import { AssetGroup } from 'libs/assets/src/lib/asset.class';
 
 const EMPTY_FAVS: string[] = [];
 
@@ -20,7 +20,10 @@ const EMPTY_FAVS: string[] = [];
                 <div class="w-16 h-16 rounded-xl bg-black/20 mr-4"></div>
                 <div class="pb-4">
                     <div class="font-medium">
-                        {{ asset.name || 'Asset' }}
+                        {{
+                            (asset.id | assetgroup | async)?.name ||
+                                'AssetGroup'
+                        }}
                     </div>
                     <div i18n>{{ asset.amount }} requested</div>
                     <div
@@ -31,7 +34,7 @@ const EMPTY_FAVS: string[] = [];
                             matRipple
                             edit-space
                             class="clear"
-                            (click)="addAssets(asset)"
+                            (click)="addAssetGroups(asset)"
                         >
                             <div class="flex items-center space-x-2" i18n>
                                 <app-icon>edit</app-icon>
@@ -43,7 +46,7 @@ const EMPTY_FAVS: string[] = [];
                             matRipple
                             remove-space
                             class="clear"
-                            (click)="removeAsset(asset)"
+                            (click)="removeAssetGroup(asset)"
                         >
                             <div class="flex items-center space-x-2" i18n>
                                 <app-icon>close</app-icon>
@@ -73,7 +76,7 @@ const EMPTY_FAVS: string[] = [];
             matRipple
             add-space
             class="w-full inverse mt-2"
-            (click)="addAssets()"
+            (click)="addAssetGroups()"
         >
             <div class="flex items-center justify-center space-x-2">
                 <app-icon>search</app-icon>
@@ -92,12 +95,12 @@ const EMPTY_FAVS: string[] = [];
     ],
 })
 export class AssetListFieldComponent implements ControlValueAccessor {
-    public items: Asset[] = [];
+    public items: AssetGroup[] = [];
     public disabled = false;
 
-    private _onChange: (_: Asset[]) => void;
-    private _onTouch: (_: Asset[]) => void;
-    public selected: Asset[] = [];
+    private _onChange: (_: AssetGroup[]) => void;
+    private _onTouch: (_: AssetGroup[]) => void;
+    public selected: AssetGroup[] = [];
 
     public get favorites() {
         return this._settings.get<string[]>('favourite_assets') || EMPTY_FAVS;
@@ -112,7 +115,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
      * Update the form field value
      * @param new_value New value to set on the form field
      */
-    public setValue(new_value: Asset[]) {
+    public setValue(new_value: AssetGroup[]) {
         this.items = new_value;
         if (this._onChange) this._onChange(this.items);
     }
@@ -121,32 +124,36 @@ export class AssetListFieldComponent implements ControlValueAccessor {
      * Update local value when form control value is changed
      * @param value The new value for the component
      */
-    public writeValue(value: Asset[]) {
+    public writeValue(value: AssetGroup[]) {
         this.items = value || [];
     }
 
-    public readonly registerOnChange = (fn: (_: Asset[]) => void) =>
+    public readonly registerOnChange = (fn: (_: AssetGroup[]) => void) =>
         (this._onChange = fn);
-    public readonly registerOnTouched = (fn: (_: Asset[]) => void) =>
+    public readonly registerOnTouched = (fn: (_: AssetGroup[]) => void) =>
         (this._onTouch = fn);
     public readonly setDisabledState = (s: boolean) => (this.disabled = s);
 
-    public removeAsset(asset: Asset) {
+    public removeAssetGroup(asset: AssetGroup) {
         const updated_list = this.items.filter((_) => _.id !== asset.id);
         this.setValue(updated_list);
     }
 
-    public addAssets(asset?: Asset) {
+    public addAssetGroups(asset?: AssetGroup) {
         const ref = this._dialog.open(AssetSelectModalComponent, {
             data: this.items,
         });
-        ref.afterClosed().subscribe((assets?: Asset[]) => {
-            if (!assets) return;
-            this.setValue(assets);
+        ref.afterClosed().subscribe((items?: AssetGroup[]) => {
+            if (!items) return;
+            items = items.map((item) => ({ ...item }));
+            for (const item of items) {
+                item.assets = item.assets.slice(0, item.amount);
+            }
+            this.setValue(items);
         });
     }
 
-    public toggleFavourite(asset: Asset) {
+    public toggleFavourite(asset: AssetGroup) {
         const fav_list = this.favorites;
         const new_state = !fav_list.includes(asset.id);
         if (new_state) {

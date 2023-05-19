@@ -1,10 +1,10 @@
 import { Component, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, flatten } from '@placeos/common';
 import { CustomTooltipComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
-import { first } from 'rxjs/operators';
+import { first, map } from 'rxjs/operators';
 import { AssetLocationModalComponent } from './asset-location-modal.component';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
@@ -46,7 +46,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     class="bg-white dark:bg-neutral-700 flex-1 w-1/2 h-[22.5rem]"
                 >
                     <image-carousel
-                        [images]="(item | async)?.images || []"
+                        [images]="(images | async) || []"
                     ></image-carousel>
                 </div>
                 <div class="w-[32rem] h-[22.5rem] px-4 flex flex-col">
@@ -295,6 +295,9 @@ export class AssetViewComponent extends AsyncHandler {
     public loading = false;
     public deleting = false;
     public readonly item = this._state.active_product;
+    public readonly images = this.item.pipe(
+        map((itm) => flatten(itm?.assets?.map(({ images }) => images) || []))
+    );
 
     @ViewChild(CustomTooltipComponent)
     public _tooltip_el: CustomTooltipComponent;
