@@ -127,7 +127,7 @@ export class BookingModalComponent extends AsyncHandler {
     /** Whether the modal is processing a booking request */
     public loading: boolean;
 
-    public hide_host = this._data.disable_book_now_host !== false;
+    public hide_host = true;
     public future = this._data.future;
     public max_duration = this._data.max_duration || 480;
     /** Form */
