@@ -304,7 +304,6 @@ export class PanelStateService extends AsyncHandler {
             await module.execute('book_now', [
                 Math.min(max_duration || 180, 30) * 60,
                 'Ad-hoc Panel Booking',
-                currentUser().email,
             ]);
             notifySuccess('Successfully created meeting.');
         } catch (e) {
