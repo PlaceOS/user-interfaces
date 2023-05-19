@@ -138,8 +138,10 @@ export class BookingModalComponent extends AsyncHandler {
         ]),
         room_ids: new FormControl<string[]>([this._data.space?.email || '']),
         date: new FormControl(this._data.date || new Date().valueOf()),
-        duration: new FormControl(30),
-        title: new FormControl(this._data.title || '', [Validators.required]),
+        duration: new FormControl(Math.min(this._data.max_duration, 30)),
+        title: new FormControl(this._data.title || 'Ad-Hoc Panel Booking', [
+            Validators.required,
+        ]),
     });
 
     constructor(@Inject(MAT_DIALOG_DATA) private _data: BookingModalData) {
