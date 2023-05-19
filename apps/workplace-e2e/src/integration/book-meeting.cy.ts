@@ -118,6 +118,19 @@ describe('Booking Meetings', () => {
     // #endregion
 
     // #region ATTENDEES
+
+    it('should open up a modal when the Availability link is clicked', () => {
+        cy.get('global-loading');
+        cy.get('meeting-flow-form');
+        cy.get('find-availability-modal').should('not.exist');
+        cy.get('button[name="find-attendee-availability"]')
+            .click({ force: true })
+            .then(() => {
+                cy.get('find-availability-modal').should('exist');
+                cy.get('find-availability-modal').should('be.visible');
+            });
+    });
+
     // #endregion
 
     // #region ROOM
