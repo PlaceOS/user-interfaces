@@ -6,10 +6,12 @@ import {
     notifyError,
     notifySuccess,
 } from '@placeos/common';
-import { Desk, OrganisationService } from '@placeos/organisation';
-import { StaffUser, User } from '@placeos/users';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { first, map } from 'rxjs/operators';
+
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { Desk } from 'libs/organisation/src/lib/desk.class';
+import { StaffUser, User } from 'libs/users/src/lib/user.class';
 
 import { queryBookings, saveBooking } from './bookings.fn';
 import { DeskConfirmModalComponent } from './desk-confirm-modal.component';

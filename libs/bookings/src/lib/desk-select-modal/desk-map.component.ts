@@ -13,7 +13,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info.component';
-import { BuildingLevel } from '@placeos/organisation';
+import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
 
 @Component({
     selector: 'desk-map',

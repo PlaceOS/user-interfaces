@@ -1,11 +1,13 @@
 import { Component, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { flatten, SettingsService, unique } from '@placeos/common';
-import { EventFormService } from '@placeos/events';
-import { Building, OrganisationService } from '@placeos/organisation';
 import { addDays, endOfDay } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map, take } from 'rxjs/operators';
+
+import { EventFormService } from 'libs/events/src/lib/event-form.service';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { Building } from 'libs/organisation/src/lib/building.class';
 import { SpacesService } from '../spaces.service';
 
 @Component({

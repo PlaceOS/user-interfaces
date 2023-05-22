@@ -2,8 +2,10 @@ import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { DialogEvent, SettingsService } from '@placeos/common';
-import { BuildingLevel, Desk } from '@placeos/organisation';
-import { User } from '@placeos/users';
+
+import { Desk } from 'libs/organisation/src/lib/desk.class';
+import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
+import { User } from 'libs/users/src/lib/user.class';
 
 export interface DeskConfirmModalData {
     host: User;

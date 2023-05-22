@@ -1,11 +1,13 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { AsyncHandler, unique } from '@placeos/common';
-import { EventFormService } from '@placeos/events';
-import { BuildingLevel, OrganisationService } from '@placeos/organisation';
-import { debounceTime, map, tap } from 'rxjs/operators';
-import { Space } from '../space.class';
-import { SpaceLocationPinComponent } from './space-location-pin.component';
 import { BehaviorSubject, combineLatest } from 'rxjs';
+import { debounceTime, map, tap } from 'rxjs/operators';
+
+import { EventFormService } from 'libs/events/src/lib/event-form.service';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
+import { SpaceLocationPinComponent } from './space-location-pin.component';
+import { Space } from '../space.class';
 
 @Component({
     selector: `space-map`,

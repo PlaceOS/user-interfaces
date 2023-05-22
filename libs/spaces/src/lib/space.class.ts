@@ -1,5 +1,5 @@
 import { RoomConfiguration } from '@placeos/common';
-import { BuildingLevel } from '@placeos/organisation';
+import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
 
 import { CalendarAvailability } from 'libs/calendar/src/lib/calendar.interfaces';
 

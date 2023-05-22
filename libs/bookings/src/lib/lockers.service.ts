@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { flatten } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import {
     PlaceMetadata,
     PlaceZoneMetadata,
@@ -15,6 +14,8 @@ import {
     shareReplay,
     switchMap,
 } from 'rxjs/operators';
+
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 export interface LockerBank {
     id: string;

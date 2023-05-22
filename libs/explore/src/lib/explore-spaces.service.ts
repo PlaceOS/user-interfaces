@@ -13,14 +13,14 @@ import {
 import { notifyError } from 'libs/common/src/lib/notifications';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
+import { EventFormService } from 'libs/events/src/lib/event-form.service';
+import { rulesForSpace } from 'libs/events/src/lib/helpers';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 import { ExploreStateService } from './explore-state.service';
 import { ExploreSpaceInfoComponent } from './explore-space-info.component';
 import { ExploreBookingModalComponent } from './explore-booking-modal.component';
 import { ExploreBookQrComponent } from './explore-book-qr.component';
-import { EventFormService } from 'libs/events/src/lib/event-form.service';
-import { rulesForSpace } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
 
 export const DEFAULT_COLOURS = {
     free: '#43a047',

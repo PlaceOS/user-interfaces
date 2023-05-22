@@ -1,12 +1,13 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
+import { currentUser } from '@placeos/common';
+import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
+
 import { Booking } from './booking.class';
 import { BookingDetailsModalComponent } from './booking-details-modal.component';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
-import { currentUser } from '@placeos/common';
 
 @Component({
     selector: 'booking-card',

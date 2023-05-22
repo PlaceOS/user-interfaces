@@ -1,5 +1,4 @@
 import { Pipe } from '@angular/core';
-import { showSystem, querySystemsWithEmails } from '@placeos/ts-client';
 
 import { AssetGroup } from './asset.class';
 import { showAssetGroup } from './assets.fn';
