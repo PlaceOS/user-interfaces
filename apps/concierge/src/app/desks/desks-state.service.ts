@@ -240,7 +240,7 @@ export class DesksStateService extends AsyncHandler {
             },
             this._dialog
         );
-        if (resp.reason === 'done') return;
+        if (resp.reason !== 'done') return;
         resp.loading('Rejecting all desks for selected date...');
         await Promise.all(
             list.map((desk) => rejectBooking(desk.id).toPromise())
