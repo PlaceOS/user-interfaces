@@ -12,7 +12,7 @@ import { MeetingFlowFormComponent } from 'apps/workplace/src/app/book/meeting-fl
 import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-form-details.component';
 import { CateringListFieldComponent } from 'libs/catering/src/lib/catering-list-field.component';
 import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';
-import { AssetListFieldComponent } from 'libs/form-fields/src/lib/asset-list-field.component';
+import { AssetListFieldComponent } from 'libs/assets/src/lib/asset-list-field.component';
 import { RichTextInputComponent } from 'libs/form-fields/src/lib/rich-text-input.component';
 import { SpaceListFieldComponent } from 'libs/form-fields/src/lib/space-list-field.component';
 import { MockComponent, MockProvider } from 'ng-mocks';

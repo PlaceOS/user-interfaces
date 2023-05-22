@@ -125,7 +125,7 @@ export class AssetDetailsComponent {
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.item && this.item) {
             this._images = flatten(
-                this.item?.assets?.map(({ images }) => images)
+                this.item?.assets?.map(({ images }) => images) || []
             );
         }
     }

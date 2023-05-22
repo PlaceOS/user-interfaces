@@ -112,6 +112,7 @@ describe('BookingFormService', () => {
         spectator.service.form.patchValue({
             date: Date.now(),
             asset_id: 'desk-1',
+            user_email: 'jim@example.com',
         });
         await expect(spectator.service.postForm()).rejects.toBe(
             'desk-1 is not available at the selected time'

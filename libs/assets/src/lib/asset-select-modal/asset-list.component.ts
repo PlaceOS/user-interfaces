@@ -61,7 +61,7 @@ import { map } from 'rxjs/operators';
                                     class="flex items-center text-sm space-x-2"
                                 >
                                     <p>
-                                        {{ asset.assets.length }}
+                                        {{ asset.assets?.length || '0' }}
                                         Available
                                     </p>
                                 </div>

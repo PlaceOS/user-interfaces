@@ -21,7 +21,7 @@ import {
 import { Building, Desk, OrganisationService } from '@placeos/organisation';
 import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/new-desk-flow/new-desk-form-details.component';
 import { DeskListFieldComponent } from 'libs/bookings/src/lib/desk-list-field.component';
-import { AssetListFieldComponent } from 'libs/form-fields/src/lib/asset-list-field.component';
+import { AssetListFieldComponent } from 'libs/assets/src/lib/asset-list-field.component';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 
