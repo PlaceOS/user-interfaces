@@ -143,6 +143,38 @@ describe('Booking Meetings', () => {
                 cy.get('mat-option').should('be.visible');
             });
     });
+
+    it('should enable a new attendee to be added via the Add External button', () => {
+        cy.get('global-loading');
+        cy.get('meeting-flow-form');
+        cy.get('new-user-modal').should('not.exist');
+        cy.get('span').contains('Test User 123').should('not.exist');
+        cy.get('button[name="new-contact"]')
+            .click({ force: true })
+            .then(() => {
+                cy.get('new-user-modal').should('exist');
+                cy.get('new-user-modal').should('be.visible');
+                cy.get('input[name="name"]').type('Test User 123', {
+                    force: true,
+                });
+                cy.get('input[name="email"]').type('Test@test.com', {
+                    force: true,
+                });
+                cy.get('input[name="org"]').type('Test Org', { force: true });
+                cy.get('button')
+                    .contains('Save')
+                    .click({ force: true })
+                    .then(() => {
+                        cy.wait(3000);
+                        cy.get('span')
+                            .contains('Test User 123')
+                            .should('exist');
+                        cy.get('span')
+                            .contains('Test User 123')
+                            .should('be.visible');
+                    });
+            });
+    });
     // #endregion
 
     // #region ROOM
