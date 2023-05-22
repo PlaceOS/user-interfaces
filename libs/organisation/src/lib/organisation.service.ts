@@ -149,7 +149,9 @@ export class OrganisationService {
 
     public get currency_code(): string {
         return (
-            this._service.get('app.currency') || this.building.currency || 'USD'
+            this._service.get('app.currency') ||
+            this.building?.currency ||
+            'USD'
         );
     }
 

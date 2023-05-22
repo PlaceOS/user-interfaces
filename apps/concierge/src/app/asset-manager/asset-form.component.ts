@@ -6,6 +6,7 @@ import {
     generateAssetForm,
     saveAsset,
     showAsset,
+    showAssetGroup,
 } from '@placeos/assets';
 import { AsyncHandler, notifyError } from '@placeos/common';
 
@@ -219,6 +220,21 @@ export class AssetFormComponent extends AsyncHandler {
                         this._router.navigate(['/asset-manager']);
                     }
                     this.form.patchValue(asset);
+                    this.loading = '';
+                }
+                if (params.get('group_id')) {
+                    this.loading = 'Loading Product Details...';
+                    const asset = await showAssetGroup(params.get('group_id'))
+                        .toPromise()
+                        .catch(() => null);
+                    if (!asset) {
+                        notifyError(
+                            'Unable to load associated product details.'
+                        );
+                        this._router.navigate(['/asset-manager']);
+                    }
+                    this.product = asset;
+                    this.loading = '';
                 }
             })
         );

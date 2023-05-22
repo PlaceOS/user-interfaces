@@ -97,8 +97,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             <div class="pl-2">
                                 Available:
                                 {{
-                                    (asset | async)?.count -
-                                        (asset | async)?.assets?.length || 0
+                                    (item | async)?.count -
+                                        (item | async)?.assets?.length || 0
                                 }}
                             </div>
                             <button btn matRipple>Assign to Location</button>
@@ -166,27 +166,56 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 </div>
                             </div>
                         </div>
-                        <h3 class="p-2">Invoices</h3>
+                        <h3 class="p-2">Purchase Orders</h3>
+                        <a
+                            btn
+                            matRipple
+                            class="mb-2"
+                            [routerLink]="[
+                                '/asset-manager',
+                                'manage',
+                                'purchase-order'
+                            ]"
+                            [queryParams]="{ group_id: (item | async)?.id }"
+                        >
+                            Add Purchase Order
+                        </a>
                         <div
                             data-table
                             class="bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500"
                             *ngIf="
-                                (asset | async)?.purchase_orders?.length;
+                                (item | async)?.purchase_orders?.length;
                                 else empty_invoices
                             "
                         >
                             <div
-                                class="flex items-center p-2"
+                                class="flex items-center p-2 space-x-2"
                                 *ngFor="
-                                    let item of (item | async)
+                                    let order of (item | async)
                                         ?.purchase_orders || []
                                 "
                             >
-                                <label>{{ item.name }}</label>
-                                <div>{{ item.price | currency: code }}</div>
+                                <label>{{ order.order_number }}</label>
+                                <div class="flex-1">
+                                    {{ order.invoice_number }}
+                                </div>
+                                <div>{{ order.price | currency: code }}</div>
+                                <a
+                                    [routerLink]="[
+                                        '/asset-manager',
+                                        'manage',
+                                        'purchase-order'
+                                    ]"
+                                    [queryParams]="{
+                                        id: order.id,
+                                        group_id: (item | async)?.id
+                                    }"
+                                >
+                                    <app-icon class="text-lg">edit</app-icon>
+                                </a>
                                 <a
                                     class="underline"
-                                    [href]="invoice.url | safe"
+                                    [href]="order.url | safe: 'url'"
                                     target="_blank"
                                     ref="noreferer noopener"
                                 >
@@ -198,7 +227,16 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </mat-tab>
                 <mat-tab label="Assets">
                     <div class="max-w-[768px] mx-auto p-4">
-                        <h3 class="p-2">Items</h3>
+                        <h3 class="p-2">Assets</h3>
+                        <a
+                            btn
+                            matRipple
+                            class="mb-2"
+                            [routerLink]="['/asset-manager', 'manage', 'asset']"
+                            [queryParams]="{ group_id: (item | async)?.id }"
+                        >
+                            Add Asset
+                        </a>
                         <div
                             data-table
                             class="bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500"
@@ -208,21 +246,34 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             "
                         >
                             <div
-                                class="flex items-center p-2"
+                                class="flex items-center p-2 space-x-2"
                                 *ngFor="
-                                    let item of (item | async)?.assets || []
+                                    let asset of (item | async)?.assets || []
                                 "
                             >
-                                <label>{{ item.name }}</label>
+                                <label>{{ asset.name }}</label>
                                 <div class="flex-1">
-                                    {{ item.serial_number }}
+                                    {{ asset.serial_number }}
                                 </div>
                                 <div>
                                     {{
-                                        item.end_of_life_date * 1000
+                                        asset.end_of_life_date * 1000
                                             | date: 'mediumDate'
                                     }}
                                 </div>
+                                <a
+                                    [routerLink]="[
+                                        '/asset-manager',
+                                        'manage',
+                                        'asset'
+                                    ]"
+                                    [queryParams]="{
+                                        id: asset.id,
+                                        group_id: (item | async)?.id
+                                    }"
+                                >
+                                    <app-icon class="text-lg">edit</app-icon>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -272,10 +323,10 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             </ng-template>
         </ng-template>
         <ng-template #empty_invoices>
-            <div class="p-2 opacity-30">No Invoices</div>
+            <div class="p-2 opacity-30">No purchase orders</div>
         </ng-template>
         <ng-template #empty_items>
-            <div class="p-2 opacity-30">No consumables</div>
+            <div class="p-2 opacity-30">No assets</div>
         </ng-template>
     `,
     styles: [
@@ -285,7 +336,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             }
 
             label {
-                width: 15rem;
+                width: 10rem;
                 min-width: 0;
             }
         `,

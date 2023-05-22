@@ -144,6 +144,7 @@ export class AssetGroupFormComponent extends AsyncHandler {
                         this._router.navigate(['/asset-manager']);
                     }
                     this.form.patchValue(product);
+                    this.loading = '';
                 }
             })
         );

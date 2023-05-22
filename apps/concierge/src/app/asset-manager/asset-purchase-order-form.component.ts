@@ -87,7 +87,11 @@ import { AsyncHandler, notifyError, notifySuccess } from '@placeos/common';
                         btn
                         matRipple
                         class="w-32 inverse"
-                        [routerLink]="['/asset-manager']"
+                        [routerLink]="
+                            product_id
+                                ? ['/asset-manager', 'view', product_id]
+                                : ['/asset-manager']
+                        "
                     >
                         Cancel
                     </a>
@@ -109,6 +113,7 @@ import { AsyncHandler, notifyError, notifySuccess } from '@placeos/common';
 export class AssetPurchaseOrderFormComponent extends AsyncHandler {
     public readonly form = generateAssetPurchaseOrderForm();
     public loading: string = '';
+    public product_id: string;
 
     constructor(
         private _state: AssetManagerStateService,
@@ -132,6 +137,10 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
                         this._router.navigate(['/asset-manager']);
                     }
                     this.form.patchValue(asset);
+                    this.loading = '';
+                }
+                if (params.get('group_id')) {
+                    this.product_id = params.get('group_id');
                 }
             })
         );
