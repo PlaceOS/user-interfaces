@@ -1,6 +1,14 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    Output,
+    SimpleChanges,
+} from '@angular/core';
 import { AssetStateService } from '../asset-state.service';
 import { Asset, AssetGroup } from '../asset.class';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'asset-list',
@@ -109,13 +117,36 @@ import { Asset, AssetGroup } from '../asset.class';
 export class AssetListComponent {
     @Input() public selected: string = '';
     @Input() public favorites: string[] = [];
+    @Input() public selected_items: AssetGroup[] = [];
     @Output() public toggleFav = new EventEmitter<AssetGroup>();
     @Output() public onSelect = new EventEmitter<AssetGroup>();
 
+    public readonly counts = new BehaviorSubject<Record<string, number>>({});
+
     public readonly loading = this._asset_state.loading;
-    public readonly assets = this._asset_state.filtered_assets;
+    public readonly assets = combineLatest([
+        this.counts,
+        this._asset_state.filtered_assets,
+    ]).pipe(
+        map(([counts, assets]) => {
+            for (const item of assets) {
+                item.amount = counts[item.id] || 0;
+            }
+            return assets;
+        })
+    );
 
     constructor(private _asset_state: AssetStateService) {}
+
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes.selected_items && this.selected_items?.length) {
+            const counts = {};
+            for (const item of this.selected_items) {
+                counts[item.id] = item.amount;
+            }
+            this.counts.next(counts);
+        }
+    }
 
     public isFavourite(asset_id: string) {
         return this.favorites.includes(asset_id);

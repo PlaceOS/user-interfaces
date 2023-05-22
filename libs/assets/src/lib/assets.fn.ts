@@ -18,7 +18,7 @@ import {
 import { Booking } from 'libs/bookings/src/lib/booking.class';
 import { flatten } from '@placeos/common';
 
-const BASE_ENDPOINT = '/api/engine/v2/assets';
+const BASE_ENDPOINT = '/api/engine/v2';
 
 ////////////////////////////////
 ////    Asset Categories    ////
@@ -26,13 +26,13 @@ const BASE_ENDPOINT = '/api/engine/v2/assets';
 
 export function queryAssetCategories(query: any = {}) {
     const q = toQueryString(query);
-    return get(`${BASE_ENDPOINT}/categories${q ? '?' + q : ''}`).pipe(
+    return get(`${BASE_ENDPOINT}/asset_categories${q ? '?' + q : ''}`).pipe(
         map((_) => _ as AssetCategory[])
     );
 }
 
 export function addAssetCategory(category: AssetCategory) {
-    return post(`${BASE_ENDPOINT}/categories`, category).pipe(
+    return post(`${BASE_ENDPOINT}/asset_categories`, category).pipe(
         map((_) => _ as AssetCategory)
     );
 }
@@ -41,7 +41,7 @@ export function updateAssetCategory(
     id: string,
     category: Partial<AssetCategory>
 ) {
-    return put(`${BASE_ENDPOINT}/categories/${id}`, category).pipe(
+    return put(`${BASE_ENDPOINT}/asset_categories/${id}`, category).pipe(
         map((_) => _ as AssetCategory)
     );
 }
@@ -53,13 +53,13 @@ export function saveAssetCategory(category: AssetCategory) {
 }
 
 export function showAssetCategory(id: string) {
-    return get(`${BASE_ENDPOINT}/categories/${id}`).pipe(
+    return get(`${BASE_ENDPOINT}/asset_categories/${id}`).pipe(
         map((_) => _ as AssetCategory)
     );
 }
 
 export function deleteAssetCategory(id: string) {
-    return del(`${BASE_ENDPOINT}/categories/${id}`);
+    return del(`${BASE_ENDPOINT}/asset_categories/${id}`);
 }
 
 //////////////////////////////
@@ -68,19 +68,19 @@ export function deleteAssetCategory(id: string) {
 
 export function queryAssetGroups(query: any = {}) {
     const q = toQueryString(query);
-    return get(`${BASE_ENDPOINT}/types${q ? '?' + q : ''}`).pipe(
+    return get(`${BASE_ENDPOINT}/asset_types${q ? '?' + q : ''}`).pipe(
         map((_) => _ as AssetGroup[])
     );
 }
 
 export function addAssetGroup(product: AssetGroup) {
-    return post(`${BASE_ENDPOINT}/types`, product).pipe(
+    return post(`${BASE_ENDPOINT}/asset_types`, product).pipe(
         map((_) => _ as AssetGroup)
     );
 }
 
 export function updateAssetGroup(id: string, product: Partial<AssetGroup>) {
-    return put(`${BASE_ENDPOINT}/types/${id}`, product).pipe(
+    return put(`${BASE_ENDPOINT}/asset_types/${id}`, product).pipe(
         map((_) => _ as AssetGroup)
     );
 }
@@ -92,13 +92,13 @@ export function saveAssetGroup(product: AssetGroup) {
 }
 
 export function showAssetGroup(id: string) {
-    return get(`${BASE_ENDPOINT}/types/${id}`).pipe(
+    return get(`${BASE_ENDPOINT}/asset_types/${id}`).pipe(
         map((_) => _ as AssetGroup)
     );
 }
 
 export function deleteAssetGroup(id: string) {
-    return del(`${BASE_ENDPOINT}/types/${id}`);
+    return del(`${BASE_ENDPOINT}/asset_types/${id}`);
 }
 
 ////////////////////////////////
@@ -107,17 +107,19 @@ export function deleteAssetGroup(id: string) {
 
 export function queryAssets(query: any = {}) {
     const q = toQueryString(query);
-    return get(`${BASE_ENDPOINT}${q ? '?' + q : ''}`).pipe(
+    return get(`${BASE_ENDPOINT}/assets${q ? '?' + q : ''}`).pipe(
         map((_) => _ as Asset[])
     );
 }
 
 export function addAsset(asset: Asset) {
-    return post(`${BASE_ENDPOINT}`, asset).pipe(map((_) => _ as Asset));
+    return post(`${BASE_ENDPOINT}/assets`, asset).pipe(map((_) => _ as Asset));
 }
 
 export function updateAsset(id: string, asset: Partial<Asset>) {
-    return put(`${BASE_ENDPOINT}/${id}`, asset).pipe(map((_) => _ as Asset));
+    return put(`${BASE_ENDPOINT}/assets/${id}`, asset).pipe(
+        map((_) => _ as Asset)
+    );
 }
 
 export function saveAsset(asset: Asset) {
@@ -125,11 +127,38 @@ export function saveAsset(asset: Asset) {
 }
 
 export function showAsset(id: string) {
-    return get(`${BASE_ENDPOINT}/${id}`).pipe(map((_) => _ as Asset));
+    return get(`${BASE_ENDPOINT}/assets/${id}`).pipe(map((_) => _ as Asset));
 }
 
 export function deleteAsset(id: string) {
-    return del(`${BASE_ENDPOINT}/${id}`);
+    return del(`${BASE_ENDPOINT}/assets/${id}`);
+}
+
+////////////////////////////////
+////      Assets (Bulk)     ////
+////////////////////////////////
+
+export function addAssetsInBulk(assets: Asset[]) {
+    return post(`${BASE_ENDPOINT}/assets/bulk`, assets).pipe(
+        map((_) => _ as Asset[])
+    );
+}
+
+export function updateAssetsInBulk(asset: Partial<Asset>[]) {
+    return put(`${BASE_ENDPOINT}/assets/bulk`, asset).pipe(
+        map((_) => _ as Asset[])
+    );
+}
+
+export function saveAssetsInBulk(assets: Asset[]) {
+    if (!assets?.length) return of([]);
+    return assets.every((item) => item?.id)
+        ? updateAssetsInBulk(assets)
+        : addAssetsInBulk(assets);
+}
+
+export function deleteAssetsInBulk(id_list: string[]) {
+    return del(`${BASE_ENDPOINT}/assets/bulk`, { body: { id_list } });
 }
 
 /////////////////////////////////
@@ -138,13 +167,13 @@ export function deleteAsset(id: string) {
 
 export function queryAssetPurchaseOrders(query: any = {}) {
     const q = toQueryString(query);
-    return get(`${BASE_ENDPOINT}/purchase_orders${q ? '?' + q : ''}`).pipe(
-        map((_) => _ as AssetPurchaseOrder[])
-    );
+    return get(
+        `${BASE_ENDPOINT}/asset_purchase_orders${q ? '?' + q : ''}`
+    ).pipe(map((_) => _ as AssetPurchaseOrder[]));
 }
 
 export function addAssetPurchaseOrder(order: AssetPurchaseOrder) {
-    return post(`${BASE_ENDPOINT}/purchase_orders`, order).pipe(
+    return post(`${BASE_ENDPOINT}/asset_purchase_orders`, order).pipe(
         map((_) => _ as AssetPurchaseOrder)
     );
 }
@@ -153,7 +182,7 @@ export function updateAssetPurchaseOrder(
     id: string,
     order: Partial<AssetPurchaseOrder>
 ) {
-    return put(`${BASE_ENDPOINT}/purchase_orders/${id}`, order).pipe(
+    return put(`${BASE_ENDPOINT}/asset_purchase_orders/${id}`, order).pipe(
         map((_) => _ as AssetPurchaseOrder)
     );
 }
@@ -165,13 +194,13 @@ export function saveAssetPurchaseOrder(order: AssetPurchaseOrder) {
 }
 
 export function showAssetPurchaseOrder(id: string) {
-    return get(`${BASE_ENDPOINT}/purchase_orders/${id}`).pipe(
+    return get(`${BASE_ENDPOINT}/asset_purchase_orders/${id}`).pipe(
         map((_) => _ as AssetPurchaseOrder)
     );
 }
 
 export function deleteAssetPurchaseOrder(id: string) {
-    return del(`${BASE_ENDPOINT}/purchase_orders/${id}`);
+    return del(`${BASE_ENDPOINT}/asset_purchase_orders/${id}`);
 }
 
 //////////////////////////////////////

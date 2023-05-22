@@ -7,7 +7,7 @@ import {
     MOCK_PURCHASE_ORDERS,
 } from './assets.data';
 
-const BASE_PATH = '/api/engine/v2/assets';
+const BASE_PATH = '/api/engine/v2';
 
 export const ASSET_MOCKS = registerMocks();
 
@@ -25,7 +25,7 @@ const update = (dataset) => (id, data) => {
 
 function registerMocks() {
     registerMockEndpoint({
-        path: `${BASE_PATH}/categories`,
+        path: `${BASE_PATH}/asset_categories`,
         metadata: {},
         method: 'GET',
         callback: (_) => {
@@ -35,7 +35,7 @@ function registerMocks() {
     });
 
     registerMockEndpoint({
-        path: `${BASE_PATH}/categories/:id`,
+        path: `${BASE_PATH}/asset_categories/:id`,
         metadata: {},
         method: 'GET',
         callback: (_) => {
@@ -52,7 +52,7 @@ function registerMocks() {
     });
 
     registerMockEndpoint({
-        path: `${BASE_PATH}/categories`,
+        path: `${BASE_PATH}/asset_categories`,
         metadata: {},
         method: 'POST',
         callback: (request) => {
@@ -66,7 +66,7 @@ function registerMocks() {
     });
 
     registerMockEndpoint({
-        path: `${BASE_PATH}/categories/:id`,
+        path: `${BASE_PATH}/asset_categories/:id`,
         metadata: {},
         method: 'PUT',
         callback: (req) =>
@@ -74,7 +74,7 @@ function registerMocks() {
     });
 
     registerMockEndpoint({
-        path: `${BASE_PATH}/categories/:id`,
+        path: `${BASE_PATH}/asset_categories/:id`,
         metadata: {},
         method: 'DELETE',
         callback: (req) => {
@@ -92,7 +92,7 @@ function registerMocks() {
     });
 
     registerMockEndpoint({
-        path: `${BASE_PATH}/types`,
+        path: `${BASE_PATH}/asset_types`,
         metadata: {},
         method: 'GET',
         callback: (_) => {
@@ -102,7 +102,7 @@ function registerMocks() {
     });
 
     registerMockEndpoint({
-        path: `${BASE_PATH}/types/:id`,
+        path: `${BASE_PATH}/asset_types/:id`,
         metadata: {},
         method: 'GET',
         callback: (_) => {
@@ -117,7 +117,7 @@ function registerMocks() {
     });
 
     registerMockEndpoint({
-        path: `${BASE_PATH}/types`,
+        path: `${BASE_PATH}/asset_types`,
         metadata: {},
         method: 'POST',
         callback: (request) => {
@@ -131,7 +131,7 @@ function registerMocks() {
     });
 
     registerMockEndpoint({
-        path: `${BASE_PATH}/types/:id`,
+        path: `${BASE_PATH}/asset_types/:id`,
         metadata: {},
         method: 'PUT',
         callback: (req) =>
@@ -139,7 +139,7 @@ function registerMocks() {
     });
 
     registerMockEndpoint({
-        path: `${BASE_PATH}/types/:id`,
+        path: `${BASE_PATH}/asset_types/:id`,
         metadata: {},
         method: 'DELETE',
         callback: (req) => {
@@ -157,7 +157,7 @@ function registerMocks() {
     });
 
     registerMockEndpoint({
-        path: `${BASE_PATH}/purchase_orders`,
+        path: `${BASE_PATH}/asset_purchase_orders`,
         metadata: {},
         method: 'GET',
         callback: (_) => {
@@ -167,7 +167,7 @@ function registerMocks() {
     });
 
     registerMockEndpoint({
-        path: `${BASE_PATH}/purchase_orders/:id`,
+        path: `${BASE_PATH}/asset_purchase_orders/:id`,
         metadata: {},
         method: 'GET',
         callback: (_) => {
@@ -184,7 +184,7 @@ function registerMocks() {
     });
 
     registerMockEndpoint({
-        path: `${BASE_PATH}/purchase_orders`,
+        path: `${BASE_PATH}/asset_purchase_orders`,
         metadata: {},
         method: 'POST',
         callback: (request) => {
@@ -198,7 +198,7 @@ function registerMocks() {
     });
 
     registerMockEndpoint({
-        path: `${BASE_PATH}/purchase_orders/:id`,
+        path: `${BASE_PATH}/asset_purchase_orders/:id`,
         metadata: {},
         method: 'PUT',
         callback: (req) =>
@@ -206,7 +206,7 @@ function registerMocks() {
     });
 
     registerMockEndpoint({
-        path: `${BASE_PATH}/purchase_orders/:id`,
+        path: `${BASE_PATH}/asset_purchase_orders/:id`,
         metadata: {},
         method: 'DELETE',
         callback: (req) => {
@@ -224,7 +224,7 @@ function registerMocks() {
     });
 
     registerMockEndpoint({
-        path: BASE_PATH,
+        path: `${BASE_PATH}/assets`,
         metadata: {},
         method: 'GET',
         callback: (_) => {
@@ -234,7 +234,7 @@ function registerMocks() {
     });
 
     registerMockEndpoint({
-        path: `${BASE_PATH}/:id`,
+        path: `${BASE_PATH}/assets/:id`,
         metadata: {},
         method: 'GET',
         callback: (_) => {
@@ -249,7 +249,7 @@ function registerMocks() {
     });
 
     registerMockEndpoint({
-        path: BASE_PATH,
+        path: `${BASE_PATH}/assets`,
         metadata: {},
         method: 'POST',
         callback: (request) => {
@@ -263,7 +263,7 @@ function registerMocks() {
     });
 
     registerMockEndpoint({
-        path: `${BASE_PATH}/:id`,
+        path: `${BASE_PATH}/assets/:id`,
         metadata: {},
         method: 'PUT',
         callback: (req) =>
@@ -271,7 +271,7 @@ function registerMocks() {
     });
 
     registerMockEndpoint({
-        path: `${BASE_PATH}/:id`,
+        path: `${BASE_PATH}/assets/:id`,
         metadata: {},
         method: 'DELETE',
         callback: (req) => {

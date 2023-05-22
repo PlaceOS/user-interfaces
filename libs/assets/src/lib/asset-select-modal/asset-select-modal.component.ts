@@ -30,6 +30,7 @@ const EMPTY_FAVS: string[] = [];
                     <asset-list
                         [selected]="selected_ids"
                         [favorites]="favorites"
+                        [selected_items]="selected"
                         (toggleFav)="toggleFavourite($event)"
                         (onSelect)="displayed = $event"
                         class="flex-1 h-1/2 w-full overflow-hidden"
@@ -142,7 +143,7 @@ export class AssetSelectModalComponent {
     public setSelected(group: AssetGroup, state: boolean) {
         const list = this.selected.filter((_) => _.id !== group.id);
         if (state) list.push(group);
-        this.selected = list;
+        this.selected = [...list];
     }
 
     public toggleFavourite(asset: AssetGroup) {
