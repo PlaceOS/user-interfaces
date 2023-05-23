@@ -4,6 +4,7 @@ import {
     add,
     addMinutes,
     differenceInMinutes,
+    endOfDay,
     getUnixTime,
     isAfter,
     isBefore,
@@ -243,8 +244,9 @@ export class CalendarEvent {
             obj.recurrence = {
                 ...this.recurrence,
                 range_start: obj.event_start,
-                range_end: getUnixTime(this.recurrence.end),
+                range_end: getUnixTime(endOfDay(this.recurrence.end)),
             };
+            delete obj.recurrence.days_of_week;
         }
         obj.recurrence = obj.recurrence
             ? Object.keys(obj.recurrence).length

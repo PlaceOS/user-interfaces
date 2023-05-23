@@ -375,7 +375,9 @@ export class EventFormService extends AsyncHandler {
 
     public resetForm() {
         this._form.reset();
-        const event = this._event.getValue() || ({} as Partial<CalendarEvent>);
+        const event =
+            this._event.getValue() ||
+            ({ extension_data: {} } as Partial<CalendarEvent>);
         const has_catering = !!event.extension_data.catering[0];
         this._form.patchValue({
             ...event,
@@ -443,15 +445,25 @@ export class EventFormService extends AsyncHandler {
                     ).join(', ')}]`
                 );
             }
-            const ical_uid = this.event.ical_uid;
-            let { id, host, date, duration, creator, all_day, assets } =
-                form.getRawValue();
+            const ical_uid = this.event?.ical_uid;
+            let {
+                id,
+                host,
+                date,
+                duration,
+                creator,
+                all_day,
+                assets,
+                recurrence,
+            } = form.getRawValue();
             const spaces = form.get('resources')?.value || [];
-            console.log('Space:', this.event.resources[0], spaces[0]);
             let catering = form.get('catering')?.value || [];
             if (all_day) {
                 date = startOfDay(date).valueOf();
                 duration = 24 * 60 - 1;
+            }
+            if (recurrence?._pattern && recurrence?._pattern !== 'none') {
+                this.form.patchValue({ recurring: true });
             }
             if (
                 (!id || date !== event.date || duration !== event.duration) &&
@@ -488,7 +500,7 @@ export class EventFormService extends AsyncHandler {
             const query: any = id
                 ? {
                       system_id:
-                          this.event.resources[0]?.id ||
+                          this.event?.resources[0]?.id ||
                           this.event?.system?.id ||
                           space_id,
                   }
@@ -542,7 +554,7 @@ export class EventFormService extends AsyncHandler {
             const result = await this._makeBooking(
                 new CalendarEvent({
                     ...value,
-                    old_system: this._event.getValue()?.system,
+                    old_system: this.event?.system,
                     host:
                         this._settings.get('app.events.force_host') ||
                         (this._settings.get('app.events.room_as_host')
