@@ -12,30 +12,33 @@ import { Space } from '../space.class';
 @Component({
     selector: `space-map`,
     template: `
-        <i-map
-            [src]="map_url"
-            [features]="features | async"
-            [actions]="actions | async"
-            [(zoom)]="zoom"
-            [(center)]="center"
-        ></i-map>
-        <div
-            class="absolute inset-x-0 top-0 bg-white p-2 border-b border-gray-200"
-        >
+        <div class="bg-white p-2 border-b border-gray-200 w-full">
             <mat-form-field
                 levels
                 appearance="outline"
                 class="w-full h-[3.25rem]"
             >
-                <mat-select [(ngModel)]="level">
+                <mat-select
+                    [(ngModel)]="level"
+                    [ngModelOptions]="{ standalone: true }"
+                >
                     <mat-option
-                        *ngFor="let opt of levels | async"
-                        [value]="opt"
+                        *ngFor="let lvl of levels | async"
+                        [value]="lvl"
                     >
-                        {{ opt.display_name || opt.name }}
+                        {{ lvl.display_name || lvl.name }}
                     </mat-option>
                 </mat-select>
             </mat-form-field>
+        </div>
+        <div class="relative flex-1 w-full">
+            <i-map
+                [src]="map_url"
+                [(zoom)]="zoom"
+                [(center)]="center"
+                [features]="features | async"
+                [actions]="actions | async"
+            ></i-map>
         </div>
         <div
             zoom
@@ -69,7 +72,8 @@ import { Space } from '../space.class';
             :host {
                 position: relative;
                 background: rgba(0, 0, 0, 0.05);
-                padding-top: 4rem;
+                display: flex;
+                flex-direction: column;
             }
 
             button {

@@ -247,6 +247,8 @@ export class CalendarEvent {
                 range_end: getUnixTime(endOfDay(this.recurrence.end)),
             };
             delete obj.recurrence.days_of_week;
+            delete obj.recurrence.start;
+            delete obj.recurrence.end;
         }
         obj.recurrence = obj.recurrence
             ? Object.keys(obj.recurrence).length

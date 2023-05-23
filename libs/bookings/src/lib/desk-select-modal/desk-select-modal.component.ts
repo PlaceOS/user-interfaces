@@ -45,7 +45,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                 </div>
             </header>
             <main
-                class="flex-1 flex items-center divide-x divide-gray-200 dark:divide-neutral-500 min-h-[65vh] h-[65vh] sm:max-h-[65vh] sm:max-w-[95vw] w-full overflow-hidden"
+                class="flex items-center divide-x divide-gray-200 dark:divide-neutral-500 h-[65vh] w-[calc(100vw-4rem)] overflow-hidden"
             >
                 <desk-filters
                     class="h-full hidden sm:flex max-w-[20rem] sm:h-[65vh] sm:max-h-full"

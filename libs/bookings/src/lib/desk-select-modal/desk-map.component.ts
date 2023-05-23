@@ -22,7 +22,8 @@ import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
             :host {
                 position: relative;
                 background: rgba(0, 0, 0, 0.05);
-                padding-top: 4rem;
+                display: flex;
+                flex-direction: column;
             }
 
             button {
@@ -31,17 +32,7 @@ import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
         `,
     ],
     template: `
-        <i-map
-            [src]="map_url"
-            [(zoom)]="zoom"
-            [(center)]="center"
-            [features]="features | async"
-            [styles]="styles | async"
-            [actions]="actions | async"
-        ></i-map>
-        <div
-            class="absolute inset-x-0 top-0 bg-white p-2 border-b border-gray-200"
-        >
+        <div class="bg-white p-2 border-b border-gray-200 w-full">
             <mat-form-field
                 levels
                 appearance="outline"
@@ -59,6 +50,16 @@ import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
                     </mat-option>
                 </mat-select>
             </mat-form-field>
+        </div>
+        <div class="relative flex-1 w-full">
+            <i-map
+                [src]="map_url"
+                [(zoom)]="zoom"
+                [(center)]="center"
+                [features]="features | async"
+                [styles]="styles | async"
+                [actions]="actions | async"
+            ></i-map>
         </div>
         <div
             zoom
