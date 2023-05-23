@@ -237,6 +237,8 @@ export class CalendarEvent {
         obj.event_start = getUnixTime(date);
         obj.event_end = end;
         const attendees = this.attendees;
+        (this as any).recurring =
+            this.recurrence?.pattern && this.recurrence._pattern !== 'none';
         if (this.recurring) {
             obj.recurrence = {
                 ...this.recurrence,
