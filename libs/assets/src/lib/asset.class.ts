@@ -1,16 +1,28 @@
-export interface AssetCategory {
+export class AssetCategory {
     id: string;
     name: string;
     parent_id?: string;
+    created_at: number;
+    updated_at: number;
+
+    constructor(data?: Partial<AssetCategory>) {
+        Object.assign(this, data);
+    }
 }
 
-export interface AssetPurchaseOrder {
+export class AssetPurchaseOrder {
     id: string;
     order_number: string;
     invoice_number: string;
     purchase_date: number;
     depreciation_start_date: number;
     depreciation_end_date: number;
+    created_at: number;
+    updated_at: number;
+
+    constructor(data?: Partial<AssetPurchaseOrder>) {
+        Object.assign(this, data);
+    }
 }
 
 export class AssetGroup {
@@ -24,19 +36,31 @@ export class AssetGroup {
     assets?: Asset[];
     purchase_orders?: AssetPurchaseOrder[];
     amount?: number;
+    created_at: number;
+    updated_at: number;
+
+    constructor(data?: Partial<AssetGroup>) {
+        Object.assign(this, data);
+    }
 }
 
 export class Asset {
-    id: string;
-    type_id: string;
-    name: string;
-    description: string;
-    model_number: string;
-    serial_number: string;
-    identifier: string;
-    other_data: Record<string, any>;
-    images: string[];
-    purchase_order_id: string;
-    purchase_price: number;
-    end_of_life_date: number;
+    id: string = '';
+    type_id: string = '';
+    name: string = '';
+    description: string = '';
+    model_number: string = '';
+    serial_number: string = '';
+    identifier: string = '';
+    other_data: Record<string, any> = {};
+    images: string[] = [];
+    purchase_order_id: string = '';
+    purchase_price: number = 0;
+    end_of_life_date: number = 0;
+    created_at: number = Date.now();
+    updated_at: number = Date.now();
+
+    constructor(data?: Partial<Asset>) {
+        Object.assign(this, data);
+    }
 }

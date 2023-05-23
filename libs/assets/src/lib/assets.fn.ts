@@ -32,18 +32,20 @@ export function queryAssetCategories(query: any = {}) {
 }
 
 export function addAssetCategory(category: AssetCategory) {
-    return post(`${BASE_ENDPOINT}/asset_categories`, category).pipe(
-        map((_) => _ as AssetCategory)
-    );
+    return post(
+        `${BASE_ENDPOINT}/asset_categories`,
+        cleanObject(category, [undefined, null, ''])
+    ).pipe(map((_) => _ as AssetCategory));
 }
 
 export function updateAssetCategory(
     id: string,
     category: Partial<AssetCategory>
 ) {
-    return put(`${BASE_ENDPOINT}/asset_categories/${id}`, category).pipe(
-        map((_) => _ as AssetCategory)
-    );
+    return put(
+        `${BASE_ENDPOINT}/asset_categories/${id}`,
+        cleanObject(category, [undefined, null, ''])
+    ).pipe(map((_) => _ as AssetCategory));
 }
 
 export function saveAssetCategory(category: AssetCategory) {
@@ -74,15 +76,17 @@ export function queryAssetGroups(query: any = {}) {
 }
 
 export function addAssetGroup(product: AssetGroup) {
-    return post(`${BASE_ENDPOINT}/asset_types`, product).pipe(
-        map((_) => _ as AssetGroup)
-    );
+    return post(
+        `${BASE_ENDPOINT}/asset_types`,
+        cleanObject(product, [undefined, null, ''])
+    ).pipe(map((_) => _ as AssetGroup));
 }
 
 export function updateAssetGroup(id: string, product: Partial<AssetGroup>) {
-    return put(`${BASE_ENDPOINT}/asset_types/${id}`, product).pipe(
-        map((_) => _ as AssetGroup)
-    );
+    return put(
+        `${BASE_ENDPOINT}/asset_types/${id}`,
+        cleanObject(product, [undefined, null, ''])
+    ).pipe(map((_) => _ as AssetGroup));
 }
 
 export function saveAssetGroup(product: AssetGroup) {
@@ -113,13 +117,17 @@ export function queryAssets(query: any = {}) {
 }
 
 export function addAsset(asset: Asset) {
-    return post(`${BASE_ENDPOINT}/assets`, asset).pipe(map((_) => _ as Asset));
+    return post(
+        `${BASE_ENDPOINT}/assets`,
+        cleanObject(asset, [undefined, null, ''])
+    ).pipe(map((_) => _ as Asset));
 }
 
 export function updateAsset(id: string, asset: Partial<Asset>) {
-    return put(`${BASE_ENDPOINT}/assets/${id}`, asset).pipe(
-        map((_) => _ as Asset)
-    );
+    return put(
+        `${BASE_ENDPOINT}/assets/${id}`,
+        cleanObject(asset, [undefined, null, ''])
+    ).pipe(map((_) => _ as Asset));
 }
 
 export function saveAsset(asset: Asset) {
@@ -139,15 +147,17 @@ export function deleteAsset(id: string) {
 ////////////////////////////////
 
 export function addAssetsInBulk(assets: Asset[]) {
-    return post(`${BASE_ENDPOINT}/assets/bulk`, assets).pipe(
-        map((_) => _ as Asset[])
-    );
+    return post(
+        `${BASE_ENDPOINT}/assets/bulk`,
+        assets.map((_) => cleanObject(_, [undefined, null, '']))
+    ).pipe(map((_) => _ as Asset[]));
 }
 
 export function updateAssetsInBulk(asset: Partial<Asset>[]) {
-    return put(`${BASE_ENDPOINT}/assets/bulk`, asset).pipe(
-        map((_) => _ as Asset[])
-    );
+    return put(
+        `${BASE_ENDPOINT}/assets/bulk`,
+        asset.map((_) => cleanObject(_, [undefined, null, '']))
+    ).pipe(map((_) => _ as Asset[]));
 }
 
 export function saveAssetsInBulk(assets: Asset[]) {
@@ -173,18 +183,20 @@ export function queryAssetPurchaseOrders(query: any = {}) {
 }
 
 export function addAssetPurchaseOrder(order: AssetPurchaseOrder) {
-    return post(`${BASE_ENDPOINT}/asset_purchase_orders`, order).pipe(
-        map((_) => _ as AssetPurchaseOrder)
-    );
+    return post(
+        `${BASE_ENDPOINT}/asset_purchase_orders`,
+        cleanObject(order, [undefined, null, ''])
+    ).pipe(map((_) => _ as AssetPurchaseOrder));
 }
 
 export function updateAssetPurchaseOrder(
     id: string,
     order: Partial<AssetPurchaseOrder>
 ) {
-    return put(`${BASE_ENDPOINT}/asset_purchase_orders/${id}`, order).pipe(
-        map((_) => _ as AssetPurchaseOrder)
-    );
+    return put(
+        `${BASE_ENDPOINT}/asset_purchase_orders/${id}`,
+        cleanObject(order, [undefined, null, ''])
+    ).pipe(map((_) => _ as AssetPurchaseOrder));
 }
 
 export function saveAssetPurchaseOrder(order: AssetPurchaseOrder) {
