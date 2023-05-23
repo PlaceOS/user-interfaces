@@ -22,12 +22,16 @@ export interface RoomListOptions {
 })
 export class RoomManagementService {
     private _options = new BehaviorSubject<RoomListOptions>({});
+    private _change = new BehaviorSubject(0);
 
     public options = this._options.asObservable();
 
-    public readonly room_list = this._org.active_building.pipe(
-        filter((_) => !!_?.id),
-        switchMap((bld) =>
+    public readonly room_list = combineLatest([
+        this._org.active_building,
+        this._change,
+    ]).pipe(
+        filter(([_]) => !!_?.id),
+        switchMap(([bld]) =>
             querySystems({ zone_id: bld.id }).pipe(
                 map(({ data }) => data),
                 catchError(() => of([]))
@@ -73,5 +77,8 @@ export class RoomManagementService {
 
     public editRoom(room: PlaceSystem = new PlaceSystem()) {
         const ref = this._dialog.open(RoomModalComponent, { data: { room } });
+        ref.afterClosed().subscribe((data) => {
+            if (data) setTimeout(() => this._change.next(Date.now()), 300);
+        });
     }
 }

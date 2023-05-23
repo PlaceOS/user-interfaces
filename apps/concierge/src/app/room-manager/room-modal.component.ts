@@ -162,33 +162,6 @@ import { OrganisationService } from '@placeos/organisation';
                         </mat-form-field>
                     </div>
                 </div>
-                <div class="flex flex-col" *ngIf="form.controls.support_url">
-                    <label
-                        for="support-url"
-                        [class.error]="
-                            form.controls.support_url.invalid &&
-                            form.controls.support_url.touched
-                        "
-                        i18n="@@supportUrlLabel"
-                    >
-                        Support URL:
-                    </label>
-                    <mat-form-field appearance="outline">
-                        <input
-                            matInput
-                            name="support-url"
-                            placeholder="Support URL"
-                            i18n-placeholder="@@suportUrlPlaceholder"
-                            formControlName="support_url"
-                        />
-                        <mat-error
-                            *ngIf="form.controls.support_url.invalid"
-                            i18n="@@urlError"
-                        >
-                            A valid URL is required
-                        </mat-error>
-                    </mat-form-field>
-                </div>
                 <div class="flex space-x-2">
                     <div
                         class="flex flex-col flex-1"
@@ -323,7 +296,7 @@ import { OrganisationService } from '@placeos/organisation';
             class="p-2 flex justify-end border-t border-gray-200"
             *ngIf="!loading"
         >
-            <button btn class="w-32">Save</button>
+            <button btn class="w-32" (click)="save()">Save</button>
         </footer>
         <ng-template #load_state>
             <div class="flex flex-col items-center justify-center w-64 h-64">
@@ -445,14 +418,17 @@ export class RoomModalComponent extends AsyncHandler {
                     this.form
                 ).join(', ')}]`
             );
+        console.log('Form:', this.form.value);
         if (!this.form.value.id) {
             this.form.patchValue({
+                display_name:
+                    this.form.value.display_name || this.form.value.name,
                 zones: unique([
                     this._org.organisation.id,
                     this._org.building.parent_id,
                     this._org.building.id,
-                    this.form.value.zone?.id,
-                ]),
+                    `${this.form.value.zone?.id || this.form.value.zone || ''}`,
+                ]).filter((_) => _),
             });
         }
         this.loading = true;
@@ -463,7 +439,7 @@ export class RoomModalComponent extends AsyncHandler {
             : addSystem(data)
         ).toPromise();
         this._dialog_ref.disableClose = false;
-        this._dialog_ref.close();
+        this._dialog_ref.close(true);
         this.loading = false;
     }
 }
