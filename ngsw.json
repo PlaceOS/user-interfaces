@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1684805531290,
+  "timestamp": 1684900830770,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -42,6 +42,7 @@
       },
       "urls": [
         "./assets/icons/amex.svg",
+        "./assets/icons/asset-placeholder.svg",
         "./assets/icons/building-filled.svg",
         "./assets/icons/building-outline.svg",
         "./assets/icons/car-filled.svg",
@@ -189,6 +190,7 @@
     "./apps_workplace_src_app_schedule_schedule_module_ts.js": "bd5196a4b82246639cc3266a3dd7387bcd5af217",
     "./apps_workplace_src_app_whats-on_whats-on_module_ts.js": "8ddc97ac758e38859822d760f8509c804070f982",
     "./assets/icons/amex.svg": "3530eff717af33317b79bdd1d0ec96abfa884287",
+    "./assets/icons/asset-placeholder.svg": "57d3c780a925b7434aadbe716a991457666eb450",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
     "./assets/icons/building-outline.svg": "a5b27618ef63cc4fc16d334b480eef238b5a9d31",
     "./assets/icons/car-filled.svg": "23b16bdbffa03ef7b082a734ace7054d0550852f",
@@ -294,7 +296,7 @@
     "./assets/locale/en.json": "e03a5b6707d3aff27105d4057c7ad6c30ec2cf96",
     "./assets/locale/es.json": "2db56f90f0de2aad600995da872739d101dc02b0",
     "./assets/locale/fr.json": "4dfcb3635105586e708d13f44c0255daabdc87e0",
-    "./assets/locale/pt.json": "3db66f3b417baa78868e98cda39537994a2b66fa",
+    "./assets/locale/pt.json": "bf5cdb8f67bd6711af8841a5a124b4d1bfec6712",
     "./assets/logo-dark.svg": "3c5dbbd620a781a0d1e3680cb697982dd44a1613",
     "./assets/logo-light.svg": "29908fafefe60c105f06b2f8d69f7c1eed436c17",
     "./assets/maps/level_1.svg": "ba165a2e4b967619f71aa625855113950c4cde53",
@@ -315,7 +317,7 @@
     "./common.js": "3d1050357d1dfcde99f70cb08128c1af932bcd0d",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "2f1314de115b5453fac79d16f5a663e3d1bef810",
-    "./main.js": "048fe1be3b86df423c517bf62734e53c90705cfd",
+    "./main.js": "4dc9b841d2b36f6fafd931c5bc712e0aeb91a775",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
@@ -328,7 +330,7 @@
     "./node_modules_qr-scanner_qr-scanner-worker_min_js.js": "94ac1c3a207147d889d5b92f2dec288ec7140cd8",
     "./polyfills.js": "e0d5f40e9f386abfef867d71dd64fe680a8cbddd",
     "./runtime.js": "ab3fdb44add31ffecf5981f94787bb180e8bf88e",
-    "./styles.css": "6175404a622630fb37e0b1649bf01cd3a86f3acf",
+    "./styles.css": "13790849f5b029a44b03660dce0886396d0d76db",
     "./vendor.js": "5353908d4726d61ee672bd035f68085c831edab9"
   },
   "navigationUrls": [
