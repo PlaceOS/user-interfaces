@@ -169,6 +169,7 @@ export class DesksStateService extends AsyncHandler {
     }
 
     public clearNewDesks() {
+        this._filters.next(this._filters.getValue());
         this._new_desks.next([]);
     }
 
