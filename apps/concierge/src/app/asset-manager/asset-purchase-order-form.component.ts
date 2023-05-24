@@ -7,6 +7,7 @@ import {
 } from '@placeos/assets';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, notifyError, notifySuccess } from '@placeos/common';
+import { addYears, getUnixTime } from 'date-fns';
 
 @Component({
     selector: 'asset-purchase-order-form',
@@ -56,6 +57,7 @@ import { AsyncHandler, notifyError, notifySuccess } from '@placeos/common';
                         </label>
                         <a-date-field
                             name="purchase-date"
+                            [from]="from"
                             formControlName="purchase_date"
                         ></a-date-field>
                     </div>
@@ -66,6 +68,7 @@ import { AsyncHandler, notifyError, notifySuccess } from '@placeos/common';
                             </label>
                             <a-date-field
                                 name="depreciation-start-date"
+                                [from]="from"
                                 formControlName="depreciation_start_date"
                             ></a-date-field>
                         </div>
@@ -95,7 +98,9 @@ import { AsyncHandler, notifyError, notifySuccess } from '@placeos/common';
                     >
                         Cancel
                     </a>
-                    <button btn matRipple class="w-32">Save</button>
+                    <button btn matRipple class="w-32" (click)="save()">
+                        Save
+                    </button>
                 </footer>
             </div>
         </div>
@@ -114,6 +119,7 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
     public readonly form = generateAssetPurchaseOrderForm();
     public loading: string = '';
     public product_id: string;
+    public readonly from = addYears(Date.now(), -5);
 
     constructor(
         private _state: AssetManagerStateService,
@@ -150,6 +156,9 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
         if (!this.form.valid) return;
         this.loading = 'Saving Product...';
         const data = this.form.value;
+        data.purchase_date = getUnixTime(data.purchase_date);
+        data.depreciation_start_date = getUnixTime(data.depreciation_end_date);
+        data.depreciation_end_date = getUnixTime(data.depreciation_end_date);
         const item = await saveAssetPurchaseOrder(data as any)
             .toPromise()
             .catch((e) => {

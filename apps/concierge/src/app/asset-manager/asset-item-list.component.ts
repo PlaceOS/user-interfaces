@@ -6,7 +6,10 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     template: `
         <div
             class="overflow-auto pb-2 w-full h-full"
-            *ngIf="(categories | async)?.length; else empty_state"
+            *ngIf="
+                (categories | async)?.length && (products | async)?._count;
+                else empty_state
+            "
         >
             <ng-container *ngFor="let group of categories | async">
                 <div class="" *ngIf="(products | async)[group.id]?.length">
@@ -27,7 +30,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             >
                                 <a
                                     matRipple
-                                    class="flex items-center text-left space-x-4 p-4"
+                                    class="flex items-center text-left space-x-4 p-4 border border-black/0 hover:border-indigo-400 rounded"
                                     *ngFor="
                                         let asset of (products | async)[
                                             group.id
@@ -40,16 +43,22 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                     ]"
                                 >
                                     <div
-                                        class="h-12 w-12 flex items-center justify-center border border-gray-200 dark:border-neutral-500 p-2"
+                                        class="h-12 w-12 flex items-center justify-center border border-gray-200 bg-gray-100 dark:border-neutral-500 p-2"
                                     >
                                         <img
-                                            [src]="
-                                                asset.images?.length
-                                                    ? asset.images[0].url
-                                                    : ''
+                                            *ngIf="
+                                                asset.images?.length;
+                                                else placeholder
                                             "
+                                            [src]="asset.images[0]"
                                             class="max-w-full max-h-full object-contain"
                                         />
+                                        <ng-template #placeholder>
+                                            <img
+                                                class="m-auto"
+                                                src="assets/icons/asset-placeholder.svg"
+                                            />
+                                        </ng-template>
                                     </div>
                                     <div>
                                         <div class="truncate">
@@ -73,7 +82,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             >
                                 <a
                                     matRipple
-                                    class="bg-white dark:bg-neutral-700 rounded shadow w-40 h-44 text-left m-2"
+                                    class="bg-white dark:bg-neutral-700 rounded shadow w-40 h-44 text-left m-2 border border-gray-200 hover:border-indigo-400"
                                     *ngFor="
                                         let asset of (products | async)[
                                             group.id
@@ -86,16 +95,22 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                     ]"
                                 >
                                     <div
-                                        class="w-full h-32 flex items-center justify-center p-2"
+                                        class="w-full h-32 flex items-center justify-center p-2 bg-gray-100"
                                     >
                                         <img
-                                            [src]="
-                                                asset.images?.length
-                                                    ? asset.images[0].url
-                                                    : ''
+                                            *ngIf="
+                                                asset.images?.length;
+                                                else placeholder
                                             "
+                                            [src]="asset.images[0]"
                                             class="max-w-full max-h-full object-contain"
                                         />
+                                        <ng-template #placeholder>
+                                            <img
+                                                class="m-auto w-16"
+                                                src="assets/icons/asset-placeholder.svg"
+                                            />
+                                        </ng-template>
                                     </div>
                                     <div
                                         class="border-t border-gray-200 dark:border-neutral-500 w-full px-3 py-1"

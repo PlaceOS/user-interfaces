@@ -434,6 +434,7 @@ export class InviteVisitorFormComponent extends AsyncHandler {
                 booking_type: 'visitor',
                 asset_id: user.email,
                 asset_name: user.name,
+                user: user,
                 description: group,
                 name: user.name,
                 assets: [],

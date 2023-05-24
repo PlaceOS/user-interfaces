@@ -120,7 +120,10 @@ export class AssetManagerStateService extends AsyncHandler {
                 : list;
         })
     );
-    public readonly categories = combineLatest([this._options]).pipe(
+    public readonly categories = combineLatest([
+        this._options,
+        this._change,
+    ]).pipe(
         switchMap(() => queryAssetCategories()),
         shareReplay(1)
     );
@@ -164,7 +167,7 @@ export class AssetManagerStateService extends AsyncHandler {
     /** Mapping of available assets to categories */
     public readonly product_mapping = this.filtered_products.pipe(
         map((_) => {
-            const map = {};
+            const map = { _count: _.length };
             const categories = unique(_.map((i) => i.category_id));
             for (const group of categories) {
                 map[group] = _.filter((i) => i.category_id === group);
@@ -197,6 +200,10 @@ export class AssetManagerStateService extends AsyncHandler {
     /** Update the set view options */
     public setOptions(options: Partial<AssetOptions>) {
         this._options.next({ ...this._options.getValue(), ...options });
+    }
+
+    public postChange() {
+        this._change.next(Date.now());
     }
 
     public async setStatus(item: Booking, status: any) {

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { AssetManagerStateService } from './asset-manager-state.service';
 import {
+    AssetCategory,
     generateAssetGroupForm,
     saveAssetGroup,
     showAssetGroup,
@@ -8,7 +9,9 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { AssetCategoryFormComponent } from './asset-category-form.component';
-import { AsyncHandler, notifyError } from '@placeos/common';
+import { AsyncHandler, notifyError, unique } from '@placeos/common';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'asset-group-form',
@@ -100,7 +103,9 @@ import { AsyncHandler, notifyError } from '@placeos/common';
                         [routerLink]="['/asset-manager']"
                         >Cancel</a
                     >
-                    <button btn matRipple class="w-32">Save</button>
+                    <button btn matRipple class="w-32" (click)="save()">
+                        Save
+                    </button>
                 </footer>
             </div>
         </div>
@@ -117,7 +122,13 @@ import { AsyncHandler, notifyError } from '@placeos/common';
 })
 export class AssetGroupFormComponent extends AsyncHandler {
     public readonly form = generateAssetGroupForm();
-    public readonly categories = this._state.categories;
+    public readonly new_category = new BehaviorSubject<AssetCategory>(null);
+    public readonly categories = combineLatest([
+        this._state.categories,
+        this.new_category,
+    ]).pipe(
+        map(([list, item]) => (item ? unique([...list, item], 'id') : list))
+    );
     public loading: string = '';
     public current_category: string;
 
@@ -154,7 +165,11 @@ export class AssetGroupFormComponent extends AsyncHandler {
         this.form.patchValue({ category_id: this.current_category });
         const ref = this._dialog.open(AssetCategoryFormComponent);
         ref.afterClosed().subscribe((category?) => {
-            if (category) this.form.patchValue({ category_id: category.id });
+            if (category) {
+                this._state.postChange();
+                this.new_category.next(category);
+                this.form.patchValue({ category_id: category.id });
+            }
         });
     }
 

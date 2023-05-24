@@ -1,9 +1,10 @@
 export class AssetCategory {
-    id: string;
-    name: string;
-    parent_id?: string;
-    created_at: number;
-    updated_at: number;
+    id: string = '';
+    name: string = '';
+    description: string = '';
+    parent_id?: string = '';
+    created_at: number = Date.now();
+    updated_at: number = Date.now();
 
     constructor(data?: Partial<AssetCategory>) {
         Object.assign(this, data);

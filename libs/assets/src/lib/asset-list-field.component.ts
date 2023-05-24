@@ -17,7 +17,21 @@ const EMPTY_FAVS: string[] = [];
                 class="relative p-2 rounded-lg w-full flex items-center shadow border border-gray-200"
                 *ngFor="let asset of items"
             >
-                <div class="w-16 h-16 rounded-xl bg-black/20 mr-4"></div>
+                <div
+                    class="w-16 h-16 rounded-xl bg-black/20 mr-4 overflow-hidden flex items-center justify-center"
+                >
+                    <img
+                        *ngIf="asset.images?.length; else placeholder"
+                        [src]="asset.images[0]"
+                        class="min-h-full object-cover"
+                    />
+                    <ng-template #placeholder>
+                        <img
+                            class="m-auto"
+                            src="assets/icons/asset-placeholder.svg"
+                        />
+                    </ng-template>
+                </div>
                 <div class="pb-4">
                     <div class="font-medium">
                         {{

@@ -8,7 +8,7 @@ import {
     showAsset,
     showAssetGroup,
 } from '@placeos/assets';
-import { AsyncHandler, notifyError } from '@placeos/common';
+import { AsyncHandler, getInvalidFields, notifyError } from '@placeos/common';
 
 export class Asset {
     id: string;
@@ -178,7 +178,9 @@ export class Asset {
                     >
                         Cancel
                     </a>
-                    <button btn matRipple class="w-32">Save</button>
+                    <button btn matRipple class="w-32" (click)="save()">
+                        Save
+                    </button>
                 </footer>
             </div>
         </div>
@@ -224,16 +226,17 @@ export class AssetFormComponent extends AsyncHandler {
                 }
                 if (params.get('group_id')) {
                     this.loading = 'Loading Product Details...';
-                    const asset = await showAssetGroup(params.get('group_id'))
+                    const product = await showAssetGroup(params.get('group_id'))
                         .toPromise()
                         .catch(() => null);
-                    if (!asset) {
+                    if (!product) {
                         notifyError(
                             'Unable to load associated product details.'
                         );
                         this._router.navigate(['/asset-manager']);
                     }
-                    this.product = asset;
+                    this.product = product;
+                    this.form.patchValue({ type_id: product.id });
                     this.loading = '';
                 }
             })
@@ -241,7 +244,11 @@ export class AssetFormComponent extends AsyncHandler {
     }
 
     public async save() {
-        if (!this.form.valid) return;
+        if (!this.form.valid) {
+            return notifyError(
+                `Some fields are invalid. [${getInvalidFields(this.form)}]`
+            );
+        }
         this.loading = 'Saving Product...';
         const data = this.form.value;
         const item = await saveAsset(data as any)

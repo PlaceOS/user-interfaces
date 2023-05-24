@@ -69,26 +69,41 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 ]"
                                 [queryParams]="{ id: (item | async)?.id }"
                             >
-                                <div class="flex items-center text-secondary">
+                                <div
+                                    class="flex items-center text-blue-600 hover:text-blue-900"
+                                >
                                     <app-icon class="text-lg">edit</app-icon>
-                                    <div class="mr-2">Edit</div>
+                                    <div class="mr-2 underline">Edit</div>
                                 </div>
                             </a>
                             <div class="w-px h-4 bg-gray-300"></div>
                             <button btn matRipple class="clear">
                                 <div
-                                    class="flex items-center text-secondary"
+                                    class="flex items-center text-blue-600 hover:text-blue-900"
                                     customTooltip
                                     [content]="delete_tooltip"
                                 >
                                     <app-icon class="text-lg">delete</app-icon>
-                                    <div class="mr-2">Delete</div>
+                                    <div class="mr-2 underline">Delete</div>
                                 </div>
                             </button>
                         </div>
                     </div>
                     <div class="py-4 w-full flex-1 h-1/2 overflow-auto">
-                        {{ (item | async)?.description || '~No Description~' }}
+                        <ng-container
+                            *ngIf="
+                                (item | async)?.description;
+                                else no_desc_state
+                            "
+                        >
+                            {{
+                                (item | async)?.description ||
+                                    '~No Description~'
+                            }}
+                        </ng-container>
+                        <ng-template #no_desc_state>
+                            <span class="opacity-30">No Description</span>
+                        </ng-template>
                     </div>
                     <div
                         class="rounded bg-white dark:bg-neutral-700 shadow border border-gray-300 dark:border-neutral-500 w-full divide-y divide-gray-200 dark:divide-neutral-500"
@@ -127,7 +142,17 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             <div class="flex items-center p-2">
                                 <label>Barcode</label>
                                 <div>
-                                    {{ (item | async)?.barcode || '~None~' }}
+                                    <ng-container
+                                        *ngIf="
+                                            (item | async)?.barcode;
+                                            else none_state
+                                        "
+                                    >
+                                        {{ (item | async)?.barcode }}
+                                    </ng-container>
+                                    <ng-template #none_state>
+                                        <span class="opacity-30">None</span>
+                                    </ng-template>
                                 </div>
                             </div>
                             <div class="flex items-center p-2">
