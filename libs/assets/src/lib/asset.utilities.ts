@@ -53,9 +53,7 @@ export function generateAssetForm(asset: Asset = new Asset()) {
     return new FormGroup({
         id: new FormControl(asset.id),
         type_id: new FormControl(asset.type_id || '', [Validators.required]),
-        name: new FormControl(asset.name || '', [Validators.required]),
         description: new FormControl(asset.description || ''),
-        model_number: new FormControl(asset.model_number || ''),
         serial_number: new FormControl(asset.serial_number || ''),
         identifier: new FormControl(asset.identifier || ''),
         other_data: new FormControl(asset.other_data || {}),

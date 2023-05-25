@@ -17,6 +17,7 @@ import {
 } from 'libs/bookings/src/lib/bookings.fn';
 import { Booking } from 'libs/bookings/src/lib/booking.class';
 import { flatten } from '@placeos/common';
+import { ca } from 'date-fns/locale';
 
 const BASE_ENDPOINT = '/api/engine/v2';
 
@@ -131,7 +132,12 @@ export function updateAsset(id: string, asset: Partial<Asset>) {
 }
 
 export function saveAsset(asset: Asset) {
-    return asset.id ? updateAsset(asset.id, asset) : addAsset(asset);
+    return asset.id
+        ? updateAsset(asset.id, {
+              ...asset,
+              asset_type_id: asset.type_id,
+          } as any)
+        : addAsset({ ...asset, asset_type_id: asset.type_id } as any);
 }
 
 export function showAsset(id: string) {
@@ -201,8 +207,14 @@ export function updateAssetPurchaseOrder(
 
 export function saveAssetPurchaseOrder(order: AssetPurchaseOrder) {
     return order.id
-        ? updateAssetPurchaseOrder(order.id, order)
-        : addAssetPurchaseOrder(order);
+        ? updateAssetPurchaseOrder(order.id, {
+              ...order,
+              purchase_order_number: order.order_number,
+          } as any)
+        : addAssetPurchaseOrder({
+              ...order,
+              purchase_order_number: order.order_number,
+          } as any);
 }
 
 export function showAssetPurchaseOrder(id: string) {
@@ -244,13 +256,17 @@ export function showGroupFull(id: string) {
                 (category) => category.id === product.category_id
             );
             product.assets = assets.filter(
-                (asset) => asset.type_id === product.id
+                (asset) =>
+                    asset.type_id === product.id ||
+                    (asset as any).asset_type_id === product.id
             );
             product.purchase_orders = purchase_orders.filter((order) =>
                 product.assets.find(
                     (asset) => asset.purchase_order_id === order.id
                 )
             );
+            console.log('Product Data:', categories, assets, purchase_orders);
+            console.log('Product:', product);
             return product;
         })
     );
@@ -290,7 +306,11 @@ export async function updateAssetRequestsForResource(
     old_assets: Asset[]
 ) {
     const assets: Asset[] = flatten(
-        new_assets.map((_) => _.assets.slice(0, (_ as any).amount))
+        new_assets.map((_) =>
+            _.assets
+                .slice(0, (_ as any).amount)
+                .map((asset) => ({ ...asset, name: _.name }))
+        )
     );
     const bookings = await queryBookings({
         period_start: getUnixTime(startOfDay(date)),
@@ -314,7 +334,7 @@ export async function updateAssetRequestsForResource(
                     duration,
                     user_email: host,
                     id: item.id,
-                    asset_name: item.name,
+                    asset_name: (item as any).name,
                     extension_data: { parent_id },
                 })
             ).toPromise()

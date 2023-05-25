@@ -48,9 +48,7 @@ export class AssetGroup {
 export class Asset {
     id: string = '';
     type_id: string = '';
-    name: string = '';
     description: string = '';
-    model_number: string = '';
     serial_number: string = '';
     identifier: string = '';
     other_data: Record<string, any> = {};

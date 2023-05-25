@@ -169,6 +169,6 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
         this.form.reset();
         this.loading = '';
         notifySuccess('Successfully saved purchase order.');
-        this._router.navigate(['/asset-manager', 'view', item.id]);
+        this._router.navigate(['/asset-manager', 'view', this.product_id]);
     }
 }

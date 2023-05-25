@@ -10,21 +10,6 @@ import {
 } from '@placeos/assets';
 import { AsyncHandler, getInvalidFields, notifyError } from '@placeos/common';
 
-export class Asset {
-    id: string;
-    type_id: string;
-    name: string;
-    description: string;
-    model_number: string;
-    serial_number: string;
-    identifier: string;
-    other_data: Record<string, any>;
-    images: string[];
-    purchase_order_id: string;
-    purchase_price: number;
-    end_of_life_date: number;
-}
-
 @Component({
     selector: 'asset-form',
     template: `
@@ -39,30 +24,16 @@ export class Asset {
                     </h2>
                 </header>
                 <main class="flex-1 h-1/2 overflow-auto" [formGroup]="form">
-                    <div class="flex space-x-2">
-                        <div class="flex flex-1 flex-col space-y-2">
-                            <label for="name">Product<span>*</span></label>
-                            <mat-form-field appearance="outline">
-                                <input
-                                    matInput
-                                    [ngModel]="product?.name || 'No Product'"
-                                    [ngModelOptions]="{ standalone: true }"
-                                    [disabled]="true"
-                                />
-                            </mat-form-field>
-                        </div>
-                        <div class="flex flex-1 flex-col space-y-2">
-                            <label for="name">Name<span>*</span></label>
-                            <mat-form-field appearance="outline">
-                                <input
-                                    matInput
-                                    name="name"
-                                    placeholder="Name of the product"
-                                    formControlName="name"
-                                />
-                                <mat-error>Name is required</mat-error>
-                            </mat-form-field>
-                        </div>
+                    <div class="flex flex-1 flex-col space-y-2">
+                        <label for="name">Product<span>*</span></label>
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                [ngModel]="product?.name || 'No Product'"
+                                [ngModelOptions]="{ standalone: true }"
+                                [disabled]="true"
+                            />
+                        </mat-form-field>
                     </div>
                     <div class="flex flex-col space-y-2">
                         <label for="description">Description</label>
@@ -76,21 +47,7 @@ export class Asset {
                             <mat-error>Description is required</mat-error>
                         </mat-form-field>
                     </div>
-                    <div class="flex space-x-2">
-                        <div class="flex flex-1 flex-col space-y-2">
-                            <label for="model-number">
-                                Model Number<span>*</span>
-                            </label>
-                            <mat-form-field appearance="outline">
-                                <input
-                                    matInput
-                                    name="model-number"
-                                    placeholder="Model Number"
-                                    formControlName="model_number"
-                                />
-                                <mat-error>Model Number is required</mat-error>
-                            </mat-form-field>
-                        </div>
+                    <div class="flex items-center space-x-2">
                         <div class="flex flex-1 flex-col space-y-2">
                             <label for="serial-number">
                                 Serial Number<span>*</span>
@@ -105,18 +62,18 @@ export class Asset {
                                 <mat-error>Serial Number is required</mat-error>
                             </mat-form-field>
                         </div>
-                    </div>
-                    <div class="flex flex-col space-y-2">
-                        <label for="identifier">Identifier</label>
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                name="identifier"
-                                placeholder="Identifier"
-                                formControlName="identifier"
-                            />
-                            <mat-error>Identifier is required</mat-error>
-                        </mat-form-field>
+                        <div class="flex flex-1 flex-col space-y-2">
+                            <label for="identifier">Identifier</label>
+                            <mat-form-field appearance="outline">
+                                <input
+                                    matInput
+                                    name="identifier"
+                                    placeholder="Identifier"
+                                    formControlName="identifier"
+                                />
+                                <mat-error>Identifier is required</mat-error>
+                            </mat-form-field>
+                        </div>
                     </div>
                     <div class="flex space-x-2">
                         <div class="flex flex-1 flex-col space-y-2">
@@ -260,6 +217,6 @@ export class AssetFormComponent extends AsyncHandler {
             });
         this.form.reset();
         this.loading = '';
-        this._router.navigate(['/asset-manager', 'view', item.type_id]);
+        this._router.navigate(['/asset-manager', 'view', this.product?.id]);
     }
 }
