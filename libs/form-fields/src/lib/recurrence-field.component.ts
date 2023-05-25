@@ -99,7 +99,7 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
      * @param value The new value for the component
      */
     public writeValue(value: RecurrenceDetails) {
-        this.value = value;
+        this.value = value || ({} as any);
     }
 
     /* istanbul ignore next */
