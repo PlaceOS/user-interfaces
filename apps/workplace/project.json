@@ -138,7 +138,7 @@
             }
         },
         "lint": {
-            "executor": "@nrwl/linter:eslint",
+            "executor": "@nx/linter:eslint",
             "options": {
                 "lintFilePatterns": [
                     "apps/workplace/src/**/*.ts",
@@ -148,7 +148,7 @@
             "outputs": ["{options.outputFile}"]
         },
         "test": {
-            "executor": "@nrwl/jest:jest",
+            "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/apps/workplace"],
             "options": {
                 "jestConfig": "apps/workplace/jest.config.ts",

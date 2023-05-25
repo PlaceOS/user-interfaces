@@ -132,7 +132,7 @@
             }
         },
         "lint": {
-            "executor": "@nrwl/linter:eslint",
+            "executor": "@nx/linter:eslint",
             "options": {
                 "lintFilePatterns": [
                     "apps/concierge/src/**/*.ts",
@@ -142,7 +142,7 @@
             "outputs": ["{options.outputFile}"]
         },
         "test": {
-            "executor": "@nrwl/jest:jest",
+            "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/apps/concierge"],
             "options": {
                 "jestConfig": "apps/concierge/jest.config.ts",

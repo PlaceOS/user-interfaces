@@ -145,7 +145,7 @@
             }
         },
         "lint": {
-            "executor": "@nrwl/linter:eslint",
+            "executor": "@nx/linter:eslint",
             "options": {
                 "lintFilePatterns": [
                     "apps/outlook-addin/src/**/*.ts",
@@ -155,7 +155,7 @@
             "outputs": ["{options.outputFile}"]
         },
         "test": {
-            "executor": "@nrwl/jest:jest",
+            "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/apps/outlook-addin"],
             "options": {
                 "jestConfig": "apps/outlook-addin/jest.config.ts",

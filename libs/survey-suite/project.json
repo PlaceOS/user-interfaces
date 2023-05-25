@@ -6,7 +6,7 @@
     "prefix": "placeos",
     "targets": {
         "test": {
-            "executor": "@nrwl/jest:jest",
+            "executor": "@nx/jest:jest",
             "outputs": ["coverage/libs/survey-suite"],
             "options": {
                 "jestConfig": "libs/survey-suite/jest.config.ts",
@@ -14,7 +14,7 @@
             }
         },
         "lint": {
-            "executor": "@nrwl/linter:eslint",
+            "executor": "@nx/linter:eslint",
             "options": {
                 "lintFilePatterns": [
                     "libs/survey-suite/**/*.ts",

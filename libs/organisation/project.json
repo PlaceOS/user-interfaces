@@ -6,7 +6,7 @@
     "prefix": "placeos",
     "targets": {
         "lint": {
-            "executor": "@nrwl/linter:eslint",
+            "executor": "@nx/linter:eslint",
             "options": {
                 "lintFilePatterns": [
                     "libs/organisation/src/**/*.ts",
@@ -16,7 +16,7 @@
             "outputs": ["{options.outputFile}"]
         },
         "test": {
-            "executor": "@nrwl/jest:jest",
+            "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/libs/organisation"],
             "options": {
                 "jestConfig": "libs/organisation/jest.config.ts",
