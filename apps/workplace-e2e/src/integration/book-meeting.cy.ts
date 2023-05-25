@@ -176,6 +176,9 @@ describe('Booking Meetings', () => {
     //         });
     // });
 
+    // #endregion
+
+    // #region ROOM
     it('should search for available rooms based on the room capacity requirement bullet point', () => {
         // ********************************
         //Test is failing because when the '2 People' capacity bullet point is selected, the '1 People' filter is applied
@@ -226,9 +229,32 @@ describe('Booking Meetings', () => {
                     });
             });
     });
-    // #endregion
 
-    // #region ROOM
+    it('should add a selected space from the new-space-select-modal to the main booking page', () => {
+        cy.get('global-loading');
+        cy.get('meeting-flow-form');
+        cy.get('input#mat-radio-4-input')
+            .click({ force: true })
+            .then(() => {
+                cy.get('button[name="add-space"]')
+                    .click({ force: true })
+                    .then(() => {
+                        cy.wait(6000);
+                        cy.get('button[name="select-space"]')
+                            .first()
+                            .click({ force: true })
+                            .then(() => {
+                                cy.get('button[name="toggle-space"]')
+                                    .click({ force: true })
+                                    .then(() => {
+                                        cy.wait(6000);
+                                        cy.get('div[list]').should('exist');
+                                    });
+                            });
+                    });
+            });
+    });
+
     // #endregion
 
     // #region CATERING
