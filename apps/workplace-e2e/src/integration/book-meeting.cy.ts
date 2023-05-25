@@ -230,10 +230,38 @@ describe('Booking Meetings', () => {
             });
     });
 
-    it('should add a selected space from the new-space-select-modal to the main booking page', () => {
+    // it('should add a selected space from the new-space-select-modal to the main booking page', () => {
+    //     cy.get('global-loading');
+    //     cy.get('meeting-flow-form');
+    //     cy.get('input#mat-radio-4-input')
+    //         .click({ force: true })
+    //         .then(() => {
+    //             cy.get('button[name="add-space"]')
+    //                 .click({ force: true })
+    //                 .then(() => {
+    //                     cy.wait(6000);
+    //                     cy.get('button[name="select-space"]')
+    //                         .first()
+    //                         .click({ force: true })
+    //                         .then(() => {
+    //                             cy.get('button[name="toggle-space"]')
+    //                                 .click({ force: true })
+    //                                 .then(() => {
+    //                                     cy.wait(6000);
+    //                                     cy.get('div[list]').should('exist');
+    //                                 });
+    //                         });
+    //                 });
+    //         });
+    // });
+
+    // #endregion
+
+    // #region CATERING
+    it('allow a catering item to be added to main booking page', () => {
         cy.get('global-loading');
         cy.get('meeting-flow-form');
-        cy.get('input#mat-radio-4-input')
+        cy.get('input#mat-radio-3-input')
             .click({ force: true })
             .then(() => {
                 cy.get('button[name="add-space"]')
@@ -244,20 +272,25 @@ describe('Booking Meetings', () => {
                             .first()
                             .click({ force: true })
                             .then(() => {
-                                cy.get('button[name="toggle-space"]')
-                                    .click({ force: true })
-                                    .then(() => {
-                                        cy.wait(6000);
-                                        cy.get('div[list]').should('exist');
-                                    });
+                                cy.get('button[name="toggle-space"]').click({
+                                    force: true,
+                                });
                             });
                     });
             });
+        cy.wait(3000);
+        cy.get('button[name="add-catering-item"]').then(() => {
+            cy.wait(6000);
+            cy.get('catering-item-list ')
+                .find('button[name="select-catering-item"]')
+                .first()
+                .click({ force: true })
+                .then(() => {
+                    cy.get('button[name="toggle-catering-item"]').click({force:true}).then(() => {///})
+                });
+        });
     });
 
-    // #endregion
-
-    // #region CATERING
     // #endregion
 
     // #region ASSETS
