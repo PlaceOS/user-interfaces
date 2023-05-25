@@ -259,6 +259,16 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
                             queryParams: {},
                         });
                     });
+                } else if (params.has('feature')) {
+                    this.timeout('update_location', () => {
+                        this._state.setFeatures('_located', [
+                            {
+                                location: params.get('feature'),
+                                content: MapPinComponent,
+                                data: {},
+                            },
+                        ]);
+                    });
                 } else {
                     this.timeout('update_location', () => {
                         this._state.setFeatures('_located', []);
