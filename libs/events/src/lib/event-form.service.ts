@@ -538,6 +538,7 @@ export class EventFormService extends AsyncHandler {
                 }));
                 catering = [
                     new CateringOrder({
+                        deliver_at: d,
                         items,
                         notes: value.catering_notes,
                         charge_code: value.catering_charge_code,
