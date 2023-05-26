@@ -261,6 +261,11 @@ describe('Booking Meetings', () => {
     it('allow a catering item to be added to main booking page', () => {
         cy.get('global-loading');
         cy.get('meeting-flow-form');
+        cy.get('catering-list-field')
+            .find('div[list]')
+            .find('div[space]')
+            .should('not.exist');
+
         cy.get('input#mat-radio-3-input')
             .click({ force: true })
             .then(() => {
@@ -279,16 +284,35 @@ describe('Booking Meetings', () => {
                     });
             });
         cy.wait(3000);
-        cy.get('button[name="add-catering-item"]').then(() => {
-            cy.wait(6000);
-            cy.get('catering-item-list ')
-                .find('button[name="select-catering-item"]')
-                .first()
-                .click({ force: true })
-                .then(() => {
-                    cy.get('button[name="toggle-catering-item"]').click({force:true}).then(() => {///})
-                });
-        });
+        cy.get('body')
+            .click({ force: true })
+            .then(() => {
+                cy.get('button[name="add-catering-item"]')
+                    .click({ force: true })
+                    .then(() => {
+                        cy.wait(6000);
+                        cy.get('catering-item-list ')
+                            .find('button[name="select-catering-item"]')
+                            .first()
+                            .click({ force: true })
+                            .then(() => {
+                                cy.get('button[name="toggle-catering-item"]')
+                                    .click({ force: true })
+                                    .then(() => {
+                                        cy.get(
+                                            'button[name="catering-item-return"]'
+                                        )
+                                            .last()
+                                            .click({ force: true });
+                                        cy.wait(3000);
+                                        cy.get('catering-list-field')
+                                            .find('div[list]')
+                                            .find('div[space]')
+                                            .should('exist');
+                                    });
+                            });
+                    });
+            });
     });
 
     // #endregion
