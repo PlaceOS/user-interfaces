@@ -68,7 +68,7 @@ import { AsyncHandler, getInvalidFields, notifyError } from '@placeos/common';
                                 <input
                                     matInput
                                     name="identifier"
-                                    placeholder="Identifier"
+                                    placeholder="Identifier, Asset ID or Barcode"
                                     formControlName="identifier"
                                 />
                                 <mat-error>Identifier is required</mat-error>

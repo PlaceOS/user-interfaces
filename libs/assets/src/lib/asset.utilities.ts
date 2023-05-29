@@ -5,6 +5,7 @@ import {
     AssetGroup,
     AssetPurchaseOrder,
 } from './asset.class';
+import { addYears } from 'date-fns';
 
 export function generateAssetCategoryForm(category: AssetCategory = {} as any) {
     return new FormGroup({
@@ -27,11 +28,11 @@ export function generateAssetPurchaseOrderForm(
             Validators.required,
         ]),
         depreciation_start_date: new FormControl(
-            purchaseOrder.depreciation_start_date || 0,
+            purchaseOrder.depreciation_start_date || Date.now(),
             [Validators.required]
         ),
         depreciation_end_date: new FormControl(
-            purchaseOrder.depreciation_end_date || 0,
+            purchaseOrder.depreciation_end_date || addYears(Date.now(), 5),
             [Validators.required]
         ),
     });
