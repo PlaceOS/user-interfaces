@@ -86,16 +86,19 @@ import { AsyncHandler, getInvalidFields, notifyError } from '@placeos/common';
                                     placeholder="Select Purchase Order"
                                 >
                                     <mat-option
-                                        *ngIf="
+                                        *ngFor="
                                             let order of purchase_orders | async
                                         "
                                         [value]="order.id"
                                     >
-                                        {{ order.id }}
+                                        {{
+                                            order.purchase_order_number ||
+                                                order.invoice_number
+                                        }}
                                     </mat-option>
                                     <mat-option
                                         *ngIf="
-                                            (purchase_orders | async)?.length
+                                            !(purchase_orders | async)?.length
                                         "
                                         class="opacity-60"
                                         [disabled]="true"
