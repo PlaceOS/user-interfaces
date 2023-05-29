@@ -78,18 +78,34 @@ import { AsyncHandler, getInvalidFields, notifyError } from '@placeos/common';
                     <div class="flex space-x-2">
                         <div class="flex flex-1 flex-col space-y-2">
                             <label for="purchase-order-id">
-                                Purchase Order ID
+                                Purchase Order ID <span>*</span>
                             </label>
                             <mat-form-field appearance="outline">
-                                <input
-                                    matInput
-                                    name="purchase-order-id"
-                                    placeholder="Identifier"
+                                <mat-select
                                     formControlName="purchase_order_id"
-                                />
-                                <mat-error
-                                    >Purchase Order ID is required</mat-error
+                                    placeholder="Select Purchase Order"
                                 >
+                                    <mat-option
+                                        *ngIf="
+                                            let order of purchase_orders | async
+                                        "
+                                        [value]="order.id"
+                                    >
+                                        {{ order.id }}
+                                    </mat-option>
+                                    <mat-option
+                                        *ngIf="
+                                            (purchase_orders | async)?.length
+                                        "
+                                        class="opacity-60"
+                                        [disabled]="true"
+                                    >
+                                        No purchase orders
+                                    </mat-option>
+                                </mat-select>
+                                <mat-error>
+                                    Purchase Order ID is required
+                                </mat-error>
                             </mat-form-field>
                         </div>
                         <div class="flex flex-1 flex-col space-y-2">
@@ -154,6 +170,7 @@ import { AsyncHandler, getInvalidFields, notifyError } from '@placeos/common';
 })
 export class AssetFormComponent extends AsyncHandler {
     public readonly form = generateAssetForm();
+    public readonly purchase_orders = this._state.purchase_orders;
     public product: AssetGroup;
     public loading: string = '';
 

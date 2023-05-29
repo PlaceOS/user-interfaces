@@ -17,10 +17,12 @@ import {
 import {
     Asset,
     AssetGroup,
+    AssetPurchaseOrder,
     deleteAssetGroup,
     generateAssetForm,
     queryAssetCategories,
     queryAssetGroups,
+    queryAssetPurchaseOrders,
     saveAsset,
     showGroupFull,
 } from '@placeos/assets';
@@ -69,6 +71,16 @@ export class AssetManagerStateService extends AsyncHandler {
         tap(() => this._loading.next(false)),
         shareReplay(1)
     ) as any;
+    /** List of available assets */
+    public readonly purchase_orders: Observable<AssetPurchaseOrder[]> =
+        this._change.pipe(
+            switchMap(() => {
+                this._loading.next(true);
+                return queryAssetPurchaseOrders();
+            }),
+            tap(() => this._loading.next(false)),
+            shareReplay(1)
+        ) as any;
     /** List of requests made by users for assets */
     public readonly requests = combineLatest([
         this._poll,
