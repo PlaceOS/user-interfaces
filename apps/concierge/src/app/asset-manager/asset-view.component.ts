@@ -140,22 +140,6 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             class="bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500"
                         >
                             <div class="flex items-center p-2">
-                                <label>Barcode</label>
-                                <div>
-                                    <ng-container
-                                        *ngIf="
-                                            (item | async)?.barcode;
-                                            else none_state
-                                        "
-                                    >
-                                        {{ (item | async)?.barcode }}
-                                    </ng-container>
-                                    <ng-template #none_state>
-                                        <span class="opacity-30">None</span>
-                                    </ng-template>
-                                </div>
-                            </div>
-                            <div class="flex items-center p-2">
                                 <label>Brand</label>
                                 <div>
                                     {{ (item | async)?.brand || '~None~' }}
