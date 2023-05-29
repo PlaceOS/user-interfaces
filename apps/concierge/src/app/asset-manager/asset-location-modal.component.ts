@@ -5,6 +5,7 @@ import {
     AssetManagerStateService,
     AssetRequest,
 } from './asset-manager-state.service';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'asset-location-modal',
@@ -33,8 +34,8 @@ import {
                     <custom-table
                         [dataSource]="requests"
                         [columns]="[
-                            'location_floor',
-                            'location_name',
+                            'zones',
+                            'description',
                             'tracking',
                             'user_name'
                         ]"
@@ -47,8 +48,7 @@ import {
                         [column_size]="['4r', 'flex', '10r', '6r']"
                         [template]="{
                             tracking: tracking_template,
-                            location_floor: level_template,
-                            location_name: space_template
+                            zones: level_template,
                         }"
                         (row_clicked)="selected = $event; updateFeatures()"
                     ></custom-table>
@@ -83,17 +83,8 @@ import {
                 Select a space from the list to view map location
             </p>
         </ng-template>
-        <ng-template #space_template let-row="row">
-            {{
-                row.extension_data?.space?.display_name ||
-                    row.extension_data?.space?.name
-            }}
-        </ng-template>
-        <ng-template #level_template let-row="row">
-            {{
-                row.extension_data?.space?.level?.display_name ||
-                    row.extension_data?.space?.level?.name
-            }}
+        <ng-template #level_template let-data="data">
+            {{ level(data)?.display_name || 'N/A' }}
         </ng-template>
         <ng-template #tracking_template let-row="row">
             <button
@@ -104,7 +95,10 @@ import {
                 [disabled]="loading[row.id]"
             >
                 <div class="capitalize flex-1">
-                    {{ row.extension_data?.tracking | splitjoin }}
+                    {{
+                        (row.extension_data?.tracking | splitjoin) ||
+                            'In Storage'
+                    }}
                 </div>
                 <app-icon class="text-2xl">expand_more</app-icon>
             </button>
@@ -156,5 +150,12 @@ export class AssetLocationModalComponent {
         this.loading[item.id] = false;
     }
 
-    constructor(private _state: AssetManagerStateService) {}
+    constructor(
+        private _state: AssetManagerStateService,
+        private _org: OrganisationService
+    ) {}
+
+    public level(zones) {
+        return this._org.levelWithID(zones);
+    }
 }
