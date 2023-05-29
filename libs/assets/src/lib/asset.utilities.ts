@@ -65,7 +65,9 @@ export function generateAssetForm(asset: Asset = new Asset()) {
         purchase_price: new FormControl(asset.purchase_price || 0, [
             Validators.required,
         ]),
-        end_of_life_date: new FormControl(0),
+        end_of_life_date: new FormControl(
+            asset.end_of_life_date || addYears(Date.now(), 5)
+        ),
     });
 }
 
