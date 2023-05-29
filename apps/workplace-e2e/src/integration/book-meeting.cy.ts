@@ -318,6 +318,42 @@ describe('Booking Meetings', () => {
     // #endregion
 
     // #region ASSETS
+
+    it('allow an asset to be added to main booking page', () => {
+        cy.get('global-loading');
+        cy.get('meeting-flow-form');
+        cy.get('asset-list-field')
+            .find('div[list]')
+            .find('div[space]')
+            .should('not.exist');
+
+        cy.get('asset-list-field')
+            .find('button[add-space]')
+            .click({ force: true })
+            .then(() => {
+                cy.get('asset-list').should('exist');
+                cy.get('asset-list')
+                    .find('button[select]')
+                    .first()
+                    .click({ force: true })
+                    .then(() => {
+                        cy.get('button')
+                            .contains('div', 'Add to booking')
+                            .click({ force: true })
+                            .then(() => {
+                                cy.get('button')
+                                    .contains('div', 'Back to form')
+                                    .click({ force: true })
+                                    .then(() => {
+                                        cy.get('asset-list-field')
+                                            .find('div[list]')
+                                            .find('div[space]')
+                                            .should('exist');
+                                    });
+                            });
+                    });
+            });
+    });
     // #endregion
 
     // #region NOTES
