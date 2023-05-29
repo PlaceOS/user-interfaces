@@ -35,7 +35,7 @@ jobs:
 
             - name: NPM install
               if: steps.cache.outputs.cache-hit != 'true'
-              run: npm install --force
+              run: npm install
 
             - name: Get short hash
               id: vars
