@@ -441,7 +441,8 @@ form {
     }
 }
 
-custom-table[asset-requests] {
+custom-table[asset-requests],
+custom-table[purchase-orders] {
     cdk-row {
         background-color: #fff;
         [cdk-cell]:not(:first-child) {
@@ -746,7 +747,8 @@ a[icon] {
             }
         }
 
-        custom-table[asset-requests] {
+        custom-table[asset-requests],
+        custom-table[purchase-orders] {
             cdk-row {
                 background: none;
                 [cdk-cell]:not(:first-child) {

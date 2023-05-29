@@ -488,7 +488,16 @@ export class EventFormService extends AsyncHandler {
             if (assets?.length || event.extension_data.assets?.length) {
                 asset_list = await updateAssetRequestsForResource(
                     `${host}|${date}`,
-                    { date, duration, host },
+                    {
+                        date,
+                        duration,
+                        host,
+                        location_name: spaces[0]?.name || '',
+                        zones: spaces[0]?.zones || [
+                            this._org.building?.id,
+                            this._org.building?.parent_id,
+                        ],
+                    },
                     assets,
                     event.extension_data.assets
                 );

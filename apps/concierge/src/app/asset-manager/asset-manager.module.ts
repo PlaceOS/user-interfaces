@@ -22,6 +22,7 @@ import { AssetPurchaseOrderFormComponent } from './asset-purchase-order-form.com
 import { AssetCategoryFormComponent } from './asset-category-form.component';
 import { AssetFormComponent } from './asset-form.component';
 import { AssetGroupFormComponent } from './asset-group-form.component';
+import { AssetPurchaseOrderListComponent } from './asset-purchase-order-list.component';
 
 const COMPONENTS = [
     AssetManagerComponent,
@@ -39,6 +40,7 @@ const COMPONENTS = [
     AssetGroupFormComponent,
     AssetCategoryFormComponent,
     AssetPurchaseOrderFormComponent,
+    AssetPurchaseOrderListComponent,
 ];
 
 const ROUTES: Route[] = [
@@ -52,6 +54,10 @@ const ROUTES: Route[] = [
                 children: [
                     { path: 'items', component: AssetItemListComponent },
                     { path: 'requests', component: AssetRequestListComponent },
+                    {
+                        path: 'purchase-orders',
+                        component: AssetPurchaseOrderListComponent,
+                    },
                     { path: '**', redirectTo: 'requests' },
                 ],
             },

@@ -130,6 +130,10 @@ import { first, map, tap } from 'rxjs/operators';
                     <mat-error> Catering Order notes are required </mat-error>
                 </mat-form-field>
             </div>
+            <div class="flex flex-col flex-1">
+                <label for="space">Assets:</label>
+                <asset-list-field formControlName="assets"></asset-list-field>
+            </div>
         </form>
     `,
     styles: [``],

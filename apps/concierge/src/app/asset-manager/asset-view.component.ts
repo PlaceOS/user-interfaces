@@ -112,18 +112,37 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             <div class="pl-2">
                                 Available:
                                 {{
-                                    (item | async)?.count -
-                                        (item | async)?.assets?.length || 0
+                                    (item | async)?.assets.length -
+                                        (requests | async)?.length || 0
                                 }}
                             </div>
-                            <button btn matRipple>Assign to Location</button>
+                            <button
+                                btn
+                                matRipple
+                                [disabled]="
+                                    (item | async)?.assets.length -
+                                        (requests | async)?.length ===
+                                    0
+                                "
+                            >
+                                Assign to Location
+                            </button>
                         </div>
                         <div class="flex items-center justify-between p-3">
                             <div class="pl-2">
                                 In Use:
-                                {{ (item | async)?.assets?.length || 0 }}
+                                {{ (requests | async)?.length || 0 }}
                             </div>
-                            <button btn matRipple (click)="viewLocations()">
+                            <button
+                                btn
+                                matRipple
+                                (click)="viewLocations()"
+                                [disabled]="
+                                    (item | async)?.assets.length -
+                                        (requests | async)?.length !==
+                                    0
+                                "
+                            >
                                 View Locations
                             </button>
                         </div>
@@ -355,6 +374,7 @@ export class AssetViewComponent extends AsyncHandler {
     public loading = false;
     public deleting = false;
     public readonly item = this._state.active_product;
+    public readonly requests = this._state.active_product_requests;
     public readonly images = this.item.pipe(
         map((itm) => flatten(itm?.assets?.map(({ images }) => images) || []))
     );

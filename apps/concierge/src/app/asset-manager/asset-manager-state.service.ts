@@ -152,9 +152,7 @@ export class AssetManagerStateService extends AsyncHandler {
             return this.requests.pipe(
                 map((_) =>
                     _.filter((i) =>
-                        i.extension_data.assets.find(
-                            (a) => a.type_id === item.id
-                        )
+                        item.assets.find((asset) => asset.id === i.asset_id)
                     )
                 )
             );

@@ -303,7 +303,19 @@ export function queryGroupAvailability(query: BookingsQueryParams) {
 
 export async function updateAssetRequestsForResource(
     parent_id: string,
-    { date, duration, host }: { date: number; duration: number; host: string },
+    {
+        date,
+        duration,
+        host,
+        location_name,
+        zones,
+    }: {
+        date: number;
+        duration: number;
+        host: string;
+        location_name?: string;
+        zones?: string[];
+    },
     new_assets: AssetGroup[],
     old_assets: Asset[]
 ) {
@@ -332,12 +344,16 @@ export async function updateAssetRequestsForResource(
         assets.map((item) =>
             createBooking(
                 new Booking({
+                    type: 'asset-request',
+                    booking_type: 'asset-request',
                     date,
                     duration,
+                    description: location_name,
                     user_email: host,
                     asset_id: item.id,
                     asset_name: (item as any).name,
                     extension_data: { parent_id },
+                    zones: zones || [],
                 })
             ).toPromise()
         )

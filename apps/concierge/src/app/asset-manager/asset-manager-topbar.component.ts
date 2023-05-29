@@ -15,10 +15,19 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             >
                 Add Product
             </a>
+            <a
+                btn
+                matRipple
+                class="secondary"
+                *ngIf="active === 'purchase-orders'"
+                [routerLink]="['/asset-manager', 'manage', 'purchase-order']"
+            >
+                Add Purchase Order
+            </a>
             <mat-button-toggle-group
                 [ngModel]="(options | async)?.view"
                 (ngModelChange)="setOptions({ view: $event })"
-                *ngIf="show_actions"
+                *ngIf="active === 'items'"
             >
                 <mat-button-toggle value="grid">
                     <div
@@ -52,7 +61,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     styles: [``],
 })
 export class AssetManagerTopbarComponent {
-    @Input() public show_actions = true;
+    @Input() public active = '';
 
     public readonly options = this._state.options;
 
