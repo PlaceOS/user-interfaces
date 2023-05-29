@@ -116,7 +116,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         (requests | async)?.length || 0
                                 }}
                             </div>
-                            <button
+                            <!-- <button
                                 btn
                                 matRipple
                                 [disabled]="
@@ -126,7 +126,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 "
                             >
                                 Assign to Location
-                            </button>
+                            </button> -->
                         </div>
                         <div class="flex items-center justify-between p-3">
                             <div class="pl-2">
