@@ -19,7 +19,7 @@ describe('AssetSelectModalComponent', () => {
                 provide: SettingsService,
                 useValue: { get: jest.fn(), saveUserSetting: jest.fn() },
             },
-            { provide: MAT_DIALOG_DATA, useValue: [] }
+            { provide: MAT_DIALOG_DATA, useValue: [] },
         ],
         declarations: [
             MockComponent(IconComponent),
@@ -28,7 +28,7 @@ describe('AssetSelectModalComponent', () => {
             MockComponent(AssetListComponent),
             MockComponent(AssetDetailsComponent),
         ],
-        imports: [MatDialogModule]
+        imports: [MatDialogModule],
     });
 
     beforeEach(() => (spectator = createComponent()));
@@ -56,10 +56,12 @@ describe('AssetSelectModalComponent', () => {
 
     it('should allow toggling favourites', () => {
         const settings = spectator.inject(SettingsService);
-        settings.get.mockImplementation(() => []);
+        (settings.get as any).mockImplementation(() => []);
         spectator.component.toggleFavourite({ id: '1' } as any);
-        expect(settings.saveUserSetting).toBeCalledWith('favourite_assets', ['1']);
-        settings.get.mockImplementation(() => ['1']);
+        expect(settings.saveUserSetting).toBeCalledWith('favourite_assets', [
+            '1',
+        ]);
+        (settings.get as any).mockImplementation(() => ['1']);
         spectator.component.toggleFavourite({ id: '1' } as any);
         expect(settings.saveUserSetting).toBeCalledWith('favourite_assets', []);
     });

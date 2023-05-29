@@ -2,10 +2,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { fakeAsync, tick } from '@angular/core/testing';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { SettingsService } from '@placeos/common';
-import {
-    BuildingLevel,
-    OrganisationService,
-} from '@placeos/organisation';
+import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { BehaviorSubject, of } from 'rxjs';
 
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
@@ -47,7 +44,7 @@ describe('ExploreDesksService', () => {
             { provide: SettingsService, useValue: { get: jest.fn() } },
             { provide: DesksService, useValue: {} },
             { provide: BookingFormService, useValue: {} },
-            { provide: MatDialog, useValue: { open: jest.fn() } }
+            { provide: MatDialog, useValue: { open: jest.fn() } },
         ],
     });
 
@@ -72,7 +69,9 @@ describe('ExploreDesksService', () => {
         const bind = jest.fn();
         const binding = jest.fn(() => ({ listen: () => of(), bind }));
         (ts_client.getModule as any) = jest.fn();
-        (ts_client.getModule as any).mockImplementation(() => ({ binding }));
+        (ts_client.getModule as any).mockImplementation(() => {
+            binding;
+        });
         const state = spectator.inject(ExploreStateService);
         expect(ts_client.getModule).not.toHaveBeenCalled();
         (state as any).level.next(

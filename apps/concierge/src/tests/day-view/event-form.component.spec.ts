@@ -60,11 +60,11 @@ describe('EventFormComponent', () => {
         spectator.setInput({ form });
         spectator.detectChanges();
         const dialog = spectator.inject(MatDialog);
-        (dialog.open as any).mockImplementation(() => ({
+        (dialog.open as any).mockImplementation(() =>{
             componentInstance: { event: of({ reason: 'done' }) },
             afterClosed: () => of(true).pipe(delay(10)),
             close: jest.fn(),
-        }));
+        });
         await spectator.component.selectSpace();
         expect(form.patchValue).toBeCalledWith({ resources: undefined });
     });

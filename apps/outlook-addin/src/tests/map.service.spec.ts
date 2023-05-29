@@ -138,9 +138,9 @@ describe('MapService', () => {
         (mat_bottom_sheet as any).open.mockImplementation(
             (RoomDetailsComponent) => {}
         );
-        (mat_bottom_sheet as any).afterDismissed.mockImplementation(() => ({
+        (mat_bottom_sheet as any).afterDismissed.mockImplementation(() =>{
             value: of(true),
-        }));
+        });
         const room_confirm_service = spectator.inject(RoomConfirmService);
 
         const room_confirm_service_spy = jest.spyOn(

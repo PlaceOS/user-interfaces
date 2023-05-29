@@ -42,7 +42,10 @@ describe('SpaceFlowFindComponent', () => {
                 },
             },
             { provide: SettingsService, useValue: { get: jest.fn() } },
-            { provide: SpacePipe, useValue: { transform: jest.fn(async () => ({})) } },
+            {
+                provide: SpacePipe,
+                useValue: { transform: jest.fn(async () => ({})) },
+            },
         ],
         declarations: [
             MockComponent(SpaceFlowFindItemComponent),
@@ -99,7 +102,7 @@ describe('SpaceFlowFindComponent', () => {
         expect.assertions(4);
         expect(spectator.component.space_list).toHaveLength(0);
         const settings = spectator.inject(SettingsService);
-        settings.get.mockImplementation(() => true);
+        (settings.get as any).mockImplementation(() => true);
         const service = spectator.inject(EventFormService);
         (service.available_spaces as any).next(spaces);
         spectator.detectChanges();

@@ -168,7 +168,7 @@ describe('Event API Methods', () => {
             expect(guest).toBeInstanceOf(GuestUser);
             expect(ts_client.post).toHaveBeenCalledWith(
                 `/api/staff/v1/events/1/guests/guest-1/checkin?state=true`,
-                ""
+                ''
             );
             spy.mockReset();
         });
