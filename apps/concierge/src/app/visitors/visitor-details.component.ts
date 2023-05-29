@@ -184,7 +184,6 @@ export class VisitorDetailsComponent extends AsyncHandler implements OnChanges {
     };
 
     public readonly toggleRemote = async () => {
-        console.log('Event:', this.event);
         if (!this.is_event) {
             return notifyError(
                 'Unable to set remote status for standalone visitor bookings.'

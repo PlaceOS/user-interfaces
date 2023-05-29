@@ -87,7 +87,9 @@ describe('SpaceFlowFindComponent', () => {
         (service.available_spaces as any).next([{ id: 1 }, { id: 2 }]);
         const spy = jest.spyOn(spectator.component, 'confirmBooking');
         spectator.detectChanges();
-        spectator.inject(SpacePipe).transform.mockResolvedValue({} as any);
+        (spectator.inject(SpacePipe).transform as any).mockResolvedValue(
+            {} as any
+        );
         spectator.triggerEventHandler(
             'space-flow-find-item',
             'bookChange',

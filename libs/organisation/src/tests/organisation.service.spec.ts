@@ -84,7 +84,7 @@ describe('OrganisationService', () => {
 
     it('should load levels', async () => {
         const router = spectator.inject(Router);
-        router.navigate.mockReset();
+        (router.navigate as any).mockReset();
         const blds = [{ id: 'bld-1' }];
         const lvls = [
             { id: 'lvl-1', parent_id: 'bld-2' },
@@ -128,7 +128,7 @@ describe('OrganisationService', () => {
             expect(ts_client.showMetadata).toBeCalledWith(id, 'workplace_app');
         }
         expect(settings.overrides).toEqual([{}, {}, {}, {}]);
-        settings.get.mockReset();
+        (settings.get as any).mockReset();
         (settings as any).app_name = 'another';
         await spectator.service.loadSettings();
         expect(ts_client.showMetadata).toBeCalledWith('org-1', 'another_app');

@@ -81,20 +81,26 @@ describe('MeetingFlowFormComponent', () => {
         expect(spectator.query('space-list-field')).toExist());
 
     it('should show catering', () => {
-        spectator.inject(SettingsService).get.mockImplementation(() => true);
+        (spectator.inject(SettingsService).get as any).mockImplementation(
+            () => true
+        );
         spectator.detectChanges();
         expect(spectator.query('catering-list-field')).toExist();
-        spectator.inject(SettingsService).get.mockReset();
+        (spectator.inject(SettingsService).get as any).mockReset();
     });
 
     it('should show asset list', () => {
-        spectator.inject(SettingsService).get.mockImplementation(() => true);
+        (spectator.inject(SettingsService).get as any).mockImplementation(
+            () => true
+        );
         spectator.detectChanges();
         expect(spectator.query('asset-list-field')).toExist();
     });
 
     it('should show notes', () => {
-        spectator.inject(SettingsService).get.mockImplementation(() => false);
+        (spectator.inject(SettingsService).get as any).mockImplementation(
+            () => false
+        );
         spectator.detectChanges();
         expect(spectator.query('rich-text-input')).toExist();
     });

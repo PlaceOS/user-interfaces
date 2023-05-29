@@ -45,7 +45,7 @@ describe('ControlMainViewComponent', () => {
         spectator.component.ngOnInit();
         tick(400);
         expect(router.navigate).toBeCalledWith(['/bootstrap']);
-        router.navigate.mockClear();
+        (router.navigate as any).mockClear();
         (service as any).id = 'space-0';
         spectator.component.ngOnInit();
         tick(400);

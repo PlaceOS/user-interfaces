@@ -307,9 +307,11 @@ describe('FindSpaceComponent', () => {
         const event_service = spectator.inject(EventFormService);
         event_service.newForm();
         const mat_bottom_sheet = spectator.inject(MatBottomSheet);
-        mat_bottom_sheet.open.mockImplementation((template, config) => {
-            return '' as any;
-        });
+        (mat_bottom_sheet.open as any).mockImplementation(
+            (template, config) => {
+                return '' as any;
+            }
+        );
         const component_filter_spy = jest.spyOn(
             spectator.component,
             'openFilter'

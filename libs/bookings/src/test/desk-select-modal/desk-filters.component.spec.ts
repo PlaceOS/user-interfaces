@@ -80,7 +80,9 @@ describe('DeskFiltersComponent', () => {
 
     it('should allow setting all day', () => {
         expect('[formControlName="all_day"]').not.toExist();
-        spectator.inject(SettingsService).get.mockImplementation(() => true);
+        (spectator.inject(SettingsService).get as any).mockImplementation(
+            () => true
+        );
         spectator.detectChanges();
         expect('[formControlName="all_day"]').toExist();
     });
