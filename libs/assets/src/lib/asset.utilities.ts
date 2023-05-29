@@ -27,12 +27,12 @@ export function generateAssetPurchaseOrderForm(
         purchase_date: new FormControl(purchaseOrder.purchase_date || 0, [
             Validators.required,
         ]),
-        depreciation_start_date: new FormControl(
-            purchaseOrder.depreciation_start_date || Date.now(),
+        expected_service_start_date: new FormControl(
+            purchaseOrder.expected_service_start_date || Date.now(),
             [Validators.required]
         ),
-        depreciation_end_date: new FormControl(
-            purchaseOrder.depreciation_end_date || addYears(Date.now(), 5),
+        expected_service_end_date: new FormControl(
+            purchaseOrder.expected_service_end_date || addYears(Date.now(), 5),
             [Validators.required]
         ),
     });

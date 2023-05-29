@@ -94,6 +94,6 @@ export const MOCK_PURCHASE_ORDERS = Array(100)
         order_number: `Order ${i}`,
         invoice_number: `Invoice ${i}`,
         purchase_date: getUnixTime(Date.now()),
-        depreciation_start_date: getUnixTime(Date.now()),
-        depreciation_end_date: getUnixTime(Date.now() + 1000000000),
+        expected_service_start_date: getUnixTime(Date.now()),
+        expected_service_end_date: getUnixTime(Date.now() + 1000000000),
     }));

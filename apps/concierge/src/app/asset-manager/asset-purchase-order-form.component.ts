@@ -69,7 +69,7 @@ import { addYears, getUnixTime } from 'date-fns';
                             <a-date-field
                                 name="depreciation-start-date"
                                 [from]="from"
-                                formControlName="depreciation_start_date"
+                                formControlName="expected_service_start_date"
                             ></a-date-field>
                         </div>
                         <div class="flex flex-col space-y-2">
@@ -78,7 +78,7 @@ import { addYears, getUnixTime } from 'date-fns';
                             </label>
                             <a-date-field
                                 name="depreciation-end-date"
-                                formControlName="depreciation_end_date"
+                                formControlName="expected_service_end_date"
                             ></a-date-field>
                         </div>
                     </div>
@@ -157,8 +157,12 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
         this.loading = 'Saving Product...';
         const data = this.form.value;
         data.purchase_date = getUnixTime(data.purchase_date);
-        data.depreciation_start_date = getUnixTime(data.depreciation_end_date);
-        data.depreciation_end_date = getUnixTime(data.depreciation_end_date);
+        data.expected_service_start_date = getUnixTime(
+            data.expected_service_end_date
+        );
+        data.expected_service_end_date = getUnixTime(
+            data.expected_service_end_date
+        );
         const item = await saveAssetPurchaseOrder(data as any)
             .toPromise()
             .catch((e) => {

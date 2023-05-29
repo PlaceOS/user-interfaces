@@ -16,8 +16,8 @@ export class AssetPurchaseOrder {
     order_number: string;
     invoice_number: string;
     purchase_date: number;
-    depreciation_start_date: number;
-    depreciation_end_date: number;
+    expected_service_start_date: number;
+    expected_service_end_date: number;
     created_at: number;
     updated_at: number;
 

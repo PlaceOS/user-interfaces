@@ -19,8 +19,8 @@ import { Router } from '@angular/router';
                         'order_number',
                         'invoice_number',
                         'purchase_date',
-                        'depreciation_start_date',
-                        'depreciation_end_date'
+                        'expected_service_start_date',
+                        'expected_service_end_date'
                     ]"
                     [display_column]="[
                         'Order Number',
@@ -32,8 +32,8 @@ import { Router } from '@angular/router';
                     [column_size]="['flex', '10r', '12r', '12r', '12r']"
                     [template]="{
                     purchase_date: date_template,
-                    depreciation_start_date: date_template,
-                    depreciation_end_date: date_template,
+                    expected_service_start_date: date_template,
+                    expected_service_end_date: date_template,
                 }"
                     [empty]="
                         (filters | async)?.search
