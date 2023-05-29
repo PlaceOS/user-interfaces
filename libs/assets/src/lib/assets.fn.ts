@@ -291,7 +291,9 @@ export function queryGroupAvailability(query: BookingsQueryParams) {
         map(([products, assets]) => {
             for (const product of products) {
                 product.assets = assets.filter(
-                    (asset) => asset.type_id === product.id
+                    (asset) =>
+                        asset.type_id === product.id ||
+                        (asset as any).asset_type_id === product.id
                 );
             }
             return products;
@@ -333,7 +335,7 @@ export async function updateAssetRequestsForResource(
                     date,
                     duration,
                     user_email: host,
-                    id: item.id,
+                    asset_id: item.id,
                     asset_name: (item as any).name,
                     extension_data: { parent_id },
                 })

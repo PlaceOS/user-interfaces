@@ -6,7 +6,7 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { AssetStateService } from '../asset-state.service';
-import { Asset, AssetGroup } from '../asset.class';
+import { AssetGroup } from '../asset.class';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 

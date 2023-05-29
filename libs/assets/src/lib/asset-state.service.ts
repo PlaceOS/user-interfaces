@@ -12,7 +12,7 @@ import { queryAssets, queryGroupAvailability } from './assets.fn';
 import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { AssetGroup } from './asset.class';
-import { AssetGroupPipe, updateAssetGroupList } from './asset-group.pipe';
+import { updateAssetGroupList } from './asset-group.pipe';
 
 export interface AssetOptions {
     zone?: string;
@@ -47,6 +47,7 @@ export class AssetStateService {
         debounceTime(300),
         switchMap(({ zone, date }) => {
             this._loading.next(this._loading.getValue() + '[Bookings]');
+            console.log('Asset bookings', zone, date);
             return queryBookings({
                 zones: zone || '',
                 period_start: getUnixTime(startOfDay(date)),
@@ -63,13 +64,19 @@ export class AssetStateService {
     );
 
     public readonly available_groups = combineLatest([this._options]).pipe(
-        switchMap((options) =>
-            queryGroupAvailability(options as any).pipe(
-                catchError(() => of([] as AssetGroup[]))
-            )
+        switchMap(([{ zone, date }]) =>
+            queryGroupAvailability({
+                zones: zone || '',
+                period_start: getUnixTime(startOfDay(date)),
+                period_end: getUnixTime(endOfDay(date)),
+                type: 'asset-request',
+            }).pipe(catchError(() => of([] as AssetGroup[])))
         ),
         map((list) => list.sort((a, b) => a.name.localeCompare(b.name))),
-        tap((_) => updateAssetGroupList(_)),
+        tap((_) => {
+            console.log('Available Asset Groups:', _);
+            updateAssetGroupList(_);
+        }),
         shareReplay(1)
     );
 
