@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { DialogEvent } from '@placeos/common';
+import { DialogEvent, SettingsService } from '@placeos/common';
 import {
     SpaceSelectModalComponent,
     SpaceSelectModalData,
@@ -130,7 +130,7 @@ import { first, map, tap } from 'rxjs/operators';
                     <mat-error> Catering Order notes are required </mat-error>
                 </mat-form-field>
             </div>
-            <div class="flex flex-col flex-1">
+            <div class="flex flex-col flex-1" *ngIf="has_assets">
                 <label for="space">Assets:</label>
                 <asset-list-field formControlName="assets"></asset-list-field>
             </div>
@@ -166,6 +166,10 @@ export class EventFormComponent {
         )
     );
 
+    public get has_assets() {
+        return !!this._settings.get('app.events.has_assets');
+    }
+
     public get spaces() {
         return (
             this.form.controls?.resources?.value
@@ -176,6 +180,7 @@ export class EventFormComponent {
 
     constructor(
         private _dialog: MatDialog,
+        private _settings: SettingsService,
         private _catering: CateringOrderStateService
     ) {}
 
