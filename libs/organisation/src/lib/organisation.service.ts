@@ -18,7 +18,7 @@ import { Building } from './building.class';
 import { BuildingLevel } from './level.class';
 import { Organisation } from './organisation.class';
 import { Region } from './region.class';
-import { flatten, log } from '@placeos/common';
+import { flatten, log, unique } from '@placeos/common';
 
 @Injectable({
     providedIn: 'root',
@@ -238,13 +238,21 @@ export class OrganisationService {
         await this.loadRegions();
         if (!this._regions.getValue().length) {
             this._buildings.next(await this.loadBuildings());
+        } else {
+            for (const region of this._regions.getValue()) {
+                const blds = await this.loadBuildings(region.id);
+                if (blds.length) {
+                    this._buildings.next(blds);
+                    break;
+                }
+            }
         }
+        await this.loadSettings();
         if (!this._buildings.getValue()?.length) {
             log('ORG', 'Unable to find any building zones');
             this._router.navigate(['/misconfigured']);
         }
         await this.loadLevels();
-        await this.loadSettings();
     }
 
     /**
@@ -280,18 +288,11 @@ export class OrganisationService {
             limit: 500,
         } as any)
             .pipe(
-                map((i) => i.data),
+                map((i) => i.data.map((_) => new Region(_))),
                 catchError(() => of([]))
             )
             .toPromise();
-        const regions = [];
-        for (const item of list) {
-            const bindings: Record<string, any> = (
-                await showMetadata(item.id, 'bindings').toPromise()
-            )?.details;
-            regions.push(new Building({ ...item, bindings }));
-        }
-        this._regions.next(regions);
+        this._regions.next(list);
     }
 
     public async loadRegionData(region: Region): Promise<void> {
@@ -305,7 +306,9 @@ export class OrganisationService {
                 .toPromise(),
             this.loadBuildings(region.id),
         ]);
-        this._buildings.next([...this._buildings.getValue(), ...buildings]);
+        this._buildings.next(
+            unique([...this._buildings.getValue(), ...buildings], 'id')
+        );
         this._loaded_data[region.id] = true;
         (region as any).bindings = bindings;
         this._region_settings[region.id] = settings;
