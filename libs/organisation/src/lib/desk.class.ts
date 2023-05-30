@@ -1,4 +1,6 @@
-import { PlaceZone } from '@placeos/ts-client';
+import { PlaceZone, cleanObject } from '@placeos/ts-client';
+
+const IGNORE_KEYS = ['zone', 'qr_code'];
 
 export class Desk implements Record<string, any> {
     /** ID of the desk also map_id */
@@ -33,19 +35,17 @@ export class Desk implements Record<string, any> {
         this.features = data.features || [];
         this.images = data.images || [];
         for (const key in data) {
-            if (key in data && !(key in this)) this[key] = data[key];
+            if (!(key in this)) this[key] = data[key];
         }
     }
 
     public format() {
-        const { id, name, bookable, groups, features } = this;
-        return {
-            id,
-            name,
-            bookable,
-            groups,
-            features,
-        };
+        const data = { ...this };
+        for (const key of IGNORE_KEYS) {
+            delete data[key];
+        }
+        cleanObject(data, [undefined, null, '', []]);
+        return data;
     }
 
     public readonly toJSON = () => this.format();
