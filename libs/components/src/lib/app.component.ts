@@ -122,19 +122,11 @@ export class AppComponent extends AsyncHandler implements OnInit {
             notifySuccess('Successfully copied token.');
         });
         this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyV'], () => {
-            navigator.clipboard?.readText().then((tkn) => {
-                const parts = tkn.split('|');
-                const id = clientId();
-                localStorage.setItem(`${id}_access_token`, `${parts[0]}`);
-                localStorage.setItem(`${id}_refresh_token`, `${parts[1]}`);
-                localStorage.setItem(
-                    `${id}_expires_at`,
-                    `${addHours(new Date(), 6).valueOf()}`
-                );
-                notifySuccess('Successfully pasted token.');
-                setTimeout(() => location.reload(), 2000);
-            });
+            navigator.clipboard
+                ?.readText()
+                .then((tkn) => this._pasteToken(tkn));
         });
+        (window as any).pasteToken = (t) => this._pasteToken(t);
         this._initLocale();
         this._route.queryParamMap.subscribe((params) => {
             if (params.has('hide_nav'))
@@ -221,5 +213,18 @@ export class AppComponent extends AsyncHandler implements OnInit {
                 }
             }
         } catch {}
+    }
+
+    private _pasteToken(tkn: string) {
+        const parts = tkn.split('|');
+        const id = clientId();
+        localStorage.setItem(`${id}_access_token`, `${parts[0]}`);
+        localStorage.setItem(`${id}_refresh_token`, `${parts[1]}`);
+        localStorage.setItem(
+            `${id}_expires_at`,
+            `${addHours(new Date(), 6).valueOf()}`
+        );
+        notifySuccess('Successfully pasted token.');
+        setTimeout(() => location.reload(), 2000);
     }
 }
