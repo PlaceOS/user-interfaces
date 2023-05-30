@@ -309,19 +309,9 @@ export class OrganisationService {
             parent_id,
             limit: 500,
         } as any)
-            .pipe(map((i) => i.data))
+            .pipe(map((i) => i.data.map((_) => new Building(_))))
             .toPromise();
-        const buildings = [];
-        for (const bld of building_list) {
-            const bindings: Record<string, any> = (
-                await showMetadata(bld.id, 'bindings').toPromise()
-            )?.details;
-            const booking_rules: Record<string, any> = (
-                await showMetadata(bld.id, 'booking_rules').toPromise()
-            )?.details;
-            buildings.push(new Building({ ...bld, bindings, booking_rules }));
-        }
-        return buildings;
+        return building_list;
     }
 
     /**
