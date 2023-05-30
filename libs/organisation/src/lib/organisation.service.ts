@@ -33,7 +33,11 @@ export class OrganisationService {
     private readonly _buildings = new BehaviorSubject<Building[]>([]);
     private readonly _active_building = new BehaviorSubject<Building>(null);
     private readonly _levels = new BehaviorSubject<BuildingLevel[]>([]);
+    private readonly _loaded_data: string[] = [];
 
+    public readonly app_key = `${(
+        this._service.app_name || 'workplace'
+    ).toLowerCase()}_app`;
     /** Observable for the list of regions */
     public readonly region_list = this._regions.asObservable();
     /** Observable for the list of buildings */
@@ -135,7 +139,7 @@ export class OrganisationService {
     }
     public set building(bld: Building) {
         this._active_building.next(bld);
-        this._updateSettingOverrides();
+        this.loadBuildingData(bld).then(() => this._updateSettingOverrides());
         if (this.regions.length && this.region?.id !== bld.parent_id) {
             this.region = this.regions.find(
                 (_) => _.id === this.building.parent_id
@@ -324,6 +328,29 @@ export class OrganisationService {
         return buildings;
     }
 
+    public async loadBuildingData(bld: Building) {
+        if (this._loaded_data[bld.id]) return;
+        const [settings, bindings, booking_rules]: any = await Promise.all([
+            showMetadata(bld.id, this.app_key)
+                .pipe(map((_) => _?.details))
+                .toPromise(),
+            showMetadata(bld.id, 'bindings')
+                .pipe(map((_) => _?.details))
+                .toPromise(),
+            showMetadata(bld.id, 'booking_rules')
+                .pipe(map((_) => _?.details))
+                .toPromise(),
+        ]);
+        this._building_settings[bld.id] = settings || {};
+        const new_bld = new Building({ ...bld, bindings, booking_rules });
+        const index = this._buildings
+            .getValue()
+            .findIndex((_) => _.id === bld.id);
+        if (index >= 0) this._buildings.getValue()[index] = new_bld;
+        else this._buildings.getValue().push(new_bld);
+        this._loaded_data[bld.id] = true;
+    }
+
     /**
      * Load levels data for the buildings
      */
@@ -357,11 +384,8 @@ export class OrganisationService {
 
     public async loadSettings() {
         if (!this._organisation) return;
-        const app_name = `${(
-            this._service.app_name || 'workplace'
-        ).toLowerCase()}_app`;
         const app_settings = (
-            await showMetadata(this._organisation?.id, app_name).toPromise()
+            await showMetadata(this._organisation?.id, this.app_key).toPromise()
         )?.details;
         const global_settings = (
             await showMetadata(this._organisation?.id, 'settings').toPromise()
@@ -370,13 +394,7 @@ export class OrganisationService {
         const regions = this.regions;
         for (const item of regions) {
             this._region_settings[item.id] = (
-                await showMetadata(item.id, app_name).toPromise()
-            )?.details;
-        }
-        const buildings = this.buildings;
-        for (const bld of buildings) {
-            this._building_settings[bld.id] = (
-                await showMetadata(bld.id, app_name).toPromise()
+                await showMetadata(item.id, this.app_key).toPromise()
             )?.details;
         }
         this._service.overrides = [...this._settings];
