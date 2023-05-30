@@ -120,12 +120,14 @@ export class OrganisationService {
     public set region(item: Region) {
         if (!item) return;
         this._active_region.next(item);
-        if (
-            this.building?.parent_id !== item.id &&
-            this.buildingsForRegion(item).length
-        ) {
-            this.building = this.buildingsForRegion(item)[0];
-        } else this._updateSettingOverrides();
+        this.loadRegionData(item).then(() => {
+            if (
+                this.building?.parent_id !== item.id &&
+                this.buildingsForRegion(item).length
+            ) {
+                this.building = this.buildingsForRegion(item)[0];
+            } else this._updateSettingOverrides();
+        });
     }
 
     /** List of available buildings */
@@ -234,17 +236,7 @@ export class OrganisationService {
     private async load(): Promise<void> {
         await this.loadOrganisation();
         await this.loadRegions();
-        if (this._regions.getValue().length) {
-            this._buildings.next(
-                flatten(
-                    await Promise.all(
-                        this._regions
-                            .getValue()
-                            .map((_) => this.loadBuildings(_.id))
-                    )
-                )
-            );
-        } else {
+        if (!this._regions.getValue().length) {
             this._buildings.next(await this.loadBuildings());
         }
         if (!this._buildings.getValue()?.length) {
@@ -300,6 +292,23 @@ export class OrganisationService {
             regions.push(new Building({ ...item, bindings }));
         }
         this._regions.next(regions);
+    }
+
+    public async loadRegionData(region: Region): Promise<void> {
+        if (this._loaded_data[region.id]) return;
+        const [settings, bindings, buildings]: any = await Promise.all([
+            showMetadata(region.id, this.app_key)
+                .pipe(map((_) => _?.details))
+                .toPromise(),
+            showMetadata(region.id, 'bindings')
+                .pipe(map((_) => _?.details))
+                .toPromise(),
+            this.loadBuildings(region.id),
+        ]);
+        this._buildings.next([...this._buildings.getValue(), ...buildings]);
+        this._loaded_data[region.id] = true;
+        (region as any).bindings = bindings;
+        this._region_settings[region.id] = settings;
     }
 
     /**
@@ -381,12 +390,6 @@ export class OrganisationService {
             await showMetadata(this._organisation?.id, 'settings').toPromise()
         )?.details;
         this._settings = [global_settings, app_settings];
-        const regions = this.regions;
-        for (const item of regions) {
-            this._region_settings[item.id] = (
-                await showMetadata(item.id, this.app_key).toPromise()
-            )?.details;
-        }
         this._service.overrides = [...this._settings];
         await this._initialiseActiveBuilding();
         this._updateSettingOverrides();
