@@ -73,7 +73,7 @@ export async function openBookingModal(
                 </div>
             </div>
             <div class="flex flex-col" *ngIf="form.controls.title">
-                <label for="host">Title<span>*</span>:</label>
+                <label for="host">Title:</label>
                 <mat-form-field appearance="outline" class="w-full">
                     <input
                         matInput
@@ -81,7 +81,6 @@ export async function openBookingModal(
                         placeholder="Meeting Title"
                         formControlName="title"
                     />
-                    <mat-error>Title is required</mat-error>
                 </mat-form-field>
             </div>
         </form>
@@ -139,9 +138,7 @@ export class BookingModalComponent extends AsyncHandler {
         room_ids: new FormControl<string[]>([this._data.space?.email || '']),
         date: new FormControl(this._data.date || new Date().valueOf()),
         duration: new FormControl(Math.min(this._data.max_duration, 30)),
-        title: new FormControl(this._data.title || 'Ad-Hoc Panel Booking', [
-            Validators.required,
-        ]),
+        title: new FormControl(this._data.title),
     });
 
     constructor(@Inject(MAT_DIALOG_DATA) private _data: BookingModalData) {
@@ -160,7 +157,10 @@ export class BookingModalComponent extends AsyncHandler {
             this.loading = true;
             this.event.emit({
                 reason: 'done',
-                metadata: this.form.value,
+                metadata: {
+                    ...this.form.value,
+                    title: this.form.value || 'Ad-Hoc Panel Booking',
+                },
             });
         } else {
             console.log('Invalid form fields. Valid states:', this.form);
