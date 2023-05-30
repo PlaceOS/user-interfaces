@@ -357,5 +357,22 @@ describe('Booking Meetings', () => {
     // #endregion
 
     // #region NOTES
+    it('allow an asset to be added to main booking page', () => {
+        cy.get('global-loading');
+        cy.get('meeting-flow-form');
+        cy.contains('Test notes').should('not.exist');
+
+        cy.get('rich-text-input[name="notes"]')
+            .find('p')
+            .invoke('html', 'Test notes')
+            .then(() => {
+                cy.get('button[name="open-meeting-confirm"]')
+                    .click({ force: true })
+                    .then(() => {
+                        cy.contains('Test notes').should('exist');
+                        cy.contains('Test notes').should('be.visible');
+                    });
+            });
+    });
     // #endregion
 });
