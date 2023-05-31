@@ -191,9 +191,15 @@ export class ExploreSearchService {
 
     public async init() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
+        console.log('Init Search');
         const mod = moduleFromMetadata(
             this._org.binding('location_services'),
             'LocationServices'
+        );
+        console.log(
+            'Init Search:',
+            mod,
+            this._org.binding('location_services')
         );
         if (mod) {
             const binding = mod.binding('emergency_contacts');
