@@ -26,7 +26,6 @@ export class UserIdleTimeService {
 
     private _onUserInteraction() {
         this._last_action.next(Date.now());
-        console.log('User Interaction');
     }
 
     public async idleFor(time_ms: number) {

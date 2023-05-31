@@ -21,13 +21,7 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-import {
-    differenceInDays,
-    endOfDay,
-    getUnixTime,
-    isBefore,
-    startOfDay,
-} from 'date-fns';
+import { differenceInDays, getUnixTime, isBefore, startOfDay } from 'date-fns';
 import {
     AsyncHandler,
     currentUser,
@@ -58,6 +52,7 @@ import { Validators } from '@angular/forms';
 import { updateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
 import { filterSpacesFromRules } from './helpers';
 import { assetsToGroups } from 'libs/assets/src/lib/asset.utilities';
+import { User } from 'libs/users/src/lib/user.class';
 
 const BOOKING_URLS = [
     'book/spaces',
@@ -361,7 +356,6 @@ export class EventFormService extends AsyncHandler {
     }
 
     public async newForm(event: CalendarEvent = new CalendarEvent()) {
-        console.error('New Form:', event);
         this._event.next(event);
         for (const idx in event.resources) {
             const space = event.resources[idx];
@@ -387,12 +381,17 @@ export class EventFormService extends AsyncHandler {
                     ? Date.now()
                     : event.date,
             host: event?.host || currentUser().email,
+            organiser:
+                event?.organiser ||
+                currentUser() ||
+                new User({ email: event?.host }),
             catering: event.extension_data.catering[0]?.items || [],
             catering_charge_code:
                 event.extension_data.catering[0]?.charge_code ||
                 (event.id && has_catering ? ' ' : ''),
             assets: assetsToGroups(event.extension_data.assets || []),
         });
+        console.log('Form:', this._form.value);
         this._options.next({ features: [] });
         this.storeForm();
     }
