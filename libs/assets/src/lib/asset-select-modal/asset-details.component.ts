@@ -50,6 +50,7 @@ import { flatten } from '@placeos/common';
                     </div>
                     <a-counter
                         [(ngModel)]="item.amount"
+                        [min]="1"
                         [max]="item.assets?.length || 1"
                     ></a-counter>
                 </section>
@@ -122,11 +123,16 @@ export class AssetDetailsComponent {
         return this._images || [];
     }
 
+    public ngOnInit() {
+        if (this.item && !this.item.amount) this.item.amount = 1;
+    }
+
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.item && this.item) {
             this._images = flatten(
                 this.item?.assets?.map(({ images }) => images) || []
             );
+            if (!this.item.amount) this.item.amount = 1;
         }
     }
 }
