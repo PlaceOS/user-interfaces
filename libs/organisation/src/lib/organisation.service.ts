@@ -345,11 +345,10 @@ export class OrganisationService {
         ]);
         this._building_settings[bld.id] = settings || {};
         const new_bld = new Building({ ...bld, bindings, booking_rules });
-        const index = this._buildings
+        let buildings = this._buildings
             .getValue()
-            .findIndex((_) => _.id === bld.id);
-        if (index >= 0) this._buildings.getValue()[index] = new_bld;
-        else this._buildings.getValue().push(new_bld);
+            .filter((_) => _.id !== bld.id);
+        this._buildings.next([...buildings, new_bld]);
         this._loaded_data[bld.id] = true;
     }
 

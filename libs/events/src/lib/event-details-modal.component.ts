@@ -372,18 +372,18 @@ export class EventDetailsModalComponent {
     public space: Space = new Space();
 
     public accept_count = this._event.attendees.reduce(
-        (c, i) => (c += i.response_status === 'accepted' ? 1 : 0),
+        (count, user) => (count += user.response_status === 'accepted' ? 1 : 0),
         0
     );
     public declined_count = this._event.attendees.reduce(
-        (c, i) => (c += i.response_status === 'declined' ? 1 : 0),
+        (count, user) => (count += user.response_status === 'declined' ? 1 : 0),
         0
     );
     public pending_count = this._event.attendees.reduce(
-        (c, i) =>
-            (c +=
-                i.response_status === 'tentative' ||
-                i.response_status === 'needsAction'
+        (count, user) =>
+            (count +=
+                user.response_status === 'tentative' ||
+                user.response_status === 'needsAction'
                     ? 1
                     : 0),
         0
