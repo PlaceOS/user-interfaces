@@ -310,6 +310,31 @@ import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-moda
                         "
                     ></div>
                 </div>
+                <ng-container *ngIf="has_assets">
+                    <div
+                        class="mt-4 sm:p-4 sm:bg-white sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-gray-200 dark:border-neutral-500 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
+                    >
+                        <h3
+                            class="mx-3 pt-2 text-lg font-medium dark:border-neutral-500"
+                            i18n
+                        >
+                            Assets ({{ event.linked_bookings.length || 0 }})
+                        </h3>
+                        <div class="flex flex-col px-4 space-y-2">
+                            <div
+                                asset
+                                class="flex space-x-2"
+                                *ngFor="let item of event.linked_bookings"
+                            >
+                                <div details class="pt-0.5">
+                                    <div class="text-sm">
+                                        {{ item.asset_name || item.title }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
                 <button
                     icon
                     matRipple
@@ -366,6 +391,9 @@ export class EventDetailsModalComponent {
     ];
 
     public readonly has_catering = this.event?.ext('catering')?.length > 0;
+    public readonly has_assets = !!this.event?.linked_bookings?.find(
+        (_) => _.booking_type === 'asset-request'
+    );
 
     public level: BuildingLevel = new BuildingLevel();
     public building: Building = new Building();
@@ -439,6 +467,7 @@ export class EventDetailsModalComponent {
                 content: MapPinComponent,
             },
         ];
+        console.log('Has Assets:', this.has_assets);
     }
 
     public viewLocation() {

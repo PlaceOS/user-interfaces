@@ -28,6 +28,16 @@ export function setDefaultCreator(user: Identity) {
     if (user) _default_user = user;
 }
 
+export interface LinkedBooking {
+    id: string;
+    asset_id: string;
+    asset_name: string;
+    user_id: string;
+    user_name: string;
+    description: string;
+    booking_type: string;
+}
+
 type CalendarEventExtended = CalendarEvent & EventExtensionData;
 
 /** User's calendar event/booking */
@@ -99,6 +109,8 @@ export class CalendarEvent {
     /** Mailbox email address of the event */
     public readonly mailbox: string;
 
+    public readonly linked_bookings: LinkedBooking[];
+
     /** Get field from extension data */
     public ext<K extends keyof EventExtensionData>(key: K) {
         return this.extension_data[key];
@@ -165,6 +177,7 @@ export class CalendarEvent {
         this.master = data.master ? new CalendarEvent(data.master) : null;
         this.mailbox = data.mailbox || '';
         this.ical_uid = data.ical_uid;
+        this.linked_bookings = data.linked_bookings || [];
         if (data.recurring) {
             this.recurrence = {
                 start:

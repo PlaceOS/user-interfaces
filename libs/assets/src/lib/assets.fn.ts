@@ -330,13 +330,14 @@ export async function updateAssetRequestsForResource(
         type: 'asset-request',
         email: host,
         event_id: id,
-        ical_uid
+        ical_uid,
     }).toPromise();
     const filtered = bookings.filter(
         (item) =>
             item.extension_data.parent_id === id &&
             old_assets.find((_) => _.id === item.id)
     );
+    console.log('Assets:', assets);
     await Promise.all(
         filtered.map((item) => removeBooking(item.id).toPromise())
     );
@@ -352,6 +353,7 @@ export async function updateAssetRequestsForResource(
                     user_email: host,
                     asset_id: item.id,
                     asset_name: (item as any).name,
+                    title: (item as any).name,
                     extension_data: { parent_id: id },
                     zones: zones || [],
                 }),

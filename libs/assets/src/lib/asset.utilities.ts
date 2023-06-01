@@ -80,12 +80,13 @@ export function generateAssetForm(asset: Asset = new Asset()) {
 export function assetsToGroups(assets: Asset[]) {
     const groups: AssetGroup[] = [];
     for (const asset of assets) {
-        const group = groups.find((_) => _.id === asset.type_id);
+        const group = groups.find((_) => _.id === (asset as any).asset_type_id);
         if (group) {
             group.assets.push(asset);
         } else {
             groups.push({
-                id: asset.type_id,
+                id: (asset as any).asset_type_id,
+                name: (asset as any).name,
                 assets: [asset],
             } as AssetGroup);
         }
@@ -93,6 +94,7 @@ export function assetsToGroups(assets: Asset[]) {
     for (const group of groups) {
         group.amount = group.assets.length;
     }
+    console.log('Assets:', assets, groups);
     return groups;
 }
 

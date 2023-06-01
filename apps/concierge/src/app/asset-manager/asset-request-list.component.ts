@@ -25,7 +25,7 @@ import { OrganisationService } from '@placeos/organisation';
                     [dataSource]="requests"
                     [columns]="[
                         'user',
-                        'name',
+                        'title',
                         'date',
                         'period',
                         'zones',
@@ -60,7 +60,7 @@ import { OrganisationService } from '@placeos/organisation';
                         period: period_template,
                         approval: approval_template,
                         tracking: tracking_template,
-                        location_floor: level_template,
+                        zones: level_template,
                     }"
                     [empty]="
                         (filters | async)?.search

@@ -51,7 +51,10 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { Validators } from '@angular/forms';
 import { updateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
 import { filterSpacesFromRules } from './helpers';
-import { assetsToGroups } from 'libs/assets/src/lib/asset.utilities';
+import {
+    assetsToGroups,
+    groupsToAssets,
+} from 'libs/assets/src/lib/asset.utilities';
 import { User } from 'libs/users/src/lib/user.class';
 
 const BOOKING_URLS = [
@@ -411,8 +414,15 @@ export class EventFormService extends AsyncHandler {
 
     public loadForm() {
         if (!this._form) this.newForm();
+        const form_data = JSON.parse(
+            sessionStorage.getItem('PLACEOS.event_form') || '{}'
+        );
         this._form.patchValue({
-            ...JSON.parse(sessionStorage.getItem('PLACEOS.event_form') || '{}'),
+            ...form_data,
+            assets:
+                (form_data.assets.length && form_data.assets[0].type_id
+                    ? assetsToGroups(form_data.assets)
+                    : form_data.assets) || [],
         });
     }
 
@@ -555,7 +565,7 @@ export class EventFormService extends AsyncHandler {
                     attendees,
                     date: d,
                     catering,
-                    assets: [],
+                    assets: groupsToAssets(assets),
                     extension_data:
                         this._settings.get('app.events.force_host') ||
                         this._settings.get('app.events.room_as_host')
