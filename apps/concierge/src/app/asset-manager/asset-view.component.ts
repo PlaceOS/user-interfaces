@@ -175,31 +175,6 @@ import {
                 </mat-tab>
                 <mat-tab label="Purchase information">
                     <div class="max-w-[768px] mx-auto p-4">
-                        <h3 class="p-2">Timeline</h3>
-                        <div
-                            data-table
-                            class="bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500"
-                        >
-                            <div class="flex items-center p-2">
-                                <label>Purchase Date</label>
-                                <div>
-                                    {{
-                                        (item | async)?.purchase_date
-                                            | date: 'mediumDate'
-                                    }}
-                                </div>
-                            </div>
-                            <div class="flex items-center p-2">
-                                <label>Good Until</label>
-                                <div>
-                                    {{
-                                        (item | async)?.assets[0]
-                                            ?.end_of_life_date * 1000
-                                            | date: 'mediumDate'
-                                    }}
-                                </div>
-                            </div>
-                        </div>
                         <h3 class="p-2">Purchase Orders</h3>
                         <a
                             btn
@@ -214,26 +189,45 @@ import {
                         >
                             Add Purchase Order
                         </a>
-                        <div
-                            data-table
-                            class="bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500"
-                            *ngIf="
-                                (item | async)?.purchase_orders?.length;
-                                else empty_invoices
-                            "
+
+                        <custom-table
+                            asset-view
+                            class="w-full block text-sm"
+                            [dataSource]="(item | async)?.purchase_orders || []"
+                            [columns]="[
+                                'order_number',
+                                'invoice_number',
+                                'expected_service_start_date',
+                                'expected_service_end_date',
+                                'flexi',
+                                'actions'
+                            ]"
+                            [display_column]="[
+                                'Order Number',
+                                'Invoice Number',
+                                'Service Start',
+                                'Service End',
+                                ' ',
+                                ' '
+                            ]"
+                            [column_size]="[
+                                '10r',
+                                '10r',
+                                '10r',
+                                '10r',
+                                'flex',
+                                '8r'
+                            ]"
+                            [template]="{
+                                actions: po_action_template,
+                                expected_service_start_date: date_template,
+                                expected_service_end_date: date_template
+                            }"
+                            empty="No assets for this product"
                         >
-                            <div
-                                class="flex items-center p-2 space-x-2"
-                                *ngFor="
-                                    let order of (item | async)
-                                        ?.purchase_orders || []
-                                "
-                            >
-                                <label>{{ order.purchase_order_number }}</label>
-                                <div class="flex-1">
-                                    {{ order.invoice_number }}
-                                </div>
-                                <div>{{ order.price | currency: code }}</div>
+                        </custom-table>
+                        <ng-template #po_action_template let-row="row">
+                            <div class="flex w-full items-center justify-end">
                                 <a
                                     btn
                                     icon
@@ -244,8 +238,8 @@ import {
                                         'purchase-order'
                                     ]"
                                     [queryParams]="{
-                                        id: order.id,
-                                        group_id: (item | async)?.id
+                                        id: row.id,
+                                        group_id: row?.id
                                     }"
                                     class="clear"
                                 >
@@ -255,26 +249,12 @@ import {
                                     btn
                                     icon
                                     matRipple
-                                    (click)="removePurchaseOrder(asset)"
+                                    (click)="removePurchaseOrder(row)"
                                 >
                                     <app-icon class="text-lg">delete</app-icon>
                                 </button>
-                                <a
-                                    btn
-                                    icon
-                                    matRipple
-                                    *ngIf="order.url"
-                                    class="clear"
-                                    [href]="order.url | safe: 'url'"
-                                    target="_blank"
-                                    ref="noreferer noopener"
-                                >
-                                    <app-icon class="text-lg">
-                                        download
-                                    </app-icon>
-                                </a>
                             </div>
-                        </div>
+                        </ng-template>
                     </div>
                 </mat-tab>
                 <mat-tab label="Assets">
@@ -289,38 +269,43 @@ import {
                         >
                             Add Asset
                         </a>
-                        <div
-                            data-table
-                            class="bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500"
-                            *ngIf="
-                                (item | async)?.assets?.length;
-                                else empty_items
-                            "
+                        <custom-table
+                            asset-view
+                            class="w-full block text-sm"
+                            [dataSource]="(item | async)?.assets || []"
+                            [columns]="[
+                                'serial_number',
+                                'identifier',
+                                'purchase_order',
+                                'end_of_life_date',
+                                'flexi',
+                                'actions'
+                            ]"
+                            [display_column]="[
+                                'Serial Number',
+                                'Identifier',
+                                'Purchase Order',
+                                'End of Life',
+                                ' ',
+                                ' '
+                            ]"
+                            [column_size]="[
+                                '10r',
+                                '10r',
+                                '10r',
+                                '10r',
+                                'flex',
+                                '6r'
+                            ]"
+                            [template]="{
+                                actions: action_template,
+                                end_of_life_date: date_template
+                            }"
+                            empty="No assets for this product"
                         >
-                            <div
-                                class="flex items-center p-2 space-x-2"
-                                *ngFor="
-                                    let asset of (item | async)?.assets || []
-                                "
-                            >
-                                <div class="font-medium text-sm">
-                                    {{ asset.model_number }}
-                                    <span
-                                        class="opacity-30"
-                                        *ngIf="!asset.model_number"
-                                    >
-                                        No Model no.
-                                    </span>
-                                </div>
-                                <div class="flex-1">
-                                    {{ asset.serial_number }}
-                                </div>
-                                <div>
-                                    {{
-                                        asset.end_of_life_date * 1000
-                                            | date: 'mediumDate'
-                                    }}
-                                </div>
+                        </custom-table>
+                        <ng-template #action_template let-row="row">
+                            <div class="flex w-full items-center justify-end">
                                 <a
                                     btn
                                     icon
@@ -331,8 +316,8 @@ import {
                                         'asset'
                                     ]"
                                     [queryParams]="{
-                                        id: asset.id,
-                                        group_id: (item | async)?.id
+                                        id: row.id,
+                                        group_id: row?.id
                                     }"
                                     class="clear"
                                 >
@@ -342,12 +327,12 @@ import {
                                     btn
                                     icon
                                     matRipple
-                                    (click)="removeAsset(asset)"
+                                    (click)="removeAsset(row)"
                                 >
                                     <app-icon class="text-lg">delete</app-icon>
                                 </button>
                             </div>
-                        </div>
+                        </ng-template>
                     </div>
                 </mat-tab>
             </mat-tab-group>
@@ -359,6 +344,10 @@ import {
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>Loading product details...</p>
             </div>
+        </ng-template>
+        <ng-template #date_template let-data="data">
+            {{ data * 1000 | date: 'mediumDate' }}
+            <span *ngIf="!data" class="opacity-30"> No Date </span>
         </ng-template>
         <ng-template #delete_tooltip>
             <div

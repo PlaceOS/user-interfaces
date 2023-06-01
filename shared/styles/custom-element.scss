@@ -457,6 +457,31 @@ custom-table[purchase-orders] {
     }
 }
 
+custom-table[asset-view] {
+    border: 1px solid #ccc;
+    cdk-row {
+        background-color: #fff;
+        &:hover {
+            background-color: #0001;
+        }
+        &:nth-child(2n) {
+            background-color: #f6f6f6;
+        }
+    }
+
+    [cdk-cell],
+    [cdk-header-cell] {
+        min-width: 2.5rem;
+    } 
+
+    cdk-header-row {
+        background: #d0d0d0;
+        [cdk-header-cell] {
+            background: none;
+        }
+    }
+}
+
 custom-table[header-dark] {
     cdk-header-row {
         background: #263238 !important;
