@@ -46,7 +46,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     class="bg-white dark:bg-neutral-700 flex-1 w-1/2 h-[22.5rem]"
                 >
                     <image-carousel
-                        [images]="(images | async) || []"
+                        [images]="(item | async)?.images || []"
                     ></image-carousel>
                 </div>
                 <div class="w-[32rem] h-[22.5rem] px-4 flex flex-col">
@@ -375,9 +375,6 @@ export class AssetViewComponent extends AsyncHandler {
     public deleting = false;
     public readonly item = this._state.active_product;
     public readonly requests = this._state.active_product_requests;
-    public readonly images = this.item.pipe(
-        map((itm) => flatten(itm?.assets?.map(({ images }) => images) || []))
-    );
 
     @ViewChild(CustomTooltipComponent)
     public _tooltip_el: CustomTooltipComponent;

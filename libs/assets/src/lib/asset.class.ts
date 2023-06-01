@@ -35,6 +35,7 @@ export class AssetGroup {
     description: string;
     category?: AssetCategory;
     assets?: Asset[];
+    images: string[] = [];
     purchase_orders?: AssetPurchaseOrder[];
     amount?: number;
     created_at: number;
@@ -52,7 +53,6 @@ export class Asset {
     serial_number: string = '';
     identifier: string = '';
     other_data: Record<string, any> = {};
-    images: string[] = [];
     purchase_order_id: string = '';
     purchase_price: number = 0;
     end_of_life_date: number = 0;

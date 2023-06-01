@@ -45,6 +45,7 @@ export function generateAssetGroupForm(group: AssetGroup = new AssetGroup()) {
         category_id: new FormControl(group.category_id || '', [
             Validators.required,
         ]),
+        images: new FormControl(group.images || []),
         brand: new FormControl(group.brand || ''),
         name: new FormControl(group.name || '', [Validators.required]),
         description: new FormControl(group.description || ''),
@@ -59,7 +60,6 @@ export function generateAssetForm(asset: Asset = new Asset()) {
         serial_number: new FormControl(asset.serial_number || ''),
         identifier: new FormControl(asset.identifier || ''),
         other_data: new FormControl(asset.other_data || {}),
-        images: new FormControl(asset.images || []),
         purchase_order_id: new FormControl(asset.purchase_order_id, [
             Validators.required,
         ]),
@@ -98,5 +98,5 @@ export function groupsToAssets(groups: AssetGroup[]) {
                 .slice(0, (_ as any).amount)
                 .map((asset) => ({ ...asset, name: _.name }))
         )
-    )
+    );
 }

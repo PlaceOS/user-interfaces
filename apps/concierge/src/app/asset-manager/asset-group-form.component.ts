@@ -92,6 +92,13 @@ import { map } from 'rxjs/operators';
                             <mat-error>Description is required</mat-error>
                         </mat-form-field>
                     </div>
+                    <div class="flex flex-col space-y-2">
+                        <label for="images">Images</label>
+                        <image-list-field
+                            name="images"
+                            formControlName="images"
+                        ></image-list-field>
+                    </div>
                 </main>
                 <footer
                     class="flex justify-end space-x-2 p-2 border-t border-gray-100"

@@ -135,13 +135,6 @@ import { AsyncHandler, getInvalidFields, notifyError } from '@placeos/common';
                             formControlName="end_of_life_date"
                         ></a-date-field>
                     </div>
-                    <div class="flex flex-col space-y-2">
-                        <label for="images">Images</label>
-                        <image-list-field
-                            name="images"
-                            formControlName="images"
-                        ></image-list-field>
-                    </div>
                 </main>
                 <footer
                     class="flex justify-end space-x-2 p-2 border-t border-gray-100"

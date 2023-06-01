@@ -14,7 +14,7 @@ import { flatten } from '@placeos/common';
         <ng-container *ngIf="item; else empty_state">
             <section image class="relative w-full h-64 sm:h-40 bg-black/20">
                 <image-carousel
-                    [images]="images"
+                    [images]="item.images"
                     class="absolute inset-0"
                 ></image-carousel>
                 <button
@@ -117,21 +117,12 @@ export class AssetDetailsComponent {
     @Output() public activeChange = new EventEmitter<boolean>();
     @Output() public close = new EventEmitter<void>();
 
-    public _images: string[] = [];
-
-    public get images() {
-        return this._images || [];
-    }
-
     public ngOnInit() {
         if (this.item && !this.item.amount) this.item.amount = 1;
     }
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.item && this.item) {
-            this._images = flatten(
-                this.item?.assets?.map(({ images }) => images) || []
-            );
             if (!this.item.amount) this.item.amount = 1;
         }
     }
