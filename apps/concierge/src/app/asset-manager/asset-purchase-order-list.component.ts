@@ -45,7 +45,8 @@ import { Router } from '@angular/router';
             </div>
         </div>
         <ng-template #date_template let-data="data">
-            {{ data * 1000 || now | date: 'mediumDate' }}
+            <span class="opacity-30" *ngIf="!data">No Date set</span>
+            {{ data ? (data * 1000 | date: 'mediumDate') : '' }}
         </ng-template>
     `,
     styles: [

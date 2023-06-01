@@ -64,7 +64,7 @@ import { addYears, getUnixTime } from 'date-fns';
                     <div class="flex space-x-2">
                         <div class="flex flex-col space-y-2">
                             <label for="depreciation-start-date">
-                                Deprication Start Date
+                                Expected Service Start Date
                             </label>
                             <a-date-field
                                 name="depreciation-start-date"
@@ -74,7 +74,7 @@ import { addYears, getUnixTime } from 'date-fns';
                         </div>
                         <div class="flex flex-col space-y-2">
                             <label for="depreciation-end-date">
-                                Deprication End Date
+                                Expected Service End Date
                             </label>
                             <a-date-field
                                 name="depreciation-end-date"
@@ -93,7 +93,7 @@ import { addYears, getUnixTime } from 'date-fns';
                         [routerLink]="
                             product_id
                                 ? ['/asset-manager', 'view', product_id]
-                                : ['/asset-manager']
+                                : ['/asset-manager', 'list', 'purchase-orders']
                         "
                     >
                         Cancel
@@ -142,7 +142,15 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
                         notifyError('Unable to load purchase order details.');
                         this._router.navigate(['/asset-manager']);
                     }
-                    this.form.patchValue(asset);
+                    this.form.patchValue({
+                        ...asset,
+                        order_number: asset.purchase_order_number,
+                        purchase_date: asset.purchase_date * 1000,
+                        expected_service_end_date:
+                            asset.expected_service_end_date * 1000,
+                        expected_service_start_date:
+                            asset.expected_service_start_date * 1000,
+                    });
                     this.loading = '';
                 }
                 if (params.get('group_id')) {

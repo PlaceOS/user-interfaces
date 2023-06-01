@@ -17,23 +17,28 @@ export function generateAssetCategoryForm(category: AssetCategory = {} as any) {
 }
 
 export function generateAssetPurchaseOrderForm(
-    purchaseOrder: AssetPurchaseOrder = {} as any
+    order: AssetPurchaseOrder = {} as any
 ) {
     return new FormGroup({
-        id: new FormControl(purchaseOrder.id),
-        order_number: new FormControl(purchaseOrder.order_number || '', [
-            Validators.required,
-        ]),
-        invoice_number: new FormControl(purchaseOrder.invoice_number || ''),
-        purchase_date: new FormControl(purchaseOrder.purchase_date || 0, [
+        id: new FormControl(order.id),
+        order_number: new FormControl(
+            order.order_number || (order as any).purchase_order_number || '',
+            [Validators.required]
+        ),
+        invoice_number: new FormControl(order.invoice_number || ''),
+        purchase_date: new FormControl(order.purchase_date * 1000 || 0, [
             Validators.required,
         ]),
         expected_service_start_date: new FormControl(
-            purchaseOrder.expected_service_start_date || Date.now(),
+            order.expected_service_start_date * 1000 ||
+                (order as any).depreciation_start_date ||
+                Date.now(),
             [Validators.required]
         ),
         expected_service_end_date: new FormControl(
-            purchaseOrder.expected_service_end_date || addYears(Date.now(), 5),
+            order.expected_service_end_date * 1000 ||
+                (order as any).depreciation_end_date ||
+                addYears(Date.now(), 5),
             [Validators.required]
         ),
     });
