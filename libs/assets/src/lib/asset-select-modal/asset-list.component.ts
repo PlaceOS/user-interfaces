@@ -37,7 +37,7 @@ import { map } from 'rxjs/operators';
                             (click)="selectAsset(asset)"
                         >
                             <div
-                                class="relative w-16 h-16 rounded-xl bg-black/20 mr-4 flex items-center justify-center"
+                                class="relative w-16 h-16 rounded-xl bg-black/20 mr-4 flex items-center justify-center overflow-hidden border border-black/10"
                             >
                                 <div
                                     class="absolute top-1 left-1 border border-white bg-black/50 rounded-full h-6 w-6 flex items-center justify-center text-white"

@@ -84,8 +84,9 @@ export class AssetStateService {
             const s = search.toLowerCase();
             return assets.filter(
                 (_) =>
-                    _.name.toLowerCase().includes(s) ||
-                    _.description.toLowerCase().includes(s)
+                    _.assets?.length &&
+                    (_.name.toLowerCase().includes(s) ||
+                        _.description.toLowerCase().includes(s))
             );
         }),
         shareReplay(1)

@@ -275,7 +275,8 @@ export function queryAvailableAssets(query: BookingsQueryParams) {
     return combineLatest([queryAssets(), queryBookings(query)]).pipe(
         map(([assets, bookings]) =>
             assets.filter(
-                (asset) => !bookings.find((booking) => booking.id === asset.id)
+                (asset) =>
+                    !bookings.find((booking) => booking.asset_id === asset.id)
             )
         )
     );
