@@ -56,6 +56,7 @@ import {
     groupsToAssets,
 } from 'libs/assets/src/lib/asset.utilities';
 import { User } from 'libs/users/src/lib/user.class';
+import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 
 const BOOKING_URLS = [
     'book/spaces',
@@ -295,6 +296,7 @@ export class EventFormService extends AsyncHandler {
         private _router: Router,
         private _payments: PaymentsService,
         private _settings: SettingsService,
+        private _assets: AssetStateService,
         private _dialog: MatDialog
     ) {
         super();
@@ -312,7 +314,7 @@ export class EventFormService extends AsyncHandler {
         );
         this.subscription(
             'form_change',
-            this._form.valueChanges.subscribe(({ date, catering }) => {
+            this._form.valueChanges.subscribe(({ date, catering, assets }) => {
                 if (date && date !== this._date.getValue())
                     this._date.next(date);
                 this.storeForm();
@@ -360,6 +362,13 @@ export class EventFormService extends AsyncHandler {
 
     public async newForm(event: CalendarEvent = new CalendarEvent()) {
         this._event.next(event);
+        console.log(
+            'Ignore:',
+            event.extension_data.assets?.map((_) => _.id)
+        );
+        this._assets.setOptions({
+            ignore: event.extension_data.assets?.map((_) => _.id),
+        });
         for (const idx in event.resources) {
             const space = event.resources[idx];
             event.resources[idx] = await this._space_pipe.transform(
@@ -375,6 +384,10 @@ export class EventFormService extends AsyncHandler {
         const event =
             this._event.getValue() ||
             ({ extension_data: {} } as Partial<CalendarEvent>);
+
+        this._assets.setOptions({
+            ignore: event.extension_data.assets?.map((_) => _.id),
+        });
         const has_catering = !!event.extension_data.catering[0];
         this._form.patchValue({
             ...event,

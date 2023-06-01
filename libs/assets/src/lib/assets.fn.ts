@@ -270,22 +270,29 @@ export function showGroupFull(id: string) {
     );
 }
 
-export function queryAvailableAssets(query: BookingsQueryParams) {
+export function queryAvailableAssets(
+    query: BookingsQueryParams,
+    ignore?: string[]
+) {
     query.type = 'asset-request';
     return combineLatest([queryAssets(), queryBookings(query)]).pipe(
         map(([assets, bookings]) =>
             assets.filter(
                 (asset) =>
+                    ignore?.includes(asset.id) ||
                     !bookings.find((booking) => booking.asset_id === asset.id)
             )
         )
     );
 }
 
-export function queryGroupAvailability(query: BookingsQueryParams) {
+export function queryGroupAvailability(
+    query: BookingsQueryParams,
+    ignore?: string[]
+) {
     return combineLatest([
         queryAssetGroups(),
-        queryAvailableAssets(query),
+        queryAvailableAssets(query, ignore),
     ]).pipe(
         map(([products, assets]) => {
             for (const product of products) {
@@ -338,7 +345,6 @@ export async function updateAssetRequestsForResource(
             item.extension_data.parent_id === id &&
             old_assets.find((_) => _.id === item.id)
     );
-    console.log('Assets:', assets);
     await Promise.all(
         filtered.map((item) => removeBooking(item.id).toPromise())
     );

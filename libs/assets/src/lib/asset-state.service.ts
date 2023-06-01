@@ -17,6 +17,7 @@ import { updateAssetGroupList } from './asset-group.pipe';
 export interface AssetOptions {
     zone?: string;
     date: number;
+    ignore?: string[];
 }
 
 @Injectable({
@@ -63,14 +64,18 @@ export class AssetStateService {
     );
 
     public readonly available_groups = combineLatest([this._options]).pipe(
-        switchMap(([{ zone, date }]) =>
-            queryGroupAvailability({
-                zones: zone || '',
-                period_start: getUnixTime(startOfDay(date)),
-                period_end: getUnixTime(endOfDay(date)),
-                type: 'asset-request',
-            }).pipe(catchError(() => of([] as AssetGroup[])))
-        ),
+        switchMap(([{ zone, date, ignore }]) => {
+            console.log('Ignore: ', ignore);
+            return queryGroupAvailability(
+                {
+                    zones: zone || '',
+                    period_start: getUnixTime(startOfDay(date)),
+                    period_end: getUnixTime(endOfDay(date)),
+                    type: 'asset-request',
+                },
+                ignore
+            ).pipe(catchError(() => of([] as AssetGroup[])));
+        }),
         map((list) => list.sort((a, b) => a.name.localeCompare(b.name))),
         tap((_) => updateAssetGroupList(_)),
         shareReplay(1)
