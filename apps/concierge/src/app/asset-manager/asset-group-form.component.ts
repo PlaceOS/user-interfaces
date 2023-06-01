@@ -100,9 +100,14 @@ import { map } from 'rxjs/operators';
                         btn
                         matRipple
                         class="w-32 inverse"
-                        [routerLink]="['/asset-manager']"
-                        >Cancel</a
+                        [routerLink]="
+                            form.value.id
+                                ? ['/asset-manager', 'view', form.value.id]
+                                : ['/asset-manager', 'list', 'items']
+                        "
                     >
+                        Cancel
+                    </a>
                     <button btn matRipple class="w-32" (click)="save()">
                         Save
                     </button>
