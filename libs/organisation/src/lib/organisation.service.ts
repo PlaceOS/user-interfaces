@@ -344,11 +344,8 @@ export class OrganisationService {
                 .toPromise(),
         ]);
         this._building_settings[bld.id] = settings || {};
-        const new_bld = new Building({ ...bld, bindings, booking_rules });
-        let buildings = this._buildings
-            .getValue()
-            .filter((_) => _.id !== bld.id);
-        this._buildings.next([...buildings, new_bld]);
+        (bld as any).bindings = bindings;
+        (bld as any).booking_rules = booking_rules;
         this._loaded_data[bld.id] = true;
     }
 
