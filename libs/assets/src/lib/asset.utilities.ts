@@ -6,6 +6,7 @@ import {
     AssetPurchaseOrder,
 } from './asset.class';
 import { addYears } from 'date-fns';
+import { flatten } from '@placeos/common';
 
 export function generateAssetCategoryForm(category: AssetCategory = {} as any) {
     return new FormGroup({
@@ -88,4 +89,14 @@ export function assetsToGroups(assets: Asset[]) {
         group.amount = group.assets.length;
     }
     return groups;
+}
+
+export function groupsToAssets(groups: AssetGroup[]) {
+    return flatten(
+        groups.map((_) =>
+            _.assets
+                .slice(0, (_ as any).amount)
+                .map((asset) => ({ ...asset, name: _.name }))
+        )
+    )
 }

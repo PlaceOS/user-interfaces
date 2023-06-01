@@ -491,18 +491,6 @@ export class BookingFormService extends AsyncHandler {
                 invoice_id: receipt.invoice_id,
             };
         }
-        if (value.assets?.length || booking.extension_data.assets?.length) {
-            await updateAssetRequestsForResource(
-                `${value.booked_by_email}|${value.date}`,
-                {
-                    date: value.date,
-                    duration: value.duration,
-                    host: value.booked_by_email,
-                },
-                value.assets,
-                booking.extension_data.assets
-            );
-        }
         this._loading.next('Saving booking');
         const result = await saveBooking(
             new Booking({
@@ -526,6 +514,18 @@ export class BookingFormService extends AsyncHandler {
                 this._loading.next('');
                 throw e?.error || e;
             });
+        if (value.assets?.length || booking.extension_data.assets?.length) {
+            await updateAssetRequestsForResource(
+                result as any,
+                {
+                    date: value.date,
+                    duration: value.duration,
+                    host: value.booked_by_email,
+                },
+                value.assets,
+                booking.extension_data.assets
+            );
+        }
         this._loading.next('');
         const { booking_type } = value;
         this.clearForm();

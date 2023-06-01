@@ -17,7 +17,7 @@ import {
 } from 'libs/bookings/src/lib/bookings.fn';
 import { Booking } from 'libs/bookings/src/lib/booking.class';
 import { flatten } from '@placeos/common';
-import { ca } from 'date-fns/locale';
+import { CalendarEvent } from 'libs/events/src/lib/event.class';
 
 const BASE_ENDPOINT = '/api/engine/v2';
 
@@ -300,7 +300,7 @@ export function queryGroupAvailability(query: BookingsQueryParams) {
 }
 
 export async function updateAssetRequestsForResource(
-    parent_id: string,
+    { id, ical_uid }: Partial<CalendarEvent>,
     {
         date,
         duration,
@@ -329,10 +329,12 @@ export async function updateAssetRequestsForResource(
         period_end: getUnixTime(endOfDay(date)),
         type: 'asset-request',
         email: host,
+        event_id: id,
+        ical_uid
     }).toPromise();
     const filtered = bookings.filter(
         (item) =>
-            item.extension_data.parent_id === parent_id &&
+            item.extension_data.parent_id === id &&
             old_assets.find((_) => _.id === item.id)
     );
     await Promise.all(
@@ -350,9 +352,10 @@ export async function updateAssetRequestsForResource(
                     user_email: host,
                     asset_id: item.id,
                     asset_name: (item as any).name,
-                    extension_data: { parent_id },
+                    extension_data: { parent_id: id },
                     zones: zones || [],
-                })
+                }),
+                { ical_uid, event_id: id }
             ).toPromise()
         )
     );

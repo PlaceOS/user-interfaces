@@ -482,24 +482,6 @@ export class EventFormService extends AsyncHandler {
                     throw _;
                 });
             }
-            let asset_list = [];
-            if (assets?.length || event.extension_data.assets?.length) {
-                asset_list = await updateAssetRequestsForResource(
-                    `${host}|${date}`,
-                    {
-                        date,
-                        duration,
-                        host,
-                        location_name: spaces[0]?.name || '',
-                        zones: spaces[0]?.zones || [
-                            this._org.building?.id,
-                            this._org.building?.parent_id,
-                        ],
-                    },
-                    assets,
-                    event.extension_data.assets
-                );
-            }
             const is_owner =
                 host === currentUser()?.email ||
                 creator === currentUser()?.email;
@@ -573,7 +555,7 @@ export class EventFormService extends AsyncHandler {
                     attendees,
                     date: d,
                     catering,
-                    assets: asset_list,
+                    assets: [],
                     extension_data:
                         this._settings.get('app.events.force_host') ||
                         this._settings.get('app.events.room_as_host')
@@ -595,6 +577,24 @@ export class EventFormService extends AsyncHandler {
                 this._loading.next('');
                 throw e;
             });
+            let asset_list = [];
+            if (assets?.length || event.extension_data.assets?.length) {
+                asset_list = await updateAssetRequestsForResource(
+                    result,
+                    {
+                        date,
+                        duration,
+                        host,
+                        location_name: spaces[0]?.name || '',
+                        zones: spaces[0]?.zones || [
+                            this._org.building?.id,
+                            this._org.building?.parent_id,
+                        ],
+                    },
+                    assets,
+                    event.extension_data.assets
+                );
+            }
             this.clearForm();
             this.last_success = result;
             sessionStorage.setItem(

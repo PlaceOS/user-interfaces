@@ -28,6 +28,13 @@ export interface BookingComplete extends Booking {
     members?: User[];
 }
 
+export interface LinkedCalendarEvent {
+    system_id: string, 
+    resource_calendar: string, 
+    event_id: string, 
+    host_email: string
+};
+
 /** General purpose booking class */
 export class Booking {
     /** Unique Identifier of the object */
@@ -97,6 +104,8 @@ export class Booking {
     /** Time  */
     public readonly checked_out_at?: number;
 
+    public readonly linked_event?: LinkedCalendarEvent;
+
     public get group() {
         return this.extension_data.group || '';
     }
@@ -164,6 +173,7 @@ export class Booking {
         this.attendees = data.attendees || data.members || [];
         this.all_day = data.all_day ?? this.duration >= 12 * 60;
         this.checked_out_at = data.checked_out_at;
+        this.linked_event = data.linked_event || null;
         this.status =
             this.checked_out_at > 0
                 ? 'ended'
