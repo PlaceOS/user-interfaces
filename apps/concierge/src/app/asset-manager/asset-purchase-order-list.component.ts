@@ -16,7 +16,7 @@ import { Router } from '@angular/router';
                     class="block min-w-[60rem] text-sm"
                     [dataSource]="purchase_orders"
                     [columns]="[
-                        'order_number',
+                        'purchase_order_number',
                         'invoice_number',
                         'purchase_date',
                         'expected_service_start_date',
