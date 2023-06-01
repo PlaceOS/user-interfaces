@@ -2,13 +2,12 @@ import { Injectable } from '@angular/core';
 import {
     PlaceZoneMetadata,
     authority,
-    getModule,
     listChildMetadata,
     querySystems,
     queryUsers,
 } from '@placeos/ts-client';
 import { SettingsService, unique } from '@placeos/common';
-import { BehaviorSubject, combineLatest, Observable, of, timer } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -54,8 +53,14 @@ export class ExploreSearchService {
     private _user_search: Observable<StaffUser[]> = this._filter.pipe(
         debounceTime(400),
         tap(() => this._loading.next(true)),
-        switchMap((q) => (q?.length > 2 ? this.search_fn(q) : of([]))),
-        catchError(() => [])
+        switchMap((q) =>
+            q?.length > 2
+                ? (this.search_fn(q) as any as Observable<StaffUser[]>).pipe(
+                      catchError(() => of([] as StaffUser[]))
+                  )
+                : of([] as StaffUser[])
+        ),
+        shareReplay(1)
     );
 
     private _space_search: Observable<Space[]> = this._filter.pipe(
