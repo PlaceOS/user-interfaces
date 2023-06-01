@@ -117,14 +117,8 @@ export class SpaceSelectMapComponent extends AsyncHandler {
         this._change,
     ]).pipe(
         debounceTime(300),
-        map(([l]) => {
-            console.log(
-                'Data:',
-                this.selected,
-                this.active,
-                l.map((_) => _.id)
-            );
-            return l.map((space) => ({
+        map(([l]) =>
+            l.map((space) => ({
                 location: space.map_id,
                 content: SpaceLocationPinComponent,
                 data: {
@@ -132,8 +126,8 @@ export class SpaceSelectMapComponent extends AsyncHandler {
                     active: this.active === space.id,
                     selected: this.selected.includes(space.id),
                 },
-            }));
-        })
+            }))
+        )
     );
 
     public readonly actions = this._event_form.available_spaces.pipe(

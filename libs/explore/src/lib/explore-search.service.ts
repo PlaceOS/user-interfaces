@@ -92,7 +92,6 @@ export class ExploreSearchService {
                 }).pipe(catchError(() => of({ details: [] })))
             ),
             map((data: PlaceZoneMetadata[]) => {
-                console.log('Data:', data);
                 const list = [];
                 for (const item of data) {
                     const metadata = item.metadata.points_of_interest;
@@ -191,7 +190,6 @@ export class ExploreSearchService {
 
     public async init() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
-        console.log('Init Search');
         const mod = moduleFromMetadata(
             this._org.binding('location_services'),
             'LocationServices'

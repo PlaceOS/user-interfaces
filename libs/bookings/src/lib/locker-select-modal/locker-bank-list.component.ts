@@ -144,7 +144,6 @@ export class LockerBankListComponent {
         this._lockers.lockers_banks$,
     ]).pipe(
         map(([{ show_fav }, resources, banks]) => {
-            console.log('Banks', banks, resources);
             return banks
                 .filter(
                     (i) =>

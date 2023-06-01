@@ -91,7 +91,6 @@ export class ExploreLockersService extends AsyncHandler {
                         DEFAULT_COLOURS[`${value}`],
                 };
             }
-            console.log('Features:', features);
             this._explore.setStyles('lockers', map_status);
             this._explore.setFeatures('lockers', features);
         })
@@ -104,7 +103,6 @@ export class ExploreLockersService extends AsyncHandler {
         private _settings: SettingsService
     ) {
         super();
-        console.log('ExploreLockersService');
         this.subscription(
             'level',
             this._explore.level

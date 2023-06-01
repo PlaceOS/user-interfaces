@@ -47,7 +47,6 @@ export class AssetStateService {
         debounceTime(300),
         switchMap(({ zone, date }) => {
             this._loading.next(this._loading.getValue() + '[Bookings]');
-            console.log('Asset bookings', zone, date);
             return queryBookings({
                 zones: zone || '',
                 period_start: getUnixTime(startOfDay(date)),
@@ -73,10 +72,7 @@ export class AssetStateService {
             }).pipe(catchError(() => of([] as AssetGroup[])))
         ),
         map((list) => list.sort((a, b) => a.name.localeCompare(b.name))),
-        tap((_) => {
-            console.log('Available Asset Groups:', _);
-            updateAssetGroupList(_);
-        }),
+        tap((_) => updateAssetGroupList(_)),
         shareReplay(1)
     );
 

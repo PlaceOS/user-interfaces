@@ -156,7 +156,6 @@ export class ExploreParkingService extends AsyncHandler {
     }
 
     private _updateParkingSpaces(spaces, available) {
-        console.log('Spaces:', spaces, available);
         const styles = {};
         const labels = [];
         const colours = this._settings.get('app.explore.colors') || {};

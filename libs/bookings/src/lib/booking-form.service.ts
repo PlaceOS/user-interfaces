@@ -523,7 +523,6 @@ export class BookingFormService extends AsyncHandler {
         )
             .toPromise()
             .catch((e) => {
-                console.log('Error', e);
                 this._loading.next('');
                 throw e?.error || e;
             });

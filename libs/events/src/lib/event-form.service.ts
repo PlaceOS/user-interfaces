@@ -391,7 +391,6 @@ export class EventFormService extends AsyncHandler {
                 (event.id && has_catering ? ' ' : ''),
             assets: assetsToGroups(event.extension_data.assets || []),
         });
-        console.log('Form:', this._form.value);
         this._options.next({ features: [] });
         this.storeForm();
     }

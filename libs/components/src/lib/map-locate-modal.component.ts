@@ -80,7 +80,6 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
         if (!this.item.level?.id) {
             delete this.item.level;
         }
-        console.log('Data:', this._data);
     }
 
     public ngOnInit(): void {

@@ -265,8 +265,6 @@ export function showGroupFull(id: string) {
                     (asset) => asset.purchase_order_id === order.id
                 )
             );
-            console.log('Product Data:', categories, assets, purchase_orders);
-            console.log('Product:', product);
             return product;
         })
     );
