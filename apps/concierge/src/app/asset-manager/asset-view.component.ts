@@ -223,7 +223,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         ?.purchase_orders || []
                                 "
                             >
-                                <label>{{ order.order_number }}</label>
+                                <label>{{ order.purchase_order_number }}</label>
                                 <div class="flex-1">
                                     {{ order.invoice_number }}
                                 </div>
@@ -242,12 +242,15 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                     <app-icon class="text-lg">edit</app-icon>
                                 </a>
                                 <a
+                                    *ngIf="order.url"
                                     class="underline"
                                     [href]="order.url | safe: 'url'"
                                     target="_blank"
                                     ref="noreferer noopener"
                                 >
-                                    Download
+                                    <app-icon class="text-lg">
+                                        download
+                                    </app-icon>
                                 </a>
                             </div>
                         </div>
@@ -279,7 +282,15 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                     let asset of (item | async)?.assets || []
                                 "
                             >
-                                <label>{{ asset.name }}</label>
+                                <div class="font-medium text-sm">
+                                    {{ asset.model_number }}
+                                    <span
+                                        class="opacity-30"
+                                        *ngIf="!asset.model_number"
+                                    >
+                                        No Model no.
+                                    </span>
+                                </div>
                                 <div class="flex-1">
                                     {{ asset.serial_number }}
                                 </div>
