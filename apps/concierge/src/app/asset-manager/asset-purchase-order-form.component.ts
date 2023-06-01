@@ -158,6 +158,7 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
                 }
             })
         );
+        this._state.setOptions({ active_item: null });
     }
 
     public async save() {
@@ -179,9 +180,9 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
                 throw e;
             });
         this.form.reset();
-        this.loading = '';
-        this._state.postChange();
         notifySuccess('Successfully saved purchase order.');
+        this._state.postChange();
         this._router.navigate(['/asset-manager', 'view', this.product_id]);
+        this.loading = '';
     }
 }

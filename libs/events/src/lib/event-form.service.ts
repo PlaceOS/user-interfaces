@@ -362,10 +362,6 @@ export class EventFormService extends AsyncHandler {
 
     public async newForm(event: CalendarEvent = new CalendarEvent()) {
         this._event.next(event);
-        console.log(
-            'Ignore:',
-            event.extension_data.assets?.map((_) => _.id)
-        );
         this._assets.setOptions({
             ignore: event.extension_data.assets?.map((_) => _.id),
         });

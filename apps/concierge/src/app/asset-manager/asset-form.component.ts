@@ -211,6 +211,7 @@ export class AssetFormComponent extends AsyncHandler {
                 }
             })
         );
+        this._state.setOptions({ active_item: null });
     }
 
     public async save() {
@@ -229,8 +230,8 @@ export class AssetFormComponent extends AsyncHandler {
                 throw e;
             });
         this.form.reset();
-        this.loading = '';
         this._state.postChange();
         this._router.navigate(['/asset-manager', 'view', this.product?.id]);
+        this.loading = '';
     }
 }

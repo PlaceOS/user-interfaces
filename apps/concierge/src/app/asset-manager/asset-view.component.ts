@@ -1,12 +1,18 @@
 import { Component, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, flatten } from '@placeos/common';
+import { AsyncHandler, flatten, openConfirmModal } from '@placeos/common';
 import { CustomTooltipComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { first, map } from 'rxjs/operators';
 import { AssetLocationModalComponent } from './asset-location-modal.component';
 import { AssetManagerStateService } from './asset-manager-state.service';
+import {
+    Asset,
+    AssetPurchaseOrder,
+    deleteAsset,
+    deleteAssetPurchaseOrder,
+} from '@placeos/assets';
 
 @Component({
     selector: 'asset-view',
@@ -229,6 +235,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 </div>
                                 <div>{{ order.price | currency: code }}</div>
                                 <a
+                                    btn
+                                    icon
+                                    matRipple
                                     [routerLink]="[
                                         '/asset-manager',
                                         'manage',
@@ -238,12 +247,24 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         id: order.id,
                                         group_id: (item | async)?.id
                                     }"
+                                    class="clear"
                                 >
                                     <app-icon class="text-lg">edit</app-icon>
                                 </a>
+                                <button
+                                    btn
+                                    icon
+                                    matRipple
+                                    (click)="removePurchaseOrder(asset)"
+                                >
+                                    <app-icon class="text-lg">delete</app-icon>
+                                </button>
                                 <a
+                                    btn
+                                    icon
+                                    matRipple
                                     *ngIf="order.url"
-                                    class="underline"
+                                    class="clear"
                                     [href]="order.url | safe: 'url'"
                                     target="_blank"
                                     ref="noreferer noopener"
@@ -301,6 +322,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                     }}
                                 </div>
                                 <a
+                                    btn
+                                    icon
+                                    matRipple
                                     [routerLink]="[
                                         '/asset-manager',
                                         'manage',
@@ -310,9 +334,18 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         id: asset.id,
                                         group_id: (item | async)?.id
                                     }"
+                                    class="clear"
                                 >
                                     <app-icon class="text-lg">edit</app-icon>
                                 </a>
+                                <button
+                                    btn
+                                    icon
+                                    matRipple
+                                    (click)="removeAsset(asset)"
+                                >
+                                    <app-icon class="text-lg">delete</app-icon>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -439,5 +472,49 @@ export class AssetViewComponent extends AsyncHandler {
             this.clearTimeout('no_asset');
             this.loading = false;
         });
+    }
+
+    public async removeAsset(asset: Asset) {
+        const resp = await openConfirmModal(
+            {
+                title: 'Delete asset',
+                content: `Are you sure you want to delete this asset?`,
+                confirm_text: 'Delete',
+                icon: { content: 'delete' },
+            },
+            this._dialog
+        );
+        if (resp.reason !== 'done') return;
+        resp.loading('Deleting asset...');
+        await deleteAsset(asset.id).toPromise();
+        const item = await this._state.active_product.pipe(first()).toPromise();
+        this._state.setOptions({ active_item: '' });
+        setTimeout(
+            () => this._state.setOptions({ active_item: item.id }),
+            1000
+        );
+        resp.close();
+    }
+
+    public async removePurchaseOrder(asset: AssetPurchaseOrder) {
+        const resp = await openConfirmModal(
+            {
+                title: 'Delete purchase order',
+                content: `Are you sure you want to delete this purchase order?`,
+                confirm_text: 'Delete',
+                icon: { content: 'delete' },
+            },
+            this._dialog
+        );
+        if (resp.reason !== 'done') return;
+        resp.loading('Deleting purchase order...');
+        await deleteAssetPurchaseOrder(asset.id).toPromise();
+        const item = await this._state.active_product.pipe(first()).toPromise();
+        this._state.setOptions({ active_item: '' });
+        setTimeout(
+            () => this._state.setOptions({ active_item: item.id }),
+            1000
+        );
+        resp.close();
     }
 }
