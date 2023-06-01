@@ -172,6 +172,7 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
             });
         this.form.reset();
         this.loading = '';
+        this._state.postChange();
         notifySuccess('Successfully saved purchase order.');
         this._router.navigate(['/asset-manager', 'view', this.product_id]);
     }

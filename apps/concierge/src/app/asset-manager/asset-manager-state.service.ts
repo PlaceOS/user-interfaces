@@ -213,7 +213,7 @@ export class AssetManagerStateService extends AsyncHandler {
     }
 
     public postChange() {
-        this._change.next(Date.now());
+        this.timeout('change', () => this._change.next(Date.now()), 1000);
     }
 
     public async setStatus(item: Booking, status: any) {

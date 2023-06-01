@@ -230,6 +230,7 @@ export class AssetFormComponent extends AsyncHandler {
             });
         this.form.reset();
         this.loading = '';
+        this._state.postChange();
         this._router.navigate(['/asset-manager', 'view', this.product?.id]);
     }
 }
