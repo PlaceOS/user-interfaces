@@ -41,7 +41,7 @@ import { notifyError } from '@placeos/common';
                 <label for="name">Parent Category</label>
                 <mat-form-field appearance="outline">
                     <mat-select
-                        formControlName="parent_id"
+                        formControlName="parent_category_id"
                         placeholder="No Parent"
                         [disabled]="!(categories | async)?.length"
                     >
@@ -75,7 +75,9 @@ export class AssetCategoryFormComponent {
     public loading = false;
     public readonly form = generateAssetCategoryForm();
     public readonly categories = this._state.categories.pipe(
-        map((list) => list.filter((_) => _.parent_id !== this.form.value.id))
+        map((list) =>
+            list.filter((_) => _.parent_category_id !== this.form.value.id)
+        )
     );
 
     constructor(

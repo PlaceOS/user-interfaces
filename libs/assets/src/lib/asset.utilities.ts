@@ -12,7 +12,7 @@ export function generateAssetCategoryForm(category: AssetCategory = {} as any) {
     return new FormGroup({
         id: new FormControl(category.id),
         name: new FormControl(category.name || '', [Validators.required]),
-        parent_id: new FormControl(category.parent_id),
+        parent_category_id: new FormControl(category.parent_category_id),
     });
 }
 
@@ -94,7 +94,6 @@ export function assetsToGroups(assets: Asset[]) {
     for (const group of groups) {
         group.amount = group.assets.length;
     }
-    console.log('Assets:', assets, groups);
     return groups;
 }
 

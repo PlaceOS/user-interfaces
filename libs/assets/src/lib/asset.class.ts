@@ -2,7 +2,7 @@ export class AssetCategory {
     id: string = '';
     name: string = '';
     description: string = '';
-    parent_id?: string = '';
+    parent_category_id?: string = '';
     created_at: number = Date.now();
     updated_at: number = Date.now();
 
