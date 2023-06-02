@@ -57,6 +57,7 @@ import {
 } from 'libs/assets/src/lib/asset.utilities';
 import { User } from 'libs/users/src/lib/user.class';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
+import { removeEvent } from './events.fn';
 
 const BOOKING_URLS = [
     'book/spaces',
@@ -612,7 +613,10 @@ export class EventFormService extends AsyncHandler {
                     },
                     assets,
                     event.extension_data.assets
-                );
+                ).catch(async (e) => {
+                    await removeEvent(result.id).toPromise();
+                    throw e;
+                });
             }
             this.clearForm();
             this.last_success = result;
