@@ -4,7 +4,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { MockModule } from 'ng-mocks';
 import { HostSelectFieldComponent } from '../lib/host-select-field.component';
 import { of } from 'rxjs';
-import { StaffUser } from 'libs/users/src/lib/user.class';
+import { StaffUser, User } from 'libs/users/src/lib/user.class';
 
 jest.mock('@placeos/users');
 jest.mock('libs/calendar/src/lib/calendar.fn');
@@ -44,13 +44,13 @@ describe('HostSelectFieldComponent', () => {
         expect(spectator.component.item).toBe(user);
     });
 
-    it('should handle internal value changes', () => {
+    it('should handle internal value changes', async () => {
         expect(spectator.component.item).toBeUndefined();
-        const user = new StaffUser({ email: 'test@t.com' });
+        const user = new User({ email: 'test@t.com' });
         const spy = jest.fn();
         spectator.component.registerOnChange(spy);
-        spectator.component.setValue(user);
-        expect(spectator.component.item).toBe(user);
+        await spectator.component.setValue(user.email);
+        expect(spectator.component.item.email).toBe(user.email);
         expect(spy).toBeCalledWith(user);
     });
 

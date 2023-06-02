@@ -430,7 +430,7 @@ export class EventFormService extends AsyncHandler {
         this._form.patchValue({
             ...form_data,
             assets:
-                (form_data.assets.length && form_data.assets[0].type_id
+                (form_data.assets?.length && form_data.assets[0].type_id
                     ? assetsToGroups(form_data.assets)
                     : form_data.assets) || [],
         });

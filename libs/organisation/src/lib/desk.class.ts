@@ -1,6 +1,6 @@
 import { PlaceZone, cleanObject } from '@placeos/ts-client';
 
-const IGNORE_KEYS = ['zone', 'qr_code'];
+const IGNORE_KEYS = ['zone', 'qr_code', 'toJSON'];
 
 export class Desk implements Record<string, any> {
     /** ID of the desk also map_id */
@@ -44,7 +44,7 @@ export class Desk implements Record<string, any> {
         for (const key of IGNORE_KEYS) {
             delete data[key];
         }
-        cleanObject(data, [undefined, null, '', []]);
+        cleanObject(data, [undefined, null, []]);
         return data;
     }
 

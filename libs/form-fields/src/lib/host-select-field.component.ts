@@ -13,7 +13,7 @@ import { catchError, map, shareReplay, switchMap, take } from 'rxjs/operators';
     template: `
         <mat-form-field appearance="outline" class="w-full">
             <mat-select
-                [ngModel]="this.item.email"
+                [ngModel]="this.item?.email"
                 (ngModelChange)="setValue($event)"
                 [disabled]="disabled"
                 [placeholder]="
@@ -23,13 +23,13 @@ import { catchError, map, shareReplay, switchMap, take } from 'rxjs/operators';
             >
                 <mat-option
                     *ngFor="let user of users | async"
-                    [value]="user.email"
+                    [value]="user?.email"
                     class="leading-tight"
                 >
                     <div class="flex flex-col">
                         <div>{{ user.name }}</div>
                         <span class="hidden">&nbsp;|&nbsp;</span>
-                        <div class="text-xs opacity-60">{{ user.email }}</div>
+                        <div class="text-xs opacity-60">{{ user?.email }}</div>
                     </div>
                 </mat-option>
             </mat-select>
@@ -73,7 +73,8 @@ export class HostSelectFieldComponent implements ControlValueAccessor {
      */
     public async setValue(email: string) {
         const users = await this.users.pipe(take(1)).toPromise();
-        this.item = users.find((_) => _.email === email) || new User({ email });
+        this.item = users?.find((_) => _.email === email);
+        if (!this.item) this.item = new User({ email });
         if (this._onChange) this._onChange(this.item);
     }
 

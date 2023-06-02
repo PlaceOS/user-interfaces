@@ -472,7 +472,6 @@ export class EventDetailsModalComponent {
                 content: MapPinComponent,
             },
         ];
-        console.log('Has Assets:', this.has_assets);
     }
 
     public viewLocation() {
