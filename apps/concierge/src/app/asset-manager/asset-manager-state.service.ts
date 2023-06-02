@@ -12,6 +12,7 @@ import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import {
     debounceTime,
+    distinctUntilChanged,
     distinctUntilKeyChanged,
     filter,
     map,
@@ -147,10 +148,14 @@ export class AssetManagerStateService extends AsyncHandler {
         shareReplay(1)
     );
     /** Currently active asset */
-    public readonly active_product = this._options.pipe(
-        filter(({ active_item }) => !!active_item),
-        distinctUntilKeyChanged('active_item'),
-        switchMap((options) => showGroupFull(options.active_item)),
+    public readonly active_product = combineLatest([
+        this._options,
+        this._change,
+    ]).pipe(
+        filter(([{ active_item }]) => !!active_item),
+        map(([options, t]) => [options.active_item, t] as any),
+        distinctUntilChanged(),
+        switchMap(([active_item]) => showGroupFull(active_item)),
         shareReplay(1)
     );
     /** List of requests for the currently active asset */

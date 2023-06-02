@@ -11,8 +11,6 @@ import { CalendarEvent, saveEvent } from '@placeos/events';
 import { showGuest, User } from '@placeos/users';
 
 import { VisitorsStateService } from './visitors-state.service';
-import { Booking } from '@placeos/bookings';
-import { is } from 'date-fns/locale';
 
 @Component({
     selector: 'visitor-details',
