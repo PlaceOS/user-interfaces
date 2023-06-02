@@ -158,7 +158,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
             data: this.items,
         });
         ref.afterClosed().subscribe((items?: AssetGroup[]) => {
-            if (!items) return;
+            if (!items) items = ref.componentInstance.selected;
             items = items.map((item) => ({ ...item }));
             for (const item of items) {
                 item.assets = item.assets.slice(0, item.amount);
