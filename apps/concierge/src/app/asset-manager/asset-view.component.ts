@@ -195,7 +195,7 @@ import {
                             class="w-full block text-sm"
                             [dataSource]="(item | async)?.purchase_orders || []"
                             [columns]="[
-                                'order_number',
+                                'purchase_order_number',
                                 'invoice_number',
                                 'expected_service_start_date',
                                 'expected_service_end_date',
@@ -317,7 +317,7 @@ import {
                                     ]"
                                     [queryParams]="{
                                         id: row.id,
-                                        group_id: row?.id
+                                        group_id: (item | async)?.id
                                     }"
                                     class="clear"
                                 >

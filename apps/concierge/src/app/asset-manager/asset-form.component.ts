@@ -143,7 +143,11 @@ import { AsyncHandler, getInvalidFields, notifyError } from '@placeos/common';
                         btn
                         matRipple
                         class="w-32 inverse"
-                        [routerLink]="['/asset-manager']"
+                        [routerLink]="
+                            product
+                                ? ['/asset-manager', 'view', product.id]
+                                : ['/asset-manager']
+                        "
                     >
                         Cancel
                     </a>
