@@ -36,11 +36,11 @@ import { OrganisationService } from '@placeos/organisation';
                     ]"
                     [display_column]="[
                         'Requester',
-                        'Asset Requested',
-                        'Date for',
-                        'Period',
+                        'Asset',
+                        'Date',
+                        'Time',
                         'Floor',
-                        'Room',
+                        'Location',
                         'Approval',
                         'Tracking'
                     ]"

@@ -1,5 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Booking, queryBookings, updateBooking } from '@placeos/bookings';
+import {
+    Booking,
+    approveBooking,
+    queryBookings,
+    rejectBooking,
+    updateBooking,
+} from '@placeos/bookings';
 import { AsyncHandler, notifySuccess, unique } from '@placeos/common';
 import { SpacesService } from '@placeos/spaces';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
@@ -218,11 +224,12 @@ export class AssetManagerStateService extends AsyncHandler {
     }
 
     public async setStatus(item: Booking, status: any) {
-        const result = await updateBooking(item.id, {
-            ...item,
-            approved: status === 'approved',
-            rejected: status === 'declined',
-        }).toPromise();
+        let result = item;
+        if (status === 'declined') {
+            result = await rejectBooking(item.id).toPromise();
+        } else if (status === 'approved') {
+            result = await approveBooking(item.id).toPromise();
+        }
         this._change.next(Date.now());
         return result;
     }

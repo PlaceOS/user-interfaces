@@ -74,7 +74,7 @@ const ROUTES: Route[] = [
                     },
                 ],
             },
-            { path: '**', redirectTo: 'list/items' },
+            { path: '**', redirectTo: 'list/requests' },
         ],
     },
     { path: '**', redirectTo: '' },
