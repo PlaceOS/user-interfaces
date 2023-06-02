@@ -6,6 +6,7 @@ import {
     AssetRequest,
 } from './asset-manager-state.service';
 import { OrganisationService } from '@placeos/organisation';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
 @Component({
     selector: 'asset-location-modal',
@@ -60,15 +61,11 @@ import { OrganisationService } from '@placeos/organisation';
                         class="absolute top-4 left-4 bg-white px-4 py-2 rounded-3xl border border-gray-300"
                         *ngIf="selected"
                     >
-                        {{
-                            selected.extension_data?.space?.level
-                                ?.display_name ||
-                                selected.extension_data?.space?.level?.name
-                        }}
+                        {{ level(selected.zone)?.display_name || 'N/A' }}
                     </div>
                     <i-map
                         *ngIf="selected; else empty_state"
-                        [src]="selected.extension_data?.space?.level?.map_id"
+                        [src]="level(selected.zone)?.map_id || ''"
                         [styles]="{
                             '#Zones': { display: 'none' },
                             '#zones': { display: 'none' }
@@ -126,8 +123,10 @@ export class AssetLocationModalComponent {
 
     public loading = {};
 
-    public updateFeatures() {
-        const space = this.selected.extension_data?.space || {};
+    public async updateFeatures() {
+        const space = await this._space.transform(
+            this.selected.extension_data?.location_id
+        );
         this.selected_feature = this.selected
             ? [
                   {
@@ -152,7 +151,8 @@ export class AssetLocationModalComponent {
 
     constructor(
         private _state: AssetManagerStateService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _space: SpacePipe
     ) {}
 
     public level(zones) {

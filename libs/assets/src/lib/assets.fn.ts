@@ -319,12 +319,14 @@ export async function updateAssetRequestsForResource(
         duration,
         host,
         location_name,
+        location_id,
         zones,
     }: {
         date: number;
         duration: number;
         host: string;
         location_name?: string;
+        location_id?: string;
         zones?: string[];
     },
     new_assets: AssetGroup[],
@@ -366,7 +368,7 @@ export async function updateAssetRequestsForResource(
                     asset_id: item.id,
                     asset_name: (item as any).name,
                     title: (item as any).name,
-                    extension_data: { parent_id: id },
+                    extension_data: { parent_id: id, location_id },
                     zones: zones || [],
                 }),
                 { ical_uid, event_id: id }
