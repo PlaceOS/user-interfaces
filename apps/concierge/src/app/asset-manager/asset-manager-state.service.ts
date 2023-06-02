@@ -15,14 +15,12 @@ import {
     tap,
 } from 'rxjs/operators';
 import {
-    Asset,
     AssetGroup,
     AssetPurchaseOrder,
     deleteAssetGroup,
     generateAssetForm,
     getGroupsWithAssets,
     queryAssetCategories,
-    queryAssetGroups,
     queryAssetPurchaseOrders,
     saveAsset,
     showGroupFull,
@@ -30,6 +28,7 @@ import {
 import { cleanObject } from '@placeos/ts-client';
 
 export interface AssetOptions {
+    date?: number;
     search?: string;
     sort_by?: string;
     view: 'grid' | 'list';
@@ -84,15 +83,16 @@ export class AssetManagerStateService extends AsyncHandler {
         ) as any;
     /** List of requests made by users for assets */
     public readonly requests = combineLatest([
+        this._options,
         this._poll,
         this._change,
         this._spaces.initialised,
     ]).pipe(
         debounceTime(200),
-        switchMap((_) =>
+        switchMap(([{ date }]) =>
             queryBookings({
-                period_start: getUnixTime(startOfDay(Date.now())),
-                period_end: getUnixTime(endOfDay(Date.now())),
+                period_start: getUnixTime(startOfDay(date || Date.now())),
+                period_end: getUnixTime(endOfDay(date || Date.now())),
                 type: 'asset-request',
             })
         ),

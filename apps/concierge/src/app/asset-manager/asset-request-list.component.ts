@@ -10,13 +10,14 @@ import { OrganisationService } from '@placeos/organisation';
             class="relative -left-4 w-[calc(100%+2rem)] mt-4 h-[calc(100%-1rem)] flex flex-col"
         >
             <div
-                class="bg-white dark:bg-neutral-700 p-4 border-t border-b border-gray-300 dark:border-neutral-500"
+                class="bg-white dark:bg-neutral-700 px-4 border-t border-b border-gray-300 dark:border-neutral-500 flex items-center justify-between"
             >
                 <div class="opacity-60 text-sm">
                     {{ (requests | async)?.length }} asset request{{
                         (requests | async)?.length === '1' ? '' : 's'
                     }}
                 </div>
+                <date-options (dateChange)="setDate($event)"></date-options>
             </div>
             <div class="w-full overflow-auto h-1/2 flex-1">
                 <custom-table
@@ -189,6 +190,8 @@ export class AssetRequestListComponent extends AsyncHandler {
         await this._state.setTracking(item, state);
         this.loading[item.id] = false;
     }
+
+    public readonly setDate = (date) => this._state.setOptions({ date });
 
     constructor(
         private _state: AssetManagerStateService,
