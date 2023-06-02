@@ -157,6 +157,72 @@ import {
             </div>
 
             <mat-tab-group class="flex-1 h-px">
+                <mat-tab label="Assets">
+                    <div class="max-w-[768px] mx-auto p-4">
+                        <h3 class="p-2">Assets</h3>
+                        <a
+                            btn
+                            matRipple
+                            class="mb-2"
+                            [routerLink]="['/asset-manager', 'manage', 'asset']"
+                            [queryParams]="{ group_id: (item | async)?.id }"
+                        >
+                            Add Asset
+                        </a>
+                        <custom-table
+                            asset-view
+                            class="w-full block text-sm"
+                            [dataSource]="(item | async)?.assets || []"
+                            [columns]="[
+                                'id',
+                                'identifier',
+                                'serial_number',
+                                'actions'
+                            ]"
+                            [display_column]="[
+                                'ID',
+                                'Label/Friendly Name',
+                                'Serial Number',
+                                ' '
+                            ]"
+                            [column_size]="['10r', '14r', '8r', 'flex']"
+                            [template]="{
+                                actions: action_template,
+                            }"
+                            empty="No assets for this product"
+                        >
+                        </custom-table>
+                        <ng-template #action_template let-row="row">
+                            <div class="flex w-full items-center justify-end">
+                                <a
+                                    btn
+                                    icon
+                                    matRipple
+                                    [routerLink]="[
+                                        '/asset-manager',
+                                        'manage',
+                                        'asset'
+                                    ]"
+                                    [queryParams]="{
+                                        id: row.id,
+                                        group_id: (item | async)?.id
+                                    }"
+                                    class="clear"
+                                >
+                                    <app-icon class="text-lg">edit</app-icon>
+                                </a>
+                                <button
+                                    btn
+                                    icon
+                                    matRipple
+                                    (click)="removeAsset(row)"
+                                >
+                                    <app-icon class="text-lg">delete</app-icon>
+                                </button>
+                            </div>
+                        </ng-template>
+                    </div>
+                </mat-tab>
                 <mat-tab label="Specifications">
                     <div class="max-w-[768px] mx-auto p-4">
                         <h3 class="p-2">General</h3>
@@ -241,72 +307,6 @@ import {
                                     icon
                                     matRipple
                                     (click)="removePurchaseOrder(row)"
-                                >
-                                    <app-icon class="text-lg">delete</app-icon>
-                                </button>
-                            </div>
-                        </ng-template>
-                    </div>
-                </mat-tab>
-                <mat-tab label="Assets">
-                    <div class="max-w-[768px] mx-auto p-4">
-                        <h3 class="p-2">Assets</h3>
-                        <a
-                            btn
-                            matRipple
-                            class="mb-2"
-                            [routerLink]="['/asset-manager', 'manage', 'asset']"
-                            [queryParams]="{ group_id: (item | async)?.id }"
-                        >
-                            Add Asset
-                        </a>
-                        <custom-table
-                            asset-view
-                            class="w-full block text-sm"
-                            [dataSource]="(item | async)?.assets || []"
-                            [columns]="[
-                                'serial_number',
-                                'identifier',
-                                'order_number',
-                                'actions'
-                            ]"
-                            [display_column]="[
-                                'Serial Number',
-                                'Identifier',
-                                'Purchase Order',
-                                ' '
-                            ]"
-                            [column_size]="['10r', '10r', '10r', 'flex']"
-                            [template]="{
-                                actions: action_template,
-                            }"
-                            empty="No assets for this product"
-                        >
-                        </custom-table>
-                        <ng-template #action_template let-row="row">
-                            <div class="flex w-full items-center justify-end">
-                                <a
-                                    btn
-                                    icon
-                                    matRipple
-                                    [routerLink]="[
-                                        '/asset-manager',
-                                        'manage',
-                                        'asset'
-                                    ]"
-                                    [queryParams]="{
-                                        id: row.id,
-                                        group_id: (item | async)?.id
-                                    }"
-                                    class="clear"
-                                >
-                                    <app-icon class="text-lg">edit</app-icon>
-                                </a>
-                                <button
-                                    btn
-                                    icon
-                                    matRipple
-                                    (click)="removeAsset(row)"
                                 >
                                     <app-icon class="text-lg">delete</app-icon>
                                 </button>

@@ -26,20 +26,17 @@ export function generateAssetPurchaseOrderForm(
             [Validators.required]
         ),
         invoice_number: new FormControl(order.invoice_number || ''),
-        purchase_date: new FormControl(order.purchase_date * 1000 || 0, [
-            Validators.required,
-        ]),
+        unit_price: new FormControl(order.unit_price || 0),
+        purchase_date: new FormControl(order.purchase_date * 1000 || null),
         expected_service_start_date: new FormControl(
             order.expected_service_start_date * 1000 ||
                 (order as any).depreciation_start_date ||
-                Date.now(),
-            [Validators.required]
+                null
         ),
         expected_service_end_date: new FormControl(
             order.expected_service_end_date * 1000 ||
                 (order as any).depreciation_end_date ||
-                addYears(Date.now(), 5),
-            [Validators.required]
+                null
         ),
     });
 }

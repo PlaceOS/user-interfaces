@@ -43,7 +43,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                     ]"
                                 >
                                     <div
-                                        class="h-12 w-12 flex items-center justify-center border border-gray-200 bg-gray-100 dark:border-neutral-500 p-2"
+                                        class="h-12 w-12 flex items-center justify-center border border-gray-200 bg-gray-100 dark:border-neutral-500 overflow-hidden"
                                     >
                                         <img
                                             *ngIf="
@@ -51,7 +51,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                                 else placeholder
                                             "
                                             [src]="asset.images[0]"
-                                            class="max-w-full max-h-full object-contain"
+                                            class="min-w-full min-h-full object-cover"
                                         />
                                         <ng-template #placeholder>
                                             <img
@@ -103,7 +103,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                     ]"
                                 >
                                     <div
-                                        class="w-full h-32 flex items-center justify-center p-2 bg-gray-100"
+                                        class="w-full h-32 flex items-center justify-center bg-gray-100 overflow-hidden"
                                     >
                                         <img
                                             *ngIf="
@@ -111,7 +111,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                                 else placeholder
                                             "
                                             [src]="asset.images[0]"
-                                            class="max-w-full max-h-full object-contain"
+                                            class="min-w-full min-h-full object-cover"
                                         />
                                         <ng-template #placeholder>
                                             <img

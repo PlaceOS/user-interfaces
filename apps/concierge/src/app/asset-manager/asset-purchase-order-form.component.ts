@@ -39,9 +39,7 @@ import { addYears, getUnixTime } from 'date-fns';
                         </mat-form-field>
                     </div>
                     <div class="flex flex-col space-y-2">
-                        <label for="invoice-number">
-                            Invoice Number<span>*</span>
-                        </label>
+                        <label for="invoice-number"> Invoice Number </label>
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
@@ -52,15 +50,27 @@ import { addYears, getUnixTime } from 'date-fns';
                             <mat-error>Invoice number is required</mat-error>
                         </mat-form-field>
                     </div>
-                    <div class="flex flex-col space-y-2">
-                        <label for="purchase-date">
-                            Purchase Date<span>*</span>
-                        </label>
-                        <a-date-field
-                            name="purchase-date"
-                            [from]="from"
-                            formControlName="purchase_date"
-                        ></a-date-field>
+                    <div class="flex space-x-2">
+                        <div class="flex-1 flex flex-col space-y-2">
+                            <label for="purchase-date"> Purchase Date </label>
+                            <a-date-field
+                                name="purchase-date"
+                                [from]="from"
+                                formControlName="purchase_date"
+                            ></a-date-field>
+                        </div>
+                        <div class="flex-1 flex flex-col space-y-2">
+                            <label for="unit-price"> Purchase Price </label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <div matPrefix>$</div>
+                                <input
+                                    matInput
+                                    name="unit-price"
+                                    [from]="from"
+                                    formControlName="unit_price"
+                                />
+                            </mat-form-field>
+                        </div>
                     </div>
                     <div class="flex space-x-2">
                         <div class="flex flex-col space-y-2">
@@ -168,15 +178,15 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
         if (!this.form.valid) return;
         this.loading = 'Saving Product...';
         const data = this.form.value;
-        data.purchase_date = getUnixTime(data.purchase_date || Date.now());
+        data.purchase_date = getUnixTime(data.purchase_date) || null;
         data.expected_service_start_date =
             getUnixTime(data.expected_service_start_date) ||
-            this.item.expected_service_start_date ||
-            getUnixTime(Date.now());
+            this.item?.expected_service_start_date ||
+            null;
         data.expected_service_end_date =
             getUnixTime(data.expected_service_end_date) ||
-            this.item.expected_service_end_date ||
-            getUnixTime(addYears(Date.now(), 5));
+            this.item?.expected_service_end_date ||
+            null;
         const item = await saveAssetPurchaseOrder(data as any)
             .toPromise()
             .catch((e) => {

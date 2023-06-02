@@ -16,6 +16,7 @@ export class AssetPurchaseOrder {
     order_number: string;
     invoice_number: string;
     purchase_date: number;
+    unit_price: number;
     expected_service_start_date: number;
     expected_service_end_date: number;
     created_at: number;

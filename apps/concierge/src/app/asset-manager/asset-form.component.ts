@@ -25,7 +25,7 @@ import { AsyncHandler, getInvalidFields, notifyError } from '@placeos/common';
                 </header>
                 <main class="flex-1 h-1/2 overflow-auto" [formGroup]="form">
                     <div class="flex flex-1 flex-col space-y-2">
-                        <label for="name">Product<span>*</span></label>
+                        <label for="name">Product</label>
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
@@ -49,9 +49,7 @@ import { AsyncHandler, getInvalidFields, notifyError } from '@placeos/common';
                     </div>
                     <div class="flex items-center space-x-2">
                         <div class="flex flex-1 flex-col space-y-2">
-                            <label for="serial-number">
-                                Serial Number<span>*</span>
-                            </label>
+                            <label for="serial-number"> Serial Number </label>
                             <mat-form-field appearance="outline">
                                 <input
                                     matInput
@@ -63,7 +61,7 @@ import { AsyncHandler, getInvalidFields, notifyError } from '@placeos/common';
                             </mat-form-field>
                         </div>
                         <div class="flex flex-1 flex-col space-y-2">
-                            <label for="identifier">Identifier</label>
+                            <label for="identifier">Label/Friendly Name</label>
                             <mat-form-field appearance="outline">
                                 <input
                                     matInput
@@ -71,13 +69,15 @@ import { AsyncHandler, getInvalidFields, notifyError } from '@placeos/common';
                                     placeholder="Identifier, Asset ID or Barcode"
                                     formControlName="identifier"
                                 />
-                                <mat-error>Identifier is required</mat-error>
+                                <mat-error>
+                                    Label/Friendly Name is required
+                                </mat-error>
                             </mat-form-field>
                         </div>
                     </div>
                     <div class="flex flex-1 flex-col space-y-2">
                         <label for="purchase-order-id">
-                            Purchase Order ID <span>*</span>
+                            Purchase Order ID
                         </label>
                         <mat-form-field appearance="outline">
                             <mat-select
