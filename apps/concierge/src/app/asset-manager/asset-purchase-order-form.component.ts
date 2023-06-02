@@ -167,7 +167,7 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
         const data = this.form.value;
         data.purchase_date = getUnixTime(data.purchase_date);
         data.expected_service_start_date = getUnixTime(
-            data.expected_service_end_date
+            data.expected_service_start_date
         );
         data.expected_service_end_date = getUnixTime(
             data.expected_service_end_date
@@ -182,7 +182,15 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
         this.form.reset();
         notifySuccess('Successfully saved purchase order.');
         this._state.postChange();
-        this._router.navigate(['/asset-manager', 'view', this.product_id]);
+        if (this.product_id) {
+            this._router.navigate(['/asset-manager', 'view', this.product_id]);
+        } else {
+            this._router.navigate([
+                '/asset-manager',
+                'list',
+                'purchase-orders',
+            ]);
+        }
         this.loading = '';
     }
 }

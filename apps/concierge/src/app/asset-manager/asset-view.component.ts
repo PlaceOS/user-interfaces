@@ -199,7 +199,6 @@ import {
                                 'invoice_number',
                                 'expected_service_start_date',
                                 'expected_service_end_date',
-                                'flexi',
                                 'actions'
                             ]"
                             [display_column]="[
@@ -207,17 +206,9 @@ import {
                                 'Invoice Number',
                                 'Service Start',
                                 'Service End',
-                                ' ',
                                 ' '
                             ]"
-                            [column_size]="[
-                                '10r',
-                                '10r',
-                                '10r',
-                                '10r',
-                                'flex',
-                                '8r'
-                            ]"
+                            [column_size]="['10r', '10r', '10r', '10r', 'flex']"
                             [template]="{
                                 actions: po_action_template,
                                 expected_service_start_date: date_template,
@@ -276,30 +267,18 @@ import {
                             [columns]="[
                                 'serial_number',
                                 'identifier',
-                                'purchase_order',
-                                'end_of_life_date',
-                                'flexi',
+                                'order_number',
                                 'actions'
                             ]"
                             [display_column]="[
                                 'Serial Number',
                                 'Identifier',
                                 'Purchase Order',
-                                'End of Life',
-                                ' ',
                                 ' '
                             ]"
-                            [column_size]="[
-                                '10r',
-                                '10r',
-                                '10r',
-                                '10r',
-                                'flex',
-                                '6r'
-                            ]"
+                            [column_size]="['10r', '10r', '10r', 'flex']"
                             [template]="{
                                 actions: action_template,
-                                end_of_life_date: date_template
                             }"
                             empty="No assets for this product"
                         >

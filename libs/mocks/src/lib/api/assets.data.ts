@@ -16,6 +16,7 @@ export const MOCK_PRODUCTS = [
         category_id: '1',
         brand: 'Apple',
         barcode: '456',
+        images: [],
     },
     {
         id: '3',
@@ -81,10 +82,7 @@ export const MOCK_ASSETS: Partial<Asset>[] = Array(100)
         serial_number: `Serial ${i}`,
         identifier: `Identifier ${i}`,
         other_data: {},
-        images: [],
         purchase_order_id: `purchase-order-${i}`,
-        purchase_price: 100,
-        end_of_life_date: getUnixTime(Date.now() + 1000000000),
     }));
 
 export const MOCK_PURCHASE_ORDERS = Array(100)

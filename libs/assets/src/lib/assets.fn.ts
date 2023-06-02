@@ -260,6 +260,11 @@ export function showGroupFull(id: string) {
                     asset.type_id === product.id ||
                     (asset as any).asset_type_id === product.id
             );
+            for (const asset of product.assets) {
+                (asset as any).order_number = (purchase_orders as any).find(
+                    (_) => _.id === asset.purchase_order_id
+                )?.purchase_order_number;
+            }
             product.purchase_orders = purchase_orders.filter((order) =>
                 product.assets.find(
                     (asset) => asset.purchase_order_id === order.id

@@ -65,15 +65,7 @@ export function generateAssetForm(asset: Asset = new Asset()) {
         serial_number: new FormControl(asset.serial_number || ''),
         identifier: new FormControl(asset.identifier || ''),
         other_data: new FormControl(asset.other_data || {}),
-        purchase_order_id: new FormControl(asset.purchase_order_id, [
-            Validators.required,
-        ]),
-        purchase_price: new FormControl(asset.purchase_price || 0, [
-            Validators.required,
-        ]),
-        end_of_life_date: new FormControl(
-            asset.end_of_life_date || addYears(Date.now(), 5)
-        ),
+        purchase_order_id: new FormControl(asset.purchase_order_id),
     });
 }
 

@@ -75,65 +75,38 @@ import { AsyncHandler, getInvalidFields, notifyError } from '@placeos/common';
                             </mat-form-field>
                         </div>
                     </div>
-                    <div class="flex space-x-2">
-                        <div class="flex flex-1 flex-col space-y-2">
-                            <label for="purchase-order-id">
-                                Purchase Order ID <span>*</span>
-                            </label>
-                            <mat-form-field appearance="outline">
-                                <mat-select
-                                    formControlName="purchase_order_id"
-                                    placeholder="Select Purchase Order"
+                    <div class="flex flex-1 flex-col space-y-2">
+                        <label for="purchase-order-id">
+                            Purchase Order ID <span>*</span>
+                        </label>
+                        <mat-form-field appearance="outline">
+                            <mat-select
+                                formControlName="purchase_order_id"
+                                placeholder="Select Purchase Order"
+                            >
+                                <mat-option
+                                    *ngFor="
+                                        let order of purchase_orders | async
+                                    "
+                                    [value]="order.id"
                                 >
-                                    <mat-option
-                                        *ngFor="
-                                            let order of purchase_orders | async
-                                        "
-                                        [value]="order.id"
-                                    >
-                                        {{
-                                            order.purchase_order_number ||
-                                                order.invoice_number
-                                        }}
-                                    </mat-option>
-                                    <mat-option
-                                        *ngIf="
-                                            !(purchase_orders | async)?.length
-                                        "
-                                        class="opacity-60"
-                                        [disabled]="true"
-                                    >
-                                        No purchase orders
-                                    </mat-option>
-                                </mat-select>
-                                <mat-error>
-                                    Purchase Order ID is required
-                                </mat-error>
-                            </mat-form-field>
-                        </div>
-                        <div class="flex flex-1 flex-col space-y-2">
-                            <label for="purchase-price">Purchase Price</label>
-                            <mat-form-field appearance="outline">
-                                <span matPrefix>$</span>
-                                <input
-                                    matInput
-                                    type="number"
-                                    name="purchase-price"
-                                    placeholder="Identifier"
-                                    formControlName="purchase_price"
-                                />
-                                <mat-error
-                                    >Purchase Price is required</mat-error
+                                    {{
+                                        order.purchase_order_number ||
+                                            order.invoice_number
+                                    }}
+                                </mat-option>
+                                <mat-option
+                                    *ngIf="!(purchase_orders | async)?.length"
+                                    class="opacity-60"
+                                    [disabled]="true"
                                 >
-                            </mat-form-field>
-                        </div>
-                    </div>
-                    <div class="flex flex-col space-y-2">
-                        <label for="end-of-life-date">End of Life Date</label>
-                        <a-date-field
-                            name="end-of-life-date"
-                            formControlName="end_of_life_date"
-                        ></a-date-field>
+                                    No purchase orders
+                                </mat-option>
+                            </mat-select>
+                            <mat-error>
+                                Purchase Order ID is required
+                            </mat-error>
+                        </mat-form-field>
                     </div>
                 </main>
                 <footer

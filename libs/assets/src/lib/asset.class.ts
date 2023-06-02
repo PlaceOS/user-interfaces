@@ -54,8 +54,6 @@ export class Asset {
     identifier: string = '';
     other_data: Record<string, any> = {};
     purchase_order_id: string = '';
-    purchase_price: number = 0;
-    end_of_life_date: number = 0;
     created_at: number = Date.now();
     updated_at: number = Date.now();
 
