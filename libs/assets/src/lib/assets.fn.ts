@@ -236,7 +236,7 @@ export function getGroupsWithAssets(query: any = {}) {
         map(([products, assets]) => {
             for (const product of products) {
                 product.assets = assets.filter(
-                    (asset) => asset.type_id === product.id
+                    (asset) => (asset as any).asset_type_id === product.id
                 );
             }
             return products;

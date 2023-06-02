@@ -20,6 +20,7 @@ import {
     AssetPurchaseOrder,
     deleteAssetGroup,
     generateAssetForm,
+    getGroupsWithAssets,
     queryAssetCategories,
     queryAssetGroups,
     queryAssetPurchaseOrders,
@@ -66,9 +67,9 @@ export class AssetManagerStateService extends AsyncHandler {
     public readonly products: Observable<AssetGroup[]> = this._change.pipe(
         switchMap(() => {
             this._loading.next(true);
-            return queryAssetGroups();
+            return getGroupsWithAssets();
         }),
-        tap(() => this._loading.next(false)),
+        tap((_) => this._loading.next(false)),
         shareReplay(1)
     ) as any;
     /** List of available assets */

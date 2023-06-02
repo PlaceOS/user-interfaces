@@ -60,17 +60,25 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                             />
                                         </ng-template>
                                     </div>
-                                    <div>
+                                    <div
+                                        class="flex-1 flex flex-col justify-center"
+                                    >
                                         <div class="truncate">
                                             {{ asset.name }}
                                         </div>
-                                        <div class="text-xs opacity-60">
-                                            In Storage:
+                                        <div
+                                            class="text-xs opacity-60"
+                                            *ngIf="
+                                                asset.count ||
+                                                asset.assets?.length
+                                            "
+                                        >
+                                            Assets:
                                             {{
-                                                (asset.count || 0) -
-                                                    (asset.locations?.length ||
-                                                        0)
-                                            }}/{{ asset.count || 0 }}
+                                                asset.count ||
+                                                    asset.assets?.length ||
+                                                    0
+                                            }}
                                         </div>
                                     </div>
                                 </a>
@@ -82,7 +90,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             >
                                 <a
                                     matRipple
-                                    class="bg-white dark:bg-neutral-700 rounded shadow w-40 h-44 text-left m-2 border border-gray-200 hover:border-indigo-400"
+                                    class="bg-white dark:bg-neutral-700 rounded shadow w-40 h-44 text-left m-2 border border-gray-200 hover:border-indigo-400 flex flex-col"
                                     *ngFor="
                                         let asset of (products | async)[
                                             group.id
@@ -113,18 +121,24 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         </ng-template>
                                     </div>
                                     <div
-                                        class="border-t border-gray-200 dark:border-neutral-500 w-full px-3 py-1"
+                                        class="border-t border-gray-200 dark:border-neutral-500 w-full px-3 py-1 flex-1 flex flex-col justify-center"
                                     >
                                         <div class="truncate">
                                             {{ asset.name }}
                                         </div>
-                                        <div class="text-xs opacity-60">
-                                            In Storage:
+                                        <div
+                                            class="text-xs opacity-60"
+                                            *ngIf="
+                                                asset.count ||
+                                                asset.assets?.length
+                                            "
+                                        >
+                                            Assets:
                                             {{
-                                                (asset.count || 0) -
-                                                    (asset.locations?.length ||
-                                                        0)
-                                            }}/{{ asset.count || 0 }}
+                                                asset.count ||
+                                                    asset.assets?.length ||
+                                                    0
+                                            }}
                                         </div>
                                     </div>
                                 </a>
