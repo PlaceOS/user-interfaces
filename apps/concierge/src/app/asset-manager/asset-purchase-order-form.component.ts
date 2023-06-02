@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { AssetManagerStateService } from './asset-manager-state.service';
 import {
+    AssetPurchaseOrder,
     generateAssetPurchaseOrderForm,
     saveAssetPurchaseOrder,
     showAssetPurchaseOrder,
@@ -119,6 +120,7 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
     public readonly form = generateAssetPurchaseOrderForm();
     public loading: string = '';
     public product_id: string;
+    public item: AssetPurchaseOrder;
     public readonly from = addYears(Date.now(), -5);
 
     constructor(
@@ -151,6 +153,7 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
                         expected_service_start_date:
                             asset.expected_service_start_date * 1000,
                     });
+                    this.item = asset;
                     this.loading = '';
                 }
                 if (params.get('group_id')) {
@@ -165,13 +168,15 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
         if (!this.form.valid) return;
         this.loading = 'Saving Product...';
         const data = this.form.value;
-        data.purchase_date = getUnixTime(data.purchase_date);
-        data.expected_service_start_date = getUnixTime(
-            data.expected_service_start_date
-        );
-        data.expected_service_end_date = getUnixTime(
-            data.expected_service_end_date
-        );
+        data.purchase_date = getUnixTime(data.purchase_date || Date.now());
+        data.expected_service_start_date =
+            getUnixTime(data.expected_service_start_date) ||
+            this.item.expected_service_start_date ||
+            getUnixTime(Date.now());
+        data.expected_service_end_date =
+            getUnixTime(data.expected_service_end_date) ||
+            this.item.expected_service_end_date ||
+            getUnixTime(addYears(Date.now(), 5));
         const item = await saveAssetPurchaseOrder(data as any)
             .toPromise()
             .catch((e) => {
