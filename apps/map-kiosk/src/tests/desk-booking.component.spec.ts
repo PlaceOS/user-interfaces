@@ -14,9 +14,7 @@ describe('DeskBookingComponent', () => {
     let spectator: Spectator<DeskBookingComponent>;
     const createComponent = createComponentFactory({
         component: DeskBookingComponent,
-        declarations: [
-            MockComponent(FooterMenuComponent),
-        ],
+        declarations: [MockComponent(FooterMenuComponent)],
         providers: [
             { provide: SettingsService, useValue: { get: jest.fn() } },
             { provide: Router, useValue: { navigate: jest.fn() } },
@@ -37,7 +35,7 @@ describe('DeskBookingComponent', () => {
         jest.useFakeTimers();
         const router = spectator.inject(Router);
         const settings = spectator.inject(SettingsService);
-        settings.get.mockImplementation(() => 5);
+        (settings.get as any).mockImplementation(() => 5);
         spectator.component.resetCountdown();
         expect(router.navigate).not.toHaveBeenCalled();
         jest.runOnlyPendingTimers();

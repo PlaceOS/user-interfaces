@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { EventFormService } from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'meeting-flow-success',
@@ -18,7 +19,8 @@ import { EventFormService } from '@placeos/events';
                     Your
                     <span *ngIf="space">
                         room booking for
-                        {{ space?.level.display_name || space?.level.name }},
+                        {{ level?.display_name || level?.name
+                        }}<span *ngIf="level">,</span>
                         {{ space?.display_name || space?.name }}
                     </span>
                     <span *ngIf="!space">meeting</span> has been successfully
@@ -55,5 +57,12 @@ export class MeetingFlowSuccessComponent {
         return this.last_event.space;
     }
 
-    constructor(private _event_form: EventFormService) {}
+    public get level() {
+        return this._org.levelWithID(this.space?.zones);
+    }
+
+    constructor(
+        private _event_form: EventFormService,
+        private _org: OrganisationService
+    ) {}
 }

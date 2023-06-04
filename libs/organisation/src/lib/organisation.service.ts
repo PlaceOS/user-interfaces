@@ -18,7 +18,7 @@ import { Building } from './building.class';
 import { BuildingLevel } from './level.class';
 import { Organisation } from './organisation.class';
 import { Region } from './region.class';
-import { flatten, log } from '@placeos/common';
+import { flatten, log, unique } from '@placeos/common';
 
 @Injectable({
     providedIn: 'root',
@@ -33,7 +33,11 @@ export class OrganisationService {
     private readonly _buildings = new BehaviorSubject<Building[]>([]);
     private readonly _active_building = new BehaviorSubject<Building>(null);
     private readonly _levels = new BehaviorSubject<BuildingLevel[]>([]);
+    private readonly _loaded_data: string[] = [];
 
+    public readonly app_key = `${(
+        this._service.app_name || 'workplace'
+    ).toLowerCase()}_app`;
     /** Observable for the list of regions */
     public readonly region_list = this._regions.asObservable();
     /** Observable for the list of buildings */
@@ -116,12 +120,14 @@ export class OrganisationService {
     public set region(item: Region) {
         if (!item) return;
         this._active_region.next(item);
-        if (
-            this.building?.parent_id !== item.id &&
-            this.buildingsForRegion(item).length
-        ) {
-            this.building = this.buildingsForRegion(item)[0];
-        } else this._updateSettingOverrides();
+        this.loadRegionData(item).then(() => {
+            if (
+                this.building?.parent_id !== item.id &&
+                this.buildingsForRegion(item).length
+            ) {
+                this.building = this.buildingsForRegion(item)[0];
+            } else this._updateSettingOverrides();
+        });
     }
 
     /** List of available buildings */
@@ -135,7 +141,7 @@ export class OrganisationService {
     }
     public set building(bld: Building) {
         this._active_building.next(bld);
-        this._updateSettingOverrides();
+        this.loadBuildingData(bld).then(() => this._updateSettingOverrides());
         if (this.regions.length && this.region?.id !== bld.parent_id) {
             this.region = this.regions.find(
                 (_) => _.id === this.building.parent_id
@@ -149,7 +155,9 @@ export class OrganisationService {
 
     public get currency_code(): string {
         return (
-            this._service.get('app.currency') || this.building.currency || 'USD'
+            this._service.get('app.currency') ||
+            this.building?.currency ||
+            'USD'
         );
     }
 
@@ -228,25 +236,23 @@ export class OrganisationService {
     private async load(): Promise<void> {
         await this.loadOrganisation();
         await this.loadRegions();
-        if (this._regions.getValue().length) {
-            this._buildings.next(
-                flatten(
-                    await Promise.all(
-                        this._regions
-                            .getValue()
-                            .map((_) => this.loadBuildings(_.id))
-                    )
-                )
-            );
-        } else {
+        if (!this._regions.getValue().length) {
             this._buildings.next(await this.loadBuildings());
+        } else {
+            for (const region of this._regions.getValue()) {
+                const blds = await this.loadBuildings(region.id);
+                if (blds.length) {
+                    this._buildings.next(blds);
+                    break;
+                }
+            }
         }
+        await this.loadSettings();
         if (!this._buildings.getValue()?.length) {
             log('ORG', 'Unable to find any building zones');
             this._router.navigate(['/misconfigured']);
         }
         await this.loadLevels();
-        await this.loadSettings();
     }
 
     /**
@@ -282,18 +288,30 @@ export class OrganisationService {
             limit: 500,
         } as any)
             .pipe(
-                map((i) => i.data),
+                map((i) => i.data.map((_) => new Region(_))),
                 catchError(() => of([]))
             )
             .toPromise();
-        const regions = [];
-        for (const item of list) {
-            const bindings: Record<string, any> = (
-                await showMetadata(item.id, 'bindings').toPromise()
-            )?.details;
-            regions.push(new Building({ ...item, bindings }));
-        }
-        this._regions.next(regions);
+        this._regions.next(list);
+    }
+
+    public async loadRegionData(region: Region): Promise<void> {
+        if (this._loaded_data[region.id]) return;
+        const [settings, bindings, buildings]: any = await Promise.all([
+            showMetadata(region.id, this.app_key)
+                .pipe(map((_) => _?.details))
+                .toPromise(),
+            showMetadata(region.id, 'bindings')
+                .pipe(map((_) => _?.details))
+                .toPromise(),
+            this.loadBuildings(region.id),
+        ]);
+        this._buildings.next(
+            unique([...this._buildings.getValue(), ...buildings], 'id')
+        );
+        this._loaded_data[region.id] = true;
+        (region as any).bindings = bindings;
+        this._region_settings[region.id] = settings;
     }
 
     /**
@@ -307,19 +325,28 @@ export class OrganisationService {
             parent_id,
             limit: 500,
         } as any)
-            .pipe(map((i) => i.data))
+            .pipe(map((i) => i.data.map((_) => new Building(_))))
             .toPromise();
-        const buildings = [];
-        for (const bld of building_list) {
-            const bindings: Record<string, any> = (
-                await showMetadata(bld.id, 'bindings').toPromise()
-            )?.details;
-            const booking_rules: Record<string, any> = (
-                await showMetadata(bld.id, 'booking_rules').toPromise()
-            )?.details;
-            buildings.push(new Building({ ...bld, bindings, booking_rules }));
-        }
-        return buildings;
+        return building_list;
+    }
+
+    public async loadBuildingData(bld: Building) {
+        if (this._loaded_data[bld.id]) return;
+        const [settings, bindings, booking_rules]: any = await Promise.all([
+            showMetadata(bld.id, this.app_key)
+                .pipe(map((_) => _?.details))
+                .toPromise(),
+            showMetadata(bld.id, 'bindings')
+                .pipe(map((_) => _?.details))
+                .toPromise(),
+            showMetadata(bld.id, 'booking_rules')
+                .pipe(map((_) => _?.details))
+                .toPromise(),
+        ]);
+        this._building_settings[bld.id] = settings || {};
+        (bld as any).bindings = bindings;
+        (bld as any).booking_rules = booking_rules;
+        this._loaded_data[bld.id] = true;
     }
 
     /**
@@ -355,28 +382,13 @@ export class OrganisationService {
 
     public async loadSettings() {
         if (!this._organisation) return;
-        const app_name = `${(
-            this._service.app_name || 'workplace'
-        ).toLowerCase()}_app`;
         const app_settings = (
-            await showMetadata(this._organisation?.id, app_name).toPromise()
+            await showMetadata(this._organisation?.id, this.app_key).toPromise()
         )?.details;
         const global_settings = (
             await showMetadata(this._organisation?.id, 'settings').toPromise()
         )?.details;
         this._settings = [global_settings, app_settings];
-        const regions = this.regions;
-        for (const item of regions) {
-            this._region_settings[item.id] = (
-                await showMetadata(item.id, app_name).toPromise()
-            )?.details;
-        }
-        const buildings = this.buildings;
-        for (const bld of buildings) {
-            this._building_settings[bld.id] = (
-                await showMetadata(bld.id, app_name).toPromise()
-            )?.details;
-        }
         this._service.overrides = [...this._settings];
         await this._initialiseActiveBuilding();
         this._updateSettingOverrides();

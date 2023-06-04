@@ -11,15 +11,23 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 btn
                 matRipple
                 class="secondary"
-                [routerLink]="['/asset-manager', 'manage', 'details']"
-                (click)="clearForm()"
+                [routerLink]="['/asset-manager', 'manage', 'group']"
             >
-                Add Asset
+                Add Product
+            </a>
+            <a
+                btn
+                matRipple
+                class="secondary"
+                *ngIf="active === 'purchase-orders'"
+                [routerLink]="['/asset-manager', 'manage', 'purchase-order']"
+            >
+                Add Purchase Order
             </a>
             <mat-button-toggle-group
                 [ngModel]="(options | async)?.view"
                 (ngModelChange)="setOptions({ view: $event })"
-                *ngIf="show_actions"
+                *ngIf="active === 'items'"
             >
                 <mat-button-toggle value="grid">
                     <div
@@ -36,22 +44,16 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     </div>
                 </mat-button-toggle>
             </mat-button-toggle-group>
-            <!-- <button btn matRipple class="clear" *ngIf="show_actions">
-                <div class="flex items-center">
-                    <div class="pl-2">Sort By</div>
-                    <app-icon class="text-2xl">arrow_drop_down</app-icon>
-                </div>
-            </button> -->
             <div class="flex-1"></div>
             <mat-form-field appearance="outline" class="h-[3.25rem]">
-                <app-icon matPrefix class="text-2xl relative top-1 -left-1"
-                    >search</app-icon
-                >
+                <app-icon matPrefix class="text-2xl relative top-1 -left-1">
+                    search
+                </app-icon>
                 <input
                     matInput
                     [ngModel]="(options | async)?.search"
                     (ngModelChange)="setOptions({ search: $event })"
-                    placeholder="Search for an asset or request"
+                    placeholder="Search products and requests"
                 />
             </mat-form-field>
         </div>
@@ -59,12 +61,11 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     styles: [``],
 })
 export class AssetManagerTopbarComponent {
-    @Input() public show_actions = true;
+    @Input() public active = '';
 
     public readonly options = this._state.options;
 
     public readonly setOptions = (o) => this._state.setOptions(o);
-    public readonly clearForm = () => this._state.clearActiveAsset();
 
     constructor(private _state: AssetManagerStateService) {}
 }

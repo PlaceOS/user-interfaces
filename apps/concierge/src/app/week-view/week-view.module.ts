@@ -22,8 +22,15 @@ const ROUTES: Route[] = [{ path: '', component: WeekViewComponent }];
         WeekViewTopbarComponent,
         WeekViewTimelineComponent,
         WeekViewDayComponent,
-        WeekViewEventComponent
+        WeekViewEventComponent,
     ],
-    imports: [CommonModule, FormsModule, UIModule, SharedSpacesModule, SharedUsersModule, RouterModule.forChild(ROUTES)],
+    imports: [
+        CommonModule,
+        FormsModule,
+        UIModule,
+        SharedSpacesModule,
+        SharedUsersModule,
+        RouterModule.forChild(ROUTES),
+    ],
 })
-export class DayViewModule {}
+export class WeekViewModule {}

@@ -83,9 +83,7 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
         {
             icon: 'laptop',
             name: 'Laptop',
-            type: 'Display',
-            inputs: ['Display_1'],
-            help: 'laptop-help',
+            type: 'Laptop',
         },
         {
             icon: 'call',
@@ -323,29 +321,18 @@ const input_list: HashMap = {
 
 const output_list: HashMap = {
     Display1: {
-        name: 'Display 1',
+        name: 'Screen 1',
         type: 'Display',
         source: 'PC1',
         mod: 'Display_1',
     },
     Display2: {
-        name: 'Display 2',
+        name: 'Screen 2',
         type: 'Display',
         mod: 'Display_2',
     },
-    Display3: {
-        name: 'Display 3',
-        type: 'Display',
-        source: 'PC2',
-        mod: 'Display_3',
-    },
-    Display4: {
-        name: 'Display 4',
-        type: 'Display',
-        mod: 'Display_4',
-    },
     Display5: {
-        name: 'Display 5',
+        name: 'TV 1',
         type: 'Display',
         mod: 'Display_5',
         source: 'TV1',

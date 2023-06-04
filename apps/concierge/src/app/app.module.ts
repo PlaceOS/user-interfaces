@@ -20,7 +20,7 @@ import { AppComponent } from '../../../../libs/components/src/lib/app.component'
 import { environment } from '../environments/environment';
 import { UIModule } from './ui/ui.module';
 
-import * as Sentry from '@sentry/angular';
+import * as Sentry from '@sentry/angular-ivy';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {

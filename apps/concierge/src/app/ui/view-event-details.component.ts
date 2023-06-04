@@ -20,7 +20,7 @@ import { SettingsService } from '@placeos/common';
             (click)="$event.stopPropagation()"
         >
             <div class="p-4 overflow-auto flex-1">
-                <h3 class="mb-0 pl-6 mb-1">
+                <h3 class="pl-6 mb-1">
                     {{ event.organiser?.name || event.host }}
                 </h3>
                 <div class="text-bold mb-4 pl-6 opacity-60">
@@ -69,8 +69,8 @@ import { SettingsService } from '@placeos/common';
                     <span class="opacity-60"
                         >{{ building.display_name || building.name }},
                         {{
-                            (event.system.id | space | async)?.display_name ||
-                                (event.system.id | space | async)?.name
+                            (space_id | space | async)?.display_name ||
+                                (space_id | space | async)?.name
                         }}</span
                     >
                 </div>
@@ -146,6 +146,14 @@ export class ViewEventDetailsComponent {
 
     public get building() {
         return this._org.building;
+    }
+
+    public get space_id() {
+        return (
+            this.event?.resources[0]?.id ||
+            this.event?.space?.id ||
+            this.event?.system?.id
+        );
     }
 
     public get time() {

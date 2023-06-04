@@ -52,11 +52,20 @@ export interface RecurrenceDetails {
     /** End of the recurrence in unix ms */
     end: number;
     /** Days of the week (or month) on which the event should be repeated */
-    days_of_week: number;
+    days_of_week: number[];
+    _pattern?:
+        | 'none'
+        | 'daily'
+        | 'weekly'
+        | 'monthly'
+        | 'yearly'
+        | 'custom_display';
     /** Frequency of the event */
-    pattern: 'daily' | 'weekly' | 'monthly';
+    pattern: 'daily' | 'weekly' | 'monthly' | 'yearly';
     /** Interval to be used with pattern */
     interval: number;
+    /** Number of re-occurences to create for this event */
+    occurrences?: number;
 }
 
 export interface EventListQueryParams {

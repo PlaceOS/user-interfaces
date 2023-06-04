@@ -12,7 +12,9 @@ import {
     getInvalidFields,
     notifyError,
     notifyWarn,
+    openConfirmModal,
     SettingsService,
+    UserIdleTimeService,
 } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
@@ -42,6 +44,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                 <form
                     class="p-0 sm:py-4 sm:px-16 divide-y divide-gray-300 space-y-2"
                     [formGroup]="form"
+                    *ngIf="form"
                 >
                     <section class="p-2">
                         <h3 class="space-x-2 flex items-center">
@@ -207,9 +210,10 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                 [options]="{
                                     date: form.value.date,
                                     duration: form.value.duration,
-                                    zone_id:
-                                        form.value.resources[0]?.level
-                                            ?.parent_id
+                                    zone_id: form.value?.resources?.length
+                                        ? form.value?.resources[0]?.level
+                                              ?.parent_id
+                                        : ''
                                 }"
                             ></catering-list-field>
                             <mat-form-field
@@ -252,6 +256,12 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             <mat-form-field
                                 appearance="outline"
                                 class="w-full"
+                                [class.mt-2]="
+                                    !(
+                                        form.value.catering?.length && has_codes
+                                        | async
+                                    )
+                                "
                                 *ngIf="form.value.catering?.length"
                             >
                                 <textarea
@@ -369,7 +379,13 @@ export class MeetingFlowFormComponent extends AsyncHandler {
     );
 
     public readonly has_codes = this._catering.charge_codes.pipe(
-        map((l) => l.length > 0)
+        map((l) => l.length > 0),
+        tap((has_codes) => {
+            if (!has_codes) {
+                this.form.get('catering_charge_code').setValidators([]);
+                this.form.updateValueAndValidity();
+            }
+        })
     );
 
     public readonly filtered_codes = combineLatest([
@@ -486,7 +502,8 @@ export class MeetingFlowFormComponent extends AsyncHandler {
         private _router: Router,
         private _dialog: MatDialog,
         private _bottom_sheet: MatBottomSheet,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _idle: UserIdleTimeService
     ) {
         super();
     }
@@ -513,6 +530,23 @@ export class MeetingFlowFormComponent extends AsyncHandler {
         );
         this._catering.setOptions({ zone: '' });
         this._checkCateringEligibility(this.form.value.resources || []);
+        this.subscription('idle', () => this._idle.stopListening());
+        this._idle
+            .idleFor((this._settings.get('app.idle_timeout') || 5) * 60 * 1000)
+            .then(async () => {
+                this.unsub('idle-listening');
+                this.unsub('idle-timeout');
+                await openConfirmModal(
+                    {
+                        title: 'Idle Timeout',
+                        content: 'Your form data is out of date',
+                        icon: { content: 'update' },
+                    },
+                    this._dialog
+                );
+                this._state.newForm();
+                location.reload();
+            });
     }
 
     public focusInput() {

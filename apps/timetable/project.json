@@ -118,7 +118,7 @@
             }
         },
         "lint": {
-            "executor": "@nrwl/linter:eslint",
+            "executor": "@nx/linter:eslint",
             "options": {
                 "lintFilePatterns": [
                     "apps/timetable/src/**/*.ts",
@@ -127,7 +127,7 @@
             }
         },
         "test": {
-            "executor": "@nrwl/jest:jest",
+            "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/apps/timetable"],
             "options": {
                 "jestConfig": "apps/timetable/jest.config.ts",

@@ -5,7 +5,7 @@
     "projectType": "application",
     "targets": {
         "e2e": {
-            "executor": "@nrwl/cypress:cypress",
+            "executor": "@nx/cypress:cypress",
             "options": {
                 "cypressConfig": "apps/outlook-addin-e2e/cypress.config.js",
                 "devServerTarget": "outlook-addin:serve",
@@ -18,7 +18,7 @@
             }
         },
         "lint": {
-            "executor": "@nrwl/linter:eslint",
+            "executor": "@nx/linter:eslint",
             "options": {
                 "lintFilePatterns": ["apps/outlook-addin-e2e/**/*.{js,ts}"]
             },

@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Integrations } from '@sentry/tracing';
 import { first } from 'rxjs/operators';
 import {
     Amazon,
@@ -27,7 +26,7 @@ import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 
 import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
 
-import * as Sentry from '@sentry/angular';
+import * as Sentry from '@sentry/angular-ivy';
 import * as MOCKS from '@placeos/mocks';
 import { token } from '@placeos/ts-client';
 

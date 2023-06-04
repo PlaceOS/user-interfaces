@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { EventFormService } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
-import { differenceInDays } from 'date-fns';
+import { EventFormService } from 'libs/events/src/lib/event-form.service';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+
 import { Space } from '../space.class';
 
 @Component({

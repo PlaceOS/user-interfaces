@@ -2,13 +2,13 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
 
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { notifyError } from 'libs/common/src/lib/notifications';
 import { getInvalidFields, randomString } from 'libs/common/src/lib/general';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { BookingFormService } from './booking-form.service';
 import { Booking } from './booking.class';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { User } from '@placeos/users';
+import { User } from 'libs/users/src/lib/user.class';
 
 @Component({
     selector: `invite-visitor-form`,
@@ -434,6 +434,7 @@ export class InviteVisitorFormComponent extends AsyncHandler {
                 booking_type: 'visitor',
                 asset_id: user.email,
                 asset_name: user.name,
+                user: user,
                 description: group,
                 name: user.name,
                 assets: [],

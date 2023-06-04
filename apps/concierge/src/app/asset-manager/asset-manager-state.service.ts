@@ -1,11 +1,20 @@
 import { Injectable } from '@angular/core';
-import { Booking, queryBookings, updateBooking } from '@placeos/bookings';
+import {
+    Booking,
+    approveBooking,
+    queryBookings,
+    rejectBooking,
+    updateBooking,
+} from '@placeos/bookings';
 import { AsyncHandler, notifySuccess, unique } from '@placeos/common';
 import { SpacesService } from '@placeos/spaces';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import {
     debounceTime,
+    distinctUntilChanged,
+    distinctUntilKeyChanged,
+    filter,
     map,
     shareReplay,
     switchMap,
@@ -13,19 +22,24 @@ import {
     tap,
 } from 'rxjs/operators';
 import {
-    Asset,
-    deleteAsset,
+    AssetGroup,
+    AssetPurchaseOrder,
+    deleteAssetGroup,
     generateAssetForm,
-    queryAssets,
+    getGroupsWithAssets,
+    queryAssetCategories,
+    queryAssetPurchaseOrders,
     saveAsset,
+    showGroupFull,
 } from '@placeos/assets';
 import { cleanObject } from '@placeos/ts-client';
 
 export interface AssetOptions {
+    date?: number;
     search?: string;
     sort_by?: string;
     view: 'grid' | 'list';
-    active_asset?: string;
+    active_item?: string;
 }
 
 export interface AssetRequest {
@@ -51,30 +65,41 @@ export class AssetManagerStateService extends AsyncHandler {
     private _poll = new BehaviorSubject(0);
     private _form = generateAssetForm();
     private _loading = new BehaviorSubject(false);
-    /** List of available assets */
-    public readonly assets: Observable<Asset[]> = this._change.pipe(
-        switchMap(() => {
-            this._loading.next(true);
-            return queryAssets();
-        }),
-        tap(() => this._loading.next(false)),
-        shareReplay(1)
-    ) as any;
     /** Whether asset list is loading */
     public readonly loading = this._loading.asObservable();
     /** List of options set for the view */
     public readonly options = this._options.asObservable();
+    /** List of available assets */
+    public readonly products: Observable<AssetGroup[]> = this._change.pipe(
+        switchMap(() => {
+            this._loading.next(true);
+            return getGroupsWithAssets();
+        }),
+        tap((_) => this._loading.next(false)),
+        shareReplay(1)
+    ) as any;
+    /** List of available assets */
+    public readonly purchase_orders: Observable<AssetPurchaseOrder[]> =
+        this._change.pipe(
+            switchMap(() => {
+                this._loading.next(true);
+                return queryAssetPurchaseOrders();
+            }),
+            tap(() => this._loading.next(false)),
+            shareReplay(1)
+        ) as any;
     /** List of requests made by users for assets */
     public readonly requests = combineLatest([
+        this._options,
         this._poll,
         this._change,
         this._spaces.initialised,
     ]).pipe(
         debounceTime(200),
-        switchMap((_) =>
+        switchMap(([{ date }]) =>
             queryBookings({
-                period_start: getUnixTime(startOfDay(Date.now())),
-                period_end: getUnixTime(endOfDay(Date.now())),
+                period_start: getUnixTime(startOfDay(date || Date.now())),
+                period_end: getUnixTime(endOfDay(date || Date.now())),
                 type: 'asset-request',
             })
         ),
@@ -115,22 +140,31 @@ export class AssetManagerStateService extends AsyncHandler {
                 : list;
         })
     );
-    /** Currently active asset */
-    public readonly active_asset = combineLatest([
-        this.assets,
+    public readonly categories = combineLatest([
         this._options,
+        this._change,
     ]).pipe(
-        map(([list, options]) =>
-            list.find((_) => _.id === options.active_asset)
-        )
+        switchMap(() => queryAssetCategories()),
+        shareReplay(1)
+    );
+    /** Currently active asset */
+    public readonly active_product = combineLatest([
+        this._options,
+        this._change,
+    ]).pipe(
+        filter(([{ active_item }]) => !!active_item),
+        map(([options, t]) => [options.active_item, t] as any),
+        distinctUntilChanged(),
+        switchMap(([active_item]) => showGroupFull(active_item)),
+        shareReplay(1)
     );
     /** List of requests for the currently active asset */
-    public readonly active_asset_requests = this.active_asset.pipe(
-        switchMap((asset) => {
+    public readonly active_product_requests = this.active_product.pipe(
+        switchMap((item) => {
             return this.requests.pipe(
                 map((_) =>
                     _.filter((i) =>
-                        i.extension_data.assets.find((a) => a.id === asset.id)
+                        item.assets.find((asset) => asset.id === i.asset_id)
                     )
                 )
             );
@@ -138,8 +172,8 @@ export class AssetManagerStateService extends AsyncHandler {
         map((_) => _.filter((i) => i.status !== 'declined'))
     );
     /** list of filtered assets */
-    public readonly filtered_assets = combineLatest([
-        this.assets,
+    public readonly filtered_products = combineLatest([
+        this.products,
         this._options,
     ]).pipe(
         map(([list, options]) =>
@@ -153,19 +187,15 @@ export class AssetManagerStateService extends AsyncHandler {
         )
     );
     /** Mapping of available assets to categories */
-    public readonly asset_mapping = this.filtered_assets.pipe(
+    public readonly product_mapping = this.filtered_products.pipe(
         map((_) => {
-            const map = {};
-            const categories = unique(_.map((i) => i.category));
+            const map = { _count: _.length };
+            const categories = unique(_.map((i) => i.category_id));
             for (const group of categories) {
-                map[group] = _.filter((i) => i.category === group);
+                map[group] = _.filter((i) => i.category_id === group);
             }
             return map;
         })
-    );
-    /** List of asset categories */
-    public readonly asset_categories = this.asset_mapping.pipe(
-        map((_) => Object.keys(_ || {}))
     );
 
     public get form() {
@@ -194,12 +224,17 @@ export class AssetManagerStateService extends AsyncHandler {
         this._options.next({ ...this._options.getValue(), ...options });
     }
 
+    public postChange() {
+        this.timeout('change', () => this._change.next(Date.now()), 1000);
+    }
+
     public async setStatus(item: Booking, status: any) {
-        const result = await updateBooking(item.id, {
-            ...item,
-            approved: status === 'approved',
-            rejected: status === 'declined',
-        }).toPromise();
+        let result = item;
+        if (status === 'declined') {
+            result = await rejectBooking(item.id).toPromise();
+        } else if (status === 'approved') {
+            result = await approveBooking(item.id).toPromise();
+        }
         this._change.next(Date.now());
         return result;
     }
@@ -213,18 +248,12 @@ export class AssetManagerStateService extends AsyncHandler {
         return result;
     }
 
-    public clearActiveAsset() {
-        this.setOptions({ active_asset: '' });
-        this.resetForm();
-    }
-
-    public async deleteActiveAsset() {
-        const asset = await this.active_asset.pipe(take(1)).toPromise();
-        if (!asset?.id) return;
-        await deleteAsset(asset.id).toPromise();
+    public async deleteActiveProduct() {
+        const item = await this.active_product.pipe(take(1)).toPromise();
+        if (!item?.id) return;
+        await deleteAssetGroup(item.id).toPromise();
         this._change.next(Date.now());
         notifySuccess('Successfully deleted asset');
-        this.clearActiveAsset();
     }
 
     public async postForm() {

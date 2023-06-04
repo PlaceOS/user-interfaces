@@ -4,8 +4,9 @@ import { IconComponent } from '@placeos/components';
 import { CalendarEvent } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { set } from 'date-fns';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { EventCardComponent } from '../lib/event-card.component';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
 describe('EventCardComponent', () => {
     let spectator: SpectatorRouting<EventCardComponent>;
@@ -13,12 +14,13 @@ describe('EventCardComponent', () => {
         component: EventCardComponent,
         declarations: [MockComponent(IconComponent)],
         providers: [
-            {
-                provide: OrganisationService,
-                useValue: { levelWithID: jest.fn(), buildings: [] },
-            },
-            { provide: MatDialog, useValue: { open: jest.fn() } },
+            MockProvider(OrganisationService, {
+                levelWithID: jest.fn(),
+                buildings: [],
+            }),
+            MockProvider(MatDialog, { open: jest.fn() }),
         ],
+        componentProviders: [MockProvider(SpacePipe)],
     });
 
     beforeEach(() => (spectator = createComponent()));

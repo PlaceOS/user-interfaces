@@ -3,7 +3,7 @@ import { querySystems, showSystem } from '@placeos/ts-client';
 import { first, map } from 'rxjs/operators';
 import { BehaviorSubject } from 'rxjs';
 
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 import { Space } from './space.class';
 import { flatten, SettingsService, unique } from '@placeos/common';
@@ -24,7 +24,9 @@ export class SpacesService {
     /** Observable for list of spaces */
     public readonly list = this._list.asObservable();
     /** List of available features */
-    public readonly features = this.list.pipe(map(_ => unique(flatten(_.map(i => i.features)))));
+    public readonly features = this.list.pipe(
+        map((_) => unique(flatten(_.map((i) => i.features))))
+    );
     /** Default predicate for filter method */
     protected _compare = (space: Space) =>
         space.zones.includes(this._org.building.id);
@@ -34,7 +36,10 @@ export class SpacesService {
         return this._list.getValue();
     }
 
-    constructor(private _org: OrganisationService, private _settings: SettingsService) {
+    constructor(
+        private _org: OrganisationService,
+        private _settings: SettingsService
+    ) {
         SPACE_PIPE = new SpacePipe(_org);
         this._init();
     }
@@ -56,9 +61,9 @@ export class SpacesService {
     public async loadSpace(space_id: string) {
         const system = await showSystem(space_id).toPromise();
         const space = new Space({
-            ...system as any,
+            ...(system as any),
             level: this._org.levelWithID([...system.zones]),
-        })
+        });
         SPACE_PIPE.updateSpaceList([space]);
     }
 

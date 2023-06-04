@@ -9,7 +9,7 @@ import {
     saveBooking,
 } from '@placeos/bookings';
 import { map, shareReplay, switchMap } from 'rxjs/operators';
-import { endOfDay, startOfDay } from 'date-fns';
+import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { AsyncHandler, timePeriodsIntersect } from '@placeos/common';
 import { HashMap } from '@placeos/ts-client/dist/esm/utilities/types';
 import { OrganisationService } from '@placeos/organisation';
@@ -62,10 +62,8 @@ export class StaffStateService extends AsyncHandler {
         switchMap(async (_) => {
             this._loading.next(true);
             const bookings = await queryBookings({
-                period_start: Math.floor(
-                    startOfDay(new Date()).valueOf() / 1000
-                ),
-                period_end: Math.floor(endOfDay(new Date()).valueOf() / 1000),
+                period_start: getUnixTime(startOfDay(Date.now())),
+                period_end: getUnixTime(endOfDay(Date.now())),
                 type: 'staff',
             }).toPromise();
             const checkin_map = {};
@@ -93,6 +91,7 @@ export class StaffStateService extends AsyncHandler {
     constructor(private _org: OrganisationService) {
         super();
         this.loadUsers();
+        this.user_events.subscribe();
     }
 
     public setFilters(filters: StaffFilters) {
@@ -127,7 +126,7 @@ export class StaffStateService extends AsyncHandler {
             zones: [this._org.building.id],
             booking_type: 'staff',
         } as any).toPromise();
-        await checkinBooking(result.id, true);
+        await checkinBooking(result.id, true).toPromise();
         this._events[user.email] = result;
         this._onsite[user.email] = true;
     }

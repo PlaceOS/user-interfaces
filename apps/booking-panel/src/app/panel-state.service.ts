@@ -17,16 +17,24 @@ import {
     AsyncHandler,
     currentUser,
     notifyError,
+    notifySuccess,
     openConfirmModal,
     timePeriodsIntersect,
 } from '@placeos/common';
 
 import { openBookingModal } from './overlays/booking-modal.component';
 import { EmbeddedControlModalComponent } from './overlays/embedded-control-modal.component';
-import { addMinutes, isAfter, isBefore } from 'date-fns';
+import {
+    addMinutes,
+    differenceInMinutes,
+    isAfter,
+    isBefore,
+    max,
+} from 'date-fns';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { OrganisationService } from '@placeos/organisation';
 import { Router } from '@angular/router';
+import { is } from 'date-fns/locale';
 
 export interface PanelSettings {
     /** Name of the room */
@@ -198,9 +206,10 @@ export class PanelStateService extends AsyncHandler {
      * @param date Start time of the new booking
      */
     public async newBooking(
-        date: number = new Date().valueOf(),
+        date: number = Date.now(),
         user: boolean = false,
-        future: boolean = false
+        future: boolean = false,
+        force_api: boolean = false
     ) {
         const current = await this.current.pipe(take(1)).toPromise();
         if (
@@ -209,6 +218,19 @@ export class PanelStateService extends AsyncHandler {
             isBefore(date, addMinutes(current!.date, current!.duration))
         )
             return notifyError('Booking already exists for this time');
+
+        var max_duration = undefined;
+        const next = await this.next.pipe(take(1)).toPromise();
+        if (next && date <= Date.now()) {
+            const diff = Math.abs(differenceInMinutes(next.date, date));
+            const max = this._settings.getValue().max_duration || 480;
+            max_duration = diff < max ? diff : max;
+        }
+        if (max_duration != null && max_duration < 15) {
+            return notifyError(
+                'Unable to make bookings as the time available before the next meeting is less than 15 minutes'
+            );
+        }
         const space = await this._space_pipe.transform(this.system);
         const details = await openBookingModal(
             {
@@ -217,6 +239,7 @@ export class PanelStateService extends AsyncHandler {
                 space,
                 date,
                 future,
+                max_duration,
             },
             this._dialog
         );
@@ -227,17 +250,77 @@ export class PanelStateService extends AsyncHandler {
             resources: [space],
             system: space,
         });
-        await this.makeBooking(this._events.form.getRawValue());
+        await this.makeBooking(
+            this._events.form.getRawValue(),
+            force_api
+        ).catch((e) => {
+            notifyError(`Error creating meeting. ${e}`);
+            this._events.clearForm();
+            details.close();
+            throw e;
+        });
         this._events.clearForm();
         details.close();
+    }
+
+    public async confirmBookNow() {
+        const date = Date.now();
+        const current = await this.current.pipe(take(1)).toPromise();
+        if (
+            current &&
+            isAfter(date, current!.date) &&
+            isBefore(date, addMinutes(current!.date, current!.duration))
+        )
+            return notifyError('Booking already exists for this time');
+
+        var max_duration = undefined;
+        const next = await this.next.pipe(take(1)).toPromise();
+        if (next && date <= Date.now()) {
+            const diff = Math.abs(differenceInMinutes(next.date, date));
+            const max = this._settings.getValue().max_duration || 480;
+            max_duration = diff < max ? diff : max;
+        }
+        if (max_duration != null && max_duration < 15) {
+            return notifyError(
+                'Unable to make bookings as the time available before the next meeting is less than 15 minutes'
+            );
+        }
+        const ref = await openConfirmModal(
+            {
+                title: 'Book Meeting',
+                content: `Do you wish to book a meeting in this room for ${Math.min(
+                    max_duration || 180,
+                    30
+                )} minutes?`,
+                icon: { content: 'event' },
+            },
+            this._dialog
+        );
+        if (ref.reason !== 'done') return;
+        ref.loading('Creating Meeting...');
+        try {
+            const module = getModule(this.system, 'Bookings');
+            if (!module) throw 'Unable to find module';
+            await module.execute('book_now', [
+                Math.min(max_duration || 180, 30) * 60,
+                'Ad-hoc Panel Booking',
+            ]);
+            notifySuccess('Successfully created meeting.');
+        } catch (e) {
+            notifyError(`Error creating meeting. ${e}`);
+        }
+        ref.close();
     }
 
     /**
      * Create new booking with the given details
      * @param details
      */
-    public async makeBooking(details: Partial<CalendarEvent>) {
-        if (isAfter(details.date, addMinutes(Date.now(), 5))) {
+    public async makeBooking(
+        details: Partial<CalendarEvent>,
+        force_api = false
+    ) {
+        if (isAfter(details.date, addMinutes(Date.now(), 5)) || force_api) {
             await this._events.postForm();
         } else {
             const module = getModule(this.system, 'Bookings');

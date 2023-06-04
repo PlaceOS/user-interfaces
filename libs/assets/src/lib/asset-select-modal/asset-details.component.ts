@@ -1,5 +1,12 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Asset } from '../asset.class';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    Output,
+    SimpleChanges,
+} from '@angular/core';
+import { AssetGroup } from '../asset.class';
+import { flatten } from '@placeos/common';
 
 @Component({
     selector: 'asset-details',
@@ -7,7 +14,7 @@ import { Asset } from '../asset.class';
         <ng-container *ngIf="item; else empty_state">
             <section image class="relative w-full h-64 sm:h-40 bg-black/20">
                 <image-carousel
-                    [images]="images"
+                    [images]="item.images"
                     class="absolute inset-0"
                 ></image-carousel>
                 <button
@@ -28,9 +35,9 @@ import { Asset } from '../asset.class';
                     (click)="toggleFav.emit()"
                     class="absolute top-2 right-2 bg-black/40"
                 >
-                    <app-icon>{{
-                        fav ? 'favorite' : 'favorite_border'
-                    }}</app-icon>
+                    <app-icon>
+                        {{ fav ? 'favorite' : 'favorite_border' }}
+                    </app-icon>
                 </button>
             </section>
             <div class="p-2 space-y-2 flex-1 h-1/2 overflow-auto">
@@ -39,12 +46,12 @@ import { Asset } from '../asset.class';
                         <h2 class="text-xl font-medium mb-2 mt-4">
                             {{ item.name }}
                         </h2>
-                        <p>{{ item.count }} Available</p>
+                        <p>{{ item.assets?.length || 0 }} Available</p>
                     </div>
                     <a-counter
                         [(ngModel)]="item.amount"
                         [min]="1"
-                        [max]="item.count || 2"
+                        [max]="item.assets?.length || 1"
                     ></a-counter>
                 </section>
                 <hr />
@@ -65,9 +72,9 @@ import { Asset } from '../asset.class';
                     (click)="active = !active; activeChange.emit(active)"
                 >
                     <div class="flex items-center justify-center">
-                        <app-icon class="text-2xl">{{
-                            active ? 'remove' : 'add'
-                        }}</app-icon>
+                        <app-icon class="text-2xl">
+                            {{ active ? 'remove' : 'add' }}
+                        </app-icon>
                         <p>
                             {{
                                 active ? 'Remove this asset' : 'Add this asset'
@@ -102,7 +109,7 @@ import { Asset } from '../asset.class';
     ],
 })
 export class AssetDetailsComponent {
-    @Input() public item?: Asset;
+    @Input() public item?: AssetGroup;
     @Input() public active: boolean = false;
     @Input() public fav: boolean = false;
 
@@ -110,7 +117,13 @@ export class AssetDetailsComponent {
     @Output() public activeChange = new EventEmitter<boolean>();
     @Output() public close = new EventEmitter<void>();
 
-    public get images() {
-        return this.item?.images.map((_) => _.url) || [];
+    public ngOnInit() {
+        if (this.item && !this.item.amount) this.item.amount = 1;
+    }
+
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes.item && this.item) {
+            if (!this.item.amount) this.item.amount = 1;
+        }
     }
 }

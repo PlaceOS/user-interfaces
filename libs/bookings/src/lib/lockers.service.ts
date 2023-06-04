@@ -1,11 +1,9 @@
 import { Injectable } from '@angular/core';
 import { flatten } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import {
     PlaceMetadata,
     PlaceZoneMetadata,
     listChildMetadata,
-    showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
@@ -16,6 +14,8 @@ import {
     shareReplay,
     switchMap,
 } from 'rxjs/operators';
+
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 export interface LockerBank {
     id: string;
@@ -73,7 +73,12 @@ export class LockersService {
             for (const bank of bank_list) {
                 lockers.push(
                     ...bank.lockers.map(
-                        (_) => ({ ..._, bank_id: bank.id } as Locker)
+                        (_) =>
+                            ({
+                                ..._,
+                                bank_id: bank.id,
+                                level_id: bank.zone.id,
+                            } as Locker)
                     )
                 );
             }

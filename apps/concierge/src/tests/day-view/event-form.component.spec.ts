@@ -12,11 +12,14 @@ import {
     UserListFieldComponent,
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
 import { EventFormComponent } from '../../app/day-view/event-form.component';
+import { AssetListFieldComponent } from 'libs/assets/src/lib/asset-list-field.component';
+import { CateringListFieldComponent } from 'libs/catering/src/lib/catering-list-field.component';
+import { SettingsService } from '@placeos/common';
 
 describe('EventFormComponent', () => {
     let spectator: Spectator<EventFormComponent>;
@@ -29,14 +32,12 @@ describe('EventFormComponent', () => {
             MockComponent(UserSearchFieldComponent),
             MockComponent(UserListFieldComponent),
             MockComponent(ActionFieldComponent),
+            MockComponent(CateringListFieldComponent),
+            MockComponent(AssetListFieldComponent),
         ],
         providers: [
-            {
-                provide: MatDialog,
-                useValue: {
-                    open: jest.fn(),
-                },
-            },
+            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
         imports: [
             MatFormFieldModule,

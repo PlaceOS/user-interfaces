@@ -1,12 +1,14 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { DialogEvent } from '@placeos/common';
+import { DialogEvent, SettingsService } from '@placeos/common';
 import {
     SpaceSelectModalComponent,
     SpaceSelectModalData,
 } from '@placeos/spaces';
-import { first } from 'rxjs/operators';
+import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { first, map, tap } from 'rxjs/operators';
 
 @Component({
     selector: 'event-form',
@@ -70,12 +72,103 @@ import { first } from 'rxjs/operators';
                     >{{ spaces }}</an-action-field
                 >
             </div>
+            <div
+                class="py-2"
+                *ngIf="(has_catering | async) && form.contains('catering')"
+            >
+                <label for="catering">Catering:</label>
+                <catering-list-field
+                    name="catering"
+                    formControlName="catering"
+                    [options]="{
+                        date: form.value.date,
+                        duration: form.value.duration,
+                        zone_id: form.value.resources[0]?.level?.parent_id
+                    }"
+                ></catering-list-field>
+                <mat-form-field
+                    appearance="outline"
+                    class="w-full mt-2"
+                    *ngIf="form.value.catering?.length && has_codes | async"
+                    (openedChange)="focusInput()"
+                >
+                    <mat-select
+                        formControlName="catering_charge_code"
+                        placeholder="Charge Code"
+                    >
+                        <input
+                            #input
+                            class="sticky top-0 bg-white px-4 py-3 text-base border-x-0 border-t-0 border-b focus:border-b border-gray-200 w-full rounded-none z-50"
+                            [ngModel]="code_filter.getValue()"
+                            (ngModelChange)="code_filter.next($event)"
+                            [ngModelOptions]="{ standalone: true }"
+                            placeholder="Search charge codes..."
+                        />
+                        <mat-option class="hidden"></mat-option>
+                        <mat-option
+                            *ngFor="let code of filtered_codes | async"
+                            [value]="code"
+                        >
+                            {{ code }}
+                        </mat-option>
+                    </mat-select>
+                    <mat-error> Catering charge code is required </mat-error>
+                </mat-form-field>
+                <mat-form-field
+                    appearance="outline"
+                    class="w-full"
+                    [class.mt-2]="
+                        !(form.value.catering?.length && has_codes | async)
+                    "
+                    *ngIf="form.value.catering?.length"
+                >
+                    <textarea
+                        matInput
+                        formControlName="catering_notes"
+                        placeholder="Extra catering details..."
+                    ></textarea>
+                    <mat-error> Catering Order notes are required </mat-error>
+                </mat-form-field>
+            </div>
+            <div class="flex flex-col flex-1" *ngIf="has_assets">
+                <label for="space">Assets:</label>
+                <asset-list-field formControlName="assets"></asset-list-field>
+            </div>
         </form>
     `,
     styles: [``],
 })
 export class EventFormComponent {
     @Input() public form: FormGroup;
+
+    public code_filter = new BehaviorSubject('');
+
+    public readonly has_catering = this._catering.available_menu.pipe(
+        map((l) => l.length > 0)
+    );
+
+    public readonly has_codes = this._catering.charge_codes.pipe(
+        map((l) => l.length > 0),
+        tap((has_codes) => {
+            if (!has_codes) {
+                this.form.get('catering_charge_code').setValidators([]);
+                this.form.updateValueAndValidity();
+            }
+        })
+    );
+
+    public readonly filtered_codes = combineLatest([
+        this.code_filter,
+        this._catering.charge_codes,
+    ]).pipe(
+        map(([s, l]) =>
+            l.filter((_) => _.toLowerCase().includes(s.toLowerCase()))
+        )
+    );
+
+    public get has_assets() {
+        return !!this._settings.get('app.events.has_assets');
+    }
 
     public get spaces() {
         return (
@@ -85,7 +178,11 @@ export class EventFormComponent {
         );
     }
 
-    constructor(private _dialog: MatDialog) {}
+    constructor(
+        private _dialog: MatDialog,
+        private _settings: SettingsService,
+        private _catering: CateringOrderStateService
+    ) {}
 
     public async selectSpace() {
         const ref = this._dialog.open<

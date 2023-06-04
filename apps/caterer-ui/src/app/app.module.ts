@@ -20,10 +20,11 @@ import { environment } from '../environments/environment';
 import { CateringComponent } from './catering.component';
 import { CateringTopbarComponent } from './catering-topbar.component';
 
-import * as Sentry from '@sentry/angular';
+import * as Sentry from '@sentry/angular-ivy';
 import { MatRippleModule } from '@angular/material/core';
 import { PaymentsModule } from '@placeos/payments';
 import { AssetsModule } from '@placeos/assets';
+import { SharedSpacesModule } from '@placeos/spaces';
 
 @NgModule({
     declarations: [
@@ -45,6 +46,7 @@ import { AssetsModule } from '@placeos/assets';
         MatChipsModule,
         SharedCateringModule,
         ComponentsModule,
+        SharedSpacesModule,
         MatRippleModule,
         PaymentsModule,
         AssetsModule,

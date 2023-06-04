@@ -76,7 +76,7 @@ export class DesksStateService extends AsyncHandler {
         catchError((_) => []),
         map((list) => {
             if (!(list instanceof Array)) list = [];
-            list.sort((a, b) => a.name.localeCompare(b.name));
+            list.sort((a, b) => a.name?.localeCompare(b.name));
             this._desks = list.map(
                 (i) =>
                     new Desk({
@@ -169,6 +169,7 @@ export class DesksStateService extends AsyncHandler {
     }
 
     public clearNewDesks() {
+        this._filters.next(this._filters.getValue());
         this._new_desks.next([]);
     }
 
@@ -240,7 +241,7 @@ export class DesksStateService extends AsyncHandler {
             },
             this._dialog
         );
-        if (resp.reason === 'done') return;
+        if (resp.reason !== 'done') return;
         resp.loading('Rejecting all desks for selected date...');
         await Promise.all(
             list.map((desk) => rejectBooking(desk.id).toPromise())

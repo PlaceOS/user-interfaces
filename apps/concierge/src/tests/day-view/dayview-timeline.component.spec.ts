@@ -54,14 +54,19 @@ describe('DayviewTimelineComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => expect(spectator.component).toBeTruthy());
+    it('should create component', () =>
+        expect(spectator.component).toBeTruthy());
 
     it('should display spaces', fakeAsync(() => {
         (spectator.inject(SpacesService).list as any).next([]);
         spectator.detectChanges();
         expect('dayview-space').not.toExist();
-        (client.querySystems as any).mockImplementation(() => of({ data: [{}, {}] }));
-        (spectator.inject(OrganisationService).active_building as any).next({ id: 'bld-1' });
+        (client.querySystems as any).mockImplementation(() =>
+            of({ data: [{}, {}] })
+        );
+        (spectator.inject(OrganisationService).active_building as any).next({
+            id: 'bld-1',
+        });
         spectator.tick(1001);
         spectator.detectChanges();
         expect('dayview-space').toExist();

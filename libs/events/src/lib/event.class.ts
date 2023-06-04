@@ -4,6 +4,7 @@ import {
     add,
     addMinutes,
     differenceInMinutes,
+    endOfDay,
     getUnixTime,
     isAfter,
     isBefore,
@@ -25,6 +26,16 @@ let _default_user: Identity = { id: 'default', name: 'Default User' };
 
 export function setDefaultCreator(user: Identity) {
     if (user) _default_user = user;
+}
+
+export interface LinkedBooking {
+    id: string;
+    asset_id: string;
+    asset_name: string;
+    user_id: string;
+    user_name: string;
+    description: string;
+    booking_type: string;
 }
 
 type CalendarEventExtended = CalendarEvent & EventExtensionData;
@@ -98,6 +109,8 @@ export class CalendarEvent {
     /** Mailbox email address of the event */
     public readonly mailbox: string;
 
+    public readonly linked_bookings: LinkedBooking[];
+
     /** Get field from extension data */
     public ext<K extends keyof EventExtensionData>(key: K) {
         return this.extension_data[key];
@@ -164,6 +177,7 @@ export class CalendarEvent {
         this.master = data.master ? new CalendarEvent(data.master) : null;
         this.mailbox = data.mailbox || '';
         this.ical_uid = data.ical_uid;
+        this.linked_bookings = data.linked_bookings || [];
         if (data.recurring) {
             this.recurrence = {
                 start:
@@ -237,12 +251,17 @@ export class CalendarEvent {
         obj.event_start = getUnixTime(date);
         obj.event_end = end;
         const attendees = this.attendees;
+        (this as any).recurring =
+            this.recurrence?.pattern && this.recurrence._pattern !== 'none';
         if (this.recurring) {
             obj.recurrence = {
                 ...this.recurrence,
                 range_start: obj.event_start,
-                range_end: getUnixTime(this.recurrence.end),
+                range_end: getUnixTime(endOfDay(this.recurrence.end)),
             };
+            delete obj.recurrence.days_of_week;
+            delete obj.recurrence.start;
+            delete obj.recurrence.end;
         }
         obj.recurrence = obj.recurrence
             ? Object.keys(obj.recurrence).length

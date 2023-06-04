@@ -109,7 +109,5 @@ export class SetDatetimeModalComponent {
             user?: User;
             resource: BookingAsset;
         }
-    ) {
-        console.log('Data:', this._data);
-    }
+    ) {}
 }

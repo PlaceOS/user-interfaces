@@ -98,6 +98,11 @@ export interface FindAvailabilityData {
                             [user]="host"
                             [date]="date"
                             [offset]="offset"
+                            [availability]="
+                                (availability | async)
+                                    ? (availability | async)[host.email]
+                                    : []
+                            "
                             [width]="width"
                         ></user-availability-list>
                     </div>
@@ -225,7 +230,9 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
         switchMap((users) => {
             if (!users.length) return of([]);
             return queryUserFreeBusy({
-                calendars: users.map((_) => _.email).join(','),
+                calendars: [this.host.email, ...users.map((_) => _.email)].join(
+                    ','
+                ),
                 period_start: getUnixTime(startOfDay(this.date)),
                 period_end: getUnixTime(endOfDay(this.date)),
             }).pipe(catchError(() => of([])));
@@ -241,7 +248,6 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
                             fromUnixTime(block.ends_at),
                             fromUnixTime(block.starts_at)
                         );
-                        console.log('Block:', block, date, duration);
                         return {
                             date,
                             duration,

@@ -7,7 +7,6 @@ import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 
 import { SharedExploreModule } from '@placeos/explore';
 import { SharedBookingsModule } from '@placeos/bookings';
-import { AssetsModule } from '@placeos/assets';
 import { SharedCateringModule } from '@placeos/catering';
 
 import { BookComponent } from './book.component';
@@ -133,7 +132,6 @@ const ROUTES: Route[] = [
         CommonModule,
         SharedComponentModule,
         FormsModule,
-        AssetsModule,
         SharedCateringModule,
         SharedExploreModule,
         ReactiveFormsModule,

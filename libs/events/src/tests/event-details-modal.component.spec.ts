@@ -21,6 +21,7 @@ import { AttendeeListComponent } from '../lib/attendee-list.component';
 
 import { EventDetailsModalComponent } from '../lib/event-details-modal.component';
 import { CalendarEvent } from '../lib/event.class';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
 describe('EventDetailsModalComponent', () => {
     let spectator: Spectator<EventDetailsModalComponent>;
@@ -33,6 +34,11 @@ describe('EventDetailsModalComponent', () => {
                 buildings: [],
             }),
             MockProvider(SettingsService, { get: jest.fn() }),
+        ],
+        componentProviders: [
+            MockProvider(SpacePipe, {
+                transform: jest.fn(async () => new Space()),
+            }),
         ],
         declarations: [
             MockComponent(ImageCarouselComponent),

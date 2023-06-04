@@ -172,9 +172,9 @@ import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-moda
                                 {{ level?.display_name || level?.name }},
                             </ng-container>
                             {{
-                                event?.location ||
-                                    event?.system?.display_name ||
-                                    event?.system?.name
+                                event?.system?.display_name ||
+                                    event?.system?.name ||
+                                    event?.location
                             }}
                         </div>
                     </div>
@@ -234,9 +234,14 @@ import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-moda
                     </h3>
                     <div class="px-2 flex items-center space-x-2" host>
                         <a-user-avatar [user]="event.organiser"></a-user-avatar>
-                        <div class="text-sm">
+                        <div class="text-sm flex-1 w-px">
                             <div>{{ event.organiser?.name }}</div>
-                            <div class="opacity-60">{{ event.host }}</div>
+                            <div
+                                class="opacity-60 truncate w-full"
+                                [title]="event.host"
+                            >
+                                {{ event.host }}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -310,6 +315,31 @@ import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-moda
                         "
                     ></div>
                 </div>
+                <ng-container *ngIf="has_assets">
+                    <div
+                        class="mt-4 sm:p-4 sm:bg-white sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-gray-200 dark:border-neutral-500 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
+                    >
+                        <h3
+                            class="mx-3 pt-2 text-lg font-medium dark:border-neutral-500"
+                            i18n
+                        >
+                            Assets ({{ event.linked_bookings.length || 0 }})
+                        </h3>
+                        <div class="flex flex-col px-4 space-y-2">
+                            <div
+                                asset
+                                class="flex space-x-2"
+                                *ngFor="let item of event.linked_bookings"
+                            >
+                                <div details class="pt-0.5">
+                                    <div class="text-sm">
+                                        {{ item.asset_name || item.title }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
                 <button
                     icon
                     matRipple
@@ -366,24 +396,27 @@ export class EventDetailsModalComponent {
     ];
 
     public readonly has_catering = this.event?.ext('catering')?.length > 0;
+    public readonly has_assets = !!this.event?.linked_bookings?.find(
+        (_) => _.booking_type === 'asset-request'
+    );
 
     public level: BuildingLevel = new BuildingLevel();
     public building: Building = new Building();
     public space: Space = new Space();
 
     public accept_count = this._event.attendees.reduce(
-        (c, i) => (c += i.response_status === 'accepted' ? 1 : 0),
+        (count, user) => (count += user.response_status === 'accepted' ? 1 : 0),
         0
     );
     public declined_count = this._event.attendees.reduce(
-        (c, i) => (c += i.response_status === 'declined' ? 1 : 0),
+        (count, user) => (count += user.response_status === 'declined' ? 1 : 0),
         0
     );
     public pending_count = this._event.attendees.reduce(
-        (c, i) =>
-            (c +=
-                i.response_status === 'tentative' ||
-                i.response_status === 'needsAction'
+        (count, user) =>
+            (count +=
+                user.response_status === 'tentative' ||
+                user.response_status === 'needsAction'
                     ? 1
                     : 0),
         0

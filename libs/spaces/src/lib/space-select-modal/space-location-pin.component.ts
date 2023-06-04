@@ -86,7 +86,5 @@ export class SpaceLocationPinComponent {
     public get color() {
         return this.active ? '#F4511E' : this.selected ? '#D32F2F' : '#309251';
     }
-    constructor(@Inject(MAP_FEATURE_DATA) private _data: any) {
-        console.log('Pin:', _data.display_name, this.active, this.selected);
-    }
+    constructor(@Inject(MAP_FEATURE_DATA) private _data: any) {}
 }

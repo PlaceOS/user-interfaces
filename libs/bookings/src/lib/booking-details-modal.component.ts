@@ -1,9 +1,11 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { notifySuccess, SettingsService } from '@placeos/common';
-import { MapLocateModalComponent, MapPinComponent } from '@placeos/components';
-import { OrganisationService } from '@placeos/organisation';
 import { addMinutes, format, formatDuration } from 'date-fns';
+
+import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-modal.component';
+import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Booking } from './booking.class';
 import { checkinBooking } from './bookings.fn';
 

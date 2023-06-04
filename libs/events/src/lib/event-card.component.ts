@@ -1,12 +1,19 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    Output,
+    SimpleChanges,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
 import { AsyncHandler } from '@placeos/common';
 
 import { CalendarEvent } from './event.class';
 import { EventDetailsModalComponent } from './event-details-modal.component';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
 @Component({
     selector: 'event-card',
@@ -152,6 +159,7 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
             }
         `,
     ],
+    providers: [SpacePipe],
 })
 export class EventCardComponent extends AsyncHandler {
     @Input() public event: CalendarEvent;
@@ -159,15 +167,18 @@ export class EventCardComponent extends AsyncHandler {
     @Output() public edit = new EventEmitter();
     @Output() public remove = new EventEmitter();
 
+    public location = '';
+
     constructor(
         private _dialog: MatDialog,
         private _route: ActivatedRoute,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _space_pipe: SpacePipe
     ) {
         super();
     }
 
-    public ngOnInit() {
+    public async ngOnInit() {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) =>
@@ -176,6 +187,13 @@ export class EventCardComponent extends AsyncHandler {
                     : ''
             )
         );
+        this.location = await this.getLocationString();
+    }
+
+    public async ngOnChanges(changes: SimpleChanges) {
+        if (changes.event && this.event) {
+            this.location = await this.getLocationString();
+        }
     }
 
     public get day() {
@@ -184,16 +202,21 @@ export class EventCardComponent extends AsyncHandler {
         return `${is_today ? 'Today' : format(date, 'EEEE')}`;
     }
 
-    public get location() {
-        const zone_list: string[] =
-            this.event?.space?.zones ||
-            (this.event?.system?.zones as any) ||
-            [];
+    public async getLocationString() {
+        const system =
+            this.event?.resources[0] ||
+            this.event?.system ||
+            this.event?.space ||
+            ({} as any);
+        const space = await this._space_pipe.transform(
+            system.id || system.email
+        );
+        const zone_list = space?.zones || [];
         const zone =
             this._org.levelWithID(zone_list) ||
             this._org.buildings.find((_) => zone_list.includes(_.id));
         return `${zone ? (zone.display_name || zone.name) + ', ' : ''} ${
-            this.event.space?.display_name || this.event.space?.name
+            space?.display_name || space?.name
         }`;
     }
 

@@ -307,9 +307,11 @@ describe('FindSpaceComponent', () => {
         const event_service = spectator.inject(EventFormService);
         event_service.newForm();
         const mat_bottom_sheet = spectator.inject(MatBottomSheet);
-        mat_bottom_sheet.open.mockImplementation((template, config) => {
-            return '' as any;
-        });
+        (mat_bottom_sheet.open as any).mockImplementation(
+            (template, config) => {
+                return '' as any;
+            }
+        );
         const component_filter_spy = jest.spyOn(
             spectator.component,
             'openFilter'
@@ -354,7 +356,7 @@ describe('FindSpaceComponent', () => {
     });
 
     it('should show a default List view on page load', () => {
-        (spectator.component.spaces$ as any)  = of([mockSpace, mockSpace]);
+        (spectator.component.spaces$ as any) = of([mockSpace, mockSpace]);
         spectator.detectChanges();
         const spaceItems = ngMocks.findAll(FindSpaceItemComponent);
         const mapItems = ngMocks.findAll(InteractiveMapComponent);
@@ -371,7 +373,7 @@ describe('FindSpaceComponent', () => {
     });
 
     it('should display map elements in Map View via click', () => {
-        (spectator.component.spaces$ as any)  = of([mockSpace, mockSpace]);
+        (spectator.component.spaces$ as any) = of([mockSpace, mockSpace]);
         spectator.component.selected_level = of([
             {
                 map_id: 'map-1',
@@ -391,7 +393,11 @@ describe('FindSpaceComponent', () => {
     });
 
     it('should display the correct number of spaces in search results', () => {
-        (spectator.component.spaces$ as any)  = of([mockSpace, mockSpace, mockSpace]);
+        (spectator.component.spaces$ as any) = of([
+            mockSpace,
+            mockSpace,
+            mockSpace,
+        ]);
         spectator.detectChanges();
 
         expect(spectator.debugElement.nativeElement.outerHTML).toContain(

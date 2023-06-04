@@ -125,7 +125,7 @@ export class DayviewTimelineComponent
     public scroll: { x: number; y: number } = { x: 0, y: 0 };
     /** Whether event data is loading */
     public readonly loading = this._state.loading;
-    /** Whether event data is loading */
+    /** Event to show more details about */
     public readonly event = this._state.event;
 
     public readonly spaces = this._org.active_building.pipe(

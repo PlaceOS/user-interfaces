@@ -178,7 +178,7 @@ export class NewCateringOrderModalComponent {
             (_) => _.custom_id !== item.custom_id
         );
         if (state) {
-            const new_item = new CateringItem(item);
+            const new_item = new CateringItem({ ...item, in_order: true });
             list.push(new_item);
             this.displayed = new_item;
         }

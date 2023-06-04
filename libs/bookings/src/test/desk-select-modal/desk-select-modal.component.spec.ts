@@ -66,7 +66,9 @@ describe('DeskSelectModalComponent', () => {
     });
 
     it('should allow un-favouriting a space', () => {
-        spectator.inject(SettingsService).get.mockImplementation(() => ['1']);
+        (spectator.inject(SettingsService).get as any).mockImplementation(
+            () => ['1']
+        );
         spectator.component.toggleFavourite(new Desk({ id: '1' }));
         expect(
             spectator.inject(SettingsService).saveUserSetting

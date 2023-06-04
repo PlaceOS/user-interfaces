@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AsyncHandler } from '@placeos/common';
-import { EventFormService } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
+import { EventFormService } from 'libs/events/src/lib/event-form.service';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { take } from 'rxjs/operators';
 import { SpaceFiltersComponent } from './space-filters.component';
 

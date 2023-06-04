@@ -3,6 +3,7 @@ import {
     AssetManagerStateService,
     AssetRequest,
 } from './asset-manager-state.service';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'asset-request-details',
@@ -64,17 +65,10 @@ import {
                         >
                             <app-icon class="text-sm">send</app-icon>
                         </div>
-                        <div class="font-medium">Assets Requested</div>
+                        <div class="font-medium">Asset Requested</div>
                     </div>
                     <div class="pl-10 flex flex-col mt-1">
-                        <div
-                            *ngFor="
-                                let asset of request.extension_data?.assets ||
-                                    []
-                            "
-                        >
-                            {{ asset.amount || 1 }}× {{ asset.name }}
-                        </div>
+                        {{ request.title }}
                     </div>
                     <div class="flex items-center space-x-4 mt-4">
                         <div
@@ -85,7 +79,7 @@ import {
                         <div class="font-medium">Date For</div>
                     </div>
                     <div class="pl-10 mt-1">
-                        {{ request.date | date: 'mediumDate' }}
+                        {{ request.date | date: 'EEEE, MMMM d, y' }}
                     </div>
                     <div class="flex items-center space-x-4 mt-4">
                         <div
@@ -112,11 +106,7 @@ import {
                         <div class="font-medium">Floor</div>
                     </div>
                     <div class="pl-10 mt-1">
-                        {{
-                            request.extension_data?.space?.level
-                                ?.display_name ||
-                                request.extension_data?.space?.level?.name
-                        }}
+                        {{ level(request.zones)?.display_name || 'N/A' }}
                     </div>
                     <div class="flex items-center space-x-4 mt-4">
                         <div
@@ -127,10 +117,7 @@ import {
                         <div class="font-medium">Room</div>
                     </div>
                     <div class="pl-10 mt-1">
-                        {{
-                            request.extension_data?.space?.display_name ||
-                                request.extension_data?.space?.name
-                        }}
+                        {{ request.description }}
                     </div>
                     <div class="absolute top-4 right-4 text-sm">
                         <button
@@ -191,7 +178,8 @@ import {
                         >
                             <div class="capitalize flex-1">
                                 {{
-                                    request.extension_data?.tracking | splitjoin
+                                    (request.extension_data?.tracking
+                                        | splitjoin) || 'In Storage'
                                 }}
                             </div>
                             <app-icon class="text-2xl">expand_more</app-icon>
@@ -229,7 +217,14 @@ export class AssetRequestDetailsComponent {
 
     public loading = false;
 
-    constructor(private _state: AssetManagerStateService) {}
+    constructor(
+        private _state: AssetManagerStateService,
+        private _org: OrganisationService
+    ) {}
+
+    public level(zones) {
+        return this._org.levelWithID(zones);
+    }
 
     public async setStatus(status: string) {
         this.loading = true;

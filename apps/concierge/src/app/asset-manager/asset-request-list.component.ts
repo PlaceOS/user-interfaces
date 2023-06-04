@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
-import {
-    AssetManagerStateService,
-    AssetRequest,
-} from './asset-manager-state.service';
+import { AssetManagerStateService } from './asset-manager-state.service';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'app-asset-request-list',
@@ -12,13 +10,14 @@ import {
             class="relative -left-4 w-[calc(100%+2rem)] mt-4 h-[calc(100%-1rem)] flex flex-col"
         >
             <div
-                class="bg-white dark:bg-neutral-700 p-4 border-t border-b border-gray-300 dark:border-neutral-500"
+                class="bg-white dark:bg-neutral-700 px-4 border-t border-b border-gray-300 dark:border-neutral-500 flex items-center justify-between"
             >
                 <div class="opacity-60 text-sm">
                     {{ (requests | async)?.length }} asset request{{
                         (requests | async)?.length === '1' ? '' : 's'
                     }}
                 </div>
+                <date-options (dateChange)="setDate($event)"></date-options>
             </div>
             <div class="w-full overflow-auto h-1/2 flex-1">
                 <custom-table
@@ -27,21 +26,21 @@ import {
                     [dataSource]="requests"
                     [columns]="[
                         'user',
-                        'assets',
+                        'title',
                         'date',
                         'period',
-                        'location_floor',
-                        'location_name',
+                        'zones',
+                        'description',
                         'approval',
                         'tracking'
                     ]"
                     [display_column]="[
                         'Requester',
-                        'Assets Requested',
-                        'Date for',
-                        'Period',
+                        'Asset',
+                        'Date',
+                        'Time',
                         'Floor',
-                        'Room',
+                        'Location',
                         'Approval',
                         'Tracking'
                     ]"
@@ -62,8 +61,7 @@ import {
                         period: period_template,
                         approval: approval_template,
                         tracking: tracking_template,
-                        location_floor: level_template,
-                        location_name: space_template
+                        zones: level_template,
                     }"
                     [empty]="
                         (filters | async)?.search
@@ -90,17 +88,8 @@ import {
         <ng-template #date_template let-row="row">
             {{ row.date | date: 'mediumDate' }}
         </ng-template>
-        <ng-template #space_template let-row="row">
-            {{
-                row.extension_data?.space?.display_name ||
-                    row.extension_data?.space?.name
-            }}
-        </ng-template>
-        <ng-template #level_template let-row="row">
-            {{
-                row.extension_data?.space?.level?.display_name ||
-                    row.extension_data?.space?.level?.name
-            }}
+        <ng-template #level_template let-data="data">
+            {{ level(data)?.display_name || 'N/A' }}
         </ng-template>
         <ng-template #period_template let-row="row">
             {{ row.date | date: 'shortTime' }} &ndash;
@@ -152,7 +141,10 @@ import {
                 [disabled]="loading[row.id]"
             >
                 <div class="capitalize flex-1">
-                    {{ row.extension_data?.tracking | splitjoin }}
+                    {{
+                        (row.extension_data?.tracking | splitjoin) ||
+                            'In Storage'
+                    }}
                 </div>
                 <app-icon class="text-2xl">expand_more</app-icon>
             </button>
@@ -199,8 +191,17 @@ export class AssetRequestListComponent extends AsyncHandler {
         this.loading[item.id] = false;
     }
 
-    constructor(private _state: AssetManagerStateService) {
+    public readonly setDate = (date) => this._state.setOptions({ date });
+
+    constructor(
+        private _state: AssetManagerStateService,
+        private _org: OrganisationService
+    ) {
         super();
+    }
+
+    public level(zones) {
+        return this._org.levelWithID(zones);
     }
 
     public ngOnInit() {

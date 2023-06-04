@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Observable } from 'rxjs';
 import { PaymentCardDetails } from './card-input-field.component';
 

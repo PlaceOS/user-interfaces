@@ -7,7 +7,7 @@ import { DesksStateService } from './desks-state.service';
     template: `
         <div class="overflow-auto h-full w-full">
             <custom-table
-                class="min-w-[76rem]"
+                class="min-w-[76rem] block"
                 [dataSource]="bookings"
                 [filter]="(filters | async)?.search"
                 [columns]="[
@@ -25,24 +25,14 @@ import { DesksStateService } from './desks-state.service';
                     'Person',
                     'Group',
                     'Desk',
-                    'Date',
+                    'Time',
                     'Status',
                     'Approver',
                     'Checked In',
                     'Access',
                     ' '
                 ]"
-                [column_size]="[
-                    'flex',
-                    '',
-                    '',
-                    '12r',
-                    '',
-                    '10r',
-                    '',
-                    '',
-                    '12r'
-                ]"
+                [column_size]="['18r', '', '16r', '', '', '10r', '', '', '12r']"
                 [template]="{
                     user_name: user_template,
                     desk_name: desk_template,
@@ -59,7 +49,7 @@ import { DesksStateService } from './desks-state.service';
                 "
             ></custom-table>
             <ng-template #date_template let-data="data">
-                {{ data | date }} at {{ data | date: 'shortTime' }}
+                {{ data | date: 'shortTime' }}
             </ng-template>
             <ng-template #desk_template let-row="row">
                 {{ row.asset_name || row.asset_id }}
@@ -87,16 +77,25 @@ import { DesksStateService } from './desks-state.service';
                 </span>
             </ng-template>
             <ng-template #bool_template let-data="data">
-                {{ data ? 'Yes' : 'No' }}
+                <div
+                    [class.bg-red-500]="!data"
+                    [class.bg-green-500]="data"
+                    class="rounded h-8 w-8 flex items-center justify-center text-2xl text-white mx-auto"
+                >
+                    <app-icon>{{ data ? 'done' : 'close' }}</app-icon>
+                </div>
             </ng-template>
             <ng-template #action_template let-row="row">
                 <div class="flex items-center justify-end space-x-2">
-                    <action-icon (click)="checkin(row)">how_to_reg</action-icon>
+                    <action-icon matTooltip="Check-in" (click)="checkin(row)">
+                        how_to_reg
+                    </action-icon>
                     <button
                         icon
                         matRipple
                         (click)="approve(row)"
                         matTooltip="Approve Desk"
+                        title=""
                     >
                         <app-icon>event_available</app-icon>
                     </button>
@@ -105,6 +104,7 @@ import { DesksStateService } from './desks-state.service';
                         matRipple
                         (click)="reject(row)"
                         matTooltip="Reject Desk"
+                        title=""
                     >
                         <app-icon>event_busy</app-icon>
                     </button>
@@ -114,6 +114,7 @@ import { DesksStateService } from './desks-state.service';
                         [disabled]="!row.extension_data?.checkin_qr_code"
                         [matMenuTriggerFor]="menu"
                         matTooltip="View Desk QR code"
+                        title=""
                     >
                         <app-icon *ngIf="row.extension_data?.checkin_qr_code">
                             qr_code

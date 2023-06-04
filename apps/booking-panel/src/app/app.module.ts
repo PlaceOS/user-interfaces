@@ -31,7 +31,7 @@ import { PanelTopbarComponent } from './panel/topbar.component';
 import { PanelDetailsComponent } from './panel/panel-details.component';
 import { PanelBookingListComponent } from './panel/panel-booking-list.component';
 
-import * as Sentry from '@sentry/angular';
+import * as Sentry from '@sentry/angular-ivy';
 import { PanelStatusComponent } from './panel/panel-status.component';
 import { MatRippleModule } from '@angular/material/core';
 import { PanelTimelineComponent } from './panel/timeline.component';

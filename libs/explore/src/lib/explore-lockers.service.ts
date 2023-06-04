@@ -28,9 +28,9 @@ export class ExploreLockersService extends AsyncHandler {
                 `lvl-in_use`,
                 binding
                     .listen()
-                    .subscribe((d) =>
+                    .subscribe(({ value }) =>
                         this._status.next(
-                            d.filter((_) => _.location === 'locker')
+                            value?.filter((_) => _.location === 'locker') || []
                         )
                     )
             );
@@ -91,7 +91,6 @@ export class ExploreLockersService extends AsyncHandler {
                         DEFAULT_COLOURS[`${value}`],
                 };
             }
-            console.log('Features:', features);
             this._explore.setStyles('lockers', map_status);
             this._explore.setFeatures('lockers', features);
         })
@@ -104,7 +103,6 @@ export class ExploreLockersService extends AsyncHandler {
         private _settings: SettingsService
     ) {
         super();
-        console.log('ExploreLockersService');
         this.subscription(
             'level',
             this._explore.level

@@ -1,14 +1,5 @@
 import { Injectable, Optional } from '@angular/core';
-import {
-    CanActivate,
-    CanLoad,
-    Route,
-    UrlSegment,
-    ActivatedRouteSnapshot,
-    RouterStateSnapshot,
-    UrlTree,
-    Router,
-} from '@angular/router';
+import { Route, UrlSegment, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, Router } from '@angular/router';
 import { onlineState } from '@placeos/ts-client';
 import { current_user } from '@placeos/common';
 import { first } from 'rxjs/operators';
@@ -22,7 +13,7 @@ export abstract class PLACEOS_APP_ACCESS {
 @Injectable({
     providedIn: 'root',
 })
-export class AuthorisedUserGuard implements CanActivate, CanLoad {
+export class AuthorisedUserGuard  {
     constructor(
         private _router: Router,
         @Optional() private _access: PLACEOS_APP_ACCESS

@@ -1,13 +1,23 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
-import { queryAssets } from './assets.fn';
+import {
+    catchError,
+    debounceTime,
+    map,
+    shareReplay,
+    switchMap,
+    tap,
+} from 'rxjs/operators';
+import { queryAssets, queryGroupAvailability } from './assets.fn';
 import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { AssetGroup } from './asset.class';
+import { updateAssetGroupList } from './asset-group.pipe';
 
 export interface AssetOptions {
     zone?: string;
     date: number;
+    ignore?: string[];
 }
 
 @Injectable({
@@ -53,32 +63,35 @@ export class AssetStateService {
         shareReplay(1)
     );
 
-    public readonly available_assets = combineLatest([
-        this.asset_list,
-        this.asset_bookings,
-    ]).pipe(
-        map(([list, bookings]) =>
-            list
-                .filter((_) => !bookings.find((b) => b.asset_id === _.id))
-                .sort(
-                    (a, b) =>
-                        a.category.localeCompare(b.category) ||
-                        a.name.localeCompare(b.name)
-                )
-        ),
+    public readonly available_groups = combineLatest([this._options]).pipe(
+        switchMap(([{ zone, date, ignore }]) => {
+            console.log('Ignore: ', ignore);
+            return queryGroupAvailability(
+                {
+                    zones: zone || '',
+                    period_start: getUnixTime(startOfDay(date)),
+                    period_end: getUnixTime(endOfDay(date)),
+                    type: 'asset-request',
+                },
+                ignore
+            ).pipe(catchError(() => of([] as AssetGroup[])));
+        }),
+        map((list) => list.sort((a, b) => a.name.localeCompare(b.name))),
+        tap((_) => updateAssetGroupList(_)),
         shareReplay(1)
     );
 
     public readonly filtered_assets = combineLatest([
         this._search,
-        this.available_assets,
+        this.available_groups,
     ]).pipe(
         map(([search, assets]) => {
             const s = search.toLowerCase();
             return assets.filter(
                 (_) =>
-                    _.name.toLowerCase().includes(s) ||
-                    _.description.toLowerCase().includes(s)
+                    _.assets?.length &&
+                    (_.name.toLowerCase().includes(s) ||
+                        _.description.toLowerCase().includes(s))
             );
         }),
         shareReplay(1)

@@ -253,7 +253,7 @@ const EMPTY = [];
 export class LandingFavouritesComponent extends AsyncHandler {
     public readonly assets = combineLatest([
         this._booking_form.loadResourceList('desks' as any),
-        this._booking_form.loadResourceList('parking_spaces' as any),
+        this._booking_form.loadResourceList('parking-spaces' as any),
     ]).pipe(
         map(([desks, parking]) => {
             return [

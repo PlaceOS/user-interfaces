@@ -108,6 +108,7 @@ import { BookingAsset } from '../booking-form.service';
                 <section
                     map
                     class="w-full mx-auto h-64 sm:h-48 relative border border-gray-200 dark:border-neutral-500 overflow-hidden rounded"
+                    *ngIf="!hide_map"
                 >
                     <interactive-map
                         class="pointer-events-none"
@@ -156,6 +157,7 @@ export class DeskDetailsComponent {
     @Input() public desk?: BookingAsset;
     @Input() public fav: boolean = false;
     @Input() public active: boolean = false;
+    @Input() public hide_map: boolean = false;
 
     @Output() public close = new EventEmitter<void>();
     @Output() public toggleFav = new EventEmitter<void>();

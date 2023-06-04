@@ -126,7 +126,7 @@ export class BookingFormService extends AsyncHandler {
                     return this.loadResourceList('desks' as any);
                 case 'parking':
                     this._loading.next(`Loading parking spaces...`);
-                    return this.loadResourceList('parking_spaces' as any);
+                    return this.loadResourceList('parking-spaces' as any);
                 case 'locker':
                     this._loading.next(`Loading lockers...`);
                     return this.loadResourceList('lockers' as any);
@@ -491,18 +491,6 @@ export class BookingFormService extends AsyncHandler {
                 invoice_id: receipt.invoice_id,
             };
         }
-        if (value.assets?.length || booking.extension_data.assets?.length) {
-            await updateAssetRequestsForResource(
-                `${value.booked_by_email}|${value.date}`,
-                {
-                    date: value.date,
-                    duration: value.duration,
-                    host: value.booked_by_email,
-                },
-                value.assets,
-                booking.extension_data.assets
-            );
-        }
         this._loading.next('Saving booking');
         const result = await saveBooking(
             new Booking({
@@ -523,10 +511,21 @@ export class BookingFormService extends AsyncHandler {
         )
             .toPromise()
             .catch((e) => {
-                console.log('Error', e);
                 this._loading.next('');
                 throw e?.error || e;
             });
+        if (value.assets?.length || booking.extension_data.assets?.length) {
+            await updateAssetRequestsForResource(
+                result as any,
+                {
+                    date: value.date,
+                    duration: value.duration,
+                    host: value.booked_by_email,
+                },
+                value.assets,
+                booking.extension_data.assets
+            );
+        }
         this._loading.next('');
         const { booking_type } = value;
         this.clearForm();
@@ -581,6 +580,10 @@ export class BookingFormService extends AsyncHandler {
                 )
             )
         );
+        const group_name = `${currentUser().email}[${format(
+            Date.now(),
+            'yyyy-MM-dd'
+        )}]`;
         for (let i = 0; i < group_members.length; i++) {
             const user = group_members[i];
             const asset = resources[i];
@@ -593,6 +596,7 @@ export class BookingFormService extends AsyncHandler {
                 asset_name: asset.name,
                 description: asset.name,
                 map_id: asset?.map_id || asset?.id,
+                group: group_name,
                 zones: asset.zone
                     ? unique([
                           this._org.organisation.id,
@@ -601,7 +605,7 @@ export class BookingFormService extends AsyncHandler {
                       ])
                     : [this._org.organisation.id],
             });
-            this.postForm(true);
+            await this.postForm(true);
         }
     }
 
@@ -627,6 +631,7 @@ export class BookingFormService extends AsyncHandler {
         { asset_id, date, duration, user_email, all_day }: Partial<Booking>,
         type: BookingType
     ) {
+        if (!user_email) throw 'No user was selected to book for';
         duration = all_day ? 12 * 60 : duration || 60;
         const bookings = await queryBookings({
             period_start: getUnixTime(date),
@@ -669,7 +674,7 @@ export class BookingFormService extends AsyncHandler {
                             ? _.metadata[type]?.details
                             : []
                         ).map((d) =>
-                            type !== 'locker'
+                            (type as any) !== 'lockers'
                                 ? {
                                       ...d,
                                       id: d.id || d.map_id,

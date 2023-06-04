@@ -73,11 +73,11 @@
         "BOOTSTRAP_LABEL": "System ID",
         "BOOTSTRAP_INPUT_PLACEHOLDER": "Start typing to search for a room",
         "LOADING_SYSTEM": "Loading system data...",
-        "FREE_IN_HOURS_AND_MINUTES": "Disponível em {{ hour }} hora {{ minute }} minuto",
-        "FREE_IN_MINUTES": "Disponível em {{ minute }} minutes",
+        "FREE_IN_HOURS_AND_MINUTES": "Disponível em {{ hour }} horas {{ minute }} minutos",
+        "FREE_IN_MINUTES": "Disponível em {{ minute }} minutos",
         "FREE_IN_LESS_THAN_MINUTE": "Disponível em Disponível por menos de",
-        "FREE_FOR_HOURS_AND_MINUTES": "Disponível por {{ hour }} hora {{ minute }} minuto",
-        "FREE_FOR_MINUTES": "Disponível por {{ minute }} minutes",
+        "FREE_FOR_HOURS_AND_MINUTES": "Disponível por {{ hour }} horas {{ minute }} minutos",
+        "FREE_FOR_MINUTES": "Disponível por {{ minute }} minutos",
         "FREE_FOR_LESS_THAN_MINUTE": "Disponível por Disponível por menos de"
     },
     "FORM": {

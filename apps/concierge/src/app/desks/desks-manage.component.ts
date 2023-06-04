@@ -56,8 +56,6 @@ const QR_CODES = {};
                     features: list_edit_template,
                     actions: action_template
                 }"
-                [pagination]="true"
-                [page_size]="30"
                 [empty]="
                     (filters | async)?.search
                         ? 'No matching desks'
@@ -241,6 +239,7 @@ export class DesksManageComponent extends AsyncHandler {
                 throw e;
             });
         notifySuccess('Successfully updated desks');
+        this._state.setFilters({});
         this.loading = '';
         this.changes = {};
     }

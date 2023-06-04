@@ -14,7 +14,7 @@ import { BootstrapComponent } from './bootstrap.component';
 import { WelcomeComponent } from './welcome.component';
 import { environment } from '../environments/environment';
 
-import * as Sentry from '@sentry/angular';
+import * as Sentry from '@sentry/angular-ivy';
 import { ComponentsModule } from '@placeos/components';
 import { SharedSpacesModule } from '@placeos/spaces';
 import { PaymentsModule } from '@placeos/payments';

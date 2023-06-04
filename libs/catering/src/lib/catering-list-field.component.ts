@@ -36,10 +36,10 @@ const EMPTY_FAVS = [];
                         {{ item.name || 'Item' }}
                         <span
                             class="text-xs opacity-60 ml-4 font-normal"
-                            *ngIf="item.option_list.length"
+                            *ngIf="item.option_list?.length"
                             [matTooltip]="optionList(item)"
                         >
-                            {{ item.option_list.length }} option(s)
+                            {{ item.option_list?.length || '0' }} option(s)
                         </span>
                     </div>
                     <div>{{ item.quantity }} requested</div>
@@ -174,7 +174,7 @@ export class CateringListFieldComponent implements ControlValueAccessor {
     }
 
     public optionList(item: CateringItem) {
-        return item.option_list.map((_) => _.name).join('\n');
+        return item.option_list?.map((_) => _.name).join('\n');
     }
 
     public toggleFavourite(cateringitem: CateringItem) {

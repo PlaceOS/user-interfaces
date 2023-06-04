@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, CanLoad, UrlTree, Router } from '@angular/router';
+import { UrlTree, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
 import { SettingsService } from '@placeos/common';
@@ -12,7 +12,7 @@ export abstract class PLACEOS_APP_ACCESS {
 @Injectable({
     providedIn: 'root',
 })
-export class FeatureAvailableGuard implements CanActivate, CanLoad {
+export class FeatureAvailableGuard  {
     constructor(
         private _router: Router,
         private _settings: SettingsService,

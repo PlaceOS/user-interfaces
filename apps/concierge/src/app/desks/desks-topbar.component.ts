@@ -5,6 +5,8 @@ import { first, take } from 'rxjs/operators';
 import {
     AsyncHandler,
     csvToJson,
+    downloadFile,
+    jsonToCsv,
     loadTextFileFromInputEvent,
     notifyError,
     notifySuccess,
@@ -49,21 +51,31 @@ import { DeskRestrictionModalComponent } from './desk-restriction-modal.componen
                 matRipple
                 *ngIf="!manage"
                 class="mx-2 w-36"
+                matTooltip="New Desk Booking"
                 (click)="newDeskBooking()"
             >
                 New Booking
             </button>
             <button
                 btn
+                icon
                 matRipple
                 *ngIf="manage"
-                class="mx-2 w-32"
+                class="bg-primary mx-2 text-white rounded"
                 (click)="newDesk()"
+                matTooltip="New Desk"
             >
-                New Desk
+                <app-icon>add</app-icon>
             </button>
-            <button btn matRipple *ngIf="manage" class="relative w-32">
-                Upload CSV
+            <button
+                btn
+                icon
+                matRipple
+                *ngIf="manage"
+                class="bg-primary relative text-white rounded"
+                matTooltip="Upload Desks CSV"
+            >
+                <app-icon>cloud_upload</app-icon>
                 <input
                     type="file"
                     class="absolute inset-0 opacity-0"
@@ -72,12 +84,25 @@ import { DeskRestrictionModalComponent } from './desk-restriction-modal.componen
             </button>
             <button
                 btn
+                icon
                 matRipple
                 *ngIf="manage"
-                class="mx-2 w-32"
-                (click)="manageRestrictions()"
+                class="bg-primary mx-2 text-white rounded"
+                (click)="downloadTemplate()"
+                matTooltip="Download Template Desk CSV"
             >
-                Desk Restrictions
+                <app-icon>download</app-icon>
+            </button>
+            <button
+                btn
+                icon
+                matRipple
+                *ngIf="manage"
+                class="bg-primary mx-2 text-white rounded"
+                (click)="manageRestrictions()"
+                matTooltip="Desk Restrictions"
+            >
+                <app-icon>lock_open</app-icon>
             </button>
             <div class="flex-1 w-2"></div>
             <searchbar
@@ -217,6 +242,18 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
         } catch (e) {
             console.error(e);
         }
+    }
+
+    public downloadTemplate() {
+        const desk: any = new Desk({
+            id: 'desk-123',
+            name: 'Test Desk',
+            bookable: true,
+            groups: ['test-desk-group', 'desk-bookers'],
+            features: ['Standing Desk', 'Dual Monitor'],
+        }).toJSON();
+        const data = jsonToCsv([desk]);
+        downloadFile('desk-template.csv', data);
     }
 
     /**

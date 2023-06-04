@@ -51,7 +51,7 @@ describe('DeskListFieldComponent', () => {
 
     it('should handle desk changes', fakeAsync(() => {
         let count = 0;
-        spectator.inject(MatDialog).open.mockImplementation(
+        (spectator.inject(MatDialog).open as any).mockImplementation(
             (_, { data: { items } }) =>
                 ({
                     afterClosed: () =>

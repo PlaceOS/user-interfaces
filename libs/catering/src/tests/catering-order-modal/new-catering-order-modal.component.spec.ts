@@ -53,19 +53,19 @@ describe('NewCateringOrderModalComponent', () => {
     it('should allow setting selected catering items', () => {
         spectator.component.setSelected(new CateringItem({ id: '1' }), true);
         expect(spectator.component.selected).toHaveLength(1);
-        spectator.component.setSelected(new CateringItem({ id: '1' }), false);
+        spectator.component.setSelected(spectator.component.selected[0], false);
         expect(spectator.component.selected).toHaveLength(0);
     });
 
     it('should allow toggling favourites', () => {
         const settings = spectator.inject(SettingsService);
-        settings.get.mockImplementation(() => []);
+        (settings.get as any).mockImplementation(() => []);
         spectator.component.toggleFavourite({ id: '1' } as any);
         expect(settings.saveUserSetting).toBeCalledWith(
             'favourite_menu_items',
             ['1']
         );
-        settings.get.mockImplementation(() => ['1']);
+        (settings.get as any).mockImplementation(() => ['1']);
         spectator.component.toggleFavourite({ id: '1' } as any);
         expect(settings.saveUserSetting).toBeCalledWith(
             'favourite_menu_items',

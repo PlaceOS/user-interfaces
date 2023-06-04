@@ -8,9 +8,12 @@ import {
     getUnixTime,
     startOfMinute,
 } from 'date-fns';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     catchError,
+    debounceTime,
+    distinctUntilChanged,
+    filter,
     first,
     map,
     shareReplay,
@@ -36,6 +39,7 @@ import { ExploreDeskInfoComponent } from './explore-desk-info.component';
 import { ExploreDeviceInfoComponent } from './explore-device-info.component';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
 import { ExploreStateService } from './explore-state.service';
+import { Booking } from 'libs/bookings/src/lib/booking.class';
 
 export interface DeskOptions {
     enable_booking?: boolean;
@@ -65,15 +69,18 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
 
     private _desk_bookings = combineLatest([
         this._state.level,
+        this._options,
         this._poll,
     ]).pipe(
-        switchMap(([lvl]) =>
+        filter(([lvl]) => !!lvl),
+        debounceTime(600),
+        switchMap(([lvl, { date }]) =>
             queryBookings({
-                period_start: getUnixTime(startOfMinute(new Date())),
-                period_end: getUnixTime(addMinutes(new Date(), 60)),
+                period_start: getUnixTime(startOfMinute(date || Date.now())),
+                period_end: getUnixTime(addMinutes(date || Date.now(), 60)),
                 type: 'desk',
                 zones: lvl.id,
-            })
+            }).pipe(catchError(() => of([] as Booking[])))
         ),
         tap((l) => {
             this._users = {};
@@ -111,9 +118,10 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             if (!lvl) return;
             const system_id = this._org.binding('area_management');
             if (!system_id) return;
-            let binding = getModule(system_id, 'AreaManagement').binding(
+            let binding = getModule(system_id, 'AreaManagement')?.binding(
                 lvl.id
             );
+            if (!binding) return;
             this.subscription(
                 `lvl-in_use`,
                 binding
@@ -200,11 +208,8 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 );
             })
         );
-        this.interval(
-            'poll',
-            () => this._poll.next(new Date().valueOf()),
-            delay
-        );
+        this._poll.next(Date.now());
+        this.interval('poll', () => this._poll.next(Date.now()), delay);
         return () => this.stopPolling();
     }
 
@@ -214,6 +219,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
 
     public setOptions(options: DeskOptions) {
         this._options.next({ ...this._options.getValue(), ...options });
+        if (options.date) this._poll.next(Date.now());
     }
 
     public processBindingChange(
@@ -282,7 +288,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         this._state.setFeatures('devices', list);
     }
 
-    private processDesks(desks: Record<string, any>[]) {
+    private processDesks(desks: Desk[]) {
         const list = [];
         const actions = [];
         const options = this._options.getValue();
@@ -305,18 +311,29 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             });
             if (!desk.bookable) continue;
             const book_fn = async () => {
-                if (this._statuses[desk.id] !== 'free')
+                if (this._statuses[desk.id] !== 'free') {
                     return notifyError(
                         `${desk.name} is unavailable at this time.`
                     );
+                }
+                if (
+                    desk.groups?.length &&
+                    !desk.groups.find((_) => currentUser().groups.includes(_))
+                ) {
+                    return notifyError(
+                        `You are not allowed to book ${desk.name}.`
+                    );
+                }
                 this._bookings.newForm();
                 this._bookings.setOptions({ type: 'desk' });
-                const { date, duration, user } = await this._setBookingTime(
+                let { date, duration, user } = await this._setBookingTime(
                     this._bookings.form.value.date,
                     this._bookings.form.value.duration,
                     this._options.getValue()?.custom ?? false,
                     desk as any
                 );
+                user = user || options.host || currentUser();
+                const user_email = user?.email;
                 this._bookings.form.patchValue({
                     asset_id: desk.id,
                     asset_name: desk.name,
@@ -324,7 +341,8 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                     duration,
                     map_id: desk?.map_id || desk?.id,
                     description: desk.name,
-                    user: user || options.host || currentUser(),
+                    user,
+                    user_email,
                     booking_type: 'desk',
                     zones: desk.zone
                         ? [desk.zone?.parent_id, desk.zone?.id]

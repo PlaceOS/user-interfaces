@@ -1,39 +1,44 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { AsyncHandler, unique } from '@placeos/common';
-import { EventFormService } from '@placeos/events';
-import { BuildingLevel, OrganisationService } from '@placeos/organisation';
-import { debounceTime, map, tap } from 'rxjs/operators';
-import { Space } from '../space.class';
-import { SpaceLocationPinComponent } from './space-location-pin.component';
 import { BehaviorSubject, combineLatest } from 'rxjs';
+import { debounceTime, map, tap } from 'rxjs/operators';
+
+import { EventFormService } from 'libs/events/src/lib/event-form.service';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
+import { SpaceLocationPinComponent } from './space-location-pin.component';
+import { Space } from '../space.class';
 
 @Component({
     selector: `space-map`,
     template: `
-        <i-map
-            [src]="map_url"
-            [features]="features | async"
-            [actions]="actions | async"
-            [(zoom)]="zoom"
-            [(center)]="center"
-        ></i-map>
-        <div
-            class="absolute inset-x-0 top-0 bg-white p-2 border-b border-gray-200"
-        >
+        <div class="bg-white p-2 border-b border-gray-200 w-full">
             <mat-form-field
                 levels
                 appearance="outline"
                 class="w-full h-[3.25rem]"
             >
-                <mat-select [(ngModel)]="level">
+                <mat-select
+                    [(ngModel)]="level"
+                    [ngModelOptions]="{ standalone: true }"
+                >
                     <mat-option
-                        *ngFor="let opt of levels | async"
-                        [value]="opt"
+                        *ngFor="let lvl of levels | async"
+                        [value]="lvl"
                     >
-                        {{ opt.display_name || opt.name }}
+                        {{ lvl.display_name || lvl.name }}
                     </mat-option>
                 </mat-select>
             </mat-form-field>
+        </div>
+        <div class="relative flex-1 w-full">
+            <i-map
+                [src]="map_url"
+                [(zoom)]="zoom"
+                [(center)]="center"
+                [features]="features | async"
+                [actions]="actions | async"
+            ></i-map>
         </div>
         <div
             zoom
@@ -67,7 +72,8 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
             :host {
                 position: relative;
                 background: rgba(0, 0, 0, 0.05);
-                padding-top: 4rem;
+                display: flex;
+                flex-direction: column;
             }
 
             button {
@@ -111,14 +117,8 @@ export class SpaceSelectMapComponent extends AsyncHandler {
         this._change,
     ]).pipe(
         debounceTime(300),
-        map(([l]) => {
-            console.log(
-                'Data:',
-                this.selected,
-                this.active,
-                l.map((_) => _.id)
-            );
-            return l.map((space) => ({
+        map(([l]) =>
+            l.map((space) => ({
                 location: space.map_id,
                 content: SpaceLocationPinComponent,
                 data: {
@@ -126,8 +126,8 @@ export class SpaceSelectMapComponent extends AsyncHandler {
                     active: this.active === space.id,
                     selected: this.selected.includes(space.id),
                 },
-            }));
-        })
+            }))
+        )
     );
 
     public readonly actions = this._event_form.available_spaces.pipe(

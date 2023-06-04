@@ -23,6 +23,7 @@ import {
 import { format, isSameDay } from 'date-fns';
 import { map } from 'rxjs/operators';
 import { ScheduleStateService } from './schedule-state.service';
+import { combineLatest } from 'rxjs';
 
 @Component({
     selector: 'app-schedule',
@@ -53,9 +54,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 >
                     <ng-container
                         *ngFor="
-                            let item of (loading | async)
-                                ? []
-                                : (bookings | async);
+                            let item of bookings | async;
                             trackBy: trackByFn
                         "
                     >
@@ -106,7 +105,10 @@ import { ScheduleStateService } from './schedule-state.service';
     ],
 })
 export class ScheduleComponent extends AsyncHandler {
-    public readonly bookings = this._state.filtered_bookings;
+    public readonly bookings = combineLatest([
+        this._state.filtered_bookings,
+        this._state.loading,
+    ]).pipe(map(([bookings, loading]) => (loading ? [] : bookings)));
     public readonly date = this._state.date;
     public readonly loading = this._state.loading;
     public readonly is_today = this.date.pipe(
@@ -151,7 +153,7 @@ export class ScheduleComponent extends AsyncHandler {
                         period_end: event.event_end,
                         ical_uid: event.ical_uid,
                     }).toPromise()
-                )[0] || event;
+                ).find((_) => _.ical_uid === event.ical_uid) || event;
         }
         this._event_form.newForm(event);
     }
@@ -175,7 +177,7 @@ export class ScheduleComponent extends AsyncHandler {
                         period_end: item.event_end,
                         ical_uid: item.ical_uid,
                     }).toPromise()
-                )[0] || item;
+                ).find((_) => _.ical_uid === (item as any).ical_uid) || item;
         }
         if (resp.reason !== 'done') return;
         resp.loading('Requesting booking deletion...');

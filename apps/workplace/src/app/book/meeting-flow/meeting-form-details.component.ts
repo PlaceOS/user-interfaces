@@ -77,14 +77,23 @@ import { addDays, endOfDay } from 'date-fns';
                     </mat-checkbox>
                 </div>
             </div>
-            <div *ngIf="can_book_for_others" class="w-full">
-                <label for="host"
-                    >{{ 'FORM.HOST' | translate }}<span>*</span></label
-                >
+            <div *ngIf="can_book_for_others" class="w-full flex flex-col">
+                <label for="host">
+                    {{ 'FORM.HOST' | translate }}<span>*</span>
+                </label>
                 <host-select-field
                     name="host"
                     formControlName="organiser"
                 ></host-select-field>
+            </div>
+            <div *ngIf="allow_recurrence" class="w-full flex flex-col">
+                <label for="recurrence">
+                    {{ 'FORM.RECURRENCE' | translate }}<span>*</span>
+                </label>
+                <recurrence-field
+                    name="recurrence"
+                    formControlName="recurrence"
+                ></recurrence-field>
             </div>
         </div>
     `,
@@ -103,6 +112,10 @@ export class MeetingFormDetailsComponent {
 
     public get allow_all_day() {
         return this._settings.get('app.events.allow_all_day');
+    }
+
+    public get allow_recurrence() {
+        return this._settings.get('app.events.allow_recurrence');
     }
 
     public get end_date() {

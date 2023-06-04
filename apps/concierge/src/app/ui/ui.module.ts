@@ -76,6 +76,7 @@ const ANGULAR_MODULES: any[] = [FormsModule, ReactiveFormsModule];
         FormFieldsModule,
         ComponentsModule,
         PaymentsModule,
+        AssetsModule,
     ],
 })
 export class UIModule {}

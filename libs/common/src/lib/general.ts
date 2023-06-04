@@ -179,7 +179,7 @@ export function csvToJson(csv: string, delimiter: string = ','): HashMap[] {
         for (let i = 0; i < row.length; i++) {
             const key = (headers[i] || '').split(' ').join('_').toLowerCase();
             try {
-                element[key] = JSON.parse(row[i]);
+                element[key] = JSON.parse(row[i].replace('|', ','));
             } catch (e) {
                 element[key] = row[i] || '';
             }
@@ -224,7 +224,9 @@ export function jsonToCsv(json: HashMap[]) {
         const valid_keys = keys.filter((key) => key in json[0]);
         return `${valid_keys.join(',')}\n${json
             .map((item) =>
-                valid_keys.map((key) => JSON.stringify(item[key])).join(',')
+                valid_keys
+                    .map((key) => JSON.stringify(item[key]).replace(',', '|'))
+                    .join(',')
             )
             .join('\n')}`;
     }

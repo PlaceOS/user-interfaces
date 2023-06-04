@@ -25,11 +25,12 @@ import { UserSearchFieldComponent } from './user-search-field.component';
 import { ItemListFieldComponent } from './item-list-field.component';
 import { UploadListFieldComponent } from './upload-list-field.component';
 import { UploadFileFieldComponent } from './upload-file-field.component';
-import { AssetListFieldComponent } from './asset-list-field.component';
 import { SpaceListFieldComponent } from './space-list-field.component';
 import { RichTextInputComponent } from './rich-text-input.component';
 import { HostSelectFieldComponent } from './host-select-field.component';
 import { ImageListFieldComponent } from './image-list-field.component';
+import { RecurrenceFieldComponent } from './recurrence-field.component';
+import { RecurrenceModalComponent } from './recurrence-modal.component';
 
 const COMPONENTS: Type<any>[] = [
     ActionFieldComponent,
@@ -42,11 +43,13 @@ const COMPONENTS: Type<any>[] = [
     ItemListFieldComponent,
     UploadListFieldComponent,
     UploadFileFieldComponent,
-    AssetListFieldComponent,
     SpaceListFieldComponent,
     RichTextInputComponent,
     HostSelectFieldComponent,
     ImageListFieldComponent,
+
+    RecurrenceFieldComponent,
+    RecurrenceModalComponent,
 ];
 
 @NgModule({

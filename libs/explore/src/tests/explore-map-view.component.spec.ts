@@ -75,7 +75,7 @@ describe('ExploreMapViewComponent', () => {
     beforeEach(() => (spectator = createComponent()));
 
     afterEach(() => {
-        spectator.inject(ExploreStateService).setFeatures.mockReset();
+        (spectator.inject(ExploreStateService).setFeatures as any).mockReset();
     });
 
     it('should create component', () => {

@@ -60,6 +60,7 @@ import { first, take } from 'rxjs/operators';
             class="p-2 bg-white border border-gray-300 absolute right-1 m-2 rounded flex flex-col items-center space-y-2"
             [class.top-2]="!can_search"
             [class.top-16]="can_search"
+            *ngIf="!hide_zones"
         >
             <div class="flex items-center">
                 Zones
@@ -158,6 +159,10 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     public get logo() {
         return this._settings.get('app.logo_dark');
     }
+
+    public get hide_zones() {
+        return this._settings.get('app.hide_zones');
+    }
     /** Observable for the active map */
     public readonly url = this._state.map_url;
     /** Observable for the active map */
@@ -253,6 +258,16 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
                             relativeTo: this._route,
                             queryParams: {},
                         });
+                    });
+                } else if (params.has('feature')) {
+                    this.timeout('update_location', () => {
+                        this._state.setFeatures('_located', [
+                            {
+                                location: params.get('feature'),
+                                content: MapPinComponent,
+                                data: {},
+                            },
+                        ]);
                     });
                 } else {
                     this.timeout('update_location', () => {

@@ -1,4 +1,9 @@
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+    FormControl,
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+} from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -22,9 +27,15 @@ describe('MeetingFormDetailsComponent', () => {
             MockComponent(DateFieldComponent),
             MockComponent(TimeFieldComponent),
             MockComponent(DurationFieldComponent),
-            MockComponent(HostSelectFieldComponent)
+            MockComponent(HostSelectFieldComponent),
         ],
-        imports: [MatFormFieldModule, MatInputModule, MatSelectModule, ReactiveFormsModule, FormsModule]
+        imports: [
+            MatFormFieldModule,
+            MatInputModule,
+            MatSelectModule,
+            ReactiveFormsModule,
+            FormsModule,
+        ],
     });
 
     beforeEach(() => {
@@ -55,7 +66,9 @@ describe('MeetingFormDetailsComponent', () => {
 
     it('should allow customising the max duration', () => {
         expect(spectator.component.max_duration).toBe(480);
-        spectator.inject(SettingsService).get.mockImplementation(() => 240);
+        (spectator.inject(SettingsService).get as any).mockImplementation(
+            () => 240
+        );
         expect(spectator.component.max_duration).toBe(240);
     });
 });

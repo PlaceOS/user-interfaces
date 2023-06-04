@@ -54,6 +54,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     [class.invisible]="
                         !visitor?.is_external || visitor?.organizer
                     "
+                    *ngIf="is_event"
                 >
                 </action-icon>
                 <action-icon
@@ -167,16 +168,25 @@ export class VisitorDetailsComponent extends AsyncHandler implements OnChanges {
     public loading: string;
     public show_qr_code: boolean;
 
+    public get is_event() {
+        return !this.event.from_bookings;
+    }
+
     public readonly checkin = async () => {
         this.loading = 'checkin';
         this.event = await this._state
-            .checkGuestIn(this.event, this.visitor)
+            .checkGuestIn(this.event as CalendarEvent, this.visitor)
             .catch((e) => this.event);
         this.eventChange.emit(this.event);
         this.loading = '';
     };
 
     public readonly toggleRemote = async () => {
+        if (!this.is_event) {
+            return notifyError(
+                'Unable to set remote status for standalone visitor bookings.'
+            );
+        }
         this.loading = 'remote';
         const remote_list =
             this.event.ext('remote')?.filter((e) => e !== this.visitor.email) ||
@@ -205,7 +215,7 @@ export class VisitorDetailsComponent extends AsyncHandler implements OnChanges {
     public readonly checkout = async () => {
         this.loading = 'checkout';
         this.event = await this._state
-            .checkGuestOut(this.event, this.visitor)
+            .checkGuestOut(this.event as CalendarEvent, this.visitor)
             .catch((e) => this.event);
         this.eventChange.emit(this.event);
         this.loading = '';

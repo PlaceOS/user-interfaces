@@ -441,7 +441,8 @@ form {
     }
 }
 
-custom-table[asset-requests] {
+custom-table[asset-requests],
+custom-table[purchase-orders] {
     cdk-row {
         background-color: #fff;
         [cdk-cell]:not(:first-child) {
@@ -449,7 +450,32 @@ custom-table[asset-requests] {
         }
     }
     cdk-header-row {
-        background: none !important;
+        background: #eee !important;
+        [cdk-header-cell] {
+            background: none;
+        }
+    }
+}
+
+custom-table[asset-view] {
+    border: 1px solid #ccc;
+    cdk-row {
+        background-color: #fff;
+        &:hover {
+            background-color: #0001;
+        }
+        &:nth-child(2n) {
+            background-color: #f6f6f6;
+        }
+    }
+
+    [cdk-cell],
+    [cdk-header-cell] {
+        min-width: 2.5rem;
+    } 
+
+    cdk-header-row {
+        background: #d0d0d0;
         [cdk-header-cell] {
             background: none;
         }
@@ -521,6 +547,7 @@ a[icon] {
     justify-content: center;
     height: 2.5em;
     width: 2.5em;
+    min-width: 2.5em;
     font-size: 1em;
     padding: 0;
     border-radius: 9999px;
@@ -745,7 +772,8 @@ a[icon] {
             }
         }
 
-        custom-table[asset-requests] {
+        custom-table[asset-requests],
+        custom-table[purchase-orders] {
             cdk-row {
                 background: none;
                 [cdk-cell]:not(:first-child) {

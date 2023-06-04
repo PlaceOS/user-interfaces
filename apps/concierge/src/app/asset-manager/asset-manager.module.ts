@@ -11,11 +11,6 @@ import { AssetManagerTopbarComponent } from './asset-manager-topbar.component';
 import { AssetManagerComponent } from './asset-manager.component';
 import { MatTabsModule } from '@angular/material/tabs';
 import { AssetViewComponent } from './asset-view.component';
-import { AssetFlowComponent } from './asset-flow.component';
-import { AssetFlowConsumablesComponent } from './asset-flow-consumables.component';
-import { AssetFlowDetailsComponent } from './asset-flow-details.component';
-import { AssetFlowPurchasesComponent } from './asset-flow-purchases.component';
-import { AssetFlowSpecsComponent } from './asset-flow-specs.component';
 import { AssetRequestListComponent } from './asset-request-list.component';
 import { ComponentsModule } from '@placeos/components';
 import { AssetItemListComponent } from './asset-item-list.component';
@@ -23,23 +18,29 @@ import { SplitJoinPipe } from './split-join.pipe';
 import { AssetRequestDetailsComponent } from './asset-request-details.component';
 import { DurationFormatPipe } from './duration.pipe';
 import { AssetLocationModalComponent } from './asset-location-modal.component';
+import { AssetPurchaseOrderFormComponent } from './asset-purchase-order-form.component';
+import { AssetCategoryFormComponent } from './asset-category-form.component';
+import { AssetFormComponent } from './asset-form.component';
+import { AssetGroupFormComponent } from './asset-group-form.component';
+import { AssetPurchaseOrderListComponent } from './asset-purchase-order-list.component';
 
 const COMPONENTS = [
     AssetManagerComponent,
     AssetManagerTopbarComponent,
     AssetListingComponent,
     AssetViewComponent,
-    AssetFlowComponent,
-    AssetFlowConsumablesComponent,
-    AssetFlowDetailsComponent,
-    AssetFlowPurchasesComponent,
-    AssetFlowSpecsComponent,
     AssetRequestListComponent,
     AssetItemListComponent,
     AssetRequestDetailsComponent,
     AssetLocationModalComponent,
     SplitJoinPipe,
     DurationFormatPipe,
+
+    AssetFormComponent,
+    AssetGroupFormComponent,
+    AssetCategoryFormComponent,
+    AssetPurchaseOrderFormComponent,
+    AssetPurchaseOrderListComponent,
 ];
 
 const ROUTES: Route[] = [
@@ -53,11 +54,26 @@ const ROUTES: Route[] = [
                 children: [
                     { path: 'items', component: AssetItemListComponent },
                     { path: 'requests', component: AssetRequestListComponent },
+                    {
+                        path: 'purchase-orders',
+                        component: AssetPurchaseOrderListComponent,
+                    },
                     { path: '**', redirectTo: 'requests' },
                 ],
             },
             { path: 'view/:id', component: AssetViewComponent },
-            { path: 'manage/:view', component: AssetFlowComponent },
+            {
+                path: 'manage',
+                children: [
+                    { path: 'group', component: AssetGroupFormComponent },
+                    { path: 'asset', component: AssetFormComponent },
+                    { path: 'category', component: AssetCategoryFormComponent },
+                    {
+                        path: 'purchase-order',
+                        component: AssetPurchaseOrderFormComponent,
+                    },
+                ],
+            },
             { path: '**', redirectTo: 'list/requests' },
         ],
     },

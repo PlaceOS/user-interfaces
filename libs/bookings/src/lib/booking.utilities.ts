@@ -33,6 +33,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         map_id: new FormControl(booking.extension_data?.map_id),
         user: new FormControl(currentUser()),
         user_id: new FormControl(booking.user_id),
+        group: new FormControl(booking.group),
         user_email: new FormControl(booking.user_email),
         booked_by: new FormControl(currentUser()),
         booked_by_id: new FormControl(booking.booked_by_id),

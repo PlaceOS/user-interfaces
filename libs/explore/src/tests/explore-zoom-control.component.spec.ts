@@ -24,7 +24,7 @@ describe('ExploreZoomControlComponent', () => {
 
     beforeEach(() => {
         spectator = createComponent();
-        spectator.inject(ExploreStateService).setPositions.mockReset();
+        (spectator.inject(ExploreStateService).setPositions as any).mockReset();
     });
 
     it('should create component', () => {

@@ -1,5 +1,4 @@
 import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
-import { FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AsyncHandler, DialogEvent } from '@placeos/common';
 

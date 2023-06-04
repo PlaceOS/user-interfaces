@@ -4,9 +4,14 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
+
 import { ComponentsModule } from '@placeos/components';
 import { FormFieldsModule } from '@placeos/form-fields';
 import { SharedEventsModule } from '@placeos/events';
+import { SharedBookingsModule } from '@placeos/bookings';
+import { SharedSpacesModule } from '@placeos/spaces';
+import { PaymentsModule } from '@placeos/payments';
+import { AssetsModule } from '@placeos/assets';
 
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -39,9 +44,6 @@ import { BuildingSelectComponent } from './building-select.component';
 import { HelpTooltipComponent } from './help-tooltip.component';
 import { AccessibilityTooltipComponent } from './accessibility-tooltip.component';
 import { SupportTicketModalComponent } from './support-ticket-modal.component';
-import { SharedBookingsModule } from '@placeos/bookings';
-import { SharedSpacesModule } from '@placeos/spaces';
-import { PaymentsModule } from '@placeos/payments';
 import { LanguageSelectComponent } from './language-tooltip.component';
 import { RegionSelectComponent } from './region-select.component';
 
@@ -107,6 +109,7 @@ const MATERIAL_MODULES: any[] = [
         SharedEventsModule,
         SharedBookingsModule,
         SharedSpacesModule,
+        AssetsModule,
         PaymentsModule,
         ...MATERIAL_MODULES,
     ],

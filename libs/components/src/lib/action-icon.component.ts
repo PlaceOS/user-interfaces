@@ -10,6 +10,7 @@ import { ApplicationIcon } from 'libs/common/src/lib/types';
             class="relative"
             [class.success]="state === 'success'"
             [disabled]="loading || disabled"
+            title=""
         >
             <app-icon root [className]="className" [icon]="icon">
                 {{ content }}

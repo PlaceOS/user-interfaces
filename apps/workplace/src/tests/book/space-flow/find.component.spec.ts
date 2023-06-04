@@ -42,7 +42,10 @@ describe('SpaceFlowFindComponent', () => {
                 },
             },
             { provide: SettingsService, useValue: { get: jest.fn() } },
-            { provide: SpacePipe, useValue: { transform: jest.fn(async () => ({})) } },
+            {
+                provide: SpacePipe,
+                useValue: { transform: jest.fn(async () => ({})) },
+            },
         ],
         declarations: [
             MockComponent(SpaceFlowFindItemComponent),
@@ -84,7 +87,9 @@ describe('SpaceFlowFindComponent', () => {
         (service.available_spaces as any).next([{ id: 1 }, { id: 2 }]);
         const spy = jest.spyOn(spectator.component, 'confirmBooking');
         spectator.detectChanges();
-        spectator.inject(SpacePipe).transform.mockResolvedValue({} as any);
+        (spectator.inject(SpacePipe).transform as any).mockResolvedValue(
+            {} as any
+        );
         spectator.triggerEventHandler(
             'space-flow-find-item',
             'bookChange',
@@ -99,7 +104,7 @@ describe('SpaceFlowFindComponent', () => {
         expect.assertions(4);
         expect(spectator.component.space_list).toHaveLength(0);
         const settings = spectator.inject(SettingsService);
-        settings.get.mockImplementation(() => true);
+        (settings.get as any).mockImplementation(() => true);
         const service = spectator.inject(EventFormService);
         (service.available_spaces as any).next(spaces);
         spectator.detectChanges();

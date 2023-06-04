@@ -5,26 +5,24 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
+import { BehaviorSubject } from 'rxjs';
 import { CateringItem } from '../catering-item.class';
-import { CateringStateService } from '../catering-state.service';
 import { CateringOrderStateService } from './catering-order-state.service';
 
 @Component({
     selector: 'catering-item-list',
     template: `
         <div class="w-full h-full overflow-auto py-2">
-            <ng-container *ngIf="(custom_items | async)?.length">
+            <ng-container *ngIf="(list | async)?.length">
                 <h3 class="font-bold px-2">Ordered Items</h3>
                 <p count class="text-sm opacity-60 mb-2 px-2">
-                    {{ (custom_items | async)?.length || 0 }} items(s)
+                    {{ (list | async)?.length || 0 }} items(s)
                 </p>
 
                 <ul class="list-style-none space-y-2 p-2">
                     <catering-item-list-item
                         class="block"
-                        *ngFor="let item of custom_items | async"
+                        *ngFor="let item of list | async"
                         [item]="item"
                         [active]="active === item.custom_id"
                         [selected]="true"
@@ -90,10 +88,6 @@ export class CateringItemListComponent {
     public readonly list = new BehaviorSubject<CateringItem[]>([]);
     public readonly loading = this._state.loading;
     public readonly item_list = this._state.filtered_menu;
-    public readonly custom_items = combineLatest([
-        this.list,
-        this._state.available_menu,
-    ]).pipe(map(([l, m]) => l.filter((_) => _.option_list?.length)));
 
     public get code() {
         return this._state.currency_code;

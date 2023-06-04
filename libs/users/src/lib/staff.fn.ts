@@ -1,4 +1,3 @@
-import { HashMap } from '@placeos/common';
 import { get } from '@placeos/ts-client';
 import { toQueryString } from 'libs/common/src/lib/api';
 import { Observable } from 'rxjs';
@@ -14,7 +13,9 @@ const STAFF_ENDPOINT = '/api/staff/v1/people';
 export function searchStaff(q: string): Observable<StaffUser[]> {
     const query = toQueryString({ q });
     return get(`${STAFF_ENDPOINT}${q ? '?' + query : ''}`).pipe(
-        map((list) => list.map((item: HashMap) => new StaffUser(item)))
+        map((list) =>
+            list.map((item: Record<string, any>) => new StaffUser(item))
+        )
     );
 }
 

@@ -96,6 +96,7 @@ interface CateringOptionGroup {
                                         (ngModelChange)="
                                             updateGroupOption(group, $event)
                                         "
+                                        [disabled]="item?.in_order"
                                     >
                                         <mat-radio-button class="m-0" value="">
                                             <span class="font-medium p-2" i18n
@@ -135,6 +136,7 @@ interface CateringOptionGroup {
                                         (ngModelChange)="
                                             updateCheckedState(opt.id, $event)
                                         "
+                                        [disabled]="item?.in_order"
                                     >
                                         <div
                                             class="flex items-center justify-center"

@@ -59,8 +59,10 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
                     *ngFor="let option of results | async | slice: 0:5"
                     [value]="option"
                 >
-                    <div class="flex items-center leading-tight">
-                        <div class="flex-1 overflow-hidden">
+                    <div
+                        class="flex items-center leading-tight w-[26rem] max-w-[calc(100vw-2rem)]"
+                    >
+                        <div class="flex-1 w-1/2 overflow-hidden">
                             <div class="truncate w-full">{{ option.name }}</div>
                             <div class="text-xs">{{ option.description }}</div>
                         </div>

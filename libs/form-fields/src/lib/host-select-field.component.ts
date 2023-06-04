@@ -6,28 +6,30 @@ import { User } from 'libs/users/src/lib/user.class';
 import { Calendar } from 'libs/calendar/src/lib/calendar.class';
 import { queryCalendars } from 'libs/calendar/src/lib/calendar.fn';
 import { of, zip } from 'rxjs';
-import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
+import { catchError, map, shareReplay, switchMap, take } from 'rxjs/operators';
 
 @Component({
     selector: 'host-select-field',
     template: `
         <mat-form-field appearance="outline" class="w-full">
             <mat-select
-                [ngModel]="this.item"
+                [ngModel]="this.item?.email"
                 (ngModelChange)="setValue($event)"
                 [disabled]="disabled"
-                placeholder="Select host"
+                [placeholder]="
+                    item?.email ? item.name || item.email : 'Select host'
+                "
                 i18n-placeholder
             >
                 <mat-option
                     *ngFor="let user of users | async"
-                    [value]="user"
+                    [value]="user?.email"
                     class="leading-tight"
                 >
                     <div class="flex flex-col">
                         <div>{{ user.name }}</div>
                         <span class="hidden">&nbsp;|&nbsp;</span>
-                        <div class="text-xs opacity-60">{{ user.email }}</div>
+                        <div class="text-xs opacity-60">{{ user?.email }}</div>
                     </div>
                 </mat-option>
             </mat-select>
@@ -69,8 +71,10 @@ export class HostSelectFieldComponent implements ControlValueAccessor {
      * Update the form field value
      * @param new_value New value to set on the form field
      */
-    public setValue(new_value: User) {
-        this.item = new_value;
+    public async setValue(email: string) {
+        const users = await this.users.pipe(take(1)).toPromise();
+        this.item = users?.find((_) => _.email === email);
+        if (!this.item) this.item = new User({ email });
         if (this._onChange) this._onChange(this.item);
     }
 
@@ -80,9 +84,7 @@ export class HostSelectFieldComponent implements ControlValueAccessor {
      */
     public writeValue(value: User) {
         this.item = value;
-        if (!value?.email) {
-            this.item = currentUser();
-        }
+        if (!value?.email) this.item = currentUser();
     }
 
     public readonly registerOnChange = (fn: (_: User) => void) =>

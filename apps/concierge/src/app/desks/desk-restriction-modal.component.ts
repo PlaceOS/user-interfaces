@@ -190,11 +190,6 @@ export class DeskRestrictionModalComponent {
     public async save() {
         this.loading = true;
         this._dialog_ref.disableClose = true;
-        console.log(
-            'Restrictions:',
-            this.restrictions,
-            this.restrictions.filter((_) => isBefore(Date.now(), _.end))
-        );
         await updateMetadata(this._org.building.id, {
             name: 'desk_restrictions',
             description: 'Desk restrictions',

@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, VERSION } from '@placeos/common';
-import { ChangelogModalComponent } from '@placeos/components';
 import { take } from 'rxjs/operators';
 import { PanelStateService } from '../panel-state.service';
 
@@ -94,7 +93,7 @@ export class PanelViewComponent extends AsyncHandler {
         return this._state.setting('disable_book_now') !== true;
     }
 
-    public readonly book = () => this._state.newBooking();
+    public readonly book = () => this._state.confirmBookNow();
     public readonly checkin = () => this._state.checkin();
 
     public async action() {

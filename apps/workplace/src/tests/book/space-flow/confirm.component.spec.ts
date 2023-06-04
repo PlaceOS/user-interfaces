@@ -58,7 +58,7 @@ describe('SpaceFlowConfirmComponent', () => {
 
     it('should notify user of booking errors', async () => {
         const service = spectator.inject(EventFormService);
-        service.postForm.mockImplementation(async () =>
+        (service.postForm as any).mockImplementation(async () =>
             timer(1)
                 .pipe(switchMap(() => throwError('Error')))
                 .toPromise()
