@@ -160,15 +160,34 @@ import {
                 <mat-tab label="Assets">
                     <div class="max-w-[768px] mx-auto p-4">
                         <h3 class="p-2">Assets</h3>
-                        <a
-                            btn
-                            matRipple
-                            class="mb-2"
-                            [routerLink]="['/asset-manager', 'manage', 'asset']"
-                            [queryParams]="{ group_id: (item | async)?.id }"
-                        >
-                            Add Asset
-                        </a>
+                        <div class="flex w-full items-center space-x-2 mb-2">
+                            <a
+                                btn
+                                matRipple
+                                class="flex-1"
+                                [routerLink]="[
+                                    '/asset-manager',
+                                    'manage',
+                                    'asset'
+                                ]"
+                                [queryParams]="{ group_id: (item | async)?.id }"
+                            >
+                                Add Asset
+                            </a>
+                            <a
+                                btn
+                                matRipple
+                                class="flex-1"
+                                [routerLink]="[
+                                    '/asset-manager',
+                                    'manage',
+                                    'asset-bulk'
+                                ]"
+                                [queryParams]="{ group_id: (item | async)?.id }"
+                            >
+                                Bulk Add Asset
+                            </a>
+                        </div>
                         <custom-table
                             asset-view
                             class="w-full block text-sm"

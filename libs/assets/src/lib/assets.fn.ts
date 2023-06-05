@@ -153,16 +153,18 @@ export function deleteAsset(id: string) {
 ////////////////////////////////
 
 export function addAssetsInBulk(assets: Asset[]) {
+    assets.map((_: any) => (_.asset_type_id = _.type_id));
     return post(
         `${BASE_ENDPOINT}/assets/bulk`,
         assets.map((_) => cleanObject(_, [undefined, null, '']))
     ).pipe(map((_) => _ as Asset[]));
 }
 
-export function updateAssetsInBulk(asset: Partial<Asset>[]) {
+export function updateAssetsInBulk(assets: Partial<Asset>[]) {
+    assets.map((_: any) => (_.asset_type_id = _.type_id));
     return put(
         `${BASE_ENDPOINT}/assets/bulk`,
-        asset.map((_) => cleanObject(_, [undefined, null, '']))
+        assets.map((_) => cleanObject(_, [undefined, null, '']))
     ).pipe(map((_) => _ as Asset[]));
 }
 

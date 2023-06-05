@@ -23,6 +23,7 @@ import { AssetCategoryFormComponent } from './asset-category-form.component';
 import { AssetFormComponent } from './asset-form.component';
 import { AssetGroupFormComponent } from './asset-group-form.component';
 import { AssetPurchaseOrderListComponent } from './asset-purchase-order-list.component';
+import { AssetBulkFormComponent } from './asset-bulk-form.component';
 
 const COMPONENTS = [
     AssetManagerComponent,
@@ -37,6 +38,7 @@ const COMPONENTS = [
     DurationFormatPipe,
 
     AssetFormComponent,
+    AssetBulkFormComponent,
     AssetGroupFormComponent,
     AssetCategoryFormComponent,
     AssetPurchaseOrderFormComponent,
@@ -67,6 +69,7 @@ const ROUTES: Route[] = [
                 children: [
                     { path: 'group', component: AssetGroupFormComponent },
                     { path: 'asset', component: AssetFormComponent },
+                    { path: 'asset-bulk', component: AssetBulkFormComponent },
                     { path: 'category', component: AssetCategoryFormComponent },
                     {
                         path: 'purchase-order',
