@@ -73,7 +73,7 @@ export class AssetPurchaseOrderListComponent {
                         .toLowerCase()
                         .includes(search.toLowerCase()) ||
                     _.invoice_number
-                        .toLowerCase()
+                        ?.toLowerCase()
                         .includes(search.toLowerCase())
             )
         )
