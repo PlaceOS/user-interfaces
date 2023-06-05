@@ -35,18 +35,6 @@ import { AsyncHandler, getInvalidFields, notifyError } from '@placeos/common';
                             />
                         </mat-form-field>
                     </div>
-                    <div class="flex flex-col space-y-2">
-                        <label for="description">Description</label>
-                        <mat-form-field appearance="outline">
-                            <textarea
-                                matInput
-                                name="description"
-                                placeholder="Description of the product"
-                                formControlName="description"
-                            ></textarea>
-                            <mat-error>Description is required</mat-error>
-                        </mat-form-field>
-                    </div>
                     <div class="flex items-center space-x-2">
                         <div class="flex flex-1 flex-col space-y-2">
                             <label for="serial-number"> Serial Number </label>
