@@ -10,6 +10,7 @@ import {
     showAssetGroup,
 } from '@placeos/assets';
 import { AsyncHandler, getInvalidFields, notifyError } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'asset-bulk-form',
@@ -143,7 +144,8 @@ export class AssetBulkFormComponent extends AsyncHandler {
     constructor(
         private _state: AssetManagerStateService,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
+        private _org: OrganisationService
     ) {
         super();
     }
@@ -196,7 +198,12 @@ export class AssetBulkFormComponent extends AsyncHandler {
         }
         this.loading = 'Saving Product...';
         const data = this.form.value;
-        const item = await addAssetsInBulk(new Array(this.count).fill(data))
+        const item = await addAssetsInBulk(
+            new Array(this.count).fill({
+                ...data,
+                zone_id: this._org.building.id,
+            })
+        )
             .toPromise()
             .catch((e) => {
                 this.loading = '';

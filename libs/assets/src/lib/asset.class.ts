@@ -39,6 +39,7 @@ export class AssetGroup {
     images: string[] = [];
     purchase_orders?: AssetPurchaseOrder[];
     amount?: number;
+    zone_id: string;
     created_at: number;
     updated_at: number;
 

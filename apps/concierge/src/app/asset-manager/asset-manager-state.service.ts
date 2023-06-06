@@ -33,6 +33,7 @@ import {
     showGroupFull,
 } from '@placeos/assets';
 import { cleanObject } from '@placeos/ts-client';
+import { OrganisationService } from '@placeos/organisation';
 
 export interface AssetOptions {
     date?: number;
@@ -70,10 +71,13 @@ export class AssetManagerStateService extends AsyncHandler {
     /** List of options set for the view */
     public readonly options = this._options.asObservable();
     /** List of available assets */
-    public readonly products: Observable<AssetGroup[]> = this._change.pipe(
+    public readonly products: Observable<AssetGroup[]> = combineLatest([
+        this._change,
+        this._org.active_building,
+    ]).pipe(
         switchMap(() => {
             this._loading.next(true);
-            return getGroupsWithAssets();
+            return getGroupsWithAssets({ zone_id: this._org.building?.id });
         }),
         tap((_) => this._loading.next(false)),
         shareReplay(1)
@@ -91,13 +95,15 @@ export class AssetManagerStateService extends AsyncHandler {
     /** List of requests made by users for assets */
     public readonly requests = combineLatest([
         this._options,
+        this._org.active_building,
         this._poll,
         this._change,
         this._spaces.initialised,
     ]).pipe(
         debounceTime(200),
-        switchMap(([{ date }]) =>
+        switchMap(([{ date }, bld]) =>
             queryBookings({
+                zones: bld?.id,
                 period_start: getUnixTime(startOfDay(date || Date.now())),
                 period_end: getUnixTime(endOfDay(date || Date.now())),
                 type: 'asset-request',
@@ -150,12 +156,15 @@ export class AssetManagerStateService extends AsyncHandler {
     /** Currently active asset */
     public readonly active_product = combineLatest([
         this._options,
+        this._org.active_building,
         this._change,
     ]).pipe(
         filter(([{ active_item }]) => !!active_item),
         map(([options, t]) => [options.active_item, t] as any),
         distinctUntilChanged(),
-        switchMap(([active_item]) => showGroupFull(active_item)),
+        switchMap(([active_item]) =>
+            showGroupFull(active_item, { zone_id: this._org.building.id })
+        ),
         shareReplay(1)
     );
     /** List of requests for the currently active asset */
@@ -202,7 +211,10 @@ export class AssetManagerStateService extends AsyncHandler {
         return this._form;
     }
 
-    constructor(private _spaces: SpacesService) {
+    constructor(
+        private _spaces: SpacesService,
+        private _org: OrganisationService
+    ) {
         super();
     }
 

@@ -7,7 +7,7 @@ import {
     AssetGroup,
     AssetPurchaseOrder,
 } from './asset.class';
-import { Observable, combineLatest, of } from 'rxjs';
+import { combineLatest, of } from 'rxjs';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import {
     BookingsQueryParams,
@@ -246,11 +246,11 @@ export function getGroupsWithAssets(query: any = {}) {
     );
 }
 
-export function showGroupFull(id: string) {
+export function showGroupFull(id: string, query: any = {}) {
     return combineLatest([
         showAssetGroup(id),
         queryAssetCategories(),
-        queryAssets({ type_id: id }),
+        queryAssets({ ...query, type_id: id }),
         queryAssetPurchaseOrders(),
     ]).pipe(
         map(([product, categories, assets, purchase_orders]) => {
@@ -282,7 +282,7 @@ export function queryAvailableAssets(
     ignore?: string[]
 ) {
     query.type = 'asset-request';
-    return combineLatest([queryAssets(), queryBookings(query)]).pipe(
+    return combineLatest([queryAssets(query), queryBookings(query)]).pipe(
         map(([assets, bookings]) =>
             assets.filter(
                 (asset) =>

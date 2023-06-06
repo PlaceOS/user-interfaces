@@ -9,6 +9,7 @@ import {
     showAssetGroup,
 } from '@placeos/assets';
 import { AsyncHandler, getInvalidFields, notifyError } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'asset-form',
@@ -138,7 +139,8 @@ export class AssetFormComponent extends AsyncHandler {
     constructor(
         private _state: AssetManagerStateService,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
+        private _org: OrganisationService
     ) {
         super();
     }
@@ -187,7 +189,10 @@ export class AssetFormComponent extends AsyncHandler {
         }
         this.loading = 'Saving Product...';
         const data = this.form.value;
-        const item = await saveAsset(data as any)
+        const item = await saveAsset({
+            ...data,
+            zone_id: this._org.building.id,
+        } as any)
             .toPromise()
             .catch((e) => {
                 this.loading = '';

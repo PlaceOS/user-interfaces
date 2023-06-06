@@ -13,6 +13,7 @@ import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { AssetGroup } from './asset.class';
 import { updateAssetGroupList } from './asset-group.pipe';
+import { OrganisationService } from '@placeos/organisation';
 
 export interface AssetOptions {
     zone?: string;
@@ -63,16 +64,19 @@ export class AssetStateService {
         shareReplay(1)
     );
 
-    public readonly available_groups = combineLatest([this._options]).pipe(
-        switchMap(([{ zone, date, ignore }]) => {
-            console.log('Ignore: ', ignore);
+    public readonly available_groups = combineLatest([
+        this._options,
+        this._org.active_building,
+    ]).pipe(
+        switchMap(([{ zone, date, ignore }, bld]) => {
             return queryGroupAvailability(
                 {
+                    zone_id: bld.id || zone || '',
                     zones: zone || '',
                     period_start: getUnixTime(startOfDay(date)),
                     period_end: getUnixTime(endOfDay(date)),
                     type: 'asset-request',
-                },
+                } as any,
                 ignore
             ).pipe(catchError(() => of([] as AssetGroup[])));
         }),
@@ -96,6 +100,8 @@ export class AssetStateService {
         }),
         shareReplay(1)
     );
+
+    constructor(private _org: OrganisationService) {}
 
     public setSearch(value: string) {
         this._search.next(`${value}`);
