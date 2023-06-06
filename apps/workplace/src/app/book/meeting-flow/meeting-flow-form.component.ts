@@ -474,6 +474,7 @@ export class MeetingFlowFormComponent extends AsyncHandler {
             this.dialog_ref.componentInstance.show_close = true;
             this.dialog_ref.afterClosed().subscribe((value) => {
                 if (value) {
+                    this.unsubWith('idle');
                     this._router.navigate(['/book', 'meeting', 'success']);
                     this._state.setView('success');
                 }
@@ -485,6 +486,7 @@ export class MeetingFlowFormComponent extends AsyncHandler {
             this.sheet_ref.instance.show_close = true;
             this.sheet_ref.afterDismissed().subscribe((value) => {
                 if (value) {
+                    this.unsubWith('idle');
                     this._router.navigate(['/book', 'meeting', 'success']);
                     this._state.setView('success');
                 }
@@ -530,23 +532,26 @@ export class MeetingFlowFormComponent extends AsyncHandler {
         );
         this._catering.setOptions({ zone: '' });
         this._checkCateringEligibility(this.form.value.resources || []);
-        this.subscription('idle', () => this._idle.stopListening());
-        this._idle
-            .idleFor((this._settings.get('app.idle_timeout') || 5) * 60 * 1000)
-            .then(async () => {
-                this.unsub('idle-listening');
-                this.unsub('idle-timeout');
-                await openConfirmModal(
-                    {
-                        title: 'Idle Timeout',
-                        content: 'Your form data is out of date',
-                        icon: { content: 'update' },
-                    },
-                    this._dialog
-                );
-                this._state.newForm();
-                location.reload();
-            });
+        this.subscription(
+            'idle-listen',
+            this._idle
+                .idleFor(
+                    (this._settings.get('app.idle_timeout') || 5) * 60 * 1000
+                )
+                .subscribe(async () => {
+                    this.unsub('idle');
+                    await openConfirmModal(
+                        {
+                            title: 'Idle Timeout',
+                            content: 'Your form data is out of date',
+                            icon: { content: 'update' },
+                        },
+                        this._dialog
+                    );
+                    this._state.newForm();
+                    location.reload();
+                })
+        );
     }
 
     public focusInput() {

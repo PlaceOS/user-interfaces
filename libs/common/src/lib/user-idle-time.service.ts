@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest, interval } from 'rxjs';
-import { first, map, throttleTime } from 'rxjs/operators';
+import { first, map, tap, throttleTime } from 'rxjs/operators';
 
 const EVENTS_NAMES = ['keypress', 'mousemove', 'touchmove', 'scroll', 'wheel'];
 
@@ -28,10 +28,12 @@ export class UserIdleTimeService {
         this._last_action.next(Date.now());
     }
 
-    public async idleFor(time_ms: number) {
+    public idleFor(time_ms: number) {
         const stop = this.startListening();
-        await this.idle_time.pipe(first((t) => t >= time_ms)).toPromise();
-        stop();
+        return this.idle_time.pipe(
+            first((t) => t >= time_ms),
+            tap(() => stop())
+        );
     }
 
     public startListening() {
