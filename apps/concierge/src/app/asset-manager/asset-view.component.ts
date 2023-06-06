@@ -12,6 +12,7 @@ import {
     AssetPurchaseOrder,
     deleteAsset,
     deleteAssetPurchaseOrder,
+    removeAssetRequests,
 } from '@placeos/assets';
 
 @Component({
@@ -474,6 +475,7 @@ export class AssetViewComponent extends AsyncHandler {
         if (resp.reason !== 'done') return;
         resp.loading('Deleting asset...');
         await deleteAsset(asset.id).toPromise();
+        await removeAssetRequests(asset.id);
         const item = await this._state.active_product.pipe(first()).toPromise();
         this._state.setOptions({ active_item: '' });
         setTimeout(

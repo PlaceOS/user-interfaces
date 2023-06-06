@@ -314,6 +314,19 @@ export function queryGroupAvailability(
     );
 }
 
+export async function removeAssetRequests(id: string) {
+    const requests = await queryBookings({
+        period_start: getUnixTime(startOfDay(new Date())),
+        period_end: getUnixTime(endOfDay(new Date())),
+        type: 'asset-request',
+    }).toPromise();
+    return Promise.all(
+        requests
+            .filter((_) => _.asset_id === id)
+            .map((request) => removeBooking(request.id).toPromise())
+    );
+}
+
 export async function updateAssetRequestsForResource(
     { id, ical_uid }: Partial<CalendarEvent>,
     {
