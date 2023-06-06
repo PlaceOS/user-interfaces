@@ -50,9 +50,6 @@ import { RoomManagementService } from './room-management.service';
                 <button btn icon matTooltip="Edit Room" (click)="editRoom(row)">
                     <app-icon>edit</app-icon>
                 </button>
-                <button btn icon matTooltip="Room Details">
-                    <app-icon>more_horiz</app-icon>
-                </button>
             </div>
         </ng-template>
     `,
