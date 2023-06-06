@@ -10,7 +10,7 @@ describe('Booking Desks', () => {
 
     it('should ensure the meeting title is a required field', () => {
         cy.get('input[name="title"]')
-            .clear({ force: true })
+            .clear()
             .then(() => {
                 cy.get('button[name="add-desk"]')
                     .click({ force: true })
@@ -32,7 +32,21 @@ describe('Booking Desks', () => {
                         force: true,
                     })
                     .then(() => {
-                        cy.get('new-desk-flow-confirm').should('exist');
+                        cy.get('new-desk-flow-confirm').should('not.exist');
+                    });
+
+                // ********************************
+                //This part of the test is failing. Dismissing the error message lets you proceed to book without a title
+                // ********************************
+
+                //After dismissing the initial error message, clicking the 'Confirm' button again
+                //should not result in the booking proceeding without a meeting title
+                cy.get('button[name="open-desk-confirm"]')
+                    .click({
+                        force: true,
+                    })
+                    .then(() => {
+                        cy.get('new-desk-flow-confirm').should('not.exist');
                     });
             });
     });
