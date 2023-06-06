@@ -127,7 +127,6 @@ export class AppComponent extends AsyncHandler implements OnInit {
                 .then((tkn) => this._pasteToken(tkn));
         });
         (window as any).pasteToken = (t) => this._pasteToken(t);
-        this._initLocale();
         this._route.queryParamMap.subscribe((params) => {
             if (params.has('hide_nav'))
                 localStorage.setItem('PlaceOS.hide_nav', 'true');
@@ -158,6 +157,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         await current_user.pipe(first((_) => !!_)).toPromise();
         this.clearTimeout('wait_for_user');
         setDefaultCreator(currentUser());
+        this._initLocale();
         setInternalUserDomain(
             this._settings.get('app.general.internal_user_domain') ||
                 `@${currentUser()?.email?.split('@')[1]}`
@@ -198,9 +198,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
             const locales = this._settings.get('app.locales') || [];
             this._translate?.addLangs(locales.map((_) => _.id));
             if (locale) {
-                try {
-                    this._translate?.use(locale);
-                } catch {}
+                this._translate?.use(locale);
             } else {
                 const list = navigator.languages;
                 for (const lang of list) {
