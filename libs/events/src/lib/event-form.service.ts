@@ -664,7 +664,7 @@ export class EventFormService extends AsyncHandler {
         ).map((_) => _.id);
         const query: any = {
             period_start: getUnixTime(date),
-            period_end: getUnixTime(date + duration * 60 * 1000),
+            period_end: getUnixTime(date + (duration * 60 * 1000 || 30 * 1000)),
         };
         if (exclude) query.exclude_range = `${exclude.start}...${exclude.end}`;
         const availability_method = this.has_calendar
