@@ -28,6 +28,16 @@ export function setDefaultCreator(user: Identity) {
     if (user) _default_user = user;
 }
 
+const DAYS_OF_WEEK = [
+    'sunday',
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday',
+];
+
 export interface LinkedBooking {
     id: string;
     asset_id: string;
@@ -192,7 +202,9 @@ export class CalendarEvent {
                     ).valueOf(),
                 interval: data.recurrence.interval,
                 pattern: data.recurrence.pattern,
-                days_of_week: data.recurrence.days_of_week,
+                days_of_week: data.recurrence.days_of_week.map((_) =>
+                    typeof _ === 'number' ? _ : DAYS_OF_WEEK.indexOf(_)
+                ),
             };
         } else {
             this.recurrence = {} as any;
@@ -258,8 +270,10 @@ export class CalendarEvent {
                 ...this.recurrence,
                 range_start: obj.event_start,
                 range_end: getUnixTime(endOfDay(this.recurrence.end)),
+                days_of_week: this.recurrence.days_of_week.map(
+                    (_) => DAYS_OF_WEEK[_]
+                ),
             };
-            delete obj.recurrence.days_of_week;
             delete obj.recurrence.start;
             delete obj.recurrence.end;
         }
