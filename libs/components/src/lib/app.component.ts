@@ -198,7 +198,9 @@ export class AppComponent extends AsyncHandler implements OnInit {
             const locales = this._settings.get('app.locales') || [];
             this._translate?.addLangs(locales.map((_) => _.id));
             if (locale) {
-                this._translate?.use(locale);
+                try {
+                    this._translate?.use(locale);
+                } catch {}
             } else {
                 const list = navigator.languages;
                 for (const lang of list) {
