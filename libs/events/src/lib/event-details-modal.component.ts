@@ -323,17 +323,22 @@ import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-moda
                             class="mx-3 pt-2 text-lg font-medium dark:border-neutral-500"
                             i18n
                         >
-                            Assets ({{ event.linked_bookings.length || 0 }})
+                            Assets ({{
+                                event.extension_data.assets?.length || 0
+                            }})
                         </h3>
                         <div class="flex flex-col px-4 space-y-2">
                             <div
                                 asset
                                 class="flex space-x-2"
-                                *ngFor="let item of event.linked_bookings"
+                                *ngFor="
+                                    let item of event.extension_data.assets ||
+                                        []
+                                "
                             >
                                 <div details class="pt-0.5">
                                     <div class="text-sm">
-                                        {{ item.asset_name || item.title }}
+                                        {{ item.name }}
                                     </div>
                                 </div>
                             </div>
