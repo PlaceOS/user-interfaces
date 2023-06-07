@@ -85,9 +85,10 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
     form.get('organiser').valueChanges.subscribe((o) =>
         form.controls.host.setValue(o?.email)
     );
-    form.get('resources').valueChanges.subscribe((l) =>
-        form.controls.system.setValue(l?.length ? (l[0] as any) : null)
-    );
+    form.get('resources').valueChanges.subscribe((l) => {
+        form.controls.system.setValue(l?.length ? (l[0] as any) : null);
+        form.controls.assets[l?.length ? 'enable' : 'disable']();
+    });
     form.get('date').valueChanges.subscribe(() =>
         form.get('duration').updateValueAndValidity()
     );
