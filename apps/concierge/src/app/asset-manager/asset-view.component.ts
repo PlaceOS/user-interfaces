@@ -14,6 +14,7 @@ import {
     deleteAssetPurchaseOrder,
     removeAssetRequests,
 } from '@placeos/assets';
+import { addMinutes } from 'date-fns';
 
 @Component({
     selector: 'asset-view',
@@ -406,7 +407,15 @@ export class AssetViewComponent extends AsyncHandler {
     public loading = false;
     public deleting = false;
     public readonly item = this._state.active_product;
-    public readonly requests = this._state.active_product_requests;
+    public readonly requests = this._state.active_product_requests.pipe(
+        map((req) =>
+            req.filter(
+                (_) =>
+                    _.date <= Date.now() &&
+                    addMinutes(_.date, _.duration).valueOf() >= Date.now()
+            )
+        )
+    );
 
     @ViewChild(CustomTooltipComponent)
     public _tooltip_el: CustomTooltipComponent;
