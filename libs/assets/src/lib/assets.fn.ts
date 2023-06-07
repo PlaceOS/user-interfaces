@@ -365,30 +365,32 @@ export async function updateAssetRequestsForResource(
     const filtered = bookings.filter(
         (item) =>
             item.extension_data.parent_id === id &&
-            old_assets.find((_) => _.id === item.id)
+            old_assets?.find((_) => _.id === item.asset_id)
     );
     await Promise.all(
         filtered.map((item) => removeBooking(item.id).toPromise())
     );
     await Promise.all(
-        assets.map((item) =>
-            createBooking(
-                new Booking({
-                    type: 'asset-request',
-                    booking_type: 'asset-request',
-                    date,
-                    duration,
-                    description: location_name,
-                    user_email: host,
-                    asset_id: item.id,
-                    asset_name: (item as any).name,
-                    title: (item as any).name,
-                    extension_data: { parent_id: id, location_id },
-                    zones: zones || [],
-                }),
-                { ical_uid, event_id: id }
-            ).toPromise()
-        )
+        assets
+            .filter(({ id }) => !old_assets?.find((_) => _.id === id))
+            .map((item) =>
+                createBooking(
+                    new Booking({
+                        type: 'asset-request',
+                        booking_type: 'asset-request',
+                        date,
+                        duration,
+                        description: location_name,
+                        user_email: host,
+                        asset_id: item.id,
+                        asset_name: (item as any).name,
+                        title: (item as any).name,
+                        extension_data: { parent_id: id, location_id },
+                        zones: zones || [],
+                    }),
+                    { ical_uid, event_id: id }
+                ).toPromise()
+            )
     );
     return assets;
 }

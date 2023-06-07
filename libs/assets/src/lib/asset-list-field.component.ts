@@ -90,6 +90,7 @@ const EMPTY_FAVS: string[] = [];
             matRipple
             add-space
             class="w-full inverse mt-2"
+            [disabled]="disabled"
             (click)="addAssetGroups()"
         >
             <div class="flex items-center justify-center space-x-2">
