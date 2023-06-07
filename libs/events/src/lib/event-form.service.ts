@@ -616,7 +616,9 @@ export class EventFormService extends AsyncHandler {
                     assets,
                     event.extension_data.assets
                 ).catch(async (e) => {
-                    await removeEvent(result.id).toPromise();
+                    if (!this.form.value.id) {
+                        await removeEvent(result.id).toPromise();
+                    }
                     throw e;
                 });
             }
