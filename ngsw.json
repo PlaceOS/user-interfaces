@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1686097423282,
+  "timestamp": 1686106033503,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -180,13 +180,13 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_workplace_src_app_book_book_module_ts.js": "66c78e5b4856176351714f24f193897ce2b119ec",
+    "./apps_workplace_src_app_book_book_module_ts.js": "15853203b3c74ed697dbb1120c5592981a9c8aec",
     "./apps_workplace_src_app_control_control_module_ts.js": "3482ba79b0429cbfad02163a744822d4ac8c0888",
     "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "9237872d40ab5b0985a2c923ae382858abd79b1a",
     "./apps_workplace_src_app_directory_directory_module_ts.js": "1ff865cafecbce6c4a3152a97db817c8232f000b",
     "./apps_workplace_src_app_explore_explore_module_ts.js": "1e0c3cb6eafa1f7c99aed33c4135596fda163df1",
-    "./apps_workplace_src_app_landing_landing_module_ts.js": "85e7b6ca80720aa1e057b2a9af57abf92f2a4871",
-    "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "f08cde52bd491c41946c8201deb0420e6d645420",
+    "./apps_workplace_src_app_landing_landing_module_ts.js": "08ab199d771688f8dbbc056635251f46dc2456a5",
+    "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "32561cd18c8e91b9129951c951acac747875c987",
     "./apps_workplace_src_app_schedule_schedule_module_ts.js": "c2280508db06b4cc1bd201659b1c5b05c85809b0",
     "./apps_workplace_src_app_whats-on_whats-on_module_ts.js": "49cc9e8ce8e0711a3b8b1cd8afc67a834d09e4db",
     "./assets/icons/amex.svg": "3530eff717af33317b79bdd1d0ec96abfa884287",
@@ -317,7 +317,7 @@
     "./common.js": "7b70890e9157751bb01ebcf338566ad3f19d4d94",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "8a6851f17f003d0f91fffac73e1b855fc2d8bd39",
-    "./main.js": "347474d1ada469099aa5c0921ac3f6eef926c096",
+    "./main.js": "2096ce33dedab20bdf5df6edbded6f578ab21f44",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
@@ -331,7 +331,7 @@
     "./polyfills.js": "01f2be5a88c4b4775197313693efd6e3bd41fae3",
     "./runtime.js": "ab3fdb44add31ffecf5981f94787bb180e8bf88e",
     "./styles.css": "649983846cc288b098312c702b64be75cdcd0839",
-    "./vendor.js": "d6ac2ddf79288f36f1ac0a50424f929dcaad516f"
+    "./vendor.js": "4ba1b920c689ee5582bcc909f55c64d177af2747"
   },
   "navigationUrls": [
     {
