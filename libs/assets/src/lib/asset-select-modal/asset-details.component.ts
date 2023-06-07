@@ -50,6 +50,7 @@ import { flatten } from '@placeos/common';
                     </div>
                     <a-counter
                         [(ngModel)]="item.amount"
+                        (ngModelChange)="countChange.emit($event)"
                         [min]="1"
                         [max]="item.assets?.length || 1"
                     ></a-counter>
@@ -115,6 +116,7 @@ export class AssetDetailsComponent {
 
     @Output() public toggleFav = new EventEmitter<void>();
     @Output() public activeChange = new EventEmitter<boolean>();
+    @Output() public countChange = new EventEmitter<number>();
     @Output() public close = new EventEmitter<void>();
 
     public ngOnInit() {

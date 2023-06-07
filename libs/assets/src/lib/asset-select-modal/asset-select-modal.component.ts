@@ -43,6 +43,7 @@ const EMPTY_FAVS: string[] = [];
                     [class.inset-0]="displayed"
                     [active]="selected_ids.includes(displayed?.id || '')"
                     (activeChange)="setSelected(displayed!, $event)"
+                    (countChange)="updateSelectedCount($event)"
                     [fav]="
                         !!displayed &&
                         this.favorites.includes(displayed?.id || '')
@@ -144,6 +145,11 @@ export class AssetSelectModalComponent {
         const list = this.selected.filter((_) => _.id !== group.id);
         if (state) list.push(group);
         this.selected = [...list];
+    }
+
+    public updateSelectedCount(count: number) {
+        const item = this.selected.find((_) => _.id === this.displayed?.id);
+        if (item) item.amount = count;
     }
 
     public toggleFavourite(asset: AssetGroup) {
