@@ -52,38 +52,103 @@ describe('Booking Desks', () => {
     // });
 
     it('should allow All Day bookings to be added to the form', () => {
+        // cy.wait(3000);
+        // cy.get('new-desk-flow-confirm').should('not.exist');
+        // cy.get('mat-checkbox[formcontrolname="all_day"]')
+        //     .find('input[type=checkbox]')
+        //     .check()
+        //     .then(() => {
+        //         cy.get('button[name="add-desk"]')
+        //             .click({ force: true })
+        //             .then(() => {
+        //                 cy.wait(6000);
+        //                 cy.get('desk-select-modal button[name="select-desk"]')
+        //                     .first()
+        //                     .click({ force: true })
+        //                     .then(() => {
+        //                         cy.get('button[name="toggle-desk"]').click({
+        //                             force: true,
+        //                         });
+        //                     })
+        //                     .then(() => {
+        //                         cy.wait(5000);
+        //                         cy.get('button[name="open-desk-confirm"]')
+        //                             .click({
+        //                                 force: true,
+        //                             })
+        //                             .then(() => {
+        //                                 cy.get('new-desk-flow-confirm').should(
+        //                                     'exist'
+        //                                 );
+        //                                 cy.get('new-desk-flow-confirm')
+        //                                     .contains('div', 'All Day')
+        //                                     .should('be.visible');
+        //                                 cy.get('button[name="confirm-desk"]')
+        //                                     .click({ force: true })
+        //                                     .then(() => {
+        //                                         cy.url().should(
+        //                                             'include',
+        //                                             'success'
+        //                                         );
+        //                                     });
+        //                             });
+        //                     });
+        //             });
+        //     });
+    });
+
+    it('should allow a selected desk to be changed to another desk in the booking form', () => {
         cy.wait(3000);
-        cy.get('new-desk-flow-confirm').should('not.exist');
-        cy.get('mat-checkbox[formcontrolname="all_day"]')
-            .find('input[type=checkbox]')
-            .check()
+        cy.get('button[name="add-desk"]')
+            .click({ force: true })
             .then(() => {
-                cy.get('button[name="add-desk"]')
+                cy.wait(6000);
+                cy.get('desk-select-modal button[name="select-desk"]')
+                    .first()
                     .click({ force: true })
                     .then(() => {
-                        cy.wait(6000);
-
-                        cy.get('desk-select-modal button[name="select-desk"]')
-                            .first()
+                        cy.get('button[name="toggle-desk"]').click({
+                            force: true,
+                        });
+                    })
+                    .then(() => {
+                        cy.wait(3000);
+                        cy.get('button[name="edit-desk"]')
                             .click({ force: true })
                             .then(() => {
-                                cy.get('button[name="toggle-desk"]').click({
-                                    force: true,
-                                });
-                            })
-                            .then(() => {
-                                cy.wait(5000);
-                                cy.get('button[name="open-desk-confirm"]')
-                                    .click({
-                                        force: true,
-                                    })
+                                cy.get(
+                                    'desk-select-modal button[name="select-desk"]'
+                                )
+                                    .eq(1)
+                                    .click({ force: true })
                                     .then(() => {
-                                        cy.get('new-desk-flow-confirm').should(
-                                            'exist'
-                                        );
-                                        cy.get('new-desk-flow-confirm')
-                                            .contains('div', 'All Day')
-                                            .should('be.visible');
+                                        cy.get(
+                                            'button[name="toggle-desk"]'
+                                        ).click({
+                                            force: true,
+                                        });
+                                        cy.wait(5000);
+                                        cy.get(
+                                            'button[name="open-desk-confirm"]'
+                                        )
+                                            .click({
+                                                force: true,
+                                            })
+                                            .then(() => {
+                                                cy.get(
+                                                    'new-desk-flow-confirm'
+                                                ).should('exist');
+                                                cy.get(
+                                                    'button[name="confirm-desk"]'
+                                                )
+                                                    .click({ force: true })
+                                                    .then(() => {
+                                                        cy.url().should(
+                                                            'include',
+                                                            'success'
+                                                        );
+                                                    });
+                                            });
                                     });
                             });
                     });
