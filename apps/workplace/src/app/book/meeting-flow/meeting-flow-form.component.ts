@@ -304,6 +304,8 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                             [@show]="hide_block.assets ? 'hide' : 'show'"
                         >
                             <asset-list-field
+                                [date]="form.value.date"
+                                [duration]="form.value.duration"
                                 formControlName="assets"
                             ></asset-list-field>
                         </div>

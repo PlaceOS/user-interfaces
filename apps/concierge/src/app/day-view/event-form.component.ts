@@ -132,7 +132,11 @@ import { first, map, tap } from 'rxjs/operators';
             </div>
             <div class="flex flex-col flex-1" *ngIf="has_assets">
                 <label for="space">Assets:</label>
-                <asset-list-field formControlName="assets"></asset-list-field>
+                <asset-list-field
+                    [date]="form.value.date"
+                    [duration]="form.value.duration"
+                    formControlName="assets"
+                ></asset-list-field>
             </div>
         </form>
     `,

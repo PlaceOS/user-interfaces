@@ -3,10 +3,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Booking, checkinBooking, removeBooking } from '@placeos/bookings';
 import {
+    currentUser,
     notifyError,
     notifySuccess,
     openConfirmModal,
-    SettingsService
+    SettingsService,
 } from '@placeos/common';
 import { CalendarEvent, EventFormService, removeEvent } from '@placeos/events';
 import { format } from 'date-fns';
@@ -128,9 +129,12 @@ export class LandingUpcomingComponent implements OnInit, OnDestroy {
         resp.loading('Requesting booking deletion...');
         await (item instanceof CalendarEvent ? removeEvent : removeBooking)(
             item.id,
-            this._settings.get('app.no_user_calendar')
-                ? { system_id: (item as any).system?.id }
-                : undefined
+            {
+                calendar: this._settings.get('app.no_user_calendar')
+                    ? null
+                    : currentUser()?.email,
+                system_id: (item as any).system?.id,
+            }
         )
             .toPromise()
             .catch((e) => {
@@ -143,7 +147,7 @@ export class LandingUpcomingComponent implements OnInit, OnDestroy {
         this._dialog.closeAll();
     }
 
-    public async end(item: Booking){
+    public async end(item: Booking) {
         const time = `${format(item.date, 'dd MMM yyyy h:mma')}`;
         const resource_name = item.asset_name || item.asset_id;
         const content = `End the booking for ${resource_name} at ${time}`;
@@ -154,11 +158,13 @@ export class LandingUpcomingComponent implements OnInit, OnDestroy {
 
         if (resp.reason !== 'done') return;
         resp.loading('Ending booking...');
-        await checkinBooking(item.id, false).toPromise().catch((e) => {
-            notifyError(`Unable to end booking. ${e}`);
-            resp.close();
-            throw e;
-        });
+        await checkinBooking(item.id, false)
+            .toPromise()
+            .catch((e) => {
+                notifyError(`Unable to end booking. ${e}`);
+                resp.close();
+                throw e;
+            });
         notifySuccess('Successfully ended booking.');
         this._state.refreshUpcomingEvents();
         this._dialog.closeAll();

@@ -9,6 +9,7 @@ import {
 } from '@placeos/bookings';
 import {
     AsyncHandler,
+    currentUser,
     notifyError,
     notifySuccess,
     openConfirmModal,
@@ -183,9 +184,12 @@ export class ScheduleComponent extends AsyncHandler {
         resp.loading('Requesting booking deletion...');
         await (item instanceof CalendarEvent ? removeEvent : removeBooking)(
             item.id,
-            this._settings.get('app.no_user_calendar')
-                ? { system_id: (item as any).system?.id }
-                : undefined
+            {
+                calendar: this._settings.get('app.no_user_calendar')
+                    ? null
+                    : currentUser()?.email,
+                system_id: (item as any).system?.id,
+            }
         )
             .toPromise()
             .catch((e) => {

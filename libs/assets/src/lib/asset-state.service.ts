@@ -10,7 +10,14 @@ import {
 } from 'rxjs/operators';
 import { queryAssets, queryGroupAvailability } from './assets.fn';
 import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
-import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import {
+    addMinutes,
+    endOfDay,
+    endOfMinute,
+    getUnixTime,
+    startOfDay,
+    startOfMinute,
+} from 'date-fns';
 import { AssetGroup } from './asset.class';
 import { updateAssetGroupList } from './asset-group.pipe';
 import { OrganisationService } from '@placeos/organisation';
@@ -18,6 +25,7 @@ import { OrganisationService } from '@placeos/organisation';
 export interface AssetOptions {
     zone?: string;
     date: number;
+    duration?: number;
     ignore?: string[];
 }
 
@@ -68,13 +76,15 @@ export class AssetStateService {
         this._options,
         this._org.active_building,
     ]).pipe(
-        switchMap(([{ zone, date, ignore }, bld]) => {
+        switchMap(([{ zone, date, duration, ignore }, bld]) => {
             return queryGroupAvailability(
                 {
                     zone_id: bld.id || zone || '',
                     zones: zone || '',
-                    period_start: getUnixTime(startOfDay(date)),
-                    period_end: getUnixTime(endOfDay(date)),
+                    period_start: getUnixTime(startOfMinute(date)),
+                    period_end: getUnixTime(
+                        endOfMinute(addMinutes(date, duration || 30))
+                    ),
                     type: 'asset-request',
                 } as any,
                 ignore

@@ -251,6 +251,8 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                     [@show]="hide_block.assets ? 'hide' : 'show'"
                 >
                     <asset-list-field
+                        [date]="form.value.date"
+                        [duration]="form.value.duration"
                         formControlName="assets"
                     ></asset-list-field>
                 </div>

@@ -196,7 +196,11 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                     </div>
                     <div class="text-xl" i18n>Request Asset</div>
                 </h3>
-                <asset-list-field formControlName="assets"></asset-list-field>
+                <asset-list-field
+                    [date]="form.value.date"
+                    [duration]="form.value.duration"
+                    formControlName="assets"
+                ></asset-list-field>
             </section>
         </div>
     `,

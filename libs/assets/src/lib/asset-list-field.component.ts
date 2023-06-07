@@ -1,10 +1,11 @@
-import { Component, forwardRef } from '@angular/core';
+import { Component, Input, SimpleChanges, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 
 import { AssetSelectModalComponent } from 'libs/assets/src/lib/asset-select-modal/asset-select-modal.component';
 import { AssetGroup } from 'libs/assets/src/lib/asset.class';
+import { AssetStateService } from './asset-state.service';
 
 const EMPTY_FAVS: string[] = [];
 
@@ -110,6 +111,8 @@ const EMPTY_FAVS: string[] = [];
     ],
 })
 export class AssetListFieldComponent implements ControlValueAccessor {
+    @Input() public date = Date.now();
+    @Input() public duration = 30;
     public items: AssetGroup[] = [];
     public disabled = false;
 
@@ -123,8 +126,18 @@ export class AssetListFieldComponent implements ControlValueAccessor {
 
     constructor(
         private _settings: SettingsService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
+        private _state: AssetStateService
     ) {}
+
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes.date || changes.duration) {
+            this._state.setOptions({
+                date: this.date,
+                duration: this.duration,
+            });
+        }
+    }
 
     /**
      * Update the form field value
