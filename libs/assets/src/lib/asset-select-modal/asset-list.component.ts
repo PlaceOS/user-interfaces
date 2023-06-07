@@ -145,6 +145,10 @@ export class AssetListComponent {
         map(([counts, assets]) => {
             for (const item of assets) {
                 item.amount = counts[item.id] || 0;
+                const selected = this.selected_items.find(
+                    (i) => i.id === item.id
+                );
+                if (selected) selected.assets = item.assets;
             }
             return assets;
         })

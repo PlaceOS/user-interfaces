@@ -148,8 +148,10 @@ export class AssetSelectModalComponent {
     }
 
     public updateSelectedCount(count: number) {
-        const item = this.selected.find((_) => _.id === this.displayed?.id);
+        if (!this.displayed) return;
+        const item = this.selected.find((_) => _.id === this.displayed.id);
         if (item) item.amount = count;
+        item.assets = this.displayed.assets;
     }
 
     public toggleFavourite(asset: AssetGroup) {
