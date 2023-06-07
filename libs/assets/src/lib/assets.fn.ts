@@ -365,7 +365,7 @@ export async function updateAssetRequestsForResource(
     const filtered = bookings.filter(
         (item) =>
             item.extension_data.parent_id === id &&
-            old_assets?.find((_) => _.id === item.asset_id)
+            !assets.find((_) => _.id === item.asset_id)
     );
     await Promise.all(
         filtered.map((item) => removeBooking(item.id).toPromise())

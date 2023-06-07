@@ -597,9 +597,8 @@ export class EventFormService extends AsyncHandler {
                 this._loading.next('');
                 throw e;
             });
-            let asset_list = [];
             if (assets?.length || event.extension_data.assets?.length) {
-                asset_list = await updateAssetRequestsForResource(
+                await updateAssetRequestsForResource(
                     result,
                     {
                         date,
