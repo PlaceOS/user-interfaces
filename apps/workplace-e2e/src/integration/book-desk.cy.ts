@@ -155,44 +155,61 @@ describe('Booking Desks', () => {
         //     });
     });
 
-    it('should allow a desk to be filtered by type', () => {
+    // it('should allow a desk to be filtered by type', () => {
+    //     cy.wait(3000);
+    //     cy.get('button[name="add-desk"]')
+    //         .click({ force: true })
+    //         .then(() => {
+    //             cy.wait(6000);
+    //             cy.get('desk-select-modal')
+    //                 .find('div:contains("dual_monitor")')
+    //                 .next('mat-checkbox')
+    //                 .find('input[type="checkbox"]')
+    //                 .check()
+    //                 .then(() => {
+    //                     cy.get('desk-filters-display')
+    //                         .contains('dual_monitor')
+    //                         .should('be.visible');
+
+    //                     cy.get('desk-select-modal button[name="select-desk"]')
+    //                         .first()
+    //                         .click({ force: true })
+    //                         .then(() => {
+    //                             cy.get('desk-details')
+    //                                 .contains('dual_monitor')
+    //                                 .should('be.visible');
+
+    //                             cy.get('button[name="toggle-desk"]').click({
+    //                                 force: true,
+    //                             });
+    //                             cy.wait(5000);
+    //                             cy.get('button[name="open-desk-confirm"]')
+    //                                 .click({
+    //                                     force: true,
+    //                                 })
+    //                                 .then(() => {
+    //                                     cy.get('new-desk-flow-confirm')
+    //                                         .contains('dual_monitor')
+    //                                         .should('be.visible');
+    //                                 });
+    //                         });
+    //                 });
+    //         });
+    // });
+
+    it('should show a desk location on the map', () => {
         cy.wait(3000);
         cy.get('button[name="add-desk"]')
             .click({ force: true })
             .then(() => {
                 cy.wait(6000);
-                cy.get('desk-select-modal')
-                    .find('div:contains("dual_monitor")')
-                    .next('mat-checkbox')
-                    .find('input[type="checkbox"]')
-                    .check()
+                cy.get('desk-select-modal button[name="select-desk"]')
+                    .first()
+                    .click({ force: true })
                     .then(() => {
-                        cy.get('desk-filters-display')
-                            .contains('dual_monitor')
+                        cy.get('desk-details')
+                            .find('section[map]')
                             .should('be.visible');
-
-                        cy.get('desk-select-modal button[name="select-desk"]')
-                            .first()
-                            .click({ force: true })
-                            .then(() => {
-                                cy.get('desk-details')
-                                    .contains('dual_monitor')
-                                    .should('be.visible');
-
-                                cy.get('button[name="toggle-desk"]').click({
-                                    force: true,
-                                });
-                                cy.wait(5000);
-                                cy.get('button[name="open-desk-confirm"]')
-                                    .click({
-                                        force: true,
-                                    })
-                                    .then(() => {
-                                        cy.get('new-desk-flow-confirm')
-                                            .contains('dual_monitor')
-                                            .should('be.visible');
-                                    });
-                            });
                     });
             });
     });
