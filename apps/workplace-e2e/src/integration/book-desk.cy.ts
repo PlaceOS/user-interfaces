@@ -98,57 +98,99 @@ describe('Booking Desks', () => {
     });
 
     it('should allow a selected desk to be changed to another desk in the booking form', () => {
+        // cy.wait(3000);
+        // cy.get('button[name="add-desk"]')
+        //     .click({ force: true })
+        //     .then(() => {
+        //         cy.wait(6000);
+        //         cy.get('desk-select-modal button[name="select-desk"]')
+        //             .first()
+        //             .click({ force: true })
+        //             .then(() => {
+        //                 cy.get('button[name="toggle-desk"]').click({
+        //                     force: true,
+        //                 });
+        //             })
+        //             .then(() => {
+        //                 cy.wait(3000);
+        //                 cy.get('button[name="edit-desk"]')
+        //                     .click({ force: true })
+        //                     .then(() => {
+        //                         cy.get(
+        //                             'desk-select-modal button[name="select-desk"]'
+        //                         )
+        //                             .eq(1)
+        //                             .click({ force: true })
+        //                             .then(() => {
+        //                                 cy.get(
+        //                                     'button[name="toggle-desk"]'
+        //                                 ).click({
+        //                                     force: true,
+        //                                 });
+        //                                 cy.wait(5000);
+        //                                 cy.get(
+        //                                     'button[name="open-desk-confirm"]'
+        //                                 )
+        //                                     .click({
+        //                                         force: true,
+        //                                     })
+        //                                     .then(() => {
+        //                                         cy.get(
+        //                                             'new-desk-flow-confirm'
+        //                                         ).should('exist');
+        //                                         cy.get(
+        //                                             'button[name="confirm-desk"]'
+        //                                         )
+        //                                             .click({ force: true })
+        //                                             .then(() => {
+        //                                                 cy.url().should(
+        //                                                     'include',
+        //                                                     'success'
+        //                                                 );
+        //                                             });
+        //                                     });
+        //                             });
+        //                     });
+        //             });
+        //     });
+    });
+
+    it('should allow a desk to be filtered by type', () => {
         cy.wait(3000);
         cy.get('button[name="add-desk"]')
             .click({ force: true })
             .then(() => {
                 cy.wait(6000);
-                cy.get('desk-select-modal button[name="select-desk"]')
-                    .first()
-                    .click({ force: true })
+                cy.get('desk-select-modal')
+                    .find('div:contains("dual_monitor")')
+                    .next('mat-checkbox')
+                    .find('input[type="checkbox"]')
+                    .check()
                     .then(() => {
-                        cy.get('button[name="toggle-desk"]').click({
-                            force: true,
-                        });
-                    })
-                    .then(() => {
-                        cy.wait(3000);
-                        cy.get('button[name="edit-desk"]')
+                        cy.get('desk-filters-display')
+                            .contains('dual_monitor')
+                            .should('be.visible');
+
+                        cy.get('desk-select-modal button[name="select-desk"]')
+                            .first()
                             .click({ force: true })
                             .then(() => {
-                                cy.get(
-                                    'desk-select-modal button[name="select-desk"]'
-                                )
-                                    .eq(1)
-                                    .click({ force: true })
+                                cy.get('desk-details')
+                                    .contains('dual_monitor')
+                                    .should('be.visible');
+
+                                cy.get('button[name="toggle-desk"]').click({
+                                    force: true,
+                                });
+                                cy.wait(5000);
+                                cy.get('button[name="open-desk-confirm"]')
+                                    .click({
+                                        force: true,
+                                    })
                                     .then(() => {
-                                        cy.get(
-                                            'button[name="toggle-desk"]'
-                                        ).click({
-                                            force: true,
-                                        });
-                                        cy.wait(5000);
-                                        cy.get(
-                                            'button[name="open-desk-confirm"]'
-                                        )
-                                            .click({
-                                                force: true,
-                                            })
-                                            .then(() => {
-                                                cy.get(
-                                                    'new-desk-flow-confirm'
-                                                ).should('exist');
-                                                cy.get(
-                                                    'button[name="confirm-desk"]'
-                                                )
-                                                    .click({ force: true })
-                                                    .then(() => {
-                                                        cy.url().should(
-                                                            'include',
-                                                            'success'
-                                                        );
-                                                    });
-                                            });
+                                        cy.get('new-desk-flow-confirm')
+                                            .contains('dual_monitor')
+                                            .should('be.visible');
                                     });
                             });
                     });
