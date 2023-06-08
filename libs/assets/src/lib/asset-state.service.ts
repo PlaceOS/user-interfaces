@@ -76,6 +76,7 @@ export class AssetStateService {
         this._options,
         this._org.active_building,
     ]).pipe(
+        debounceTime(300),
         switchMap(([{ zone, date, duration, ignore }, bld]) => {
             return queryGroupAvailability(
                 {

@@ -15,6 +15,11 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { CdkTableModule } from '@angular/cdk/table';
 import { PortalModule } from '@angular/cdk/portal';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSliderModule } from '@angular/material/slider';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 import { HttpClientModule } from '@angular/common/http';
 import { TranslateModule } from '@ngx-translate/core';
@@ -53,6 +58,13 @@ import { JsonDisplayComponent } from './json-display.component';
 import { ChangelogModalComponent } from './changelog-modal.component';
 import { LevelPipe } from './level.pipe';
 import { BuildingPipe } from './building.pipe';
+import { UserControlsComponent } from './user-controls.component';
+import { BuildingSelectComponent } from './building-select.component';
+import { RegionSelectComponent } from './region-select.component';
+import { HelpTooltipComponent } from './help-tooltip.component';
+import { AccessibilityTooltipComponent } from './accessibility-tooltip.component';
+import { SupportTicketModalComponent } from './support-ticket-modal.component';
+import { LanguageSelectComponent } from './language-tooltip.component';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -73,6 +85,11 @@ const MAT_MODULES: any[] = [
     PortalModule,
     MatSortModule,
     ScrollingModule,
+    MatTooltipModule,
+    MatCheckboxModule,
+    MatRadioModule,
+    MatSliderModule,
+    MatSlideToggleModule,
 ];
 
 const COMPONENTS: Type<any>[] = [
@@ -105,6 +122,14 @@ const COMPONENTS: Type<any>[] = [
     DurationPipe,
     LevelPipe,
     BuildingPipe,
+
+    UserControlsComponent,
+    BuildingSelectComponent,
+    RegionSelectComponent,
+    HelpTooltipComponent,
+    AccessibilityTooltipComponent,
+    SupportTicketModalComponent,
+    LanguageSelectComponent,
 ];
 
 const DIRECTIVES: Type<any>[] = [BindingDirective];
@@ -116,6 +141,7 @@ const DIRECTIVES: Type<any>[] = [BindingDirective];
         FormsModule,
         ReactiveFormsModule,
         HttpClientModule,
+        TranslateModule.forChild(),
         ...MAT_MODULES,
     ],
     providers: [{ provide: MAP_FEATURE_DATA, useValue: {} }],

@@ -1,9 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import {
-    ApplicationLink,
-    AsyncHandler,
-    SettingsService,
-} from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { CustomTooltipData } from '@placeos/components';
 
 @Component({

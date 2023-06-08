@@ -2,7 +2,6 @@ import { Component, Inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { SettingsService } from '@placeos/common';
 import { CustomTooltipData } from '@placeos/components';
-import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'language-select',
@@ -33,7 +32,7 @@ export class LanguageSelectComponent {
     public readonly setLocale = (code: string) => {
         this._translation.use(code);
         localStorage.setItem('PLACEOS.locale', code);
-    }
+    };
 
     public get locales() {
         return this._settings.get('app.locales') || [];

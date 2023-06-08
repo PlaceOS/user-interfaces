@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ApplicationIcon, currentUser, SettingsService } from '@placeos/common';
-import { UserControlsComponent } from './user-controls.component';
+import { UserControlsComponent } from '@placeos/components';
 
 const EMPTY = [];
 

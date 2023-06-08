@@ -16,8 +16,12 @@ import { EventFormComponent } from './event-form.component';
 import { SharedSpacesModule } from '@placeos/spaces';
 import { SharedUsersModule } from '@placeos/users';
 import { SharedCateringModule } from '@placeos/catering';
+import { NewDayViewComponent } from './new-dayview.component';
 
-const ROUTES: Route[] = [{ path: '', component: DayViewComponent }];
+const ROUTES: Route[] = [
+    { path: '', component: DayViewComponent },
+    { path: 'new', component: NewDayViewComponent },
+];
 
 @NgModule({
     declarations: [
@@ -29,6 +33,7 @@ const ROUTES: Route[] = [{ path: '', component: DayViewComponent }];
 
         BookingModalComponent,
         EventFormComponent,
+        NewDayViewComponent,
     ],
     imports: [
         CommonModule,

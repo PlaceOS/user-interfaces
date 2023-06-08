@@ -29,11 +29,16 @@ import { PaymentsModule } from '@placeos/payments';
 import { AssetsModule } from '@placeos/assets';
 import { MatRadioModule } from '@angular/material/radio';
 
+import { ApplicationTopbarComponent } from './app-topbar.component';
+import { ApplicationSidebarComponent } from './app-sidebar.component';
+
 const COMPONENTS: Type<any>[] = [
     SidebarComponent,
     DateOptionsComponent,
     SearchbarComponent,
     ViewEventDetailsComponent,
+    ApplicationTopbarComponent,
+    ApplicationSidebarComponent,
 ];
 
 const MAT_MODULES: any[] = [

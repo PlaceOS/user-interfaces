@@ -39,13 +39,6 @@ import { EventTimelineComponent } from './event-timeline/event-timeline.componen
 import { VerticalTimelineComponent } from './vertical-timeline/vertical-timeline.component';
 import { TopMenuComponent } from './top-menu.component';
 import { FooterMenuComponent } from './footer-menu.component';
-import { UserControlsComponent } from './user-controls.component';
-import { BuildingSelectComponent } from './building-select.component';
-import { HelpTooltipComponent } from './help-tooltip.component';
-import { AccessibilityTooltipComponent } from './accessibility-tooltip.component';
-import { SupportTicketModalComponent } from './support-ticket-modal.component';
-import { LanguageSelectComponent } from './language-tooltip.component';
-import { RegionSelectComponent } from './region-select.component';
 
 const COMPONENTS: Type<any>[] = [
     TopbarComponent,
@@ -55,13 +48,6 @@ const COMPONENTS: Type<any>[] = [
     EventTimelineComponent,
     TopMenuComponent,
     FooterMenuComponent,
-    UserControlsComponent,
-    BuildingSelectComponent,
-    RegionSelectComponent,
-    HelpTooltipComponent,
-    AccessibilityTooltipComponent,
-    SupportTicketModalComponent,
-    LanguageSelectComponent,
 ];
 
 const MATERIAL_MODULES: any[] = [
