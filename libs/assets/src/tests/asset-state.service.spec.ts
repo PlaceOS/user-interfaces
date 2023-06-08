@@ -1,11 +1,13 @@
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { AssetStateService } from '../lib/asset-state.service';
+import { MockProvider } from 'ng-mocks';
+import { SettingsService } from '@placeos/common';
 
 describe('AssetStateService', () => {
     let spectator: SpectatorService<AssetStateService>;
     const createService = createServiceFactory({
         service: AssetStateService,
-        providers: [],
+        providers: [MockProvider(SettingsService, { get: jest.fn() })],
     });
 
     beforeEach(() => (spectator = createService()));

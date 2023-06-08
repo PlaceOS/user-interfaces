@@ -202,9 +202,10 @@ export class CalendarEvent {
                     ).valueOf(),
                 interval: data.recurrence.interval,
                 pattern: data.recurrence.pattern,
-                days_of_week: data.recurrence.days_of_week.map((_) =>
-                    typeof _ === 'number' ? _ : DAYS_OF_WEEK.indexOf(_)
-                ),
+                days_of_week:
+                    data.recurrence.days_of_week?.map((_) =>
+                        typeof _ === 'number' ? _ : DAYS_OF_WEEK.indexOf(_)
+                    ) || [],
             };
         } else {
             this.recurrence = {} as any;

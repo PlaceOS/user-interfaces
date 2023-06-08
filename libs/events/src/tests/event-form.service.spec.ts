@@ -157,7 +157,7 @@ describe('EventFormService', () => {
     it('should reject posting invalid form', async () => {
         spectator.service.newForm();
         await expect(spectator.service.postForm()).rejects.toBe(
-            'Some form fields are invalid. [host]'
+            'Some form fields are invalid. [host, assets]'
         );
     });
 
