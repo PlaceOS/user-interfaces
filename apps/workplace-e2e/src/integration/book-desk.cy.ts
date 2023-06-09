@@ -214,6 +214,20 @@ describe('Booking Desks', () => {
             });
     });
 
+    it('should allow map view and list view to be shown via toggle', () => {
+        cy.wait(3000);
+        cy.get('button[name="add-desk"]')
+            .click({ force: true })
+            .then(() => {
+                cy.get('desk-select-modal')
+                    .contains('button', 'Map')
+                    .click({ force: true })
+                    .then(() => {
+                        cy.get('desk-map').should('be.visible');
+                        cy.get('i-map').should('exist');
+                    });
+            });
+    });
     // #endregion
 
     // #region GROUP BOOKINGS
