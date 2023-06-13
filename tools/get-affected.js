@@ -4,7 +4,11 @@ const baseSha = ref;
 const cmd = process.argv[3] || 'build';
 
 // prints an object with keys {lint1: [...], lint2: [...], lint3: [...], test1: [...], .... build3: [...]}
-console.log(JSON.stringify(commands(cmd)));
+try {
+    console.log(JSON.stringify(commands(cmd)) || '[]');
+} catch (e) {
+    console.log('[]');
+}
 
 function commands(target) {
     const release = ref.includes('release');
