@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1686630657211,
+  "timestamp": 1686632143592,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -140,10 +140,10 @@
     "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "00c2a1ea54c1575009e98a885ba410833518b47b",
     "./apps_concierge_src_app_catering_catering_module_ts.js": "c780643695083665c32f81f2f467a92f9694f473",
     "./apps_concierge_src_app_day-view_day-view_module_ts.js": "35d4f49adf0b173f3ab3e6e16d98a3ab6615e3fe",
-    "./apps_concierge_src_app_desks_desks_module_ts.js": "00578e56b1e7d166f0136b9b3680a66c51e9b154",
+    "./apps_concierge_src_app_desks_desks_module_ts.js": "b5e5672e986252a7028fa1635c18dae05915ad79",
     "./apps_concierge_src_app_facilities_facilities_module_ts.js": "10511909b7caae66a4ea6241662d47b8889fc7b6",
-    "./apps_concierge_src_app_parking_parking_module_ts.js": "ad80d5bf9086c3e8809a9d7c28519be1fd4d845a",
-    "./apps_concierge_src_app_points_points_module_ts.js": "8afacf7bb0f45e76e1c8df75015d92a90aff826f",
+    "./apps_concierge_src_app_parking_parking_module_ts.js": "0b3fdaa82cc26e2744f8adae3d3a416b63c83158",
+    "./apps_concierge_src_app_points_points_module_ts.js": "873ee7beafcca009f8ac6d4828728f3cc5e4653a",
     "./apps_concierge_src_app_reports_reports_module_ts.js": "415d272d5b6e5f693798ecdbab443e20febf6885",
     "./apps_concierge_src_app_room-manager_room-manager_module_ts.js": "276b30ad2a18ac904cb9c67bc7a0999a37b9267f",
     "./apps_concierge_src_app_staff_staff_module_ts.js": "a45aecde1026f48e15eb60152467902ce560392a",
@@ -232,7 +232,7 @@
     "./default-node_modules_angular_material_fesm2022_tabs_mjs.js": "0c286fe2922a6d7979b37b76cecc0e99c4cb7db2",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "538ffd847bcd8d934493a63e798bf0eff76dc3d5",
-    "./main.js": "a949af83405832a10d6fd6aba03f30732e52b71c",
+    "./main.js": "10e25179073c3565afd3723e6940bcd511e11e87",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
