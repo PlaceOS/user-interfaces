@@ -107,8 +107,8 @@ import { OrganisationService } from '@placeos/organisation';
                         class="w-32 inverse"
                         [routerLink]="
                             product
-                                ? ['/asset-manager', 'view', product.id]
-                                : ['/asset-manager']
+                                ? ['/book/assets', 'view', product.id]
+                                : ['/book/assets']
                         "
                     >
                         Cancel
@@ -156,7 +156,7 @@ export class AssetFormComponent extends AsyncHandler {
                         .catch(() => null);
                     if (!asset) {
                         notifyError('Unable to load asset details.');
-                        this._router.navigate(['/asset-manager']);
+                        this._router.navigate(['/book/assets']);
                     }
                     this.form.patchValue(asset);
                     this.loading = '';
@@ -170,7 +170,7 @@ export class AssetFormComponent extends AsyncHandler {
                         notifyError(
                             'Unable to load associated product details.'
                         );
-                        this._router.navigate(['/asset-manager']);
+                        this._router.navigate(['/book/assets']);
                     }
                     this.product = product;
                     this.form.patchValue({ type_id: product.id });
@@ -201,7 +201,7 @@ export class AssetFormComponent extends AsyncHandler {
             });
         this.form.reset();
         this._state.postChange();
-        this._router.navigate(['/asset-manager', 'view', this.product?.id]);
+        this._router.navigate(['/book/assets', 'view', this.product?.id]);
         this.loading = '';
     }
 }

@@ -4,18 +4,27 @@ import { Router } from '@angular/router';
 @Component({
     selector: '[app-reports]',
     template: `
-        <sidebar class="h-full"></sidebar>
-        <main class="relative overflow-hidden flex flex-col flex-1 w-1/2 h-full bg-gray-300 dark:bg-neutral-600">
-            <router-outlet></router-outlet>
-            <div reports-menu *ngIf="path === 'reports'" class="absolute inset-0"></div>
-        </main>
+        <app-topbar></app-topbar>
+        <div class="flex flex-1 h-px">
+            <app-sidebar></app-sidebar>
+            <main class="flex flex-col flex-1 w-1/2 h-full relative">
+                <router-outlet></router-outlet>
+                <div
+                    reports-menu
+                    *ngIf="path === 'reports'"
+                    class="absolute inset-0"
+                ></div>
+            </main>
+        </div>
     `,
     styles: [
         `
             :host {
                 display: flex;
+                flex-direction: column;
                 height: 100%;
                 width: 100%;
+                background-color: #fff;
             }
 
             main > *:not(router-outlet) {
@@ -28,13 +37,10 @@ import { Router } from '@angular/router';
     ],
 })
 export class ReportsComponent {
-
     public get path() {
         const parts = this._router.url.split('/');
         return parts[parts.length - 1];
     }
 
-    constructor(private _router: Router) {
-
-    }
+    constructor(private _router: Router) {}
 }

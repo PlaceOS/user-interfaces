@@ -6,28 +6,30 @@ import { ParkingStateService } from './parking-state.service';
 @Component({
     selector: 'app-parking',
     template: `
-        <sidebar></sidebar>
-        <main class="relative overflow-hidden bg-gray-100 dark:bg-neutral-600">
-            <parking-topbar></parking-topbar>
-            <div class="dark">
-                <nav mat-tab-nav-bar>
-                    <a
-                        mat-tab-link
-                        [routerLink]="['/parking', 'events']"
-                        queryParamsHandling="merge"
-                        [active]="path === 'events'"
-                    >
-                        Bookings
-                    </a>
-                    <a
-                        mat-tab-link
-                        [routerLink]="['/parking', 'spaces']"
-                        queryParamsHandling="merge"
-                        [active]="path === 'spaces'"
-                    >
-                        Manage Spaces
-                    </a>
-                    <!-- <a
+        <app-topbar></app-topbar>
+        <div class="flex flex-1 h-px">
+            <app-sidebar></app-sidebar>
+            <main class="flex flex-col flex-1 w-1/2 h-full relative">
+                <parking-topbar></parking-topbar>
+                <div class="dark">
+                    <nav mat-tab-nav-bar>
+                        <a
+                            mat-tab-link
+                            [routerLink]="['/parking', 'events']"
+                            queryParamsHandling="merge"
+                            [active]="path === 'events'"
+                        >
+                            Bookings
+                        </a>
+                        <a
+                            mat-tab-link
+                            [routerLink]="['/parking', 'spaces']"
+                            queryParamsHandling="merge"
+                            [active]="path === 'spaces'"
+                        >
+                            Manage Spaces
+                        </a>
+                        <!-- <a
                         mat-tab-link
                         [routerLink]="['/parking', 'map']"
                         queryParamsHandling="merge"
@@ -35,25 +37,28 @@ import { ParkingStateService } from './parking-state.service';
                     >
                         Make Booking
                     </a> -->
-                </nav>
-            </div>
-            <div class="flex-1 h-1/2 w-full relative overflow-auto">
-                <router-outlet></router-outlet>
-            </div>
-            <div
-                *ngIf="!(levels | async)?.length"
-                class="absolute inset-0 bg-white/80 dark:bg-white/20 flex flex-col items-center justify-center z-50"
-            >
-                <p>No parking floors for the currently selected building</p>
-            </div>
-        </main>
+                    </nav>
+                </div>
+                <div class="flex-1 h-1/2 w-full relative overflow-auto">
+                    <router-outlet></router-outlet>
+                </div>
+                <div
+                    *ngIf="!(levels | async)?.length"
+                    class="absolute inset-0 bg-white/80 dark:bg-white/20 flex flex-col items-center justify-center z-50"
+                >
+                    <p>No parking floors for the currently selected building</p>
+                </div>
+            </main>
+        </div>
     `,
     styles: [
         `
             :host {
                 display: flex;
+                flex-direction: column;
                 height: 100%;
                 width: 100%;
+                background-color: #fff;
             }
 
             sidebar {

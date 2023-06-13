@@ -1,16 +1,23 @@
 import { Component } from '@angular/core';
-import { ANIMATION_SHOW_CONTRACT_EXPAND } from '@placeos/common';
+import {
+    ANIMATION_SHOW_CONTRACT_EXPAND,
+    AsyncHandler,
+    SettingsService,
+} from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'app-sidebar',
     template: `
-        <div class="w-64 h-full border-r border-gray-300 p-2 overflow-auto">
-            <ng-container *ngFor="let link of links">
+        <div
+            class="w-56 h-full border-r border-gray-300 py-2 pr-3 overflow-auto"
+        >
+            <ng-container *ngFor="let link of filtered_links">
                 <ng-container *ngIf="!link.children; else group_view">
                     <a
                         matRipple
-                        class="flex items-center space-x-2 rounded p-2 hover:bg-black/10 w-full"
-                        [routerLink]="['/']"
+                        class="flex items-center space-x-2 rounded-r-full p-1 my-1 hover:bg-black/10 w-full"
+                        [routerLink]="link.route"
                         routerLinkActive="active"
                     >
                         <app-icon class="text-2xl opacity-60">{{
@@ -23,7 +30,7 @@ import { ANIMATION_SHOW_CONTRACT_EXPAND } from '@placeos/common';
                     <button
                         matRipple
                         *ngIf="link.children?.length"
-                        class="flex items-center space-x-2 rounded p-2 hover:bg-black/10 w-full"
+                        class="flex items-center space-x-2 rounded-r-full p-1 my-1 hover:bg-black/10 w-full"
                         (click)="show_block[link.id] = !show_block[link.id]"
                     >
                         <app-icon class="text-2xl opacity-60">
@@ -40,10 +47,10 @@ import { ANIMATION_SHOW_CONTRACT_EXPAND } from '@placeos/common';
                         [@show]="!show_block[link.id] ? 'show' : 'hide'"
                     >
                         <a
-                            class="flex items-center space-x-2 rounded p-2 hover:bg-black/10 w-full"
+                            class="flex items-center space-x-2 rounded-r-full p-1 my-1 hover:bg-black/10 w-full"
                             *ngFor="let child of link.children"
                             [routerLink]="child.route"
-                            routerLinkActive="true"
+                            routerLinkActive="active"
                         >
                             <app-icon class="text-2xl"></app-icon>
                             <span>{{ child.name }}</span>
@@ -60,24 +67,42 @@ import { ANIMATION_SHOW_CONTRACT_EXPAND } from '@placeos/common';
             }
 
             a.active {
+                background-color: var(--primary);
+                color: #fff;
+            }
+
+            a.active:hover {
+                background-color: var(--primary);
+                color: #000;
+                opacity: 0.75;
             }
         `,
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
 })
-export class ApplicationSidebarComponent {
+export class ApplicationSidebarComponent extends AsyncHandler {
     public show_block: Record<string, boolean> = {};
     public readonly links = [
-        { name: 'Home', route: ['/'], icon: 'home' },
+        { id: 'home', name: 'Home', route: ['/'], icon: 'home' },
         {
             id: 'facilities',
             name: 'Facilities',
             icon: 'place',
             children: [
                 {
+                    id: 'room-management',
+                    name: 'Room Management',
+                    route: ['/room-management'],
+                },
+                {
                     id: 'facilities',
                     name: 'Building Map',
                     route: ['/facilities'],
+                },
+                {
+                    id: 'surveys',
+                    name: 'Surveys',
+                    route: ['/surveys'],
                 },
             ],
         },
@@ -158,16 +183,59 @@ export class ApplicationSidebarComponent {
             icon: 'analytics',
             children: [
                 {
-                    id: 'events',
-                    name: 'Events',
-                    route: ['/entertainment/events'],
+                    id: 'booking-report',
+                    name: 'Bookings',
+                    route: ['/reports/bookings'],
                 },
                 {
-                    id: 'points',
-                    name: 'Points',
-                    route: ['/entertainment/points'],
+                    id: 'contact-tracing-report',
+                    name: 'Contact Tracing',
+                    route: ['/reports/contact-tracing'],
                 },
             ],
         },
     ];
+
+    public filtered_links = [];
+
+    constructor(
+        private _settings: SettingsService,
+        private _org: OrganisationService
+    ) {
+        super();
+    }
+
+    public ngOnInit() {
+        this.updateFilteredLinks();
+        this.subscription(
+            'building',
+            this._org.active_building.subscribe(() =>
+                this.updateFilteredLinks()
+            )
+        );
+    }
+
+    public updateFilteredLinks() {
+        const features = this._settings.get('app.features') || [];
+        const custom_reports = this._settings.get('app.custom_reports') || [];
+        this.filtered_links = this.links
+            .map((link) => ({
+                ...link,
+                children: link.children
+                    ? link.children.filter((_) => features.includes(_.id))
+                    : null,
+            }))
+            .filter((_) => _.route || _.children?.length);
+        if (this.filtered_links.find((_) => _.id === 'home')) {
+            const link = this.filtered_links.find((_) => _.id === 'home');
+            link.route = this._settings.get('app.default_route') || ['/'];
+        }
+        if (
+            custom_reports.length &&
+            this.filtered_links.find((_) => _.id === 'reports')
+        ) {
+            const reports = this.filtered_links.find((_) => _.id === 'reports');
+            reports.children = reports.children.concat(custom_reports);
+        }
+    }
 }

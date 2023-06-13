@@ -6,13 +6,21 @@ import { UserControlsComponent } from '@placeos/components';
     selector: 'app-topbar',
     template: `
         <div class="flex items-center border-b border-gray-300 p-2">
-            <div class="w-64">
+            <div class="w-56">
                 <img class="h-12" [src]="logo.src" />
             </div>
-            <input
-                class="p-2 bg-black/20 rounded border-none w-[28rem] max-w-[65vw]"
-                placeholder="Search for bookings, people or locations"
-            />
+            <mat-form-field
+                appearance="outline"
+                class="flex-1 max-w-[65vw] h-[3.25rem]"
+            >
+                <app-icon matPrefix class="text-2xl relative -left-1">
+                    search
+                </app-icon>
+                <input
+                    matInput
+                    placeholder="Search for bookings, people or locations"
+                />
+            </mat-form-field>
             <div class="flex-1 flex items-center justify-end space-x-2">
                 <button btn icon matRipple>
                     <app-icon class="text-2xl">notifications</app-icon>

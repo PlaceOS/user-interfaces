@@ -11,7 +11,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 btn
                 matRipple
                 class="secondary"
-                [routerLink]="['/asset-manager', 'manage', 'group']"
+                [routerLink]="['/book/assets', 'manage', 'group']"
             >
                 Add Product
             </a>
@@ -20,7 +20,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 matRipple
                 class="secondary"
                 *ngIf="active === 'purchase-orders'"
-                [routerLink]="['/asset-manager', 'manage', 'purchase-order']"
+                [routerLink]="['/book/assets', 'manage', 'purchase-order']"
             >
                 Add Purchase Order
             </a>

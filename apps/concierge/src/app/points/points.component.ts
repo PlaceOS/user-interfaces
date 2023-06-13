@@ -6,47 +6,50 @@ import { PointsStateService } from './points-state.service';
 @Component({
     selector: 'placeos-points',
     template: `
-        <sidebar></sidebar>
-        <main
-            class="relative w-full flex flex-col bg-gray-200 dark:bg-neutral-600"
-        >
-            <points-topbar class="relative z-10">
-                <button
-                    *ngIf="page === 'assets'"
-                    btn
-                    matRipple
-                    (click)="newAsset()"
-                >
-                    New Asset
-                </button>
-            </points-topbar>
-            <nav mat-tab-nav-bar>
-                <a
-                    mat-tab-link
-                    [routerLink]="['/points', 'overview']"
-                    [active]="page === 'overview'"
-                >
-                    Overview
-                </a>
-                <a
-                    mat-tab-link
-                    [routerLink]="['/points', 'assets']"
-                    [active]="page === 'assets'"
-                >
-                    Assets
-                </a>
-            </nav>
-            <div class="flex-1 w-full h-1/2 overflow-auto">
-                <router-outlet></router-outlet>
-            </div>
-        </main>
+        <app-topbar></app-topbar>
+        <div class="flex flex-1 h-px">
+            <app-sidebar></app-sidebar>
+            <main class="flex flex-col flex-1 w-1/2 h-full">
+                <points-topbar class="relative z-10">
+                    <button
+                        *ngIf="page === 'assets'"
+                        btn
+                        matRipple
+                        (click)="newAsset()"
+                    >
+                        New Asset
+                    </button>
+                </points-topbar>
+                <nav mat-tab-nav-bar>
+                    <a
+                        mat-tab-link
+                        [routerLink]="['/points', 'overview']"
+                        [active]="page === 'overview'"
+                    >
+                        Overview
+                    </a>
+                    <a
+                        mat-tab-link
+                        [routerLink]="['/points', 'assets']"
+                        [active]="page === 'assets'"
+                    >
+                        Assets
+                    </a>
+                </nav>
+                <div class="flex-1 w-full h-1/2 overflow-auto">
+                    <router-outlet></router-outlet>
+                </div>
+            </main>
+        </div>
     `,
     styles: [
         `
             :host {
                 display: flex;
+                flex-direction: column;
                 height: 100%;
                 width: 100%;
+                background-color: #fff;
             }
         `,
     ],

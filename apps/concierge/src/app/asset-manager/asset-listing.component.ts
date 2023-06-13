@@ -10,7 +10,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             <nav mat-tab-nav-bar>
                 <a
                     mat-tab-link
-                    [routerLink]="['/asset-manager', 'list', 'requests']"
+                    [routerLink]="['/book/assets', 'list', 'requests']"
                     [routerLinkActive]="'active'"
                     [active]="active === 'requests'"
                     (click)="active = 'requests'"
@@ -19,7 +19,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </a>
                 <a
                     mat-tab-link
-                    [routerLink]="['/asset-manager', 'list', 'items']"
+                    [routerLink]="['/book/assets', 'list', 'items']"
                     [active]="active === 'items'"
                     (click)="active = 'items'"
                 >
@@ -27,7 +27,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </a>
                 <a
                     mat-tab-link
-                    [routerLink]="['/asset-manager', 'list', 'purchase-orders']"
+                    [routerLink]="['/book/assets', 'list', 'purchase-orders']"
                     [active]="active === 'purchase-orders'"
                     (click)="active = 'purchase-orders'"
                 >

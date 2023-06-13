@@ -86,7 +86,7 @@ export class AssetPurchaseOrderListComponent {
     ) {}
 
     public editOrder(order) {
-        this._router.navigate(['/asset-manager', 'manage', 'purchase-order'], {
+        this._router.navigate(['/book/assets', 'manage', 'purchase-order'], {
             queryParams: { id: order.id },
         });
     }

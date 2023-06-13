@@ -103,8 +103,8 @@ import { addYears, getUnixTime } from 'date-fns';
                         class="w-32 inverse"
                         [routerLink]="
                             product_id
-                                ? ['/asset-manager', 'view', product_id]
-                                : ['/asset-manager', 'list', 'purchase-orders']
+                                ? ['/book/assets', 'view', product_id]
+                                : ['/book/assets', 'list', 'purchase-orders']
                         "
                     >
                         Cancel
@@ -152,7 +152,7 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
                         .catch(() => null);
                     if (!asset) {
                         notifyError('Unable to load purchase order details.');
-                        this._router.navigate(['/asset-manager']);
+                        this._router.navigate(['/book/assets']);
                     }
                     this.form.patchValue({
                         ...asset,
@@ -198,13 +198,9 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
         notifySuccess('Successfully saved purchase order.');
         this._state.postChange();
         if (this.product_id) {
-            this._router.navigate(['/asset-manager', 'view', this.product_id]);
+            this._router.navigate(['/book/assets', 'view', this.product_id]);
         } else {
-            this._router.navigate([
-                '/asset-manager',
-                'list',
-                'purchase-orders',
-            ]);
+            this._router.navigate(['/book/assets', 'list', 'purchase-orders']);
         }
         this.loading = '';
     }

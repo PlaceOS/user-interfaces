@@ -30,7 +30,7 @@ import { addMinutes } from 'date-fns';
                     btn
                     matRipple
                     class="inverse"
-                    [routerLink]="['/asset-manager', 'list', 'items']"
+                    [routerLink]="['/book/assets', 'list', 'items']"
                 >
                     <div class="flex items-center">
                         <app-icon class="text-xl">arrow_back</app-icon>
@@ -71,7 +71,7 @@ import { addMinutes } from 'date-fns';
                                 matRipple
                                 class="clear"
                                 [routerLink]="[
-                                    '/asset-manager',
+                                    '/book/assets',
                                     'manage',
                                     'group'
                                 ]"
@@ -168,7 +168,7 @@ import { addMinutes } from 'date-fns';
                                 matRipple
                                 class="flex-1"
                                 [routerLink]="[
-                                    '/asset-manager',
+                                    '/book/assets',
                                     'manage',
                                     'asset'
                                 ]"
@@ -181,7 +181,7 @@ import { addMinutes } from 'date-fns';
                                 matRipple
                                 class="flex-1"
                                 [routerLink]="[
-                                    '/asset-manager',
+                                    '/book/assets',
                                     'manage',
                                     'asset-bulk'
                                 ]"
@@ -220,7 +220,7 @@ import { addMinutes } from 'date-fns';
                                     icon
                                     matRipple
                                     [routerLink]="[
-                                        '/asset-manager',
+                                        '/book/assets',
                                         'manage',
                                         'asset'
                                     ]"
@@ -268,7 +268,7 @@ import { addMinutes } from 'date-fns';
                             matRipple
                             class="mb-2"
                             [routerLink]="[
-                                '/asset-manager',
+                                '/book/assets',
                                 'manage',
                                 'purchase-order'
                             ]"
@@ -311,7 +311,7 @@ import { addMinutes } from 'date-fns';
                                     icon
                                     matRipple
                                     [routerLink]="[
-                                        '/asset-manager',
+                                        '/book/assets',
                                         'manage',
                                         'purchase-order'
                                     ]"
@@ -424,7 +424,7 @@ export class AssetViewComponent extends AsyncHandler {
         this.deleting = true;
         await this._state.deleteActiveProduct();
         this.deleting = false;
-        this._router.navigate(['/asset-manager', 'list', 'items']);
+        this._router.navigate(['/book/assets', 'list', 'items']);
         this.closeTooltip();
     }
 

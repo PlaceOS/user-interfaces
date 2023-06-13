@@ -34,7 +34,7 @@ const ROUTES: Route[] = [
         component: ReportsComponent,
         children: [
             { path: '', component: ReportsOptionsComponent },
-            { path: 'spaces', component: ReportSpacesComponent },
+            { path: 'bookings', component: ReportSpacesComponent },
             { path: 'desks', component: ReportDesksComponent },
             { path: 'catering', component: CateringReportComponent },
             {

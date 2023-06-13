@@ -5,23 +5,28 @@ import { StaffStateService } from './staff-state.service';
 @Component({
     selector: '[app-staff]',
     template: `
-        <sidebar></sidebar>
-        <main class="relative overflow-hidden flex-1 flex flex-col bg-gray-200  dark:bg-neutral-600">
-            <staff-topbar class="w-full"></staff-topbar>
-            <staff-listings class="w-full flex-1 h-0"></staff-listings>
-            <mat-progress-bar
-                class="w-full"
-                *ngIf="loading | async"
-                mode="indeterminate"
-            ></mat-progress-bar>
-        </main>
+        <app-topbar></app-topbar>
+        <div class="flex flex-1 h-px">
+            <app-sidebar></app-sidebar>
+            <main class="flex flex-col flex-1 w-1/2 h-full">
+                <staff-topbar class="w-full"></staff-topbar>
+                <staff-listings class="w-full flex-1 h-0"></staff-listings>
+                <mat-progress-bar
+                    class="w-full"
+                    *ngIf="loading | async"
+                    mode="indeterminate"
+                ></mat-progress-bar>
+            </main>
+        </div>
     `,
     styles: [
         `
             :host {
                 display: flex;
+                flex-direction: column;
                 height: 100%;
                 width: 100%;
+                background-color: #fff;
             }
         `,
     ],
