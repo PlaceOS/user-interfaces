@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
             <div class="w-full overflow-auto h-1/2 flex-1">
                 <custom-table
                     purchase-orders
-                    class="block min-w-[60rem] text-sm"
+                    class="block min-w-[52rem] text-sm"
                     [dataSource]="purchase_orders"
                     [columns]="[
                         'purchase_order_number',
@@ -29,7 +29,7 @@ import { Router } from '@angular/router';
                         'Depreciation Start',
                         'Depreciation End'
                     ]"
-                    [column_size]="['flex', '10r', '12r', '12r', '12r']"
+                    [column_size]="['flex', '10r', '10r', '10r', '10r']"
                     [template]="{
                     purchase_date: date_template,
                     expected_service_start_date: date_template,

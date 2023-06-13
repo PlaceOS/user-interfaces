@@ -11,34 +11,6 @@ import { ParkingStateService } from './parking-state.service';
             <app-sidebar></app-sidebar>
             <main class="flex flex-col flex-1 w-1/2 h-full relative">
                 <parking-topbar></parking-topbar>
-                <div class="dark">
-                    <nav mat-tab-nav-bar>
-                        <a
-                            mat-tab-link
-                            [routerLink]="['/book', 'parking', 'events']"
-                            queryParamsHandling="merge"
-                            [active]="path === 'events'"
-                        >
-                            Bookings
-                        </a>
-                        <a
-                            mat-tab-link
-                            [routerLink]="['/book', 'parking', 'spaces']"
-                            queryParamsHandling="merge"
-                            [active]="path === 'spaces'"
-                        >
-                            Manage Spaces
-                        </a>
-                        <!-- <a
-                        mat-tab-link
-                        [routerLink]="['/parking', 'map']"
-                        queryParamsHandling="merge"
-                        [active]="path === 'map'"
-                    >
-                        Make Booking
-                    </a> -->
-                    </nav>
-                </div>
                 <div class="flex-1 h-1/2 w-full relative overflow-auto">
                     <router-outlet></router-outlet>
                 </div>

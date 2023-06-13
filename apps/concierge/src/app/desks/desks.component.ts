@@ -11,34 +11,6 @@ import { DesksStateService } from './desks-state.service';
             <app-sidebar></app-sidebar>
             <main class="flex flex-col flex-1 w-1/2 h-full">
                 <desks-topbar class="w-full"></desks-topbar>
-                <div class="dark">
-                    <nav mat-tab-nav-bar>
-                        <a
-                            mat-tab-link
-                            [routerLink]="['/book', 'desks', 'events']"
-                            queryParamsHandling="merge"
-                            [active]="path === 'events'"
-                        >
-                            Bookings
-                        </a>
-                        <a
-                            mat-tab-link
-                            [routerLink]="['/book', 'desks', 'map']"
-                            queryParamsHandling="merge"
-                            [active]="path === 'map'"
-                        >
-                            Map View
-                        </a>
-                        <a
-                            mat-tab-link
-                            [routerLink]="['/book', 'desks', 'manage']"
-                            queryParamsHandling="merge"
-                            [active]="path === 'manage'"
-                        >
-                            Manage Desks
-                        </a>
-                    </nav>
-                </div>
                 <div class="flex-1 h-1/2 w-full relative overflow-auto">
                     <router-outlet></router-outlet>
                 </div>

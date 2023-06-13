@@ -10,7 +10,7 @@ import { OrganisationService } from '@placeos/organisation';
     selector: 'app-sidebar',
     template: `
         <div
-            class="w-56 h-full border-r border-gray-300 py-2 pr-3 overflow-auto"
+            class="w-64 h-full border-r border-gray-300 py-2 pr-3 overflow-auto"
         >
             <ng-container *ngFor="let link of filtered_links">
                 <ng-container *ngIf="!link.children; else group_view">
@@ -85,30 +85,7 @@ export class ApplicationSidebarComponent extends AsyncHandler {
     public readonly links = [
         { id: 'home', name: 'Home', route: ['/'], icon: 'home' },
         {
-            id: 'facilities',
-            name: 'Facilities',
-            icon: 'place',
-            children: [
-                {
-                    id: 'room-management',
-                    name: 'Room Management',
-                    route: ['/room-management'],
-                },
-                {
-                    id: 'facilities',
-                    name: 'Building Map',
-                    route: ['/facilities'],
-                },
-                {
-                    id: 'surveys',
-                    name: 'Surveys',
-                    route: ['/surveys'],
-                },
-            ],
-        },
-        {
-            id: 'bookings',
-            name: 'Bookings/Admin',
+            name: 'Bookings',
             icon: 'add_circle',
             children: [
                 {
@@ -119,12 +96,12 @@ export class ApplicationSidebarComponent extends AsyncHandler {
                 {
                     id: 'desks',
                     name: 'Desks',
-                    route: ['/book/desks'],
+                    route: ['/book/desks/events'],
                 },
                 {
                     id: 'parking',
                     name: 'Parking',
-                    route: ['/book/parking'],
+                    route: ['/book/parking/events'],
                 },
                 {
                     id: 'lockers',
@@ -132,53 +109,89 @@ export class ApplicationSidebarComponent extends AsyncHandler {
                     route: ['/book/lockers'],
                 },
                 {
+                    id: 'assets',
+                    name: 'Assets',
+                    route: ['/book/assets/list/requests'],
+                },
+                {
+                    id: 'catering',
+                    name: 'Catering',
+                    route: ['/book/catering/orders'],
+                },
+            ],
+        },
+        {
+            name: 'Visitor Management',
+            icon: 'badge',
+            children: [
+                {
                     id: 'visitors',
-                    name: 'Visitors',
+                    name: 'Visitor List',
                     route: ['/book/visitors'],
                 },
                 {
-                    id: 'assets',
-                    name: 'Assets',
-                    route: ['/book/assets'],
+                    id: 'visitor-rules',
+                    name: 'External',
+                    route: ['/book/visitors/rules'],
                 },
             ],
         },
         {
-            id: 'users',
+            name: 'Facilities',
+            icon: 'place',
+            children: [
+                {
+                    id: 'facilities',
+                    name: 'Building Map',
+                    route: ['/facilities'],
+                },
+                {
+                    id: 'room-management',
+                    name: 'Rooms',
+                    route: ['/room-management'],
+                },
+                {
+                    id: 'desk-management',
+                    name: 'Desks',
+                    route: ['/book/desks/manage'],
+                },
+                {
+                    id: 'parking-management',
+                    name: 'Parking',
+                    route: ['/book/parking/manage'],
+                },
+                {
+                    id: 'catering-management',
+                    name: 'Catering Menu',
+                    route: ['/book/catering/menu'],
+                },
+            ],
+        },
+        {
+            id: 'assets',
+            name: 'Asset Manager',
+            route: ['/book/assets/list/items'],
+            icon: 'vibration',
+        },
+        {
+            id: 'internal-users',
             name: 'User Directory',
             icon: 'assignment_ind',
-            children: [
-                {
-                    id: 'internal-users',
-                    name: 'Internal',
-                    route: ['/users/internal'],
-                },
-                {
-                    id: 'external-users',
-                    name: 'External',
-                    route: ['/book/external'],
-                },
-            ],
+            route: ['/users/internal'],
         },
         {
-            id: 'entertainment',
-            name: 'Entertainment',
+            id: 'events',
+            name: 'Events',
+            route: ['/entertainment/events'],
             icon: 'confirmation_number',
-            children: [
-                {
-                    id: 'events',
-                    name: 'Events',
-                    route: ['/entertainment/events'],
-                },
-                {
-                    id: 'points',
-                    name: 'Points',
-                    route: ['/entertainment/points'],
-                },
-            ],
         },
         {
-            id: 'reports',
+            id: 'surveys',
+            name: 'Surveys',
+            route: ['/surveys'],
+            icon: 'add_reaction',
+        },
+        {
             name: 'Reports',
             icon: 'analytics',
             children: [
@@ -225,7 +238,12 @@ export class ApplicationSidebarComponent extends AsyncHandler {
                     ? link.children.filter((_) => features.includes(_.id))
                     : null,
             }))
-            .filter((_) => _.route || _.children?.length);
+            .filter(
+                (_) =>
+                    ((!_.id || _.id === 'home' || features.includes(_.id)) &&
+                        _.route) ||
+                    _.children?.length
+            );
         if (this.filtered_links.find((_) => _.id === 'home')) {
             const link = this.filtered_links.find((_) => _.id === 'home');
             link.route = this._settings.get('app.default_route') || ['/'];

@@ -43,7 +43,9 @@ import { Observable } from 'rxjs';
                             *ngIf="!template[column]; else cell_outlet"
                             >{{ row[column]
                             }}<span
-                                *ngIf="row[column] == null"
+                                *ngIf="
+                                    row[column] == null || row[column] === ''
+                                "
                                 class="opacity-30"
                             >
                                 N/A

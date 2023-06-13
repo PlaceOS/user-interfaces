@@ -27,7 +27,7 @@ const ROUTES: Route[] = [
         component: ParkingComponent,
         children: [
             { path: 'events', component: ParkingBookingsListComponent },
-            { path: 'spaces', component: ParkingSpaceListComponent },
+            { path: 'manage', component: ParkingSpaceListComponent },
             { path: '**', redirectTo: 'events' },
         ],
     },

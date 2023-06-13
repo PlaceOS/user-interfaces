@@ -6,7 +6,7 @@ import { UserControlsComponent } from '@placeos/components';
     selector: 'app-topbar',
     template: `
         <div class="flex items-center border-b border-gray-300 p-2">
-            <div class="w-56">
+            <div class="w-64">
                 <img class="h-12" [src]="logo.src" />
             </div>
             <!-- <mat-form-field
