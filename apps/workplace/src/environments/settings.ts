@@ -64,7 +64,6 @@ const help: any = [
 const events: any = {
     multiple_spaces: false,
     desk_start: 9,
-    breakdown: 15,
     can_book_for_others: false,
     has_catering: true,
     has_assets: true,
