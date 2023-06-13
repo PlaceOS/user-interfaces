@@ -23,14 +23,14 @@ import { PointsStateService } from './points-state.service';
                 <nav mat-tab-nav-bar>
                     <a
                         mat-tab-link
-                        [routerLink]="['/points', 'overview']"
+                        [routerLink]="['/entertainment', 'points', 'overview']"
                         [active]="page === 'overview'"
                     >
                         Overview
                     </a>
                     <a
                         mat-tab-link
-                        [routerLink]="['/points', 'assets']"
+                        [routerLink]="['/entertainment', 'points', 'assets']"
                         [active]="page === 'assets'"
                     >
                         Assets

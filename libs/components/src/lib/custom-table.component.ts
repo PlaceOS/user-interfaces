@@ -41,7 +41,10 @@ import { Observable } from 'rxjs';
                     >
                         <ng-container
                             *ngIf="!template[column]; else cell_outlet"
-                            >{{ row[column] }}</ng-container
+                            >{{ row[column]
+                            }}<span *ngIf="!row[column]" class="opacity-30">
+                                N/A
+                            </span></ng-container
                         >
                         <ng-template #cell_outlet>
                             <ng-container

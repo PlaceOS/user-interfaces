@@ -9,7 +9,7 @@ import { UserControlsComponent } from '@placeos/components';
             <div class="w-56">
                 <img class="h-12" [src]="logo.src" />
             </div>
-            <mat-form-field
+            <!-- <mat-form-field
                 appearance="outline"
                 class="flex-1 max-w-[65vw] h-[3.25rem]"
             >
@@ -20,7 +20,7 @@ import { UserControlsComponent } from '@placeos/components';
                     matInput
                     placeholder="Search for bookings, people or locations"
                 />
-            </mat-form-field>
+            </mat-form-field> -->
             <div class="flex-1 flex items-center justify-end space-x-2">
                 <button btn icon matRipple>
                     <app-icon class="text-2xl">notifications</app-icon>

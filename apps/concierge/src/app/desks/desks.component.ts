@@ -15,7 +15,7 @@ import { DesksStateService } from './desks-state.service';
                     <nav mat-tab-nav-bar>
                         <a
                             mat-tab-link
-                            [routerLink]="['/desks', 'events']"
+                            [routerLink]="['/book', 'desks', 'events']"
                             queryParamsHandling="merge"
                             [active]="path === 'events'"
                         >
@@ -23,7 +23,7 @@ import { DesksStateService } from './desks-state.service';
                         </a>
                         <a
                             mat-tab-link
-                            [routerLink]="['/desks', 'map']"
+                            [routerLink]="['/book', 'desks', 'map']"
                             queryParamsHandling="merge"
                             [active]="path === 'map'"
                         >
@@ -31,7 +31,7 @@ import { DesksStateService } from './desks-state.service';
                         </a>
                         <a
                             mat-tab-link
-                            [routerLink]="['/desks', 'manage']"
+                            [routerLink]="['/book', 'desks', 'manage']"
                             queryParamsHandling="merge"
                             [active]="path === 'manage'"
                         >

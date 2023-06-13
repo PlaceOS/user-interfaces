@@ -15,7 +15,7 @@ import { ParkingStateService } from './parking-state.service';
                     <nav mat-tab-nav-bar>
                         <a
                             mat-tab-link
-                            [routerLink]="['/parking', 'events']"
+                            [routerLink]="['/book', 'parking', 'events']"
                             queryParamsHandling="merge"
                             [active]="path === 'events'"
                         >
@@ -23,7 +23,7 @@ import { ParkingStateService } from './parking-state.service';
                         </a>
                         <a
                             mat-tab-link
-                            [routerLink]="['/parking', 'spaces']"
+                            [routerLink]="['/book', 'parking', 'spaces']"
                             queryParamsHandling="merge"
                             [active]="path === 'spaces'"
                         >
