@@ -6,7 +6,7 @@ import { RoomManagementService } from './room-management.service';
     template: `
         <div class="absolute inset-0 overflow-auto">
             <custom-table
-                class="block min-w-[56rem] w-full h-full"
+                class="block min-w-[48rem] w-full h-full"
                 [dataSource]="rooms"
                 [columns]="[
                     'display_name',
@@ -24,7 +24,7 @@ import { RoomManagementService } from './room-management.service';
                     'Bookable',
                     ' '
                 ]"
-                [column_size]="['flex', '8r', '6r', '8r', '6r', '12r']"
+                [column_size]="['flex', '8r', '6r', '8r', '6r', '8r']"
                 [template]="{
                     bookable: bool_template,
                     zones: level_template,
