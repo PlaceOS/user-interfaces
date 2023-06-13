@@ -3,6 +3,7 @@ import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
     SettingsService,
+    currentUser,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
@@ -136,6 +137,7 @@ export class ApplicationSidebarComponent extends AsyncHandler {
             ],
         },
         {
+            id: 'facilities',
             name: 'Facilities',
             icon: 'place',
             children: [
@@ -145,22 +147,22 @@ export class ApplicationSidebarComponent extends AsyncHandler {
                     route: ['/facilities'],
                 },
                 {
-                    id: 'room-management',
+                    id: 'spaces',
                     name: 'Rooms',
                     route: ['/room-management'],
                 },
                 {
-                    id: 'desk-management',
+                    id: 'desks',
                     name: 'Desks',
                     route: ['/book/desks/manage'],
                 },
                 {
-                    id: 'parking-management',
+                    id: 'parking',
                     name: 'Parking',
                     route: ['/book/parking/manage'],
                 },
                 {
-                    id: 'catering-management',
+                    id: 'catering',
                     name: 'Catering Menu',
                     route: ['/book/catering/menu'],
                 },
@@ -230,6 +232,7 @@ export class ApplicationSidebarComponent extends AsyncHandler {
     public updateFilteredLinks() {
         const features = this._settings.get('app.features') || [];
         const custom_reports = this._settings.get('app.custom_reports') || [];
+        const admin_group = this._settings.get('app.admin_group') || [];
         this.filtered_links = this.links
             .map((link) => ({
                 ...link,
@@ -246,6 +249,11 @@ export class ApplicationSidebarComponent extends AsyncHandler {
         if (this.filtered_links.find((_) => _.id === 'home')) {
             const link = this.filtered_links.find((_) => _.id === 'home');
             link.route = this._settings.get('app.default_route') || ['/'];
+        }
+        if (!currentUser().groups.includes(admin_group)) {
+            this.filtered_links = this.filtered_links.filter(
+                (_) => _.id !== 'facilities'
+            );
         }
         if (
             custom_reports.length &&
