@@ -61,6 +61,8 @@ const QR_CODES = {};
                         ? 'No matching desks'
                         : 'No desks for selected level'
                 "
+                [pagination]="true"
+                [page_size]="20"
             ></custom-table>
             <ng-template
                 #list_edit_template
