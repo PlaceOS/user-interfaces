@@ -83,7 +83,6 @@ import { OrganisationService } from '@placeos/organisation';
 export class ApplicationSidebarComponent extends AsyncHandler {
     public show_block: Record<string, boolean> = {};
     public readonly links = [
-        { id: 'home', name: 'Home', route: ['/'], icon: 'home' },
         {
             name: 'Bookings',
             icon: 'add_circle',

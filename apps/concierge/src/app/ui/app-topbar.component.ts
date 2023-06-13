@@ -7,7 +7,9 @@ import { UserControlsComponent } from '@placeos/components';
     template: `
         <div class="flex items-center border-b border-gray-300 p-2">
             <div class="w-64">
-                <img class="h-12" [src]="logo.src" />
+                <a [routerLink]="['/']">
+                    <img class="h-12" [src]="logo.src" />
+                </a>
             </div>
             <!-- <mat-form-field
                 appearance="outline"
