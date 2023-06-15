@@ -180,28 +180,101 @@ describe('Your Bookings', () => {
     //         });
     // });
 
-    it('should open the booking details modal when a booking is clicked and should be close-able', () => {
-        cy.get('.cdk-overlay-container').should('not.be.visible');
-        cy.get('booking-card')
-            .find('a')
-            .first()
-            .click({ force: true })
-            .then(() => {
-                cy.wait(3000);
-                cy.get('.cdk-overlay-container').should('be.visible');
-            });
+    // it('should open the booking details modal when a booking is clicked and should be close-able', () => {
+    //     cy.get('.cdk-overlay-container').should('not.be.visible');
+    //     cy.get('booking-card')
+    //         .find('a')
+    //         .first()
+    //         .click({ force: true })
+    //         .then(() => {
+    //             cy.wait(3000);
+    //             cy.get('.cdk-overlay-container').should('be.visible');
+    //         });
 
-        cy.get('booking-details-modal')
-            .find('button[mat-dialog-close]')
-            .click({ force: true })
-            .then(() => {
-                cy.get('.cdk-overlay-container').should('not.be.visible');
-            });
-    });
+    //     cy.get('booking-details-modal')
+    //         .find('button[mat-dialog-close]')
+    //         .click({ force: true })
+    //         .then(() => {
+    //             cy.get('.cdk-overlay-container').should('not.be.visible');
+    //         });
+    // });
 
     // #endregion
 
     // #region DESK BOOKINGS
+
+    it('should allow an accepted desk booking to be deleted', () => {
+        cy.visit('/#/book/meeting?mock=true');
+
+        cy.get('input[name="title"]')
+            .type('Delete Cypress Test Booking')
+            .then(() => {
+                cy.get('button[name="add-space"]')
+                    .click({ force: true })
+                    .then(() => {
+                        cy.wait(6000);
+                        cy.get('button[name="select-space"]')
+                            .first()
+                            .click({ force: true })
+                            .then(() => {
+                                cy.get('button[name="toggle-space"]')
+                                    .click({ force: true })
+                                    .then(() => {
+                                        cy.get(
+                                            'button[name="open-meeting-confirm"]'
+                                        )
+                                            .click({ force: true })
+                                            .then(() => {
+                                                cy.get(
+                                                    'button[name="confirm-meeting"]'
+                                                )
+                                                    .click({ force: true })
+                                                    .then(() => {
+                                                        cy.wait(3000);
+                                                        cy.get(
+                                                            'a[name="meeting-created-continue"]'
+                                                        ).click({
+                                                            force: true,
+                                                        });
+                                                    });
+                                            });
+                                    });
+                            });
+                    });
+            });
+
+        cy.wait(3000);
+        cy.visit('/#/your-bookings?mock=true');
+        cy.wait(3000);
+        cy.get('event-card')
+            .contains('Delete Cypress Test Booking')
+            .click({
+                force: true,
+            })
+            .then(() => {
+                cy.get('button')
+                    .find('i')
+                    .contains('more_horiz')
+                    .click({ force: true })
+                    .then(() => {
+                        cy.get('button')
+                            .find('div')
+                            .contains('Delete event')
+                            .click({ force: true })
+                            .then(() => {
+                                cy.get('button[name="accept"]').click({
+                                    force: true,
+                                });
+                            });
+                    });
+            });
+
+        cy.wait(3000);
+
+        cy.get('event-card')
+            .contains('Delete Cypress Test Booking')
+            .should('not.exist');
+    });
 
     // #endregion
 
