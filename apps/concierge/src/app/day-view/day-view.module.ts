@@ -16,6 +16,9 @@ import { EventFormComponent } from './event-form.component';
 import { SharedSpacesModule } from '@placeos/spaces';
 import { SharedUsersModule } from '@placeos/users';
 import { SharedCateringModule } from '@placeos/catering';
+import { RoomBookingsComponent } from './room-bookings.component';
+import { RoomBookingsTimelineComponent } from './room-timeline.component';
+import { RoomBookingsApprovalsComponent } from './room-approvals.component';
 
 const ROUTES: Route[] = [{ path: '', component: DayViewComponent }];
 
@@ -29,6 +32,10 @@ const ROUTES: Route[] = [{ path: '', component: DayViewComponent }];
 
         BookingModalComponent,
         EventFormComponent,
+
+        RoomBookingsComponent,
+        RoomBookingsTimelineComponent,
+        RoomBookingsApprovalsComponent,
     ],
     imports: [
         CommonModule,

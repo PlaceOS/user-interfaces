@@ -8,9 +8,10 @@ import { ApplicationLinkInternal, SettingsService } from '@placeos/common';
         <app-topbar></app-topbar>
         <div class="flex flex-1 h-px">
             <app-sidebar></app-sidebar>
-            <main class="flex flex-col flex-1 w-1/2 h-full">
-                <dayview-topbar></dayview-topbar>
-                <dayview-timeline></dayview-timeline>
+            <main class="relative flex flex-col flex-1 w-1/2 h-full">
+                <room-bookings></room-bookings>
+                <!-- <dayview-topbar></dayview-topbar>
+                <dayview-timeline></dayview-timeline> -->
             </main>
         </div>
     `,

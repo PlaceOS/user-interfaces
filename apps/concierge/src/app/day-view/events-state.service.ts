@@ -10,7 +10,7 @@ import {
     format,
     getUnixTime,
 } from 'date-fns';
-import { BehaviorSubject, of, combineLatest } from 'rxjs';
+import { BehaviorSubject, of, combineLatest, Observable, forkJoin } from 'rxjs';
 import {
     map,
     switchMap,
@@ -20,6 +20,7 @@ import {
     first,
     tap,
     shareReplay,
+    distinctUntilKeyChanged,
 } from 'rxjs/operators';
 
 import {
@@ -35,8 +36,9 @@ import {
     removeEvent,
     replaceBookings,
 } from '@placeos/events';
-import { SpacesService } from '@placeos/spaces';
+import { Space, SpacesService, requestSpacesForZone } from '@placeos/spaces';
 import { BookingModalComponent } from './booking-modal.component';
+import { OrganisationService } from '@placeos/organisation';
 
 export type BookingType =
     | 'internal'
@@ -96,6 +98,25 @@ export class EventsStateService extends AsyncHandler {
     public readonly loading = this._loading.asObservable();
     /** Observable for viewed event */
     public readonly event = this._event.asObservable();
+
+    public readonly spaces: Observable<Space[]> = combineLatest([
+        this._zones,
+        this._org.active_building.pipe(
+            filter((_) => !!_),
+            distinctUntilKeyChanged('id')
+        ),
+    ]).pipe(
+        debounceTime(300),
+        tap((_) => this.unsubWith('bind:')),
+        switchMap(([zone_ids]) => {
+            this._loading.next(true);
+            if (!zone_ids?.length) zone_ids = [this._org.building?.id];
+            return forkJoin(zone_ids.map((id) => requestSpacesForZone(id)));
+        }),
+        map((l) => flatten(l)),
+        tap((_) => this._loading.next(false)),
+        shareReplay(1)
+    );
     /** Obsevable for filtered list of bookings */
     public readonly filtered = combineLatest([
         this._bookings,
@@ -176,7 +197,7 @@ export class EventsStateService extends AsyncHandler {
         return this._filters.getValue();
     }
 
-    constructor(private _spaces: SpacesService, private _dialog: MatDialog) {
+    constructor(private _org: OrganisationService, private _dialog: MatDialog) {
         super();
         this.events.subscribe();
     }
@@ -233,6 +254,7 @@ export class EventsStateService extends AsyncHandler {
         this._poll.next(Date.now());
         this._period.next(period);
         this.interval('polling', () => this._poll.next(Date.now()), delay);
+        return () => this.stopPolling();
     }
 
     /**
