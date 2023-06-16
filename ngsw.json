@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1686885146254,
+  "timestamp": 1686885907003,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -140,7 +140,7 @@
     "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "f4155e23838e27c06c70ef3a2e5ba67cb9eec79b",
     "./apps_concierge_src_app_catering_catering_module_ts.js": "9065f64b019eeec7cdcc68d68740ba790acb423a",
     "./apps_concierge_src_app_day-view_day-view_module_ts.js": "225973f5cb6100620366d1a061326699bb60ae7f",
-    "./apps_concierge_src_app_desks_desks_module_ts.js": "dee125293036f2c51f78a7612500b3da97530820",
+    "./apps_concierge_src_app_desks_desks_module_ts.js": "8f208991643cb6d3221cf84874d5154071ff71a4",
     "./apps_concierge_src_app_facilities_facilities_module_ts.js": "a3fe5a07e51a4171bafe86201f98fa34bc6a27cb",
     "./apps_concierge_src_app_parking_parking_module_ts.js": "a937ad67b604c3f74989b74db5eb7ab673b5256f",
     "./apps_concierge_src_app_points_points_module_ts.js": "552a7b432d2498d03b80ee9d04ee172eb9776b41",
@@ -232,7 +232,7 @@
     "./default-node_modules_angular_material_fesm2022_tabs_mjs.js": "0c286fe2922a6d7979b37b76cecc0e99c4cb7db2",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "538ffd847bcd8d934493a63e798bf0eff76dc3d5",
-    "./main.js": "b10e69439611f7f4c013ce7707cf6ab42755ec76",
+    "./main.js": "d341b078dfd0065b669d5bbb367333d80f0b0965",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
@@ -244,8 +244,8 @@
     "./material-symbols-sharp.woff2": "668f6b7dce070bbd08eb7a395919ddb1f39e3ff0",
     "./polyfills.js": "3bb2e746f89770ebc015adb3e709db0f167f5e8a",
     "./runtime.js": "4d5e529aa8350ee83659185276a1940d360131b8",
-    "./styles.css": "dca5f1c350a46c2a4180a84b1345c25b7b275fdf",
-    "./vendor.js": "086043f350d889e244ae01b48bd2204b1f0e2adb"
+    "./styles.css": "2371da7262dc2255ee299a15b0daca3543de5921",
+    "./vendor.js": "f0250eb81caf764ac52ba291c177017fad2719af"
   },
   "navigationUrls": [
     {
