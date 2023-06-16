@@ -8,7 +8,7 @@ import {
     getUnixTime,
     startOfMinute,
 } from 'date-fns';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -21,7 +21,10 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
+import {
+    AssetRestriction,
+    BookingFormService,
+} from 'libs/bookings/src/lib/booking-form.service';
 import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import {
     AsyncHandler,
@@ -96,6 +99,18 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         shareReplay(1)
     );
 
+    public readonly restrictions: Observable<AssetRestriction[]> =
+        this._poll.pipe(
+            switchMap(() => {
+                return showMetadata(
+                    this._org.building.id,
+                    `desk_restrictions`
+                ).pipe(catchError(() => of({ details: [] })));
+            }),
+            map((_) => (_.details instanceof Array ? _.details : [])),
+            shareReplay(1)
+        );
+
     public readonly desk_list = this._state.level.pipe(
         switchMap((lvl) =>
             showMetadata(lvl.id, 'desks').pipe(
@@ -140,25 +155,33 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         this._presence,
         this._checked_in,
         this._signs_of_life,
+        this.restrictions,
         this._options,
     ]).pipe(
         // debounceTime(50),
-        map(([desks, in_use, presence, checked_in, signs]) => {
+        map(([desks, in_use, presence, checked_in, signs, restrictions]) => {
             this._statuses = {};
             for (const { id, bookable } of desks) {
                 const is_used = in_use.some((i) => id === i);
                 const has_presence = presence.some((i) => id === i);
                 const has_signs = signs.some((i) => id === i);
                 const is_checked_in = checked_in.some((i) => id === i);
-                this._statuses[id] = bookable
-                    ? !is_used && !has_presence && !is_checked_in
-                        ? has_signs
-                            ? 'signs-of-life'
-                            : 'free'
-                        : !has_presence && !is_checked_in
-                        ? 'pending'
-                        : 'busy'
-                    : 'not-bookable';
+                const restriction_list = restrictions.filter((_) =>
+                    _.assets.includes(id)
+                );
+                const is_restricted = restriction_list.find(
+                    ({ start, end }) => Date.now() >= start && Date.now() < end
+                );
+                this._statuses[id] =
+                    bookable && !is_restricted
+                        ? !is_used && !has_presence && !is_checked_in
+                            ? has_signs
+                                ? 'signs-of-life'
+                                : 'free'
+                            : !has_presence && !is_checked_in
+                            ? 'pending'
+                            : 'busy'
+                        : 'not-bookable';
             }
             this.processDesks(desks);
         })
