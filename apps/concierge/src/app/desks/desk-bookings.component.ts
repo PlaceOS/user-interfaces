@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
 
 import { DesksStateService } from './desks-state.service';
+import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'desk-bookings',
     template: `
         <div class="overflow-auto h-full w-full">
             <custom-table
-                class="min-w-[76rem] block"
+                class="min-w-[106rem] block"
                 [dataSource]="bookings"
                 [filter]="(filters | async)?.search"
                 [columns]="[
@@ -15,6 +16,7 @@ import { DesksStateService } from './desks-state.service';
                     'group',
                     'desk_name',
                     'date',
+                    'end',
                     'status',
                     'approver_name',
                     'checked_in',
@@ -25,18 +27,31 @@ import { DesksStateService } from './desks-state.service';
                     'Person',
                     'Group',
                     'Desk',
-                    'Time',
+                    'Start Time',
+                    'End Time',
                     'Status',
                     'Approver',
                     'Checked In',
                     'Access',
                     ' '
                 ]"
-                [column_size]="['18r', '', '16r', '', '', '10r', '', '', '12r']"
+                [column_size]="[
+                    '18r',
+                    '10r',
+                    '12r',
+                    '9r',
+                    '9r',
+                    '10r',
+                    '12r',
+                    '10r',
+                    '6r',
+                    '14r'
+                ]"
                 [template]="{
                     user_name: user_template,
                     desk_name: desk_template,
                     date: date_template,
+                    end: date_template,
                     status: status_template,
                     checked_in: bool_template,
                     access: bool_template,
@@ -55,12 +70,22 @@ import { DesksStateService } from './desks-state.service';
                 {{ row.asset_name || row.asset_id }}
             </ng-template>
             <ng-template #user_template let-row="row">
-                {{
-                    row.user_name ||
-                        row.user_email ||
-                        row.booked_by_name ||
-                        row.booked_by_email
-                }}
+                <div class="flex flex-col justify-center">
+                    <div class="select-all">
+                        {{
+                            row.user_name ||
+                                row.user_email ||
+                                row.booked_by_name ||
+                                row.booked_by_email
+                        }}
+                    </div>
+                    <div
+                        *ngIf="row.user_name"
+                        class="text-xs opacity-30 select-all"
+                    >
+                        {{ row.user_email }}
+                    </div>
+                </div>
             </ng-template>
             <ng-template #status_template let-data="data">
                 <span
@@ -86,7 +111,19 @@ import { DesksStateService } from './desks-state.service';
                 </div>
             </ng-template>
             <ng-template #action_template let-row="row">
-                <div class="flex items-center justify-end space-x-2">
+                <div class="flex items-center justify-end space-x-2 w-full">
+                    <button
+                        icon
+                        matRipple
+                        [disabled]="!row.extension_data?.checkin_qr_code"
+                        [matMenuTriggerFor]="menu"
+                        matTooltip="View Desk QR code"
+                        title=""
+                    >
+                        <app-icon *ngIf="row.extension_data?.checkin_qr_code">
+                            qr_code
+                        </app-icon>
+                    </button>
                     <action-icon matTooltip="Check-in" (click)="checkin(row)">
                         how_to_reg
                     </action-icon>
@@ -107,18 +144,6 @@ import { DesksStateService } from './desks-state.service';
                         title=""
                     >
                         <app-icon>event_busy</app-icon>
-                    </button>
-                    <button
-                        icon
-                        matRipple
-                        [disabled]="!row.extension_data?.checkin_qr_code"
-                        [matMenuTriggerFor]="menu"
-                        matTooltip="View Desk QR code"
-                        title=""
-                    >
-                        <app-icon *ngIf="row.extension_data?.checkin_qr_code">
-                            qr_code
-                        </app-icon>
                     </button>
                     <mat-menu #menu="matMenu">
                         <div
@@ -165,7 +190,14 @@ import { DesksStateService } from './desks-state.service';
 export class DeskBookingsComponent {
     public loading: string;
     public readonly filters = this._state.filters;
-    public readonly bookings = this._state.bookings;
+    public readonly bookings = this._state.bookings.pipe(
+        map((i) =>
+            i.map((booking) => ({
+                ...booking,
+                end: booking.date + booking.duration * 60 * 1000,
+            }))
+        )
+    );
 
     public readonly rejectAll = () => this._state.rejectAllDesks();
 
