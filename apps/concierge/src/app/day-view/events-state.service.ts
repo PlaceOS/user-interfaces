@@ -145,6 +145,10 @@ export class EventsStateService extends AsyncHandler {
         shareReplay(1)
     );
 
+    public readonly pending = combineLatest([this.filtered]).pipe(
+        map(([events]) => events.filter((_) => _.status === 'tentative'))
+    );
+
     /** Observable for list of bookings */
     public readonly events = combineLatest([
         this._period,

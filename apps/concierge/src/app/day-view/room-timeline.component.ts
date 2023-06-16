@@ -5,6 +5,7 @@ import {
     differenceInMinutes,
     isSameDay,
     startOfDay,
+    startOfMinute,
 } from 'date-fns';
 import { EventsStateService } from './events-state.service';
 import { combineLatest } from 'rxjs';
@@ -12,6 +13,7 @@ import { map, shareReplay } from 'rxjs/operators';
 import { AsyncHandler } from '@placeos/common';
 import { MatDialog } from '@angular/material/dialog';
 import { EventDetailsModalComponent } from '@placeos/events';
+import { time } from 'console';
 
 @Component({
     selector: 'room-bookings-timeline',
@@ -67,7 +69,7 @@ import { EventDetailsModalComponent } from '@placeos/events';
             <div content class="flex w-full flex-1 h-px">
                 <div
                     times
-                    class="relative w-16 h-full overflow-hidden border-r border-gray-200"
+                    class="relative w-16 h-full overflow-y-hidden overflow-x-visible border-r border-gray-200"
                 >
                     <div
                         class="absolute inset-x-0"
@@ -87,6 +89,10 @@ import { EventDetailsModalComponent } from '@placeos/events';
                                 }}{{ value >= 12 ? 'PM' : 'AM' }}
                             </div>
                         </div>
+                        <div
+                            class="absolute bg-primary right-0 translate-x-1/2 -translate-y-1/2 h-2 w-2 rounded-full z-30"
+                            [style.top]="timeToOffset(now) + 'px'"
+                        ></div>
                     </div>
                 </div>
                 <div spaces class="relative flex-1 h-full overflow-hidden w-px">
@@ -107,10 +113,25 @@ import { EventDetailsModalComponent } from '@placeos/events';
                             *ngFor="let _ of h_slots"
                             class="h-12 w-full border-t border-gray-200"
                         ></div>
+                        <div
+                            *ngIf="is_today"
+                            class="absolute inset-x-0 -translate-y-px h-0.5 bg-primary z-30"
+                            [style.top]="
+                                timeToOffset(now) -
+                                offset_y -
+                                (48 - (offset_y % 48)) +
+                                48 +
+                                'px'
+                            "
+                        >
+                            <div
+                                class="absolute bg-primary top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 h-2 w-2 rounded-full"
+                            ></div>
+                        </div>
                     </div>
                     <div
                         #scroll_container
-                        class="relative w-full h-full overflow-auto"
+                        class="relative w-full h-full overflow-auto z-10"
                         (scroll)="onScroll()"
                     >
                         <div
@@ -201,6 +222,10 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         shareReplay(1)
     );
 
+    public get now() {
+        return startOfMinute(Date.now()).valueOf();
+    }
+
     public readonly resetDate = () => {
         this.date = Date.now();
         this._state.setDate(this.date);
@@ -230,6 +255,13 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
 
     public ngOnInit() {
         this.subscription('poll', this._state.startPolling());
+        const date = Date.now();
+        console.log(
+            'Date Offset:',
+            this.timeToOffset(date),
+            new Date(),
+            differenceInMinutes(date, startOfDay(date))
+        );
         this.onResize();
     }
 
