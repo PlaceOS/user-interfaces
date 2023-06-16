@@ -658,11 +658,7 @@ export class EventFormService extends AsyncHandler {
         exclude?: { start: number; end: number },
         ignore?: string
     ) {
-        const space_ids = (
-            await Promise.all(
-                spaces.map((_) => this._space_pipe.transform(_.id || _.email))
-            )
-        ).map((_) => _.id);
+        if (!spaces?.length) return true;
         const query: any = {
             period_start: getUnixTime(date),
             period_end: getUnixTime(date + (duration * 60 * 1000 || 30 * 1000)),
@@ -679,8 +675,10 @@ export class EventFormService extends AsyncHandler {
         ).toPromise();
         if (!availability.every((_) => _))
             throw `${
-                availability.filter((_) => _).length
-            } space(s) are not available at the selected time`;
+                spaces.length > 1
+                    ? 'The selected space'
+                    : 'Some of the selected spaces'
+            } are not available at the selected time`;
         return true;
     }
 }
