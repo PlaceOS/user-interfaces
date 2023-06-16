@@ -8,7 +8,7 @@ import { map } from 'rxjs/operators';
     template: `
         <div class="overflow-auto h-full w-full">
             <custom-table
-                class="min-w-[106rem] block"
+                class="min-w-[85rem] block"
                 [dataSource]="bookings"
                 [filter]="(filters | async)?.search"
                 [columns]="[
@@ -16,42 +16,35 @@ import { map } from 'rxjs/operators';
                     'group',
                     'desk_name',
                     'date',
-                    'end',
                     'status',
                     'approver_name',
                     'checked_in',
-                    'access',
                     'actions'
                 ]"
                 [display_column]="[
                     'Person',
                     'Group',
                     'Desk',
-                    'Start Time',
-                    'End Time',
+                    'Period',
                     'Status',
                     'Approver',
                     'Checked In',
-                    'Access',
                     ' '
                 ]"
                 [column_size]="[
-                    '18r',
+                    '14r',
                     '10r',
-                    '12r',
-                    '9r',
-                    '9r',
                     '10r',
-                    '12r',
                     '10r',
-                    '6r',
-                    '14r'
+                    '7r',
+                    '10r',
+                    '8r',
+                    'flex'
                 ]"
                 [template]="{
                     user_name: user_template,
                     desk_name: desk_template,
                     date: date_template,
-                    end: date_template,
                     status: status_template,
                     checked_in: bool_template,
                     access: bool_template,
@@ -63,8 +56,9 @@ import { map } from 'rxjs/operators';
                         : 'There are no desk booking for the currently selected date.'
                 "
             ></custom-table>
-            <ng-template #date_template let-data="data">
-                {{ data | date: 'shortTime' }}
+            <ng-template #date_template let-row="row">
+                {{ row.date | date: 'shortTime' }} &ndash;
+                {{ row.end | date: 'shortTime' }}
             </ng-template>
             <ng-template #desk_template let-row="row">
                 {{ row.asset_name || row.asset_id }}
