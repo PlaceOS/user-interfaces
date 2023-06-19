@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
 import { EventsStateService } from './events-state.service';
+import { OrganisationService } from '@placeos/organisation';
+import { getModule } from '@placeos/ts-client';
+import { CalendarEvent } from '@placeos/events';
 
 @Component({
     selector: 'room-bookings-approvals',
@@ -28,6 +31,13 @@ import { EventsStateService } from './events-state.service';
                 </button>
             </div>
             <div class="flex-1 overflow-auto p-2 space-y-2">
+                <div
+                    *ngIf="!(pending | async)?.length"
+                    class="w-full h-full flex flex-col items-center justify-center space-y-2"
+                >
+                    <img src="assets/icons/no-pending.svg" />
+                    <p>No pending requests</p>
+                </div>
                 <div
                     *ngFor="let event of pending | async"
                     class="relative border border-gray-200 p-2 w-full rounded"
@@ -76,6 +86,7 @@ import { EventsStateService } from './events-state.service';
                             btn
                             matRipple
                             class="border-green-600 bg-green-600/30 flex items-center space-x-2 text-black"
+                            (click)="approve(event)"
                         >
                             <div>Approve</div>
                             <app-icon class="text-green-600">done</app-icon>
@@ -84,12 +95,20 @@ import { EventsStateService } from './events-state.service';
                             btn
                             matRipple
                             class="border-red-600 bg-red-600/30 flex items-center space-x-2 text-black"
+                            (click)="reject(event)"
                         >
                             <div>Decline</div>
                             <app-icon class="text-red-600">close</app-icon>
                         </button>
                     </div>
                 </div>
+            </div>
+            <div
+                class="absolute bottom-0 left-0 right-0 top-14 p-2 flex flex-col items-center justify-center bg-white/80 space-y-2"
+                *ngIf="loading"
+            >
+                <mat-spinner diameter="32"></mat-spinner>
+                <p>Processing...</p>
             </div>
         </div>
         <button
@@ -115,7 +134,31 @@ import { EventsStateService } from './events-state.service';
 })
 export class RoomBookingsApprovalsComponent {
     public show = true;
+    public loading = false;
     public readonly pending = this._state.pending;
 
-    constructor(private _state: EventsStateService) {}
+    constructor(
+        private _state: EventsStateService,
+        private _org: OrganisationService
+    ) {}
+
+    public async approve(event: CalendarEvent) {
+        const system_id = this._org.binding('approvals');
+        if (!system_id) return;
+        const mod = getModule(system_id, 'Approvals');
+        if (!mod) return;
+        this.loading = true;
+        await mod.execute('approve_event', [event.host, event.id]).catch();
+        this.loading = false;
+    }
+
+    public async reject(event: CalendarEvent) {
+        const system_id = this._org.binding('approvals');
+        if (!system_id) return;
+        const mod = getModule(system_id, 'Approvals');
+        if (!mod) return;
+        this.loading = true;
+        await mod.execute('decline_event', [event.host, event.id]).catch();
+        this.loading = false;
+    }
 }

@@ -43,7 +43,7 @@ import { take } from 'rxjs/operators';
             </div>
             <div class="flex w-full flex-1 h-px border-t mt-4 border-gray-200">
                 <room-bookings-timeline class="flex-1"/>
-                <room-bookings-approvals/>
+                <room-bookings-approvals *ngIf="has_approvals"/>
             </div>
         </div>
     `,
@@ -65,6 +65,10 @@ export class RoomBookingsComponent extends AsyncHandler {
     public readonly updateUIOptions = (o) => this._state.setUIOptions(o);
     /**  */
     public readonly newBooking = (d?) => this._state.newBooking(d);
+
+    public get has_approvals() {
+        return this._org.binding('approvals');
+    }
 
     constructor(
         private _org: OrganisationService,
