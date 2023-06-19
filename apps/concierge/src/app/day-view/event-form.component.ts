@@ -1,14 +1,10 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { DialogEvent, SettingsService } from '@placeos/common';
-import {
-    SpaceSelectModalComponent,
-    SpaceSelectModalData,
-} from '@placeos/spaces';
+import { SettingsService } from '@placeos/common';
 import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { first, map, tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 
 @Component({
     selector: 'event-form',
@@ -65,12 +61,9 @@ import { first, map, tap } from 'rxjs/operators';
             </div>
             <div class="flex flex-col flex-1">
                 <label for="space">Space<span>*</span>:</label>
-                <an-action-field
-                    name="space"
-                    class="w-full"
-                    (onAction)="selectSpace()"
-                    >{{ spaces }}</an-action-field
-                >
+                <space-list-field
+                    formControlName="resources"
+                ></space-list-field>
             </div>
             <div
                 class="py-2"
@@ -174,40 +167,9 @@ export class EventFormComponent {
         return !!this._settings.get('app.events.has_assets');
     }
 
-    public get spaces() {
-        return (
-            this.form.controls?.resources?.value
-                ?.map((i) => i.display_name || i.name)
-                .join(', ') || 'Select a space'
-        );
-    }
-
     constructor(
         private _dialog: MatDialog,
         private _settings: SettingsService,
         private _catering: CateringOrderStateService
     ) {}
-
-    public async selectSpace() {
-        const ref = this._dialog.open<
-            SpaceSelectModalComponent,
-            SpaceSelectModalData
-        >(SpaceSelectModalComponent, {
-            data: {
-                spaces: this.form.controls?.resources?.value,
-                date: this.form.controls?.date?.value,
-                duration: this.form.controls?.duration?.value,
-            },
-        });
-        const success = await Promise.race([
-            ref.componentInstance.event
-                .pipe(first((_: DialogEvent) => _.reason === 'done'))
-                .toPromise(),
-            ref.afterClosed().toPromise(),
-        ]);
-        if (success?.reason === 'done') {
-            this.form.patchValue({ resources: success.metadata });
-        }
-        ref.close();
-    }
 }
