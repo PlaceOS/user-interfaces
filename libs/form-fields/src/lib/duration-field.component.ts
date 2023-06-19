@@ -188,7 +188,9 @@ export class DurationFieldComponent
                 id: time,
                 date: date ? addMinutes(date, time).valueOf() : undefined,
                 name:
-                    time >= 24 * 60
+                    time === 0
+                        ? formatDuration({ minutes: 0 }, { zero: true })
+                        : time >= 24 * 60
                         ? `${formatDuration({
                               days: Math.floor(time / (24 * 60)),
                           })}`

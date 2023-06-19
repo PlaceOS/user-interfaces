@@ -90,6 +90,15 @@ const app = {
     has_uploads: true,
     custom_reports,
     desks: { can_book_for_others: true },
+    events: {
+        custom_actions: [
+            {
+                id: 'set_setup_breakdown',
+                name: 'Set Setup/Breakdown',
+                icon: 'manage_history',
+            },
+        ],
+    },
 };
 
 /**

@@ -3,6 +3,7 @@ import {
     add,
     addDays,
     differenceInMinutes,
+    format,
     isSameDay,
     startOfDay,
     startOfMinute,
@@ -10,9 +11,21 @@ import {
 import { EventsStateService } from './events-state.service';
 import { combineLatest } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
-import { AsyncHandler } from '@placeos/common';
+import {
+    AsyncHandler,
+    currentUser,
+    notifyError,
+    notifySuccess,
+    openConfirmModal,
+} from '@placeos/common';
 import { MatDialog } from '@angular/material/dialog';
-import { EventDetailsModalComponent } from '@placeos/events';
+import {
+    CalendarEvent,
+    EventDetailsModalComponent,
+    SetupBreakdownModalComponent,
+    queryEvents,
+    removeEvent,
+} from '@placeos/events';
 import { time } from 'console';
 
 @Component({
@@ -254,6 +267,7 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         return startOfMinute(Date.now()).valueOf();
     }
 
+    public readonly edit = (e) => this._state.newBooking(e);
     public readonly resetDate = () => {
         this.date = Date.now();
         this._state.setDate(this.date);
@@ -314,9 +328,61 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         this.offset_y = this._scroll_container.nativeElement.scrollTop;
     }
 
-    public viewEvent(event: Event) {
-        this._dialog.open(EventDetailsModalComponent, {
+    public viewEvent(event: CalendarEvent) {
+        const ref = this._dialog.open(EventDetailsModalComponent, {
             data: event,
         });
+        this.subscription(
+            'edit',
+            ref.componentInstance.edit.subscribe(() => this.edit(event))
+        );
+        this.subscription(
+            'remove',
+            ref.componentInstance.remove.subscribe(() => this.remove(event))
+        );
+        this.subscription(
+            'actions',
+            ref.componentInstance.action.subscribe((action) => {
+                if (action.includes('breakdown')) {
+                    this._dialog.open(SetupBreakdownModalComponent, {
+                        data: event,
+                    });
+                }
+            })
+        );
+    }
+
+    public async remove(item: CalendarEvent) {
+        const time = `${format(item.date, 'dd MMM yyyy h:mma')}`;
+        const resource_name = item.space?.display_name;
+        const content = `Delete the booking for ${resource_name} at ${time}`;
+        const resp = await openConfirmModal(
+            { title: `Delete booking`, content, icon: { content: 'delete' } },
+            this._dialog
+        );
+        if (item instanceof CalendarEvent && item.creator !== item.mailbox) {
+            item =
+                (
+                    await queryEvents({
+                        period_start: item.event_start,
+                        period_end: item.event_end,
+                        ical_uid: item.ical_uid,
+                    }).toPromise()
+                ).find((_) => _.ical_uid === (item as any).ical_uid) || item;
+        }
+        if (resp.reason !== 'done') return;
+        resp.loading('Requesting booking deletion...');
+        await removeEvent(item.id, {
+            calendar: item.host,
+            system_id: (item as any).system?.id,
+        })
+            .toPromise()
+            .catch((e) => {
+                notifyError(`Unable to delete booking. ${e}`);
+                resp.close();
+                throw e;
+            });
+        notifySuccess('Successfully deleted booking.');
+        this._dialog.closeAll();
     }
 }

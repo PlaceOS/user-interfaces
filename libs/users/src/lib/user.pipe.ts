@@ -1,14 +1,14 @@
-import { Pipe } from "@angular/core";
-import { showGuest } from "./guests.fn";
-import { showStaff } from "./staff.fn";
-import { User } from "./user.class";
+import { Pipe } from '@angular/core';
+import { showGuest } from './guests.fn';
+import { showStaff } from './staff.fn';
+import { User } from './user.class';
 
 const USER_LIST: User[] = [];
 
 const EMPTY_USER = new User();
 
 @Pipe({
-    name: 'user'
+    name: 'user',
 })
 export class UserPipe {
     /**
@@ -17,14 +17,20 @@ export class UserPipe {
      */
     public async transform(user_id: string): Promise<User> {
         if (!user_id) return EMPTY_USER;
-        let user = USER_LIST.find(({ id, email }) => id === user_id || email === user_id);
+        let user = USER_LIST.find(
+            ({ id, email }) => id === user_id || email === user_id
+        );
         if (user) return user;
-        user = await showStaff(user_id).toPromise();
+        user = await showStaff(user_id)
+            .toPromise()
+            .catch(() => null);
         if (user) {
             USER_LIST.push(user);
             return user;
         }
-        user = await showGuest(user_id).toPromise();
+        user = await showGuest(user_id)
+            .toPromise()
+            .catch(() => null);
         if (user) {
             USER_LIST.push(user);
             return user;

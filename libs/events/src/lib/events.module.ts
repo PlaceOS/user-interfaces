@@ -18,12 +18,14 @@ import { EventCardComponent } from './event-card.component';
 import { EventDetailsModalComponent } from './event-details-modal.component';
 import { EventLinkModalComponent } from './event-link-modal.component';
 import { MatRippleModule } from '@angular/material/core';
+import { SetupBreakdownModalComponent } from './setup-breakdown-modal.component';
 
 const COMPONENTS = [
     EventDetailsModalComponent,
     AttendeeListComponent,
     EventCardComponent,
     EventLinkModalComponent,
+    SetupBreakdownModalComponent,
 ];
 
 @NgModule({

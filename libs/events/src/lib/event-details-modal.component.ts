@@ -13,6 +13,8 @@ import { Space } from 'libs/spaces/src/lib/space.class';
 import { getModule } from '@placeos/ts-client';
 import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-modal.component';
 
+const EMPTY_ACTIONS = [];
+
 @Component({
     selector: 'event-details-modal',
     template: `
@@ -365,19 +367,28 @@ import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-moda
                 <button
                     mat-menu-item
                     mat-dialog-close
-                    class="flex items-center space-x-2 text-base"
                     (click)="edit.emit(space)"
                 >
-                    <app-icon>edit</app-icon>
-                    <div i18n>Edit event</div>
+                    <div class="flex items-center space-x-2 text-base">
+                        <app-icon>edit</app-icon>
+                        <div i18n>Edit event</div>
+                    </div>
+                </button>
+                <button mat-menu-item (click)="remove.emit()">
+                    <div class="flex items-center space-x-2 text-base">
+                        <app-icon>delete</app-icon>
+                        <div i18n>Delete event</div>
+                    </div>
                 </button>
                 <button
                     mat-menu-item
-                    class="flex items-center space-x-2 text-base"
-                    (click)="remove.emit()"
+                    *ngFor="let act of custom_actions"
+                    (click)="action.emit(act.id)"
                 >
-                    <app-icon>delete</app-icon>
-                    <div i18n>Delete event</div>
+                    <div class="flex items-center space-x-2 text-base">
+                        <app-icon>{{ act.icon }}</app-icon>
+                        <div i18n>{{ act.name }}</div>
+                    </div>
                 </button>
             </mat-menu>
         </div>
@@ -386,6 +397,7 @@ import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-moda
     providers: [SpacePipe],
 })
 export class EventDetailsModalComponent {
+    @Output() public action = new EventEmitter();
     @Output() public edit = new EventEmitter();
     @Output() public remove = new EventEmitter();
 
@@ -429,6 +441,10 @@ export class EventDetailsModalComponent {
 
     public get allow_edit() {
         return !this._settings.get('app.events.booking_unavailable');
+    }
+
+    public get custom_actions(): [string, string][] {
+        return this._settings.get('app.events.custom_actions') || EMPTY_ACTIONS;
     }
 
     constructor(
