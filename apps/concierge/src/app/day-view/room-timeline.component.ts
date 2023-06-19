@@ -154,30 +154,57 @@ import { time } from 'console';
                                             space.id
                                         ] || []
                                     "
-                                    class="absolute w-[13.625rem] bg-gray-100 shadow hover:border-gray-300 rounded-lg border border-gray-100 overflow-hidden px-3 py-2 text-xs"
+                                    class="absolute w-[13.625rem] hover:opacity-90"
                                     [style.left]="i * 14 + 0.125 + 'rem'"
                                     [style.top]="
                                         timeToOffset(event.date) + 'px'
                                     "
                                     [style.height]="
-                                        endToOffset(
-                                            event.date,
-                                            event.duration
-                                        ) + 'px'
+                                        endToOffset(event.duration) + 'px'
                                     "
                                     (click)="viewEvent(event)"
                                 >
                                     <div
-                                        class="absolute left-0 inset-y-0 w-1 bg-pink-600"
+                                        class="absolute bg-pink-600/50 border border-pink-600 rounded-lg w-full"
+                                        [style.height]="
+                                            endToOffset(
+                                                event.duration +
+                                                    (event.ext('setup') || 0) +
+                                                    event.ext('breakdown') || 0
+                                            ) + 'px'
+                                        "
+                                        [style.top]="
+                                            -(
+                                                ((event.ext('setup') || 0) /
+                                                    60) *
+                                                48
+                                            ) + 'px'
+                                        "
+                                        *ngIf="
+                                            (ui_options | async)
+                                                ?.show_overflow &&
+                                            (event.ext('setup') ||
+                                                event.ext('breakdown'))
+                                        "
                                     ></div>
-                                    <p class="truncate">
-                                        {{ event.date | date: 'shortTime' }}
-                                        &ndash;
-                                        {{
-                                            event.organiser?.name || event.hjost
-                                        }}
-                                    </p>
-                                    <p class="truncate">{{ event.title }}</p>
+                                    <div
+                                        class="relative w-full h-full bg-gray-100 hover:bg-gray-200 rounded-lg overflow-hidden px-3 py-1 text-xs"
+                                    >
+                                        <div
+                                            class="absolute left-0 inset-y-0 w-1 bg-pink-600"
+                                        ></div>
+                                        <p class="truncate">
+                                            {{ event.date | date: 'shortTime' }}
+                                            &ndash;
+                                            {{
+                                                event.organiser?.name ||
+                                                    event.hjost
+                                            }}
+                                        </p>
+                                        <p class="truncate">
+                                            {{ event.title }}
+                                        </p>
+                                    </div>
                                 </div>
                             </ng-container>
                         </div>
@@ -202,6 +229,7 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
     public w_slots = [];
     public h_slots = [];
     public hours = Array.from({ length: 24 }, (_, i) => i);
+    public readonly ui_options = this._state.options;
     public readonly spaces = this._state.spaces;
     public readonly events = combineLatest([
         this._state.spaces,
@@ -270,9 +298,8 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         return (diff / 60) * 48;
     }
 
-    public endToOffset(date: number, duration: number) {
-        const diff = differenceInMinutes(date, startOfDay(date));
-        return (diff / 60 + duration / 60) * 48;
+    public endToOffset(duration: number) {
+        return (duration / 60) * 48;
     }
 
     public onResize() {

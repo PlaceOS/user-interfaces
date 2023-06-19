@@ -155,7 +155,7 @@ export class RoomBookingsApprovalsComponent {
     public async reject(event: CalendarEvent) {
         const system_id = this._org.binding('approvals');
         if (!system_id) return;
-        const mod = getModule(system_id, 'Approvals');
+        const mod = getModule(system_id, 'EventApproval');
         if (!mod) return;
         this.loading = true;
         await mod.execute('decline_event', [event.host, event.id]).catch();
