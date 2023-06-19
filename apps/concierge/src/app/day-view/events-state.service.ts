@@ -39,6 +39,7 @@ import {
 import { Space, SpacesService, requestSpacesForZone } from '@placeos/spaces';
 import { BookingModalComponent } from './booking-modal.component';
 import { OrganisationService } from '@placeos/organisation';
+import { getModule } from '@placeos/ts-client';
 
 export type BookingType =
     | 'internal'
@@ -145,8 +146,20 @@ export class EventsStateService extends AsyncHandler {
         shareReplay(1)
     );
 
-    public readonly pending = combineLatest([this.filtered]).pipe(
-        map(([events]) => events.filter((_) => _.status === 'tentative'))
+    public readonly pending: Observable<CalendarEvent[]> = of(1).pipe(
+        switchMap(() => {
+            const system_id = this._org.binding('approvals');
+            if (!system_id) return of([]);
+            const mod = getModule(system_id, 'EventApproval');
+            if (!mod) return of([]);
+            const binding =
+                mod.binding<Partial<CalendarEvent>[]>('approval_required');
+            this.subscription('pending', binding.bind());
+            return binding
+                .listen()
+                .pipe(map((_) => _.map((i) => new CalendarEvent(i))));
+        }),
+        shareReplay(1)
     );
 
     /** Observable for list of bookings */
