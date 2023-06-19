@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1687140140445,
+  "timestamp": 1687154170347,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -56,6 +56,7 @@
         "./assets/icons/more-outline.svg",
         "./assets/icons/no-contacts.svg",
         "./assets/icons/no-favourites.svg",
+        "./assets/icons/no-pending.svg",
         "./assets/icons/not-found.svg",
         "./assets/icons/office.svg",
         "./assets/icons/outlook.svg",
@@ -136,6 +137,7 @@
     "./assets/icons/more-outline.svg": "05fea53d0e90cd200810c2b57e124b5b0759a444",
     "./assets/icons/no-contacts.svg": "5a562642efdcc8a9262f1dd6e3b1c92c841a3912",
     "./assets/icons/no-favourites.svg": "d3a2205b4ed430a4c31fa0e1fcd2dcf2595c6fa8",
+    "./assets/icons/no-pending.svg": "682e19e8c784872bd1b3ff7109c505030499822c",
     "./assets/icons/not-found.svg": "69124b6f4e1b95755c3577ab0410b7b370516a57",
     "./assets/icons/office.svg": "e33be3d77214153a8bb2d48360d1425eea944f90",
     "./assets/icons/outlook.svg": "af709f8c546089eb91c03c88af0860cb302eb28a",
@@ -178,7 +180,7 @@
     "./assets/tick_success.svg": "84c88546933b8055d960b3194eca112f05ae685f",
     "./favicon.ico": "4e23d0f9b6ddaf3c9ddef90dbaed2342941297b5",
     "./index.html": "6679d9960f0ee9ead2e293c33dd831cf122e47b8",
-    "./main.js": "961e451ae420c1bd7e8dbf0a64bccd4ad5793349",
+    "./main.js": "b734c85088ac6a3608cc13aea714f07857695b5f",
     "./manifest.webmanifest": "2014fddbdc89ea5ee44c8f7270013dada56d40e1",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
@@ -190,7 +192,7 @@
     "./material-symbols-sharp.woff2": "668f6b7dce070bbd08eb7a395919ddb1f39e3ff0",
     "./polyfills.js": "dd49b4bce70a2329abb269aca17217360ad8358f",
     "./runtime.js": "20ef58bb3340d47d24198403395819decd3f526c",
-    "./styles.css": "8081323880f69a4ce150c1964ca171b731e1bb18",
+    "./styles.css": "2dc8d35e5df436909ca068b13720fc4f3d4347ad",
     "./vendor.js": "a93bb7e5d8454afe19af51eb32b5ef6cdfaca37a"
   },
   "navigationUrls": [
