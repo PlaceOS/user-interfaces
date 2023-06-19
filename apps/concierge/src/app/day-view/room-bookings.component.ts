@@ -11,7 +11,7 @@ import { take } from 'rxjs/operators';
         <div class="absolute inset-0 flex flex-col overflow-hidden pl-8">
             <div class="flex items-center justify-between w-full py-4 pr-8">
                 <h2 class="text-2xl font-medium">Room Bookings</h2>
-                <button btn matRipple class="space-x-2">
+                <button btn matRipple class="space-x-2" (click)="newBooking()">
                     <div>New Booking</div>
                     <app-icon>add</app-icon>
                 </button>
@@ -63,6 +63,8 @@ export class RoomBookingsComponent extends AsyncHandler {
         this._state.setZones(z);
     };
     public readonly updateUIOptions = (o) => this._state.setUIOptions(o);
+    /**  */
+    public readonly newBooking = (d?) => this._state.newBooking(d);
 
     constructor(
         private _org: OrganisationService,

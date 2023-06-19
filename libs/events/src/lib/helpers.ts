@@ -1,7 +1,11 @@
 import { HashMap } from '@placeos/common';
 import {
+    addDays,
     addMinutes,
+    addMonths,
     addSeconds,
+    addWeeks,
+    addYears,
     differenceInMinutes,
     format,
     isAfter,
@@ -48,24 +52,36 @@ export function formatRecurrence({
     interval,
     pattern,
     end,
+    occurrences,
 }: RecurrenceDetails) {
     let details = '';
+
     if (interval) {
         switch (pattern) {
             case 'daily':
                 details = details.concat(
                     interval > 1 ? `Every ${interval} days` : 'Daily'
                 );
+                if (occurrences > 1) end = addDays(end, occurrences).valueOf();
                 break;
             case 'weekly':
                 details = details.concat(
                     interval > 1 ? `Every ${interval} weeks` : 'Weekly'
                 );
+                if (occurrences > 1) end = addWeeks(end, occurrences).valueOf();
                 break;
             case 'monthly':
                 details = details.concat(
                     interval > 1 ? `Every ${interval} months` : 'Monthly'
                 );
+                if (occurrences > 1)
+                    end = addMonths(end, occurrences).valueOf();
+                break;
+            case 'yearly':
+                details = details.concat(
+                    interval > 1 ? `Every ${interval} yeats` : 'Yearly'
+                );
+                if (occurrences > 1) end = addYears(end, occurrences).valueOf();
                 break;
         }
         details = details.concat(`, until ${format(end, 'MMM do, yyyy')}`);

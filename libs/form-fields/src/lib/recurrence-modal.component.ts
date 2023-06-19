@@ -155,7 +155,7 @@ export class RecurrenceModalComponent {
         end: this._data.value.end || addDays(new Date(), 7).valueOf(),
         interval: this._data.value.interval || 1,
         pattern: this._data.value.pattern ? this._data.value.pattern : 'weekly',
-        occurrences: this._data.value.occurrences || 13,
+        occurrences: this._data.value.occurrences || 1,
     };
     public ends_key = 'never';
 
