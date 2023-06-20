@@ -5,6 +5,8 @@ import {
     EncryptionLevel,
     addSystem,
     queryZones,
+    showMetadata,
+    updateMetadata,
     updateSystem,
 } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
@@ -13,12 +15,14 @@ import {
     AsyncHandler,
     TIMEZONES_IANA,
     getInvalidFields,
+    getItemWithKeys,
     notifyError,
     unique,
 } from '@placeos/common';
 import { Space, generateSystemsFormFields } from '@placeos/spaces';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { OrganisationService } from '@placeos/organisation';
+import { FormControl, FormGroup } from '@angular/forms';
 
 @Component({
     selector: 'room-form-modal',
@@ -160,6 +164,40 @@ import { OrganisationService } from '@placeos/organisation';
                                 formControlName="code"
                             />
                         </mat-form-field>
+                    </div>
+                </div>
+                <div class="flex space-x-2" [formGroup]="settings_form">
+                    <div class="flex-1 flex flex-col space-y-2">
+                        <label for="setup" class="flex items-center">
+                            Default Setup Duration
+                            <app-icon
+                                class="ml-2"
+                                matTooltip="Time before a meeting needed for setup and preparation for the upcoming meeting"
+                            >
+                                info_outline
+                            </app-icon>
+                        </label>
+                        <a-duration-field
+                            name="setup"
+                            formControlName="setup"
+                            [min]="0"
+                        ></a-duration-field>
+                    </div>
+                    <div class="flex-1 flex flex-col space-y-2">
+                        <label for="breakdown" class="flex items-center">
+                            Default Breakdown Duration
+                            <app-icon
+                                class="ml-2"
+                                matTooltip="Time after a meeting needed for cleaning and preparation for next meeting"
+                            >
+                                info_outline
+                            </app-icon>
+                        </label>
+                        <a-duration-field
+                            name="breakdown"
+                            [min]="0"
+                            formControlName="breakdown"
+                        ></a-duration-field>
                     </div>
                 </div>
                 <div class="flex space-x-2">
@@ -328,6 +366,10 @@ export class RoomModalComponent extends AsyncHandler {
     public readonly levels = this._org.active_levels;
     /** Group of form fields used for creating the system */
     public form = generateSystemsFormFields(this._data.room as any);
+    public settings_form = new FormGroup({
+        setup: new FormControl(0),
+        breakdown: new FormControl(0),
+    });
     /** Levels of encyption available for the system's settings */
     public encryption_levels: any[] = [
         { id: EncryptionLevel.None, name: 'None' },
@@ -351,6 +393,17 @@ export class RoomModalComponent extends AsyncHandler {
         private _org: OrganisationService
     ) {
         super();
+    }
+
+    public async ngOnInit() {
+        const { details } = await showMetadata(
+            this._org.organisation.id,
+            'settings'
+        ).toPromise();
+        const overflow = getItemWithKeys(['events', 'overflow'], details) || {};
+        if (this._data.room.id && overflow[this._data.room.id]) {
+            this.settings_form.patchValue(overflow[this._data.room.id]);
+        }
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
@@ -434,6 +487,20 @@ export class RoomModalComponent extends AsyncHandler {
         this.loading = true;
         this._dialog_ref.disableClose = true;
         const data = this.form.getRawValue();
+        const { details } = (await showMetadata(
+            this._org.organisation.id,
+            'settings'
+        ).toPromise()) as any;
+        const overflow = getItemWithKeys(['events', 'overflow'], details) || {};
+        overflow[data.id] = this.settings_form.value;
+        await updateMetadata(this._org.organisation.id, {
+            name: 'settings',
+            details: {
+                ...details,
+                events: { ...(details.events || {}), overflow },
+            },
+            description: '',
+        }).toPromise();
         await (data.id
             ? updateSystem(data.id, data)
             : addSystem(data)

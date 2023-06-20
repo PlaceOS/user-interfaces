@@ -561,6 +561,18 @@ export class EventFormService extends AsyncHandler {
                 [...value.attendees, value.organiser || currentUser()],
                 'email'
             );
+            if (spaces.length) {
+                let [setup, breakdown] = [0, 0];
+                for (const space of spaces) {
+                    const overflow = this._settings.get(
+                        `app.events.overflow.${space.id}`
+                    );
+                    if (overflow?.setup) setup = overflow.setup;
+                    if (overflow?.breakdown) breakdown = overflow.breakdown;
+                }
+                (value as any).setup = setup;
+                (value as any).breakdown = breakdown;
+            }
             const result = await this._makeBooking(
                 new CalendarEvent({
                     ...value,

@@ -5,7 +5,6 @@ import {
     AssetGroup,
     addAssetsInBulk,
     generateAssetForm,
-    saveAsset,
     showAsset,
     showAssetGroup,
 } from '@placeos/assets';
