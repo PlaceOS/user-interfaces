@@ -2,11 +2,12 @@ import { Injectable } from '@angular/core';
 import { flatten } from '@placeos/common';
 import {
     PlaceMetadata,
+    PlaceZone,
     PlaceZoneMetadata,
     listChildMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -24,6 +25,7 @@ export interface LockerBank {
     name: string;
     height: number;
     lockers: Locker[];
+    zone?: PlaceZone;
 }
 
 export interface Locker {
@@ -42,7 +44,7 @@ export interface Locker {
 export class LockersService {
     private _level = new BehaviorSubject('');
     private _change = new BehaviorSubject(0);
-    public readonly lockers_banks$ = combineLatest([
+    public readonly lockers_banks$: Observable<LockerBank[]> = combineLatest([
         this._org.active_building,
         this._change,
     ]).pipe(

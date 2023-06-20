@@ -53,6 +53,7 @@ export class ExploreLockersService extends AsyncHandler {
                     .filter((_) => _.level_id === lvl.id)
                     .map((_) => _.id)
             );
+            console.log('Banks:', banks, lockers, status);
             for (const bank of banks) {
                 const bank_lockers = lockers.filter((_) => _.bank_id === bank);
                 let in_use_count = 0;
