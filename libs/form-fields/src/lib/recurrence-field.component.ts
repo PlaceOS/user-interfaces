@@ -61,7 +61,7 @@ import { addYears } from 'date-fns';
 export class RecurrenceFieldComponent implements ControlValueAccessor {
     /** Size of a single step */
     @Input() public date = Date.now();
-
+    public old_value: string;
     public value: RecurrenceDetails = { pattern: 'none' } as any;
 
     /** Form control on change handler */
@@ -127,13 +127,18 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
         const ref = this._dialog.open(RecurrenceModalComponent, {
             data: { value: this.value },
         });
+        this.setValue({ ...this.value, _pattern: 'none' });
         ref.afterClosed().subscribe((data?: RecurrenceDetails) => {
-            if (data) this.setValue({ ...data, _pattern: 'custom_display' });
+            this.setValue({
+                ...(data || this.value),
+                _pattern: data ? 'custom_display' : (this.old_value as any),
+            });
         });
     }
 
     public setSimple(pattern: string) {
         const day_of_week = new Date(this.date).getDay();
+        this.old_value = this.value._pattern;
         if (pattern === 'none') {
             this.setValue({
                 pattern: null,

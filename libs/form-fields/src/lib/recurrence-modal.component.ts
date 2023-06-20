@@ -105,7 +105,12 @@ import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
             <h2 for="ends-at">Ends</h2>
             <mat-radio-group name="ends-at" [(ngModel)]="ends_key">
                 <div class="flex items-center">
-                    <mat-radio-button value="never">Never</mat-radio-button>
+                    <mat-radio-button
+                        value="never"
+                        (click)="data.occurrences = 0"
+                    >
+                        Never
+                    </mat-radio-button>
                 </div>
                 <div class="flex items-center space-x-2">
                     <mat-radio-button value="on">On</mat-radio-button>
@@ -131,7 +136,16 @@ import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
         <footer
             class="px-4 py-2 flex items-center justify-end border-t border-gray-200"
         >
-            <button btn class="w-32" matRipple [mat-dialog-close]="data">
+            <button
+                btn
+                class="w-32"
+                matRipple
+                (click)="
+                    data.occurrences =
+                        ends_key === 'never' ? 0 : data.occurrences
+                "
+                [mat-dialog-close]="data"
+            >
                 Save
             </button>
         </footer>

@@ -201,7 +201,7 @@ import { time } from 'console';
                                         "
                                     ></div>
                                     <div
-                                        class="relative w-full h-full bg-gray-100 hover:bg-gray-200 rounded-lg overflow-hidden px-3 py-1 text-xs"
+                                        class="relative w-full h-full shadow bg-gray-100 hover:bg-gray-200 rounded-lg overflow-hidden px-3 py-1 text-xs"
                                     >
                                         <div
                                             class="absolute left-0 inset-y-0 w-1 bg-pink-600"

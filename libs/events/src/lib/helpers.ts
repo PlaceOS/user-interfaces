@@ -84,7 +84,9 @@ export function formatRecurrence({
                 if (occurrences > 1) end = addYears(end, occurrences).valueOf();
                 break;
         }
-        details = details.concat(`, until ${format(end, 'MMM do, yyyy')}`);
+        if (occurrences >= 1) {
+            details = details.concat(`, until ${format(end, 'MMM do, yyyy')}`);
+        }
     }
     return details;
 }
