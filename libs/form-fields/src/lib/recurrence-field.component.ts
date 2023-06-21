@@ -142,11 +142,13 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
         if (pattern === 'none') {
             this.setValue({
                 pattern: null,
+                _pattern: 'none',
                 days_of_week: [day_of_week],
             } as any);
         } else if (pattern === 'daily') {
             this.setValue({
                 pattern,
+                _pattern: pattern,
                 start: this.date,
                 end: addYears(this.date, 1).valueOf(),
                 days_of_week: [day_of_week],
@@ -155,6 +157,7 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
         } else if (pattern === 'weekly') {
             this.setValue({
                 pattern,
+                _pattern: pattern,
                 start: this.date,
                 end: addYears(this.date, 1).valueOf(),
                 days_of_week: [day_of_week],
@@ -163,6 +166,7 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
         } else if (pattern === 'monthly') {
             this.setValue({
                 pattern,
+                _pattern: pattern,
                 start: this.date,
                 end: addYears(this.date, 3).valueOf(),
                 days_of_week: [day_of_week],
@@ -171,6 +175,7 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
         } else if (pattern === 'yearly') {
             this.setValue({
                 pattern,
+                _pattern: pattern,
                 start: this.date,
                 end: addYears(this.date, 7).valueOf(),
                 days_of_week: [day_of_week],
