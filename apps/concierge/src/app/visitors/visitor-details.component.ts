@@ -3,6 +3,7 @@ import {
     EventEmitter,
     Input,
     OnChanges,
+    Optional,
     Output,
     SimpleChanges,
 } from '@angular/core';
@@ -11,6 +12,7 @@ import { CalendarEvent, saveEvent } from '@placeos/events';
 import { showGuest, User } from '@placeos/users';
 
 import { VisitorsStateService } from './visitors-state.service';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
 @Component({
     selector: 'visitor-details',
@@ -158,6 +160,7 @@ import { VisitorsStateService } from './visitors-state.service';
             }
         `,
     ],
+    providers: [SpacePipe],
 })
 export class VisitorDetailsComponent extends AsyncHandler implements OnChanges {
     @Input() public event: CalendarEvent;
@@ -198,7 +201,15 @@ export class VisitorDetailsComponent extends AsyncHandler implements OnChanges {
             ...this.event.toJSON(),
             remote: remote_list,
         }).toJSON();
-        this.event = await saveEvent(new_item)
+        const space = await this._space_pipe?.transform(
+            this.event?.resources[0]?.email
+        );
+        this.event = await saveEvent(new_item, {
+            system_id:
+                this.event?.resources[0]?.id ||
+                this.event?.system?.id ||
+                space.id,
+        })
             .toPromise()
             .catch((e) => {
                 notifyError(
@@ -254,7 +265,8 @@ export class VisitorDetailsComponent extends AsyncHandler implements OnChanges {
 
     constructor(
         private _state: VisitorsStateService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        @Optional() private _space_pipe: SpacePipe
     ) {
         super();
     }

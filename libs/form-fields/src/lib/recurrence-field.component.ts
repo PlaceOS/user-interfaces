@@ -21,9 +21,9 @@ import { addYears } from 'date-fns';
                 <mat-option value="weekly">
                     Weekly on {{ date | date: 'EEEE' }}
                 </mat-option>
-                <mat-option value="monthly">
+                <!-- <mat-option value="monthly">
                     Last {{ date | date: 'EEEE' }} of Month
-                </mat-option>
+                </mat-option> -->
                 <mat-option value="yearly">
                     Anually on {{ date | date: 'LLLL dd' }}
                 </mat-option>
