@@ -7,13 +7,16 @@ import { DesksStateService } from '../../app/desks/desks-state.service';
 import { DesksTopbarComponent } from '../../app/desks/desks-topbar.component';
 import { DesksComponent } from '../../app/desks/desks.component';
 import { SidebarComponent } from '../../app/ui/sidebar.component';
+import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
+import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
 
 describe('DesksComponent', () => {
     let spectator: SpectatorRouting<DesksComponent>;
     const createComponent = createRoutingFactory({
         component: DesksComponent,
         declarations: [
-            MockComponent(SidebarComponent),
+            MockComponent(ApplicationTopbarComponent),
+            MockComponent(ApplicationSidebarComponent),
             MockComponent(DesksTopbarComponent),
         ],
         providers: [

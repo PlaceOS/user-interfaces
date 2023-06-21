@@ -205,6 +205,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 this._settings.get('app.desks.enable_maps') !== false,
         });
         this.subscription('bind', this._bind.subscribe());
+        this.subscription('restrictions', this.restrictions.subscribe());
         this.subscription('changes', this._state_change.subscribe());
         this.subscription(
             'desks',

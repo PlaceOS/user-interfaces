@@ -50,6 +50,7 @@ describe('CalendarEvent[Methods]', () => {
                     interval: 1,
                     pattern: 'daily',
                     end,
+                    occurrences: 1,
                 } as any)
             ).toBe(`Daily, until ${format(end, 'MMM do, yyyy')}`);
             expect(
@@ -57,6 +58,7 @@ describe('CalendarEvent[Methods]', () => {
                     interval: 2,
                     pattern: 'daily',
                     end,
+                    occurrences: 1,
                 } as any)
             ).toBe(`Every 2 days, until ${format(end, 'MMM do, yyyy')}`);
         });
@@ -67,6 +69,7 @@ describe('CalendarEvent[Methods]', () => {
                     interval: 1,
                     pattern: 'weekly',
                     end,
+                    occurrences: 1,
                 } as any)
             ).toBe(`Weekly, until ${format(end, 'MMM do, yyyy')}`);
             expect(
@@ -74,6 +77,7 @@ describe('CalendarEvent[Methods]', () => {
                     interval: 2,
                     pattern: 'weekly',
                     end,
+                    occurrences: 1,
                 } as any)
             ).toBe(`Every 2 weeks, until ${format(end, 'MMM do, yyyy')}`);
         });
@@ -84,6 +88,7 @@ describe('CalendarEvent[Methods]', () => {
                     interval: 1,
                     pattern: 'monthly',
                     end,
+                    occurrences: 1,
                 } as any)
             ).toBe(`Monthly, until ${format(end, 'MMM do, yyyy')}`);
             expect(
@@ -91,6 +96,7 @@ describe('CalendarEvent[Methods]', () => {
                     interval: 2,
                     pattern: 'monthly',
                     end,
+                    occurrences: 1,
                 } as any)
             ).toBe(`Every 2 months, until ${format(end, 'MMM do, yyyy')}`);
         });
@@ -185,10 +191,12 @@ describe('CalendarEvent[Methods]', () => {
                         space: new Space({ zones: ['zone-1'] }),
                     } as any,
                     {
-                        'zone-1': [{
-                            rules: { hidden: true },
-                            conditions: { min_length: '1 minute' },
-                        }],
+                        'zone-1': [
+                            {
+                                rules: { hidden: true },
+                                conditions: { min_length: '1 minute' },
+                            },
+                        ],
                     }
                 )
             ).toEqual({ auto_approve: true, hidden: false });

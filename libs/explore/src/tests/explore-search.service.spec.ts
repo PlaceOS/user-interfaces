@@ -4,18 +4,13 @@ import {
     Organisation,
     OrganisationService,
 } from '@placeos/organisation';
-import { Space, SpacesService } from '@placeos/spaces';
-import { BehaviorSubject, of, timer } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { BehaviorSubject, of } from 'rxjs';
 
 import { ExploreSearchService } from '../lib/explore-search.service';
 
 jest.mock('@placeos/ts-client');
 jest.mock('@placeos/users');
 
-import * as ts_client from '@placeos/ts-client';
-import * as user_mod from '@placeos/users';
-import { fakeAsync, tick } from '@angular/core/testing';
 import { MockProvider } from 'ng-mocks';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 

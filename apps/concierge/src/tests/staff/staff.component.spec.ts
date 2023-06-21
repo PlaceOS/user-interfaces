@@ -4,9 +4,10 @@ import { MockComponent } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { StaffListingComponent } from '../../app/staff/staff-listing.component';
 import { StaffStateService } from '../../app/staff/staff-state.service';
-import { StaffTopbarComponent } from '../../app/staff/staff-topbar.component';
 import { StaffComponent } from '../../app/staff/staff.component';
-import { SidebarComponent } from '../../app/ui/sidebar.component';
+import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
+import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
+import { StaffTopbarComponent } from '../../app/staff/staff-topbar.component';
 
 describe('StaffComponent', () => {
     let spectator: Spectator<StaffComponent>;
@@ -23,9 +24,10 @@ describe('StaffComponent', () => {
             },
         ],
         declarations: [
-            MockComponent(SidebarComponent),
-            MockComponent(StaffTopbarComponent),
+            MockComponent(ApplicationTopbarComponent),
+            MockComponent(ApplicationSidebarComponent),
             MockComponent(StaffListingComponent),
+            MockComponent(StaffTopbarComponent),
         ],
         imports: [MatProgressBarModule],
     });

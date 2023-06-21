@@ -17,14 +17,17 @@ import { EventsStateService } from '../../app/day-view/events-state.service';
 jest.mock('@placeos/events');
 
 import * as events_mod from '@placeos/events';
+import { MockProvider } from 'ng-mocks';
+import { SettingsService } from '@placeos/common';
 
 describe('EventsStateService', () => {
     let spectator: SpectatorService<EventsStateService>;
     const createService = createServiceFactory({
         service: EventsStateService,
         providers: [
-            { provide: SpacesService, useValue: { find: jest.fn() } },
-            { provide: MatDialog, useValue: { open: jest.fn() } },
+            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SpacesService, { find: jest.fn() }),
+            MockProvider(MatDialog, { open: jest.fn() }),
         ],
     });
 

@@ -199,11 +199,6 @@ export class ExploreSearchService {
             this._org.binding('location_services'),
             'LocationServices'
         );
-        console.log(
-            'Init Search:',
-            mod,
-            this._org.binding('location_services')
-        );
         if (mod) {
             const binding = mod.binding('emergency_contacts');
             binding.listen().subscribe((contacts_map) => {

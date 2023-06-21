@@ -8,7 +8,8 @@ import { MockComponent } from 'ng-mocks';
 import { CateringTopbarComponent } from '../../app/catering/catering-topbar.component';
 
 import { CateringComponent } from '../../app/catering/catering.component';
-import { SidebarComponent } from '../../app/ui/sidebar.component';
+import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
+import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
 
 describe('CateringComponent', () => {
     let spectator: SpectatorRouting<CateringComponent>;
@@ -17,7 +18,8 @@ describe('CateringComponent', () => {
         providers: [{ provide: MatDialog, useValue: { open: jest.fn() } }],
         declarations: [
             MockComponent(CateringTopbarComponent),
-            MockComponent(SidebarComponent),
+            MockComponent(ApplicationTopbarComponent),
+            MockComponent(ApplicationSidebarComponent),
             MockComponent(CateringMenuComponent),
             MockComponent(CateringOrderListComponent),
         ],

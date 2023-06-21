@@ -5,13 +5,16 @@ import { SidebarComponent } from '../../app/ui/sidebar.component';
 import { WeekViewTimelineComponent } from '../../app/week-view/week-view-timeline.component';
 import { WeekViewTopbarComponent } from '../../app/week-view/week-view-topbar.component';
 import { WeekViewComponent } from '../../app/week-view/week-view.component';
+import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
+import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
 
 describe('WeekViewComponent', () => {
     let spectator: Spectator<WeekViewComponent>;
     const createComponent = createComponentFactory({
         component: WeekViewComponent,
         declarations: [
-            MockComponent(SidebarComponent),
+            MockComponent(ApplicationTopbarComponent),
+            MockComponent(ApplicationSidebarComponent),
             MockComponent(WeekViewTopbarComponent),
             MockComponent(WeekViewTimelineComponent),
         ],
