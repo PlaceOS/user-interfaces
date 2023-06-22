@@ -4,8 +4,8 @@ import { SettingsService } from '@placeos/common';
 import { ActionIconComponent, IconComponent } from '@placeos/components';
 import { CalendarEvent } from '@placeos/events';
 import { GuestUser } from '@placeos/users';
-import { MockComponent } from 'ng-mocks';
-import { of } from 'rxjs';
+import { MockComponent, MockProvider } from 'ng-mocks';
+import { of, timer } from 'rxjs';
 
 import { VisitorDetailsComponent } from '../../app/visitors/visitor-details.component';
 import { VisitorsStateService } from '../../app/visitors/visitors-state.service';
@@ -14,20 +14,25 @@ jest.mock('@placeos/ts-client');
 
 import * as event_mod from '@placeos/events';
 import * as ts_client from '@placeos/ts-client';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { Space } from '@placeos/spaces';
+import { fakeAsync } from '@angular/core/testing';
 
 describe('VisitorDetailsComponent', () => {
     let spectator: Spectator<VisitorDetailsComponent>;
     const createComponent = createComponentFactory({
         component: VisitorDetailsComponent,
         providers: [
-            {
-                provide: VisitorsStateService,
-                useValue: {
-                    checkGuestOut: jest.fn(async () => ({})),
-                    checkGuestIn: jest.fn(async () => ({})),
-                },
-            },
-            { provide: SettingsService, useValue: { get: jest.fn() } },
+            MockProvider(VisitorsStateService, {
+                checkGuestOut: jest.fn(async () => ({})),
+                checkGuestIn: jest.fn(async () => ({})),
+            } as any),
+            MockProvider(SettingsService, { get: jest.fn() }),
+        ],
+        componentProviders: [
+            MockProvider(SpacePipe, {
+                transform: jest.fn(async () => new Space()),
+            }),
         ],
         declarations: [
             MockComponent(ActionIconComponent),
@@ -53,7 +58,7 @@ describe('VisitorDetailsComponent', () => {
         expect('[details]').toExist();
     });
 
-    it('should allow toggling remote state', () => {
+    it('should allow toggling remote state', async () => {
         (ts_client as any).get = jest.fn(() => of({}));
         (ts_client as any).patch = jest.fn(() => of({}));
         (ts_client as any).post = jest.fn(() => of({}));
@@ -64,6 +69,7 @@ describe('VisitorDetailsComponent', () => {
         });
         spectator.detectChanges();
         spectator.click('action-icon[remote]');
+        await timer(100).toPromise();
         expect(event_mod.saveEvent).toBeCalled();
     });
 
