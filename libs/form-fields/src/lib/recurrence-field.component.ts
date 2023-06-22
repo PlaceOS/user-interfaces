@@ -24,9 +24,9 @@ import { addYears } from 'date-fns';
                 <!-- <mat-option value="monthly">
                     Last {{ date | date: 'EEEE' }} of Month
                 </mat-option> -->
-                <mat-option value="yearly">
+                <!-- <mat-option value="yearly">
                     Anually on {{ date | date: 'LLLL dd' }}
-                </mat-option>
+                </mat-option> -->
                 <mat-option
                     *ngIf="value._pattern === 'custom_display'"
                     value="custom_display"
