@@ -64,6 +64,7 @@ function registerMocks() {
                             area_management: 'space-0',
                             location_services: 'space-0',
                             contact_tracing: 'space-0',
+                            lockers: 'space-0',
                             // payments: 'space-0',
                         },
                     },

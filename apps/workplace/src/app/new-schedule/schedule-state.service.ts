@@ -201,6 +201,10 @@ export class ScheduleStateService extends AsyncHandler {
                         new Booking({
                             date: startOfDay(Date.now()).valueOf(),
                             duration: 24 * 60 - 1,
+                            title: 'Locker Booking',
+                            description: i.locker_name,
+                            booking_type: 'locker',
+                            all_day: true,
                             asset_id: i.locker_id,
                             asset_name: i.locker_name,
                             zones: [i.building, i.level],

@@ -3,7 +3,10 @@ import { HashMap } from '@placeos/common';
 
 import { createSystemModule } from './realtime/control';
 import { createBookingsModule } from './realtime/events';
-import { createAreaManagementModule, MockLocationServicesModule } from './realtime/desks';
+import {
+    createAreaManagementModule,
+    MockLocationServicesModule,
+} from './realtime/desks';
 import { createCameraModule } from './realtime/camera';
 import { createDisplayModule } from './realtime/display';
 import { createMicrophoneModule } from './realtime/microphone';
@@ -12,6 +15,7 @@ import { createMeetingPushModule } from './realtime/meeting';
 import { createVideoConferenceModule } from './realtime/video-conference';
 import { createContactTracingModule } from './realtime/contact-tracing';
 import { createPaymentsModule } from './realtime/payments';
+import { createLockerLocationsModule } from './realtime/locker-locations';
 
 export function createSystem(space: HashMap) {
     registerSystem(space.id, {
@@ -28,7 +32,8 @@ export function createSystem(space: HashMap) {
         Capture: [createCaptureModule(space)],
         MeetingPush: [createMeetingPushModule()],
         VidConf: [createVideoConferenceModule()],
-        Payment: [createPaymentsModule(space)]
+        Payment: [createPaymentsModule(space)],
+        LockerLocations: [createLockerLocationsModule()],
     });
 
     const system = mockSystem(space.id);
