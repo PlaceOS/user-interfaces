@@ -185,7 +185,8 @@ export class ScheduleStateService extends AsyncHandler {
     /** List of parking bookings for the selected date */
     public readonly lockers: Observable<Booking[]> = this._update.pipe(
         switchMap(([date]) => {
-            const system_id = this._org.binding('area_management');
+            const system_id = this._org.binding('lockers');
+            console.log('Lockers:', system_id);
             if (!system_id) return of([]);
             const mod = getModule(system_id, 'LockerLocations');
             return mod.execute('lockers_allocated_to_me').catch((_) => []);
@@ -205,7 +206,10 @@ export class ScheduleStateService extends AsyncHandler {
                     })
             )
         ),
-        catchError(() => of([])),
+        catchError((e) => {
+            console.error(e);
+            return of([]);
+        }),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
         shareReplay(1)
     );
