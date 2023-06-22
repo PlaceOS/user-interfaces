@@ -188,7 +188,6 @@ export class ScheduleStateService extends AsyncHandler {
             filter((_) => !!_),
             distinctUntilKeyChanged('id'),
             debounceTime(300),
-            tap((_) => this.unsubWith('bind:')),
             switchMap((bld) => {
                 const system_id = this._org.binding('lockers');
                 console.log('Lockers:', bld, system_id);
@@ -215,9 +214,10 @@ export class ScheduleStateService extends AsyncHandler {
                 console.error(e);
                 return of([]);
             }),
-            tap(() =>
-                this.timeout('end_loading', () => this._loading.next(false))
-            ),
+            tap((data) => {
+                console.log('Your Lockers:', data);
+                this.timeout('end_loading', () => this._loading.next(false));
+            }),
             shareReplay(1)
         );
 
