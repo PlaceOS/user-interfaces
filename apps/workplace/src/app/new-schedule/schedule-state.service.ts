@@ -183,7 +183,10 @@ export class ScheduleStateService extends AsyncHandler {
         shareReplay(1)
     );
     /** List of parking bookings for the selected date */
-    public readonly lockers: Observable<Booking[]> = this._update.pipe(
+    public readonly lockers: Observable<Booking[]> = combineLatest([
+        this._update,
+        this._org.active_building,
+    ]).pipe(
         switchMap(([date]) => {
             const system_id = this._org.binding('lockers');
             console.log('Lockers:', system_id);
