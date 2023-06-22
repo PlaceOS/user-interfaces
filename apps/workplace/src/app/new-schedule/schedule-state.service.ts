@@ -187,7 +187,7 @@ export class ScheduleStateService extends AsyncHandler {
         switchMap(([date]) => {
             const system_id = this._org.binding('area_management');
             if (!system_id) return of([]);
-            const mod = getModule(system_id, 'Lockers');
+            const mod = getModule(system_id, 'LockerLocations');
             return mod.execute('lockers_allocated_to_me').catch((_) => []);
         }),
         map((_) =>
