@@ -36,18 +36,28 @@ import { SurveyResponsesComponent } from './pages/survey-responses.component';
 import { QuestionBankService } from './services/question-bank.service';
 import { SurveyBuilderService } from './services/survey-builder.service';
 import { SurveyService } from './services/survey.service';
+import { SurveyComponent } from './survey.component';
+import { NewSurveyComponent } from './new-survey.component';
 
-const routes: Route[] = [
+const children: Route[] = [
     { path: '', component: BuildingListComponent },
     { path: 'survey-list/:id', component: SurveyListingsComponent },
     { path: 'builder', component: ModSurveyComponent },
-    { path: 'run/:id', component: RunSurveyComponent },
     { path: 'responses/:id', component: SurveyResponsesComponent },
+    { path: '**', pathMatch: 'full', component: NotFoundComponent },
+];
+
+const routes: Route[] = [
+    { path: 'new', component: NewSurveyComponent, children },
+    { path: 'run/:id', component: RunSurveyComponent },
+    { path: '', component: SurveyComponent, children },
     { path: '404', component: NotFoundComponent },
     { path: '**', pathMatch: 'full', component: NotFoundComponent },
 ];
 
 const COMPONENTS = [
+    SurveyComponent,
+    NewSurveyComponent,
     BuildingListComponent,
     BuildingListItemComponent,
     NotFoundComponent,

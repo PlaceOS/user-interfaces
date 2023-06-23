@@ -24,8 +24,10 @@ import { AssetFormComponent } from './asset-form.component';
 import { AssetGroupFormComponent } from './asset-group-form.component';
 import { AssetPurchaseOrderListComponent } from './asset-purchase-order-list.component';
 import { AssetBulkFormComponent } from './asset-bulk-form.component';
+import { NewAssetManagerComponent } from './new-asset-manager.component';
 
 const COMPONENTS = [
+    NewAssetManagerComponent,
     AssetManagerComponent,
     AssetManagerTopbarComponent,
     AssetListingComponent,
@@ -45,40 +47,47 @@ const COMPONENTS = [
     AssetPurchaseOrderListComponent,
 ];
 
+const children = [
+    {
+        path: 'list',
+        component: AssetListingComponent,
+        children: [
+            { path: 'items', component: AssetItemListComponent },
+            { path: 'requests', component: AssetRequestListComponent },
+            {
+                path: 'purchase-orders',
+                component: AssetPurchaseOrderListComponent,
+            },
+            { path: '**', redirectTo: 'requests' },
+        ],
+    },
+    { path: 'view/:id', component: AssetViewComponent },
+    {
+        path: 'manage',
+        children: [
+            { path: 'group', component: AssetGroupFormComponent },
+            { path: 'asset', component: AssetFormComponent },
+            { path: 'asset-bulk', component: AssetBulkFormComponent },
+            { path: 'category', component: AssetCategoryFormComponent },
+            {
+                path: 'purchase-order',
+                component: AssetPurchaseOrderFormComponent,
+            },
+        ],
+    },
+    { path: '**', redirectTo: 'list/requests' },
+];
+
 const ROUTES: Route[] = [
+    {
+        path: 'new',
+        component: NewAssetManagerComponent,
+        children,
+    },
     {
         path: '',
         component: AssetManagerComponent,
-        children: [
-            {
-                path: 'list',
-                component: AssetListingComponent,
-                children: [
-                    { path: 'items', component: AssetItemListComponent },
-                    { path: 'requests', component: AssetRequestListComponent },
-                    {
-                        path: 'purchase-orders',
-                        component: AssetPurchaseOrderListComponent,
-                    },
-                    { path: '**', redirectTo: 'requests' },
-                ],
-            },
-            { path: 'view/:id', component: AssetViewComponent },
-            {
-                path: 'manage',
-                children: [
-                    { path: 'group', component: AssetGroupFormComponent },
-                    { path: 'asset', component: AssetFormComponent },
-                    { path: 'asset-bulk', component: AssetBulkFormComponent },
-                    { path: 'category', component: AssetCategoryFormComponent },
-                    {
-                        path: 'purchase-order',
-                        component: AssetPurchaseOrderFormComponent,
-                    },
-                ],
-            },
-            { path: '**', redirectTo: 'list/requests' },
-        ],
+        children,
     },
     { path: '**', redirectTo: '' },
 ];

@@ -13,11 +13,16 @@ import { RoomManagerTopbarComponent } from './room-manager-topbar.component';
 import { RoomListComponent } from './room-list.component';
 import { RoomModalComponent } from './room-modal.component';
 import { MatChipsModule } from '@angular/material/chips';
+import { NewRoomManagerComponent } from './new-room-manager.component';
 
-const ROUTES: Route[] = [{ path: '', component: RoomManagerComponent }];
+const ROUTES: Route[] = [
+    { path: '', component: RoomManagerComponent },
+    { path: 'new', component: NewRoomManagerComponent },
+];
 
 @NgModule({
     declarations: [
+        NewRoomManagerComponent,
         RoomManagerComponent,
         RoomManagerTopbarComponent,
         RoomListComponent,

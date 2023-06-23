@@ -27,28 +27,29 @@ import { ContactTracingReportComponent } from './contact-tracing/contact-tracing
 import { GetUserPipe } from './contact-tracing/get-user.pipe';
 import { ContactTracingOptionsComponent } from './contact-tracing/contact-tracing-options.component';
 import { CustomReportComponent } from './custom-report.component';
+import { NewReportsComponent } from './new-reports.component';
+
+const children: Route[] = [
+    { path: '', component: ReportsOptionsComponent },
+    { path: 'bookings', component: ReportSpacesComponent },
+    { path: 'desks', component: ReportDesksComponent },
+    { path: 'catering', component: CateringReportComponent },
+    {
+        path: 'contact-tracing',
+        component: ContactTracingReportComponent,
+    },
+    { path: ':id', component: CustomReportComponent },
+    { path: '**', redirectTo: 'desks', pathMatch: 'full' },
+];
 
 const ROUTES: Route[] = [
-    {
-        path: '',
-        component: ReportsComponent,
-        children: [
-            { path: '', component: ReportsOptionsComponent },
-            { path: 'bookings', component: ReportSpacesComponent },
-            { path: 'desks', component: ReportDesksComponent },
-            { path: 'catering', component: CateringReportComponent },
-            {
-                path: 'contact-tracing',
-                component: ContactTracingReportComponent,
-            },
-            { path: ':id', component: CustomReportComponent },
-            { path: '**', redirectTo: 'desks', pathMatch: 'full' },
-        ],
-    },
+    { path: 'new', component: NewReportsComponent, children },
+    { path: '', component: ReportsComponent, children },
 ];
 
 @NgModule({
     declarations: [
+        NewReportsComponent,
         ReportsComponent,
         ReportsOptionsComponent,
 

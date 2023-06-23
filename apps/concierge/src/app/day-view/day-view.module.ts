@@ -19,8 +19,12 @@ import { SharedCateringModule } from '@placeos/catering';
 import { RoomBookingsComponent } from './room-bookings.component';
 import { RoomBookingsTimelineComponent } from './room-timeline.component';
 import { RoomBookingsApprovalsComponent } from './room-approvals.component';
+import { NewDayViewComponent } from './new-dayview.component';
 
-const ROUTES: Route[] = [{ path: '', component: DayViewComponent }];
+const ROUTES: Route[] = [
+    { path: '', component: DayViewComponent },
+    { path: 'new', component: NewDayViewComponent },
+];
 
 @NgModule({
     declarations: [
@@ -29,6 +33,7 @@ const ROUTES: Route[] = [{ path: '', component: DayViewComponent }];
         DayviewTimelineComponent,
         DayviewSpaceComponent,
         DayviewEventComponent,
+        NewDayViewComponent,
 
         BookingModalComponent,
         EventFormComponent,

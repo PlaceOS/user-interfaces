@@ -10,6 +10,7 @@ import { PointsAssetsComponent } from './points-assets.component';
 import { PointsOverviewComponent } from './points-overview.component';
 import { PointsTopbarComponent } from './points-topbar.component';
 import { PointsComponent } from './points.component';
+import { NewPointsComponent } from './new-points.component';
 
 const ROUTES: Route[] = [
     {
@@ -21,10 +22,20 @@ const ROUTES: Route[] = [
             { path: '**', redirectTo: 'overview', pathMatch: 'full' },
         ],
     },
+    {
+        path: 'new',
+        component: NewPointsComponent,
+        children: [
+            { path: 'assets', component: PointsAssetsComponent },
+            { path: 'overview', component: PointsOverviewComponent },
+            { path: '**', redirectTo: 'overview', pathMatch: 'full' },
+        ],
+    },
 ];
 
 @NgModule({
     declarations: [
+        NewPointsComponent,
         PointsComponent,
         PointsTopbarComponent,
         PointsOverviewComponent,

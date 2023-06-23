@@ -1,7 +1,7 @@
 const general = {
     menu: [
         {
-            route: 'day-view',
+            route: 'book/rooms',
             name: 'Calendar',
             icon: { class: 'material-icons', content: 'event' },
         },
@@ -11,43 +11,48 @@ const general = {
             icon: { class: 'material-icons', content: 'meeting_room' },
         },
         {
-            route: 'asset-manager',
+            route: 'book/assets',
             name: 'Asset Manager',
             icon: { class: 'material-icons', content: 'inventory' },
         },
         {
-            route: 'catering',
+            route: 'book/catering',
             name: 'Catering',
             icon: { class: 'material-icons', content: 'room_service' },
         },
         {
-            route: 'visitors',
+            route: 'book/visitors',
             name: 'Visitors',
             icon: { class: 'material-icons', content: 'group' },
         },
         {
-            route: 'desks',
+            route: 'book/desks',
             name: 'Desks',
             icon: { class: 'material-icons', content: 'article' },
         },
         {
-            route: 'staff',
+            route: 'users/staff',
             name: 'Staff',
             icon: { class: 'material-icons', content: 'account_box' },
         },
         {
-            route: 'points',
+            route: 'facilities/points',
             name: 'Points',
             icon: { class: 'material-icons', content: 'loyalty' },
         },
         {
-            route: 'parking',
+            route: 'book/parking',
             name: 'Parking',
             icon: { class: 'material-icons', content: 'local_parking' },
         },
         {
             route: 'reports',
             name: 'Reports',
+            icon: { class: 'material-icons', content: 'analytics' },
+        },
+        {
+            route: 'room-management',
+            name: 'Room Management',
             icon: { class: 'material-icons', content: 'analytics' },
         },
     ],

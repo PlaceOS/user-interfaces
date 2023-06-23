@@ -23,8 +23,19 @@ import { DeskBookModalComponent } from './desk-book-modal.component';
 import { SharedBookingsModule } from '@placeos/bookings';
 import { DeskRestrictionModalComponent } from './desk-restriction-modal.component';
 import { FormFieldsModule } from '@placeos/form-fields';
+import { NewDesksComponent } from './new-desks.component';
 
 const ROUTES: Route[] = [
+    {
+        path: 'new',
+        component: NewDesksComponent,
+        children: [
+            { path: 'events', component: DeskBookingsComponent },
+            { path: 'map', component: DeskMapViewComponent },
+            { path: 'manage', component: DesksManageComponent },
+            { path: '**', redirectTo: 'events' },
+        ],
+    },
     {
         path: '',
         component: DesksComponent,
@@ -35,11 +46,11 @@ const ROUTES: Route[] = [
             { path: '**', redirectTo: 'events' },
         ],
     },
-    { path: '**', redirectTo: 'events' },
 ];
 
 @NgModule({
     declarations: [
+        NewDesksComponent,
         DesksComponent,
         DeskBookingsComponent,
         DesksTopbarComponent,

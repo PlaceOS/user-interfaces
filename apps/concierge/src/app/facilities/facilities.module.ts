@@ -10,13 +10,17 @@ import { FacilitiesTopbarComponent } from './facilities-topbar.component';
 import { FacilitiesStatusComponent } from './facilities-status.component';
 import { FacilitiesMapComponent } from './facilities-map.component';
 
-import { InteractiveMapComponent } from '@placeos/components';
 import { SharedExploreModule } from '@placeos/explore';
+import { NewFacilitiesComponent } from './new-facilities.component';
 
-const ROUTES: Route[] = [{ path: '', component: FacilitiesComponent }];
+const ROUTES: Route[] = [
+    { path: '', component: FacilitiesComponent },
+    { path: 'new', component: NewFacilitiesComponent },
+];
 
 @NgModule({
     declarations: [
+        NewFacilitiesComponent,
         FacilitiesComponent,
         FacilitiesTopbarComponent,
         FacilitiesStatusComponent,

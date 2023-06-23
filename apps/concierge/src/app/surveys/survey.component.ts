@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 
 @Component({
-    selector: '[asset-manager]',
+    selector: '[app-survey]',
     template: `
         <sidebar></sidebar>
         <main
-            class="relative w-1/2 flex-1 bg-gray-200 dark:bg-neutral-600 overflow-hidden"
+            class="relative w-full flex flex-col bg-gray-200 dark:bg-neutral-600"
         >
             <router-outlet></router-outlet>
         </main>
@@ -16,9 +16,9 @@ import { Component } from '@angular/core';
                 display: flex;
                 height: 100%;
                 width: 100%;
-                background: var(--bg);
+                background-color: #fff;
             }
         `,
     ],
 })
-export class AssetManagerComponent {}
+export class SurveyComponent {}

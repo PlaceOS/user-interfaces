@@ -5,24 +5,20 @@ import { ApplicationLinkInternal, SettingsService } from '@placeos/common';
 @Component({
     selector: '[app-dayview]',
     template: `
-        <app-topbar></app-topbar>
-        <div class="flex flex-1 h-px">
-            <app-sidebar></app-sidebar>
-            <main class="relative flex flex-col flex-1 w-1/2 h-full">
-                <room-bookings></room-bookings>
-                <!-- <dayview-topbar></dayview-topbar>
-                <dayview-timeline></dayview-timeline> -->
-            </main>
-        </div>
+        <sidebar class="h-full"></sidebar>
+        <main
+            class="relative overflow-hidden flex flex-col flex-1 w-1/2 h-full bg-gray-200 dark:bg-neutral-600"
+        >
+            <dayview-topbar></dayview-topbar>
+            <dayview-timeline></dayview-timeline>
+        </main>
     `,
     styles: [
         `
             :host {
                 display: flex;
-                flex-direction: column;
                 height: 100%;
                 width: 100%;
-                background-color: #fff;
             }
         `,
     ],

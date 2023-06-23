@@ -14,7 +14,10 @@ import { WeekViewTimelineComponent } from './week-view-timeline.component';
 import { WeekViewDayComponent } from './week-view-day.component';
 import { WeekViewEventComponent } from './week-view-event.component';
 
-const ROUTES: Route[] = [{ path: '', component: WeekViewComponent }];
+const ROUTES: Route[] = [
+    { path: '', component: WeekViewComponent },
+    { path: 'new', component: WeekViewComponent },
+];
 
 @NgModule({
     declarations: [

@@ -8,10 +8,15 @@ import { StaffTopbarComponent } from './staff-topbar.component';
 import { StaffListingComponent } from './staff-listing.component';
 import { StaffDetailsComponent } from './staff-details.component';
 import { UIModule } from '../ui/ui.module';
+import { NewStaffComponent } from './new-staff.component';
 
-const ROUTES: Route[] = [{ path: '', component: StaffComponent }];
+const ROUTES: Route[] = [
+    { path: '', component: StaffComponent },
+    { path: 'new', component: NewStaffComponent },
+];
 
 export const COMPONENTS: Type<any>[] = [
+    NewStaffComponent,
     StaffComponent,
     StaffTopbarComponent,
     StaffListingComponent,

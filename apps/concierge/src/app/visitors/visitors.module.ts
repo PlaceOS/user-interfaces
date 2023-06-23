@@ -11,17 +11,22 @@ import { VisitorListingsComponent } from './visitor-listings.component';
 import { VisitorEventComponent } from './visitor-event.component';
 import { VisitorDetailsComponent } from './visitor-details.component';
 import { GuestListingComponent } from './guest-listing.component';
+import { NewVisitorsComponent } from './new-visitors.component';
 
-const ROUTES: Route[] = [{ path: '', component: VisitorsComponent }];
+const ROUTES: Route[] = [
+    { path: '', component: VisitorsComponent },
+    { path: 'new', component: NewVisitorsComponent },
+];
 
 @NgModule({
     declarations: [
+        NewVisitorsComponent,
         VisitorsComponent,
         VisitorsTopbarComponent,
         VisitorListingsComponent,
         VisitorEventComponent,
         VisitorDetailsComponent,
-        GuestListingComponent
+        GuestListingComponent,
     ],
     imports: [
         CommonModule,

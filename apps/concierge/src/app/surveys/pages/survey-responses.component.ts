@@ -19,137 +19,119 @@ import { SurveyResponsesService } from '../services/survey-responses.service';
         `,
     ],
     template: `
-        <app-topbar></app-topbar>
-        <div class="flex flex-1 h-px">
-            <app-sidebar></app-sidebar>
-            <main class="flex flex-col flex-1 w-1/2 h-full">
-                <div
-                    *ngIf="(loading$ | async).length"
-                    class="flex absolute inset-0 opacity-60 bg-white dark:bg-black z-10"
-                >
-                    <div class="flex flex-col m-auto items-center">
-                        <mat-spinner [diameter]="32"></mat-spinner>
-                        <span>{{ loading$ | async }}</span>
+        <div
+            *ngIf="(loading$ | async).length"
+            class="flex absolute inset-0 opacity-60 bg-white dark:bg-black z-10"
+        >
+            <div class="flex flex-col m-auto items-center">
+                <mat-spinner [diameter]="32"></mat-spinner>
+                <span>{{ loading$ | async }}</span>
+            </div>
+        </div>
+        <ng-container *ngIf="surveyId$ | async; else noId">
+            <header
+                class="flex justify-between items-center w-full pb-4 border-b"
+            >
+                <div class="flex flex-row items-center">
+                    <button icon matRipple (click)="back()">
+                        <app-icon class="flex mr-2">arrow_back</app-icon>
+                    </button>
+                    <div class="flex flex-row items-center">
+                        <span class="text-2xl"
+                            >Survey Responses -
+                            {{ (survey$ | async)?.title || '' }}</span
+                        >
                     </div>
                 </div>
-                <ng-container *ngIf="surveyId$ | async; else noId">
-                    <header
-                        class="flex justify-between items-center w-full pb-4 border-b"
+                <mat-form-field
+                    appearance="outline"
+                    subscriptSizing="dynamic"
+                    class="w-72"
+                >
+                    <mat-date-range-input
+                        [rangePicker]="picker"
+                        (stateChanges)="datePicked($event)"
                     >
-                        <div class="flex flex-row items-center">
-                            <button icon matRipple (click)="back()">
-                                <app-icon class="flex mr-2"
-                                    >arrow_back</app-icon
-                                >
-                            </button>
-                            <div class="flex flex-row items-center">
-                                <span class="text-2xl"
-                                    >Survey Responses -
-                                    {{ (survey$ | async)?.title || '' }}</span
-                                >
-                            </div>
-                        </div>
-                        <mat-form-field
-                            appearance="outline"
-                            subscriptSizing="dynamic"
-                            class="w-72"
+                        <input
+                            matStartDate
+                            readonly
+                            [ngModel]="(options$ | async)?.start"
+                            (ngModelChange)="$event ? setStartDate($event) : ''"
+                            placeholder="Start date"
+                        />
+                        <input
+                            matEndDate
+                            readonly
+                            [ngModel]="(options$ | async)?.end"
+                            (ngModelChange)="$event ? setEndDate($event) : ''"
+                            placeholder="End date"
+                        />
+                    </mat-date-range-input>
+                    <div matSuffix class="flex items-center">
+                        <mat-datepicker-toggle
+                            [for]="picker"
+                        ></mat-datepicker-toggle>
+                        <button
+                            *ngIf="(options$ | async)?.end"
+                            mat-icon-button
+                            (click)="clearDates()"
                         >
-                            <mat-date-range-input
-                                [rangePicker]="picker"
-                                (stateChanges)="datePicked($event)"
-                            >
-                                <input
-                                    matStartDate
-                                    readonly
-                                    [ngModel]="(options$ | async)?.start"
-                                    (ngModelChange)="
-                                        $event ? setStartDate($event) : ''
-                                    "
-                                    placeholder="Start date"
-                                />
-                                <input
-                                    matEndDate
-                                    readonly
-                                    [ngModel]="(options$ | async)?.end"
-                                    (ngModelChange)="
-                                        $event ? setEndDate($event) : ''
-                                    "
-                                    placeholder="End date"
-                                />
-                            </mat-date-range-input>
-                            <div matSuffix class="flex items-center">
-                                <mat-datepicker-toggle
-                                    [for]="picker"
-                                ></mat-datepicker-toggle>
-                                <button
-                                    *ngIf="(options$ | async)?.end"
-                                    mat-icon-button
-                                    (click)="clearDates()"
-                                >
-                                    <mat-icon>close</mat-icon>
-                                </button>
-                            </div>
-                            <mat-date-range-picker
-                                #picker
-                            ></mat-date-range-picker>
-                        </mat-form-field>
-                    </header>
-                    <div class="flex p-4 border-b justify-end space-x-2">
-                        <div class="flex flex-col items-center flex-1">
-                            <h3>Total Questions</h3>
-                            <p class="text-4xl">
-                                {{ (stats$ | async)?.question_count || 0 }}
-                            </p>
-                        </div>
-                        <div class="flex flex-col items-center flex-1">
-                            <h3>Total Answers</h3>
-                            <p class="text-4xl">
-                                {{ (stats$ | async)?.answer_count || 0 }}
-                            </p>
-                        </div>
-                        <div class="flex flex-col items-center flex-1">
-                            <h3>Triggers On</h3>
-                            <p class="text-2xl">
-                                {{ triggerMap[(survey$ | async)?.trigger] }}
-                            </p>
-                        </div>
+                            <mat-icon>close</mat-icon>
+                        </button>
                     </div>
+                    <mat-date-range-picker #picker></mat-date-range-picker>
+                </mat-form-field>
+            </header>
+            <div class="flex p-4 border-b justify-end space-x-2">
+                <div class="flex flex-col items-center flex-1">
+                    <h3>Total Questions</h3>
+                    <p class="text-4xl">
+                        {{ (stats$ | async)?.question_count || 0 }}
+                    </p>
+                </div>
+                <div class="flex flex-col items-center flex-1">
+                    <h3>Total Answers</h3>
+                    <p class="text-4xl">
+                        {{ (stats$ | async)?.answer_count || 0 }}
+                    </p>
+                </div>
+                <div class="flex flex-col items-center flex-1">
+                    <h3>Triggers On</h3>
+                    <p class="text-2xl">
+                        {{ triggerMap[(survey$ | async)?.trigger] }}
+                    </p>
+                </div>
+            </div>
 
+            <ng-container *ngIf="pagedResponses$ | async as pagedResponses">
+                <ng-container
+                    *ngIf="pagedResponses?.length > 0; else noRecords"
+                >
                     <ng-container
-                        *ngIf="pagedResponses$ | async as pagedResponses"
+                        *ngFor="let p of pagedResponses; let i = index"
                     >
-                        <ng-container
-                            *ngIf="pagedResponses?.length > 0; else noRecords"
+                        <div
+                            class="flex w-full px-3 pt-2 space-x-2"
+                            *ngIf="pagedResponses.length > 1"
                         >
-                            <ng-container
-                                *ngFor="let p of pagedResponses; let i = index"
+                            <span class="font-thin text-xl"
+                                >Page {{ i + 1 }}
+                                {{
+                                    p.title?.length ? '- ' + p.title : ''
+                                }}</span
                             >
-                                <div
-                                    class="flex w-full px-3 pt-2 space-x-2"
-                                    *ngIf="pagedResponses.length > 1"
-                                >
-                                    <span class="font-thin text-xl"
-                                        >Page {{ i + 1 }}
-                                        {{
-                                            p.title?.length
-                                                ? '- ' + p.title
-                                                : ''
-                                        }}</span
-                                    >
-                                </div>
-                                <div class="flex flex-wrap w-full pt-2">
-                                    <survey-widget
-                                        class="w-full lg:w-1/2 2xl:w-1/3"
-                                        *ngFor="let r of p.responses"
-                                        [response]="r"
-                                    ></survey-widget>
-                                </div>
-                            </ng-container>
-                        </ng-container>
+                        </div>
+                        <div class="flex flex-wrap w-full pt-2">
+                            <survey-widget
+                                class="w-full lg:w-1/2 2xl:w-1/3"
+                                *ngFor="let r of p.responses"
+                                [response]="r"
+                            ></survey-widget>
+                        </div>
                     </ng-container>
                 </ng-container>
-            </main>
-        </div>
+            </ng-container>
+        </ng-container>
 
         <ng-template #noId>
             <div
