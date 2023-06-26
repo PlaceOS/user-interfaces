@@ -224,7 +224,6 @@ export class AppComponent extends AsyncHandler implements OnInit {
             `${id}_expires_at`,
             `${addHours(new Date(), 6).valueOf()}`
         );
-
         notifySuccess('Successfully pasted token.');
         setTimeout(() => location.reload(), 2000);
     }

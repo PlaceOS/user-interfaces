@@ -42,12 +42,12 @@
                 ],
                 "styles": [
                     "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
-                    "./node_modules/survey-core/modern.min.css",
                     "apps/concierge/src/styles.css",
                     "shared/styles/application.scss",
                     "shared/styles/custom-element.scss",
                     "shared/styles/native-element.scss",
-                    "shared/styles/utility.scss"
+                    "shared/styles/utility.scss",
+                    "./node_modules/survey-core/modern.min.css"
                 ],
                 "scripts": [],
                 "vendorChunk": true,
