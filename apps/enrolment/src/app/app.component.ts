@@ -28,7 +28,7 @@ import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
 
 import * as Sentry from '@sentry/angular-ivy';
 import * as MOCKS from '@placeos/mocks';
-import { token } from '@placeos/ts-client';
+import { PlaceAuthority, token } from '@placeos/ts-client';
 
 export function initSentry(dsn: string, sample_rate: number = 0.2) {
     if (!dsn) return;
@@ -73,6 +73,9 @@ export class AppComponent extends AsyncHandler implements OnInit {
     public async ngOnInit() {
         log('APP', 'MOCKS:', MOCKS);
         setNotifyOutlet(this._snackbar);
+        const authority: PlaceAuthority = await (
+            await fetch('/auth/authority')
+        ).json();
         /** Wait for settings to initialise */
         await this._settings.initialised.pipe(first((_) => _)).toPromise();
         setAppName(this._settings.get('app.short_name'));
@@ -87,6 +90,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
             this._settings.get('app.general.internal_user_domain') ||
                 `@${currentUser()?.email?.split('@')[1]}`
         );
+        this._settings.overrides = [authority.config?.enrolment || {}];
         this.timeout('init_uploads', () => {
             initialiseUploadService({
                 auto_start: true,
