@@ -31,7 +31,7 @@ import { addYears } from 'date-fns';
                     *ngIf="value._pattern === 'custom_display'"
                     value="custom_display"
                 >
-                    {{ formattedValue() }}
+                    {{ formatted_value }}
                 </mat-option>
                 <mat-option
                     value="custom"
@@ -80,7 +80,9 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
         }
     }
 
-    public readonly formattedValue = () => formatRecurrence(this.value);
+    public get formatted_value() {
+        return formatRecurrence(this.value);
+    }
 
     /**
      * Update the form field value
