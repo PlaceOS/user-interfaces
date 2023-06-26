@@ -51,7 +51,7 @@ export function eventStatus(
 export function formatRecurrence({
     interval,
     pattern,
-    start
+    start,
     end,
     occurrences,
 }: RecurrenceDetails) {
@@ -63,13 +63,15 @@ export function formatRecurrence({
                 details = details.concat(
                     interval > 1 ? `Every ${interval} days` : 'Daily'
                 );
-                if (occurrences > 1) end = addDays(start, occurrences).valueOf();
+                if (occurrences > 1)
+                    end = addDays(start, occurrences).valueOf();
                 break;
             case 'weekly':
                 details = details.concat(
                     interval > 1 ? `Every ${interval} weeks` : 'Weekly'
                 );
-                if (occurrences > 1) end = addWeeks(start, occurrences).valueOf();
+                if (occurrences > 1)
+                    end = addWeeks(start, occurrences).valueOf();
                 break;
             case 'monthly':
                 details = details.concat(
@@ -82,7 +84,8 @@ export function formatRecurrence({
                 details = details.concat(
                     interval > 1 ? `Every ${interval} yeats` : 'Yearly'
                 );
-                if (occurrences > 1) end = addYears(start, occurrences).valueOf();
+                if (occurrences > 1)
+                    end = addYears(start, occurrences).valueOf();
                 break;
         }
         if (occurrences >= 1) {
