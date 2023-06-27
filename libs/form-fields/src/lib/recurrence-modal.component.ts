@@ -36,8 +36,14 @@ import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
                     </mat-select>
                 </mat-form-field>
             </div>
-            <h2 for="repeat-on" class="mb-2">Repeat on</h2>
-            <div class="flex items-center space-x-2 mb-4" name="repeat-on">
+            <h2 for="repeat-on" class="mb-2" *ngIf="data.pattern === 'weekly'">
+                Repeat on
+            </h2>
+            <div
+                class="flex items-center space-x-2 mb-4"
+                name="repeat-on"
+                *ngIf="data.pattern === 'weekly'"
+            >
                 <button
                     btn
                     matRipple
