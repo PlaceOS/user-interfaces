@@ -64,28 +64,40 @@ export function formatRecurrence({
                     interval > 1 ? `Every ${interval} days` : 'Daily'
                 );
                 if (occurrences > 1)
-                    end = addDays(start || Date.now(), occurrences).valueOf();
+                    end = addDays(
+                        start || Date.now(),
+                        occurrences - 1
+                    ).valueOf();
                 break;
             case 'weekly':
                 details = details.concat(
                     interval > 1 ? `Every ${interval} weeks` : 'Weekly'
                 );
                 if (occurrences > 1)
-                    end = addWeeks(start || Date.now(), occurrences).valueOf();
+                    end = addWeeks(
+                        start || Date.now(),
+                        occurrences - 1
+                    ).valueOf();
                 break;
             case 'monthly':
                 details = details.concat(
                     interval > 1 ? `Every ${interval} months` : 'Monthly'
                 );
                 if (occurrences > 1)
-                    end = addMonths(start || Date.now(), occurrences).valueOf();
+                    end = addMonths(
+                        start || Date.now(),
+                        occurrences - 1
+                    ).valueOf();
                 break;
             case 'yearly':
                 details = details.concat(
                     interval > 1 ? `Every ${interval} yeats` : 'Yearly'
                 );
                 if (occurrences > 1)
-                    end = addYears(start || Date.now(), occurrences).valueOf();
+                    end = addYears(
+                        start || Date.now(),
+                        occurrences - 1
+                    ).valueOf();
                 break;
         }
         if (occurrences >= 1) {
