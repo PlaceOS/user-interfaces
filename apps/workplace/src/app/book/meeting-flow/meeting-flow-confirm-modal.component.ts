@@ -2,7 +2,11 @@ import { Component, Input, Optional } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { CateringOrder } from '@placeos/catering';
 import { AsyncHandler, notifyError, openConfirmModal } from '@placeos/common';
-import { CalendarEvent, EventFormService } from '@placeos/events';
+import {
+    CalendarEvent,
+    EventFormService,
+    formatRecurrence,
+} from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
@@ -45,6 +49,13 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     <div class="flex items-center space-x-2">
                         <app-icon>today</app-icon>
                         <div date>{{ event.date | date: 'fullDate' }}</div>
+                    </div>
+                    <div
+                        class="flex items-center space-x-2"
+                        *ngIf="event.recurrence?.pattern"
+                    >
+                        <app-icon>update</app-icon>
+                        <div date>{{ formatted_recurrence }}</div>
                     </div>
                     <div class="flex items-center space-x-2">
                         <app-icon>schedule</app-icon>
@@ -307,6 +318,13 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
 
     public get code() {
         return this._org.currency_code;
+    }
+
+    public get formatted_recurrence() {
+        return formatRecurrence({
+            ...this.event.recurrence,
+            start: this.event.date || this.event.recurrence.start,
+        });
     }
 
     constructor(

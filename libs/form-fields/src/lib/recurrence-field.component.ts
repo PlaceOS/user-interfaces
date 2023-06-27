@@ -5,7 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
 import { formatRecurrence } from 'libs/events/src/lib/helpers';
 import { RecurrenceModalComponent } from './recurrence-modal.component';
-import { addYears } from 'date-fns';
+import { addYears, format } from 'date-fns';
 
 @Component({
     selector: 'recurrence-field',
@@ -73,18 +73,20 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.date && this.date) {
-            this.value.start = this.date;
-            if (!this.value.pattern) {
-                this.value.days_of_week = [new Date(this.date).getDay()];
-            }
+            console.log('Date:', format(this.date, 'yyyy-MM-dd'));
+            this.value = {
+                ...this.value,
+                start: this.date,
+                days_of_week: !this.value.pattern
+                    ? [new Date(this.date).getDay()]
+                    : this.value.days_of_week,
+            };
+            this.setValue(this.value);
         }
     }
 
     public get formatted_value() {
-        return formatRecurrence({
-            ...this.value,
-            start: this.date || this.value.start,
-        });
+        return formatRecurrence(this.value);
     }
 
     /**

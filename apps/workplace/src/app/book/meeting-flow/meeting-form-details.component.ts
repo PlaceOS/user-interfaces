@@ -92,6 +92,7 @@ import { addDays, endOfDay } from 'date-fns';
                 </label>
                 <recurrence-field
                     name="recurrence"
+                    [date]="form.value.date"
                     formControlName="recurrence"
                 ></recurrence-field>
             </div>
