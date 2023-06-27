@@ -81,7 +81,10 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
     }
 
     public get formatted_value() {
-        return formatRecurrence(this.value);
+        return formatRecurrence({
+            ...this.value,
+            start: this.date || this.value.start,
+        });
     }
 
     /**
