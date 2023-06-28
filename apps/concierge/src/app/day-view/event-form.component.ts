@@ -123,13 +123,31 @@ import { map, tap } from 'rxjs/operators';
                     <mat-error> Catering Order notes are required </mat-error>
                 </mat-form-field>
             </div>
-            <div class="flex flex-col flex-1" *ngIf="has_assets">
+            <div class="flex flex-col flex-1 mb-4" *ngIf="has_assets">
                 <label for="space">Assets:</label>
                 <asset-list-field
                     [date]="form.value.date"
                     [duration]="form.value.duration"
                     formControlName="assets"
                 ></asset-list-field>
+            </div>
+            <div class="flex space-x-2">
+                <div class="flex flex-col space-y-2 flex-1">
+                    <label for="setup">Setup Duration</label>
+                    <a-duration-field
+                        name="setup"
+                        formControlName="setup"
+                        [min]="0"
+                    ></a-duration-field>
+                </div>
+                <div class="flex flex-col space-y-2 flex-1">
+                    <label for="breakdown">Breakdown Duration</label>
+                    <a-duration-field
+                        name="breakdown"
+                        [min]="0"
+                        formControlName="breakdown"
+                    ></a-duration-field>
+                </div>
             </div>
         </form>
     `,

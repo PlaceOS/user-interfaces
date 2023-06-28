@@ -570,8 +570,8 @@ export class EventFormService extends AsyncHandler {
                     if (overflow?.setup) setup = overflow.setup;
                     if (overflow?.breakdown) breakdown = overflow.breakdown;
                 }
-                (value as any).setup = setup;
-                (value as any).breakdown = breakdown;
+                (value as any).setup = value.setup || setup;
+                (value as any).breakdown = value.breakdown || breakdown;
             }
             const result = await this._makeBooking(
                 new CalendarEvent({
