@@ -53,6 +53,7 @@ export class Asset {
     type_id: string = '';
     description: string = '';
     serial_number: string = '';
+    barcode: string = '';
     identifier: string = '';
     other_data: Record<string, any> = {};
     purchase_order_id: string = '';

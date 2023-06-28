@@ -97,6 +97,18 @@ import { OrganisationService } from '@placeos/organisation';
                             </mat-error>
                         </mat-form-field>
                     </div>
+                    <div class="flex flex-1 flex-col space-y-2">
+                        <label for="serial-number">Barcode</label>
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                name="barcode"
+                                placeholder="Barcode"
+                                formControlName="barcode"
+                            />
+                            <mat-error>Barcode is required</mat-error>
+                        </mat-form-field>
+                    </div>
                 </main>
                 <footer
                     class="flex justify-end space-x-2 p-2 border-t border-gray-100"
