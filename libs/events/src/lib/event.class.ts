@@ -20,7 +20,7 @@ import {
     FileDetails,
     RecurrenceDetails,
 } from './event.interfaces';
-import { eventStatus } from './helpers';
+import { eventStatus, parseRecurrence } from './helpers';
 
 let _default_user: Identity = { id: 'default', name: 'Default User' };
 
@@ -202,6 +202,7 @@ export class CalendarEvent {
                     ).valueOf(),
                 interval: data.recurrence.interval,
                 pattern: data.recurrence.pattern,
+                occurrences: data.recurrence.occurrences,
                 days_of_week:
                     data.recurrence.days_of_week?.map((_) =>
                         typeof _ === 'number' ? _ : DAYS_OF_WEEK.indexOf(_)
@@ -267,14 +268,10 @@ export class CalendarEvent {
         (this as any).recurring =
             this.recurrence?.pattern && this.recurrence._pattern !== 'none';
         if (this.recurring) {
-            obj.recurrence = {
+            obj.recurrence = parseRecurrence({
                 ...this.recurrence,
-                range_start: obj.event_start,
-                range_end: getUnixTime(endOfDay(this.recurrence.end)),
-                days_of_week: this.recurrence.days_of_week.map(
-                    (_) => DAYS_OF_WEEK[_]
-                ),
-            };
+                start: this.date,
+            });
             delete obj.recurrence.start;
             delete obj.recurrence.end;
         }

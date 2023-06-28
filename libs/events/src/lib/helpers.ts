@@ -7,10 +7,13 @@ import {
     addWeeks,
     addYears,
     differenceInMinutes,
+    endOfDay,
     format,
+    getUnixTime,
     isAfter,
     isBefore,
     isSameMinute,
+    startOfDay,
     startOfMinute,
 } from 'date-fns';
 import { Space } from 'libs/spaces/src/lib/space.class';
@@ -23,6 +26,16 @@ import {
     TimeBlock,
     TimePeriod,
 } from './event.interfaces';
+
+const DAYS_OF_WEEK = [
+    'sunday',
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday',
+];
 
 export function eventStatus(
     details: HashMap
@@ -48,6 +61,49 @@ export function eventStatus(
     return 'approved';
 }
 
+export function parseRecurrence(data: RecurrenceDetails) {
+    let start = data.start || (data as any).range_start * 1000;
+    let end = data.end || (data as any).range_end;
+    if (data.occurrences > 1) {
+        switch (data.pattern) {
+            case 'daily':
+                end = addDays(
+                    start || Date.now(),
+                    (data.occurrences - 1) * data.interval
+                ).valueOf();
+                break;
+            case 'weekly':
+                end = addWeeks(
+                    start || Date.now(),
+                    (data.occurrences - 1) * data.interval
+                ).valueOf();
+                break;
+            case 'monthly':
+                end = addMonths(
+                    start || Date.now(),
+                    (data.occurrences - 1) * data.interval
+                ).valueOf();
+                break;
+            case 'yearly':
+                end = addYears(
+                    start || Date.now(),
+                    (data.occurrences - 1) * data.interval
+                ).valueOf();
+                break;
+        }
+    }
+    return {
+        range_start: getUnixTime(startOfDay(start)),
+        range_end: getUnixTime(endOfDay(end)),
+        interval: data.interval,
+        pattern: data.pattern,
+        days_of_week:
+            data.days_of_week?.map((_) =>
+                typeof _ === 'number' ? DAYS_OF_WEEK[_] : _
+            ) || [],
+    };
+}
+
 export function formatRecurrence({
     interval,
     pattern,
@@ -66,7 +122,7 @@ export function formatRecurrence({
                 if (occurrences > 1)
                     end = addDays(
                         start || Date.now(),
-                        occurrences - 1
+                        (occurrences - 1) * interval
                     ).valueOf();
                 break;
             case 'weekly':
@@ -76,7 +132,7 @@ export function formatRecurrence({
                 if (occurrences > 1)
                     end = addWeeks(
                         start || Date.now(),
-                        occurrences - 1
+                        (occurrences - 1) * interval
                     ).valueOf();
                 break;
             case 'monthly':
@@ -86,7 +142,7 @@ export function formatRecurrence({
                 if (occurrences > 1)
                     end = addMonths(
                         start || Date.now(),
-                        occurrences - 1
+                        (occurrences - 1) * interval
                     ).valueOf();
                 break;
             case 'yearly':
@@ -96,7 +152,7 @@ export function formatRecurrence({
                 if (occurrences > 1)
                     end = addYears(
                         start || Date.now(),
-                        occurrences - 1
+                        (occurrences - 1) * interval
                     ).valueOf();
                 break;
         }
