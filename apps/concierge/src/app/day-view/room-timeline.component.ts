@@ -211,9 +211,20 @@ import { time } from 'console';
                                         class="relative w-full h-full shadow bg-gray-100 hover:bg-gray-200 rounded-lg overflow-hidden px-3 py-1 text-xs"
                                     >
                                         <div
-                                            class="absolute left-0 inset-y-0 w-1 bg-pink-600"
+                                            class="absolute left-0 inset-y-0 w-1 "
+                                            [class.bg-pink-600]="
+                                                event.status !== 'cancelled'
+                                            "
+                                            [class.bg-red-600]="
+                                                event.status === 'cancelled'
+                                            "
                                         ></div>
-                                        <p class="truncate">
+                                        <p
+                                            class="truncate"
+                                            [class.opacity-60]="
+                                                event.status === 'cancelled'
+                                            "
+                                        >
                                             {{ event.date | date: 'shortTime' }}
                                             &ndash;
                                             {{
@@ -221,7 +232,12 @@ import { time } from 'console';
                                                     event.hjost
                                             }}
                                         </p>
-                                        <p class="truncate">
+                                        <p
+                                            class="truncate"
+                                            [class.opacity-60]="
+                                                event.status === 'cancelled'
+                                            "
+                                        >
                                             {{ event.title }}
                                         </p>
                                     </div>
