@@ -21,9 +21,9 @@ import { addYears, format } from 'date-fns';
                 <mat-option value="weekly">
                     Weekly on {{ date | date: 'EEEE' }}
                 </mat-option>
-                <!-- <mat-option value="monthly">
-                    Last {{ date | date: 'EEEE' }} of Month
-                </mat-option> -->
+                <mat-option value="monthly">
+                    {{ instance_of_month }} {{ date | date: 'EEEE' }} of Month
+                </mat-option>
                 <!-- <mat-option value="yearly">
                     Anually on {{ date | date: 'LLLL dd' }}
                 </mat-option> -->
@@ -61,6 +61,7 @@ import { addYears, format } from 'date-fns';
 export class RecurrenceFieldComponent implements ControlValueAccessor {
     /** Size of a single step */
     @Input() public date = Date.now();
+    public instance_of_month: string;
     public old_value: string;
     public value: RecurrenceDetails = { pattern: 'none' } as any;
 
@@ -73,7 +74,14 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.date && this.date) {
-            console.log('Date:', format(this.date, 'yyyy-MM-dd'));
+            const date = new Date(this.date).getDate();
+            const instance = Math.floor(date / 7) + (date % 7 ? 1 : 0);
+            this.instance_of_month = `${instance}${
+                instance === 2 ? 'nd' : instance === 3 ? 'rd' : 'th'
+            }`;
+            if ((instance === 4 && date >= 25) || instance === 5)
+                this.instance_of_month = 'Last';
+            if (instance === 1) this.instance_of_month = 'First';
             this.value = {
                 ...this.value,
                 start: this.date,
