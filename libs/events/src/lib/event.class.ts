@@ -287,8 +287,9 @@ export class CalendarEvent {
             ],
             'email'
         );
-        if (!this.all_day) {
-            obj.extension_data.breakdown = 15;
+        if (this.all_day) {
+            delete obj.extension_data.setup;
+            delete obj.extension_data.breakdown;
         }
         obj.extension_data.catering = obj.extension_data.catering.map(
             (i) => new CateringOrder({ ...i, event: null })

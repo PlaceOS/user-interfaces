@@ -24,7 +24,7 @@ import { CalendarEvent } from '@placeos/events';
                     <app-icon>chevron_right</app-icon>
                 </button>
                 <h3 class="flex-1">
-                    Pending Approval ({{ (pending | async).length || '0' }})
+                    Pending Approval ({{ (pending | async)?.length || '0' }})
                 </h3>
                 <button btn icon matRipple>
                     <app-icon>search</app-icon>
