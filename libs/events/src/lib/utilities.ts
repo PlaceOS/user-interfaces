@@ -58,7 +58,7 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
         all_day: new FormControl(event.all_day),
         recurring: new FormControl(event.recurring),
         recurrence: new FormControl(event.recurrence),
-        recurring_master_id: new FormControl(event.recurring_master_id),
+        recurring_event_id: new FormControl(event.recurring_event_id),
         master: new FormControl(event.master),
         attachments: new FormControl(event.attachments),
         catering: new FormControl(
