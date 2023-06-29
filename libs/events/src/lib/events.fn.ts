@@ -105,7 +105,11 @@ export const saveEvent = (
 ) => {
     delete (data as any)?.status;
     return data.id
-        ? updateEvent(data.recurring_event_id || data.id, data, q)
+        ? updateEvent(
+              data.recurring_event_id || data.id,
+              { ...data, id: data.recurring_event_id || data.id },
+              q
+          )
         : createEvent(data);
 };
 
@@ -231,14 +235,14 @@ export function querySpaceAvailability(
         period_start: getUnixTime(start),
         period_end: getUnixTime(addMinutes(start, duration)),
     }).pipe(
-        map((_) =>
+        map((booking_list) =>
             id_list.map(
                 (id) =>
-                    _.filter(
-                        (b) =>
-                            b.resources?.find((s) => s.id === id) &&
-                            b.id !== ignore &&
-                            b.ical_uid !== ignore
+                    booking_list.filter(
+                        (booking) =>
+                            booking.resources?.find((s) => s.id === id) &&
+                            booking.id !== ignore &&
+                            booking.ical_uid !== ignore
                     ).length === 0
             )
         )
