@@ -234,15 +234,8 @@ export function deleteAssetPurchaseOrder(id: string) {
 //////////////////////////////////////
 
 export function getGroupsWithAssets(query: any = {}) {
-    return combineLatest([queryAssetGroups(query), queryAssets(query)]).pipe(
-        map(([products, assets]) => {
-            for (const product of products) {
-                product.assets = assets.filter(
-                    (asset) => (asset as any).asset_type_id === product.id
-                );
-            }
-            return products;
-        })
+    return combineLatest([queryAssetGroups(query)]).pipe(
+        map(([products]) => products)
     );
 }
 

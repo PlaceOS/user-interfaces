@@ -69,13 +69,13 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         <div
                                             class="text-xs opacity-60"
                                             *ngIf="
-                                                asset.count ||
+                                                asset.asset_count ||
                                                 asset.assets?.length
                                             "
                                         >
                                             Assets:
                                             {{
-                                                asset.count ||
+                                                asset.asset_count ||
                                                     asset.assets?.length ||
                                                     0
                                             }}
@@ -129,13 +129,13 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         <div
                                             class="text-xs opacity-60"
                                             *ngIf="
-                                                asset.count ||
+                                                asset.asset_count ||
                                                 asset.assets?.length
                                             "
                                         >
                                             Assets:
                                             {{
-                                                asset.count ||
+                                                asset.asset_count ||
                                                     asset.assets?.length ||
                                                     0
                                             }}

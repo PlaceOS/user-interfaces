@@ -34,6 +34,7 @@ export class AssetGroup {
     name: string;
     in_use: number;
     description: string;
+    asset_count: number;
     category?: AssetCategory;
     assets?: Asset[];
     images: string[] = [];
