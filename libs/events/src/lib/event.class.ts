@@ -95,7 +95,7 @@ export class CalendarEvent {
     /** Details about the event's recurrence */
     public readonly recurrence: RecurrenceDetails;
     /** ID of the parent recurring event */
-    public readonly recurring_master_id: string;
+    public readonly recurring_event_id: string;
     /** Whether event details should be private */
     public readonly private: boolean;
     /** File attachements for the event */
@@ -179,7 +179,7 @@ export class CalendarEvent {
         this.meeting_provider =
             data.meeting_provider || data.online_meeting_provider || '';
         this.recurring = !!data.recurring;
-        this.recurring_master_id = data.recurring_master_id || '';
+        this.recurring_event_id = data.recurring_event_id || '';
         this.organiser = this.attendees.find(
             (user) => user.email === this.host
         );

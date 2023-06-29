@@ -104,7 +104,9 @@ export const saveEvent = (
     q?: CalendarEventShowParams
 ) => {
     delete (data as any)?.status;
-    return data.id ? updateEvent(data.id, data, q) : createEvent(data);
+    return data.id
+        ? updateEvent(data.recurring_event_id || data.id, data, q)
+        : createEvent(data);
 };
 
 /**
