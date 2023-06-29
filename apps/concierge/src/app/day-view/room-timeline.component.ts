@@ -183,7 +183,8 @@ import { time } from 'console';
                                             endToOffset(
                                                 event.duration +
                                                     (event.ext('setup') || 0) +
-                                                    event.ext('breakdown') || 0
+                                                    (event.ext('breakdown') ||
+                                                        0)
                                             ) + 'px'
                                         "
                                         [style.top]="
@@ -197,7 +198,13 @@ import { time } from 'console';
                                             (ui_options | async)
                                                 ?.show_overflow &&
                                             (event.ext('setup') ||
-                                                event.ext('breakdown'))
+                                                event.ext('breakdown')) &&
+                                            endToOffset(
+                                                event.duration +
+                                                    (event.ext('setup') || 0) +
+                                                    (event.ext('breakdown') ||
+                                                        0)
+                                            )
                                         "
                                     ></div>
                                     <div

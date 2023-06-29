@@ -163,11 +163,11 @@ export class DayviewEventComponent implements OnChanges {
             this.top = diff / DAY_IN_MINUTES;
             this.height = this.event.duration / DAY_IN_MINUTES;
             this.overflow_top =
-                (diff - this.event.ext('setup')) / DAY_IN_MINUTES;
+                (diff - (this.event.ext('setup') || 0)) / DAY_IN_MINUTES;
             this.overflow_height =
                 (this.event.duration +
-                    this.event.ext('setup') +
-                    this.event.ext('breakdown')) /
+                    (this.event.ext('setup') || 0) +
+                    (this.event.ext('breakdown') || 0)) /
                 DAY_IN_MINUTES;
         }
     }
