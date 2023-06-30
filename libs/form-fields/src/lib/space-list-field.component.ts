@@ -217,6 +217,7 @@ export class SpaceListFieldComponent implements ControlValueAccessor {
     public readonly setDisabledState = (s: boolean) => (this.disabled = s);
 
     public toggleFavourite(space: Space) {
+        if (!space?.id) return;
         const fav_list = this.favorites;
         const new_state = !fav_list.includes(space.id);
         if (new_state) {
