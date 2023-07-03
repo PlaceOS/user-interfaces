@@ -121,6 +121,8 @@ export class CalendarEvent {
 
     public readonly linked_bookings: LinkedBooking[];
 
+    public readonly update_master: boolean;
+
     /** Get field from extension data */
     public ext<K extends keyof EventExtensionData>(key: K) {
         return this.extension_data[key];
@@ -188,6 +190,7 @@ export class CalendarEvent {
         this.mailbox = data.mailbox || '';
         this.ical_uid = data.ical_uid;
         this.linked_bookings = data.linked_bookings || [];
+        this.update_master = data.update_master ?? false;
         if (data.recurring) {
             this.recurrence = {
                 start:
@@ -299,6 +302,7 @@ export class CalendarEvent {
         delete obj.date;
         delete obj.duration;
         delete obj.status;
+        if (!obj.update_master) delete obj.recurring_event_id;
         removeEmptyFields(obj);
         return obj;
     }

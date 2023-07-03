@@ -38,7 +38,7 @@ import {
     saveBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
 import { CalendarEvent } from './event.class';
-import { querySpaceAvailability, saveEvent } from './events.fn';
+import { querySpaceAvailability, saveEvent, showEvent } from './events.fn';
 import { generateEventForm, newCalendarEventFromBooking } from './utilities';
 import { newBookingFromCalendarEvent } from 'libs/bookings/src/lib/booking.utilities';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
@@ -363,6 +363,16 @@ export class EventFormService extends AsyncHandler {
 
     public async newForm(event: CalendarEvent = new CalendarEvent()) {
         this._event.next(event);
+        if (event.recurring_event_id) {
+            const master = await showEvent(
+                event.recurring_event_id
+            ).toPromise();
+            console.log('Recurrence:', master.recurrence);
+            (this._event.getValue() as any).recurrence = {
+                ...master.recurrence,
+                _pattern: master.recurrence.pattern,
+            };
+        }
         this._assets.setOptions({
             ignore: event.extension_data.assets?.map((_) => _.id),
         });

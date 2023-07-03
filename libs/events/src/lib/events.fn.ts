@@ -106,7 +106,7 @@ export const saveEvent = (
     delete (data as any)?.status;
     return data.id
         ? updateEvent(
-              data.recurring_event_id || data.id,
+              data.update_master ? data.recurring_event_id || data.id : data.id,
               { ...data, id: data.recurring_event_id || data.id },
               q
           )
