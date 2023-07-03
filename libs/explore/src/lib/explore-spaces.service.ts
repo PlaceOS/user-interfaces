@@ -96,7 +96,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
             return notifyError(
                 `${
                     space.display_name || space.name
-                } is unavailable at the current time`
+                } is unavailable for the selected time and duration`
             );
         }
         this._event_form.newForm();
