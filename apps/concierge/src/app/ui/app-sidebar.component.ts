@@ -188,7 +188,7 @@ export class ApplicationSidebarComponent extends AsyncHandler {
         {
             id: 'events',
             name: 'Events',
-            route: ['/entertainment/new/events'],
+            route: ['/entertainment/events'],
             icon: 'confirmation_number',
         },
         {

@@ -65,6 +65,13 @@ const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
     },
     {
+        path: 'entertainment/events',
+        loadChildren: () =>
+            import('./events/events.module').then((m) => m.EventsModule),
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+    },
+    {
         path: 'users/staff',
         loadChildren: () =>
             import('./staff/staff.module').then((m) => m.StaffModule),

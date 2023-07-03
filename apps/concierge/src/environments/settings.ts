@@ -86,6 +86,7 @@ const app = {
         'points',
         'surveys',
         'catering',
+        'events',
         'booking-report',
         'contact-tracing-report',
     ],
