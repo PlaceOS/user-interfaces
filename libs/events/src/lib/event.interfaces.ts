@@ -158,4 +158,8 @@ export interface TimeBlock {
 export interface TimePeriod extends Record<string, any> {
     date: number;
     duration: number;
+    extension_data?: {
+        setup?: number;
+        breakdown?: number;
+    };
 }

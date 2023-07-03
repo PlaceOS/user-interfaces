@@ -176,8 +176,13 @@ export function getFreeTimeSlots(
     const slots: TimeBlock[] = [];
     list.sort((a, b) => a.date - b.date);
     for (const booking of list) {
-        const bkn_start = new Date(booking.date);
-        const bkn_end = addMinutes(booking.date, booking.duration);
+        const bkn_start = new Date(
+            addMinutes(booking.date, -booking.extension_data?.setup || 0)
+        );
+        const bkn_end = addMinutes(
+            booking.date,
+            booking.duration + (booking.extension_data?.breakdown || 0)
+        );
         if (isAfter(booking.date, start)) {
             const diff = Math.abs(differenceInMinutes(bkn_start, start));
             if (diff >= min_size) {
