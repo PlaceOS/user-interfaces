@@ -83,6 +83,7 @@ export function parseRecurrence(data: RecurrenceDetails) {
                     start || Date.now(),
                     (data.occurrences - 1) * data.interval
                 ).valueOf();
+                end = addDays(end, 7).valueOf();
                 break;
             case 'yearly':
                 end = addYears(
