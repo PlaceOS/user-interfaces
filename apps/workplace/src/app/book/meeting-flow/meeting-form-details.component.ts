@@ -95,6 +95,12 @@ import { addDays, endOfDay } from 'date-fns';
                     [date]="form.value.date"
                     formControlName="recurrence"
                 ></recurrence-field>
+                <mat-checkbox
+                    *ngIf="form.value.id"
+                    formControlName="update_master"
+                >
+                    Update all future events
+                </mat-checkbox>
             </div>
         </div>
     `,
