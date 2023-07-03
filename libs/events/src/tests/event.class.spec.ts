@@ -26,7 +26,7 @@ describe('CalendarEvent', () => {
         );
         expect(event.location).toBe('');
         expect(event.recurring).toBe(false);
-        expect(event.recurring_master_id).toBe('');
+        expect(event.recurring_event_id).toBe('');
         expect(event.attachments).toEqual([]);
         expect(event.system).toBeNull();
         expect(event.extension_data).toEqual({ catering: [] });
@@ -48,7 +48,7 @@ describe('CalendarEvent', () => {
             location: 'Home',
             recurring: true,
             recurrence: {} as any,
-            recurring_master_id: 'Another',
+            recurring_event_id: 'Another',
             attachments: [{ name: 'file.png', blob: null }],
         });
         expect(event.id).toBe('One');
@@ -70,7 +70,7 @@ describe('CalendarEvent', () => {
         expect(event.timezone).toBe('Australia/Sydney');
         expect(event.location).toBe('Home');
         expect(event.recurring).toBe(true);
-        expect(event.recurring_master_id).toBe('Another');
+        expect(event.recurring_event_id).toBe('Another');
         expect(event.attachments).toEqual([{ name: 'file.png', blob: null }]);
         expect(event.system).toBeTruthy();
         expect(event.extension_data).toEqual({ catering: [] });
