@@ -37,6 +37,20 @@ import { map } from 'rxjs/operators';
             <button
                 mat-ripple
                 class="w-full flex items-center space-x-2 p-3 border-t border-neutral-500 hover:bg-white/20"
+                *ngIf="(regions | async).length > 1"
+                [matMenuTriggerFor]="menu"
+            >
+                <app-icon>resize</app-icon>
+                <div class="truncate">
+                    {{
+                        (active_building | async)?.display_name ||
+                            (active_building | async)?.name
+                    }}
+                </div>
+            </button>
+            <button
+                mat-ripple
+                class="w-full flex items-center space-x-2 p-3 border-t border-neutral-500 hover:bg-white/20"
                 *ngIf="(buildings | async).length > 1"
                 [matMenuTriggerFor]="menu"
             >
@@ -48,7 +62,7 @@ import { map } from 'rxjs/operators';
                     }}
                 </div>
             </button>
-            <div class="p-2">
+            <div class="p-2 border-t border-neutral-500">
                 <div class="text-xs opacity-60 w-full">
                     <ng-container i18n>Version: </ng-container>
                     <button
@@ -64,6 +78,23 @@ import { map } from 'rxjs/operators';
                 </div>
             </div>
         </div>
+        <mat-menu #menu="matMenu">
+            <div class="w-64">
+                <mat-radio-group
+                    aria-label="Select a region"
+                    class="flex flex-col"
+                    [ngModel]="(active_region | async)?.id"
+                >
+                    <mat-radio-button
+                        [value]="region.id"
+                        *ngFor="let region of regions | async"
+                        (click)="setRegion(region)"
+                    >
+                        {{ region.display_name || region.name }}
+                    </mat-radio-button>
+                </mat-radio-group>
+            </div>
+        </mat-menu>
         <mat-menu #menu="matMenu">
             <div class="w-64">
                 <mat-radio-group
@@ -99,13 +130,20 @@ export class SidebarComponent {
         return this._settings.get('app.logo_dark') || {};
     }
 
+    public readonly regions = this._org.region_list.pipe(
+        map((l) =>
+            l.sort((a, b) => a.display_name?.localeCompare(b.display_name))
+        )
+    );
     public readonly buildings = this._org.building_list.pipe(
         map((l) =>
             l.sort((a, b) => a.display_name?.localeCompare(b.display_name))
         )
     );
+    public readonly active_region = this._org.active_region;
     public readonly active_building = this._org.active_building;
     public readonly setBuilding = (b) => (this._org.building = b);
+    public readonly setRegion = (r) => (this._org.region = r);
 
     public get version() {
         return VERSION;
