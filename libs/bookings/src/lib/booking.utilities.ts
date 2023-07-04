@@ -49,8 +49,8 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         booker || user
             ? form.patchValue(
                   {
-                      user_id: user.id || booker.id,
-                      user_email: user.email || booker.id,
+                      user_id: user?.id || booker?.id,
+                      user_email: user?.email || booker?.id,
                       booked_by_id: booker?.id,
                       booked_by_email: booker?.email,
                   },
