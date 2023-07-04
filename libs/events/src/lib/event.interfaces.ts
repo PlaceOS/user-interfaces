@@ -58,10 +58,11 @@ export interface RecurrenceDetails {
         | 'daily'
         | 'weekly'
         | 'monthly'
+        | 'month_day'
         | 'yearly'
         | 'custom_display';
     /** Frequency of the event */
-    pattern: 'daily' | 'weekly' | 'monthly' | 'yearly';
+    pattern: 'daily' | 'weekly' | 'monthly' | 'month_day' | 'yearly';
     /** Interval to be used with pattern */
     interval: number;
     /** Number of re-occurences to create for this event */

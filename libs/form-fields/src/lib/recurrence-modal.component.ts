@@ -27,7 +27,7 @@ import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
                         <mat-option value="weekly">
                             week{{ data.interval === 1 ? 's' : '' }}
                         </mat-option>
-                        <mat-option value="monthly">
+                        <mat-option value="month_day">
                             month{{ data.interval === 1 ? 's' : '' }}
                         </mat-option>
                         <!-- <mat-option value="yearly">
