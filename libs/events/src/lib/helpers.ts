@@ -78,6 +78,7 @@ export function parseRecurrence(data: RecurrenceDetails) {
                     (data.occurrences - 1) * data.interval
                 ).valueOf();
                 break;
+            case 'month_day':
             case 'monthly':
                 end = addMonths(
                     start || Date.now(),
