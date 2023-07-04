@@ -45,14 +45,14 @@ export function generateBookingForm(booking: Booking = new Booking()) {
     });
     form.valueChanges.subscribe((v) => {
         const user = v.user;
-        const booker = v.booked_by;
+        const booker = v.booked_by || currentUser();
         booker || user
             ? form.patchValue(
                   {
                       user_id: user.id || booker.id,
                       user_email: user.email || booker.id,
-                      booked_by_id: booker.id,
-                      booked_by_email: booker.email,
+                      booked_by_id: booker?.id,
+                      booked_by_email: booker?.email,
                   },
                   { emitEvent: false }
               )
