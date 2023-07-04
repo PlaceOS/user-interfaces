@@ -137,6 +137,7 @@ export function formatRecurrence({
                         (occurrences - 1) * interval
                     ).valueOf();
                 break;
+            case 'month_day':
             case 'monthly':
                 details = details.concat(
                     interval > 1 ? `Every ${interval} months` : 'Monthly'
