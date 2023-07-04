@@ -367,7 +367,6 @@ export class EventFormService extends AsyncHandler {
             const master = await showEvent(
                 event.recurring_event_id
             ).toPromise();
-            console.log('Recurrence:', master.recurrence);
             (this._event.getValue() as any).recurrence = {
                 ...master.recurrence,
                 _pattern: master.recurrence.pattern,

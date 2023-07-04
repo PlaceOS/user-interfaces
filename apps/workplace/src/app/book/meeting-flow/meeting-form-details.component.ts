@@ -9,9 +9,7 @@ import { addDays, endOfDay } from 'date-fns';
         <div *ngIf="form" [formGroup]="form">
             <div class="flex items-center flex-wrap sm:space-x-2">
                 <div class="flex-1 min-w-[256px]">
-                    <label for="title"
-                        >{{ 'FORM.TITLE' | translate }}<span>*</span></label
-                    >
+                    <label for="title">{{ 'FORM.TITLE' | translate }}</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
