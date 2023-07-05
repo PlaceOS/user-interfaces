@@ -25,7 +25,7 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
                     </div>
                 </a>
                 <a
-                    [routerLink]="['/reports', 'spaces']"
+                    [routerLink]="['/reports', 'bookings']"
                     matRipple
                     *ngIf="features.includes('spaces')"
                     class="h-64 w-64 p-4 flex flex-col items-center justify-center bg-white dark:bg-neutral-700 rounded shadow hover:opacity-80 border border-gray-200"
