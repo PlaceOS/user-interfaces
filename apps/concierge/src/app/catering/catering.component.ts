@@ -33,7 +33,7 @@ import { AsyncHandler } from '@placeos/common';
                         <a
                             matRipple
                             class="rounded flex flex-col items-center bg-white dark:bg-neutral-700 shadow text-black dark:text-white"
-                            [routerLink]="['/catering', 'menu']"
+                            [routerLink]="['/book', 'catering', 'menu']"
                         >
                             <div
                                 name="img"
@@ -56,7 +56,7 @@ import { AsyncHandler } from '@placeos/common';
                         <a
                             matRipple
                             class="rounded flex flex-col items-center bg-white dark:bg-neutral-700 shadow text-black dark:text-white"
-                            [routerLink]="['/catering', 'orders']"
+                            [routerLink]="['/book', 'catering', 'orders']"
                         >
                             <div
                                 name="img"
