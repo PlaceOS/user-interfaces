@@ -243,7 +243,7 @@ export function showGroupFull(id: string, query: any = {}) {
     return combineLatest([
         showAssetGroup(id),
         queryAssetCategories(),
-        queryAssets({ ...query, type_id: id }),
+        queryAssets({ ...query, type_id: id, limit: 1000 }),
         queryAssetPurchaseOrders(),
     ]).pipe(
         map(([product, categories, assets, purchase_orders]) => {
