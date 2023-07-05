@@ -151,7 +151,7 @@ export class LandingAvailabilityComponent {
     public readonly loading_spaces = this._state.loading_spaces;
     public readonly levels_free = this._state.level_occupancy;
 
-    public book = (s) => this._explore.bookSpace(s);
+    public book = (s) => this._explore.bookSpace(s, true);
 
     public trackBySpaceId(index: number, space: Space) {
         return space.id;
