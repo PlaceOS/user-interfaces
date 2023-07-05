@@ -11,6 +11,7 @@ import {
     isSameDay,
     roundToNearestMinutes,
     set,
+    startOfDay,
 } from 'date-fns';
 import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
 import { Space } from 'libs/spaces/src/lib/space.class';
@@ -21,6 +22,7 @@ import {
     RecurrenceDetails,
 } from './event.interfaces';
 import { eventStatus, parseRecurrence } from './helpers';
+import { start } from 'repl';
 
 let _default_user: Identity = { id: 'default', name: 'Default User' };
 
@@ -174,6 +176,9 @@ export class CalendarEvent {
             : data.duration ||
               differenceInMinutes(data.event_end * 1000, this.date) ||
               30;
+        if (this.all_day) {
+            (this as any).date = startOfDay(this.date).getTime();
+        }
         this.timezone =
             data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.meeting_url = data.meeting_url || data.online_meeting_url || '';
