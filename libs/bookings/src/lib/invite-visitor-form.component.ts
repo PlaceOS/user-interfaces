@@ -25,9 +25,9 @@ import { User } from 'libs/users/src/lib/user.class';
                 </div>
                 <form *ngIf="form" [formGroup]="form" class="p-4">
                     <div class="flex flex-col" *ngIf="buildings?.length > 1">
-                        <label for="building" i18n
-                            >Building<span>*</span></label
-                        >
+                        <label for="building" i18n>
+                            Building<span>*</span>
+                        </label>
                         <mat-form-field appearance="outline">
                             <mat-select
                                 [ngModel]="form.value.zones[0]"

@@ -9,10 +9,14 @@ import { addMinutes } from 'date-fns';
         <div class="w-full h-full flex flex-col">
             <div class="flex items-center justify-between p-8">
                 <h2 class="text-2xl font-medium">Events</h2>
-                <button btn matRipple>
-                    Create Event
-                    <app-icon>chevron_right</app-icon>
-                </button>
+                <a
+                    btn
+                    matRipple
+                    [routerLink]="['/entertainment', 'events', 'manage']"
+                >
+                    <div class="ml-2">Create Event</div>
+                    <app-icon class="text-2xl">chevron_right</app-icon>
+                </a>
             </div>
             <div filters class=""></div>
             <div class="h-1/2 flex-1 w-full px-8 overflow-auto">
@@ -129,7 +133,13 @@ import { addMinutes } from 'date-fns';
             </mat-menu>
         </ng-template>
     `,
-    styles: [``],
+    styles: [
+        `
+            :host {
+                flex: 1;
+            }
+        `,
+    ],
 })
 export class EventsListComponent {
     public event_list = [

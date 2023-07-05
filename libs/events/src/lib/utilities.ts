@@ -82,6 +82,9 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
         needs_parking: new FormControl(
             event.extension_data?.needs_parking || false
         ),
+        event_type: new FormControl(event.extension_data?.event_type || ''),
+        category: new FormControl(event.extension_data?.category || ''),
+        tags: new FormControl(event.extension_data?.tags || []),
         update_master: new FormControl(false),
         system: new FormControl<any>(event.system),
     });

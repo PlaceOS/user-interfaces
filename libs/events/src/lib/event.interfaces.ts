@@ -44,6 +44,9 @@ export interface EventExtensionData {
     host_override: string;
     /** Name of the organisational department of the host */
     department: string;
+    event_type?: string;
+    category?: string;
+    tags?: string[];
 }
 
 export interface RecurrenceDetails {

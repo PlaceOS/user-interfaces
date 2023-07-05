@@ -82,7 +82,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         this.subscription('spaces', this._bind.subscribe());
     }
 
-    public bookSpace(space: Space) {
+    public bookSpace(space: Space, force: boolean = false) {
         const { hidden } =
             rulesForSpace(
                 { date: Date.now(), duration: 60, space, host: currentUser() },
@@ -92,7 +92,10 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
             return notifyError(
                 'You do not have permission to book this space at this time.'
             );
-        if (this._statuses[space.id] !== 'free' || !space.bookable) {
+        if (
+            (this._statuses[space.id] !== 'free' && !force) ||
+            !space.bookable
+        ) {
             return notifyError(
                 `${
                     space.display_name || space.name
