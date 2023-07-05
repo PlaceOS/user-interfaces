@@ -43,8 +43,8 @@ import { map } from 'rxjs/operators';
                 <app-icon>resize</app-icon>
                 <div class="truncate">
                     {{
-                        (active_building | async)?.display_name ||
-                            (active_building | async)?.name
+                        (active_region | async)?.display_name ||
+                            (active_region | async)?.name
                     }}
                 </div>
             </button>
@@ -81,23 +81,6 @@ import { map } from 'rxjs/operators';
         <mat-menu #menu="matMenu">
             <div class="w-64">
                 <mat-radio-group
-                    aria-label="Select a region"
-                    class="flex flex-col"
-                    [ngModel]="(active_region | async)?.id"
-                >
-                    <mat-radio-button
-                        [value]="region.id"
-                        *ngFor="let region of regions | async"
-                        (click)="setRegion(region)"
-                    >
-                        {{ region.display_name || region.name }}
-                    </mat-radio-button>
-                </mat-radio-group>
-            </div>
-        </mat-menu>
-        <mat-menu #menu="matMenu">
-            <div class="w-64">
-                <mat-radio-group
                     aria-label="Select a building"
                     class="flex flex-col"
                     [ngModel]="(active_building | async)?.id"
@@ -108,6 +91,23 @@ import { map } from 'rxjs/operators';
                         (click)="setBuilding(building)"
                     >
                         {{ building.display_name || building.name }}
+                    </mat-radio-button>
+                </mat-radio-group>
+            </div>
+        </mat-menu>
+        <mat-menu #menu="matMenu">
+            <div class="w-64">
+                <mat-radio-group
+                    aria-label="Select a region"
+                    class="flex flex-col"
+                    [ngModel]="(active_region | async)?.id"
+                >
+                    <mat-radio-button
+                        [value]="region?.id"
+                        *ngFor="let region of regions | async"
+                        (click)="setRegion(region)"
+                    >
+                        {{ region?.display_name || region?.name }}
                     </mat-radio-button>
                 </mat-radio-group>
             </div>
