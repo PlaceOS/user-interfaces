@@ -54,6 +54,7 @@ describe('ExploreMapViewComponent', () => {
                 initialised: of(true),
                 levelWithID: jest.fn(),
                 binding: jest.fn(() => 'sys'),
+                active_levels: new BehaviorSubject([]),
             }),
             MockProvider(SpacesService, { initialised: of(true) }),
             MockProvider(ExploreStateService, {

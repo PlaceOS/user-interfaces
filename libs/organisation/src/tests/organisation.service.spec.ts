@@ -97,7 +97,7 @@ describe('OrganisationService', () => {
         expect(router.navigate).toHaveBeenCalledWith(['/misconfigured']);
         (ts_client as any).queryZones = jest.fn(() => of({ data: lvls }));
         await spectator.service.loadLevels();
-        expect(spectator.service.levels).toHaveLength(1);
+        expect(spectator.service.levels).toHaveLength(2);
         expect(spectator.service.levels[0]).toBeInstanceOf(BuildingLevel);
         const levels = await spectator.service.level_list
             .pipe(take(1))

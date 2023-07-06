@@ -1,6 +1,6 @@
 import { Space } from '@placeos/spaces';
 import { setInternalUserDomain, User } from '@placeos/users';
-import { add, getUnixTime, sub } from 'date-fns';
+import { add, getUnixTime, startOfDay, startOfHour, sub } from 'date-fns';
 import { CalendarEvent, setDefaultCreator } from '../lib/event.class';
 
 describe('CalendarEvent', () => {
@@ -116,7 +116,7 @@ describe('CalendarEvent', () => {
     it('should expose whether event can be checked in', () => {
         expect(event.can_check_in).toBeTruthy();
         event = new CalendarEvent({
-            date: sub(new Date(), { minutes: 45 }).valueOf(),
+            date: startOfHour(new Date()).valueOf(),
         });
         expect(event.can_check_in).toBeTruthy();
         event = new CalendarEvent({
@@ -128,7 +128,7 @@ describe('CalendarEvent', () => {
         });
         expect(event.can_check_in).toBeFalsy();
         event = new CalendarEvent({
-            date: sub(new Date(), { days: 1, minutes: -1 }).valueOf(),
+            date: startOfDay(new Date()).valueOf(),
             all_day: true,
         });
         expect(event.can_check_in).toBeTruthy();

@@ -2,7 +2,7 @@ import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { Space, SpacesService } from '@placeos/spaces';
-import { of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { take } from 'rxjs/operators';
 
 import { ExploreStateService } from '../lib/explore-state.service';
@@ -10,38 +10,37 @@ import { ExploreStateService } from '../lib/explore-state.service';
 jest.mock('@placeos/ts-client');
 
 import * as client from '@placeos/ts-client';
+import { MockProvider } from 'ng-mocks';
 
 describe('ExploreStateService', () => {
     let spectator: SpectatorService<ExploreStateService>;
     const createService = createServiceFactory({
         service: ExploreStateService,
         providers: [
-            {
-                provide: OrganisationService,
-                useValue: {
-                    initialised: of(true),
-                    active_building: of({ id: 'bld-1' }),
-                    levelsForBuilding: jest.fn(() => [
-                        { id: 'lvl-1' },
-                        { id: 'lvl-2' },
-                    ]),
-                    levelWithID: jest.fn((l) =>
-                        [{ id: 'lvl-1' }, { id: 'lvl-2' }].find((lvl) =>
-                            l.includes(lvl.id)
-                        )
-                    ),
-                },
-            },
-            {
-                provide: SpacesService,
-                useValue: {
-                    list: of([
-                        { id: 'space-1', zones: ['bld-1', 'lvl-1'] },
-                        { id: 'space-2', zones: ['bld-2', 'lvl-2'] },
-                    ]),
-                },
-            },
-            { provide: SettingsService, useValue: { get: jest.fn() } },
+            MockProvider(OrganisationService, {
+                initialised: of(true),
+                active_building: of({ id: 'bld-1' }),
+                levelsForBuilding: jest.fn(() => [
+                    { id: 'lvl-1' },
+                    { id: 'lvl-2' },
+                ]),
+                levelWithID: jest.fn((l) =>
+                    [{ id: 'lvl-1' }, { id: 'lvl-2' }].find((lvl) =>
+                        l.includes(lvl.id)
+                    )
+                ),
+                active_levels: new BehaviorSubject([
+                    { id: 'lvl-1' },
+                    { id: 'lvl-2' },
+                ]),
+            } as any),
+            MockProvider(SpacesService, {
+                list: of([
+                    { id: 'space-1', zones: ['bld-1', 'lvl-1'] },
+                    { id: 'space-2', zones: ['bld-2', 'lvl-2'] },
+                ]),
+            } as any),
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
     });
 
