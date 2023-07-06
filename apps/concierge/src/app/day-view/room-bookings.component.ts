@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { take } from 'rxjs/operators';
 
+const EMPTY = [];
 @Component({
     selector: 'room-bookings',
     template: `
@@ -40,6 +41,33 @@ import { take } from 'rxjs/operators';
                 >
                     <div class="text-xs">Setup / Breakdown</div>
                 </mat-slide-toggle>
+                <div class="border-l h-full ml-8 mr-4"></div>
+                <div class="flex items-center space-x-2">
+                    <button btn matRipple class="inverse" [matMenuTriggerFor]="menu">
+                        <app-icon>filter_list</app-icon>
+                        <div class="mx-2">Filters</div>
+                    </button>
+                    <mat-menu #menu="matMenu" class="">
+                        <div class="flex flex-col space-y-2 overflow-hidden w-48">
+                            <mat-checkbox 
+                                *ngFor="let type of types" 
+                                [ngModel]="type_list.includes(type.id)" 
+                                (ngModelChange)="setFilter(type.id, $event)"
+                            >
+                                {{ type.name }}
+                            </mat-checkbox>
+                        </div>
+                    </mat-menu>
+                    <ng-container *ngFor="let type of types">
+                        <div class="flex items-center border border-gray-200 rounded-3xl" *ngIf="type_list.includes(type.id)">
+                            <div class="h-4 w-4 m-2 rounded-full" [style.background-color]="type.color"></div>
+                            <div>{{ type.name }}</div>
+                            <button icon matRipple (click)="setFilter(type.id, false)">
+                                <app-icon>close</app-icon>
+                            </button>
+                        </div>
+                    </ng-container>
+                </div>
             </div>
             <div class="flex w-full flex-1 h-px border-t mt-4 border-gray-200">
                 <room-bookings-timeline class="flex-1"/>
@@ -65,6 +93,16 @@ export class RoomBookingsComponent extends AsyncHandler {
     public readonly updateUIOptions = (o) => this._state.setUIOptions(o);
     /**  */
     public readonly newBooking = (d?) => this._state.newBooking(d);
+
+    public readonly types: any[] = [
+        { id: 'internal', name: 'Internal', color: '#D81B60' },
+        { id: 'external', name: 'External', color: '#1E88E5' },
+        { id: 'cancelled', name: 'Cancelled', color: '#eeeeee' },
+    ];
+
+    public get type_list() {
+        return this._state.filters.hide_type || EMPTY;
+    }
 
     public get has_approvals() {
         return this._org.binding('approvals');
@@ -107,5 +145,13 @@ export class RoomBookingsComponent extends AsyncHandler {
                 this.updateZones(zones);
             })
         );
+    }
+
+    public setFilter(id: string, value: boolean) {
+        const filters = this._state.filters;
+        let hide_type = filters.hide_type || [];
+        hide_type = hide_type.filter((i) => i !== id);
+        if (value) hide_type.push(id as any);
+        this._state.setFilters({ hide_type });
     }
 }
