@@ -38,9 +38,9 @@ import { map } from 'rxjs/operators';
                 mat-ripple
                 class="w-full flex items-center space-x-2 p-3 border-t border-neutral-500 hover:bg-white/20"
                 *ngIf="(regions | async).length > 1"
-                [matMenuTriggerFor]="menu"
+                [matMenuTriggerFor]="region"
             >
-                <app-icon>resize</app-icon>
+                <app-icon>place</app-icon>
                 <div class="truncate">
                     {{
                         (active_region | async)?.display_name ||
@@ -95,7 +95,7 @@ import { map } from 'rxjs/operators';
                 </mat-radio-group>
             </div>
         </mat-menu>
-        <mat-menu #menu="matMenu">
+        <mat-menu #region="matMenu">
             <div class="w-64">
                 <mat-radio-group
                     aria-label="Select a region"
