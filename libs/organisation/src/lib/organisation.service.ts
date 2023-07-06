@@ -8,7 +8,7 @@ import {
     showMetadata,
 } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { catchError, first, map } from 'rxjs/operators';
+import { catchError, first, map, shareReplay } from 'rxjs/operators';
 
 import { notifyError } from 'libs/common/src/lib/notifications';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
@@ -61,7 +61,10 @@ export class OrganisationService {
     public readonly active_levels = combineLatest([
         this._levels,
         this._active_building,
-    ]).pipe(map(([_, bld]) => (bld ? this.levelsForBuilding(bld) : [])));
+    ]).pipe(
+        map(([_, bld]) => (bld ? this.levelsForBuilding(bld) : [])),
+        shareReplay()
+    );
     /** Organisation data for the application */
     private _organisation: Organisation;
     /** Mapping of organisation settings overrides */
@@ -363,12 +366,7 @@ export class OrganisationService {
         if (!level_list?.length) {
             this._router.navigate(['/misconfigured']);
         }
-        const levels = level_list
-            .filter(
-                (lvl) =>
-                    !!this.buildings.find((bld) => bld.id === lvl.parent_id)
-            )
-            .map((lvl) => new BuildingLevel(lvl));
+        const levels = level_list.map((lvl) => new BuildingLevel(lvl));
         levels.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
         this._levels.next(levels);
     }

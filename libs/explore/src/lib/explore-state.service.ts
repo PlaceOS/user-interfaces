@@ -190,42 +190,45 @@ export class ExploreStateService extends AsyncHandler {
 
     public async init() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
-        this._org.active_building.pipe(filter((_) => !!_)).subscribe((bld) => {
-            const level = this._level.getValue();
-            const level_list = this._org.levelsForBuilding(bld);
-            const has_level = level_list.find((lvl) => level?.id === lvl.id);
-            if (!has_level && level_list.length) {
-                this.setLevel(level_list[0].id);
-            }
-            if (this._settings.get('app.explore.disable_actions')) {
-                this.setOptions({
-                    disable_actions: this._settings.get(
-                        'app.explore.disable_actions'
-                    ),
-                });
-            }
-            if (this._settings.get('app.explore.disable_labels')) {
-                this.setOptions({
-                    disable_labels: this._settings.get(
-                        'app.explore.disable_labels'
-                    ),
-                });
-            }
-            if (this._settings.get('app.explore.disable_features')) {
-                this.setOptions({
-                    disable_features: this._settings.get(
-                        'app.explore.disable_features'
-                    ),
-                });
-            }
-            if (this._settings.get('app.explore.disable_styles')) {
-                this.setOptions({
-                    disable_styles: this._settings.get(
-                        'app.explore.disable_styles'
-                    ),
-                });
-            }
-        });
+        this._org.active_levels
+            .pipe(filter((_) => !!_))
+            .subscribe((level_list) => {
+                const level = this._level.getValue();
+                const has_level = level_list.find(
+                    (lvl) => level?.id === lvl.id
+                );
+                if (!has_level && level_list.length) {
+                    this.setLevel(level_list[0].id);
+                }
+                if (this._settings.get('app.explore.disable_actions')) {
+                    this.setOptions({
+                        disable_actions: this._settings.get(
+                            'app.explore.disable_actions'
+                        ),
+                    });
+                }
+                if (this._settings.get('app.explore.disable_labels')) {
+                    this.setOptions({
+                        disable_labels: this._settings.get(
+                            'app.explore.disable_labels'
+                        ),
+                    });
+                }
+                if (this._settings.get('app.explore.disable_features')) {
+                    this.setOptions({
+                        disable_features: this._settings.get(
+                            'app.explore.disable_features'
+                        ),
+                    });
+                }
+                if (this._settings.get('app.explore.disable_styles')) {
+                    this.setOptions({
+                        disable_styles: this._settings.get(
+                            'app.explore.disable_styles'
+                        ),
+                    });
+                }
+            });
     }
 
     public setOptions(options: MapOptions) {
