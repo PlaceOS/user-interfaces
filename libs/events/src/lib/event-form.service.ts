@@ -658,6 +658,7 @@ export class EventFormService extends AsyncHandler {
         event: CalendarEvent,
         query: Record<string, any>
     ) {
+        this._updateVisitorList(event.attendees);
         return (
             !this.has_calendar
                 ? saveBooking(
@@ -701,5 +702,20 @@ export class EventFormService extends AsyncHandler {
                     : 'Some of the selected spaces'
             } are not available at the selected time`;
         return true;
+    }
+
+    private _updateVisitorList(attendees: User[]) {
+        const visitors = attendees.filter((user) => user.is_external);
+        if (!visitors?.length) return;
+        const old_visitors = this._settings.get('visitor-invitees') || [];
+        this._settings.saveUserSetting(
+            'visitor-invitees',
+            unique([
+                ...old_visitors.filter((_) => !_.includes(_.email)),
+                ...visitors.map(
+                    (_) => `${_.email}|${_.name}|${_.organisation}`
+                ),
+            ])
+        );
     }
 }
