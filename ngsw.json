@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1688968761466,
+  "timestamp": 1688969069342,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -231,12 +231,12 @@
     "./default-libs_bookings_src_lib_bookings_module_ts.js": "71b23db9243fa4504ef0e731154ed0f2756c7f49",
     "./default-libs_catering_src_index_ts.js": "5e60671e0c203fb39fb88ff533f792e7c51c4a07",
     "./default-libs_explore_src_index_ts.js": "edfc0600ad9ef0e2fab5ff273fb9c29e67227a26",
-    "./default-libs_users_src_index_ts.js": "9041ec09e01287e0871086d62a1a69e76634c190",
+    "./default-libs_users_src_index_ts.js": "c11e057ac224bd74356734d924da190ad19580da",
     "./default-node_modules_angular_material_fesm2022_icon_mjs.js": "3e166e9676cd92bc813c1d451c6aa5637897466d",
     "./default-node_modules_angular_material_fesm2022_tabs_mjs.js": "0c286fe2922a6d7979b37b76cecc0e99c4cb7db2",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "ac2c10d2e85355cb449d8cada0bc9ffd2cb972e8",
-    "./main.js": "60ad196fcf36082d287e29e58b4ea25c69fafe92",
+    "./main.js": "3d927d177526457a05e832a91f209db9c2a966ec",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
