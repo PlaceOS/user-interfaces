@@ -251,6 +251,13 @@ export function querySpaceAvailability(
         period_start: getUnixTime(start),
         period_end: getUnixTime(addMinutes(start, duration)),
     }).pipe(
-        map((spaces) => id_list.map((id) => !!spaces.find((s) => s.id === id)))
+        map((spaces) =>
+            id_list.map(
+                (id) =>
+                    !!spaces.find(
+                        (s) => s.id === id || (s as any).resource?.id === id
+                    )
+            )
+        )
     );
 }
