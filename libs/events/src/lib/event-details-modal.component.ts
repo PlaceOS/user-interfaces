@@ -382,6 +382,16 @@ const EMPTY_ACTIONS = [];
                 </button>
                 <button
                     mat-menu-item
+                    *ngIf="event.recurring_event_id"
+                    (click)="remove.emit(true)"
+                >
+                    <div class="flex items-center space-x-2 text-base">
+                        <app-icon>delete</app-icon>
+                        <div i18n>Delete Series</div>
+                    </div>
+                </button>
+                <button
+                    mat-menu-item
                     *ngFor="let act of custom_actions"
                     (click)="action.emit(act.id)"
                 >
