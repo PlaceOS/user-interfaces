@@ -145,7 +145,7 @@ export class RoomBookingsApprovalsComponent {
     public async approve(event: CalendarEvent) {
         const system_id = this._org.binding('approvals');
         if (!system_id) return;
-        const mod = getModule(system_id, 'RoomBookingApproval');
+        const mod = getModule(system_id, 'RoomBookingApproval', 2);
         if (!mod) return;
         this.loading = true;
         await mod.execute('approve_event', [event.host, event.id]).catch();
@@ -155,7 +155,7 @@ export class RoomBookingsApprovalsComponent {
     public async reject(event: CalendarEvent) {
         const system_id = this._org.binding('approvals');
         if (!system_id) return;
-        const mod = getModule(system_id, 'RoomBookingApproval');
+        const mod = getModule(system_id, 'RoomBookingApproval', 2);
         if (!mod) return;
         this.loading = true;
         await mod.execute('decline_event', [event.host, event.id]).catch();

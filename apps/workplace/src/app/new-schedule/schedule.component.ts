@@ -187,7 +187,7 @@ export class ScheduleComponent extends AsyncHandler {
             {
                 calendar: this._settings.get('app.no_user_calendar')
                     ? null
-                    : currentUser()?.email,
+                    : (item as any).calendar || currentUser()?.email,
                 system_id: (item as any).system?.id,
             }
         )

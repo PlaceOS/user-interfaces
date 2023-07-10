@@ -2,7 +2,7 @@ import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { DialogEvent, notifyError, notifySuccess } from '@placeos/common';
-import { CalendarEvent, EventFormService } from '@placeos/events';
+import { CalendarEvent, EventFormService, queryEvents } from '@placeos/events';
 
 export interface BookingModalData {
     event?: CalendarEvent;
@@ -12,7 +12,7 @@ export interface BookingModalData {
     selector: 'booking-modal',
     template: `
         <header>
-            <h2>New Booking</h2>
+            <h2>{{ form.value.id ? 'Edit' : 'New' }} Booking</h2>
             <div class="flex-1 w-0"></div>
             <button icon mat-dialog-close>
                 <app-icon>close</app-icon>
@@ -65,8 +65,19 @@ export class BookingModalComponent implements OnInit {
         private _dialog_ref: MatDialogRef<BookingModalComponent>
     ) {}
 
-    public ngOnInit(): void {
-        this._service.newForm(this._data.event);
+    public async ngOnInit() {
+        let event = this._data.event;
+        if (event?.creator !== event?.mailbox) {
+            event =
+                (
+                    await queryEvents({
+                        period_start: event.event_start,
+                        period_end: event.event_end,
+                        ical_uid: event.ical_uid,
+                    }).toPromise()
+                ).find((_) => _.ical_uid === (event as any).ical_uid) || event;
+        }
+        this._service.newForm(event);
     }
 
     public async save() {
