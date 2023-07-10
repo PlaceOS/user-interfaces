@@ -401,6 +401,8 @@ export class InviteVisitorFormComponent extends AsyncHandler {
             booking_type: 'visitor',
             zones: [this._org.building?.id],
         });
+        if (this.multiple)
+            this.form.patchValue({ asset_id: 'multiple@place.tech' });
     }
 
     private async _bookForOne() {
@@ -448,6 +450,7 @@ export class InviteVisitorFormComponent extends AsyncHandler {
             });
             await this._service.postForm().catch((e) => {
                 notifyError(e);
+                this.loading_many = false;
                 throw e;
             });
         }

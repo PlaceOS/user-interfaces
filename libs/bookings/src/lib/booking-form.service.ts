@@ -524,7 +524,10 @@ export class BookingFormService extends AsyncHandler {
                 },
                 value.assets,
                 booking.extension_data.assets
-            );
+            ).catch((e) => {
+                this._loading.next('');
+                throw e?.error || e;
+            });
         }
         this._loading.next('');
         const { booking_type } = value;
