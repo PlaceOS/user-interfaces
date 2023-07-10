@@ -86,18 +86,32 @@ import { CalendarEvent } from '@placeos/events';
                             btn
                             matRipple
                             class="border-green-600 bg-green-600/30 flex items-center space-x-2 text-black"
+                            [disabled]="status[event.id] === 'accept'"
                             (click)="approve(event)"
                         >
-                            <div>Approve</div>
+                            <div>
+                                {{
+                                    status[event.id] === 'accept'
+                                        ? 'Approved'
+                                        : 'Approve'
+                                }}
+                            </div>
                             <app-icon class="text-green-600">done</app-icon>
                         </button>
                         <button
                             btn
                             matRipple
                             class="border-red-600 bg-red-600/30 flex items-center space-x-2 text-black"
+                            [disabled]="status[event.id] === 'decline'"
                             (click)="reject(event)"
                         >
-                            <div>Decline</div>
+                            <div>
+                                {{
+                                    status[event.id] === 'decline'
+                                        ? 'Declined'
+                                        : 'Decline'
+                                }}
+                            </div>
                             <app-icon class="text-red-600">close</app-icon>
                         </button>
                     </div>
@@ -135,6 +149,7 @@ import { CalendarEvent } from '@placeos/events';
 export class RoomBookingsApprovalsComponent {
     public show = true;
     public loading = false;
+    public status: Record<string, 'accept' | 'decline' | undefined> = {};
     public readonly pending = this._state.pending;
 
     constructor(
@@ -148,8 +163,9 @@ export class RoomBookingsApprovalsComponent {
         const mod = getModule(system_id, 'RoomBookingApproval', 1);
         if (!mod) return;
         this.loading = true;
-        await mod.execute('approve_event', [event.host, event.id]).catch();
+        await mod.execute('accept_event', [event.mailbox, event.id]).catch();
         this.loading = false;
+        this.status[event.id] = 'accept';
     }
 
     public async reject(event: CalendarEvent) {
@@ -158,7 +174,8 @@ export class RoomBookingsApprovalsComponent {
         const mod = getModule(system_id, 'RoomBookingApproval', 1);
         if (!mod) return;
         this.loading = true;
-        await mod.execute('decline_event', [event.host, event.id]).catch();
+        await mod.execute('decline_event', [event.mailbox, event.id]).catch();
         this.loading = false;
+        this.status[event.id] = 'decline';
     }
 }
