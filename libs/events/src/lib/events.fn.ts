@@ -163,9 +163,12 @@ export function rejectEvent(id: string, system_id: string) {
  * @param id ID of the event to decline
  * @returns
  */
-export function declineEvent(id: string) {
+export function declineEvent(id: string, query: CalendarEventShowParams = {}) {
+    const q = toQueryString(query);
     return post(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/decline`,
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/decline${
+            q ? '?' + q : ''
+        }`,
         ''
     ).pipe(map((item) => new CalendarEvent(item)));
 }

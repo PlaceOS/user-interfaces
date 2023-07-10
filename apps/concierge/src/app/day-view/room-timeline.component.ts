@@ -176,7 +176,7 @@ import { time } from 'console';
                                     [style.height]="
                                         endToOffset(event.duration) + 'px'
                                     "
-                                    (click)="viewEvent(event)"
+                                    (click)="viewEvent(event, space.id)"
                                 >
                                     <div
                                         class="absolute bg-pink-600/50 border border-pink-600 rounded-lg w-full"
@@ -355,7 +355,7 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         this.offset_y = this._scroll_container.nativeElement.scrollTop;
     }
 
-    public viewEvent(event: CalendarEvent) {
+    public viewEvent(event: CalendarEvent, space_id: string) {
         const ref = this._dialog.open(EventDetailsModalComponent, {
             data: event,
         });
@@ -365,7 +365,9 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         );
         this.subscription(
             'remove',
-            ref.componentInstance.remove.subscribe(() => this.remove(event))
+            ref.componentInstance.remove.subscribe(() =>
+                this.remove(event, space_id)
+            )
         );
         this.subscription(
             'actions',
@@ -379,7 +381,7 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         );
     }
 
-    public async remove(item: CalendarEvent) {
+    public async remove(item: CalendarEvent, space_id: string) {
         const time = `${format(item.date, 'dd MMM yyyy h:mma')}`;
         const resource_name = item.space?.display_name;
         const content = `Delete the booking for ${resource_name} at ${time}`;
@@ -389,7 +391,9 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         );
         if (resp.reason !== 'done') return;
         resp.loading('Requesting booking deletion...');
-        await declineEvent(item.id)
+        await declineEvent(item.id, {
+            system_id: space_id,
+        })
             .toPromise()
             .catch((e) => {
                 notifyError(`Unable to delete booking. ${e}`);
