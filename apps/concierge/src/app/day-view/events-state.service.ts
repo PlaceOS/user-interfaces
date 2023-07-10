@@ -403,7 +403,9 @@ export class EventsStateService extends AsyncHandler {
                 : 'internal';
             const show =
                 !filters.hide_type?.length ||
-                !(filters.hide_type as any).find(({ id }) => id === type);
+                !(filters.hide_type as any).find(
+                    (item) => item.id === type || item === type
+                );
             return intersects && has_space && in_zones && show;
         });
     }

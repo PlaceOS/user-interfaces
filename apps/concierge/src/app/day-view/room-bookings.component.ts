@@ -51,18 +51,18 @@ const EMPTY = [];
                         <div class="flex flex-col space-y-2 overflow-hidden w-48">
                             <mat-checkbox 
                                 *ngFor="let type of types" 
-                                [ngModel]="type_list.includes(type.id)" 
-                                (ngModelChange)="setFilter(type.id, $event)"
+                                [ngModel]="!type_list.includes(type.id)" 
+                                (ngModelChange)="setFilter(type.id, !$event)"
                             >
                                 {{ type.name }}
                             </mat-checkbox>
                         </div>
                     </mat-menu>
                     <ng-container *ngFor="let type of types">
-                        <div class="flex items-center border border-gray-200 rounded-3xl" *ngIf="type_list.includes(type.id)">
+                        <div class="flex items-center border border-gray-200 rounded-3xl" *ngIf="!type_list.includes(type.id)">
                             <div class="h-4 w-4 m-2 rounded-full" [style.background-color]="type.color"></div>
                             <div>{{ type.name }}</div>
-                            <button icon matRipple (click)="setFilter(type.id, false)">
+                            <button icon matRipple (click)="setFilter(type.id, true)">
                                 <app-icon>close</app-icon>
                             </button>
                         </div>
