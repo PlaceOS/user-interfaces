@@ -122,13 +122,14 @@ export class EventFormService extends AsyncHandler {
         switchMap(([{ zone_ids }]) => {
             this._loading.next('Loading space list for location...');
             if (!zone_ids?.length) zone_ids = [this._org.building?.id];
-            return forkJoin(zone_ids.map((id) => requestSpacesForZone(id)));
+            return forkJoin(
+                zone_ids.map((id) =>
+                    requestSpacesForZone(id).pipe(catchError(() => of([])))
+                )
+            );
         }),
         map((l) => flatten(l)),
-        tap((_) => {
-            console.log('Spaces for testing:', _);
-            this._loading.next('');
-        }),
+        tap((_) => this._loading.next('')),
         shareReplay(1)
     );
 
@@ -153,15 +154,6 @@ export class EventFormService extends AsyncHandler {
                     const zone_limit = s.zones.find((_) =>
                         limited_zones.includes(_)
                     );
-                    console.log(
-                        'Checks for spaces:',
-                        s.bookable,
-                        !zone || s.zones.includes(zone),
-                        !zone_limit || limit_map[zone_limit] === domain,
-                        !show_fav || this.favorite_spaces.includes(s.id),
-                        features.every((f) => s.features.includes(f)),
-                        s.capacity >= Math.max(0, capacity || 0)
-                    );
                     return (
                         s.bookable &&
                         (!zone || s.zones.includes(zone)) &&
@@ -173,9 +165,6 @@ export class EventFormService extends AsyncHandler {
                 })
                 .slice(0, Math.min(100, spaces.length))
         ),
-        tap((_) => {
-            console.log('Filter spaces for testing:', _);
-        }),
         shareReplay(1)
     );
 
@@ -213,7 +202,6 @@ export class EventFormService extends AsyncHandler {
         merge(this.form.valueChanges, timer(1000)),
     ]).pipe(
         map(([list, bookings]) => {
-            console.log('Availability Data:', list, bookings);
             this._loading.next('Updating available spaces...');
             let { date, duration, all_day } = this._form.getRawValue();
             if (all_day) {
@@ -284,7 +272,8 @@ export class EventFormService extends AsyncHandler {
     public readonly available_spaces = this._date.pipe(
         switchMap((d) => {
             const diff = Math.abs(differenceInDays(d, Date.now()));
-            return diff < 14
+            return diff <
+                this._settings.get('app.events.cache_duration_in_days') || 14
                 ? this.current_available_spaces
                 : this.future_available_spaces;
         })
@@ -541,13 +530,7 @@ export class EventFormService extends AsyncHandler {
                 : {};
             if (is_owner) query.calendar = host || creator;
             const value = this._form.getRawValue();
-            console.log(
-                'Payments:',
-                this._payments.payment_module,
-                spaces.length
-            );
             if (this._payments.payment_module && spaces.length) {
-                console.log('Make Payment...');
                 const receipt = await this._payments.makePayment({
                     type: 'space',
                     resource_name: spaces[0].display_name || spaces[0].name,
@@ -560,7 +543,6 @@ export class EventFormService extends AsyncHandler {
                     invoice: receipt,
                     invoice_id: receipt.invoice_id,
                 };
-                console.log('Payment success.', receipt);
             }
             const d = value.all_day
                 ? startOfDay(value.date).valueOf()
