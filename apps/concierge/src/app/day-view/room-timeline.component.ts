@@ -23,6 +23,7 @@ import {
     CalendarEvent,
     EventDetailsModalComponent,
     SetupBreakdownModalComponent,
+    declineEvent,
     queryEvents,
     removeEvent,
 } from '@placeos/events';
@@ -398,10 +399,7 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         }
         if (resp.reason !== 'done') return;
         resp.loading('Requesting booking deletion...');
-        await removeEvent(item.id, {
-            calendar: item.host,
-            system_id: (item as any).system?.id,
-        })
+        await declineEvent(item.id)
             .toPromise()
             .catch((e) => {
                 notifyError(`Unable to delete booking. ${e}`);
