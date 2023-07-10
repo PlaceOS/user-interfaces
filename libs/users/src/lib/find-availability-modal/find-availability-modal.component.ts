@@ -132,7 +132,9 @@ export interface FindAvailabilityData {
                             [user]="user"
                             [availability]="
                                 (availability | async)
-                                    ? (availability | async)[user.email]
+                                    ? (availability | async)[
+                                          user.email.toLowerCase()
+                                      ]
                                     : []
                             "
                             [date]="date"
@@ -228,11 +230,11 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
     public readonly availability = this.users.pipe(
         debounceTime(300),
         switchMap((users) => {
-            if (!users.length) return of([]);
             return queryUserFreeBusy({
-                calendars: [this.host.email, ...users.map((_) => _.email)].join(
-                    ','
-                ),
+                calendars: [
+                    this.host.email,
+                    ...users.map((_) => _.email.toLowerCase()),
+                ].join(','),
                 period_start: getUnixTime(startOfDay(this.date)),
                 period_end: getUnixTime(endOfDay(this.date)),
             }).pipe(catchError(() => of([])));
