@@ -125,7 +125,10 @@ export class EventFormService extends AsyncHandler {
             return forkJoin(zone_ids.map((id) => requestSpacesForZone(id)));
         }),
         map((l) => flatten(l)),
-        tap((_) => this._loading.next('')),
+        tap((_) => {
+            console.log('Spaces for testing:', _);
+            this._loading.next('');
+        }),
         shareReplay(1)
     );
 
@@ -198,6 +201,7 @@ export class EventFormService extends AsyncHandler {
         merge(this.form.valueChanges, timer(1000)),
     ]).pipe(
         map(([list, bookings]) => {
+            console.log('Availability Data:', list, bookings);
             this._loading.next('Updating available spaces...');
             let { date, duration, all_day } = this._form.getRawValue();
             if (all_day) {
