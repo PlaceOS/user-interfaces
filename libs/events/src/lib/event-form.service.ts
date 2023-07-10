@@ -273,7 +273,7 @@ export class EventFormService extends AsyncHandler {
         switchMap((d) => {
             const diff = Math.abs(differenceInDays(d, Date.now()));
             return diff <
-                this._settings.get('app.events.cache_duration_in_days') || 14
+                (this._settings.get('app.events.cache_duration_in_days') || 14)
                 ? this.current_available_spaces
                 : this.future_available_spaces;
         })

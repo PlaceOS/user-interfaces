@@ -7,6 +7,7 @@ import { GuestUser } from 'libs/users/src/lib/user.class';
 
 import { CalendarEvent } from './event.class';
 import { addMinutes, getUnixTime } from 'date-fns';
+import { queryCalendarAvailability } from 'libs/calendar/src/lib/calendar.fn';
 
 export interface CalendarEventQueryParams {
     /** Comma seperated list of zone ids to check availability */
@@ -245,21 +246,11 @@ export function querySpaceAvailability(
     duration: number,
     ignore?: string
 ) {
-    return queryEvents({
+    return queryCalendarAvailability({
         system_ids: id_list.join(),
         period_start: getUnixTime(start),
         period_end: getUnixTime(addMinutes(start, duration)),
     }).pipe(
-        map((booking_list) =>
-            id_list.map(
-                (id) =>
-                    booking_list.filter(
-                        (booking) =>
-                            booking.resources?.find((s) => s.id === id) &&
-                            booking.id !== ignore &&
-                            booking.ical_uid !== ignore
-                    ).length === 0
-            )
-        )
+        map((spaces) => id_list.map((id) => !!spaces.find((s) => s.id === id)))
     );
 }
