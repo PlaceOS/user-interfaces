@@ -159,6 +159,18 @@ export function rejectEvent(id: string, system_id: string) {
 }
 
 /**
+ * Decline the given event
+ * @param id ID of the event to decline
+ * @returns
+ */
+export function declineEvent(id: string) {
+    return post(
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/decline`,
+        ''
+    ).pipe(map((item) => new CalendarEvent(item)));
+}
+
+/**
  * List guests for event
  * @param id ID of the event to grab
  * @param q Parameters to pass to the API request

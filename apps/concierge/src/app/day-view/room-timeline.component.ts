@@ -387,16 +387,6 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
             { title: `Delete booking`, content, icon: { content: 'delete' } },
             this._dialog
         );
-        if (item instanceof CalendarEvent && item.creator !== item.mailbox) {
-            item =
-                (
-                    await queryEvents({
-                        period_start: item.event_start,
-                        period_end: item.event_end,
-                        ical_uid: item.ical_uid,
-                    }).toPromise()
-                ).find((_) => _.ical_uid === (item as any).ical_uid) || item;
-        }
         if (resp.reason !== 'done') return;
         resp.loading('Requesting booking deletion...');
         await declineEvent(item.id)

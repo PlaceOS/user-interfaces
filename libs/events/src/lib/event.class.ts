@@ -4,7 +4,6 @@ import {
     add,
     addMinutes,
     differenceInMinutes,
-    endOfDay,
     getUnixTime,
     isAfter,
     isBefore,
@@ -22,7 +21,6 @@ import {
     RecurrenceDetails,
 } from './event.interfaces';
 import { eventStatus, parseRecurrence } from './helpers';
-import { start } from 'repl';
 
 let _default_user: Identity = { id: 'default', name: 'Default User' };
 
