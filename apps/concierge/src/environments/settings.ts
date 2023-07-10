@@ -73,7 +73,7 @@ const app = {
         type: 'img',
         src: 'assets/logo-dark.svg',
     },
-    default_route: '/book/rooms',
+    default_route: '/book/rooms/new',
     admin_group: 'concierge_admins',
     features: [
         'spaces',
