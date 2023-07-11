@@ -368,6 +368,7 @@ const EMPTY_ACTIONS = [];
                     mat-menu-item
                     mat-dialog-close
                     (click)="edit.emit(space)"
+                    *ngIf="!hide_edit"
                 >
                     <div class="flex items-center space-x-2 text-base">
                         <app-icon>edit</app-icon>
@@ -413,6 +414,7 @@ export class EventDetailsModalComponent {
 
     public room_status = '';
     public hide_map = false;
+    public hide_edit = false;
     public show_attendees: boolean = false;
     public readonly event = this._event;
     public features = [
