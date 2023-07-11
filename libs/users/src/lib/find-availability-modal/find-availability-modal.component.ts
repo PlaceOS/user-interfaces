@@ -51,8 +51,7 @@ export interface FindAvailabilityData {
             </button>
         </header>
         <main
-            class="flex flex-col h-[calc(100vh-7rem)] sm:h-[65vh]"
-            (window:resize)="updateWidth()"
+            class="flex flex-col h-[calc(100vh-7rem)] sm:h-[65vh] overflow-hidden"
         >
             <div
                 class="w-full flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 p-2"
@@ -68,21 +67,28 @@ export interface FindAvailabilityData {
                 ></a-user-search-field>
             </div>
             <div
-                #container
-                class="flex flex-1 h-1/2 w-full border-t border-gray-300 dark:border-neutral-500 relative overflow-auto divide-x divide-gray-300 dark:divide-neutral-500 max-w-[100vw] sm:max-w-[80vw]"
-                (scroll)="updateScroll()"
+                class="grid flex-1 h-1/2 w-full border-t border-gray-300 dark:border-neutral-500 relative overflow-hidden divide-x divide-y divide-gray-300 dark:divide-neutral-500 max-w-[100vw] sm:max-w-[80vw]"
             >
                 <div
-                    users
-                    class="sticky left-0 min-h-full bg-white dark:bg-neutral-700 border-r border-gray-300 dark:border-neutral-500 z-30"
+                    times
+                    class="col-start-2 h-10 flex overflow-hidden border-l border-gray-300"
                 >
                     <div
-                        header
-                        class="h-10 w-[6rem] border-b border-gray-300 dark:border-neutral-500"
-                    ></div>
+                        hour
+                        *ngFor="let _ of hours; let hour = index"
+                        class="relative border-r border-gray-300 h-10 min-w-[5rem] p-2"
+                        [attr.disabled]="today && current_hour > hour"
+                        [style.left]="-offset_x + 'px'"
+                    >
+                        {{ hour % 12 === 0 ? '12' : hour % 12
+                        }}{{ hour >= 12 ? 'pm' : 'am' }}
+                    </div>
+                </div>
+                <div users class="row-start-2 w-24 overflow-hidden">
                     <div
                         host
-                        class="flex flex-col items-center justify-center h-32 w-[6rem] relative border-b border-gray-300 dark:border-neutral-500 py-2"
+                        class="flex flex-col items-center justify-center h-32 w-24 relative border-b border-gray-300 dark:border-neutral-500 py-2"
+                        [style.top]="-offset_y + 'px'"
                     >
                         <a-user-avatar
                             class="text-2xl"
@@ -93,22 +99,11 @@ export interface FindAvailabilityData {
                         >
                             {{ host.name || host.email }}
                         </div>
-                        <user-availability-list
-                            class="absolute top-0 -bottom-px left-full pointer-events-none"
-                            [user]="host"
-                            [date]="date"
-                            [offset]="offset"
-                            [availability]="
-                                (availability | async)
-                                    ? (availability | async)[host.email]
-                                    : []
-                            "
-                            [width]="width"
-                        ></user-availability-list>
                     </div>
                     <div
                         person
-                        class="flex flex-col items-center justify-center h-32 w-[6rem] relative border-b border-gray-300 dark:border-neutral-500 py-2"
+                        class="flex flex-col items-center justify-center h-32 w-24 relative border-b border-gray-300 dark:border-neutral-500 py-2"
+                        [style.top]="-offset_y + 'px'"
                         *ngFor="let user of users | async"
                     >
                         <a-user-avatar
@@ -127,63 +122,81 @@ export interface FindAvailabilityData {
                         >
                             <app-icon>close</app-icon>
                         </button>
+                    </div>
+                </div>
+                <div blocks class="relative row-start-2 overflow-hidden">
+                    <div fixed class="absolute inset-0 flex overflow-hidden">
+                        <div
+                            divider
+                            class="relative h-full min-w-[5rem] border-l border-gray-300"
+                            [style.left]="-(offset_x + 1) + 'px'"
+                            [attr.disabled]="today && current_hour > h"
+                            *ngFor="let _ of hours; let h = index"
+                        ></div>
+                        <div
+                            selection
+                            class="absolute inset-y-0 !border-x-2 !border-blue-500 bg-blue-500/30 z-20 cursor-grab active:cursor-grabbing"
+                            [style.left]="
+                                'calc(' +
+                                selection_left +
+                                'rem - ' +
+                                offset_x +
+                                'px)'
+                            "
+                            [style.width]="selection_width + 'rem'"
+                            (mousedown)="startMovePeriod($event)"
+                            (touchstart)="startMovePeriod($event)"
+                        >
+                            <div
+                                handle
+                                class="absolute top-1/2 -left-px -translate-x-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-blue-500"
+                            ></div>
+                            <div
+                                handle
+                                class="absolute top-1/2 -right-px translate-x-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-blue-500 hover:h-4 hover:w-4 active:bg-primary"
+                                (mousedown)="startMoveDuration($event)"
+                                (touchstart)="startMoveDuration($event)"
+                            ></div>
+                            <div
+                                class="bg-white dark:bg-neutral-600 border border-gray-300 dark:border-neutral-500 p-2 absolute top-2 left-1/2 -translate-x-1/2 shadow text-xs whitespace-nowrap rounded"
+                            >
+                                {{ duration | duration }}
+                            </div>
+                            <div
+                                *ngIf="move_time"
+                                class="bg-white dark:bg-neutral-600 border border-gray-300 dark:border-neutral-500 p-2 absolute top-12 left-1/2 -translate-x-1/2 shadow text-xs whitespace-nowrap rounded"
+                            >
+                                {{ date | date: 'shortTime' }}
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        scroll
+                        #container
+                        class="absolute inset-0 overflow-auto"
+                        (scroll)="onScroll()"
+                    >
                         <user-availability-list
-                            class="absolute top-0 -bottom-px left-full pointer-events-none"
-                            [user]="user"
+                            class="pointer-events-none"
+                            [user]="host"
+                            [date]="date"
                             [availability]="
                                 (availability | async)
-                                    ? (availability | async)[
-                                          user.email.toLowerCase()
-                                      ]
+                                    ? (availability | async)[host.email]
                                     : []
                             "
-                            [date]="date"
-                            [offset]="offset"
-                            [width]="width"
                         ></user-availability-list>
-                    </div>
-                </div>
-                <div
-                    [attr.hour]="i"
-                    class="min-w-[5rem] bg-gray-50 dark:bg-neutral-600 min-h-full pointer-events-none"
-                    [attr.disabled]="today && i < current_hour"
-                    *ngFor="let h of hours; let i = index"
-                >
-                    <div
-                        header
-                        class="h-10 border-b border-gray-300 dark:border-neutral-500 p-2"
-                    >
-                        {{ i % 12 ? i % 12 : '12' }}{{ i >= 12 ? 'pm' : 'am' }}
-                    </div>
-                </div>
-                <div
-                    selection
-                    class="absolute top-10 bottom-0 !border-x-2 !border-blue-500 bg-blue-500/30 z-20 cursor-grab active:cursor-grabbing"
-                    [style.left]="selection_left + 'rem'"
-                    [style.width]="selection_width + 'rem'"
-                    (mousedown)="startMovePeriod($event)"
-                    (touchstart)="startMovePeriod($event)"
-                >
-                    <div
-                        handle
-                        class="absolute top-1/2 -left-px -translate-x-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-blue-500"
-                    ></div>
-                    <div
-                        handle
-                        class="absolute top-1/2 -right-px translate-x-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-blue-500 hover:h-4 hover:w-4 active:bg-primary"
-                        (mousedown)="startMoveDuration($event)"
-                        (touchstart)="startMoveDuration($event)"
-                    ></div>
-                    <div
-                        class="bg-white dark:bg-neutral-600 border border-gray-300 dark:border-neutral-500 p-2 absolute top-2 left-1/2 -translate-x-1/2 shadow text-xs whitespace-nowrap rounded"
-                    >
-                        {{ duration | duration }}
-                    </div>
-                    <div
-                        *ngIf="move_time"
-                        class="bg-white dark:bg-neutral-600 border border-gray-300 dark:border-neutral-500 p-2 absolute top-12 left-1/2 -translate-x-1/2 shadow text-xs whitespace-nowrap rounded"
-                    >
-                        {{ date | date: 'shortTime' }}
+                        <user-availability-list
+                            class="pointer-events-none"
+                            *ngFor="let user of users | async"
+                            [user]="user"
+                            [date]="date"
+                            [availability]="
+                                (availability | async)
+                                    ? (availability | async)[user.email]
+                                    : []
+                            "
+                        ></user-availability-list>
                     </div>
                 </div>
             </div>
@@ -205,8 +218,13 @@ export interface FindAvailabilityData {
     `,
     styles: [
         `
-            [disabled='true'] {
-                background: rgba(0, 0, 0, 0.05) !important;
+            .grid {
+                grid-template-columns: 6rem 1fr;
+                grid-template-rows: 2.5rem minmax(0, 1fr);
+            }
+            [disabled='true'],
+            [disabled='true'] [header] {
+                background: #eee !important;
                 pointer-events: none;
             }
             [disabled='true'] > * {
@@ -221,8 +239,8 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
     public date = this._data.date || Date.now();
     public duration = this._data.duration || 60;
     public user?: User;
-    public offset = 0;
-    public width = 0;
+    public offset_y = 0;
+    public offset_x = 0;
 
     public readonly host = this._data.host;
     public readonly hours = new Array(24).fill(0);
@@ -280,7 +298,7 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
 
     public get selection_left() {
         const date = new Date(this.date);
-        return (date.getHours() + date.getMinutes() / 60) * 5 + 6;
+        return (date.getHours() + date.getMinutes() / 60) * 5;
     }
 
     public get selection_width() {
@@ -332,39 +350,25 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
                         0
                     );
                 }
-                this.updateWidth();
-                this.updateScroll();
+                this.onScroll();
             },
             300
         );
     }
 
-    public updateWidth() {
-        const container_size =
-            this._container_el.nativeElement.getBoundingClientRect().width;
-        const user_list_size = this._container_el.nativeElement
-            .querySelector('[users]')
-            .getBoundingClientRect().width;
-        this.width = Math.floor(container_size - user_list_size);
-        this._move_size =
-            this._container_el.nativeElement
-                .querySelector('[hour]')
-                .getBoundingClientRect().width * 24;
-    }
-
-    public updateScroll() {
-        this.offset = this._container_el.nativeElement.scrollLeft;
+    public onScroll() {
+        this.offset_x = this._container_el.nativeElement.scrollLeft;
+        this.offset_y = this._container_el.nativeElement.scrollTop;
     }
 
     public move_time = false;
     private _start_time = 0;
     private _move_last = 0;
-    private _move_size = 0;
+    private _move_size = 80 * 24;
 
     public startMovePeriod(event: MouseEvent | TouchEvent) {
         event.preventDefault();
         event.stopPropagation();
-        this.updateWidth();
         this._move_last =
             event instanceof MouseEvent
                 ? event.clientX
@@ -402,7 +406,6 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
     public startMoveDuration(event: MouseEvent | TouchEvent) {
         event.preventDefault();
         event.stopPropagation();
-        this.updateWidth();
         this._move_last =
             event instanceof MouseEvent
                 ? event.clientX
