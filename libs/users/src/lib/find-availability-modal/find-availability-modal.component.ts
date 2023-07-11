@@ -205,6 +205,7 @@ export interface FindAvailabilityData {
             class="flex items-center justify-between p-2 border-t border-gray-200 dark:border-neutral-500 w-full"
         >
             <button
+                btn
                 matRipple
                 [mat-dialog-close]="true"
                 class="clear text-primary"

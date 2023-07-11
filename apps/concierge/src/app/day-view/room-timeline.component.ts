@@ -369,11 +369,10 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         this.subscription(
             'actions',
             ref.componentInstance.action.subscribe((action) => {
-                if (action.includes('breakdown')) {
-                    this._dialog.open(SetupBreakdownModalComponent, {
-                        data: event,
-                    });
-                }
+                if (!action.includes('breakdown')) return;
+                this._dialog.open(SetupBreakdownModalComponent, {
+                    data: event,
+                });
             })
         );
     }

@@ -12,7 +12,7 @@ export interface BookingModalData {
     selector: 'booking-modal',
     template: `
         <header>
-            <h2>{{ form.value.id ? 'Edit' : 'New' }} Booking</h2>
+            <h2>{{ form?.value.id ? 'Edit' : 'New' }} Booking</h2>
             <div class="flex-1 w-0"></div>
             <button icon mat-dialog-close>
                 <app-icon>close</app-icon>
