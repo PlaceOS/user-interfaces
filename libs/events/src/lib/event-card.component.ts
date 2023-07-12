@@ -246,7 +246,9 @@ export class EventCardComponent extends AsyncHandler {
             );
             this.subscription(
                 'remove',
-                ref.componentInstance.remove.subscribe(() => this.remove.emit())
+                ref.componentInstance.remove.subscribe((_) =>
+                    this.remove.emit(_)
+                )
             );
         });
     }
