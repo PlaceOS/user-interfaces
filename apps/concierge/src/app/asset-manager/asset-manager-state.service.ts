@@ -21,6 +21,7 @@ import {
     tap,
 } from 'rxjs/operators';
 import {
+    Asset,
     AssetGroup,
     AssetPurchaseOrder,
     deleteAssetGroup,
@@ -63,12 +64,15 @@ export class AssetManagerStateService extends AsyncHandler {
     private _options = new BehaviorSubject<AssetOptions>({ view: 'grid' });
     private _change = new BehaviorSubject(0);
     private _poll = new BehaviorSubject(0);
+    private _extra_assets = new BehaviorSubject<Asset[]>([]);
     private _form = generateAssetForm();
     private _loading = new BehaviorSubject(false);
     /** Whether asset list is loading */
     public readonly loading = this._loading.asObservable();
     /** List of options set for the view */
     public readonly options = this._options.asObservable();
+    /** List of extra assets to display */
+    public readonly extra_assets = this._extra_assets.asObservable();
     /** List of available assets */
     public readonly products: Observable<AssetGroup[]> = combineLatest([
         this._change,
@@ -228,6 +232,10 @@ export class AssetManagerStateService extends AsyncHandler {
 
     public resetForm() {
         this._form = generateAssetForm();
+    }
+
+    public setExtraAssets(list: Asset[]) {
+        this._extra_assets.next(list);
     }
 
     /** Update the set view options */

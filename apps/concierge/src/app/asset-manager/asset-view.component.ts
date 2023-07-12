@@ -1,7 +1,12 @@
 import { Component, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, flatten, openConfirmModal } from '@placeos/common';
+import {
+    AsyncHandler,
+    flatten,
+    openConfirmModal,
+    unique,
+} from '@placeos/common';
 import { CustomTooltipComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { first, map } from 'rxjs/operators';
@@ -15,6 +20,7 @@ import {
     removeAssetRequests,
 } from '@placeos/assets';
 import { addMinutes } from 'date-fns';
+import { combineLatest } from 'rxjs';
 
 @Component({
     selector: 'asset-view',
@@ -120,7 +126,7 @@ import { addMinutes } from 'date-fns';
                             <div class="pl-2">
                                 Available:
                                 {{
-                                    (item | async)?.assets.length -
+                                    (asset_list | async).length -
                                         (requests | async)?.length || 0
                                 }}
                             </div>
@@ -128,7 +134,7 @@ import { addMinutes } from 'date-fns';
                                 btn
                                 matRipple
                                 [disabled]="
-                                    (item | async)?.assets.length -
+                                    (asset_list | async).length -
                                         (requests | async)?.length ===
                                     0
                                 "
@@ -146,7 +152,7 @@ import { addMinutes } from 'date-fns';
                                 matRipple
                                 (click)="viewLocations()"
                                 [disabled]="
-                                    (item | async)?.assets.length -
+                                    (asset_list | async).length -
                                         (requests | async)?.length !==
                                     0
                                 "
@@ -193,7 +199,7 @@ import { addMinutes } from 'date-fns';
                         <custom-table
                             asset-view
                             class="w-full block text-sm"
-                            [dataSource]="(item | async)?.assets || []"
+                            [dataSource]="(asset_list | async) || []"
                             [columns]="[
                                 'id',
                                 'identifier',
@@ -407,6 +413,21 @@ export class AssetViewComponent extends AsyncHandler {
     public loading = false;
     public deleting = false;
     public readonly item = this._state.active_product;
+    public readonly asset_list = combineLatest([
+        this.item,
+        this._state.extra_assets,
+    ]).pipe(
+        map(([item, assets]) => {
+            if (!item) return [];
+            return unique(
+                [
+                    ...item.assets,
+                    ...assets.filter((_) => _.type_id === item.id),
+                ],
+                'id'
+            );
+        })
+    );
     public readonly requests = this._state.active_product_requests.pipe(
         map((req) =>
             req.filter(

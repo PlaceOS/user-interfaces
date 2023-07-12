@@ -197,7 +197,7 @@ export class AssetBulkFormComponent extends AsyncHandler {
         }
         this.loading = 'Saving Product...';
         const data = this.form.value;
-        const item = await addAssetsInBulk(
+        const list = await addAssetsInBulk(
             new Array(this.count).fill({
                 ...data,
                 zone_id: this._org.building.id,
@@ -209,6 +209,9 @@ export class AssetBulkFormComponent extends AsyncHandler {
                 notifyError(`Error saving asset: ${e.message}`);
                 throw e;
             });
+        this._state.setExtraAssets(
+            list.map((d) => ({ ...d, type_id: this.product.id }))
+        );
         this.form.reset();
         this._state.postChange();
         this._router.navigate(['/book/assets', 'view', this.product?.id]);
