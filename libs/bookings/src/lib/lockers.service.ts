@@ -31,6 +31,7 @@ export interface LockerBank {
 export interface Locker {
     id: string;
     bank_id: string;
+    level_id?: string;
     name: string;
     accessible: boolean;
     bookable: boolean;
@@ -71,7 +72,7 @@ export class LockersService {
 
     public readonly lockers$ = this.lockers_banks$.pipe(
         map((bank_list) => {
-            const lockers = [];
+            const lockers: Locker[] = [];
             for (const bank of bank_list) {
                 lockers.push(
                     ...bank.lockers.map(

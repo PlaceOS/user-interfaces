@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Booking, queryBookings } from '@placeos/bookings';
+import { Booking, LockersService, queryBookings } from '@placeos/bookings';
 import {
     AsyncHandler,
     currentUser,
@@ -183,47 +183,54 @@ export class ScheduleStateService extends AsyncHandler {
         shareReplay(1)
     );
     /** List of parking bookings for the selected date */
-    public readonly lockers: Observable<Booking[]> =
+    public readonly lockers: Observable<Booking[]> = combineLatest([
         this._org.active_building.pipe(
             filter((_) => !!_),
-            distinctUntilKeyChanged('id'),
-            debounceTime(300),
-            switchMap((bld) => {
-                const system_id = this._org.binding('lockers');
-                console.log('Lockers:', bld, system_id);
-                if (!system_id) return of([]);
-                const mod = getModule(system_id, 'LockerLocations');
-                return mod.execute('lockers_allocated_to_me').catch((_) => []);
-            }),
-            map((_) =>
-                _.map(
-                    (i) =>
-                        new Booking({
-                            date: startOfDay(Date.now()).valueOf(),
-                            duration: 24 * 60 - 1,
-                            title: 'Locker Booking',
-                            description: i.locker_name,
-                            booking_type: 'locker',
-                            all_day: true,
-                            asset_id: i.locker_id,
-                            asset_name: i.locker_name,
-                            zones: [i.building, i.level],
-                            extension_data: {
-                                map_id: i.locker_id,
-                            },
-                        })
-                )
-            ),
-            catchError((e) => {
-                console.error(e);
-                return of([]);
-            }),
-            tap((data) => {
-                console.log('Your Lockers:', data);
-                this.timeout('end_loading', () => this._loading.next(false));
-            }),
-            shareReplay(1)
-        );
+            distinctUntilKeyChanged('id')
+        ),
+        this._lockers.lockers$,
+    ]).pipe(
+        debounceTime(300),
+        switchMap(async ([bld, lockers]) => {
+            const system_id = this._org.binding('lockers');
+            console.log('Lockers:', bld, system_id);
+            if (!system_id) return of([]);
+            const mod = getModule(system_id, 'LockerLocations');
+            return [
+                await mod.execute('lockers_allocated_to_me').catch((_) => []),
+                lockers,
+            ] as any;
+        }),
+        map(([_, lockers]) =>
+            _.map((i) => {
+                const locker = lockers.find((_) => _.id === i.locker_id);
+                i.level = i.level || locker.level_id;
+                i.building =
+                    i.building ||
+                    this._org.levelWithID([locker.level_id])?.parent_id;
+                return new Booking({
+                    date: startOfDay(Date.now()).valueOf(),
+                    duration: 24 * 60 - 1,
+                    title: 'Locker Booking',
+                    description: i.locker_name,
+                    booking_type: 'locker',
+                    all_day: true,
+                    asset_id: i.locker_id,
+                    asset_name: i.locker_name,
+                    zones: [i.building, i.level],
+                    extension_data: {
+                        map_id: i.locker_id,
+                    },
+                });
+            })
+        ),
+        catchError(() => of([])),
+        tap((data) => {
+            console.log('Your Lockers:', data);
+            this.timeout('end_loading', () => this._loading.next(false));
+        }),
+        shareReplay(1)
+    );
 
     /** List of events and bookings for the selected date */
     public readonly bookings = combineLatest([
@@ -261,7 +268,8 @@ export class ScheduleStateService extends AsyncHandler {
 
     constructor(
         private _settings: SettingsService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _lockers: LockersService
     ) {
         super();
         this.subscription(
