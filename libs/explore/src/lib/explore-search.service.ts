@@ -142,13 +142,16 @@ export class ExploreSearchService {
                             description: `Capacity: ${s.capacity} `,
                         })),
                     ...contacts
-                        .map((u) => ({
-                            id: u.email,
-                            type: (u as any).type || 'contact',
-                            is_role: true,
-                            name: u.name,
-                            description: u.email,
-                        }))
+                        .map(
+                            (u) =>
+                                ({
+                                    id: u.email,
+                                    type: (u as any).type || 'contact',
+                                    is_role: true,
+                                    name: u.name,
+                                    description: u.email,
+                                } as any)
+                        )
                         .filter(
                             (_) =>
                                 _.name.toLowerCase().includes(search) ||
