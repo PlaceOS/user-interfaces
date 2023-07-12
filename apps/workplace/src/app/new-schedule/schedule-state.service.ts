@@ -194,7 +194,7 @@ export class ScheduleStateService extends AsyncHandler {
         switchMap(async ([bld, lockers]) => {
             const system_id = this._org.binding('lockers');
             console.log('Lockers:', bld, system_id);
-            if (!system_id) return of([]);
+            if (!system_id) return of([[], lockers]);
             const mod = getModule(system_id, 'LockerLocations');
             return [
                 await mod.execute('lockers_allocated_to_me').catch((_) => []),
