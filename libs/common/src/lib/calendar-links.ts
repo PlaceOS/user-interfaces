@@ -87,7 +87,7 @@ export function generateGoogleCalendarLink(event: CalEvent): string {
 
 export function generateMicrosoftCalendarLink(
     event: CalEvent,
-    type: 'outlook' | 'office' = 'outlook'
+    type: 'outlook' | 'office' = 'office'
 ): string {
     if (!event.date) event.date = Date.now();
     const data: any = {
