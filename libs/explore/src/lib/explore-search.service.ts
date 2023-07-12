@@ -34,6 +34,8 @@ export interface SearchResult {
     name: string;
     /** Secondary display string for the item. e.g. email, location, coordinates */
     description: string;
+    /** Whether custom user */
+    is_role?: boolean;
 }
 
 @Injectable({
@@ -143,6 +145,7 @@ export class ExploreSearchService {
                         .map((u) => ({
                             id: u.email,
                             type: (u as any).type || 'contact',
+                            is_role: true,
                             name: u.name,
                             description: u.email,
                         }))
