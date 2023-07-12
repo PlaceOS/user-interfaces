@@ -207,6 +207,16 @@ export class ApplicationSidebarComponent extends AsyncHandler {
                     route: ['/reports/new/bookings'],
                 },
                 {
+                    id: 'desk-report',
+                    name: 'Bookings',
+                    route: ['/reports/new/desks'],
+                },
+                {
+                    id: 'catering-report',
+                    name: 'Bookings',
+                    route: ['/reports/new/catering'],
+                },
+                {
                     id: 'contact-tracing-report',
                     name: 'Contact Tracing',
                     route: ['/reports/new/contact-tracing'],
