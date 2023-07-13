@@ -150,7 +150,7 @@ export class PanelBookingListComponent {
     );
     /** Whether current event has started */
     public readonly started = combineLatest([this.current, interval(600)]).pipe(
-        map(([c]) => isAfter(Date.now(), c.date))
+        map(([c]) => isAfter(Date.now(), c?.date))
     );
     /** Display string for time until current event's start */
     public readonly starting_in = combineLatest([
