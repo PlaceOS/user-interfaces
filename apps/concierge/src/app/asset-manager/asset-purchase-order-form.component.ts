@@ -3,12 +3,15 @@ import { AssetManagerStateService } from './asset-manager-state.service';
 import {
     AssetPurchaseOrder,
     generateAssetPurchaseOrderForm,
+    queryAssets,
     saveAssetPurchaseOrder,
     showAssetPurchaseOrder,
 } from '@placeos/assets';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, notifyError, notifySuccess } from '@placeos/common';
 import { addYears, getUnixTime } from 'date-fns';
+import { BehaviorSubject } from 'rxjs';
+import { filter, shareReplay, switchMap } from 'rxjs/operators';
 
 @Component({
     selector: 'asset-purchase-order-form',
@@ -93,6 +96,35 @@ import { addYears, getUnixTime } from 'date-fns';
                             ></a-date-field>
                         </div>
                     </div>
+                    <h3 *ngIf="item?.id" class="font-medium mb-2">
+                        Associated Assets ({{
+                            (asset_list | async)?.length || '0'
+                        }})
+                    </h3>
+                    <custom-table
+                        asset-view
+                        class="w-full block text-sm"
+                        *ngIf="item?.id"
+                        [dataSource]="(asset_list | async) || []"
+                        [columns]="[
+                            'id',
+                            'identifier',
+                            'serial_number',
+                            'actions'
+                        ]"
+                        [display_column]="[
+                            'ID',
+                            'Label/Friendly Name',
+                            'Serial Number',
+                            ' '
+                        ]"
+                        [column_size]="['10r', '11r', '8r', 'flex']"
+                        [template]="{
+                            actions: action_template,
+                        }"
+                        empty="No assets for this purchase order"
+                    >
+                    </custom-table>
                 </main>
                 <footer
                     class="flex justify-end space-x-2 p-2 border-t border-gray-100"
@@ -130,8 +162,14 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
     public readonly form = generateAssetPurchaseOrderForm();
     public loading: string = '';
     public product_id: string;
+    public readonly _id = new BehaviorSubject('');
     public item: AssetPurchaseOrder;
     public readonly from = addYears(Date.now(), -5);
+    public readonly asset_list = this._id.pipe(
+        filter((_) => !!_),
+        switchMap((id) => queryAssets({ order_id: id })),
+        shareReplay(1)
+    );
 
     constructor(
         private _state: AssetManagerStateService,
@@ -164,6 +202,7 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
                             asset.expected_service_start_date * 1000,
                     });
                     this.item = asset;
+                    this._id.next(asset.id);
                     this.loading = '';
                 }
                 if (params.get('group_id')) {
