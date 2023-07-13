@@ -210,7 +210,7 @@ export class ScheduleStateService extends AsyncHandler {
                 i.level = i.level || locker?.level_id;
                 i.building =
                     i.building ||
-                    this._org.levelWithID([locker.level_id])?.parent_id;
+                    this._org.levelWithID([locker?.level_id])?.parent_id;
                 return new Booking({
                     date: startOfDay(Date.now()).valueOf(),
                     duration: 24 * 60 - 1,
