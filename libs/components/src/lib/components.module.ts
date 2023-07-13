@@ -63,7 +63,6 @@ import { BuildingSelectComponent } from './building-select.component';
 import { RegionSelectComponent } from './region-select.component';
 import { HelpTooltipComponent } from './help-tooltip.component';
 import { AccessibilityTooltipComponent } from './accessibility-tooltip.component';
-import { SupportTicketModalComponent } from './support-ticket-modal.component';
 import { LanguageSelectComponent } from './language-tooltip.component';
 
 const MAT_MODULES: any[] = [
@@ -128,7 +127,6 @@ const COMPONENTS: Type<any>[] = [
     RegionSelectComponent,
     HelpTooltipComponent,
     AccessibilityTooltipComponent,
-    SupportTicketModalComponent,
     LanguageSelectComponent,
 ];
 

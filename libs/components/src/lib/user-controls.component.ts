@@ -10,7 +10,7 @@ import { BuildingSelectComponent } from './building-select.component';
 import { HelpTooltipComponent } from './help-tooltip.component';
 import { LanguageSelectComponent } from './language-tooltip.component';
 import { RegionSelectComponent } from './region-select.component';
-import { SupportTicketModalComponent } from './support-ticket-modal.component';
+import { SupportTicketModalComponent } from 'libs/form-fields/src/lib/support-ticket-modal.component';
 
 export interface AppLocale {
     id: string;

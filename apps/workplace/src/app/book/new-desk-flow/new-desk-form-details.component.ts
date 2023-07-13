@@ -287,6 +287,9 @@ export class NewDeskFormDetailsComponent extends AsyncHandler {
             if (this.form.value.resources?.length) {
                 this.setBookingAsset(this.form.value.resources[0]);
             }
+            if (this.selected_desk?.id) {
+                this.form.patchValue({ resources: [this.selected_desk] });
+            }
         }
     }
 

@@ -73,6 +73,12 @@ import { getModule } from '@placeos/ts-client';
                         Description is required
                     </mat-error>
                 </div>
+                <div *ngIf="allow_images">
+                    <label class="mb-4" i18n>Images</label>
+                    <image-list-field
+                        formControlName="images"
+                    ></image-list-field>
+                </div>
             </form>
             <div class="italic text-center text-xs mb-2" i18n>
                 Completing this form will raise an incident in your support
@@ -111,6 +117,7 @@ export class SupportTicketModalComponent {
         email: new FormControl('', [Validators.required]),
         location: new FormControl(''),
         description: new FormControl('', [Validators.required]),
+        images: new FormControl([]),
     });
 
     public get desc_error() {
@@ -122,6 +129,10 @@ export class SupportTicketModalComponent {
 
     public get support_email() {
         return this._settings.get('app.support_email') || 'support@place.tech';
+    }
+
+    public get allow_images() {
+        return this._settings.get('app.allow_support_ticket_images');
     }
 
     public readonly buildings = this._org.building_list;
@@ -160,11 +171,14 @@ export class SupportTicketModalComponent {
                 );
             }
             const mod = getModule(stmp_system, 'Mailer');
-            const { name, email, location, description } = this.form.value;
+            const { name, email, location, description, images } =
+                this.form.value;
             await mod.execute('send_mail', [
                 this.support_email,
                 `Support Ticket from Workplace Application`,
-                `${name}\n\n${location}\n\n${description}`,
+                `${name}\n\n${location}\n\n${description}\n\n${images.join(
+                    '\n'
+                )}`,
                 null,
                 [],
                 [],
