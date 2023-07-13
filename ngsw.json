@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1689218310340,
+  "timestamp": 1689222257561,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -139,10 +139,10 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "8d3f9e9275ebeadb3a7b21c7bc9d033487f255ca",
+    "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "8599928f419abf35088cea53927414daed2657d2",
     "./apps_concierge_src_app_catering_catering_module_ts.js": "870ff74779cab9e685e93b006d4e535d06efc74f",
     "./apps_concierge_src_app_day-view_day-view_module_ts.js": "dc4b7f781491b34a2f4039d5549d5d972bf6c38e",
-    "./apps_concierge_src_app_desks_desks_module_ts.js": "f7213cfd70e51e0a91d1cb272626376484188ce4",
+    "./apps_concierge_src_app_desks_desks_module_ts.js": "0857af61b78b7220f607921f1bc51b6ebff17ccc",
     "./apps_concierge_src_app_events_events_module_ts.js": "e7e684d77079cc6b102faafc809ab68f98ce867a",
     "./apps_concierge_src_app_facilities_facilities_module_ts.js": "81e26ab1891d93989f495115d609f15f857abac7",
     "./apps_concierge_src_app_parking_parking_module_ts.js": "8ee1b4bf3f5c5b2cec0a694eb2342b94c3088b19",
@@ -230,13 +230,13 @@
     "./common.js": "5ed34c60bef4f510841c1274218e77866f1fe6ca",
     "./default-libs_bookings_src_lib_bookings_module_ts.js": "aa5b173a5835dcf71cf63c82c76845f696480532",
     "./default-libs_catering_src_index_ts.js": "39f4a2cd97776d7304150fcde923d31e51fc6b40",
-    "./default-libs_explore_src_index_ts.js": "cf38d6debbf8e8a863f9aecfeddb5817bdab0045",
+    "./default-libs_explore_src_index_ts.js": "81a023fb3889f6761691007728f12e8b405db652",
     "./default-libs_users_src_index_ts.js": "f7d59cfc4b72e68439dcc8e3d3fb2999f0401403",
     "./default-node_modules_angular_material_fesm2022_icon_mjs.js": "3e166e9676cd92bc813c1d451c6aa5637897466d",
     "./default-node_modules_angular_material_fesm2022_tabs_mjs.js": "0c286fe2922a6d7979b37b76cecc0e99c4cb7db2",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "ac2c10d2e85355cb449d8cada0bc9ffd2cb972e8",
-    "./main.js": "c2bc00c40acda098d6ad59f6eaa30b3dbbe2622d",
+    "./main.js": "e730d8b6f920fe4fe787418b8d97edf5ef3ea1ed",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
