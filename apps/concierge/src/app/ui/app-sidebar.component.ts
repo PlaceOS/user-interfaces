@@ -265,7 +265,12 @@ export class ApplicationSidebarComponent extends AsyncHandler {
             const link = this.filtered_links.find((_) => _.id === 'home');
             link.route = this._settings.get('app.default_route') || ['/'];
         }
-        if (admin_group && !currentUser().groups.includes(admin_group)) {
+        const groups = currentUser().groups;
+        if (
+            !groups.includes(admin_group) &&
+            !groups.includes('placeos_admin') &&
+            !groups.includes('placeos_support')
+        ) {
             this.filtered_links = this.filtered_links.filter(
                 (_) => _.id !== 'facilities'
             );
