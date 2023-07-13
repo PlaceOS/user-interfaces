@@ -8,7 +8,12 @@ import {
     showAsset,
     showAssetGroup,
 } from '@placeos/assets';
-import { AsyncHandler, getInvalidFields, notifyError } from '@placeos/common';
+import {
+    AsyncHandler,
+    getInvalidFields,
+    notifyError,
+    notifySuccess,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 @Component({
@@ -214,6 +219,7 @@ export class AssetBulkFormComponent extends AsyncHandler {
         );
         this.form.reset();
         this._state.postChange();
+        notifySuccess(`Asset added ${list.length} successfully.`);
         this._router.navigate(['/book/assets', 'view', this.product?.id]);
         this.loading = '';
     }

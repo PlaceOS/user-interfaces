@@ -8,7 +8,12 @@ import {
     showAsset,
     showAssetGroup,
 } from '@placeos/assets';
-import { AsyncHandler, getInvalidFields, notifyError } from '@placeos/common';
+import {
+    AsyncHandler,
+    getInvalidFields,
+    notifyError,
+    notifySuccess,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 @Component({
@@ -213,6 +218,10 @@ export class AssetFormComponent extends AsyncHandler {
             });
         this.form.reset();
         this._state.postChange();
+        this._state.setExtraAssets(
+            [item].map((d) => ({ ...d, type_id: this.product.id }))
+        );
+        notifySuccess('Asset saved successfully.');
         this._router.navigate(['/book/assets', 'view', this.product?.id]);
         this.loading = '';
     }
