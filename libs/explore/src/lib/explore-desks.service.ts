@@ -66,41 +66,11 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     private _statuses: Record<string, string> = {};
     private _users: Record<string, string> = {};
     private _departments: Record<string, string> = {};
-    private _poll = new BehaviorSubject<number>(0);
 
     private _checked_in = new BehaviorSubject<string[]>([]);
 
-    private _desk_bookings = combineLatest([
-        this._state.level,
-        this._options,
-        this._poll,
-    ]).pipe(
-        filter(([lvl]) => !!lvl),
-        debounceTime(600),
-        switchMap(([lvl, { date }]) =>
-            queryBookings({
-                period_start: getUnixTime(startOfMinute(date || Date.now())),
-                period_end: getUnixTime(addMinutes(date || Date.now(), 60)),
-                type: 'desk',
-                zones: lvl.id,
-            }).pipe(catchError(() => of([] as Booking[])))
-        ),
-        tap((l) => {
-            this._users = {};
-            this._departments = {};
-            l.forEach((b) => {
-                const departments =
-                    this._settings.get('app.department_map') || {};
-                this._users[b.asset_id] = b.user_name;
-                this._departments[b.asset_id] =
-                    departments[b.extension_data.department] || '';
-            });
-        }),
-        shareReplay(1)
-    );
-
     public readonly restrictions: Observable<AssetRestriction[]> =
-        this._poll.pipe(
+        this._org.active_building.pipe(
             switchMap(() => {
                 return showMetadata(
                     this._org.building.id,
@@ -213,17 +183,8 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         );
     }
 
-    public startPolling(delay: number = 10 * 1000) {
-        return () => this.stopPolling();
-    }
-
-    public stopPolling() {
-        this.clearInterval('poll');
-    }
-
     public setOptions(options: DeskOptions) {
         this._options.next({ ...this._options.getValue(), ...options });
-        if (options.date) this._poll.next(Date.now());
     }
 
     public processBindingChange(
