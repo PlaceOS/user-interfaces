@@ -222,7 +222,6 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         this.resetKiosk();
         VirtualKeyboardComponent.enabled =
             localStorage.getItem('OSK.enabled') === 'true';
-        this.subscription('desks', this._desks.startPolling());
         this.subscription(
             'level',
             this._state.level.subscribe(() =>
