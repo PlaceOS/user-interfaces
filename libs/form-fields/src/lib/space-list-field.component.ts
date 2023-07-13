@@ -116,11 +116,11 @@ const EMPTY_FAVS: string[] = [];
                     matRipple
                     name="toggle-space-favourite"
                     class="absolute top-1 right-1"
-                    [class.text-blue-400]="favorites.includes(asset?.id)"
-                    (click)="toggleFavourite(asset)"
+                    [class.text-blue-400]="favorites.includes(space?.id)"
+                    (click)="toggleFavourite(space)"
                 >
                     <app-icon>{{
-                        favorites.includes(asset?.id)
+                        favorites.includes(space?.id)
                             ? 'favorite'
                             : 'favorite_border'
                     }}</app-icon>
