@@ -32,6 +32,7 @@ export interface Locker {
     id: string;
     bank_id: string;
     level_id?: string;
+    map_id?: string;
     name: string;
     accessible: boolean;
     bookable: boolean;
@@ -80,6 +81,7 @@ export class LockersService {
                             ({
                                 ..._,
                                 bank_id: bank.id,
+                                map_id: bank.map_id,
                                 level_id: bank.zone.id,
                             } as Locker)
                     )

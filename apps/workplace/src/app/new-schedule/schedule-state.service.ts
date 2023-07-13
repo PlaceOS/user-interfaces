@@ -1,5 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Booking, LockersService, queryBookings } from '@placeos/bookings';
+import {
+    Booking,
+    Locker,
+    LockersService,
+    queryBookings,
+} from '@placeos/bookings';
 import {
     AsyncHandler,
     currentUser,
@@ -194,7 +199,7 @@ export class ScheduleStateService extends AsyncHandler {
         switchMap(async ([bld, lockers]) => {
             const system_id = this._org.binding('lockers');
             console.log('Lockers:', bld, system_id, lockers);
-            if (!system_id) return of([[], lockers]);
+            if (!system_id) return of([[], lockers]) as any;
             const mod = getModule(system_id, 'LockerLocations');
             return [
                 await mod.execute('lockers_allocated_to_me').catch((_) => {
@@ -202,11 +207,14 @@ export class ScheduleStateService extends AsyncHandler {
                     return [];
                 }),
                 lockers,
-            ] as any;
+            ];
         }),
         map(([_, lockers]) =>
             _.map((i) => {
-                const locker = lockers.find((_) => _.id === i.locker_id);
+                const locker = (lockers as Locker[]).find(
+                    (_) => _.id === i.locker_id
+                );
+                if (!locker && (!i.level || !i.building)) return null;
                 i.level = i.level || locker?.level_id;
                 i.building =
                     i.building ||
@@ -218,14 +226,14 @@ export class ScheduleStateService extends AsyncHandler {
                     description: i.locker_name,
                     booking_type: 'locker',
                     all_day: true,
-                    asset_id: i.locker_id,
+                    asset_id: locker.map_id,
                     asset_name: i.locker_name,
                     zones: [i.building, i.level],
                     extension_data: {
                         map_id: i.locker_id,
                     },
                 });
-            })
+            }).filter((_) => _)
         ),
         catchError((e) => {
             console.log('Locker Error:', e);
