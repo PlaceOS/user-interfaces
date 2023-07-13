@@ -284,6 +284,9 @@ export class NewDeskFormDetailsComponent extends AsyncHandler {
                     list?.length ? this.setBookingAsset(list[0]) : '';
                 })
             );
+            if (this.form.value.resources?.length) {
+                this.setBookingAsset(this.form.value.resources[0]);
+            }
         }
     }
 
