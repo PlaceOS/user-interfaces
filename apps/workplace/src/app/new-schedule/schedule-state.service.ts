@@ -204,7 +204,7 @@ export class ScheduleStateService extends AsyncHandler {
         map(([_, lockers]) =>
             _.map((i) => {
                 const locker = lockers.find((_) => _.id === i.locker_id);
-                i.level = i.level || locker.level_id;
+                i.level = i.level || locker?.level_id;
                 i.building =
                     i.building ||
                     this._org.levelWithID([locker.level_id])?.parent_id;
@@ -224,7 +224,10 @@ export class ScheduleStateService extends AsyncHandler {
                 });
             })
         ),
-        catchError(() => of([])),
+        catchError((e) => {
+            console.log(e);
+            return of([]);
+        }),
         tap((data) => {
             console.log('Your Lockers:', data);
             this.timeout('end_loading', () => this._loading.next(false));
