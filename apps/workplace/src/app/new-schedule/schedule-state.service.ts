@@ -193,11 +193,14 @@ export class ScheduleStateService extends AsyncHandler {
         debounceTime(300),
         switchMap(async ([bld, lockers]) => {
             const system_id = this._org.binding('lockers');
-            console.log('Lockers:', bld, system_id);
+            console.log('Lockers:', bld, system_id, lockers);
             if (!system_id) return of([[], lockers]);
             const mod = getModule(system_id, 'LockerLocations');
             return [
-                await mod.execute('lockers_allocated_to_me').catch((_) => []),
+                await mod.execute('lockers_allocated_to_me').catch((_) => {
+                    console.log('Locker Error:', _);
+                    return [];
+                }),
                 lockers,
             ] as any;
         }),
@@ -225,7 +228,7 @@ export class ScheduleStateService extends AsyncHandler {
             })
         ),
         catchError((e) => {
-            console.log(e);
+            console.log('Locker Error:', e);
             return of([]);
         }),
         tap((data) => {

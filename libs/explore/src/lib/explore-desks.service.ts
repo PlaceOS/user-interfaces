@@ -214,26 +214,6 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     }
 
     public startPolling(delay: number = 10 * 1000) {
-        // this.subscription(
-        //     'desks_in_use_bookings',
-        //     this._desk_bookings.subscribe((_) => {
-        //         const actives = _.filter(
-        //             (e) =>
-        //                 !(
-        //                     e.rejected ||
-        //                     e.deleted ||
-        //                     e.extension_data.current_state === 'ended' ||
-        //                     e.is_done
-        //                 )
-        //         );
-        //         this._in_use.next(actives.map((i) => i.asset_id));
-        //         this._checked_in.next(
-        //             actives.filter((e) => e.checked_in).map((i) => i.asset_id)
-        //         );
-        //     })
-        // );
-        // this._poll.next(Date.now());
-        // this.interval('poll', () => this._poll.next(Date.now()), delay);
         return () => this.stopPolling();
     }
 
