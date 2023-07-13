@@ -62,7 +62,12 @@ import { User } from 'libs/users/src/lib/user.class';
                             </label>
                             <a-time-field
                                 name="start-time"
-                                formControlName="date"
+                                [ngModel]="form.value.date"
+                                (ngModelChange)="
+                                    form.patchValue({ date: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                                [disabled]="form.value.all_day"
                             ></a-time-field>
                         </div>
                         <div class="flex-1 flex flex-col w-1/3">
