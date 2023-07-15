@@ -208,7 +208,9 @@ export class OrganisationService {
      * @param bld Building to list levels for
      */
     public levelsForBuilding(bld: Building = this.building): BuildingLevel[] {
-        return this.levels.filter((lvl) => lvl.parent_id === bld?.id);
+        return this.levels.filter(
+            (lvl) => lvl.parent_id && lvl.parent_id === bld?.id
+        );
     }
 
     /**

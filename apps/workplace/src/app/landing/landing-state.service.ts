@@ -220,9 +220,7 @@ export class LandingStateService extends AsyncHandler {
     }
 
     private async updateOccupancy(map: HashMap<{ recommendation: number }>) {
-        const levels = [
-            ...(await this._org.active_levels.pipe(take(1)).toPromise()),
-        ];
+        const levels = this._org.levelsForBuilding();
         levels.sort(
             (a, b) => map[a.id]?.recommendation - map[b.id]?.recommendation
         );
