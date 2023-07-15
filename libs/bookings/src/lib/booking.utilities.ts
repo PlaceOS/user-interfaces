@@ -46,7 +46,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
     form.valueChanges.subscribe((v) => {
         const user = v.user;
         const booker = v.booked_by || currentUser();
-        booker || user
+        (booker || user)
             ? form.patchValue(
                   {
                       user_id: user?.id || booker?.id,
