@@ -50,7 +50,7 @@ jobs:
               shell: bash
               id: build_ext
               run: |
-                  if [[ ${{ steps.branch_name.outputs.name }} == "release" ]] || [[ ${{ steps.branch_name.outputs.name }} == release/* ]] || [[ ${{ steps.branch_name.outputs.name }} == "main" ]]
+                  if [[ ${{ steps.branch_name.outputs.name }} == "release" ]] || [[ ${{ steps.branch_name.outputs.name }} == "release"* ]] || [[ ${{ steps.branch_name.outputs.name }} == "main" ]]
                   then
                       echo "configuration=production" >> $GITHUB_OUTPUT
                       echo "deploy_branch=prod" >> $GITHUB_OUTPUT
