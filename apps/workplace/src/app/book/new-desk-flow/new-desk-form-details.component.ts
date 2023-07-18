@@ -9,6 +9,7 @@ import { FormGroup } from '@angular/forms';
 import { BookingFormService } from '@placeos/bookings';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
+import { addDays, endOfDay } from 'date-fns';
 
 @Component({
     selector: 'new-desk-form-details',
@@ -90,7 +91,12 @@ import { Desk, OrganisationService } from '@placeos/organisation';
                     </div>
                     <div class="flex-1 min-w-[256px]">
                         <label for="date" i18n>Date<span>*</span></label>
-                        <a-date-field name="date" formControlName="date" i18n>
+                        <a-date-field
+                            name="date"
+                            formControlName="date"
+                            [to]="end_date"
+                            i18n
+                        >
                             Date and time must be in the future
                         </a-date-field>
                     </div>
@@ -265,6 +271,15 @@ export class NewDeskFormDetailsComponent extends AsyncHandler {
         return (
             this.allow_time_changes &&
             !!this._settings.get('app.desks.allow_all_day')
+        );
+    }
+
+    public get end_date() {
+        return endOfDay(
+            addDays(
+                Date.now(),
+                this._settings.get('app.desks.available_period') || 90
+            )
         );
     }
 
