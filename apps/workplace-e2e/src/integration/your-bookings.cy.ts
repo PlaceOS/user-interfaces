@@ -2,8 +2,10 @@ describe('Your Bookings', () => {
     beforeEach(() => cy.visit('/#/your-bookings?mock=true'));
 
     it('should display calendar', () => {
-        cy.get('global-loading');
-        cy.get('schedule-sidebar');
+        cy.get('global-loading').then(() => {
+            cy.wait(3000);
+            cy.get('schedule-sidebar');
+        });
     });
 
     // #region ROOM BOOKINGS
@@ -582,6 +584,100 @@ describe('Your Bookings', () => {
         //     .then(() => {
         //         cy.contains('11:45').should('exist');
         //     });
+    });
+
+    it('should allow the end time of an accepted space booking to be edited', () => {
+        cy.visit('/#/book/meeting?mock=true');
+
+        cy.get('input[name="title"]')
+            .type('Edit End Time Cypress Test Booking')
+            .then(() => {
+                cy.get('button[name="add-space"]')
+                    .click({ force: true })
+                    .then(() => {
+                        cy.wait(6000);
+                        cy.get('button[name="select-space"]')
+                            .first()
+                            .click({ force: true })
+                            .then(() => {
+                                cy.get('button[name="toggle-space"]')
+                                    .click({ force: true })
+                                    .then(() => {
+                                        cy.get(
+                                            'button[name="open-meeting-confirm"]'
+                                        )
+                                            .click({ force: true })
+                                            .then(() => {
+                                                cy.get(
+                                                    'button[name="confirm-meeting"]'
+                                                )
+                                                    .click({ force: true })
+                                                    .then(() => {
+                                                        cy.wait(3000);
+                                                        cy.get(
+                                                            'a[name="meeting-created-continue"]'
+                                                        ).click({
+                                                            force: true,
+                                                        });
+                                                    });
+                                            });
+                                    });
+                            });
+                    });
+            });
+
+        cy.wait(3000);
+        cy.visit('/#/your-bookings?mock=true');
+        cy.wait(3000);
+        cy.get('event-card')
+            .contains('Edit End Time Cypress Test Booking')
+            .click({
+                force: true,
+            })
+            .then(() => {
+                cy.get('button')
+                    .find('i')
+                    .contains('more_horiz')
+                    .click({ force: true })
+                    .then(() => {
+                        cy.get('button')
+                            .find('div')
+                            .contains('Edit event')
+                            .click({ force: true });
+                    });
+
+                cy.get('a-duration-field')
+                    .find('mat-select')
+                    .first()
+                    .click({ force: true })
+                    .then(() => {
+                        cy.get('mat-option').eq(6).scrollIntoView().click();
+                        cy.get('mat-select').should('contain', '2 hours');
+                        cy.get('button[name="open-meeting-confirm"]')
+                            .click({ force: true })
+                            .then(() => {
+                                cy.get('button[name="confirm-meeting"]')
+                                    .click({ force: true })
+                                    .then(() => {
+                                        cy.wait(6000);
+                                        cy.get(
+                                            'a[name="meeting-created-continue"]'
+                                        ).click({
+                                            force: true,
+                                        });
+                                    });
+                            });
+                    });
+            });
+
+        cy.wait(3000);
+        cy.visit('/#/your-bookings?mock=true');
+        cy.get('a')
+            .contains('Edit End Time Cypress Test Booking')
+            .click({ force: true })
+            .then(() => {
+                cy.contains('2hrs').should('exist');
+            });
     });
 
     // #endregion
