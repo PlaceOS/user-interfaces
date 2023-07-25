@@ -41,9 +41,7 @@ describe('ExploreMapViewComponent', () => {
         ],
         componentProviders: [
             MockProvider(ExploreSpacesService),
-            MockProvider(ExploreDesksService, {
-                startPolling: jest.fn(() => () => null),
-            }),
+            MockProvider(ExploreDesksService),
             MockProvider(ExploreZonesService),
             MockProvider(ExploreParkingService),
             MockProvider(ExploreLockersService),

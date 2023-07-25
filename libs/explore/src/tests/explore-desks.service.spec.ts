@@ -2,13 +2,16 @@ import { MatDialog } from '@angular/material/dialog';
 import { fakeAsync, tick } from '@angular/core/testing';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { SettingsService } from '@placeos/common';
-import { BuildingLevel, OrganisationService } from '@placeos/organisation';
+import {
+    Building,
+    BuildingLevel,
+    OrganisationService,
+} from '@placeos/organisation';
 import { BehaviorSubject, of } from 'rxjs';
 
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 import { DesksService } from 'libs/bookings/src/lib/desk.service';
 
-import { DEFAULT_COLOURS } from '../lib/explore-spaces.service';
 import { ExploreDesksService } from '../lib/explore-desks.service';
 import { ExploreStateService } from '../lib/explore-state.service';
 
@@ -17,34 +20,30 @@ jest.mock('@placeos/bookings');
 
 import * as ts_client from '@placeos/ts-client';
 import * as booking_mod from '@placeos/bookings';
+import { MockProvider } from 'ng-mocks';
 
 describe('ExploreDesksService', () => {
     let spectator: SpectatorService<ExploreDesksService>;
     const createService = createServiceFactory({
         service: ExploreDesksService,
         providers: [
-            {
-                provide: ExploreStateService,
-                useValue: {
-                    level: new BehaviorSubject(null),
-                    setFeatures: jest.fn(),
-                    setStyles: jest.fn(),
-                    setActions: jest.fn(),
-                },
-            },
-            {
-                provide: OrganisationService,
-                useValue: {
-                    binding: jest.fn(() => 'sys-1'),
-                    initialised: of(true),
-                    levels: [],
-                    buildings: [],
-                },
-            },
-            { provide: SettingsService, useValue: { get: jest.fn() } },
-            { provide: DesksService, useValue: {} },
-            { provide: BookingFormService, useValue: {} },
-            { provide: MatDialog, useValue: { open: jest.fn() } },
+            MockProvider(ExploreStateService, {
+                level: new BehaviorSubject(null),
+                setFeatures: jest.fn(),
+                setStyles: jest.fn(),
+                setActions: jest.fn(),
+            }),
+            MockProvider(OrganisationService, {
+                binding: jest.fn(() => 'sys-1'),
+                active_building: new BehaviorSubject(new Building()),
+                initialised: of(true),
+                levels: [],
+                buildings: [],
+            }),
+            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(DesksService, {}),
+            MockProvider(BookingFormService, {}),
+            MockProvider(MatDialog, { open: jest.fn() }),
         ],
     });
 

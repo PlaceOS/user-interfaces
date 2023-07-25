@@ -8,7 +8,7 @@ import {
 import { IconComponent, InteractiveMapComponent } from '@placeos/components';
 import { ExploreStateService } from '@placeos/explore';
 import { ActionFieldComponent } from '@placeos/form-fields';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { DeskFlowDetailedFormComponent } from 'apps/workplace/src/app/book/desk-flow/detailed-form.component';
 import { DeskFlowMapComponent } from 'apps/workplace/src/app/book/desk-flow/map.component';
@@ -21,31 +21,25 @@ describe('DeskFlowMapComponent', () => {
     const createComponent = createRoutingFactory({
         component: DeskFlowMapComponent,
         providers: [
-            {
-                provide: BookingFormService,
-                useValue: {
-                    setOptions: jest.fn(),
-                    form: generateBookingForm(new Booking()),
-                    assets: new BehaviorSubject([]),
-                    options: new BehaviorSubject({}),
-                    available_resources: new BehaviorSubject([]),
-                    loading: new BehaviorSubject(false),
-                },
-            },
-            {
-                provide: ExploreStateService,
-                useValue: {
-                    setOptions: jest.fn(),
-                    map_url: new BehaviorSubject(''),
-                    map_styles: new BehaviorSubject({}),
-                    map_positions: new BehaviorSubject({}),
-                    map_features: new BehaviorSubject({}),
-                    map_actions: new BehaviorSubject({}),
-                    map_labels: new BehaviorSubject({}),
-                    level: new BehaviorSubject({}),
-                },
-            },
-            { provide: SettingsService, useValue: { get: jest.fn() } },
+            MockProvider(BookingFormService, {
+                setOptions: jest.fn(),
+                form: generateBookingForm(new Booking()),
+                resources: new BehaviorSubject([]),
+                options: new BehaviorSubject({}),
+                available_resources: new BehaviorSubject([]),
+                loading: new BehaviorSubject(false),
+            } as any),
+            MockProvider(ExploreStateService, {
+                setOptions: jest.fn(),
+                map_url: new BehaviorSubject(''),
+                map_styles: new BehaviorSubject({}),
+                map_positions: new BehaviorSubject({}),
+                map_features: new BehaviorSubject({}),
+                map_actions: new BehaviorSubject({}),
+                map_labels: new BehaviorSubject({}),
+                level: new BehaviorSubject({}),
+            } as any),
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
         declarations: [
             MockComponent(IconComponent),

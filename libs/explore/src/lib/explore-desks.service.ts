@@ -1,31 +1,14 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { getModule, showMetadata } from '@placeos/ts-client';
-import {
-    addDays,
-    addMinutes,
-    endOfDay,
-    getUnixTime,
-    startOfMinute,
-} from 'date-fns';
+import { addDays, endOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
-import {
-    catchError,
-    debounceTime,
-    distinctUntilChanged,
-    filter,
-    first,
-    map,
-    shareReplay,
-    switchMap,
-    tap,
-} from 'rxjs/operators';
+import { catchError, first, map, shareReplay, switchMap } from 'rxjs/operators';
 
 import {
     AssetRestriction,
     BookingFormService,
 } from 'libs/bookings/src/lib/booking-form.service';
-import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import {
     AsyncHandler,
     currentUser,
@@ -42,7 +25,6 @@ import { ExploreDeskInfoComponent } from './explore-desk-info.component';
 import { ExploreDeviceInfoComponent } from './explore-device-info.component';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
 import { ExploreStateService } from './explore-state.service';
-import { Booking } from 'libs/bookings/src/lib/booking.class';
 
 export interface DeskOptions {
     enable_booking?: boolean;
