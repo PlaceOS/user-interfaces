@@ -3,6 +3,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
 import {
     AssetPurchaseOrder,
     generateAssetPurchaseOrderForm,
+    queryAssetGroups,
     queryAssets,
     saveAssetPurchaseOrder,
     showAssetPurchaseOrder,
@@ -10,8 +11,9 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, notifyError, notifySuccess } from '@placeos/common';
 import { addYears, getUnixTime } from 'date-fns';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, shareReplay, switchMap } from 'rxjs/operators';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'asset-purchase-order-form',
@@ -107,13 +109,13 @@ import { filter, shareReplay, switchMap } from 'rxjs/operators';
                         *ngIf="item?.id"
                         [dataSource]="(asset_list | async) || []"
                         [columns]="[
-                            'id',
+                            'name',
                             'identifier',
                             'serial_number',
                             'actions'
                         ]"
                         [display_column]="[
-                            'ID',
+                            'Name',
                             'Label/Friendly Name',
                             'Serial Number',
                             ' '
@@ -165,16 +167,32 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
     public readonly _id = new BehaviorSubject('');
     public item: AssetPurchaseOrder;
     public readonly from = addYears(Date.now(), -5);
-    public readonly asset_list = this._id.pipe(
-        filter((_) => !!_),
-        switchMap((id) => queryAssets({ order_id: id })),
+    public readonly asset_list = combineLatest([
+        this._id,
+        this._org.active_building,
+    ]).pipe(
+        filter(([_, bld]) => !!_ && !!bld),
+        switchMap(([id]) => queryAssets({ order_id: id })),
+        switchMap(async (asset_list) => {
+            const groups = await queryAssetGroups({
+                zone_id: this._org.building.id,
+                limit: 500,
+            }).toPromise();
+            return asset_list.map((asset) => ({
+                ...asset,
+                name:
+                    groups.find((_) => _.id === (asset as any).asset_type_id)
+                        ?.name || asset.id,
+            }));
+        }),
         shareReplay(1)
     );
 
     constructor(
         private _state: AssetManagerStateService,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
+        private _org: OrganisationService
     ) {
         super();
     }
