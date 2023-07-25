@@ -18,11 +18,10 @@ export interface AvailabilityBlock {
             <div
                 event
                 *ngFor="let event of availability"
-                class="absolute inset-y-0 bg-primary text-white p-2 overflow-hidden border border-white rounded"
+                class="absolute inset-y-0 bg-red-600 text-white p-2 overflow-hidden border border-red-700 rounded"
                 [style.left]="event.start + '%'"
                 [style.width]="event.size + '%'"
             >
-                <div class="text-xs">Unavailable</div>
                 <div class="text-xs max-w-full">
                     {{ event.date | date: 'shortTime' }} -
                     {{
