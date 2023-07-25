@@ -236,7 +236,16 @@ export class VisitorsStateService extends AsyncHandler {
         await updateGuest(guest.id, {
             ...guest,
             extension_data: { ...guest.extension_data, status: 'approved' },
-        }).toPromise();
+        })
+            .toPromise()
+            .catch((e) => {
+                notifyError(
+                    `Error approving visitor: ${e.message || e.error || e}`
+                );
+                details.close();
+                throw e;
+            });
+        notifySuccess(`Successfully approved visitor`);
         details.close();
     }
 
@@ -254,7 +263,16 @@ export class VisitorsStateService extends AsyncHandler {
         await updateGuest(guest.id, {
             ...guest,
             extension_data: { ...guest.extension_data, status: 'declined' },
-        }).toPromise();
+        })
+            .toPromise()
+            .catch((e) => {
+                notifyError(
+                    `Error declining visitor: ${e.message || e.error || e}`
+                );
+                details.close();
+                throw e;
+            });
+        notifySuccess(`Successfully declining visitor`);
         details.close();
     }
 
