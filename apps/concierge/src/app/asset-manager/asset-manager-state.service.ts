@@ -6,7 +6,12 @@ import {
     rejectBooking,
     updateBooking,
 } from '@placeos/bookings';
-import { AsyncHandler, notifySuccess, unique } from '@placeos/common';
+import {
+    AsyncHandler,
+    SettingsService,
+    notifySuccess,
+    unique,
+} from '@placeos/common';
 import { SpacesService } from '@placeos/spaces';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
@@ -214,9 +219,20 @@ export class AssetManagerStateService extends AsyncHandler {
         return this._form;
     }
 
+    public get is_new_ui() {
+        return (
+            location.hash.includes('new') || location.pathname.includes('new')
+        );
+    }
+
+    public get base_route() {
+        return this.is_new_ui ? '/book/assets/new' : '/book/assets';
+    }
+
     constructor(
         private _spaces: SpacesService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _settings: SettingsService
     ) {
         super();
     }

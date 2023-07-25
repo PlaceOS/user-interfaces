@@ -124,8 +124,8 @@ import { OrganisationService } from '@placeos/organisation';
                         class="w-32 inverse"
                         [routerLink]="
                             product
-                                ? ['/book/assets', 'view', product.id]
-                                : ['/book/assets']
+                                ? [base_route, 'view', product.id]
+                                : [base_route]
                         "
                     >
                         Cancel
@@ -153,6 +153,10 @@ export class AssetFormComponent extends AsyncHandler {
     public product: AssetGroup;
     public loading: string = '';
 
+    public get base_route() {
+        return this._state.base_route;
+    }
+
     constructor(
         private _state: AssetManagerStateService,
         private _route: ActivatedRoute,
@@ -173,7 +177,7 @@ export class AssetFormComponent extends AsyncHandler {
                         .catch(() => null);
                     if (!asset) {
                         notifyError('Unable to load asset details.');
-                        this._router.navigate(['/book/assets']);
+                        this._router.navigate([this.base_route]);
                     }
                     this.form.patchValue(asset);
                     this.loading = '';
@@ -187,7 +191,7 @@ export class AssetFormComponent extends AsyncHandler {
                         notifyError(
                             'Unable to load associated product details.'
                         );
-                        this._router.navigate(['/book/assets']);
+                        this._router.navigate([this.base_route]);
                     }
                     this.product = product;
                     this.form.patchValue({ type_id: product.id });
@@ -222,7 +226,7 @@ export class AssetFormComponent extends AsyncHandler {
             [item].map((d) => ({ ...d, type_id: this.product.id }))
         );
         notifySuccess('Asset saved successfully.');
-        this._router.navigate(['/book/assets', 'view', this.product?.id]);
+        this._router.navigate([this.base_route, 'view', this.product?.id]);
         this.loading = '';
     }
 }

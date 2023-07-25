@@ -37,7 +37,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         ]
                                     "
                                     [routerLink]="[
-                                        '/book/assets',
+                                        base_route,
                                         'view',
                                         asset.id
                                     ]"
@@ -97,7 +97,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         ]
                                     "
                                     [routerLink]="[
-                                        '/book/assets',
+                                        base_route,
                                         'view',
                                         asset.id
                                     ]"
@@ -168,7 +168,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     btn
                     matRipple
                     *ngIf="!(options | async)?.search"
-                    [routerLink]="['/book/assets', 'manage', 'group']"
+                    [routerLink]="[base_route, 'manage', 'group']"
                 >
                     Create New Product
                 </a>
@@ -190,6 +190,10 @@ export class AssetItemListComponent {
     public readonly options = this._state.options;
     public readonly categories = this._state.categories;
     public readonly products = this._state.product_mapping;
+
+    public get base_route() {
+        return this._state.base_route;
+    }
 
     constructor(private _state: AssetManagerStateService) {}
 }

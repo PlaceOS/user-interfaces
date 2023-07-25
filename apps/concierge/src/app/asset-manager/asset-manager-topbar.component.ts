@@ -11,7 +11,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 btn
                 matRipple
                 class="secondary"
-                [routerLink]="['/book/assets', 'manage', 'group']"
+                [routerLink]="[base_route, 'manage', 'group']"
             >
                 Add Product
             </a>
@@ -20,7 +20,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 matRipple
                 class="secondary"
                 *ngIf="active === 'purchase-orders'"
-                [routerLink]="['/book/assets', 'manage', 'purchase-order']"
+                [routerLink]="[base_route, 'manage', 'purchase-order']"
             >
                 Add Purchase Order
             </a>
@@ -66,6 +66,10 @@ export class AssetManagerTopbarComponent {
     public readonly options = this._state.options;
 
     public readonly setOptions = (o) => this._state.setOptions(o);
+
+    public get base_route() {
+        return this._state.base_route;
+    }
 
     constructor(private _state: AssetManagerStateService) {}
 }

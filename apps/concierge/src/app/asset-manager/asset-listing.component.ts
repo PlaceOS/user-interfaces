@@ -10,7 +10,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             <nav mat-tab-nav-bar>
                 <a
                     mat-tab-link
-                    [routerLink]="['/book/assets', 'list', 'requests']"
+                    [routerLink]="[base_route, 'list', 'requests']"
                     [routerLinkActive]="'active'"
                     [active]="active === 'requests'"
                     (click)="active = 'requests'"
@@ -19,7 +19,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </a>
                 <a
                     mat-tab-link
-                    [routerLink]="['/book/assets', 'list', 'items']"
+                    [routerLink]="[base_route, 'list', 'items']"
                     [active]="active === 'items'"
                     (click)="active = 'items'"
                 >
@@ -27,7 +27,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </a>
                 <a
                     mat-tab-link
-                    [routerLink]="['/book/assets', 'list', 'purchase-orders']"
+                    [routerLink]="[base_route, 'list', 'purchase-orders']"
                     [active]="active === 'purchase-orders'"
                     (click)="active = 'purchase-orders'"
                 >
@@ -53,7 +53,14 @@ import { AssetManagerStateService } from './asset-manager-state.service';
 export class AssetListingComponent {
     public active = 'requests';
 
-    constructor(private _router: Router) {}
+    public get base_route() {
+        return this._state.base_route;
+    }
+
+    constructor(
+        private _router: Router,
+        private _state: AssetManagerStateService
+    ) {}
 
     public ngOnInit() {
         this.active = this._router.url.includes('requests')

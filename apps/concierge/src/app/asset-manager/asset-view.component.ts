@@ -36,7 +36,7 @@ import { combineLatest } from 'rxjs';
                     btn
                     matRipple
                     class="inverse"
-                    [routerLink]="['/book/assets', 'list', 'items']"
+                    [routerLink]="[base_route, 'list', 'items']"
                 >
                     <div class="flex items-center">
                         <app-icon class="text-xl">arrow_back</app-icon>
@@ -76,11 +76,7 @@ import { combineLatest } from 'rxjs';
                                 btn
                                 matRipple
                                 class="clear"
-                                [routerLink]="[
-                                    '/book/assets',
-                                    'manage',
-                                    'group'
-                                ]"
+                                [routerLink]="[base_route, 'manage', 'group']"
                                 [queryParams]="{ id: (item | async)?.id }"
                             >
                                 <div
@@ -173,11 +169,7 @@ import { combineLatest } from 'rxjs';
                                 btn
                                 matRipple
                                 class="flex-1"
-                                [routerLink]="[
-                                    '/book/assets',
-                                    'manage',
-                                    'asset'
-                                ]"
+                                [routerLink]="[base_route, 'manage', 'asset']"
                                 [queryParams]="{ group_id: (item | async)?.id }"
                             >
                                 Add Asset
@@ -187,7 +179,7 @@ import { combineLatest } from 'rxjs';
                                 matRipple
                                 class="flex-1"
                                 [routerLink]="[
-                                    '/book/assets',
+                                    base_route,
                                     'manage',
                                     'asset-bulk'
                                 ]"
@@ -226,7 +218,7 @@ import { combineLatest } from 'rxjs';
                                     icon
                                     matRipple
                                     [routerLink]="[
-                                        '/book/assets',
+                                        base_route,
                                         'manage',
                                         'asset'
                                     ]"
@@ -274,7 +266,7 @@ import { combineLatest } from 'rxjs';
                             matRipple
                             class="mb-2"
                             [routerLink]="[
-                                '/book/assets',
+                                base_route,
                                 'manage',
                                 'purchase-order'
                             ]"
@@ -317,7 +309,7 @@ import { combineLatest } from 'rxjs';
                                     icon
                                     matRipple
                                     [routerLink]="[
-                                        '/book/assets',
+                                        base_route,
                                         'manage',
                                         'purchase-order'
                                     ]"
@@ -445,7 +437,7 @@ export class AssetViewComponent extends AsyncHandler {
         this.deleting = true;
         await this._state.deleteActiveProduct();
         this.deleting = false;
-        this._router.navigate(['/book/assets', 'list', 'items']);
+        this._router.navigate([this._state.base_route, 'list', 'items']);
         this.closeTooltip();
     }
 
@@ -455,6 +447,10 @@ export class AssetViewComponent extends AsyncHandler {
 
     public get code() {
         return this._org.currency_code;
+    }
+
+    public get base_route() {
+        return this._state.base_route;
     }
 
     constructor(
@@ -483,7 +479,7 @@ export class AssetViewComponent extends AsyncHandler {
         );
         this.timeout(
             'no_asset',
-            () => this._router.navigate(['/asset-mananger']),
+            () => this._router.navigate([this._state.base_route]),
             1000
         );
         this._state.active_product.pipe(first((_) => !!_)).subscribe(() => {

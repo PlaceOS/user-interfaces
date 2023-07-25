@@ -109,8 +109,8 @@ import { map } from 'rxjs/operators';
                         class="w-32 inverse"
                         [routerLink]="
                             form.value.id
-                                ? ['/book/assets', 'view', form.value.id]
-                                : ['/book/assets', 'list', 'items']
+                                ? [base_route, 'view', form.value.id]
+                                : [base_route, 'list', 'items']
                         "
                     >
                         Cancel
@@ -144,6 +144,10 @@ export class AssetGroupFormComponent extends AsyncHandler {
     public loading: string = '';
     public current_category: string;
 
+    public get base_route() {
+        return this._state.base_route;
+    }
+
     constructor(
         private _state: AssetManagerStateService,
         private _route: ActivatedRoute,
@@ -164,7 +168,7 @@ export class AssetGroupFormComponent extends AsyncHandler {
                         .catch(() => null);
                     if (!product) {
                         notifyError('Unable to load product details.');
-                        this._router.navigate(['/book/assets']);
+                        this._router.navigate([this.base_route]);
                     }
                     this.form.patchValue(product);
                     this.loading = '';
@@ -199,6 +203,6 @@ export class AssetGroupFormComponent extends AsyncHandler {
         this.form.reset();
         this.loading = '';
         this._state.postChange();
-        this._router.navigate(['/book/assets', 'view', item.id]);
+        this._router.navigate([this.base_route, 'view', item.id]);
     }
 }

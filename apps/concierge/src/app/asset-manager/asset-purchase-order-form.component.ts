@@ -137,8 +137,8 @@ import { OrganisationService } from '@placeos/organisation';
                         class="w-32 inverse"
                         [routerLink]="
                             product_id
-                                ? ['/book/assets', 'view', product_id]
-                                : ['/book/assets', 'list', 'purchase-orders']
+                                ? [base_route, 'view', product_id]
+                                : [base_route, 'list', 'purchase-orders']
                         "
                     >
                         Cancel
@@ -188,6 +188,10 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
         shareReplay(1)
     );
 
+    public get base_route() {
+        return this._state.base_route;
+    }
+
     constructor(
         private _state: AssetManagerStateService,
         private _route: ActivatedRoute,
@@ -208,7 +212,7 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
                         .catch(() => null);
                     if (!asset) {
                         notifyError('Unable to load purchase order details.');
-                        this._router.navigate(['/book/assets']);
+                        this._router.navigate([this.base_route]);
                     }
                     this.form.patchValue({
                         ...asset,
@@ -255,9 +259,9 @@ export class AssetPurchaseOrderFormComponent extends AsyncHandler {
         notifySuccess('Successfully saved purchase order.');
         this._state.postChange();
         if (this.product_id) {
-            this._router.navigate(['/book/assets', 'view', this.product_id]);
+            this._router.navigate([this.base_route, 'view', this.product_id]);
         } else {
-            this._router.navigate(['/book/assets', 'list', 'purchase-orders']);
+            this._router.navigate([this.base_route, 'list', 'purchase-orders']);
         }
         this.loading = '';
     }
