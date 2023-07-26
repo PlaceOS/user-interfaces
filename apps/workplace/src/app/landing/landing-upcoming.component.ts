@@ -132,6 +132,7 @@ export class LandingUpcomingComponent implements OnInit, OnDestroy {
                         name: event.asset_name || event.description,
                     },
                 ],
+                asset_id: event.asset_id,
             });
         }, 100);
     }

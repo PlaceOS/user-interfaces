@@ -174,6 +174,7 @@ export class ScheduleComponent extends AsyncHandler {
                         name: event.asset_name || event.description,
                     },
                 ],
+                asset_id: event.asset_id,
             });
         }, 100);
     }
