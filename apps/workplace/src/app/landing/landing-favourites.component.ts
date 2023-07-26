@@ -1,3 +1,4 @@
+import { P } from '@angular/cdk/keycodes';
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import {
@@ -333,14 +334,8 @@ export class LandingFavouritesComponent extends AsyncHandler {
         }
     }
 
-    public async newBooking(type: BookingType, id: string) {
-        if (!id) return;
-        this._booking_form.newForm();
-        this._booking_form.setOptions({ type });
-        this._booking_form.form.patchValue({
-            asset_id: id,
-            booking_type: type,
-        });
+    public async newBooking(type: BookingType, item: any) {
+        if (!item) return;
         if (this._settings.get('app.new_features')) {
             this._router.navigate([
                 '/book',
@@ -352,5 +347,14 @@ export class LandingFavouritesComponent extends AsyncHandler {
                 type === 'desk' ? 'desks' : 'parking',
             ]);
         }
+        setTimeout(() => {
+            this._booking_form.newForm();
+            this._booking_form.setOptions({ type });
+            this._booking_form.form.patchValue({
+                resources: [item],
+                asset_id: item.id,
+                booking_type: type,
+            });
+        }, 100);
     }
 }
