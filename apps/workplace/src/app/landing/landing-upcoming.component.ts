@@ -1,7 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { Booking, checkinBooking, removeBooking } from '@placeos/bookings';
+import {
+    Booking,
+    BookingFormService,
+    checkinBooking,
+    removeBooking,
+} from '@placeos/bookings';
 import {
     currentUser,
     notifyError,
@@ -59,6 +64,7 @@ import { LandingStateService } from './landing-state.service';
                                 *ngSwitchCase="'booking'"
                                 [booking]="event"
                                 [show_day]="true"
+                                (edit)="editBooking(event)"
                                 (remove)="remove(event)"
                                 (end)="end(event)"
                             ></booking-card>
@@ -90,6 +96,7 @@ export class LandingUpcomingComponent implements OnInit, OnDestroy {
     constructor(
         private _state: LandingStateService,
         private _event_form: EventFormService,
+        private _booking_form: BookingFormService,
         private _router: Router,
         private _dialog: MatDialog,
         private _settings: SettingsService
@@ -111,6 +118,22 @@ export class LandingUpcomingComponent implements OnInit, OnDestroy {
     public edit(event: CalendarEvent) {
         this._router.navigate(['/book', 'meeting', 'form']);
         this._event_form.newForm(event);
+    }
+
+    public editBooking(event: Booking) {
+        console.log('Edit Booking:', event);
+        this._router.navigate(['/book', `new-${event.type}`]);
+        this._booking_form.newForm(event);
+        setTimeout(() => {
+            this._booking_form.form.patchValue({
+                resources: [
+                    {
+                        id: event.asset_id,
+                        name: event.asset_name || event.description,
+                    },
+                ],
+            });
+        }, 100);
     }
 
     public async remove(item: CalendarEvent | Booking) {

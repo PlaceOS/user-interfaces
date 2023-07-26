@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
     Booking,
+    BookingFormService,
     checkinBooking,
     queryBookings,
     removeBooking,
@@ -68,6 +69,7 @@ import { combineLatest } from 'rxjs';
                         <ng-template #booking_card>
                             <booking-card
                                 [booking]="item"
+                                (edit)="editBooking(item)"
                                 (remove)="remove(item)"
                                 (end)="end(item)"
                             ></booking-card>
@@ -128,6 +130,7 @@ export class ScheduleComponent extends AsyncHandler {
     constructor(
         private _state: ScheduleStateService,
         private _event_form: EventFormService,
+        private _booking_form: BookingFormService,
         private _router: Router,
         private _dialog: MatDialog,
         private _settings: SettingsService
@@ -157,6 +160,22 @@ export class ScheduleComponent extends AsyncHandler {
                 ).find((_) => _.ical_uid === event.ical_uid) || event;
         }
         this._event_form.newForm(event);
+    }
+
+    public editBooking(event: Booking) {
+        console.log('Edit Booking:', event);
+        this._router.navigate(['/book', `new-${event.type}`]);
+        this._booking_form.newForm(event);
+        setTimeout(() => {
+            this._booking_form.form.patchValue({
+                resources: [
+                    {
+                        id: event.asset_id,
+                        name: event.asset_name || event.description,
+                    },
+                ],
+            });
+        }, 100);
     }
 
     public async remove(item: CalendarEvent | Booking, remove_series = false) {

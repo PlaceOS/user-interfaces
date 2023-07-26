@@ -60,7 +60,7 @@ const ROUTES: Route[] = [
             { path: 'code', component: BookCodeFlowComponent },
             { path: 'code/success', component: CodeFlowSuccessComponent },
             { path: 'code/error', component: CodeFlowErrorComponent },
-            { path: 'new-desks', redirectTo: 'new-desks/form' },
+            { path: 'new-desk', redirectTo: 'new-desks/form' },
             { path: 'new-desks/:step', component: NewDeskFlowComponent },
             { path: 'desks', redirectTo: 'desks/form' },
             { path: 'desks/:step', component: BookDeskFlowComponent },

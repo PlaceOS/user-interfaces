@@ -42,7 +42,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     name="footer-nav-desks"
                     [routerLink]="
                         new_features
-                            ? ['/book', 'new-desks']
+                            ? ['/book', 'new-desk']
                             : ['/book', 'desks']
                     "
                     routerLinkActive="active"

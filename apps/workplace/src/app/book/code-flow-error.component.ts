@@ -50,7 +50,7 @@ import { AsyncHandler } from '@placeos/common';
                     btn
                     matRipple
                     class="w-full max-w-[32rem]"
-                    [routerLink]="['/book', 'new-desks']"
+                    [routerLink]="['/book', 'new-desk']"
                     [queryParams]="{ asset_id: asset_id }"
                     *ngIf="type === 'no_booking'"
                 >

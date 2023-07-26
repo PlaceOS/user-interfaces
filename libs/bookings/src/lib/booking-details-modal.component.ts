@@ -190,10 +190,15 @@ import { checkinBooking } from './bookings.fn';
             </button>
         </div>
         <mat-menu #menu="matMenu" xPosition="before">
-            <!-- <button mat-menu-item mat-dialog-close class="flex items-center space-x-2 text-base" (click)="edit.emit()">
+            <button
+                mat-menu-item
+                mat-dialog-close
+                class="flex items-center space-x-2 text-base"
+                (click)="edit.emit()"
+            >
                 <app-icon>edit</app-icon>
                 <div i18n>Edit booking</div>
-            </button> -->
+            </button>
             <button
                 mat-menu-item
                 *ngIf="!is_in_progress"

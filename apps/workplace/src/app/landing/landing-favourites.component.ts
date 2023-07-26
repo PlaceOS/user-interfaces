@@ -339,7 +339,7 @@ export class LandingFavouritesComponent extends AsyncHandler {
         if (this._settings.get('app.new_features')) {
             this._router.navigate([
                 '/book',
-                type === 'desk' ? 'new-desks' : 'new-parking',
+                type === 'desk' ? 'new-desk' : 'new-parking',
             ]);
         } else {
             this._router.navigate([
