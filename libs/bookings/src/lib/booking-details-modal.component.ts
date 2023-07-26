@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { notifySuccess, SettingsService } from '@placeos/common';
+import { notifyError, notifySuccess, SettingsService } from '@placeos/common';
 import { addMinutes, format, formatDuration } from 'date-fns';
 
 import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-modal.component';
@@ -98,7 +98,11 @@ import { checkinBooking } from './bookings.fn';
                             class="flex-1 h-10 border-none"
                             [class.bg-green-600]="booking.checked_in"
                             [disabled]="checking_in"
-                            *ngIf="!auto_checkin"
+                            *ngIf="
+                                !auto_checkin &&
+                                (booking.state === 'upcoming' ||
+                                    booking.state === 'in_progress')
+                            "
                             (click)="toggleCheckedIn()"
                         >
                             <div
@@ -282,10 +286,13 @@ export class BookingDetailsModalComponent {
 
     public async toggleCheckedIn() {
         this.checking_in = true;
-        await checkinBooking(
-            this.booking.id,
-            !this.booking.checked_in
-        ).toPromise();
+        await checkinBooking(this.booking.id, !this.booking.checked_in)
+            .toPromise()
+            .catch((_) => {
+                notifyError('Error checking in booking');
+                this.checking_in = false;
+                throw _;
+            });
         (this.booking as any).checked_in = !this.booking.checked_in;
         notifySuccess(
             `Successfully ${
