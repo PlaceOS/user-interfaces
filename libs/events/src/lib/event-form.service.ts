@@ -242,6 +242,11 @@ export class EventFormService extends AsyncHandler {
                     date = startOfDay(date).valueOf();
                     duration = 24 * 60 - 1;
                 }
+                spaces = filterSpacesFromRules(
+                    spaces,
+                    { date, duration, space: null, host: currentUser() },
+                    this._org.building.booking_rules
+                );
                 return availability_method(
                     spaces.map(({ id }) => id),
                     date,
