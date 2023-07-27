@@ -188,7 +188,8 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
                 } else if (params.has('locate')) {
                     this._locateFeature(
                         params.get('locate'),
-                        params.get('name')
+                        params.get('name'),
+                        params.get('zone')
                     );
                 } else {
                     this.timeout('update_location', () => {
@@ -207,7 +208,8 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         this._state.setPositions(this._state.positions.zoom, center);
     }
 
-    private _locateFeature(id: string, name = '') {
+    private _locateFeature(id: string, name = '', zone = '') {
+        if (zone) this._state.setLevel(zone);
         const has_coordinates = id.includes(',');
         const parts = id.split(',');
         const feature: any = {

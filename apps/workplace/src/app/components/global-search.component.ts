@@ -74,7 +74,11 @@ import { ExploreSearchService } from '@placeos/explore';
                                 ? { space: option.id }
                                 : option.type === 'user' || option.is_role
                                 ? { user: option.id }
-                                : { locate: option.id, name: option.name }
+                                : {
+                                      locate: option.id,
+                                      name: option.name,
+                                      zone: option.zone?.id
+                                  }
                         "
                         class="w-full h-full flex items-center leading-tight p-4 hover:bg-black/5 dark:hover:bg-white/5"
                     >
