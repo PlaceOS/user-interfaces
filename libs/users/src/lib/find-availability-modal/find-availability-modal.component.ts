@@ -17,7 +17,7 @@ import {
     startOfDay,
 } from 'date-fns';
 import { queryUserFreeBusy } from 'libs/calendar/src/lib/calendar.fn';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -59,6 +59,7 @@ export interface FindAvailabilityData {
                 <a-date-field
                     [(ngModel)]="date"
                     class="max-h-[3.25rem] flex-1"
+                    (ngModelChange)="on_change.next(on_change.getValue() + 1)"
                 ></a-date-field>
                 <a-user-search-field
                     [(ngModel)]="user"
@@ -245,10 +246,14 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
 
     public readonly host = this._data.host;
     public readonly hours = new Array(24).fill(0);
+    public readonly on_change = new BehaviorSubject(0);
 
-    public readonly availability = this.users.pipe(
+    public readonly availability = combineLatest([
+        this.users,
+        this.on_change,
+    ]).pipe(
         debounceTime(300),
-        switchMap((users) => {
+        switchMap(([users]) => {
             return queryUserFreeBusy({
                 calendars: [
                     this.host.email,
