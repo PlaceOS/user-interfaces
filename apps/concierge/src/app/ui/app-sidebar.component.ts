@@ -147,18 +147,33 @@ export class ApplicationSidebarComponent extends AsyncHandler {
                     route: ['/facilities/new'],
                 },
                 {
+                    id: 'zones',
+                    name: 'Region Management',
+                    route: ['/region-management/new'],
+                },
+                {
+                    id: 'zones',
+                    name: 'Building Management',
+                    route: ['/building-management/new'],
+                },
+                {
+                    id: 'zones',
+                    name: 'Levels Management',
+                    route: ['/level-management/new'],
+                },
+                {
                     id: 'spaces',
-                    name: 'Rooms',
+                    name: 'Room Management',
                     route: ['/room-management/new'],
                 },
                 {
                     id: 'desks',
-                    name: 'Desks',
+                    name: 'Desk Management',
                     route: ['/book/desks/new/manage'],
                 },
                 {
                     id: 'parking',
-                    name: 'Parking',
+                    name: 'Parking Management',
                     route: ['/book/parking/new/manage'],
                 },
                 {

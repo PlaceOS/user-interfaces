@@ -115,6 +115,33 @@ const routes: Routes = [
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
     },
+    {
+        path: 'level-management',
+        loadChildren: () =>
+            import('./level-manager/level-manager.module').then(
+                (m) => m.LevelManagerModule
+            ),
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+    },
+    {
+        path: 'building-management',
+        loadChildren: () =>
+            import('./building-manager/building-manager.module').then(
+                (m) => m.BuildingManagerModule
+            ),
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+    },
+    {
+        path: 'region-management',
+        loadChildren: () =>
+            import('./region-manager/region-manager.module').then(
+                (m) => m.RegionManagerModule
+            ),
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+    },
     { path: '**', redirectTo: '-' },
 ];
 

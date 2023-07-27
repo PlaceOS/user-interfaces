@@ -1,4 +1,3 @@
-
 export class Region {
     /** PlaceOS zone id of the building */
     public readonly id: string;

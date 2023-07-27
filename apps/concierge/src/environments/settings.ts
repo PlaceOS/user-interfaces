@@ -77,6 +77,7 @@ const app = {
     admin_group: 'concierge_admins',
     features: [
         'spaces',
+        'zones',
         'desks',
         'parking',
         'visitors',
