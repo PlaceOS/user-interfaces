@@ -631,7 +631,7 @@ export class BookingFormService extends AsyncHandler {
 
     /** Check if the given resource is available for the selected user to book */
     private async checkResourceAvailable(
-        { asset_id, date, duration, user_email, all_day }: Partial<Booking>,
+        { id, asset_id, date, duration, user_email, all_day }: Partial<Booking>,
         type: BookingType
     ) {
         if (!user_email) throw 'No user was selected to book for';
@@ -641,7 +641,7 @@ export class BookingFormService extends AsyncHandler {
             period_end: getUnixTime(date + duration * 60 * 1000),
             type,
         }).toPromise();
-        if (bookings.find((_) => _.asset_id === asset_id)) {
+        if (bookings.find((_) => _.asset_id === asset_id && id !== _.id)) {
             if (asset_id.includes('@')) {
                 throw `${asset_id} already has an invite for the selected time`;
             } else {
