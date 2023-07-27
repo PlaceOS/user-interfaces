@@ -77,7 +77,7 @@ import { ExploreSearchService } from '@placeos/explore';
                                 : {
                                       locate: option.id,
                                       name: option.name,
-                                      zone: option.zone?.id
+                                      zone: option.zone
                                   }
                         "
                         class="w-full h-full flex items-center leading-tight p-4 hover:bg-black/5 dark:hover:bg-white/5"

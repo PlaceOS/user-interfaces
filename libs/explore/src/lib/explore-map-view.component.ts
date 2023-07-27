@@ -159,8 +159,10 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe(async (params) => {
-                if (params.has('level')) {
-                    this._state.setLevel(params.get('level'));
+                if (params.has('level') || params.has('zone')) {
+                    this._state.setLevel(
+                        params.get('level') || params.get('zone')
+                    );
                 }
                 this._state.setFeatures('_located', []);
                 if (params.has('space')) {
@@ -188,8 +190,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
                 } else if (params.has('locate')) {
                     this._locateFeature(
                         params.get('locate'),
-                        params.get('name'),
-                        params.get('zone')
+                        params.get('name')
                     );
                 } else {
                     this.timeout('update_location', () => {
@@ -208,8 +209,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         this._state.setPositions(this._state.positions.zoom, center);
     }
 
-    private _locateFeature(id: string, name = '', zone = '') {
-        if (zone) this._state.setLevel(zone);
+    private _locateFeature(id: string, name = '') {
         const has_coordinates = id.includes(',');
         const parts = id.split(',');
         const feature: any = {

@@ -172,6 +172,7 @@ export class ExploreSearchService {
                             type: 'feature',
                             name: s.name,
                             description: '',
+                            zone: (s as any).zone?.id,
                         })),
                 ],
                 'id'
