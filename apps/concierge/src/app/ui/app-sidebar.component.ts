@@ -213,7 +213,7 @@ export class ApplicationSidebarComponent extends AsyncHandler {
             icon: 'add_reaction',
         },
         {
-            id: 'reports',
+            _id: 'reports',
             name: 'Reports',
             icon: 'analytics',
             children: [
@@ -293,9 +293,11 @@ export class ApplicationSidebarComponent extends AsyncHandler {
         }
         if (
             custom_reports.length &&
-            this.filtered_links.find((_) => _.id === 'reports')
+            this.filtered_links.find((_) => _._id === 'reports')
         ) {
-            const reports = this.filtered_links.find((_) => _.id === 'reports');
+            const reports = this.filtered_links.find(
+                (_) => _._id === 'reports'
+            );
             reports.children = reports.children.concat(custom_reports);
         }
     }
