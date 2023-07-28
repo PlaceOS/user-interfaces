@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1690512597541,
+  "timestamp": 1690520383309,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -143,7 +143,7 @@
   "dataGroups": [],
   "hashTable": {
     "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "f8998e49849865aab1625d7db28c514519bd0950",
-    "./apps_concierge_src_app_building-manager_building-manager_module_ts.js": "ca699482c149c1d92c8c649697b09ad632766cd4",
+    "./apps_concierge_src_app_building-manager_building-manager_module_ts.js": "9345793cd186800dd82a0a798fcb29a2c2e4be17",
     "./apps_concierge_src_app_catering_catering_module_ts.js": "870ff74779cab9e685e93b006d4e535d06efc74f",
     "./apps_concierge_src_app_day-view_day-view_module_ts.js": "dc4b7f781491b34a2f4039d5549d5d972bf6c38e",
     "./apps_concierge_src_app_desks_desks_module_ts.js": "e5f4e40ec29924c046aaed33f0e37e003efbcdac",
@@ -242,7 +242,7 @@
     "./default-node_modules_angular_material_fesm2022_tabs_mjs.js": "0c286fe2922a6d7979b37b76cecc0e99c4cb7db2",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "ac2c10d2e85355cb449d8cada0bc9ffd2cb972e8",
-    "./main.js": "58fb4e87c634f8a5c498ec1b3730ba41645b768a",
+    "./main.js": "a4f03895c0e19f7abc9de56c5446449b2259bb5a",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
@@ -254,8 +254,8 @@
     "./material-symbols-sharp.woff2": "668f6b7dce070bbd08eb7a395919ddb1f39e3ff0",
     "./polyfills.js": "3bb2e746f89770ebc015adb3e709db0f167f5e8a",
     "./runtime.js": "4d5e529aa8350ee83659185276a1940d360131b8",
-    "./styles.css": "38b8856d64842509883fd97fae89c49d2710de7c",
-    "./vendor.js": "af832eb496fb6d0e6b1a0bfaa1a7cf400a5779a7"
+    "./styles.css": "edc551329b657722715d00d92eea075bd3b31505",
+    "./vendor.js": "96ab3c637c29fbbdde239d468f780a6db12cf77a"
   },
   "navigationUrls": [
     {
