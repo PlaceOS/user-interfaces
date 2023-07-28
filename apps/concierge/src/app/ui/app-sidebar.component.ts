@@ -213,6 +213,7 @@ export class ApplicationSidebarComponent extends AsyncHandler {
             icon: 'add_reaction',
         },
         {
+            id: 'reports',
             name: 'Reports',
             icon: 'analytics',
             children: [
