@@ -218,17 +218,17 @@ export class ApplicationSidebarComponent extends AsyncHandler {
             children: [
                 {
                     id: 'booking-report',
-                    name: 'Bookings',
+                    name: 'Room Bookings',
                     route: ['/reports/new/bookings'],
                 },
                 {
                     id: 'desk-report',
-                    name: 'Bookings',
+                    name: 'Desk Bookings',
                     route: ['/reports/new/desks'],
                 },
                 {
                     id: 'catering-report',
-                    name: 'Bookings',
+                    name: 'Catering',
                     route: ['/reports/new/catering'],
                 },
                 {
