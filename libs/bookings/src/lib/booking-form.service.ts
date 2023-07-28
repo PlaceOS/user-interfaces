@@ -52,12 +52,7 @@ import { updateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
 
 export type BookingFlowView = 'form' | 'map' | 'confirm' | 'success';
 
-const BOOKING_URLS = [
-    'book/desks',
-    'book/parking',
-    'book/new-desks',
-    'book/new-parking',
-];
+const BOOKING_TYPES = ['desk', 'parking'];
 
 export interface BookingFlowOptions {
     /** Type of booking being made */
@@ -279,6 +274,7 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public newForm(booking: Booking = new Booking()) {
+        console.error('Booking:', booking.id);
         this.form.reset();
         this.form.patchValue(
             cleanObject(
@@ -293,7 +289,8 @@ export class BookingFormService extends AsyncHandler {
             'form_change',
             this.form.valueChanges.subscribe(() => this.storeForm())
         );
-        this._booking.next(booking);
+        this._booking.next(new Booking(booking));
+        console.error('Booking:', this._booking.getValue().id);
         this._options.next({ type: this._options.getValue().type });
     }
 
@@ -310,7 +307,8 @@ export class BookingFormService extends AsyncHandler {
             this._router.events.subscribe((booking: Event) => {
                 if (
                     booking instanceof NavigationEnd &&
-                    !BOOKING_URLS.find((_) => booking.url.includes(_))
+                    (!booking.url.includes('book') ||
+                        !BOOKING_TYPES.find((_) => booking.url.includes(_)))
                 ) {
                     this.clearForm();
                 }
@@ -365,7 +363,14 @@ export class BookingFormService extends AsyncHandler {
     public storeForm() {
         sessionStorage.setItem(
             'PLACEOS.booking_form',
-            JSON.stringify(this.form.getRawValue() || {})
+            JSON.stringify({
+                ...this._booking.getValue(),
+                ...cleanObject(this.form.getRawValue() || {}, [
+                    null,
+                    undefined,
+                    '',
+                ]),
+            })
         );
         sessionStorage.setItem(
             'PLACEOS.booking_form_filters',
@@ -466,7 +471,7 @@ export class BookingFormService extends AsyncHandler {
         let booking = this._booking.getValue() || new Booking();
         if (!ignore_check) {
             await this.checkResourceAvailable(
-                value,
+                { ...booking, ...value },
                 this._options.getValue().type
             );
         }
@@ -655,7 +660,8 @@ export class BookingFormService extends AsyncHandler {
             bookings.filter(
                 (_) =>
                     _.user_email === (user_email || currentUser()?.email) &&
-                    _.status !== 'declined'
+                    _.status !== 'declined' &&
+                    _.id !== id
             ).length >= allowed_bookings
         ) {
             const current = user_email === currentUser()?.email;
