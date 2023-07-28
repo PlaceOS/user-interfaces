@@ -46,14 +46,23 @@ import { BuildingManagementService } from './building-management.service';
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="w-full flex justify-end space-x-2">
-                <button
-                    btn
-                    icon
-                    matTooltip="Edit Building"
-                    (click)="editBuilding(row)"
-                >
-                    <app-icon>edit</app-icon>
+                <button btn icon [matMenuTriggerFor]="menu">
+                    <app-icon>more_vert</app-icon>
                 </button>
+                <mat-menu #menu="matMenu">
+                    <button mat-menu-item (click)="editBuilding(row)">
+                        <div class="flex items-center space-x-2">
+                            <app-icon>edit</app-icon>
+                            <span>Edit Building</span>
+                        </div>
+                    </button>
+                    <button mat-menu-item (click)="deleteBuilding(row)">
+                        <div class="flex items-center space-x-2 text-red-500">
+                            <app-icon>delete</app-icon>
+                            <span>Delete Building</span>
+                        </div>
+                    </button>
+                </mat-menu>
             </div>
         </ng-template>
     `,
@@ -64,6 +73,9 @@ export class BuildingListComponent {
 
     public readonly editBuilding = (building) =>
         this._manager.editBuilding(building);
+
+    public readonly removeBuilding = (building) =>
+        this._manager.removeBuilding(building);
 
     constructor(private _manager: BuildingManagementService) {}
 }

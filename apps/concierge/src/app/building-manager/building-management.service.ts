@@ -1,20 +1,11 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { OrganisationService } from '@placeos/organisation';
-import {
-    PlaceSystem,
-    authority,
-    querySystems,
-    queryZones,
-} from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import {
-    catchError,
-    filter,
-    map,
-    shareReplay,
-    switchMap,
-} from 'rxjs/operators';
+import { notifySuccess, openConfirmModal } from '@placeos/common';
+import { Building, OrganisationService } from '@placeos/organisation';
+import { PlaceZone, removeZone } from '@placeos/ts-client';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { BuildingModalComponent } from './building-modal.component';
 
 export interface BuildingListOptions {
     zone?: string;
@@ -70,12 +61,29 @@ export class BuildingManagementService {
         this._options.next({ ...this._options.getValue(), search });
     }
 
-    public editBuilding(building: PlaceSystem = new PlaceSystem()) {
-        // const ref = this._dialog.open(BuildingModalComponent, {
-        //     data: { building },
-        // });
-        // ref.afterClosed().subscribe((data) => {
-        //     if (data) setTimeout(() => this._change.next(Date.now()), 300);
-        // });
+    public editBuilding(building: PlaceZone = new PlaceZone()) {
+        const ref = this._dialog.open(BuildingModalComponent, {
+            data: building,
+        });
+        ref.afterClosed().subscribe((data) => {
+            if (data) setTimeout(() => this._change.next(Date.now()), 300);
+        });
+    }
+
+    public async removeBuilding(building: Building) {
+        const ref = await openConfirmModal(
+            {
+                title: 'Remove Building',
+                content: `Are you sure you want to remove the building "${building.name}"?`,
+                icon: { content: 'delete_forever' },
+                confirm_text: 'Remove',
+            },
+            this._dialog
+        );
+        if (ref.reason !== 'done') return ref.close();
+        ref.loading('Removing building...');
+        await removeZone(building.id).toPromise();
+        notifySuccess('Successfully removed building.');
+        ref.close();
     }
 }

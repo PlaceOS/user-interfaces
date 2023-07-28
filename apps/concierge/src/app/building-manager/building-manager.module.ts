@@ -11,6 +11,8 @@ import { SharedUsersModule } from '@placeos/users';
 import { BuildingManagerComponent } from './building-manager.component';
 import { MatChipsModule } from '@angular/material/chips';
 import { BuildingListComponent } from './building-list.component';
+import { BuildingFormComponent } from './building-form.component';
+import { BuildingModalComponent } from './building-modal.component';
 
 const ROUTES: Route[] = [
     { path: '', component: BuildingManagerComponent },
@@ -18,7 +20,12 @@ const ROUTES: Route[] = [
 ];
 
 @NgModule({
-    declarations: [BuildingManagerComponent, BuildingListComponent],
+    declarations: [
+        BuildingManagerComponent,
+        BuildingListComponent,
+        BuildingFormComponent,
+        BuildingModalComponent,
+    ],
     imports: [
         CommonModule,
         FormsModule,
