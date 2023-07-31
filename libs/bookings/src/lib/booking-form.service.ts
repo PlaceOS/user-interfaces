@@ -274,7 +274,6 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public newForm(booking: Booking = new Booking()) {
-        console.error('Booking:', booking.id);
         this.form.reset();
         this.form.patchValue(
             cleanObject(
@@ -290,7 +289,6 @@ export class BookingFormService extends AsyncHandler {
             this.form.valueChanges.subscribe(() => this.storeForm())
         );
         this._booking.next(new Booking(booking));
-        console.error('Booking:', this._booking.getValue().id);
         this._options.next({ type: this._options.getValue().type });
     }
 

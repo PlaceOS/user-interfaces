@@ -147,12 +147,7 @@ export class ScheduleStateService extends AsyncHandler {
                 period_start: getUnixTime(startOfDay(date)),
                 period_end: getUnixTime(endOfDay(date)),
                 type: 'visitor',
-            }).pipe(
-                catchError((_) => {
-                    console.error(_);
-                    return of([]);
-                })
-            )
+            }).pipe(catchError((_) => of([])))
         ),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
         shareReplay(1)
@@ -165,12 +160,7 @@ export class ScheduleStateService extends AsyncHandler {
                 period_end: getUnixTime(endOfDay(date)),
                 include_checked_out: true,
                 type: 'desk',
-            }).pipe(
-                catchError((_) => {
-                    console.error(_);
-                    return of([]);
-                })
-            )
+            }).pipe(catchError((_) => of([])))
         ),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
         shareReplay(1)
