@@ -124,6 +124,7 @@ export class OrganisationService {
         if (!item) return;
         this._active_region.next(item);
         this.loadRegionData(item).then(() => {
+            this._setBuildingFromTimezone();
             if (
                 this.building?.parent_id !== item.id &&
                 this.buildingsForRegion(item).length
@@ -454,27 +455,52 @@ export class OrganisationService {
 
     private _setDefaultBuilding() {
         if (!this.buildings.length) return;
+        this._setRegionFromTimezone();
+        this._setBuildingFromTimezone();
+        if (this.building) return;
         const bld_id = this._service.get('app.default_building');
         if (bld_id) {
             this.building = this.buildings.find(({ id }) => id === bld_id);
-        } else {
-            const timezone = this.timezone;
-            for (const bld of this.buildings) {
-                if (bld.timezone === timezone) {
-                    this.building = bld;
-                    break;
-                }
-            }
-            if (this.building) return;
-            const tz_start = timezone.split('/')[0];
-            for (const bld of this.buildings) {
-                if (bld.timezone.startsWith(tz_start)) {
-                    this.building = bld;
-                    break;
-                }
-            }
         }
         if (!this.building) this.building = this.buildings[0];
+    }
+
+    private _setRegionFromTimezone() {
+        const region_list = this.regions;
+        const timezone = this.timezone;
+        for (const region of region_list) {
+            if (region.timezone === timezone) {
+                this.region = region;
+                return;
+            }
+        }
+        const tz_start = timezone.split('/')[0];
+        for (const region of region_list) {
+            if (region.timezone.startsWith(tz_start)) {
+                this.region = region;
+                return;
+            }
+        }
+    }
+
+    private _setBuildingFromTimezone() {
+        const bld_list = this.buildings.filter(
+            (bld) => !this.region || bld.parent_id === this.region?.id
+        );
+        const timezone = this.timezone;
+        for (const bld of bld_list) {
+            if (bld.timezone === timezone) {
+                this.building = bld;
+                return;
+            }
+        }
+        const tz_start = timezone.split('/')[0];
+        for (const bld of bld_list) {
+            if (bld.timezone.startsWith(tz_start)) {
+                this.building = bld;
+                return;
+            }
+        }
     }
 
     private _updateSettingOverrides() {
