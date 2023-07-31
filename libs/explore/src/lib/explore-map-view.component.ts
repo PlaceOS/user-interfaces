@@ -89,8 +89,8 @@ const EMPTY = [];
         `,
     ],
     providers: [
-        ExploreSpacesService,
         ExploreDesksService,
+        ExploreSpacesService,
         ExploreZonesService,
         ExploreParkingService,
         ExploreLockersService,

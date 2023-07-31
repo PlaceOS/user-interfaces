@@ -24,17 +24,10 @@ import {
 
 import { openBookingModal } from './overlays/booking-modal.component';
 import { EmbeddedControlModalComponent } from './overlays/embedded-control-modal.component';
-import {
-    addMinutes,
-    differenceInMinutes,
-    isAfter,
-    isBefore,
-    max,
-} from 'date-fns';
+import { addMinutes, differenceInMinutes, isAfter, isBefore } from 'date-fns';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { OrganisationService } from '@placeos/organisation';
 import { Router } from '@angular/router';
-import { is } from 'date-fns/locale';
 
 export interface PanelSettings {
     /** Name of the room */
