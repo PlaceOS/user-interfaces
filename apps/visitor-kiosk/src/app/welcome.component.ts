@@ -63,6 +63,7 @@ export class WelcomeComponent
     }
 
     public ngOnInit() {
+        this.level = localStorage?.getItem('KIOSK.level');
         this.subscription(
             'route.params',
             this.route.paramMap.subscribe((params) => {
