@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { TriggerEnumMap } from '@placeos/survey-suite';
 import { shareReplay } from 'rxjs/operators';
 import { SurveyListingsService } from '../services/survey-listings.service';
@@ -195,11 +195,18 @@ export class SurveyListingsComponent extends AsyncHandler implements OnInit {
     newSurvey = () => this._service.newSurvey();
     back = () => this._service.back();
     onViewStats = (id: number) =>
-        this._router.navigate(['surveys', 'responses', id]);
+        this._router.navigate([
+            this._settings.get('app.default_route').includes('new')
+                ? '/surveys/new'
+                : '/surveys',
+            'responses',
+            id,
+        ]);
 
     displayedColumns: string[] = ['title', 'level', 'trigger', 'actions'];
 
     constructor(
+        private _settings: SettingsService,
         private _route: ActivatedRoute,
         private _router: Router,
         private _service: SurveyListingsService

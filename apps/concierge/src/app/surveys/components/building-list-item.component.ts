@@ -3,6 +3,7 @@ import { Building } from '@placeos/organisation';
 import { Router, ActivatedRoute } from '@angular/router';
 import { BuildingListItemService } from '../services/building-list-item.service';
 import { shareReplay } from 'rxjs/operators';
+import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'building-list-item',
@@ -34,28 +35,30 @@ import { shareReplay } from 'rxjs/operators';
                 <span class="building-title">
                     {{ building.display_name }}
                 </span>
-                <ng-container *ngIf="!(loading$ | async)?.length; else loadState;">
+                <ng-container
+                    *ngIf="!(loading$ | async)?.length; else loadState"
+                >
                     <ng-container *ngIf="stats$ | async as stats">
-                    <div class="flex py-4 justify-end space-x-2">
-                        <div class="flex flex-col items-center flex-1">
-                            <h3>Live Surveys</h3>
-                            <p class="text-4xl">
-                                {{ stats?.lives || 0 }}
-                            </p>
+                        <div class="flex py-4 justify-end space-x-2">
+                            <div class="flex flex-col items-center flex-1">
+                                <h3>Live Surveys</h3>
+                                <p class="text-4xl">
+                                    {{ stats?.lives || 0 }}
+                                </p>
+                            </div>
+                            <div class="flex flex-col items-center flex-1">
+                                <h3>Draft Surveys</h3>
+                                <p class="text-4xl">
+                                    {{ stats?.drafts || 0 }}
+                                </p>
+                            </div>
+                            <div class="flex flex-col items-center flex-1">
+                                <h3>Total Answers</h3>
+                                <p class="text-4xl">
+                                    {{ stats?.responses || 0 }}
+                                </p>
+                            </div>
                         </div>
-                        <div class="flex flex-col items-center flex-1">
-                            <h3>Draft Surveys</h3>
-                            <p class="text-4xl">
-                                {{ stats?.drafts || 0 }}
-                            </p>
-                        </div>
-                        <div class="flex flex-col items-center flex-1">
-                            <h3>Total Answers</h3>
-                            <p class="text-4xl">
-                                {{ stats?.responses || 0 }}
-                            </p>
-                        </div>
-                    </div>
                     </ng-container>
                 </ng-container>
                 <div class="flex justify-end w-full mt-4">
@@ -67,12 +70,14 @@ import { shareReplay } from 'rxjs/operators';
             </div>
         </section>
         <ng-template #loadState>
-            <div class="flex absolute inset-0 opacity-60 bg-white dark:bg-black z-10">
+            <div
+                class="flex absolute inset-0 opacity-60 bg-white dark:bg-black z-10"
+            >
                 <div class="flex flex-col m-auto items-center">
                     <mat-spinner [diameter]="32"></mat-spinner>
-                    <span>{{loading$ | async}}</span>
+                    <span>{{ loading$ | async }}</span>
                 </div>
-            </div> 
+            </div>
         </ng-template>
     `,
     styles: [
@@ -176,7 +181,7 @@ import { shareReplay } from 'rxjs/operators';
             } */
         `,
     ],
-    providers: [BuildingListItemService]
+    providers: [BuildingListItemService],
 })
 export class BuildingListItemComponent implements OnInit {
     @Input() building: Building | any;
@@ -185,17 +190,22 @@ export class BuildingListItemComponent implements OnInit {
     stats$ = this.service.stats$.pipe(shareReplay(1));
 
     constructor(
-        private router: Router, 
-        private route: ActivatedRoute,
-        private service: BuildingListItemService) {}
+        private _settings: SettingsService,
+        private router: Router,
+        private service: BuildingListItemService
+    ) {}
 
     ngOnInit(): void {
         this.service.initStats(this.building.id);
     }
 
     navigate(): void {
-        this.router.navigate(['survey-list', this.building.id], {
-            relativeTo: this.route,
-        });
+        this.router.navigate([
+            this._settings.get('app.default_route').includes('new')
+                ? '/surveys/new'
+                : '/survey',
+            'survey-list',
+            this.building.id,
+        ]);
     }
 }
