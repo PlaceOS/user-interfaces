@@ -20,7 +20,7 @@ import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
             subscriptSizing="dynamic"
             class="w-full {{ classNames ? classNames : '' }} "
         >
-            <mat-icon matPrefix class="-ml-3 mr-1">search</mat-icon>
+            <app-icon matPrefix class="-ml-3 mr-1">search</app-icon>
             <input
                 matInput
                 #searchInput
@@ -38,7 +38,7 @@ import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
                 aria-label="Clear"
                 (click)="clearSearch()"
             >
-                <mat-icon>close</mat-icon>
+                <app-icon>close</app-icon>
             </button>
         </mat-form-field>
     `,

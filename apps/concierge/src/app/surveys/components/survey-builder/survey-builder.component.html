@@ -81,11 +81,12 @@
                         </a>
                     </nav>
                     <button
-                        mat-icon-button
+                        icon
+                        matRipple
                         (click)="addSurveyPage()"
                         title="Add new page"
                     >
-                        <mat-icon>add_circle_outline</mat-icon>
+                        <app-icon>add_circle_outline</app-icon>
                     </button>
                 </div>
                 <div
@@ -143,17 +144,22 @@
                                 <div
                                     class="flex flex-col items-center h-full py-2"
                                 >
-                                    <mat-icon
+                                    <app-icon
                                         cdkDragHandle
                                         class="hover:cursor-move"
-                                        >drag_indicator</mat-icon
+                                        >drag_indicator</app-icon
                                     >
                                     <button
                                         class="mt-auto"
-                                        mat-icon-button
+                                        icon
+                                        matRipple
                                         (click)="onRemove(i)"
                                     >
-                                        <mat-icon>{{q.deleted ? 'delete_forever' : 'delete'}}</mat-icon>
+                                        <app-icon>{{
+                                            q.deleted
+                                                ? 'delete_forever'
+                                                : 'delete'
+                                        }}</app-icon>
                                     </button>
                                 </div>
                             </div>

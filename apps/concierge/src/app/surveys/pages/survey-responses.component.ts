@@ -31,23 +31,23 @@ import { SurveyResponsesService } from '../services/survey-responses.service';
         </div>
         <ng-container *ngIf="surveyId$ | async; else noId">
             <header
-                class="flex justify-between items-center w-full pb-4 border-b"
+                class="flex justify-between items-center w-full pb-4 border-b mt-4 pl-2"
             >
                 <div class="flex flex-row items-center">
                     <button icon matRipple (click)="back()">
                         <app-icon class="flex mr-2">arrow_back</app-icon>
                     </button>
                     <div class="flex flex-row items-center">
-                        <span class="text-2xl"
-                            >Survey Responses -
-                            {{ (survey$ | async)?.title || '' }}</span
-                        >
+                        <span class="text-2xl">
+                            Survey Responses -
+                            {{ (survey$ | async)?.title || '' }}
+                        </span>
                     </div>
                 </div>
                 <mat-form-field
                     appearance="outline"
                     subscriptSizing="dynamic"
-                    class="w-72"
+                    class="w-72 mr-4"
                 >
                     <mat-date-range-input
                         [rangePicker]="picker"
@@ -74,10 +74,11 @@ import { SurveyResponsesService } from '../services/survey-responses.service';
                         ></mat-datepicker-toggle>
                         <button
                             *ngIf="(options$ | async)?.end"
-                            mat-icon-button
+                            icon
+                            matRipple
                             (click)="clearDates()"
                         >
-                            <mat-icon>close</mat-icon>
+                            <app-icon>close</app-icon>
                         </button>
                     </div>
                     <mat-date-range-picker #picker></mat-date-range-picker>

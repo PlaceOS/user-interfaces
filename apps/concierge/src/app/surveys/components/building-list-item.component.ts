@@ -19,15 +19,15 @@ import { SettingsService } from '@placeos/common';
                 />
             </div>
             <div *ngIf="!building.image" class="image-container">
-                <span> <mat-icon class="domain-icon">domain</mat-icon></span>
+                <span> <app-icon class="domain-icon">domain</app-icon></span>
             </div>
             <div class="details-container my-4 mx-8 w-full relative">
                 <div class="location-wrapper">
-                    <mat-icon
+                    <app-icon
                         class="location-icon"
                         aria-hidden="false"
                         aria-label="Material icon of location pointer"
-                        >location_on</mat-icon
+                        >location_on</app-icon
                     >
                     <span> {{ building.address }} </span>
                 </div>
@@ -174,7 +174,7 @@ import { SettingsService } from '@placeos/common';
             .view-button span {
                 display: inline-flex;
             }
-            .view-button mat-icon {
+            .view-button app-icon {
                 display: flex;
                 justify-content: center;
                 align-items: center;

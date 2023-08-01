@@ -60,10 +60,15 @@ import { SurveyListingsService } from '../services/survey-listings.service';
                     </ng-template>
                 </div>
 
-                <div class="flex items-center">
-                    <button btn matRipple (click)="newSurvey()">
-                        <span> Add New Survey</span>
-                        <mat-icon>add</mat-icon>
+                <div class="flex items-center mr-2">
+                    <button
+                        btn
+                        matRipple
+                        class="space-x-2"
+                        (click)="newSurvey()"
+                    >
+                        <span class="ml-2">Add New Survey</span>
+                        <app-icon>add</app-icon>
                     </button>
                 </div>
             </header>
@@ -130,29 +135,35 @@ import { SurveyListingsService } from '../services/survey-listings.service';
                                 matRipple
                                 [matMenuTriggerFor]="actionsMenu"
                             >
-                                <mat-icon>more_vert</mat-icon>
+                                <app-icon>more_vert</app-icon>
                             </button>
                             <mat-menu #actionsMenu="matMenu">
                                 <button
                                     mat-menu-item
                                     (click)="onViewStats(element.id)"
                                 >
-                                    <mat-icon>analytics</mat-icon>
-                                    <span>Responses</span>
+                                    <div class="flex items-center space-x-2">
+                                        <app-icon>analytics</app-icon>
+                                        <span>Responses</span>
+                                    </div>
                                 </button>
                                 <button
                                     mat-menu-item
                                     (click)="onEdit(element.id)"
                                 >
-                                    <mat-icon>edit</mat-icon>
-                                    <span>Edit</span>
+                                    <div class="flex items-center space-x-2">
+                                        <app-icon>edit</app-icon>
+                                        <span>Edit</span>
+                                    </div>
                                 </button>
                                 <button
                                     mat-menu-item
                                     (click)="onDelete(element.id)"
                                 >
-                                    <mat-icon>delete</mat-icon>
-                                    <span>Delete</span>
+                                    <div class="flex items-center space-x-2">
+                                        <app-icon>delete</app-icon>
+                                        <span>Delete</span>
+                                    </div>
                                 </button>
                             </mat-menu>
                         </td>
