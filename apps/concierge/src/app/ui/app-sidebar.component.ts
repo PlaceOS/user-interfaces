@@ -298,7 +298,12 @@ export class ApplicationSidebarComponent extends AsyncHandler {
             const reports = this.filtered_links.find(
                 (_) => _._id === 'reports'
             );
-            reports.children = reports.children.concat(custom_reports);
+            reports.children = reports.children.concat(
+                custom_reports.map((_) => ({
+                    ..._,
+                    route: ['/reports/new', _.id],
+                }))
+            );
         }
     }
 }
