@@ -5,7 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
 import { formatRecurrence } from 'libs/events/src/lib/helpers';
 import { RecurrenceModalComponent } from './recurrence-modal.component';
-import { addYears, format } from 'date-fns';
+import { addDays, addYears, endOfDay, format } from 'date-fns';
 
 @Component({
     selector: 'recurrence-field',
@@ -165,7 +165,7 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
                 pattern,
                 _pattern: pattern,
                 start: this.date,
-                end: addYears(this.date, 1).valueOf(),
+                end: endOfDay(addDays(addYears(this.date, 1), -1)).valueOf(),
                 days_of_week: [day_of_week],
                 interval: 1,
             });
@@ -174,7 +174,7 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
                 pattern,
                 _pattern: pattern,
                 start: this.date,
-                end: addYears(this.date, 1).valueOf(),
+                end: endOfDay(addDays(addYears(this.date, 1), -1)).valueOf(),
                 days_of_week: [day_of_week],
                 interval: 1,
             });
@@ -183,7 +183,7 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
                 pattern,
                 _pattern: pattern,
                 start: this.date,
-                end: addYears(this.date, 3).valueOf(),
+                end: endOfDay(addDays(addYears(this.date, 1), -1)).valueOf(),
                 days_of_week: [day_of_week],
                 interval: 1,
             });
