@@ -31,8 +31,10 @@ import { MatRadioModule } from '@angular/material/radio';
 
 import { ApplicationTopbarComponent } from './app-topbar.component';
 import { ApplicationSidebarComponent } from './app-sidebar.component';
+import { AppSettingsModalComponent } from './app-settings-modal.component';
 
 const COMPONENTS: Type<any>[] = [
+    AppSettingsModalComponent,
     SidebarComponent,
     DateOptionsComponent,
     SearchbarComponent,

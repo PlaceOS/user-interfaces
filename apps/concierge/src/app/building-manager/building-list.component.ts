@@ -50,6 +50,12 @@ import { BuildingManagementService } from './building-management.service';
                     <app-icon>more_vert</app-icon>
                 </button>
                 <mat-menu #menu="matMenu">
+                    <button mat-menu-item (click)="editBuildingMetadata(row)">
+                        <div class="flex items-center space-x-2">
+                            <app-icon>edit_square</app-icon>
+                            <span>App Configuration</span>
+                        </div>
+                    </button>
                     <button mat-menu-item (click)="editBuilding(row)">
                         <div class="flex items-center space-x-2">
                             <app-icon>edit</app-icon>
@@ -73,6 +79,9 @@ export class BuildingListComponent {
 
     public readonly editBuilding = (building) =>
         this._manager.editBuilding(building);
+
+    public readonly editBuildingMetadata = (building) =>
+        this._manager.editBuildingMetadata(building);
 
     public readonly removeBuilding = (building) =>
         this._manager.removeBuilding(building);

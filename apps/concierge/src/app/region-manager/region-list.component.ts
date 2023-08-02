@@ -27,6 +27,14 @@ import { RegionManagementService } from './region-management.service';
                 >
                     <app-icon>edit</app-icon>
                 </button>
+                <button
+                    btn
+                    icon
+                    matTooltip="Edit Region"
+                    (click)="editRegion(row)"
+                >
+                    <app-icon>edit</app-icon>
+                </button>
             </div>
         </ng-template>
     `,
@@ -36,6 +44,8 @@ export class RegionListComponent {
     public readonly regions = this._manager.filtered_regions;
 
     public readonly editRegion = (region) => this._manager.editRegion(region);
+    public readonly editMetadata = (region) =>
+        this._manager.editRegionMetadata(region);
 
     constructor(private _manager: RegionManagementService) {}
 }

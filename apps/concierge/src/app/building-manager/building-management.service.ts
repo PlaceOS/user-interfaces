@@ -6,6 +6,7 @@ import { PlaceZone, removeZone } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { BuildingModalComponent } from './building-modal.component';
+import { AppSettingsModalComponent } from '../ui/app-settings-modal.component';
 
 export interface BuildingListOptions {
     zone?: string;
@@ -64,6 +65,15 @@ export class BuildingManagementService {
     public editBuilding(building: PlaceZone = new PlaceZone()) {
         const ref = this._dialog.open(BuildingModalComponent, {
             data: building,
+        });
+        ref.afterClosed().subscribe((data) => {
+            if (data) setTimeout(() => this._change.next(Date.now()), 300);
+        });
+    }
+
+    public editBuildingMetadata(zone: PlaceZone = new PlaceZone()) {
+        const ref = this._dialog.open(AppSettingsModalComponent, {
+            data: { zone },
         });
         ref.afterClosed().subscribe((data) => {
             if (data) setTimeout(() => this._change.next(Date.now()), 300);

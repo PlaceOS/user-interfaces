@@ -5,6 +5,7 @@ import { PlaceZone } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { RegionModalComponent } from './region-modal.component';
+import { AppSettingsModalComponent } from '../ui/app-settings-modal.component';
 
 export interface RegionListOptions {
     search?: string;
@@ -55,6 +56,15 @@ export class RegionManagementService {
     public editRegion(region: PlaceZone = new PlaceZone()) {
         const ref = this._dialog.open(RegionModalComponent, {
             data: region,
+        });
+        ref.afterClosed().subscribe((data) => {
+            if (data) setTimeout(() => this._change.next(Date.now()), 300);
+        });
+    }
+
+    public editRegionMetadata(region: PlaceZone = new PlaceZone()) {
+        const ref = this._dialog.open(AppSettingsModalComponent, {
+            data: { zone: region },
         });
         ref.afterClosed().subscribe((data) => {
             if (data) setTimeout(() => this._change.next(Date.now()), 300);
