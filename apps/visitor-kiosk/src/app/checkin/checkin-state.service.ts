@@ -1,7 +1,12 @@
 import { Injectable } from '@angular/core';
 import { updateMetadata } from '@placeos/ts-client';
 import { HashMap, notifyError } from '@placeos/common';
-import { CalendarEvent, checkinEventGuest, showEvent } from '@placeos/events';
+import {
+    CalendarEvent,
+    checkinEventGuest,
+    newCalendarEventFromBooking,
+    showEvent,
+} from '@placeos/events';
 import {
     GuestUser,
     generateGuestForm,
@@ -10,6 +15,7 @@ import {
 } from '@placeos/users';
 import { isSameDay } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
+import { checkinBooking } from '@placeos/bookings';
 
 @Injectable({
     providedIn: 'root',
@@ -55,6 +61,13 @@ export class CheckinStateService {
             this._form.next(generateGuestForm(guest, event.host));
             return { guest, event };
         }
+        if (guest.booking) {
+            const event = newCalendarEventFromBooking(guest.booking);
+            this._guest.next(guest);
+            this._event.next(event);
+            this._form.next(generateGuestForm(guest, event.host));
+            return { guest, event };
+        }
         const upcoming = await listGuestMeetings(email).toPromise();
         const today = new Date();
         const todays_events = upcoming.filter((event) =>
@@ -74,19 +87,24 @@ export class CheckinStateService {
         const guest = this._guest.getValue();
         const form = this._form.getValue();
         if (!guest || !form) return;
-        await updateMetadata(guest.email, {
-            name: 'preferences',
-            details: { ...guest, ...form.value, ...(data || {}) },
-        }).toPromise();
+        // await updateMetadata(guest.email, {
+        //     name: 'preferences',
+        //     details: { ...guest, ...form.value, ...(data || {}) },
+        //     description: '',
+        // }).toPromise();
     }
 
     public async checkinGuest() {
         const guest = this._guest.getValue();
         const event = this._event.getValue();
         if (!guest || !event) return;
-        await checkinEventGuest(event.id, guest.email, true, {
-            system_id: event.system?.id || event.resources[0]?.id,
-        }).toPromise();
+        if (guest.booking) {
+            await checkinBooking(guest.booking.id, true).toPromise();
+        } else {
+            await checkinEventGuest(event.id, guest.email, true, {
+                system_id: event.system?.id || event.resources[0]?.id,
+            }).toPromise();
+        }
     }
 
     public printPass() {

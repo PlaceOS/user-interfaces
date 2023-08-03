@@ -32,15 +32,25 @@ import { CheckinStateService } from './checkin-state.service';
                 />
                 <mat-error>Invalid email format</mat-error>
             </mat-form-field>
-            <video
-                #video
-                class="rounded m-4 bg-gray-200 border border-gray-500"
-                id="qr-stream"
-                playsinline
-                width="640"
-                height="480"
-                autoplay
-            ></video>
+            <div
+                class="relative rounded m-4 bg-gray-200 border border-gray-500 overflow-hidden"
+            >
+                <div
+                    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-30 flex flex-col items-center space-y-2"
+                >
+                    <app-icon class="text-6xl">videocam_off</app-icon>
+                    <p>Camera feed loading or is not available</p>
+                </div>
+                <video
+                    #video
+                    id="qr-stream"
+                    playsinline
+                    width="640"
+                    height="480"
+                    autoplay
+                    class="object-cover"
+                ></video>
+            </div>
             <a
                 icon
                 matRipple

@@ -1,6 +1,7 @@
 import { randomString } from 'libs/common/src/lib/general';
 import { MapLocation } from './location.class';
 import { USER_DOMAIN } from './user.utilities';
+import { Booking } from 'libs/bookings/src/lib/booking.class';
 
 export interface Attachment {
     id?: string;
@@ -110,6 +111,8 @@ export class GuestUser extends User {
     public readonly attachments: Attachment[];
     /** Status of the guest attendance */
     public readonly status: 'pending' | 'approved' | 'declined';
+    /** Booking Associated with the guest */
+    public readonly booking?: Booking;
 
     constructor(data: Partial<GuestUser> = {}) {
         super(data);
@@ -119,6 +122,7 @@ export class GuestUser extends User {
         this.attachments =
             data.extension_data?.attachments || data.attachments || [];
         this.status = data.extension_data?.status || data.status || 'pending';
+        this.booking = data.booking;
     }
 }
 

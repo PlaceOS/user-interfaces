@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
+import { notifyError } from '@placeos/common';
 
 @Component({
     selector: '[checkin-details]',
@@ -85,10 +86,16 @@ import { CheckinStateService } from './checkin-state.service';
             </a>
         </form>
         <ng-template #load_state>
-            <div class="flex flex-col items-center m-auto">
-                <mat-spinner [diameter]="48"></mat-spinner>
-                <div class="my-4 text-lg text-white">
-                    Updating data and checking in...
+            <div
+                class="absolute inset-0 flex flex-col items-center justify-center"
+            >
+                <div
+                    class="flex flex-col items-center space-y-2 bg-white rounded shadow p-16"
+                >
+                    <mat-spinner [diameter]="48"></mat-spinner>
+                    <div class="my-4 text-lg">
+                        Updating data and checking in...
+                    </div>
                 </div>
             </div>
         </ng-template>
@@ -135,13 +142,24 @@ export class CheckinDetailsComponent implements OnInit {
     ) {}
 
     public ngOnInit(): void {
-        this.form.pipe(first()).subscribe((_) => (!_ ? this.previous() : ''));
+        this.form
+            .pipe(first())
+            .subscribe((_) => (!_ || !_.value.email ? this.previous() : ''));
     }
 
     public async updateGuest() {
         this.loading = true;
         await this._checkin.updateGuest();
-        await this._checkin.checkinGuest();
+        await this._checkin.checkinGuest().catch((e) => {
+            console.log(e);
+            notifyError(
+                `Error checking in: ${
+                    e.message || e.error || e.statusText || e
+                }`
+            );
+            this.loading = false;
+            throw e;
+        });
         this.loading = false;
         this._router.navigate(['/checkin', 'covid']);
     }
