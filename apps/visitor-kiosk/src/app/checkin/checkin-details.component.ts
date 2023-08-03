@@ -151,12 +151,12 @@ export class CheckinDetailsComponent implements OnInit {
         this.loading = true;
         await this._checkin.updateGuest();
         await this._checkin.checkinGuest().catch((e) => {
-            console.log(e);
-            notifyError(
-                `Error checking in: ${
-                    e.message || e.error || e.statusText || e
-                }`
-            );
+            // console.log(e);
+            // notifyError(
+            //     `Error checking in: ${
+            //         e.message || e.error || e.statusText || e
+            //     }`
+            // );
             this.loading = false;
             // throw e;
         });
