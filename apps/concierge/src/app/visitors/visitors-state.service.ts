@@ -29,7 +29,14 @@ import {
 } from '@placeos/events';
 import { GuestUser, queryGuests, updateGuest, User } from '@placeos/users';
 import { MatDialog } from '@angular/material/dialog';
-import { checkinBookingAttendee, queryBookings } from '@placeos/bookings';
+import {
+    approveBooking,
+    checkinBookingAttendee,
+    newBookingFromCalendarEvent,
+    queryBookings,
+    rejectBooking,
+    updateBooking,
+} from '@placeos/bookings';
 import { OrganisationService } from '@placeos/organisation';
 
 export interface VisitorFilters {
@@ -149,23 +156,39 @@ export class VisitorsStateService extends AsyncHandler {
                             (user.name?.toLowerCase().includes(filter) ||
                                 user.email?.toLowerCase().includes(filter))
                     );
-                    return guests.map((_) => {
+                    const out = guests.map((_) => {
                         const g: any =
                             guest_list.find((g) => g.email === _.email) || {};
                         return new GuestUser({
                             ..._,
                             ...g,
+                            booking: event.from_bookings
+                                ? newBookingFromCalendarEvent(event)
+                                : '',
                             extension_data: {
                                 ..._.extension_data,
                                 ...g.extension_data,
+                                booking_id: event?.from_bookings
+                                    ? event.id
+                                    : '',
+                                event_id: !event?.from_bookings ? event.id : '',
                                 date: event.date,
                                 host:
                                     event.organiser?.name ||
                                     event.organiser?.email ||
                                     event.host,
+                                status:
+                                    event.status ||
+                                    (event.rejected
+                                        ? 'declined'
+                                        : event.approved
+                                        ? 'approved'
+                                        : 'pending') ||
+                                    g.status,
                             },
                         });
                     });
+                    return out;
                 })
             );
         })
@@ -233,10 +256,16 @@ export class VisitorsStateService extends AsyncHandler {
         );
         if (details.reason !== 'done') return details.close();
         details.loading('Updating guest details');
-        await updateGuest(guest.id, {
-            ...guest,
-            extension_data: { ...guest.extension_data, status: 'approved' },
-        })
+        await (guest.extension_data.event_id
+            ? updateGuest(guest.id, {
+                  ...guest,
+                  extension_data: {
+                      ...guest.extension_data,
+                      status: 'approved',
+                  },
+              })
+            : (approveBooking(guest.booking.id) as any)
+        )
             .toPromise()
             .catch((e) => {
                 notifyError(
@@ -260,10 +289,16 @@ export class VisitorsStateService extends AsyncHandler {
         );
         if (details.reason !== 'done') return details.close();
         details.loading('Updating guest details');
-        await updateGuest(guest.id, {
-            ...guest,
-            extension_data: { ...guest.extension_data, status: 'declined' },
-        })
+        await (guest.extension_data.event_id
+            ? updateGuest(guest.id, {
+                  ...guest,
+                  extension_data: {
+                      ...guest.extension_data,
+                      status: 'declined',
+                  },
+              })
+            : (rejectBooking(guest.booking.id) as any)
+        )
             .toPromise()
             .catch((e) => {
                 notifyError(
