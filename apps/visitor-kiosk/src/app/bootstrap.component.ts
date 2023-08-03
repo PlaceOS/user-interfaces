@@ -266,6 +266,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                 this._router.navigate(route);
             }
         }
+
         VirtualKeyboardComponent.enabled =
             localStorage.getItem('OSK.enabled') === 'true';
         this.loading = null;
