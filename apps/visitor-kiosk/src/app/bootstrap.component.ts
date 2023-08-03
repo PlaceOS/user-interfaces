@@ -199,7 +199,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                 }
             })
         );
-        this.timeout('check', () => this.checkBootstrap(), 1000);
+        this.checkBootstrap();
     }
 
     public updateRotations() {
@@ -259,7 +259,8 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
             const building_id = localStorage.getItem('KIOSK.building');
             const level_id = localStorage.getItem('KIOSK.level');
             if (building_id && level_id) {
-                const path = this._settings.get('app.root') || 'welcome';
+                const path =
+                    this._settings.get('app.default_route') || 'welcome';
                 const route = path.split('/');
                 route[0] = `/${route[0]}`;
                 this._router.navigate(route);
