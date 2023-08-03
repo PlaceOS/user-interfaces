@@ -6,6 +6,7 @@ import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
 import { formatRecurrence } from 'libs/events/src/lib/helpers';
 import { RecurrenceModalComponent } from './recurrence-modal.component';
 import { addDays, addYears, endOfDay, format } from 'date-fns';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
 
 @Component({
     selector: 'recurrence-field',
@@ -70,7 +71,10 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
     /** Form control on touch handler */
     private _onTouch: (_: RecurrenceDetails) => void;
 
-    constructor(private _dialog: MatDialog) {}
+    constructor(
+        private _dialog: MatDialog,
+        private _settings: SettingsService
+    ) {}
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.date && this.date) {
@@ -153,6 +157,8 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
 
     public setSimple(pattern: string) {
         const day_of_week = new Date(this.date).getDay();
+        const default_recurrence =
+            this._settings.get('app.default_recurrence_period') || 30;
         this.old_value = this.value._pattern;
         if (pattern === 'none') {
             this.setValue({
@@ -165,7 +171,7 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
                 pattern,
                 _pattern: pattern,
                 start: this.date,
-                end: endOfDay(addDays(addYears(this.date, 1), -1)).valueOf(),
+                end: endOfDay(addDays(this.date, default_recurrence)).valueOf(),
                 days_of_week: [day_of_week],
                 interval: 1,
             });
@@ -174,7 +180,7 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
                 pattern,
                 _pattern: pattern,
                 start: this.date,
-                end: endOfDay(addDays(addYears(this.date, 1), -1)).valueOf(),
+                end: endOfDay(addDays(this.date, default_recurrence)).valueOf(),
                 days_of_week: [day_of_week],
                 interval: 1,
             });
@@ -183,7 +189,7 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
                 pattern,
                 _pattern: pattern,
                 start: this.date,
-                end: endOfDay(addDays(addYears(this.date, 1), -1)).valueOf(),
+                end: endOfDay(addDays(this.date, default_recurrence)).valueOf(),
                 days_of_week: [day_of_week],
                 interval: 1,
             });
