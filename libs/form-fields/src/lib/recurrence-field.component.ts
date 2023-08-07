@@ -5,7 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
 import { formatRecurrence } from 'libs/events/src/lib/helpers';
 import { RecurrenceModalComponent } from './recurrence-modal.component';
-import { addDays, addYears, endOfDay, format } from 'date-fns';
+import { addDays, addYears, endOfDay } from 'date-fns';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 
 @Component({

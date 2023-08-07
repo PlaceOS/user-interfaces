@@ -289,6 +289,9 @@ export class AppSettingsModalComponent {
                 this.active_features[key] = combined_settings[key];
             }
         }
+        for (const feature of combined_settings.features || []) {
+            this.active_features[feature] = true;
+        }
         this.combined_settings = combined_settings;
         this.loading = '';
         this._dialog_ref.disableClose = false;
@@ -332,6 +335,9 @@ export class AppSettingsModalComponent {
                 form_values[key] = this.active_features[key];
             }
         }
+        form_values.features = Object.keys(this.active_features).filter(
+            (key) => this.active_features[key]
+        );
         this.form.patchValue(form_values);
     }
 }

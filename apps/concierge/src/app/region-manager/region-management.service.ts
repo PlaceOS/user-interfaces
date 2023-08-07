@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { OrganisationService } from '@placeos/organisation';
-import { PlaceZone } from '@placeos/ts-client';
+import { OrganisationService, Region } from '@placeos/organisation';
+import { PlaceZone, removeZone } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { RegionModalComponent } from './region-modal.component';
 import { AppSettingsModalComponent } from '../ui/app-settings-modal.component';
+import { notifySuccess, openConfirmModal } from '@placeos/common';
 
 export interface RegionListOptions {
     search?: string;
@@ -69,5 +70,22 @@ export class RegionManagementService {
         ref.afterClosed().subscribe((data) => {
             if (data) setTimeout(() => this._change.next(Date.now()), 300);
         });
+    }
+
+    public async removeRegion(region: Region) {
+        const ref = await openConfirmModal(
+            {
+                title: 'Remove Building',
+                content: `Are you sure you want to remove the building "${region.name}"?`,
+                icon: { content: 'delete_forever' },
+                confirm_text: 'Remove',
+            },
+            this._dialog
+        );
+        if (ref.reason !== 'done') return ref.close();
+        ref.loading('Removing building...');
+        await removeZone(region.id).toPromise();
+        notifySuccess('Successfully removed building.');
+        ref.close();
     }
 }
