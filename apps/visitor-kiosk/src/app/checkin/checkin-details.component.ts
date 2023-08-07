@@ -150,7 +150,7 @@ export class CheckinDetailsComponent implements OnInit {
     public async updateGuest() {
         this.loading = true;
         await this._checkin.updateGuest();
-        await this._checkin.checkinGuest().catch((e) => {
+        await this._checkin.checkinGuest()?.catch((e) => {
             // console.log(e);
             // notifyError(
             //     `Error checking in: ${
