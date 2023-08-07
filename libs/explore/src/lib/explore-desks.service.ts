@@ -66,8 +66,9 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     public readonly desk_list = this._state.level.pipe(
         switchMap((lvl) =>
             showMetadata(lvl.id, 'desks').pipe(
+                catchError(() => of({ details: [] })),
                 map((i) =>
-                    (i.details instanceof Array ? i.details : []).map(
+                    (i?.details instanceof Array ? i.details : []).map(
                         (j: Record<string, any>) =>
                             new Desk({ ...j, zone: lvl as any })
                     )
@@ -119,7 +120,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 const has_signs = signs.some((i) => id === i);
                 const is_checked_in =
                     checked_in.some((i) => id === i) ||
-                    this._settings.get(`app.desks.auto_checkin`);
+                    this._settings.get(`app.desk.auto_checkin`);
                 const restriction_list = restrictions.filter((_) =>
                     _.assets.includes(id)
                 );
