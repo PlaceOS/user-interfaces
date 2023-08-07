@@ -139,6 +139,14 @@ export interface BookingRuleDetails {
     host: User;
 }
 
+{
+    "<zone_id>": [
+        { "rules": { "hidden": true }, "conditions": {
+            
+        } }
+    ]
+}
+
 export interface BookingRuleConditions {
     /** List of user groups that the host must be in */
     groups?: string[];
@@ -152,6 +160,8 @@ export interface BookingRuleConditions {
     is_before?: string;
     /** How far in the future this bookings must be */
     is_after?: string;
+    /** How far in the future this bookings must be */
+    is_between?: [number, number];
 }
 
 export interface TimeBlock {
