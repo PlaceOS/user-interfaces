@@ -397,12 +397,12 @@ export class OrganisationService {
 
     /** Save building selection */
     public saveBuilding(id: string) {
-        localStorage.setItem(`PLACEOS.building`, id);
+        sessionStorage.setItem(`PLACEOS.building`, id);
     }
 
     private _initialiseActiveBuilding() {
         return new Promise<void>((resolve) => {
-            const id = localStorage.getItem(`PLACEOS.building`);
+            const id = sessionStorage.getItem(`PLACEOS.building`);
             if (id && this.buildings.find((bld) => bld.id === id)) {
                 this._active_building.next(
                     this.buildings.find((bld) => bld.id === id)

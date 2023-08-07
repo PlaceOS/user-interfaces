@@ -153,7 +153,7 @@ export class BookingFormService extends AsyncHandler {
                     `${type}_restrictions`
                 ).pipe(catchError(() => of({ details: [] })));
             }),
-            map((_) => (_.details instanceof Array ? _.details : [])),
+            map((_) => (_?.details instanceof Array ? _.details : [])),
             shareReplay(1)
         );
 
