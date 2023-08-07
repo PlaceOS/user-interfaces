@@ -117,7 +117,9 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 const is_used = in_use.some((i) => id === i);
                 const has_presence = presence.some((i) => id === i);
                 const has_signs = signs.some((i) => id === i);
-                const is_checked_in = checked_in.some((i) => id === i);
+                const is_checked_in =
+                    checked_in.some((i) => id === i) ||
+                    this._settings.get(`app.desks.auto_checkin`);
                 const restriction_list = restrictions.filter((_) =>
                     _.assets.includes(id)
                 );
