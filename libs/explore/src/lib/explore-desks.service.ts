@@ -59,7 +59,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                     `desk_restrictions`
                 ).pipe(catchError(() => of({ details: [] })));
             }),
-            map((_) => (_.details instanceof Array ? _.details : [])),
+            map((_) => (_?.details instanceof Array ? _.details : [])),
             shareReplay(1)
         );
 
