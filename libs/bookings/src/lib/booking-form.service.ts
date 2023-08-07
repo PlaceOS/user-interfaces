@@ -110,11 +110,13 @@ export class BookingFormService extends AsyncHandler {
     public readonly options = this._options.pipe(shareReplay(1));
     public readonly form = generateBookingForm();
 
-    public readonly resources: Observable<BookingAsset[]> = this.options.pipe(
+    public readonly resources: Observable<BookingAsset[]> = combineLatest([
+        this._org.active_building,
+        this.options.pipe(distinctUntilKeyChanged('type')),
+    ]).pipe(
         debounceTime(300),
-        distinctUntilKeyChanged('type'),
-        switchMap(({ type }) => {
-            if (!this._org.building) return of([]);
+        switchMap(([bld, { type }]) => {
+            if (!bld) return of([]);
             switch (type) {
                 case 'desk':
                     this._loading.next(`Loading desks...`);
@@ -677,7 +679,7 @@ export class BookingFormService extends AsyncHandler {
             map((data) =>
                 flatten(
                     data.map((_) =>
-                        (_.metadata[type]?.details instanceof Array
+                        (_?.metadata[type]?.details instanceof Array
                             ? _.metadata[type]?.details
                             : []
                         ).map((d) =>
