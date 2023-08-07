@@ -139,14 +139,6 @@ export interface BookingRuleDetails {
     host: User;
 }
 
-{
-    "<zone_id>": [
-        { "rules": { "hidden": true }, "conditions": {
-            
-        } }
-    ]
-}
-
 export interface BookingRuleConditions {
     /** List of user groups that the host must be in */
     groups?: string[];
