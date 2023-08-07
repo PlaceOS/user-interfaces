@@ -3,7 +3,14 @@ import { MatDialog } from '@angular/material/dialog';
 import { getModule, showMetadata } from '@placeos/ts-client';
 import { addDays, endOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
-import { catchError, first, map, shareReplay, switchMap } from 'rxjs/operators';
+import {
+    catchError,
+    debounceTime,
+    first,
+    map,
+    shareReplay,
+    switchMap,
+} from 'rxjs/operators';
 
 import {
     AssetRestriction,
@@ -53,6 +60,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
 
     public readonly restrictions: Observable<AssetRestriction[]> =
         this._org.active_building.pipe(
+            debounceTime(50),
             switchMap(() => {
                 return showMetadata(
                     this._org.building.id,
@@ -64,6 +72,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         );
 
     public readonly desk_list = this._state.level.pipe(
+        debounceTime(50),
         switchMap((lvl) =>
             showMetadata(lvl.id, 'desks').pipe(
                 catchError(() => of({ details: [] })),
@@ -80,6 +89,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     );
 
     private _bind = this._state.level.pipe(
+        debounceTime(300),
         map((lvl) => {
             this._statuses = {};
             this.unsubWith('lvl');
@@ -111,7 +121,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         this.restrictions,
         this._options,
     ]).pipe(
-        // debounceTime(50),
+        debounceTime(50),
         map(([desks, in_use, presence, checked_in, signs, restrictions]) => {
             this._statuses = {};
             for (const { id, bookable } of desks) {
