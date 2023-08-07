@@ -74,7 +74,9 @@ export class CateringOrdersService extends AsyncHandler {
     /** Filtered list of catering orders */
     public readonly filtered = this.orders.pipe(
         map((list) =>
-            list.filter((order) => checkOrder(order, this._filters.getValue()))
+            list
+                .filter((order) => checkOrder(order, this._filters.getValue()))
+                .sort((a, b) => a.deliver_at - b.deliver_at)
         )
     );
 
