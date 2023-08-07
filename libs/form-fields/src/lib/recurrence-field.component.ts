@@ -158,7 +158,7 @@ export class RecurrenceFieldComponent implements ControlValueAccessor {
     public setSimple(pattern: string) {
         const day_of_week = new Date(this.date).getDay();
         const default_recurrence =
-            this._settings.get('app.default_recurrence_period') || 30;
+            this._settings.get('app.default_recurrence_period') || 180;
         this.old_value = this.value._pattern;
         if (pattern === 'none') {
             this.setValue({
