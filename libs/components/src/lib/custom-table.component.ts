@@ -18,12 +18,16 @@ import { Observable } from 'rxjs';
 @Component({
     selector: 'custom-table',
     template: `
-        <cdk-table [dataSource]="data_source" matSort>
+        <cdk-table
+            [dataSource]="data_source"
+            matSort
+            class="block border border-gray-300 divide-y divide-gray-300 dark:border-neutral-500"
+        >
             <ng-container *ngFor="let column of columns; let i = index">
                 <ng-container [cdkColumnDef]="column">
                     <div
                         cdk-header-cell
-                        class="capitalize p-2"
+                        class="capitalize p-2 h-12 bg-black/5 flex items-center"
                         [style.width]="(column_size[i] || '8') + 'em'"
                         [style.flex]="column_size[i] === 'flex' ? '1' : ''"
                         *cdkHeaderCellDef
@@ -68,12 +72,12 @@ import { Observable } from 'rxjs';
             </ng-container>
 
             <cdk-header-row
-                class="sticky flex items-center bg-white dark:bg-neutral-700 top-0 z-10 border-b border-gray-300 dark:border-neutral-400"
+                class="sticky flex items-center bg-white dark:bg-neutral-700 top-0 z-10"
                 *cdkHeaderRowDef="columns"
             ></cdk-header-row>
             <cdk-row
                 row
-                class="flex z-0 relative hover:bg-black/5 dark:hover:bg-white/5 border-b border-gray-200 dark:border-neutral-500"
+                class="flex z-0 relative hover:bg-black/5 dark:hover:bg-white/5 divide-x divide-gray-300"
                 (click)="row_clicked.emit(row)"
                 *cdkRowDef="let row; columns: columns"
             ></cdk-row>

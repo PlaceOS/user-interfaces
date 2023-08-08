@@ -4,7 +4,7 @@ import { RoomManagementService } from './room-management.service';
 @Component({
     selector: 'room-list',
     template: `
-        <div class="absolute inset-0 overflow-auto">
+        <div class="absolute inset-0 overflow-auto p-4">
             <custom-table
                 class="block min-w-[48rem] w-full h-full"
                 [dataSource]="rooms"
@@ -24,7 +24,7 @@ import { RoomManagementService } from './room-management.service';
                     'Bookable',
                     ' '
                 ]"
-                [column_size]="['flex', '8r', '6r', '8r', '6r', '8r']"
+                [column_size]="['flex', '8r', '6r', '8r', '6r', '3.75r']"
                 [template]="{
                     bookable: bool_template,
                     zones: level_template,

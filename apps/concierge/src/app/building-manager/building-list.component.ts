@@ -4,7 +4,7 @@ import { BuildingManagementService } from './building-management.service';
 @Component({
     selector: 'building-list',
     template: `
-        <div class="absolute inset-0 overflow-auto">
+        <div class="absolute inset-0 overflow-auto p-4">
             <custom-table
                 class="block min-w-[60rem] w-full h-full"
                 [dataSource]="buildings"
@@ -24,7 +24,7 @@ import { BuildingManagementService } from './building-management.service';
                     'Levels',
                     ' '
                 ]"
-                [column_size]="['flex', '12r', '12r', '10r', '6r', '6r', '5r']"
+                [column_size]="['flex', '12r', '12r', '10r', '6r', '3.75r']"
                 [template]="{
                     images: image_template,
                     zones: level_template,

@@ -23,7 +23,7 @@ const QR_CODES = {};
     selector: 'desks-manage',
     template: `
         <div
-            class="w-full h-full overflow-auto relative"
+            class="w-full h-full overflow-auto relative p-4"
             (dragenter)="handleDrag('enter', $event)"
             (window:dragend)="handleDrag('end', $event)"
         >
