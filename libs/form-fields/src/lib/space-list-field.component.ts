@@ -1,4 +1,4 @@
-import { Component, forwardRef } from '@angular/core';
+import { ChangeDetectorRef, Component, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -6,6 +6,7 @@ import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { NewSpaceSelectModalComponent } from 'libs/spaces/src/lib/space-select-modal/new-space-select-modal.component';
 import { OrganisationService } from '@placeos/organisation';
+import { BehaviorSubject } from 'rxjs';
 
 const EMPTY_FAVS: string[] = [];
 
@@ -41,7 +42,7 @@ const EMPTY_FAVS: string[] = [];
             <div
                 space
                 class="relative p-2 rounded-lg w-full flex items-center shadow border border-gray-200"
-                *ngFor="let space of spaces"
+                *ngFor="let space of spaces | async"
             >
                 <div
                     class="w-24 h-24 rounded-xl bg-black/20 mr-4 overflow-hidden flex items-center justify-center"
@@ -151,7 +152,7 @@ const EMPTY_FAVS: string[] = [];
 })
 export class SpaceListFieldComponent implements ControlValueAccessor {
     public room_size = 4;
-    public spaces: Space[] = [];
+    public spaces = new BehaviorSubject<Space[]>([]);
     public disabled = false;
 
     private _onChange: (_: Space[]) => void;
@@ -167,6 +168,10 @@ export class SpaceListFieldComponent implements ControlValueAccessor {
         private _dialog: MatDialog
     ) {}
 
+    public ngOnInit() {
+        this.spaces.subscribe((_) => console.log('Spaces:', _));
+    }
+
     public level(zones: string[]) {
         return this._org.levelWithID(zones);
     }
@@ -175,19 +180,18 @@ export class SpaceListFieldComponent implements ControlValueAccessor {
     public changeSpaces() {
         const ref = this._dialog.open(NewSpaceSelectModalComponent, {
             data: {
-                spaces: this.spaces,
+                spaces: this.spaces.getValue(),
                 options: { capacity: this.room_size },
             },
         });
-        ref.afterClosed().subscribe((spaces?: Space[]) => {
-            if (!spaces) spaces = ref.componentInstance.selected;
-            this.setValue(spaces);
-        });
+        ref.afterClosed().subscribe(() =>
+            this.setValue(ref.componentInstance.selected)
+        );
     }
 
     /** Remove the selected space from the list */
     public removeSpace(space: Space) {
-        this.setValue(this.spaces.filter((_) => _.id !== space.id));
+        this.setValue(this.spaces.getValue().filter((_) => _.id !== space.id));
     }
 
     /**
@@ -195,8 +199,8 @@ export class SpaceListFieldComponent implements ControlValueAccessor {
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: Space[]) {
-        this.spaces = new_value;
-        if (this._onChange) this._onChange(this.spaces);
+        this.spaces.next(new_value || []);
+        if (this._onChange) this._onChange(new_value || []);
     }
 
     /* istanbul ignore next */
@@ -204,8 +208,8 @@ export class SpaceListFieldComponent implements ControlValueAccessor {
      * Update local value when form control value is changed
      * @param value The new value for the component
      */
-    public writeValue(value: Space[]) {
-        this.spaces = value || [];
+    public writeValue(value?: Space[]) {
+        this.spaces.next(value || []);
     }
 
     /* istanbul ignore next */

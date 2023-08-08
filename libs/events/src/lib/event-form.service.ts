@@ -60,6 +60,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { removeEvent } from './events.fn';
 
 const BOOKING_URLS = [
+    'book/rooms',
     'book/spaces',
     'book/meeting',
     'schedule/view',
