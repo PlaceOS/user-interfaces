@@ -443,7 +443,6 @@ export class EventFormService extends AsyncHandler {
     }
 
     public loadForm() {
-        if (!this._form) this.newForm();
         const form_data = JSON.parse(
             sessionStorage.getItem('PLACEOS.event_form') || '{}'
         );

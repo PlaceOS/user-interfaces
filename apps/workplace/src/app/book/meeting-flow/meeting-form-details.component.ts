@@ -23,9 +23,9 @@ import { addDays, endOfDay } from 'date-fns';
                     </mat-form-field>
                 </div>
                 <div class="flex-1 min-w-[256px]">
-                    <label for="date"
-                        >{{ 'FORM.DATE' | translate }}<span>*</span></label
-                    >
+                    <label for="date">
+                        {{ 'FORM.DATE' | translate }}<span>*</span>
+                    </label>
                     <a-date-field
                         name="date"
                         [ngModel]="form.value.date"

@@ -62,6 +62,7 @@ import { map, tap } from 'rxjs/operators';
             <div class="flex flex-col flex-1">
                 <label for="space">Space<span>*</span>:</label>
                 <space-list-field
+                    class="w-full"
                     formControlName="resources"
                 ></space-list-field>
             </div>

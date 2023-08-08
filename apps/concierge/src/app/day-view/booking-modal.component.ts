@@ -18,11 +18,19 @@ export interface BookingModalData {
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <main
-            *ngIf="!(loading | async); else load_state"
-            class="overflow-auto p-4"
-        >
-            <event-form [form]="form"></event-form>
+        <main class="relative p-4" [class.overflow-auto]="!(loading | async)">
+            <event-form
+                [class.pointer-events-none]="loading | async"
+                [form]="form"
+            ></event-form>
+            <div
+                loading
+                class="absolute inset-0 flex flex-col items-center justify-center"
+                *ngIf="loading | async"
+            >
+                <mat-spinner [diameter]="48" class="mb-4"></mat-spinner>
+                <p>{{ loading | async }}</p>
+            </div>
         </main>
         <footer
             *ngIf="!(loading | async)"
@@ -30,15 +38,6 @@ export interface BookingModalData {
         >
             <button btn matRipple class="w-32" (click)="save()">Save</button>
         </footer>
-        <ng-template #load_state>
-            <main
-                loading
-                class="h-64 flex flex-col items-center justify-center"
-            >
-                <mat-spinner [diameter]="48" class="mb-4"></mat-spinner>
-                <p>{{ loading | async }}</p>
-            </main>
-        </ng-template>
     `,
     styles: [
         `
