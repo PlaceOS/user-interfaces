@@ -8,7 +8,9 @@ import { RegionManagementService } from './region-management.service';
         <div class="flex flex-1 h-px">
             <app-sidebar></app-sidebar>
             <main class="flex flex-col flex-1 w-1/2 h-full">
-                <header class="flex items-center justify-between mb-2 p-8">
+                <header
+                    class="flex items-center justify-between mb-2 px-4 py-8"
+                >
                     <h2 class="text-2xl font-medium">Region Management</h2>
                     <button btn matRipple (click)="newRegion()">
                         Add Region

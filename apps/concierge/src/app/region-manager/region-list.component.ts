@@ -4,13 +4,13 @@ import { RegionManagementService } from './region-management.service';
 @Component({
     selector: 'region-list',
     template: `
-        <div class="absolute inset-0 overflow-auto">
+        <div class="absolute inset-0 overflow-auto px-4">
             <custom-table
-                class="block min-w-[48rem] w-full h-full"
+                class="block min-w-[32rem] w-full h-full"
                 [dataSource]="regions"
                 [columns]="['display_name', 'building_count', 'actions']"
                 [display_column]="['Name', 'Buildings', ' ']"
-                [column_size]="['flex', '10r', '5r']"
+                [column_size]="['flex', '10r', '3.75r']"
                 [template]="{
                     actions: action_template
                 }"
@@ -19,7 +19,7 @@ import { RegionManagementService } from './region-management.service';
         </div>
         <ng-template #action_template let-row="row">
             <div class="w-full flex justify-end space-x-2">
-                <button btn icon [matMenuTriggerFor]="menu">
+                <button btn icon matRipple [matMenuTriggerFor]="menu">
                     <app-icon>more_vert</app-icon>
                 </button>
                 <mat-menu #menu="matMenu">

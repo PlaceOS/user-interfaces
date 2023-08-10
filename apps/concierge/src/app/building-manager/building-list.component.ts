@@ -4,7 +4,7 @@ import { BuildingManagementService } from './building-management.service';
 @Component({
     selector: 'building-list',
     template: `
-        <div class="absolute inset-0 overflow-auto p-4">
+        <div class="absolute inset-0 overflow-auto px-4">
             <custom-table
                 class="block min-w-[60rem] w-full h-full"
                 [dataSource]="buildings"
@@ -24,7 +24,7 @@ import { BuildingManagementService } from './building-management.service';
                     'Levels',
                     ' '
                 ]"
-                [column_size]="['flex', '12r', '12r', '10r', '6r', '3.75r']"
+                [column_size]="['12r', 'flex', '12r', '10r', '6r', '3.75r']"
                 [template]="{
                     images: image_template,
                     zones: level_template,
@@ -46,7 +46,7 @@ import { BuildingManagementService } from './building-management.service';
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="w-full flex justify-end space-x-2">
-                <button btn icon [matMenuTriggerFor]="menu">
+                <button btn icon matRipple [matMenuTriggerFor]="menu">
                     <app-icon>more_vert</app-icon>
                 </button>
                 <mat-menu #menu="matMenu">

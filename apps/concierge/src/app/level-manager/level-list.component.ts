@@ -6,11 +6,11 @@ import { LevelManagementService } from './level-management.service';
     template: `
         <div class="absolute inset-0 overflow-auto">
             <custom-table
-                class="block min-w-[48rem] w-full h-full"
+                class="block min-w-[32rem] w-full h-full mx-4"
                 [dataSource]="levels"
                 [columns]="['display_name', 'building', 'actions']"
                 [display_column]="['Name', 'Building', ' ']"
-                [column_size]="['flex', '12r', '5r']"
+                [column_size]="['flex', '12r', '3.75r']"
                 [template]="{
                     actions: action_template
                 }"
@@ -19,7 +19,7 @@ import { LevelManagementService } from './level-management.service';
         </div>
         <ng-template #action_template let-row="row">
             <div class="w-full flex justify-end space-x-2">
-                <button btn icon [matMenuTriggerFor]="menu">
+                <button btn icon matRipple [matMenuTriggerFor]="menu">
                     <app-icon>more_vert</app-icon>
                 </button>
                 <mat-menu #menu="matMenu">
