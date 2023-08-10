@@ -400,6 +400,12 @@ export class OrganisationService {
 
     /** Save building selection */
     public saveBuilding(id: string) {
+        const region_id = this._buildings
+            .getValue()
+            .find((bld) => bld.id === id)?.parent_id;
+        if (region_id && region_id !== this._organisation.id) {
+            sessionStorage.setItem(`PLACEOS.region`, region_id);
+        }
         sessionStorage.setItem(`PLACEOS.building`, id);
     }
 
@@ -458,7 +464,12 @@ export class OrganisationService {
 
     private async _setDefaultBuilding() {
         if (!this.buildings.length) return;
-        await this._setRegionFromTimezone();
+        const region_id = sessionStorage.getItem(`PLACEOS.region`);
+        await (region_id
+            ? this.setRegion(
+                  this._regions.getValue().find((_) => _.id === region_id)
+              )
+            : this._setRegionFromTimezone());
         this._setBuildingFromTimezone();
         console.log('Building:', this.building);
         if (this.building) return;
