@@ -121,17 +121,20 @@ export class OrganisationService {
         return this._active_region.getValue();
     }
     public set region(item: Region) {
+        this.setRegion(item);
+    }
+
+    public async setRegion(item: Region) {
         if (!item) return;
         this._active_region.next(item);
-        this.loadRegionData(item).then(() => {
-            this._setBuildingFromTimezone();
-            if (
-                this.building?.parent_id !== item.id &&
-                this.buildingsForRegion(item).length
-            ) {
-                this.building = this.buildingsForRegion(item)[0];
-            } else this._updateSettingOverrides();
-        });
+        await this.loadRegionData(item);
+        this._setBuildingFromTimezone();
+        if (
+            this.building?.parent_id !== item.id &&
+            this.buildingsForRegion(item).length
+        ) {
+            this.building = this.buildingsForRegion(item)[0];
+        } else this._updateSettingOverrides();
     }
 
     /** List of available buildings */
@@ -453,32 +456,32 @@ export class OrganisationService {
         });
     }
 
-    private _setDefaultBuilding() {
+    private async _setDefaultBuilding() {
         if (!this.buildings.length) return;
-        this._setRegionFromTimezone();
+        await this._setRegionFromTimezone();
         this._setBuildingFromTimezone();
+        console.log('Building:', this.building);
         if (this.building) return;
         const bld_id = this._service.get('app.default_building');
         if (bld_id) {
             this.building = this.buildings.find(({ id }) => id === bld_id);
         }
         if (!this.building) this.building = this.buildings[0];
+        console.log('Building:', this.building);
     }
 
-    private _setRegionFromTimezone() {
+    private async _setRegionFromTimezone() {
         const region_list = this.regions;
         const timezone = this.timezone;
         for (const region of region_list) {
             if (region.timezone === timezone) {
-                this.region = region;
-                return;
+                return await this.setRegion(region);
             }
         }
         const tz_start = timezone.split('/')[0];
         for (const region of region_list) {
             if (region.timezone.startsWith(tz_start)) {
-                this.region = region;
-                return;
+                return await this.setRegion(region);
             }
         }
     }
