@@ -96,16 +96,15 @@ export class PanelViewComponent extends AsyncHandler {
     public readonly book = () => this._state.newBooking();
     public readonly checkin = () => this._state.checkin();
 
-    public async action() {
-        const pending =
-            (await this._state.status.pipe(take(1)).toPromise()) === 'pending';
-        pending ? this.checkin() : this.book();
+    public action() {
+        const status = this._state.setting('status');
+        if (status === 'busy') return;
+        status === 'pending' ? this.checkin() : this.book();
     }
 
     constructor(
         private _state: PanelStateService,
-        private _route: ActivatedRoute,
-        private _dialog: MatDialog
+        private _route: ActivatedRoute
     ) {
         super();
     }

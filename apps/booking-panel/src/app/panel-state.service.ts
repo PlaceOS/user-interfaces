@@ -41,7 +41,7 @@ export interface PanelSettings {
     /** Custom color for the display QR code */
     custom_qr_color?: string;
     /**  */
-    status?: string;
+    status?: 'free' | 'pending' | 'busy' | 'not-bookable';
     /** Whether booking has a pending state */
     pending?: boolean;
     /** Default title for Ad-hoc bookings */

@@ -141,7 +141,7 @@ export class ParkingSpaceFiltersComponent {
     public can_close = false;
     public readonly options = this._form.options;
 
-    public readonly levels = this._org.level_list.pipe(
+    public readonly levels = this._org.active_levels.pipe(
         map((l) => {
             for (const lvl of l) {
                 const bld = this._org.buildings.find(
@@ -149,7 +149,7 @@ export class ParkingSpaceFiltersComponent {
                 );
                 (lvl as any).bld = bld?.display_name || bld?.name || '';
             }
-            return l;
+            return l.filter((_) => _.tags.includes('parking'));
         })
     );
     public readonly features = this._form.features;
