@@ -57,7 +57,9 @@ import { ParkingSpace } from './parking-state.service';
                     <button btn matRipple class="w-32 inverse" mat-dialog-close>
                         Cancel
                     </button>
-                    <button btn matRipple class="w-32">Save</button>
+                    <button btn matRipple class="w-32" (click)="postForm()">
+                        Save
+                    </button>
                 </div>
             </main>
         </div>
@@ -101,7 +103,12 @@ export class ParkingSpaceModalComponent {
     public postForm() {
         if (!this.form.valid) return;
         this.loading = true;
+        const value = this.form.value;
+        if (value.assigned_user) {
+            value.assigned_to = value.assigned_user.email;
+            value.assigned_name = value.assigned_user.name;
+        }
         this._dialog_ref.disableClose = true;
-        this.event.emit({ reason: 'done', metadata: this.form.value });
+        this.event.emit({ reason: 'done', metadata: value });
     }
 }
