@@ -5,7 +5,6 @@ import { first } from 'rxjs/operators';
 import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
-import { EventsStateService } from '../day-view/events-state.service';
 import { ParkingStateService } from './parking-state.service';
 
 @Component({
@@ -31,7 +30,10 @@ import { ParkingStateService } from './parking-state.service';
                 class="mr-2"
                 (modelChange)="setSearch($event)"
             ></searchbar>
-            <date-options (dateChange)="setDate($event)"></date-options>
+            <date-options
+                *ngIf="!manage"
+                (dateChange)="setDate($event)"
+            ></date-options>
         </div>
     `,
     styles: [
@@ -49,6 +51,7 @@ import { ParkingStateService } from './parking-state.service';
     ],
 })
 export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
+    public manage = false;
     /** List of selected levels */
     public zones: string[] = [];
     /** List of levels for the active building */
@@ -108,5 +111,6 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
                 this.updateZones(this.zones);
             })
         );
+        this.manage = this._router.url.includes('manage');
     }
 }

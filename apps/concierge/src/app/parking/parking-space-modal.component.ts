@@ -9,9 +9,7 @@ import { ParkingSpace } from './parking-state.service';
     selector: 'parking-space-modal',
     template: `
         <div class="w-[28rem]">
-            <header
-                class="flex items-center justify-between bg-secondary px-2 w-full"
-            >
+            <header class="flex items-center justify-between px-2 w-full">
                 <h2 class="px-2">{{ id ? 'Edit' : 'New' }} Parking Space</h2>
                 <button *ngIf="!loading" icon matRipple mat-dialog-close>
                     <app-icon>close</app-icon>
