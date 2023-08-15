@@ -49,7 +49,6 @@ import { addDays, endOfDay } from 'date-fns';
                         (ngModelChange)="form.patchValue({ date: $event })"
                         [ngModelOptions]="{ standalone: true }"
                         [disabled]="form.value.all_day"
-                        [force]="form.value.all_day ? 'All Day' : ''"
                     ></a-time-field>
                 </div>
                 <div class="flex-1 w-1/3 relative">
@@ -58,12 +57,12 @@ import { addDays, endOfDay } from 'date-fns';
                     </label>
                     <a-duration-field
                         name="end-time"
-                        [ngModel]="form.value.duration"
-                        (ngModelChange)="form.patchValue({ duration: $event })"
+                        formControlName="duration"
                         [disabled]="form.value.all_day"
                         [time]="form?.value?.date"
                         [max]="max_duration"
                         [ngModelOptions]="{ standalone: true }"
+                        [force]="form.value.all_day ? 'All Day' : ''"
                     >
                         Meeting must end at a future time.
                     </a-duration-field>

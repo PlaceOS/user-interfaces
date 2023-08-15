@@ -15,6 +15,7 @@ import {
     setHours,
     setMinutes,
     addMinutes,
+    roundToNearestMinutes,
 } from 'date-fns';
 import { currentUser, timePeriodsIntersect, unique } from '@placeos/common';
 
@@ -98,9 +99,28 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
     form.get('date').valueChanges.subscribe(() =>
         form.get('duration').updateValueAndValidity()
     );
+    let previous_time = form.value.date;
+    let previous_duration = form.value.duration;
     form.controls.all_day.valueChanges.subscribe((all_day) => {
-        if (all_day) form.controls.duration.disable();
-        else form.controls.duration.enable();
+        if (all_day) {
+            previous_time = form.value.date;
+            previous_duration = form.value.duration;
+            form.patchValue({
+                date: setHours(setMinutes(new Date(), 0), 6).valueOf(),
+                duration: 12 * 60,
+            });
+            form.controls.duration.disable();
+        } else {
+            form.controls.duration.enable();
+            const current_time = roundToNearestMinutes(Date.now(), {
+                nearestTo: 5,
+                roundingMethod: 'ceil',
+            }).valueOf();
+            form.patchValue({
+                date: Math.max(current_time, previous_time),
+                duration: previous_duration,
+            });
+        }
     });
     form.get('catering_charge_code').setValidators([
         validateCateringField(form.get('catering')),

@@ -111,6 +111,7 @@ import { addDays, endOfDay } from 'date-fns';
                             [ngModel]="form.value.date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
+                            [disabled]="form.value.all_day"
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3 relative">
