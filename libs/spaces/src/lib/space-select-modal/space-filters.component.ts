@@ -111,6 +111,7 @@ import { SpacesService } from '../spaces.service';
                             formControlName="duration"
                             [time]="form?.value?.date"
                             [max]="max_duration"
+                            [force]="form.value.all_day ? 'All Day' : ''"
                         >
                         </a-duration-field>
                     </div>

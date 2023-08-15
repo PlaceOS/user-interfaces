@@ -129,6 +129,7 @@ import { BookingFormService } from '../booking-form.service';
                             [max]="12 * 60"
                             [min]="60"
                             [step]="60"
+                            [force]="form.value.all_day ? 'All Day' : ''"
                         >
                         </a-duration-field>
                     </div>
