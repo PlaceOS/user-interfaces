@@ -62,7 +62,8 @@ import { Observable } from 'rxjs';
                                     context: {
                                         data: row[column],
                                         row: row,
-                                        key: column
+                                        key: column,
+                                        name: display_column[i] || column
                                     }
                                 "
                             ></ng-container>

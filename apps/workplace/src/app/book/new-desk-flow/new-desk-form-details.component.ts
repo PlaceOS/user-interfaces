@@ -103,9 +103,9 @@ import { addDays, endOfDay } from 'date-fns';
                 </div>
                 <div class="flex items-center space-x-2">
                     <div class="flex-1 w-1/3">
-                        <label for="start-time" i18n
-                            >Start Time<span>*</span></label
-                        >
+                        <label for="start-time" i18n>
+                            Start Time<span>*</span>
+                        </label>
                         <a-time-field
                             name="start-time"
                             [ngModel]="form.value.date"
@@ -114,9 +114,9 @@ import { addDays, endOfDay } from 'date-fns';
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3 relative">
-                        <label for="end-time" i18n
-                            >End Time<span>*</span></label
-                        >
+                        <label for="end-time" i18n>
+                            End Time<span>*</span>
+                        </label>
                         <a-duration-field
                             name="end-time"
                             formControlName="duration"

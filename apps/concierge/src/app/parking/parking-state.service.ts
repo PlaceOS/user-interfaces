@@ -43,6 +43,19 @@ export interface ParkingSpace {
     assigned_to: string;
 }
 
+export interface ParkingUser {
+    id: string;
+    email: string;
+    name: string;
+    transponder: string;
+    designation: string;
+    car_model: string;
+    car_colour: string;
+    plate_number: string;
+    phone: string;
+    notes: string;
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -82,6 +95,29 @@ export class ParkingStateService extends AsyncHandler {
         tap(() =>
             this._loading.next(
                 this._loading.getValue().filter((_) => _ !== 'spaces')
+            )
+        ),
+        shareReplay(1)
+    );
+    /** List of parking spaces for the current building/level */
+    public users = combineLatest([
+        this._org.active_building,
+        this._change,
+    ]).pipe(
+        filter(([bld]) => !!bld?.id),
+        switchMap(([bld]) => {
+            this._loading.next([...this._loading.getValue(), 'users']);
+            return showMetadata(bld.id, 'parking-users');
+        }),
+        map(
+            (metadata) =>
+                (metadata.details instanceof Array
+                    ? metadata.details
+                    : []) as ParkingUser[]
+        ),
+        tap(() =>
+            this._loading.next(
+                this._loading.getValue().filter((_) => _ !== 'users')
             )
         ),
         shareReplay(1)
@@ -184,6 +220,8 @@ export class ParkingStateService extends AsyncHandler {
         }).toPromise();
         state.close();
     }
+
+    public async saveUsers(users: ParkingUser[]) {}
 
     public async approveBooking(booking: Booking) {
         const success = await approveBooking(booking.id)

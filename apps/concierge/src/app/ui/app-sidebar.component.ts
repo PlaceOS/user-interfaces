@@ -176,6 +176,11 @@ export class ApplicationSidebarComponent extends AsyncHandler {
                     name: 'Parking Management',
                     route: ['/book/parking/new/manage'],
                 },
+                // {
+                //     id: 'parking',
+                //     name: 'Parking Users',
+                //     route: ['/book/parking/new/users'],
+                // },
                 {
                     id: 'catering',
                     name: 'Catering Menu',

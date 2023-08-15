@@ -111,6 +111,6 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
                 this.updateZones(this.zones);
             })
         );
-        this.manage = this._router.url.includes('manage');
+        this.manage = !this._router.url.includes('events');
     }
 }
