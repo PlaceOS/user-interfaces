@@ -475,13 +475,6 @@ export class BookingFormService extends AsyncHandler {
                 this._options.getValue().type
             );
         }
-        if (value.duration >= 12 * 60 || value.all_day) {
-            this.form.patchValue({
-                date: set(value.date, { hours: 11, minutes: 59 }).valueOf(),
-                duration: 12 * 60,
-            });
-            value = this.form.getRawValue();
-        }
         if (this._payments.payment_module) {
             const receipt = await this._payments.makePayment({
                 type: this._options.getValue().type,
@@ -636,11 +629,10 @@ export class BookingFormService extends AsyncHandler {
 
     /** Check if the given resource is available for the selected user to book */
     private async checkResourceAvailable(
-        { id, asset_id, date, duration, user_email, all_day }: Partial<Booking>,
+        { id, asset_id, date, duration, user_email }: Partial<Booking>,
         type: BookingType
     ) {
         if (!user_email) throw 'No user was selected to book for';
-        duration = all_day ? 12 * 60 : duration || 60;
         const bookings = await queryBookings({
             period_start: getUnixTime(date),
             period_end: getUnixTime(date + duration * 60 * 1000),
