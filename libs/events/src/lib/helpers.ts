@@ -318,6 +318,7 @@ export function checkRulesMatch(
     { date, duration, host }: BookingRuleDetails,
     ruleset: BookingRuleset
 ): boolean {
+    const date_obj = new Date(date);
     let matches = 0;
     const { conditions } = ruleset;
     if (!conditions) return true;
@@ -336,6 +337,12 @@ export function checkRulesMatch(
     if (
         conditions.min_length &&
         stringToMinutes(conditions.min_length) <= duration
+    )
+        matches += 1;
+    if (
+        conditions.is_between &&
+        date_obj.getHours() >= conditions.is_between[0] &&
+        date_obj.getHours() < conditions.is_between[1]
     )
         matches += 1;
     if (

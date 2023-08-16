@@ -31,15 +31,18 @@ export interface DurationOption {
                         *ngFor="let option of duration_options"
                         [value]="option.id"
                     >
-                        {{
-                            option.date
-                                ? (option.date
-                                      | date
-                                          : (option.id >= 24 * 60
-                                                ? 'mediumDate'
-                                                : 'h : mm a')) + ' ('
-                                : ''
-                        }}{{ option.name }}{{ option.date ? ')' : '' }}
+                        <ng-container *ngIf="!force">
+                            {{
+                                option.date
+                                    ? (option.date
+                                          | date
+                                              : (option.id >= 24 * 60
+                                                    ? 'mediumDate'
+                                                    : 'h : mm a')) + ' ('
+                                    : ''
+                            }}{{ option.name }}{{ option.date ? ')' : '' }}
+                        </ng-container>
+                        {{ force }}
                     </mat-option>
                 </mat-select>
                 <mat-error><ng-content></ng-content></mat-error>
@@ -80,6 +83,8 @@ export class DurationFieldComponent
     @Input() public disabled: boolean;
     /** Special case prepopulation i.e. out of step options */
     @Input() public custom_options: number[] = [];
+
+    @Input() public force: string;
 
     public duration = 60;
     /** List of available duration options */

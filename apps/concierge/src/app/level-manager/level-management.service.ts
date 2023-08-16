@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { OrganisationService } from '@placeos/organisation';
-import { PlaceZone } from '@placeos/ts-client';
+import { BuildingLevel, OrganisationService } from '@placeos/organisation';
+import { PlaceZone, removeZone } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { LevelModalComponent } from './level-modal.component';
+import { notifySuccess, openConfirmModal } from '@placeos/common';
 
 export interface LevelListOptions {
     zone?: string;
@@ -19,8 +20,6 @@ export class LevelManagementService {
     private _change = new BehaviorSubject(0);
 
     public options = this._options.asObservable();
-
-    public readonly regions = this._org.region_list;
 
     public readonly level_list = this._org.level_list;
 
@@ -70,5 +69,22 @@ export class LevelManagementService {
         ref.afterClosed().subscribe((data) => {
             if (data) setTimeout(() => this._change.next(Date.now()), 300);
         });
+    }
+
+    public async removeLevel(level: BuildingLevel) {
+        const ref = await openConfirmModal(
+            {
+                title: 'Remove Building',
+                content: `Are you sure you want to remove the building "${level.name}"?`,
+                icon: { content: 'delete_forever' },
+                confirm_text: 'Remove',
+            },
+            this._dialog
+        );
+        if (ref.reason !== 'done') return ref.close();
+        ref.loading('Removing building...');
+        await removeZone(level.id).toPromise();
+        notifySuccess('Successfully removed building.');
+        ref.close();
     }
 }

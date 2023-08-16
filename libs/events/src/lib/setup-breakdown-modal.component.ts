@@ -78,7 +78,6 @@ export class SetupBreakdownModalComponent {
             .catch((_) => {
                 this.loading = false;
                 this._dialog_ref.disableClose = false;
-                console.log(_);
                 notifyError(`Error updating setup and breakdown. ${_.error}`);
                 throw _;
             });

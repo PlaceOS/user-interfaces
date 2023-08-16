@@ -52,12 +52,7 @@ import { updateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
 
 export type BookingFlowView = 'form' | 'map' | 'confirm' | 'success';
 
-const BOOKING_URLS = [
-    'book/desks',
-    'book/parking',
-    'book/new-desks',
-    'book/new-parking',
-];
+const BOOKING_TYPES = ['desk', 'parking'];
 
 export interface BookingFlowOptions {
     /** Type of booking being made */
@@ -115,11 +110,13 @@ export class BookingFormService extends AsyncHandler {
     public readonly options = this._options.pipe(shareReplay(1));
     public readonly form = generateBookingForm();
 
-    public readonly resources: Observable<BookingAsset[]> = this.options.pipe(
+    public readonly resources: Observable<BookingAsset[]> = combineLatest([
+        this._org.active_building,
+        this.options.pipe(distinctUntilKeyChanged('type')),
+    ]).pipe(
         debounceTime(300),
-        distinctUntilKeyChanged('type'),
-        switchMap(({ type }) => {
-            if (!this._org.building) return of([]);
+        switchMap(([bld, { type }]) => {
+            if (!bld) return of([]);
             switch (type) {
                 case 'desk':
                     this._loading.next(`Loading desks...`);
@@ -158,7 +155,7 @@ export class BookingFormService extends AsyncHandler {
                     `${type}_restrictions`
                 ).pipe(catchError(() => of({ details: [] })));
             }),
-            map((_) => (_.details instanceof Array ? _.details : [])),
+            map((_) => (_?.details instanceof Array ? _.details : [])),
             shareReplay(1)
         );
 
@@ -293,7 +290,7 @@ export class BookingFormService extends AsyncHandler {
             'form_change',
             this.form.valueChanges.subscribe(() => this.storeForm())
         );
-        this._booking.next(booking);
+        this._booking.next(new Booking(booking));
         this._options.next({ type: this._options.getValue().type });
     }
 
@@ -310,7 +307,8 @@ export class BookingFormService extends AsyncHandler {
             this._router.events.subscribe((booking: Event) => {
                 if (
                     booking instanceof NavigationEnd &&
-                    !BOOKING_URLS.find((_) => booking.url.includes(_))
+                    (!booking.url.includes('book') ||
+                        !BOOKING_TYPES.find((_) => booking.url.includes(_)))
                 ) {
                     this.clearForm();
                 }
@@ -365,7 +363,14 @@ export class BookingFormService extends AsyncHandler {
     public storeForm() {
         sessionStorage.setItem(
             'PLACEOS.booking_form',
-            JSON.stringify(this.form.getRawValue() || {})
+            JSON.stringify({
+                ...this._booking.getValue(),
+                ...cleanObject(this.form.getRawValue() || {}, [
+                    null,
+                    undefined,
+                    '',
+                ]),
+            })
         );
         sessionStorage.setItem(
             'PLACEOS.booking_form_filters',
@@ -466,16 +471,9 @@ export class BookingFormService extends AsyncHandler {
         let booking = this._booking.getValue() || new Booking();
         if (!ignore_check) {
             await this.checkResourceAvailable(
-                value,
+                { ...booking, ...value },
                 this._options.getValue().type
             );
-        }
-        if (value.duration >= 12 * 60 || value.all_day) {
-            this.form.patchValue({
-                date: set(value.date, { hours: 11, minutes: 59 }).valueOf(),
-                duration: 12 * 60,
-            });
-            value = this.form.getRawValue();
         }
         if (this._payments.payment_module) {
             const receipt = await this._payments.makePayment({
@@ -631,11 +629,10 @@ export class BookingFormService extends AsyncHandler {
 
     /** Check if the given resource is available for the selected user to book */
     private async checkResourceAvailable(
-        { id, asset_id, date, duration, user_email, all_day }: Partial<Booking>,
+        { id, asset_id, date, duration, user_email }: Partial<Booking>,
         type: BookingType
     ) {
         if (!user_email) throw 'No user was selected to book for';
-        duration = all_day ? 12 * 60 : duration || 60;
         const bookings = await queryBookings({
             period_start: getUnixTime(date),
             period_end: getUnixTime(date + duration * 60 * 1000),
@@ -655,7 +652,8 @@ export class BookingFormService extends AsyncHandler {
             bookings.filter(
                 (_) =>
                     _.user_email === (user_email || currentUser()?.email) &&
-                    _.status !== 'declined'
+                    _.status !== 'declined' &&
+                    _.id !== id
             ).length >= allowed_bookings
         ) {
             const current = user_email === currentUser()?.email;
@@ -673,7 +671,7 @@ export class BookingFormService extends AsyncHandler {
             map((data) =>
                 flatten(
                     data.map((_) =>
-                        (_.metadata[type]?.details instanceof Array
+                        (_?.metadata[type]?.details instanceof Array
                             ? _.metadata[type]?.details
                             : []
                         ).map((d) =>

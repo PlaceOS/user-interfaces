@@ -38,8 +38,9 @@ export class RegionSelectComponent {
     public readonly regions = this._org.region_list;
     public readonly region = this._org.active_region;
 
-    public readonly setRegion = (i) => {
-        this._org.region = i;
+    public readonly setRegion = async (i) => {
+        await this._org.setRegion(i);
+        this._org.saveBuilding(this._org.building.id);
         this._data?.close();
     };
 

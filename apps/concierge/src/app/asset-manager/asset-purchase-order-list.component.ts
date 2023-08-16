@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
         <div
             class="relative -left-4 w-[calc(100%+2rem)] mt-4 h-[calc(100%-1rem)] flex flex-col"
         >
-            <div class="w-full overflow-auto h-1/2 flex-1">
+            <div class="w-full overflow-auto h-1/2 flex-1 p-4">
                 <custom-table
                     purchase-orders
                     class="block min-w-[52rem] text-sm"

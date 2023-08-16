@@ -10,7 +10,8 @@ describe('Booking Desks', () => {
 
     it('should ensure the meeting title is a required field', () => {
         cy.get('input[name="title"]')
-            .clear()
+            .type('a@test.com')
+
             .then(() => {
                 cy.get('button[name="add-desk"]')
                     .click({ force: true })

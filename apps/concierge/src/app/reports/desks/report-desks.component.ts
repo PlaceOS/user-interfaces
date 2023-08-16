@@ -44,6 +44,12 @@ import { ReportsStateService } from '../reports-state.service';
     `,
     styles: [
         `
+            :host {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            }
+
             h3 {
                 font-weight: 500;
             }

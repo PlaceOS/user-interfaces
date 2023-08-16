@@ -471,7 +471,6 @@ export class RoomModalComponent extends AsyncHandler {
                     this.form
                 ).join(', ')}]`
             );
-        console.log('Form:', this.form.value);
         if (!this.form.value.id) {
             this.form.patchValue({
                 display_name:

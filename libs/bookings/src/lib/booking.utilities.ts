@@ -9,6 +9,7 @@ import {
     removeViewer,
 } from '@placeos/svg-viewer';
 import { Booking } from './booking.class';
+import { roundToNearestMinutes, setHours, setMinutes } from 'date-fns';
 
 export function generateBookingForm(booking: Booking = new Booking()) {
     const form = new FormGroup({
@@ -46,7 +47,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
     form.valueChanges.subscribe((v) => {
         const user = v.user;
         const booker = v.booked_by || currentUser();
-        (booker || user)
+        booker || user
             ? form.patchValue(
                   {
                       user_id: user?.id || booker?.id,
@@ -58,9 +59,28 @@ export function generateBookingForm(booking: Booking = new Booking()) {
               )
             : '';
     });
+    let previous_time = form.value.date;
+    let previous_duration = form.value.duration;
     form.controls.all_day.valueChanges.subscribe((all_day) => {
-        if (all_day) form.controls.duration.disable();
-        else form.controls.duration.enable();
+        if (all_day) {
+            previous_time = form.value.date;
+            previous_duration = form.value.duration;
+            form.patchValue({
+                date: setHours(setMinutes(new Date(), 0), 6).valueOf(),
+                duration: 12 * 60,
+            });
+            form.controls.duration.disable();
+        } else {
+            form.controls.duration.enable();
+            const current_time = roundToNearestMinutes(Date.now(), {
+                nearestTo: 5,
+                roundingMethod: 'ceil',
+            }).valueOf();
+            form.patchValue({
+                date: Math.max(current_time, previous_time),
+                duration: previous_duration,
+            });
+        }
     });
     return form;
 }

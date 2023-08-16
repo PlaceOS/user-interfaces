@@ -1,35 +1,57 @@
-import { Component, Inject } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    Output,
+    SimpleChanges,
+} from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {
     AsyncHandler,
     TIMEZONES_IANA,
     getInvalidFields,
     notifyError,
+    notifySuccess,
 } from '@placeos/common';
-import { Region, OrganisationService } from '@placeos/organisation';
+import { Building, OrganisationService } from '@placeos/organisation';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
 
 @Component({
-    selector: 'region-modal',
+    selector: 'building-form',
     template: `
-        <header>
-            <h2>{{ form.value.id ? 'Edit' : 'Add' }} Region</h2>
-            <button btn icon mat-dialog-close *ngIf="!loading">
-                <app-icon>close</app-icon>
-            </button>
-        </header>
-        <main
-            class="max-h-[65vh] overflow-y-auto overflow-x-hidden p-4"
-            *ngIf="!loading; else load_state"
-        >
+        <ng-container *ngIf="!loading; else load_state">
             <form
-                system
+                building
                 class="flex flex-col w-[36rem] max-w-[calc(100vw-4rem)]"
                 *ngIf="form"
                 [formGroup]="form"
             >
-                <div class="flex flex-col" *ngIf="form.controls.display_name">
+                <div
+                    class="flex flex-col"
+                    *ngIf="(region_list | async)?.length"
+                >
+                    <label for="region" i18n="@@displayNameLabel">
+                        Region:
+                    </label>
+                    <mat-form-field appearance="outline">
+                        <mat-select
+                            name="region"
+                            formControlName="parent_id"
+                            placeholder="Select Region..."
+                        >
+                            <mat-option [value]="default_parent"
+                                >None</mat-option
+                            >
+                            <mat-option
+                                *ngFor="let region of region_list | async"
+                                [value]="region.id"
+                            >
+                                {{ region.display_name || region.name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <div class="flex flex-col">
                     <label for="display-name" i18n="@@displayNameLabel">
                         Display Name:
                     </label>
@@ -38,7 +60,6 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                             matInput
                             name="display-name"
                             placeholder="Display Name"
-                            i18n-placeholder="@@displayNamePlaceholder"
                             formControlName="display_name"
                         />
                     </mat-form-field>
@@ -67,45 +88,57 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                         </mat-option>
                     </mat-autocomplete>
                 </div>
+                <div class="flex flex-col">
+                    <label for="address" i18n="@@displayNameLabel">
+                        Location:
+                    </label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            name="address"
+                            placeholder="Location or Address..."
+                            formControlName="location"
+                        />
+                    </mat-form-field>
+                </div>
             </form>
-        </main>
-        <footer
-            class="p-2 flex justify-end border-t border-gray-200"
-            *ngIf="!loading"
-        >
-            <button btn class="w-32" (click)="save()">Save</button>
-        </footer>
+        </ng-container>
         <ng-template #load_state>
             <div class="flex flex-col items-center justify-center w-64 h-64">
                 <mat-spinner diameter="32"></mat-spinner>
-                <p class="mt-4">Saving region...</p>
+                <p class="mt-4">Saving building...</p>
             </div>
         </ng-template>
     `,
     styles: [``],
 })
-export class RegionModalComponent extends AsyncHandler {
-    public loading = false;
-    public readonly building_list = this._org.building_list;
+export class BuildingFormComponent extends AsyncHandler {
+    @Input() public building: Building | null = null;
+    @Input() public save: number = 0;
+    @Input() public loading = false;
+    @Output() public loadingChange = new EventEmitter<boolean>();
+    @Output() public done = new EventEmitter();
 
     public timezones: string[] = [];
     public filtered_timezones: string[] = [];
 
     public readonly form = new FormGroup({
-        id: new FormControl(this._data?.id || ''),
-        display_name: new FormControl(this._data?.display_name || '', [
+        id: new FormControl(''),
+        parent_id: new FormControl(this._org.organisation.id, [
             Validators.required,
         ]),
+        display_name: new FormControl('', [Validators.required]),
         timezone: new FormControl(
             Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone || ''
         ),
-        parent_id: new FormControl(this._org.organisation.id),
+        location: new FormControl(''),
     });
 
-    constructor(
-        private _org: OrganisationService,
-        @Inject(MAT_DIALOG_DATA) private _data: Region | undefined
-    ) {
+    public get default_parent() {
+        return this._org.organisation.id;
+    }
+
+    constructor(private _org: OrganisationService) {
         super();
     }
 
@@ -120,9 +153,17 @@ export class RegionModalComponent extends AsyncHandler {
                     ))
             )
         );
+        if (this.building) this.form.patchValue(this.building);
     }
 
-    public async save() {
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes.building && this.building) {
+            this.form.patchValue(this.building);
+        }
+        if (changes.save && this.save) this.saveChanges();
+    }
+
+    public async saveChanges() {
         if (!this.form.valid) {
             return notifyError(
                 `Some form fields are invalid. [${getInvalidFields(
@@ -132,23 +173,25 @@ export class RegionModalComponent extends AsyncHandler {
         }
         const data = this.form.getRawValue();
         this.loading = true;
-        await (data.id
-            ? updateZone(data.id, {
-                  ...data,
-                  name: `REGION ${authority().description} ${
-                      data.display_name
-                  }`,
-              })
-            : addZone({
-                  ...data,
-                  name: `REGION ${authority().description} ${
-                      data.display_name
-                  }`,
-              })
-        )
+        this.loadingChange.emit(true);
+        const body = {
+            ...data,
+            name: `BLD ${authority().description} ${data.display_name}`,
+        };
+        await (data.id ? updateZone(data.id, body) : addZone(body))
             .toPromise()
-            .catch();
+            .catch((e) => {
+                notifyError(
+                    `Error saving building: ${e.message || e.error || e}`
+                );
+                this.loading = false;
+                this.loadingChange.emit(false);
+                throw e;
+            });
+        notifySuccess('Successfully saved building.');
         this.loading = false;
+        this.loadingChange.emit(false);
+        this.done.emit();
     }
 
     private _updateTimezoneList() {

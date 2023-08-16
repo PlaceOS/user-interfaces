@@ -52,7 +52,6 @@ export class BookSpaceFlowComponent extends AsyncHandler implements OnInit {
 
     public ngOnInit() {
         this._state.loadForm();
-        if (!this._state.form) this._state.newForm();
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((param) => {

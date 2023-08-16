@@ -60,6 +60,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { removeEvent } from './events.fn';
 
 const BOOKING_URLS = [
+    'book/rooms',
     'book/spaces',
     'book/meeting',
     'schedule/view',
@@ -203,11 +204,7 @@ export class EventFormService extends AsyncHandler {
     ]).pipe(
         map(([list, bookings]) => {
             this._loading.next('Updating available spaces...');
-            let { date, duration, all_day } = this._form.getRawValue();
-            if (all_day) {
-                date = startOfDay(date).valueOf();
-                duration = 24 * 60 - 1;
-            }
+            let { date, duration } = this._form.getRawValue();
             list = filterSpacesFromRules(
                 list,
                 { date, duration, space: null, host: currentUser() },
@@ -234,14 +231,10 @@ export class EventFormService extends AsyncHandler {
             switchMap(([spaces]) => {
                 if (!spaces.length) return of([]);
                 this._loading.next('Retrieving available spaces...');
-                let { date, duration, all_day } = this._form.getRawValue();
+                let { date, duration } = this._form.getRawValue();
                 const availability_method = this.has_calendar
                     ? querySpaceAvailability
                     : queryResourceAvailability;
-                if (all_day) {
-                    date = startOfDay(date).valueOf();
-                    duration = 24 * 60 - 1;
-                }
                 spaces = filterSpacesFromRules(
                     spaces,
                     { date, duration, space: null, host: currentUser() },
@@ -442,7 +435,6 @@ export class EventFormService extends AsyncHandler {
     }
 
     public loadForm() {
-        if (!this._form) this.newForm();
         const form_data = JSON.parse(
             sessionStorage.getItem('PLACEOS.event_form') || '{}'
         );
@@ -495,10 +487,6 @@ export class EventFormService extends AsyncHandler {
             } = form.getRawValue();
             const spaces = form.get('resources')?.value || [];
             let catering = form.get('catering')?.value || [];
-            if (all_day) {
-                date = startOfDay(date).valueOf();
-                duration = 24 * 60 - 1;
-            }
             if (recurrence?._pattern && recurrence?._pattern !== 'none') {
                 this.form.patchValue({ recurring: true });
             }
@@ -549,9 +537,7 @@ export class EventFormService extends AsyncHandler {
                     invoice_id: receipt.invoice_id,
                 };
             }
-            const d = value.all_day
-                ? startOfDay(value.date).valueOf()
-                : value.date;
+            const d = value.date;
             if (catering.length && !('items' in catering[0])) {
                 const items = catering.map((_) => ({
                     ..._,

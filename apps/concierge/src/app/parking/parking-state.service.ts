@@ -43,11 +43,25 @@ export interface ParkingSpace {
     assigned_to: string;
 }
 
+export interface ParkingUser {
+    id: string;
+    email: string;
+    name: string;
+    transponder: string;
+    designation: string;
+    car_model: string;
+    car_colour: string;
+    plate_number: string;
+    phone: string;
+    notes: string;
+}
+
 @Injectable({
     providedIn: 'root',
 })
 export class ParkingStateService extends AsyncHandler {
     private _poll = new BehaviorSubject<number>(0);
+    private _change = new BehaviorSubject(0);
     private _options = new BehaviorSubject<ParkingOptions>({
         date: Date.now(),
         search: '',
@@ -59,7 +73,11 @@ export class ParkingStateService extends AsyncHandler {
         map((_) => _.filter((lvl) => lvl.tags.includes('parking')))
     );
     /** List of parking spaces for the current building/level */
-    public spaces = combineLatest([this.levels, this._options]).pipe(
+    public spaces = combineLatest([
+        this.levels,
+        this._options,
+        this._change,
+    ]).pipe(
         filter(([lvls, options]) => !!(options.zones[0] || lvls[0]?.id)),
         switchMap(([levels, options]) => {
             this._loading.next([...this._loading.getValue(), 'spaces']);
@@ -77,6 +95,29 @@ export class ParkingStateService extends AsyncHandler {
         tap(() =>
             this._loading.next(
                 this._loading.getValue().filter((_) => _ !== 'spaces')
+            )
+        ),
+        shareReplay(1)
+    );
+    /** List of parking spaces for the current building/level */
+    public users = combineLatest([
+        this._org.active_building,
+        this._change,
+    ]).pipe(
+        filter(([bld]) => !!bld?.id),
+        switchMap(([bld]) => {
+            this._loading.next([...this._loading.getValue(), 'users']);
+            return showMetadata(bld.id, 'parking-users');
+        }),
+        map(
+            (metadata) =>
+                (metadata.details instanceof Array
+                    ? metadata.details
+                    : []) as ParkingUser[]
+        ),
+        tap(() =>
+            this._loading.next(
+                this._loading.getValue().filter((_) => _ !== 'users')
             )
         ),
         shareReplay(1)
@@ -135,7 +176,9 @@ export class ParkingStateService extends AsyncHandler {
         });
         const state = await Promise.race([
             ref.afterClosed().toPromise(),
-            ref.componentInstance.event.pipe(first((_) => _.reason === 'done')),
+            ref.componentInstance.event
+                .pipe(first((_) => _.reason === 'done'))
+                .toPromise(),
         ]);
         if (state?.reason !== 'done') return;
         const zone = this._options.getValue().zones[0];
@@ -152,6 +195,7 @@ export class ParkingStateService extends AsyncHandler {
             ],
             description: 'List of available parking spaces',
         }).toPromise();
+        this._change.next(Date.now());
         ref.close();
     }
 
@@ -176,6 +220,8 @@ export class ParkingStateService extends AsyncHandler {
         }).toPromise();
         state.close();
     }
+
+    public async saveUsers(users: ParkingUser[]) {}
 
     public async approveBooking(booking: Booking) {
         const success = await approveBooking(booking.id)

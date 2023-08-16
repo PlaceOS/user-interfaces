@@ -5,24 +5,23 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { MockModule } from 'ng-mocks';
+import { MockModule, MockProvider } from 'ng-mocks';
 
 import { BootstrapComponent } from '../app/bootstrap.component';
 import { SpacesService } from '@placeos/spaces';
 import { of } from 'rxjs';
+import { SettingsService } from '@placeos/common';
 
 describe('BootstrapComponent', () => {
     let spectator: SpectatorRouting<BootstrapComponent>;
     const createComponent = createRoutingFactory({
         component: BootstrapComponent,
         providers: [
-            {
-                provide: SpacesService,
-                useValue: {
-                    initialised: of(true),
-                    space_list: [{ id: '1', name: 'Space 1' }],
-                },
-            },
+            MockProvider(SpacesService, {
+                initialised: of(true),
+                space_list: [{ id: '1', name: 'Space 1' }],
+            } as any),
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
         imports: [
             FormsModule,
@@ -74,7 +73,9 @@ describe('BootstrapComponent', () => {
         spectator.click('button');
         spectator.detectChanges();
         const router = spectator.inject(Router);
-        expect(router.navigate).toHaveBeenCalledWith(['panel', 'sys-B0'], { queryParamsHandling: "preserve" });
+        expect(router.navigate).toHaveBeenCalledWith(['panel', 'sys-B0'], {
+            queryParamsHandling: 'preserve',
+        });
     });
 
     it('should auto bootstrap if there is a system query parameter', () => {
@@ -82,7 +83,9 @@ describe('BootstrapComponent', () => {
         spectator.detectChanges();
         jest.runOnlyPendingTimers();
         const router = spectator.inject(Router);
-        expect(router.navigate).toHaveBeenCalledWith(['panel', 'sys-B0'], { queryParamsHandling: "preserve" });
+        expect(router.navigate).toHaveBeenCalledWith(['panel', 'sys-B0'], {
+            queryParamsHandling: 'preserve',
+        });
     });
 
     it('should clear bootstrap if there is a clear query parameter', () => {

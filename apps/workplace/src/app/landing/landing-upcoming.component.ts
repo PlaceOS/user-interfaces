@@ -121,7 +121,6 @@ export class LandingUpcomingComponent implements OnInit, OnDestroy {
     }
 
     public editBooking(event: Booking) {
-        console.log('Edit Booking:', event);
         this._router.navigate(['/book', `new-${event.type}`]);
         this._booking_form.newForm(event);
         setTimeout(() => {

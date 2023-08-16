@@ -2,7 +2,7 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
 
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService, currentUser } from '@placeos/common';
 import { notifyError } from 'libs/common/src/lib/notifications';
 import { getInvalidFields, randomString } from 'libs/common/src/lib/general';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
@@ -441,7 +441,7 @@ export class InviteVisitorFormComponent extends AsyncHandler {
                 booking_type: 'visitor',
                 asset_id: user.email,
                 asset_name: user.name,
-                user: user,
+                user: currentUser(),
                 description: group,
                 name: user.name,
                 assets: [],

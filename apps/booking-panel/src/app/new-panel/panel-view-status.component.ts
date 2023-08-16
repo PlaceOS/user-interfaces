@@ -129,7 +129,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                 </p>
                 <div
                     class="absolute top-0 inset-x-0 flex items-center justify-center text-2xl bg-black/40 p-4 space-x-4"
-                    *ngIf="(state | async) === 'pending'"
+                    *ngIf="(state | async) === 'pending' && can_book"
                 >
                     <p class="uppercase">
                         {{ 'PANEL.CHECKIN_INPUT' | translate }}

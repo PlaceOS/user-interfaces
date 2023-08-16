@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { TriggerEnumMap } from '@placeos/survey-suite';
 import { map, shareReplay, take } from 'rxjs/operators';
 import { SurveyResponsesService } from '../services/survey-responses.service';
@@ -15,6 +15,7 @@ import { SurveyResponsesService } from '../services/survey-responses.service';
                 height: 100%;
                 width: 100%;
                 background-color: #fff;
+                overflow: auto;
             }
         `,
     ],
@@ -30,23 +31,23 @@ import { SurveyResponsesService } from '../services/survey-responses.service';
         </div>
         <ng-container *ngIf="surveyId$ | async; else noId">
             <header
-                class="flex justify-between items-center w-full pb-4 border-b"
+                class="flex justify-between items-center w-full pb-4 border-b mt-4 pl-2"
             >
                 <div class="flex flex-row items-center">
                     <button icon matRipple (click)="back()">
                         <app-icon class="flex mr-2">arrow_back</app-icon>
                     </button>
                     <div class="flex flex-row items-center">
-                        <span class="text-2xl"
-                            >Survey Responses -
-                            {{ (survey$ | async)?.title || '' }}</span
-                        >
+                        <span class="text-2xl">
+                            Survey Responses -
+                            {{ (survey$ | async)?.title || '' }}
+                        </span>
                     </div>
                 </div>
                 <mat-form-field
                     appearance="outline"
                     subscriptSizing="dynamic"
-                    class="w-72"
+                    class="w-72 mr-4"
                 >
                     <mat-date-range-input
                         [rangePicker]="picker"
@@ -73,10 +74,11 @@ import { SurveyResponsesService } from '../services/survey-responses.service';
                         ></mat-datepicker-toggle>
                         <button
                             *ngIf="(options$ | async)?.end"
-                            mat-icon-button
+                            icon
+                            matRipple
                             (click)="clearDates()"
                         >
-                            <mat-icon>close</mat-icon>
+                            <app-icon>close</app-icon>
                         </button>
                     </div>
                     <mat-date-range-picker #picker></mat-date-range-picker>
@@ -165,6 +167,7 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
     private start_date;
 
     constructor(
+        private _settings: SettingsService,
         private service: SurveyResponsesService,
         private router: Router,
         private route: ActivatedRoute
@@ -200,7 +203,9 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
     public async back() {
         const survey = await this.survey$.pipe(take(1)).toPromise();
         this.router.navigate([
-            'surveys',
+            this._settings.get('app.default_route').includes('new')
+                ? '/surveys/new'
+                : '/surveys',
             'survey-list',
             survey.building_id || '',
         ]);

@@ -152,6 +152,8 @@ export interface BookingRuleConditions {
     is_before?: string;
     /** How far in the future this bookings must be */
     is_after?: string;
+    /** How far in the future this bookings must be */
+    is_between?: [number, number];
 }
 
 export interface TimeBlock {

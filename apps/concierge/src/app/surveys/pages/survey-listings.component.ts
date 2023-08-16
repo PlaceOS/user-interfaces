@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { TriggerEnumMap } from '@placeos/survey-suite';
 import { shareReplay } from 'rxjs/operators';
 import { SurveyListingsService } from '../services/survey-listings.service';
@@ -60,10 +60,15 @@ import { SurveyListingsService } from '../services/survey-listings.service';
                     </ng-template>
                 </div>
 
-                <div class="flex items-center">
-                    <button btn matRipple (click)="newSurvey()">
-                        <span> Add New Survey</span>
-                        <mat-icon>add</mat-icon>
+                <div class="flex items-center mr-2">
+                    <button
+                        btn
+                        matRipple
+                        class="space-x-2"
+                        (click)="newSurvey()"
+                    >
+                        <span class="ml-2">Add New Survey</span>
+                        <app-icon>add</app-icon>
                     </button>
                 </div>
             </header>
@@ -130,29 +135,35 @@ import { SurveyListingsService } from '../services/survey-listings.service';
                                 matRipple
                                 [matMenuTriggerFor]="actionsMenu"
                             >
-                                <mat-icon>more_vert</mat-icon>
+                                <app-icon>more_vert</app-icon>
                             </button>
                             <mat-menu #actionsMenu="matMenu">
                                 <button
                                     mat-menu-item
                                     (click)="onViewStats(element.id)"
                                 >
-                                    <mat-icon>analytics</mat-icon>
-                                    <span>Responses</span>
+                                    <div class="flex items-center space-x-2">
+                                        <app-icon>analytics</app-icon>
+                                        <span>Responses</span>
+                                    </div>
                                 </button>
                                 <button
                                     mat-menu-item
                                     (click)="onEdit(element.id)"
                                 >
-                                    <mat-icon>edit</mat-icon>
-                                    <span>Edit</span>
+                                    <div class="flex items-center space-x-2">
+                                        <app-icon>edit</app-icon>
+                                        <span>Edit</span>
+                                    </div>
                                 </button>
                                 <button
                                     mat-menu-item
                                     (click)="onDelete(element.id)"
                                 >
-                                    <mat-icon>delete</mat-icon>
-                                    <span>Delete</span>
+                                    <div class="flex items-center space-x-2">
+                                        <app-icon>delete</app-icon>
+                                        <span>Delete</span>
+                                    </div>
                                 </button>
                             </mat-menu>
                         </td>
@@ -195,11 +206,18 @@ export class SurveyListingsComponent extends AsyncHandler implements OnInit {
     newSurvey = () => this._service.newSurvey();
     back = () => this._service.back();
     onViewStats = (id: number) =>
-        this._router.navigate(['surveys', 'responses', id]);
+        this._router.navigate([
+            this._settings.get('app.default_route').includes('new')
+                ? '/surveys/new'
+                : '/surveys',
+            'responses',
+            id,
+        ]);
 
     displayedColumns: string[] = ['title', 'level', 'trigger', 'actions'];
 
     constructor(
+        private _settings: SettingsService,
         private _route: ActivatedRoute,
         private _router: Router,
         private _service: SurveyListingsService

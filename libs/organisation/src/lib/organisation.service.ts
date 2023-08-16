@@ -121,16 +121,20 @@ export class OrganisationService {
         return this._active_region.getValue();
     }
     public set region(item: Region) {
+        this.setRegion(item);
+    }
+
+    public async setRegion(item: Region) {
         if (!item) return;
         this._active_region.next(item);
-        this.loadRegionData(item).then(() => {
-            if (
-                this.building?.parent_id !== item.id &&
-                this.buildingsForRegion(item).length
-            ) {
-                this.building = this.buildingsForRegion(item)[0];
-            } else this._updateSettingOverrides();
-        });
+        await this.loadRegionData(item);
+        this._setBuildingFromTimezone();
+        if (
+            this.building?.parent_id !== item.id &&
+            this.buildingsForRegion(item).length
+        ) {
+            this.building = this.buildingsForRegion(item)[0];
+        } else this._updateSettingOverrides();
     }
 
     /** List of available buildings */
@@ -396,12 +400,18 @@ export class OrganisationService {
 
     /** Save building selection */
     public saveBuilding(id: string) {
-        localStorage.setItem(`PLACEOS.building`, id);
+        const region_id = this._buildings
+            .getValue()
+            .find((bld) => bld.id === id)?.parent_id;
+        if (region_id && region_id !== this._organisation.id) {
+            sessionStorage.setItem(`PLACEOS.region`, region_id);
+        }
+        sessionStorage.setItem(`PLACEOS.building`, id);
     }
 
     private _initialiseActiveBuilding() {
         return new Promise<void>((resolve) => {
-            const id = localStorage.getItem(`PLACEOS.building`);
+            const id = sessionStorage.getItem(`PLACEOS.building`);
             if (id && this.buildings.find((bld) => bld.id === id)) {
                 this._active_building.next(
                     this.buildings.find((bld) => bld.id === id)
@@ -452,29 +462,59 @@ export class OrganisationService {
         });
     }
 
-    private _setDefaultBuilding() {
+    private async _setDefaultBuilding() {
         if (!this.buildings.length) return;
+        const region_id = sessionStorage.getItem(`PLACEOS.region`);
+        await (region_id
+            ? this.setRegion(
+                  this._regions.getValue().find((_) => _.id === region_id)
+              )
+            : this._setRegionFromTimezone());
+        this._setBuildingFromTimezone();
+        console.log('Building:', this.building);
+        if (this.building) return;
         const bld_id = this._service.get('app.default_building');
         if (bld_id) {
             this.building = this.buildings.find(({ id }) => id === bld_id);
-        } else {
-            const timezone = this.timezone;
-            for (const bld of this.buildings) {
-                if (bld.timezone === timezone) {
-                    this.building = bld;
-                    break;
-                }
-            }
-            if (this.building) return;
-            const tz_start = timezone.split('/')[0];
-            for (const bld of this.buildings) {
-                if (bld.timezone.startsWith(tz_start)) {
-                    this.building = bld;
-                    break;
-                }
-            }
         }
         if (!this.building) this.building = this.buildings[0];
+        console.log('Building:', this.building);
+    }
+
+    private async _setRegionFromTimezone() {
+        const region_list = this.regions;
+        const timezone = this.timezone;
+        for (const region of region_list) {
+            if (region.timezone === timezone) {
+                return await this.setRegion(region);
+            }
+        }
+        const tz_start = timezone.split('/')[0];
+        for (const region of region_list) {
+            if (region.timezone.startsWith(tz_start)) {
+                return await this.setRegion(region);
+            }
+        }
+    }
+
+    private _setBuildingFromTimezone() {
+        const bld_list = this.buildings.filter(
+            (bld) => !this.region || bld.parent_id === this.region?.id
+        );
+        const timezone = this.timezone;
+        for (const bld of bld_list) {
+            if (bld.timezone === timezone) {
+                this.building = bld;
+                return;
+            }
+        }
+        const tz_start = timezone.split('/')[0];
+        for (const bld of bld_list) {
+            if (bld.timezone.startsWith(tz_start)) {
+                this.building = bld;
+                return;
+            }
+        }
     }
 
     private _updateSettingOverrides() {

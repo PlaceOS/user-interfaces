@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Building } from '@placeos/organisation';
+import { BuildingManagementService } from './building-management.service';
 
 @Component({
     selector: '[app-building-manager]',
@@ -9,7 +11,9 @@ import { Component } from '@angular/core';
             <main class="flex flex-col flex-1 w-1/2 h-full">
                 <header class="flex items-center justify-between mb-2 p-8">
                     <h2 class="text-2xl font-medium">Building Management</h2>
-                    <button btn matRipple>Add Building</button>
+                    <button btn matRipple (click)="newBuilding()">
+                        Add Building
+                    </button>
                 </header>
                 <building-list
                     class="block w-full relative flex-1 h-1/2"
@@ -41,4 +45,8 @@ import { Component } from '@angular/core';
         `,
     ],
 })
-export class BuildingManagerComponent {}
+export class BuildingManagerComponent {
+    public readonly newBuilding = () => this._state.editBuilding();
+
+    constructor(private _state: BuildingManagementService) {}
+}

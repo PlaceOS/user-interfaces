@@ -30,6 +30,7 @@ import { OrganisationService } from '@placeos/organisation';
                 overflow: hidden;
                 display: flex;
                 flex-direction: column;
+                background: #eee;
             }
         `,
     ],

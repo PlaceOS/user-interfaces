@@ -51,7 +51,7 @@ describe('CheckinDetailsComponent', () => {
         expect(service.checkinGuest).toBeCalledTimes(1);
         expect(spectator.inject(Router).navigate).toBeCalledWith([
             '/checkin',
-            'covid',
+            'scan',
         ]);
     }));
 });

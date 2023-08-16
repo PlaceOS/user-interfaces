@@ -32,7 +32,15 @@ import { ReportsStateService } from '../reports-state.service';
             </ng-template>
         </div>
     `,
-    styles: [``],
+    styles: [
+        `
+            :host {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            }
+        `,
+    ],
 })
 export class CateringReportComponent implements OnInit {
     public readonly total_count = this._state.stats.pipe(

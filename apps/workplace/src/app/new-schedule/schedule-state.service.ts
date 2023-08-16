@@ -147,12 +147,7 @@ export class ScheduleStateService extends AsyncHandler {
                 period_start: getUnixTime(startOfDay(date)),
                 period_end: getUnixTime(endOfDay(date)),
                 type: 'visitor',
-            }).pipe(
-                catchError((_) => {
-                    console.error(_);
-                    return of([]);
-                })
-            )
+            }).pipe(catchError((_) => of([])))
         ),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
         shareReplay(1)
@@ -165,12 +160,7 @@ export class ScheduleStateService extends AsyncHandler {
                 period_end: getUnixTime(endOfDay(date)),
                 include_checked_out: true,
                 type: 'desk',
-            }).pipe(
-                catchError((_) => {
-                    console.error(_);
-                    return of([]);
-                })
-            )
+            }).pipe(catchError((_) => of([])))
         ),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
         shareReplay(1)
@@ -205,8 +195,9 @@ export class ScheduleStateService extends AsyncHandler {
                 lockers,
             ];
         }),
-        map(([_, lockers]) =>
-            _.map((i) => {
+        map(([_, lockers]) => {
+            console.log('Lockers:', _, lockers);
+            return _.map((i) => {
                 const locker = (lockers as Locker[]).find(
                     (_) => _.id === i.locker_id
                 );
@@ -229,9 +220,12 @@ export class ScheduleStateService extends AsyncHandler {
                         map_id: i.locker_id,
                     },
                 });
-            }).filter((_) => _)
-        ),
-        catchError(() => of([])),
+            }).filter((_) => _);
+        }),
+        catchError((e) => {
+            console.error(e);
+            return of([]);
+        }),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
         shareReplay(1)
     );

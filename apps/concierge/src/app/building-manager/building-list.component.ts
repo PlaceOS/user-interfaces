@@ -4,7 +4,7 @@ import { BuildingManagementService } from './building-management.service';
 @Component({
     selector: 'building-list',
     template: `
-        <div class="absolute inset-0 overflow-auto">
+        <div class="absolute inset-0 overflow-auto px-4">
             <custom-table
                 class="block min-w-[60rem] w-full h-full"
                 [dataSource]="buildings"
@@ -24,7 +24,7 @@ import { BuildingManagementService } from './building-management.service';
                     'Levels',
                     ' '
                 ]"
-                [column_size]="['flex', '12r', '12r', '10r', '6r', '6r', '5r']"
+                [column_size]="['12r', 'flex', '12r', '10r', '6r', '3.75r']"
                 [template]="{
                     images: image_template,
                     zones: level_template,
@@ -46,14 +46,29 @@ import { BuildingManagementService } from './building-management.service';
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="w-full flex justify-end space-x-2">
-                <button
-                    btn
-                    icon
-                    matTooltip="Edit Building"
-                    (click)="editBuilding(row)"
-                >
-                    <app-icon>edit</app-icon>
+                <button btn icon matRipple [matMenuTriggerFor]="menu">
+                    <app-icon>more_vert</app-icon>
                 </button>
+                <mat-menu #menu="matMenu">
+                    <button mat-menu-item (click)="editBuildingMetadata(row)">
+                        <div class="flex items-center space-x-2">
+                            <app-icon>edit_square</app-icon>
+                            <span>App Configuration</span>
+                        </div>
+                    </button>
+                    <button mat-menu-item (click)="editBuilding(row)">
+                        <div class="flex items-center space-x-2">
+                            <app-icon>edit</app-icon>
+                            <span>Edit Building</span>
+                        </div>
+                    </button>
+                    <button mat-menu-item (click)="deleteBuilding(row)">
+                        <div class="flex items-center space-x-2 text-red-500">
+                            <app-icon>delete</app-icon>
+                            <span>Delete Building</span>
+                        </div>
+                    </button>
+                </mat-menu>
             </div>
         </ng-template>
     `,
@@ -64,6 +79,12 @@ export class BuildingListComponent {
 
     public readonly editBuilding = (building) =>
         this._manager.editBuilding(building);
+
+    public readonly editBuildingMetadata = (building) =>
+        this._manager.editBuildingMetadata(building);
+
+    public readonly removeBuilding = (building) =>
+        this._manager.removeBuilding(building);
 
     constructor(private _manager: BuildingManagementService) {}
 }

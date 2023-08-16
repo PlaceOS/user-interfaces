@@ -176,6 +176,11 @@ export class ApplicationSidebarComponent extends AsyncHandler {
                     name: 'Parking Management',
                     route: ['/book/parking/new/manage'],
                 },
+                // {
+                //     id: 'parking',
+                //     name: 'Parking Users',
+                //     route: ['/book/parking/new/users'],
+                // },
                 {
                     id: 'catering',
                     name: 'Catering Menu',
@@ -213,22 +218,23 @@ export class ApplicationSidebarComponent extends AsyncHandler {
             icon: 'add_reaction',
         },
         {
+            _id: 'reports',
             name: 'Reports',
             icon: 'analytics',
             children: [
                 {
                     id: 'booking-report',
-                    name: 'Bookings',
+                    name: 'Room Bookings',
                     route: ['/reports/new/bookings'],
                 },
                 {
                     id: 'desk-report',
-                    name: 'Bookings',
+                    name: 'Desk Bookings',
                     route: ['/reports/new/desks'],
                 },
                 {
                     id: 'catering-report',
-                    name: 'Bookings',
+                    name: 'Catering',
                     route: ['/reports/new/catering'],
                 },
                 {
@@ -292,10 +298,17 @@ export class ApplicationSidebarComponent extends AsyncHandler {
         }
         if (
             custom_reports.length &&
-            this.filtered_links.find((_) => _.id === 'reports')
+            this.filtered_links.find((_) => _._id === 'reports')
         ) {
-            const reports = this.filtered_links.find((_) => _.id === 'reports');
-            reports.children = reports.children.concat(custom_reports);
+            const reports = this.filtered_links.find(
+                (_) => _._id === 'reports'
+            );
+            reports.children = reports.children.concat(
+                custom_reports.map((_) => ({
+                    ..._,
+                    route: ['/reports/new', _.id],
+                }))
+            );
         }
     }
 }

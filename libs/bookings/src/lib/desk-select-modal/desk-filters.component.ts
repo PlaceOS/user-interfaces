@@ -118,6 +118,7 @@ import { BookingFormService } from '../booking-form.service';
                             [ngModel]="form.value.date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
+                            [disabled]="form.value.all_day"
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3">
@@ -128,6 +129,7 @@ import { BookingFormService } from '../booking-form.service';
                             [max]="12 * 60"
                             [min]="60"
                             [step]="60"
+                            [force]="form.value.all_day ? 'All Day' : ''"
                         >
                         </a-duration-field>
                     </div>

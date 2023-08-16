@@ -325,12 +325,6 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
     public ngOnInit() {
         this.subscription('poll', this._state.startPolling());
         const date = Date.now();
-        console.log(
-            'Date Offset:',
-            this.timeToOffset(date),
-            new Date(),
-            differenceInMinutes(date, startOfDay(date))
-        );
         this.onResize();
     }
 

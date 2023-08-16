@@ -13,12 +13,14 @@ import { ParkingSpaceModalComponent } from './parking-space-modal.component';
 import { ParkingTopbarComponent } from './parking-topbar.component';
 import { ParkingComponent } from './parking.component';
 import { NewParkingComponent } from './new-parking.component';
+import { ParkingUsersListComponent } from './parking-users-list.component';
 
 const COMPONENTS = [
     NewParkingComponent,
     ParkingComponent,
     ParkingBookingsListComponent,
     ParkingSpaceListComponent,
+    ParkingUsersListComponent,
     ParkingTopbarComponent,
     ParkingSpaceModalComponent,
 ];
@@ -29,6 +31,7 @@ const ROUTES: Route[] = [
         component: NewParkingComponent,
         children: [
             { path: 'events', component: ParkingBookingsListComponent },
+            { path: 'users', component: ParkingUsersListComponent },
             { path: 'manage', component: ParkingSpaceListComponent },
             { path: '**', redirectTo: 'events' },
         ],
@@ -38,6 +41,7 @@ const ROUTES: Route[] = [
         component: ParkingComponent,
         children: [
             { path: 'events', component: ParkingBookingsListComponent },
+            { path: 'users', component: ParkingUsersListComponent },
             { path: 'manage', component: ParkingSpaceListComponent },
             { path: '**', redirectTo: 'events' },
         ],

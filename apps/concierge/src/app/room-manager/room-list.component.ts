@@ -4,7 +4,7 @@ import { RoomManagementService } from './room-management.service';
 @Component({
     selector: 'room-list',
     template: `
-        <div class="absolute inset-0 overflow-auto">
+        <div class="absolute inset-0 overflow-auto px-4">
             <custom-table
                 class="block min-w-[48rem] w-full h-full"
                 [dataSource]="rooms"
@@ -24,7 +24,7 @@ import { RoomManagementService } from './room-management.service';
                     'Bookable',
                     ' '
                 ]"
-                [column_size]="['flex', '8r', '6r', '8r', '6r', '8r']"
+                [column_size]="['flex', '8r', '6r', '8r', '6r', '3.75r']"
                 [template]="{
                     bookable: bool_template,
                     zones: level_template,
@@ -47,7 +47,13 @@ import { RoomManagementService } from './room-management.service';
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="w-full flex justify-end space-x-2">
-                <button btn icon matTooltip="Edit Room" (click)="editRoom(row)">
+                <button
+                    btn
+                    icon
+                    matRipple
+                    matTooltip="Edit Room"
+                    (click)="editRoom(row)"
+                >
                     <app-icon>edit</app-icon>
                 </button>
             </div>

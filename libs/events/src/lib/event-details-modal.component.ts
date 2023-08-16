@@ -27,7 +27,7 @@ const EMPTY_ACTIONS = [];
                 <i
                     binding
                     [(model)]="room_status"
-                    [sys]="event.system?.id"
+                    [sys]="space?.id"
                     mod="Bookings"
                     bind="status"
                 ></i>

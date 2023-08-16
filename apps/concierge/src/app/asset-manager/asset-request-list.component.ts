@@ -19,7 +19,7 @@ import { OrganisationService } from '@placeos/organisation';
                 </div>
                 <date-options (dateChange)="setDate($event)"></date-options>
             </div>
-            <div class="w-full overflow-auto h-1/2 flex-1">
+            <div class="w-full overflow-auto h-1/2 flex-1 p-4">
                 <custom-table
                     asset-requests
                     class="block min-w-[82rem] text-sm"

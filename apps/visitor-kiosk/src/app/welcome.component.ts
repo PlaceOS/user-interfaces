@@ -64,18 +64,19 @@ export class WelcomeComponent
 
     public ngOnInit() {
         this.subscription(
+            'level',
+            this._settings
+                .listen('KIOSK.level')
+                .subscribe((lvl) => (this.level = lvl))
+        );
+        this.level = localStorage?.getItem('KIOSK.level');
+        this.subscription(
             'route.params',
             this.route.paramMap.subscribe((params) => {
                 if (params.has('level')) {
                     this.level = params.get('level');
                 }
             })
-        );
-        this.subscription(
-            'level',
-            this._settings
-                .listen('KIOSK.level')
-                .subscribe((lvl) => (this.level = lvl))
         );
     }
 }

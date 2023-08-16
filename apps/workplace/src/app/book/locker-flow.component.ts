@@ -43,7 +43,6 @@ export class BookLockerFlowComponent extends AsyncHandler implements OnInit {
 
     public ngOnInit() {
         this._state.loadForm();
-        if (!this._state.form) this._state.newForm();
         this._state.listenForStatusChanges();
         this.subscription(
             'route.params',

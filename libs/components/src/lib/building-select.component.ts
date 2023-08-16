@@ -43,6 +43,7 @@ export class BuildingSelectComponent {
 
     public readonly setBuilding = (b) => {
         this._org.building = b;
+        this._org.saveBuilding(b.id);
         this._data?.close();
     };
 

@@ -12,7 +12,7 @@
         <span>Question Bank</span>
         <div class="ml-auto">
             <button icon matRipple (click)="onAddQuestion()">
-                <mat-icon>add_circle_outline</mat-icon>
+                <app-icon>add_circle_outline</app-icon>
             </button>
         </div>
     </header>
@@ -55,39 +55,26 @@
                 cdkDragHandle
                 class="flex flex-col justify-center h-full hover:cursor-move p-1 bg-gray-200"
             >
-                <mat-icon>drag_indicator</mat-icon>
+                <app-icon>drag_indicator</app-icon>
             </div>
             <div class="flex flex-col w-full py-3">
                 <span>{{ q.title }}</span>
                 <span class="text-sm text-gray-600">{{ typeMap[q.type] }}</span>
             </div>
-            <button
-                icon
-                matRipple
-                [matMenuTriggerFor]="actionsMenu"
-            >
-                <mat-icon>more_vert</mat-icon>
+            <button icon matRipple [matMenuTriggerFor]="actionsMenu">
+                <app-icon>more_vert</app-icon>
             </button>
             <mat-menu #actionsMenu="matMenu">
-                <button
-                    mat-menu-item
-                    (click)="onAddQuestion(q)"
-                >
-                    <mat-icon>content_copy</mat-icon>
+                <button mat-menu-item (click)="onAddQuestion(q)">
+                    <app-icon>content_copy</app-icon>
                     <span>Duplicate</span>
                 </button>
-                <button
-                    mat-menu-item
-                    (click)="onEditQuestion(q)"
-                >
-                    <mat-icon>edit</mat-icon>
+                <button mat-menu-item (click)="onEditQuestion(q)">
+                    <app-icon>edit</app-icon>
                     <span>Edit</span>
                 </button>
-                <button
-                    mat-menu-item
-                    (click)="onDeleteQuestion(q)"
-                >
-                    <mat-icon>delete</mat-icon>
+                <button mat-menu-item (click)="onDeleteQuestion(q)">
+                    <app-icon>delete</app-icon>
                     <span>Delete</span>
                 </button>
             </mat-menu>

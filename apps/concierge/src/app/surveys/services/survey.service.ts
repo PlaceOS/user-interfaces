@@ -1,7 +1,12 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { notifyError, notifySuccess, openConfirmModal } from '@placeos/common';
+import {
+    SettingsService,
+    notifyError,
+    notifySuccess,
+    openConfirmModal,
+} from '@placeos/common';
 import {
     generateNewSurvey,
     Question,
@@ -17,7 +22,7 @@ import {
     Survey,
     addSurvey,
     updateSurvey,
-    removeSurvey
+    removeSurvey,
 } from '@placeos/ts-client';
 import { BehaviorSubject, of } from 'rxjs';
 import { catchError, finalize, first, map } from 'rxjs/operators';
@@ -48,6 +53,7 @@ export class SurveyService {
     public readonly _options$ = this._options.asObservable();
 
     constructor(
+        private _settings: SettingsService,
         private router: Router,
         private builder: SurveyBuilderService,
         private dialog: MatDialog
@@ -59,8 +65,8 @@ export class SurveyService {
             return;
         }
         const uiSurvey = await this.getSurveyDetails(survey_id);
-        if(!uiSurvey) return;
-        
+        if (!uiSurvey) return;
+
         this.builder.setUISurvey(uiSurvey);
         this.setOptions({
             zone_id: uiSurvey.zone_id,
@@ -69,7 +75,7 @@ export class SurveyService {
         });
     }
 
-    public async getSurveyDetails(survey_id: string){
+    public async getSurveyDetails(survey_id: string) {
         this.loading = 'Loading survey...';
         const results = await Promise.all([
             this.getSurvey(survey_id),
@@ -81,7 +87,7 @@ export class SurveyService {
         return translateToUISurveyObj(survey, questions);
     }
 
-    public async confirmDeleteSurvey(id:number){
+    public async confirmDeleteSurvey(id: number) {
         const details = await openConfirmModal(
             {
                 title: 'Confirm delete question',
@@ -126,9 +132,19 @@ export class SurveyService {
     public back() {
         const building_id = this._options.getValue()?.building_id || '';
         if (building_id?.length) {
-            this.router.navigate(['surveys', 'survey-list', building_id]);
+            this.router.navigate([
+                this._settings.get('app.default_route').includes('new')
+                    ? '/surveys/new'
+                    : '/surveys',
+                'survey-list',
+                building_id,
+            ]);
         } else {
-            this.router.navigate(['surveys']);
+            this.router.navigate([
+                this._settings.get('app.default_route').includes('new')
+                    ? '/surveys/new'
+                    : '/surveys',
+            ]);
         }
     }
 
@@ -145,7 +161,7 @@ export class SurveyService {
     }
 
     private getSurveyQuestions(survey_id: string) {
-        return queryQuestions({survey_id})
+        return queryQuestions({ survey_id })
             .pipe(
                 first(),
                 map((questions) =>
@@ -159,10 +175,10 @@ export class SurveyService {
             .toPromise() as Promise<Question[]>;
     }
 
-    private validateSurvey(survey:UISurveyObj) {
+    private validateSurvey(survey: UISurveyObj) {
         const options = this._options.getValue();
 
-        if(!survey){
+        if (!survey) {
             notifyError('Survey is not valid');
             return false;
         }
@@ -188,13 +204,15 @@ export class SurveyService {
         return true;
     }
 
-    private async deleteSurvey(id:number){
+    private async deleteSurvey(id: number) {
         this.loading = 'Deleting survey...';
-        const res = await removeSurvey(`${id}`).pipe(
-            first(),
-            finalize(() => this.loading = '')
-        ).toPromise();
-        if(res){
+        const res = await removeSurvey(`${id}`)
+            .pipe(
+                first(),
+                finalize(() => (this.loading = ''))
+            )
+            .toPromise();
+        if (res) {
             notifySuccess('Successfully deleted survey');
         }
     }

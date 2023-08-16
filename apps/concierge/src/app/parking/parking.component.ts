@@ -37,7 +37,7 @@ import { ParkingStateService } from './parking-state.service';
                     </a> -->
                 </nav>
             </div>
-            <div class="flex-1 h-1/2 w-full relative overflow-auto">
+            <div class="flex-1 h-1/2 w-full relative overflow-auto px-4">
                 <router-outlet></router-outlet>
             </div>
             <div

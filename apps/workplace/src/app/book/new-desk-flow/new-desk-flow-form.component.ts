@@ -10,7 +10,7 @@ import {
     notifyError,
     SettingsService,
 } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { Desk, OrganisationService } from '@placeos/organisation';
 import { isBefore, startOfMinute } from 'date-fns';
 import { first } from 'rxjs/operators';
 import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';
@@ -69,6 +69,9 @@ export class NewDeskFlowFormComponent implements OnInit {
     };
 
     public readonly viewConfirm = () => {
+        if (!this.form.value.asset_id && this.form.value.resources?.length) {
+            this._setBookingAsset(this.form.value.resources[0]);
+        }
         if (!this.form.valid)
             return notifyError(
                 `Some fields are invalid. [${getInvalidFields(this.form).join(
@@ -105,5 +108,19 @@ export class NewDeskFlowFormComponent implements OnInit {
         if (isBefore(this.form.value.date, Date.now())) {
             this.form.patchValue({ date: startOfMinute(Date.now()).valueOf() });
         }
+    }
+
+    private _setBookingAsset(desk: Desk) {
+        this._state.form.patchValue({ asset_id: undefined });
+        if (!desk) return;
+        this._state.form.patchValue({
+            asset_id: desk?.id,
+            asset_name: desk.name,
+            map_id: desk?.map_id || desk?.id,
+            description: desk.name,
+            booking_type: 'desk',
+            zones: desk.zone ? [desk.zone?.parent_id, desk.zone?.id] : [],
+            booking_asset: desk,
+        });
     }
 }

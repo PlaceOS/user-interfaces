@@ -258,7 +258,7 @@ export class CalendarEvent {
         return this.resources[0] || null;
     }
     public get is_today(): boolean {
-        return isSameDay(new Date(this.date), new Date());
+        return isSameDay(this.date, Date.now());
     }
 
     /**
