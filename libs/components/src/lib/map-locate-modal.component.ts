@@ -10,6 +10,7 @@ import { MapPinComponent } from './map-pin.component';
 export interface Locatable {
     id: string;
     name: string;
+    display_name?: string;
     map_id: string;
     level: BuildingLevel;
     zones?: string[];
@@ -21,7 +22,9 @@ export interface Locatable {
         <div class="h-[calc(100vh-4rem)] w-screen sm:h-auto sm:w-auto">
             <header class="p-4">
                 <app-icon class="text-2xl">place</app-icon>
-                <h1 class="ml-2 text-xl font-medium">{{ item.name }}</h1>
+                <h1 class="ml-2 text-xl font-medium">
+                    {{ item.display_name || item.name }}
+                </h1>
             </header>
             <div
                 body
@@ -38,7 +41,7 @@ export interface Locatable {
                 <div
                     class="absolute top-2 right-2 py-2 px-4 bg-white rounded-3xl shadow border border-gray-200"
                 >
-                    {{ level?.name }}
+                    {{ level?.display_name || level?.name }}
                 </div>
             </div>
             <footer
