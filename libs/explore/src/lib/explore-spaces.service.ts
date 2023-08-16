@@ -174,6 +174,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
                 full_size: true,
                 no_scale: true,
                 content: ExploreSpaceInfoComponent,
+                z_index: 10,
                 data: {
                     space: new Space(space),
                     events: this._bookings[space.id],
@@ -191,11 +192,13 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
             actions.push({
                 id: space.map_id,
                 action: 'click',
+                priority: 5,
                 callback: () => this.bookSpace(space),
             });
             actions.push({
                 id: space.map_id,
                 action: 'touchend',
+                priority: 5,
                 callback: () => this.bookSpace(space),
             });
         }

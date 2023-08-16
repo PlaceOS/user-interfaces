@@ -323,11 +323,13 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             actions.push({
                 id: desk.id,
                 action: 'click',
+                priority: 10,
                 callback: book_fn,
             });
             actions.push({
                 id: desk.id,
                 action: 'touchend',
+                priority: 10,
                 callback: book_fn,
             });
         }
