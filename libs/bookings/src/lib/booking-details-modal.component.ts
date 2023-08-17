@@ -311,7 +311,9 @@ export class BookingDetailsModalComponent {
                 item: {
                     id: this._booking.asset_id,
                     name: this._booking.asset_name,
-                    map_id: this._booking.extension_data.map_id,
+                    map_id:
+                        this._booking.extension_data.map_id ||
+                        this.booking.asset_id,
                     level: this.level,
                 },
             },
