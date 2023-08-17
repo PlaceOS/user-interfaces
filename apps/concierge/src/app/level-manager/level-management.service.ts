@@ -85,6 +85,7 @@ export class LevelManagementService {
         ref.loading('Removing building...');
         await removeZone(level.id).toPromise();
         notifySuccess('Successfully removed building.');
+        setTimeout(() => location.reload(), 300);
         ref.close();
     }
 }

@@ -86,6 +86,7 @@ export class RegionManagementService {
         ref.loading('Removing building...');
         await removeZone(region.id).toPromise();
         notifySuccess('Successfully removed building.');
+        setTimeout(() => location.reload(), 300);
         ref.close();
     }
 }
