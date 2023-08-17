@@ -41,7 +41,7 @@ export interface MapPinData {
         `
             :host {
                 position: absolute;
-                bottom: 0;
+                bottom: 50%;
                 left: 50%;
                 width: 24rem;
                 display: flex;
