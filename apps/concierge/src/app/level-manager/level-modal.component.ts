@@ -109,7 +109,8 @@ export class LevelModalComponent {
             );
         }
         this.loading = true;
-        const data = this.form.getRawValue();
+        const data: any = this.form.getRawValue();
+        data.tags = ['level'];
         await (data.id
             ? updateZone(data.id, {
                   ...data,

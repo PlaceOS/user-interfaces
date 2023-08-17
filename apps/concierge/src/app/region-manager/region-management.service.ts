@@ -68,7 +68,7 @@ export class RegionManagementService {
             data: { zone: region },
         });
         ref.afterClosed().subscribe((data) => {
-            if (data) setTimeout(() => this._change.next(Date.now()), 300);
+            if (data) setTimeout(() => location.reload(), 300);
         });
     }
 

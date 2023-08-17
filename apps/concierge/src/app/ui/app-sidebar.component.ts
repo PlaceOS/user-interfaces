@@ -141,11 +141,11 @@ export class ApplicationSidebarComponent extends AsyncHandler {
             name: 'Facilities',
             icon: 'place',
             children: [
-                {
-                    id: 'facilities',
-                    name: 'Building Map',
-                    route: ['/facilities/new'],
-                },
+                // {
+                //     id: 'facilities',
+                //     name: 'Building Map',
+                //     route: ['/facilities/new'],
+                // },
                 {
                     id: 'zones',
                     name: 'Region Management',
