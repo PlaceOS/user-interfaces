@@ -44,7 +44,6 @@ export class DesksStateService extends AsyncHandler {
     private _filters = new BehaviorSubject<DeskFilters>({});
     private _new_desks = new BehaviorSubject<Desk[]>([]);
     private _desk_bookings: Booking[] = [];
-    private _desks: Desk[] = [];
     private _loading = new BehaviorSubject<boolean>(false);
 
     public readonly new_desks = this._new_desks.asObservable();
@@ -61,7 +60,7 @@ export class DesksStateService extends AsyncHandler {
         debounceTime(500),
         switchMap((filters) => {
             const zones = filters.zones || [];
-            return !zones.includes('All')
+            return zones && !zones.includes('All')
                 ? showMetadata(zones[0], 'desks').pipe(map((m) => m.details))
                 : listChildMetadata(this._org.building?.id, {
                       name: 'desks',
@@ -77,14 +76,7 @@ export class DesksStateService extends AsyncHandler {
         map((list) => {
             if (!(list instanceof Array)) list = [];
             list.sort((a, b) => a.name?.localeCompare(b.name));
-            this._desks = list.map(
-                (i) =>
-                    new Desk({
-                        ...i,
-                        qr_code: '',
-                    })
-            );
-            return this._desks;
+            return list.map((i) => new Desk({ ...i, qr_code: '' }));
         }),
         shareReplay(1)
     );
