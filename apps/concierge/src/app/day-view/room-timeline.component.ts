@@ -1,6 +1,5 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import {
-    add,
     addDays,
     differenceInMinutes,
     format,
@@ -13,7 +12,6 @@ import { combineLatest } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import {
     AsyncHandler,
-    currentUser,
     notifyError,
     notifySuccess,
     openConfirmModal,
@@ -24,10 +22,7 @@ import {
     EventDetailsModalComponent,
     SetupBreakdownModalComponent,
     declineEvent,
-    queryEvents,
-    removeEvent,
 } from '@placeos/events';
-import { time } from 'console';
 
 @Component({
     selector: 'room-bookings-timeline',
@@ -35,16 +30,7 @@ import { time } from 'console';
         <div
             class="relative flex items-center justify-center p-2 space-x-2 border-b border-gray-200"
         >
-            <app-icon class="text-2xl">event</app-icon>
-            <h3 (dblclick)="resetDate()">
-                {{ date | date: 'mediumDate' }}
-            </h3>
-            <button btn icon matRipple (click)="previousDate()">
-                <app-icon>chevron_left</app-icon>
-            </button>
-            <button btn icon matRipple (click)="nextDate()">
-                <app-icon>chevron_right</app-icon>
-            </button>
+            <date-options [is_new]="true"></date-options>
             <div
                 class="absolute top-1/2 -translate-y-1/2 left-4 text-blue-500 text-sm"
                 *ngIf="is_today"
