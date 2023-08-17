@@ -12,6 +12,8 @@ import { VisitorEventComponent } from './visitor-event.component';
 import { VisitorDetailsComponent } from './visitor-details.component';
 import { GuestListingComponent } from './guest-listing.component';
 import { NewVisitorsComponent } from './new-visitors.component';
+import { InviteVisitorModalComponent } from './invite-visitor-modal.component';
+import { SharedBookingsModule } from '@placeos/bookings';
 
 const ROUTES: Route[] = [
     { path: '', component: VisitorsComponent },
@@ -27,11 +29,13 @@ const ROUTES: Route[] = [
         VisitorEventComponent,
         VisitorDetailsComponent,
         GuestListingComponent,
+        InviteVisitorModalComponent,
     ],
     imports: [
         CommonModule,
         FormsModule,
         UIModule,
+        SharedBookingsModule,
         RouterModule.forChild(ROUTES),
     ],
 })

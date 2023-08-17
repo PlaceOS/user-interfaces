@@ -154,6 +154,13 @@ custom-table {
     }
 }
 
+mat-form-field {
+
+    &.no-subscript .mat-mdc-form-field-subscript-wrapper {
+        display: none;
+    }
+}
+
 .mdc-form-field-infix {
     border-top: none;
 }
