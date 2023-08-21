@@ -25,8 +25,7 @@ export interface DeskInfoData {
             [yPosition]="'center'"
             [hover]="true"
             [delay]="3000"
-            class="h-full w-full pointer-events-auto relative"
-            [class.hidden]="status === 'free'"
+            class="h-full w-full pointer-events-auto relative z-20"
             [attr.id]="id"
             [attr.map_id]="map_id"
         ></div>
