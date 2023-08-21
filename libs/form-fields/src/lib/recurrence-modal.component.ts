@@ -22,16 +22,16 @@ import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
                 <mat-form-field appearance="outline">
                     <mat-select [(ngModel)]="data.pattern">
                         <mat-option value="daily">
-                            day{{ data.interval === 1 ? 's' : '' }}
+                            day{{ data.interval === 1 ? '' : 's' }}
                         </mat-option>
                         <mat-option value="weekly">
-                            week{{ data.interval === 1 ? 's' : '' }}
+                            week{{ data.interval === 1 ? '' : 's' }}
                         </mat-option>
                         <mat-option value="month_day">
-                            month{{ data.interval === 1 ? 's' : '' }}
+                            month{{ data.interval === 1 ? '' : 's' }}
                         </mat-option>
                         <!-- <mat-option value="yearly">
-                            year{{ data.interval === 1 ? 's' : '' }}
+                            year{{ data.interval === 1 ? '' : 's' }}
                         </mat-option> -->
                     </mat-select>
                 </mat-form-field>
