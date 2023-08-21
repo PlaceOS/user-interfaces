@@ -36,11 +36,12 @@ function registerMocks() {
         callback: (request) => {
             if (request.query_params.q) {
                 const search = request.query_params.q.toLowerCase();
-                return MOCK_STAFF.filter(
-                    (user) =>
-                        user.name.toLowerCase().includes(search) ||
-                        user.email.toLowerCase().includes(search)
-                );
+                return MOCK_STAFF.filter(({ name, email }) => {
+                    return (
+                        name.toLowerCase().includes(search) ||
+                        email.toLowerCase().includes(search)
+                    );
+                });
             }
             return MOCK_STAFF;
         },
@@ -87,9 +88,7 @@ function registerMocks() {
         callback: (request) => {
             const email = decodeURIComponent(request.route_params.email);
             const person = MOCK_GUESTS.find((user) => user.email === email);
-            if (person) {
-                return person;
-            }
+            if (person) return person;
             throw { status: 404, message: 'Guest not found' };
         },
     });

@@ -164,6 +164,20 @@ function registerMocks() {
                 MOCK_METADATA[request.route_params.id] = {};
             MOCK_METADATA[request.route_params.id][request.body.name] =
                 request.body;
+            return request.body;
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/metadata/:id',
+        metadata: {},
+        method: 'PUT',
+        callback: (request) => {
+            if (!MOCK_METADATA[request.route_params.id])
+                MOCK_METADATA[request.route_params.id] = {};
+            MOCK_METADATA[request.route_params.id][request.body.name] =
+                request.body;
+            return request.body;
         },
     });
 
