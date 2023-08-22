@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1692678308245,
+  "timestamp": 1692686610555,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -146,7 +146,7 @@
     "./apps_concierge_src_app_building-manager_building-manager_module_ts.js": "225925da5bb2d584746a3a008391eca1aa2871fe",
     "./apps_concierge_src_app_catering_catering_module_ts.js": "870ff74779cab9e685e93b006d4e535d06efc74f",
     "./apps_concierge_src_app_day-view_day-view_module_ts.js": "9f3019cb0c16ba6df0d41dcd4bd57efb89cf95f3",
-    "./apps_concierge_src_app_desks_desks_module_ts.js": "ecfc3843f74ab1c49d30eae06d0126467b00fd6a",
+    "./apps_concierge_src_app_desks_desks_module_ts.js": "1d0508d2fc199c37c8697d2493ba61985a92dbb0",
     "./apps_concierge_src_app_events_events_module_ts.js": "e7e684d77079cc6b102faafc809ab68f98ce867a",
     "./apps_concierge_src_app_facilities_facilities_module_ts.js": "d8f727d92c75b9d602029be023a5a0e42cdb1c27",
     "./apps_concierge_src_app_level-manager_level-manager_module_ts.js": "60be948999dc22138be0f6a8a5643c768cbc6d8e",
@@ -236,13 +236,13 @@
     "./common.js": "390c4135fe46a5c6674d492a2c8b94d3d440310a",
     "./default-libs_bookings_src_lib_bookings_module_ts.js": "d6ecd1295ed477c0dae45b91c010ea5b63af2475",
     "./default-libs_catering_src_index_ts.js": "460154664da194d77f519f65056ff4824f121b14",
-    "./default-libs_explore_src_index_ts.js": "66ba8ed8692899e9f2234ad84c2637271a1bfa84",
+    "./default-libs_explore_src_index_ts.js": "5addffb240241cc06a4af07b924dc7d2c2e30131",
     "./default-libs_users_src_index_ts.js": "6702524ccbbcbbe8d3ec8e2a1bad32822516ded2",
     "./default-node_modules_angular_material_fesm2022_icon_mjs.js": "3e166e9676cd92bc813c1d451c6aa5637897466d",
     "./default-node_modules_angular_material_fesm2022_tabs_mjs.js": "0c286fe2922a6d7979b37b76cecc0e99c4cb7db2",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "ac2c10d2e85355cb449d8cada0bc9ffd2cb972e8",
-    "./main.js": "6462e2aee827a4ad26c89bac51fb96c7612dba54",
+    "./main.js": "617ae3447837588b522427fbb7ebc404d30c4a9c",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
