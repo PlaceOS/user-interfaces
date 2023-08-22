@@ -195,17 +195,14 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 (v.location === 'booking' && v.type === 'desk')
         );
         this._in_use.next(
-            desks.map(
-                (v) => v.location === 'booking' && (v.map_id || v.asset_id)
-            )
+            desks
+                .filter((v) => v.location === 'booking')
+                .map((v) => v.map_id || v.asset_id)
         );
         this._checked_in.next(
-            desks.map(
-                (v) =>
-                    v.location === 'booking' &&
-                    (v.map_id || v.asset_id) &&
-                    v.checked_in
-            )
+            desks
+                .filter((v) => v.location === 'booking' && v.checked_in)
+                .map((v) => v.map_id || v.asset_id)
         );
         this._presence.next(
             desks
