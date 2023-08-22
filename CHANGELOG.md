@@ -2,6 +2,63 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2308W3] - 2023-08-22
+
+### Bug Fixes
+
+#### Booking-panel
+
+- Prevent checkin when disable_book_now true (PPT-778)
+
+#### Bookings
+
+- Remove custom all day logic
+- Fix expanded map for booking details modal (PPT-679)
+
+#### Concierge
+
+- Fix adding/editing new parking spaces
+- Update date options on new UI (PPT-784)
+- Fix tagging newly created zones (PPT-788)
+- Fix table scrolling for level manager (PPT-799)
+- Fix removing buildings (PPT-798)
+- Fix booking desks from the map view (PPT-808)
+
+#### Events
+
+- Remove custom all day logic
+
+#### Explore
+
+- Update svg-viewer and ordering of interactions (PPT-782)
+- Handle checked in desks (PPT-809)
+- Fix checkin status handling for desks
+- Add ability to load desk status for future days
+
+#### Form-fields
+
+- Allow forcing of displayed value on duration field
+- Fix plural form text on recurrence modal (PPT-805)
+
+#### Org
+
+- Load region before setting building
+- Fix saving selected regions
+
+#### Users
+
+- Fix email case sensitivity for availability display (PPT-811)
+
+#### Workplace
+
+- Fix routing typo for desk booking success view (PPT-803)
+
+### Features
+
+#### Concierge
+
+- Add ability to make standalone visitor bookings (PPT-787)
+
 ## [2308W2] - 2023-08-08
 
 ### Bug Fixes
