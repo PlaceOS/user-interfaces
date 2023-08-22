@@ -116,13 +116,17 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         })
     );
 
-    private _booking_list = this._options.pipe(
-        filter((_) => _.date > endOfDay(Date.now()).valueOf()),
-        switchMap((_) => {
+    private _booking_list = combineLatest([
+        this._options,
+        this._state.level,
+    ]).pipe(
+        filter(([_, lvl]) => _.date > endOfDay(Date.now()).valueOf() && !!lvl),
+        switchMap(([_, level]) => {
             return queryBookings({
                 type: 'desk',
                 period_start: getUnixTime(startOfDay(_.date)),
                 period_end: getUnixTime(endOfDay(_.date)),
+                zones: level.id,
             });
         }),
         debounceTime(200),
