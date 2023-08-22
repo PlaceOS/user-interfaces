@@ -192,7 +192,7 @@ export class ScheduleStateService extends AsyncHandler {
             const mod = getModule(system_id, 'LockerLocations');
             return [
                 await mod.execute('lockers_allocated_to_me').catch((_) => []),
-                lockers,
+                lockers instanceof Array ? lockers : [],
             ];
         }),
         map(([_, lockers]) => {
