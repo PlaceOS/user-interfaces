@@ -196,7 +196,6 @@ export class ScheduleStateService extends AsyncHandler {
             ];
         }),
         map(([_, lockers]) => {
-            console.log('Lockers:', _, lockers);
             return _.map((i) => {
                 const locker = (lockers as Locker[]).find(
                     (_) => _.id === i.locker_id
