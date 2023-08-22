@@ -66,7 +66,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
             previous_time = form.value.date;
             previous_duration = form.value.duration;
             form.patchValue({
-                date: setHours(setMinutes(new Date(), 0), 6).valueOf(),
+                date: setHours(setMinutes(previous_time, 0), 6).valueOf(),
                 duration: 12 * 60,
             });
             form.controls.duration.disable();

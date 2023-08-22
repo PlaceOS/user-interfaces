@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Optional } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { listChildMetadata, showMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -29,6 +29,7 @@ import {
 import { Desk, OrganisationService } from '@placeos/organisation';
 
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
+import { ExploreDesksService } from '@placeos/explore';
 
 export interface DeskFilters {
     date?: number;

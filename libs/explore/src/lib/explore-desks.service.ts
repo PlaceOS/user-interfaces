@@ -35,7 +35,8 @@ import { ExploreStateService } from './explore-state.service';
 
 export interface DeskOptions {
     enable_booking?: boolean;
-    date?: number | Date;
+    date?: number;
+    all_day?: boolean;
     zones?: string[];
     host?: StaffUser;
     custom?: boolean;
@@ -295,6 +296,14 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 }
                 this._bookings.newForm();
                 this._bookings.setOptions({ type: 'desk' });
+                if (options.date) {
+                    this._bookings.form.patchValue({
+                        date: options.date,
+                    });
+                    this._bookings.form.patchValue({
+                        all_day: !!options.all_day,
+                    });
+                }
                 let { date, duration, user } = await this._setBookingTime(
                     this._bookings.form.value.date,
                     this._bookings.form.value.duration,
@@ -307,7 +316,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                     asset_id: desk.id,
                     asset_name: desk.name,
                     date,
-                    duration,
+                    duration: options.all_day ? 12 * 60 : duration,
                     map_id: desk?.map_id || desk?.id,
                     description: desk.name,
                     user,
