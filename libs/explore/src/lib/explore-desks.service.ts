@@ -1,15 +1,17 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { getModule, showMetadata } from '@placeos/ts-client';
-import { addDays, endOfDay } from 'date-fns';
+import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
+    filter,
     first,
     map,
     shareReplay,
     switchMap,
+    tap,
 } from 'rxjs/operators';
 
 import {
@@ -32,6 +34,7 @@ import { ExploreDeskInfoComponent } from './explore-desk-info.component';
 import { ExploreDeviceInfoComponent } from './explore-device-info.component';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
 import { ExploreStateService } from './explore-state.service';
+import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 
 export interface DeskOptions {
     enable_booking?: boolean;
@@ -113,6 +116,25 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         })
     );
 
+    private _booking_list = this._options.pipe(
+        filter((_) => _.date > endOfDay(Date.now()).valueOf()),
+        switchMap((_) => {
+            return queryBookings({
+                type: 'desk',
+                period_start: getUnixTime(startOfDay(_.date)),
+                period_end: getUnixTime(endOfDay(_.date)),
+            });
+        }),
+        debounceTime(200),
+        tap((bookings) => {
+            this._in_use.next(bookings.map((_) => _.asset_id));
+            this._checked_in.next(
+                bookings.filter((_) => _.checked_in).map((_) => _.asset_id)
+            );
+        }),
+        shareReplay(1)
+    );
+
     private _state_change = combineLatest([
         this.desk_list,
         this._in_use,
@@ -170,6 +192,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             enable_booking:
                 this._settings.get('app.desks.enable_maps') !== false,
         });
+        this.subscription('bookings', this._booking_list.subscribe());
         this.subscription('bind', this._bind.subscribe());
         this.subscription('restrictions', this.restrictions.subscribe());
         this.subscription('changes', this._state_change.subscribe());
@@ -195,26 +218,28 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 v.location === 'desk' ||
                 (v.location === 'booking' && v.type === 'desk')
         );
-        this._in_use.next(
-            desks
-                .filter((v) => v.location === 'booking')
-                .map((v) => v.map_id || v.asset_id)
-        );
-        this._checked_in.next(
-            desks
-                .filter((v) => v.location === 'booking' && v.checked_in)
-                .map((v) => v.map_id || v.asset_id)
-        );
-        this._presence.next(
-            desks
-                .filter((v) => v.at_location)
-                .map((v) => v.map_id || v.asset_id)
-        );
-        this._signs_of_life.next(
-            desks
-                .filter((v) => v.signs_of_life)
-                .map((v) => v.map_id || v.asset_id)
-        );
+        if (this._options.getValue().date <= endOfDay(Date.now()).valueOf()) {
+            this._in_use.next(
+                desks
+                    .filter((v) => v.location === 'booking')
+                    .map((v) => v.map_id || v.asset_id)
+            );
+            this._checked_in.next(
+                desks
+                    .filter((v) => v.location === 'booking' && v.checked_in)
+                    .map((v) => v.map_id || v.asset_id)
+            );
+            this._presence.next(
+                desks
+                    .filter((v) => v.at_location)
+                    .map((v) => v.map_id || v.asset_id)
+            );
+            this._signs_of_life.next(
+                desks
+                    .filter((v) => v.signs_of_life)
+                    .map((v) => v.map_id || v.asset_id)
+            );
+        }
         const departments = this._settings.get('app.department_map') || {};
         for (const desk of desks) {
             this._users[desk.map_id] = desk.staff_name;
