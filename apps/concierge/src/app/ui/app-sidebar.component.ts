@@ -269,11 +269,28 @@ export class ApplicationSidebarComponent extends AsyncHandler {
         const features = this._settings.get('app.features') || [];
         const custom_reports = this._settings.get('app.custom_reports') || [];
         const admin_group = this._settings.get('app.admin_group') || [];
+        if (
+            custom_reports.length &&
+            this.filtered_links.find((_) => _._id === 'reports')
+        ) {
+            const reports = this.filtered_links.find(
+                (_) => _._id === 'reports'
+            );
+            reports.children = reports.children.concat(
+                custom_reports.map((_) => ({
+                    ..._,
+                    id: '*',
+                    route: ['/reports/new', _.id],
+                }))
+            );
+        }
         this.filtered_links = this.links
             .map((link) => ({
                 ...link,
                 children: link.children
-                    ? link.children.filter((_) => features.includes(_.id))
+                    ? link.children.filter(
+                          (_) => features.includes(_.id) || _.id === '*'
+                      )
                     : null,
             }))
             .filter(
@@ -294,20 +311,6 @@ export class ApplicationSidebarComponent extends AsyncHandler {
         ) {
             this.filtered_links = this.filtered_links.filter(
                 (_) => _.id !== 'facilities'
-            );
-        }
-        if (
-            custom_reports.length &&
-            this.filtered_links.find((_) => _._id === 'reports')
-        ) {
-            const reports = this.filtered_links.find(
-                (_) => _._id === 'reports'
-            );
-            reports.children = reports.children.concat(
-                custom_reports.map((_) => ({
-                    ..._,
-                    route: ['/reports/new', _.id],
-                }))
             );
         }
     }
