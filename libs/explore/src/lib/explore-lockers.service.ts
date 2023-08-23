@@ -47,6 +47,7 @@ export class ExploreLockersService extends AsyncHandler {
         this._status,
     ]).pipe(
         map(([lvl, locker_banks, lockers, status]) => {
+            if (!lvl) return [];
             const features = [];
             const map_status = {};
             const colours = this._settings.get('app.explore.colors') || {};
