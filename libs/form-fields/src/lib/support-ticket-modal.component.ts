@@ -178,13 +178,7 @@ export class SupportTicketModalComponent {
                 `Support Ticket from Workplace Application`,
                 `${name}\n\n${location}\n\n${description}\n\n${images.join(
                     '\n'
-                )}`,
-                null,
-                [],
-                [],
-                [],
-                [],
-                `${email}`,
+                )}\n\nFrom: ${email}`,
             ]);
             this._dialog_ref.close();
             this.loading = false;
