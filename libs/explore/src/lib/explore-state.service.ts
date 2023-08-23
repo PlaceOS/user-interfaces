@@ -249,6 +249,9 @@ export class ExploreStateService extends AsyncHandler {
         this._features.next({});
         this._labels.next({});
         this._actions.next({});
+        this._options.next({
+            disable: ['zones', 'devices'],
+        });
         this.setPositions(1, { x: 0.5, y: 0.5 });
     }
 

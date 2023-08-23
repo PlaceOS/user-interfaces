@@ -222,7 +222,8 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 v.location === 'desk' ||
                 (v.location === 'booking' && v.type === 'desk')
         );
-        if (this._options.getValue().date <= endOfDay(Date.now()).valueOf()) {
+        const date = this._options.getValue().date || Date.now();
+        if (date <= endOfDay(Date.now()).valueOf()) {
             this._in_use.next(
                 desks
                     .filter((v) => v.location === 'booking')
