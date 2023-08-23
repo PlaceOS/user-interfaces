@@ -188,38 +188,40 @@ export class ScheduleStateService extends AsyncHandler {
         debounceTime(300),
         switchMap(async ([_, lockers]) => {
             const system_id = this._org.binding('lockers');
-            if (!system_id) return of([[], lockers]) as any;
+            if (!system_id) return [[], lockers];
             const mod = getModule(system_id, 'LockerLocations');
-            return [
-                await mod.execute('lockers_allocated_to_me').catch((_) => []),
-                lockers instanceof Array ? lockers : [],
-            ];
+            const my_lockers = await mod
+                .execute('lockers_allocated_to_me')
+                .catch((_) => []);
+            return [my_lockers, lockers];
         }),
-        map(([_, lockers]) => {
-            return _.map((i) => {
-                const locker = (lockers as Locker[]).find(
-                    (_) => _.id === i.locker_id
-                );
-                if (!locker && (!i.level || !i.building)) return null;
-                i.level = i.level || locker?.level_id;
-                i.building =
-                    i.building ||
-                    this._org.levelWithID([locker?.level_id])?.parent_id;
-                return new Booking({
-                    date: startOfDay(Date.now()).valueOf(),
-                    duration: 24 * 60 - 1,
-                    title: 'Locker Booking',
-                    description: i.locker_name,
-                    booking_type: 'locker',
-                    all_day: true,
-                    asset_id: locker.map_id,
-                    asset_name: i.locker_name,
-                    zones: [i.building, i.level],
-                    extension_data: {
-                        map_id: i.locker_id,
-                    },
-                });
-            }).filter((_) => _);
+        map(([my_lockers, lockers]) => {
+            return my_lockers
+                .map((i) => {
+                    const locker = (lockers as Locker[]).find(
+                        (_) => _.id === i.locker_id
+                    );
+                    if (!locker && (!i.level || !i.building)) return null;
+                    i.level = i.level || locker?.level_id;
+                    i.building =
+                        i.building ||
+                        this._org.levelWithID([locker?.level_id])?.parent_id;
+                    return new Booking({
+                        date: startOfDay(Date.now()).valueOf(),
+                        duration: 24 * 60 - 1,
+                        title: 'Locker Booking',
+                        description: i.locker_name,
+                        booking_type: 'locker',
+                        all_day: true,
+                        asset_id: locker.map_id,
+                        asset_name: i.locker_name,
+                        zones: [i.building, i.level],
+                        extension_data: {
+                            map_id: i.locker_id,
+                        },
+                    });
+                })
+                .filter((item) => item);
         }),
         catchError((e) => {
             console.error(e);
@@ -289,15 +291,7 @@ export class ScheduleStateService extends AsyncHandler {
     }
 
     public startPolling(delay = 60 * 1000) {
-        this.interval(
-            'poll',
-            () => {
-                document.visibilityState === 'visible'
-                    ? this._poll.next(Date.now())
-                    : '';
-            },
-            delay
-        );
+        this.interval('poll', () => this._poll.next(Date.now()), delay);
         return () => this.stopPolling();
     }
 
