@@ -15,13 +15,7 @@ import {
     checkinBooking,
     queryBookings,
 } from '@placeos/bookings';
-import {
-    AsyncHandler,
-    currentUser,
-    notifyError,
-    notifyInfo,
-    notifySuccess,
-} from '@placeos/common';
+import { AsyncHandler, currentUser, notifyError } from '@placeos/common';
 import {
     CalendarEvent,
     checkinEventGuest,
