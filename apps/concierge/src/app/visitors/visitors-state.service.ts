@@ -30,6 +30,7 @@ import {
 import { GuestUser, queryGuests, updateGuest, User } from '@placeos/users';
 import { MatDialog } from '@angular/material/dialog';
 import {
+    Booking,
     approveBooking,
     checkinBookingAttendee,
     newBookingFromCalendarEvent,
@@ -143,54 +144,47 @@ export class VisitorsStateService extends AsyncHandler {
 
     public readonly filtered_guests = combineLatest([
         this._search,
-        this.filtered_events,
         this.guests,
     ]).pipe(
-        map(([search, events, guest_list]) => {
+        map(([search, guest_list]) => {
             const filter = search.toLowerCase();
-            return flatten(
-                events.map((event) => {
-                    const guests = event.attendees.filter(
-                        (user) =>
-                            user.is_external &&
-                            (user.name?.toLowerCase().includes(filter) ||
-                                user.email?.toLowerCase().includes(filter))
-                    );
-                    const out = guests.map((_) => {
-                        const g: any =
-                            guest_list.find((g) => g.email === _.email) || {};
-                        return new GuestUser({
-                            ..._,
-                            ...g,
-                            booking: event.from_bookings
-                                ? newBookingFromCalendarEvent(event)
-                                : '',
-                            extension_data: {
-                                ..._.extension_data,
-                                ...g.extension_data,
-                                booking_id: event?.from_bookings
-                                    ? event.id
-                                    : '',
-                                event_id: !event?.from_bookings ? event.id : '',
-                                date: event.date,
-                                host:
-                                    event.organiser?.name ||
-                                    event.organiser?.email ||
-                                    event.host,
-                                status:
-                                    event.status ||
-                                    (event.rejected
-                                        ? 'declined'
-                                        : event.approved
-                                        ? 'approved'
-                                        : 'pending') ||
-                                    g.status,
-                            },
-                        });
+            const out = guest_list
+                .filter(
+                    (_) =>
+                        _.name.toLowerCase().includes(filter) ||
+                        _.email.toLowerCase().includes(filter)
+                )
+                .map((_) => {
+                    const event: any = _.booking
+                        ? new Booking(_.booking)
+                        : new CalendarEvent(_.event);
+                    return new GuestUser({
+                        ..._,
+                        extension_data: {
+                            ..._.extension_data,
+                            event_id:
+                                event instanceof CalendarEvent ? event.id : '',
+                            booking_id:
+                                event instanceof Booking ? event.id : '',
+                            date: event.date,
+                            host:
+                                event.organiser?.name ||
+                                event.organiser?.email ||
+                                event.user_name ||
+                                event.user_email ||
+                                event.host,
+                            status:
+                                event.status ||
+                                (event.rejected
+                                    ? 'declined'
+                                    : event.approved
+                                    ? 'approved'
+                                    : 'pending') ||
+                                _.status,
+                        },
                     });
-                    return out;
-                })
-            );
+                });
+            return out;
         })
     );
 
@@ -243,6 +237,7 @@ export class VisitorsStateService extends AsyncHandler {
         const extension_data = { ...guest.extension_data };
         extension_data[field] = value;
         await updateGuest(guest.id, { ...guest, extension_data }).toPromise();
+        this._poll.next(Date.now());
     }
 
     public async approveVisitor(guest: GuestUser) {

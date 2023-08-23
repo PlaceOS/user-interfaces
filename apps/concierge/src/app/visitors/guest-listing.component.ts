@@ -189,13 +189,15 @@ import { VisitorsStateService } from './visitors-state.service';
             <action-icon
                 remote
                 [matTooltip]="
-                    remote
+                    row.extension_data.remote
                         ? 'Set as In-Person Visitor'
                         : 'Set as Remote Visitior'
                 "
                 [loading]="loading === 'remote'"
-                [content]="remote ? 'tap_and_play' : 'business'"
-                (click)="toggleRemote()"
+                [content]="
+                    row.extension_data.remote ? 'tap_and_play' : 'business'
+                "
+                (click)="setExt(row, 'remote', !row.extension_data.remote)"
                 [class.invisible]="!row?.is_external || row?.organizer"
             >
             </action-icon>
