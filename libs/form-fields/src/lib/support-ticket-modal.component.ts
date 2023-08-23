@@ -187,7 +187,7 @@ export class SupportTicketModalComponent {
                 [],
                 [],
                 [],
-                this.support_email,
+                null,
                 `${email}`,
             ]);
             this._dialog_ref.close();
