@@ -43,6 +43,7 @@ export interface DeskOptions {
     zones?: string[];
     host?: StaffUser;
     custom?: boolean;
+    use_api?: boolean;
 }
 export interface DesksStats {
     free: number;
@@ -120,12 +121,15 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         this._options,
         this._state.level,
     ]).pipe(
-        filter(([_, lvl]) => _.date > endOfDay(Date.now()).valueOf() && !!lvl),
+        filter(
+            ([_, lvl]) =>
+                (_.use_api || _.date > endOfDay(Date.now()).valueOf()) && !!lvl
+        ),
         switchMap(([_, level]) => {
             return queryBookings({
                 type: 'desk',
-                period_start: getUnixTime(startOfDay(_.date)),
-                period_end: getUnixTime(endOfDay(_.date)),
+                period_start: getUnixTime(startOfDay(_.date || Date.now())),
+                period_end: getUnixTime(endOfDay(_.date || Date.now())),
                 zones: level.id,
             });
         }),
@@ -223,7 +227,10 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 (v.location === 'booking' && v.type === 'desk')
         );
         const date = this._options.getValue().date || Date.now();
-        if (date <= endOfDay(Date.now()).valueOf()) {
+        if (
+            date <= endOfDay(Date.now()).valueOf() &&
+            !this._options.getValue().use_api
+        ) {
             this._in_use.next(
                 desks
                     .filter((v) => v.location === 'booking')

@@ -78,6 +78,7 @@ export class DeskMapViewComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit(): void {
+        this._desks_state.setOptions({ use_api: true });
         this.subscription(
             'date',
             this._desk.filters.subscribe((opts) => {
