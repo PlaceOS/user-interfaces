@@ -320,7 +320,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             const book_fn = async () => {
                 if (this._statuses[desk.id] !== 'free') {
                     return notifyError(
-                        `${desk.name} is unavailable at this time.`
+                        `${desk.name || 'Desk'} is unavailable at this time.`
                     );
                 }
                 if (
