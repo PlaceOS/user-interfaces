@@ -489,6 +489,9 @@ export class BookingFormService extends AsyncHandler {
                 invoice_id: receipt.invoice_id,
             };
         }
+        if (!value.zones?.length && this._booking.getValue().zones?.length) {
+            value.zones = this._booking.getValue().zones;
+        }
         this._loading.next('Saving booking');
         const result = await saveBooking(
             new Booking({
