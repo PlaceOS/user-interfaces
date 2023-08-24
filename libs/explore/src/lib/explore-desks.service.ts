@@ -371,6 +371,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                             e.message || e.error || e
                         }`
                     );
+                    throw e;
                 });
                 this._users[desk.map_id] = (
                     options.host || currentUser()
