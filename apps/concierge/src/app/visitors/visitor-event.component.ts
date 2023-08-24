@@ -47,7 +47,7 @@ import { VisitorsStateService } from './visitors-state.service';
             </div>
             <div flex class="p-2 flex-1">{{ event?.title }}</div>
             <div class="w-64 p-2 truncate">{{ event?.location }}</div>
-            <div class="w-32 py-2 flex items-center">
+            <div class="w-32 min-w-[8rem] py-2 flex items-center justify-end">
                 <action-icon
                     checkin
                     matTooltip="Checkin All Guests"
@@ -75,7 +75,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     <app-icon>email</app-icon>
                 </a>
             </div>
-            <div class="w-16 p-2">
+            <div class="w-16 min-w-[4rem] p-2">
                 <button
                     icon
                     matRipple
