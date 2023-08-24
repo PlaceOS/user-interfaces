@@ -290,6 +290,12 @@ export class BookingFormService extends AsyncHandler {
             'form_change',
             this.form.valueChanges.subscribe(() => this.storeForm())
         );
+        this.timeout('date', () => {
+            this.form.patchValue({
+                date: booking.date,
+                duration: booking.duration,
+            });
+        });
         this._booking.next(new Booking(booking));
         this._options.next({ type: this._options.getValue().type });
     }

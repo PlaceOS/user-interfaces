@@ -61,12 +61,13 @@ export function generateBookingForm(booking: Booking = new Booking()) {
                   { emitEvent: false }
               )
             : '';
-        previous_time = v.date || previous_time;
-        previous_duration = v.duration || previous_duration;
+        if (!('all_day' in v)) {
+            previous_time = v.date || previous_time;
+            previous_duration = v.duration || previous_duration;
+        }
+        previous_all_day = v.all_day ?? previous_all_day;
     });
     form.controls.all_day.valueChanges.subscribe((all_day) => {
-        previous_all_day = all_day || previous_all_day;
-        if (all_day === previous_all_day) return;
         if (all_day) {
             previous_time = form.value.date;
             previous_duration = form.value.duration;
