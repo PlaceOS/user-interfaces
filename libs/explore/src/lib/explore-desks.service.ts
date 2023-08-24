@@ -366,7 +366,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 });
                 await this._bookings.confirmPost().catch((e) => {
                     console.log(e);
-                    return notifyError(
+                    notifyError(
                         `Failed to book desk ${desk.name || desk.id}. ${
                             e.message || e.error || e
                         }`
