@@ -73,7 +73,8 @@ export class VisitorsStateService extends AsyncHandler {
             return queryGuests({
                 period_start: getUnixTime(start),
                 period_end: getUnixTime(end),
-                zone_ids: (filters.zones || []).join(','),
+                zone_ids:
+                    (filters.zones || []).join(',') || this._org.building.id,
             }).pipe(catchError((_) => of([])));
         }),
         tap(() => this._loading.next(false)),
