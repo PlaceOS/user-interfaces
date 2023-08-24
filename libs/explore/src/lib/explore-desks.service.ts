@@ -350,6 +350,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 user = user || options.host || currentUser();
                 const user_email = user?.email;
                 this._bookings.form.patchValue({
+                    resources: [desk],
                     asset_id: desk.id,
                     asset_name: desk.name,
                     date,
@@ -363,7 +364,14 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                         ? [desk.zone?.parent_id, desk.zone?.id]
                         : [],
                 });
-                await this._bookings.confirmPost();
+                await this._bookings.confirmPost().catch((e) => {
+                    console.log(e);
+                    return notifyError(
+                        `Failed to book desk ${desk.name || desk.id}. ${
+                            e.message || e.error || e
+                        }`
+                    );
+                });
                 this._users[desk.map_id] = (
                     options.host || currentUser()
                 )?.name;
