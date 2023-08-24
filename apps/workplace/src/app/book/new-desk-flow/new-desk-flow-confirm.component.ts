@@ -146,6 +146,7 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
             }
             this.dismiss(true);
         } catch (e) {
+            console.log('Booking Error:', e);
             notifyError(e);
         }
     };
