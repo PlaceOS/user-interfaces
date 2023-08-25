@@ -269,7 +269,8 @@ export class ApplicationSidebarComponent extends AsyncHandler {
     public updateFilteredLinks() {
         const features = this._settings.get('app.features') || [];
         const custom_reports = this._settings.get('app.custom_reports') || [];
-        const admin_group = this._settings.get('app.admin_group') || [];
+        const admin_group = this._settings.get('app.admin_group') || 'admin';
+        console.log('Admin Group:', admin_group);
         if (
             custom_reports.length &&
             this.links.find((_) => _._id === 'reports')
