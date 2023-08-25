@@ -271,11 +271,9 @@ export class ApplicationSidebarComponent extends AsyncHandler {
         const admin_group = this._settings.get('app.admin_group') || [];
         if (
             custom_reports.length &&
-            this.filtered_links.find((_) => _._id === 'reports')
+            this.links.find((_) => _._id === 'reports')
         ) {
-            const reports = this.filtered_links.find(
-                (_) => _._id === 'reports'
-            );
+            const reports = this.links.find((_) => _._id === 'reports');
             reports.children = reports.children.concat(
                 custom_reports.map((_) => ({
                     ..._,

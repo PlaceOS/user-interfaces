@@ -33,10 +33,8 @@ import {
     Booking,
     approveBooking,
     checkinBookingAttendee,
-    newBookingFromCalendarEvent,
     queryBookings,
     rejectBooking,
-    updateBooking,
 } from '@placeos/bookings';
 import { OrganisationService } from '@placeos/organisation';
 
