@@ -4,6 +4,7 @@ import {
     AsyncHandler,
     SettingsService,
     currentUser,
+    unique,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
@@ -274,12 +275,15 @@ export class ApplicationSidebarComponent extends AsyncHandler {
             this.links.find((_) => _._id === 'reports')
         ) {
             const reports = this.links.find((_) => _._id === 'reports');
-            reports.children = reports.children.concat(
-                custom_reports.map((_) => ({
-                    ..._,
-                    id: '*',
-                    route: ['/reports/new', _.id],
-                }))
+            reports.children = unique(
+                reports.children.concat(
+                    custom_reports.map((_) => ({
+                        ..._,
+                        id: `*${_.id}`,
+                        route: ['/reports/new', _.id],
+                    }))
+                ),
+                'id'
             );
         }
         this.filtered_links = this.links
@@ -287,7 +291,7 @@ export class ApplicationSidebarComponent extends AsyncHandler {
                 ...link,
                 children: link.children
                     ? link.children.filter(
-                          (_) => features.includes(_.id) || _.id === '*'
+                          (_) => features.includes(_.id) || _.id.startsWith('*')
                       )
                     : null,
             }))
