@@ -25,7 +25,8 @@ import { OrganisationService } from '@placeos/organisation';
     styles: [
         `
             .active {
-                color: var(--primary) !important;
+                background: var(--secondary) !important;
+                color: #fff !important;
             }
 
             button:not(:first-child) {
