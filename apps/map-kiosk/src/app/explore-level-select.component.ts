@@ -50,6 +50,6 @@ export class ExploreLevelSelectComponent {
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         const levels = await this._org.active_levels.pipe(take(1)).toPromise();
-        console.log('Levels:', levels);
+        console.log('Levels:', levels, this._org.building);
     }
 }
