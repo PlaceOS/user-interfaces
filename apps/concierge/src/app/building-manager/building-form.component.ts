@@ -164,6 +164,9 @@ export class BuildingFormComponent extends AsyncHandler {
     }
 
     public async saveChanges() {
+        this.form.patchValue({
+            parent_id: this.form.value.parent_id || this._org.organisation.id,
+        });
         if (!this.form.valid) {
             return notifyError(
                 `Some form fields are invalid. [${getInvalidFields(
@@ -176,6 +179,7 @@ export class BuildingFormComponent extends AsyncHandler {
         this.loadingChange.emit(true);
         const body = {
             ...data,
+            tags: ['building'],
             name: `BLD ${authority().description} ${data.display_name}`,
         };
         await (data.id ? updateZone(data.id, body) : addZone(body))

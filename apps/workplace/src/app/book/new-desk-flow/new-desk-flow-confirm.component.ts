@@ -146,7 +146,12 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
             }
             this.dismiss(true);
         } catch (e) {
-            notifyError(e);
+            console.log('Booking Error:', e);
+            notifyError(
+                typeof e === 'string'
+                    ? e
+                    : `Desk unavailable at the selected time`
+            );
         }
     };
     public readonly dismiss = (e?) => this._sheet_ref?.dismiss(e);

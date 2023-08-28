@@ -62,7 +62,7 @@ import { BuildingManagementService } from './building-management.service';
                             <span>Edit Building</span>
                         </div>
                     </button>
-                    <button mat-menu-item (click)="deleteBuilding(row)">
+                    <button mat-menu-item (click)="removeBuilding(row)">
                         <div class="flex items-center space-x-2 text-red-500">
                             <app-icon>delete</app-icon>
                             <span>Delete Building</span>

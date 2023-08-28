@@ -130,7 +130,8 @@ export class RegionModalComponent extends AsyncHandler {
                 ).join(', ')}]`
             );
         }
-        const data = this.form.getRawValue();
+        const data: any = this.form.getRawValue();
+        data.tags = ['region'];
         this.loading = true;
         await (data.id
             ? updateZone(data.id, {

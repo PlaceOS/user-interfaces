@@ -4,9 +4,9 @@ import { LevelManagementService } from './level-management.service';
 @Component({
     selector: 'level-list',
     template: `
-        <div class="absolute inset-0 overflow-auto">
+        <div class="absolute inset-0 overflow-auto px-4">
             <custom-table
-                class="block min-w-[32rem] w-full h-full mx-4"
+                class="block min-w-[28rem] w-full h-full"
                 [dataSource]="levels"
                 [columns]="['display_name', 'building', 'actions']"
                 [display_column]="['Name', 'Building', ' ']"

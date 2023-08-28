@@ -3,21 +3,17 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 @Component({
     selector: 'searchbar',
     template: `
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="no-subscript">
             <input
                 matInput
                 placeholder="Search..."
                 [(ngModel)]="model"
                 (ngModelChange)="modelChange.emit($event)"
             />
-            <app-icon class="text-xl" matSuffix [icon]="{ class: 'material-icons', content: 'search' }"></app-icon>
+            <app-icon class="text-xl" matSuffix>search</app-icon>
         </mat-form-field>
     `,
-    styles: [`
-        :host {
-            height: 3.5em;
-        }
-    `],
+    styles: [``],
 })
 export class SearchbarComponent {
     /** Currently selected date */

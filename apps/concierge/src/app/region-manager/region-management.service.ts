@@ -59,7 +59,7 @@ export class RegionManagementService {
             data: region,
         });
         ref.afterClosed().subscribe((data) => {
-            if (data) setTimeout(() => this._change.next(Date.now()), 300);
+            if (data) setTimeout(() => location.reload(), 300);
         });
     }
 
@@ -68,7 +68,7 @@ export class RegionManagementService {
             data: { zone: region },
         });
         ref.afterClosed().subscribe((data) => {
-            if (data) setTimeout(() => this._change.next(Date.now()), 300);
+            if (data) setTimeout(() => location.reload(), 300);
         });
     }
 
@@ -86,6 +86,7 @@ export class RegionManagementService {
         ref.loading('Removing building...');
         await removeZone(region.id).toPromise();
         notifySuccess('Successfully removed building.');
+        setTimeout(() => location.reload(), 300);
         ref.close();
     }
 }

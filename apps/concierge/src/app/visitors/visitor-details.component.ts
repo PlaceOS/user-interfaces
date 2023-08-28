@@ -8,7 +8,7 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { AsyncHandler, notifyError, SettingsService } from '@placeos/common';
-import { CalendarEvent, saveEvent } from '@placeos/events';
+import { CalendarEvent, saveEvent, updateEventMetadata } from '@placeos/events';
 import { showGuest, User } from '@placeos/users';
 
 import { VisitorsStateService } from './visitors-state.service';
@@ -19,7 +19,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
     template: `
         <ng-container *ngIf="visitor">
             <div details class="w-12 text-lg flex justify-center">
-                <ng-container *ngIf="!visitor?.organizer; else host_state">
+                <ng-container *ngIf="!is_host; else host_state">
                     <i
                         *ngIf="!visitor?.checked_in; else checkin_state"
                         class="p-2 rounded-full material-icons border-2 border-dotted border-gray-600 dark:border-neutral-800"
@@ -35,8 +35,9 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 <ng-template #host_state>
                     <i
                         class="p-2 rounded-full material-icons bg-blue-600 border-2 border-blue-600 text-white"
-                        >assignment_ind</i
                     >
+                        assignment_ind
+                    </i>
                 </ng-template>
             </div>
             <div flex class="p-2 flex-1">
@@ -53,10 +54,8 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     [loading]="loading === 'remote'"
                     [content]="remote ? 'tap_and_play' : 'business'"
                     (click)="toggleRemote()"
-                    [class.invisible]="
-                        !visitor?.is_external || visitor?.organizer
-                    "
-                    *ngIf="is_event"
+                    [class.invisible]="!visitor?.is_external || is_host"
+                    *ngIf="is_event && !is_cancelled"
                 >
                 </action-icon>
                 <action-icon
@@ -66,9 +65,8 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     [state]="visitor?.checked_in ? 'success' : ''"
                     content="event_available"
                     (click)="checkin()"
-                    [class.invisible]="
-                        !visitor?.is_external || visitor?.organizer
-                    "
+                    [class.invisible]="!visitor?.is_external || is_host"
+                    *ngIf="!is_cancelled"
                 >
                 </action-icon>
                 <action-icon
@@ -77,18 +75,15 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     [loading]="loading === 'checkout'"
                     content="event_busy"
                     (click)="checkout()"
-                    [class.invisible]="
-                        !visitor?.is_external || visitor?.organizer
-                    "
+                    [class.invisible]="!visitor?.is_external || is_host"
+                    *ngIf="!is_cancelled"
                 >
                 </action-icon>
                 <a
                     [href]="'mailto:' + visitor?.email"
                     icon
                     matRipple
-                    [matTooltip]="
-                        visitor?.organizer ? 'Email Host' : 'Email Guest'
-                    "
+                    [matTooltip]="is_host ? 'Email Host' : 'Email Guest'"
                 >
                     <app-icon>email</app-icon>
                 </a>
@@ -101,7 +96,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 >
                 </action-icon>
             </div>
-            <div class="w-14 p-2"></div>
+            <div class="w-9"></div>
             <div
                 qr-code
                 *ngIf="show_qr_code"
@@ -139,7 +134,8 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 display: flex;
                 align-items: center;
                 width: 100%;
-                padding: 0 0.5rem;
+                padding: 0;
+                padding-left: 0.5rem;
             }
 
             :host > div {
@@ -175,6 +171,16 @@ export class VisitorDetailsComponent extends AsyncHandler implements OnChanges {
         return !this.event.from_bookings;
     }
 
+    public get is_cancelled() {
+        return this.event.status === 'declined';
+    }
+
+    public get is_host() {
+        return (
+            this.event.host.toLowerCase() === this.visitor.email.toLowerCase()
+        );
+    }
+
     public readonly checkin = async () => {
         this.loading = 'checkin';
         this.event = await this._state
@@ -201,15 +207,16 @@ export class VisitorDetailsComponent extends AsyncHandler implements OnChanges {
             ...this.event.toJSON(),
             remote: remote_list,
         }).toJSON();
+        console.log('Event:', this.event);
         const space = await this._space_pipe?.transform(
             this.event?.resources[0]?.email
         );
-        this.event = await saveEvent(new_item, {
-            system_id:
-                this.event?.resources[0]?.id ||
-                this.event?.system?.id ||
-                space.id,
-        })
+        (this.event as any).extension_data = await updateEventMetadata(
+            this.event.id,
+            space.id,
+            { remote: remote_list },
+            { ical_uid: this.event.ical_uid }
+        )
             .toPromise()
             .catch((e) => {
                 notifyError(
@@ -217,7 +224,7 @@ export class VisitorDetailsComponent extends AsyncHandler implements OnChanges {
                         e.statusText || e.message || e
                     }`
                 );
-                return this.event;
+                return this.event.extension_data;
             });
         this.eventChange.emit(this.event);
         this.loading = '';

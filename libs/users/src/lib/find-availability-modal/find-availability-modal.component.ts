@@ -194,7 +194,9 @@ export interface FindAvailabilityData {
                             [date]="date"
                             [availability]="
                                 (availability | async)
-                                    ? (availability | async)[user.email]
+                                    ? (availability | async)[
+                                          user.email.toLowerCase()
+                                      ]
                                     : []
                             "
                         ></user-availability-list>
@@ -266,7 +268,7 @@ export class FindAvailabilityModalComponent extends AsyncHandler {
         map((availability_list) => {
             const availability_map: Record<string, AvailabilityBlock[]> = {};
             for (const item of availability_list) {
-                availability_map[item.id] = item.availability
+                availability_map[item.id.toLowerCase()] = item.availability
                     .filter((_) => _.status === 'busy')
                     .map((block) => {
                         const date = fromUnixTime(block.starts_at);

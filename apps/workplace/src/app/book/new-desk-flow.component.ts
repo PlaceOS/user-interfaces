@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, notifyInfo } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
-import { first } from 'rxjs/operators';
+import { first, take } from 'rxjs/operators';
 
 @Component({
     selector: 'placeos-new-book-desk-flow',
@@ -58,16 +58,26 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
         );
         this.subscription(
             'route.query',
-            this._route.queryParamMap.subscribe((params) => {
+            this._route.queryParamMap.subscribe(async (params) => {
                 if (params.has('success')) {
                     this._state.setView(params.get('success') as any);
                 }
                 if (params.has('asset_id')) {
+                    const id = params.get('asset_id');
+                    const resources = await this._state.resources
+                        .pipe(take(1))
+                        .toPromise();
+                    let asset = resources.find((_) => _.id === id);
+                    if (!asset) {
+                        return notifyInfo(
+                            'Unable to find desk with given asset ID.'
+                        );
+                    }
                     this._state.form.patchValue({
                         resources: [
                             new Desk({
-                                id: params.get('asset_id'),
-                                name: params.get('asset_id'),
+                                id: asset.id,
+                                name: asset.name || asset.id,
                             }),
                         ],
                     });

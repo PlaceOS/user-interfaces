@@ -176,14 +176,18 @@ export class SupportTicketModalComponent {
             await mod.execute('send_mail', [
                 this.support_email,
                 `Support Ticket from Workplace Application`,
-                `${name}\n\n${location}\n\n${description}\n\n${images.join(
-                    '\n'
+                `${name}\n${email}\n\n${location}\n\n${description.replace(
+                    /<[^>]+>/g,
+                    ''
+                )}\n\n${images.join('\n')}`,
+                `<p>${name}</p><p>${email}</p><p>${location}</p><p>${description}</p>${images.join(
+                    '<br>'
                 )}`,
+                [],
+                [],
+                [],
+                [],
                 null,
-                [],
-                [],
-                [],
-                [],
                 `${email}`,
             ]);
             this._dialog_ref.close();

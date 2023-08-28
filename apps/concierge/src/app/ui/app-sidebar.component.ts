@@ -4,6 +4,7 @@ import {
     AsyncHandler,
     SettingsService,
     currentUser,
+    unique,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
@@ -141,11 +142,11 @@ export class ApplicationSidebarComponent extends AsyncHandler {
             name: 'Facilities',
             icon: 'place',
             children: [
-                {
-                    id: 'facilities',
-                    name: 'Building Map',
-                    route: ['/facilities/new'],
-                },
+                // {
+                //     id: 'facilities',
+                //     name: 'Building Map',
+                //     route: ['/facilities/new'],
+                // },
                 {
                     id: 'zones',
                     name: 'Region Management',
@@ -268,12 +269,31 @@ export class ApplicationSidebarComponent extends AsyncHandler {
     public updateFilteredLinks() {
         const features = this._settings.get('app.features') || [];
         const custom_reports = this._settings.get('app.custom_reports') || [];
-        const admin_group = this._settings.get('app.admin_group') || [];
+        const admin_group = this._settings.get('app.admin_group') || 'admin';
+        console.log('Admin Group:', admin_group);
+        if (
+            custom_reports.length &&
+            this.links.find((_) => _._id === 'reports')
+        ) {
+            const reports = this.links.find((_) => _._id === 'reports');
+            reports.children = unique(
+                reports.children.concat(
+                    custom_reports.map((_) => ({
+                        ..._,
+                        id: `*${_.id}`,
+                        route: ['/reports/new', _.id],
+                    }))
+                ),
+                'id'
+            );
+        }
         this.filtered_links = this.links
             .map((link) => ({
                 ...link,
                 children: link.children
-                    ? link.children.filter((_) => features.includes(_.id))
+                    ? link.children.filter(
+                          (_) => features.includes(_.id) || _.id.startsWith('*')
+                      )
                     : null,
             }))
             .filter(
@@ -294,20 +314,6 @@ export class ApplicationSidebarComponent extends AsyncHandler {
         ) {
             this.filtered_links = this.filtered_links.filter(
                 (_) => _.id !== 'facilities'
-            );
-        }
-        if (
-            custom_reports.length &&
-            this.filtered_links.find((_) => _._id === 'reports')
-        ) {
-            const reports = this.filtered_links.find(
-                (_) => _._id === 'reports'
-            );
-            reports.children = reports.children.concat(
-                custom_reports.map((_) => ({
-                    ..._,
-                    route: ['/reports/new', _.id],
-                }))
             );
         }
     }

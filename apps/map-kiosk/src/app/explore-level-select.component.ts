@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ExploreStateService } from '@placeos/explore';
 import { OrganisationService } from '@placeos/organisation';
+import { first, take } from 'rxjs/operators';
 
 @Component({
     selector: 'explore-level-select',
@@ -25,7 +26,8 @@ import { OrganisationService } from '@placeos/organisation';
     styles: [
         `
             .active {
-                color: var(--primary) !important;
+                background: var(--secondary) !important;
+                color: #fff !important;
             }
 
             button:not(:first-child) {
@@ -35,13 +37,19 @@ import { OrganisationService } from '@placeos/organisation';
     ],
 })
 export class ExploreLevelSelectComponent {
-    public readonly levels = this._orgs.active_levels;
+    public readonly levels = this._org.active_levels;
     public readonly level = this._state.level;
 
     public readonly setLevel = (lvl) => this._state.setLevel(lvl.id);
 
     constructor(
-        private _orgs: OrganisationService,
+        private _org: OrganisationService,
         private _state: ExploreStateService
     ) {}
+
+    public async ngOnInit() {
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        const levels = await this._org.active_levels.pipe(take(1)).toPromise();
+        console.log('Levels:', levels, this._org.building);
+    }
 }

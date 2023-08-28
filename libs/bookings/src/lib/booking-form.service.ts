@@ -290,6 +290,12 @@ export class BookingFormService extends AsyncHandler {
             'form_change',
             this.form.valueChanges.subscribe(() => this.storeForm())
         );
+        this.timeout('date', () => {
+            this.form.patchValue({
+                date: booking.date,
+                duration: booking.duration,
+            });
+        });
         this._booking.next(new Booking(booking));
         this._options.next({ type: this._options.getValue().type });
     }
@@ -489,6 +495,9 @@ export class BookingFormService extends AsyncHandler {
                 invoice_id: receipt.invoice_id,
             };
         }
+        if (!value.zones?.length && this._booking.getValue().zones?.length) {
+            value.zones = this._booking.getValue().zones;
+        }
         this._loading.next('Saving booking');
         const result = await saveBooking(
             new Booking({
@@ -504,7 +513,7 @@ export class BookingFormService extends AsyncHandler {
                     department:
                         value.user?.department || currentUser()?.department,
                 },
-                approved: !!this._settings.get('app.bookings.no_approval'),
+                approved: !this._settings.get('app.bookings.no_approval'),
             })
         )
             .toPromise()

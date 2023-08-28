@@ -30,10 +30,14 @@ import {
         <div
             class="relative flex items-center justify-center p-2 space-x-2 border-b border-gray-200"
         >
-            <date-options [is_new]="true"></date-options>
+            <date-options
+                [date]="date | async"
+                (dateChange)="setDate($event)"
+                [is_new]="true"
+            ></date-options>
             <div
                 class="absolute top-1/2 -translate-y-1/2 left-4 text-blue-500 text-sm"
-                *ngIf="is_today"
+                *ngIf="is_today | async"
             >
                 Today
             </div>
@@ -249,7 +253,6 @@ import {
     ],
 })
 export class RoomBookingsTimelineComponent extends AsyncHandler {
-    public date = Date.now();
     public offset_x = 0;
     public offset_y = 0;
     public w_slots = [];
@@ -257,6 +260,10 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
     public hours = Array.from({ length: 24 }, (_, i) => i);
     public readonly ui_options = this._state.options;
     public readonly spaces = this._state.spaces;
+    public readonly date = this._state.date;
+    public readonly is_today = this.date.pipe(
+        map((d) => isSameDay(d, Date.now()))
+    );
     public readonly events = combineLatest([
         this._state.spaces,
         this._state.filtered,
@@ -281,22 +288,7 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
     }
 
     public readonly edit = (e) => this._state.newBooking(e);
-    public readonly resetDate = () => {
-        this.date = Date.now();
-        this._state.setDate(this.date);
-    };
-    public readonly previousDate = () => {
-        this.date = addDays(this.date, -1).valueOf();
-        this._state.setDate(this.date);
-    };
-    public readonly nextDate = () => {
-        this.date = addDays(this.date, 1).valueOf();
-        this._state.setDate(this.date);
-    };
-
-    public get is_today() {
-        return isSameDay(this.date, Date.now());
-    }
+    public readonly setDate = (d) => this._state.setDate(d);
 
     @ViewChild('scroll_container', { static: true })
     private _scroll_container: ElementRef<HTMLDivElement>;

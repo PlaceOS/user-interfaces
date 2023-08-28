@@ -78,6 +78,7 @@ export class DeskMapViewComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit(): void {
+        this._desks_state.setOptions({ use_api: true });
         this.subscription(
             'date',
             this._desk.filters.subscribe((opts) => {
@@ -85,6 +86,7 @@ export class DeskMapViewComponent extends AsyncHandler implements OnInit {
                 if (level) this._state.setLevel(level.id);
                 this._desks_state.setOptions({
                     date: opts.date || Date.now(),
+                    all_day: true,
                     zones: opts.zones,
                 });
             })

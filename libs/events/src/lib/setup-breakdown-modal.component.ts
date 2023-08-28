@@ -71,7 +71,7 @@ export class SetupBreakdownModalComponent {
             system_id: this._event?.resources[0]?.id || this._event?.system?.id,
         };
         await saveEvent(
-            new CalendarEvent({ ...this._event, ...this.form.value }),
+            new CalendarEvent({ ...this._event, ...this.form.value }).toJSON(),
             query
         )
             .toPromise()

@@ -190,6 +190,7 @@ export class NewSpaceSelectModalComponent {
         if (state) list.push(item);
         this.selected = list;
         if (!this._settings.get('app.events.allow_multiple_spaces') && state) {
+            this.selected = [item];
             this._dialog_ref.close([item]);
         }
     }

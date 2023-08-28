@@ -1,4 +1,4 @@
-import { del, get, patch, post, put } from '@placeos/ts-client';
+import { del, get, patch, post, put, query } from '@placeos/ts-client';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
@@ -8,6 +8,7 @@ import { GuestUser } from 'libs/users/src/lib/user.class';
 import { CalendarEvent } from './event.class';
 import { addMinutes, getUnixTime } from 'date-fns';
 import { queryCalendarAvailability } from 'libs/calendar/src/lib/calendar.fn';
+import { EventExtensionData } from './event.interfaces';
 
 export interface CalendarEventQueryParams {
     /** Comma seperated list of zone ids to check availability */
@@ -211,6 +212,28 @@ export function checkinEventGuest(
         )}/guests/${guest_id}/checkin${query ? '?' + query : ''}`,
         ''
     ).pipe(map((item) => new GuestUser(item)));
+}
+
+/**
+ * Update the extension data for an event
+ * @param id ID of the event
+ * @param system_id ID of the system associated with the event
+ * @param metadata New metadata value to merge to exisiting
+ * @param query Extra query parameters to pass to the API request
+ */
+export function updateEventMetadata(
+    id: string,
+    system_id: string,
+    metadata: Partial<EventExtensionData>,
+    query: { ical_uid?: string } = {}
+) {
+    const q = toQueryString({ ...query });
+    return patch(
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(
+            id
+        )}/metadata/${encodeURIComponent(system_id)}${q ? '?' + q : ''}`,
+        metadata
+    ).pipe(map((item) => item as EventExtensionData));
 }
 
 /**

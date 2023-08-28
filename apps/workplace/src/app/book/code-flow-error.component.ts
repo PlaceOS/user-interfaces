@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
+import { BookingFormService, BookingType } from '@placeos/bookings';
+import { AsyncHandler, notifyError, notifyInfo } from '@placeos/common';
+
+const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
 
 @Component({
     selector: 'code-flow-success',
@@ -26,8 +29,8 @@ import { AsyncHandler } from '@placeos/common';
                         You have booking with a difference resource.
                     </ng-container>
                     <ng-container *ngSwitchDefault>
-                        You do not have a booking. Would you like to book
-                        {{ asset_id }}?
+                        You do not have a booking. Would you like to book the
+                        set resource?
                     </ng-container>
                 </p>
             </main>
@@ -71,19 +74,21 @@ import { AsyncHandler } from '@placeos/common';
     styles: [``],
 })
 export class CodeFlowErrorComponent extends AsyncHandler {
-    public type = '';
-    public asset_id = '';
+    public type = 'other';
+    public asset = null;
 
-    constructor(private _route: ActivatedRoute) {
+    constructor(
+        private _route: ActivatedRoute,
+        private _state: BookingFormService
+    ) {
         super();
     }
 
     public ngOnInit() {
         this.subscription(
             'route.query',
-            this._route.queryParamMap.subscribe((params) => {
-                this.type = params.get('type');
-                this.asset_id = params.get('asset_id');
+            this._route.queryParamMap.subscribe(async (params) => {
+                this.type = params.get('type') as any;
             })
         );
     }
