@@ -295,33 +295,9 @@ export class NewDeskFormDetailsComponent extends AsyncHandler {
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.form && this.form) {
-            this.subscription(
-                'change',
-                this.form.get('resources')?.valueChanges?.subscribe((list) => {
-                    list?.length ? this.setBookingAsset(list[0]) : '';
-                })
-            );
-            if (this.form.value.resources?.length) {
-                this.setBookingAsset(this.form.value.resources[0]);
-            }
             if (this.selected_desk?.id) {
                 this.form.patchValue({ resources: [this.selected_desk] });
             }
         }
-    }
-
-    private setBookingAsset(desk: Desk) {
-        this._state.form.patchValue({ asset_id: undefined });
-        if (!desk) return;
-        this.selected_desk = desk;
-        this._state.form.patchValue({
-            asset_id: desk?.id,
-            asset_name: desk.name,
-            map_id: desk?.map_id || desk?.id,
-            description: desk.name,
-            booking_type: 'desk',
-            zones: desk.zone ? [desk.zone?.parent_id, desk.zone?.id] : [],
-            booking_asset: desk,
-        });
     }
 }

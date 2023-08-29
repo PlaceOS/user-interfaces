@@ -9,7 +9,24 @@ import {
     removeViewer,
 } from '@placeos/svg-viewer';
 import { Booking } from './booking.class';
-import { format, roundToNearestMinutes, setHours, setMinutes } from 'date-fns';
+import { roundToNearestMinutes, setHours, setMinutes } from 'date-fns';
+
+function setBookingAsset(form: FormGroup, resource: any) {
+    if (!resource) return form.patchValue({ asset_id: undefined });
+    form.patchValue(
+        {
+            asset_id: resource.id,
+            asset_name: resource.name,
+            map_id: resource.map_id || resource.id,
+            description: resource.name,
+            zones: resource.zone
+                ? [resource.zone?.parent_id, resource.zone?.id]
+                : [],
+            booking_asset: resource,
+        },
+        { emitEvent: false }
+    );
+}
 
 export function generateBookingForm(booking: Booking = new Booking()) {
     const form = new FormGroup({
@@ -67,6 +84,9 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         }
         previous_all_day = v.all_day ?? previous_all_day;
     });
+    form.controls.resources.valueChanges.subscribe((resources) =>
+        setBookingAsset(form, (resources || [])[0])
+    );
     form.controls.all_day.valueChanges.subscribe((all_day) => {
         if (all_day) {
             previous_time = form.value.date;
