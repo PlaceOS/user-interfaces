@@ -34,7 +34,7 @@ import { LandingStateService } from './landing-state.service';
                     [queryParams]="{ level: lvl.id }"
                 >
                     <div
-                        class="min-w-[4.5rem] h-[4.5rem] rounded bg-gray-200 dark:bg-neutral-800 flex items-center justify-center"
+                        class="w-[4.5rem] h-[4.5rem] rounded bg-gray-200 dark:bg-neutral-800 overflow-hidden flex items-center justify-center"
                     >
                         <img
                             *ngIf="lvl?.images?.length; else placeholder"
