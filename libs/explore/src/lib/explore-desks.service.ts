@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { getModule, showMetadata } from '@placeos/ts-client';
 import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of, timer } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -12,6 +12,7 @@ import {
     shareReplay,
     switchMap,
     tap,
+    timeout,
 } from 'rxjs/operators';
 
 import {
@@ -95,11 +96,9 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
 
     private _bind = this._state.level.pipe(
         debounceTime(300),
-        map((lvl) => {
+        filter((_) => !!_),
+        tap((lvl) => {
             this._statuses = {};
-            this.unsubWith('lvl');
-            console.log('On Level Change:', lvl);
-            if (!lvl) return;
             const system_id = this._org.binding('area_management');
             console.log('On Level update bindings:', system_id);
             if (!system_id) return;
