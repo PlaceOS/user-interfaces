@@ -4,6 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { first } from 'rxjs/operators';
 import {
+    apiKey,
     clientId,
     invalidateToken,
     isMock,
@@ -42,6 +43,7 @@ import {
     initialiseUploadService,
     OpenStack,
 } from '@placeos/cloud-uploads';
+import { setCustomHeaders } from '@placeos/svg-viewer';
 import { TranslateService } from '@ngx-translate/core';
 
 import { StylesManager } from 'survey-core';
@@ -174,6 +176,13 @@ export class AppComponent extends AsyncHandler implements OnInit {
                     providers: [Amazon, Azure, Google, OpenStack] as any,
                 });
             });
+        }
+        if (token() === 'x-api-key') {
+            setCustomHeaders(new Headers({ 'x-api-key': apiKey() }));
+        } else {
+            setCustomHeaders(
+                new Headers({ Authorization: `Bearer ${token()}` })
+            );
         }
     }
 
