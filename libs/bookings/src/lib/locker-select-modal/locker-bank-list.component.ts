@@ -49,12 +49,13 @@ import { LockersService } from '../lockers.service';
                                 <app-icon>done</app-icon>
                             </div>
                             <img
+                                auth
                                 *ngIf="
                                     locker_bank.images?.length;
                                     else placeholder
                                 "
                                 class="object-cover h-full"
-                                [src]="locker_bank.images[0]"
+                                [source]="locker_bank.images[0]"
                             />
                             <ng-template #placeholder>
                                 <img

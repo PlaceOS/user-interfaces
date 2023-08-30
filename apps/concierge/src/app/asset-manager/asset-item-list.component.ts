@@ -50,7 +50,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                                 asset.images?.length;
                                                 else placeholder
                                             "
-                                            [src]="asset.images[0]"
+                                            auth
+                                            [source]="asset.images[0]"
                                             class="min-w-full min-h-full object-cover"
                                         />
                                         <ng-template #placeholder>
@@ -106,11 +107,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         class="w-full h-32 flex items-center justify-center bg-gray-100 overflow-hidden"
                                     >
                                         <img
+                                            auth
                                             *ngIf="
                                                 asset.images?.length;
                                                 else placeholder
                                             "
-                                            [src]="asset.images[0]"
+                                            [source]="asset.images[0]"
                                             class="min-w-full min-h-full object-cover"
                                         />
                                         <ng-template #placeholder>

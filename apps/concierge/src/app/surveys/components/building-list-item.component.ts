@@ -13,8 +13,9 @@ import { SettingsService } from '@placeos/common';
         >
             <div *ngIf="building.image" class="image-container">
                 <img
+                    auth
                     class="flex object-fill "
-                    [src]="building.image"
+                    [source]="building.image"
                     alt="image of building"
                 />
             </div>

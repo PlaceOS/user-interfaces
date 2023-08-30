@@ -48,8 +48,9 @@ import { CalendarEvent } from '@placeos/events';
                     </p>
                     <div class="w-64 h-32 overflow-hidden mb-2">
                         <img
+                            auth
                             class="object-cover min-w-full min-h-full"
-                            [src]="
+                            [source]="
                                 (event.resources[0].email | space | async)
                                     ?.images[0]
                             "

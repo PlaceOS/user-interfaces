@@ -37,8 +37,9 @@ import { LandingStateService } from './landing-state.service';
                         class="w-[4.5rem] h-[4.5rem] rounded bg-gray-200 dark:bg-neutral-800 overflow-hidden flex items-center justify-center"
                     >
                         <img
+                            auth
                             *ngIf="lvl?.images?.length; else placeholder"
-                            [src]="lvl?.images[0]"
+                            [source]="lvl?.images[0]"
                             class="min-h-full object-cover"
                         />
                         <ng-template #placeholder>
@@ -100,11 +101,12 @@ import { LandingStateService } from './landing-state.service';
                         class="w-[4.5rem] h-[4.5rem] rounded bg-gray-200 dark:bg-neutral-800 overflow-hidden flex items-center justify-center"
                     >
                         <img
+                            auth
                             *ngIf="
                                 (space.id | space | async)?.images?.length;
                                 else space_placeholder
                             "
-                            [src]="(space.id | space | async)?.images[0]"
+                            [source]="(space.id | space | async)?.images[0]"
                             class="min-h-full object-cover"
                         />
                     </div>

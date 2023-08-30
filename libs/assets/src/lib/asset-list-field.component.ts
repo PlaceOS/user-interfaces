@@ -22,8 +22,9 @@ const EMPTY_FAVS: string[] = [];
                     class="w-16 h-16 rounded-xl bg-black/20 mr-4 overflow-hidden flex items-center justify-center"
                 >
                     <img
+                        auth
                         *ngIf="asset.images?.length; else placeholder"
-                        [src]="asset.images[0]"
+                        [source]="asset.images[0]"
                         class="min-h-full object-cover"
                     />
                     <ng-template #placeholder>

@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatSelect } from '@angular/material/select';
-import { AsyncHandler, Identity, timeFormatString } from '@placeos/common';
+import { AsyncHandler, Identity } from '@placeos/common';
 import {
     addMinutes,
     endOfDay,
@@ -36,7 +36,9 @@ import {
                     *ngFor="let option of time_options"
                     [value]="option.id"
                 >
-                    {{ option.date | date: 'h : mm a' }}
+                    {{
+                        option.date | date: (use_24hr ? 'HH : mm' : 'h : mm a')
+                    }}
                 </mat-option>
             </mat-select>
         </mat-form-field>
@@ -66,6 +68,7 @@ export class TimeFieldComponent
     @Input() public disabled: boolean;
     /** Whether past times are allowed */
     @Input() public no_past_times = true;
+    @Input() public use_24hr = false;
     /** String representing the currently set time */
     public date: number = new Date().valueOf();
     /** String representing the currently set time */

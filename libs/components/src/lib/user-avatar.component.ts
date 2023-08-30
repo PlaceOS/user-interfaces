@@ -18,7 +18,11 @@ import { User } from 'libs/users/src/lib/user.class';
             </div>
         </div>
         <ng-template #image_state>
-            <img class="h-full w-full" [src]="user.photo | safe: 'resource'" />
+            <img
+                auth
+                class="h-full w-full"
+                [source]="user.photo | safe: 'resource'"
+            />
         </ng-template>
     `,
     styles: [
