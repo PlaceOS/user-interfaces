@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1693368142669,
+  "timestamp": 1693370652970,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -181,12 +181,12 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_workplace_src_app_book_book_module_ts.js": "459625ab9dd1e713f8e4b995fed71ec0c851208f",
+    "./apps_workplace_src_app_book_book_module_ts.js": "49302bd19780f4775c1254f2c98b1de5d7c0ec3b",
     "./apps_workplace_src_app_control_control_module_ts.js": "aa979fb67cef729e7bd87ee262d682e16ac50b07",
     "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "c10ef89222571331ea3c2409ae37a23775d6db29",
     "./apps_workplace_src_app_directory_directory_module_ts.js": "b11c4f6b98ff7d25ecc15137bee6afd2a59442e8",
     "./apps_workplace_src_app_explore_explore_module_ts.js": "76b2abd6c69fc089e8010d7764ebecea08fc2253",
-    "./apps_workplace_src_app_landing_landing_module_ts.js": "8df8e884c135cf58c574acbeca9dbfb34527a6fe",
+    "./apps_workplace_src_app_landing_landing_module_ts.js": "44b4605884fe6e625d1257459dc696619752bf73",
     "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "f6a254950aea3054344686ffc332179716d68669",
     "./apps_workplace_src_app_schedule_schedule_module_ts.js": "28abe3a2ea822b98542bb850c4ec4d0ae282db3a",
     "./apps_workplace_src_app_whats-on_whats-on_module_ts.js": "689fdc8d3454a34582c3d6469eab50d875fab4a7",
@@ -319,7 +319,7 @@
     "./common.js": "943189f41bce2b667e35161b1333346511ab7f4c",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "8a6851f17f003d0f91fffac73e1b855fc2d8bd39",
-    "./main.js": "0a493d7e2084d75612991fda4b92b35d664b433c",
+    "./main.js": "c4018453346ba5a9a4debf6ad3c6702b53d3c2d4",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
