@@ -14,7 +14,7 @@ import { map } from 'rxjs/operators';
                 [columns]="[
                     'user_name',
                     'group',
-                    'desk_name',
+                    'asset_name',
                     'date',
                     'status',
                     'approver_name',
@@ -43,7 +43,7 @@ import { map } from 'rxjs/operators';
                 ]"
                 [template]="{
                     user_name: user_template,
-                    desk_name: desk_template,
+                    asset_name: desk_template,
                     date: date_template,
                     status: status_template,
                     checked_in: bool_template,
