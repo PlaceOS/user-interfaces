@@ -6,48 +6,52 @@ import { map } from 'rxjs/operators';
 @Component({
     selector: 'desk-bookings',
     template: `
-        <div class="overflow-auto h-full w-full">
+        <div class="overflow-auto h-full w-full p-4">
             <custom-table
-                class="min-w-[85rem] block"
+                class="min-w-[76rem] block"
                 [dataSource]="bookings"
                 [filter]="(filters | async)?.search"
                 [columns]="[
+                    'date',
+                    'period',
                     'user_name',
                     'group',
                     'asset_name',
-                    'date',
-                    'status',
                     'approver_name',
+                    'status',
                     'checked_in',
                     'actions'
                 ]"
                 [display_column]="[
+                    'Date',
+                    'Period',
                     'Person',
                     'Group',
                     'Desk',
-                    'Period',
-                    'Status',
                     'Approver',
+                    'Status',
                     'Checked In',
                     ' '
                 ]"
                 [column_size]="[
-                    '14r',
+                    '4r',
+                    '10r',
+                    'flex',
                     '10r',
                     '10r',
-                    '10r',
-                    '7r',
                     '10r',
                     '8r',
-                    'flex'
+                    '7r',
+                    '3.5r'
                 ]"
                 [template]="{
                     user_name: user_template,
                     asset_name: desk_template,
                     date: date_template,
+                    period: period_template,
                     status: status_template,
-                    checked_in: bool_template,
-                    access: bool_template,
+                    checked_in: option_template,
+                    access: option_template,
                     actions: action_template
                 }"
                 [empty]="
@@ -56,7 +60,13 @@ import { map } from 'rxjs/operators';
                         : 'There are no desk booking for the currently selected date.'
                 "
             ></custom-table>
-            <ng-template #date_template let-row="row">
+            <ng-template #date_template let-date="data">
+                <div class="flex flex-col items-center justify-center w-full">
+                    <div class="opacity-60">{{ date | date: 'MMM' }}</div>
+                    <div class="text-xl">{{ date | date: 'dd' }}</div>
+                </div>
+            </ng-template>
+            <ng-template #period_template let-row="row">
                 {{ row.date | date: 'shortTime' }} &ndash;
                 {{ row.end | date: 'shortTime' }}
             </ng-template>
@@ -82,27 +92,65 @@ import { map } from 'rxjs/operators';
                 </div>
             </ng-template>
             <ng-template #status_template let-data="data">
-                <span
-                    class="capitalize text-white px-2 py-1 rounded border border-gray-200"
+                <button
+                    matRipple
+                    [matMenuTriggerFor]="statusMenu"
+                    class="rounded-3xl px-2 py-1 flex items-center space-x-2 capitalize"
                     [class.bg-success]="data === 'approved'"
+                    [class.text-white]="data !== 'tentative'"
                     [class.bg-pending]="data === 'tentative'"
+                    [class.text-black]="data === 'tentative'"
                     [class.bg-error]="
                         data === 'cancelled' ||
                         data === 'declined' ||
                         data === 'ended'
                     "
                 >
-                    {{ data }}
-                </span>
+                    <div class="ml-2">{{ data }}</div>
+                    <app-icon class="text-xl">arrow_drop_down</app-icon>
+                </button>
+                <mat-menu #statusMenu="matMenu">
+                    <button mat-menu-item (click)="approve(row)">
+                        <div class="flex items-center space-x-2">
+                            <app-icon class="text-2xl"
+                                >event_available</app-icon
+                            >
+                            <div>Approve Desk</div>
+                        </div>
+                    </button>
+                    <button mat-menu-item (click)="reject(row)">
+                        <div class="flex items-center space-x-2">
+                            <app-icon class="text-2xl">event_busy</app-icon>
+                            <div>Decline Deck</div>
+                        </div>
+                    </button>
+                </mat-menu>
             </ng-template>
-            <ng-template #bool_template let-data="data">
-                <div
-                    [class.bg-red-500]="!data"
-                    [class.bg-green-500]="data"
-                    class="rounded h-8 w-8 flex items-center justify-center text-2xl text-white mx-auto"
+            <ng-template #option_template let-data="data">
+                <button
+                    matRipple
+                    class="rounded-3xl px-2 py-1 text-white flex items-center space-x-2"
+                    [matMenuTriggerFor]="checkinMenu"
+                    [class.bg-neutral-600]="!data"
+                    [class.bg-success]="data"
                 >
-                    <app-icon>{{ data ? 'done' : 'close' }}</app-icon>
-                </div>
+                    <div class="ml-2">{{ data ? 'Yes' : 'No' }}</div>
+                    <app-icon class="text-xl">arrow_drop_down</app-icon>
+                </button>
+                <mat-menu #checkinMenu="matMenu">
+                    <button mat-menu-item (click)="checkin(row)">
+                        <div class="flex items-center space-x-2">
+                            <app-icon class="text-2xl">check</app-icon>
+                            <div>Check-in</div>
+                        </div>
+                    </button>
+                    <button mat-menu-item>
+                        <div class="flex items-center space-x-2">
+                            <app-icon class="text-2xl">cancel</app-icon>
+                            <div>Check-out</div>
+                        </div>
+                    </button>
+                </mat-menu>
             </ng-template>
             <ng-template #action_template let-row="row">
                 <div class="flex items-center justify-end space-x-2 w-full">
@@ -114,30 +162,7 @@ import { map } from 'rxjs/operators';
                         matTooltip="View Desk QR code"
                         title=""
                     >
-                        <app-icon *ngIf="row.extension_data?.checkin_qr_code">
-                            qr_code
-                        </app-icon>
-                    </button>
-                    <action-icon matTooltip="Check-in" (click)="checkin(row)">
-                        how_to_reg
-                    </action-icon>
-                    <button
-                        icon
-                        matRipple
-                        (click)="approve(row)"
-                        matTooltip="Approve Desk"
-                        title=""
-                    >
-                        <app-icon>event_available</app-icon>
-                    </button>
-                    <button
-                        icon
-                        matRipple
-                        (click)="reject(row)"
-                        matTooltip="Reject Desk"
-                        title=""
-                    >
-                        <app-icon>event_busy</app-icon>
+                        <app-icon>qr_code</app-icon>
                     </button>
                     <mat-menu #menu="matMenu">
                         <div

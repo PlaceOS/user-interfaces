@@ -21,7 +21,7 @@ import { Observable } from 'rxjs';
         <cdk-table
             [dataSource]="data_source"
             matSort
-            class="block border border-gray-300 divide-y divide-gray-300 dark:border-neutral-500"
+            class="block border border-gray-300 divide-y divide-gray-300 dark:border-neutral-500 text-sm"
         >
             <ng-container *ngFor="let column of columns; let i = index">
                 <ng-container [cdkColumnDef]="column">
