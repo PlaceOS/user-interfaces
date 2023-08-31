@@ -358,10 +358,13 @@ export class PanelStateService extends AsyncHandler {
      * Execute the logic on the engine driver to start the current or upcoming meeting
      */
     public async startMeeting() {
-        if (this.space && (await this.status.toPromise()) === 'pending') {
+        if (
+            this.space &&
+            (await this.status.pipe(take(1)).toPromise()) === 'pending'
+        ) {
             const meeting =
-                (await this.current.toPromise()) ||
-                (await this.next.toPromise());
+                (await this.current.pipe(take(1)).toPromise()) ||
+                (await this.next.pipe(take(1)).toPromise());
             const module = getModule(this.system, 'Bookings');
             if (meeting && module) {
                 await module
