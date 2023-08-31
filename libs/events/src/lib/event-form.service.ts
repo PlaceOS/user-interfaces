@@ -58,6 +58,7 @@ import {
 import { User } from 'libs/users/src/lib/user.class';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { removeEvent } from './events.fn';
+import { querySpaceFreeBusy } from 'libs/calendar/src/lib/calendar.fn';
 
 const BOOKING_URLS = [
     'book/rooms',
@@ -675,21 +676,43 @@ export class EventFormService extends AsyncHandler {
             period_end: getUnixTime(date + (duration * 60 * 1000 || 30 * 1000)),
         };
         if (exclude) query.exclude_range = `${exclude.start}...${exclude.end}`;
-        const availability_method = this.has_calendar
-            ? querySpaceAvailability
-            : queryResourceAvailability;
-        let availability: boolean[] = await availability_method(
-            spaces.map((_) => _.id),
-            date,
-            duration,
-            ignore
-        ).toPromise();
-        if (!availability.every((_) => _))
-            throw `${
-                spaces.length > 1
-                    ? 'The selected space'
-                    : 'Some of the selected spaces'
-            } are not available at the selected time`;
+        if (this.has_calendar) {
+            const response = await querySpaceFreeBusy(
+                { ...query, system_ids: spaces.map((_) => _.id) },
+                this._org
+            ).toPromise();
+            let count = 0;
+            for (const space of response) {
+                if (!spaces.find(({ id }) => id === space.id)) continue;
+                const busy = space.availability.filter(
+                    (_) =>
+                        _.status === 'busy' &&
+                        (_.date === exclude.start ||
+                            _.date === getUnixTime(exclude.start))
+                );
+                if (busy.length <= 0) count++;
+            }
+            if (count !== spaces.length) {
+                throw `${
+                    spaces.length > 1
+                        ? 'The selected space'
+                        : 'Some of the selected spaces'
+                } is not available at the selected time`;
+            }
+        } else {
+            const availability = await queryResourceAvailability(
+                spaces.map((_) => _.id),
+                date,
+                duration,
+                ignore
+            ).toPromise();
+            if (!availability.every((_) => _))
+                throw `${
+                    spaces.length > 1
+                        ? 'The selected space'
+                        : 'Some of the selected spaces'
+                } are not available at the selected time`;
+        }
         return true;
     }
 
