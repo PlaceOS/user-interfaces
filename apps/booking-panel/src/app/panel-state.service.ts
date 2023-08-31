@@ -9,6 +9,7 @@ import {
     shareReplay,
     switchMap,
     take,
+    tap,
 } from 'rxjs/operators';
 
 import { CalendarEvent, EventFormService } from '@placeos/events';
@@ -158,6 +159,19 @@ export class PanelStateService extends AsyncHandler {
         map(([{ status }, booking]) => status || (booking ? 'busy' : 'free')),
         shareReplay(1)
     );
+    public readonly pending_check = combineLatest([
+        this.current,
+        interval(15 * 1000),
+    ]).pipe(
+        tap(([current]) => {
+            if (!current) return;
+            const pending_period = this._settings.getValue().pending_period;
+            if (!pending_period || pending_period < 1) return;
+            const diff = differenceInMinutes(current.date, Date.now());
+            if (diff <= pending_period) return;
+            this.endCurrent('pending_expired');
+        })
+    );
 
     constructor(
         private _spaces: SpacesService,
@@ -192,6 +206,7 @@ export class PanelStateService extends AsyncHandler {
             ];
             settings.forEach((k) => this.bindTo(id, k));
         });
+        this.subscription('pending_check', this.pending_check.subscribe());
     }
 
     /**
