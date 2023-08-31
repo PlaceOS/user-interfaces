@@ -25,7 +25,13 @@ import {
 
 import { openBookingModal } from './overlays/booking-modal.component';
 import { EmbeddedControlModalComponent } from './overlays/embedded-control-modal.component';
-import { addMinutes, differenceInMinutes, isAfter, isBefore } from 'date-fns';
+import {
+    addMinutes,
+    differenceInMinutes,
+    getUnixTime,
+    isAfter,
+    isBefore,
+} from 'date-fns';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { OrganisationService } from '@placeos/organisation';
 import { Router } from '@angular/router';
@@ -167,9 +173,10 @@ export class PanelStateService extends AsyncHandler {
             if (!current) return;
             const pending_period = this._settings.getValue().pending_period;
             if (!pending_period || pending_period < 1) return;
-            const diff = differenceInMinutes(current.date, Date.now());
+            const diff = differenceInMinutes(Date.now(), current.date);
+            console.log('Checking Pending Period:', diff, pending_period);
             if (diff <= pending_period) return;
-            this.endCurrent('pending_expired');
+            this.endCurrent('Pending period expired.');
         })
     );
 
@@ -415,8 +422,16 @@ export class PanelStateService extends AsyncHandler {
         const module = getModule(this.system, 'Bookings');
         if (current && module) {
             await module
-                .execute('cancel_meeting', [current.date, reason])
-                .catch((e) => notifyError(`Error starting meeting. ${e}`));
+                .execute('end_meeting', [
+                    getUnixTime(current.date),
+                    true,
+                    reason,
+                ])
+                .catch((e) =>
+                    notifyError(
+                        `Error ending meeting. ${e.message || e.error || e}`
+                    )
+                );
         }
     }
     /**
