@@ -29,7 +29,6 @@ import {
 import { Desk, OrganisationService } from '@placeos/organisation';
 
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
-import { ExploreDesksService } from '@placeos/explore';
 
 export interface DeskFilters {
     date?: number;
@@ -99,6 +98,7 @@ export class DesksStateService extends AsyncHandler {
                 period_end: Math.floor(endOfDay(date).valueOf() / 1000),
                 type: 'desk',
                 zones: (zones || []).join(','),
+                limit: 500,
                 include_checked_out: true,
             });
         }),

@@ -28,6 +28,8 @@ export interface BookingsQueryParams {
     event_id?: string;
     /**  */
     ical_uid?: string;
+    /** Set the size of the page */
+    limit?: number;
 }
 
 const BOOKINGS_ENDPOINT = `/api/staff/v1/bookings`;
@@ -59,7 +61,10 @@ export function showBooking(id: string) {
  * Create new booking and add it to the database
  * @param data New booking fields
  */
-export function createBooking(data: Partial<Booking>,  q?: { event_id?: string, ical_uid?: string }) {
+export function createBooking(
+    data: Partial<Booking>,
+    q?: { event_id?: string; ical_uid?: string }
+) {
     const query = toQueryString(q);
     return post(`${BOOKINGS_ENDPOINT}${query ? '?' + query : ''}`, data).pipe(
         map((item) => new Booking(item))
@@ -88,8 +93,10 @@ export function updateBooking(
  * @param data State of the booking
  * @param q Parameters to pass to the API request
  */
-export const saveBooking = (data: Partial<Booking>, q?: { event_id?: string, ical_uid?: string }) =>
-    data.id ? updateBooking(data.id, data) : createBooking(data, q);
+export const saveBooking = (
+    data: Partial<Booking>,
+    q?: { event_id?: string; ical_uid?: string }
+) => (data.id ? updateBooking(data.id, data) : createBooking(data, q));
 
 /**
  * Remove booking from the database
