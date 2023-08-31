@@ -427,11 +427,11 @@ export class PanelStateService extends AsyncHandler {
                     true,
                     reason,
                 ])
-                .catch((e) =>
-                    notifyError(
-                        `Error ending meeting. ${e.message || e.error || e}`
-                    )
-                );
+                .catch((e) => {
+                    // notifyError(
+                    //     `Error ending meeting. ${e.message || e.error || e}`
+                    // )
+                });
         }
     }
     /**
