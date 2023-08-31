@@ -16,6 +16,7 @@ import {
     differenceInDays,
     endOfDay,
     format,
+    getUnixTime,
     isBefore,
     startOfDay,
 } from 'date-fns';
@@ -63,18 +64,14 @@ export class ReportsStateService {
             const options = this._options.getValue();
             this._loading.next('Loading report details...');
             if (!options?.type && !options?.zones?.length) return of([]);
-            const start = startOfDay(
-                options?.start ? new Date(options.start) : new Date()
-            ).valueOf();
-            const end = endOfDay(
-                options?.end ? new Date(options.end) : start
-            ).valueOf();
+            const start = startOfDay(options.start || Date.now());
+            const end = endOfDay(options.end || start);
             const zones = options?.zones
                 ? options.zones.filter((z) => z !== 'All').join(',')
                 : '';
             const query = {
-                period_start: Math.floor(start / 1000),
-                period_end: Math.floor(end / 1000),
+                period_start: getUnixTime(start),
+                period_end: getUnixTime(end),
             };
             return options.type === 'desks'
                 ? queryBookings({
