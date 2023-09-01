@@ -39,6 +39,7 @@ import { EventTimelineComponent } from './event-timeline/event-timeline.componen
 import { VerticalTimelineComponent } from './vertical-timeline/vertical-timeline.component';
 import { TopMenuComponent } from './top-menu.component';
 import { FooterMenuComponent } from './footer-menu.component';
+import { IndoorMapsComponent } from './indoor-maps/indoor-maps/indoor-maps.component';
 
 const COMPONENTS: Type<any>[] = [
     TopbarComponent,
@@ -74,7 +75,7 @@ const MATERIAL_MODULES: any[] = [
 ];
 
 @NgModule({
-    declarations: [...COMPONENTS],
+    declarations: [...COMPONENTS, IndoorMapsComponent],
     imports: [
         CommonModule,
         RouterModule.forChild([]),
