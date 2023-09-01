@@ -42,6 +42,7 @@
         "@angular/router": "16.0.3",
         "@angular/service-worker": "16.0.3",
         "@nx/angular": "16.2.2",
+        "@types/google.maps": "^3.54.0",
         "qr-scanner": "^1.2.0",
         "quill": "^1.3.6",
         "rxjs": "~6.6.3",
