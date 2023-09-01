@@ -15,6 +15,15 @@ export class IndoorMapsComponent {
     mapsIndoorsDirectionsRendererInstance: any;
 
     liveDataStatus: string | boolean = 'enabled';
+    searchResultItems: any[];
+
+    selectedTransportMode: string = 'walking';
+    transportModes = [
+        { label: 'Walking', value: 'walking' },
+        { label: 'Bicycling', value: 'bicycling' },
+        { label: 'Driving', value: 'driving' },
+        { label: 'Transit', value: 'transit' },
+    ];
 
     @ViewChild('searchInput', { static: true }) searchElement: ElementRef;
     @ViewChild('searchResultItems') searchResults: ElementRef;
@@ -57,6 +66,16 @@ export class IndoorMapsComponent {
             new mapsindoors.directions.DirectionsRenderer(
                 directionsRendererOptions
             );
+    }
+
+    async onSearch(): Promise<any> {
+        const searchParams = { q: this.searchElement.nativeElement.value };
+        await mapsindoors.services.LocationsService.getLocations(
+            searchParams
+        ).then((locations: any[]) => {
+            console.log(locations);
+            this.searchResultItems = locations;
+        });
     }
 
     changeLiveDataStatus(value: any) {

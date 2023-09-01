@@ -11,6 +11,7 @@ import { SharedExploreModule } from '@placeos/explore';
 import { MAP_FEATURE_DATA } from '@placeos/components';
 import { SharedComponentModule } from '../components/shared.module';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatIconModule } from '@angular/material/icon';
 
 const ROUTES: Route[] = [
     { path: '', component: ExploreComponent },
@@ -26,6 +27,7 @@ const ROUTES: Route[] = [
         SharedExploreModule,
         FormsModule,
         MatButtonToggleModule,
+        MatIconModule,
     ],
     providers: [{ provide: MAP_FEATURE_DATA, useValue: {} }],
 })
