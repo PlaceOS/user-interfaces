@@ -14,12 +14,15 @@ export class IndoorMapsComponent {
     mapsIndoorsDirectionsServiceInstance: any;
     mapsIndoorsDirectionsRendererInstance: any;
 
+    liveDataStatus: string | boolean = 'enabled';
+
     @ViewChild('searchInput', { static: true }) searchElement: ElementRef;
     @ViewChild('searchResultItems') searchResults: ElementRef;
 
     async ngOnInit() {
         await this.initMapView();
         this.initDirections();
+        await this.enableLiveData();
     }
 
     initMapView(): Promise<void> {
@@ -54,5 +57,51 @@ export class IndoorMapsComponent {
             new mapsindoors.directions.DirectionsRenderer(
                 directionsRendererOptions
             );
+    }
+
+    changeLiveDataStatus(value: any) {
+        (this.liveDataStatus = 'enabled')
+            ? (this.liveDataStatus = 'disabled')
+            : (this.liveDataStatus = 'enabled');
+    }
+
+    async enableLiveData() {
+        if (this.liveDataStatus !== 'enabled') return;
+
+        const liveDataManagerInstance = await new mapsindoors.LiveDataManager(
+            this.mapsIndoorsInstance
+        );
+
+        try {
+            await liveDataManagerInstance.enableLiveData(
+                mapsindoors.LiveDataManager.LiveDataDomainTypes
+                    .POSITION as string
+            );
+            // liveDataManagerInstance.enableLiveData(
+            //   mapsindoors.LiveDataManager.LiveDataDomainTypes.AVAILABILITY
+            // );
+            // liveDataManagerInstance.enableLiveData(
+            //   mapsindoors.LiveDataManager.LiveDataDomainTypes.OCCUPANCY
+            // );
+        } catch (err) {
+            console.log(err, 'error');
+        }
+    }
+
+    async disableLiveData() {
+        if (this.liveDataStatus) return;
+
+        const liveDataManagerInstance = await new mapsindoors.LiveDataManager(
+            this.mapsIndoorsInstance
+        );
+
+        try {
+            await liveDataManagerInstance.disableLiveData(
+                mapsindoors.LiveDataManager.LiveDataDomainTypes
+                    .POSITION as string
+            );
+        } catch (err) {
+            console.log(err, 'error');
+        }
     }
 }
