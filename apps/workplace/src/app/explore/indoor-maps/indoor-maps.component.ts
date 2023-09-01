@@ -78,6 +78,33 @@ export class IndoorMapsComponent {
         });
     }
 
+    getRoute(location: any) {
+        const originLocationCoordinate = {
+            lat: 30.3606484,
+            lng: -97.7419834,
+        }; //Hardcoded coordinate and floor index
+
+        const destinationCoordinate = {
+            lat: location.properties.anchor.coordinates[1],
+            lng: location.properties.anchor.coordinates[0],
+            floor: location.properties.floor,
+        };
+
+        const routeParameters = {
+            origin: originLocationCoordinate,
+            destination: destinationCoordinate,
+            travelMode: this.selectedTransportMode || 'walking',
+        };
+
+        this.mapsIndoorsDirectionsServiceInstance
+            .getRoute(routeParameters)
+            .then((directionsResult: any) => {
+                this.mapsIndoorsDirectionsRendererInstance.setRoute(
+                    directionsResult
+                );
+            });
+    }
+
     changeLiveDataStatus(value: any) {
         (this.liveDataStatus = 'enabled')
             ? (this.liveDataStatus = 'disabled')

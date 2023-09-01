@@ -4,7 +4,7 @@
     <div class="flex">
         <div class="flex-1 flex-basis-1/3 p-20">
             <div class="flex justify-evenly w-600">
-                <mat-form-field class="custom-form-field">
+                <mat-form-field class="pb-20">
                     <input
                         matInput
                         #searchInput
@@ -12,22 +12,32 @@
                         placeholder="Search"
                     />
                 </mat-form-field>
-            </div>
 
-            <button
-                mat-mini-fab
-                color="primary"
-                aria-label="search button"
-                (click)="onSearch()"
-                style="
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    margin-top: 8px;
-                "
-            >
-                <mat-icon class="text-24">search</mat-icon>
-            </button>
+                <mat-form-field class="custom-form-field">
+                    <mat-select [(ngModel)]="selectedTransportMode">
+                        <mat-option
+                            *ngFor="let transportMode of transportModes"
+                            [value]="transportMode.value"
+                            >{{ transportMode.label }}</mat-option
+                        >
+                    </mat-select>
+                </mat-form-field>
+
+                <button
+                    mat-mini-fab
+                    color="primary"
+                    aria-label="search button"
+                    (click)="onSearch()"
+                    style="
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        margin-top: 8px;
+                    "
+                >
+                    <mat-icon class="text-24">search</mat-icon>
+                </button>
+            </div>
 
             <div class="flex items-center justify-evenly w-300 ml-14">
                 <div>Live Data:</div>
