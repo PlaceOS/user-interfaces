@@ -15,6 +15,15 @@ import { Observable } from 'rxjs';
         <main
             class="overflow-y-auto min-w-[20rem] divide-y divide-gray-200 max-h-[65vh]"
         >
+            <button
+                btn
+                matRipple
+                class="flex items-center justify-center space-x-2 w-[calc(100%-1rem)] m-2"
+                (click)="edit()"
+            >
+                <div class="truncate">New Category</div>
+                <app-icon>add</app-icon>
+            </button>
             <div
                 class="flex items-center space-x-2 hover:bg-gray-100 dark:hover:bg-gray-800 p-2"
                 *ngFor="let category of list | async"
