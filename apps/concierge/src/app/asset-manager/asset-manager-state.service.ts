@@ -27,6 +27,7 @@ import {
 } from 'rxjs/operators';
 import {
     Asset,
+    AssetCategory,
     AssetGroup,
     AssetPurchaseOrder,
     deleteAssetGroup,
@@ -39,6 +40,9 @@ import {
 } from '@placeos/assets';
 import { cleanObject } from '@placeos/ts-client';
 import { OrganisationService } from '@placeos/organisation';
+import { MatDialog } from '@angular/material/dialog';
+import { AssetCategoryManagementModalComponent } from './asset-category-management-modal.component';
+import { AssetCategoryFormComponent } from './asset-category-form.component';
 
 export interface AssetOptions {
     date?: number;
@@ -232,7 +236,8 @@ export class AssetManagerStateService extends AsyncHandler {
     constructor(
         private _spaces: SpacesService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _dialog: MatDialog
     ) {
         super();
     }
@@ -248,6 +253,31 @@ export class AssetManagerStateService extends AsyncHandler {
 
     public resetForm() {
         this._form = generateAssetForm();
+    }
+
+    public manageCategories() {
+        const ref = this._dialog.open(AssetCategoryManagementModalComponent, {
+            data: { list: this.categories, edit: (i) => this.editCategory(i) },
+        });
+        this.subscription(
+            'category_modal',
+            ref.componentInstance.changed.subscribe(() =>
+                this._change.next(Date.now())
+            )
+        );
+        ref.afterClosed().subscribe(() => this.unsub('category_modal'));
+    }
+
+    public async editCategory(
+        category: Partial<AssetCategory> = {}
+    ): Promise<AssetCategory | null> {
+        const ref = this._dialog.open(AssetCategoryFormComponent, {
+            data: { category },
+        });
+        const result = await ref.afterClosed().toPromise();
+        if (!result) return null;
+        this._change.next(Date.now());
+        return result;
     }
 
     public setExtraAssets(list: Asset[]) {
