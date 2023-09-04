@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { AssetManagerStateService } from './asset-manager-state.service';
+import { combineLatest } from 'rxjs';
 
 @Component({
     selector: 'app-asset-item-list',

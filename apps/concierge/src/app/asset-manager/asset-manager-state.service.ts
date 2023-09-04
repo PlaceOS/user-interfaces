@@ -163,6 +163,10 @@ export class AssetManagerStateService extends AsyncHandler {
         this._change,
     ]).pipe(
         switchMap(() => queryAssetCategories()),
+        map((list) => [
+            ...list,
+            new AssetCategory({ id: '', name: 'Uncategorised' }),
+        ]),
         shareReplay(1)
     );
     /** Currently active asset */
@@ -208,12 +212,23 @@ export class AssetManagerStateService extends AsyncHandler {
         )
     );
     /** Mapping of available assets to categories */
-    public readonly product_mapping = this.filtered_products.pipe(
-        map((_) => {
-            const map = { _count: _.length };
-            const categories = unique(_.map((i) => i.category_id));
+    public readonly product_mapping = combineLatest([
+        this.filtered_products,
+        this.categories,
+    ]).pipe(
+        map(([products, category_list]) => {
+            const map = { _count: products.length };
+            products.forEach(
+                (item) =>
+                    (item.category_id = category_list.find(
+                        (_) => _.id === item.category_id
+                    )
+                        ? item.category_id
+                        : '')
+            );
+            const categories = unique(products.map((i) => i.category_id));
             for (const group of categories) {
-                map[group] = _.filter((i) => i.category_id === group);
+                map[group] = products.filter((i) => i.category_id === group);
             }
             return map;
         })
@@ -236,7 +251,6 @@ export class AssetManagerStateService extends AsyncHandler {
     constructor(
         private _spaces: SpacesService,
         private _org: OrganisationService,
-        private _settings: SettingsService,
         private _dialog: MatDialog
     ) {
         super();

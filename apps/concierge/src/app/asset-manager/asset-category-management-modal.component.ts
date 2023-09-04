@@ -24,18 +24,20 @@ import { Observable } from 'rxjs';
                 <div class="truncate">New Category</div>
                 <app-icon>add</app-icon>
             </button>
-            <div
-                class="flex items-center space-x-2 hover:bg-gray-100 dark:hover:bg-gray-800 p-2"
-                *ngFor="let category of list | async"
-            >
-                <div class="flex-1 truncate">{{ category.name }}</div>
-                <button btn icon matRipple (click)="edit(category)">
-                    <app-icon>edit</app-icon>
-                </button>
-                <button btn icon matRipple (click)="remove(category)">
-                    <app-icon>delete</app-icon>
-                </button>
-            </div>
+            <ng-container *ngFor="let category of list | async">
+                <div
+                    class="flex items-center space-x-2 hover:bg-gray-100 dark:hover:bg-gray-800 p-2"
+                    *ngIf="category.id"
+                >
+                    <div class="flex-1 truncate">{{ category.name }}</div>
+                    <button btn icon matRipple (click)="edit(category)">
+                        <app-icon>edit</app-icon>
+                    </button>
+                    <button btn icon matRipple (click)="remove(category)">
+                        <app-icon>delete</app-icon>
+                    </button>
+                </div>
+            </ng-container>
         </main>
     `,
     styles: [``],
