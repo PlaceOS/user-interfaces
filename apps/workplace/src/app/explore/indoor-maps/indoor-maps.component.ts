@@ -1,6 +1,7 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 
 declare let mapsindoors: any;
+
 @Component({
     selector: 'indoor-maps',
     templateUrl: './indoor-maps.component.html',
@@ -31,6 +32,7 @@ export class IndoorMapsComponent {
     async ngOnInit() {
         await this.initMapView();
         this.initDirections();
+        this.selectFloors();
         await this.enableLiveData();
     }
 
@@ -66,6 +68,17 @@ export class IndoorMapsComponent {
             new mapsindoors.directions.DirectionsRenderer(
                 directionsRendererOptions
             );
+    }
+
+    selectFloors() {
+        const floorSelectorElement = document.createElement('div');
+        new mapsindoors.FloorSelector(
+            floorSelectorElement,
+            this.mapsIndoorsInstance
+        );
+        this.googleMapsInstance.controls[
+            google.maps.ControlPosition.RIGHT_TOP
+        ].push(floorSelectorElement);
     }
 
     async onSearch(): Promise<any> {
