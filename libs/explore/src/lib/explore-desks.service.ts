@@ -12,7 +12,6 @@ import {
     shareReplay,
     switchMap,
     tap,
-    timeout,
 } from 'rxjs/operators';
 
 import {
@@ -255,8 +254,9 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         }
         const departments = this._settings.get('app.department_map') || {};
         for (const desk of desks) {
-            this._users[desk.map_id] = desk.staff_name;
-            this._departments[desk.map_id] = departments[desk.department] || '';
+            this._users[desk.map_id || desk.asset_id] = desk.staff_name;
+            this._departments[desk.map_id || desk.asset_id] =
+                departments[desk.department] || '';
         }
         this.processDevices(devices, system_id);
         this.timeout('update', () => this.updateStatus(), 100);
