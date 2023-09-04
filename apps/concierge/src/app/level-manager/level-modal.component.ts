@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { getInvalidFields, notifyError } from '@placeos/common';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
@@ -97,7 +97,8 @@ export class LevelModalComponent {
 
     constructor(
         private _org: OrganisationService,
-        @Inject(MAT_DIALOG_DATA) private _data: BuildingLevel | undefined
+        @Inject(MAT_DIALOG_DATA) private _data: BuildingLevel | undefined,
+        private _dialog_ref: MatDialogRef<LevelModalComponent>
     ) {}
 
     public async save() {
@@ -111,7 +112,7 @@ export class LevelModalComponent {
         this.loading = true;
         const data: any = this.form.getRawValue();
         data.tags = ['level'];
-        await (data.id
+        const resp = await (data.id
             ? updateZone(data.id, {
                   ...data,
                   name: `LEVEL ${authority().description} ${data.display_name}`,
@@ -123,6 +124,7 @@ export class LevelModalComponent {
         )
             .toPromise()
             .catch();
+        if (resp.id) this._dialog_ref.close(resp);
         this.loading = false;
     }
 }

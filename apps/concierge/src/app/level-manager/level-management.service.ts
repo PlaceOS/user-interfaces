@@ -67,7 +67,7 @@ export class LevelManagementService {
             data: level,
         });
         ref.afterClosed().subscribe((data) => {
-            if (data) setTimeout(() => location.reload(), 300);
+            if (data) this._org.addZone(data);
         });
     }
 
@@ -84,8 +84,8 @@ export class LevelManagementService {
         if (ref.reason !== 'done') return ref.close();
         ref.loading('Removing building...');
         await removeZone(level.id).toPromise();
+        this._org.removeZone({ id: level.id, tags: ['level'] } as any);
         notifySuccess('Successfully removed building.');
-        setTimeout(() => location.reload(), 300);
         ref.close();
     }
 }

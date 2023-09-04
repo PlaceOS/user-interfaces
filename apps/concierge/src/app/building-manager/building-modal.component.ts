@@ -16,7 +16,7 @@ import { Building } from '@placeos/organisation';
                 [building]="building"
                 [save]="save_state"
                 [(loading)]="loading"
-                (done)="close(true)"
+                (done)="close($event)"
             ></building-form>
         </main>
         <footer

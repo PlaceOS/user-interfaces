@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import {
+    PlaceZone,
     authority,
     isMock,
     onlineState,
@@ -223,6 +224,61 @@ export class OrganisationService {
      */
     public buildingsForRegion(region: Region = this.region): Building[] {
         return this.buildings.filter((bld) => bld.parent_id === region?.id);
+    }
+
+    public addZone(zone: PlaceZone) {
+        if (zone.tags.includes('region')) {
+            const region = new Region(zone);
+            const regions = this._regions
+                .getValue()
+                .filter((_) => _.id !== region.id);
+            regions.push(region);
+            this._regions.next(regions);
+        } else if (zone.tags.includes('building')) {
+            const bld = new Building(zone);
+            const buildings = this._buildings
+                .getValue()
+                .filter((_) => _.id !== bld.id);
+            buildings.push(bld);
+            this._buildings.next(buildings);
+        } else if (zone.tags.includes('level')) {
+            const lvl = new BuildingLevel(zone);
+            const levels = this._levels
+                .getValue()
+                .filter((_) => _.id !== lvl.id);
+            levels.push(lvl);
+            this._levels.next(levels);
+        } else {
+            console.warn(
+                'Unable to add zone as it is missing the required tag.',
+                zone.id
+            );
+        }
+    }
+
+    public removeZone(zone: PlaceZone) {
+        if (zone.tags.includes('region')) {
+            const regions = this._regions
+                .getValue()
+                .filter((_) => _.id !== zone.id);
+            this._regions.next(regions);
+        } else if (zone.tags.includes('building')) {
+            const buildings = this._buildings
+
+                .getValue()
+                .filter((_) => _.id !== zone.id);
+            this._buildings.next(buildings);
+        } else if (zone.tags.includes('level')) {
+            const levels = this._levels
+                .getValue()
+                .filter((_) => _.id !== zone.id);
+            this._levels.next(levels);
+        } else {
+            console.warn(
+                'Unable to remove zone as it is missing the required tag.',
+                zone.id
+            );
+        }
     }
 
     private async init(tries: number = 0) {

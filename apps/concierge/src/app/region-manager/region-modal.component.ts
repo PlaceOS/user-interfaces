@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     AsyncHandler,
     TIMEZONES_IANA,
@@ -104,7 +104,8 @@ export class RegionModalComponent extends AsyncHandler {
 
     constructor(
         private _org: OrganisationService,
-        @Inject(MAT_DIALOG_DATA) private _data: Region | undefined
+        @Inject(MAT_DIALOG_DATA) private _data: Region | undefined,
+        private _dialog_ref: MatDialogRef<RegionModalComponent>
     ) {
         super();
     }
@@ -133,7 +134,7 @@ export class RegionModalComponent extends AsyncHandler {
         const data: any = this.form.getRawValue();
         data.tags = ['region'];
         this.loading = true;
-        await (data.id
+        const resp = await (data.id
             ? updateZone(data.id, {
                   ...data,
                   name: `REGION ${authority().description} ${
@@ -149,6 +150,7 @@ export class RegionModalComponent extends AsyncHandler {
         )
             .toPromise()
             .catch();
+        if (resp.id) this._dialog_ref.close(resp);
         this.loading = false;
     }
 
