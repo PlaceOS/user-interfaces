@@ -1,6 +1,11 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { currentUser, SettingsService, VERSION } from '@placeos/common';
+import {
+    currentUser,
+    hasNewVersion,
+    SettingsService,
+    VERSION,
+} from '@placeos/common';
 import { ChangelogModalComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { logout } from '@placeos/ts-client';
@@ -187,15 +192,25 @@ export interface AppLocale {
                 </div>
             </button>
             <div class="flex flex-col items-center p-4">
-                <button
-                    btn
-                    matRipple
-                    i18n
-                    class="inverse mb-4"
-                    (click)="logout()"
-                >
-                    Sign Out
-                </button>
+                <div class="flex items-center justify-center space-x-2 mb-4">
+                    <button
+                        btn
+                        matRipple
+                        i18n
+                        class="inverse"
+                        (click)="logout()"
+                    >
+                        Sign Out
+                    </button>
+                    <button
+                        btn
+                        matRipple
+                        *ngIf="has_new_version"
+                        (click)="reloadPage()"
+                    >
+                        New Version
+                    </button>
+                </div>
                 <div class="text-xs opacity-60 w-full">
                     <ng-container i18n>Version: </ng-container>
                     <button
@@ -245,6 +260,10 @@ export class UserControlsComponent {
         return this._settings.get('app.locales') || [];
     }
 
+    public get has_new_version() {
+        return hasNewVersion();
+    }
+
     constructor(
         private _settings: SettingsService,
         private _org: OrganisationService,
@@ -253,6 +272,10 @@ export class UserControlsComponent {
 
     public logout() {
         logout();
+    }
+
+    public reloadPage() {
+        location.reload();
     }
 
     public newSupportTicket() {
