@@ -25,6 +25,7 @@ export interface CalendarEventQueryParams {
     include_cancelled?: boolean;
     /** ical UID associated with the booking */
     ical_uid?: string;
+    limit?: number;
 }
 
 export interface CalendarEventShowParams {

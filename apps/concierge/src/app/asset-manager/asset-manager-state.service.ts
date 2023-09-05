@@ -164,8 +164,8 @@ export class AssetManagerStateService extends AsyncHandler {
     ]).pipe(
         switchMap(() => queryAssetCategories()),
         map((list) => [
-            ...list,
             new AssetCategory({ id: '', name: 'Uncategorised' }),
+            ...list,
         ]),
         shareReplay(1)
     );

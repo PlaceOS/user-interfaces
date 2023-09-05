@@ -78,8 +78,9 @@ export class ReportsStateService {
                       ...query,
                       zones: zones,
                       type: 'desk',
+                      limit: 2000,
                   })
-                : queryEvents({ ...query, zone_ids: zones }).pipe(
+                : queryEvents({ ...query, zone_ids: zones, limit: 2000 }).pipe(
                       switchMap(async (l) =>
                           Promise.all(
                               l.map(
