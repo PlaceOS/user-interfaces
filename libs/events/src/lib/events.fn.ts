@@ -1,6 +1,6 @@
 import { del, get, patch, post, put, query } from '@placeos/ts-client';
 import { Observable, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 
 import { toQueryString } from 'libs/common/src/lib/api';
 import { GuestUser } from 'libs/users/src/lib/user.class';
@@ -47,6 +47,28 @@ export function queryEvents(
     const query = toQueryString(q);
     return get(`${EVENTS_ENDPOINT}${query ? '?' + query : ''}`).pipe(
         map((list) => list.map((e) => new CalendarEvent(e))),
+        catchError((_) => of([]))
+    );
+}
+
+export function queryAllEvents(
+    q: CalendarEventQueryParams
+): Observable<CalendarEvent[]> {
+    return query<CalendarEvent>({
+        query_params: q,
+        fn: (item) => new CalendarEvent(item),
+        endpoint: EVENTS_ENDPOINT,
+        path: '',
+    }).pipe(
+        switchMap(async ({ data, next }) => {
+            let list = [...data];
+            while (next) {
+                const resp = await next().toPromise();
+                data = resp.data;
+                list = [...list, ...data];
+            }
+            return list;
+        }),
         catchError((_) => of([]))
     );
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { showMetadata } from '@placeos/ts-client';
-import { Booking, queryBookings } from '@placeos/bookings';
+import { Booking, queryAllBookings } from '@placeos/bookings';
 import {
     downloadFile,
     HashMap,
@@ -8,7 +8,7 @@ import {
     notifyError,
     timePeriodsIntersect,
 } from '@placeos/common';
-import { CalendarEvent, queryEvents } from '@placeos/events';
+import { CalendarEvent, queryAllEvents } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import {
     addDays,
@@ -74,13 +74,17 @@ export class ReportsStateService {
                 period_end: getUnixTime(end),
             };
             return options.type === 'desks'
-                ? queryBookings({
+                ? queryAllBookings({
                       ...query,
                       zones: zones,
                       type: 'desk',
-                      limit: 2000,
+                      limit: 1000,
                   })
-                : queryEvents({ ...query, zone_ids: zones, limit: 2000 }).pipe(
+                : queryAllEvents({
+                      ...query,
+                      zone_ids: zones,
+                      limit: 1000,
+                  }).pipe(
                       switchMap(async (l) =>
                           Promise.all(
                               l.map(

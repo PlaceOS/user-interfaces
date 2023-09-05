@@ -1,6 +1,6 @@
-import { del, get, patch, post, put } from '@placeos/ts-client';
+import { del, get, patch, post, put, query } from '@placeos/ts-client';
 import { Observable, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 
 import { toQueryString } from 'libs/common/src/lib/api';
 import { Booking, BookingType } from './booking.class';
@@ -42,6 +42,28 @@ export function queryBookings(q: BookingsQueryParams): Observable<Booking[]> {
     const query = toQueryString(q);
     return get(`${BOOKINGS_ENDPOINT}${query ? '?' + query : ''}`).pipe(
         map((list) => list.map((item) => new Booking(item))),
+        catchError((_) => of([]))
+    );
+}
+
+export function queryAllBookings(
+    q: BookingsQueryParams
+): Observable<Booking[]> {
+    return query<Booking>({
+        query_params: q,
+        fn: (item) => new Booking(item),
+        endpoint: BOOKINGS_ENDPOINT,
+        path: '',
+    }).pipe(
+        switchMap(async ({ data, next }) => {
+            let list = [...data];
+            while (next) {
+                const resp = await next().toPromise();
+                data = resp.data;
+                list = [...list, ...data];
+            }
+            return list;
+        }),
         catchError((_) => of([]))
     );
 }
