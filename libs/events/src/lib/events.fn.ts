@@ -65,6 +65,7 @@ export function queryAllEvents(
             while (next) {
                 const resp = await next().toPromise();
                 data = resp.data;
+                next = resp.next;
                 list = [...list, ...data];
             }
             return list;
