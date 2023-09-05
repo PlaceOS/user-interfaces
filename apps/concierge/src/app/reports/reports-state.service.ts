@@ -7,6 +7,7 @@ import {
     jsonToCsv,
     notifyError,
     timePeriodsIntersect,
+    unique,
 } from '@placeos/common';
 import { CalendarEvent, queryAllEvents } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
@@ -185,6 +186,7 @@ export class ReportsStateService {
                 dates.push({
                     date: s,
                     total: stats.total,
+                    usage: unique(events, 'asset_id').length,
                     free: stats.total - events.length,
                     approved: events.reduce(
                         (c, e) => c + (e.approved ? 1 : 0),
