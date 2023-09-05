@@ -31,6 +31,7 @@ function setBookingAsset(form: FormGroup, resource: any) {
 export function generateBookingForm(booking: Booking = new Booking()) {
     const form = new FormGroup({
         id: new FormControl(booking.id || ''),
+        parent_id: new FormControl(booking.parent_id || ''),
         date: new FormControl(booking.date, [Validators.required]),
         all_day: new FormControl(booking.all_day ?? false),
         name: new FormControl(

@@ -594,11 +594,13 @@ export class BookingFormService extends AsyncHandler {
             Date.now(),
             'yyyy-MM-dd'
         )}]`;
+        let id = '';
         for (let i = 0; i < group_members.length; i++) {
             const user = group_members[i];
             const asset = resources[i];
             this.form.patchValue({
                 ...form,
+                parent_id: id,
                 user: user as any,
                 user_email: user.email,
                 user_id: user.id,
@@ -615,7 +617,8 @@ export class BookingFormService extends AsyncHandler {
                       ])
                     : [this._org.organisation.id],
             });
-            await this.postForm(true);
+            const bkn = await this.postForm(true);
+            if (bkn.id && !id) id = bkn.id;
         }
     }
 
