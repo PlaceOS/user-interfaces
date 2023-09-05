@@ -7,6 +7,7 @@ import {
     flatten,
     getInvalidFields,
     notifyError,
+    notifyWarn,
     openConfirmModal,
     SettingsService,
     unique,
@@ -578,7 +579,7 @@ export class BookingFormService extends AsyncHandler {
             [currentUser(), ...extra_members],
             'email'
         );
-        await Promise.all(
+        const available = await Promise.all(
             group_members.map((_, idx) =>
                 this.checkResourceAvailable(
                     {
@@ -590,12 +591,14 @@ export class BookingFormService extends AsyncHandler {
                 )
             )
         );
+        const unavailable = group_members.filter((_, idx) => !available[idx]);
         const group_name = `${currentUser().email}[${format(
             Date.now(),
             'yyyy-MM-dd'
         )}]`;
         let id = '';
         for (let i = 0; i < group_members.length; i++) {
+            if (!available[i]) continue;
             const user = group_members[i];
             const asset = resources[i];
             this.form.patchValue({
@@ -619,6 +622,13 @@ export class BookingFormService extends AsyncHandler {
             });
             const bkn = await this.postForm(true);
             if (bkn.id && !id) id = bkn.id;
+        }
+        if (unavailable.length) {
+            notifyWarn(
+                `Some members of your group already have a desk booking. [${unavailable
+                    .map((_) => _.name || _.email)
+                    ?.join(', ')}]`
+            );
         }
     }
 
