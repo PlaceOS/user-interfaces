@@ -250,7 +250,8 @@ export class VisitorsStateService extends AsyncHandler {
         );
         if (details.reason !== 'done') return details.close();
         details.loading('Updating guest details');
-        await (guest.extension_data.event_id
+        const event = (guest as any).event || guest.extension_data.event;
+        await (guest.extension_data.event_id || event?.id
             ? updateGuest(guest.id, {
                   ...guest,
                   extension_data: {
@@ -269,6 +270,7 @@ export class VisitorsStateService extends AsyncHandler {
                 throw e;
             });
         notifySuccess(`Successfully approved visitor`);
+        this._poll.next(Date.now());
         details.close();
     }
 
@@ -283,7 +285,8 @@ export class VisitorsStateService extends AsyncHandler {
         );
         if (details.reason !== 'done') return details.close();
         details.loading('Updating guest details');
-        await (guest.extension_data.event_id
+        const event = (guest as any).event || guest.extension_data.event;
+        await (guest.extension_data.event_id || event?.id
             ? updateGuest(guest.id, {
                   ...guest,
                   extension_data: {
@@ -302,6 +305,7 @@ export class VisitorsStateService extends AsyncHandler {
                 throw e;
             });
         notifySuccess(`Successfully declining visitor`);
+        this._poll.next(Date.now());
         details.close();
     }
 
