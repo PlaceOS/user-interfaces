@@ -94,16 +94,16 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         setBookingAsset(form, (resources || [])[0])
     );
     form.controls.date.valueChanges.subscribe((date) => {
-        if (date < Date.now()) {
-            form.patchValue(
-                {
-                    date: roundToNearestMinutes(addMinutes(Date.now(), 2), {
-                        nearestTo: 5,
-                    }).valueOf(),
-                },
-                { emitEvent: false }
-            );
-        }
+        if (date > Date.now()) return;
+        form.patchValue(
+            {
+                date: roundToNearestMinutes(Date.now(), {
+                    nearestTo: 5,
+                    roundingMethod: 'ceil',
+                }).valueOf(),
+            },
+            { emitEvent: false }
+        );
     });
     form.controls.all_day.valueChanges.subscribe((all_day) => {
         if (all_day) {
@@ -114,14 +114,10 @@ export function generateBookingForm(booking: Booking = new Booking()) {
                 duration: 12 * 60,
             });
             form.controls.duration.disable();
-        } else {
+        } else if (previous_all_day && !all_day) {
             form.controls.duration.enable();
-            const current_time = roundToNearestMinutes(Date.now(), {
-                nearestTo: 5,
-                roundingMethod: 'ceil',
-            }).valueOf();
             form.patchValue({
-                date: Math.max(current_time, previous_time),
+                date: Math.max(Date.now() - 1, previous_time),
                 duration: previous_duration,
             });
         }

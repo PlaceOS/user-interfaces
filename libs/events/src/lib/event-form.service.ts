@@ -400,12 +400,8 @@ export class EventFormService extends AsyncHandler {
         });
         const has_catering = !!event.extension_data.catering[0];
         this._form.patchValue({
-            ...event,
             ...event.extension_data,
-            date:
-                !event.id && isBefore(event.date || 0, Date.now())
-                    ? Date.now()
-                    : event.date,
+            ...event,
             host: event?.host || currentUser().email,
             organiser:
                 event?.organiser ||
