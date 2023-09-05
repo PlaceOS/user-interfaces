@@ -9,7 +9,12 @@ import {
     removeViewer,
 } from '@placeos/svg-viewer';
 import { Booking } from './booking.class';
-import { roundToNearestMinutes, setHours, setMinutes } from 'date-fns';
+import {
+    addMinutes,
+    roundToNearestMinutes,
+    setHours,
+    setMinutes,
+} from 'date-fns';
 
 function setBookingAsset(form: FormGroup, resource: any) {
     if (!resource) return form.patchValue({ asset_id: undefined });
@@ -88,6 +93,18 @@ export function generateBookingForm(booking: Booking = new Booking()) {
     form.controls.resources.valueChanges.subscribe((resources) =>
         setBookingAsset(form, (resources || [])[0])
     );
+    form.controls.date.valueChanges.subscribe((date) => {
+        if (date < Date.now()) {
+            form.patchValue(
+                {
+                    date: roundToNearestMinutes(addMinutes(Date.now(), 2), {
+                        nearestTo: 5,
+                    }).valueOf(),
+                },
+                { emitEvent: false }
+            );
+        }
+    });
     form.controls.all_day.valueChanges.subscribe((all_day) => {
         if (all_day) {
             previous_time = form.value.date;
