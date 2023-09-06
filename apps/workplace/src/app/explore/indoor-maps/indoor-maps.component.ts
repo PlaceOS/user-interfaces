@@ -1,4 +1,5 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
+import { RoomStatusService } from './room-status.service';
 
 declare let mapsindoors: any;
 
@@ -8,18 +9,19 @@ declare let mapsindoors: any;
     styles: [``],
 })
 export class IndoorMapsComponent {
-    mapViewOptions: any;
-    mapViewInstance: any;
-    mapsIndoorsInstance: any;
-    googleMapsInstance: any;
-    mapsIndoorsDirectionsServiceInstance: any;
-    mapsIndoorsDirectionsRendererInstance: any;
+    map_view_options: any;
+    map_view_instance: any;
+    mapsIndoors_instance: any;
+    googleMaps_instance: any;
+    mapsIndoors_directions_service_instance: any;
+    mapsIndoors_directions_renderer_instance: any;
+    available_external_IDs: string[];
 
-    liveDataStatus: string | boolean = 'enabled';
-    searchResultItems: any[];
+    live_data_status: string | boolean = 'enabled';
+    search_result_items: any[];
 
-    selectedTransportMode: string = 'walking';
-    transportModes = [
+    selected_transport_mode: string = 'walking';
+    transport_modes = [
         { label: 'Walking', value: 'walking' },
         { label: 'Bicycling', value: 'bicycling' },
         { label: 'Driving', value: 'driving' },
@@ -29,42 +31,47 @@ export class IndoorMapsComponent {
     @ViewChild('searchInput', { static: true }) searchElement: ElementRef;
     @ViewChild('searchResultItems') searchResults: ElementRef;
 
+    constructor(private _roomStatus: RoomStatusService) {}
+
     async ngOnInit() {
         await this.initMapView();
         this.initDirections();
         this.selectFloors();
         await this.enableLiveData();
+        await this._roomStatus.getAvailableSpaceIDs();
+        this.available_external_IDs = await this._roomStatus.getLocationIDs();
+        this.renderRoomStatus();
     }
 
     initMapView(): Promise<void> {
-        this.mapViewOptions = {
+        this.map_view_options = {
             element: document.getElementById('map'),
             center: { lat: 30.3603774, lng: -97.7426772 },
             zoom: 21,
             maxZoom: 26,
         };
-        this.mapViewInstance = new mapsindoors.mapView.GoogleMapsView(
-            this.mapViewOptions
+        this.map_view_instance = new mapsindoors.mapView.GoogleMapsView(
+            this.map_view_options
         );
 
-        this.mapsIndoorsInstance = new mapsindoors.MapsIndoors({
-            mapView: this.mapViewInstance,
+        this.mapsIndoors_instance = new mapsindoors.MapsIndoors({
+            mapView: this.map_view_instance,
         });
 
-        return (this.googleMapsInstance = this.mapViewInstance.getMap());
+        return (this.googleMaps_instance = this.map_view_instance.getMap());
     }
 
     initDirections() {
         const externalDirectionsProvider =
             new mapsindoors.directions.GoogleMapsProvider();
-        this.mapsIndoorsDirectionsServiceInstance =
+        this.mapsIndoors_directions_service_instance =
             new mapsindoors.services.DirectionsService(
                 externalDirectionsProvider
             );
         const directionsRendererOptions = {
-            mapsIndoors: this.mapsIndoorsInstance,
+            mapsIndoors: this.mapsIndoors_instance,
         };
-        this.mapsIndoorsDirectionsRendererInstance =
+        this.mapsIndoors_directions_renderer_instance =
             new mapsindoors.directions.DirectionsRenderer(
                 directionsRendererOptions
             );
@@ -74,9 +81,9 @@ export class IndoorMapsComponent {
         const floorSelectorElement = document.createElement('div');
         new mapsindoors.FloorSelector(
             floorSelectorElement,
-            this.mapsIndoorsInstance
+            this.mapsIndoors_instance
         );
-        this.googleMapsInstance.controls[
+        this.googleMaps_instance.controls[
             google.maps.ControlPosition.RIGHT_TOP
         ].push(floorSelectorElement);
     }
@@ -86,8 +93,7 @@ export class IndoorMapsComponent {
         await mapsindoors.services.LocationsService.getLocations(
             searchParams
         ).then((locations: any[]) => {
-            console.log(locations);
-            this.searchResultItems = locations;
+            this.search_result_items = locations;
         });
     }
 
@@ -95,7 +101,7 @@ export class IndoorMapsComponent {
         const originLocationCoordinate = {
             lat: 30.3606484,
             lng: -97.7419834,
-        }; //Hardcoded coordinate and floor index
+        }; //Hardcoded coordinate and floor index. TODO: get user location
 
         const destinationCoordinate = {
             lat: location.properties.anchor.coordinates[1],
@@ -106,29 +112,29 @@ export class IndoorMapsComponent {
         const routeParameters = {
             origin: originLocationCoordinate,
             destination: destinationCoordinate,
-            travelMode: this.selectedTransportMode || 'walking',
+            travelMode: this.selected_transport_mode || 'walking',
         };
 
-        this.mapsIndoorsDirectionsServiceInstance
+        this.mapsIndoors_directions_service_instance
             .getRoute(routeParameters)
             .then((directionsResult: any) => {
-                this.mapsIndoorsDirectionsRendererInstance.setRoute(
+                this.mapsIndoors_directions_renderer_instance.setRoute(
                     directionsResult
                 );
             });
     }
 
     changeLiveDataStatus(value: any) {
-        (this.liveDataStatus = 'enabled')
-            ? (this.liveDataStatus = 'disabled')
-            : (this.liveDataStatus = 'enabled');
+        (this.live_data_status = 'enabled')
+            ? (this.live_data_status = 'disabled')
+            : (this.live_data_status = 'enabled');
     }
 
     async enableLiveData() {
-        if (this.liveDataStatus !== 'enabled') return;
+        if (this.live_data_status !== 'enabled') return;
 
         const liveDataManagerInstance = await new mapsindoors.LiveDataManager(
-            this.mapsIndoorsInstance
+            this.mapsIndoors_instance
         );
 
         try {
@@ -148,10 +154,10 @@ export class IndoorMapsComponent {
     }
 
     async disableLiveData() {
-        if (this.liveDataStatus) return;
+        if (this.live_data_status) return;
 
         const liveDataManagerInstance = await new mapsindoors.LiveDataManager(
-            this.mapsIndoorsInstance
+            this.mapsIndoors_instance
         );
 
         try {
@@ -162,5 +168,22 @@ export class IndoorMapsComponent {
         } catch (err) {
             console.log(err, 'error');
         }
+    }
+
+    renderRoomStatus(): void {
+        this.available_external_IDs.map((id: string) => {
+            this._setPolygonFill(id, '#00C851');
+        });
+    }
+
+    private async _setPolygonFill(location_id: string, color: string) {
+        await this.mapsIndoors_instance.setDisplayRule(location_id, {
+            polygonVisible: true,
+            polygonFillOpacity: 0.6,
+            polygonZoomFrom: 16,
+            polygonZoomTo: 22,
+            visible: true,
+            polygonFillColor: color,
+        });
     }
 }

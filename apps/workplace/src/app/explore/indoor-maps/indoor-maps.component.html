@@ -14,9 +14,9 @@
                 </mat-form-field>
 
                 <mat-form-field class="custom-form-field ml-8">
-                    <mat-select [(ngModel)]="selectedTransportMode">
+                    <mat-select [(ngModel)]="selected_transport_mode">
                         <mat-option
-                            *ngFor="let transportMode of transportModes"
+                            *ngFor="let transportMode of transport_modes"
                             [value]="transportMode.value"
                             >{{ transportMode.label }}</mat-option
                         >
@@ -38,7 +38,7 @@
                 <div class="text-gray-700">Live Data:</div>
 
                 <mat-button-toggle-group
-                    [(ngModel)]="liveDataStatus"
+                    [(ngModel)]="live_data_status"
                     (ngModelChange)="changeLiveDataStatus($event)"
                     aria-label="Enable or disable live data"
                     class="text-gray-700 ml-4"
@@ -56,7 +56,7 @@
         <div class="flex-auto basis-1/2 overflow-y-auto">
             <div class="ml-10 max-h-300">
                 <ul>
-                    <div *ngIf="searchResultItems">
+                    <div *ngIf="search_result_items">
                         <li
                             *ngFor="let item of searchResultItems"
                             class="flex items-center"
