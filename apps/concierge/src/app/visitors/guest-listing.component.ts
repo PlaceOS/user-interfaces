@@ -282,7 +282,7 @@ export class GuestListingComponent {
     public get display_columns() {
         const fields = {
             state: ' ',
-            date: 'Date',
+            date: 'Time',
             name: 'Person',
             host: 'Host',
             email: 'Email',
