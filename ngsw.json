@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1693914838264,
+  "timestamp": 1693963943578,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -146,7 +146,7 @@
     "./apps_concierge_src_app_building-manager_building-manager_module_ts.js": "37b65dda980068b27acd046014faac7d0ac5cdf7",
     "./apps_concierge_src_app_catering_catering_module_ts.js": "870ff74779cab9e685e93b006d4e535d06efc74f",
     "./apps_concierge_src_app_day-view_day-view_module_ts.js": "b08525d993e5d25c36383262bf292f65715e8277",
-    "./apps_concierge_src_app_desks_desks_module_ts.js": "d6ce9609b8394b44a97f6cd13adc8e106b414bc2",
+    "./apps_concierge_src_app_desks_desks_module_ts.js": "4a88a0b3961f09d10355afd7ce5201cd2b75efb9",
     "./apps_concierge_src_app_events_events_module_ts.js": "e7e684d77079cc6b102faafc809ab68f98ce867a",
     "./apps_concierge_src_app_facilities_facilities_module_ts.js": "d8f727d92c75b9d602029be023a5a0e42cdb1c27",
     "./apps_concierge_src_app_level-manager_level-manager_module_ts.js": "af67b5113803be84ebef91dfba01ea66c95a24a8",
@@ -233,7 +233,7 @@
     "./assets/support/firefox-logo.svg": "5d92cf1198425c8696bbd4c4c79f7ee029a207b9",
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
-    "./common.js": "a03cd62c9b6ee88c9da06d42e01449a271ccf9e3",
+    "./common.js": "80426388bf2b97dbad7d809c78cddd444ef77a0d",
     "./default-libs_bookings_src_lib_bookings_module_ts.js": "ca6a41f123e5ea8a6d81aa92824cc5949939137a",
     "./default-libs_catering_src_index_ts.js": "460154664da194d77f519f65056ff4824f121b14",
     "./default-libs_explore_src_index_ts.js": "909789f84c08350cdbf5b53e5874cbfb76ff6bd4",
@@ -242,7 +242,7 @@
     "./default-node_modules_angular_material_fesm2022_tabs_mjs.js": "0c286fe2922a6d7979b37b76cecc0e99c4cb7db2",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "ac2c10d2e85355cb449d8cada0bc9ffd2cb972e8",
-    "./main.js": "00706d643a0af134088e22ff9eacea64b63e3d01",
+    "./main.js": "52054dcb12c64113c6114c26b5f2c12b7a025794",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
