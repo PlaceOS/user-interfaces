@@ -121,7 +121,7 @@ import { map } from 'rxjs/operators';
                     <button mat-menu-item (click)="reject(row)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">event_busy</app-icon>
-                            <div>Decline Deck</div>
+                            <div>Decline Desk</div>
                         </div>
                     </button>
                 </mat-menu>
