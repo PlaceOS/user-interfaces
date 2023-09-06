@@ -126,7 +126,7 @@ import { map } from 'rxjs/operators';
                     </button>
                 </mat-menu>
             </ng-template>
-            <ng-template #option_template let-data="data">
+            <ng-template #option_template let-data="data" let-row="row">
                 <button
                     matRipple
                     class="rounded-3xl px-2 py-1 text-white flex items-center space-x-2"
@@ -138,13 +138,13 @@ import { map } from 'rxjs/operators';
                     <app-icon class="text-xl">arrow_drop_down</app-icon>
                 </button>
                 <mat-menu #checkinMenu="matMenu">
-                    <button mat-menu-item (click)="checkin(row)">
+                    <button mat-menu-item (click)="checkin(row, true)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">check</app-icon>
                             <div>Check-in</div>
                         </div>
                     </button>
-                    <button mat-menu-item>
+                    <button mat-menu-item (click)="checkin(row, false)">
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">cancel</app-icon>
                             <div>Check-out</div>
@@ -220,8 +220,11 @@ export class DeskBookingsComponent {
 
     public readonly rejectAll = () => this._state.rejectAllDesks();
 
-    public readonly checkin = (d) =>
-        this.runMethod('checkin', async () => this._state.checkinDesk(d));
+    public readonly checkin = (d, s?) =>
+        this.runMethod('checkin', async () => {
+            await this._state.checkinDesk(d, s);
+            d.checked_in = s ?? true;
+        });
     public readonly approve = (d) =>
         this.runMethod('approve', async () => this._state.approveDesk(d));
     public readonly reject = (d) =>
