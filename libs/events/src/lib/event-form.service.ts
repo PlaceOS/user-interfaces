@@ -683,8 +683,7 @@ export class EventFormService extends AsyncHandler {
                 const busy = space.availability.filter(
                     (_) =>
                         _.status === 'busy' &&
-                        (_.date === exclude.start ||
-                            _.date === getUnixTime(exclude.start))
+                        (!exclude || getUnixTime(_.date) !== exclude?.start)
                 );
                 if (busy.length <= 0) count++;
             }
