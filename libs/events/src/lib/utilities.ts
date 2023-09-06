@@ -118,6 +118,20 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
                 { emitEvent: false }
             );
         }
+        if (form.value.recurrence) {
+            const value = form.value.recurrence;
+            if (
+                value._pattern !== 'custom_display' &&
+                value._pattern !== 'none'
+            ) {
+                form.patchValue({
+                    recurrence: {
+                        ...value,
+                        days_of_week: [new Date(date).getDay()],
+                    },
+                });
+            }
+        }
     });
     form.controls.all_day.valueChanges.subscribe((all_day) => {
         if (all_day) {
