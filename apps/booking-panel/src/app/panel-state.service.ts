@@ -171,7 +171,7 @@ export class PanelStateService extends AsyncHandler {
     ]).pipe(
         tap(([current]) => {
             if (!current) return;
-            const pending_period = this._settings.getValue().pending_period;
+            const pending_period = this.setting('pending_period');
             if (!pending_period || pending_period < 1) return;
             const diff = differenceInMinutes(Date.now(), current.date);
             console.log('Checking Pending Period:', diff, pending_period);
