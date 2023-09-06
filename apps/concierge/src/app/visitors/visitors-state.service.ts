@@ -131,13 +131,15 @@ export class VisitorsStateService extends AsyncHandler {
     ]).pipe(
         map(([search, events]) => {
             const filter = search.toLowerCase();
-            return events.filter((event) =>
-                event.attendees.find(
-                    (user) =>
-                        user.name?.toLowerCase().includes(filter) ||
-                        user.email?.toLowerCase().includes(filter)
+            return events
+                .filter((event) =>
+                    event.attendees.find(
+                        (user) =>
+                            user.name?.toLowerCase().includes(filter) ||
+                            user.email?.toLowerCase().includes(filter)
+                    )
                 )
-            );
+                .sort((a, b) => a.date - b.date);
         })
     );
 
@@ -156,7 +158,7 @@ export class VisitorsStateService extends AsyncHandler {
                 .map((_) => {
                     const event: any = _.booking
                         ? new Booking(_.booking)
-                        : new CalendarEvent(_.event);
+                        : new CalendarEvent(_.event || _.extension_data?.event);
                     return new GuestUser({
                         ..._,
                         extension_data: {
@@ -182,7 +184,8 @@ export class VisitorsStateService extends AsyncHandler {
                                 _.status,
                         },
                     });
-                });
+                })
+                .sort((a, b) => a.extension_data.date - b.extension_data.date);
             return out;
         })
     );
