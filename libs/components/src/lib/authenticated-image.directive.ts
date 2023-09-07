@@ -40,8 +40,10 @@ export class AuthenticatedImageDirective extends AsyncHandler {
         }
         const tkn = token();
         document.cookie = `${
-            tkn === 'x-api-key' ? 'api-key=' + apiKey() : 'bearer_token=' + tkn
-        };max-age=60;path=${location.origin};samesite=strict;${
+            tkn === 'x-api-key'
+                ? 'api_key=' + encodeURIComponent(apiKey())
+                : 'bearer_token=' + encodeURIComponent(tkn)
+        };max-age=60;path=/api/;samesite=strict;${
             location.protocol === 'https:' ? 'secure;' : ''
         }`;
         const response = await fetch(this.source);
