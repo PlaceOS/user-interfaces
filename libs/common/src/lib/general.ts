@@ -393,3 +393,22 @@ export function cleanArray(
 ) {
     return array.filter((_) => !removal_items.includes(_));
 }
+
+export function isMobileSafari() {
+    return (
+        [
+            'iPad Simulator',
+            'iPhone Simulator',
+            'iPod Simulator',
+            'iPad',
+            'iPhone',
+            'iPod',
+        ].includes(navigator.platform) ||
+        // iPad on iOS 13 detection
+        (navigator.userAgent.includes('Mac') && 'ontouchend' in document)
+    );
+}
+
+export function isNestedFrame() {
+    return window.location !== window.parent.location;
+}
