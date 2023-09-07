@@ -39,13 +39,13 @@ export class AuthenticatedImageDirective extends AsyncHandler {
             return;
         }
         const tkn = token();
-        if (tkn !== 'x-api-key') {
-            document.cookie = `${
-                'bearer_token=' + encodeURIComponent(tkn)
-            };max-age=60;path=/api/;samesite=strict;${
-                location.protocol === 'https:' ? 'secure;' : ''
-            }`;
-        }
+        document.cookie = `${
+            tkn === 'x-api-key'
+                ? 'api-key=' + encodeURIComponent(apiKey())
+                : 'bearer_token=' + encodeURIComponent(tkn)
+        };max-age=60;path=/api/;samesite=strict;${
+            location.protocol === 'https:' ? 'secure;' : ''
+        }`;
         const response = await fetch(this.source);
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);

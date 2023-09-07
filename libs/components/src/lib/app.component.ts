@@ -156,11 +156,9 @@ export class AppComponent extends AsyncHandler implements OnInit {
         if (isMobileSafari()) {
             setCustomHeaders(
                 tkn === 'x-api-key'
-                    ? { 'X-API-Key': apiKey() }
+                    ? { 'x-api-key': apiKey() }
                     : { Authorization: `Bearer ${tkn}` }
             );
-        } else if (tkn === 'x-api-key') {
-            setCustomHeaders({ 'X-API-Key': apiKey() });
         }
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         setupCache(this._cache);
