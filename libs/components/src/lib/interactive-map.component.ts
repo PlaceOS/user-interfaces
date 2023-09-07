@@ -286,13 +286,13 @@ export class InteractiveMapComponent
             }
             this.updateFeatureList();
             const tkn = token();
-            document.cookie = `${
-                tkn === 'x-api-key'
-                    ? 'api-key=' + encodeURIComponent(apiKey())
-                    : 'bearer_token=' + encodeURIComponent(tkn)
-            };max-age=60;path=/api/;samesite=strict;${
-                location.protocol === 'https:' ? 'secure;' : ''
-            }`;
+            if (tkn !== 'x-api-key') {
+                document.cookie = `${
+                    'bearer_token=' + encodeURIComponent(tkn)
+                };max-age=60;path=/api/;samesite=strict;${
+                    location.protocol === 'https:' ? 'secure;' : ''
+                }`;
+            }
             this.viewer = await createViewer({
                 element: this._outlet_el?.nativeElement,
                 url: this.src,
