@@ -41,7 +41,7 @@ export class AuthenticatedImageDirective extends AsyncHandler {
         const tkn = token();
         document.cookie = `${
             tkn === 'x-api-key'
-                ? 'api_key=' + encodeURIComponent(apiKey())
+                ? 'api-key=' + encodeURIComponent(apiKey())
                 : 'bearer_token=' + encodeURIComponent(tkn)
         };max-age=60;path=/api/;samesite=strict;${
             location.protocol === 'https:' ? 'secure;' : ''
