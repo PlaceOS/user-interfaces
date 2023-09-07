@@ -39,14 +39,12 @@ export class AuthenticatedImageDirective extends AsyncHandler {
             return;
         }
         const tkn = token();
-        const response = await fetch(this.source, {
-            headers: {
-                Cookie:
-                    token() === 'x-api-key'
-                        ? `api_key=${apiKey()}`
-                        : `bearer_token=${token()}`,
-            },
-        });
+        document.cookie = `${
+            tkn === 'x-api-key' ? 'api-key=' + apiKey() : 'bearer_token=' + tkn
+        };max-age=60;path=${location.origin};samesite=strict;${
+            location.protocol === 'https:' ? 'secure;' : ''
+        }`;
+        const response = await fetch(this.source);
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
         IMAGE_STORE.set(this.source, url);

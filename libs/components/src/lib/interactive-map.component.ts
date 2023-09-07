@@ -34,6 +34,7 @@ import {
     ViewerStyles,
     listenToViewerChanges,
 } from '@placeos/svg-viewer';
+import { apiKey, token } from '@placeos/ts-client';
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -284,6 +285,14 @@ export class InteractiveMapComponent
                 removeViewer(this.viewer);
             }
             this.updateFeatureList();
+            const tkn = token();
+            document.cookie = `${
+                tkn === 'x-api-key'
+                    ? 'api-key=' + apiKey()
+                    : 'bearer_token=' + tkn
+            };max-age=60;path=${location.origin};samesite=strict;${
+                location.protocol === 'https:' ? 'secure;' : ''
+            }`;
             this.viewer = await createViewer({
                 element: this._outlet_el?.nativeElement,
                 url: this.src,

@@ -151,12 +151,6 @@ export class AppComponent extends AsyncHandler implements OnInit {
             location.origin.includes('demo.place.tech');
         /** Wait for authentication details to load */
         await setupPlace(settings).catch((_) => console.error(_));
-        setCustomHeaders({
-            Cookie:
-                token() === 'x-api-key'
-                    ? `api_key=${apiKey()}`
-                    : `bearer_token=${token()}`,
-        });
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         setupCache(this._cache);
         if (!settings.local_login) {
