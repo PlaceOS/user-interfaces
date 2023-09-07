@@ -17,6 +17,7 @@ describe('WeekViewComponent', () => {
             MockComponent(ApplicationSidebarComponent),
             MockComponent(WeekViewTopbarComponent),
             MockComponent(WeekViewTimelineComponent),
+            MockComponent(SidebarComponent),
         ],
     });
 

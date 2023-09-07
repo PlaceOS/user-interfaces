@@ -9,11 +9,34 @@ import {
     removeViewer,
 } from '@placeos/svg-viewer';
 import { Booking } from './booking.class';
-import { format, roundToNearestMinutes, setHours, setMinutes } from 'date-fns';
+import {
+    addMinutes,
+    roundToNearestMinutes,
+    setHours,
+    setMinutes,
+} from 'date-fns';
+
+function setBookingAsset(form: FormGroup, resource: any) {
+    if (!resource) return form.patchValue({ asset_id: undefined });
+    form.patchValue(
+        {
+            asset_id: resource.id,
+            asset_name: resource.name,
+            map_id: resource.map_id || resource.id,
+            description: resource.name,
+            zones: resource.zone
+                ? [resource.zone?.parent_id, resource.zone?.id]
+                : [],
+            booking_asset: resource,
+        },
+        { emitEvent: false }
+    );
+}
 
 export function generateBookingForm(booking: Booking = new Booking()) {
     const form = new FormGroup({
         id: new FormControl(booking.id || ''),
+        parent_id: new FormControl(booking.parent_id || ''),
         date: new FormControl(booking.date, [Validators.required]),
         all_day: new FormControl(booking.all_day ?? false),
         name: new FormControl(
@@ -67,8 +90,21 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         }
         previous_all_day = v.all_day ?? previous_all_day;
     });
-    let previous_time = form.value.date;
-    let previous_duration = form.value.duration;
+    form.controls.resources.valueChanges.subscribe((resources) =>
+        setBookingAsset(form, (resources || [])[0])
+    );
+    form.controls.date.valueChanges.subscribe((date) => {
+        if (date > Date.now()) return;
+        form.patchValue(
+            {
+                date: roundToNearestMinutes(Date.now(), {
+                    nearestTo: 5,
+                    roundingMethod: 'ceil',
+                }).valueOf(),
+            },
+            { emitEvent: false }
+        );
+    });
     form.controls.all_day.valueChanges.subscribe((all_day) => {
         if (all_day) {
             previous_time = form.value.date;
@@ -78,14 +114,10 @@ export function generateBookingForm(booking: Booking = new Booking()) {
                 duration: 12 * 60,
             });
             form.controls.duration.disable();
-        } else {
+        } else if (previous_all_day && !all_day) {
             form.controls.duration.enable();
-            const current_time = roundToNearestMinutes(Date.now(), {
-                nearestTo: 5,
-                roundingMethod: 'ceil',
-            }).valueOf();
             form.patchValue({
-                date: Math.max(current_time, previous_time),
+                date: Math.max(Date.now() - 1, previous_time),
                 duration: previous_duration,
             });
         }

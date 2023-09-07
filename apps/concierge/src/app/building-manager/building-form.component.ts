@@ -182,7 +182,10 @@ export class BuildingFormComponent extends AsyncHandler {
             tags: ['building'],
             name: `BLD ${authority().description} ${data.display_name}`,
         };
-        await (data.id ? updateZone(data.id, body) : addZone(body))
+        const building = await (data.id
+            ? updateZone(data.id, body)
+            : addZone(body)
+        )
             .toPromise()
             .catch((e) => {
                 notifyError(
@@ -195,7 +198,7 @@ export class BuildingFormComponent extends AsyncHandler {
         notifySuccess('Successfully saved building.');
         this.loading = false;
         this.loadingChange.emit(false);
-        this.done.emit();
+        this.done.emit(building);
     }
 
     private _updateTimezoneList() {

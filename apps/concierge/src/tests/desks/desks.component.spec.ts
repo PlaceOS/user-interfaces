@@ -18,6 +18,7 @@ describe('DesksComponent', () => {
             MockComponent(ApplicationTopbarComponent),
             MockComponent(ApplicationSidebarComponent),
             MockComponent(DesksTopbarComponent),
+            MockComponent(SidebarComponent),
         ],
         providers: [
             MockProvider(DesksStateService, {

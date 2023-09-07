@@ -8,6 +8,7 @@ import { DayviewTopbarComponent } from '../../app/day-view/dayview-topbar.compon
 import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
 import { RoomBookingsComponent } from '../../app/day-view/room-bookings.component';
+import { SidebarComponent } from '../../app/ui/sidebar.component';
 
 describe('DayViewComponent', () => {
     let spectator: SpectatorRouting<DayViewComponent>;
@@ -22,6 +23,7 @@ describe('DayViewComponent', () => {
         declarations: [
             MockComponent(ApplicationTopbarComponent),
             MockComponent(ApplicationSidebarComponent),
+            MockComponent(SidebarComponent),
             MockComponent(DayviewTopbarComponent),
             MockComponent(DayviewTimelineComponent),
             MockComponent(RoomBookingsComponent),

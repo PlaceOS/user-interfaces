@@ -38,9 +38,10 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                                 <app-icon>done</app-icon>
                             </div>
                             <img
+                                auth
                                 *ngIf="space.images?.length; else placeholder"
                                 class="object-cover h-full"
-                                [src]="space.images[0]"
+                                [source]="space.images[0]"
                             />
                             <ng-template #placeholder>
                                 <img

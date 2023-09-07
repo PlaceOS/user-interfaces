@@ -38,12 +38,13 @@ import { Space } from '../space.class';
                                 <app-icon>done</app-icon>
                             </div>
                             <img
+                                auth
                                 *ngIf="
                                     space.images?.length;
                                     else space_placeholder
                                 "
                                 class="object-cover h-full"
-                                [src]="space.images[0]"
+                                [source]="space.images[0]"
                             />
                             <ng-template #space_placeholder>
                                 <img

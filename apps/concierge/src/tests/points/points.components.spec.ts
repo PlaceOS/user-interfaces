@@ -23,6 +23,7 @@ describe('PointsComponent', () => {
             MockComponent(ApplicationTopbarComponent),
             MockComponent(ApplicationSidebarComponent),
             MockComponent(PointsTopbarComponent),
+            MockComponent(SidebarComponent),
         ],
     });
 

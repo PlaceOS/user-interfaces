@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
 import { showMetadata } from '@placeos/ts-client';
-import { Booking, queryBookings } from '@placeos/bookings';
+import { Booking, queryAllBookings } from '@placeos/bookings';
 import {
     downloadFile,
     HashMap,
     jsonToCsv,
     notifyError,
     timePeriodsIntersect,
+    unique,
 } from '@placeos/common';
-import { CalendarEvent, queryEvents } from '@placeos/events';
+import { CalendarEvent, queryAllEvents } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import {
     addDays,
@@ -16,6 +17,7 @@ import {
     differenceInDays,
     endOfDay,
     format,
+    getUnixTime,
     isBefore,
     startOfDay,
 } from 'date-fns';
@@ -63,26 +65,27 @@ export class ReportsStateService {
             const options = this._options.getValue();
             this._loading.next('Loading report details...');
             if (!options?.type && !options?.zones?.length) return of([]);
-            const start = startOfDay(
-                options?.start ? new Date(options.start) : new Date()
-            ).valueOf();
-            const end = endOfDay(
-                options?.end ? new Date(options.end) : start
-            ).valueOf();
+            const start = startOfDay(options.start || Date.now());
+            const end = endOfDay(options.end || start);
             const zones = options?.zones
                 ? options.zones.filter((z) => z !== 'All').join(',')
                 : '';
             const query = {
-                period_start: Math.floor(start / 1000),
-                period_end: Math.floor(end / 1000),
+                period_start: getUnixTime(start),
+                period_end: getUnixTime(end),
             };
             return options.type === 'desks'
-                ? queryBookings({
+                ? queryAllBookings({
                       ...query,
                       zones: zones,
                       type: 'desk',
+                      limit: 1000,
                   })
-                : queryEvents({ ...query, zone_ids: zones }).pipe(
+                : queryAllEvents({
+                      ...query,
+                      zone_ids: zones,
+                      limit: 1000,
+                  }).pipe(
                       switchMap(async (l) =>
                           Promise.all(
                               l.map(
@@ -183,6 +186,7 @@ export class ReportsStateService {
                 dates.push({
                     date: s,
                     total: stats.total,
+                    usage: unique(events, 'asset_id').length,
                     free: stats.total - events.length,
                     approved: events.reduce(
                         (c, e) => c + (e.approved ? 1 : 0),

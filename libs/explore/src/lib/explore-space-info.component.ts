@@ -52,8 +52,9 @@ export interface SpaceInfoData {
                         [class.h-8]="!space.images[0]"
                     >
                         <img
+                            auth
                             *ngIf="space.images[0]"
-                            [src]="space.images[0]"
+                            [source]="space.images[0]"
                             class="object-cover min-h-full min-w-full"
                         />
                         <div

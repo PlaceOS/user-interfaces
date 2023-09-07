@@ -8,7 +8,6 @@ import {
 } from '@placeos/assets';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { AssetCategoryFormComponent } from './asset-category-form.component';
 import { AsyncHandler, notifyError, unique } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -177,16 +176,12 @@ export class AssetGroupFormComponent extends AsyncHandler {
         );
     }
 
-    public newCategory() {
+    public async newCategory() {
         this.form.patchValue({ category_id: this.current_category });
-        const ref = this._dialog.open(AssetCategoryFormComponent);
-        ref.afterClosed().subscribe((category?) => {
-            if (category) {
-                this._state.postChange();
-                this.new_category.next(category);
-                this.form.patchValue({ category_id: category.id });
-            }
-        });
+        const category = await this._state.editCategory();
+        if (!category) return;
+        this.new_category.next(category);
+        this.form.patchValue({ category_id: category.id });
     }
 
     public async save() {

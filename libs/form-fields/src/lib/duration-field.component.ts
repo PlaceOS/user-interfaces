@@ -38,6 +38,8 @@ export interface DurationOption {
                                           | date
                                               : (option.id >= 24 * 60
                                                     ? 'mediumDate'
+                                                    : use_24hr
+                                                    ? 'HH : mm'
                                                     : 'h : mm a')) + ' ('
                                     : ''
                             }}{{ option.name }}{{ option.date ? ')' : '' }}
@@ -85,6 +87,8 @@ export class DurationFieldComponent
     @Input() public custom_options: number[] = [];
 
     @Input() public force: string;
+
+    @Input() public use_24hr = false;
 
     public duration = 60;
     /** List of available duration options */

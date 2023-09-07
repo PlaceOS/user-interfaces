@@ -105,28 +105,4 @@ export class ParkingFormDetailsComponent extends AsyncHandler {
     ) {
         super();
     }
-
-    public ngOnInit() {
-        this.subscription(
-            'change',
-            this.form
-                .get('resources')
-                ?.valueChanges?.subscribe((list) =>
-                    list.length ? this.setBookingAsset(list[0]) : ''
-                )
-        );
-    }
-
-    private setBookingAsset(item: BookingAsset) {
-        if (!item) return;
-        this.form.patchValue({
-            asset_id: item?.id,
-            asset_name: item.name,
-            map_id: item?.map_id || item?.id,
-            description: item.name,
-            booking_type: 'parking',
-            zones: item.zone ? [item.zone?.parent_id, item.zone?.id] : [],
-            booking_asset: item,
-        });
-    }
 }

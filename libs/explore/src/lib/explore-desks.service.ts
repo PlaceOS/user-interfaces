@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { getModule, showMetadata } from '@placeos/ts-client';
 import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of, timer } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -95,11 +95,9 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
 
     private _bind = this._state.level.pipe(
         debounceTime(300),
-        map((lvl) => {
+        filter((_) => !!_),
+        tap((lvl) => {
             this._statuses = {};
-            this.unsubWith('lvl');
-            console.log('On Level Change:', lvl);
-            if (!lvl) return;
             const system_id = this._org.binding('area_management');
             console.log('On Level update bindings:', system_id);
             if (!system_id) return;
@@ -256,8 +254,9 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         }
         const departments = this._settings.get('app.department_map') || {};
         for (const desk of desks) {
-            this._users[desk.map_id] = desk.staff_name;
-            this._departments[desk.map_id] = departments[desk.department] || '';
+            this._users[desk.map_id || desk.asset_id] = desk.staff_name;
+            this._departments[desk.map_id || desk.asset_id] =
+                departments[desk.department] || '';
         }
         this.processDevices(devices, system_id);
         this.timeout('update', () => this.updateStatus(), 100);

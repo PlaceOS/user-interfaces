@@ -23,16 +23,9 @@ import { ReportsStateService } from '../reports-state.service';
                 red-header
                 [dataSource]="day_list"
                 [pagination]="true"
-                [columns]="[
-                    'date',
-                    'usage',
-                    'approved',
-                    'count',
-                    'utilisation'
-                ]"
+                [columns]="['date', 'approved', 'count', 'utilisation']"
                 [display_column]="[
                     'Date',
-                    'Used Desks',
                     'Approved Bookings',
                     'Total Requests',
                     'Utilisation'

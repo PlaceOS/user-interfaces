@@ -64,6 +64,7 @@ import { RegionSelectComponent } from './region-select.component';
 import { HelpTooltipComponent } from './help-tooltip.component';
 import { AccessibilityTooltipComponent } from './accessibility-tooltip.component';
 import { LanguageSelectComponent } from './language-tooltip.component';
+import { AuthenticatedImageDirective } from './authenticated-image.directive';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -130,7 +131,7 @@ const COMPONENTS: Type<any>[] = [
     LanguageSelectComponent,
 ];
 
-const DIRECTIVES: Type<any>[] = [BindingDirective];
+const DIRECTIVES: Type<any>[] = [BindingDirective, AuthenticatedImageDirective];
 
 @NgModule({
     declarations: [...COMPONENTS, ...DIRECTIVES],

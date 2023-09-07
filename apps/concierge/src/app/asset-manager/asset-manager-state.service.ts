@@ -27,6 +27,7 @@ import {
 } from 'rxjs/operators';
 import {
     Asset,
+    AssetCategory,
     AssetGroup,
     AssetPurchaseOrder,
     deleteAssetGroup,
@@ -39,6 +40,9 @@ import {
 } from '@placeos/assets';
 import { cleanObject } from '@placeos/ts-client';
 import { OrganisationService } from '@placeos/organisation';
+import { MatDialog } from '@angular/material/dialog';
+import { AssetCategoryManagementModalComponent } from './asset-category-management-modal.component';
+import { AssetCategoryFormComponent } from './asset-category-form.component';
 
 export interface AssetOptions {
     date?: number;
@@ -159,6 +163,10 @@ export class AssetManagerStateService extends AsyncHandler {
         this._change,
     ]).pipe(
         switchMap(() => queryAssetCategories()),
+        map((list) => [
+            new AssetCategory({ id: '', name: 'Uncategorised' }),
+            ...list,
+        ]),
         shareReplay(1)
     );
     /** Currently active asset */
@@ -204,12 +212,23 @@ export class AssetManagerStateService extends AsyncHandler {
         )
     );
     /** Mapping of available assets to categories */
-    public readonly product_mapping = this.filtered_products.pipe(
-        map((_) => {
-            const map = { _count: _.length };
-            const categories = unique(_.map((i) => i.category_id));
+    public readonly product_mapping = combineLatest([
+        this.filtered_products,
+        this.categories,
+    ]).pipe(
+        map(([products, category_list]) => {
+            const map = { _count: products.length };
+            products.forEach(
+                (item) =>
+                    (item.category_id = category_list.find(
+                        (_) => _.id === item.category_id
+                    )
+                        ? item.category_id
+                        : '')
+            );
+            const categories = unique(products.map((i) => i.category_id));
             for (const group of categories) {
-                map[group] = _.filter((i) => i.category_id === group);
+                map[group] = products.filter((i) => i.category_id === group);
             }
             return map;
         })
@@ -232,7 +251,7 @@ export class AssetManagerStateService extends AsyncHandler {
     constructor(
         private _spaces: SpacesService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _dialog: MatDialog
     ) {
         super();
     }
@@ -248,6 +267,31 @@ export class AssetManagerStateService extends AsyncHandler {
 
     public resetForm() {
         this._form = generateAssetForm();
+    }
+
+    public manageCategories() {
+        const ref = this._dialog.open(AssetCategoryManagementModalComponent, {
+            data: { list: this.categories, edit: (i) => this.editCategory(i) },
+        });
+        this.subscription(
+            'category_modal',
+            ref.componentInstance.changed.subscribe(() =>
+                this._change.next(Date.now())
+            )
+        );
+        ref.afterClosed().subscribe(() => this.unsub('category_modal'));
+    }
+
+    public async editCategory(
+        category: Partial<AssetCategory> = {}
+    ): Promise<AssetCategory | null> {
+        const ref = this._dialog.open(AssetCategoryFormComponent, {
+            data: { category },
+        });
+        const result = await ref.afterClosed().toPromise();
+        if (!result) return null;
+        this._change.next(Date.now());
+        return result;
     }
 
     public setExtraAssets(list: Asset[]) {

@@ -132,7 +132,7 @@ import { VisitorsStateService } from './visitors-state.service';
             <button
                 matRipple
                 class="rounded-3xl bg-yellow-300 border-none"
-                [class.bg-green-400]="row?.status === 'approved'"
+                [class.!bg-green-400]="row?.status === 'approved'"
                 [class.!bg-red-400]="row?.status === 'declined'"
                 [matMenuTriggerFor]="menu"
             >
@@ -282,7 +282,7 @@ export class GuestListingComponent {
     public get display_columns() {
         const fields = {
             state: ' ',
-            date: 'Date',
+            date: 'Time',
             name: 'Person',
             host: 'Host',
             email: 'Email',

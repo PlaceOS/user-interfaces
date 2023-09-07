@@ -16,6 +16,7 @@ jest.mock('libs/bookings/src/lib/bookings.fn');
 import * as ts_client from '@placeos/ts-client';
 import * as booking_mod from 'libs/bookings/src/lib/bookings.fn';
 import { MockProvider } from 'ng-mocks';
+import { endOfYear } from 'date-fns';
 
 describe('BookingFormService', () => {
     let spectator: SpectatorService<BookingFormService>;
@@ -74,16 +75,17 @@ describe('BookingFormService', () => {
         expect(spectator.service.form).toBeInstanceOf(FormGroup);
         const spy = jest.spyOn(spectator.service, 'storeForm');
         expect(spectator.service.storeForm).not.toBeCalled();
-        spectator.service.form.patchValue({ date: 0 });
+        let date = endOfYear(Date.now()).valueOf();
+        spectator.service.form.patchValue({ date });
         expect(spectator.service.storeForm).toBeCalled();
-        expect(spectator.service.form.value.date).toBe(0);
+        expect(spectator.service.form.value.date).toBe(date);
         spectator.service.resetForm();
         expect(form).toBe(spectator.service.form);
-        expect(spectator.service.form.value.date).not.toBe(0);
-        spectator.service.form.patchValue({ date: 0 });
-        expect(spectator.service.form.value.date).toBe(0);
+        expect(spectator.service.form.value.date).not.toBe(date);
+        spectator.service.form.patchValue({ date });
+        expect(spectator.service.form.value.date).toBe(date);
         spectator.service.clearForm();
-        expect(spectator.service.form.value.date).not.toBe(0);
+        expect(spectator.service.form.value.date).not.toBe(date);
         spy.mockRestore();
     });
 

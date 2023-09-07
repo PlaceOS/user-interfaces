@@ -45,6 +45,17 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </mat-button-toggle>
             </mat-button-toggle-group>
             <div class="flex-1"></div>
+            <button
+                btn
+                icon
+                matRipple
+                *ngIf="active === 'items'"
+                class="border border-gray-200"
+                matTooltip="Manage Categories"
+                (click)="manageCategories()"
+            >
+                <app-icon>list_alt</app-icon>
+            </button>
             <mat-form-field appearance="outline" class="h-[3.25rem]">
                 <app-icon matPrefix class="text-2xl relative top-1 -left-1">
                     search
@@ -66,6 +77,7 @@ export class AssetManagerTopbarComponent {
     public readonly options = this._state.options;
 
     public readonly setOptions = (o) => this._state.setOptions(o);
+    public readonly manageCategories = () => this._state.manageCategories();
 
     public get base_route() {
         return this._state.base_route;

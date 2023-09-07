@@ -19,7 +19,7 @@ import * as event_mod from 'libs/events/src/lib/events.fn';
 import { PaymentsService } from '@placeos/payments';
 import { MockProvider } from 'ng-mocks';
 import { MatDialog } from '@angular/material/dialog';
-import { addDays } from 'date-fns';
+import { addDays, endOfYear } from 'date-fns';
 
 describe('EventFormService', () => {
     let spectator: SpectatorService<EventFormService>;
@@ -72,16 +72,17 @@ describe('EventFormService', () => {
         expect(spectator.service.form).toBeInstanceOf(FormGroup);
         const spy = jest.spyOn(spectator.service, 'storeForm');
         expect(spectator.service.storeForm).not.toBeCalled();
-        spectator.service.form.patchValue({ date: 0 });
+        let date = endOfYear(Date.now()).valueOf();
+        spectator.service.form.patchValue({ date });
         expect(spectator.service.storeForm).toBeCalled();
-        expect(spectator.service.form.value.date).toBe(0);
+        expect(spectator.service.form.value.date).toBe(date);
         spectator.service.resetForm();
         expect(form).toBe(spectator.service.form);
-        expect(spectator.service.form.value.date).not.toBe(0);
-        spectator.service.form.patchValue({ date: 0 });
-        expect(spectator.service.form.value.date).toBe(0);
+        expect(spectator.service.form.value.date).not.toBe(date);
+        spectator.service.form.patchValue({ date });
+        expect(spectator.service.form.value.date).toBe(date);
         spectator.service.clearForm();
-        expect(spectator.service.form.value.date).not.toBe(0);
+        expect(spectator.service.form.value.date).not.toBe(date);
         spy.mockRestore();
     });
 

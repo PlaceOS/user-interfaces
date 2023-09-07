@@ -16,7 +16,7 @@ import { Building } from '@placeos/organisation';
                 [building]="building"
                 [save]="save_state"
                 [(loading)]="loading"
-                (done)="close()"
+                (done)="close($event)"
             ></building-form>
         </main>
         <footer
@@ -33,7 +33,7 @@ export class BuildingModalComponent {
     public save_state = 0;
     public readonly building = this._data;
 
-    public readonly close = () => this._dialog_ref.close();
+    public readonly close = (d?) => this._dialog_ref.close(d);
     public readonly save = () => (this.save_state = Date.now());
 
     constructor(

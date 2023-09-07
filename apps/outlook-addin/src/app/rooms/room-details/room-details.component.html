@@ -4,7 +4,8 @@
         *ngIf="space?.images?.length > 0"
     >
         <img
-            [src]="space.images[0]"
+            auth
+            [source]="space.images[0]"
             [alt]="'Image of ' + (space.display_name || space.name)"
             width="100%"
             height="100%"

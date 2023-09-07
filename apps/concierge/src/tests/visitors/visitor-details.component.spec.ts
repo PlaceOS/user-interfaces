@@ -62,7 +62,7 @@ describe('VisitorDetailsComponent', () => {
         (ts_client as any).get = jest.fn(() => of({}));
         (ts_client as any).patch = jest.fn(() => of({}));
         (ts_client as any).post = jest.fn(() => of({}));
-        jest.spyOn(event_mod, 'saveEvent');
+        jest.spyOn(event_mod, 'updateEventMetadata');
         spectator.setInput({
             event: new CalendarEvent(),
             visitor: new GuestUser(),
@@ -70,7 +70,7 @@ describe('VisitorDetailsComponent', () => {
         spectator.detectChanges();
         spectator.click('action-icon[remote]');
         await timer(100).toPromise();
-        expect(event_mod.saveEvent).toBeCalled();
+        expect(event_mod.updateEventMetadata).toBeCalled();
     });
 
     it('should checking in visitor', () => {

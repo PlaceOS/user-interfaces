@@ -4,6 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { first } from 'rxjs/operators';
 import {
+    apiKey,
     clientId,
     invalidateToken,
     isMock,
@@ -27,6 +28,7 @@ import {
     setupPlace,
     log,
     GoogleAnalyticsService,
+    isMobileSafari,
 } from '@placeos/common';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
@@ -42,6 +44,7 @@ import {
     initialiseUploadService,
     OpenStack,
 } from '@placeos/cloud-uploads';
+import { setCustomHeaders } from '@placeos/svg-viewer';
 import { TranslateService } from '@ngx-translate/core';
 
 import { StylesManager } from 'survey-core';
@@ -149,6 +152,14 @@ export class AppComponent extends AsyncHandler implements OnInit {
             location.origin.includes('demo.place.tech');
         /** Wait for authentication details to load */
         await setupPlace(settings).catch((_) => console.error(_));
+        const tkn = token();
+        if (isMobileSafari()) {
+            setCustomHeaders(
+                tkn === 'x-api-key'
+                    ? { 'x-api-key': apiKey() }
+                    : { Authorization: `Bearer ${tkn}` }
+            );
+        }
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         setupCache(this._cache);
         if (!settings.local_login) {

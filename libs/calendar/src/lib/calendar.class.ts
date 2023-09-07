@@ -32,9 +32,10 @@ export class Calendar {
         this.availability = (data.availability || []).map(
             ({ starts_at, ends_at, date, duration, status }: any) => {
                 return {
-                    date: new Date(date, starts_at).valueOf(),
+                    date: new Date(date || starts_at * 1000).valueOf(),
                     duration:
-                        duration || differenceInMinutes(ends_at, starts_at),
+                        duration ||
+                        differenceInMinutes(ends_at * 1000, starts_at * 1000),
                     status: status,
                 };
             }

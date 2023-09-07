@@ -9,6 +9,7 @@ import {
     shareReplay,
     switchMap,
     take,
+    tap,
 } from 'rxjs/operators';
 
 import { CalendarEvent, EventFormService } from '@placeos/events';
@@ -24,7 +25,13 @@ import {
 
 import { openBookingModal } from './overlays/booking-modal.component';
 import { EmbeddedControlModalComponent } from './overlays/embedded-control-modal.component';
-import { addMinutes, differenceInMinutes, isAfter, isBefore } from 'date-fns';
+import {
+    addMinutes,
+    differenceInMinutes,
+    getUnixTime,
+    isAfter,
+    isBefore,
+} from 'date-fns';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { OrganisationService } from '@placeos/organisation';
 import { Router } from '@angular/router';
@@ -158,6 +165,20 @@ export class PanelStateService extends AsyncHandler {
         map(([{ status }, booking]) => status || (booking ? 'busy' : 'free')),
         shareReplay(1)
     );
+    public readonly pending_check = combineLatest([
+        this.current,
+        interval(15 * 1000),
+    ]).pipe(
+        tap(([current]) => {
+            if (!current) return;
+            const pending_period = this.setting('pending_period');
+            if (!pending_period || pending_period < 1) return;
+            const diff = differenceInMinutes(Date.now(), current.date);
+            console.log('Checking Pending Period:', diff, pending_period);
+            if (diff <= pending_period) return;
+            this.endCurrent('Pending period expired.');
+        })
+    );
 
     constructor(
         private _spaces: SpacesService,
@@ -192,6 +213,7 @@ export class PanelStateService extends AsyncHandler {
             ];
             settings.forEach((k) => this.bindTo(id, k));
         });
+        this.subscription('pending_check', this.pending_check.subscribe());
     }
 
     /**
@@ -358,10 +380,13 @@ export class PanelStateService extends AsyncHandler {
      * Execute the logic on the engine driver to start the current or upcoming meeting
      */
     public async startMeeting() {
-        if (this.space && (await this.status.toPromise()) === 'pending') {
+        if (
+            this.space &&
+            (await this.status.pipe(take(1)).toPromise()) === 'pending'
+        ) {
             const meeting =
-                (await this.current.toPromise()) ||
-                (await this.next.toPromise());
+                (await this.current.pipe(take(1)).toPromise()) ||
+                (await this.next.pipe(take(1)).toPromise());
             const module = getModule(this.system, 'Bookings');
             if (meeting && module) {
                 await module
@@ -397,8 +422,16 @@ export class PanelStateService extends AsyncHandler {
         const module = getModule(this.system, 'Bookings');
         if (current && module) {
             await module
-                .execute('cancel_meeting', [current.date, reason])
-                .catch((e) => notifyError(`Error starting meeting. ${e}`));
+                .execute('end_meeting', [
+                    getUnixTime(current.date),
+                    true,
+                    reason,
+                ])
+                .catch((e) => {
+                    // notifyError(
+                    //     `Error ending meeting. ${e.message || e.error || e}`
+                    // )
+                });
         }
     }
     /**

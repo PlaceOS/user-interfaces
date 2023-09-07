@@ -29,16 +29,18 @@ export interface BookingComplete extends Booking {
 }
 
 export interface LinkedCalendarEvent {
-    system_id: string, 
-    resource_calendar: string, 
-    event_id: string, 
-    host_email: string
-};
+    system_id: string;
+    resource_calendar: string;
+    event_id: string;
+    host_email: string;
+}
 
 /** General purpose booking class */
 export class Booking {
     /** Unique Identifier of the object */
     public readonly id: string;
+    /** Identifier of the parent booking */
+    public readonly parent_id: string;
     /** Unix epoch for the start time of the booking in seconds */
     public readonly booking_start: number;
     /** Unix epoch for the start time of the booking in seconds */
@@ -112,6 +114,7 @@ export class Booking {
 
     constructor(data: Partial<BookingComplete> = {}) {
         this.id = data.id || '';
+        this.parent_id = data.parent_id || '';
         this.asset_id = data.asset_id || '';
         this.asset_name =
             data.asset_name ||

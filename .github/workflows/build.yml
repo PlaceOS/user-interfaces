@@ -54,7 +54,7 @@ jobs:
                   then
                       echo "configuration=production" >> $GITHUB_OUTPUT
                       echo "deploy_branch=prod" >> $GITHUB_OUTPUT
-                  elif [[ ${{ steps.branch_name.outputs.name }} == rc/* ]]
+                  elif [[ ${{ steps.branch_name.outputs.name }} == "rc"* ]]
                   then
                       echo "configuration=staging" >> $GITHUB_OUTPUT
                       echo "deploy_branch=uat" >> $GITHUB_OUTPUT

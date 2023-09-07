@@ -41,7 +41,9 @@ import { ReportsStateService } from '../reports-state.service';
                         'Utilisation'
                     ]"
                     [column_size]="['flex']"
-                    [template]="{ utilisation: percent_view }"
+                    [template]="{
+                        utilisation: percent_view
+                    }"
                 ></custom-table>
                 <ng-template #percent_view let-data="data">
                     {{ data || '0' }}%
@@ -75,7 +77,7 @@ export class ReportDesksLevelListComponent {
                     name: lvl?.display_name || lvl?.name,
                     free,
                     approved: events.filter((_) => _.approved).length || 0,
-                    avg_usage: events.length / duration,
+                    avg_usage: (events.length / duration || 0).toFixed(2),
                     total: count,
                     count: events.length,
                     utilisation: (

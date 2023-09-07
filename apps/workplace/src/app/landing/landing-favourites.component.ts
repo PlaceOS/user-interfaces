@@ -59,12 +59,13 @@ const EMPTY = [];
                             class="w-20 h-20 overflow-hidden rounded relative flex items-center justify-center bg-black/10 dark:bg-white/5"
                         >
                             <img
+                                auth
                                 *ngIf="
                                     (item | space | async)?.images?.length;
                                     else space_placeholder
                                 "
                                 class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 object-cover min-w-full min-h-full"
-                                [src]="(item | space | async)?.images[0]"
+                                [source]="(item | space | async)?.images[0]"
                             />
                             <ng-template #space_placeholder>
                                 <img
@@ -151,12 +152,13 @@ const EMPTY = [];
                             class="w-20 h-20 overflow-hidden rounded relative flex items-center justify-center bg-black/10 dark:bg-white/5"
                         >
                             <img
+                                auth
                                 *ngIf="
                                     item?.images?.length;
                                     else asset_placeholder
                                 "
                                 class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 object-cover min-w-full min-h-full"
-                                [src]="item?.images[0]"
+                                [source]="item?.images[0]"
                             />
                             <ng-template #asset_placeholder>
                                 <img

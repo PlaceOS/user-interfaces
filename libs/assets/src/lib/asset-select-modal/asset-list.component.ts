@@ -48,12 +48,13 @@ import { map } from 'rxjs/operators';
                                     </span>
                                 </div>
                                 <img
+                                    auth
                                     *ngIf="
                                         asset.images?.length;
                                         else placeholder
                                     "
                                     class="object-cover h-full"
-                                    [src]="asset.images[0]"
+                                    [source]="asset.images[0]"
                                 />
                                 <ng-template #placeholder>
                                     <img

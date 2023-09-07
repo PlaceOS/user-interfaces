@@ -29,7 +29,6 @@ import {
 import { Desk, OrganisationService } from '@placeos/organisation';
 
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
-import { ExploreDesksService } from '@placeos/explore';
 
 export interface DeskFilters {
     date?: number;
@@ -99,6 +98,7 @@ export class DesksStateService extends AsyncHandler {
                 period_end: Math.floor(endOfDay(date).valueOf() / 1000),
                 type: 'desk',
                 zones: (zones || []).join(','),
+                limit: 500,
                 include_checked_out: true,
             });
         }),
@@ -166,13 +166,16 @@ export class DesksStateService extends AsyncHandler {
         this._new_desks.next([]);
     }
 
-    public async checkinDesk(desk: Booking) {
-        const success = await checkinBooking(desk.id, true)
+    public async checkinDesk(desk: Booking, state: boolean = true) {
+        console.log('Check-in:', desk);
+        const success = await checkinBooking(desk.id, state ?? true)
             .toPromise()
             .catch((_) => 'failed');
         success === 'failed'
-            ? notifyError('Error checking in desk booking')
-            : notifySuccess(`Checked in ${desk.user_name}.`);
+            ? notifyError(`Error checking ${state ? 'in' : 'out'} desk booking`)
+            : notifySuccess(
+                  `Checked ${state ? 'in' : 'out'} ${desk.user_name}.`
+              );
     }
 
     public async approveDesk(desk: Booking) {

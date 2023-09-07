@@ -131,13 +131,15 @@ export class VisitorsStateService extends AsyncHandler {
     ]).pipe(
         map(([search, events]) => {
             const filter = search.toLowerCase();
-            return events.filter((event) =>
-                event.attendees.find(
-                    (user) =>
-                        user.name?.toLowerCase().includes(filter) ||
-                        user.email?.toLowerCase().includes(filter)
+            return events
+                .filter((event) =>
+                    event.attendees.find(
+                        (user) =>
+                            user.name?.toLowerCase().includes(filter) ||
+                            user.email?.toLowerCase().includes(filter)
+                    )
                 )
-            );
+                .sort((a, b) => a.date - b.date);
         })
     );
 
@@ -156,7 +158,7 @@ export class VisitorsStateService extends AsyncHandler {
                 .map((_) => {
                     const event: any = _.booking
                         ? new Booking(_.booking)
-                        : new CalendarEvent(_.event);
+                        : new CalendarEvent(_.event || _.extension_data?.event);
                     return new GuestUser({
                         ..._,
                         extension_data: {
@@ -182,7 +184,8 @@ export class VisitorsStateService extends AsyncHandler {
                                 _.status,
                         },
                     });
-                });
+                })
+                .sort((a, b) => a.extension_data.date - b.extension_data.date);
             return out;
         })
     );
@@ -250,7 +253,8 @@ export class VisitorsStateService extends AsyncHandler {
         );
         if (details.reason !== 'done') return details.close();
         details.loading('Updating guest details');
-        await (guest.extension_data.event_id
+        const event = (guest as any).event || guest.extension_data.event;
+        await (guest.extension_data.event_id || event?.id
             ? updateGuest(guest.id, {
                   ...guest,
                   extension_data: {
@@ -269,6 +273,7 @@ export class VisitorsStateService extends AsyncHandler {
                 throw e;
             });
         notifySuccess(`Successfully approved visitor`);
+        this._poll.next(Date.now());
         details.close();
     }
 
@@ -283,7 +288,8 @@ export class VisitorsStateService extends AsyncHandler {
         );
         if (details.reason !== 'done') return details.close();
         details.loading('Updating guest details');
-        await (guest.extension_data.event_id
+        const event = (guest as any).event || guest.extension_data.event;
+        await (guest.extension_data.event_id || event?.id
             ? updateGuest(guest.id, {
                   ...guest,
                   extension_data: {
@@ -302,6 +308,7 @@ export class VisitorsStateService extends AsyncHandler {
                 throw e;
             });
         notifySuccess(`Successfully declining visitor`);
+        this._poll.next(Date.now());
         details.close();
     }
 
