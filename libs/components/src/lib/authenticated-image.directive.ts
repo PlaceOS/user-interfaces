@@ -40,10 +40,12 @@ export class AuthenticatedImageDirective extends AsyncHandler {
         }
         const tkn = token();
         const response = await fetch(this.source, {
-            headers:
-                tkn !== 'x-api-key'
-                    ? { Authorization: `Bearer ${tkn}` }
-                    : { 'x-api-key': apiKey() },
+            headers: {
+                Cookie:
+                    token() === 'x-api-key'
+                        ? `api_key=${apiKey()}`
+                        : `bearer_token=${token()}`,
+            },
         });
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
