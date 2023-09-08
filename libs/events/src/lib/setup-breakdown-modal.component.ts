@@ -70,8 +70,14 @@ export class SetupBreakdownModalComponent {
         const query: any = {
             system_id: this._event?.resources[0]?.id || this._event?.system?.id,
         };
-        await saveEvent(
-            new CalendarEvent({ ...this._event, ...this.form.value }).toJSON(),
+        const event = await saveEvent(
+            new CalendarEvent({
+                ...this._event,
+                extension_data: {
+                    ...this._event.extension_data,
+                    ...this.form.value,
+                },
+            }).toJSON(),
             query
         )
             .toPromise()
@@ -84,6 +90,6 @@ export class SetupBreakdownModalComponent {
         notifySuccess('Succesfully updated setup and breakdown period.');
         this._dialog_ref.disableClose = false;
         this.loading = false;
-        this._dialog_ref.close();
+        this._dialog_ref.close(event);
     }
 }
