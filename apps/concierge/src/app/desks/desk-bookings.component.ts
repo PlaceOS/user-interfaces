@@ -181,6 +181,15 @@ import { map } from 'rxjs/operators';
                     </mat-menu>
                 </div>
             </ng-template>
+            <button
+                btn
+                matRipple
+                class="w-32 mx-auto my-4"
+                *ngIf="!loading && has_more_pages | async"
+                (click)="loadMore()"
+            >
+                Load More
+            </button>
         </div>
         <button
             icon
@@ -209,6 +218,7 @@ import { map } from 'rxjs/operators';
 export class DeskBookingsComponent {
     public loading: string;
     public readonly filters = this._state.filters;
+    public readonly has_more_pages = this._state.has_more_pages;
     public readonly bookings = this._state.bookings.pipe(
         map((i) =>
             i.map((booking) => ({
@@ -219,6 +229,7 @@ export class DeskBookingsComponent {
     );
 
     public readonly rejectAll = () => this._state.rejectAllDesks();
+    public readonly loadMore = () => this._state.nextPage();
 
     public readonly checkin = (d, s?) =>
         this.runMethod('checkin', async () => {

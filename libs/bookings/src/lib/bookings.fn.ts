@@ -35,7 +35,7 @@ export interface BookingsQueryParams {
 const BOOKINGS_ENDPOINT = `/api/staff/v1/bookings`;
 
 /**
- * List bookings
+ * Get a single page of bookings
  * @param q Parameters to pass to the API request
  */
 export function queryBookings(q: BookingsQueryParams): Observable<Booking[]> {
@@ -46,6 +46,23 @@ export function queryBookings(q: BookingsQueryParams): Observable<Booking[]> {
     );
 }
 
+/**
+ * List bookings with link to next page of bookings
+ * @param q Parameters to pass to the API request
+ */
+export function queryPagedBookings(q: BookingsQueryParams) {
+    return query<Booking>({
+        query_params: q,
+        fn: (item) => new Booking(item),
+        endpoint: BOOKINGS_ENDPOINT,
+        path: '',
+    });
+}
+
+/**
+ * List all bookings
+ * @param q Parameters to pass to the API request
+ */
 export function queryAllBookings(
     q: BookingsQueryParams
 ): Observable<Booking[]> {
