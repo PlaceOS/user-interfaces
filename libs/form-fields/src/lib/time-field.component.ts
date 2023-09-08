@@ -159,6 +159,11 @@ export class TimeFieldComponent
 
     public setDisabledState(disabled: boolean) {
         this.disabled = disabled;
+        this._time_options = this.generateAvailableTimes(
+            this.date,
+            !this.no_past_times || disabled,
+            this.step
+        );
     }
 
     /**

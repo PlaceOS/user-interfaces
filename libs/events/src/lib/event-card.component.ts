@@ -19,7 +19,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
     selector: 'event-card',
     template: `
         <h4 class="mb-2 flex items-center" *ngIf="event" date>
-            <span *ngIf="show_day" day>{{ day }}, </span>
+            <span *ngIf="show_day" day>{{ day }},&nbsp;</span>
             {{ event?.date | date: 'h:mm a' }}
             <span class="text-xs px-2">({{ event?.date | date: 'z' }})</span>
         </h4>

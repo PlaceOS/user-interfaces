@@ -28,9 +28,7 @@ import { addDays, endOfDay } from 'date-fns';
                     </label>
                     <a-date-field
                         name="date"
-                        [ngModel]="form.value.date"
-                        (ngModelChange)="form.patchValue({ date: $event })"
-                        [ngModelOptions]="{ standalone: true }"
+                        formControlName="date"
                         [to]="end_date"
                     >
                         {{ 'FORM.DATE_ERROR' | translate }}
@@ -48,7 +46,9 @@ import { addDays, endOfDay } from 'date-fns';
                         [ngModel]="form.value.date"
                         (ngModelChange)="form.patchValue({ date: $event })"
                         [ngModelOptions]="{ standalone: true }"
-                        [disabled]="form.value.all_day"
+                        [disabled]="
+                            form.value.all_day || form.get('date').disabled
+                        "
                     ></a-time-field>
                 </div>
                 <div class="flex-1 w-1/3 relative">

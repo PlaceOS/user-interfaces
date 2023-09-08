@@ -13,7 +13,7 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
     selector: 'booking-card',
     template: `
         <h4 class="mb-2 flex items-center" *ngIf="booking">
-            <span *ngIf="show_day" day>{{ day }}, </span>
+            <span *ngIf="show_day" day>{{ day }},&nbsp;</span>
             {{ booking?.date | date: 'h:mm a' }}
             <span class="text-xs px-2">({{ booking?.date | date: 'z' }})</span>
         </h4>
