@@ -148,6 +148,7 @@ export class OrganisationService {
         return this._active_building.getValue();
     }
     public set building(bld: Building) {
+        if (!bld) return;
         this._active_building.next(bld);
         this.loadBuildingData(bld).then(() => this._updateSettingOverrides());
         if (this.regions.length && this.region?.id !== bld.parent_id) {
@@ -396,7 +397,7 @@ export class OrganisationService {
     }
 
     public async loadBuildingData(bld: Building) {
-        if (this._loaded_data[bld.id]) return;
+        if (!bld || this._loaded_data[bld.id]) return;
         const [settings, bindings, booking_rules]: any = await Promise.all([
             showMetadata(bld.id, this.app_key)
                 .pipe(map((_) => _?.details))
