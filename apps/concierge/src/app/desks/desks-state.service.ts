@@ -106,9 +106,13 @@ export class DesksStateService extends AsyncHandler {
     private _next_page = new Subject<() => QueryResponse<Booking>>();
     private _call_next_page = new Subject<string>();
     private _all_zones_keys = ['All', -1, '-1'];
-    public readonly setup_paging = this._filters.pipe(
+    public readonly setup_paging = combineLatest([
+        this._filters,
+        this._org.initialised,
+    ]).pipe(
         debounceTime(500),
-        tap((filters) => {
+        tap(([filters, loaded]) => {
+            if (!loaded) return;
             const date = filters.date || Date.now();
             const zones =
                 !filters.zones ||
