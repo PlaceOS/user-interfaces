@@ -74,6 +74,7 @@ const app = {
         src: 'assets/logo-dark.svg',
     },
     default_route: '/book/rooms/new',
+    use_24_hour_time: false,
     admin_group: 'concierge_admins',
     features: [
         'spaces',
@@ -98,13 +99,14 @@ const app = {
     custom_reports,
     desks: { can_book_for_others: true },
     events: {
-        custom_actions: [
-            {
-                id: 'set_setup_breakdown',
-                name: 'Set Setup/Breakdown',
-                icon: 'manage_history',
-            },
-        ],
+        allow_setup_breakdown: false,
+        // custom_actions: [
+        //     {
+        //         id: 'set_setup_breakdown',
+        //         name: 'Set Setup/Breakdown',
+        //         icon: 'manage_history',
+        //     },
+        // ],
     },
 };
 

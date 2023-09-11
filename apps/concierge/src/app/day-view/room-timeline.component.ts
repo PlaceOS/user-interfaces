@@ -12,6 +12,7 @@ import { combineLatest } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import {
     AsyncHandler,
+    SettingsService,
     notifyError,
     notifySuccess,
     openConfirmModal,
@@ -295,7 +296,8 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
 
     constructor(
         private _state: EventsStateService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
+        private _settings: SettingsService
     ) {
         super();
     }
