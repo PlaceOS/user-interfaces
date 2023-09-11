@@ -3,30 +3,24 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { BookingFormService } from '@placeos/bookings';
 import { IconComponent } from '@placeos/components';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { DeskFiltersDisplayComponent } from '../../lib/desk-select-modal/desk-filters-display.component';
+import { SettingsService } from '@placeos/common';
 
 describe('DeskFiltersDisplayComponent', () => {
     let spectator: Spectator<DeskFiltersDisplayComponent>;
     const createComponent = createComponentFactory({
         component: DeskFiltersDisplayComponent,
         providers: [
-            {
-                provide: MatBottomSheet,
-                useValue: {
-                    open: jest.fn(),
-                },
-            },
-            {
-                provide: BookingFormService,
-                useValue: {
-                    form: new FormGroup({}),
-                    options: new BehaviorSubject({ features: ['standing'] }),
-                    setOptions: jest.fn(),
-                    setFeature: jest.fn(),
-                },
-            },
+            MockProvider(MatBottomSheet, { open: jest.fn() }),
+            MockProvider(BookingFormService, {
+                form: new FormGroup({}),
+                options: new BehaviorSubject({ features: ['standing'] }),
+                setOptions: jest.fn(),
+                setFeature: jest.fn(),
+            } as any),
+            MockProvider(SettingsService, { time_format: 'h:mm a' }),
         ],
         declarations: [MockComponent(IconComponent)],
     });

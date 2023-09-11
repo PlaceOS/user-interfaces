@@ -5,35 +5,31 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 
 import { DayviewTopbarComponent } from '../../app/day-view/dayview-topbar.component';
 import { EventsStateService } from '../../app/day-view/events-state.service';
 import { DateOptionsComponent } from '../../app/ui/date-options.component';
+import { SettingsService } from '@placeos/common';
 
 describe('DayviewTopbarComponent', () => {
     let spectator: SpectatorRouting<DayviewTopbarComponent>;
     const createComponent = createRoutingFactory({
         component: DayviewTopbarComponent,
         providers: [
-            {
-                provide: OrganisationService,
-                useValue: {
-                    initialised: of(true),
-                    active_levels: new BehaviorSubject([]),
-                    levelWithID: jest.fn(),
-                },
-            },
-            {
-                provide: EventsStateService,
-                useValue: {
-                    setFilters: jest.fn(),
-                    setDate: jest.fn(),
-                    setZones: jest.fn(),
-                    newBooking: jest.fn(),
-                },
-            },
+            MockProvider(OrganisationService, {
+                initialised: of(true),
+                active_levels: new BehaviorSubject([]),
+                levelWithID: jest.fn(),
+            }),
+            MockProvider(EventsStateService, {
+                setFilters: jest.fn(),
+                setDate: jest.fn(),
+                setZones: jest.fn(),
+                newBooking: jest.fn(),
+            }),
+            MockProvider(SettingsService, { time_format: 'h:mm a' }),
         ],
         declarations: [
             MockComponent(DateOptionsComponent),

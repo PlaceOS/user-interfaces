@@ -5,6 +5,7 @@ import { take } from 'rxjs/operators';
 import { MockProvider } from 'ng-mocks';
 
 import { User } from '@placeos/users';
+import { SettingsService } from '@placeos/common';
 
 import { VisitorsStateService } from '../../app/visitors/visitors-state.service';
 
@@ -23,8 +24,9 @@ describe('VisitorStateService', () => {
         service: VisitorsStateService,
         providers: [
             MockProvider(MatDialog, { open: jest.fn() }),
-            MockProvider(OrganisationService, {  })
-        ]
+            MockProvider(OrganisationService, {}),
+            MockProvider(SettingsService, { time_format: 'h:mm a' }),
+        ],
     });
 
     beforeEach(() => (spectator = createService()));
