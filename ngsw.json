@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1694408319204,
+  "timestamp": 1694410192852,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -146,7 +146,7 @@
     "./apps_concierge_src_app_building-manager_building-manager_module_ts.js": "28bf98c50e2730b29ea25f26af35dc8bb6f082fe",
     "./apps_concierge_src_app_catering_catering_module_ts.js": "24243b0b6ebededd63d10d5ab5c14aa1842402e4",
     "./apps_concierge_src_app_day-view_day-view_module_ts.js": "a175f55c5a710fec3a7f76fd7d0fdf6311c3cf29",
-    "./apps_concierge_src_app_desks_desks_module_ts.js": "ac8443a1ade2e94ffda986df17caf865e1dfb6ab",
+    "./apps_concierge_src_app_desks_desks_module_ts.js": "0f4792ee454c5067ae49294bf2ebc5e904cca135",
     "./apps_concierge_src_app_events_events_module_ts.js": "aa80def41c634c8b314b55dc4a08a0d9ce5fcfef",
     "./apps_concierge_src_app_facilities_facilities_module_ts.js": "7c4f11cdbed153a0879d2e3708ff85b64b47b2e4",
     "./apps_concierge_src_app_level-manager_level-manager_module_ts.js": "d11e3b8297388028a7a8714a5b04865694bd8dc0",
@@ -234,7 +234,7 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./common.js": "8d46b896e483c90a7f559edf66f7fe8c6ddb6014",
-    "./default-libs_bookings_src_lib_bookings_module_ts.js": "3b3ecd39dd353173ae35adef3fb0402037e12def",
+    "./default-libs_bookings_src_lib_bookings_module_ts.js": "6af01058727099ea443ebce3e75c2e8686bfd68b",
     "./default-libs_catering_src_index_ts.js": "460154664da194d77f519f65056ff4824f121b14",
     "./default-libs_explore_src_index_ts.js": "b80162595116cad75f93ac0187efe00422f9838e",
     "./default-libs_users_src_index_ts.js": "6702524ccbbcbbe8d3ec8e2a1bad32822516ded2",
@@ -242,7 +242,7 @@
     "./default-node_modules_angular_material_fesm2022_tabs_mjs.js": "0c286fe2922a6d7979b37b76cecc0e99c4cb7db2",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "ac2c10d2e85355cb449d8cada0bc9ffd2cb972e8",
-    "./main.js": "6a9014b44f2fa4eb2027e6acd1931447c3a90fa5",
+    "./main.js": "6b1ad8193319e212898a7e7f02aa23da34aa6fcc",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
