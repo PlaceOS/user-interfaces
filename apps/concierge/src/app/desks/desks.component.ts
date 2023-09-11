@@ -68,7 +68,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     }
 
     public ngOnInit() {
-        this._state.startPolling();
+        this._state.refresh();
         this.subscription(
             'router.events',
             this._router.events.subscribe((e) => {
@@ -84,6 +84,5 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
 
     public ngOnDestroy() {
         super.ngOnDestroy();
-        this._state.stopPolling();
     }
 }

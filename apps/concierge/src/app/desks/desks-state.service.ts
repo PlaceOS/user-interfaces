@@ -204,16 +204,9 @@ export class DesksStateService extends AsyncHandler {
         this._filters.next({ ...this._filters.getValue(), ...filters });
     }
 
-    public startPolling(delay: number = 30 * 1000) {
-        this.interval(
-            'poll',
-            () => this.setFilters(this._filters.getValue()),
-            delay
-        );
-    }
-
-    public stopPolling() {
-        this.clearInterval('poll');
+    public refresh() {
+        this._loading.next(true);
+        this.timeout('poll', () => this.setFilters(this._filters.getValue()));
     }
 
     public addDesks(list: Desk[]) {

@@ -51,6 +51,17 @@ import { take } from 'rxjs/operators';
                     <div class="border-l h-full ml-8 mr-4"></div>
                     <div class="flex-1 w-px"></div>
                     <date-options (dateChange)="setDate($event)"></date-options>
+                    <button
+                        btn
+                        icon
+                        matRipple
+                        matTooltip="Refresh List"
+                        class="ml-2 rounded border border-gray-200"
+                        (click)="refresh()"
+                        [disabled]="loading | async"
+                    >
+                        <app-icon>refresh</app-icon>
+                    </button>
                 </div>
                 <div class="flex-1 h-1/2 w-full relative overflow-auto px-4">
                     <router-outlet></router-outlet>
@@ -87,6 +98,7 @@ export class NewDesksComponent
     public readonly levels = this._org.active_levels;
     public readonly setDate = (date) => this._state.setFilters({ date });
     public readonly setFilters = (o) => this._state.setFilters(o);
+    public readonly refresh = () => this._state.refresh();
     /** Update active zones for desks */
     public readonly updateZones = (zones: string[]) => {
         this._router.navigate([], {
@@ -108,7 +120,7 @@ export class NewDesksComponent
     }
 
     public ngOnInit() {
-        this._state.startPolling();
+        this._state.refresh();
         this.subscription(
             'router.events',
             this._router.events.subscribe((e) => {
@@ -140,7 +152,6 @@ export class NewDesksComponent
 
     public ngOnDestroy() {
         super.ngOnDestroy();
-        this._state.stopPolling();
     }
 
     public newDeskBooking() {
