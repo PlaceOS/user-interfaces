@@ -1,7 +1,12 @@
 import { Component, Input, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
-import { AsyncHandler, notifyError, openConfirmModal } from '@placeos/common';
+import {
+    AsyncHandler,
+    SettingsService,
+    notifyError,
+    openConfirmModal,
+} from '@placeos/common';
 import {
     CalendarEvent,
     EventFormService,
@@ -47,10 +52,10 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                         {{
                             event.all_day
                                 ? 'All Day'
-                                : (event.date | date: 'shortTime') +
+                                : (event.date | date: time_format) +
                                   ' - ' +
                                   (event.date + event.duration * 60 * 1000
-                                      | date: 'h:mm a (z)')
+                                      | date: time_format + ' (z)')
                         }}
                     </div>
                 </div>
@@ -172,10 +177,8 @@ export class MeetingFlowConfirmComponent extends AsyncHandler {
 
     private _space = this.event.resources[0];
 
-    public async ngOnInit() {
-        this._space =
-            (await this._space_pipe.transform(this.event.resources[0].email)) ||
-            this._space;
+    public get time_format() {
+        return this._settings.time_format;
     }
 
     public get formatted_recurrence() {
@@ -205,12 +208,19 @@ export class MeetingFlowConfirmComponent extends AsyncHandler {
     }
 
     constructor(
+        @Optional() private _sheet_ref: MatBottomSheetRef,
         private _event_form: EventFormService,
         private _org: OrganisationService,
         private _space_pipe: SpacePipe,
-        @Optional() private _sheet_ref: MatBottomSheetRef,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
+        private _settings: SettingsService
     ) {
         super();
+    }
+
+    public async ngOnInit() {
+        this._space =
+            (await this._space_pipe.transform(this.event.resources[0].email)) ||
+            this._space;
     }
 }

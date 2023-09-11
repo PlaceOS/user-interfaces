@@ -132,6 +132,10 @@ export class SettingsService extends AsyncHandler {
         return this._app_name;
     }
 
+    public get time_format(): string {
+        return this.get('app.use_24_hour_time') ? 'HH:mm' : 'h:mm a';
+    }
+
     /**
      * Get a setting
      * @param key Name of the setting. i.e. nested items can be grabbed using `.` to seperate key names

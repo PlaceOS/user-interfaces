@@ -111,6 +111,7 @@ import { addDays, endOfDay } from 'date-fns';
                             [ngModel]="form.value.date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
+                            [use_24hr]="use_24hr"
                             [disabled]="
                                 form.value.all_day || form.get('date')?.disabled
                             "
@@ -127,6 +128,7 @@ import { addDays, endOfDay } from 'date-fns';
                             [max]="12 * 60"
                             [min]="60"
                             [step]="60"
+                            [use_24hr]="use_24hr"
                             [force]="form.value.all_day ? 'All Day' : ''"
                         >
                         </a-duration-field>
@@ -285,6 +287,10 @@ export class NewDeskFormDetailsComponent extends AsyncHandler {
                 this._settings.get('app.desks.available_period') || 90
             )
         );
+    }
+
+    public get use_24hr() {
+        return this._settings.get('app.use_24_hour_time');
     }
 
     constructor(

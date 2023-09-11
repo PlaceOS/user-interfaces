@@ -1,7 +1,7 @@
 import { Component, Input, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { BookingFormService } from '@placeos/bookings';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 @Component({
@@ -35,10 +35,10 @@ import { OrganisationService } from '@placeos/organisation';
                         {{
                             booking.all_day
                                 ? 'All Day'
-                                : (booking.date | date: 'shortTime') +
+                                : (booking.date | date: time_format) +
                                   ' - ' +
                                   (booking.date + booking.duration * 60 * 1000
-                                      | date: 'h:mm a (z)')
+                                      | date: time_format + ' (z)')
                         }}
                     </div>
                 </div>
@@ -125,6 +125,10 @@ export class NewParkingFlowConfirmComponent extends AsyncHandler {
     };
     public readonly dismiss = (e?) => this._sheet_ref?.dismiss(e);
 
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
     public get booking() {
         return this._state.form.value as any;
     }
@@ -158,7 +162,8 @@ export class NewParkingFlowConfirmComponent extends AsyncHandler {
     constructor(
         private _state: BookingFormService,
         private _org: OrganisationService,
-        @Optional() private _sheet_ref: MatBottomSheetRef
+        @Optional() private _sheet_ref: MatBottomSheetRef,
+        private _settings: SettingsService
     ) {
         super();
     }

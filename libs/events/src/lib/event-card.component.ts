@@ -8,7 +8,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 
 import { CalendarEvent } from './event.class';
 import { EventDetailsModalComponent } from './event-details-modal.component';
@@ -20,7 +20,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
     template: `
         <h4 class="mb-2 flex items-center" *ngIf="event" date>
             <span *ngIf="show_day" day>{{ day }},&nbsp;</span>
-            {{ event?.date | date: 'h:mm a' }}
+            {{ event?.date | date: time_format }}
             <span class="text-xs px-2">({{ event?.date | date: 'z' }})</span>
         </h4>
         <a
@@ -169,11 +169,16 @@ export class EventCardComponent extends AsyncHandler {
 
     public location = '';
 
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
     constructor(
         private _dialog: MatDialog,
         private _route: ActivatedRoute,
         private _org: OrganisationService,
-        private _space_pipe: SpacePipe
+        private _space_pipe: SpacePipe,
+        private _settings: SettingsService
     ) {
         super();
     }
@@ -231,7 +236,10 @@ export class EventCardComponent extends AsyncHandler {
         })
             .replace(' hour', 'hr')
             .replace(' minute', 'min');
-        return `${format(start, 'h:mm a')} - ${format(end, 'h:mm a')} (${dur})`;
+        return `${format(start, this.time_format)} - ${format(
+            end,
+            this.time_format
+        )} (${dur})`;
     }
 
     public viewDetails() {

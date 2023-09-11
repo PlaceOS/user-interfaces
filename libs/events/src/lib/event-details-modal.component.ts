@@ -459,6 +459,10 @@ export class EventDetailsModalComponent {
         return this._settings.get('app.events.custom_actions') || EMPTY_ACTIONS;
     }
 
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
     constructor(
         @Inject(MAT_DIALOG_DATA) private _event: CalendarEvent,
         private _org: OrganisationService,
@@ -480,7 +484,10 @@ export class EventDetailsModalComponent {
         })
             .replace(' hour', 'hr')
             .replace(' minute', 'min');
-        return `${format(start, 'h:mm a')} - ${format(end, 'h:mm a')} (${dur})`;
+        return `${format(start, this.time_format)} - ${format(
+            end,
+            this.time_format
+        )} (${dur})`;
     }
 
     public async checkin() {

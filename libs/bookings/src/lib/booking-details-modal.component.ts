@@ -263,6 +263,10 @@ export class BookingDetailsModalComponent {
         return start <= ts && ts <= end;
     }
 
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
     constructor(
         @Inject(MAT_DIALOG_DATA) private _booking: Booking,
         private _settings: SettingsService,
@@ -281,7 +285,10 @@ export class BookingDetailsModalComponent {
         })
             .replace(' hour', 'hr')
             .replace(' minute', 'min');
-        return `${format(start, 'h:mm a')} - ${format(end, 'h:mm a')} (${dur})`;
+        return `${format(start, this.time_format)} - ${format(
+            end,
+            this.time_format
+        )} (${dur})`;
     }
 
     public async toggleCheckedIn() {

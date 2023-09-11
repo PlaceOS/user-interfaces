@@ -1,7 +1,12 @@
 import { Component, Input, Optional } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { CateringOrder } from '@placeos/catering';
-import { AsyncHandler, notifyError, openConfirmModal } from '@placeos/common';
+import {
+    AsyncHandler,
+    SettingsService,
+    notifyError,
+    openConfirmModal,
+} from '@placeos/common';
 import {
     CalendarEvent,
     EventFormService,
@@ -63,10 +68,10 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                             {{
                                 event.all_day
                                     ? 'All Day'
-                                    : (event.date | date: 'shortTime') +
+                                    : (event.date | date: time_format) +
                                       ' - ' +
                                       (event.date + event.duration * 60 * 1000
-                                          | date: 'h:mm a (z)')
+                                          | date: time_format + ' (z)')
                             }}
                         </div>
                     </div>
@@ -290,6 +295,10 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
 
     private _space = this.event.resources[0];
 
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
     public async ngOnInit() {
         this._space =
             (await this._space_pipe.transform(
@@ -333,7 +342,8 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
         private _space_pipe: SpacePipe,
         @Optional()
         private _dialog_ref: MatDialogRef<MeetingFlowConfirmModalComponent>,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
+        private _settings: SettingsService
     ) {
         super();
     }

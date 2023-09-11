@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { AsyncHandler } from '@placeos/common';
-import { EventFormService } from '@placeos/events';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { take } from 'rxjs/operators';
 import { ParkingSpaceFiltersComponent } from './parking-filters.component';
+import { BookingFormService } from '../booking-form.service';
 
 @Component({
     selector: `parking-space-filters-display`,
@@ -55,8 +55,8 @@ import { ParkingSpaceFiltersComponent } from './parking-filters.component';
                 {{ start | date: 'mediumDate' }}
             </div>
             <div filter-item time class="dark:border-neutral-500">
-                {{ start | date: 'shortTime' }} &mdash;
-                {{ end | date: 'shortTime' }}
+                {{ start | date: time_format }} &mdash;
+                {{ end | date: time_format }}
             </div>
             <div filter-item count class="dark:border-neutral-500" i18n>
                 Min. {{ (options | async)?.capcaity || 2 }} People
@@ -116,10 +116,15 @@ export class ParkingSpaceFiltersDisplayComponent extends AsyncHandler {
     public readonly editFilters = () =>
         this._bsheet.open(ParkingSpaceFiltersComponent);
 
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
     constructor(
         private _bsheet: MatBottomSheet,
-        private _event_form: EventFormService,
-        private _org: OrganisationService
+        private _event_form: BookingFormService,
+        private _org: OrganisationService,
+        private _settings: SettingsService
     ) {
         super();
     }
@@ -127,8 +132,8 @@ export class ParkingSpaceFiltersDisplayComponent extends AsyncHandler {
     public ngOnInit() {
         this.subscription(
             'opts',
-            this.options.subscribe(({ zone_ids }) =>
-                this._updateLocation(zone_ids)
+            this.options.subscribe(({ zone_id }) =>
+                this._updateLocation([zone_id])
             )
         );
     }

@@ -118,6 +118,7 @@ import { BookingFormService } from '../booking-form.service';
                             [ngModel]="form.value.date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
+                            [use_24hr]="use_24hr"
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3">
@@ -128,6 +129,7 @@ import { BookingFormService } from '../booking-form.service';
                             [max]="12 * 60"
                             [min]="60"
                             [step]="60"
+                            [use_24hr]="use_24hr"
                         >
                         </a-duration-field>
                     </div>
@@ -225,6 +227,10 @@ export class LockerFiltersComponent {
                 this._settings.get('app.lockers.available_period') || 90
             )
         );
+    }
+
+    public get use_24hr() {
+        return this._settings.get('app.use_24_hour_time');
     }
 
     constructor(
