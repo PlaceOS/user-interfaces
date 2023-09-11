@@ -173,7 +173,9 @@ export class DesksStateService extends AsyncHandler {
         shareReplay(1)
     );
 
-    public readonly has_more_pages = this._next_page.pipe(map((_) => !!_));
+    public readonly has_more_pages = this.paged_bookings.pipe(
+        map((_) => _.list.length < _.total)
+    );
     public readonly bookings = this.paged_bookings.pipe(map((i) => i.list));
 
     public nextPage() {

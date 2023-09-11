@@ -6,7 +6,8 @@ import { map } from 'rxjs/operators';
 @Component({
     selector: 'desk-bookings',
     template: `
-        <div class="overflow-auto h-full w-full p-4">
+        <div class="w-full h-4"></div>
+        <div class="overflow-auto h-full w-full px-4 pb-4">
             <custom-table
                 class="min-w-[76rem] block"
                 [dataSource]="bookings"
@@ -181,16 +182,17 @@ import { map } from 'rxjs/operators';
                     </mat-menu>
                 </div>
             </ng-template>
-            <button
-                btn
-                matRipple
-                class="w-32 mx-auto my-4"
-                *ngIf="!loading && has_more_pages | async"
-                (click)="loadMore()"
-            >
-                Load More
-            </button>
         </div>
+
+        <button
+            btn
+            matRipple
+            class="absolute bottom-2 left-2 w-32 mx-auto my-4"
+            *ngIf="!loading && (has_more_pages | async)"
+            (click)="loadMore()"
+        >
+            Load More
+        </button>
         <button
             icon
             matRipple
