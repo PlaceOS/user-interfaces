@@ -331,7 +331,7 @@ export class CalendarEvent {
         const now = new Date();
         return (
             this.is_today ||
-            (isAfter(now, this.date) &&
+            (isAfter(now, addMinutes(this.date, -5)) &&
                 isBefore(now, addMinutes(this.date, this.duration)))
         );
     }

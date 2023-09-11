@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 
 import { CalendarEvent } from '@placeos/events';
 import { EventsStateService } from '../day-view/events-state.service';
+import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'week-view-event',
@@ -17,7 +18,7 @@ import { EventsStateService } from '../day-view/events-state.service';
             "
         >
             <div class="text-base">{{ event?.title }}</div>
-            <div class="text-sm">{{ event?.date | date: 'shortTime' }}</div>
+            <div class="text-sm">{{ event?.date | date: time_format }}</div>
             <div class="text-sm">
                 {{ event?.attendees.length }} Attendee{{
                     event?.attendees.length === 1 ? '' : 's'
@@ -63,5 +64,12 @@ export class WeekViewEventComponent {
 
     public readonly view = (e) => this._state.setEvent(e);
 
-    constructor(private _state: EventsStateService) {}
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
+    constructor(
+        private _state: EventsStateService,
+        private _settings: SettingsService
+    ) {}
 }

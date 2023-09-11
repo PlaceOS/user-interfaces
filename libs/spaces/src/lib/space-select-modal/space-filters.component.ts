@@ -100,6 +100,7 @@ import { SpacesService } from '../spaces.service';
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
                             [disabled]="form.value.all_day"
+                            [use_24hr]="use_24hr"
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3">
@@ -112,6 +113,7 @@ import { SpacesService } from '../spaces.service';
                             [time]="form?.value?.date"
                             [max]="max_duration"
                             [force]="form.value.all_day ? 'All Day' : ''"
+                            [use_24hr]="use_24hr"
                         >
                         </a-duration-field>
                     </div>
@@ -224,6 +226,10 @@ export class SpaceFiltersComponent {
 
     public get hide_features() {
         return this._settings.get('app.events.hide_features') || [];
+    }
+
+    public get use_24hr() {
+        return this._settings.get('app.use_24_hour_time');
     }
 
     public get end_date() {

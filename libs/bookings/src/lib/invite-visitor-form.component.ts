@@ -68,6 +68,7 @@ import { User } from 'libs/users/src/lib/user.class';
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [disabled]="form.value.all_day"
+                                [use_24hr]="use_24hr"
                             ></a-time-field>
                         </div>
                         <div class="flex-1 flex flex-col w-1/3">
@@ -78,6 +79,7 @@ import { User } from 'libs/users/src/lib/user.class';
                                 name="end-time"
                                 formControlName="duration"
                                 [time]="form.value.date"
+                                [use_24hr]="use_24hr"
                             ></a-duration-field>
                         </div>
                     </div>
@@ -237,7 +239,7 @@ import { User } from 'libs/users/src/lib/user.class';
                         to attend
                         {{ building?.display_name || building?.name }} from
                         {{ last_success?.date | date: 'mediumDate' }} at
-                        {{ last_success?.date | date: 'shortTime' }}
+                        {{ last_success?.date | date: time_format }}
                     </p>
                 </div>
                 <div
@@ -312,6 +314,14 @@ export class InviteVisitorFormComponent extends AsyncHandler {
 
     public get form() {
         return this._service.form;
+    }
+
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
+    public get use_24hr() {
+        return this._settings.get('app.use_24_hour_time');
     }
 
     constructor(

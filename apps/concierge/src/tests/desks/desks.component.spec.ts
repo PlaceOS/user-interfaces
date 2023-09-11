@@ -20,12 +20,7 @@ describe('DesksComponent', () => {
             MockComponent(DesksTopbarComponent),
             MockComponent(SidebarComponent),
         ],
-        providers: [
-            MockProvider(DesksStateService, {
-                startPolling: jest.fn(),
-                stopPolling: jest.fn(),
-            }),
-        ],
+        providers: [MockProvider(DesksStateService, { refresh: jest.fn() })],
         imports: [MockModule(MatProgressBarModule), MockModule(MatTabsModule)],
     });
 

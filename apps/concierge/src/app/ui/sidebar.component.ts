@@ -74,7 +74,7 @@ import { map } from 'rxjs/operators';
                 </div>
                 <div class="text-xs opacity-60 w-full">
                     {{ version.time | date: 'longDate' }}
-                    ({{ version.time | date: 'shortTime' }})
+                    ({{ version.time | date: time_format }})
                 </div>
             </div>
         </div>
@@ -156,6 +156,10 @@ export class SidebarComponent {
             )
         ).text();
         this._dialog.open(ChangelogModalComponent, { data: { changelog } });
+    }
+
+    public get time_format() {
+        return this._settings.time_format;
     }
 
     constructor(

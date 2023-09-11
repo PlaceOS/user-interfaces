@@ -25,6 +25,7 @@ import {
 
 import {
     AsyncHandler,
+    SettingsService,
     flatten,
     openConfirmModal,
     timePeriodsIntersect,
@@ -220,7 +221,15 @@ export class EventsStateService extends AsyncHandler {
         return this._filters.getValue();
     }
 
-    constructor(private _org: OrganisationService, private _dialog: MatDialog) {
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
+    constructor(
+        private _org: OrganisationService,
+        private _dialog: MatDialog,
+        private _settings: SettingsService
+    ) {
         super();
         this.events.subscribe();
     }
@@ -308,7 +317,7 @@ export class EventsStateService extends AsyncHandler {
                 title: 'Delete meeting?',
                 content: `Are you sure you want to delete the meeting at ${format(
                     new Date(event.date),
-                    'dd MMM yyyy, h:mma'
+                    'dd MMM yyyy, ' + this.time_format
                 )}<br> in ${event.location}?`,
                 icon: { class: 'material-icons', content: 'delete' },
             },

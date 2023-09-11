@@ -40,9 +40,9 @@ import {
                     </span>
                     for the
                     {{ last_event.date | date: 'mediumDate' }} at
-                    {{ last_event.date | date: 'shortTime' }}-{{
+                    {{ last_event.date | date: time_format }}-{{
                         last_event.date + last_event.duration * 60 * 1000
-                            | date: 'shortTime'
+                            | date: time_format
                     }}.
                 </p>
                 <div
@@ -126,6 +126,10 @@ export class NewDeskFlowSuccessComponent {
 
     public readonly viewCalendarLinks = () =>
         this._state.openBookingLinkModal();
+
+    public get time_format() {
+        return this._settings.time_format;
+    }
 
     constructor(
         private _state: BookingFormService,

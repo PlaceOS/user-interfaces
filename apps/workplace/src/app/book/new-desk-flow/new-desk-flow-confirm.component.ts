@@ -1,7 +1,7 @@
 import { Component, Input, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { BookingFormService } from '@placeos/bookings';
-import { AsyncHandler, notifyError } from '@placeos/common';
+import { AsyncHandler, SettingsService, notifyError } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { take } from 'rxjs/operators';
 
@@ -49,10 +49,10 @@ import { take } from 'rxjs/operators';
                         {{
                             booking.all_day
                                 ? 'All Day'
-                                : (booking.date | date: 'shortTime') +
+                                : (booking.date | date: time_format) +
                                   ' - ' +
                                   (booking.date + booking.duration * 60 * 1000
-                                      | date: 'h:mm a (z)')
+                                      | date: time_format + ' (z)')
                         }}
                     </div>
                 </div>
@@ -160,6 +160,10 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
         return this._state.form.value as any;
     }
 
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
     public get assets() {
         return this.booking.assets || null;
     }
@@ -193,7 +197,8 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
     constructor(
         private _state: BookingFormService,
         private _org: OrganisationService,
-        @Optional() private _sheet_ref: MatBottomSheetRef
+        @Optional() private _sheet_ref: MatBottomSheetRef,
+        private _settings: SettingsService
     ) {
         super();
     }

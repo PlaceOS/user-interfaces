@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 
 import { LockerFiltersComponent } from './locker-filters.component';
 import { BookingFormService } from '../booking-form.service';
@@ -75,8 +75,8 @@ import { endOfDay } from 'date-fns';
             <!-- TODO: filter chips -->
             <div filter-item date>{{ start | date: 'mediumDate' }}</div>
             <div filter-item time>
-                {{ start | date: 'shortTime' }} &mdash;
-                {{ end | date: 'shortTime' }}
+                {{ start | date: time_format }} &mdash;
+                {{ end | date: time_format }}
             </div>
             <div
                 filter-item
@@ -129,9 +129,14 @@ export class LockerFiltersDisplayComponent extends AsyncHandler {
     public readonly editFilter = () =>
         this._bsheet.open(LockerFiltersComponent);
 
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
     constructor(
         private _bsheet: MatBottomSheet,
-        private _state: BookingFormService
+        private _state: BookingFormService,
+        private _settings: SettingsService
     ) {
         super();
     }

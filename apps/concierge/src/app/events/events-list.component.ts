@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SettingsService } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { addMinutes } from 'date-fns';
@@ -67,10 +68,10 @@ import { addMinutes } from 'date-fns';
                 <div details class="flex flex-col">
                     <div class="text-sm">{{ item.title }}</div>
                     <div class="text-xs opacity-40">
-                        {{ item.date | date: 'EEEE, h:mma' }} &ndash;
+                        {{ item.date | date: 'EEEE, ' + time_format }} &ndash;
                         {{
                             item.date + item.duration * 60 * 1000
-                                | date: 'h:mma z'
+                                | date: time_format + ' z'
                         }}
                     </div>
                     <div class="text-xs">
@@ -150,5 +151,9 @@ export class EventsListComponent {
         }),
     ];
 
-    constructor(private _org: OrganisationService) {}
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
+    constructor(private _settings: SettingsService) {}
 }

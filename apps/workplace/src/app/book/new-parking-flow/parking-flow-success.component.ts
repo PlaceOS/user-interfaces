@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { BookingFormService } from '@placeos/bookings';
+import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'parking-flow-success',
@@ -15,9 +16,9 @@ import { BookingFormService } from '@placeos/bookings';
                     {{ last_event.asset_name }} at {{ location }}, </span
                 >has been successfully booked for the
                 {{ last_event.date | date: 'mediumDate' }} at
-                {{ last_event.date | date: 'shortTime' }}-{{
+                {{ last_event.date | date: time_format }}-{{
                     last_event.date + last_event.duration * 60 * 1000
-                        | date: 'shortTime'
+                        | date: time_format
                 }}.
             </p>
             <img src="assets/icons/parking-success.svg" />
@@ -56,5 +57,12 @@ export class ParkingFlowSuccessComponent {
         return this._state.last_success;
     }
 
-    constructor(private _state: BookingFormService) {}
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
+    constructor(
+        private _state: BookingFormService,
+        private _settings: SettingsService
+    ) {}
 }

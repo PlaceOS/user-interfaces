@@ -4,6 +4,7 @@ import {
     AssetRequest,
 } from './asset-manager-state.service';
 import { OrganisationService } from '@placeos/organisation';
+import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'asset-request-details',
@@ -90,10 +91,10 @@ import { OrganisationService } from '@placeos/organisation';
                         <div class="font-medium">Period</div>
                     </div>
                     <div class="pl-10 mt-1">
-                        {{ request.date | date: 'shortTime' }} &ndash;
+                        {{ request.date | date: time_format }} &ndash;
                         {{
                             request.date + request.duration * 60 * 1000
-                                | date: 'shortTime'
+                                | date: time_format
                         }}
                         ({{ request.duration | duration }})
                     </div>
@@ -217,9 +218,14 @@ export class AssetRequestDetailsComponent {
 
     public loading = false;
 
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
     constructor(
         private _state: AssetManagerStateService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _settings: SettingsService
     ) {}
 
     public level(zones) {

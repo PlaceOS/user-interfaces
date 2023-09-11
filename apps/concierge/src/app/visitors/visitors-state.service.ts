@@ -13,6 +13,7 @@ import { startOfDay, getUnixTime, addDays, format } from 'date-fns';
 
 import {
     AsyncHandler,
+    SettingsService,
     downloadFile,
     flatten,
     jsonToCsv,
@@ -194,7 +195,15 @@ export class VisitorsStateService extends AsyncHandler {
         return this._search.getValue();
     }
 
-    constructor(private _dialog: MatDialog, private _org: OrganisationService) {
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
+    constructor(
+        private _dialog: MatDialog,
+        private _org: OrganisationService,
+        private _settings: SettingsService
+    ) {
         super();
     }
 
@@ -420,7 +429,7 @@ export class VisitorsStateService extends AsyncHandler {
             'Checked In': _.checked_in,
             Host: _.extension_data?.host || '',
             Status: _.status,
-            Date: format(_.extension_data?.date, 'dd MMM h:mm a'),
+            Date: format(_.extension_data?.date, 'dd MMM ' + this.time_format),
         }));
         const data = jsonToCsv(list);
         downloadFile(

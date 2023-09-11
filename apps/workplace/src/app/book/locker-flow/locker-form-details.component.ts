@@ -55,14 +55,15 @@ import { OrganisationService } from '@placeos/organisation';
                 </div>
                 <div class="flex items-center space-x-2">
                     <div class="flex-1 w-1/3">
-                        <label for="start-time" i18n
-                            >Start Time<span>*</span></label
-                        >
+                        <label for="start-time" i18n>
+                            Start Time<span>*</span>
+                        </label>
                         <a-time-field
                             name="start-time"
                             [ngModel]="form.value.date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
+                            [use_24hr]="use_24hr"
                             [disabled]="form.value.duration > 24 * 60 - 1"
                         ></a-time-field>
                     </div>
@@ -77,6 +78,7 @@ import { OrganisationService } from '@placeos/organisation';
                             [max]="12 * 60"
                             [min]="60"
                             [step]="60"
+                            [use_24hr]="use_24hr"
                             [custom_options]="custom_durations"
                         >
                         </a-duration-field>
@@ -123,6 +125,10 @@ export class LockerFormDetailsComponent extends AsyncHandler {
     }
     public set building(bld) {
         this._org.building = bld;
+    }
+
+    public get use_24hr() {
+        return this._settings.get('app.use_24_hour_time');
     }
 
     public readonly setOptions = (o) => this._state.setOptions(o);

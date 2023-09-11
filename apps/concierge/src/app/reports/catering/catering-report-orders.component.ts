@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { OrganisationService } from '@placeos/organisation';
 import { CateringReportStateService } from './catering-report-state.service';
+import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'catering-report-orders',
@@ -34,7 +35,7 @@ import { CateringReportStateService } from './catering-report-state.service';
                 empty="No orders for selected period"
             ></custom-table>
             <ng-template #date_state let-data="data">
-                {{ data | date }} at {{ data | date: 'shortTime' }}
+                {{ data | date }} at {{ data | date: time_format }}
             </ng-template>
             <ng-template #cost_state let-data="data">
                 {{ data / 100 | currency: code }}
@@ -50,9 +51,14 @@ export class CateringReportOrdersComponent {
         return this._org.currency_code;
     }
 
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
     constructor(
         private _report: CateringReportStateService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _settings: SettingsService
     ) {}
 
     public readonly download = () => this._report.downloadOrders();

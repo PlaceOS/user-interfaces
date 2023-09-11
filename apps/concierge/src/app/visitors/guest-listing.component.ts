@@ -163,8 +163,8 @@ import { VisitorsStateService } from './visitors-state.service';
                 row.extension_data?.date
                     | date
                         : ((filters | async)?.period > 1
-                              ? 'MMM d, h:mm a'
-                              : 'shortTime')
+                              ? 'MMM d, ' + time_format
+                              : time_format)
             }}
         </ng-template>
         <ng-template #action_template let-row="row">
@@ -307,6 +307,10 @@ export class GuestListingComponent {
             actions: '12r',
         };
         return this.columns.map((_) => fields[_] || _);
+    }
+
+    public get time_format() {
+        return this._settings.time_format;
     }
 
     constructor(

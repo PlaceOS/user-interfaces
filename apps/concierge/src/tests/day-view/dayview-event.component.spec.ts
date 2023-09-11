@@ -1,11 +1,12 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent } from '@placeos/components';
 import { CalendarEvent } from '@placeos/events';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
 import { DayviewEventComponent } from '../../app/day-view/dayview-event.component';
 import { EventsStateService } from '../../app/day-view/events-state.service';
+import { SettingsService } from '@placeos/common';
 
 describe('DayviewEventComponent', () => {
     let spectator: Spectator<DayviewEventComponent>;
@@ -13,13 +14,11 @@ describe('DayviewEventComponent', () => {
         component: DayviewEventComponent,
         declarations: [MockComponent(IconComponent)],
         providers: [
-            {
-                provide: EventsStateService,
-                useValue: {
-                    options: new BehaviorSubject({}),
-                    setEvent: jest.fn(),
-                },
-            },
+            MockProvider(EventsStateService, {
+                options: new BehaviorSubject({}),
+                setEvent: jest.fn(),
+            }),
+            MockProvider(SettingsService, { time_format: 'h:mm a' }),
         ],
     });
 

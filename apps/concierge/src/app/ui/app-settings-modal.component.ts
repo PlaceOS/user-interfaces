@@ -21,6 +21,25 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                 *ngIf="!loading; else load_state"
             >
                 <div class=" mx-auto max-w-[640px] w-full">
+                    <h3 class="font-medium text-lg">General Features</h3>
+                    <div class="flex flex-wrap items-center -mx-2 py-2">
+                        <button
+                            matRipple
+                            class="flex items-center space-x-2 m-2 p-2 border border-gray-300 w-[calc(50%-1rem)]"
+                            (click)="
+                                active_features['use_24_hour_time'] =
+                                    !active_features['use_24_hour_time']
+                            "
+                        >
+                            <div class="ml-2 flex-1 text-left">
+                                {{ feature_descriptions['use_24_hour_time'] }}
+                            </div>
+                            <mat-checkbox
+                                [ngModel]="active_features['use_24_hour_time']"
+                                class="pointer-events-none"
+                            ></mat-checkbox>
+                        </button>
+                    </div>
                     <h3 class="font-medium text-lg">Features</h3>
                     <div class="flex flex-wrap items-center -mx-2 py-2">
                         <button
@@ -172,6 +191,7 @@ export class AppSettingsModalComponent {
     public active_features: Record<string, boolean> = {};
 
     public readonly feature_descriptions = {
+        use_24_hour_time: 'Use 24 Hour Time',
         spaces: 'Book Rooms',
         desks: 'Book Desks',
         explore: 'Explore Maps',
@@ -200,6 +220,7 @@ export class AppSettingsModalComponent {
     };
 
     public readonly form = new FormGroup({
+        use_24_hour_time: new FormControl(false),
         features: new FormControl([]),
         general: new FormGroup({
             show_quick_links: new FormControl(false),

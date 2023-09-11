@@ -23,7 +23,10 @@ describe('BookingDetailsModalComponent', () => {
                 levelWithID: jest.fn(),
                 buildings: [],
             }),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, {
+                get: jest.fn(),
+                time_format: 'h:mm a',
+            }),
         ],
         declarations: [
             MockComponent(ImageCarouselComponent),

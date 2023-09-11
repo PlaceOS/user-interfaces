@@ -2,11 +2,13 @@ import { Component } from '@angular/core';
 
 import { DesksStateService } from './desks-state.service';
 import { map } from 'rxjs/operators';
+import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'desk-bookings',
     template: `
-        <div class="overflow-auto h-full w-full p-4">
+        <div class="w-full h-4"></div>
+        <div class="overflow-auto h-full w-full px-4 pb-4">
             <custom-table
                 class="min-w-[76rem] block"
                 [dataSource]="bookings"
@@ -67,8 +69,8 @@ import { map } from 'rxjs/operators';
                 </div>
             </ng-template>
             <ng-template #period_template let-row="row">
-                {{ row.date | date: 'shortTime' }} &ndash;
-                {{ row.end | date: 'shortTime' }}
+                {{ row.date | date: time_format }} &ndash;
+                {{ row.end | date: time_format }}
             </ng-template>
             <ng-template #desk_template let-row="row">
                 {{ row.asset_name || row.asset_id }}
@@ -182,6 +184,16 @@ import { map } from 'rxjs/operators';
                 </div>
             </ng-template>
         </div>
+
+        <button
+            btn
+            matRipple
+            class="absolute bottom-2 left-2 w-32 mx-auto my-4"
+            *ngIf="!loading && (has_more_pages | async)"
+            (click)="loadMore()"
+        >
+            Load More
+        </button>
         <button
             icon
             matRipple
@@ -209,6 +221,7 @@ import { map } from 'rxjs/operators';
 export class DeskBookingsComponent {
     public loading: string;
     public readonly filters = this._state.filters;
+    public readonly has_more_pages = this._state.has_more_pages;
     public readonly bookings = this._state.bookings.pipe(
         map((i) =>
             i.map((booking) => ({
@@ -219,6 +232,7 @@ export class DeskBookingsComponent {
     );
 
     public readonly rejectAll = () => this._state.rejectAllDesks();
+    public readonly loadMore = () => this._state.nextPage();
 
     public readonly checkin = (d, s?) =>
         this.runMethod('checkin', async () => {
@@ -230,7 +244,14 @@ export class DeskBookingsComponent {
     public readonly reject = (d) =>
         this.runMethod('reject', async () => this._state.rejectDesk(d));
 
-    constructor(private _state: DesksStateService) {}
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
+    constructor(
+        private _state: DesksStateService,
+        private _settings: SettingsService
+    ) {}
 
     private async runMethod(name: string, fn: () => Promise<any>) {
         this.loading = name;

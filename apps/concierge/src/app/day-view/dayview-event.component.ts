@@ -3,6 +3,7 @@ import { startOfDay, differenceInMinutes, format, addMinutes } from 'date-fns';
 
 import { CalendarEvent } from '@placeos/events';
 import { EventsStateService } from './events-state.service';
+import { SettingsService } from '@placeos/common';
 
 const DAY_IN_MINUTES = 24 * 60;
 
@@ -71,7 +72,7 @@ const DAY_IN_MINUTES = 24 * 60;
                 clean at
                 {{
                     event.ext('cleaning_time') || event.event_end * 1000
-                        | date: 'shortTime'
+                        | date: time_format
                 }}
             </div>
         </div>
@@ -140,9 +141,9 @@ export class DayviewEventComponent implements OnChanges {
     public get time() {
         const date = new Date(this.event.date);
         return (
-            format(date, 'h:mm a') +
+            format(date, this.time_format) +
             ' - ' +
-            format(addMinutes(date, this.event.duration), 'h:mm a')
+            format(addMinutes(date, this.event.duration), this.time_format)
         );
     }
 
@@ -154,7 +155,14 @@ export class DayviewEventComponent implements OnChanges {
             : 'internal';
     }
 
-    constructor(private _state: EventsStateService) {}
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
+    constructor(
+        private _state: EventsStateService,
+        private _settings: SettingsService
+    ) {}
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.event && this.event) {

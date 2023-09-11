@@ -40,9 +40,9 @@ import {
                     </span>
                     for the
                     {{ last_event.date | date: 'mediumDate' }} at
-                    {{ last_event.date | date: 'shortTime' }}-{{
+                    {{ last_event.date | date: time_format }}-{{
                         last_event.date + last_event.duration * 60 * 1000
-                            | date: 'shortTime'
+                            | date: time_format
                     }}.
                 </p>
                 <div
@@ -124,6 +124,10 @@ export class BookLockerFlowSuccessComponent {
 
     public get show_links() {
         return this._settings.get('app.lockers.show_calendar_links');
+    }
+
+    public get time_format() {
+        return this._settings.time_format;
     }
 
     public readonly viewCalendarLinks = () =>

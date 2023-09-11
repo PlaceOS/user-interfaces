@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { AsyncHandler, Identity } from '@placeos/common';
+import { AsyncHandler, Identity, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { BookingUIOptions, EventsStateService } from './events-state.service';
 
@@ -59,8 +59,10 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
                 class="m-2"
                 [ngModel]="(ui_options | async)?.show_overflow"
                 (ngModelChange)="updateUIOptions({ show_overflow: $event })"
-                ><div class="text-xs">Setup / Breakdown</div></mat-slide-toggle
+                *ngIf="allow_setup_breakdown"
             >
+                <div class="text-xs">Setup / Breakdown</div>
+            </mat-slide-toggle>
             <div class="flex-1 w-0"></div>
             <!-- <searchbar class="mr-2"></searchbar> -->
             <date-options (dateChange)="setDate($event)"></date-options>
@@ -127,11 +129,16 @@ export class DayviewTopbarComponent extends AsyncHandler {
         this._state.setUIOptions(options);
     }
 
+    public get allow_setup_breakdown() {
+        return this._settings.get('app.events.allow_setup_breakdown');
+    }
+
     constructor(
         private _state: EventsStateService,
         private _org: OrganisationService,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
+        private _settings: SettingsService
     ) {
         super();
     }

@@ -7,6 +7,7 @@ import { set } from 'date-fns';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { EventCardComponent } from '../lib/event-card.component';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { SettingsService } from '@placeos/common';
 
 describe('EventCardComponent', () => {
     let spectator: SpectatorRouting<EventCardComponent>;
@@ -19,6 +20,7 @@ describe('EventCardComponent', () => {
                 buildings: [],
             }),
             MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(SettingsService, { time_format: 'h:mm a' }),
         ],
         componentProviders: [MockProvider(SpacePipe)],
     });

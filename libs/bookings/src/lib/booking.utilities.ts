@@ -9,12 +9,7 @@ import {
     removeViewer,
 } from '@placeos/svg-viewer';
 import { Booking } from './booking.class';
-import {
-    addMinutes,
-    roundToNearestMinutes,
-    setHours,
-    setMinutes,
-} from 'date-fns';
+import { roundToNearestMinutes, setHours, setMinutes } from 'date-fns';
 
 function setBookingAsset(form: FormGroup, resource: any) {
     if (!resource) return form.patchValue({ asset_id: undefined });
@@ -84,6 +79,11 @@ export function generateBookingForm(booking: Booking = new Booking()) {
                   { emitEvent: false }
               )
             : '';
+        if (form.value.date < Date.now() && form.value.id) {
+            form.get('date')?.disable({ emitEvent: false });
+        } else {
+            form.get('date')?.enable({ emitEvent: false });
+        }
         if (!('all_day' in v)) {
             previous_time = v.date || previous_time;
             previous_duration = v.duration || previous_duration;
@@ -94,7 +94,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         setBookingAsset(form, (resources || [])[0])
     );
     form.controls.date.valueChanges.subscribe((date) => {
-        if (date > Date.now()) return;
+        if (date > Date.now() || form.value.id) return;
         form.patchValue(
             {
                 date: roundToNearestMinutes(Date.now(), {
@@ -122,6 +122,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
             });
         }
     });
+    if (booking.state === 'started') form.get('date').disable();
     return form;
 }
 

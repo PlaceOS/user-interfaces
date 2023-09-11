@@ -33,7 +33,10 @@ describe('EventDetailsModalComponent', () => {
                 levelWithID: jest.fn(),
                 buildings: [],
             }),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, {
+                get: jest.fn(),
+                time_format: 'h:mm a',
+            }),
         ],
         componentProviders: [
             MockProvider(SpacePipe, {

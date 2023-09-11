@@ -28,9 +28,7 @@ import { addDays, endOfDay } from 'date-fns';
                     </label>
                     <a-date-field
                         name="date"
-                        [ngModel]="form.value.date"
-                        (ngModelChange)="form.patchValue({ date: $event })"
-                        [ngModelOptions]="{ standalone: true }"
+                        formControlName="date"
                         [to]="end_date"
                     >
                         {{ 'FORM.DATE_ERROR' | translate }}
@@ -48,7 +46,10 @@ import { addDays, endOfDay } from 'date-fns';
                         [ngModel]="form.value.date"
                         (ngModelChange)="form.patchValue({ date: $event })"
                         [ngModelOptions]="{ standalone: true }"
-                        [disabled]="form.value.all_day"
+                        [use_24hr]="use_24hr"
+                        [disabled]="
+                            form.value.all_day || form.get('date').disabled
+                        "
                     ></a-time-field>
                 </div>
                 <div class="flex-1 w-1/3 relative">
@@ -61,6 +62,7 @@ import { addDays, endOfDay } from 'date-fns';
                         [disabled]="form.value.all_day"
                         [time]="form?.value?.date"
                         [max]="max_duration"
+                        [use_24hr]="use_24hr"
                         [ngModelOptions]="{ standalone: true }"
                         [force]="form.value.all_day ? 'All Day' : ''"
                     >
@@ -130,6 +132,10 @@ export class MeetingFormDetailsComponent {
                 this._settings.get('app.events.allowed_future_days') || 180
             )
         );
+    }
+
+    public get use_24hr() {
+        return this._settings.get('app.use_24_hour_time');
     }
 
     constructor(private _settings: SettingsService) {}
