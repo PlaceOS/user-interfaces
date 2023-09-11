@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 
 import { DesksStateService } from './desks-state.service';
 import { map } from 'rxjs/operators';
+import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'desk-bookings',
@@ -68,8 +69,8 @@ import { map } from 'rxjs/operators';
                 </div>
             </ng-template>
             <ng-template #period_template let-row="row">
-                {{ row.date | date: 'shortTime' }} &ndash;
-                {{ row.end | date: 'shortTime' }}
+                {{ row.date | date: time_format }} &ndash;
+                {{ row.end | date: time_format }}
             </ng-template>
             <ng-template #desk_template let-row="row">
                 {{ row.asset_name || row.asset_id }}
@@ -243,7 +244,14 @@ export class DeskBookingsComponent {
     public readonly reject = (d) =>
         this.runMethod('reject', async () => this._state.rejectDesk(d));
 
-    constructor(private _state: DesksStateService) {}
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
+    constructor(
+        private _state: DesksStateService,
+        private _settings: SettingsService
+    ) {}
 
     private async runMethod(name: string, fn: () => Promise<any>) {
         this.loading = name;

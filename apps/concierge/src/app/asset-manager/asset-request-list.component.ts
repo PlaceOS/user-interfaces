@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { AssetManagerStateService } from './asset-manager-state.service';
 import { OrganisationService } from '@placeos/organisation';
 
@@ -92,8 +92,8 @@ import { OrganisationService } from '@placeos/organisation';
             {{ level(data)?.display_name || 'N/A' }}
         </ng-template>
         <ng-template #period_template let-row="row">
-            {{ row.date | date: 'shortTime' }} &ndash;
-            {{ row.date + row.duration * 60 * 1000 | date: 'shortTime' }}
+            {{ row.date | date: time_format }} &ndash;
+            {{ row.date + row.duration * 60 * 1000 | date: time_format }}
         </ng-template>
         <ng-template #approval_template let-row="row">
             <button
@@ -193,9 +193,14 @@ export class AssetRequestListComponent extends AsyncHandler {
 
     public readonly setDate = (date) => this._state.setOptions({ date });
 
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
     constructor(
         private _state: AssetManagerStateService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _settings: SettingsService
     ) {
         super();
     }

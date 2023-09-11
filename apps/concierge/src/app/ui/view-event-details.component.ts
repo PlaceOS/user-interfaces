@@ -159,14 +159,18 @@ export class ViewEventDetailsComponent {
     public get time() {
         const date = new Date(this.event.date);
         return (
-            format(date, 'h:mm a') +
+            format(date, this.time_format) +
             ' - ' +
-            format(addMinutes(date, this.event.duration), 'h:mm a')
+            format(addMinutes(date, this.event.duration), this.time_format)
         );
     }
 
     public get is_delegated() {
         return this._settings.get('app.delegated');
+    }
+
+    public get time_format() {
+        return this._settings.time_format;
     }
 
     constructor(

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { formatDuration } from 'date-fns';
 import { ContactTracingStateService } from './contact-tracing-state.service';
+import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'app-contact-tracing-report',
@@ -59,7 +60,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                     }}</ng-template>
                     <ng-template #date_state let-data="data">
                         {{ data | date: 'mediumDate' }},
-                        {{ data | date: 'shortTime' }}
+                        {{ data | date: time_format }}
                     </ng-template>
                     <ng-template #duration_state let-data="data">
                         {{ formatDuration(data || 0) || 'Less than a minute' }}
@@ -116,5 +117,12 @@ export class ContactTracingReportComponent {
     public readonly formatDuration = (d) =>
         formatDuration({ hours: Math.floor(d / 60), minutes: d % 60 });
 
-    constructor(private _state: ContactTracingStateService) {}
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
+    constructor(
+        private _state: ContactTracingStateService,
+        private _settings: SettingsService
+    ) {}
 }
