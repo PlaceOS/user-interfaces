@@ -8,7 +8,7 @@ import { currentUser, notifyError, notifySuccess } from '@placeos/common';
 @Component({
     selector: 'setup-breakdown-modal',
     template: `
-        <header class="space-x-4">
+        <header class="space-x-4 min-h-16">
             <h2>Set Event's Setup and Breakdown</h2>
             <button btn icon mat-dialog-close matRipple *ngIf="!loading">
                 <app-icon>close</app-icon>
@@ -45,7 +45,9 @@ import { currentUser, notifyError, notifySuccess } from '@placeos/common';
         <ng-template #load_state>
             <div class="flex flex-col items-center justify-center h-64 w-64">
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p>Saving setup and breakdown durations...</p>
+                <p class="text-center p-4">
+                    Saving setup and breakdown durations...
+                </p>
             </div>
         </ng-template>
     `,

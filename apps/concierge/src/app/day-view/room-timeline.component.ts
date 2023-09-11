@@ -51,7 +51,7 @@ import {
                     times
                     class="w-16 h-full flex flex-col items-center justify-end text-xs pb-2 opacity-60"
                 >
-                    {{ date | date: 'z' }}
+                    {{ date | async | date: 'z' }}
                 </div>
                 <div
                     spaces
