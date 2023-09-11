@@ -79,7 +79,7 @@ import { BookingFormService } from '../booking-form.service';
                     <mat-form-field appearance="outline">
                         <mat-select
                             placeholder="Any Level"
-                            ngModel
+                            [ngModel]="(options | async)?.zone_id"
                             [disabled]="!building"
                             (ngModelChange)="
                                 setOptions({

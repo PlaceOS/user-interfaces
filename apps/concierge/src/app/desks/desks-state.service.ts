@@ -1,4 +1,4 @@
-import { Injectable, Optional } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { listChildMetadata, showMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs';
