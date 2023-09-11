@@ -77,15 +77,15 @@ function registerMocks() {
                     },
                 };
             }
-            if (request.query_params.name === 'desks') {
-                const parts = request.route_params.id.split('-');
-                const id = parts[parts.length - 1];
-                return generateMockDeskMetadata(id);
-            }
             if (request.query_params.name === 'parking-spaces') {
                 const parts = request.route_params.id.split('-');
                 const id = parts[parts.length - 1];
                 return generateParkingSpaces(id);
+            }
+            if (request.query_params.name === 'desks') {
+                const parts = request.route_params.id.split('-');
+                const id = parts[parts.length - 1];
+                return generateMockDeskMetadata(id);
             }
             if (request.query_params.name === 'charge_codes') {
                 const parts = request.route_params.id.split('-');
@@ -249,7 +249,10 @@ function registerMocks() {
                     const id = parts[parts.length - 1];
                     return {
                         zone: lvl,
-                        metadata: generateMockDeskMetadata(id),
+                        metadata:
+                            request.query_params.name === 'parking-spaces'
+                                ? generateParkingSpaces(id)
+                                : generateMockDeskMetadata(id),
                     };
                 }
             );
