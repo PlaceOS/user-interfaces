@@ -30,6 +30,7 @@ const MOCK_METADATA = {
 };
 
 export const PARKING_SPACES = {};
+export const LOCKERS = {};
 
 export const ZONE_MOCKS = registerMocks();
 
@@ -81,6 +82,11 @@ function registerMocks() {
                 const parts = request.route_params.id.split('-');
                 const id = parts[parts.length - 1];
                 return generateParkingSpaces(id);
+            }
+            if (request.query_params.name === 'lockers') {
+                const parts = request.route_params.id.split('-');
+                const id = parts[parts.length - 1];
+                return generateLockers(id);
             }
             if (request.query_params.name === 'desks') {
                 const parts = request.route_params.id.split('-');
@@ -230,6 +236,44 @@ function registerMocks() {
         return PARKING_SPACES[id];
     }
 
+    function generateLockers(id: string) {
+        if (!LOCKERS[id]) {
+            LOCKERS[id] = {
+                lockers: {
+                    details: new Array(6).fill(0).map((_, idx) => {
+                        const position = padString(idx + 1, 2);
+                        const assignee =
+                            predictableRandomInt(9999) % 4 === 0
+                                ? MOCK_STAFF[
+                                      predictableRandomInt(MOCK_STAFF.length)
+                                  ]
+                                : ({} as any);
+                        return {
+                            id: `locker-bank-${id}.${position}`,
+                            map_id: `bank-${id}.${position}`,
+                            level_id: `lvl-02`,
+                            name: `Bank ${position}`,
+                            height: 3,
+                            lockers: new Array(18).fill(0).map((_, idx2) => ({
+                                id: `locker-${position}.${padString(
+                                    idx2 + 1,
+                                    3
+                                )}`,
+                                name: `Locker ${idx2 + 1}`,
+                                accessible:
+                                    predictableRandomInt(9999) % 2 !== 0,
+                                bookable: predictableRandomInt(9999) % 4 !== 0,
+                                position: [idx2 % 6, Math.floor(idx2 / 6)],
+                                size: [1, 1],
+                            })),
+                        };
+                    }),
+                },
+            };
+        }
+        return LOCKERS[id];
+    }
+
     registerMockEndpoint({
         path: '/api/engine/v2/metadata/:id/children',
         metadata: {},
@@ -252,6 +296,8 @@ function registerMocks() {
                         metadata:
                             request.query_params.name === 'parking-spaces'
                                 ? generateParkingSpaces(id)
+                                : request.query_params.name === 'lockers'
+                                ? generateLockers(id)
                                 : generateMockDeskMetadata(id),
                     };
                 }
