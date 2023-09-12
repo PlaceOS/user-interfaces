@@ -630,7 +630,14 @@ export class EventFormService extends AsyncHandler {
                     if (!this.form.value.id) {
                         await removeEvent(
                             result.id,
-                            spaces.length ? { system_id: spaces[0].id } : {}
+                            spaces.length
+                                ? {
+                                      calendar:
+                                          this.form.value.host ||
+                                          currentUser()?.email,
+                                      system_id: spaces[0].id,
+                                  }
+                                : {}
                         ).toPromise();
                         notifyError('Unable to book the selected assets.');
                         this._loading.next('');
