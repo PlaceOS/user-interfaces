@@ -394,6 +394,7 @@ export class PanelStateService extends AsyncHandler {
         await mod
             .execute('start_meeting', [getUnixTime(meeting.date)])
             .catch((e) => notifyError(`Error starting meeting. ${e}`));
+        this.updateProperty('status', 'busy');
     }
 
     /**
