@@ -320,6 +320,10 @@ export class EventFormService extends AsyncHandler {
         this.subscription(
             'form_change',
             this._form.valueChanges.subscribe(({ date, catering, assets }) => {
+                this._assets.setOptions({
+                    date: this.form.value.date,
+                    duration: this.form.value.duration,
+                });
                 if (date && date !== this._date.getValue())
                     this._date.next(date);
                 this.storeForm();
