@@ -4,7 +4,6 @@ import { RouterModule, Route } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
 import { ExploreComponent } from './explore.component';
-import { IndoorMapsComponent } from './indoor-maps/indoor-maps.component';
 
 import { SharedExploreModule } from '@placeos/explore';
 
@@ -19,7 +18,7 @@ const ROUTES: Route[] = [
 ];
 
 @NgModule({
-    declarations: [ExploreComponent, IndoorMapsComponent],
+    declarations: [ExploreComponent],
     imports: [
         CommonModule,
         RouterModule.forChild(ROUTES),

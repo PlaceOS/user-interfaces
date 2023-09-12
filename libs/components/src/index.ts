@@ -11,6 +11,7 @@ export * from './lib/user-avatar.component';
 export * from './lib/interactive-map.component';
 export * from './lib/map-pin.component';
 export * from './lib/map-radius.component';
+export * from './lib/indoor-maps.component';
 export * from './lib/misconfigured.component';
 export * from './lib/status-overlay.component';
 export * from './lib/custom-table.component';
