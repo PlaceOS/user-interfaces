@@ -180,7 +180,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
                 initialiseUploadService({
                     auto_start: true,
                     token: token(),
-                    endpoint: '/api/files/v1/uploads',
+                    endpoint: '/api/engine/v2/uploads',
                     worker_url: 'assets/md5_worker.js',
                     providers: [Amazon, Azure, Google, OpenStack] as any,
                 });
