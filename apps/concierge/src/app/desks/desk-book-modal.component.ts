@@ -16,7 +16,7 @@ import { BehaviorSubject } from 'rxjs';
         </header>
         <main
             *ngIf="!(loading | async); else load_state"
-            class="overflow-auto p-4"
+            class="overflow-auto p-4 max-h-[65vh]"
         >
             <new-desk-form-details [form]="form"></new-desk-form-details>
         </main>
