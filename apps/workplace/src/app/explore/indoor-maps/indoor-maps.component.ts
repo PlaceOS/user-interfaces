@@ -1,11 +1,97 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
-import { RoomStatusService } from './room-status.service';
+import { EventFormService } from 'libs/events/src/lib/event-form.service';
+import { first } from 'rxjs/operators';
+import { Space } from 'libs/spaces/src/lib/space.class';
 
 declare let mapsindoors: any;
 
 @Component({
     selector: 'indoor-maps',
-    templateUrl: './indoor-maps.component.html',
+    template: `
+        <div class="overflow-y-auto h-screen">
+            <div id="map" class="w-full h-4/5"></div>
+
+            <div style="display: flex">
+                <div class="flex-auto basis-1/2 p-4">
+                    <div id="search" class="flex flex-row">
+                        <mat-form-field class="custom-form-field ml-4">
+                            <input
+                                matInput
+                                #searchInput
+                                type="text"
+                                placeholder="Search"
+                            />
+                        </mat-form-field>
+
+                        <mat-form-field class="custom-form-field ml-8">
+                            <mat-select [(ngModel)]="selected_transport_mode">
+                                <mat-option
+                                    *ngFor="
+                                        let transportMode of transport_modes
+                                    "
+                                    [value]="transportMode.value"
+                                    >{{ transportMode.label }}</mat-option
+                                >
+                            </mat-select>
+                        </mat-form-field>
+
+                        <button
+                            mat-mini-fab
+                            color="primary"
+                            aria-label="search button"
+                            (click)="onSearch()"
+                            class="flex ml-8 mt-2 justify-center items-center"
+                        >
+                            <mat-icon style="font-size: 24px">search</mat-icon>
+                        </button>
+                    </div>
+
+                    <div class="flex flex-row ml-4 mb-12 items-center">
+                        <div class="text-gray-700">Live Data:</div>
+
+                        <mat-button-toggle-group
+                            [(ngModel)]="live_data_status"
+                            (ngModelChange)="changeLiveDataStatus($event)"
+                            aria-label="Enable or disable live data"
+                            class="text-gray-700 ml-4"
+                        >
+                            <mat-button-toggle value="enabled"
+                                >Enabled</mat-button-toggle
+                            >
+                            <mat-button-toggle value="disabled"
+                                >Disabled</mat-button-toggle
+                            >
+                        </mat-button-toggle-group>
+                    </div>
+                </div>
+
+                <div class="flex-auto basis-1/2 overflow-y-auto">
+                    <div class="ml-10 max-h-300">
+                        <ul>
+                            <div *ngIf="search_result_items">
+                                <li
+                                    *ngFor="let item of searchResultItems"
+                                    class="flex items-center"
+                                >
+                                    {{ item.properties.name }}
+
+                                    <button
+                                        mat-icon-button
+                                        color="primary"
+                                        aria-label="get directions button"
+                                        (click)="getRoute(item)"
+                                        class="ml-2 mt-2"
+                                    >
+                                        <mat-icon>directions_alt</mat-icon>
+                                    </button>
+                                </li>
+                            </div>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `,
     styles: [``],
 })
 export class IndoorMapsComponent {
@@ -15,7 +101,9 @@ export class IndoorMapsComponent {
     googleMaps_instance: any;
     mapsIndoors_directions_service_instance: any;
     mapsIndoors_directions_renderer_instance: any;
-    available_external_IDs: string[];
+    available_external_IDs: string[] = [];
+    public readonly available_spaces = this._event_form.available_spaces;
+    public readonly available_spaceIDs: string[] = [];
 
     live_data_status: string | boolean = 'enabled';
     search_result_items: any[];
@@ -31,15 +119,15 @@ export class IndoorMapsComponent {
     @ViewChild('searchInput', { static: true }) searchElement: ElementRef;
     @ViewChild('searchResultItems') searchResults: ElementRef;
 
-    constructor(private _roomStatus: RoomStatusService) {}
+    constructor(private _event_form: EventFormService) {}
 
     async ngOnInit() {
         await this.initMapView();
         this.initDirections();
         this.selectFloors();
         await this.enableLiveData();
-        await this._roomStatus.getAvailableSpaceIDs();
-        this.available_external_IDs = await this._roomStatus.getLocationIDs();
+        await this.getAvailableSpaceIDs();
+        this.available_external_IDs = await this.getLocationIDs();
         this.renderRoomStatus();
     }
 
@@ -168,6 +256,32 @@ export class IndoorMapsComponent {
         } catch (err) {
             console.log(err, 'error');
         }
+    }
+
+    async getAvailableSpaceIDs(): Promise<string[]> {
+        const spaces = await this.available_spaces
+            .pipe(first((_: any) => _))
+            .toPromise();
+        spaces.forEach((space: Space) =>
+            this.available_spaceIDs.push(space.id)
+        );
+        return this.available_spaceIDs;
+    }
+
+    async getLocationIDs(): Promise<string[]> {
+        const promises = this.available_spaceIDs.map(
+            async (spaceID: string) => {
+                const locations =
+                    await mapsindoors.services.LocationsService.getLocationsByExternalId(
+                        spaceID
+                    );
+                locations.map((location) =>
+                    this.available_external_IDs.push(location.id || '')
+                );
+            }
+        );
+        await Promise.all(promises);
+        return this.available_external_IDs;
     }
 
     renderRoomStatus(): void {
