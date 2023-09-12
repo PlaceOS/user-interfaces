@@ -21,12 +21,13 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-import { differenceInDays, getUnixTime, isBefore, startOfDay } from 'date-fns';
+import { differenceInDays, getUnixTime } from 'date-fns';
 import {
     AsyncHandler,
     currentUser,
     flatten,
     getInvalidFields,
+    notifyError,
     SettingsService,
     unique,
 } from '@placeos/common';
@@ -627,7 +628,12 @@ export class EventFormService extends AsyncHandler {
                     event.extension_data.assets
                 ).catch(async (e) => {
                     if (!this.form.value.id) {
-                        await removeEvent(result.id).toPromise();
+                        await removeEvent(
+                            result.id,
+                            spaces.length ? { system_id: spaces[0].id } : {}
+                        ).toPromise();
+                        notifyError('Unable to book the selected assets.');
+                        this._loading.next('');
                     }
                     throw e;
                 });
