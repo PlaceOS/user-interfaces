@@ -19,6 +19,7 @@ import {
     currentUser,
     notifyError,
     notifySuccess,
+    notifyWarn,
     openConfirmModal,
     timePeriodsIntersect,
 } from '@placeos/common';
@@ -380,20 +381,19 @@ export class PanelStateService extends AsyncHandler {
      * Execute the logic on the engine driver to start the current or upcoming meeting
      */
     public async startMeeting() {
-        if (
-            this.space &&
-            (await this.status.pipe(take(1)).toPromise()) === 'pending'
-        ) {
-            const meeting =
-                (await this.current.pipe(take(1)).toPromise()) ||
-                (await this.next.pipe(take(1)).toPromise());
-            const module = getModule(this.system, 'Bookings');
-            if (meeting && module) {
-                await module
-                    .execute('start_meeting', [meeting.date])
-                    .catch((e) => notifyError(`Error starting meeting. ${e}`));
-            }
+        if (!this.system || this.setting('status') !== 'pending') {
+            return notifyWarn(
+                'Current or upcoming meeting is not in a pending state.'
+            );
         }
+        const meeting =
+            (await this.current.pipe(take(1)).toPromise()) ||
+            (await this.next.pipe(take(1)).toPromise());
+        const mod = getModule(this.system, 'Bookings');
+        if (!meeting || !mod) return;
+        await mod
+            .execute('start_meeting', [getUnixTime(meeting.date)])
+            .catch((e) => notifyError(`Error starting meeting. ${e}`));
     }
 
     /**
