@@ -369,7 +369,6 @@ export async function updateAssetRequestsForResource(
             .map((item) =>
                 createBooking(
                     new Booking({
-                        parent_id: id,
                         type: 'asset-request',
                         booking_type: 'asset-request',
                         date,
