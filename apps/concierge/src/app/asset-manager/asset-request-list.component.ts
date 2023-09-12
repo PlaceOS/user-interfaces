@@ -17,7 +17,10 @@ import { OrganisationService } from '@placeos/organisation';
                         (requests | async)?.length === '1' ? '' : 's'
                     }}
                 </div>
-                <date-options (dateChange)="setDate($event)"></date-options>
+                <date-options
+                    [date]="(filters | async)?.date"
+                    (dateChange)="setDate($event)"
+                ></date-options>
             </div>
             <div class="w-full overflow-auto h-1/2 flex-1 p-4">
                 <custom-table

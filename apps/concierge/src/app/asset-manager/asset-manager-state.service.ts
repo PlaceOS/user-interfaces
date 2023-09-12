@@ -146,14 +146,15 @@ export class AssetManagerStateService extends AsyncHandler {
                 ? list.filter(
                       (i) =>
                           i.user_name.toLowerCase().includes(search) ||
+                          i.title.toLowerCase().includes(search) ||
                           i.extension_data.location_name
-                              .toLowerCase()
+                              ?.toLowerCase()
                               .includes(search) ||
-                          i.extension_data.assets.find((_) =>
+                          i.extension_data.assets?.find((_) =>
                               _.name.toLowerCase().includes(search)
                           ) ||
                           i.status.includes(search) ||
-                          i.extension_data.tracking.includes(search)
+                          i.extension_data.tracking?.includes(search)
                   )
                 : list;
         })

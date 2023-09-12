@@ -1,4 +1,10 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    Output,
+    SimpleChanges,
+} from '@angular/core';
 import { addDays, subDays } from 'date-fns';
 
 @Component({
@@ -85,4 +91,10 @@ export class DateOptionsComponent {
     };
 
     constructor() {}
+
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes.date) {
+            this.date = this.date || Date.now();
+        }
+    }
 }

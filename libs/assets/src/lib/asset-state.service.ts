@@ -80,8 +80,7 @@ export class AssetStateService {
         switchMap(([{ zone, date, duration, ignore }, bld]) => {
             return queryGroupAvailability(
                 {
-                    zone_id: bld.id || zone || '',
-                    zones: zone || '',
+                    zones: bld.id || zone || '',
                     period_start: getUnixTime(startOfMinute(date)),
                     period_end: getUnixTime(
                         endOfMinute(addMinutes(date, duration || 30))

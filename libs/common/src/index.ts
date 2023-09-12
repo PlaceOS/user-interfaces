@@ -1,4 +1,5 @@
 export * from './lib/common';
+export * from './lib/uploads';
 export * from './lib/feature-available.guard';
 export * from './lib/remote-logging.service';
 export * from './lib/timezone-helpers';

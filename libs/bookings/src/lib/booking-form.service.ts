@@ -50,6 +50,7 @@ import { findNearbyFeature } from './booking.utilities';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 import { BookingLinkModalComponent } from './booking-link-modal.component';
 import { updateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
+import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 
 export type BookingFlowView = 'form' | 'map' | 'confirm' | 'success';
 
@@ -289,7 +290,11 @@ export class BookingFormService extends AsyncHandler {
         );
         this.subscription(
             'form_change',
-            this.form.valueChanges.subscribe(() => this.storeForm())
+            this.form.valueChanges.subscribe(() => {
+                const { date, duration } = this.form.value;
+                this._assets.setOptions({ date, duration });
+                this.storeForm();
+            })
         );
         this.timeout('date', () => {
             this.form.patchValue({
@@ -306,7 +311,8 @@ export class BookingFormService extends AsyncHandler {
         private _settings: SettingsService,
         private _org: OrganisationService,
         private _dialog: MatDialog,
-        private _payments: PaymentsService
+        private _payments: PaymentsService,
+        private _assets: AssetStateService
     ) {
         super();
         this.subscription(

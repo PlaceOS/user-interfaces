@@ -496,6 +496,7 @@ export class EventDetailsModalComponent {
         await mod
             .execute('checkin', [getUnixTime(this.event.date)])
             .catch((e) => notifyError(`Error checking in booking. ${e}`));
+        this.room_status = 'busy';
     }
 
     private async _load() {

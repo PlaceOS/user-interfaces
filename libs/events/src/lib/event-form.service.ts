@@ -21,12 +21,13 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-import { differenceInDays, getUnixTime, isBefore, startOfDay } from 'date-fns';
+import { differenceInDays, getUnixTime } from 'date-fns';
 import {
     AsyncHandler,
     currentUser,
     flatten,
     getInvalidFields,
+    notifyError,
     SettingsService,
     unique,
 } from '@placeos/common';
@@ -320,6 +321,10 @@ export class EventFormService extends AsyncHandler {
         this.subscription(
             'form_change',
             this._form.valueChanges.subscribe(({ date, catering, assets }) => {
+                this._assets.setOptions({
+                    date: this.form.value.date,
+                    duration: this.form.value.duration,
+                });
                 if (date && date !== this._date.getValue())
                     this._date.next(date);
                 this.storeForm();
@@ -623,7 +628,19 @@ export class EventFormService extends AsyncHandler {
                     event.extension_data.assets
                 ).catch(async (e) => {
                     if (!this.form.value.id) {
-                        await removeEvent(result.id).toPromise();
+                        await removeEvent(
+                            result.id,
+                            spaces.length
+                                ? {
+                                      calendar:
+                                          this.form.value.host ||
+                                          currentUser()?.email,
+                                      system_id: spaces[0].id,
+                                  }
+                                : {}
+                        ).toPromise();
+                        notifyError('Unable to book the selected assets.');
+                        this._loading.next('');
                     }
                     throw e;
                 });
