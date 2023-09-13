@@ -5,6 +5,7 @@ import { MatChipInputEvent } from '@angular/material/chips';
 import { Clipboard } from '@angular/cdk/clipboard';
 import {
     AsyncHandler,
+    SettingsService,
     UploadDetails,
     notifyInfo,
     unique,
@@ -194,7 +195,11 @@ export class ImageListFieldComponent extends AsyncHandler {
 
     @ViewChild('image_list') private _list_el: ElementRef<HTMLDivElement>;
 
-    constructor(private _clipboard: Clipboard, private _dialog: MatDialog) {
+    constructor(
+        private _clipboard: Clipboard,
+        private _dialog: MatDialog,
+        private _settings: SettingsService
+    ) {
         super();
     }
 
@@ -292,19 +297,31 @@ export class ImageListFieldComponent extends AsyncHandler {
                     details,
                 ]);
             };
-            const ref = this._dialog.open(UploadPermissionsModalComponent, {
-                data: { file },
-            });
-            ref.afterClosed().subscribe((details) => {
-                if (!details) return;
+            const force_state = this._settings.get('app.force_upload_state');
+            if (force_state) {
                 uploadFile(
-                    details.file,
-                    details.is_public,
-                    details.permissions
+                    file,
+                    this._settings.get('app.private_uploads'),
+                    this._settings.get('app.uploads_permissions_level') ||
+                        'none'
                 ).subscribe(update_fn, update_fn, () => {
                     this._updateUploadHistory();
                 });
-            });
+            } else {
+                const ref = this._dialog.open(UploadPermissionsModalComponent, {
+                    data: { file },
+                });
+                ref.afterClosed().subscribe((details) => {
+                    if (!details) return;
+                    uploadFile(
+                        details.file,
+                        details.is_public,
+                        details.permissions
+                    ).subscribe(update_fn, update_fn, () => {
+                        this._updateUploadHistory();
+                    });
+                });
+            }
         });
     }
 
