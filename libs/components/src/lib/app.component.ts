@@ -6,6 +6,8 @@ import { first } from 'rxjs/operators';
 import {
     apiKey,
     clientId,
+    convertPairStringToMap,
+    getFragments,
     invalidateToken,
     isMock,
     refreshToken,
@@ -51,6 +53,7 @@ import { StylesManager } from 'survey-core';
 
 //SurveyJS styling
 StylesManager.applyTheme('modern');
+const START_QUERY = location.search;
 
 export function initSentry(dsn: string, sample_rate: number = 0.2) {
     if (!dsn) return;
@@ -97,7 +100,6 @@ export class AppComponent extends AsyncHandler implements OnInit {
         private _hotkey: HotkeysService,
         private _clipboard: Clipboard,
         private _route: ActivatedRoute,
-        private _renderer: Renderer2,
         private _router: Router,
         @Optional() private _translate: TranslateService
     ) {
@@ -150,6 +152,14 @@ export class AppComponent extends AsyncHandler implements OnInit {
         settings.mock =
             !!this._settings.get('mock') ||
             location.origin.includes('demo.place.tech');
+        /** Add query parameters if removed due to hash routing */
+        if (START_QUERY) {
+            const query = convertPairStringToMap(START_QUERY.substring(1));
+            this._router.navigate([], {
+                relativeTo: this._route,
+                queryParams: query,
+            });
+        }
         /** Wait for authentication details to load */
         await setupPlace(settings).catch((_) => console.error(_));
         const tkn = token();
