@@ -44,7 +44,10 @@ export interface ExploreBookingModalData {
                 </div>
                 <div class="flex flex-col">
                     <label i18n>Space:</label>
-                    <div name="space" class="sm:mt-4 mb-4">
+                    <div
+                        name="space"
+                        class="px-4 py-3 border border-gray-200 rounded w-full mb-4"
+                    >
                         {{
                             form.controls.resources?.value[0]?.display_name ||
                                 form.controls.resources?.value[0]?.name
@@ -52,10 +55,16 @@ export interface ExploreBookingModalData {
                     </div>
                 </div>
                 <div class="flex sm:space-x-4 flex-wrap">
-                    <div class="flex flex-col" *ngIf="form.controls.date">
+                    <div
+                        class="flex flex-col flex-1 w-full sm:w-auto"
+                        *ngIf="form.controls.date"
+                    >
                         <label i18n>Date:</label>
-                        <div class="sm:mt-4 mb-4">
-                            {{ form.controls.date?.value | date: 'medium' }}
+                        <div
+                            class="px-4 py-3 border border-gray-200 rounded w-full mb-4"
+                        >
+                            {{ form.value.date | date: 'mediumDate' }} at
+                            {{ form.value.date | date: time_format }}
                         </div>
                     </div>
                     <div
@@ -68,6 +77,7 @@ export interface ExploreBookingModalData {
                             [time]="form.value.date"
                             [max]="max_duration"
                             class="w-full"
+                            [use_24hr]="use_24hr_time"
                         ></a-duration-field>
                     </div>
                 </div>
@@ -111,6 +121,14 @@ export class ExploreBookingModalComponent implements OnInit {
 
     public get can_book_for_others() {
         return this._settings.get('app.events.can_book_for_others');
+    }
+
+    public get use_24hr_time() {
+        return this._settings.get('app.use_24_hour_time');
+    }
+
+    public get time_format() {
+        return this._settings.time_format;
     }
 
     constructor(
