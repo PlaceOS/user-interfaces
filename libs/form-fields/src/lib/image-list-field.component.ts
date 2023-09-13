@@ -301,7 +301,7 @@ export class ImageListFieldComponent extends AsyncHandler {
             if (force_state) {
                 uploadFile(
                     file,
-                    this._settings.get('app.private_uploads'),
+                    !this._settings.get('app.private_uploads'),
                     this._settings.get('app.uploads_permissions_level') ||
                         'none'
                 ).subscribe(update_fn, update_fn, () => {
