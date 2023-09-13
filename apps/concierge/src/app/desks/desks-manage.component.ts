@@ -22,8 +22,9 @@ const QR_CODES = {};
 @Component({
     selector: 'desks-manage',
     template: `
+        <div class="w-full h-4"></div>
         <div
-            class="w-full h-full overflow-auto relative p-4"
+            class="w-full h-full overflow-auto relative px-4 pb-4"
             (dragenter)="handleDrag('enter', $event)"
             (window:dragend)="handleDrag('end', $event)"
         >

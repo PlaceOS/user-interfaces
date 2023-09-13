@@ -1,11 +1,21 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
+import {
+    AsyncHandler,
+    csvToJson,
+    downloadFile,
+    jsonToCsv,
+    loadTextFileFromInputEvent,
+    notifyError,
+    notifySuccess,
+    randomInt,
+} from '@placeos/common';
 import { DesksStateService } from './desks-state.service';
 import { DeskBookModalComponent } from './desk-book-modal.component';
 import { MatDialog } from '@angular/material/dialog';
-import { OrganisationService } from '@placeos/organisation';
+import { Desk, OrganisationService } from '@placeos/organisation';
 import { take } from 'rxjs/operators';
+import { DeskRestrictionModalComponent } from './desk-restriction-modal.component';
 
 @Component({
     selector: '[app-new-desks]',
@@ -32,7 +42,7 @@ import { take } from 'rxjs/operators';
                         <app-icon>add</app-icon>
                     </button>
                 </div>
-                <div class="w-full flex items-center px-8">
+                <div class="w-full flex items-center px-8 space-x-2">
                     <mat-form-field appearance="outline" class="h-[3.5rem]">
                         <mat-select
                             multiple
@@ -48,27 +58,77 @@ import { take } from 'rxjs/operators';
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                    <div class="border-l h-full ml-8 mr-4"></div>
+                    <div class="border-l h-full !ml-8 !mr-4"></div>
                     <div class="flex-1 w-px"></div>
-                    <date-options (dateChange)="setDate($event)"></date-options>
-                    <button
-                        btn
-                        icon
-                        matRipple
-                        matTooltip="Refresh List"
-                        class="ml-2 rounded border border-gray-200"
-                        (click)="refresh()"
-                        [disabled]="loading | async"
-                    >
-                        <app-icon>refresh</app-icon>
-                    </button>
+                    <ng-container *ngIf="path === 'events'">
+                        <date-options
+                            (dateChange)="setDate($event)"
+                        ></date-options>
+                        <button
+                            btn
+                            icon
+                            matRipple
+                            matTooltip="Refresh List"
+                            class="ml-2 rounded border border-gray-200"
+                            (click)="refresh()"
+                            [disabled]="loading | async"
+                        >
+                            <app-icon>refresh</app-icon>
+                        </button>
+                    </ng-container>
+                    <ng-container *ngIf="path === 'manage'">
+                        <button
+                            btn
+                            icon
+                            matRipple
+                            class="bg-primary text-white rounded"
+                            (click)="newDesk()"
+                            matTooltip="New Desk"
+                        >
+                            <app-icon>add</app-icon>
+                        </button>
+                        <button
+                            btn
+                            icon
+                            matRipple
+                            class="bg-primary relative text-white rounded"
+                            matTooltip="Upload Desks CSV"
+                        >
+                            <app-icon>cloud_upload</app-icon>
+                            <input
+                                type="file"
+                                class="absolute inset-0 opacity-0"
+                                (change)="loadCSVData($event)"
+                            />
+                        </button>
+                        <button
+                            btn
+                            icon
+                            matRipple
+                            class="bg-primary text-white rounded"
+                            (click)="downloadTemplate()"
+                            matTooltip="Download Template Desk CSV"
+                        >
+                            <app-icon>download</app-icon>
+                        </button>
+                        <button
+                            btn
+                            icon
+                            matRipple
+                            class="bg-primary text-white rounded"
+                            (click)="manageRestrictions()"
+                            matTooltip="Desk Restrictions"
+                        >
+                            <app-icon>lock_open</app-icon>
+                        </button>
+                    </ng-container>
                 </div>
                 <div class="flex-1 h-1/2 w-full relative overflow-auto px-4">
                     <router-outlet></router-outlet>
                 </div>
                 <mat-progress-bar
                     class="w-full"
-                    *ngIf="loading | async"
+                    *ngIf="(loading | async) && path === 'events'"
                     mode="indeterminate"
                 ></mat-progress-bar>
             </main>
@@ -127,6 +187,7 @@ export class NewDesksComponent
                 if (e instanceof NavigationEnd) {
                     const url_parts = this._router.url?.split('/') || [''];
                     this.path = url_parts[parts.length - 1].split('?')[0];
+                    console.log('Path:', this.path);
                 }
             })
         );
@@ -156,5 +217,49 @@ export class NewDesksComponent
 
     public newDeskBooking() {
         this._dialog.open(DeskBookModalComponent, {});
+    }
+
+    public manageRestrictions() {
+        this._dialog.open(DeskRestrictionModalComponent, {});
+    }
+
+    public newDesk() {
+        this._state.addDesks([new Desk({ id: `desk-${randomInt(999_999)}` })]);
+        notifySuccess(
+            'New desk added to local data. Make sure to save the desk before using it.'
+        );
+    }
+
+    public downloadTemplate() {
+        const desk: any = new Desk({
+            id: 'desk-123',
+            name: 'Test Desk',
+            bookable: true,
+            groups: ['test-desk-group', 'desk-bookers'],
+            features: ['Standing Desk', 'Dual Monitor'],
+        }).toJSON();
+        const data = jsonToCsv([desk]);
+        downloadFile('desk-template.csv', data);
+    }
+
+    public async loadCSVData(event: InputEvent) {
+        const data = await loadTextFileFromInputEvent(event).catch(([m, e]) => {
+            notifyError(m);
+            throw e;
+        });
+        try {
+            const list = csvToJson(data) || [];
+            this._state.addDesks(
+                list.map(
+                    (_) =>
+                        new Desk({
+                            ..._,
+                            id: _.id || `desk-${randomInt(999_999)}`,
+                        })
+                )
+            );
+        } catch (e) {
+            console.error(e);
+        }
     }
 }
