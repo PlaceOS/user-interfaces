@@ -64,13 +64,12 @@ import { notifyError } from '@placeos/common';
                 </mat-form-field>
             </div>
             <div field class="flex flex-col">
-                <label form="email">Organisation / Company</label>
+                <label form="org">Organisation / Company</label>
                 <mat-form-field appearance="outline">
                     <input
                         matInput
-                        name="phone"
-                        type="tel"
-                        formControlName="phone"
+                        name="org"
+                        formControlName="organisation"
                         placeholder="Organisation / Company"
                     />
                 </mat-form-field>
