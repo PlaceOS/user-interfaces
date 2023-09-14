@@ -153,7 +153,7 @@ export class ExploreBookingModalComponent implements OnInit {
         if (this._settings.app_name.toLowerCase().includes('workplace')) {
             this._router.navigate(['/book', 'meeting', 'success']);
         } else {
-            notifySuccess('Succefully booked room.');
+            notifySuccess('Successfully booked room.');
         }
         this._dialog_ref.close();
     }
