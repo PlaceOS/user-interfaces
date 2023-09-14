@@ -11,9 +11,9 @@ declare let mapsindoors: any;
         <div class="overflow-y-auto h-screen">
             <div id="map" class="w-full h-4/5"></div>
 
-            <div style="display: flex">
+            <div class="flex">
                 <div class="flex-auto basis-1/2 p-4">
-                    <div id="search" class="flex flex-row">
+                    <div id="search" class="flex flex-row items-baseline">
                         <mat-form-field class="custom-form-field ml-4">
                             <input
                                 matInput
@@ -23,7 +23,7 @@ declare let mapsindoors: any;
                             />
                         </mat-form-field>
 
-                        <mat-form-field class="custom-form-field ml-8">
+                        <mat-form-field class="flex custom-form-field ml-8">
                             <mat-select [(ngModel)]="selected_transport_mode">
                                 <mat-option
                                     *ngFor="
@@ -36,13 +36,14 @@ declare let mapsindoors: any;
                         </mat-form-field>
 
                         <button
-                            mat-mini-fab
-                            color="primary"
+                            icon
+                            name="indoor-map-search"
+                            matRipple
+                            class="flex text-black h-10 w-10 rounded-full bg-gray-200 ml-5 mt-6  dark:bg-neutral-800 dark:text-white"
                             aria-label="search button"
                             (click)="onSearch()"
-                            class="flex ml-8 mt-2 justify-center items-center"
                         >
-                            <mat-icon style="font-size: 24px">search</mat-icon>
+                            <app-icon class="text-xl">search</app-icon>
                         </button>
                     </div>
 
