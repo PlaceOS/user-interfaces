@@ -177,6 +177,14 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
                 }
             })
         );
+        this.subscription(
+            'options_change',
+            this._state.options.subscribe(({ zone_id }) => {
+                if (zone_id && zone_id !== this.level?.id) {
+                    this.level = this._org.levels.find((_) => _.id === zone_id);
+                }
+            })
+        );
     }
 
     public ngOnChanges(changes: SimpleChanges): void {

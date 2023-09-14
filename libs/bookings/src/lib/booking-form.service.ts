@@ -506,6 +506,7 @@ export class BookingFormService extends AsyncHandler {
             value.zones = this._booking.getValue().zones;
         }
         this._loading.next('Saving booking');
+        delete value.booking_asset;
         const result = await saveBooking(
             new Booking({
                 ...this._options.getValue(),
