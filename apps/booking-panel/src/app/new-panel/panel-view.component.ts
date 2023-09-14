@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, VERSION } from '@placeos/common';
-import { take } from 'rxjs/operators';
 import { PanelStateService } from '../panel-state.service';
 
 @Component({
@@ -10,7 +8,7 @@ import { PanelStateService } from '../panel-state.service';
     template: `
         <div
             class="flex flex-col items-center h-full w-full overflow-hidden"
-            (click)="can_book ? action() : ''"
+            (click)="action()"
         >
             <panel-view-details class="flex-1 w-full"></panel-view-details>
             <panel-view-status class="flex-1 w-full"></panel-view-status>
@@ -95,11 +93,17 @@ export class PanelViewComponent extends AsyncHandler {
 
     public readonly book = () => this._state.newBooking();
     public readonly checkin = () => this._state.checkin();
+    public readonly endMeeting = () => this._state.confirmEnd();
 
     public action() {
         const status = this._state.setting('status');
-        if (status === 'busy') return;
-        status === 'pending' ? this.checkin() : this.book();
+        if (status === 'busy') {
+            if (this._state.setting('disable_end_meeting') !== true) {
+                this.endMeeting();
+            }
+        } else if (this.can_book) {
+            status === 'pending' ? this.checkin() : this.book();
+        }
     }
 
     constructor(
