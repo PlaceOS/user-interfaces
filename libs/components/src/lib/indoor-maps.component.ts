@@ -8,92 +8,110 @@ declare let mapsindoors: any;
 @Component({
     selector: 'indoor-maps',
     template: `
-        <div class="overflow-y-auto h-screen">
-            <div id="map" class="w-full h-4/5"></div>
+        <div id="map" class="absolute inset-0 flex items-center justify-center">
+            <mat-spinner
+                *ngIf="loading"
+                class="absolute"
+                [diameter]="48"
+            ></mat-spinner>
+        </div>
 
-            <div class="flex">
-                <div class="flex-auto basis-1/2 p-4">
-                    <div id="search" class="flex flex-row items-baseline">
-                        <mat-form-field class="custom-form-field ml-4">
-                            <input
-                                matInput
-                                #searchInput
-                                type="text"
-                                placeholder="Search"
-                            />
-                        </mat-form-field>
+        <div
+            class="absolute flex flex-col mt-10 ml-10 h-min w-min  inset-0 flex bg-white bg-opacity-50 backdrop-blur-sm rounded-lg"
+        >
+            <div class="flex-auto basis-1/2 p-4 ">
+                <div id="search" class="flex flex-row items-baseline">
+                    <mat-form-field class="custom-form-field ml-4">
+                        <input
+                            matInput
+                            #searchInput
+                            type="text"
+                            placeholder="Search"
+                        />
+                    </mat-form-field>
 
-                        <mat-form-field class="flex custom-form-field ml-8">
-                            <mat-select [(ngModel)]="selected_transport_mode">
-                                <mat-option
-                                    *ngFor="
-                                        let transportMode of transport_modes
-                                    "
-                                    [value]="transportMode.value"
-                                    >{{ transportMode.label }}</mat-option
-                                >
-                            </mat-select>
-                        </mat-form-field>
-
-                        <button
-                            icon
-                            name="indoor-map-search"
-                            matRipple
-                            class="flex text-black h-10 w-10 rounded-full bg-gray-200 ml-5 mt-6  dark:bg-neutral-800 dark:text-white"
-                            aria-label="search button"
-                            (click)="onSearch()"
-                        >
-                            <app-icon class="text-xl">search</app-icon>
-                        </button>
-                    </div>
-
-                    <div class="flex flex-row ml-4 mb-12 items-center">
-                        <div class="text-gray-700">Live Data:</div>
-
-                        <mat-button-toggle-group
-                            [(ngModel)]="live_data_status"
-                            (ngModelChange)="changeLiveDataStatus($event)"
-                            aria-label="Enable or disable live data"
-                            class="text-gray-700 ml-4"
-                        >
-                            <mat-button-toggle value="enabled"
-                                >Enabled</mat-button-toggle
+                    <mat-form-field class="flex custom-form-field ml-8">
+                        <mat-select [(ngModel)]="selected_transport_mode">
+                            <mat-option
+                                *ngFor="let transportMode of transport_modes"
+                                [value]="transportMode.value"
+                                >{{ transportMode.label }}</mat-option
                             >
-                            <mat-button-toggle value="disabled"
-                                >Disabled</mat-button-toggle
-                            >
-                        </mat-button-toggle-group>
-                    </div>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <button
+                        icon
+                        name="indoor-map-search"
+                        matRipple
+                        class="flex text-black h-10 w-10 rounded-full bg-gray-200 ml-5 mt-6  dark:bg-neutral-800 dark:text-white"
+                        aria-label="search button"
+                        (click)="onSearch()"
+                    >
+                        <app-icon class="text-xl">search</app-icon>
+                    </button>
                 </div>
 
-                <div class="flex-auto basis-1/2 overflow-y-auto">
-                    <div class="ml-10 max-h-300">
-                        <ul>
-                            <div *ngIf="search_result_items">
-                                <li
-                                    *ngFor="let item of searchResultItems"
-                                    class="flex items-center"
-                                >
-                                    {{ item.properties.name }}
+                <div class="flex flex-row ml-4 mb-12 items-center">
+                    <div class="text-gray-700">Live Data:</div>
 
-                                    <button
-                                        mat-icon-button
-                                        color="primary"
-                                        aria-label="get directions button"
-                                        (click)="getRoute(item)"
-                                        class="ml-2 mt-2"
-                                    >
-                                        <mat-icon>directions_alt</mat-icon>
-                                    </button>
-                                </li>
-                            </div>
-                        </ul>
-                    </div>
+                    <mat-button-toggle-group
+                        [(ngModel)]="live_data_status"
+                        (ngModelChange)="changeLiveDataStatus($event)"
+                        aria-label="Enable or disable live data"
+                        class="text-gray-700 ml-4"
+                    >
+                        <mat-button-toggle value="enabled"
+                            >Enabled</mat-button-toggle
+                        >
+                        <mat-button-toggle value="disabled"
+                            >Disabled</mat-button-toggle
+                        >
+                    </mat-button-toggle-group>
+                </div>
+            </div>
+
+            <div class="flex-auto basis-1/2 overflow-y-auto ">
+                Test
+                <div class="ml-10">
+                    <ul>
+                        <div *ngIf="search_result_items">
+                            <li
+                                *ngFor="let item of searchResultItems"
+                                class="flex items-center"
+                            >
+                                {{ item.properties.name }}
+
+                                <button
+                                    mat-icon-button
+                                    color="primary"
+                                    aria-label="get directions button"
+                                    (click)="getRoute(item)"
+                                    class="ml-2 mt-2"
+                                >
+                                    <mat-icon>directions_alt</mat-icon>
+                                </button>
+                            </li>
+                        </div>
+                    </ul>
                 </div>
             </div>
         </div>
     `,
-    styles: [``],
+    styles: [
+        `
+            :host {
+                height: 100%;
+                width: 100%;
+            }
+
+            mat-spinner {
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+        `,
+    ],
 })
 export class IndoorMapsComponent {
     map_view_options: any;
@@ -120,6 +138,8 @@ export class IndoorMapsComponent {
     @ViewChild('searchInput', { static: true }) searchElement: ElementRef;
     @ViewChild('searchResultItems') searchResults: ElementRef;
 
+    public loading: boolean;
+
     constructor(private _event_form: EventFormService) {}
 
     async ngOnInit() {
@@ -133,6 +153,7 @@ export class IndoorMapsComponent {
     }
 
     initMapView(): Promise<void> {
+        this.loading = true;
         this.map_view_options = {
             element: document.getElementById('map'),
             center: { lat: 30.3603774, lng: -97.7426772 },
@@ -146,7 +167,7 @@ export class IndoorMapsComponent {
         this.mapsIndoors_instance = new mapsindoors.MapsIndoors({
             mapView: this.map_view_instance,
         });
-
+        this.loading = false;
         return (this.googleMaps_instance = this.map_view_instance.getMap());
     }
 
@@ -183,6 +204,7 @@ export class IndoorMapsComponent {
             searchParams
         ).then((locations: any[]) => {
             this.search_result_items = locations;
+            console.log(this.search_result_items, 'search result items');
         });
     }
 
