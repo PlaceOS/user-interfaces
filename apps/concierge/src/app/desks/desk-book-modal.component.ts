@@ -53,6 +53,7 @@ export class DeskBookModalComponent {
 
     public async save() {
         this.loading.next(true);
+        this.form.patchValue({ booking_type: 'desk' });
         const event = await this._booking_form.postForm().catch((_) => {
             notifyError(_);
             this.loading.next(false);
