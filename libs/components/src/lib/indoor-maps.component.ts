@@ -1,7 +1,11 @@
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { ExploreStateService } from 'libs/explore/src/lib/explore-state.service';
+import {
+    BookingAsset,
+    BookingFormService,
+} from 'libs/bookings/src/lib/booking-form.service';
 import { AsyncHandler } from '@placeos/common';
-import { Observable } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { Space } from 'libs/spaces/src/lib/space.class';
 
@@ -130,7 +134,11 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
 
     public readonly available_spaces: Observable<Space[]> =
         this._explore.spaces;
-    public readonly available_spaceIDs: string[] = [];
+
+    public readonly available_assets: Observable<BookingAsset[]> =
+        this._booking.available_resources;
+
+    public available_resourceIDs: string[] = [];
 
     live_data_status: string | boolean = 'enabled';
     search_result_items: any[];
@@ -148,18 +156,25 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
 
     public loading: boolean;
 
-    constructor(private _explore: ExploreStateService) {
+    constructor(
+        private _explore: ExploreStateService,
+        private _booking: BookingFormService
+    ) {
         super();
     }
 
     async ngOnInit() {
+        this.available_assets.subscribe((assets) => {
+            console.log(assets, 'available assets');
+        });
         await this.initMapView();
         this.initDirections();
         this.selectFloors();
         await this.enableLiveData();
-        await this.getAvailableSpaceIDs();
+        // await this.getAvailableSpaceIDs();
+        await this.getResourceIDs();
         this.available_external_IDs = await this.getLocationIDs();
-        this.renderRoomStatus();
+        this.renderSpaceStatus();
     }
 
     initMapView(): Promise<void> {
@@ -291,20 +306,44 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         }
     }
 
-    async getAvailableSpaceIDs(): Promise<string[]> {
-        this.subscription(
-            'available_spaces',
-            this.available_spaces.subscribe((spaces: Space[]) => {
-                spaces.forEach((space: Space) => {
-                    this.available_spaceIDs.push(space.id);
-                });
-            })
-        );
-        return this.available_spaceIDs;
+    // async getAvailableSpaceIDs(): Promise<string[]> {
+    //     this.subscription(
+    //         'available_spaces',
+    //         this.available_spaces.subscribe((spaces: Space[]) => {
+    //             spaces.forEach((space: Space) => {
+    //                 this.available_spaceIDs.push(space.id);
+    //             });
+    //         })
+    //     );
+    //     return this.available_spaceIDs;
+    // }
+
+    getResourceIDs(): Promise<any> {
+        return new Promise<any>((resolve, reject) => {
+            const allResources: Observable<any[]> = combineLatest([
+                this.available_spaces,
+                this.available_assets,
+            ]);
+
+            this.subscription(
+                'available_resources',
+                allResources.subscribe(([spaces, assets]) => {
+                    this.available_resourceIDs = [...spaces, ...assets].map(
+                        (resource) => resource.id
+                    );
+                    console.log(
+                        this.available_resourceIDs,
+                        'available resource IDs'
+                    );
+                    resolve(this.available_resourceIDs);
+                }, reject)
+            );
+        });
     }
 
     async getLocationIDs(): Promise<string[]> {
-        const promises = this.available_spaceIDs.map(
+        console.log('get location IDs triggered');
+        const promises = this.available_resourceIDs.map(
             async (spaceID: string) => {
                 const locations =
                     await mapsindoors.services.LocationsService.getLocationsByExternalId(
@@ -319,7 +358,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         return this.available_external_IDs;
     }
 
-    renderRoomStatus(): void {
+    renderSpaceStatus(): void {
         this.available_external_IDs.map((id: string) => {
             this._setPolygonFill(id, '#00C851');
         });
