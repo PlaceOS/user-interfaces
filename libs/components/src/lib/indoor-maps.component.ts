@@ -171,7 +171,6 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         this.initDirections();
         this.selectFloors();
         await this.enableLiveData();
-        // await this.getAvailableSpaceIDs();
         await this.getResourceIDs();
         this.available_external_IDs = await this.getLocationIDs();
         this.renderSpaceStatus();
@@ -306,18 +305,6 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         }
     }
 
-    // async getAvailableSpaceIDs(): Promise<string[]> {
-    //     this.subscription(
-    //         'available_spaces',
-    //         this.available_spaces.subscribe((spaces: Space[]) => {
-    //             spaces.forEach((space: Space) => {
-    //                 this.available_spaceIDs.push(space.id);
-    //             });
-    //         })
-    //     );
-    //     return this.available_spaceIDs;
-    // }
-
     getResourceIDs(): Promise<any> {
         return new Promise<any>((resolve, reject) => {
             const allResources: Observable<any[]> = combineLatest([
@@ -330,10 +317,6 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                 allResources.subscribe(([spaces, assets]) => {
                     this.available_resourceIDs = [...spaces, ...assets].map(
                         (resource) => resource.id
-                    );
-                    console.log(
-                        this.available_resourceIDs,
-                        'available resource IDs'
                     );
                     resolve(this.available_resourceIDs);
                 }, reject)
