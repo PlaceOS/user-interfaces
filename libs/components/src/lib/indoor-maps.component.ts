@@ -52,7 +52,7 @@ declare let mapsindoors: any;
                     </button>
                 </div>
 
-                <div class="flex flex-row ml-4 mb-12 items-center">
+                <div class="flex flex-row ml-4 mb-6 items-center">
                     <div class="text-gray-700">Live Data:</div>
 
                     <mat-button-toggle-group
@@ -72,25 +72,29 @@ declare let mapsindoors: any;
             </div>
 
             <div class="flex-auto basis-1/2 overflow-y-auto ">
-                Test
                 <div class="ml-10">
                     <ul>
                         <div *ngIf="search_result_items">
-                            <li
-                                *ngFor="let item of searchResultItems"
-                                class="flex items-center"
-                            >
-                                {{ item.properties.name }}
+                            <span class="font-medium text-xl">Results</span>
+                            <li *ngFor="let item of search_result_items">
+                                <div class="flex items-center mt-3 mb-3 h-10">
+                                    <span class="flex mr-3 text-lg">
+                                        {{ item.properties.name }}</span
+                                    >
 
-                                <button
-                                    mat-icon-button
-                                    color="primary"
-                                    aria-label="get directions button"
-                                    (click)="getRoute(item)"
-                                    class="ml-2 mt-2"
-                                >
-                                    <mat-icon>directions_alt</mat-icon>
-                                </button>
+                                    <button
+                                        icon
+                                        name="get-directions"
+                                        matRipple
+                                        aria-label="get directions button"
+                                        (click)="getRoute(item)"
+                                        class="flex  text-white h-7 w-7 rounded-md bg-secondary dark:bg-neutral-800 dark:text-white"
+                                    >
+                                        <app-icon class="text-sm"
+                                            >near_me</app-icon
+                                        >
+                                    </button>
+                                </div>
                             </li>
                         </div>
                     </ul>
