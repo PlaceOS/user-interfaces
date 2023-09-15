@@ -1,5 +1,7 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
-import { EventFormService } from 'libs/events/src/lib/event-form.service';
+import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
+import { ExploreStateService } from 'libs/explore/src/lib/explore-state.service';
+import { AsyncHandler } from '@placeos/common';
+import { Observable } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { Space } from 'libs/spaces/src/lib/space.class';
 
@@ -117,7 +119,7 @@ declare let mapsindoors: any;
         `,
     ],
 })
-export class IndoorMapsComponent {
+export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     map_view_options: any;
     map_view_instance: any;
     mapsIndoors_instance: any;
@@ -125,7 +127,9 @@ export class IndoorMapsComponent {
     mapsIndoors_directions_service_instance: any;
     mapsIndoors_directions_renderer_instance: any;
     available_external_IDs: string[] = [];
-    public readonly available_spaces = this._event_form.available_spaces;
+
+    public readonly available_spaces: Observable<Space[]> =
+        this._explore.spaces;
     public readonly available_spaceIDs: string[] = [];
 
     live_data_status: string | boolean = 'enabled';
@@ -144,7 +148,9 @@ export class IndoorMapsComponent {
 
     public loading: boolean;
 
-    constructor(private _event_form: EventFormService) {}
+    constructor(private _explore: ExploreStateService) {
+        super();
+    }
 
     async ngOnInit() {
         await this.initMapView();
@@ -286,11 +292,13 @@ export class IndoorMapsComponent {
     }
 
     async getAvailableSpaceIDs(): Promise<string[]> {
-        const spaces = await this.available_spaces
-            .pipe(first((_: any) => _))
-            .toPromise();
-        spaces.forEach((space: Space) =>
-            this.available_spaceIDs.push(space.id)
+        this.subscription(
+            'available_spaces',
+            this.available_spaces.subscribe((spaces: Space[]) => {
+                spaces.forEach((space: Space) => {
+                    this.available_spaceIDs.push(space.id);
+                });
+            })
         );
         return this.available_spaceIDs;
     }
