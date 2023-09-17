@@ -108,7 +108,11 @@ export class CateringOrdersService extends AsyncHandler {
         order: CateringOrder,
         status: CateringOrderStatus
     ) {
-        const updated_order = new CateringOrder({ ...order, status });
+        const updated_order = new CateringOrder({
+            ...order,
+            status,
+            event: null,
+        });
         const catering = [
             ...order.event.ext('catering').filter((o) => o.id !== order.id),
             updated_order,
@@ -117,8 +121,9 @@ export class CateringOrdersService extends AsyncHandler {
             ...order.event,
             catering,
         });
-        const booking = await saveEvent(event).toPromise();
+        const booking = await saveEvent(event.toJSON()).toPromise();
         this._poll.next(Date.now());
+        (order as any).status = status;
         return booking;
     }
 }
