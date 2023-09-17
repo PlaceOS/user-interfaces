@@ -195,7 +195,7 @@ export class PanelViewStatusComponent {
     }
 
     public get can_end() {
-        return this._state.setting('disable_end_meeting') !== true;
+        return this._state.setting('enable_end_meeting_button') !== true;
     }
 
     public readonly event_state = combineLatest([

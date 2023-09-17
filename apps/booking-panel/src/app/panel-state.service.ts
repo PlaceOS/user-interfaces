@@ -80,8 +80,10 @@ export interface PanelSettings {
     hide_meeting_title?: boolean;
 
     disable_book_now_host?: boolean;
-    /** Whether user is able to end their meeting early */
+    /** Whether meeting should be able to be ended early */
     disable_end_meeting?: boolean;
+    /** Whether user is able to end their meeting early */
+    enable_end_meeting_button?: boolean;
 }
 
 export function currentBooking(
@@ -201,6 +203,7 @@ export class PanelStateService extends AsyncHandler {
                 'hide_meeting_title',
                 'disable_book_now_host',
                 'disable_end_meeting',
+                'enable_end_meeting_button',
                 'min_duration',
                 'max_duration',
                 'pending',
