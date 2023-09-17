@@ -216,7 +216,10 @@ export class NewDesksComponent
     }
 
     public newDeskBooking() {
-        this._dialog.open(DeskBookModalComponent, {});
+        const ref = this._dialog.open(DeskBookModalComponent, {});
+        ref.afterClosed().subscribe((_) => {
+            this._state.refresh();
+        });
     }
 
     public manageRestrictions() {
