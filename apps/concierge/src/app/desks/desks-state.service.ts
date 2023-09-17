@@ -234,28 +234,34 @@ export class DesksStateService extends AsyncHandler {
         const success = await approveBooking(desk.id)
             .toPromise()
             .catch((_) => 'failed');
-        success === 'failed'
-            ? notifyError('Error approving in desk booking')
-            : notifySuccess(
-                  `Approved desk booking for ${desk.user_name} on ${format(
-                      desk.date,
-                      'MMM do'
-                  )}.`
-              );
+        if (success === 'failed') {
+            return notifyError('Error approving in desk booking');
+        }
+        notifySuccess(
+            `Approved desk booking for ${desk.user_name} on ${format(
+                desk.date,
+                'MMM do'
+            )}.`
+        );
+        (desk as any).approved = true;
+        (desk as any).rejected = false;
     }
 
     public async rejectDesk(desk: Booking) {
         const success = await rejectBooking(desk.id)
             .toPromise()
             .catch((_) => 'failed');
-        success === 'failed'
-            ? notifyError('Error rejecting in desk booking')
-            : notifySuccess(
-                  `Rejected desk booking for ${desk.user_name} on ${format(
-                      desk.date,
-                      'MMM do'
-                  )}.`
-              );
+        if (success === 'failed') {
+            return notifyError('Error rejecting in desk booking');
+        }
+        notifySuccess(
+            `Rejected desk booking for ${desk.user_name} on ${format(
+                desk.date,
+                'MMM do'
+            )}.`
+        );
+        (desk as any).approved = false;
+        (desk as any).rejected = true;
     }
 
     public async giveAccess(desk: Booking) {

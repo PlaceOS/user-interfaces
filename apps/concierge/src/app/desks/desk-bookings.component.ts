@@ -89,22 +89,26 @@ import { SettingsService } from '@placeos/common';
                     </div>
                 </div>
             </ng-template>
-            <ng-template #status_template let-data="data">
+            <ng-template #status_template let-row="row">
                 <button
                     matRipple
                     [matMenuTriggerFor]="statusMenu"
                     class="rounded-3xl px-2 py-1 flex items-center space-x-2 capitalize"
-                    [class.bg-success]="data === 'approved'"
-                    [class.text-white]="data !== 'tentative'"
-                    [class.bg-pending]="data === 'tentative'"
-                    [class.text-black]="data === 'tentative'"
-                    [class.bg-error]="
-                        data === 'cancelled' ||
-                        data === 'declined' ||
-                        data === 'ended'
-                    "
+                    [class.bg-success]="row.approved"
+                    [class.text-white]="row.approved || row.rejected"
+                    [class.bg-pending]="!row.approved && !row.rejected"
+                    [class.text-black]="!row.approved && !row.rejected"
+                    [class.bg-error]="row.rejected"
                 >
-                    <div class="ml-2">{{ data }}</div>
+                    <div class="ml-2">
+                        {{
+                            row.approved
+                                ? 'Approved'
+                                : row.rejected
+                                ? 'Declined'
+                                : 'Tentative'
+                        }}
+                    </div>
                     <app-icon class="text-xl">arrow_drop_down</app-icon>
                 </button>
                 <mat-menu #statusMenu="matMenu">
