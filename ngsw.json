@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1694661741971,
+  "timestamp": 1694993673947,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -235,11 +235,11 @@
     "./assets/img/skyline.jpg": "4ccbd85616d840a7674ecd4d53e36d0085d574f4",
     "./assets/img/stairs.svg": "7a0c56a6be12318368aa8a174812502fecc4b247",
     "./assets/js/instascan.min.js": "8ac89054c1758a60574c5e2b2689d0da83ae6f5b",
-    "./assets/locale/en-US.json": "5e55b62df05245177c50b4fbbbe464c2314fba66",
-    "./assets/locale/en.json": "e03a5b6707d3aff27105d4057c7ad6c30ec2cf96",
-    "./assets/locale/es.json": "2db56f90f0de2aad600995da872739d101dc02b0",
-    "./assets/locale/fr.json": "4dfcb3635105586e708d13f44c0255daabdc87e0",
-    "./assets/locale/pt.json": "bf5cdb8f67bd6711af8841a5a124b4d1bfec6712",
+    "./assets/locale/en-US.json": "a17166b5ae6d1e9d7b1d46a7d5286aa11946eaa1",
+    "./assets/locale/en.json": "3a0958078b9c527f420eddbaa293a2d937e207c6",
+    "./assets/locale/es.json": "12fcaef177f45954851f4dbfddb85122b91b0207",
+    "./assets/locale/fr.json": "7beffd170a366f52b07f51eb5dc99984816391f7",
+    "./assets/locale/pt.json": "41f770be69b38fb48048ff39c8f987ad84f05c18",
     "./assets/logo-dark.svg": "3c5dbbd620a781a0d1e3680cb697982dd44a1613",
     "./assets/logo-light.svg": "29908fafefe60c105f06b2f8d69f7c1eed436c17",
     "./assets/maps/level_1.svg": "ba165a2e4b967619f71aa625855113950c4cde53",
@@ -261,7 +261,7 @@
     "./default-libs_users_src_index_ts.js": "2f699cb7721940c0e0ad7fc800965d9504cf53d2",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "768e5ea5b97a3f5e5caee1e731de25372f1261ae",
-    "./main.js": "570475693dcd2a17e7061d9b2ed5bcf245fe3943",
+    "./main.js": "e0d426e8d32a7cd52389778808f08886c1c5006f",
     "./manifest.webmanifest": "1f969ea0e2566dc28ceb4da6116602149aa879ec",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
