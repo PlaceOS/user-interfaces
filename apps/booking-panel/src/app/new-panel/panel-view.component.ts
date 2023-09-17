@@ -98,7 +98,7 @@ export class PanelViewComponent extends AsyncHandler {
     public action() {
         const status = this._state.setting('status');
         if (status === 'busy') {
-            if (this._state.setting('enable_end_meeting_button') !== true) {
+            if (this._state.setting('enable_end_meeting_button') === true) {
                 this.endMeeting();
             }
         } else if (this.can_book) {
