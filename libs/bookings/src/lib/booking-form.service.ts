@@ -204,10 +204,16 @@ export class BookingFormService extends AsyncHandler {
                     bookings.forEach(
                         (_) => (this._resource_use[_.asset_id] = _.user_name)
                     );
-                    return resources.filter(
-                        (asset) =>
-                            (!restriction ||
-                                !restriction.assets.includes(asset.id)) &&
+                    return resources.filter((asset) => {
+                        const restriction_list = restrictions.filter((_) =>
+                            _.assets.includes(asset.id)
+                        );
+                        const is_restricted = restriction_list.find(
+                            (rest) =>
+                                (start >= rest.start && start < rest.end) ||
+                                (end <= rest.end && end > rest.start)
+                        );
+                        !is_restricted &&
                             (!asset.groups?.length ||
                                 asset.groups.some((grp) =>
                                     currentUser().groups.includes(grp)
@@ -224,8 +230,8 @@ export class BookingFormService extends AsyncHandler {
                                 (bkn) =>
                                     bkn.asset_id === asset.id &&
                                     bkn.status !== 'declined'
-                            )
-                    );
+                            );
+                    });
                 })
             )
         ),
