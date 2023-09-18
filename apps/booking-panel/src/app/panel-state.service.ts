@@ -412,7 +412,7 @@ export class PanelStateService extends AsyncHandler {
                 title: 'Are you sure want to end your meeting?',
                 content:
                     'Ending your meeting early will free up this room for others to use',
-                icon: { class: 'material-icons', content: 'stop' },
+                icon: { class: 'material-icons', content: 'event_busy' },
             },
             this._dialog
         );
