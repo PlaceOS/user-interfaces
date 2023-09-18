@@ -26,19 +26,21 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
             class="space-x-2 py-2 overflow-hidden mb-2 w-full flex items-center relative"
             (window:resize)="ngAfterViewInit()"
         >
-            <div
-                image
-                class="relative rounded border-2 border-gray-200 dark:border-neutral-500 border-dashed flex-shrink-0 flex flex-col items-center justify-center h-32 w-36 hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer"
-                [style.transform]="'translate(-' + offset + '00%)'"
-            >
-                <app-icon class="text-4xl opacity-60">add</app-icon>
-                <p class="opacity-60" i18n>Upload Image(s)</p>
-                <input
-                    type="file"
-                    class="absolute inset-0 opacity-0 h-32 w-32 cursor-pointer"
-                    (change)="uploadImages($event)"
-                />
-            </div>
+            <ng-container *ngIf="uploads_allowed">
+                <div
+                    image
+                    class="relative rounded border-2 border-gray-200 dark:border-neutral-500 border-dashed flex-shrink-0 flex flex-col items-center justify-center h-32 w-36 hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer"
+                    [style.transform]="'translate(-' + offset + '00%)'"
+                >
+                    <app-icon class="text-4xl opacity-60">add</app-icon>
+                    <p class="opacity-60" i18n>Upload Image(s)</p>
+                    <input
+                        type="file"
+                        class="absolute inset-0 opacity-0 h-32 w-32 cursor-pointer"
+                        (change)="uploadImages($event)"
+                    />
+                </div>
+            </ng-container>
             <div
                 image
                 *ngFor="let url of list; let i = index"
@@ -70,31 +72,33 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                     </div>
                 </div>
             </div>
-            <div
-                image
-                *ngFor="let item of uploads | async; let i = index"
-                class="bg-center bg-cover h-32 w-36 rounded border bg-black/10 dark:bg-white/5 border-gray-200 dark:border-neutral-500 flex items-center justify-center flex-shrink-0"
-                [style.transform]="'translate(-' + offset + '00%)'"
-                [matTooltip]="item.error"
-                (click)="retryUpload(item)"
-            >
-                <mat-progress-spinner
-                    *ngIf="!item.error"
-                    [value]="item.progress"
-                    [diameter]="64"
-                    mode="determinate"
-                ></mat-progress-spinner>
-                <app-icon *ngIf="item.error" class="text-error text-6xl"
-                    >warning</app-icon
-                >
+            <ng-container *ngIf="uploads_allowed">
                 <div
-                    overlay
-                    *ngIf="item.error"
-                    class="absolute inset-0 hover:bg-black hover:bg-opacity-50 text-white flex items-center justify-center"
+                    image
+                    *ngFor="let item of uploads | async; let i = index"
+                    class="bg-center bg-cover h-32 w-36 rounded border bg-black/10 dark:bg-white/5 border-gray-200 dark:border-neutral-500 flex items-center justify-center flex-shrink-0"
+                    [style.transform]="'translate(-' + offset + '00%)'"
+                    [matTooltip]="item.error"
+                    (click)="retryUpload(item)"
                 >
-                    <app-icon class="text-3xl opacity-0">retry</app-icon>
+                    <mat-progress-spinner
+                        *ngIf="!item.error"
+                        [value]="item.progress"
+                        [diameter]="64"
+                        mode="determinate"
+                    ></mat-progress-spinner>
+                    <app-icon *ngIf="item.error" class="text-error text-6xl"
+                        >warning</app-icon
+                    >
+                    <div
+                        overlay
+                        *ngIf="item.error"
+                        class="absolute inset-0 hover:bg-black hover:bg-opacity-50 text-white flex items-center justify-center"
+                    >
+                        <app-icon class="text-3xl opacity-0">retry</app-icon>
+                    </div>
                 </div>
-            </div>
+            </ng-container>
             <button
                 icon
                 matRipple
@@ -193,6 +197,10 @@ export class ImageListFieldComponent extends AsyncHandler {
         return this.list.length + this._upload_list.getValue().length + 1;
     }
 
+    public get uploads_allowed() {
+        return this._settings.get('app.has_uploads');
+    }
+
     @ViewChild('image_list') private _list_el: ElementRef<HTMLDivElement>;
 
     constructor(
@@ -250,6 +258,7 @@ export class ImageListFieldComponent extends AsyncHandler {
     }
 
     public async uploadImages(event) {
+        if (!this.uploads_allowed) return;
         const element: HTMLInputElement = event.target as any;
         /* istanbul ignore else */
         if (element?.files) {
