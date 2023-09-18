@@ -51,7 +51,7 @@ const EMPTY_FAVS: string[] = [];
                 </div>
                 <div class="space-y-2 pb-4">
                     <div class="font-medium">
-                        {{ item.name || 'Desk' }}
+                        {{ item.name || item.id || item.map_id || 'Desk' }}
                     </div>
                     <div class="flex items-center text-sm space-x-2">
                         <app-icon class="text-blue-500">place</app-icon>
@@ -156,6 +156,7 @@ export class DeskListFieldComponent implements ControlValueAccessor {
         });
         ref.afterClosed().subscribe((items?: BookingAsset[]) => {
             if (!items) items = ref.componentInstance.selected;
+            console.log('Desks:', items);
             this.setValue(items);
         });
     }
