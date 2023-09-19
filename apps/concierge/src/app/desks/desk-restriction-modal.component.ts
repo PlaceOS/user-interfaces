@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { notifyError, notifySuccess } from '@placeos/common';
+import { SettingsService, notifyError, notifySuccess } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { endOfDay, isBefore, startOfDay } from 'date-fns';
@@ -26,10 +26,11 @@ import { AssetRestriction } from '@placeos/bookings';
                 *ngIf="!adding; else add_state"
             >
                 <custom-table
-                    class="block w-[calc(80vw)]"
+                    class="block w-[36rem] max-w-[80vw]"
                     [dataSource]="restrictions"
                     [columns]="['start', 'duration', 'assets', 'actions']"
                     [display_column]="['Date', 'Period', 'No. of Desks', ' ']"
+                    [column_size]="['10r', 'flex', '10r', '3.5r']"
                     [template]="{
                         start: date_template,
                         duration: duration_template,
@@ -41,8 +42,9 @@ import { AssetRestriction } from '@placeos/bookings';
                 <ng-template #date_template let-data="data">
                     {{ data | date: 'mediumDate' }}
                 </ng-template>
-                <ng-template #duration_template let-data="data">
-                    {{ data }}
+                <ng-template #duration_template let-row="row">
+                    {{ row.start | date: time_format }} &ndash;
+                    {{ row.end | date: time_format }}
                 </ng-template>
                 <ng-template #count_template let-data="data">
                     {{ data?.length || '0' }} desk(s)
@@ -57,10 +59,10 @@ import { AssetRestriction } from '@placeos/bookings';
                 class="flex items-center justify-end space-x-2 p-2 border-t border-gray-200"
                 *ngIf="!adding"
             >
-                <button btn matRipple class="inverse" (click)="add()">
+                <button btn matRipple class="inverse w-40" (click)="add()">
                     Add Restriction
                 </button>
-                <button btn matRipple (click)="save()">
+                <button btn matRipple (click)="save()" class="w-40">
                     Save Restrictions
                 </button>
             </footer>
@@ -105,11 +107,12 @@ import { AssetRestriction } from '@placeos/bookings';
                     </mat-form-field>
                 </div>
                 <custom-table
-                    class="block w-[calc(65vw)]"
+                    class="block w-[36rem] max-w-[80vw]"
                     [dataSource]="desk_list"
                     [filter]="search"
                     [columns]="['toggle', 'name', 'map_id']"
                     [display_column]="[' ', 'name', 'MapID']"
+                    [column_size]="['4r', 'flex', '12r']"
                     [template]="{
                         toggle: toggle_template
                     }"
@@ -132,7 +135,7 @@ import { AssetRestriction } from '@placeos/bookings';
                 >
                     Back
                 </button>
-                <button btn matRipple (click)="addRestriction()" class="w-32">
+                <button btn matRipple (click)="addRestriction()" class="w-48">
                     Add to Restrictions
                 </button>
             </footer>
@@ -150,9 +153,14 @@ export class DeskRestrictionModalComponent {
     public restrictions: AssetRestriction[] = [];
     public readonly desk_list = this._desks.desks;
 
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
     constructor(
         private _desks: DesksStateService,
         private _org: OrganisationService,
+        private _settings: SettingsService,
         private _dialog_ref: MatDialogRef<DeskRestrictionModalComponent>
     ) {}
 

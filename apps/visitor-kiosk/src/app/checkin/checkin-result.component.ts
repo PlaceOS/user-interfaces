@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
+import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'checkin-results',
@@ -24,15 +25,7 @@ import { CheckinStateService } from './checkin-state.service';
             <p *ngIf="(event | async)?.can_access_lift">
                 Please use the vistor access lift over there.
             </p>
-            <a
-                button
-                btn
-                matRipple
-                class="w-32"
-                [routerLink]="['/checkin', 'preferences']"
-            >
-                Done
-            </a>
+            <button btn matRipple class="w-32" (click)="next()">Done</button>
         </div>
     `,
     styles: [
@@ -62,6 +55,7 @@ export class CheckinResultsComponent implements OnInit {
 
     constructor(
         private _checkin: CheckinStateService,
+        private _settings: SettingsService,
         private _router: Router
     ) {}
 
@@ -71,5 +65,11 @@ export class CheckinResultsComponent implements OnInit {
 
     public previous(): void {
         this._router.navigate(['/checkin']);
+    }
+
+    public next(): void {
+        this._settings.get('app.allow_beverages')
+            ? this._router.navigate(['/checkin', 'preferences'])
+            : this._router.navigate(['/welcome']);
     }
 }

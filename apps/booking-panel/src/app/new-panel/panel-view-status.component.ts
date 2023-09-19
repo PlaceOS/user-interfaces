@@ -145,6 +145,15 @@ import { currentPeriod, nextPeriod } from './helpers';
                     </p>
                     <app-icon>arrow_forward</app-icon>
                 </div>
+                <div
+                    class="absolute top-0 inset-x-0 flex items-center justify-center text-2xl bg-black/40 p-4 space-x-4"
+                    *ngIf="(state | async) === 'busy' && can_end"
+                >
+                    <p class="uppercase">
+                        {{ 'PANEL.END_INPUT' | translate }}
+                    </p>
+                    <app-icon>arrow_forward</app-icon>
+                </div>
             </div>
             <div
                 class="flex-1 h-full bg-white text-black flex flex-col items-center justify-center space-y-4"
@@ -183,6 +192,10 @@ export class PanelViewStatusComponent {
 
     public get can_book() {
         return this._state.setting('disable_book_now') !== true;
+    }
+
+    public get can_end() {
+        return this._state.setting('enable_end_meeting_button') === true;
     }
 
     public readonly event_state = combineLatest([

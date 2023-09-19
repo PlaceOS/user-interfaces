@@ -52,6 +52,7 @@
         "ROOM_CAPACITY": "Room capacity",
         "CHECKIN_INPUT": "Touch or scan to check-in",
         "BOOKING_INPUT": "Touch or scan to book",
+        "END_INPUT": "Touch to end meeting",
         "SCAN_QR_CODE": "Aponte para o QR Code para agendar esta sala ou ver mais detalhes.",
         "NEXT": "PRÓXIMA REUNIÃO",
         "NOW": "EM REUNIÃO",

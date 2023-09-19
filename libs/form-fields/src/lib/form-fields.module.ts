@@ -32,6 +32,7 @@ import { ImageListFieldComponent } from './image-list-field.component';
 import { RecurrenceFieldComponent } from './recurrence-field.component';
 import { RecurrenceModalComponent } from './recurrence-modal.component';
 import { SupportTicketModalComponent } from './support-ticket-modal.component';
+import { DateCalendarComponent } from './date-calendar.component';
 
 const COMPONENTS: Type<any>[] = [
     ActionFieldComponent,
@@ -52,6 +53,7 @@ const COMPONENTS: Type<any>[] = [
 
     RecurrenceFieldComponent,
     RecurrenceModalComponent,
+    DateCalendarComponent,
 ];
 
 @NgModule({

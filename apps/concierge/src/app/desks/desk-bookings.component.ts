@@ -21,8 +21,7 @@ import { SettingsService } from '@placeos/common';
                     'asset_name',
                     'approver_name',
                     'status',
-                    'checked_in',
-                    'actions'
+                    'checked_in'
                 ]"
                 [display_column]="[
                     'Date',
@@ -32,8 +31,7 @@ import { SettingsService } from '@placeos/common';
                     'Desk',
                     'Approver',
                     'Status',
-                    'Checked In',
-                    ' '
+                    'Checked In'
                 ]"
                 [column_size]="[
                     '4r',
@@ -43,8 +41,7 @@ import { SettingsService } from '@placeos/common';
                     '10r',
                     '10r',
                     '8r',
-                    '7r',
-                    '3.5r'
+                    '7r'
                 ]"
                 [template]="{
                     user_name: user_template,
@@ -53,8 +50,7 @@ import { SettingsService } from '@placeos/common';
                     period: period_template,
                     status: status_template,
                     checked_in: option_template,
-                    access: option_template,
-                    actions: action_template
+                    access: option_template
                 }"
                 [empty]="
                     (filters | async)?.search
@@ -93,22 +89,26 @@ import { SettingsService } from '@placeos/common';
                     </div>
                 </div>
             </ng-template>
-            <ng-template #status_template let-data="data">
+            <ng-template #status_template let-row="row">
                 <button
                     matRipple
                     [matMenuTriggerFor]="statusMenu"
                     class="rounded-3xl px-2 py-1 flex items-center space-x-2 capitalize"
-                    [class.bg-success]="data === 'approved'"
-                    [class.text-white]="data !== 'tentative'"
-                    [class.bg-pending]="data === 'tentative'"
-                    [class.text-black]="data === 'tentative'"
-                    [class.bg-error]="
-                        data === 'cancelled' ||
-                        data === 'declined' ||
-                        data === 'ended'
-                    "
+                    [class.bg-success]="row.approved"
+                    [class.text-white]="row.approved || row.rejected"
+                    [class.bg-pending]="!row.approved && !row.rejected"
+                    [class.text-black]="!row.approved && !row.rejected"
+                    [class.bg-error]="row.rejected"
                 >
-                    <div class="ml-2">{{ data }}</div>
+                    <div class="ml-2">
+                        {{
+                            row.approved
+                                ? 'Approved'
+                                : row.rejected
+                                ? 'Declined'
+                                : 'Tentative'
+                        }}
+                    </div>
                     <app-icon class="text-xl">arrow_drop_down</app-icon>
                 </button>
                 <mat-menu #statusMenu="matMenu">
@@ -153,35 +153,6 @@ import { SettingsService } from '@placeos/common';
                         </div>
                     </button>
                 </mat-menu>
-            </ng-template>
-            <ng-template #action_template let-row="row">
-                <div class="flex items-center justify-end space-x-2 w-full">
-                    <button
-                        icon
-                        matRipple
-                        [disabled]="!row.extension_data?.checkin_qr_code"
-                        [matMenuTriggerFor]="menu"
-                        matTooltip="View Desk QR code"
-                        title=""
-                    >
-                        <app-icon>qr_code</app-icon>
-                    </button>
-                    <mat-menu #menu="matMenu">
-                        <div
-                            class="p-2 mx-4 my-2 rounded-lg border border-black"
-                        >
-                            <img
-                                class="w-48"
-                                [src]="row.extension_data?.checkin_qr_code"
-                            />
-                        </div>
-                        <div mat-menu-item class="underline">
-                            <button btn matRipple class="w-full">
-                                Print QR Code
-                            </button>
-                        </div>
-                    </mat-menu>
-                </div>
             </ng-template>
         </div>
 

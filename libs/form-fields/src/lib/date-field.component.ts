@@ -1,80 +1,54 @@
 import {
     Component,
     forwardRef,
-    Injectable,
+    Injector,
     Input,
     OnInit,
+    Optional,
+    ViewChild,
 } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import {
-    DateAdapter,
-    MatDateFormats,
-    MAT_DATE_FORMATS,
-    NativeDateAdapter,
-} from '@angular/material/core';
-import {
-    addYears,
-    endOfDay,
-    format,
-    formatISO,
-    set,
-    startOfDay,
-} from 'date-fns';
+    ControlValueAccessor,
+    NG_VALUE_ACCESSOR,
+    NgControl,
+} from '@angular/forms';
+import { CustomTooltipComponent } from '@placeos/components';
+import { addYears, endOfDay, format, set, startOfDay } from 'date-fns';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
-import { HashMap } from 'libs/common/src/lib/types';
-
-@Injectable()
-class FieldDateAdapter extends NativeDateAdapter {
-    format(date: Date, displayFormat: HashMap | string): string {
-        if (displayFormat === 'input') {
-            return format(date, 'MMMM d, yyyy');
-        }
-        return format(date, 'MMM yyyy');
-    }
-}
-const FIELD_DATE_FORMATS: MatDateFormats = {
-    parse: {
-        dateInput: 'LL',
-    },
-    display: {
-        dateInput: 'input',
-        monthYearLabel: 'MMM YYYY',
-        dateA11yLabel: 'LL',
-        monthYearA11yLabel: 'MMMM YYYY',
-    },
-};
 
 @Component({
     selector: 'a-date-field',
     template: `
-        <mat-form-field appearance="outline" (click)="picker.open()">
-            <input
-                matInput
-                [ngModel]="date"
-                [disabled]="disabled"
-                [min]="from"
-                [max]="until"
-                (ngModelChange)="setValue($event)"
-                [matDatepicker]="picker"
-            />
-            <mat-datepicker-toggle
-                matSuffix
-                [for]="picker"
-            ></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
-            <mat-error><ng-content></ng-content></mat-error>
-        </mat-form-field>
+        <div
+            class=" flex items-center justify-between border border-black/30 hover:border-black rounded h-12"
+            customTooltip
+            [content]="calendar_picker"
+            yPosition="top"
+            [class.pointer-events-none]="disabled"
+            [class.opacity-30]="disabled"
+        >
+            <p class="px-4 py-2 flex-1">{{ date | date: 'mediumDate' }}</p>
+            <button btn icon matRipple>
+                <app-icon>today</app-icon>
+            </button>
+        </div>
+        <div class="error h-5 p-1 text-xs text-error">
+            <span *ngIf="false"><ng-content></ng-content></span>
+        </div>
+        <ng-template #calendar_picker>
+            <div class="relative w-[18rem] rounded bg-white px-2 py-4">
+                <date-calendar
+                    [ngModel]="date"
+                    [from]="from"
+                    [to]="to"
+                    [offset_weekday]="week_start"
+                    (ngModelChange)="setValue($event)"
+                ></date-calendar>
+            </div>
+        </ng-template>
     `,
-    styles: [
-        `
-            mat-form-field {
-                width: 100%;
-            }
-        `,
-    ],
+    styles: [``],
     providers: [
-        { provide: DateAdapter, useClass: FieldDateAdapter },
-        { provide: MAT_DATE_FORMATS, useValue: FIELD_DATE_FORMATS },
         {
             provide: NG_VALUE_ACCESSOR,
             useExisting: forwardRef(() => DateFieldComponent),
@@ -87,24 +61,31 @@ export class DateFieldComponent
     implements OnInit, ControlValueAccessor
 {
     /** Earliest date available the user is allowed to pick */
-    @Input('from') public _from: number = new Date().valueOf();
+    @Input('from') public _from: number = startOfDay(Date.now()).valueOf();
     /** Latest date available the user is allowed to pick */
     @Input('to') public _to: number;
-    /** Position of the tooltip */
-    @Input() public position: 'right' | 'left' = 'right';
-    /** Offset of the tooltip */
-    @Input() public offset: 'top' | 'bottom' = 'bottom';
+    /** Index of the day to start the week on when displaying the calendar */
+    @Input() public week_start: number = 0;
     /** Whether form control is disabled */
     @Input() public disabled: boolean;
-    /** Whether to show the calendar tooltip */
-    public show_tooltip: boolean;
     /** Currently selected date */
-    public date: string;
+    public date: number;
 
     /** Form control on change handler */
     private _onChange: (_: number) => void;
     /** Form control on touch handler */
     private _onTouch: (_: number) => void;
+    private _control?: NgControl;
+
+    public get has_error(): boolean {
+        return this._control?.invalid && this._control?.touched;
+    }
+
+    @ViewChild(CustomTooltipComponent) private _tooltip: CustomTooltipComponent;
+
+    constructor(private _injector: Injector) {
+        super();
+    }
 
     /** First allowed date on the calendar */
     public get from(): Date {
@@ -120,7 +101,8 @@ export class DateFieldComponent
     }
 
     public ngOnInit() {
-        this.date = new Date().toISOString();
+        this._control = this._injector.get(NgControl);
+        this.date = Date.now();
     }
 
     /**
@@ -138,11 +120,11 @@ export class DateFieldComponent
         if (new_date < this.from.valueOf()) {
             new_date = this.from.valueOf();
         }
-        this.date = formatISO(new_date || new Date());
+        this.date = new_date;
         if (this._onChange) {
             this._onChange(new_date);
         }
-        this.show_tooltip = false;
+        this._tooltip?.close();
     }
 
     /* istanbul ignore next */
@@ -151,8 +133,8 @@ export class DateFieldComponent
      * @param value The new value for the component
      */
     public writeValue(value: number) {
-        this.date = formatISO(value || new Date());
-        this.show_tooltip = false;
+        this.date = value || Date.now();
+        this._tooltip?.close();
     }
 
     /* istanbul ignore next */

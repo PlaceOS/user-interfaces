@@ -8,11 +8,11 @@ import { ScheduleStateService } from './schedule-state.service';
         <div
             class="flex flex-col w-[18rem] h-full overflow-hidden bg-white dark:bg-[#1F2021] border-r border-gray-300 dark:border-neutral-800"
         >
-            <schedule-calendar
+            <date-calendar
                 class="border-b border-gray-200 dark:border-neutral-800"
                 [ngModel]="date | async"
                 (ngModelChange)="setDate($event)"
-            ></schedule-calendar>
+            ></date-calendar>
             <h3 class="mx-4 mt-4 font-medium" i18n>Filters</h3>
             <div class="p-4 space-y-4">
                 <button

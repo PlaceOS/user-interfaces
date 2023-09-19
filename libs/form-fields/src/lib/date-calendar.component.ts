@@ -1,28 +1,38 @@
-import { Component, forwardRef, OnInit } from '@angular/core';
+import { Component, Input, SimpleChanges, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import {
     addDays,
     addMonths,
     isBefore,
     isSameMonth,
+    set,
+    setDay,
     startOfDay,
     startOfMonth,
     startOfWeek,
 } from 'date-fns';
 
+interface DateItem {
+    id: number;
+    is_past: boolean;
+    is_month: boolean;
+}
+
 @Component({
-    selector: 'schedule-calendar',
+    selector: 'date-calendar',
     template: `
         <div class="p-2">
             <div class="flex items-center justify-between">
-                <div class="px-2 font-medium">
-                    {{ date_list[6]?.id || active_date | date: 'LLLL YYYY' }}
+                <div class="pl-1.5 pr-2 font-medium">
+                    {{ date_list[6]?.id || date | date: 'LLLL YYYY' }}
                 </div>
                 <div class="flex items-center">
                     <button
                         icon
                         matRipple
                         name="schedule-next-month"
+                        [disabled]="date_list[0].id < from"
                         (click)="changeMonth(-1)"
                     >
                         <app-icon>chevron_left</app-icon>
@@ -31,13 +41,16 @@ import {
                         icon
                         matRipple
                         name="schedule-previous-month"
+                        [disabled]="date_list[34].id > to"
                         (click)="changeMonth(1)"
                     >
                         <app-icon>chevron_right</app-icon>
                     </button>
                 </div>
             </div>
-            <div class="flex items-center text-sm">
+            <div
+                class="flex items-center text-sm mb-2 pb-2 border-b border-gray-200"
+            >
                 <div
                     class="flex-1 opacity-60 text-center"
                     *ngFor="let day of date_list | slice: 0:7"
@@ -45,11 +58,11 @@ import {
                     {{ day.id | date: 'EE' }}
                 </div>
             </div>
-            <div class="flex items-center flex-wrap">
+            <div class="flex items-center justify-between flex-wrap">
                 <button
                     icon
                     name="schedule-set-date"
-                    class="min-w-[14%] flex-1 relative overflow-visible"
+                    class="min-w-[2.25rem] w-9 h-9 relative overflow-visible my-0.5"
                     *ngFor="let day of date_list"
                     [class.hover:bg-blue-600]="day.id !== active_date"
                     [class.hover:bg-opacity-20]="day.id !== active_date"
@@ -61,12 +74,17 @@ import {
                     [class.bg-primary]="day.id === active_date"
                     [class.font-normal]="day.id !== active_date"
                     (click)="setValue(day.id)"
+                    [disabled]="day.id < from || day.id > to"
                 >
                     {{ day.id | date: 'd' }}
                     <div
                         class="absolute -inset-[2px] border border-primary rounded-full overflow-hidden"
                         matRipple
                         *ngIf="today === day.id"
+                    ></div>
+                    <div
+                        class="absolute inset-0 overflow-hidden rounded-full"
+                        matRipple
                     ></div>
                 </button>
             </div>
@@ -76,43 +94,52 @@ import {
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => ScheduleCalendarComponent),
+            useExisting: forwardRef(() => DateCalendarComponent),
             multi: true,
         },
     ],
 })
-export class ScheduleCalendarComponent implements OnInit, ControlValueAccessor {
-    public active_date = startOfDay(Date.now()).valueOf();
-    public today = startOfDay(Date.now()).valueOf();
-    public offset = 0;
-    public date_list = [];
+export class DateCalendarComponent
+    extends AsyncHandler
+    implements ControlValueAccessor
+{
+    @Input() public from = 0;
+    @Input() public to = Date.now() * 10;
+    @Input() public offset_weekday: number = 0;
+    public readonly today = startOfDay(Date.now()).valueOf();
+    public date: number = Date.now();
+    public active_date: number = startOfDay(Date.now()).valueOf();
+    public offset: number = 0;
+    public date_list: DateItem[] = [];
 
     /** Form control on change handler */
     private _onChange: (_: number) => void;
     /** Form control on touch handler */
     private _onTouch: (_: number) => void;
 
-    public ngOnInit() {
-        this.generateDates();
+    constructor(private _settings: SettingsService) {
+        super();
     }
 
-    /**
-     * Update the form field value
-     * @param new_value New value to set on the form field
-     */
-    public setValue(new_value: number) {
-        this.active_date = startOfDay(new_value).valueOf();
-        this.offset = 0;
-        this.generateDates();
-        if (this._onChange) {
-            this._onChange(new_value);
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes.offset_weekday) {
+            this.generateDates();
         }
     }
-    /**
-     * Update local value when form control value is changed
-     * @param value The new value for the component
-     */
+
+    public setValue(new_value: number) {
+        const date = new Date(new_value);
+        this.date = set(this.date, {
+            date: date.getDate(),
+            month: date.getMonth(),
+            year: date.getFullYear(),
+        }).valueOf();
+        this.active_date = startOfDay(this.date).valueOf();
+        if (this._onChange) this._onChange(new_value);
+    }
+
     public writeValue(value: number) {
+        this.date = value;
         this.active_date = startOfDay(value).valueOf();
         this.offset = 0;
         this.generateDates();
@@ -123,14 +150,16 @@ export class ScheduleCalendarComponent implements OnInit, ControlValueAccessor {
         this.generateDates();
     }
 
-    /* istanbul ignore next */
     public readonly registerOnChange = (fn) => (this._onChange = fn);
-    /* istanbul ignore next */
     public readonly registerOnTouched = (fn) => (this._onTouch = fn);
 
     public generateDates() {
-        const date = addMonths(this.active_date, this.offset);
-        let start = startOfWeek(startOfMonth(date));
+        const offset =
+            this._settings.get('app.week_start') || this.offset_weekday;
+        const date = addMonths(this.date, this.offset);
+        let start = startOfWeek(startOfMonth(date), {
+            weekStartsOn: offset as any,
+        });
         const now = startOfDay(Date.now());
         const list = [];
         while (list.length < 42) {

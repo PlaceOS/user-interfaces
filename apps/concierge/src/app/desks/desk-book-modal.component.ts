@@ -32,7 +32,7 @@ import { BehaviorSubject } from 'rxjs';
                 class="h-64 flex flex-col items-center justify-center"
             >
                 <mat-spinner [diameter]="48" class="mb-4"></mat-spinner>
-                <p>{{ loading | async }}</p>
+                <p>Making booking request...</p>
             </main>
         </ng-template>
     `,
@@ -53,6 +53,7 @@ export class DeskBookModalComponent {
 
     public async save() {
         this.loading.next(true);
+        this.form.patchValue({ booking_type: 'desk' });
         const event = await this._booking_form.postForm().catch((_) => {
             notifyError(_);
             this.loading.next(false);
