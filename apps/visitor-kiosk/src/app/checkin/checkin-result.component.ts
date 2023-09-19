@@ -24,13 +24,7 @@ import { CheckinStateService } from './checkin-state.service';
             <p *ngIf="(event | async)?.can_access_lift">
                 Please use the vistor access lift over there.
             </p>
-            <a
-                button
-                btn
-                matRipple
-                class="w-32"
-                [routerLink]="['/checkin', 'preferences']"
-            >
+            <a button btn matRipple class="w-32" [routerLink]="['/welcome']">
                 Done
             </a>
         </div>
