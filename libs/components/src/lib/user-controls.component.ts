@@ -180,6 +180,7 @@ export interface AppLocale {
                 btn
                 matRipple
                 class="clear w-full text-left h-[3.5rem]"
+                *ngIf="features.includes('support-ticket')"
                 (click)="newSupportTicket()"
             >
                 <div class="w-full flex items-center space-x-2 dark:text-white">
