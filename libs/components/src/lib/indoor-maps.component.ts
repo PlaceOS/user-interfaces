@@ -351,13 +351,15 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     async renderSpaceStatus(): Promise<void> {
         console.log(this.styles, 'styles');
         if (this.styles) {
+            const promises: Promise<void>[] = [];
             for (const key in this.styles) {
                 const colour = this.styles[key]['fill'] as string;
                 if (key) {
-                    const updated_key = key.replace(/#/g, '');
-                    await this._setPolygonFill(updated_key, colour);
+                    const updated_key = key.substring(1);
+                    promises.push(this._setPolygonFill(updated_key, colour));
                 }
             }
+            await Promise.all(promises);
         }
     }
 
