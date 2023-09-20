@@ -28,10 +28,13 @@ import {
         <mat-form-field appearance="outline">
             <mat-select
                 #select
-                [value]="time"
+                [ngModel]="force_time || time"
                 [disabled]="disabled"
-                (valueChange)="setValue($event)"
+                (ngModelChange)="setValue($event)"
             >
+                <mat-option *ngIf="force_time" [value]="force_time">
+                    {{ force_time | date: (use_24hr ? 'HH : mm' : 'h : mm a') }}
+                </mat-option>
                 <mat-option
                     *ngFor="let option of time_options"
                     [value]="option.id"
@@ -69,6 +72,7 @@ export class TimeFieldComponent
     /** Whether past times are allowed */
     @Input() public no_past_times = true;
     @Input() public use_24hr = false;
+    @Input() public force_time: number;
     /** String representing the currently set time */
     public date: number = new Date().valueOf();
     /** String representing the currently set time */
