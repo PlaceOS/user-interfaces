@@ -6,18 +6,19 @@ import {
     notifyError,
     notifySuccess,
 } from '@placeos/common';
-import { Desk, OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { endOfDay, isBefore, startOfDay } from 'date-fns';
 import { first, take } from 'rxjs/operators';
-import { DesksStateService } from './desks-state.service';
+
+import { RoomManagementService } from './room-management.service';
 
 @Component({
-    selector: 'desk-restriction-modal',
+    selector: 'room-restriction-modal',
     template: `
         <header class="flex items-center justify-between">
             <h2>
-                <ng-container *ngIf="adding">Add</ng-container> Desk
+                <ng-container *ngIf="adding">Add</ng-container> Room
                 Restrictions
             </h2>
             <button btn icon matRipple mat-dialog-close>
@@ -33,7 +34,7 @@ import { DesksStateService } from './desks-state.service';
                     class="block w-[36rem] max-w-[80vw]"
                     [dataSource]="restrictions"
                     [columns]="['start', 'duration', 'items', 'actions']"
-                    [display_column]="['Date', 'Period', 'No. of Desks', ' ']"
+                    [display_column]="['Date', 'Period', 'No. of Rooms', ' ']"
                     [column_size]="['10r', 'flex', '10r', '3.5r']"
                     [template]="{
                         start: date_template,
@@ -41,7 +42,7 @@ import { DesksStateService } from './desks-state.service';
                         items: count_template,
                         actions: actions_template
                     }"
-                    empty="No desk restrictions set"
+                    empty="No room restrictions set"
                 ></custom-table>
                 <ng-template #date_template let-data="data">
                     {{ data | date: 'mediumDate' }}
@@ -51,7 +52,7 @@ import { DesksStateService } from './desks-state.service';
                     {{ row.end | date: time_format }}
                 </ng-template>
                 <ng-template #count_template let-data="data">
-                    {{ data?.length || '0' }} desk(s)
+                    {{ data?.length || '0' }} room(s)
                 </ng-template>
                 <ng-template #actions_template let-row="row">
                     <button btn icon matRipple (click)="remove(row)">
@@ -76,7 +77,7 @@ import { DesksStateService } from './desks-state.service';
                 class="flex flex-col items-center justify-center w-[20rem] h-[16rem] space-y-2"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p>Saving desk restriction changes...</p>
+                <p>Saving room restriction changes...</p>
             </div>
         </ng-template>
         <ng-template #add_state>
@@ -106,21 +107,41 @@ import { DesksStateService } from './desks-state.service';
                         <input
                             matInput
                             [(ngModel)]="search"
-                            placeholder="Filter desks"
+                            placeholder="Filter rooms"
                         />
                     </mat-form-field>
                 </div>
+                <div class="flex items-center space-x-2 px-2 -mt-4">
+                    <div class="">
+                        <label for="start-time">Start Time</label>
+                        <a-time-field
+                            name="start-time"
+                            [no_past_times]="false"
+                            [(ngModel)]="start_date"
+                            class="flex-1"
+                        ></a-time-field>
+                    </div>
+                    <div class="">
+                        <label for="end-time">End Time</label>
+                        <a-time-field
+                            name="end-time"
+                            [no_past_times]="false"
+                            [(ngModel)]="end_date"
+                            class="flex-1"
+                        ></a-time-field>
+                    </div>
+                </div>
                 <custom-table
                     class="block w-[36rem] max-w-[80vw]"
-                    [dataSource]="desk_list"
+                    [dataSource]="room_list"
                     [filter]="search"
-                    [columns]="['toggle', 'name', 'map_id']"
-                    [display_column]="[' ', 'name', 'MapID']"
+                    [columns]="['toggle', 'display_name', 'map_id']"
+                    [display_column]="[' ', 'Name', 'Map ID']"
                     [column_size]="['4r', 'flex', '12r']"
                     [template]="{
                         toggle: toggle_template
                     }"
-                    empty="No desk restrictions set"
+                    empty="No room restrictions set"
                 ></custom-table>
                 <ng-template #toggle_template let-row="row">
                     <mat-checkbox
@@ -147,7 +168,7 @@ import { DesksStateService } from './desks-state.service';
     `,
     styles: [``],
 })
-export class DeskRestrictionModalComponent {
+export class RoomRestrictionModalComponent {
     public loading = false;
     public adding = false;
     public search = '';
@@ -155,22 +176,22 @@ export class DeskRestrictionModalComponent {
     public start_date = startOfDay(Date.now());
     public end_date = endOfDay(Date.now());
     public restrictions: ResourceRestriction[] = [];
-    public readonly desk_list = this._desks.desks;
+    public readonly room_list = this._rooms.room_list;
 
     public get time_format() {
         return this._settings.time_format;
     }
 
     constructor(
-        private _desks: DesksStateService,
+        private _rooms: RoomManagementService,
         private _org: OrganisationService,
         private _settings: SettingsService,
-        private _dialog_ref: MatDialogRef<DeskRestrictionModalComponent>
+        private _dialog_ref: MatDialogRef<RoomRestrictionModalComponent>
     ) {}
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
-        showMetadata(this._org.building.id, 'desk_restrictions').subscribe(
+        showMetadata(this._org.building.id, 'room_restrictions').subscribe(
             ({ details }) => {
                 this.restrictions = details instanceof Array ? details : [];
             }
@@ -190,11 +211,11 @@ export class DeskRestrictionModalComponent {
     }
 
     public async addRestriction() {
-        const desks = await this.desk_list.pipe(take(1)).toPromise();
+        const rooms = await this.room_list.pipe(take(1)).toPromise();
         this.restrictions.push({
             start: this.start_date.valueOf(),
             end: this.end_date.valueOf(),
-            items: desks.filter((_) => this.selected[_.id]).map((_) => _.id),
+            items: rooms.filter((_) => this.selected[_.id]).map((_) => _.id),
         });
         this.adding = false;
     }
@@ -203,8 +224,8 @@ export class DeskRestrictionModalComponent {
         this.loading = true;
         this._dialog_ref.disableClose = true;
         await updateMetadata(this._org.building.id, {
-            name: 'desk_restrictions',
-            description: 'Desk restrictions',
+            name: 'room_restrictions',
+            description: 'Room restrictions',
             details: this.restrictions.filter((_) =>
                 isBefore(Date.now(), _.end)
             ),
@@ -213,12 +234,12 @@ export class DeskRestrictionModalComponent {
             .catch((_) => {
                 this.loading = false;
                 this._dialog_ref.disableClose = false;
-                notifyError('Failed to update desk restrictions');
+                notifyError('Failed to update room restrictions');
                 throw _;
             });
         this.loading = false;
         this._dialog_ref.disableClose = false;
         this._dialog_ref.close();
-        notifySuccess('Successfully updated desk restrictions');
+        notifySuccess('Successfully updated room restrictions');
     }
 }

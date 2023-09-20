@@ -9,6 +9,7 @@ import {
     notifyError,
     notifyWarn,
     openConfirmModal,
+    ResourceRestriction,
     SettingsService,
     unique,
 } from '@placeos/common';
@@ -85,12 +86,6 @@ export interface BookingAsset {
     features: string[];
 }
 
-export interface AssetRestriction {
-    start: number;
-    end: number;
-    assets: string[];
-}
-
 @Injectable({
     providedIn: 'root',
 })
@@ -149,7 +144,7 @@ export class BookingFormService extends AsyncHandler {
         shareReplay(1)
     );
 
-    public readonly restrictions: Observable<AssetRestriction[]> =
+    public readonly restrictions: Observable<ResourceRestriction[]> =
         this.options.pipe(
             switchMap(({ type }) => {
                 return showMetadata(
@@ -207,8 +202,10 @@ export class BookingFormService extends AsyncHandler {
                                 (this._resource_use[_.asset_id] = _.user_name)
                         );
                         const available = resources.filter((asset) => {
-                            const restriction_list = restrictions.filter((_) =>
-                                _.assets.includes(asset.id)
+                            const restriction_list = restrictions.filter(
+                                (_) =>
+                                    _.items?.includes(asset.id) ||
+                                    (_ as any).assets?.includes(asset.id)
                             );
                             const is_restricted = restriction_list.find(
                                 (rest) =>

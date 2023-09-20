@@ -1,13 +1,21 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { getModule } from '@placeos/ts-client';
+import { getModule, showMetadata } from '@placeos/ts-client';
 import { ViewAction, ViewerFeature } from '@placeos/svg-viewer';
-import { map } from 'rxjs/operators';
+import {
+    catchError,
+    debounceTime,
+    map,
+    shareReplay,
+    switchMap,
+    take,
+} from 'rxjs/operators';
 
 import {
     AsyncHandler,
     currentUser,
     HashMap,
+    ResourceRestriction,
     SettingsService,
 } from '@placeos/common';
 import { notifyError } from 'libs/common/src/lib/notifications';
@@ -21,6 +29,7 @@ import { ExploreStateService } from './explore-state.service';
 import { ExploreSpaceInfoComponent } from './explore-space-info.component';
 import { ExploreBookingModalComponent } from './explore-booking-modal.component';
 import { ExploreBookQrComponent } from './explore-book-qr.component';
+import { Observable, of } from 'rxjs';
 
 export const DEFAULT_COLOURS = {
     free: '#43a047',
@@ -36,6 +45,19 @@ export const DEFAULT_COLOURS = {
 export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
     private _bookings: HashMap<CalendarEvent[]> = {};
     private _statuses: HashMap<string> = {};
+
+    private _restrictions: Observable<ResourceRestriction[]> =
+        this._org.active_building.pipe(
+            debounceTime(50),
+            switchMap(() => {
+                return showMetadata(
+                    this._org.building.id,
+                    `desk_restrictions`
+                ).pipe(catchError(() => of({ details: [] })));
+            }),
+            map((_) => (_?.details instanceof Array ? _.details : [])),
+            shareReplay(1)
+        );
 
     private _bind = this._state.spaces.pipe(
         map((list) => {
@@ -149,10 +171,18 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         );
     }
 
-    private updateStatus(spaces: Space[]) {
+    private async updateStatus(spaces: Space[]) {
         const style_map = {};
         const colours = this._settings.get('app.explore.colors') || {};
+        const restrictions =
+            (await this._restrictions.pipe(take(1)).toPromise()) || [];
         for (const space of spaces) {
+            const restriction_list = restrictions.filter((_) =>
+                _.items.includes(space.id)
+            );
+            const is_restricted = restriction_list.find(
+                ({ start, end }) => Date.now() >= start && Date.now() < end
+            );
             const status = this._statuses[space.id] || 'not-bookable';
             style_map[`#${space.map_id}`] = {
                 fill:

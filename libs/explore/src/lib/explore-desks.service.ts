@@ -14,15 +14,13 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import {
-    AssetRestriction,
-    BookingFormService,
-} from 'libs/bookings/src/lib/booking-form.service';
+import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 import {
     AsyncHandler,
     currentUser,
     notifyError,
     notifySuccess,
+    ResourceRestriction,
     SettingsService,
 } from '@placeos/common';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
@@ -63,7 +61,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
 
     private _checked_in = new BehaviorSubject<string[]>([]);
 
-    public readonly restrictions: Observable<AssetRestriction[]> =
+    public readonly restrictions: Observable<ResourceRestriction[]> =
         this._org.active_building.pipe(
             debounceTime(50),
             switchMap(() => {
@@ -162,8 +160,8 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 const is_checked_in =
                     checked_in.some((i) => id === i) ||
                     (is_used && this._settings.get(`app.desk.auto_checkin`));
-                const restriction_list = restrictions.filter((_) =>
-                    _.assets.includes(id)
+                const restriction_list = restrictions.filter(
+                    (_) => _.items?.includes(id) || _.assets?.includes(id)
                 );
                 const is_restricted = restriction_list.find(
                     ({ start, end }) => Date.now() >= start && Date.now() < end

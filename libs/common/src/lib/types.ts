@@ -1,6 +1,12 @@
 /** Generic Dictionary type */
 export type HashMap<T = any> = Record<string, T>;
 
+export interface ResourceRestriction {
+    start: number;
+    end: number;
+    items: string[];
+}
+
 /** Generic data type with identification details */
 export interface Identity extends HashMap {
     id: string | number;
