@@ -168,9 +168,6 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     }
 
     async ngOnInit() {
-        // this.available_assets.subscribe((assets) => {
-        //     console.log(assets, 'available assets');
-        // });
         await this.initMapView();
         this.initDirections();
         this.selectFloors();
@@ -179,9 +176,11 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         // this.available_external_IDs = await this.getLocationIDs();
     }
 
-    ngOnChanges() {
-        console.log(this.styles, 'map styles in indoors');
-        this.renderSpaceStatus();
+    async ngOnChanges() {
+        while (this.styles === null) {
+            await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+        await this.renderSpaceStatus();
     }
 
     initMapView(): Promise<void> {
@@ -350,21 +349,13 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     // }
 
     async renderSpaceStatus(): Promise<void> {
-        // this.available_external_IDs.map((id: string) => {
-        //     this._setPolygonFill(id, '#00C851');
-        // });
-
-        for (const key in this.styles) {
-            const colour = this.styles[key]['fill'] as string;
-            console.log(`${key}: ${colour} 'key colour'`);
-            if (key) {
-                const location_id =
-                    await mapsindoors.services.LocationsService.getLocationsByExternalId(
-                        key
-                    );
-                console.log(location_id, 'location id');
-                if (location_id) {
-                    await this._setPolygonFill(location_id, colour);
+        console.log(this.styles, 'styles');
+        if (this.styles) {
+            for (const key in this.styles) {
+                const colour = this.styles[key]['fill'] as string;
+                if (key) {
+                    const updated_key = key.replace(/#/g, '');
+                    await this._setPolygonFill(updated_key, colour);
                 }
             }
         }
