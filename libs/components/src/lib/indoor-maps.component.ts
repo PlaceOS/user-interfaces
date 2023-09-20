@@ -1,10 +1,11 @@
-import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnInit, Input } from '@angular/core';
 import { ExploreStateService } from 'libs/explore/src/lib/explore-state.service';
 import {
     BookingAsset,
     BookingFormService,
 } from 'libs/bookings/src/lib/booking-form.service';
 import { AsyncHandler } from '@placeos/common';
+import { ViewerStyles, ViewAction } from '@placeos/svg-viewer';
 import { Observable, combineLatest } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { Space } from 'libs/spaces/src/lib/space.class';
@@ -36,7 +37,7 @@ declare let mapsindoors: any;
                         />
                     </mat-form-field>
 
-                    <mat-form-field class="flex custom-form-field ml-8">
+                    <!-- <mat-form-field class="flex custom-form-field ml-8">
                         <mat-select [(ngModel)]="selected_transport_mode">
                             <mat-option
                                 *ngFor="let transportMode of transport_modes"
@@ -44,7 +45,7 @@ declare let mapsindoors: any;
                                 >{{ transportMode.label }}</mat-option
                             >
                         </mat-select>
-                    </mat-form-field>
+                    </mat-form-field> -->
 
                     <button
                         icon
@@ -58,7 +59,7 @@ declare let mapsindoors: any;
                     </button>
                 </div>
 
-                <div class="flex flex-row ml-4 mb-6 items-center">
+                <!-- <div class="flex flex-row ml-4 mb-6 items-center">
                     <div class="text-gray-700">Live Data:</div>
 
                     <mat-button-toggle-group
@@ -74,7 +75,7 @@ declare let mapsindoors: any;
                             >Disabled</mat-button-toggle
                         >
                     </mat-button-toggle-group>
-                </div>
+                </div> -->
             </div>
 
             <div class="flex-auto basis-1/2 overflow-y-auto ">
@@ -132,11 +133,11 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     mapsIndoors_directions_renderer_instance: any;
     available_external_IDs: string[] = [];
 
-    public readonly available_spaces: Observable<Space[]> =
-        this._explore.spaces;
+    // public readonly available_spaces: Observable<Space[]> =
+    //     this._explore.spaces;
 
-    public readonly available_assets: Observable<BookingAsset[]> =
-        this._booking.available_resources;
+    // public readonly available_assets: Observable<BookingAsset[]> =
+    //     this._booking.available_resources;
 
     public available_resourceIDs: string[] = [];
 
@@ -151,28 +152,35 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         { label: 'Transit', value: 'transit' },
     ];
 
+    /** Custom CSS styles to apply to the map */
+    @Input() public styles: ViewerStyles;
+    /** List of available user actions for the map */
+    @Input() public actions: ViewAction[];
+
     @ViewChild('searchInput', { static: true }) searchElement: ElementRef;
     @ViewChild('searchResultItems') searchResults: ElementRef;
 
     public loading: boolean;
 
-    constructor(
-        private _explore: ExploreStateService,
-        private _booking: BookingFormService
-    ) {
+    constructor() {
+        // private _booking: BookingFormService // private _explore: ExploreStateService,
         super();
     }
 
     async ngOnInit() {
-        this.available_assets.subscribe((assets) => {
-            console.log(assets, 'available assets');
-        });
+        // this.available_assets.subscribe((assets) => {
+        //     console.log(assets, 'available assets');
+        // });
         await this.initMapView();
         this.initDirections();
         this.selectFloors();
-        await this.enableLiveData();
-        await this.getResourceIDs();
-        this.available_external_IDs = await this.getLocationIDs();
+        // await this.enableLiveData();
+        // await this.getResourceIDs();
+        // this.available_external_IDs = await this.getLocationIDs();
+    }
+
+    ngOnChanges() {
+        console.log(this.styles, 'map styles in indoors');
         this.renderSpaceStatus();
     }
 
@@ -259,102 +267,117 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             });
     }
 
-    changeLiveDataStatus(value: any) {
-        (this.live_data_status = 'enabled')
-            ? (this.live_data_status = 'disabled')
-            : (this.live_data_status = 'enabled');
-    }
+    // changeLiveDataStatus(value: any) {
+    //     (this.live_data_status = 'enabled')
+    //         ? (this.live_data_status = 'disabled')
+    //         : (this.live_data_status = 'enabled');
+    // }
 
-    async enableLiveData() {
-        if (this.live_data_status !== 'enabled') return;
+    // async enableLiveData() {
+    //     if (this.live_data_status !== 'enabled') return;
 
-        const liveDataManagerInstance = await new mapsindoors.LiveDataManager(
-            this.mapsIndoors_instance
-        );
+    //     const liveDataManagerInstance = await new mapsindoors.LiveDataManager(
+    //         this.mapsIndoors_instance
+    //     );
 
-        try {
-            await liveDataManagerInstance.enableLiveData(
-                mapsindoors.LiveDataManager.LiveDataDomainTypes
-                    .POSITION as string
-            );
-            // liveDataManagerInstance.enableLiveData(
-            //   mapsindoors.LiveDataManager.LiveDataDomainTypes.AVAILABILITY
-            // );
-            // liveDataManagerInstance.enableLiveData(
-            //   mapsindoors.LiveDataManager.LiveDataDomainTypes.OCCUPANCY
-            // );
-        } catch (err) {
-            console.log(err, 'error');
-        }
-    }
+    //     try {
+    //         await liveDataManagerInstance.enableLiveData(
+    //             mapsindoors.LiveDataManager.LiveDataDomainTypes
+    //                 .POSITION as string
+    //         );
+    //         // liveDataManagerInstance.enableLiveData(
+    //         //   mapsindoors.LiveDataManager.LiveDataDomainTypes.AVAILABILITY
+    //         // );
+    //         // liveDataManagerInstance.enableLiveData(
+    //         //   mapsindoors.LiveDataManager.LiveDataDomainTypes.OCCUPANCY
+    //         // );
+    //     } catch (err) {
+    //         console.log(err, 'error');
+    //     }
+    // }
 
-    async disableLiveData() {
-        if (this.live_data_status) return;
+    // async disableLiveData() {
+    //     if (this.live_data_status) return;
 
-        const liveDataManagerInstance = await new mapsindoors.LiveDataManager(
-            this.mapsIndoors_instance
-        );
+    //     const liveDataManagerInstance = await new mapsindoors.LiveDataManager(
+    //         this.mapsIndoors_instance
+    //     );
 
-        try {
-            await liveDataManagerInstance.disableLiveData(
-                mapsindoors.LiveDataManager.LiveDataDomainTypes
-                    .POSITION as string
-            );
-        } catch (err) {
-            console.log(err, 'error');
-        }
-    }
+    //     try {
+    //         await liveDataManagerInstance.disableLiveData(
+    //             mapsindoors.LiveDataManager.LiveDataDomainTypes
+    //                 .POSITION as string
+    //         );
+    //     } catch (err) {
+    //         console.log(err, 'error');
+    //     }
+    // }
 
-    getResourceIDs(): Promise<any> {
-        return new Promise<any>((resolve, reject) => {
-            const allResources: Observable<any[]> = combineLatest([
-                this.available_spaces,
-                this.available_assets,
-            ]);
+    // getResourceIDs(): Promise<any> {
+    //     return new Promise<any>((resolve, reject) => {
+    //         const allResources: Observable<any[]> = combineLatest([
+    //             this.available_spaces,
+    //             this.available_assets,
+    //         ]);
 
-            this.subscription(
-                'available_resources',
-                allResources.subscribe(([spaces, assets]) => {
-                    this.available_resourceIDs = [...spaces, ...assets].map(
-                        (resource) => resource.id
-                    );
-                    resolve(this.available_resourceIDs);
-                }, reject)
-            );
-        });
-    }
+    //         this.subscription(
+    //             'available_resources',
+    //             allResources.subscribe(([spaces, assets]) => {
+    //                 this.available_resourceIDs = [...spaces, ...assets].map(
+    //                     (resource) => resource.id
+    //                 );
+    //                 resolve(this.available_resourceIDs);
+    //             }, reject)
+    //         );
+    //     });
+    // }
 
-    async getLocationIDs(): Promise<string[]> {
-        console.log('get location IDs triggered');
-        const promises = this.available_resourceIDs.map(
-            async (spaceID: string) => {
-                const locations =
+    // async getLocationIDs(): Promise<string[]> {
+    //     console.log('get location IDs triggered');
+    //     const promises = this.available_resourceIDs.map(
+    //         async (spaceID: string) => {
+    //             const locations =
+    //                 await mapsindoors.services.LocationsService.getLocationsByExternalId(
+    //                     spaceID
+    //                 );
+    //             locations.map((location) =>
+    //                 this.available_external_IDs.push(location.id || '')
+    //             );
+    //         }
+    //     );
+    //     await Promise.all(promises);
+    //     return this.available_external_IDs;
+    // }
+
+    async renderSpaceStatus(): Promise<void> {
+        // this.available_external_IDs.map((id: string) => {
+        //     this._setPolygonFill(id, '#00C851');
+        // });
+
+        for (const key in this.styles) {
+            const colour = this.styles[key]['fill'] as string;
+            console.log(`${key}: ${colour} 'key colour'`);
+            if (key) {
+                const location_id =
                     await mapsindoors.services.LocationsService.getLocationsByExternalId(
-                        spaceID
+                        key
                     );
-                locations.map((location) =>
-                    this.available_external_IDs.push(location.id || '')
-                );
+                console.log(location_id, 'location id');
+                if (location_id) {
+                    await this._setPolygonFill(location_id, colour);
+                }
             }
-        );
-        await Promise.all(promises);
-        return this.available_external_IDs;
+        }
     }
 
-    renderSpaceStatus(): void {
-        this.available_external_IDs.map((id: string) => {
-            this._setPolygonFill(id, '#00C851');
-        });
-    }
-
-    private async _setPolygonFill(location_id: string, color: string) {
+    private async _setPolygonFill(location_id: string, colour: string) {
         await this.mapsIndoors_instance.setDisplayRule(location_id, {
             polygonVisible: true,
             polygonFillOpacity: 0.6,
             polygonZoomFrom: 16,
             polygonZoomTo: 22,
             visible: true,
-            polygonFillColor: color,
+            polygonFillColor: colour,
         });
     }
 }

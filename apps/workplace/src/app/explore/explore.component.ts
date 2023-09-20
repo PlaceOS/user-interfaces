@@ -13,9 +13,6 @@ import { DesksService } from '@placeos/bookings';
             >
                 <explore-map-view></explore-map-view>
             </main>
-            <section class="block">
-                <indoor-maps></indoor-maps>
-            </section>
         </div>
 
         <footer-menu *ngIf="!hide_nav"></footer-menu>
