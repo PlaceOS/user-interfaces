@@ -174,7 +174,7 @@ export class BookingCardComponent extends AsyncHandler {
     }
 
     public get period() {
-        if (this.booking?.all_day) return 'All Day';
+        if (this.booking?.is_all_day) return 'All Day';
         const start = this.booking?.date || Date.now();
         const duration = this.booking?.duration || 60;
         const end = addMinutes(start, duration);

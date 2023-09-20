@@ -123,6 +123,13 @@ export class CalendarEvent {
 
     public readonly update_master: boolean;
 
+    public get is_all_day() {
+        return (
+            this.all_day ||
+            (new Date(this.date).getHours() <= 12 && this.duration > 12 * 60)
+        );
+    }
+
     /** Get field from extension data */
     public ext<K extends keyof EventExtensionData>(key: K) {
         return this.extension_data[key];
