@@ -6,16 +6,8 @@ import {
     Input,
     SimpleChanges,
 } from '@angular/core';
-import { ExploreStateService } from 'libs/explore/src/lib/explore-state.service';
-import {
-    BookingAsset,
-    BookingFormService,
-} from 'libs/bookings/src/lib/booking-form.service';
 import { AsyncHandler, HashMap } from '@placeos/common';
 import { ViewerStyles, ViewAction } from '@placeos/svg-viewer';
-import { Observable, combineLatest } from 'rxjs';
-import { first } from 'rxjs/operators';
-import { Space } from 'libs/spaces/src/lib/space.class';
 
 declare let mapsindoors: any;
 
@@ -29,16 +21,16 @@ declare let mapsindoors: any;
                 [diameter]="48"
             ></mat-spinner>
         </div>
-
         <div
-            class="absolute flex flex-col mt-10 ml-10 h-min w-min  inset-0 flex bg-white bg-opacity-50 backdrop-blur-sm rounded-lg"
+            class="absolute flex flex-col h-min w-min mt-14 left-0 bg-white rounded-lg"
         >
-            <div class="flex-auto basis-1/2 p-4 ">
+            <div class="flex-auto basis-1/2 px-4">
                 <div id="search" class="flex flex-row items-baseline">
-                    <mat-form-field class="custom-form-field ml-4">
+                    <mat-form-field appearance="outline">
                         <input
                             matInput
                             #searchInput
+                            name="location-search"
                             type="text"
                             placeholder="Search"
                         />
@@ -47,23 +39,25 @@ declare let mapsindoors: any;
                         icon
                         name="indoor-map-search"
                         matRipple
-                        class="flex text-black h-10 w-10 rounded-full bg-gray-200 ml-5 mt-6  dark:bg-neutral-800 dark:text-white"
+                        class="flex text-black h-10 w-10 rounded-full bg-gray-200 ml-5 mt-12"
                         aria-label="search button"
                         (click)="onSearch()"
                     >
-                        <app-icon class="text-xl">search</app-icon>
+                        <app-icon matPrefix class="text-2xl relative"
+                            >search</app-icon
+                        >
                     </button>
                 </div>
             </div>
 
             <div class="flex-auto basis-1/2 overflow-y-auto ">
-                <div class="ml-10">
+                <div class="ml-6">
                     <ul>
                         <div *ngIf="search_result_items">
-                            <span class="font-medium text-xl">Results</span>
+                            <span class="font-medium text-lg">Results</span>
                             <li *ngFor="let item of search_result_items">
                                 <div class="flex items-center mt-3 mb-3 h-10">
-                                    <span class="flex mr-3 text-lg">
+                                    <span class="flex mr-3 text-base">
                                         {{ item.properties.name }}</span
                                     >
 
@@ -73,7 +67,7 @@ declare let mapsindoors: any;
                                         matRipple
                                         aria-label="get directions button"
                                         (click)="getRoute(item)"
-                                        class="flex  text-white h-7 w-7 rounded-md bg-secondary dark:bg-neutral-800 dark:text-white"
+                                        class="flex text-white h-7 w-7 rounded-md bg-secondary dark:bg-neutral-800 dark:text-white"
                                     >
                                         <app-icon class="text-sm"
                                             >near_me</app-icon
@@ -109,20 +103,9 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     public googleMaps_instance: any;
     public mapsIndoors_directions_service_instance: any;
     public mapsIndoors_directions_renderer_instance: any;
-    // available_external_IDs: string[] = [];
-
-    // public available_resourceIDs: string[] = [];
 
     public live_data_status: string | boolean = 'enabled';
     public search_result_items: any[];
-
-    // selected_transport_mode: string = 'walking';
-    // transport_modes = [
-    //     { label: 'Walking', value: 'walking' },
-    //     { label: 'Bicycling', value: 'bicycling' },
-    //     { label: 'Driving', value: 'driving' },
-    //     { label: 'Transit', value: 'transit' },
-    // ];
 
     public loading: boolean;
     public actions_hashmap: { [id: string]: ViewAction };
@@ -209,7 +192,6 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             searchParams
         ).then((locations: any[]) => {
             this.search_result_items = locations;
-            console.log(this.search_result_items, 'search result items');
         });
     }
 
