@@ -5,8 +5,9 @@ import {
     SettingsService,
     notifyError,
     notifySuccess,
+    randomInt,
 } from '@placeos/common';
-import { Desk, OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { endOfDay, isBefore, startOfDay } from 'date-fns';
 import { first, take } from 'rxjs/operators';
@@ -34,7 +35,7 @@ import { DesksStateService } from './desks-state.service';
                     [dataSource]="restrictions"
                     [columns]="['start', 'duration', 'items', 'actions']"
                     [display_column]="['Date', 'Period', 'No. of Desks', ' ']"
-                    [column_size]="['10r', 'flex', '10r', '3.5r']"
+                    [column_size]="['10r', 'flex', '10r', '7r']"
                     [template]="{
                         start: date_template,
                         duration: duration_template,
@@ -54,9 +55,20 @@ import { DesksStateService } from './desks-state.service';
                     {{ data?.length || '0' }} desk(s)
                 </ng-template>
                 <ng-template #actions_template let-row="row">
-                    <button btn icon matRipple (click)="remove(row)">
-                        <app-icon>delete</app-icon>
-                    </button>
+                    <div class="flex items-center justify-end space-x-2 w-full">
+                        <button
+                            btn
+                            icon
+                            matRipple
+                            *ngIf="row.id"
+                            (click)="edit(row)"
+                        >
+                            <app-icon>edit</app-icon>
+                        </button>
+                        <button btn icon matRipple (click)="remove(row)">
+                            <app-icon>delete</app-icon>
+                        </button>
+                    </div>
                 </ng-template>
             </main>
             <footer
@@ -151,6 +163,7 @@ export class DeskRestrictionModalComponent {
     public loading = false;
     public adding = false;
     public search = '';
+    public id = '';
     public selected: Record<string, boolean> = {};
     public start_date = startOfDay(Date.now());
     public end_date = endOfDay(Date.now());
@@ -179,9 +192,22 @@ export class DeskRestrictionModalComponent {
 
     public add() {
         this.search = '';
+        this.id = '';
         this.start_date = startOfDay(Date.now());
         this.end_date = endOfDay(Date.now());
         this.selected = {};
+        this.adding = true;
+    }
+
+    public edit(item: ResourceRestriction) {
+        this.search = '';
+        this.id = item.id;
+        this.start_date = new Date(item.start);
+        this.end_date = new Date(item.end);
+        this.selected = item.items.reduce(
+            (map, id) => ({ ...map, [id]: true }),
+            {}
+        );
         this.adding = true;
     }
 
@@ -191,7 +217,13 @@ export class DeskRestrictionModalComponent {
 
     public async addRestriction() {
         const desks = await this.desk_list.pipe(take(1)).toPromise();
+        if (this.id) {
+            this.restrictions = this.restrictions.filter(
+                (_) => _.id !== this.id
+            );
+        }
         this.restrictions.push({
+            id: this.id || `restriction-${randomInt(999_999, 9_999_999)}`,
             start: this.start_date.valueOf(),
             end: this.end_date.valueOf(),
             items: desks.filter((_) => this.selected[_.id]).map((_) => _.id),
