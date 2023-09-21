@@ -33,12 +33,12 @@ import { DesksStateService } from './desks-state.service';
                 <custom-table
                     class="block w-[36rem] max-w-[80vw]"
                     [dataSource]="restrictions"
-                    [columns]="['start', 'duration', 'items', 'actions']"
-                    [display_column]="['Date', 'Period', 'No. of Desks', ' ']"
-                    [column_size]="['10r', 'flex', '10r', '7r']"
+                    [columns]="['start', 'end', 'items', 'actions']"
+                    [display_column]="['Start', 'End', 'No. of Desks', ' ']"
+                    [column_size]="['10r', '10r', 'flex', '7r']"
                     [template]="{
                         start: date_template,
-                        duration: duration_template,
+                        end: date_template,
                         items: count_template,
                         actions: actions_template
                     }"
@@ -46,10 +46,7 @@ import { DesksStateService } from './desks-state.service';
                 ></custom-table>
                 <ng-template #date_template let-data="data">
                     {{ data | date: 'mediumDate' }}
-                </ng-template>
-                <ng-template #duration_template let-row="row">
-                    {{ row.start | date: time_format }} &ndash;
-                    {{ row.end | date: time_format }}
+                    {{ data | date: time_format }}
                 </ng-template>
                 <ng-template #count_template let-data="data">
                     {{ data?.length || '0' }} desk(s)
@@ -104,7 +101,8 @@ import { DesksStateService } from './desks-state.service';
                             <input
                                 matEndDate
                                 placeholder="End date"
-                                [(ngModel)]="end_date"
+                                [ngModel]="end_date"
+                                (ngModelChange)="setEndDate($event)"
                             />
                         </mat-date-range-input>
                         <mat-datepicker-toggle
@@ -169,6 +167,8 @@ export class DeskRestrictionModalComponent {
     public end_date = endOfDay(Date.now());
     public restrictions: ResourceRestriction[] = [];
     public readonly desk_list = this._desks.desks;
+
+    public readonly setEndDate = (end: Date) => (this.end_date = endOfDay(end));
 
     public get time_format() {
         return this._settings.time_format;

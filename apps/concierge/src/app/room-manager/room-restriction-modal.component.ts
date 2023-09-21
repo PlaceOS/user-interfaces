@@ -34,12 +34,12 @@ import { randomInt } from '@placeos/common';
                 <custom-table
                     class="block w-[36rem] max-w-[80vw]"
                     [dataSource]="restrictions"
-                    [columns]="['start', 'duration', 'items', 'actions']"
-                    [display_column]="['Date', 'Period', 'No. of Rooms', ' ']"
-                    [column_size]="['10r', 'flex', '10r', '7r']"
+                    [columns]="['start', 'end', 'items', 'actions']"
+                    [display_column]="['Start', 'End', 'No. of Rooms', ' ']"
+                    [column_size]="['10r', '10r', 'flex', '7r']"
                     [template]="{
                         start: date_template,
-                        duration: duration_template,
+                        end: date_template,
                         items: count_template,
                         actions: actions_template
                     }"
@@ -47,10 +47,7 @@ import { randomInt } from '@placeos/common';
                 ></custom-table>
                 <ng-template #date_template let-data="data">
                     {{ data | date: 'mediumDate' }}
-                </ng-template>
-                <ng-template #duration_template let-row="row">
-                    {{ row.start | date: time_format }} &ndash;
-                    {{ row.end | date: time_format }}
+                    {{ data | date: time_format }}
                 </ng-template>
                 <ng-template #count_template let-data="data">
                     {{ data?.length || '0' }} room(s)
@@ -105,7 +102,8 @@ import { randomInt } from '@placeos/common';
                             <input
                                 matEndDate
                                 placeholder="End date"
-                                [(ngModel)]="end_date"
+                                [ngModel]="end_date"
+                                (ngModelChange)="setEndDate($event)"
                             />
                         </mat-date-range-input>
                         <mat-datepicker-toggle
@@ -129,7 +127,8 @@ import { randomInt } from '@placeos/common';
                         <a-time-field
                             name="start-time"
                             [no_past_times]="false"
-                            [(ngModel)]="start_date"
+                            [ngModel]="start_date.valueOf()"
+                            (ngModelChange)="setStart($event)"
                             class="flex-1"
                         ></a-time-field>
                     </div>
@@ -138,7 +137,8 @@ import { randomInt } from '@placeos/common';
                         <a-time-field
                             name="end-time"
                             [no_past_times]="false"
-                            [(ngModel)]="end_date"
+                            [ngModel]="end_date.valueOf()"
+                            (ngModelChange)="setEnd($event)"
                             class="flex-1"
                         ></a-time-field>
                     </div>
@@ -190,6 +190,11 @@ export class RoomRestrictionModalComponent {
     public end_date = endOfDay(Date.now());
     public restrictions: ResourceRestriction[] = [];
     public readonly room_list = this._rooms.room_list;
+
+    public readonly setEndDate = (end: Date) => (this.end_date = endOfDay(end));
+    public readonly setStart = (start: number) =>
+        (this.start_date = new Date(start));
+    public readonly setEnd = (end: number) => (this.end_date = new Date(end));
 
     public get time_format() {
         return this._settings.time_format;
