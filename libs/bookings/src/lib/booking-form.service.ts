@@ -511,6 +511,10 @@ export class BookingFormService extends AsyncHandler {
         if (!value.zones?.length && this._booking.getValue().zones?.length) {
             value.zones = this._booking.getValue().zones;
         }
+        if (value.all_day) {
+            value.date = set(value.date, { hours: 6, minutes: 0 }).valueOf();
+            value.duration = 13 * 60;
+        }
         this._loading.next('Saving booking');
         delete value.booking_asset;
         const result = await saveBooking(
