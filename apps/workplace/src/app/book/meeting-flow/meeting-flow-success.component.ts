@@ -31,6 +31,9 @@ import { OrganisationService } from '@placeos/organisation';
                             | date: time_format
                     }}.
                 </p>
+                <p *ngIf="true">
+                    Please allow up to 5 minutes for you booking to be approved.
+                </p>
             </main>
             <footer
                 class="p-2 w-full border-t border-gray-200 dark:bg-neutral-500 mt-4 flex items-center justify-center"

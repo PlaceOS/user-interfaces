@@ -45,6 +45,9 @@ import {
                             | date: time_format
                     }}.
                 </p>
+                <p *ngIf="true">
+                    Please allow up to 5 minutes for you booking to be approved.
+                </p>
                 <div
                     class="flex flex-col items-center space-y-4 p-4 relative"
                     *ngIf="show_links"
