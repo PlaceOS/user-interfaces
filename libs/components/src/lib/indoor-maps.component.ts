@@ -1,10 +1,17 @@
-import { Component, ViewChild, ElementRef, OnInit, Input } from '@angular/core';
+import {
+    Component,
+    ViewChild,
+    ElementRef,
+    OnInit,
+    Input,
+    SimpleChanges,
+} from '@angular/core';
 import { ExploreStateService } from 'libs/explore/src/lib/explore-state.service';
 import {
     BookingAsset,
     BookingFormService,
 } from 'libs/bookings/src/lib/booking-form.service';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, HashMap } from '@placeos/common';
 import { ViewerStyles, ViewAction } from '@placeos/svg-viewer';
 import { Observable, combineLatest } from 'rxjs';
 import { first } from 'rxjs/operators';
@@ -36,17 +43,6 @@ declare let mapsindoors: any;
                             placeholder="Search"
                         />
                     </mat-form-field>
-
-                    <!-- <mat-form-field class="flex custom-form-field ml-8">
-                        <mat-select [(ngModel)]="selected_transport_mode">
-                            <mat-option
-                                *ngFor="let transportMode of transport_modes"
-                                [value]="transportMode.value"
-                                >{{ transportMode.label }}</mat-option
-                            >
-                        </mat-select>
-                    </mat-form-field> -->
-
                     <button
                         icon
                         name="indoor-map-search"
@@ -58,24 +54,6 @@ declare let mapsindoors: any;
                         <app-icon class="text-xl">search</app-icon>
                     </button>
                 </div>
-
-                <!-- <div class="flex flex-row ml-4 mb-6 items-center">
-                    <div class="text-gray-700">Live Data:</div>
-
-                    <mat-button-toggle-group
-                        [(ngModel)]="live_data_status"
-                        (ngModelChange)="changeLiveDataStatus($event)"
-                        aria-label="Enable or disable live data"
-                        class="text-gray-700 ml-4"
-                    >
-                        <mat-button-toggle value="enabled"
-                            >Enabled</mat-button-toggle
-                        >
-                        <mat-button-toggle value="disabled"
-                            >Disabled</mat-button-toggle
-                        >
-                    </mat-button-toggle-group>
-                </div> -->
             </div>
 
             <div class="flex-auto basis-1/2 overflow-y-auto ">
@@ -125,32 +103,29 @@ declare let mapsindoors: any;
     ],
 })
 export class IndoorMapsComponent extends AsyncHandler implements OnInit {
-    map_view_options: any;
-    map_view_instance: any;
-    mapsIndoors_instance: any;
-    googleMaps_instance: any;
-    mapsIndoors_directions_service_instance: any;
-    mapsIndoors_directions_renderer_instance: any;
-    available_external_IDs: string[] = [];
+    public map_view_options: any;
+    public map_view_instance: any;
+    public mapsIndoors_instance: any;
+    public googleMaps_instance: any;
+    public mapsIndoors_directions_service_instance: any;
+    public mapsIndoors_directions_renderer_instance: any;
+    // available_external_IDs: string[] = [];
 
-    // public readonly available_spaces: Observable<Space[]> =
-    //     this._explore.spaces;
+    // public available_resourceIDs: string[] = [];
 
-    // public readonly available_assets: Observable<BookingAsset[]> =
-    //     this._booking.available_resources;
+    public live_data_status: string | boolean = 'enabled';
+    public search_result_items: any[];
 
-    public available_resourceIDs: string[] = [];
+    // selected_transport_mode: string = 'walking';
+    // transport_modes = [
+    //     { label: 'Walking', value: 'walking' },
+    //     { label: 'Bicycling', value: 'bicycling' },
+    //     { label: 'Driving', value: 'driving' },
+    //     { label: 'Transit', value: 'transit' },
+    // ];
 
-    live_data_status: string | boolean = 'enabled';
-    search_result_items: any[];
-
-    selected_transport_mode: string = 'walking';
-    transport_modes = [
-        { label: 'Walking', value: 'walking' },
-        { label: 'Bicycling', value: 'bicycling' },
-        { label: 'Driving', value: 'driving' },
-        { label: 'Transit', value: 'transit' },
-    ];
+    public loading: boolean;
+    public actions_hashmap: { [id: string]: ViewAction };
 
     /** Custom CSS styles to apply to the map */
     @Input() public styles: ViewerStyles;
@@ -160,31 +135,31 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     @ViewChild('searchInput', { static: true }) searchElement: ElementRef;
     @ViewChild('searchResultItems') searchResults: ElementRef;
 
-    public loading: boolean;
-
-    constructor() {
-        // private _booking: BookingFormService // private _explore: ExploreStateService,
-        super();
-    }
-
     async ngOnInit() {
+        this.loading = true;
         await this.initMapView();
         this.initDirections();
         this.selectFloors();
-        // await this.enableLiveData();
-        // await this.getResourceIDs();
-        // this.available_external_IDs = await this.getLocationIDs();
     }
 
-    async ngOnChanges() {
-        while (this.styles === null) {
-            await new Promise((resolve) => setTimeout(resolve, 100));
+    async ngOnChanges(change: SimpleChanges) {
+        if (change.styles || change.actions) {
+            await this.renderSpaceStatus();
+            await this.mapActions();
+            this.loading = false;
         }
-        await this.renderSpaceStatus();
+    }
+
+    ngAfterViewInit() {
+        this.mapsIndoors_instance.on('click', (location: any, e: Event) => {
+            const found_action = this.actions_hashmap[location.id];
+            if (found_action) {
+                found_action.callback(e);
+            }
+        });
     }
 
     initMapView(): Promise<void> {
-        this.loading = true;
         this.map_view_options = {
             element: document.getElementById('map'),
             center: { lat: 30.3603774, lng: -97.7426772 },
@@ -198,7 +173,6 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         this.mapsIndoors_instance = new mapsindoors.MapsIndoors({
             mapView: this.map_view_instance,
         });
-        this.loading = false;
         return (this.googleMaps_instance = this.map_view_instance.getMap());
     }
 
@@ -254,7 +228,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         const routeParameters = {
             origin: originLocationCoordinate,
             destination: destinationCoordinate,
-            travelMode: this.selected_transport_mode || 'walking',
+            travelMode: 'walking',
         };
 
         this.mapsIndoors_directions_service_instance
@@ -266,90 +240,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             });
     }
 
-    // changeLiveDataStatus(value: any) {
-    //     (this.live_data_status = 'enabled')
-    //         ? (this.live_data_status = 'disabled')
-    //         : (this.live_data_status = 'enabled');
-    // }
-
-    // async enableLiveData() {
-    //     if (this.live_data_status !== 'enabled') return;
-
-    //     const liveDataManagerInstance = await new mapsindoors.LiveDataManager(
-    //         this.mapsIndoors_instance
-    //     );
-
-    //     try {
-    //         await liveDataManagerInstance.enableLiveData(
-    //             mapsindoors.LiveDataManager.LiveDataDomainTypes
-    //                 .POSITION as string
-    //         );
-    //         // liveDataManagerInstance.enableLiveData(
-    //         //   mapsindoors.LiveDataManager.LiveDataDomainTypes.AVAILABILITY
-    //         // );
-    //         // liveDataManagerInstance.enableLiveData(
-    //         //   mapsindoors.LiveDataManager.LiveDataDomainTypes.OCCUPANCY
-    //         // );
-    //     } catch (err) {
-    //         console.log(err, 'error');
-    //     }
-    // }
-
-    // async disableLiveData() {
-    //     if (this.live_data_status) return;
-
-    //     const liveDataManagerInstance = await new mapsindoors.LiveDataManager(
-    //         this.mapsIndoors_instance
-    //     );
-
-    //     try {
-    //         await liveDataManagerInstance.disableLiveData(
-    //             mapsindoors.LiveDataManager.LiveDataDomainTypes
-    //                 .POSITION as string
-    //         );
-    //     } catch (err) {
-    //         console.log(err, 'error');
-    //     }
-    // }
-
-    // getResourceIDs(): Promise<any> {
-    //     return new Promise<any>((resolve, reject) => {
-    //         const allResources: Observable<any[]> = combineLatest([
-    //             this.available_spaces,
-    //             this.available_assets,
-    //         ]);
-
-    //         this.subscription(
-    //             'available_resources',
-    //             allResources.subscribe(([spaces, assets]) => {
-    //                 this.available_resourceIDs = [...spaces, ...assets].map(
-    //                     (resource) => resource.id
-    //                 );
-    //                 resolve(this.available_resourceIDs);
-    //             }, reject)
-    //         );
-    //     });
-    // }
-
-    // async getLocationIDs(): Promise<string[]> {
-    //     console.log('get location IDs triggered');
-    //     const promises = this.available_resourceIDs.map(
-    //         async (spaceID: string) => {
-    //             const locations =
-    //                 await mapsindoors.services.LocationsService.getLocationsByExternalId(
-    //                     spaceID
-    //                 );
-    //             locations.map((location) =>
-    //                 this.available_external_IDs.push(location.id || '')
-    //             );
-    //         }
-    //     );
-    //     await Promise.all(promises);
-    //     return this.available_external_IDs;
-    // }
-
-    async renderSpaceStatus(): Promise<void> {
-        console.log(this.styles, 'styles');
+    async renderSpaceStatus(): Promise<void[]> {
         if (this.styles) {
             const promises: Promise<void>[] = [];
             for (const key in this.styles) {
@@ -359,8 +250,21 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                     promises.push(this._setPolygonFill(updated_key, colour));
                 }
             }
-            await Promise.all(promises);
+            return await Promise.all(promises);
         }
+    }
+
+    async mapActions() {
+        return new Promise<HashMap<ViewAction>>((resolve, reject) => {
+            this.actions_hashmap = this.actions?.reduce(
+                (accumulator, currentValue) => {
+                    accumulator[currentValue.id] = currentValue;
+                    return accumulator;
+                },
+                {}
+            );
+            resolve(this.actions_hashmap);
+        });
     }
 
     private async _setPolygonFill(location_id: string, colour: string) {

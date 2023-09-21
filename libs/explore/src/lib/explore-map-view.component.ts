@@ -40,7 +40,10 @@ const EMPTY = [];
             [actions]="actions | async"
             [labels]="labels | async"
         ></i-map>
-        <indoor-maps [styles]="styles | async"></indoor-maps>
+        <indoor-maps
+            [styles]="styles | async"
+            [actions]="actions | async"
+        ></indoor-maps>
         <explore-zoom-controls
             class="absolute bottom-2 right-2"
         ></explore-zoom-controls>
