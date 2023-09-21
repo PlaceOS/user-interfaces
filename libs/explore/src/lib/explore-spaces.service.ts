@@ -178,7 +178,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
             (await this._restrictions.pipe(take(1)).toPromise()) || [];
         for (const space of spaces) {
             const restriction_list = restrictions.filter((_) =>
-                _.items.includes(space.id)
+                _.items?.includes(space.id)
             );
             const is_restricted = restriction_list.find(
                 ({ start, end }) => Date.now() >= start && Date.now() < end
