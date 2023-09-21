@@ -1,7 +1,7 @@
 import { Component, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { SettingsService } from '@placeos/common';
-import { addDays, endOfDay } from 'date-fns';
+import { addDays, endOfDay, set } from 'date-fns';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { BookingFormService } from '../booking-form.service';
@@ -118,6 +118,9 @@ import { BookingFormService } from '../booking-form.service';
                             [ngModel]="form.value.date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
+                            [force_time]="
+                                form.value.all_day ? all_day_time : ''
+                            "
                             [use_24hr]="use_24hr"
                             [disabled]="form.value.all_day"
                         ></a-time-field>
@@ -205,6 +208,10 @@ export class DeskFiltersComponent {
     public readonly buildings = this._org.active_buildings;
     public readonly levels = this._org.active_levels;
     public readonly form = this._state.form;
+    public readonly all_day_time = set(Date.now(), {
+        hours: 6,
+        minutes: 0,
+    }).valueOf();
 
     public get building() {
         return this._org.building;

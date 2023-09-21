@@ -19,7 +19,7 @@ import {
     PlaceZone,
     showMetadata,
 } from '@placeos/ts-client';
-import { format, getUnixTime, addMinutes, set } from 'date-fns';
+import { format, getUnixTime, addMinutes, set, startOfDay } from 'date-fns';
 import {
     BehaviorSubject,
     combineLatest,
@@ -172,15 +172,15 @@ export class BookingFormService extends AsyncHandler {
         tap(([{ type }]) =>
             this._loading.next(`Checking ${type} availability...`)
         ),
-        switchMap(([options, resources, restrictions]) =>
-            queryBookings({
-                period_start: getUnixTime(this.form.getRawValue().date),
-                period_end: getUnixTime(
-                    addMinutes(
-                        this.form.getRawValue().date,
-                        this.form.getRawValue().duration || 24 * 60
-                    )
-                ),
+        switchMap(([options, resources, restrictions]) => {
+            var { all_day, date, duration } = this.form.getRawValue();
+            if (all_day) {
+                date = startOfDay(date).valueOf();
+                duration = 24 * 60 - 1;
+            }
+            return queryBookings({
+                period_start: getUnixTime(date),
+                period_end: getUnixTime(addMinutes(date, duration)),
                 type: options.type,
                 zones: options.zone_id,
             }).pipe(
@@ -191,11 +191,6 @@ export class BookingFormService extends AsyncHandler {
                             start,
                             this.form.getRawValue().duration
                         ).valueOf();
-                        const restriction = restrictions.find(
-                            (_) =>
-                                (start >= _.start && start < _.end) ||
-                                (end <= _.end && end > _.start)
-                        );
                         this._resource_use = {};
                         bookings.forEach(
                             (_) =>
@@ -238,8 +233,8 @@ export class BookingFormService extends AsyncHandler {
                     },
                     catchError((_) => of([]))
                 )
-            )
-        ),
+            );
+        }),
         tap((_) => this._loading.next('')),
         shareReplay(1)
     );
@@ -302,7 +297,7 @@ export class BookingFormService extends AsyncHandler {
         this.subscription(
             'form_change',
             this.form.valueChanges.subscribe(() => {
-                const { date, duration } = this.form.value;
+                const { date, duration } = this.form.getRawValue();
                 this._assets.setOptions({ date, duration });
                 this.storeForm();
             })
@@ -576,7 +571,7 @@ export class BookingFormService extends AsyncHandler {
         );
         if (extra_members.length <= 0)
             throw 'No members in your group to book for.';
-        const form = this.form.value;
+        const form = this.form.getRawValue();
         const asset_list = await this.available_resources
             .pipe(take(1))
             .toPromise();

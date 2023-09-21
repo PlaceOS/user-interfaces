@@ -1,7 +1,7 @@
 import { Component, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { flatten, SettingsService, unique } from '@placeos/common';
-import { addDays, endOfDay } from 'date-fns';
+import { addDays, endOfDay, set } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 
@@ -99,6 +99,9 @@ import { SpacesService } from '../spaces.service';
                             [ngModel]="form.value.date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
+                            [force_time]="
+                                form.value.all_day ? all_day_time : ''
+                            "
                             [disabled]="form.value.all_day"
                             [use_24hr]="use_24hr"
                         ></a-time-field>
@@ -192,6 +195,10 @@ import { SpacesService } from '../spaces.service';
 export class SpaceFiltersComponent {
     public can_close = false;
     public readonly options = this._event_form.options;
+    public readonly all_day_time = set(Date.now(), {
+        hours: 6,
+        minutes: 0,
+    }).valueOf();
 
     public readonly building = this._org.active_building;
     public readonly buildings = this._org.active_buildings;
