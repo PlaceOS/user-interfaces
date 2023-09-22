@@ -532,7 +532,8 @@ export class BookingFormService extends AsyncHandler {
                         value.user?.department || currentUser()?.department,
                 },
                 approved: !this._settings.get('app.bookings.no_approval'),
-            })
+            }),
+            value.parent_id ? { booking_id: value.parent_id } : {}
         )
             .toPromise()
             .catch((e) => {
