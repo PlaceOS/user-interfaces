@@ -97,7 +97,6 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         tap((lvl) => {
             this._statuses = {};
             const system_id = this._org.binding('area_management');
-            console.log('On Level update bindings:', system_id);
             if (!system_id) return;
             let binding = getModule(system_id, 'AreaManagement')?.binding(
                 lvl.id

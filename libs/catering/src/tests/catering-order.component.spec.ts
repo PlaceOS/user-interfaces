@@ -1,6 +1,6 @@
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { MockComponent, MockModule } from 'ng-mocks';
+import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
 import { IconComponent } from '@placeos/components';
 
@@ -9,6 +9,7 @@ import { CateringOrderItemComponent } from '../lib/catering-order-item.component
 import { CateringOrdersService } from '../lib/catering-orders.service';
 import { CateringOrder } from '../lib/catering-order.class';
 import { format } from 'date-fns';
+import { SettingsService } from '@placeos/common';
 
 describe('CateringOrderComponent', () => {
     let spectator: Spectator<CateringOrderComponent>;
@@ -19,12 +20,13 @@ describe('CateringOrderComponent', () => {
             MockComponent(IconComponent),
         ],
         providers: [
-            {
-                provide: CateringOrdersService,
-                useValue: {
-                    updateStatus: jest.fn(),
-                },
-            },
+            MockProvider(CateringOrdersService, {
+                updateStatus: jest.fn(),
+            }),
+            MockProvider(SettingsService, {
+                get: jest.fn(),
+                time_format: 'h:mm a',
+            }),
         ],
         imports: [MockModule(MatMenuModule)],
     });

@@ -10,6 +10,7 @@ import {
     switchMap,
     take,
 } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
 
 import {
     AsyncHandler,
@@ -29,7 +30,6 @@ import { ExploreStateService } from './explore-state.service';
 import { ExploreSpaceInfoComponent } from './explore-space-info.component';
 import { ExploreBookingModalComponent } from './explore-booking-modal.component';
 import { ExploreBookQrComponent } from './explore-book-qr.component';
-import { Observable, of } from 'rxjs';
 
 export const DEFAULT_COLOURS = {
     free: '#43a047',
@@ -89,7 +89,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
                 this.subscription(`s-bind-${space.id}`, binding.bind());
             }
             this.updateActions(list);
-            this.updateHoverElements(list);
+            this._updateHoverElements(list);
         })
     );
 
@@ -151,7 +151,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         this._bookings[space.id] = bookings.map((i) => new CalendarEvent(i));
         this.timeout(
             'update_hover_els',
-            () => this.updateHoverElements(spaces),
+            () => this._updateHoverElements(spaces),
             100
         );
     }
@@ -160,22 +160,25 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         this._statuses[space.id] = space.bookable
             ? status || 'free'
             : 'not-bookable';
+        console.log('Status:', this._statuses[space.id]);
         this.timeout(
             'update_statuses',
             () => {
                 this.clearTimeout('update_hover_els');
-                this.updateStatus(spaces);
-                this.updateHoverElements(spaces);
+                this._updateStatus(spaces);
+                this._updateHoverElements(spaces);
             },
             100
         );
     }
 
-    private async updateStatus(spaces: Space[]) {
+    private async _updateStatus(spaces: Space[]) {
+        console.log('Update Styles');
         const style_map = {};
         const colours = this._settings.get('app.explore.colors') || {};
         const restrictions =
             (await this._restrictions.pipe(take(1)).toPromise()) || [];
+        console.log('Got restrictions');
         for (const space of spaces) {
             const restriction_list = restrictions.filter((_) =>
                 _.items?.includes(space.id)
@@ -192,10 +195,11 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
                 opacity: 0.6,
             };
         }
+        console.log('Styles:', style_map);
         this._state.setStyles('spaces', style_map);
     }
 
-    private updateHoverElements(spaces: Space[]) {
+    private _updateHoverElements(spaces: Space[]) {
         const features: ViewerFeature[] = [];
         for (const space of spaces) {
             if (!space.map_id) continue;

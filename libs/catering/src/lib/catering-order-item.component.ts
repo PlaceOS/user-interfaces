@@ -66,7 +66,7 @@ export class CateringOrderItemComponent {
     public active = false;
 
     public get item_key() {
-        return `${this.order_id}|${this.item.id}`;
+        return `${this.order_id}|${this.item?.id}`;
     }
 
     public ngOnInit() {
