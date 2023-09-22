@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { VisitorsStateService } from './visitors-state.service';
+import { GuestUser } from '@placeos/users';
+import { CalendarEvent } from '@placeos/events';
 
 @Component({
     selector: 'guest-listings',
@@ -207,7 +209,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 [loading]="loading === 'checkin'"
                 [state]="row?.checked_in ? 'success' : ''"
                 content="event_available"
-                (click)="checkin()"
+                (click)="checkin(row)"
                 [class.invisible]="!row?.is_external || row?.organizer"
             >
             </action-icon>
@@ -216,7 +218,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 matTooltip="Checkout Guest"
                 [loading]="loading === 'checkout'"
                 content="event_busy"
-                (click)="checkout()"
+                (click)="checkout(row)"
                 [class.invisible]="!row?.is_external || row?.organizer"
             >
             </action-icon>
@@ -262,6 +264,21 @@ export class GuestListingComponent {
     public readonly approveVisitor = (u) => this._state.approveVisitor(u);
     public readonly declineVisitor = (u) => this._state.declineVisitor(u);
     public readonly setExt = (u, f, v) => this._state.setExt(u, f, v);
+
+    public readonly checkin = async (guest: GuestUser) => {
+        const event =
+            (guest as any).event || guest.extension_data.event || guest.booking;
+        await this._state
+            .checkGuestIn(event as CalendarEvent, guest)
+            .catch((e) => event);
+    };
+
+    public readonly checkout = async (guest: GuestUser) => {
+        const event = (guest as any).event || guest.booking;
+        await this._state
+            .checkGuestOut(event as CalendarEvent, guest)
+            .catch((e) => event);
+    };
 
     public get columns() {
         return this._settings.get('app.guests.vaccine_check')
