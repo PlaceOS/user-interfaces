@@ -2,6 +2,8 @@ import { Component, Input } from '@angular/core';
 
 import { CateringItem } from './catering-item.class';
 
+const ACTIVE_ITEMS = new Set<string>();
+
 @Component({
     selector: '[catering-order-item]',
     template: `
@@ -20,7 +22,7 @@ import { CateringItem } from './catering-item.class';
                     [class.bg-success]="active"
                     [class.text-white]="active"
                     [class.border-solid]="active"
-                    (click)="active = !active"
+                    (click)="toggle()"
                 >
                     <app-icon>{{ active ? 'done' : 'local_pizza' }}</app-icon>
                 </button>
@@ -58,7 +60,26 @@ import { CateringItem } from './catering-item.class';
     ],
 })
 export class CateringOrderItemComponent {
+    @Input() public order_id: string;
     @Input() public item: CateringItem;
 
     public active = false;
+
+    public get item_key() {
+        return `${this.order_id}|${this.item.id}`;
+    }
+
+    public ngOnInit() {
+        this.active = ACTIVE_ITEMS.has(this.item_key);
+    }
+
+    public toggle() {
+        if (ACTIVE_ITEMS.has(this.item_key)) {
+            ACTIVE_ITEMS.delete(this.item_key);
+            this.active = false;
+        } else {
+            ACTIVE_ITEMS.add(this.item_key);
+            this.active = true;
+        }
+    }
 }

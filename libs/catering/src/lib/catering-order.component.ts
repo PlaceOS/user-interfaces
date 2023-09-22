@@ -94,6 +94,7 @@ import { CATERING_STATUSES } from './catering.vars';
                 catering-order-item
                 class="flex items-center"
                 *ngFor="let item of order.items; let i = index"
+                [order_id]="order?.id"
                 [item]="item"
             ></li>
         </ul>
