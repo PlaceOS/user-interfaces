@@ -134,12 +134,15 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     }
 
     ngAfterViewInit() {
-        this.mapsIndoors_instance.on('click', (location: any, e: Event) => {
-            const found_action = this.actions_hashmap[location.id];
-            if (found_action) {
-                found_action.callback(e);
+        this.mapsIndoors_instance.addListener(
+            'click',
+            (location: any, e: Event) => {
+                const found_action = this.actions_hashmap[location.id];
+                if (found_action) {
+                    found_action.callback(e);
+                }
             }
-        });
+        );
     }
 
     initMapView(): Promise<void> {
