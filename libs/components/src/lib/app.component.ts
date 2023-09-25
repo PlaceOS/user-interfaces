@@ -9,6 +9,7 @@ import {
     convertPairStringToMap,
     getFragments,
     invalidateToken,
+    isFixedDevice,
     isMock,
     refreshToken,
     setAPI_Key,
@@ -31,6 +32,7 @@ import {
     log,
     GoogleAnalyticsService,
     isMobileSafari,
+    hasNewVersion,
 } from '@placeos/common';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
@@ -195,6 +197,15 @@ export class AppComponent extends AsyncHandler implements OnInit {
                     providers: [Amazon, Azure, Google, OpenStack] as any,
                 });
             });
+        }
+        if (isFixedDevice()) {
+            this.interval(
+                'auto-update-version',
+                () => {
+                    if (hasNewVersion()) location.reload();
+                },
+                15 * 1000
+            );
         }
     }
 
