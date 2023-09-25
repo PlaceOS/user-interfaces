@@ -134,7 +134,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     }
 
     ngAfterViewInit() {
-        this.mapsIndoors_instance.addListener(
+        this.mapsIndoors_instance?.addListener(
             'click',
             (location: any, e: Event) => {
                 const found_action = this.actions_hashmap[location.id];
@@ -191,7 +191,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
 
     async onSearch(): Promise<any> {
         const searchParams = { q: this.searchElement.nativeElement.value };
-        await mapsindoors.services.LocationsService.getLocations(
+        await mapsindoors?.services.LocationsService.getLocations(
             searchParams
         ).then((locations: any[]) => {
             this.search_result_items = locations;
@@ -219,7 +219,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         this.mapsIndoors_directions_service_instance
             .getRoute(routeParameters)
             .then((directionsResult: any) => {
-                this.mapsIndoors_directions_renderer_instance.setRoute(
+                this.mapsIndoors_directions_renderer_instance?.setRoute(
                     directionsResult
                 );
             });
@@ -253,7 +253,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     }
 
     private async _setPolygonFill(location_id: string, colour: string) {
-        await this.mapsIndoors_instance.setDisplayRule(location_id, {
+        await this.mapsIndoors_instance?.setDisplayRule(location_id, {
             polygonVisible: true,
             polygonFillOpacity: 0.6,
             polygonZoomFrom: 16,
