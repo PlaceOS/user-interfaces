@@ -3,6 +3,8 @@ import {
     AsyncHandler,
     currentUser,
     flatten,
+    notifyError,
+    notifySuccess,
     SettingsService,
 } from '@placeos/common';
 import { showMetadata } from '@placeos/ts-client';
@@ -20,15 +22,25 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
 import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import { ExploreStateService } from './explore-state.service';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
+import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
+import { StaffUser } from '@placeos/users';
+import { SetDatetimeModalComponent } from './set-datetime-modal.component';
+import { MatDialog } from '@angular/material/dialog';
 
-export interface ExploreParkingOptions {
-    date: number;
+export interface ParkingOptions {
+    enable_booking?: boolean;
+    date?: number;
+    all_day?: boolean;
+    zones?: string[];
+    host?: StaffUser;
+    custom?: boolean;
+    use_api?: boolean;
     user?: string;
 }
 
 @Injectable()
 export class ExploreParkingService extends AsyncHandler {
-    private _options = new BehaviorSubject<ExploreParkingOptions>({
+    private _options = new BehaviorSubject<ParkingOptions>({
         date: startOfDay(Date.now()).valueOf(),
     });
     private _poll = new BehaviorSubject<number>(0);
@@ -138,7 +150,9 @@ export class ExploreParkingService extends AsyncHandler {
     constructor(
         private _org: OrganisationService,
         private _state: ExploreStateService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _bookings: BookingFormService,
+        private _dialog: MatDialog
     ) {
         super();
         this.subscription(
@@ -151,14 +165,16 @@ export class ExploreParkingService extends AsyncHandler {
         this.interval('poll', () => this._poll.next(Date.now()), 10 * 1000);
     }
 
-    public setOptions(options: Partial<ExploreParkingOptions>) {
+    public setOptions(options: Partial<ParkingOptions>) {
         this._options.next({ ...this._options.getValue(), ...options });
     }
 
     private _updateParkingSpaces(spaces, available) {
         const styles = {};
         const labels = [];
+        const actions = [];
         const colours = this._settings.get('app.explore.colors') || {};
+        const options = this._options.getValue();
         for (const space of spaces) {
             const can_book = !!available.find((_) => _.id === space.id);
             const status = can_book ? 'free' : 'busy';
@@ -176,8 +192,108 @@ export class ExploreParkingService extends AsyncHandler {
                     content: `${space.name}\nFree`,
                 });
             }
+            const book_fn = async () => {
+                if (status !== 'free') {
+                    return notifyError(
+                        `${
+                            space.name || 'Parking Space'
+                        } is unavailable at this time.`
+                    );
+                }
+                if (
+                    space.groups?.length &&
+                    !space.groups.find((_) => currentUser().groups.includes(_))
+                ) {
+                    return notifyError(
+                        `You are not allowed to book ${space.name}.`
+                    );
+                }
+                this._bookings.newForm();
+                this._bookings.setOptions({ type: 'parking' });
+                if (options.date) {
+                    this._bookings.form.patchValue({
+                        date: options.date,
+                    });
+                    this._bookings.form.patchValue({
+                        all_day: !!options.all_day,
+                    });
+                }
+                let { date, duration, user } = await this._setBookingTime(
+                    this._bookings.form.value.date,
+                    this._bookings.form.value.duration,
+                    this._options.getValue()?.custom ?? false,
+                    space as any
+                );
+                user = user || options.host || currentUser();
+                const user_email = user?.email;
+                this._bookings.form.patchValue({
+                    resources: [space],
+                    asset_id: space.id,
+                    asset_name: space.name,
+                    date,
+                    duration: options.all_day ? 12 * 60 : duration,
+                    map_id: space?.map_id || space?.id,
+                    description: space.name,
+                    user,
+                    user_email,
+                    booking_type: 'parking',
+                    zones: space.zone
+                        ? [space.zone?.parent_id, space.zone?.id]
+                        : [],
+                });
+                await this._bookings.confirmPost().catch((e) => {
+                    console.log(e);
+                    notifyError(
+                        `Failed to book parking space ${
+                            space.name || space.id
+                        }. ${e.message || e.error || e}`
+                    );
+                    throw e;
+                });
+                notifySuccess(
+                    `Successfully booked parking space ${
+                        space.name || space.id
+                    }`
+                );
+            };
+            actions.push({
+                id: space.id,
+                action: 'click',
+                priority: 10,
+                callback: book_fn,
+            });
         }
+        this._state.setActions(
+            'parking',
+            options.enable_booking ? actions : []
+        );
         this._state.setStyles('parking', styles);
         this._state.setLabels('parking', labels);
+    }
+
+    private async _setBookingTime(
+        date: number,
+        duration: number,
+        host: boolean = false,
+        resource: any = null
+    ) {
+        let user = null;
+        if (!!this._settings.get('app.parking.allow_time_changes')) {
+            const until = endOfDay(
+                addDays(
+                    Date.now(),
+                    this._settings.get('app.parking.available_period') || 90
+                )
+            );
+            const ref = this._dialog.open(SetDatetimeModalComponent, {
+                data: { date, duration, until, host, resource },
+            });
+            const details = await ref.afterClosed().toPromise();
+            if (!details) throw 'User cancelled';
+            date = details.date;
+            duration = details.duration;
+            user = details.user;
+        }
+        return { date, duration, user };
     }
 }
