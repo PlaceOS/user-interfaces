@@ -162,6 +162,10 @@ export class ExploreParkingService extends AsyncHandler {
                     this._updateParkingSpaces(spaces, available)
             )
         );
+        this.setOptions({
+            enable_booking:
+                this._settings.get('app.parking.enable_maps') !== false,
+        });
         this.interval('poll', () => this._poll.next(Date.now()), 10 * 1000);
     }
 
@@ -185,13 +189,12 @@ export class ExploreParkingService extends AsyncHandler {
                     DEFAULT_COLOURS[`${status}`],
                 opacity: 0.6,
             };
-            if (can_book) {
-                labels.push({
-                    zoom_level: 2,
-                    location: `${space.map_id}`,
-                    content: `${space.name}\nFree`,
-                });
-            }
+            if (!can_book) continue;
+            labels.push({
+                zoom_level: 2,
+                location: `${space.map_id}`,
+                content: `${space.name}\nFree`,
+            });
             const book_fn = async () => {
                 if (status !== 'free') {
                     return notifyError(
