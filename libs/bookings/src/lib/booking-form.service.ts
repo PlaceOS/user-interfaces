@@ -513,7 +513,7 @@ export class BookingFormService extends AsyncHandler {
         }
         if (value.all_day) {
             value.date = set(value.date, { hours: 6, minutes: 0 }).valueOf();
-            value.duration = 13 * 60;
+            value.duration = 12 * 60 + 1;
         }
         this._loading.next('Saving booking');
         delete value.booking_asset;
