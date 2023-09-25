@@ -329,19 +329,34 @@ const EMPTY_ACTIONS = [];
                                 event.extension_data.assets?.length || 0
                             }})
                         </h3>
-                        <div class="flex flex-col px-4 space-y-2">
+                        <div class="flex px-4 flex-wrap">
                             <div
                                 asset
-                                class="flex space-x-2"
+                                class="flex space-x-2 m-2 rounded-2xl text-white px-3 py-1"
+                                [class.bg-success]="
+                                    status(item.id) === 'approved'
+                                "
+                                [class.bg-error]="
+                                    status(item.id) === 'rejected'
+                                "
+                                [class.bg-pending]="
+                                    status(item.id) !== 'approved' &&
+                                    status(item.id) !== 'rejected'
+                                "
                                 *ngFor="
                                     let item of event.extension_data.assets ||
                                         []
                                 "
                             >
-                                <div details class="pt-0.5">
-                                    <div class="text-sm">
-                                        {{ item.name }}
-                                    </div>
+                                <app-icon>{{
+                                    status(item.id) === 'approved'
+                                        ? 'done'
+                                        : status(item.id) === 'rejected'
+                                        ? 'close'
+                                        : 'pending'
+                                }}</app-icon>
+                                <div class="text-sm whitespace-nowrap pr-2">
+                                    {{ item.name }}
                                 </div>
                             </div>
                         </div>
@@ -513,6 +528,20 @@ export class EventDetailsModalComponent {
                 content: MapPinComponent,
             },
         ];
+    }
+
+    public status(id: string): string {
+        const booking = this.event.linked_bookings.find(
+            (_) => _.asset_id === id
+        );
+        if (booking.status) return booking.status;
+        return booking
+            ? booking.approved
+                ? 'approved'
+                : booking.rejected
+                ? 'rejected'
+                : 'pending'
+            : 'pending';
     }
 
     public viewLocation() {

@@ -8,6 +8,19 @@ export interface ResourceRestriction {
     items: string[];
 }
 
+export interface LinkedBooking {
+    id: string;
+    asset_id: string;
+    asset_name: string;
+    user_id: string;
+    user_name: string;
+    description: string;
+    booking_type: string;
+    status: string;
+    approved?: string;
+    rejected?: string;
+}
+
 /** Generic data type with identification details */
 export interface Identity extends HashMap {
     id: string | number;

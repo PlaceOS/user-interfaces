@@ -1,4 +1,8 @@
-import { capitalizeFirstLetter, removeEmptyFields } from '@placeos/common';
+import {
+    LinkedBooking,
+    capitalizeFirstLetter,
+    removeEmptyFields,
+} from '@placeos/common';
 import { User } from 'libs/users/src/lib/user.class';
 import {
     add,
@@ -108,6 +112,8 @@ export class Booking {
 
     public readonly linked_event?: LinkedCalendarEvent;
 
+    public readonly linked_bookings: LinkedBooking[];
+
     public get group() {
         return this.extension_data.group || '';
     }
@@ -184,6 +190,7 @@ export class Booking {
         this.all_day = data.all_day ?? this.duration >= 12 * 60;
         this.checked_out_at = data.checked_out_at;
         this.linked_event = data.linked_event || null;
+        this.linked_bookings = data.linked_bookings || [];
         this.status =
             this.checked_out_at > 0
                 ? 'ended'

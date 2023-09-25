@@ -1,4 +1,9 @@
-import { Identity, removeEmptyFields, unique } from '@placeos/common';
+import {
+    Identity,
+    LinkedBooking,
+    removeEmptyFields,
+    unique,
+} from '@placeos/common';
 import { PlaceSystem } from '@placeos/ts-client';
 import {
     add,
@@ -37,16 +42,6 @@ const DAYS_OF_WEEK = [
     'friday',
     'saturday',
 ];
-
-export interface LinkedBooking {
-    id: string;
-    asset_id: string;
-    asset_name: string;
-    user_id: string;
-    user_name: string;
-    description: string;
-    booking_type: string;
-}
 
 type CalendarEventExtended = CalendarEvent & EventExtensionData;
 
