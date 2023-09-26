@@ -677,6 +677,7 @@ export class BookingFormService extends AsyncHandler {
             period_start: getUnixTime(date),
             period_end: getUnixTime(date + duration * 60 * 1000),
             type,
+            email: user_email,
         }).toPromise();
         if (bookings.find((_) => _.asset_id === asset_id && id !== _.id)) {
             if (asset_id.includes('@')) {
