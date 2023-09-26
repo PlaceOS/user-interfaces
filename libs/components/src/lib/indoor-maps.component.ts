@@ -11,6 +11,21 @@ import { ViewerStyles, ViewAction } from '@placeos/svg-viewer';
 
 declare let mapsindoors: any;
 
+interface GeolocationCoordinates {
+    latitude: number;
+    longitude: number;
+    altitude: number | null;
+    accuracy: number;
+    altitudeAccuracy: number | null;
+    heading: number | null;
+    speed: number | null;
+}
+
+interface GeolocationPosition {
+    coords: GeolocationCoordinates;
+    timestamp: number;
+}
+
 @Component({
     selector: 'indoor-maps',
     template: `
@@ -110,6 +125,9 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     public loading: boolean;
     public actions_hashmap: { [id: string]: ViewAction };
 
+    public user_latitude: number | null = null;
+    public user_longitude: number | null = null;
+
     /** Custom CSS styles to apply to the map */
     @Input() public styles: ViewerStyles;
     /** List of available user actions for the map */
@@ -119,6 +137,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     @ViewChild('searchResultItems') searchResults: ElementRef;
 
     async ngOnInit() {
+        await this._getUserLocation();
         this.loading = true;
         await this.initMapView();
         this.initDirections();
@@ -146,9 +165,17 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     }
 
     initMapView(): Promise<void> {
+        //Hardcoded coordinates for mock map in Austin
+        // this.map_view_options = {
+        //     element: document.getElementById('map'),
+        //     center: { lat: 30.3603774, lng: -97.7426772 },
+        //     zoom: 21,
+        //     maxZoom: 26,
+        // };
+
         this.map_view_options = {
             element: document.getElementById('map'),
-            center: { lat: 30.3603774, lng: -97.7426772 },
+            center: { lat: this.user_latitude, lng: this.user_longitude },
             zoom: 21,
             maxZoom: 26,
         };
@@ -198,31 +225,68 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         });
     }
 
-    getRoute(location: any) {
-        const originLocationCoordinate = {
-            lat: 30.3606484,
-            lng: -97.7419834,
-        }; //Hardcoded coordinate and floor index. TODO: get user location
-
-        const destinationCoordinate = {
-            lat: location.properties.anchor.coordinates[1],
-            lng: location.properties.anchor.coordinates[0],
-            floor: location.properties.floor,
-        };
-
-        const routeParameters = {
-            origin: originLocationCoordinate,
-            destination: destinationCoordinate,
-            travelMode: 'walking',
-        };
-
-        this.mapsIndoors_directions_service_instance
-            .getRoute(routeParameters)
-            .then((directionsResult: any) => {
-                this.mapsIndoors_directions_renderer_instance?.setRoute(
-                    directionsResult
+    private _getUserLocation() {
+        return new Promise<GeolocationPosition>(async (resolve, reject) => {
+            if ('geolocation' in navigator) {
+                await navigator.geolocation.getCurrentPosition(
+                    (position: GeolocationPosition) => {
+                        this.user_latitude = position.coords.latitude;
+                        this.user_longitude = position.coords.longitude;
+                        console.log(
+                            this.user_latitude,
+                            this.user_longitude,
+                            'user geolocation'
+                        );
+                        resolve(position);
+                    },
+                    (error) => {
+                        console.log('Error getting geolocation:', error);
+                        reject(error);
+                    },
+                    { timeout: 10000 }
                 );
-            });
+            } else {
+                console.log('no geolocation');
+                reject('Geolocation not supported');
+            }
+        });
+    }
+
+    getRoute(location: any) {
+        if (this.user_latitude && this.user_longitude) {
+            const originLocationCoordinate = {
+                lat: this.user_latitude,
+                lng: this.user_longitude,
+            };
+
+            //Hardcoded coordinates for mock map in Austin
+            // const originLocationCoordinate = {
+            //     lat: 30.3606484,
+            //     lng: this.user_longitude,
+            // };
+
+            const destinationCoordinate = {
+                lat: location.properties.anchor.coordinates[1],
+                lng: location.properties.anchor.coordinates[0],
+                floor: location.properties.floor,
+            };
+
+            const routeParameters = {
+                origin: originLocationCoordinate,
+                destination: destinationCoordinate,
+                travelMode: 'walking',
+            };
+
+            this.mapsIndoors_directions_service_instance
+                .getRoute(routeParameters)
+                .then((directionsResult: any) => {
+                    this.mapsIndoors_directions_renderer_instance?.setRoute(
+                        directionsResult
+                    );
+                });
+        } else {
+            //alert user cannot get their location
+        }
     }
 
     async renderSpaceStatus(): Promise<void[]> {
