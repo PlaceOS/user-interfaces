@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { getModule } from '@placeos/ts-client';
 import { Point } from '@placeos/svg-viewer';
 import { first, take } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 import {
     AsyncHandler,
@@ -23,6 +24,7 @@ import { ExploreZonesService } from './explore-zones.service';
 import { ExploreDesksService } from './explore-desks.service';
 import { ExploreParkingService } from './explore-parking.service';
 import { ExploreLockersService } from './explore-lockers.service';
+import { InjectMapApiService } from '@placeos/common';
 
 const EMPTY = [];
 
@@ -30,6 +32,7 @@ const EMPTY = [];
     selector: 'explore-map-view',
     template: `
         <i-map
+            *ngIf="!(map_key_exists | async)"
             [src]="url | async"
             [zoom]="(positions | async)?.zoom"
             [center]="(positions | async)?.center"
@@ -40,7 +43,9 @@ const EMPTY = [];
             [actions]="actions | async"
             [labels]="labels | async"
         ></i-map>
+
         <indoor-maps
+            *ngIf="map_key_exists | async"
             [styles]="styles | async"
             [actions]="actions | async"
         ></indoor-maps>
@@ -143,6 +148,9 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         return this._settings.get('app.explore.legend') || EMPTY;
     }
 
+    public readonly map_key_exists: Observable<boolean> =
+        this._maps.getKeyExistsAsObservable();
+
     constructor(
         private _state: ExploreStateService,
         private _s: ExploreSpacesService,
@@ -155,7 +163,8 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         private _spaces: SpacesService,
         private _org: OrganisationService,
         private _settings: SettingsService,
-        private _space_pipe: SpacePipe
+        private _space_pipe: SpacePipe,
+        private _maps: InjectMapApiService
     ) {
         super();
     }
