@@ -75,7 +75,7 @@
         "@nx/workspace": "16.2.2",
         "@placeos/cloud-uploads": "^0.2.6-dev",
         "@placeos/svg-viewer": "^0.5.4-dev",
-        "@placeos/ts-client": "^3.22.3",
+        "@placeos/ts-client": "^3.22.4",
         "@schematics/angular": "16.0.2",
         "@sentry/angular-ivy": "^7.53.1",
         "@types/jest": "29.4.0",

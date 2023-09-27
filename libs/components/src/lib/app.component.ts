@@ -201,9 +201,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         if (isFixedDevice()) {
             this.interval(
                 'auto-update-version',
-                () => {
-                    if (hasNewVersion()) location.reload();
-                },
+                () => this._checkReload(),
                 15 * 1000
             );
         }
@@ -259,5 +257,14 @@ export class AppComponent extends AsyncHandler implements OnInit {
 
         notifySuccess('Successfully pasted token.');
         setTimeout(() => location.reload(), 2000);
+    }
+
+    private _checkReload() {
+        if (!hasNewVersion()) return;
+        location.reload();
+        this.timeout(
+            'reload',
+            () => (location.href = `${location.origin}${location.pathname}`)
+        );
     }
 }
