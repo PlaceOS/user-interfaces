@@ -136,6 +136,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
 
     public live_data_status: string | boolean = 'enabled';
     public search_result_items: any[];
+    public selected_destination: any = null;
 
     public loading: boolean;
     public actions_hashmap: { [id: string]: ViewAction };
@@ -271,6 +272,10 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                     },
                     options
                 );
+                navigator.geolocation.watchPosition(
+                    this._updateGeolocation.bind(this),
+                    this._handleGeolocationError.bind(this)
+                );
             } else {
                 this.geolocation_error_message =
                     'Error: geolocation is not supported.';
@@ -280,7 +285,26 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         });
     }
 
+    private _updateGeolocation(updated_location: GeolocationPosition) {
+        console.log(updated_location, 'updated location');
+        if (updated_location) {
+            if (
+                updated_location.coords?.latitude !== this.user_latitude ||
+                updated_location.coords?.longitude !== this.user_longitude
+            ) {
+                this.user_latitude = updated_location.coords?.latitude;
+                this.user_longitude = updated_location.coords?.longitude;
+                this.getRoute(this.selected_destination);
+            }
+        }
+    }
+
+    private _handleGeolocationError(error: any) {
+        this._alertError('Error updating your geolocation.');
+    }
+
     getRoute(location: any) {
+        this.selected_destination = location;
         if (this.user_latitude && this.user_longitude) {
             const originLocationCoordinate: any = {
                 lat: this.user_latitude,
