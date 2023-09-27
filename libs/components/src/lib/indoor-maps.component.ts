@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { AsyncHandler, HashMap } from '@placeos/common';
 import { ViewerStyles, ViewAction } from '@placeos/svg-viewer';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 declare let mapsindoors: any;
 
@@ -35,6 +36,20 @@ interface GeolocationPosition {
                 class="absolute"
                 [diameter]="48"
             ></mat-spinner>
+            <div
+                *ngIf="geolocation_error_message"
+                class="flex flex-col items-center z-50"
+            >
+                <img
+                    src="assets/icons/not-found.svg"
+                    alt="graphic of magnifying glass"
+                    width="200px"
+                    class="items-center"
+                />
+                <p class="opacity-60 text-sm text-center mt-10">
+                    {{ geolocation_error_message | translate }}
+                </p>
+            </div>
         </div>
         <div
             class="absolute flex flex-col h-min w-min mt-14 left-0 bg-white rounded-lg"
@@ -127,6 +142,8 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
 
     public user_latitude: number | null = null;
     public user_longitude: number | null = null;
+    public geolocation_error_message: string = '';
+    public route_error_message: string = '';
 
     /** Custom CSS styles to apply to the map */
     @Input() public styles: ViewerStyles;
@@ -135,6 +152,10 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
 
     @ViewChild('searchInput', { static: true }) searchElement: ElementRef;
     @ViewChild('searchResultItems') searchResults: ElementRef;
+
+    constructor(private _snackBar: MatSnackBar) {
+        super();
+    }
 
     async ngOnInit() {
         await this._getUserLocation();
@@ -226,6 +247,8 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     }
 
     private _getUserLocation() {
+        const options = { timeout: 10000, enableHighAccuracy: true };
+
         return new Promise<GeolocationPosition>(async (resolve, reject) => {
             if ('geolocation' in navigator) {
                 await navigator.geolocation.getCurrentPosition(
@@ -240,13 +263,18 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                         resolve(position);
                     },
                     (error) => {
-                        console.log('Error getting geolocation:', error);
+                        this.geolocation_error_message =
+                            'Error: ' +
+                            error.message?.toString() +
+                            '. Please enable geolocation settings.';
                         reject(error);
                     },
-                    { timeout: 10000 }
+                    options
                 );
             } else {
-                console.log('no geolocation');
+                this.geolocation_error_message =
+                    'Error: geolocation is not supported.';
+
                 reject('Geolocation not supported');
             }
         });
@@ -254,15 +282,15 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
 
     getRoute(location: any) {
         if (this.user_latitude && this.user_longitude) {
-            const originLocationCoordinate = {
+            const originLocationCoordinate: any = {
                 lat: this.user_latitude,
                 lng: this.user_longitude,
             };
 
             //Hardcoded coordinates for mock map in Austin
             // const originLocationCoordinate = {
-            //     lat: 30.3606484,
-            //     lng: this.user_longitude,
+            //     lat: 30.3603774,
+            //     lng: -97.7426772,
             // };
 
             const destinationCoordinate = {
@@ -274,7 +302,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             const routeParameters = {
                 origin: originLocationCoordinate,
                 destination: destinationCoordinate,
-                travelMode: 'walking',
+                travelMode: 'WALKING',
             };
 
             this.mapsIndoors_directions_service_instance
@@ -283,10 +311,30 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                     this.mapsIndoors_directions_renderer_instance?.setRoute(
                         directionsResult
                     );
+                })
+                .catch((error: any) => {
+                    console.error('Error fetching route: ' + error);
+                    if (
+                        error instanceof TypeError &&
+                        error.message?.includes('origin')
+                    ) {
+                        this.route_error_message =
+                            'Error: Cannot create route as origin location is outside of map area.';
+                        this._alertError(this.route_error_message);
+                    }
                 });
         } else {
-            //alert user cannot get their location
+            this.route_error_message = 'Error: unable to find a route.';
+            this._alertError(this.route_error_message);
         }
+    }
+
+    private _alertError(error_message: string) {
+        this._snackBar.open(error_message, 'OK', {
+            duration: 10000,
+            verticalPosition: 'bottom',
+            horizontalPosition: 'center',
+        });
     }
 
     async renderSpaceStatus(): Promise<void[]> {
