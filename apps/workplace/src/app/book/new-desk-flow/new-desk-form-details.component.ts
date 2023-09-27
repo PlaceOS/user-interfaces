@@ -9,7 +9,7 @@ import { FormGroup } from '@angular/forms';
 import { BookingFormService } from '@placeos/bookings';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
-import { addDays, endOfDay } from 'date-fns';
+import { addDays, endOfDay, set } from 'date-fns';
 
 @Component({
     selector: 'new-desk-form-details',
@@ -111,6 +111,9 @@ import { addDays, endOfDay } from 'date-fns';
                             [ngModel]="form.value.date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
+                            [force_time]="
+                                form.value.all_day ? force_time : undefined
+                            "
                             [use_24hr]="use_24hr"
                             [disabled]="
                                 form.value.all_day || form.get('date')?.disabled
@@ -228,6 +231,11 @@ export class NewDeskFormDetailsComponent extends AsyncHandler {
     public readonly options = this._state.options;
     /** List of set options for desk booking */
     public readonly features = this._state.features;
+
+    public readonly force_time = set(Date.now(), {
+        hours: 6,
+        minutes: 0,
+    }).valueOf();
 
     /** Selected desk for booking */
     public selected_desk: Desk;

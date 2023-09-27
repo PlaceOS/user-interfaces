@@ -19,19 +19,22 @@ import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 @Component({
     selector: 'a-date-field',
     template: `
-        <div
-            class=" flex items-center justify-between border border-black/30 hover:border-black rounded h-12"
+        <button
+            class="flex items-center justify-between border border-black/30 hover:border-black rounded h-12 w-full"
             customTooltip
             [content]="calendar_picker"
             yPosition="top"
-            [class.pointer-events-none]="disabled"
+            [disabled]="disabled"
             [class.opacity-30]="disabled"
+            matRipple
         >
-            <p class="px-4 py-2 flex-1">{{ date | date: 'mediumDate' }}</p>
-            <button btn icon matRipple>
+            <p class="px-4 py-2 flex-1 truncate w-1/2 text-left font-normal">
+                {{ date | date: 'MMMM d, yyyy' }}
+            </p>
+            <div class="h-10 w-10 flex items-center justify-center text-2xl">
                 <app-icon>today</app-icon>
-            </button>
-        </div>
+            </div>
+        </button>
         <div class="error h-5 p-1 text-xs text-error">
             <span *ngIf="false"><ng-content></ng-content></span>
         </div>
@@ -69,7 +72,7 @@ export class DateFieldComponent
     /** Whether form control is disabled */
     @Input() public disabled: boolean;
     /** Currently selected date */
-    public date: number;
+    public date: number = Date.now();
 
     /** Form control on change handler */
     private _onChange: (_: number) => void;
@@ -94,10 +97,6 @@ export class DateFieldComponent
     /** Current date value */
     public get until(): Date {
         return new Date(this._to) || addYears(endOfDay(new Date()), 1);
-    }
-    /** Display value for the current date */
-    public get date_string(): string {
-        return format(new Date(this.date), 'DD MMM YYYY');
     }
 
     public ngOnInit() {

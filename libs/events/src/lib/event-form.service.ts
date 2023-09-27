@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Event, NavigationEnd, Router } from '@angular/router';
-import { getModule } from '@placeos/ts-client';
+import { getModule, showMetadata } from '@placeos/ts-client';
 import {
     BehaviorSubject,
     combineLatest,
@@ -21,13 +21,14 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-import { differenceInDays, getUnixTime } from 'date-fns';
+import { addMinutes, differenceInDays, getUnixTime } from 'date-fns';
 import {
     AsyncHandler,
     currentUser,
     flatten,
     getInvalidFields,
     notifyError,
+    ResourceRestriction,
     SettingsService,
     unique,
 } from '@placeos/common';
@@ -112,6 +113,18 @@ export class EventFormService extends AsyncHandler {
     );
     public readonly loading = this._loading.asObservable();
     public readonly options = this._options.asObservable();
+
+    public readonly restrictions: Observable<ResourceRestriction[]> =
+        this.options.pipe(
+            switchMap(() => {
+                return showMetadata(
+                    this._org.building.id,
+                    `room_restrictions`
+                ).pipe(catchError(() => of({ details: [] })));
+            }),
+            map((_) => (_?.details instanceof Array ? _.details : [])),
+            shareReplay(1)
+        );
 
     public readonly spaces: Observable<Space[]> = combineLatest([
         this._options.pipe(distinctUntilKeyChanged('zone_ids')),
@@ -202,24 +215,38 @@ export class EventFormService extends AsyncHandler {
     public readonly current_available_spaces = combineLatest([
         this.filtered_spaces,
         this._space_bookings,
+        this.restrictions,
         merge(this.form.valueChanges, timer(1000)),
     ]).pipe(
-        map(([list, bookings]) => {
+        map(([list, bookings, restrictions]) => {
             this._loading.next('Updating available spaces...');
             let { date, duration } = this._form.getRawValue();
+            let start = date;
+            let end = addMinutes(date, duration).valueOf();
             list = filterSpacesFromRules(
                 list,
                 { date, duration, space: null, host: currentUser() },
                 this._org.building.booking_rules
             );
             return (list || [])
-                .filter((_, idx) =>
-                    periodInFreeTimeSlot(
-                        date,
-                        date + duration * MINUTES,
-                        bookings[idx] || []
-                    )
-                )
+                .filter((space, idx) => {
+                    const restriction_list = restrictions.filter((_) =>
+                        _.items.includes(space.id)
+                    );
+                    const is_restricted = restriction_list.find(
+                        (rest) =>
+                            (start >= rest.start && start < rest.end) ||
+                            (end <= rest.end && end > rest.start)
+                    );
+                    return (
+                        !is_restricted &&
+                        periodInFreeTimeSlot(
+                            date,
+                            date + duration * MINUTES,
+                            bookings[idx] || []
+                        )
+                    );
+                })
                 .sort((a, b) => a.capacity - b.capacity);
         }),
         tap((_) => this._loading.next('')),

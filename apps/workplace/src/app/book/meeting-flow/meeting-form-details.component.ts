@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { SettingsService } from '@placeos/common';
-import { addDays, endOfDay } from 'date-fns';
+import { addDays, endOfDay, set } from 'date-fns';
 
 @Component({
     selector: 'meeting-form-details',
@@ -46,6 +46,9 @@ import { addDays, endOfDay } from 'date-fns';
                         [ngModel]="form.value.date"
                         (ngModelChange)="form.patchValue({ date: $event })"
                         [ngModelOptions]="{ standalone: true }"
+                        [force_time]="
+                            form.value.all_day ? force_time : undefined
+                        "
                         [use_24hr]="use_24hr"
                         [disabled]="
                             form.value.all_day || form.get('date').disabled
@@ -108,6 +111,11 @@ import { addDays, endOfDay } from 'date-fns';
 })
 export class MeetingFormDetailsComponent {
     @Input() public form: FormGroup;
+
+    public readonly force_time = set(Date.now(), {
+        hours: 6,
+        minutes: 0,
+    }).valueOf();
 
     public get max_duration() {
         return this._settings.get('app.events.max_duration') || 480;

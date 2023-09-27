@@ -20,7 +20,7 @@ import { first } from 'rxjs/operators';
             <header
                 class="px-4 py-2 bg-primary text-white w-full text-lg font-medium mb-2"
             >
-                Map Kiosk Setup
+                Visitor Kiosk Setup
             </header>
             <ng-container *ngIf="!loading; else load_state">
                 <div *ngIf="buildings && buildings.length">

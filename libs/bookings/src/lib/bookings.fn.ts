@@ -135,7 +135,7 @@ export function updateBooking(
  */
 export const saveBooking = (
     data: Partial<Booking>,
-    q?: { event_id?: string; ical_uid?: string }
+    q?: { booking_id?: string; event_id?: string; ical_uid?: string }
 ) => (data.id ? updateBooking(data.id, data) : createBooking(data, q));
 
 /**

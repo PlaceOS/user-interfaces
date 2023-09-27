@@ -9,6 +9,7 @@ import {
     convertPairStringToMap,
     getFragments,
     invalidateToken,
+    isFixedDevice,
     isMock,
     refreshToken,
     setAPI_Key,
@@ -31,6 +32,7 @@ import {
     log,
     GoogleAnalyticsService,
     isMobileSafari,
+    hasNewVersion,
 } from '@placeos/common';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
@@ -196,6 +198,13 @@ export class AppComponent extends AsyncHandler implements OnInit {
                 });
             });
         }
+        if (isFixedDevice()) {
+            this.interval(
+                'auto-update-version',
+                () => this._checkReload(),
+                15 * 1000
+            );
+        }
     }
 
     private onInitError() {
@@ -248,5 +257,14 @@ export class AppComponent extends AsyncHandler implements OnInit {
 
         notifySuccess('Successfully pasted token.');
         setTimeout(() => location.reload(), 2000);
+    }
+
+    private _checkReload() {
+        if (!hasNewVersion()) return;
+        location.reload();
+        this.timeout(
+            'reload',
+            () => (location.href = `${location.origin}${location.pathname}`)
+        );
     }
 }

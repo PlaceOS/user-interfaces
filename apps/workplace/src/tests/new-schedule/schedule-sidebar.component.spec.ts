@@ -5,16 +5,16 @@ import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
-import { ScheduleCalendarComponent } from '../../app/new-schedule/schedule-calendar.component';
 import { ScheduleSidebarComponent } from '../../app/new-schedule/schedule-sidebar.component';
 import { ScheduleStateService } from '../../app/new-schedule/schedule-state.service';
+import { DateCalendarComponent } from 'libs/form-fields/src/lib/date-calendar.component';
 
 describe('ScheduleSidebarComponent', () => {
     let spectator: Spectator<ScheduleSidebarComponent>;
     const createComponent = createComponentFactory({
         component: ScheduleSidebarComponent,
         declarations: [
-            MockComponent(ScheduleCalendarComponent),
+            MockComponent(DateCalendarComponent),
             MockComponent(IconComponent),
         ],
         providers: [

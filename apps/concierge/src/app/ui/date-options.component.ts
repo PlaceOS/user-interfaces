@@ -53,7 +53,7 @@ import { addDays, subDays } from 'date-fns';
                 <date-calendar
                     [ngModel]="date"
                     [offset_weekday]="week_start"
-                    (ngModelChange)="setValue($event)"
+                    (ngModelChange)="date = $event; dateChange.emit($event)"
                 ></date-calendar>
             </div>
         </ng-template>

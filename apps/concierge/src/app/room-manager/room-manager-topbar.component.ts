@@ -4,6 +4,8 @@ import { OrganisationService } from '@placeos/organisation';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { first, take } from 'rxjs/operators';
+import { RoomRestrictionModalComponent } from './room-restriction-modal.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
     selector: 'room-manager-topbar',
@@ -31,6 +33,16 @@ import { first, take } from 'rxjs/operators';
                 </mat-select>
             </mat-form-field>
             <div class="flex-1 w-2"></div>
+            <button
+                btn
+                icon
+                matRipple
+                class="bg-primary text-white rounded"
+                (click)="manageRestrictions()"
+                matTooltip="Room Restrictions"
+            >
+                <app-icon>lock_open</app-icon>
+            </button>
             <searchbar
                 class="mr-2"
                 (modelChange)="setSearch($event)"
@@ -73,9 +85,14 @@ export class RoomManagerTopbarComponent extends AsyncHandler {
         private _manager: RoomManagementService,
         private _org: OrganisationService,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
+        private _dialog: MatDialog
     ) {
         super();
+    }
+
+    public manageRestrictions() {
+        this._dialog.open(RoomRestrictionModalComponent, {});
     }
 
     public async ngOnInit() {
