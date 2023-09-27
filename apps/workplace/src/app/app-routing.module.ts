@@ -4,7 +4,7 @@ import {
     AuthorisedUserGuard,
     MisconfiguredComponent,
     UnauthorisedComponent,
-    RedirectComponent
+    RedirectComponent,
 } from '@placeos/components';
 
 const routes: Routes = [
@@ -25,9 +25,7 @@ const routes: Routes = [
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
         loadChildren: () =>
-            import('./landing/landing.module').then(
-                (m) => m.AppLandingModule
-            ),
+            import('./landing/landing.module').then((m) => m.AppLandingModule),
     },
     {
         path: 'book',
@@ -88,7 +86,12 @@ const routes: Routes = [
 ];
 
 @NgModule({
-    imports: [RouterModule.forRoot(routes, { useHash: true })],
+    imports: [
+        RouterModule.forRoot(routes, {
+            useHash: true,
+            paramsInheritanceStrategy: 'always',
+        }),
+    ],
     exports: [RouterModule],
 })
 export class AppRoutingModule {}

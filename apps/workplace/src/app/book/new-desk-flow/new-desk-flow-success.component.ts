@@ -39,11 +39,16 @@ import {
                         asset(s)
                     </span>
                     for the
-                    {{ last_event.date | date: 'mediumDate' }} at
-                    {{ last_event.date | date: 'shortTime' }}-{{
-                        last_event.date + last_event.duration * 60 * 1000
-                            | date: 'shortTime'
-                    }}.
+                    {{ last_event.date | date: 'mediumDate'
+                    }}<span *ngIf="!last_event?.all_day">
+                        at {{ last_event.date | date: time_format }}-{{
+                            last_event.date + last_event.duration * 60 * 1000
+                                | date: time_format
+                        }}</span
+                    >.
+                </p>
+                <p *ngIf="true">
+                    Please allow up to 5 minutes for you booking to be approved.
                 </p>
                 <div
                     class="flex flex-col items-center space-y-4 p-4 relative"
@@ -126,6 +131,10 @@ export class NewDeskFlowSuccessComponent {
 
     public readonly viewCalendarLinks = () =>
         this._state.openBookingLinkModal();
+
+    public get time_format() {
+        return this._settings.time_format;
+    }
 
     constructor(
         private _state: BookingFormService,

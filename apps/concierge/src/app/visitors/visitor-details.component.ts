@@ -203,11 +203,6 @@ export class VisitorDetailsComponent extends AsyncHandler implements OnChanges {
         if (!this.remote) {
             remote_list.push(this.visitor.email);
         }
-        const new_item = new CalendarEvent({
-            ...this.event.toJSON(),
-            remote: remote_list,
-        }).toJSON();
-        console.log('Event:', this.event);
         const space = await this._space_pipe?.transform(
             this.event?.resources[0]?.email
         );

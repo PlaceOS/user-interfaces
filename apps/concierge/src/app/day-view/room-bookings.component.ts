@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { OrganisationService } from '@placeos/organisation';
 import { EventsStateService } from './events-state.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { take } from 'rxjs/operators';
 
 const EMPTY = [];
@@ -33,6 +33,7 @@ const EMPTY = [];
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
+                <ng-container *ngIf="allow_setup_breakdown">
                 <div class="border-l h-full ml-8 mr-4"></div>
                 <mat-slide-toggle
                     class="m-2"
@@ -41,6 +42,7 @@ const EMPTY = [];
                 >
                     <div class="text-xs">Setup / Breakdown</div>
                 </mat-slide-toggle>
+</ng-container>
                 <div class="border-l h-full ml-8 mr-4"></div>
                 <div class="flex items-center space-x-2">
                     <button btn matRipple class="inverse" [matMenuTriggerFor]="menu">
@@ -108,11 +110,16 @@ export class RoomBookingsComponent extends AsyncHandler {
         return this._org.binding('approvals');
     }
 
+    public get allow_setup_breakdown() {
+        return this._settings.get('app.events.allow_setup_breakdown');
+    }
+
     constructor(
         private _org: OrganisationService,
         private _state: EventsStateService,
         private _router: Router,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
+        private _settings: SettingsService
     ) {
         super();
     }

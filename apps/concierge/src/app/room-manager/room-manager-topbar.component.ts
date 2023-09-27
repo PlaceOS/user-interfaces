@@ -3,7 +3,9 @@ import { RoomManagementService } from './room-management.service';
 import { OrganisationService } from '@placeos/organisation';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
-import { first } from 'rxjs/operators';
+import { first, take } from 'rxjs/operators';
+import { RoomRestrictionModalComponent } from './room-restriction-modal.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
     selector: 'room-manager-topbar',
@@ -31,6 +33,16 @@ import { first } from 'rxjs/operators';
                 </mat-select>
             </mat-form-field>
             <div class="flex-1 w-2"></div>
+            <button
+                btn
+                icon
+                matRipple
+                class="bg-primary text-white rounded"
+                (click)="manageRestrictions()"
+                matTooltip="Room Restrictions"
+            >
+                <app-icon>lock_open</app-icon>
+            </button>
             <searchbar
                 class="mr-2"
                 (modelChange)="setSearch($event)"
@@ -73,25 +85,33 @@ export class RoomManagerTopbarComponent extends AsyncHandler {
         private _manager: RoomManagementService,
         private _org: OrganisationService,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
+        private _dialog: MatDialog
     ) {
         super();
+    }
+
+    public manageRestrictions() {
+        this._dialog.open(RoomRestrictionModalComponent, {});
     }
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         this.subscription(
             'route.query',
-            this._route.queryParamMap.subscribe((params) => {
+            this._route.queryParamMap.subscribe(async (params) => {
                 if (params.has('zone_id')) {
-                    const zone = params.get('zone_id');
-                    if (zone.length) {
-                        const level = this._org.levelWithID([zone]);
+                    const new_zone = params.get('zone_id');
+                    const { zone } = await this._manager.options
+                        .pipe(take(1))
+                        .toPromise();
+                    if (new_zone && new_zone !== zone) {
+                        const level = this._org.levelWithID([new_zone]);
                         if (!level) return;
                         this._org.building = this._org.buildings.find(
                             (bld) => bld.id === level.parent_id
                         );
-                        this.setFilters({ zone });
+                        this.setFilters({ zone: new_zone });
                     }
                 }
             })

@@ -96,28 +96,58 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
         form.controls.system.setValue(l?.length ? (l[0] as any) : null);
         form.controls.assets[l?.length ? 'enable' : 'disable']();
     });
-    form.get('date').valueChanges.subscribe(() =>
-        form.get('duration').updateValueAndValidity()
-    );
     let previous_time = form.value.date;
     let previous_duration = form.value.duration;
+    let previous_all_day = form.value.all_day;
+    form.valueChanges.subscribe((v) => {
+        if (form.value.date < Date.now() && form.value.id) {
+            form.get('date')?.disable({ emitEvent: false });
+        } else {
+            form.get('date')?.enable({ emitEvent: false });
+        }
+        if (!('all_day' in v)) {
+            previous_time = v.date || previous_time;
+            previous_duration = v.duration || previous_duration;
+        }
+        previous_all_day = v.all_day ?? previous_all_day;
+    });
+    form.controls.date.valueChanges.subscribe((date) => {
+        if (date < Date.now() && !form.value.id) {
+            form.patchValue(
+                {
+                    date: roundToNearestMinutes(Date.now(), {
+                        nearestTo: 5,
+                        roundingMethod: 'ceil',
+                    }).valueOf(),
+                },
+                { emitEvent: false }
+            );
+        }
+        if (
+            form.value.recurrence?._pattern !== 'custom_display' &&
+            form.value.recurrence?._pattern !== 'none'
+        ) {
+            form.patchValue({
+                recurrence: {
+                    ...form.value.recurrence,
+                    days_of_week: [new Date(date).getDay()],
+                },
+            });
+        }
+    });
     form.controls.all_day.valueChanges.subscribe((all_day) => {
         if (all_day) {
             previous_time = form.value.date;
             previous_duration = form.value.duration;
             form.patchValue({
-                date: setHours(setMinutes(new Date(), 0), 6).valueOf(),
-                duration: 12 * 60,
+                date: setHours(setMinutes(previous_time, 0), 6).valueOf(),
+                duration: 12 * 60 + 1,
             });
             form.controls.duration.disable();
-        } else {
+        } else if (previous_all_day && !all_day) {
             form.controls.duration.enable();
-            const current_time = roundToNearestMinutes(Date.now(), {
-                nearestTo: 5,
-                roundingMethod: 'ceil',
-            }).valueOf();
             form.patchValue({
-                date: Math.max(current_time, previous_time),
+                date: Math.max(Date.now() - 1, previous_time),
                 duration: previous_duration,
             });
         }

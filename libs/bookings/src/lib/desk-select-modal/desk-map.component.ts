@@ -14,6 +14,7 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info.component';
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'desk-map',
@@ -41,6 +42,7 @@ import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
                 <mat-select
                     [(ngModel)]="level"
                     [ngModelOptions]="{ standalone: true }"
+                    (ngModelChange)="setOptions({ zone_id: $event.id })"
                 >
                     <mat-option
                         *ngFor="let lvl of levels | async"
@@ -93,20 +95,12 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
 
     private _change = new BehaviorSubject(0);
 
+    public readonly levels = this._org.active_levels;
     public readonly setOptions = (o) => this._state.setOptions(o);
 
     public get map_url() {
         return this.level?.map_id || '';
     }
-
-    public readonly levels = this._state.available_resources.pipe(
-        map((desks) =>
-            unique(
-                desks.map((desk) => desk.zone as any as BuildingLevel),
-                'id'
-            )
-        )
-    );
 
     public readonly actions = this._state.available_resources.pipe(
         map((desks) =>
@@ -167,7 +161,8 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
 
     constructor(
         private _state: BookingFormService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _org: OrganisationService
     ) {
         super();
     }
@@ -178,6 +173,15 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
             this.levels.subscribe((levels) => {
                 if (!levels.find((_) => _.id === this.level?.id)) {
                     this.level = levels[0];
+                    this.setOptions({ zone_id: this.level?.id });
+                }
+            })
+        );
+        this.subscription(
+            'options_change',
+            this._state.options.subscribe(({ zone_id }) => {
+                if (zone_id && zone_id !== this.level?.id) {
+                    this.level = this._org.levels.find((_) => _.id === zone_id);
                 }
             })
         );

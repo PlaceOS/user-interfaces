@@ -37,8 +37,9 @@ const EMPTY_FAVS: string[] = [];
                     class="w-20 h-20 rounded-xl bg-black/20 mr-4 overflow-hidden flex items-center justify-center"
                 >
                     <img
+                        auth
                         *ngIf="item.images?.length; else placeholder"
-                        [src]="item.images[0]"
+                        [source]="item.images[0]"
                         class="min-h-full object-cover"
                     />
                     <ng-template #placeholder>
@@ -50,7 +51,7 @@ const EMPTY_FAVS: string[] = [];
                 </div>
                 <div class="space-y-2 pb-4">
                     <div class="font-medium">
-                        {{ item.name || 'Desk' }}
+                        {{ item.name || item.id || item.map_id || 'Desk' }}
                     </div>
                     <div class="flex items-center text-sm space-x-2">
                         <app-icon class="text-blue-500">place</app-icon>

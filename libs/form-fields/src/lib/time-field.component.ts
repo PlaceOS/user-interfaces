@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatSelect } from '@angular/material/select';
-import { AsyncHandler, Identity, timeFormatString } from '@placeos/common';
+import { AsyncHandler, Identity } from '@placeos/common';
 import {
     addMinutes,
     endOfDay,
@@ -28,15 +28,20 @@ import {
         <mat-form-field appearance="outline">
             <mat-select
                 #select
-                [value]="time"
+                [ngModel]="force_time || time"
                 [disabled]="disabled"
-                (valueChange)="setValue($event)"
+                (ngModelChange)="setValue($event)"
             >
+                <mat-option *ngIf="force_time" [value]="force_time">
+                    {{ force_time | date: (use_24hr ? 'HH : mm' : 'h : mm a') }}
+                </mat-option>
                 <mat-option
                     *ngFor="let option of time_options"
                     [value]="option.id"
                 >
-                    {{ option.date | date: 'h : mm a' }}
+                    {{
+                        option.date | date: (use_24hr ? 'HH : mm' : 'h : mm a')
+                    }}
                 </mat-option>
             </mat-select>
         </mat-form-field>
@@ -66,6 +71,8 @@ export class TimeFieldComponent
     @Input() public disabled: boolean;
     /** Whether past times are allowed */
     @Input() public no_past_times = true;
+    @Input() public use_24hr = false;
+    @Input() public force_time: number;
     /** String representing the currently set time */
     public date: number = new Date().valueOf();
     /** String representing the currently set time */
@@ -156,6 +163,11 @@ export class TimeFieldComponent
 
     public setDisabledState(disabled: boolean) {
         this.disabled = disabled;
+        this._time_options = this.generateAvailableTimes(
+            this.date,
+            !this.no_past_times || disabled,
+            this.step
+        );
     }
 
     /**

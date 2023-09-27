@@ -1,21 +1,25 @@
-import { Injectable, Optional } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { listChildMetadata, showMetadata } from '@placeos/ts-client';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs';
 import {
     catchError,
     debounceTime,
+    distinctUntilChanged,
     map,
+    scan,
     shareReplay,
     switchMap,
+    tap,
 } from 'rxjs/operators';
-import { endOfDay, format, startOfDay } from 'date-fns';
+import { add, endOfDay, format, getUnixTime, startOfDay } from 'date-fns';
 
 import {
     approveBooking,
     Booking,
     checkinBooking,
     queryBookings,
+    queryPagedBookings,
     rejectBooking,
     saveBooking,
 } from '@placeos/bookings';
@@ -29,7 +33,24 @@ import {
 import { Desk, OrganisationService } from '@placeos/organisation';
 
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
-import { ExploreDesksService } from '@placeos/explore';
+import {
+    next,
+    QueryResponse,
+} from '@placeos/ts-client/dist/esm/resources/functions';
+
+function addQRCodeToBooking(booking: Booking): Booking {
+    return new Booking({
+        ...booking,
+        extension_data: {
+            ...booking.extension_data,
+            checkin_qr_code: generateQRCode(
+                `/workplace/#/book/code?asset_id=${encodeURIComponent(
+                    booking.asset_id
+                )}`
+            ),
+        },
+    });
+}
 
 export interface DeskFilters {
     date?: number;
@@ -81,51 +102,89 @@ export class DesksStateService extends AsyncHandler {
         }),
         shareReplay(1)
     );
-    public readonly bookings = this._filters.pipe(
+
+    private _next_page = new Subject<() => QueryResponse<Booking>>();
+    private _call_next_page = new Subject<string>();
+    private _all_zones_keys = ['All', -1, '-1'];
+    public readonly setup_paging = combineLatest([
+        this._filters,
+        this._org.initialised,
+    ]).pipe(
         debounceTime(500),
-        switchMap((filters) => {
+        tap(([filters, loaded]) => {
+            if (!loaded) return;
+            const date = filters.date || Date.now();
+            const zones =
+                !filters.zones ||
+                filters.zones.some((z) => this._all_zones_keys.includes(z))
+                    ? [this._org.building.id]
+                    : filters.zones;
+            this._next_page.next(() =>
+                queryPagedBookings({
+                    period_start: getUnixTime(startOfDay(date)),
+                    period_end: getUnixTime(endOfDay(date)),
+                    type: 'desk',
+                    zones: zones.join(','),
+                    include_checked_out: true,
+                })
+            );
+            this._call_next_page.next(`RESET_${Date.now()}`);
+        })
+    );
+
+    public readonly paged_bookings = combineLatest([
+        this._next_page,
+        this._call_next_page,
+    ]).pipe(
+        distinctUntilChanged((a, b) => a[1] === b[1]),
+        switchMap(([next_page, action]) => {
             this._loading.next(true);
-            const date = filters.date ? new Date(filters.date) : new Date();
-            let zones = (filters.zones || []).filter(
-                (z: any) => z !== -1 && z !== '-1' && z !== 'All'
-            );
-            if (!zones?.length) {
-                zones = this._org
-                    .levelsForBuilding(this._org.building)
-                    .map((i) => i.id);
+            if (!next_page) {
+                return of({
+                    data: [],
+                    total: 0,
+                    next: null,
+                    reset: action.includes('RESET'),
+                });
             }
-            return queryBookings({
-                period_start: Math.floor(startOfDay(date).valueOf() / 1000),
-                period_end: Math.floor(endOfDay(date).valueOf() / 1000),
-                type: 'desk',
-                zones: (zones || []).join(','),
-                include_checked_out: true,
-            });
-        }),
-        map((list) => {
-            list.sort((a, b) => a.date - b.date);
-            this._desk_bookings = list.map(
-                (_) =>
-                    new Booking({
-                        ..._,
-                        extension_data: {
-                            ..._.extension_data,
-                            checkin_qr_code: generateQRCode(
-                                `/workplace/#/book/code?asset_id=${encodeURIComponent(
-                                    _.asset_id
-                                )}`
-                            ),
-                        },
-                    })
+            // If reset is true, start over
+            if (action.includes('RESET')) {
+                return next_page().pipe(
+                    map((data: any) => ({ ...data, reset: true }))
+                );
+            }
+            return next_page().pipe(
+                map((data: any) => ({ ...data, reset: false }))
             );
-            this._loading.next(false);
-            return list;
         }),
+        scan(
+            (acc, { data, total, next, reset }) => {
+                const list = data;
+                this._next_page.next(next); // Set the next page function
+                if (reset) return { list, total }; // Reset the items array
+                return {
+                    list: [...acc.list, ...list],
+                    total,
+                };
+            },
+            { list: [], total: 0 }
+        ),
+        tap((_) => this._loading.next(false)),
         shareReplay(1)
     );
 
+    public readonly has_more_pages = this.paged_bookings.pipe(
+        map((_) => _.list.length < _.total)
+    );
+    public readonly bookings = this.paged_bookings.pipe(map((i) => i.list));
+
+    public nextPage() {
+        this._call_next_page.next(`NEXT_${Date.now()}`);
+    }
+
     constructor(private _org: OrganisationService, private _dialog: MatDialog) {
         super();
+        this.setup_paging.subscribe();
     }
 
     public setFilters(filters: DeskFilters) {
@@ -145,16 +204,9 @@ export class DesksStateService extends AsyncHandler {
         this._filters.next({ ...this._filters.getValue(), ...filters });
     }
 
-    public startPolling(delay: number = 30 * 1000) {
-        this.interval(
-            'poll',
-            () => this.setFilters(this._filters.getValue()),
-            delay
-        );
-    }
-
-    public stopPolling() {
-        this.clearInterval('poll');
+    public refresh() {
+        this._loading.next(true);
+        this.timeout('poll', () => this.setFilters(this._filters.getValue()));
     }
 
     public addDesks(list: Desk[]) {
@@ -166,41 +218,50 @@ export class DesksStateService extends AsyncHandler {
         this._new_desks.next([]);
     }
 
-    public async checkinDesk(desk: Booking) {
-        const success = await checkinBooking(desk.id, true)
+    public async checkinDesk(desk: Booking, state: boolean = true) {
+        console.log('Check-in:', desk);
+        const success = await checkinBooking(desk.id, state ?? true)
             .toPromise()
             .catch((_) => 'failed');
         success === 'failed'
-            ? notifyError('Error checking in desk booking')
-            : notifySuccess(`Checked in ${desk.user_name}.`);
+            ? notifyError(`Error checking ${state ? 'in' : 'out'} desk booking`)
+            : notifySuccess(
+                  `Checked ${state ? 'in' : 'out'} ${desk.user_name}.`
+              );
     }
 
     public async approveDesk(desk: Booking) {
         const success = await approveBooking(desk.id)
             .toPromise()
             .catch((_) => 'failed');
-        success === 'failed'
-            ? notifyError('Error approving in desk booking')
-            : notifySuccess(
-                  `Approved desk booking for ${desk.user_name} on ${format(
-                      desk.date,
-                      'MMM do'
-                  )}.`
-              );
+        if (success === 'failed') {
+            return notifyError('Error approving in desk booking');
+        }
+        notifySuccess(
+            `Approved desk booking for ${desk.user_name} on ${format(
+                desk.date,
+                'MMM do'
+            )}.`
+        );
+        (desk as any).approved = true;
+        (desk as any).rejected = false;
     }
 
     public async rejectDesk(desk: Booking) {
         const success = await rejectBooking(desk.id)
             .toPromise()
             .catch((_) => 'failed');
-        success === 'failed'
-            ? notifyError('Error rejecting in desk booking')
-            : notifySuccess(
-                  `Rejected desk booking for ${desk.user_name} on ${format(
-                      desk.date,
-                      'MMM do'
-                  )}.`
-              );
+        if (success === 'failed') {
+            return notifyError('Error rejecting in desk booking');
+        }
+        notifySuccess(
+            `Rejected desk booking for ${desk.user_name} on ${format(
+                desk.date,
+                'MMM do'
+            )}.`
+        );
+        (desk as any).approved = false;
+        (desk as any).rejected = true;
     }
 
     public async giveAccess(desk: Booking) {

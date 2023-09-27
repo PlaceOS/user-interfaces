@@ -1,7 +1,7 @@
 import { Component, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { SettingsService } from '@placeos/common';
-import { addDays, endOfDay } from 'date-fns';
+import { addDays, endOfDay, set } from 'date-fns';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { BookingFormService } from '../booking-form.service';
@@ -79,7 +79,7 @@ import { BookingFormService } from '../booking-form.service';
                     <mat-form-field appearance="outline">
                         <mat-select
                             placeholder="Any Level"
-                            ngModel
+                            [ngModel]="(options | async)?.zone_id"
                             [disabled]="!building"
                             (ngModelChange)="
                                 setOptions({
@@ -118,6 +118,10 @@ import { BookingFormService } from '../booking-form.service';
                             [ngModel]="form.value.date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
+                            [force_time]="
+                                form.value.all_day ? all_day_time : ''
+                            "
+                            [use_24hr]="use_24hr"
                             [disabled]="form.value.all_day"
                         ></a-time-field>
                     </div>
@@ -129,6 +133,7 @@ import { BookingFormService } from '../booking-form.service';
                             [max]="12 * 60"
                             [min]="60"
                             [step]="60"
+                            [use_24hr]="use_24hr"
                             [force]="form.value.all_day ? 'All Day' : ''"
                         >
                         </a-duration-field>
@@ -203,6 +208,10 @@ export class DeskFiltersComponent {
     public readonly buildings = this._org.active_buildings;
     public readonly levels = this._org.active_levels;
     public readonly form = this._state.form;
+    public readonly all_day_time = set(Date.now(), {
+        hours: 6,
+        minutes: 0,
+    }).valueOf();
 
     public get building() {
         return this._org.building;
@@ -233,6 +242,10 @@ export class DeskFiltersComponent {
                 this._settings.get('app.desks.available_period') || 90
             )
         );
+    }
+
+    public get use_24hr() {
+        return this._settings.get('app.use_24_hour_time');
     }
 
     constructor(

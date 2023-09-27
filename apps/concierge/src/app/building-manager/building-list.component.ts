@@ -38,8 +38,9 @@ import { BuildingManagementService } from './building-management.service';
         </ng-template>
         <ng-template #image_template let-data="data">
             <img
+                auth
                 *ngIf="data.length"
-                [src]="data[0]"
+                [source]="data[0]"
                 class="max-h-[3rem] max-w-[8rem]"
             />
             <span *ngIf="!data.length" class="opacity-30">No Images</span>

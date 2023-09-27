@@ -18,8 +18,9 @@ describe('DeskMapComponent', () => {
         providers: [
             MockProvider(BookingFormService, {
                 resources: new BehaviorSubject([]),
+                options: new BehaviorSubject({}),
                 available_resources: new BehaviorSubject([]),
-            }),
+            } as any),
             MockProvider(SettingsService, { get: jest.fn() }),
         ],
         declarations: [

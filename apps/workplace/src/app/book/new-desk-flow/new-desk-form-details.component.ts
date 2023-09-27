@@ -9,7 +9,7 @@ import { FormGroup } from '@angular/forms';
 import { BookingFormService } from '@placeos/bookings';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
-import { addDays, endOfDay } from 'date-fns';
+import { addDays, endOfDay, set } from 'date-fns';
 
 @Component({
     selector: 'new-desk-form-details',
@@ -111,7 +111,13 @@ import { addDays, endOfDay } from 'date-fns';
                             [ngModel]="form.value.date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
-                            [disabled]="form.value.all_day"
+                            [force_time]="
+                                form.value.all_day ? force_time : undefined
+                            "
+                            [use_24hr]="use_24hr"
+                            [disabled]="
+                                form.value.all_day || form.get('date')?.disabled
+                            "
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3 relative">
@@ -125,6 +131,7 @@ import { addDays, endOfDay } from 'date-fns';
                             [max]="12 * 60"
                             [min]="60"
                             [step]="60"
+                            [use_24hr]="use_24hr"
                             [force]="form.value.all_day ? 'All Day' : ''"
                         >
                         </a-duration-field>
@@ -225,6 +232,11 @@ export class NewDeskFormDetailsComponent extends AsyncHandler {
     /** List of set options for desk booking */
     public readonly features = this._state.features;
 
+    public readonly force_time = set(Date.now(), {
+        hours: 6,
+        minutes: 0,
+    }).valueOf();
+
     /** Selected desk for booking */
     public selected_desk: Desk;
     public from_id = false;
@@ -285,6 +297,10 @@ export class NewDeskFormDetailsComponent extends AsyncHandler {
         );
     }
 
+    public get use_24hr() {
+        return this._settings.get('app.use_24_hour_time');
+    }
+
     constructor(
         private _state: BookingFormService,
         private _org: OrganisationService,
@@ -295,33 +311,9 @@ export class NewDeskFormDetailsComponent extends AsyncHandler {
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.form && this.form) {
-            this.subscription(
-                'change',
-                this.form.get('resources')?.valueChanges?.subscribe((list) => {
-                    list?.length ? this.setBookingAsset(list[0]) : '';
-                })
-            );
-            if (this.form.value.resources?.length) {
-                this.setBookingAsset(this.form.value.resources[0]);
-            }
             if (this.selected_desk?.id) {
                 this.form.patchValue({ resources: [this.selected_desk] });
             }
         }
-    }
-
-    private setBookingAsset(desk: Desk) {
-        this._state.form.patchValue({ asset_id: undefined });
-        if (!desk) return;
-        this.selected_desk = desk;
-        this._state.form.patchValue({
-            asset_id: desk?.id,
-            asset_name: desk.name,
-            map_id: desk?.map_id || desk?.id,
-            description: desk.name,
-            booking_type: 'desk',
-            zones: desk.zone ? [desk.zone?.parent_id, desk.zone?.id] : [],
-            booking_asset: desk,
-        });
     }
 }

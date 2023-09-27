@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 
@@ -24,11 +25,16 @@ import { OrganisationService } from '@placeos/organisation';
                         {{ space?.display_name || space?.name }}
                     </span>
                     <span *ngIf="!space">meeting</span> has been successfully
-                    booked for the {{ last_event.date | date: 'mediumDate' }} at
-                    {{ last_event.date | date: 'shortTime' }}-{{
-                        last_event.date + last_event.duration * 60 * 1000
-                            | date: 'shortTime'
-                    }}.
+                    booked for the {{ last_event.date | date: 'mediumDate'
+                    }}<span *ngIf="last_event?.all_day">
+                        at {{ last_event.date | date: time_format }}-{{
+                            last_event.date + last_event.duration * 60 * 1000
+                                | date: time_format
+                        }}</span
+                    >.
+                </p>
+                <p *ngIf="true">
+                    Please allow up to 5 minutes for you booking to be approved.
                 </p>
             </main>
             <footer
@@ -61,8 +67,13 @@ export class MeetingFlowSuccessComponent {
         return this._org.levelWithID(this.space?.zones);
     }
 
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
     constructor(
         private _event_form: EventFormService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _settings: SettingsService
     ) {}
 }

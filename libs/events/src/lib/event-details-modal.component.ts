@@ -329,19 +329,34 @@ const EMPTY_ACTIONS = [];
                                 event.extension_data.assets?.length || 0
                             }})
                         </h3>
-                        <div class="flex flex-col px-4 space-y-2">
+                        <div class="flex px-4 flex-wrap">
                             <div
                                 asset
-                                class="flex space-x-2"
+                                class="flex space-x-2 m-2 rounded-2xl text-white px-3 py-1"
+                                [class.bg-success]="
+                                    status(item.id) === 'approved'
+                                "
+                                [class.bg-error]="
+                                    status(item.id) === 'rejected'
+                                "
+                                [class.bg-pending]="
+                                    status(item.id) !== 'approved' &&
+                                    status(item.id) !== 'rejected'
+                                "
                                 *ngFor="
                                     let item of event.extension_data.assets ||
                                         []
                                 "
                             >
-                                <div details class="pt-0.5">
-                                    <div class="text-sm">
-                                        {{ item.name }}
-                                    </div>
+                                <app-icon>{{
+                                    status(item.id) === 'approved'
+                                        ? 'done'
+                                        : status(item.id) === 'rejected'
+                                        ? 'close'
+                                        : 'pending'
+                                }}</app-icon>
+                                <div class="text-sm whitespace-nowrap pr-2">
+                                    {{ item.name }}
                                 </div>
                             </div>
                         </div>
@@ -459,6 +474,10 @@ export class EventDetailsModalComponent {
         return this._settings.get('app.events.custom_actions') || EMPTY_ACTIONS;
     }
 
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
     constructor(
         @Inject(MAT_DIALOG_DATA) private _event: CalendarEvent,
         private _org: OrganisationService,
@@ -470,7 +489,7 @@ export class EventDetailsModalComponent {
     }
 
     public get period() {
-        if (this.event?.all_day) return 'All Day';
+        if (this.event?.is_all_day) return 'All Day';
         const start = this.event?.date || Date.now();
         const duration = this.event?.duration || 60;
         const end = addMinutes(start, duration);
@@ -480,7 +499,10 @@ export class EventDetailsModalComponent {
         })
             .replace(' hour', 'hr')
             .replace(' minute', 'min');
-        return `${format(start, 'h:mm a')} - ${format(end, 'h:mm a')} (${dur})`;
+        return `${format(start, this.time_format)} - ${format(
+            end,
+            this.time_format
+        )} (${dur})`;
     }
 
     public async checkin() {
@@ -489,6 +511,7 @@ export class EventDetailsModalComponent {
         await mod
             .execute('checkin', [getUnixTime(this.event.date)])
             .catch((e) => notifyError(`Error checking in booking. ${e}`));
+        this.room_status = 'busy';
     }
 
     private async _load() {
@@ -505,6 +528,20 @@ export class EventDetailsModalComponent {
                 content: MapPinComponent,
             },
         ];
+    }
+
+    public status(id: string): string {
+        const booking = this.event.linked_bookings.find(
+            (_) => _.asset_id === id
+        );
+        if (booking.status) return booking.status;
+        return booking
+            ? booking.approved
+                ? 'approved'
+                : booking.rejected
+                ? 'rejected'
+                : 'pending'
+            : 'pending';
     }
 
     public viewLocation() {

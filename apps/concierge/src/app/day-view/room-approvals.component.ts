@@ -46,13 +46,15 @@ import { CalendarEvent } from '@placeos/events';
                     <p class="opacity-30 text-xs mb-2">
                         {{ event.date | date: 'medium' }}
                     </p>
-                    <div class="w-64 h-32 overflow-hidden mb-2">
+                    <div class="w-64 h-32 overflow-hidden mb-2 bg-gray-100">
                         <img
+                            auth
                             class="object-cover min-w-full min-h-full"
-                            [src]="
-                                (event.resources[0].email | space | async)
+                            [source]="
+                                (event.resources[0]?.email | space | async)
                                     ?.images[0]
                             "
+                            *ngIf="event.resources.length"
                         />
                     </div>
                     <div class="flex items-center space-x-2 mb-2">
@@ -63,9 +65,11 @@ import { CalendarEvent } from '@placeos/events';
                         </div>
                         <div class="flex-1 text-xs">
                             {{
-                                (event.resources[0].email | space | async)
-                                    ?.display_name ||
-                                    (event.resources[0].email | space | async)
+                                (
+                                    event.resources.length &&
+                                    (event.resources[0]?.email | space | async)
+                                )?.display_name ||
+                                    (event.resources[0]?.email | space | async)
                                         ?.name ||
                                     'No Location'
                             }}

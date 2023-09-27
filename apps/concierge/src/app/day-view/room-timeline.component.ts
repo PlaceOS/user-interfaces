@@ -4,6 +4,7 @@ import {
     differenceInMinutes,
     format,
     isSameDay,
+    setHours,
     startOfDay,
     startOfMinute,
 } from 'date-fns';
@@ -12,6 +13,7 @@ import { combineLatest } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import {
     AsyncHandler,
+    SettingsService,
     notifyError,
     notifySuccess,
     openConfirmModal,
@@ -51,7 +53,7 @@ import {
                     times
                     class="w-16 h-full flex flex-col items-center justify-end text-xs pb-2 opacity-60"
                 >
-                    {{ date | date: 'z' }}
+                    {{ date | async | date: 'z' }}
                 </div>
                 <div
                     spaces
@@ -89,8 +91,7 @@ import {
                             <div
                                 class="absolute top-0 right-3 -translate-y-1/2 text-xs opacity-60"
                             >
-                                {{ value % 12 ? value % 12 : '12'
-                                }}{{ value >= 12 ? 'PM' : 'AM' }}
+                                {{ formatHour(value) }}
                             </div>
                         </div>
                         <div
@@ -219,7 +220,7 @@ import {
                                                 event.status === 'cancelled'
                                             "
                                         >
-                                            {{ event.date | date: 'shortTime' }}
+                                            {{ event.date | date: time_format }}
                                             &ndash;
                                             {{
                                                 event.organiser?.name ||
@@ -293,11 +294,23 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
     @ViewChild('scroll_container', { static: true })
     private _scroll_container: ElementRef<HTMLDivElement>;
 
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
     constructor(
         private _state: EventsStateService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
+        private _settings: SettingsService
     ) {
         super();
+    }
+
+    public formatHour(hour: number) {
+        const date = setHours(Date.now(), hour);
+        return this._settings.get('app.use_24_hour_time')
+            ? format(date, 'HH:00')
+            : format(date, 'h a');
     }
 
     public ngOnInit() {
@@ -340,17 +353,19 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         );
         this.subscription(
             'actions',
-            ref.componentInstance.action.subscribe((action) => {
+            ref.componentInstance.action.subscribe(async (action) => {
                 if (!action.includes('breakdown')) return;
-                this._dialog.open(SetupBreakdownModalComponent, {
+                const ref = this._dialog.open(SetupBreakdownModalComponent, {
                     data: event,
                 });
+                const data = await ref.afterClosed().toPromise();
+                if (data) this._state.replace(data);
             })
         );
     }
 
     public async remove(item: CalendarEvent, space_id: string) {
-        const time = `${format(item.date, 'dd MMM yyyy h:mma')}`;
+        const time = `${format(item.date, 'dd MMM yyyy ' + this.time_format)}`;
         const resource_name = item.space?.display_name;
         const content = `Delete the booking for ${resource_name} at ${time}`;
         const resp = await openConfirmModal(

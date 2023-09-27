@@ -71,6 +71,7 @@ const ANGULAR_MODULES: any[] = [FormsModule, ReactiveFormsModule];
         ...ANGULAR_MODULES,
         ...MAT_MODULES,
         ComponentsModule,
+        FormFieldsModule,
         SharedSpacesModule,
         PaymentsModule,
         AssetsModule,

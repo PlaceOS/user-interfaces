@@ -21,6 +21,7 @@ import { Space } from '../space.class';
                 <mat-select
                     [(ngModel)]="level"
                     [ngModelOptions]="{ standalone: true }"
+                    (ngModelChange)="setOptions({ zone_ids: [$event.id] })"
                 >
                     <mat-option
                         *ngFor="let lvl of levels | async"
@@ -112,6 +113,8 @@ export class SpaceSelectMapComponent extends AsyncHandler {
         tap((_) => (this.level = this.level ? this.level : _[0]))
     );
 
+    public readonly setOptions = (o) => this._event_form.setOptions(o);
+
     public readonly features = combineLatest([
         this._event_form.available_spaces,
         this._change,
@@ -151,8 +154,12 @@ export class SpaceSelectMapComponent extends AsyncHandler {
         this.subscription(
             'levels_update',
             this.levels.subscribe((levels) => {
-                if (!levels.find((_) => _.id === this.level?.id)) {
+                if (
+                    levels.length &&
+                    !levels.find((_) => _.id === this.level?.id)
+                ) {
                     this.level = levels[0];
+                    this.setOptions({ zone_ids: [this.level.id] });
                 }
             })
         );

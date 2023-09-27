@@ -1,6 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { SettingsService } from '@placeos/common';
 import { BookingAsset } from 'libs/bookings/src/lib/booking-form.service';
 import { User } from 'libs/users/src/lib/user.class';
 
@@ -22,15 +23,17 @@ import { User } from 'libs/users/src/lib/user.class';
                 *ngIf="resource"
                 class="flex flex-col sm:flex-row space-x-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
             >
-                <div class="flex flex-col flex-1 w-full sm:w-1/4 mb-4">
+                <div class="flex flex-col flex-1 w-full sm:w-1/4 mb-2">
                     <label>Resource:</label>
-                    <p class="p-4">
+                    <div
+                        class="px-4 py-3 border border-gray-200 rounded w-full mb-4"
+                    >
                         {{
                             resource.name ||
                                 resource.map_id ||
                                 'Unknown Resource'
                         }}
-                    </p>
+                    </div>
                 </div>
             </div>
             <div
@@ -63,6 +66,7 @@ import { User } from 'libs/users/src/lib/user.class';
                         [ngModel]="form.value.date"
                         (ngModelChange)="form.patchValue({ date: $event })"
                         [ngModelOptions]="{ standalone: true }"
+                        [use_24hr]="use_24hr_time"
                     ></a-time-field>
                 </div>
                 <div class="flex flex-col flex-1 w-full sm:w-1/3">
@@ -73,6 +77,7 @@ import { User } from 'libs/users/src/lib/user.class';
                         [max]="12 * 60"
                         [min]="60"
                         [step]="60"
+                        [use_24hr]="use_24hr_time"
                     >
                     </a-duration-field>
                 </div>
@@ -99,6 +104,10 @@ export class SetDatetimeModalComponent {
     public readonly book_until = this._data.until;
     public readonly resource = this._data.resource;
 
+    public get use_24hr_time() {
+        return this._settings.get('app.use_24_hour_time');
+    }
+
     constructor(
         @Inject(MAT_DIALOG_DATA)
         private _data: {
@@ -108,6 +117,7 @@ export class SetDatetimeModalComponent {
             host: boolean;
             user?: User;
             resource: BookingAsset;
-        }
+        },
+        private _settings: SettingsService
     ) {}
 }

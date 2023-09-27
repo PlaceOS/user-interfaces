@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { EventFormService } from 'libs/events/src/lib/event-form.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { take } from 'rxjs/operators';
@@ -71,8 +71,8 @@ import { SpaceFiltersComponent } from './space-filters.component';
                 {{ start | date: 'mediumDate' }}
             </div>
             <div filter-item time class="dark:border-neutral-500">
-                {{ start | date: 'shortTime' }} &mdash;
-                {{ end | date: 'shortTime' }}
+                {{ start | date: time_format }} &mdash;
+                {{ end | date: time_format }}
             </div>
             <div filter-item count class="dark:border-neutral-500" i18n>
                 Min. {{ (options | async)?.capacity || 2 }} People
@@ -132,13 +132,18 @@ export class SpaceFiltersDisplayComponent extends AsyncHandler {
         return date + duration * 60 * 1000;
     }
 
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
     public readonly editFilters = () =>
         this._bsheet.open(SpaceFiltersComponent);
 
     constructor(
         private _bsheet: MatBottomSheet,
         private _event_form: EventFormService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _settings: SettingsService
     ) {
         super();
     }

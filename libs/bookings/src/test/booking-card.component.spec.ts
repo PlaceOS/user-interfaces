@@ -1,13 +1,14 @@
 import { MatDialog } from '@angular/material/dialog';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { set } from 'date-fns';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { IconComponent } from '@placeos/components';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 import { Booking } from '../lib/booking.class';
 import { BookingCardComponent } from '../lib/booking-card.component';
+import { SettingsService } from '@placeos/common';
 
 describe('BookingCardComponent', () => {
     let spectator: SpectatorRouting<BookingCardComponent>;
@@ -15,11 +16,9 @@ describe('BookingCardComponent', () => {
         component: BookingCardComponent,
         declarations: [MockComponent(IconComponent)],
         providers: [
-            {
-                provide: OrganisationService,
-                useValue: { levelWithID: jest.fn() },
-            },
-            { provide: MatDialog, useValue: { open: jest.fn() } },
+            MockProvider(OrganisationService, { levelWithID: jest.fn() }),
+            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(SettingsService, { time_format: 'h:mm a' }),
         ],
     });
 

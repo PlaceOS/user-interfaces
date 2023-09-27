@@ -2,13 +2,16 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { CalendarEvent } from '@placeos/events';
 import { EventsStateService } from '../../app/day-view/events-state.service';
 import { WeekViewEventComponent } from '../../app/week-view/week-view-event.component';
+import { SettingsService } from '@placeos/common';
+import { MockProvider } from 'ng-mocks';
 
 describe('WeekViewEventComponent', () => {
     let spectator: Spectator<WeekViewEventComponent>;
     const createComponent = createComponentFactory({
         component: WeekViewEventComponent,
         providers: [
-            { provide: EventsStateService, useValue: { setEvent: jest.fn() } },
+            MockProvider(EventsStateService, { setEvent: jest.fn() }),
+            MockProvider(SettingsService, { time_format: 'h:mm a' }),
         ],
     });
 

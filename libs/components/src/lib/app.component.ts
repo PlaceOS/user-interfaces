@@ -4,8 +4,12 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { first } from 'rxjs/operators';
 import {
+    apiKey,
     clientId,
+    convertPairStringToMap,
+    getFragments,
     invalidateToken,
+    isFixedDevice,
     isMock,
     refreshToken,
     setAPI_Key,
@@ -27,6 +31,8 @@ import {
     setupPlace,
     log,
     GoogleAnalyticsService,
+    isMobileSafari,
+    hasNewVersion,
     InjectMapApiService,
 } from '@placeos/common';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
@@ -43,12 +49,14 @@ import {
     initialiseUploadService,
     OpenStack,
 } from '@placeos/cloud-uploads';
+import { setCustomHeaders } from '@placeos/svg-viewer';
 import { TranslateService } from '@ngx-translate/core';
 
 import { StylesManager } from 'survey-core';
 
 //SurveyJS styling
 StylesManager.applyTheme('modern');
+const START_QUERY = location.search;
 
 export function initSentry(dsn: string, sample_rate: number = 0.2) {
     if (!dsn) return;
@@ -95,7 +103,6 @@ export class AppComponent extends AsyncHandler implements OnInit {
         private _hotkey: HotkeysService,
         private _clipboard: Clipboard,
         private _route: ActivatedRoute,
-        private _renderer: Renderer2,
         private _router: Router,
         private _maps: InjectMapApiService,
         @Optional() private _translate: TranslateService
@@ -149,8 +156,24 @@ export class AppComponent extends AsyncHandler implements OnInit {
         settings.mock =
             !!this._settings.get('mock') ||
             location.origin.includes('demo.place.tech');
+        /** Add query parameters if removed due to hash routing */
+        if (START_QUERY) {
+            const query = convertPairStringToMap(START_QUERY.substring(1));
+            this._router.navigate([], {
+                relativeTo: this._route,
+                queryParams: query,
+            });
+        }
         /** Wait for authentication details to load */
         await setupPlace(settings).catch((_) => console.error(_));
+        const tkn = token();
+        if (isMobileSafari()) {
+            setCustomHeaders(
+                tkn === 'x-api-key'
+                    ? { 'x-api-key': apiKey() }
+                    : { Authorization: `Bearer ${tkn}` }
+            );
+        }
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         setupCache(this._cache);
         this._maps.injectMapsApiKeys();
@@ -172,11 +195,18 @@ export class AppComponent extends AsyncHandler implements OnInit {
                 initialiseUploadService({
                     auto_start: true,
                     token: token(),
-                    endpoint: '/api/files/v1/uploads',
+                    endpoint: '/api/engine/v2/uploads',
                     worker_url: 'assets/md5_worker.js',
                     providers: [Amazon, Azure, Google, OpenStack] as any,
                 });
             });
+        }
+        if (isFixedDevice()) {
+            this.interval(
+                'auto-update-version',
+                () => this._checkReload(),
+                15 * 1000
+            );
         }
     }
 
@@ -230,5 +260,14 @@ export class AppComponent extends AsyncHandler implements OnInit {
 
         notifySuccess('Successfully pasted token.');
         setTimeout(() => location.reload(), 2000);
+    }
+
+    private _checkReload() {
+        if (!hasNewVersion()) return;
+        location.reload();
+        this.timeout(
+            'reload',
+            () => (location.href = `${location.origin}${location.pathname}`)
+        );
     }
 }

@@ -4,79 +4,18 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { Clipboard } from '@angular/cdk/clipboard';
 import {
-    humanReadableByteCount,
-    Upload,
-    uploadFiles,
-} from '@placeos/cloud-uploads';
-import { AsyncHandler, notifyInfo, randomInt, unique } from '@placeos/common';
+    AsyncHandler,
+    SettingsService,
+    UploadDetails,
+    notifyInfo,
+    unique,
+    uploadFile,
+} from '@placeos/common';
 
-import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
-import { filter, map, takeWhile } from 'rxjs/operators';
-
-import * as blobUtil from 'blob-util';
-
-export interface UploadDetails {
-    /** Unique ID for the upload */
-    id: number;
-    /** Name of the file uploaded */
-    name: string;
-    /** Progress of the file upload */
-    progress: number;
-    /** Link to the uploaded file */
-    link: string;
-    /** Formatted file size */
-    formatted_size: string;
-    /** Size of the file being uploaded */
-    size: number;
-    /** Error with upload request */
-    error?: string;
-    /** Upload object associated with the file */
-    upload: Upload;
-}
-/**
- * Upload the given file to the cloud
- * @param file File to upload
- */
-export function uploadFile(file: File): Observable<UploadDetails> {
-    return new Observable((observer) => {
-        const fileReader = new FileReader();
-        fileReader.addEventListener('loadend', (e: any) => {
-            const arrayBuffer = e.target.result;
-            const upload_details: UploadDetails = {
-                id: randomInt(9999_9999_9999),
-                name: file.name,
-                progress: 0,
-                link: '',
-                formatted_size: humanReadableByteCount(file.size),
-                size: file.size,
-                upload: null,
-            };
-            const blob = blobUtil.arrayBufferToBlob(arrayBuffer, file.type);
-            const upload_list = uploadFiles([blob], { file_name: file.name });
-            const upload = upload_list[0];
-            upload_details.upload = upload;
-            upload.status
-                .pipe(takeWhile((_) => _.status !== 'complete', true))
-                .subscribe(
-                    (state) => {
-                        if (upload.access_url)
-                            upload_details.link = upload.access_url;
-                        upload_details.progress = state.progress;
-                        observer.next(upload_details);
-                        if (state.status === 'error')
-                            observer.error({
-                                ...upload_details,
-                                error: state.error,
-                            });
-                        if (state.status === 'complete') observer.complete();
-                    },
-                    (e) => (upload_details.error = e)
-                );
-            observer.next(upload_details);
-        });
-        fileReader.readAsArrayBuffer(file);
-    });
-}
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
+import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
 
 @Component({
     selector: 'image-list-field',
@@ -87,26 +26,32 @@ export function uploadFile(file: File): Observable<UploadDetails> {
             class="space-x-2 py-2 overflow-hidden mb-2 w-full flex items-center relative"
             (window:resize)="ngAfterViewInit()"
         >
-            <div
-                image
-                class="relative rounded border-2 border-gray-200 dark:border-neutral-500 border-dashed flex-shrink-0 flex flex-col items-center justify-center h-32 w-36 hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer"
-                [style.transform]="'translate(-' + offset + '00%)'"
-            >
-                <app-icon class="text-4xl opacity-60">add</app-icon>
-                <p class="opacity-60" i18n>Upload Image(s)</p>
-                <input
-                    type="file"
-                    class="absolute inset-0 opacity-0 h-32 w-32 cursor-pointer"
-                    (change)="uploadImages($event)"
-                />
-            </div>
+            <ng-container *ngIf="uploads_allowed">
+                <div
+                    image
+                    class="relative rounded border-2 border-gray-200 dark:border-neutral-500 border-dashed flex-shrink-0 flex flex-col items-center justify-center h-32 w-36 hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer"
+                    [style.transform]="'translate(-' + offset + '00%)'"
+                >
+                    <app-icon class="text-4xl opacity-60">add</app-icon>
+                    <p class="opacity-60" i18n>Upload Image(s)</p>
+                    <input
+                        type="file"
+                        class="absolute inset-0 opacity-0 h-32 w-32 cursor-pointer"
+                        (change)="uploadImages($event)"
+                    />
+                </div>
+            </ng-container>
             <div
                 image
                 *ngFor="let url of list; let i = index"
                 class="bg-center bg-cover h-32 w-36 relative rounded overflow-hidden flex-shrink-0"
                 [style.transform]="'translate(-' + offset + '00%)'"
-                [style.background-image]="'url(' + url + ')'"
             >
+                <img
+                    auth
+                    [source]="url"
+                    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-h-full min-w-full"
+                />
                 <div
                     overlay
                     class="absolute inset-0 hover:bg-black/50 text-white"
@@ -127,31 +72,33 @@ export function uploadFile(file: File): Observable<UploadDetails> {
                     </div>
                 </div>
             </div>
-            <div
-                image
-                *ngFor="let item of uploads | async; let i = index"
-                class="bg-center bg-cover h-32 w-36 rounded border bg-black/10 dark:bg-white/5 border-gray-200 dark:border-neutral-500 flex items-center justify-center flex-shrink-0"
-                [style.transform]="'translate(-' + offset + '00%)'"
-                [matTooltip]="item.error"
-                (click)="retryUpload(item)"
-            >
-                <mat-progress-spinner
-                    *ngIf="!item.error"
-                    [value]="item.progress"
-                    [diameter]="64"
-                    mode="determinate"
-                ></mat-progress-spinner>
-                <app-icon *ngIf="item.error" class="text-error text-6xl"
-                    >warning</app-icon
-                >
+            <ng-container *ngIf="uploads_allowed">
                 <div
-                    overlay
-                    *ngIf="item.error"
-                    class="absolute inset-0 hover:bg-black hover:bg-opacity-50 text-white flex items-center justify-center"
+                    image
+                    *ngFor="let item of uploads | async; let i = index"
+                    class="bg-center bg-cover h-32 w-36 rounded border bg-black/10 dark:bg-white/5 border-gray-200 dark:border-neutral-500 flex items-center justify-center flex-shrink-0"
+                    [style.transform]="'translate(-' + offset + '00%)'"
+                    [matTooltip]="item.error"
+                    (click)="retryUpload(item)"
                 >
-                    <app-icon class="text-3xl opacity-0">retry</app-icon>
+                    <mat-progress-spinner
+                        *ngIf="!item.error"
+                        [value]="item.progress"
+                        [diameter]="64"
+                        mode="determinate"
+                    ></mat-progress-spinner>
+                    <app-icon *ngIf="item.error" class="text-error text-6xl"
+                        >warning</app-icon
+                    >
+                    <div
+                        overlay
+                        *ngIf="item.error"
+                        class="absolute inset-0 hover:bg-black hover:bg-opacity-50 text-white flex items-center justify-center"
+                    >
+                        <app-icon class="text-3xl opacity-0">retry</app-icon>
+                    </div>
                 </div>
-            </div>
+            </ng-container>
             <button
                 icon
                 matRipple
@@ -177,7 +124,7 @@ export function uploadFile(file: File): Observable<UploadDetails> {
             <mat-chip-grid #chipList aria-label="Image List">
                 <mat-chip-row
                     *ngFor="let item of list"
-                    (removed)="removeItem(item)"
+                    (removed)="removeImage(item)"
                 >
                     <div class="truncate max-w-md">{{ item }}</div>
                     <button matChipRemove [attr.aria-label]="'Remove ' + item">
@@ -250,9 +197,17 @@ export class ImageListFieldComponent extends AsyncHandler {
         return this.list.length + this._upload_list.getValue().length + 1;
     }
 
+    public get uploads_allowed() {
+        return this._settings.get('app.has_uploads');
+    }
+
     @ViewChild('image_list') private _list_el: ElementRef<HTMLDivElement>;
 
-    constructor(private _clipboard: Clipboard) {
+    constructor(
+        private _clipboard: Clipboard,
+        private _dialog: MatDialog,
+        private _settings: SettingsService
+    ) {
         super();
     }
 
@@ -303,6 +258,7 @@ export class ImageListFieldComponent extends AsyncHandler {
     }
 
     public async uploadImages(event) {
+        if (!this.uploads_allowed) return;
         const element: HTMLInputElement = event.target as any;
         /* istanbul ignore else */
         if (element?.files) {
@@ -350,9 +306,31 @@ export class ImageListFieldComponent extends AsyncHandler {
                     details,
                 ]);
             };
-            uploadFile(file).subscribe(update_fn, update_fn, () => {
-                this._updateUploadHistory();
-            });
+            const force_state = this._settings.get('app.force_upload_state');
+            if (force_state) {
+                uploadFile(
+                    file,
+                    !this._settings.get('app.private_uploads'),
+                    this._settings.get('app.uploads_permissions_level') ||
+                        'none'
+                ).subscribe(update_fn, update_fn, () => {
+                    this._updateUploadHistory();
+                });
+            } else {
+                const ref = this._dialog.open(UploadPermissionsModalComponent, {
+                    data: { file },
+                });
+                ref.afterClosed().subscribe((details) => {
+                    if (!details) return;
+                    uploadFile(
+                        details.file,
+                        details.is_public,
+                        details.permissions
+                    ).subscribe(update_fn, update_fn, () => {
+                        this._updateUploadHistory();
+                    });
+                });
+            }
         });
     }
 

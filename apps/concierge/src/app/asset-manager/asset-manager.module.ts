@@ -25,6 +25,7 @@ import { AssetGroupFormComponent } from './asset-group-form.component';
 import { AssetPurchaseOrderListComponent } from './asset-purchase-order-list.component';
 import { AssetBulkFormComponent } from './asset-bulk-form.component';
 import { NewAssetManagerComponent } from './new-asset-manager.component';
+import { AssetCategoryManagementModalComponent } from './asset-category-management-modal.component';
 
 const COMPONENTS = [
     NewAssetManagerComponent,
@@ -45,6 +46,7 @@ const COMPONENTS = [
     AssetCategoryFormComponent,
     AssetPurchaseOrderFormComponent,
     AssetPurchaseOrderListComponent,
+    AssetCategoryManagementModalComponent,
 ];
 
 const children = [

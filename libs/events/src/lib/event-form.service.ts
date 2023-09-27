@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Event, NavigationEnd, Router } from '@angular/router';
-import { getModule } from '@placeos/ts-client';
+import { getModule, showMetadata } from '@placeos/ts-client';
 import {
     BehaviorSubject,
     combineLatest,
@@ -21,12 +21,14 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-import { differenceInDays, getUnixTime, isBefore, startOfDay } from 'date-fns';
+import { addMinutes, differenceInDays, getUnixTime } from 'date-fns';
 import {
     AsyncHandler,
     currentUser,
     flatten,
     getInvalidFields,
+    notifyError,
+    ResourceRestriction,
     SettingsService,
     unique,
 } from '@placeos/common';
@@ -58,6 +60,7 @@ import {
 import { User } from 'libs/users/src/lib/user.class';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { removeEvent } from './events.fn';
+import { querySpaceFreeBusy } from 'libs/calendar/src/lib/calendar.fn';
 
 const BOOKING_URLS = [
     'book/rooms',
@@ -110,6 +113,18 @@ export class EventFormService extends AsyncHandler {
     );
     public readonly loading = this._loading.asObservable();
     public readonly options = this._options.asObservable();
+
+    public readonly restrictions: Observable<ResourceRestriction[]> =
+        this.options.pipe(
+            switchMap(() => {
+                return showMetadata(
+                    this._org.building.id,
+                    `room_restrictions`
+                ).pipe(catchError(() => of({ details: [] })));
+            }),
+            map((_) => (_?.details instanceof Array ? _.details : [])),
+            shareReplay(1)
+        );
 
     public readonly spaces: Observable<Space[]> = combineLatest([
         this._options.pipe(distinctUntilKeyChanged('zone_ids')),
@@ -200,24 +215,38 @@ export class EventFormService extends AsyncHandler {
     public readonly current_available_spaces = combineLatest([
         this.filtered_spaces,
         this._space_bookings,
+        this.restrictions,
         merge(this.form.valueChanges, timer(1000)),
     ]).pipe(
-        map(([list, bookings]) => {
+        map(([list, bookings, restrictions]) => {
             this._loading.next('Updating available spaces...');
             let { date, duration } = this._form.getRawValue();
+            let start = date;
+            let end = addMinutes(date, duration).valueOf();
             list = filterSpacesFromRules(
                 list,
                 { date, duration, space: null, host: currentUser() },
                 this._org.building.booking_rules
             );
             return (list || [])
-                .filter((_, idx) =>
-                    periodInFreeTimeSlot(
-                        date,
-                        date + duration * MINUTES,
-                        bookings[idx] || []
-                    )
-                )
+                .filter((space, idx) => {
+                    const restriction_list = restrictions.filter((_) =>
+                        _.items.includes(space.id)
+                    );
+                    const is_restricted = restriction_list.find(
+                        (rest) =>
+                            (start >= rest.start && start < rest.end) ||
+                            (end <= rest.end && end > rest.start)
+                    );
+                    return (
+                        !is_restricted &&
+                        periodInFreeTimeSlot(
+                            date,
+                            date + duration * MINUTES,
+                            bookings[idx] || []
+                        )
+                    );
+                })
                 .sort((a, b) => a.capacity - b.capacity);
         }),
         tap((_) => this._loading.next('')),
@@ -319,6 +348,10 @@ export class EventFormService extends AsyncHandler {
         this.subscription(
             'form_change',
             this._form.valueChanges.subscribe(({ date, catering, assets }) => {
+                this._assets.setOptions({
+                    date: this.form.value.date,
+                    duration: this.form.value.duration,
+                });
                 if (date && date !== this._date.getValue())
                     this._date.next(date);
                 this.storeForm();
@@ -399,12 +432,8 @@ export class EventFormService extends AsyncHandler {
         });
         const has_catering = !!event.extension_data.catering[0];
         this._form.patchValue({
-            ...event,
             ...event.extension_data,
-            date:
-                !event.id && isBefore(event.date || 0, Date.now())
-                    ? Date.now()
-                    : event.date,
+            ...event,
             host: event?.host || currentUser().email,
             organiser:
                 event?.organiser ||
@@ -626,7 +655,19 @@ export class EventFormService extends AsyncHandler {
                     event.extension_data.assets
                 ).catch(async (e) => {
                     if (!this.form.value.id) {
-                        await removeEvent(result.id).toPromise();
+                        await removeEvent(
+                            result.id,
+                            spaces.length
+                                ? {
+                                      calendar:
+                                          this.form.value.host ||
+                                          currentUser()?.email,
+                                      system_id: spaces[0].id,
+                                  }
+                                : {}
+                        ).toPromise();
+                        notifyError('Unable to book the selected assets.');
+                        this._loading.next('');
                     }
                     throw e;
                 });
@@ -675,21 +716,42 @@ export class EventFormService extends AsyncHandler {
             period_end: getUnixTime(date + (duration * 60 * 1000 || 30 * 1000)),
         };
         if (exclude) query.exclude_range = `${exclude.start}...${exclude.end}`;
-        const availability_method = this.has_calendar
-            ? querySpaceAvailability
-            : queryResourceAvailability;
-        let availability: boolean[] = await availability_method(
-            spaces.map((_) => _.id),
-            date,
-            duration,
-            ignore
-        ).toPromise();
-        if (!availability.every((_) => _))
-            throw `${
-                spaces.length > 1
-                    ? 'The selected space'
-                    : 'Some of the selected spaces'
-            } are not available at the selected time`;
+        if (this.has_calendar) {
+            const response = await querySpaceFreeBusy(
+                { ...query, system_ids: spaces.map((_) => _.id) },
+                this._org
+            ).toPromise();
+            let count = 0;
+            for (const space of response) {
+                if (!spaces.find(({ id }) => id === space.id)) continue;
+                const busy = space.availability.filter(
+                    (_) =>
+                        _.status === 'busy' &&
+                        (!exclude || getUnixTime(_.date) !== exclude?.start)
+                );
+                if (busy.length <= 0) count++;
+            }
+            if (count !== spaces.length) {
+                throw `${
+                    spaces.length > 1
+                        ? 'The selected space'
+                        : 'Some of the selected spaces'
+                } is not available at the selected time`;
+            }
+        } else {
+            const availability = await queryResourceAvailability(
+                spaces.map((_) => _.id),
+                date,
+                duration,
+                ignore
+            ).toPromise();
+            if (!availability.every((_) => _))
+                throw `${
+                    spaces.length > 1
+                        ? 'The selected space'
+                        : 'Some of the selected spaces'
+                } are not available at the selected time`;
+        }
         return true;
     }
 

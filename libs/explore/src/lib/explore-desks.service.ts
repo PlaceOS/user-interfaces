@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { getModule, showMetadata } from '@placeos/ts-client';
 import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of, timer } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -14,15 +14,13 @@ import {
     tap,
 } from 'rxjs/operators';
 
-import {
-    AssetRestriction,
-    BookingFormService,
-} from 'libs/bookings/src/lib/booking-form.service';
+import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 import {
     AsyncHandler,
     currentUser,
     notifyError,
     notifySuccess,
+    ResourceRestriction,
     SettingsService,
 } from '@placeos/common';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
@@ -63,7 +61,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
 
     private _checked_in = new BehaviorSubject<string[]>([]);
 
-    public readonly restrictions: Observable<AssetRestriction[]> =
+    public readonly restrictions: Observable<ResourceRestriction[]> =
         this._org.active_building.pipe(
             debounceTime(50),
             switchMap(() => {
@@ -95,13 +93,10 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
 
     private _bind = this._state.level.pipe(
         debounceTime(300),
-        map((lvl) => {
+        filter((_) => !!_),
+        tap((lvl) => {
             this._statuses = {};
-            this.unsubWith('lvl');
-            console.log('On Level Change:', lvl);
-            if (!lvl) return;
             const system_id = this._org.binding('area_management');
-            console.log('On Level update bindings:', system_id);
             if (!system_id) return;
             let binding = getModule(system_id, 'AreaManagement')?.binding(
                 lvl.id
@@ -164,8 +159,8 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 const is_checked_in =
                     checked_in.some((i) => id === i) ||
                     (is_used && this._settings.get(`app.desk.auto_checkin`));
-                const restriction_list = restrictions.filter((_) =>
-                    _.assets.includes(id)
+                const restriction_list = restrictions.filter(
+                    (_) => _.items?.includes(id) || _.assets?.includes(id)
                 );
                 const is_restricted = restriction_list.find(
                     ({ start, end }) => Date.now() >= start && Date.now() < end
@@ -256,8 +251,9 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         }
         const departments = this._settings.get('app.department_map') || {};
         for (const desk of desks) {
-            this._users[desk.map_id] = desk.staff_name;
-            this._departments[desk.map_id] = departments[desk.department] || '';
+            this._users[desk.map_id || desk.asset_id] = desk.staff_name;
+            this._departments[desk.map_id || desk.asset_id] =
+                departments[desk.department] || '';
         }
         this.processDevices(devices, system_id);
         this.timeout('update', () => this.updateStatus(), 100);

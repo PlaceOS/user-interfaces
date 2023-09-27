@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import {
+    SettingsService,
     currentUser,
     downloadFile,
     jsonToCsv,
@@ -56,7 +57,10 @@ export class ContactTracingStateService {
         end: endOfDay(Date.now()),
     });
 
-    public readonly events = combineLatest([this._options, this._generate]).pipe(
+    public readonly events = combineLatest([
+        this._options,
+        this._generate,
+    ]).pipe(
         distinctUntilChanged((a, b) => a[1] === b[1]),
         filter(([_, gen]) => !!gen),
         switchMap(([{ start, end, user }]) => {
@@ -109,9 +113,14 @@ export class ContactTracingStateService {
         return this._org.binding('contact_tracing');
     }
 
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
     constructor(
         private _org: OrganisationService,
-        private _reports: ReportsStateService
+        private _reports: ReportsStateService,
+        private _settings: SettingsService
     ) {}
 
     public setOptions(options: Partial<ContactTracingOptions>) {
@@ -131,7 +140,7 @@ export class ContactTracingStateService {
         const processed_events = await Promise.all(
             events.map(async (_) => ({
                 'MAC Address': _.mac_address,
-                Date: format(_.date, 'dd MMM yyyy, h:mm a'),
+                Date: format(_.date, 'dd MMM yyyy, ' + this.time_format),
                 'User Name': _.user,
                 'Contact Name':
                     (await pipe.transform(_.contact_id).toPromise())?.name ||

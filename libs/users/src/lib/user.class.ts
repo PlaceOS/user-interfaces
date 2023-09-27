@@ -121,7 +121,11 @@ export class GuestUser extends User {
             data.accepted_terms_conditions || false;
         this.attachments =
             data.extension_data?.attachments || data.attachments || [];
-        this.status = data.extension_data?.status || data.status || 'pending';
+        this.status = data.booking?.approved
+            ? 'approved'
+            : data.booking?.rejected
+            ? 'declined'
+            : data.extension_data?.status || data.status || 'pending';
         this.booking = data.booking;
     }
 }

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
-import { currentUser } from '@placeos/common';
+import { SettingsService, currentUser } from '@placeos/common';
 import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
 
 import { Booking } from './booking.class';
@@ -13,8 +13,8 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
     selector: 'booking-card',
     template: `
         <h4 class="mb-2 flex items-center" *ngIf="booking">
-            <span *ngIf="show_day" day>{{ day }}, </span>
-            {{ booking?.date | date: 'h:mm a' }}
+            <span *ngIf="show_day" day>{{ day }},&nbsp;</span>
+            {{ booking?.date | date: time_format }}
             <span class="text-xs px-2">({{ booking?.date | date: 'z' }})</span>
         </h4>
         <a
@@ -131,10 +131,15 @@ export class BookingCardComponent extends AsyncHandler {
         );
     }
 
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
     constructor(
         private _dialog: MatDialog,
         private _route: ActivatedRoute,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _settings: SettingsService
     ) {
         super();
     }
@@ -169,7 +174,7 @@ export class BookingCardComponent extends AsyncHandler {
     }
 
     public get period() {
-        if (this.booking?.all_day) return 'All Day';
+        if (this.booking?.is_all_day) return 'All Day';
         const start = this.booking?.date || Date.now();
         const duration = this.booking?.duration || 60;
         const end = addMinutes(start, duration);
@@ -179,7 +184,10 @@ export class BookingCardComponent extends AsyncHandler {
         })
             .replace(' hour', 'hr')
             .replace(' minute', 'min');
-        return `${format(start, 'h:mm a')} - ${format(end, 'h:mm a')} (${dur})`;
+        return `${format(start, this.time_format)} - ${format(
+            end,
+            this.time_format
+        )} (${dur})`;
     }
 
     public viewDetails() {

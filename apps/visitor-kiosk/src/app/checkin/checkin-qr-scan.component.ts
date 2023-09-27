@@ -135,7 +135,9 @@ export class CheckinQRScanComponent implements OnInit, OnDestroy {
     public async checkEmail(email: string) {
         if (!email || !email.includes('@') || email.length < 5) return;
         await this._checkin.loadGuestAndEvent(email).catch((err) => {
-            this.handleError(err.message || err);
+            this.handleError(
+                'Unable to find visitor or a meeting associated with the given email address.'
+            );
             throw err;
         });
         this._router.navigate(['/checkin', 'details']);

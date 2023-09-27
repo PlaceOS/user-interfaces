@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { Asset } from '@placeos/assets';
 import { BookingFormService, generateBookingForm } from '@placeos/bookings';
+import { SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { NewDeskFlowConfirmComponent } from 'apps/workplace/src/app/book/new-desk-flow/new-desk-flow-confirm.component';
@@ -22,6 +23,10 @@ describe('NewDeskFlowConfirmComponent', () => {
             MockProvider(OrganisationService, {}),
             MockProvider(MatBottomSheetRef, { dismiss: jest.fn() }),
             MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(SettingsService, {
+                get: jest.fn(),
+                time_format: 'h:mm a',
+            }),
         ],
         declarations: [MockComponent(IconComponent)],
     });

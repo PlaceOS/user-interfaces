@@ -83,7 +83,7 @@ export const MOCK_BOOKINGS = new Array(200).fill(0).map((_, index) => {
         approver_id: approved === 0 ? approver.id : '',
         approver_name: approved === 0 ? approver.name : '',
         approver_email: approved === 0 ? approver.email : '',
-        zones: [bld?.id, lvl?.id],
+        zones: [bld?.id, type === 'parking' ? 'level-p1' : lvl?.id],
         extension_data: {
             map_id: `table-10.00${index}`,
             plate_number: randomString(

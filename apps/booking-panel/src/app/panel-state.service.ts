@@ -9,6 +9,7 @@ import {
     shareReplay,
     switchMap,
     take,
+    tap,
 } from 'rxjs/operators';
 
 import { CalendarEvent, EventFormService } from '@placeos/events';
@@ -18,13 +19,20 @@ import {
     currentUser,
     notifyError,
     notifySuccess,
+    notifyWarn,
     openConfirmModal,
     timePeriodsIntersect,
 } from '@placeos/common';
 
 import { openBookingModal } from './overlays/booking-modal.component';
 import { EmbeddedControlModalComponent } from './overlays/embedded-control-modal.component';
-import { addMinutes, differenceInMinutes, isAfter, isBefore } from 'date-fns';
+import {
+    addMinutes,
+    differenceInMinutes,
+    getUnixTime,
+    isAfter,
+    isBefore,
+} from 'date-fns';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { OrganisationService } from '@placeos/organisation';
 import { Router } from '@angular/router';
@@ -72,6 +80,10 @@ export interface PanelSettings {
     hide_meeting_title?: boolean;
 
     disable_book_now_host?: boolean;
+    /** Whether meeting should be able to be ended early */
+    disable_end_meeting?: boolean;
+    /** Whether user is able to end their meeting early */
+    enable_end_meeting_button?: boolean;
 }
 
 export function currentBooking(
@@ -158,6 +170,20 @@ export class PanelStateService extends AsyncHandler {
         map(([{ status }, booking]) => status || (booking ? 'busy' : 'free')),
         shareReplay(1)
     );
+    public readonly pending_check = combineLatest([
+        this.current,
+        interval(15 * 1000),
+    ]).pipe(
+        tap(([current]) => {
+            if (!current) return;
+            const pending_period = this.setting('pending_period');
+            if (!pending_period || pending_period < 1) return;
+            const diff = differenceInMinutes(Date.now(), current.date);
+            console.log('Checking Pending Period:', diff, pending_period);
+            if (diff <= pending_period) return;
+            this.endCurrent('Pending period expired.');
+        })
+    );
 
     constructor(
         private _spaces: SpacesService,
@@ -176,6 +202,8 @@ export class PanelStateService extends AsyncHandler {
                 'hide_meeting_details',
                 'hide_meeting_title',
                 'disable_book_now_host',
+                'disable_end_meeting',
+                'enable_end_meeting_button',
                 'min_duration',
                 'max_duration',
                 'pending',
@@ -192,6 +220,7 @@ export class PanelStateService extends AsyncHandler {
             ];
             settings.forEach((k) => this.bindTo(id, k));
         });
+        this.subscription('pending_check', this.pending_check.subscribe());
     }
 
     /**
@@ -358,17 +387,20 @@ export class PanelStateService extends AsyncHandler {
      * Execute the logic on the engine driver to start the current or upcoming meeting
      */
     public async startMeeting() {
-        if (this.space && (await this.status.toPromise()) === 'pending') {
-            const meeting =
-                (await this.current.toPromise()) ||
-                (await this.next.toPromise());
-            const module = getModule(this.system, 'Bookings');
-            if (meeting && module) {
-                await module
-                    .execute('start_meeting', [meeting.date])
-                    .catch((e) => notifyError(`Error starting meeting. ${e}`));
-            }
+        if (!this.system || this.setting('status') !== 'pending') {
+            return notifyWarn(
+                'Current or upcoming meeting is not in a pending state.'
+            );
         }
+        const meeting =
+            (await this.current.pipe(take(1)).toPromise()) ||
+            (await this.next.pipe(take(1)).toPromise());
+        const mod = getModule(this.system, 'Bookings');
+        if (!meeting || !mod) return;
+        await mod
+            .execute('start_meeting', [getUnixTime(meeting.date)])
+            .catch((e) => notifyError(`Error starting meeting. ${e}`));
+        this.updateProperty('status', 'busy');
     }
 
     /**
@@ -380,12 +412,14 @@ export class PanelStateService extends AsyncHandler {
                 title: 'Are you sure want to end your meeting?',
                 content:
                     'Ending your meeting early will free up this room for others to use',
-                icon: { class: 'material-icons', content: 'stop' },
+                icon: { class: 'material-icons', content: 'event_busy' },
             },
             this._dialog
         );
         if (details.reason !== 'done') return;
-        this.endCurrent();
+        details.loading('Ending Meeting...');
+        await this.endCurrent().catch();
+        details.close();
     }
 
     /**
@@ -397,8 +431,16 @@ export class PanelStateService extends AsyncHandler {
         const module = getModule(this.system, 'Bookings');
         if (current && module) {
             await module
-                .execute('cancel_meeting', [current.date, reason])
-                .catch((e) => notifyError(`Error starting meeting. ${e}`));
+                .execute('end_meeting', [
+                    getUnixTime(current.date),
+                    true,
+                    reason,
+                ])
+                .catch((e) => {
+                    // notifyError(
+                    //     `Error ending meeting. ${e.message || e.error || e}`
+                    // )
+                });
         }
     }
     /**

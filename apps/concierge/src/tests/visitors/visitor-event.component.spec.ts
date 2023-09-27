@@ -2,26 +2,25 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { ActionIconComponent, IconComponent } from '@placeos/components';
 import { CalendarEvent } from '@placeos/events';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 import { VisitorDetailsComponent } from '../../app/visitors/visitor-details.component';
 import { VisitorEventComponent } from '../../app/visitors/visitor-event.component';
 import { VisitorsStateService } from '../../app/visitors/visitors-state.service';
+import { SettingsService } from '@placeos/common';
 
 describe('VisitorEventComponent', () => {
     let spectator: Spectator<VisitorEventComponent>;
     const createComponent = createComponentFactory({
         component: VisitorEventComponent,
         providers: [
-            {
-                provide: VisitorsStateService,
-                useValue: {
-                    filters: new BehaviorSubject({}),
-                    filtered_events: new BehaviorSubject([]),
-                    checkAllGuestsIn: jest.fn(() => Promise.resolve({})),
-                    checkAllGuestsOut: jest.fn(() => Promise.resolve({})),
-                },
-            },
+            MockProvider(VisitorsStateService, {
+                filters: new BehaviorSubject({}),
+                filtered_events: new BehaviorSubject([]),
+                checkAllGuestsIn: jest.fn(() => Promise.resolve({})),
+                checkAllGuestsOut: jest.fn(() => Promise.resolve({})),
+            } as any),
+            MockProvider(SettingsService, { time_format: 'h:mm a' }),
         ],
         declarations: [
             MockComponent(VisitorDetailsComponent),

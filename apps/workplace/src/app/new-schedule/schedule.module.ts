@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { Route, RouterModule } from '@angular/router';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { SharedComponentModule } from '../components/shared.module';
-import { ScheduleCalendarComponent } from './schedule-calendar.component';
 import { ScheduleFilterCardComponent } from './schedule-filter-card.component';
 import { ScheduleFiltersComponent } from './schedule-filters.component';
 import { ScheduleSidebarComponent } from './schedule-sidebar.component';
@@ -19,10 +18,9 @@ const ROUTES: Route[] = [
 const COMPONENTS = [
     ScheduleComponent,
     ScheduleSidebarComponent,
-    ScheduleCalendarComponent,
     ScheduleFiltersComponent,
     ScheduleFilterCardComponent,
-    ScheduleMobileCalendarComponent
+    ScheduleMobileCalendarComponent,
 ];
 
 @NgModule({

@@ -116,10 +116,10 @@ export function generateMicrosoftCalendarLink(
     if (emails.length || resources.length)
         data.to = unique([...emails, ...resources]).join();
     return type === 'office'
-        ? `https://outlook.office.com/calendar/0/deeplink/compose?${toQueryString(
+        ? `https://outlook.office.com/calendar/0/action/compose?${toQueryString(
               data
           )}`
-        : `https://outlook.live.com/calendar/0/deeplink/compose?${toQueryString(
+        : `https://outlook.live.com/calendar/0/action/compose?${toQueryString(
               data
           )}`;
 }

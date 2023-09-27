@@ -20,9 +20,10 @@ const EMPTY_FAVS = [];
                     class="w-16 h-16 rounded-xl bg-black/20 mr-4 overflow-hidden flex items-center justify-center"
                 >
                     <img
+                        auth
                         *ngIf="item.images?.length; else placeholder"
                         class="object-cover min-h-full min-w-full"
-                        [src]="item.images[0]"
+                        [source]="item.images[0]"
                     />
                     <ng-template #placeholder>
                         <img

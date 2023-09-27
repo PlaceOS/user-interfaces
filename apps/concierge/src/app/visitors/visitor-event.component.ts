@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { HashMap } from '@placeos/ts-client/dist/esm/utilities/types';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { CalendarEvent } from '@placeos/events';
 import { VisitorsStateService } from './visitors-state.service';
 
@@ -38,8 +38,8 @@ import { VisitorsStateService } from './visitors-state.service';
                     event?.date
                         | date
                             : ((filters | async)?.period > 1
-                                  ? 'MMM d, h:mm a'
-                                  : 'shortTime')
+                                  ? 'MMM d, ' + time_format
+                                  : time_format)
                 }}
             </div>
             <div class="w-48 p-2">
@@ -182,7 +182,14 @@ export class VisitorEventComponent extends AsyncHandler implements OnInit {
         return this._state.search;
     }
 
-    constructor(private _state: VisitorsStateService) {
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
+    constructor(
+        private _state: VisitorsStateService,
+        private _settings: SettingsService
+    ) {
         super();
     }
 

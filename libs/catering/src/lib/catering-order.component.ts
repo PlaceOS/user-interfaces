@@ -1,6 +1,10 @@
 import { Component, Input } from '@angular/core';
 
-import { ANIMATION_SHOW_CONTRACT_EXPAND, AsyncHandler } from '@placeos/common';
+import {
+    ANIMATION_SHOW_CONTRACT_EXPAND,
+    AsyncHandler,
+    SettingsService,
+} from '@placeos/common';
 
 import { CateringOrdersService } from './catering-orders.service';
 import { CateringOrder } from './catering-order.class';
@@ -27,7 +31,7 @@ import { CATERING_STATUSES } from './catering.vars';
                 </div>
             </div>
             <div time class="w-24">
-                {{ order.deliver_at | date: 'shortTime' }}
+                {{ order.deliver_at | date: time_format }}
             </div>
             <div class="flex-1">
                 {{
@@ -90,6 +94,7 @@ import { CATERING_STATUSES } from './catering.vars';
                 catering-order-item
                 class="flex items-center"
                 *ngFor="let item of order.items; let i = index"
+                [order_id]="order?.id"
                 [item]="item"
             ></li>
         </ul>
@@ -143,7 +148,14 @@ export class CateringOrderComponent extends AsyncHandler {
         return this.statuses.find((i) => i.id === this.order.status);
     }
 
-    constructor(private _orders: CateringOrdersService) {
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
+    constructor(
+        private _orders: CateringOrdersService,
+        private _settings: SettingsService
+    ) {
         super();
     }
 }

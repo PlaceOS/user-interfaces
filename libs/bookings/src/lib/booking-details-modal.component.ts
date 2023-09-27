@@ -170,6 +170,51 @@ import { checkinBooking } from './bookings.fn';
                         </div>
                     </div>
                 </div>
+                <ng-container *ngIf="has_assets">
+                    <div
+                        class="mt-4 sm:p-4 sm:bg-white sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-gray-200 dark:border-neutral-500 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
+                    >
+                        <h3
+                            class="mx-3 pt-2 text-lg font-medium dark:border-neutral-500"
+                            i18n
+                        >
+                            Assets ({{
+                                event.extension_data.assets?.length || 0
+                            }})
+                        </h3>
+                        <div class="flex px-4 flex-wrap">
+                            <div
+                                asset
+                                class="flex space-x-2 m-2 rounded-2xl text-white px-3 py-1"
+                                [class.bg-success]="
+                                    status(item.id) === 'approved'
+                                "
+                                [class.bg-error]="
+                                    status(item.id) === 'rejected'
+                                "
+                                [class.bg-pending]="
+                                    status(item.id) !== 'approved' &&
+                                    status(item.id) !== 'rejected'
+                                "
+                                *ngFor="
+                                    let item of event.extension_data.assets ||
+                                        []
+                                "
+                            >
+                                <app-icon>{{
+                                    status(item.id) === 'approved'
+                                        ? 'done'
+                                        : status(item.id) === 'rejected'
+                                        ? 'close'
+                                        : 'pending'
+                                }}</app-icon>
+                                <div class="text-sm whitespace-nowrap pr-2">
+                                    {{ item.name }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
                 <button
                     map
                     class="mt-4 sm:my-2 h-64 sm:h-48 relative border border-gray-200 dark:border-neutral-500 overflow-hidden rounded sm:bg-white m-2 flex-grow-[3] min-w-1/3 w-[calc(100%-1rem)] p-2 sm:w-[16rem]"
@@ -238,6 +283,9 @@ export class BookingDetailsModalComponent {
             content: MapPinComponent,
         },
     ];
+    public readonly has_assets = !!this.booking?.linked_bookings?.find(
+        (_) => _.booking_type === 'asset-request'
+    );
 
     public get level() {
         return this._org.levelWithID(this.booking?.zones || []);
@@ -263,6 +311,10 @@ export class BookingDetailsModalComponent {
         return start <= ts && ts <= end;
     }
 
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
     constructor(
         @Inject(MAT_DIALOG_DATA) private _booking: Booking,
         private _settings: SettingsService,
@@ -271,7 +323,7 @@ export class BookingDetailsModalComponent {
     ) {}
 
     public get period() {
-        if (this.booking?.all_day) return 'All Day';
+        if (this.booking?.is_all_day) return 'All Day';
         const start = this.booking?.date || Date.now();
         const duration = this.booking?.duration || 60;
         const end = addMinutes(start, duration);
@@ -281,7 +333,10 @@ export class BookingDetailsModalComponent {
         })
             .replace(' hour', 'hr')
             .replace(' minute', 'min');
-        return `${format(start, 'h:mm a')} - ${format(end, 'h:mm a')} (${dur})`;
+        return `${format(start, this.time_format)} - ${format(
+            end,
+            this.time_format
+        )} (${dur})`;
     }
 
     public async toggleCheckedIn() {
@@ -300,6 +355,20 @@ export class BookingDetailsModalComponent {
             }`
         );
         this.checking_in = false;
+    }
+
+    public status(id: string): string {
+        const booking = this.booking.linked_bookings.find(
+            (_) => _.asset_id === id
+        );
+        if (booking.status) return booking.status;
+        return booking
+            ? booking.approved
+                ? 'approved'
+                : booking.rejected
+                ? 'rejected'
+                : 'pending'
+            : 'pending';
     }
 
     public viewLocation() {

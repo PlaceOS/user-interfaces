@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { VisitorsStateService } from './visitors-state.service';
+import { GuestUser } from '@placeos/users';
+import { CalendarEvent } from '@placeos/events';
 
 @Component({
     selector: 'guest-listings',
@@ -132,7 +134,7 @@ import { VisitorsStateService } from './visitors-state.service';
             <button
                 matRipple
                 class="rounded-3xl bg-yellow-300 border-none"
-                [class.bg-green-400]="row?.status === 'approved'"
+                [class.!bg-green-400]="row?.status === 'approved'"
                 [class.!bg-red-400]="row?.status === 'declined'"
                 [matMenuTriggerFor]="menu"
             >
@@ -163,8 +165,8 @@ import { VisitorsStateService } from './visitors-state.service';
                 row.extension_data?.date
                     | date
                         : ((filters | async)?.period > 1
-                              ? 'MMM d, h:mm a'
-                              : 'shortTime')
+                              ? 'MMM d, ' + time_format
+                              : time_format)
             }}
         </ng-template>
         <ng-template #action_template let-row="row">
@@ -207,7 +209,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 [loading]="loading === 'checkin'"
                 [state]="row?.checked_in ? 'success' : ''"
                 content="event_available"
-                (click)="checkin()"
+                (click)="checkin(row)"
                 [class.invisible]="!row?.is_external || row?.organizer"
             >
             </action-icon>
@@ -216,7 +218,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 matTooltip="Checkout Guest"
                 [loading]="loading === 'checkout'"
                 content="event_busy"
-                (click)="checkout()"
+                (click)="checkout(row)"
                 [class.invisible]="!row?.is_external || row?.organizer"
             >
             </action-icon>
@@ -263,6 +265,21 @@ export class GuestListingComponent {
     public readonly declineVisitor = (u) => this._state.declineVisitor(u);
     public readonly setExt = (u, f, v) => this._state.setExt(u, f, v);
 
+    public readonly checkin = async (guest: GuestUser) => {
+        const event =
+            (guest as any).event || guest.extension_data.event || guest.booking;
+        await this._state
+            .checkGuestIn(event as CalendarEvent, guest)
+            .catch((e) => event);
+    };
+
+    public readonly checkout = async (guest: GuestUser) => {
+        const event = (guest as any).event || guest.booking;
+        await this._state
+            .checkGuestOut(event as CalendarEvent, guest)
+            .catch((e) => event);
+    };
+
     public get columns() {
         return this._settings.get('app.guests.vaccine_check')
             ? [
@@ -282,7 +299,7 @@ export class GuestListingComponent {
     public get display_columns() {
         const fields = {
             state: ' ',
-            date: 'Date',
+            date: 'Time',
             name: 'Person',
             host: 'Host',
             email: 'Email',
@@ -307,6 +324,10 @@ export class GuestListingComponent {
             actions: '12r',
         };
         return this.columns.map((_) => fields[_] || _);
+    }
+
+    public get time_format() {
+        return this._settings.time_format;
     }
 
     constructor(

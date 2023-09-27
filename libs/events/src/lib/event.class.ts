@@ -1,4 +1,9 @@
-import { Identity, removeEmptyFields, unique } from '@placeos/common';
+import {
+    Identity,
+    LinkedBooking,
+    removeEmptyFields,
+    unique,
+} from '@placeos/common';
 import { PlaceSystem } from '@placeos/ts-client';
 import {
     add,
@@ -37,16 +42,6 @@ const DAYS_OF_WEEK = [
     'friday',
     'saturday',
 ];
-
-export interface LinkedBooking {
-    id: string;
-    asset_id: string;
-    asset_name: string;
-    user_id: string;
-    user_name: string;
-    description: string;
-    booking_type: string;
-}
 
 type CalendarEventExtended = CalendarEvent & EventExtensionData;
 
@@ -122,6 +117,13 @@ export class CalendarEvent {
     public readonly linked_bookings: LinkedBooking[];
 
     public readonly update_master: boolean;
+
+    public get is_all_day() {
+        return (
+            this.all_day ||
+            (new Date(this.date).getHours() <= 12 && this.duration > 12 * 60)
+        );
+    }
 
     /** Get field from extension data */
     public ext<K extends keyof EventExtensionData>(key: K) {
@@ -331,7 +333,7 @@ export class CalendarEvent {
         const now = new Date();
         return (
             this.is_today ||
-            (isAfter(now, this.date) &&
+            (isAfter(now, addMinutes(this.date, -5)) &&
                 isBefore(now, addMinutes(this.date, this.duration)))
         );
     }

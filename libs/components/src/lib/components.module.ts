@@ -65,6 +65,8 @@ import { RegionSelectComponent } from './region-select.component';
 import { HelpTooltipComponent } from './help-tooltip.component';
 import { AccessibilityTooltipComponent } from './accessibility-tooltip.component';
 import { LanguageSelectComponent } from './language-tooltip.component';
+import { AuthenticatedImageDirective } from './authenticated-image.directive';
+import { UploadPermissionsModalComponent } from './upload-permissions-modal.component';
 import { IndoorMapsComponent } from './indoor-maps.component';
 
 const MAT_MODULES: any[] = [
@@ -132,9 +134,10 @@ const COMPONENTS: Type<any>[] = [
     HelpTooltipComponent,
     AccessibilityTooltipComponent,
     LanguageSelectComponent,
+    UploadPermissionsModalComponent,
 ];
 
-const DIRECTIVES: Type<any>[] = [BindingDirective];
+const DIRECTIVES: Type<any>[] = [BindingDirective, AuthenticatedImageDirective];
 
 @NgModule({
     declarations: [...COMPONENTS, ...DIRECTIVES],

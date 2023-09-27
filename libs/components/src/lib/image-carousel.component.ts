@@ -11,9 +11,10 @@ import { Component, Input } from '@angular/core';
                 [style.transform]="'translateX(-' + offset * 100 + '%)'"
             >
                 <img
+                    auth
                     class="h-full object-contain"
                     *ngIf="image"
-                    [src]="image.url || image"
+                    [source]="image.url || image"
                 />
             </div>
             <div

@@ -58,6 +58,7 @@ import { OrganisationService } from '@placeos/organisation';
                         [ngModel]="form.value.date"
                         (ngModelChange)="form.patchValue({ date: $event })"
                         [ngModelOptions]="{ standalone: true }"
+                        [use_24hr]="use_24hr"
                     ></a-time-field>
                 </div>
                 <div class="flex-1 w-1/3 relative">
@@ -67,6 +68,7 @@ import { OrganisationService } from '@placeos/organisation';
                         formControlName="duration"
                         [time]="form?.value?.date"
                         [max]="max_duration"
+                        [use_24hr]="use_24hr"
                     >
                     </a-duration-field>
                     <mat-checkbox
@@ -97,6 +99,10 @@ export class ParkingFormDetailsComponent extends AsyncHandler {
         return this._settings.get('app.bookings.allow_all_day');
     }
 
+    public get use_24hr() {
+        return this._settings.get('app.use_24_hour_time');
+    }
+
     public readonly setBuilding = (bld) => (this._org.building = bld);
 
     constructor(
@@ -104,29 +110,5 @@ export class ParkingFormDetailsComponent extends AsyncHandler {
         private _org: OrganisationService
     ) {
         super();
-    }
-
-    public ngOnInit() {
-        this.subscription(
-            'change',
-            this.form
-                .get('resources')
-                ?.valueChanges?.subscribe((list) =>
-                    list.length ? this.setBookingAsset(list[0]) : ''
-                )
-        );
-    }
-
-    private setBookingAsset(item: BookingAsset) {
-        if (!item) return;
-        this.form.patchValue({
-            asset_id: item?.id,
-            asset_name: item.name,
-            map_id: item?.map_id || item?.id,
-            description: item.name,
-            booking_type: 'parking',
-            zones: item.zone ? [item.zone?.parent_id, item.zone?.id] : [],
-            booking_asset: item,
-        });
     }
 }

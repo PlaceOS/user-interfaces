@@ -34,6 +34,7 @@ import { map, tap } from 'rxjs/operators';
                         [ngModel]="form.get('date').value"
                         (ngModelChange)="form.patchValue({ date: $event })"
                         [ngModelOptions]="{ standalone: true }"
+                        [use_24hr]="use_24hr_time"
                     ></a-time-field>
                 </div>
                 <div class="flex flex-col flex-1">
@@ -42,6 +43,7 @@ import { map, tap } from 'rxjs/operators';
                         name="duration"
                         [time]="form.controls?.date?.value"
                         formControlName="duration"
+                        [use_24hr]="use_24hr_time"
                     ></a-duration-field>
                 </div>
             </div>
@@ -184,6 +186,10 @@ export class EventFormComponent {
 
     public get has_assets() {
         return !!this._settings.get('app.events.has_assets');
+    }
+
+    public get use_24hr_time() {
+        return this._settings.get('app.use_24_hour_time');
     }
 
     constructor(

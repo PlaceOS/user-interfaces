@@ -9,6 +9,7 @@ import { VisitorsComponent } from '../../app/visitors/visitors.component';
 import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
 import { VisitorsTopbarComponent } from '../../app/visitors/visitors-topbar.component';
+import { SidebarComponent } from '../../app/ui/sidebar.component';
 
 describe('VisitorsComponent', () => {
     let spectator: Spectator<VisitorsComponent>;
@@ -29,6 +30,7 @@ describe('VisitorsComponent', () => {
             MockComponent(ApplicationSidebarComponent),
             MockComponent(VisitorListingsComponent),
             MockComponent(VisitorsTopbarComponent),
+            MockComponent(SidebarComponent),
         ],
         imports: [MatProgressBarModule],
     });

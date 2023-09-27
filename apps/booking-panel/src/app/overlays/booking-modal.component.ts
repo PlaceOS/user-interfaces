@@ -137,8 +137,8 @@ export class BookingModalComponent extends AsyncHandler {
         ]),
         room_ids: new FormControl<string[]>([this._data.space?.email || '']),
         date: new FormControl(this._data.date || new Date().valueOf()),
-        duration: new FormControl(Math.min(this._data.max_duration, 30)),
-        title: new FormControl(`${this._data.title || '(No Title)'}`),
+        duration: new FormControl(Math.min(this._data.min_duration || 15, 30)),
+        title: new FormControl(`${this._data.title || ''}`),
     });
 
     constructor(@Inject(MAT_DIALOG_DATA) private _data: BookingModalData) {
@@ -154,17 +154,16 @@ export class BookingModalComponent extends AsyncHandler {
      */
     public save() {
         this.form.markAllAsTouched();
-        if (this.form.valid) {
-            this.loading = true;
-            this.event.emit({
-                reason: 'done',
-                metadata: {
-                    ...this.form.value,
-                    title: this.form.value.title || 'Ad-Hoc Panel Booking',
-                },
-            });
-        } else {
-            console.log('Invalid form fields. Valid states:', this.form);
+        if (!this.form.valid) {
+            return console.log('Invalid form fields. Valid states:', this.form);
         }
+        this.loading = true;
+        this.event.emit({
+            reason: 'done',
+            metadata: {
+                ...this.form.value,
+                title: this.form.value.title || 'Ad-Hoc Panel Booking',
+            },
+        });
     }
 }

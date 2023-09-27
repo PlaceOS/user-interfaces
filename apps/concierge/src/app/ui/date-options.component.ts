@@ -1,4 +1,10 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    Output,
+    SimpleChanges,
+} from '@angular/core';
 import { addDays, subDays } from 'date-fns';
 
 @Component({
@@ -8,19 +14,14 @@ import { addDays, subDays } from 'date-fns';
             icon
             matRipple
             class="rounded relative"
-            (click)="picker.open()"
             *ngIf="is_new"
+            customTooltip
+            [content]="calendar_picker"
+            yPosition="top"
+            [class.pointer-events-none]="disabled"
+            [class.opacity-30]="disabled"
         >
-            <app-icon
-                [icon]="{ class: 'material-icons', content: 'today' }"
-            ></app-icon>
-            <input
-                class="absolute inset-0"
-                [(ngModel)]="date"
-                (ngModelChange)="dateChange.emit($event)"
-                [matDatepicker]="picker"
-            />
-            <mat-datepicker #picker></mat-datepicker>
+            <app-icon>today</app-icon>
         </button>
         <button icon matRipple (click)="previousDay()">
             <app-icon>keyboard_arrow_left</app-icon>
@@ -38,20 +39,24 @@ import { addDays, subDays } from 'date-fns';
             icon
             matRipple
             class="rounded relative border border-gray-200"
-            (click)="picker.open()"
             *ngIf="!is_new"
+            customTooltip
+            [content]="calendar_picker"
+            yPosition="top"
+            [class.pointer-events-none]="disabled"
+            [class.opacity-30]="disabled"
         >
-            <app-icon
-                [icon]="{ class: 'material-icons', content: 'today' }"
-            ></app-icon>
-            <input
-                class="absolute inset-0"
-                [(ngModel)]="date"
-                (ngModelChange)="dateChange.emit($event)"
-                [matDatepicker]="picker"
-            />
-            <mat-datepicker #picker></mat-datepicker>
+            <app-icon>today</app-icon>
         </button>
+        <ng-template #calendar_picker>
+            <div class="relative w-[19rem] rounded bg-white px-2 py-4">
+                <date-calendar
+                    [ngModel]="date"
+                    [offset_weekday]="week_start"
+                    (ngModelChange)="date = $event; dateChange.emit($event)"
+                ></date-calendar>
+            </div>
+        </ng-template>
     `,
     styles: [
         `
@@ -69,6 +74,9 @@ import { addDays, subDays } from 'date-fns';
 })
 export class DateOptionsComponent {
     @Input() public is_new = false;
+    @Input() public disabled = false;
+    /** Index of the day to start the week on when displaying the calendar */
+    @Input() public week_start: number = 0;
     /** Currently selected date */
     @Input() public date: number | string = new Date().valueOf();
     /** Emitter for changes to the date */
@@ -84,5 +92,9 @@ export class DateOptionsComponent {
         this.dateChange.emit(this.date);
     };
 
-    constructor() {}
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes.date) {
+            this.date = this.date || Date.now();
+        }
+    }
 }

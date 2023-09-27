@@ -1,6 +1,6 @@
-import { del, get, patch, post, put } from '@placeos/ts-client';
+import { del, get, patch, post, put, query } from '@placeos/ts-client';
 import { Observable, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 
 import { toQueryString } from 'libs/common/src/lib/api';
 import { Booking, BookingType } from './booking.class';
@@ -28,18 +28,60 @@ export interface BookingsQueryParams {
     event_id?: string;
     /**  */
     ical_uid?: string;
+    /** Set the size of the page */
+    limit?: number;
 }
 
 const BOOKINGS_ENDPOINT = `/api/staff/v1/bookings`;
 
 /**
- * List bookings
+ * Get a single page of bookings
  * @param q Parameters to pass to the API request
  */
 export function queryBookings(q: BookingsQueryParams): Observable<Booking[]> {
     const query = toQueryString(q);
     return get(`${BOOKINGS_ENDPOINT}${query ? '?' + query : ''}`).pipe(
         map((list) => list.map((item) => new Booking(item))),
+        catchError((_) => of([]))
+    );
+}
+
+/**
+ * List bookings with link to next page of bookings
+ * @param q Parameters to pass to the API request
+ */
+export function queryPagedBookings(q: BookingsQueryParams) {
+    return query<Booking>({
+        query_params: q,
+        fn: (item) => new Booking(item),
+        endpoint: BOOKINGS_ENDPOINT,
+        path: '',
+    });
+}
+
+/**
+ * List all bookings
+ * @param q Parameters to pass to the API request
+ */
+export function queryAllBookings(
+    q: BookingsQueryParams
+): Observable<Booking[]> {
+    return query<Booking>({
+        query_params: q,
+        fn: (item) => new Booking(item),
+        endpoint: BOOKINGS_ENDPOINT,
+        path: '',
+    }).pipe(
+        switchMap(async ({ data, next }) => {
+            let list = [...data];
+            while (next) {
+                const resp = await next().toPromise();
+                data = resp.data;
+                next = resp.next;
+                list = [...list, ...data];
+            }
+            return list;
+        }),
         catchError((_) => of([]))
     );
 }
@@ -59,7 +101,10 @@ export function showBooking(id: string) {
  * Create new booking and add it to the database
  * @param data New booking fields
  */
-export function createBooking(data: Partial<Booking>,  q?: { event_id?: string, ical_uid?: string }) {
+export function createBooking(
+    data: Partial<Booking>,
+    q?: { event_id?: string; ical_uid?: string }
+) {
     const query = toQueryString(q);
     return post(`${BOOKINGS_ENDPOINT}${query ? '?' + query : ''}`, data).pipe(
         map((item) => new Booking(item))
@@ -88,8 +133,10 @@ export function updateBooking(
  * @param data State of the booking
  * @param q Parameters to pass to the API request
  */
-export const saveBooking = (data: Partial<Booking>, q?: { event_id?: string, ical_uid?: string }) =>
-    data.id ? updateBooking(data.id, data) : createBooking(data, q);
+export const saveBooking = (
+    data: Partial<Booking>,
+    q?: { booking_id?: string; event_id?: string; ical_uid?: string }
+) => (data.id ? updateBooking(data.id, data) : createBooking(data, q));
 
 /**
  * Remove booking from the database
