@@ -99,6 +99,7 @@ import { first } from 'rxjs/operators';
                     </mat-form-field>
                 </div>
                 <button
+                    btn
                     matRipple
                     class="mb-2"
                     [disabled]="!active_building && !active_level"
@@ -245,7 +246,10 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                     );
                 }
             }
-            this._router.navigate(['/explore']);
+            const path = this._settings.get('app.default_route') || 'welcome';
+            const route = path.split('/');
+            route[0] = `/${route[0]}`;
+            this._router.navigate(route);
         }
         this.loading = null;
     }
