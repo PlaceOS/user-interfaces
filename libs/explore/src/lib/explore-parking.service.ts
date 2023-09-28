@@ -114,18 +114,20 @@ export class ExploreParkingService extends AsyncHandler {
         shareReplay(1)
     );
 
-    /** Available parking spaces for the current level and date */
-    public readonly available_spaces = combineLatest([
-        this.events,
+    public readonly active_spaces = combineLatest([
         this.spaces,
         this._state.level,
     ]).pipe(
-        map(([events, spaces, level]) =>
-            spaces.filter(
-                (_) =>
-                    _.zone_id === level?.id &&
-                    !events.find((e) => e.asset_id === _.id)
-            )
+        map(([spaces, level]) => spaces.filter((_) => _.zone_id === level.id))
+    );
+
+    /** Available parking spaces for the current level and date */
+    public readonly available_spaces = combineLatest([
+        this.events,
+        this.active_spaces,
+    ]).pipe(
+        map(([events, spaces]) =>
+            spaces.filter((_) => !events.find((e) => e.asset_id === _.id))
         )
     );
 
@@ -260,7 +262,7 @@ export class ExploreParkingService extends AsyncHandler {
                 );
             };
             actions.push({
-                id: space.id,
+                id: space?.map_id || space?.id,
                 action: 'click',
                 priority: 10,
                 callback: book_fn,
