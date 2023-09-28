@@ -32,6 +32,7 @@ import {
     getUnixTime,
     isAfter,
     isBefore,
+    startOfMinute,
 } from 'date-fns';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { OrganisationService } from '@placeos/organisation';
@@ -459,11 +460,13 @@ export class PanelStateService extends AsyncHandler {
      */
     public async checkin() {
         const module = getModule(this.system, 'Bookings');
-        if (module) {
-            await module
-                .execute('checkin', [Date.now()])
-                .catch((e) => notifyError(`Error checking in booking. ${e}`));
-        }
+        if (!module) return;
+        const time = startOfMinute(Date.now()).valueOf();
+        await module.execute('checkin', [time]).catch((e) => {
+            notifyError(`Error checking in booking. ${e}`);
+            throw e;
+        });
+        notifySuccess('Successfully checked in booking.');
     }
 
     /**
