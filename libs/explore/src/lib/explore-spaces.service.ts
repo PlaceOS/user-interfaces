@@ -5,6 +5,7 @@ import { ViewAction, ViewerFeature } from '@placeos/svg-viewer';
 import {
     catchError,
     debounceTime,
+    filter,
     map,
     shareReplay,
     switchMap,
