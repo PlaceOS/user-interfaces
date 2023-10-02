@@ -117,13 +117,14 @@ export class CheckinQRScanComponent implements OnInit, OnDestroy {
 
     public async checkQRCode(raw_text: string) {
         const chunks = raw_text.split(',');
-        if (chunks.length !== 2) {
+        const [visitor_email, system_id, event_id, host_email] = chunks;
+        if (!visitor_email && !event_id) {
             notifyError('Invalid QRCode');
             this.setupQRReader();
             return;
         } else {
             await this._checkin
-                .loadGuestAndEvent(chunks[0], chunks[1])
+                .loadGuestAndEvent(visitor_email, event_id)
                 .catch((err) => {
                     this.handleError(err.message || err);
                     throw err;
