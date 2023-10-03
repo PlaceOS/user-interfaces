@@ -117,7 +117,8 @@ export class CheckinQRScanComponent implements OnInit, OnDestroy {
 
     public async checkQRCode(raw_text: string) {
         const chunks = raw_text.split(',');
-        const [visitor_email, system_id, event_id, host_email] = chunks;
+        const [visit_block, system_id, event_id, host_email] = chunks;
+        const [_, visitor_email] = visit_block.split(':');
         if (!visitor_email && !event_id) {
             notifyError('Invalid QRCode');
             this.setupQRReader();
