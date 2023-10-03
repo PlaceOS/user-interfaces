@@ -1,5 +1,12 @@
 import { User } from 'libs/users/src/lib/user.class';
-import { addMinutes, endOfDay, format, startOfDay } from 'date-fns';
+import {
+    addMinutes,
+    endOfDay,
+    format,
+    set,
+    startOfDay,
+    startOfMinute,
+} from 'date-fns';
 import { toQueryString } from './api';
 import { localToTimezone } from './timezone-helpers';
 import { unique } from './general';
@@ -42,14 +49,18 @@ export function generateCalendarFileLink(event: CalEvent): string {
     chunks.push([
         'DTSTART',
         `${new Date(
-            event.all_day ? startOfDay(event.date) : event.date
+            event.all_day
+                ? startOfMinute(set(event.date, { hours: 6, minutes: 0 }))
+                : event.date
         ).toISOString()}`,
     ]);
     chunks.push([
         'DTEND',
         `${
             event.all_day
-                ? endOfDay(event.date)
+                ? startOfMinute(
+                      set(event.date, { hours: 18, minutes: 0 })
+                  ).toISOString()
                 : addMinutes(event.date, event.duration ?? 60).toISOString()
         }`,
     ]);
