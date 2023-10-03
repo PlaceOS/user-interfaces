@@ -8,6 +8,7 @@ import {
     removeBooking,
 } from '@placeos/bookings';
 import {
+    AsyncHandler,
     currentUser,
     notifyError,
     notifySuccess,
@@ -86,7 +87,10 @@ import { LandingStateService } from './landing-state.service';
     `,
     styles: [``],
 })
-export class LandingUpcomingComponent implements OnInit, OnDestroy {
+export class LandingUpcomingComponent
+    extends AsyncHandler
+    implements OnInit, OnDestroy
+{
     public readonly upcoming_events = this._state.upcoming_events;
 
     public type(event: CalendarEvent | Booking) {
@@ -100,15 +104,13 @@ export class LandingUpcomingComponent implements OnInit, OnDestroy {
         private _router: Router,
         private _dialog: MatDialog,
         private _settings: SettingsService
-    ) {}
-
-    public ngOnInit() {
-        this._state.refreshUpcomingEvents();
-        // this._state.pollUpcomingEvents();
+    ) {
+        super();
     }
 
-    public ngOnDestroy() {
-        this._state.stopPollingUpcomingEvents();
+    public ngOnInit() {
+        // this._state.refreshUpcomingEvents();
+        this.subscription('poll', this._state.pollUpcomingEvents());
     }
 
     public trackByFn(_: number, item: any) {

@@ -173,6 +173,7 @@ export class LandingStateService extends AsyncHandler {
 
     public pollUpcomingEvents(delay: number = 2 * 60 * 1000) {
         this._schedule.setDate(Date.now());
+        this._schedule.triggerPoll();
         return this._schedule.startPolling(delay);
     }
 
