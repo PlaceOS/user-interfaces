@@ -109,7 +109,7 @@ import { addDays, endOfDay, format } from 'date-fns';
                     <a-duration-field
                         formControlName="duration"
                         [time]="form.get('date')?.value"
-                        [max]="12 * 60"
+                        [max]="10 * 60"
                         [min]="60"
                         [step]="60"
                         [disabled]="form.value.all_day"

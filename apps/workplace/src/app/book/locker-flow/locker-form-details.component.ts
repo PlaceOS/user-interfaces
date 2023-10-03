@@ -75,7 +75,7 @@ import { OrganisationService } from '@placeos/organisation';
                             name="end-time"
                             formControlName="duration"
                             [time]="form.get('date')?.value"
-                            [max]="12 * 60"
+                            [max]="10 * 60"
                             [min]="60"
                             [step]="60"
                             [use_24hr]="use_24hr"
