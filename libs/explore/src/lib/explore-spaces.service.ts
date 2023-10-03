@@ -50,6 +50,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
     private _restrictions: Observable<ResourceRestriction[]> =
         this._org.active_building.pipe(
             debounceTime(50),
+            filter((_) => !!_),
             switchMap(() => {
                 return showMetadata(
                     this._org.building.id,

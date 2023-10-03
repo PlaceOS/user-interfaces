@@ -130,7 +130,7 @@ import { BookingFormService } from '../booking-form.service';
                         <a-duration-field
                             formControlName="duration"
                             [time]="form.get('date')?.value"
-                            [max]="12 * 60"
+                            [max]="10 * 60"
                             [min]="60"
                             [step]="60"
                             [use_24hr]="use_24hr"

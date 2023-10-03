@@ -141,7 +141,7 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
             previous_duration = form.value.duration;
             form.patchValue({
                 date: setHours(setMinutes(previous_time, 0), 6).valueOf(),
-                duration: 12 * 60 + 1 / 60,
+                duration: 12 * 60,
             });
             form.controls.duration.disable();
         } else if (previous_all_day && !all_day) {
