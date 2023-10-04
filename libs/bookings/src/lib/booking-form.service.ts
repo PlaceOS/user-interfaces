@@ -692,7 +692,8 @@ export class BookingFormService extends AsyncHandler {
             allowed_bookings > 0 &&
             bookings.filter(
                 (_) =>
-                    _.user_email === (user_email || currentUser()?.email) &&
+                    _.user_email.toLowerCase() ===
+                        (user_email || currentUser()?.email).toLowerCase() &&
                     _.status !== 'declined' &&
                     _.id !== id
             ).length >= allowed_bookings
