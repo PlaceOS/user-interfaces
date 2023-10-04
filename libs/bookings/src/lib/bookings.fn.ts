@@ -183,7 +183,13 @@ export function checkinBooking(id: string, state: boolean) {
     return post(
         `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in?${query}`,
         ''
-    ).pipe(map((item) => new Booking(item)));
+    ).pipe(
+        map((item) => new Booking(item)),
+        catchError(async (e) => {
+            const body = await e.json();
+            throw body.error || body.message || body;
+        })
+    );
 }
 
 /**

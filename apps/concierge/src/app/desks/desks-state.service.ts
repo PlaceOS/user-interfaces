@@ -220,14 +220,18 @@ export class DesksStateService extends AsyncHandler {
 
     public async checkinDesk(desk: Booking, state: boolean = true) {
         console.log('Check-in:', desk);
-        const success = await checkinBooking(desk.id, state ?? true)
+        const status: any = await checkinBooking(desk.id, state ?? true)
             .toPromise()
-            .catch((_) => 'failed');
-        success === 'failed'
-            ? notifyError(`Error checking ${state ? 'in' : 'out'} desk booking`)
-            : notifySuccess(
-                  `Checked ${state ? 'in' : 'out'} ${desk.user_name}.`
-              );
+            .catch((_) => ({ failed: true, error: _ }));
+        if (status.failed) {
+            notifyError(
+                status.error
+                    ? `Error: ${status.error}`
+                    : `Error checking ${state ? 'in' : 'out'} desk booking`
+            );
+            throw status.error;
+        }
+        notifySuccess(`Checked ${state ? 'in' : 'out'} ${desk.user_name}.`);
     }
 
     public async approveDesk(desk: Booking) {
