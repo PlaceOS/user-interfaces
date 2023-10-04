@@ -3,7 +3,7 @@ import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { BookingFormService } from '@placeos/bookings';
 import { AsyncHandler, SettingsService, notifyError } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
-import { take } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 
 @Component({
     selector: 'new-desk-flow-confirm',
@@ -70,7 +70,9 @@ import { take } from 'rxjs/operators';
                 </h3>
                 <div class="flex items-center space-x-2">
                     <app-icon>person</app-icon>
-                    <span i18n>Single desk</span>
+                    <span i18n>{{
+                        (is_group | async) ? 'Multiple Desks' : 'Single desk'
+                    }}</span>
                 </div>
                 <div class="flex items-center space-x-2">
                     <app-icon>place</app-icon>
@@ -136,6 +138,7 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
     @Input() public show_close: boolean = false;
 
     public readonly loading = this._state.loading;
+    public readonly is_group = this._state.options.pipe(map((_) => _.group));
 
     public readonly postForm = async () => {
         try {
