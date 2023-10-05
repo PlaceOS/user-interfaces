@@ -11,9 +11,11 @@ import { showMetadata } from '@placeos/ts-client';
 import {
     addDays,
     endOfDay,
+    endOfMinute,
     getUnixTime,
     isSameDay,
     startOfDay,
+    startOfMinute,
 } from 'date-fns';
 import { BehaviorSubject, combineLatest, forkJoin } from 'rxjs';
 import { map, shareReplay, switchMap } from 'rxjs/operators';
@@ -40,9 +42,7 @@ export interface ParkingOptions {
 
 @Injectable()
 export class ExploreParkingService extends AsyncHandler {
-    private _options = new BehaviorSubject<ParkingOptions>({
-        date: startOfDay(Date.now()).valueOf(),
-    });
+    private _options = new BehaviorSubject<ParkingOptions>({});
     private _poll = new BehaviorSubject<number>(0);
 
     public readonly options = this._options.asObservable();
@@ -60,8 +60,8 @@ export class ExploreParkingService extends AsyncHandler {
     ]).pipe(
         switchMap(([bld, _]) =>
             queryBookings({
-                period_start: getUnixTime(startOfDay(_.date)),
-                period_end: getUnixTime(endOfDay(_.date)),
+                period_start: getUnixTime(startOfMinute(_.date || Date.now())),
+                period_end: getUnixTime(endOfMinute(_.date || Date.now())),
                 type: 'parking',
                 zones: bld?.id,
             })
@@ -72,8 +72,8 @@ export class ExploreParkingService extends AsyncHandler {
     public readonly existing_event = combineLatest([this._options]).pipe(
         switchMap(([_]) =>
             queryBookings({
-                period_start: getUnixTime(startOfDay(_.date)),
-                period_end: getUnixTime(endOfDay(_.date)),
+                period_start: getUnixTime(startOfDay(_.date || Date.now())),
+                period_end: getUnixTime(endOfDay(_.date || Date.now())),
                 type: 'parking',
                 email: _?.user || currentUser()?.email,
             })
@@ -88,8 +88,10 @@ export class ExploreParkingService extends AsyncHandler {
     ]).pipe(
         switchMap(([bld, _]) =>
             queryBookings({
-                period_start: getUnixTime(startOfDay(_.date)),
-                period_end: getUnixTime(addDays(endOfDay(_.date), 6)),
+                period_start: getUnixTime(startOfDay(_.date || Date.now())),
+                period_end: getUnixTime(
+                    addDays(endOfDay(_.date || Date.now()), 6)
+                ),
                 type: 'parking',
                 zones: bld?.id,
             })
@@ -231,6 +233,7 @@ export class ExploreParkingService extends AsyncHandler {
                 );
                 user = user || options.host || currentUser();
                 const user_email = user?.email;
+                const lvl = this._state.active_level;
                 this._bookings.form.patchValue({
                     resources: [space],
                     asset_id: space.id,
@@ -244,7 +247,7 @@ export class ExploreParkingService extends AsyncHandler {
                     booking_type: 'parking',
                     zones: space.zone
                         ? [space.zone?.parent_id, space.zone?.id]
-                        : [],
+                        : [lvl.parent_id, lvl.id],
                 });
                 await this._bookings.confirmPost().catch((e) => {
                     console.log(e);
