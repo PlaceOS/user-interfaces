@@ -14,6 +14,7 @@ import { startOfDay, getUnixTime, addDays, format } from 'date-fns';
 import {
     AsyncHandler,
     SettingsService,
+    currentUser,
     downloadFile,
     flatten,
     jsonToCsv,
@@ -412,9 +413,18 @@ export class VisitorsStateService extends AsyncHandler {
     ) {
         return event.from_bookings
             ? checkinBookingAttendee(event.id, email, state)
-            : checkinEventGuest(event.id, email, state, {
-                  system_id: event.system?.id || event.resources[0]?.id,
-              });
+            : checkinEventGuest(
+                  event.id,
+                  email,
+                  state,
+                  event.resources.length
+                      ? {
+                            calendar: event.host || currentUser()?.email,
+                            system_id:
+                                event.system?.id || event.resources[0].id,
+                        }
+                      : {}
+              );
     }
 
     public async downloadVisitorsList() {
