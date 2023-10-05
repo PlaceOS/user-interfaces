@@ -276,13 +276,12 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                     options
                 );
                 navigator.geolocation.watchPosition(
-                    this._updateGeolocation.bind(this),
-                    this._handleGeolocationError.bind(this)
+                    (_) => this._updateGeolocation(_),
+                    (_) => this._handleGeolocationError(_)
                 );
             } else {
                 this.geolocation_error_message =
                     'Error: geolocation is not supported.';
-
                 reject('Geolocation not supported');
             }
         });
