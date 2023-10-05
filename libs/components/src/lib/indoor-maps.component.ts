@@ -30,7 +30,10 @@ interface GeolocationPosition {
 @Component({
     selector: 'indoor-maps',
     template: `
-        <div id="map" class="absolute inset-0 flex items-center justify-center">
+        <div
+            id="maps-indoors"
+            class="absolute inset-0 flex items-center justify-center"
+        >
             <mat-spinner
                 *ngIf="loading"
                 class="absolute"
@@ -55,7 +58,7 @@ interface GeolocationPosition {
             class="absolute flex flex-col h-min w-min mt-14 left-0 bg-white rounded-lg"
         >
             <div class="flex-auto basis-1/2 px-4">
-                <div id="search" class="flex flex-row items-baseline">
+                <div class="flex flex-row items-baseline">
                     <mat-form-field appearance="outline">
                         <input
                             matInput
@@ -196,7 +199,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         // };
 
         this.map_view_options = {
-            element: document.getElementById('map'),
+            element: document.getElementById('maps-indoors'),
             center: { lat: this.user_latitude, lng: this.user_longitude },
             zoom: 21,
             maxZoom: 26,
