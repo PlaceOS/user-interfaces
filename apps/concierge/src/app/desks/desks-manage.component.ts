@@ -132,23 +132,34 @@ const QR_CODES = {};
                     <button
                         icon
                         matRipple
-                        [matMenuTriggerFor]="menu"
+                        customTooltip
+                        [content]="qr_menu"
                         (click)="loadQrCode(row)"
                     >
                         <app-icon>qr_code</app-icon>
                     </button>
-                    <mat-menu #menu="matMenu">
+                    <ng-template #qr_menu>
                         <div
-                            class="p-2 mx-4 my-2 rounded-lg border border-black"
+                            class="bg-white py-2 shadow print:shadow-none rounded"
                         >
-                            <img class="w-48" [src]="row.qr_code" />
-                        </div>
-                        <div mat-menu-item class="underline">
-                            <button btn matRipple class="w-full">
+                            <a
+                                [href]="row.qr_link | safe: 'url'"
+                                target="_blank"
+                                ref="noopener noreferrer"
+                                class="block p-2 mx-4 my-2 rounded-lg border border-gray-300 bg-white print:z-50"
+                            >
+                                <img class="w-48" [src]="row.qr_code" />
+                            </a>
+                            <button
+                                btn
+                                matRipple
+                                class="w-[calc(100%-2rem)] mx-4 my-2 print:hidden"
+                                (click)="print()"
+                            >
                                 Print QR Code
                             </button>
                         </div>
-                    </mat-menu>
+                    </ng-template>
                 </div>
             </ng-template>
             <div
@@ -280,6 +291,9 @@ export class DesksManageComponent extends AsyncHandler {
     }
 
     public loadQrCode(item: any) {
+        item.qr_link = `${
+            location.origin
+        }/workplace/#/book/code?asset_id=${encodeURIComponent(item.id)}`;
         item.qr_code = generateQRCode(
             `${
                 location.origin
@@ -293,6 +307,10 @@ export class DesksManageComponent extends AsyncHandler {
         private _dialog: MatDialog
     ) {
         super();
+    }
+
+    public print() {
+        window.print();
     }
 
     public async loadCSVData(event: InputEvent) {

@@ -20,8 +20,8 @@ import { DeskRestrictionModalComponent } from './desk-restriction-modal.componen
 @Component({
     selector: '[app-new-desks]',
     template: `
-        <app-topbar></app-topbar>
-        <div class="flex flex-1 h-px">
+        <app-topbar class=" print:hidden"></app-topbar>
+        <div class="flex flex-1 h-px print:hidden">
             <app-sidebar></app-sidebar>
             <main class="flex flex-col flex-1 w-1/2 h-full">
                 <div class="flex items-center w-full py-4 px-8 space-x-2">
