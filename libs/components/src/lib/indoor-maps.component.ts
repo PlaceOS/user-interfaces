@@ -27,6 +27,11 @@ interface GeolocationPosition {
     timestamp: number;
 }
 
+interface CustomCoordinates {
+    latitude: number;
+    longitude: number;
+}
+
 @Component({
     selector: 'indoor-maps',
     template: `
@@ -148,11 +153,14 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     public user_longitude: number | null = null;
     public geolocation_error_message: string = '';
     public route_error_message: string = '';
+    public coordinates: CustomCoordinates | null = null;
 
     /** Custom CSS styles to apply to the map */
     @Input() public styles: ViewerStyles;
     /** List of available user actions for the map */
     @Input() public actions: ViewAction[];
+    /** Custom coordinates to fixate on the map */
+    @Input() public custom_coordinates: CustomCoordinates;
 
     @ViewChild('searchInput', { static: true }) searchElement: ElementRef;
     @ViewChild('searchResultItems') searchResults: ElementRef;
@@ -162,7 +170,19 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     }
 
     async ngOnInit() {
+        console.log(this.custom_coordinates, 'custom');
+        if (this.custom_coordinates) {
+            this.coordinates = this.custom_coordinates;
+            await this._getUserLocation();
+        }
         await this._getUserLocation();
+
+        //Test: Coordinates for Sydney opera house
+        // await this._getUserLocation({
+        //     latitude: -33.856785,
+        //     longitude: 151.215302,
+        // });
+
         this.loading = true;
         await this.initMapView();
         this.initDirections();
@@ -190,13 +210,14 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     }
 
     initMapView(): Promise<void> {
-        //Hardcoded coordinates for mock map in Austin
+        // Hardcoded coordinates for mock map in Austin
         // this.map_view_options = {
-        //     element: document.getElementById('map'),
+        //     element: document.getElementById('maps-indoors'),
         //     center: { lat: 30.3603774, lng: -97.7426772 },
         //     zoom: 21,
         //     maxZoom: 26,
         // };
+        console.log(this.user_latitude, this.user_longitude, 'user coords');
 
         this.map_view_options = {
             element: document.getElementById('maps-indoors'),
@@ -255,30 +276,49 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
 
         return new Promise<GeolocationPosition>(async (resolve, reject) => {
             if ('geolocation' in navigator) {
-                await navigator.geolocation.getCurrentPosition(
-                    (position: GeolocationPosition) => {
-                        this.user_latitude = position.coords.latitude;
-                        this.user_longitude = position.coords.longitude;
-                        console.log(
-                            this.user_latitude,
-                            this.user_longitude,
-                            'user geolocation'
-                        );
-                        resolve(position);
-                    },
-                    (error) => {
-                        this.geolocation_error_message =
-                            'Error: ' +
-                            error.message?.toString() +
-                            '. Please enable geolocation settings.';
-                        reject(error);
-                    },
-                    options
-                );
-                navigator.geolocation.watchPosition(
-                    (_) => this._updateGeolocation(_),
-                    (_) => this._handleGeolocationError(_)
-                );
+                if (this.coordinates) {
+                    console.log(this.coordinates, 'custom coords exist');
+                    const customPosition = {
+                        coords: {
+                            latitude: this.coordinates.latitude,
+                            longitude: this.coordinates.longitude,
+                            accuracy: 10,
+                        },
+                        timestamp: new Date().getTime(),
+                    };
+                    this.user_latitude = this.coordinates.latitude;
+                    this.user_longitude = this.coordinates.longitude;
+                    console.log('custom coords');
+                    resolve(customPosition as GeolocationPosition);
+                }
+
+                if (!this.coordinates) {
+                    console.log('no custom geolocation of user');
+                    await navigator.geolocation.getCurrentPosition(
+                        (position: GeolocationPosition) => {
+                            this.user_latitude = position.coords.latitude;
+                            this.user_longitude = position.coords.longitude;
+                            console.log(
+                                this.user_latitude,
+                                this.user_longitude,
+                                'user geolocation'
+                            );
+                            resolve(position);
+                        },
+                        (error) => {
+                            this.geolocation_error_message =
+                                'Error: ' +
+                                error.message?.toString() +
+                                '. Please enable geolocation settings.';
+                            reject(error);
+                        },
+                        options
+                    );
+                    navigator.geolocation.watchPosition(
+                        (_) => this._updateGeolocation(_),
+                        (_) => this._handleGeolocationError(_)
+                    );
+                }
             } else {
                 this.geolocation_error_message =
                     'Error: geolocation is not supported.';
