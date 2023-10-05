@@ -76,6 +76,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
 export class CodeFlowErrorComponent extends AsyncHandler {
     public type = 'other';
     public asset = null;
+    public asset_id = '';
 
     constructor(
         private _route: ActivatedRoute,
@@ -87,8 +88,9 @@ export class CodeFlowErrorComponent extends AsyncHandler {
     public ngOnInit() {
         this.subscription(
             'route.query',
-            this._route.queryParamMap.subscribe(async (params) => {
+            this._route.queryParamMap.subscribe((params) => {
                 this.type = params.get('type') as any;
+                this.asset_id = params.get('asset_id') as any;
             })
         );
     }
