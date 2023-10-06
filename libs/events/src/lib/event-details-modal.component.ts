@@ -332,7 +332,7 @@ const EMPTY_ACTIONS = [];
                         <div class="flex px-4 flex-wrap">
                             <div
                                 asset
-                                class="flex space-x-2 m-2 rounded-2xl text-white px-3 py-1"
+                                class="flex space-x-2 m-1 rounded-2xl text-white pl-1 pr-2 py-1"
                                 [class.bg-success]="
                                     status(item.id) === 'approved'
                                 "
@@ -353,7 +353,7 @@ const EMPTY_ACTIONS = [];
                                         ? 'done'
                                         : status(item.id) === 'rejected'
                                         ? 'close'
-                                        : 'pending'
+                                        : 'question_mark'
                                 }}</app-icon>
                                 <div class="text-sm whitespace-nowrap pr-2">
                                     {{ item.name }}

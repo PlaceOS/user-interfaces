@@ -268,16 +268,20 @@ export class GuestListingComponent {
     public readonly checkin = async (guest: GuestUser) => {
         const event =
             (guest as any).event || guest.extension_data.event || guest.booking;
+        event.from_bookings = !!guest.booking;
         await this._state
             .checkGuestIn(event as CalendarEvent, guest)
             .catch((e) => event);
+        this._state.poll();
     };
 
     public readonly checkout = async (guest: GuestUser) => {
         const event = (guest as any).event || guest.booking;
+        event.from_bookings = !!guest.booking;
         await this._state
             .checkGuestOut(event as CalendarEvent, guest)
             .catch((e) => event);
+        this._state.poll();
     };
 
     public get columns() {

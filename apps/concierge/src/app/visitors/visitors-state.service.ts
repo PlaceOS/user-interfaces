@@ -216,6 +216,10 @@ export class VisitorsStateService extends AsyncHandler {
         this._search.next(search);
     }
 
+    public poll() {
+        this._poll.next(Date.now());
+    }
+
     public startPolling(delay: number = 30 * 1000) {
         this.interval('poll', () => this._poll.next(Date.now()), delay);
     }
@@ -323,16 +327,19 @@ export class VisitorsStateService extends AsyncHandler {
     }
 
     public async checkGuestOut(event: CalendarEvent, user: User) {
-        const new_user = await this._checkinCall(event, user.email, false)
-            .toPromise()
-            .catch((e) => {
-                notifyError(
-                    `Error checking out ${user.name} from ${event.organiser?.name}'s meeting`
-                );
-                throw e;
-            });
+        const checkin_fn = this._checkinCall(event, user.email, false);
+        const new_user = await checkin_fn.toPromise().catch((e) => {
+            notifyError(
+                `Error checking in ${user.name} for ${
+                    event.organiser?.name || (event as any).user_name
+                }'s meeting`
+            );
+            throw e;
+        });
         notifySuccess(
-            `Successfully checked out ${user.name} from ${event.organiser?.name}'s meeting`
+            `Successfully checked out ${user.name} from ${
+                event.organiser?.name || (event as any).user_name
+            }'s meeting`
         );
         const new_attendees = unique([new_user, ...event.attendees], 'email');
         new_attendees.sort((a, b) =>
@@ -417,11 +424,11 @@ export class VisitorsStateService extends AsyncHandler {
                   event.id,
                   email,
                   state,
-                  event.resources.length
+                  event.resources?.length
                       ? {
                             calendar: event.host || currentUser()?.email,
                             system_id:
-                                event.system?.id || event.resources[0].id,
+                                event.system?.id || event.resources[0]?.id,
                         }
                       : {}
               );
