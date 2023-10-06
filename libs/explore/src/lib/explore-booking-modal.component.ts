@@ -1,6 +1,11 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { currentUser, notifySuccess, SettingsService } from '@placeos/common';
+import {
+    currentUser,
+    notifyError,
+    notifySuccess,
+    SettingsService,
+} from '@placeos/common';
 
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { EventFormService } from 'libs/events/src/lib/event-form.service';
@@ -149,7 +154,10 @@ export class ExploreBookingModalComponent implements OnInit {
     }
 
     public async save() {
-        await this._event_form.postForm();
+        await this._event_form.postForm().catch((_) => {
+            notifyError(_);
+            throw _;
+        });
         if (this._settings.app_name.toLowerCase().includes('workplace')) {
             this._router.navigate(['/book', 'meeting', 'success']);
         } else {
