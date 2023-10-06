@@ -60,11 +60,11 @@ interface CustomCoordinates {
             </div>
         </div>
         <div
-            class="absolute flex flex-col h-min w-min mt-14 left-0 bg-white rounded-lg"
+            class="absolute flex flex-col h-min w-min top-0 left-0 bg-white rounded-lg z-50"
         >
-            <div class="flex-auto basis-1/2 px-4">
-                <div class="flex flex-row items-baseline">
-                    <mat-form-field appearance="outline">
+            <div class="flex basis-1/2 px-4">
+                <div class="flex flex-row items-center max-h-20">
+                    <mat-form-field appearance="outline" class="h-16 mt-4">
                         <input
                             matInput
                             #searchInput
@@ -77,7 +77,7 @@ interface CustomCoordinates {
                         icon
                         name="indoor-map-search"
                         matRipple
-                        class="flex text-black h-10 w-10 rounded-full bg-gray-200 ml-5 mt-12"
+                        class="flex text-black h-10 w-10 rounded-full bg-gray-200 ml-5"
                         aria-label="search button"
                         (click)="onSearch()"
                     >
@@ -88,7 +88,7 @@ interface CustomCoordinates {
                 </div>
             </div>
 
-            <div class="flex-auto basis-1/2 overflow-y-auto ">
+            <div class="flex basis-1/2 overflow-y-auto ">
                 <div class="ml-6">
                     <ul>
                         <div *ngIf="search_result_items">
@@ -170,18 +170,11 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     }
 
     async ngOnInit() {
-        console.log(this.custom_coordinates, 'custom');
         if (this.custom_coordinates) {
             this.coordinates = this.custom_coordinates;
             await this._getUserLocation();
         }
         await this._getUserLocation();
-
-        //Test: Coordinates for Sydney opera house
-        // await this._getUserLocation({
-        //     latitude: -33.856785,
-        //     longitude: 151.215302,
-        // });
 
         this.loading = true;
         await this.initMapView();
@@ -217,7 +210,6 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         //     zoom: 21,
         //     maxZoom: 26,
         // };
-        console.log(this.user_latitude, this.user_longitude, 'user coords');
 
         this.map_view_options = {
             element: document.getElementById('maps-indoors'),
@@ -277,7 +269,6 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         return new Promise<GeolocationPosition>(async (resolve, reject) => {
             if ('geolocation' in navigator) {
                 if (this.coordinates) {
-                    console.log(this.coordinates, 'custom coords exist');
                     const customPosition = {
                         coords: {
                             latitude: this.coordinates.latitude,
@@ -288,21 +279,15 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                     };
                     this.user_latitude = this.coordinates.latitude;
                     this.user_longitude = this.coordinates.longitude;
-                    console.log('custom coords');
+
                     resolve(customPosition as GeolocationPosition);
                 }
 
                 if (!this.coordinates) {
-                    console.log('no custom geolocation of user');
                     await navigator.geolocation.getCurrentPosition(
                         (position: GeolocationPosition) => {
                             this.user_latitude = position.coords.latitude;
                             this.user_longitude = position.coords.longitude;
-                            console.log(
-                                this.user_latitude,
-                                this.user_longitude,
-                                'user geolocation'
-                            );
                             resolve(position);
                         },
                         (error) => {
@@ -328,7 +313,6 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     }
 
     private _updateGeolocation(updated_location: GeolocationPosition) {
-        console.log(updated_location, 'updated location');
         if (updated_location) {
             if (
                 updated_location.coords?.latitude !== this.user_latitude ||
