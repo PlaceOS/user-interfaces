@@ -253,6 +253,7 @@ export function newCalendarEventFromBooking(booking: Booking) {
             new User({
                 name: booking.asset_name || booking.description,
                 email: booking.asset_id,
+                checked_in: booking.checked_in,
             })
         );
     }
