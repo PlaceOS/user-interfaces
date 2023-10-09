@@ -5,12 +5,23 @@ import {
     OnInit,
     Input,
     SimpleChanges,
+    Output,
+    EventEmitter,
 } from '@angular/core';
 import { AsyncHandler, HashMap } from '@placeos/common';
 import { ViewerStyles, ViewAction } from '@placeos/svg-viewer';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ExploreStateService } from '../../../explore/src/lib/explore-state.service';
+import {
+    BuildingLevel,
+    Building,
+    OrganisationService,
+} from '@placeos/organisation';
+import { combineLatest } from 'rxjs';
+import { filter, map, first } from 'rxjs/operators';
 
 declare let mapsindoors: any;
+declare let google: any;
 
 interface GeolocationCoordinates {
     latitude: number;
@@ -98,7 +109,6 @@ interface CustomCoordinates {
                                     <span class="flex mr-3 text-base">
                                         {{ item.properties.name }}</span
                                     >
-
                                     <button
                                         icon
                                         name="get-directions"
@@ -155,6 +165,26 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     public route_error_message: string = '';
     public coordinates: CustomCoordinates | null = null;
 
+    public readonly buildings = this._org.building_list;
+    public readonly building = this._org.active_building;
+    public readonly setBuilding = (b) => (this._org.building = b);
+
+    public readonly levels = combineLatest([
+        this.building,
+        this._state.options,
+    ]).pipe(
+        filter(([_]) => !!_),
+        map(([bld]) => [
+            {
+                id: this._org.building.id,
+                name: 'All Levels',
+            },
+            ...this._org.levelsForBuilding(bld),
+        ])
+    );
+    public levels_list: any[] = [];
+    public buildings_list: Building[] = [];
+
     /** Custom CSS styles to apply to the map */
     @Input() public styles: ViewerStyles;
     /** List of available user actions for the map */
@@ -165,11 +195,35 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     @ViewChild('searchInput', { static: true }) searchElement: ElementRef;
     @ViewChild('searchResultItems') searchResults: ElementRef;
 
-    constructor(private _snackBar: MatSnackBar) {
+    constructor(
+        private _state: ExploreStateService,
+        private _org: OrganisationService,
+        private _snackBar: MatSnackBar
+    ) {
         super();
     }
 
     async ngOnInit() {
+        await this._org.initialised.pipe(first((_) => !!_)).toPromise();
+        this.setBuilding(this._org.building);
+
+        this.subscription(
+            'levels',
+            this.levels.subscribe((levels) => {
+                if (levels) {
+                    this.levels_list = levels;
+                }
+            })
+        );
+        this.subscription(
+            'buildings',
+            this._org.building_list.subscribe((buildings) => {
+                if (buildings) {
+                    this.buildings_list = buildings;
+                }
+            })
+        );
+
         if (this.custom_coordinates) {
             this.coordinates = this.custom_coordinates;
             await this._getUserLocation();
@@ -179,7 +233,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         this.loading = true;
         await this.initMapView();
         this.initDirections();
-        this.selectFloors();
+        this.handleLocationChange();
     }
 
     async ngOnChanges(change: SimpleChanges) {
@@ -243,7 +297,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             );
     }
 
-    selectFloors() {
+    handleLocationChange() {
         const floorSelectorElement = document.createElement('div');
         new mapsindoors.FloorSelector(
             floorSelectorElement,
@@ -252,6 +306,19 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         this.googleMaps_instance.controls[
             google.maps.ControlPosition.RIGHT_TOP
         ].push(floorSelectorElement);
+
+        this.mapsIndoors_instance?.addListener('building_changed', (e) => {
+            const found_building = this.buildings_list.find((building) => {
+                building.name === e.buildingInfo.name;
+                this.setBuilding(found_building);
+            });
+        });
+        this.mapsIndoors_instance?.addListener('floor_changed', (e: string) => {
+            const found_level_id = this.levels_list.find(
+                (level) => level.id === e
+            );
+            this._state.setLevel(found_level_id);
+        });
     }
 
     async onSearch(): Promise<any> {
