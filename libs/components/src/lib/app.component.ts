@@ -164,14 +164,6 @@ export class AppComponent extends AsyncHandler implements OnInit {
         }
         /** Wait for authentication details to load */
         await setupPlace(settings).catch((_) => console.error(_));
-        const tkn = token();
-        if (isMobileSafari()) {
-            setCustomHeaders(
-                tkn === 'x-api-key'
-                    ? { 'x-api-key': apiKey() }
-                    : { Authorization: `Bearer ${tkn}` }
-            );
-        }
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         setupCache(this._cache);
         if (!settings.local_login) {
@@ -187,17 +179,27 @@ export class AppComponent extends AsyncHandler implements OnInit {
         );
         this._initAnalytics();
         initSentry(this._settings.get('app.sentry_dsn'));
-        if (this._settings.get('app.has_uploads')) {
-            this.timeout('init_uploads', () => {
-                initialiseUploadService({
-                    auto_start: true,
-                    token: token(),
-                    endpoint: '/api/engine/v2/uploads',
-                    worker_url: 'assets/md5_worker.js',
-                    providers: [Amazon, Azure, Google, OpenStack] as any,
+        try {
+            const tkn = token();
+            if (isMobileSafari()) {
+                setCustomHeaders(
+                    tkn === 'x-api-key'
+                        ? { 'x-api-key': apiKey() }
+                        : { Authorization: `Bearer ${tkn}` }
+                );
+            }
+            if (this._settings.get('app.has_uploads')) {
+                this.timeout('init_uploads', () => {
+                    initialiseUploadService({
+                        auto_start: true,
+                        token: token(),
+                        endpoint: '/api/engine/v2/uploads',
+                        worker_url: 'assets/md5_worker.js',
+                        providers: [Amazon, Azure, Google, OpenStack] as any,
+                    });
                 });
-            });
-        }
+            }
+        } catch {}
         if (isFixedDevice()) {
             this.interval(
                 'auto-update-version',
