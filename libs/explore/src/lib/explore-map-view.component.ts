@@ -48,15 +48,19 @@ const EMPTY = [];
             *ngIf="map_key_exists | async"
             [styles]="styles | async"
             [actions]="actions | async"
+            [custom_coordinates]="{
+                latitude: 30.3603774 ,
+                longitude:  -97.7426772,
+            }"
         ></indoor-maps>
         <explore-zoom-controls
             *ngIf="!(map_key_exists | async)"
             class="absolute bottom-2 right-2"
         ></explore-zoom-controls>
         <div
+            *ngIf="!(map_key_exists | async)"
             controls
             class="absolute top-2 left-2 max-w-[calc(100vw-1rem)] bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-500 rounded p-2 space-y-2 overflow-hidden"
-            *ngIf="!(map_key_exists | async)"
         >
             <explore-map-controls></explore-map-controls>
             <div class="flex items-center space-x-2" *ngIf="hide_zones">
