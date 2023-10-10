@@ -20,6 +20,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 import { HttpClientModule } from '@angular/common/http';
 import { TranslateModule } from '@ngx-translate/core';
@@ -66,6 +67,7 @@ import { AccessibilityTooltipComponent } from './accessibility-tooltip.component
 import { LanguageSelectComponent } from './language-tooltip.component';
 import { AuthenticatedImageDirective } from './authenticated-image.directive';
 import { UploadPermissionsModalComponent } from './upload-permissions-modal.component';
+import { IndoorMapsComponent } from './indoor-maps.component';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -91,6 +93,7 @@ const MAT_MODULES: any[] = [
     MatRadioModule,
     MatSliderModule,
     MatSlideToggleModule,
+    MatButtonToggleModule,
 ];
 
 const COMPONENTS: Type<any>[] = [
@@ -104,6 +107,7 @@ const COMPONENTS: Type<any>[] = [
     MapPinComponent,
     MapRadiusComponent,
     MapPolygonComponent,
+    IndoorMapsComponent,
     StatusOverlayComponent,
     CustomTableComponent,
     CustomTooltipComponent,

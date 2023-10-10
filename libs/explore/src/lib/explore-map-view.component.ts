@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { getModule } from '@placeos/ts-client';
 import { Point } from '@placeos/svg-viewer';
 import { first, take } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 import {
     AsyncHandler,
@@ -23,6 +24,7 @@ import { ExploreZonesService } from './explore-zones.service';
 import { ExploreDesksService } from './explore-desks.service';
 import { ExploreParkingService } from './explore-parking.service';
 import { ExploreLockersService } from './explore-lockers.service';
+import { InjectMapApiService } from '@placeos/common';
 
 const EMPTY = [];
 
@@ -30,6 +32,7 @@ const EMPTY = [];
     selector: 'explore-map-view',
     template: `
         <i-map
+            *ngIf="!(use_mapsindoors$ | async)"
             [src]="url | async"
             [zoom]="(positions | async)?.zoom"
             [center]="(positions | async)?.center"
@@ -40,10 +43,22 @@ const EMPTY = [];
             [actions]="actions | async"
             [labels]="labels | async"
         ></i-map>
+
+        <indoor-maps
+            *ngIf="use_mapsindoors$ | async"
+            [styles]="styles | async"
+            [actions]="actions | async"
+            [custom_coordinates]="{
+                latitude: 30.3603774 ,
+                longitude:  -97.7426772,
+            }"
+        ></indoor-maps>
         <explore-zoom-controls
+            *ngIf="!(use_mapsindoors$ | async)"
             class="absolute bottom-2 right-2"
         ></explore-zoom-controls>
         <div
+            *ngIf="!(use_mapsindoors$ | async)"
             controls
             class="absolute top-2 left-2 max-w-[calc(100vw-1rem)] bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-500 rounded p-2 space-y-2 overflow-hidden"
         >
@@ -139,6 +154,9 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         return this._settings.get('app.explore.legend') || EMPTY;
     }
 
+    public readonly use_mapsindoors$: Observable<boolean> =
+        this._maps.is_initialised$;
+
     constructor(
         private _state: ExploreStateService,
         private _s: ExploreSpacesService,
@@ -151,7 +169,8 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         private _spaces: SpacesService,
         private _org: OrganisationService,
         private _settings: SettingsService,
-        private _space_pipe: SpacePipe
+        private _space_pipe: SpacePipe,
+        private _maps: InjectMapApiService
     ) {
         super();
     }

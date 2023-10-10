@@ -5,13 +5,16 @@ import { DesksService } from '@placeos/bookings';
     selector: 'app-explore',
     template: `
         <topbar *ngIf="!hide_nav"></topbar>
-        <div class="flex-1 flex sm:flex-row flex-col-reverse h-1/2 bg-gray-100 dark:bg-neutral-700">
+        <div
+            class="flex-1 flex sm:flex-row flex-col-reverse h-1/2 bg-gray-100 dark:bg-neutral-700"
+        >
             <main
                 class="relative z-0 flex flex-col flex-1 h-1/2 sm:h-auto overflow-hidden"
             >
                 <explore-map-view></explore-map-view>
             </main>
         </div>
+
         <footer-menu *ngIf="!hide_nav"></footer-menu>
     `,
     styles: [
@@ -30,7 +33,6 @@ import { DesksService } from '@placeos/bookings';
     ],
 })
 export class ExploreComponent implements OnInit {
-
     public get hide_nav() {
         return localStorage.getItem('PlaceOS.hide_nav') === 'true';
     }

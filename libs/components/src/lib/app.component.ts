@@ -33,6 +33,7 @@ import {
     GoogleAnalyticsService,
     isMobileSafari,
     hasNewVersion,
+    InjectMapApiService,
 } from '@placeos/common';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
@@ -103,6 +104,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         private _clipboard: Clipboard,
         private _route: ActivatedRoute,
         private _router: Router,
+        private _maps: InjectMapApiService,
         @Optional() private _translate: TranslateService
     ) {
         super();
@@ -166,6 +168,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         await setupPlace(settings).catch((_) => console.error(_));
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         setupCache(this._cache);
+        this._maps.injectMapsApiKeys();
         if (!settings.local_login) {
             this.timeout('wait_for_user', () => this.onInitError(), 30 * 1000);
         }

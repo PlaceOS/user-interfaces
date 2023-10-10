@@ -30,7 +30,8 @@
             "@placeos/spaces": ["libs/spaces/src/index.ts"],
             "@placeos/survey-suite": ["libs/survey-suite/src/index.ts"],
             "@placeos/users": ["libs/users/src/index.ts"]
-        }
+        },
+        "types": ["google.maps"]
     },
     "exclude": ["node_modules", "tmp"]
 }
