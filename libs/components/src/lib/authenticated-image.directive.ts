@@ -6,7 +6,7 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
-import { apiKey, token } from '@placeos/ts-client';
+import { apiKey, authority, token } from '@placeos/ts-client';
 
 const IMAGE_STORE = new Map<string, string>();
 
@@ -25,7 +25,7 @@ export class AuthenticatedImageDirective extends AsyncHandler {
     }
 
     private async _loadImage() {
-        if (!this._image_el) {
+        if (!this._image_el || !authority()) {
             return this.timeout('load', () => this._loadImage(), 300);
         }
         // If not an API call, just load the image

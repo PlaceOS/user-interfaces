@@ -34,7 +34,7 @@ import {
     ViewerStyles,
     listenToViewerChanges,
 } from '@placeos/svg-viewer';
-import { apiKey, token } from '@placeos/ts-client';
+import { apiKey, authority, token } from '@placeos/ts-client';
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -272,6 +272,9 @@ export class InteractiveMapComponent
     }
 
     private async createView() {
+        if (!authority()) {
+            return this.timeout('create_view', () => this.createView(), 300);
+        }
         if (this.src && this._outlet_el?.nativeElement && !this.loading) {
             this.loading = true;
             if (this.viewer) {

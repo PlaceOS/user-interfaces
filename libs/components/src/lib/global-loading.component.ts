@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { first } from 'rxjs/operators';
-import { isOnline, token } from '@placeos/ts-client';
+import { authority, isOnline, token } from '@placeos/ts-client';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
@@ -56,10 +56,9 @@ export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
         this.interval(
             'has_token',
             () => {
-                if (token()) {
-                    this.loading = false;
-                    this.clearInterval('has_token');
-                }
+                if (!authority() || !token()) return;
+                this.loading = false;
+                this.clearInterval('has_token');
             },
             1000
         );
