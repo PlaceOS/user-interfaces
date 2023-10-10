@@ -5,10 +5,8 @@ import {
     OnInit,
     Input,
     SimpleChanges,
-    Output,
-    EventEmitter,
 } from '@angular/core';
-import { AsyncHandler, HashMap } from '@placeos/common';
+import { AsyncHandler, HashMap, notifyError } from '@placeos/common';
 import { ViewerStyles, ViewAction } from '@placeos/svg-viewer';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ExploreStateService } from '../../../explore/src/lib/explore-state.service';
@@ -18,7 +16,7 @@ import {
     OrganisationService,
 } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
-import { filter, map, first } from 'rxjs/operators';
+import { filter, map, first, take } from 'rxjs/operators';
 
 declare let mapsindoors: any;
 declare let google: any;
@@ -197,8 +195,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
 
     constructor(
         private _state: ExploreStateService,
-        private _org: OrganisationService,
-        private _snackBar: MatSnackBar
+        private _org: OrganisationService
     ) {
         super();
     }
@@ -206,27 +203,13 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     async ngOnInit() {
         await this._org.initialised.pipe(first((_) => !!_)).toPromise();
         this.setBuilding(this._org.building);
-
-        this.subscription(
-            'levels',
-            this.levels.subscribe((levels) => {
-                if (levels) {
-                    this.levels_list = levels;
-                }
-            })
-        );
-        this.subscription(
-            'buildings',
-            this._org.building_list.subscribe((buildings) => {
-                if (buildings) {
-                    this.buildings_list = buildings;
-                }
-            })
-        );
+        this.levels_list = await this.levels.pipe(take(1)).toPromise();
+        this.buildings_list = await this._org.building_list
+            .pipe(take(1))
+            .toPromise();
 
         if (this.custom_coordinates) {
             this.coordinates = this.custom_coordinates;
-            await this._getUserLocation();
         }
         await this._getUserLocation();
 
@@ -313,7 +296,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                 this.setBuilding(found_building);
             });
         });
-        this.mapsIndoors_instance?.addListener('floor_changed', (e: string) => {
+        this.mapsIndoors_instance?.addListener('floor_changed', (e) => {
             const found_level_id = this.levels_list.find(
                 (level) => level.id === e
             );
@@ -393,7 +376,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     }
 
     private _handleGeolocationError(error: any) {
-        this._alertError('Error updating your geolocation.');
+        notifyError('Error updating your geolocation.');
     }
 
     getRoute(location: any) {
@@ -435,23 +418,14 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                         error instanceof TypeError &&
                         error.message?.includes('origin')
                     ) {
-                        this.route_error_message =
-                            'Error: Cannot create route as origin location is outside of map area.';
-                        this._alertError(this.route_error_message);
+                        notifyError(
+                            'Error: Cannot create route as origin location is outside of map area.'
+                        );
                     }
                 });
         } else {
-            this.route_error_message = 'Error: unable to find a route.';
-            this._alertError(this.route_error_message);
+            notifyError('Error: unable to find a route.');
         }
-    }
-
-    private _alertError(error_message: string) {
-        this._snackBar.open(error_message, 'OK', {
-            duration: 10000,
-            verticalPosition: 'bottom',
-            horizontalPosition: 'center',
-        });
     }
 
     async renderSpaceStatus(): Promise<void[]> {

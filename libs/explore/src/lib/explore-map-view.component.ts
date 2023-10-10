@@ -32,7 +32,7 @@ const EMPTY = [];
     selector: 'explore-map-view',
     template: `
         <i-map
-            *ngIf="!(map_key_exists | async)"
+            *ngIf="!(use_mapsindoors$ | async)"
             [src]="url | async"
             [zoom]="(positions | async)?.zoom"
             [center]="(positions | async)?.center"
@@ -45,7 +45,7 @@ const EMPTY = [];
         ></i-map>
 
         <indoor-maps
-            *ngIf="map_key_exists | async"
+            *ngIf="use_mapsindoors$ | async"
             [styles]="styles | async"
             [actions]="actions | async"
             [custom_coordinates]="{
@@ -54,11 +54,11 @@ const EMPTY = [];
             }"
         ></indoor-maps>
         <explore-zoom-controls
-            *ngIf="!(map_key_exists | async)"
+            *ngIf="!(use_mapsindoors$ | async)"
             class="absolute bottom-2 right-2"
         ></explore-zoom-controls>
         <div
-            *ngIf="!(map_key_exists | async)"
+            *ngIf="!(use_mapsindoors$ | async)"
             controls
             class="absolute top-2 left-2 max-w-[calc(100vw-1rem)] bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-500 rounded p-2 space-y-2 overflow-hidden"
         >
@@ -154,8 +154,8 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         return this._settings.get('app.explore.legend') || EMPTY;
     }
 
-    public readonly map_key_exists: Observable<boolean> =
-        this._maps.getKeyExistsAsObservable();
+    public readonly use_mapsindoors$: Observable<boolean> =
+        this._maps.is_initialised$;
 
     constructor(
         private _state: ExploreStateService,

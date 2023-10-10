@@ -6,15 +6,11 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
     providedIn: 'root',
 })
 export class InjectMapApiService {
-    private maps_key_exists = new BehaviorSubject<boolean>(null);
+    private is_initialised: BehaviorSubject<boolean> =
+        new BehaviorSubject<boolean>(null);
 
-    private _setKeyExists(value: boolean) {
-        this.maps_key_exists.next(value);
-    }
-
-    public getKeyExistsAsObservable(): Observable<boolean> {
-        return this.maps_key_exists.asObservable();
-    }
+    public readonly is_initialised$: Observable<boolean> =
+        this.is_initialised.asObservable();
 
     constructor(private _settings: SettingsService) {}
 
@@ -34,7 +30,7 @@ export class InjectMapApiService {
         }
 
         if (maps_key && google_key) {
-            this._setKeyExists(true);
+            this.is_initialised.next(true);
         }
     }
 }
