@@ -199,14 +199,14 @@ export class AppComponent extends AsyncHandler implements OnInit {
                     });
                 });
             }
+            if (isFixedDevice()) {
+                this.interval(
+                    'auto-update-version',
+                    () => this._checkReload(),
+                    15 * 1000
+                );
+            }
         } catch {}
-        if (isFixedDevice()) {
-            this.interval(
-                'auto-update-version',
-                () => this._checkReload(),
-                15 * 1000
-            );
-        }
     }
 
     private onInitError() {

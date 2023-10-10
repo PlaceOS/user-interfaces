@@ -21,7 +21,7 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-import { addMinutes, differenceInDays, getUnixTime } from 'date-fns';
+import { addMinutes, differenceInDays, getUnixTime, set } from 'date-fns';
 import {
     AsyncHandler,
     currentUser,
@@ -117,10 +117,12 @@ export class EventFormService extends AsyncHandler {
     public readonly restrictions: Observable<ResourceRestriction[]> =
         this.options.pipe(
             switchMap(() => {
-                return showMetadata(
-                    this._org.building.id,
-                    `room_restrictions`
-                ).pipe(catchError(() => of({ details: [] })));
+                return this._org.building
+                    ? showMetadata(
+                          this._org.building.id,
+                          `room_restrictions`
+                      ).pipe(catchError(() => of({ details: [] })))
+                    : of({ details: [] });
             }),
             map((_) => (_?.details instanceof Array ? _.details : [])),
             shareReplay(1)
@@ -514,6 +516,14 @@ export class EventFormService extends AsyncHandler {
                 assets,
                 recurrence,
             } = form.getRawValue();
+            if (all_day) {
+                date = set(date, {
+                    hours: 6,
+                    minutes: 0,
+                    seconds: 0,
+                }).valueOf();
+                duration = 12 * 60;
+            }
             const spaces = form.get('resources')?.value || [];
             let catering = form.get('catering')?.value || [];
             if (recurrence?._pattern && recurrence?._pattern !== 'none') {
@@ -523,7 +533,7 @@ export class EventFormService extends AsyncHandler {
                 (!id || date !== event.date || duration !== event.duration) &&
                 spaces.length
             ) {
-                const start = getUnixTime(event.date);
+                const start = getUnixTime(date);
                 await this.checkSelectedSpacesAreAvailable(
                     spaces,
                     date,

@@ -488,6 +488,14 @@ export class BookingFormService extends AsyncHandler {
         });
         let value = this.form.getRawValue();
         let booking = this._booking.getValue() || new Booking();
+        if (value.all_day) {
+            value.date = set(value.date, {
+                hours: 6,
+                minutes: 0,
+                seconds: 0,
+            }).valueOf();
+            value.duration = 12 * 60;
+        }
         if (!ignore_check) {
             await this.checkResourceAvailable(
                 { ...booking, ...value },
