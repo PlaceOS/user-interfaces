@@ -182,6 +182,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     );
     public levels_list: any[] = [];
     public buildings_list: Building[] = [];
+    public floor_mapping: { [id: string]: string } = {};
 
     /** Custom CSS styles to apply to the map */
     @Input() public styles: ViewerStyles;
@@ -201,6 +202,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     }
 
     async ngOnInit() {
+        this.loading = true;
         await this._org.initialised.pipe(first((_) => !!_)).toPromise();
         this.setBuilding(this._org.building);
         this.levels_list = await this.levels.pipe(take(1)).toPromise();
@@ -213,9 +215,9 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         }
         await this._getUserLocation();
 
-        this.loading = true;
         await this.initMapView();
         this.initDirections();
+
         this.handleLocationChange();
     }
 
@@ -223,8 +225,9 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         if (change.styles || change.actions) {
             await this.renderSpaceStatus();
             await this.mapActions();
-            this.loading = false;
         }
+        this.mapFloorsToIndex();
+        this.loading = false;
     }
 
     ngAfterViewInit() {
@@ -280,6 +283,22 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             );
     }
 
+    async mapFloorsToIndex() {
+        const building = await this.mapsIndoors_instance?.getBuilding();
+        const input_string =
+            building?.buildingInfo?.fields?.floorMapping?.value;
+        const pairs = input_string?.split(',\n').map((pair) => pair.split(':'));
+        this.floor_mapping = pairs?.reduce((accumulator, [key, value]) => {
+            accumulator[key] = value;
+            return accumulator;
+        }, {});
+        const floor_index: string = await this.mapsIndoors_instance?.getFloor();
+        if (floor_index && this.floor_mapping) {
+            const level_id = this.floor_mapping[floor_index];
+            this._state.setLevel(level_id);
+        }
+    }
+
     handleLocationChange() {
         const floorSelectorElement = document.createElement('div');
         new mapsindoors.FloorSelector(
@@ -290,17 +309,18 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             google.maps.ControlPosition.RIGHT_TOP
         ].push(floorSelectorElement);
 
-        this.mapsIndoors_instance?.addListener('building_changed', (e) => {
+        this.mapsIndoors_instance?.addListener('building_changed', (e: any) => {
             const found_building = this.buildings_list.find((building) => {
-                building.name === e.buildingInfo.name;
+                building.name.toLowerCase() ===
+                    e.buildingInfo?.name.toLowerCase();
                 this.setBuilding(found_building);
             });
         });
-        this.mapsIndoors_instance?.addListener('floor_changed', (e) => {
-            const found_level_id = this.levels_list.find(
-                (level) => level.id === e
-            );
-            this._state.setLevel(found_level_id);
+        this.mapsIndoors_instance?.addListener('floor_changed', (e: string) => {
+            if (e && this.floor_mapping) {
+                const level_id: string = this.floor_mapping[e];
+                this._state.setLevel(level_id);
+            }
         });
     }
 
