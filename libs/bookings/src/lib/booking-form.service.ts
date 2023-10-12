@@ -290,6 +290,10 @@ export class BookingFormService extends AsyncHandler {
                 {
                     ...booking,
                     ...booking.extension_data,
+                    all_day:
+                        (booking.id
+                            ? this._settings.get('app.bookings.all_day_default')
+                            : false) || booking.all_day,
                 },
                 [null, undefined, '']
             )

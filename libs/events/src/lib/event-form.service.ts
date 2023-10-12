@@ -425,6 +425,10 @@ export class EventFormService extends AsyncHandler {
         this._form.patchValue({
             ...event.extension_data,
             ...event,
+            all_day:
+                (event.id
+                    ? this._settings.get('app.events.all_day_default')
+                    : false) || event.all_day,
             host: event?.host || currentUser().email,
             organiser:
                 event?.organiser ||
