@@ -1,13 +1,6 @@
 /** Generic Dictionary type */
 export type HashMap<T = any> = Record<string, T>;
 
-export interface ResourceRestriction {
-    id: string;
-    start: number;
-    end: number;
-    items: string[];
-}
-
 export interface LinkedBooking {
     id: string;
     asset_id: string;

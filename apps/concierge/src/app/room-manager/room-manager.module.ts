@@ -14,7 +14,6 @@ import { RoomListComponent } from './room-list.component';
 import { RoomModalComponent } from './room-modal.component';
 import { MatChipsModule } from '@angular/material/chips';
 import { NewRoomManagerComponent } from './new-room-manager.component';
-import { RoomRestrictionModalComponent } from './room-restriction-modal.component';
 
 const ROUTES: Route[] = [
     { path: '', component: RoomManagerComponent },
@@ -28,7 +27,6 @@ const ROUTES: Route[] = [
         RoomManagerTopbarComponent,
         RoomListComponent,
         RoomModalComponent,
-        RoomRestrictionModalComponent,
     ],
     imports: [
         CommonModule,

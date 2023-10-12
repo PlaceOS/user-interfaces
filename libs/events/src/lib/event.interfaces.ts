@@ -118,44 +118,6 @@ export interface EventNote {
     order_id?: string;
 }
 
-export interface BookingRuleset {
-    id?: string;
-    name?: string;
-    rules: BookingRules;
-    conditions: BookingRuleConditions;
-}
-
-export interface BookingRules {
-    auto_approve?: boolean;
-    hidden?: boolean;
-}
-
-export type BookingRulesmap = Record<string, BookingRuleset[]>;
-
-export interface BookingRuleDetails {
-    space: Space;
-    date: number;
-    duration: number;
-    host: User;
-}
-
-export interface BookingRuleConditions {
-    /** List of user groups that the host must be in */
-    groups?: string[];
-    /** List of locations that the host must be */
-    locations?: string[];
-    /** Minimum length of a booking */
-    min_length?: string;
-    /** Maximum length of a booking */
-    max_length?: string;
-    /** How far in the future this bookings are allowed */
-    is_before?: string;
-    /** How far in the future this bookings must be */
-    is_after?: string;
-    /** How far in the future this bookings must be */
-    is_between?: [number, number];
-}
-
 export interface TimeBlock {
     start: number;
     end: number;

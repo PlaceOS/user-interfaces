@@ -1,5 +1,3 @@
-import { BookingRulesmap } from 'libs/events/src/lib/event.interfaces';
-
 import { BuildingLevel } from './level.class';
 
 interface Identity {
@@ -81,8 +79,6 @@ export class Building {
     public readonly visitor_space: string;
     /** Details about the booking rules for the building */
     public readonly booking_details: BookingRuleDetails;
-    /** Details about the booking rules for the building */
-    public readonly booking_rules: BookingRulesmap;
     /** Number of hour before a booking catering is restricted */
     public readonly catering_restricted_from: number;
     /** Currency code for the country assoicated with the building */
@@ -203,11 +199,6 @@ export class Building {
             disc_info.booking_details ||
             settings.booking_details ||
             null;
-        this.booking_rules =
-            raw_data.booking_rules ||
-            disc_info.booking_rules ||
-            settings.booking_rules ||
-            {};
         this.catering_restricted_from =
             raw_data.catering_restricted_from ||
             disc_info.catering_restricted_from ||

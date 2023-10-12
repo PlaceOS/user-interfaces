@@ -32,6 +32,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { ApplicationTopbarComponent } from './app-topbar.component';
 import { ApplicationSidebarComponent } from './app-sidebar.component';
 import { AppSettingsModalComponent } from './app-settings-modal.component';
+import { BookingRulesModalComponent } from './booking-rules-modal.component';
 
 const COMPONENTS: Type<any>[] = [
     AppSettingsModalComponent,
@@ -41,6 +42,7 @@ const COMPONENTS: Type<any>[] = [
     ViewEventDetailsComponent,
     ApplicationTopbarComponent,
     ApplicationSidebarComponent,
+    BookingRulesModalComponent,
 ];
 
 const MAT_MODULES: any[] = [

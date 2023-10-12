@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { getModule, showMetadata } from '@placeos/ts-client';
 import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, Observable, of, timer } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -11,16 +11,18 @@ import {
     map,
     shareReplay,
     switchMap,
+    take,
     tap,
 } from 'rxjs/operators';
 
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 import {
     AsyncHandler,
+    BookingRuleset,
     currentUser,
     notifyError,
     notifySuccess,
-    ResourceRestriction,
+    rulesForResource,
     SettingsService,
 } from '@placeos/common';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
@@ -61,15 +63,14 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
 
     private _checked_in = new BehaviorSubject<string[]>([]);
 
-    public readonly restrictions: Observable<ResourceRestriction[]> =
+    public readonly booking_rules: Observable<BookingRuleset[]> =
         this._org.active_building.pipe(
-            debounceTime(50),
-            switchMap(() => {
-                return showMetadata(
-                    this._org.building.id,
-                    `desk_restrictions`
-                ).pipe(catchError(() => of({ details: [] })));
-            }),
+            filter((bld) => !!bld),
+            switchMap((bld) =>
+                showMetadata(bld.id, `desk_booking_rules`).pipe(
+                    catchError(() => of({ details: [] }))
+                )
+            ),
             map((_) => (_?.details instanceof Array ? _.details : [])),
             shareReplay(1)
         );
@@ -146,38 +147,55 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         this._presence,
         this._checked_in,
         this._signs_of_life,
-        this.restrictions,
+        this.booking_rules,
         this._options,
     ]).pipe(
         debounceTime(50),
-        map(([desks, in_use, presence, checked_in, signs, restrictions]) => {
-            this._statuses = {};
-            for (const { id, bookable } of desks) {
-                const is_used = in_use.some((i) => id === i);
-                const has_presence = presence.some((i) => id === i);
-                const has_signs = signs.some((i) => id === i);
-                const is_checked_in =
-                    checked_in.some((i) => id === i) ||
-                    (is_used && this._settings.get(`app.desk.auto_checkin`));
-                const restriction_list = restrictions.filter(
-                    (_) => _.items?.includes(id) || _.assets?.includes(id)
-                );
-                const is_restricted = restriction_list.find(
-                    ({ start, end }) => Date.now() >= start && Date.now() < end
-                );
-                this._statuses[id] =
-                    bookable && !is_restricted
-                        ? !is_used && !has_presence && !is_checked_in
-                            ? has_signs
-                                ? 'signs-of-life'
-                                : 'free'
-                            : !has_presence && !is_checked_in
-                            ? 'pending'
-                            : 'busy'
-                        : 'not-bookable';
+        map(
+            async ([
+                desks,
+                in_use,
+                presence,
+                checked_in,
+                signs,
+                restrictions,
+            ]) => {
+                this._statuses = {};
+                const level = await this._state.level.pipe(take(1)).toPromise();
+                for (const { id, bookable } of desks) {
+                    const is_used = in_use.some((i) => id === i);
+                    const has_presence = presence.some((i) => id === i);
+                    const has_signs = signs.some((i) => id === i);
+                    const is_checked_in =
+                        checked_in.some((i) => id === i) ||
+                        (is_used &&
+                            this._settings.get(`app.desk.auto_checkin`));
+                    const is_restricted = rulesForResource(
+                        {
+                            date: Date.now(),
+                            duration: 60,
+                            host: currentUser(),
+                            resource: {
+                                id,
+                                zones: [level.parent_id, level.id],
+                            },
+                        },
+                        restrictions
+                    ).hidden;
+                    this._statuses[id] =
+                        bookable && !is_restricted
+                            ? !is_used && !has_presence && !is_checked_in
+                                ? has_signs
+                                    ? 'signs-of-life'
+                                    : 'free'
+                                : !has_presence && !is_checked_in
+                                ? 'pending'
+                                : 'busy'
+                            : 'not-bookable';
+                }
+                this.processDesks(desks);
             }
-            this.processDesks(desks);
-        })
+        )
     );
 
     constructor(
@@ -199,7 +217,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         });
         this.subscription('bookings', this._booking_list.subscribe());
         this.subscription('bind', this._bind.subscribe());
-        this.subscription('restrictions', this.restrictions.subscribe());
+        this.subscription('booking_rules', this.booking_rules.subscribe());
         this.subscription('changes', this._state_change.subscribe());
         this.subscription(
             'desks',

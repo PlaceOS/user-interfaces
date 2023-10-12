@@ -24,11 +24,12 @@ import {
 import { addMinutes, differenceInDays, getUnixTime, set } from 'date-fns';
 import {
     AsyncHandler,
+    BookingRuleset,
     currentUser,
+    filterResourcesFromRules,
     flatten,
     getInvalidFields,
     notifyError,
-    ResourceRestriction,
     SettingsService,
     unique,
 } from '@placeos/common';
@@ -52,7 +53,6 @@ import { periodInFreeTimeSlot } from './helpers';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { Validators } from '@angular/forms';
 import { updateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
-import { filterSpacesFromRules } from './helpers';
 import {
     assetsToGroups,
     groupsToAssets,
@@ -114,13 +114,13 @@ export class EventFormService extends AsyncHandler {
     public readonly loading = this._loading.asObservable();
     public readonly options = this._options.asObservable();
 
-    public readonly restrictions: Observable<ResourceRestriction[]> =
+    public readonly booking_rules: Observable<BookingRuleset[]> =
         this.options.pipe(
             switchMap(() => {
                 return this._org.building
                     ? showMetadata(
                           this._org.building.id,
-                          `room_restrictions`
+                          `room_booking_rules`
                       ).pipe(catchError(() => of({ details: [] })))
                     : of({ details: [] });
             }),
@@ -217,36 +217,25 @@ export class EventFormService extends AsyncHandler {
     public readonly current_available_spaces = combineLatest([
         this.filtered_spaces,
         this._space_bookings,
-        this.restrictions,
+        this.booking_rules,
         merge(this.form.valueChanges, timer(1000)),
     ]).pipe(
-        map(([list, bookings, restrictions]) => {
+        map(([list, bookings, booking_rules]) => {
             this._loading.next('Updating available spaces...');
-            let { date, duration } = this._form.getRawValue();
+            let { date, duration, organiser } = this._form.getRawValue();
             let start = date;
             let end = addMinutes(date, duration).valueOf();
-            list = filterSpacesFromRules(
+            list = filterResourcesFromRules(
                 list,
-                { date, duration, space: null, host: currentUser() },
-                this._org.building.booking_rules
-            );
+                { date, duration, resource: null, host: currentUser() },
+                booking_rules
+            ) as any;
             return (list || [])
                 .filter((space, idx) => {
-                    const restriction_list = restrictions.filter((_) =>
-                        _.items.includes(space.id)
-                    );
-                    const is_restricted = restriction_list.find(
-                        (rest) =>
-                            (start >= rest.start && start < rest.end) ||
-                            (end <= rest.end && end > rest.start)
-                    );
-                    return (
-                        !is_restricted &&
-                        periodInFreeTimeSlot(
-                            date,
-                            date + duration * MINUTES,
-                            bookings[idx] || []
-                        )
+                    return periodInFreeTimeSlot(
+                        date,
+                        date + duration * MINUTES,
+                        bookings[idx] || []
                     );
                 })
                 .sort((a, b) => a.capacity - b.capacity);
@@ -256,21 +245,21 @@ export class EventFormService extends AsyncHandler {
     );
 
     public readonly future_available_spaces: Observable<Space[]> =
-        combineLatest([this.filtered_spaces]).pipe(
+        combineLatest([this.filtered_spaces, this.booking_rules]).pipe(
             filter(() => !this._loading.getValue()),
             debounceTime(300),
-            switchMap(([spaces]) => {
+            switchMap(([spaces, booking_rules]) => {
                 if (!spaces.length) return of([]);
                 this._loading.next('Retrieving available spaces...');
                 let { date, duration } = this._form.getRawValue();
                 const availability_method = this.has_calendar
                     ? querySpaceAvailability
                     : queryResourceAvailability;
-                spaces = filterSpacesFromRules(
+                spaces = filterResourcesFromRules(
                     spaces,
-                    { date, duration, space: null, host: currentUser() },
-                    this._org.building.booking_rules
-                );
+                    { date, duration, resource: null, host: currentUser() },
+                    booking_rules
+                ) as any;
                 return availability_method(
                     spaces.map(({ id }) => id),
                     date,
@@ -279,16 +268,16 @@ export class EventFormService extends AsyncHandler {
                 ).pipe(
                     map((availability) => {
                         var list = spaces.filter((_, i) => availability[i]);
-                        list = filterSpacesFromRules(
+                        list = filterResourcesFromRules(
                             list,
                             {
                                 date,
                                 duration,
-                                space: null,
+                                resource: null,
                                 host: currentUser(),
                             },
-                            this._org.building.booking_rules
-                        );
+                            booking_rules
+                        ) as any;
                         return list;
                     }),
                     catchError((_) => [])

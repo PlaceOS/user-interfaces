@@ -17,7 +17,7 @@ import { showBooking } from '@placeos/bookings';
 import { randomInt } from '@placeos/common';
 import { MatDialog } from '@angular/material/dialog';
 import { DeskBookModalComponent } from './desk-book-modal.component';
-import { DeskRestrictionModalComponent } from './desk-restriction-modal.component';
+import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 
 @Component({
     selector: 'desks-topbar',
@@ -220,7 +220,9 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
     }
 
     public manageRestrictions() {
-        this._dialog.open(DeskRestrictionModalComponent, {});
+        this._dialog.open(BookingRulesModalComponent, {
+            data: { type: 'desk' },
+        });
     }
 
     public async loadCSVData(event: InputEvent) {

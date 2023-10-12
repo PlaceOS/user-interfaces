@@ -1,22 +1,31 @@
 import { Component, Inject, Output, EventEmitter } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import {
+    catchError,
+    filter,
+    map,
+    shareReplay,
+    switchMap,
+    tap,
+} from 'rxjs/operators';
 import { addMinutes, getUnixTime } from 'date-fns';
 
 import {
     AsyncHandler,
+    BookingRuleset,
     currentUser,
     DialogEvent,
+    filterResourcesFromRules,
     HashMap,
     Identity,
     SettingsService,
 } from '@placeos/common';
 import { Building, OrganisationService } from '@placeos/organisation';
 
-import { filterSpacesFromRules } from 'libs/events/src/lib/helpers';
 import { querySpaceCalendarAvailability } from 'libs/calendar/src/lib/calendar.fn';
 import { Space } from './space.class';
+import { showMetadata } from '@placeos/ts-client';
 
 export interface SpaceSelectModalData {
     /** List of currently selected spaces */
@@ -164,6 +173,19 @@ export class SpaceSelectModalComponent extends AsyncHandler {
     /** Whether the available spaces are being loaded */
     public loading: boolean;
 
+    public readonly booking_rules: Observable<BookingRuleset[]> = combineLatest(
+        [this.building]
+    ).pipe(
+        filter(([bld]) => !!bld),
+        switchMap(([bld]) =>
+            showMetadata(bld.id, `room_booking_rules`).pipe(
+                catchError(() => of({ details: [] }))
+            )
+        ),
+        map((_) => (_?.details instanceof Array ? _.details : [])),
+        shareReplay(1)
+    );
+
     public readonly available_spaces = combineLatest([this.building]).pipe(
         switchMap(([bld]) => {
             this.loading = true;
@@ -178,13 +200,17 @@ export class SpaceSelectModalComponent extends AsyncHandler {
         shareReplay(1)
     );
 
-    public readonly filtered_spaces = this.available_spaces.pipe(
-        map((list) =>
-            filterSpacesFromRules(
-                list,
-                { ...this._data, host: currentUser() } as any,
-                this._org.building.booking_rules
-            )
+    public readonly filtered_spaces = combineLatest([
+        this.available_spaces,
+        this.booking_rules,
+    ]).pipe(
+        map(
+            ([list, rules]) =>
+                filterResourcesFromRules(
+                    list,
+                    { ...this._data, host: currentUser() } as any,
+                    rules
+                ) as any as Space[]
         ),
         tap(() => (this.loading = false))
     );

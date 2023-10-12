@@ -3,13 +3,14 @@ import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import {
     AsyncHandler,
+    BookingRuleset,
     currentUser,
     flatten,
     getInvalidFields,
     notifyError,
     notifyWarn,
     openConfirmModal,
-    ResourceRestriction,
+    rulesForResource,
     SettingsService,
     unique,
 } from '@placeos/common';
@@ -144,12 +145,12 @@ export class BookingFormService extends AsyncHandler {
         shareReplay(1)
     );
 
-    public readonly restrictions: Observable<ResourceRestriction[]> =
+    public readonly booking_rules: Observable<BookingRuleset[]> =
         this.options.pipe(
             switchMap(({ type }) => {
                 return showMetadata(
                     this._org.building.id,
-                    `${type}_restrictions`
+                    `${type}_booking_rules`
                 ).pipe(catchError(() => of({ details: [] })));
             }),
             map((_) => (_?.details instanceof Array ? _.details : [])),
@@ -159,7 +160,7 @@ export class BookingFormService extends AsyncHandler {
     public readonly available_resources = combineLatest([
         this.options,
         this.resources,
-        this.restrictions,
+        this.booking_rules,
         merge(this.form.get('date').valueChanges, timer(1000)),
         merge(this.form.get('duration').valueChanges, timer(1000)),
     ]).pipe(
@@ -173,7 +174,7 @@ export class BookingFormService extends AsyncHandler {
             this._loading.next(`Checking ${type} availability...`)
         ),
         switchMap(([options, resources, restrictions]) => {
-            var { all_day, date, duration } = this.form.getRawValue();
+            var { all_day, date, duration, user } = this.form.getRawValue();
             if (all_day) {
                 date = startOfDay(date).valueOf();
                 duration = 24 * 60 - 1;
@@ -197,16 +198,15 @@ export class BookingFormService extends AsyncHandler {
                                 (this._resource_use[_.asset_id] = _.user_name)
                         );
                         const available = resources.filter((asset) => {
-                            const restriction_list = restrictions.filter(
-                                (_) =>
-                                    _.items?.includes(asset.id) ||
-                                    (_ as any).assets?.includes(asset.id)
-                            );
-                            const is_restricted = restriction_list.find(
-                                (rest) =>
-                                    (start >= rest.start && start < rest.end) ||
-                                    (end <= rest.end && end > rest.start)
-                            );
+                            const is_restricted = rulesForResource(
+                                {
+                                    date,
+                                    duration,
+                                    resource: asset,
+                                    host: user || currentUser(),
+                                },
+                                restrictions
+                            ).hidden;
                             return (
                                 !is_restricted &&
                                 (!asset.groups?.length ||

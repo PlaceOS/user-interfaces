@@ -33,6 +33,7 @@ import { RecurrenceFieldComponent } from './recurrence-field.component';
 import { RecurrenceModalComponent } from './recurrence-modal.component';
 import { SupportTicketModalComponent } from './support-ticket-modal.component';
 import { DateCalendarComponent } from './date-calendar.component';
+import { BookingRulesFormComponent } from './booking-rules-form.component';
 
 const COMPONENTS: Type<any>[] = [
     ActionFieldComponent,
@@ -54,6 +55,7 @@ const COMPONENTS: Type<any>[] = [
     RecurrenceFieldComponent,
     RecurrenceModalComponent,
     DateCalendarComponent,
+    BookingRulesFormComponent,
 ];
 
 @NgModule({
@@ -61,6 +63,7 @@ const COMPONENTS: Type<any>[] = [
     imports: [
         CommonModule,
         FormsModule,
+        ReactiveFormsModule,
         MatRippleModule,
         ReactiveFormsModule,
         MatFormFieldModule,

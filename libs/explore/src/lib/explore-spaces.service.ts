@@ -4,7 +4,6 @@ import { getModule, showMetadata } from '@placeos/ts-client';
 import { ViewAction, ViewerFeature } from '@placeos/svg-viewer';
 import {
     catchError,
-    debounceTime,
     filter,
     map,
     shareReplay,
@@ -15,16 +14,16 @@ import { Observable, of } from 'rxjs';
 
 import {
     AsyncHandler,
+    BookingRuleset,
     currentUser,
     HashMap,
-    ResourceRestriction,
+    rulesForResource,
     SettingsService,
 } from '@placeos/common';
 import { notifyError } from 'libs/common/src/lib/notifications';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
 import { EventFormService } from 'libs/events/src/lib/event-form.service';
-import { rulesForSpace } from 'libs/events/src/lib/helpers';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 import { ExploreStateService } from './explore-state.service';
@@ -47,16 +46,14 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
     private _bookings: HashMap<CalendarEvent[]> = {};
     private _statuses: HashMap<string> = {};
 
-    private _restrictions: Observable<ResourceRestriction[]> =
+    public readonly booking_rules: Observable<BookingRuleset[]> =
         this._org.active_building.pipe(
-            debounceTime(50),
-            filter((_) => !!_),
-            switchMap(() => {
-                return showMetadata(
-                    this._org.building.id,
-                    `desk_restrictions`
-                ).pipe(catchError(() => of({ details: [] })));
-            }),
+            filter((bld) => !!bld),
+            switchMap((bld) =>
+                showMetadata(bld.id, `room_booking_rules`).pipe(
+                    catchError(() => of({ details: [] }))
+                )
+            ),
             map((_) => (_?.details instanceof Array ? _.details : [])),
             shareReplay(1)
         );
@@ -106,11 +103,19 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         this.subscription('spaces', this._bind.subscribe());
     }
 
-    public bookSpace(space: Space, force: boolean = false) {
+    public async bookSpace(space: Space, force: boolean = false) {
+        const booking_rules = await this.booking_rules
+            .pipe(take(1))
+            .toPromise();
         const { hidden } =
-            rulesForSpace(
-                { date: Date.now(), duration: 60, space, host: currentUser() },
-                this._org.building.booking_rules
+            rulesForResource(
+                {
+                    date: Date.now(),
+                    duration: 60,
+                    resource: space,
+                    host: currentUser(),
+                },
+                booking_rules
             ) || {};
         if (hidden)
             return notifyError(
@@ -176,15 +181,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
     private async _updateStatus(spaces: Space[]) {
         const style_map = {};
         const colours = this._settings.get('app.explore.colors') || {};
-        const restrictions =
-            (await this._restrictions.pipe(take(1)).toPromise()) || [];
         for (const space of spaces) {
-            const restriction_list = restrictions.filter((_) =>
-                _.items?.includes(space.id)
-            );
-            const is_restricted = restriction_list.find(
-                ({ start, end }) => Date.now() >= start && Date.now() < end
-            );
             const status = this._statuses[space.id] || 'not-bookable';
             style_map[`#${space.map_id}`] = {
                 fill:

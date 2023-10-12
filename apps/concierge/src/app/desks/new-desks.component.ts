@@ -15,7 +15,7 @@ import { DeskBookModalComponent } from './desk-book-modal.component';
 import { MatDialog } from '@angular/material/dialog';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { take } from 'rxjs/operators';
-import { DeskRestrictionModalComponent } from './desk-restriction-modal.component';
+import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 
 @Component({
     selector: '[app-new-desks]',
@@ -223,7 +223,9 @@ export class NewDesksComponent
     }
 
     public manageRestrictions() {
-        this._dialog.open(DeskRestrictionModalComponent, {});
+        this._dialog.open(BookingRulesModalComponent, {
+            data: { type: 'desk' },
+        });
     }
 
     public newDesk() {

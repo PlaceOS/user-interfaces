@@ -40,33 +40,42 @@ import { Observable } from 'rxjs';
                         class="p-2 truncate flex items-center"
                         [style.width]="(column_size[i] || '8') + 'em'"
                         [style.flex]="column_size[i] === 'flex' ? '1' : ''"
-                        *cdkCellDef="let row"
+                        *cdkCellDef="let row; let idx = index"
                         [title]="row[column]"
                     >
                         <ng-container
-                            *ngIf="!template[column]; else cell_outlet"
-                            >{{ row[column]
-                            }}<span
-                                *ngIf="
-                                    row[column] == null || row[column] === ''
-                                "
-                                class="opacity-30"
-                            >
-                                N/A
-                            </span></ng-container
+                            *ngIf="column !== '_index'; else index_outlet"
                         >
-                        <ng-template #cell_outlet>
                             <ng-container
-                                *ngTemplateOutlet="
-                                    template[column];
-                                    context: {
-                                        data: row[column],
-                                        row: row,
-                                        key: column,
-                                        name: display_column[i] || column
-                                    }
-                                "
-                            ></ng-container>
+                                *ngIf="!template[column]; else cell_outlet"
+                                >{{ row[column]
+                                }}<span
+                                    *ngIf="
+                                        row[column] == null ||
+                                        row[column] === ''
+                                    "
+                                    class="opacity-30"
+                                >
+                                    N/A
+                                </span></ng-container
+                            >
+                            <ng-template #cell_outlet>
+                                <ng-container
+                                    *ngTemplateOutlet="
+                                        template[column];
+                                        context: {
+                                            index: i,
+                                            data: row[column],
+                                            row: row,
+                                            key: column,
+                                            name: display_column[i] || column
+                                        }
+                                    "
+                                ></ng-container>
+                            </ng-template>
+                        </ng-container>
+                        <ng-template #index_outlet>
+                            <div class="w-full text-center">{{ idx + 1 }}</div>
                         </ng-template>
                     </div>
                 </ng-container>

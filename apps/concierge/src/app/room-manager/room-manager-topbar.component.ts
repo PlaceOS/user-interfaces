@@ -4,8 +4,8 @@ import { OrganisationService } from '@placeos/organisation';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { first, take } from 'rxjs/operators';
-import { RoomRestrictionModalComponent } from './room-restriction-modal.component';
 import { MatDialog } from '@angular/material/dialog';
+import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 
 @Component({
     selector: 'room-manager-topbar',
@@ -92,7 +92,9 @@ export class RoomManagerTopbarComponent extends AsyncHandler {
     }
 
     public manageRestrictions() {
-        this._dialog.open(RoomRestrictionModalComponent, {});
+        this._dialog.open(BookingRulesModalComponent, {
+            data: { type: 'room' },
+        });
     }
 
     public async ngOnInit() {
