@@ -7,6 +7,7 @@ import { FormGroup } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 import { Building, OrganisationService } from '@placeos/organisation';
 import { IconComponent } from '@placeos/components';
+import { SettingsService } from '@placeos/common';
 
 describe('SpaceFiltersDisplayComponent', () => {
     let spectator: Spectator<SpaceFiltersDisplayComponent>;
@@ -23,6 +24,7 @@ describe('SpaceFiltersDisplayComponent', () => {
                 levelWithID: jest.fn(),
                 building: new Building({ name: 'Test' }),
             }),
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
         declarations: [MockComponent(IconComponent)],
     });

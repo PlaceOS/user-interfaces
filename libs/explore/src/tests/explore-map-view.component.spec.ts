@@ -5,7 +5,10 @@ import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 
-import { InteractiveMapComponent } from '@placeos/components';
+import {
+    IndoorMapsComponent,
+    InteractiveMapComponent,
+} from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
 import { SpacesService } from '@placeos/spaces';
 import { SettingsService } from '@placeos/common';
@@ -17,6 +20,7 @@ import { ExploreStateService } from '../lib/explore-state.service';
 import { ExploreSpacesService } from '../lib/explore-spaces.service';
 import { ExploreDesksService } from '../lib/explore-desks.service';
 import { ExploreZonesService } from '../lib/explore-zones.service';
+import { InjectMapApiService } from 'libs/common/src/lib/inject-map-api.service';
 
 jest.mock('@placeos/ts-client');
 jest.mock('@placeos/common');
@@ -38,6 +42,7 @@ describe('ExploreMapViewComponent', () => {
             MockComponent(InteractiveMapComponent),
             MockComponent(ExploreMapControlComponent),
             MockComponent(ExploreZoomControlComponent),
+            MockComponent(IndoorMapsComponent),
         ],
         componentProviders: [
             MockProvider(ExploreSpacesService),
@@ -46,6 +51,9 @@ describe('ExploreMapViewComponent', () => {
             MockProvider(ExploreParkingService),
             MockProvider(ExploreLockersService),
             MockProvider(SpacePipe, { transform: jest.fn(() => ({})) } as any),
+            MockProvider(InjectMapApiService, {
+                is_initialised$: new BehaviorSubject(false),
+            }),
         ],
         providers: [
             MockProvider(OrganisationService, {

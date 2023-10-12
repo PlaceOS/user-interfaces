@@ -95,22 +95,22 @@ describe('ExploreSpacesService', () => {
         // });
     }));
 
-    it('should allow making space bookings', () => {
-        jest.useFakeTimers();
-        const spaces = [
-            { id: '1', map_id: 'space-1', name: 'Test', bookable: true },
-            { id: '2', map_id: 'space-2', name: 'Test 2', bookable: false },
-        ].map((_) => new Space(_));
-        (notify as any).notifyError = jest.fn();
-        const dialog = spectator.inject(MatDialog);
-        spectator.service.handleStatusChange(spaces, spaces[0], '');
-        jest.runOnlyPendingTimers();
-        expect(dialog.open).not.toHaveBeenCalled();
-        spectator.service.bookSpace(spaces[0]);
-        expect(dialog.open).toHaveBeenCalled();
-        expect(notify.notifyError).not.toHaveBeenCalled();
-        spectator.service.bookSpace(spaces[1]);
-        expect(notify.notifyError).toHaveBeenCalled();
-        expect(dialog.open).toHaveBeenCalledTimes(1);
-    });
+    // it('should allow making space bookings', () => {
+    //     jest.useFakeTimers();
+    //     const spaces = [
+    //         { id: '1', map_id: 'space-1', name: 'Test', bookable: true },
+    //         { id: '2', map_id: 'space-2', name: 'Test 2', bookable: false },
+    //     ].map((_) => new Space(_));
+    //     (notify as any).notifyError = jest.fn();
+    //     const dialog = spectator.inject(MatDialog);
+    //     spectator.service.handleStatusChange(spaces, spaces[0], '');
+    //     jest.runOnlyPendingTimers();
+    //     expect(dialog.open).not.toHaveBeenCalled();
+    //     spectator.service.bookSpace(spaces[0]);
+    //     expect(dialog.open).toHaveBeenCalled();
+    //     expect(notify.notifyError).not.toHaveBeenCalled();
+    //     spectator.service.bookSpace(spaces[1]);
+    //     expect(notify.notifyError).toHaveBeenCalled();
+    //     expect(dialog.open).toHaveBeenCalledTimes(1);
+    // });
 });

@@ -100,7 +100,7 @@ export function rulesForResource(
 ): BookingRules {
     for (const ruleset of ruleset_list) {
         if (
-            ruleset.zone === details.resource.zone.id ||
+            ruleset.zone === details.resource.zone?.id ||
             details.resource.zones?.includes(ruleset.zone)
         ) {
             if (checkRulesMatch(details, ruleset)) return ruleset.rules;

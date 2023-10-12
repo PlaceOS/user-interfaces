@@ -181,7 +181,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                             },
                         },
                         restrictions
-                    ).hidden;
+                    )?.hidden;
                     this._statuses[id] =
                         bookable && !is_restricted
                             ? !is_used && !has_presence && !is_checked_in

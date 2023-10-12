@@ -8,7 +8,7 @@ import {
     showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -23,18 +23,19 @@ import {
 
 import {
     AsyncHandler,
+    BookingRuleset,
     currentUser,
+    filterResourcesFromRules,
     HashMap,
     SettingsService,
     unique,
 } from '@placeos/common';
 import { requestSpacesForZone } from '@placeos/spaces';
-import { CalendarEvent, filterSpacesFromRules } from '@placeos/events';
 import { searchStaff, StaffUser, User } from '@placeos/users';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { CalendarService } from '@placeos/calendar';
 import { ScheduleStateService } from '../new-schedule/schedule-state.service';
-import { isAfter, isSameDay } from 'date-fns';
+import { isSameDay } from 'date-fns';
 
 export interface LandingOptions {
     search?: string;
@@ -55,26 +56,44 @@ export class LandingStateService extends AsyncHandler {
     private _occupancy_binding: PlaceVariableBinding;
     /**  */
 
+    public _booking_rules: Observable<BookingRuleset[]> =
+        this._org.active_building.pipe(
+            filter((bld) => !!bld),
+            switchMap((bld) =>
+                showMetadata(bld.id, `room_booking_rules`).pipe(
+                    catchError(() => of({ details: [] }))
+                )
+            ),
+            map((_) => (_?.details instanceof Array ? _.details : [])),
+            shareReplay(1)
+        );
+
     private _space_list = this._org.active_building.pipe(
         filter((_) => !!_),
         switchMap((bld) => requestSpacesForZone(bld.id)),
         map((_) => _.filter((s) => s.bookable)),
-        map((_) =>
-            filterSpacesFromRules(
-                _,
-                {
-                    date: Date.now(),
-                    duration: 60,
-                    space: null,
-                    host: currentUser(),
-                },
-                this._org.building.booking_rules
-            )
-        ),
         shareReplay(1)
     );
 
-    private _space_statuses = this._space_list.pipe(
+    private _filtered_spaces = combineLatest([
+        this._space_list,
+        this._booking_rules,
+    ]).pipe(
+        map(([list, rules]) =>
+            filterResourcesFromRules(
+                list,
+                {
+                    date: Date.now(),
+                    duration: 60,
+                    host: currentUser(),
+                    resource: null,
+                },
+                rules
+            )
+        )
+    );
+
+    private _space_statuses = this._filtered_spaces.pipe(
         tap((_) => this.unsubWith('bind:')),
         switchMap((list) =>
             combineLatest(

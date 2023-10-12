@@ -7,7 +7,6 @@ import {
     apiKey,
     clientId,
     convertPairStringToMap,
-    getFragments,
     invalidateToken,
     isFixedDevice,
     isMock,
@@ -33,8 +32,8 @@ import {
     GoogleAnalyticsService,
     isMobileSafari,
     hasNewVersion,
-    InjectMapApiService,
 } from '@placeos/common';
+import { InjectMapApiService } from 'libs/common/src/lib/inject-map-api.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 

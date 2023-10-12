@@ -9,8 +9,6 @@ import { ComponentsModule } from 'libs/components/src/lib/components.module';
 import { FormFieldsModule } from 'libs/form-fields/src/lib/form-fields.module';
 import { NewSpaceSelectModalComponent } from './space-select-modal/new-space-select-modal.component';
 
-import { SpaceSelectItemComponent } from './space-select-item.component';
-import { SpaceSelectModalComponent } from './space-select-modal.component';
 import { SpaceDetailsComponent } from './space-select-modal/space-details.component';
 import { SpaceListComponent } from './space-select-modal/space-list.component';
 import { SpaceFiltersComponent } from './space-select-modal/space-filters.component';
@@ -21,8 +19,6 @@ import { SpaceLocationPinComponent } from './space-select-modal/space-location-p
 import { SpacePipe } from './space.pipe';
 
 const COMPONENTS: Type<any>[] = [
-    SpaceSelectModalComponent,
-    SpaceSelectItemComponent,
     NewSpaceSelectModalComponent,
 
     SpaceDetailsComponent,

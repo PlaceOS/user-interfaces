@@ -117,10 +117,11 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
                 },
                 booking_rules
             ) || {};
-        if (hidden)
+        if (hidden) {
             return notifyError(
                 'You do not have permission to book this space at this time.'
             );
+        }
         if (
             (this._statuses[space.id] !== 'free' && !force) ||
             !space.bookable

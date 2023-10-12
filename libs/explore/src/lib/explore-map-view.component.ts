@@ -24,7 +24,7 @@ import { ExploreZonesService } from './explore-zones.service';
 import { ExploreDesksService } from './explore-desks.service';
 import { ExploreParkingService } from './explore-parking.service';
 import { ExploreLockersService } from './explore-lockers.service';
-import { InjectMapApiService } from '@placeos/common';
+import { InjectMapApiService } from 'libs/common/src/lib/inject-map-api.service';
 
 const EMPTY = [];
 

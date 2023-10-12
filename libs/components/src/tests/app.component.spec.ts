@@ -10,6 +10,7 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 import { SpacesService } from '@placeos/spaces';
 import { MockComponent, MockProvider } from 'ng-mocks';
+import { InjectMapApiService } from 'libs/common/src/lib/inject-map-api.service';
 import { of } from 'rxjs';
 
 import { GlobalBannerComponent } from '../lib/global-banner.component';
@@ -42,6 +43,7 @@ describe('AppComponent', () => {
             MockProvider(HotkeysService, { listen: jest.fn() }),
             MockProvider(Clipboard, {}),
             MockProvider(GoogleAnalyticsService, {}),
+            MockProvider(InjectMapApiService, {}),
         ],
     });
 
