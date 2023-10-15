@@ -139,7 +139,7 @@ export class MeetingFormDetailsComponent {
                 Date.now(),
                 this._settings.get('app.events.allowed_future_days') || 180
             )
-        );
+        ).valueOf();
     }
 
     public get use_24hr() {

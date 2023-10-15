@@ -1,4 +1,4 @@
-import { Component, Input, SimpleChanges, forwardRef } from '@angular/core';
+import { Component, Input, SimpleChanges, forwardRef, OnChanges } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import {
@@ -7,7 +7,6 @@ import {
     isBefore,
     isSameMonth,
     set,
-    setDay,
     startOfDay,
     startOfMonth,
     startOfWeek,
@@ -101,15 +100,15 @@ interface DateItem {
 })
 export class DateCalendarComponent
     extends AsyncHandler
-    implements ControlValueAccessor
+    implements ControlValueAccessor, OnChanges
 {
     @Input() public from = 0;
     @Input() public to = Date.now() * 10;
-    @Input() public offset_weekday: number = 0;
+    @Input() public offset_weekday = 0;
     public readonly today = startOfDay(Date.now()).valueOf();
     public date: number = Date.now();
     public active_date: number = startOfDay(Date.now()).valueOf();
-    public offset: number = 0;
+    public offset = 0;
     public date_list: DateItem[] = [];
 
     /** Form control on change handler */
@@ -128,6 +127,7 @@ export class DateCalendarComponent
     }
 
     public setValue(new_value: number) {
+        if (new_value < this.from || new_value >= this.to) return;
         const date = new Date(new_value);
         this.date = set(this.date, {
             date: date.getDate(),

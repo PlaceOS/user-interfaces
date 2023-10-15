@@ -294,7 +294,7 @@ export class NewDeskFormDetailsComponent extends AsyncHandler {
                 Date.now(),
                 this._settings.get('app.desks.available_period') || 90
             )
-        );
+        ).valueOf();
     }
 
     public get use_24hr() {

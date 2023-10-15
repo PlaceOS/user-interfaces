@@ -4,7 +4,6 @@ import {
     Injector,
     Input,
     OnInit,
-    Optional,
     ViewChild,
 } from '@angular/core';
 import {
@@ -12,8 +11,8 @@ import {
     NG_VALUE_ACCESSOR,
     NgControl,
 } from '@angular/forms';
-import { CustomTooltipComponent } from '@placeos/components';
-import { addYears, endOfDay, format, set, startOfDay } from 'date-fns';
+import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
+import { addYears, endOfDay, set, startOfDay } from 'date-fns';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 
 @Component({
@@ -43,7 +42,7 @@ import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
                 <date-calendar
                     [ngModel]="date"
                     [from]="from"
-                    [to]="to"
+                    [to]="until"
                     [offset_weekday]="week_start"
                     (ngModelChange)="setValue($event)"
                 ></date-calendar>
@@ -64,9 +63,9 @@ export class DateFieldComponent
     implements OnInit, ControlValueAccessor
 {
     /** Earliest date available the user is allowed to pick */
-    @Input('from') public _from: number = startOfDay(Date.now()).valueOf();
+    @Input('from') public from_date: number = startOfDay(Date.now()).valueOf();
     /** Latest date available the user is allowed to pick */
-    @Input('to') public _to: number;
+    @Input('to') public to_date: number;
     /** Index of the day to start the week on when displaying the calendar */
     @Input() public week_start: number = 0;
     /** Whether form control is disabled */
@@ -92,11 +91,11 @@ export class DateFieldComponent
 
     /** First allowed date on the calendar */
     public get from(): Date {
-        return new Date(this._from) || startOfDay(new Date());
+        return new Date(this.from_date) || startOfDay(new Date());
     }
     /** Current date value */
     public get until(): Date {
-        return new Date(this._to) || addYears(endOfDay(new Date()), 1);
+        return new Date(this.to_date) || addYears(endOfDay(new Date()), 1);
     }
 
     public ngOnInit() {
