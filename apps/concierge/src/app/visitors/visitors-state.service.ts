@@ -39,6 +39,7 @@ import {
     rejectBooking,
 } from '@placeos/bookings';
 import { OrganisationService } from '@placeos/organisation';
+import { SpacePipe } from '@placeos/spaces';
 
 export interface VisitorFilters {
     date?: number;
@@ -58,6 +59,7 @@ export class VisitorsStateService extends AsyncHandler {
     private _search = new BehaviorSubject<string>('');
 
     private _loading = new BehaviorSubject<boolean>(false);
+    private _space_pipe =  new SpacePipe();
 
     public readonly loading = this._loading.asObservable();
 
@@ -203,7 +205,7 @@ export class VisitorsStateService extends AsyncHandler {
     constructor(
         private _dialog: MatDialog,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -230,7 +232,7 @@ export class VisitorsStateService extends AsyncHandler {
 
     public async checkGuestIn(event: CalendarEvent, user: User) {
         const checkin_fn = this._checkinCall(event, user.email, true);
-        const new_user = await checkin_fn.toPromise().catch((e) => {
+        const new_user = await checkin_fn.catch((e) => {
             notifyError(
                 `Error checking in ${user.name} for ${event.organiser?.name}'s meeting`
             );
@@ -328,7 +330,7 @@ export class VisitorsStateService extends AsyncHandler {
 
     public async checkGuestOut(event: CalendarEvent, user: User) {
         const checkin_fn = this._checkinCall(event, user.email, false);
-        const new_user = await checkin_fn.toPromise().catch((e) => {
+        const new_user = await checkin_fn.catch((e) => {
             notifyError(
                 `Error checking in ${user.name} for ${
                     event.organiser?.name || (event as any).user_name
@@ -358,7 +360,7 @@ export class VisitorsStateService extends AsyncHandler {
         if (guests.length <= 0) throw new Error('No Guests to checkin');
         const attendees = await Promise.all(
             guests.map((user) =>
-                this._checkinCall(event, user.email, true).toPromise()
+                this._checkinCall(event, user.email, true)
             )
         ).catch((e) => {
             notifyError(
@@ -389,7 +391,7 @@ export class VisitorsStateService extends AsyncHandler {
         if (guests.length <= 0) throw new Error('No Guests to checkout');
         const attendees = await Promise.all(
             guests.map((user) =>
-                this._checkinCall(event, user.email, false).toPromise()
+                this._checkinCall(event, user.email, false)
             )
         ).catch((e) => {
             notifyError(
@@ -413,25 +415,25 @@ export class VisitorsStateService extends AsyncHandler {
         });
     }
 
-    private _checkinCall(
-        event: CalendarEvent,
+    private async _checkinCall(
+        data: CalendarEvent,
         email: string,
         state: boolean = true
     ) {
-        return event.from_bookings
-            ? checkinBookingAttendee(event.id, email, state)
-            : checkinEventGuest(
-                  event.id,
-                  email,
-                  state,
-                  event.resources?.length
-                      ? {
-                            calendar: event.host || currentUser()?.email,
-                            system_id:
-                                event.system?.id || event.resources[0]?.id,
-                        }
-                      : {}
-              );
+        if (data.from_bookings) return checkinBookingAttendee(data.id, email, state).toPromise();
+        const event = new CalendarEvent(data);
+        const space = await this._space_pipe.transform(event.resources[0]?.email);
+        return checkinEventGuest(
+            event.id,
+            email,
+            state,
+            event.resources?.length
+                ? {
+                    calendar: event.host || currentUser()?.email,
+                    system_id: space.id
+                }
+                : {}
+        ).toPromise();
     }
 
     public async downloadVisitorsList() {
