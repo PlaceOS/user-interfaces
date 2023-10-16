@@ -171,13 +171,12 @@ export class CalendarEvent {
         this.private = !!data.private;
         this.all_day = !!data.all_day;
         this.date = this.event_start * 1000 || this.date;
-        this.duration = this.all_day
-            ? 24 * 60
-            : data.duration ||
-              differenceInMinutes(data.event_end * 1000, this.date) ||
-              30;
+        this.duration = data.duration ||
+            differenceInMinutes(data.event_end * 1000, this.date) ||
+            30;
         if (this.all_day) {
             (this as any).date = startOfDay(this.date).getTime();
+            (this as any).duration = Math.max(24 * 60, this.duration);
         }
         this.timezone =
             data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;

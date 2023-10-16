@@ -270,7 +270,6 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         this._state.filtered,
     ]).pipe(
         map(([spaces, events]) => {
-            console.log('Events:', events);
             const map = {};
             for (const space of spaces) {
                 map[space.id] = events.filter((event) =>
