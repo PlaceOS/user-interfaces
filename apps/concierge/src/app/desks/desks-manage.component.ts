@@ -139,21 +139,20 @@ const QR_CODES = {};
                         <app-icon>qr_code</app-icon>
                     </button>
                     <ng-template #qr_menu>
-                        <div
-                            class="bg-white py-2 shadow print:shadow-none rounded"
-                        >
+                        <div class="bg-white py-2 shadow rounded">
                             <a
                                 [href]="row.qr_link | safe: 'url'"
                                 target="_blank"
                                 ref="noopener noreferrer"
-                                class="block p-2 mx-4 my-2 rounded-lg border border-gray-300 bg-white print:z-50"
+                                class="block p-2 mx-4 my-2 rounded-lg border border-gray-300 bg-white"
+                                printable
                             >
                                 <img class="w-48" [src]="row.qr_code" />
                             </a>
                             <button
                                 btn
                                 matRipple
-                                class="w-[calc(100%-2rem)] mx-4 my-2 print:hidden"
+                                class="w-[calc(100%-2rem)] mx-4 my-2"
                                 (click)="print()"
                             >
                                 Print QR Code

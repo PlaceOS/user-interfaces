@@ -68,6 +68,7 @@ import { LanguageSelectComponent } from './language-tooltip.component';
 import { AuthenticatedImageDirective } from './authenticated-image.directive';
 import { UploadPermissionsModalComponent } from './upload-permissions-modal.component';
 import { IndoorMapsComponent } from './indoor-maps.component';
+import { PrintableComponent } from './printable.component';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -135,6 +136,7 @@ const COMPONENTS: Type<any>[] = [
     AccessibilityTooltipComponent,
     LanguageSelectComponent,
     UploadPermissionsModalComponent,
+    PrintableComponent,
 ];
 
 const DIRECTIVES: Type<any>[] = [BindingDirective, AuthenticatedImageDirective];
