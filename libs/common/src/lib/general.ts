@@ -297,13 +297,11 @@ export function flatten<T = any>(an_array: any[]): T[] {
  * @param start2 Unix epoch in ms of the second period's start time
  * @param end2 Unix epoch in ms of the second period's end time
  */
-export function timePeriodsIntersect(start1, end1, start2, end2) {
+export function timePeriodsIntersect(s1: number, e1: number, s2: number, e2: number) {
     return (
-        (start1 >= start2 && start1 < end2) ||
-        (end1 > start2 && end1 < end2) ||
-        (start2 >= start1 && start2 < end1) ||
-        (end2 > start1 && end2 <= end1)
-    );
+        s1 >= s2 && s1 < e2 || s2 >= s1 && s2 < e1 || // Check start time
+        e1 > s2 && e1 <= e2 || e2 > s1 && e2 <= e1 // Check end time
+    )
 }
 
 const seed = xmur3('PlaceOS');

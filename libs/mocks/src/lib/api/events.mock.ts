@@ -23,8 +23,8 @@ function registerMocks() {
             if (_.query_params.period_start) {
                 events = events.filter((e) =>
                     timePeriodsIntersect(
-                        _.query_params.period_start,
-                        _.query_params.period_end,
+                        +_.query_params.period_start,
+                        +_.query_params.period_end,
                         e.event_start,
                         e.event_end
                     )

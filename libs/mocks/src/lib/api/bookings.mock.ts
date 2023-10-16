@@ -14,8 +14,8 @@ function registerMocks() {
             const events = MOCK_BOOKINGS.filter(
                 (event) =>
                     timePeriodsIntersect(
-                        _.query_params.period_start,
-                        _.query_params.period_end,
+                        +_.query_params.period_start,
+                        +_.query_params.period_end,
                         event.booking_start,
                         event.booking_end
                     ) &&

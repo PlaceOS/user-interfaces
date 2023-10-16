@@ -73,10 +73,10 @@ function updateBookings(space: HashMap, mod: HashMap) {
     const { current_booking, next_booking } = mod;
     const start = new Date((current_booking || next_booking)?.event_start);
     const pending = timePeriodsIntersect(
-        date,
-        date,
-        subSeconds(start, mod.pending_before),
-        addSeconds(start, mod.pending_period)
+        date.valueOf(),
+        date.valueOf(),
+        subSeconds(start, mod.pending_before).valueOf(),
+        addSeconds(start, mod.pending_period).valueOf()
     );
     mod.status = space?.bookable
         ? current_booking

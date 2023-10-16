@@ -142,6 +142,7 @@ export class EventsStateService extends AsyncHandler {
                     : endOfDay;
             const start = start_fn(date);
             const end = end_fn(date);
+            console.log('Pre-filtered:', events);
             return this.filterEvents(events, start, end, filters, zones);
         }),
         shareReplay(1)
