@@ -270,13 +270,14 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         this._state.filtered,
     ]).pipe(
         map(([spaces, events]) => {
+            console.log('Events:', events);
             const map = {};
             for (const space of spaces) {
                 map[space.id] = events.filter((event) =>
                     event.resources.find(
                         (item) =>
                             item.id === space.id || item.email === space.email
-                    )
+                    ) || event.system?.id === space.id || event.system?.email === space.email
                 );
             }
             return map;
@@ -321,11 +322,11 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
 
     public timeToOffset(date: number) {
         const diff = differenceInMinutes(date, startOfDay(date));
-        return (diff / 60) * 48;
+        return Math.max(0, (diff / 60)) * 48;
     }
 
     public endToOffset(duration: number) {
-        return (duration / 60) * 48;
+        return Math.min(24, duration / 60) * 48;
     }
 
     public onResize() {
