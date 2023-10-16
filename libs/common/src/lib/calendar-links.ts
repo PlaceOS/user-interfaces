@@ -120,6 +120,7 @@ export function generateMicrosoftCalendarLink(
         location: event.location,
         allday: event.all_day ?? false,
     };
+    if (event.all_day) delete data.enddt;
     const emails = (event.attendees || []).map((_: any) => _.email || _);
     const resources = (
         (event.resources?.length ? event.resources : null) || [event.system]
