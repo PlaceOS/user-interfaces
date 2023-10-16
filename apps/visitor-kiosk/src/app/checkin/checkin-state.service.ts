@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { updateMetadata } from '@placeos/ts-client';
-import { HashMap, notifyError } from '@placeos/common';
+import { HashMap, notifyError, notifySuccess } from '@placeos/common';
 import {
     CalendarEvent,
     checkinEventGuest,
@@ -15,7 +15,8 @@ import {
 } from '@placeos/users';
 import { isSameDay } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
-import { checkinBooking } from '@placeos/bookings';
+import { checkinBookingAttendee } from '@placeos/bookings';
+import { SpacePipe } from '@placeos/spaces';
 
 @Injectable({
     providedIn: 'root',
@@ -31,6 +32,7 @@ export class CheckinStateService {
     private _error = new BehaviorSubject<string>('');
     /** Form for the current guest details */
     private _form = new BehaviorSubject(generateGuestForm());
+    private _space_pipe = new SpacePipe();
 
     public readonly event = this._event.asObservable();
     public readonly guest = this._guest.asObservable();
@@ -98,13 +100,16 @@ export class CheckinStateService {
         const guest = this._guest.getValue();
         const event = this._event.getValue();
         if (!guest || !event) return;
-        if (guest.booking) {
-            await checkinBooking(guest.booking.id, true).toPromise();
-        } else {
-            await checkinEventGuest(event.id, guest.email, true, {
-                system_id: event.system?.id || event.resources[0]?.id,
-            }).toPromise();
-        }
+        const checkin_fn = this._checkinCall(event, guest.email, true);
+        await checkin_fn.catch((e) => {
+            notifyError(
+                `Error checking in ${guest.name} for ${event.organiser?.name}'s meeting`
+            );
+            throw e;
+        });
+        notifySuccess(
+            `Successfully checked in ${guest.name} for ${event.organiser?.name}'s meeting`
+        );
     }
 
     public printPass() {
@@ -115,5 +120,29 @@ export class CheckinStateService {
             notifyError('Error printing visitor pass');
         }
         return Promise.reject();
+    }
+
+    private async _checkinCall(
+        data: CalendarEvent,
+        email: string,
+        state: boolean = true
+    ) {
+        if (data.from_bookings)
+            return checkinBookingAttendee(data.id, email, state).toPromise();
+        const event = new CalendarEvent(data);
+        const space = await this._space_pipe.transform(
+            event.resources[0]?.email
+        );
+        return checkinEventGuest(
+            event.id,
+            email,
+            state,
+            event.resources?.length
+                ? {
+                      // calendar: event.host || currentUser()?.email,
+                      system_id: space.id,
+                  }
+                : {}
+        ).toPromise();
     }
 }
