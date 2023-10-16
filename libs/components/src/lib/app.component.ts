@@ -266,6 +266,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
     private _checkReload() {
         if (!hasNewVersion()) return;
         location.reload();
+
         this.timeout(
             'reload',
             () => (location.href = `${location.origin}${location.pathname}`)
