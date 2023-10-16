@@ -68,8 +68,8 @@ export class PanelTimelineComponent {
             let start = addMinutes(
                 roundToNearestMinutes(new Date(), { nearestTo: this.step }),
                 -120
-            );
-            const end = addMinutes(start, 12 * 60);
+            ).valueOf();
+            const end = addMinutes(start, 12 * 60).valueOf();
             while (start < end) {
                 blocks.push({
                     id: format(start, 'HH:mm'),
@@ -87,7 +87,7 @@ export class PanelTimelineComponent {
                     ),
                 });
 
-                start = addMinutes(start, this.step);
+                start = addMinutes(start, this.step).valueOf();
             }
             return blocks;
         })
