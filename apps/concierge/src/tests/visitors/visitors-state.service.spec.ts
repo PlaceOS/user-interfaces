@@ -93,7 +93,7 @@ describe('VisitorStateService', () => {
         (common_mod as any).unique = jest.fn(() => []);
         expect(event_mod.checkinEventGuest).not.toBeCalled();
         await spectator.service.checkGuestIn(
-            { id: '1', resources: [], attendees: [] } as any,
+            { id: '1', attendees: [{ resource: true }] } as any,
             new User({ email: 'jim' })
         );
         expect(event_mod.checkinEventGuest).toBeCalledWith('1', 'jim', true, {
@@ -107,7 +107,7 @@ describe('VisitorStateService', () => {
         (common_mod as any).unique = jest.fn(() => []);
         expect(event_mod.checkinEventGuest).not.toBeCalled();
         await spectator.service.checkGuestOut(
-            { id: '1', resources: [], attendees: [] } as any,
+            { id: '1', attendees: [{ id: '1', resource: true }] } as any,
             new User({ email: 'jim' })
         );
         expect(event_mod.checkinEventGuest).toBeCalledWith('1', 'jim', false, {
@@ -122,11 +122,11 @@ describe('VisitorStateService', () => {
         expect(event_mod.checkinEventGuest).not.toBeCalled();
         await spectator.service.checkAllGuestsIn({
             id: '1',
-            resources: [],
             attendees: [
                 new User({ id: 'jim' }),
                 new User({ id: 'jon' }),
                 new User({ id: 'james' }),
+                { resource: true },
             ],
         } as any);
         expect(event_mod.checkinEventGuest).toBeCalledTimes(3);
@@ -139,11 +139,11 @@ describe('VisitorStateService', () => {
         expect(event_mod.checkinEventGuest).not.toBeCalled();
         await spectator.service.checkAllGuestsOut({
             id: '1',
-            resources: [],
             attendees: [
                 new User({ id: 'jim', checked_in: true }),
                 new User({ id: 'jon', checked_in: true }),
                 new User({ id: 'james' }),
+                { resource: true },
             ],
         } as any);
         expect(event_mod.checkinEventGuest).toBeCalledTimes(2);

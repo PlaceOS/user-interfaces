@@ -24,11 +24,11 @@ import {
     unique,
 } from '@placeos/common';
 import {
-    CalendarEvent,
     checkinEventGuest,
     newCalendarEventFromBooking,
     queryEvents,
 } from '@placeos/events';
+import { CalendarEvent } from 'libs/events/src/lib/event.class';
 import { GuestUser, queryGuests, updateGuest, User } from '@placeos/users';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -59,7 +59,7 @@ export class VisitorsStateService extends AsyncHandler {
     private _search = new BehaviorSubject<string>('');
 
     private _loading = new BehaviorSubject<boolean>(false);
-    private _space_pipe =  new SpacePipe();
+    private _space_pipe = new SpacePipe();
 
     public readonly loading = this._loading.asObservable();
 
@@ -205,7 +205,7 @@ export class VisitorsStateService extends AsyncHandler {
     constructor(
         private _dialog: MatDialog,
         private _org: OrganisationService,
-        private _settings: SettingsService,
+        private _settings: SettingsService
     ) {
         super();
     }
@@ -359,9 +359,7 @@ export class VisitorsStateService extends AsyncHandler {
         );
         if (guests.length <= 0) throw new Error('No Guests to checkin');
         const attendees = await Promise.all(
-            guests.map((user) =>
-                this._checkinCall(event, user.email, true)
-            )
+            guests.map((user) => this._checkinCall(event, user.email, true))
         ).catch((e) => {
             notifyError(
                 `Error checking in all guests for ${event.organiser?.name}'s meeting`
@@ -390,9 +388,7 @@ export class VisitorsStateService extends AsyncHandler {
         );
         if (guests.length <= 0) throw new Error('No Guests to checkout');
         const attendees = await Promise.all(
-            guests.map((user) =>
-                this._checkinCall(event, user.email, false)
-            )
+            guests.map((user) => this._checkinCall(event, user.email, false))
         ).catch((e) => {
             notifyError(
                 `Error checking out all guests from ${event.organiser?.name}'s meeting`
@@ -420,18 +416,21 @@ export class VisitorsStateService extends AsyncHandler {
         email: string,
         state: boolean = true
     ) {
-        if (data.from_bookings) return checkinBookingAttendee(data.id, email, state).toPromise();
+        if (data.from_bookings)
+            return checkinBookingAttendee(data.id, email, state).toPromise();
         const event = new CalendarEvent(data);
-        const space = await this._space_pipe.transform(event.resources[0]?.email);
+        const space = await this._space_pipe.transform(
+            event.resources[0]?.email
+        );
         return checkinEventGuest(
             event.id,
             email,
             state,
             event.resources?.length
                 ? {
-                    // calendar: event.host || currentUser()?.email,
-                    system_id: space.id
-                }
+                      // calendar: event.host || currentUser()?.email,
+                      system_id: space.id,
+                  }
                 : {}
         ).toPromise();
     }
