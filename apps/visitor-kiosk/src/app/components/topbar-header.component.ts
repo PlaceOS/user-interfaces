@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { format } from 'date-fns';
+import { format, startOfMinute } from 'date-fns';
 
 @Component({
     selector: 'a-topbar-header',
@@ -15,7 +15,7 @@ import { format } from 'date-fns';
             <div
                 class="ml-auto h-full flex flex-col justify-center text-white px-4"
             >
-                {{ time }}
+                {{ time | date: 'fullDate' }}
             </div>
         </div>
     `,
@@ -40,6 +40,6 @@ export class TopbarHeaderComponent {
     public date: number;
 
     public get time() {
-        return format(this.date || Date.now(), 'EEEE, MMMM do, h:mma');
+        return startOfMinute(Date.now());
     }
 }

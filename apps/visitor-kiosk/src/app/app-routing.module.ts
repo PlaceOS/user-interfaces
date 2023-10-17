@@ -10,7 +10,7 @@ const routes: Routes = [
     {
         path: 'explore',
         loadChildren: () =>
-            import('./explore/explore.module').then((m) => m.AppExploreModule),
+            import('./explore.module').then((m) => m.AppExploreModule),
     },
     {
         path: 'checkin',

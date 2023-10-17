@@ -7,10 +7,10 @@ import { ComponentsModule } from '@placeos/components';
 import { SharedExploreModule } from '@placeos/explore';
 import { SharedSpacesModule } from '@placeos/spaces';
 
-import { ExploreComponent } from './explore.component';
-import { FooterLegendComponent } from './footer-legend.component';
-import { FiltersComponent } from './filters.component';
-import { SharedComponentsModule } from '../components/shared-components.module';
+import { SharedComponentsModule } from './components/shared-components.module';
+
+import { ExploreComponent } from 'apps/map-kiosk/src/app/explore.component';
+import { ExploreLevelSelectComponent } from 'apps/map-kiosk/src/app/explore-level-select.component';
 
 const ROUTES: Route[] = [
     { path: '', component: ExploreComponent },
@@ -18,7 +18,7 @@ const ROUTES: Route[] = [
 ];
 
 @NgModule({
-    declarations: [ExploreComponent, FooterLegendComponent, FiltersComponent],
+    declarations: [ExploreComponent, ExploreLevelSelectComponent],
     imports: [
         CommonModule,
         RouterModule.forChild(ROUTES),
@@ -27,6 +27,6 @@ const ROUTES: Route[] = [
         SharedComponentsModule,
         FormsModule,
         SharedExploreModule,
-    ]
+    ],
 })
 export class AppExploreModule {}

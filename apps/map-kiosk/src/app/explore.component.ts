@@ -22,16 +22,23 @@ import { OrganisationService } from '@placeos/organisation';
 import { SpacesService } from '@placeos/spaces';
 import { getModule } from '@placeos/ts-client';
 import { MapLocation, showStaff, User } from '@placeos/users';
+import { startOfMinute } from 'date-fns';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { first, take } from 'rxjs/operators';
 
 @Component({
     selector: '[app-explore]',
     template: `
-        <div
+        <a
             class="absolute top-0 left-0 bg-gray-900 rounded-br-2xl p-4 z-10 shadow border-b border-r border-gray-200"
+            [routerLink]="['/']"
         >
             <img class="w-32" [src]="logo?.src" />
+        </a>
+        <div
+            class="absolute top-0 left-1/2 -translate-x-1/2 bg-gray-900 rounded-b-2xl px-4 pb-4 pt-3 z-10 shadow border-b border-r border-gray-200 text-white"
+        >
+            {{ time | date: 'fullDate' }}
         </div>
         <!-- <explore-map-stack class="z-0"></explore-map-stack> -->
         <div class="absolute inset-0">
@@ -158,6 +165,10 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
 
     public get logo() {
         return this._settings.get('app.logo_dark');
+    }
+
+    public get time() {
+        return startOfMinute(Date.now());
     }
 
     public get hide_zones() {
