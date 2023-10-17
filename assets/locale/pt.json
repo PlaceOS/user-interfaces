@@ -79,7 +79,8 @@
         "FREE_IN_LESS_THAN_MINUTE": "Disponível em Disponível por menos de",
         "FREE_FOR_HOURS_AND_MINUTES": "Disponível por {{ hour }} horas {{ minute }} minutos",
         "FREE_FOR_MINUTES": "Disponível por {{ minute }} minutos",
-        "FREE_FOR_LESS_THAN_MINUTE": "Disponível por Disponível por menos de"
+        "FREE_FOR_LESS_THAN_MINUTE": "Disponível por Disponível por menos de",
+        "EARLY_CHECKIN": "A reunião foi verificada antecipadamente"
     },
     "FORM": {
         "ALL_DAY": "All Day",
