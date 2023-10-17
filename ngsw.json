@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1697500339620,
+  "timestamp": 1697505927949,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -294,11 +294,11 @@
     "./assets/img/tick.svg": "d940fcfe7bffcd4785f687cf13b014ea92e2738b",
     "./assets/img/time.svg": "7ab08ee0812bd9f5ee992c5d3ac9eed348953bab",
     "./assets/img/today.svg": "32aa7cef9041d2f6f8b51a4cb2638a50e6ca6c84",
-    "./assets/locale/en-US.json": "a17166b5ae6d1e9d7b1d46a7d5286aa11946eaa1",
-    "./assets/locale/en.json": "3a0958078b9c527f420eddbaa293a2d937e207c6",
+    "./assets/locale/en-US.json": "3841f63e329be78a64979b096660841f14ad2507",
+    "./assets/locale/en.json": "06da5b4ee1b0b4620f0f62b0da5f2549296677a8",
     "./assets/locale/es.json": "12fcaef177f45954851f4dbfddb85122b91b0207",
     "./assets/locale/fr.json": "7beffd170a366f52b07f51eb5dc99984816391f7",
-    "./assets/locale/pt.json": "41f770be69b38fb48048ff39c8f987ad84f05c18",
+    "./assets/locale/pt.json": "0015e70d7d1cae1bfa3b79623656d0d33a6e26de",
     "./assets/logo-dark.svg": "3c5dbbd620a781a0d1e3680cb697982dd44a1613",
     "./assets/logo-light.svg": "29908fafefe60c105f06b2f8d69f7c1eed436c17",
     "./assets/maps/level_1.svg": "ba165a2e4b967619f71aa625855113950c4cde53",
@@ -319,7 +319,7 @@
     "./common.js": "4540e54d959bb2bf6b4e87ac3b907111f1643390",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "c0dc2515b7cd77d5ad5f8334b81b8eaf7c4effe7",
-    "./main.js": "3323376e652a267f8e0dc5d74bd51553ea787f91",
+    "./main.js": "739485d4d047864465bb7da4428de7a3dce400f1",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
