@@ -135,6 +135,13 @@ import { SettingsService } from '@placeos/common';
                     [matMenuTriggerFor]="checkinMenu"
                     [class.bg-neutral-600]="!data"
                     [class.bg-success]="data"
+                    [class.opacity-30]="row.status === 'ended'"
+                    [disabled]="row.status === 'ended'"
+                    [matTooltip]="
+                        row.status === 'ended'
+                            ? 'Desk booking has ended'
+                            : 'Check-in or check-out desk'
+                    "
                 >
                     <div class="ml-2">{{ data ? 'Yes' : 'No' }}</div>
                     <app-icon class="text-xl">arrow_drop_down</app-icon>
