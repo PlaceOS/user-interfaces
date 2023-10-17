@@ -509,14 +509,6 @@ export class EventFormService extends AsyncHandler {
                 assets,
                 recurrence,
             } = form.getRawValue();
-            if (all_day) {
-                date = set(date, {
-                    hours: 6,
-                    minutes: 0,
-                    seconds: 0,
-                }).valueOf();
-                duration = 12 * 60;
-            }
             const spaces = form.get('resources')?.value || [];
             let catering = form.get('catering')?.value || [];
             if (recurrence?._pattern && recurrence?._pattern !== 'none') {

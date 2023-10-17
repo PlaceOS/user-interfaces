@@ -96,20 +96,12 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
         form.controls.system.setValue(l?.length ? (l[0] as any) : null);
         form.controls.assets[l?.length ? 'enable' : 'disable']();
     });
-    let previous_time = form.value.date;
-    let previous_duration = form.value.duration;
-    let previous_all_day = form.value.all_day;
     form.valueChanges.subscribe((v) => {
         if (form.value.date < Date.now() && form.value.id) {
             form.get('date')?.disable({ emitEvent: false });
         } else {
             form.get('date')?.enable({ emitEvent: false });
         }
-        if (!('all_day' in v)) {
-            previous_time = v.date || previous_time;
-            previous_duration = v.duration || previous_duration;
-        }
-        previous_all_day = v.all_day ?? previous_all_day;
     });
     form.controls.date.valueChanges.subscribe((date) => {
         if (date < Date.now() && !form.value.id) {
@@ -132,23 +124,6 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
                     ...form.value.recurrence,
                     days_of_week: [new Date(date).getDay()],
                 },
-            });
-        }
-    });
-    form.controls.all_day.valueChanges.subscribe((all_day) => {
-        if (all_day) {
-            previous_time = form.value.date;
-            previous_duration = form.value.duration;
-            form.patchValue({
-                date: setHours(setMinutes(previous_time, 0), 6).valueOf(),
-                duration: 12 * 60,
-            });
-            form.controls.duration.disable();
-        } else if (previous_all_day && !all_day) {
-            form.controls.duration.enable();
-            form.patchValue({
-                date: Math.max(Date.now() - 1, previous_time),
-                duration: previous_duration,
             });
         }
     });

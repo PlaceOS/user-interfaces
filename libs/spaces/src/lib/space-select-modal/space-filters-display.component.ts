@@ -71,8 +71,11 @@ import { SpaceFiltersComponent } from './space-filters.component';
                 {{ start | date: 'mediumDate' }}
             </div>
             <div filter-item time class="dark:border-neutral-500">
-                {{ start | date: time_format }} &mdash;
-                {{ end | date: time_format }}
+                <ng-container *ngIf="!all_day">
+                    {{ start | date: time_format }} &mdash;
+                    {{ end | date: time_format }}
+                </ng-container>
+                <ng-container *ngIf="all_day">All Day</ng-container>
             </div>
             <div filter-item count class="dark:border-neutral-500" i18n>
                 Min. {{ (options | async)?.capacity || 2 }} People
@@ -122,6 +125,10 @@ export class SpaceFiltersDisplayComponent extends AsyncHandler {
     @Output() public viewChange = new EventEmitter<'map' | 'list'>();
     public readonly options = this._event_form.options;
     public location: string = '';
+
+    public get all_day() {
+        return this._event_form.form.value.all_day;
+    }
 
     public get start() {
         return this._event_form.form.value.date;

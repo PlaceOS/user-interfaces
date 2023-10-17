@@ -89,20 +89,25 @@ import { SpacesService } from '../spaces.service';
                         {{ 'FORM.DATE_ERROR' | translate }}
                     </a-date-field>
                 </div>
-                <div class="flex items-center space-x-2">
+                <!-- All Day -->
+                <div *ngIf="allow_all_day" class="flex justify-end -mt-2 mb-2">
+                    <mat-checkbox formControlName="all_day" i18n>
+                        All Day
+                    </mat-checkbox>
+                </div>
+                <div
+                    class="flex items-center space-x-2"
+                    *ngIf="!form.value.all_day"
+                >
                     <div class="flex-1 w-1/3">
-                        <label for="start-time" i18n
-                            >Start Time<span>*</span></label
-                        >
+                        <label for="start-time" i18n>
+                            Start Time<span>*</span>
+                        </label>
                         <a-time-field
                             name="start-time"
                             [ngModel]="form.value.date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
-                            [force_time]="
-                                form.value.all_day ? all_day_time : ''
-                            "
-                            [disabled]="form.value.all_day"
                             [use_24hr]="use_24hr"
                         ></a-time-field>
                     </div>
@@ -115,7 +120,6 @@ import { SpacesService } from '../spaces.service';
                             formControlName="duration"
                             [time]="form?.value?.date"
                             [max]="max_duration"
-                            [force]="form.value.all_day ? 'All Day' : ''"
                             [use_24hr]="use_24hr"
                         >
                         </a-duration-field>
@@ -195,10 +199,6 @@ import { SpacesService } from '../spaces.service';
 export class SpaceFiltersComponent {
     public can_close = false;
     public readonly options = this._event_form.options;
-    public readonly all_day_time = set(Date.now(), {
-        hours: 6,
-        minutes: 0,
-    }).valueOf();
 
     public readonly building = this._org.active_building;
     public readonly buildings = this._org.active_buildings;
@@ -211,6 +211,10 @@ export class SpaceFiltersComponent {
             unique(features.concat(flatten(spaces.map((_) => _.features))))
         )
     );
+
+    public get allow_all_day() {
+        return !!this._settings.get('app.events.allow_all_day');
+    }
 
     public readonly close = () => this._bsheet_ref.dismiss();
     public readonly setOptions = (o) => this._event_form.setOptions(o);

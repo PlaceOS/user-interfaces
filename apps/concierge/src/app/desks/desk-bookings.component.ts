@@ -65,8 +65,11 @@ import { SettingsService } from '@placeos/common';
                 </div>
             </ng-template>
             <ng-template #period_template let-row="row">
-                {{ row.date | date: time_format }} &ndash;
-                {{ row.end | date: time_format }}
+                <ng-container *ngIf="!row.all_day">
+                    {{ row.date | date: time_format }} &ndash;
+                    {{ row.end | date: time_format }}
+                </ng-container>
+                <ng-container *ngIf="row.all_day">All Day</ng-container>
             </ng-template>
             <ng-template #desk_template let-row="row">
                 {{ row.asset_name || row.asset_id }}

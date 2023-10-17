@@ -89,7 +89,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                             >
                         </mat-form-field>
                     </div>
-                    <div class="flex-1 min-w-[256px]">
+                    <div class="flex-1 min-w-[256px] relative">
                         <label for="date" i18n>Date<span>*</span></label>
                         <a-date-field
                             name="date"
@@ -99,9 +99,20 @@ import { addDays, endOfDay, set } from 'date-fns';
                         >
                             Date and time must be in the future
                         </a-date-field>
+                        <mat-checkbox
+                            formControlName="all_day"
+                            *ngIf="allow_all_day"
+                            class="absolute -top-2 right-0"
+                            i18n
+                        >
+                            All Day
+                        </mat-checkbox>
                     </div>
                 </div>
-                <div class="flex items-center space-x-2">
+                <div
+                    class="flex items-center space-x-2"
+                    *ngIf="!form.value.all_day"
+                >
                     <div class="flex-1 w-1/3">
                         <label for="start-time" i18n>
                             Start Time<span>*</span>
@@ -111,16 +122,10 @@ import { addDays, endOfDay, set } from 'date-fns';
                             [ngModel]="form.value.date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
-                            [force_time]="
-                                form.value.all_day ? force_time : undefined
-                            "
                             [use_24hr]="use_24hr"
-                            [disabled]="
-                                form.value.all_day || form.get('date')?.disabled
-                            "
                         ></a-time-field>
                     </div>
-                    <div class="flex-1 w-1/3 relative">
+                    <div class="flex-1 w-1/3">
                         <label for="end-time" i18n>
                             End Time<span>*</span>
                         </label>
@@ -132,17 +137,8 @@ import { addDays, endOfDay, set } from 'date-fns';
                             [min]="60"
                             [step]="60"
                             [use_24hr]="use_24hr"
-                            [force]="form.value.all_day ? 'All Day' : ''"
                         >
                         </a-duration-field>
-                        <mat-checkbox
-                            formControlName="all_day"
-                            *ngIf="allow_all_day"
-                            class="absolute -top-2 right-0"
-                            i18n
-                        >
-                            All Day
-                        </mat-checkbox>
                     </div>
                 </div>
                 <div

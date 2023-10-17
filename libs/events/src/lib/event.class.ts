@@ -9,6 +9,8 @@ import {
     add,
     addMinutes,
     differenceInMinutes,
+    endOfDay,
+    format,
     getUnixTime,
     isAfter,
     isBefore,
@@ -171,7 +173,8 @@ export class CalendarEvent {
         this.private = !!data.private;
         this.all_day = !!data.all_day;
         this.date = this.event_start * 1000 || this.date;
-        this.duration = data.duration ||
+        this.duration =
+            data.duration ||
             differenceInMinutes(data.event_end * 1000, this.date) ||
             30;
         if (this.all_day) {
@@ -267,10 +270,12 @@ export class CalendarEvent {
      */
     public toJSON(): Record<string, any> {
         const obj: Record<string, any> = { ...this };
-        const end = getUnixTime(addMinutes(this.date, this.duration));
-        const date = this.all_day ? set(this.date, { hours: 12 }) : this.date;
+        const date = this.all_day ? startOfDay(this.date) : this.date;
+        const end = this.all_day
+            ? addMinutes(date, 24 * 60)
+            : addMinutes(date, this.duration);
         obj.event_start = getUnixTime(date);
-        obj.event_end = end;
+        obj.event_end = getUnixTime(end);
         const attendees = this.attendees;
         (this as any).recurring =
             this.recurrence?.pattern && this.recurrence._pattern !== 'none';
@@ -297,6 +302,7 @@ export class CalendarEvent {
         if (this.all_day) {
             delete obj.extension_data.setup;
             delete obj.extension_data.breakdown;
+            obj.extension_data.all_day_date = format(date, 'yyyy-MM-dd');
         }
         obj.extension_data.catering = obj.extension_data.catering.map(
             (i) => new CateringOrder({ ...i, event: null })

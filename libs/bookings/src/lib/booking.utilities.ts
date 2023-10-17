@@ -9,7 +9,7 @@ import {
     removeViewer,
 } from '@placeos/svg-viewer';
 import { Booking } from './booking.class';
-import { roundToNearestMinutes, setHours, setMinutes } from 'date-fns';
+import { roundToNearestMinutes } from 'date-fns';
 
 function setBookingAsset(form: FormGroup, resource: any) {
     if (!resource) return form.patchValue({ asset_id: undefined });
@@ -62,9 +62,6 @@ export function generateBookingForm(booking: Booking = new Booking()) {
                 booking.extension_data?.secondary_resource
         ),
     });
-    let previous_time = form.value.date;
-    let previous_duration = form.value.duration;
-    let previous_all_day = form.value.all_day;
     form.valueChanges.subscribe((v) => {
         const user = v.user;
         const booker = v.booked_by || currentUser();
@@ -84,11 +81,6 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         } else {
             form.get('date')?.enable({ emitEvent: false });
         }
-        if (!('all_day' in v)) {
-            previous_time = v.date || previous_time;
-            previous_duration = v.duration || previous_duration;
-        }
-        previous_all_day = v.all_day ?? previous_all_day;
     });
     form.controls.resources.valueChanges.subscribe((resources) =>
         setBookingAsset(form, (resources || [])[0])
@@ -104,23 +96,6 @@ export function generateBookingForm(booking: Booking = new Booking()) {
             },
             { emitEvent: false }
         );
-    });
-    form.controls.all_day.valueChanges.subscribe((all_day) => {
-        if (all_day) {
-            previous_time = form.value.date;
-            previous_duration = form.value.duration;
-            form.patchValue({
-                date: setHours(setMinutes(previous_time, 0), 6).valueOf(),
-                duration: 12 * 60,
-            });
-            form.controls.duration.disable();
-        } else if (previous_all_day && !all_day) {
-            form.controls.duration.enable();
-            form.patchValue({
-                date: Math.max(Date.now() - 1, previous_time),
-                duration: previous_duration,
-            });
-        }
     });
     if (booking.state === 'started') form.get('date').disable();
     return form;

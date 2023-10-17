@@ -492,14 +492,6 @@ export class BookingFormService extends AsyncHandler {
         });
         let value = this.form.getRawValue();
         let booking = this._booking.getValue() || new Booking();
-        if (value.all_day) {
-            value.date = set(value.date, {
-                hours: 6,
-                minutes: 0,
-                seconds: 0,
-            }).valueOf();
-            value.duration = 12 * 60;
-        }
         if (!ignore_check) {
             await this.checkResourceAvailable(
                 { ...booking, ...value },
@@ -523,12 +515,12 @@ export class BookingFormService extends AsyncHandler {
         if (!value.zones?.length && this._booking.getValue().zones?.length) {
             value.zones = this._booking.getValue().zones;
         }
-        if (value.all_day) {
-            value.date = set(value.date, { hours: 6, minutes: 0 }).valueOf();
-            value.duration = 12 * 60;
-        }
         this._loading.next('Saving booking');
         delete value.booking_asset;
+        if (value.all_day) {
+            value.date = startOfDay(value.date).valueOf();
+            value.duration = 24 * 60 - 1;
+        }
         const result = await saveBooking(
             new Booking({
                 ...this._options.getValue(),

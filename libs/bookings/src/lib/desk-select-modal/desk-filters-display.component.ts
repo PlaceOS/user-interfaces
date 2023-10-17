@@ -75,8 +75,11 @@ import { endOfDay } from 'date-fns';
             <!-- TODO: filter chips -->
             <div filter-item date>{{ start | date: 'mediumDate' }}</div>
             <div filter-item time>
-                {{ start | date: time_format }} &mdash;
-                {{ end | date: time_format }}
+                <ng-container *ngIf="!all_day">
+                    {{ start | date: time_format }} &mdash;
+                    {{ end | date: time_format }}
+                </ng-container>
+                <ng-container *ngIf="all_day">All Day</ng-container>
             </div>
             <div
                 filter-item
@@ -115,6 +118,10 @@ export class DeskFiltersDisplayComponent extends AsyncHandler {
     public readonly options = this._state.options;
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
+
+    public get all_day() {
+        return this._state.form.value.all_day;
+    }
 
     public get start() {
         return this._state.form.value.date;

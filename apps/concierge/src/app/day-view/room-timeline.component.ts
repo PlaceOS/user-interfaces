@@ -220,7 +220,12 @@ import {
                                                 event.status === 'cancelled'
                                             "
                                         >
-                                            {{ event.date | date: time_format }}
+                                            {{
+                                                event.all_day
+                                                    ? 'All Day'
+                                                    : (event.date
+                                                      | date: time_format)
+                                            }}
                                             &ndash;
                                             {{
                                                 event.organiser?.name ||
@@ -272,11 +277,15 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         map(([spaces, events]) => {
             const map = {};
             for (const space of spaces) {
-                map[space.id] = events.filter((event) =>
-                    event.resources.find(
-                        (item) =>
-                            item.id === space.id || item.email === space.email
-                    ) || event.system?.id === space.id || event.system?.email === space.email
+                map[space.id] = events.filter(
+                    (event) =>
+                        event.resources.find(
+                            (item) =>
+                                item.id === space.id ||
+                                item.email === space.email
+                        ) ||
+                        event.system?.id === space.id ||
+                        event.system?.email === space.email
                 );
             }
             return map;
@@ -321,7 +330,7 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
 
     public timeToOffset(date: number) {
         const diff = differenceInMinutes(date, startOfDay(date));
-        return Math.max(0, (diff / 60)) * 48;
+        return Math.max(0, diff / 60) * 48;
     }
 
     public endToOffset(duration: number) {
@@ -375,6 +384,7 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         if (resp.reason !== 'done') return;
         resp.loading('Requesting booking deletion...');
         await declineEvent(item.id, {
+            calendar: item.mailbox || item.host,
             system_id: space_id,
         })
             .toPromise()

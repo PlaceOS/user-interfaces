@@ -109,8 +109,17 @@ import { BookingFormService } from '../booking-form.service';
                         {{ 'FORM.DATE_ERROR' | translate }}
                     </a-date-field>
                 </div>
+                <!-- All Day -->
+                <div *ngIf="allow_all_day" class="flex justify-end -mt-2 mb-2">
+                    <mat-checkbox formControlName="all_day" i18n>
+                        All Day
+                    </mat-checkbox>
+                </div>
                 <!-- Start End -->
-                <div class="flex items-center space-x-2">
+                <div
+                    class="flex items-center space-x-2"
+                    *ngIf="!form.value.all_day"
+                >
                     <div class="flex-1 w-1/3">
                         <label i18n>Start Time</label>
                         <a-time-field
@@ -118,11 +127,7 @@ import { BookingFormService } from '../booking-form.service';
                             [ngModel]="form.value.date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
-                            [force_time]="
-                                form.value.all_day ? all_day_time : ''
-                            "
                             [use_24hr]="use_24hr"
-                            [disabled]="form.value.all_day"
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3">
@@ -134,16 +139,9 @@ import { BookingFormService } from '../booking-form.service';
                             [min]="60"
                             [step]="60"
                             [use_24hr]="use_24hr"
-                            [force]="form.value.all_day ? 'All Day' : ''"
                         >
                         </a-duration-field>
                     </div>
-                </div>
-                <!-- All Day -->
-                <div *ngIf="allow_all_day" class="flex justify-end -mt-2 mb-2">
-                    <mat-checkbox formControlName="all_day" i18n>
-                        All Day
-                    </mat-checkbox>
                 </div>
             </section>
             <section favs class="space-y-2 pb-4">
@@ -208,10 +206,6 @@ export class DeskFiltersComponent {
     public readonly buildings = this._org.active_buildings;
     public readonly levels = this._org.active_levels;
     public readonly form = this._state.form;
-    public readonly all_day_time = set(Date.now(), {
-        hours: 6,
-        minutes: 0,
-    }).valueOf();
 
     public get building() {
         return this._org.building;

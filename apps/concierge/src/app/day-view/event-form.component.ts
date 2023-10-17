@@ -22,11 +22,18 @@ import { map, tap } from 'rxjs/operators';
                     <mat-error>A valid title is required</mat-error>
                 </mat-form-field>
             </div>
-            <div class="flex flex-col">
+            <div class="flex flex-col relative">
                 <label for="date">Date<span>*</span>:</label>
                 <a-date-field name="date" formControlName="date"></a-date-field>
+                <mat-checkbox
+                    formControlName="all_day"
+                    *ngIf="allow_all_day"
+                    class="absolute -top-2 right-0"
+                >
+                    {{ 'FORM.ALL_DAY' | translate }}
+                </mat-checkbox>
             </div>
-            <div class="flex space-x-2">
+            <div class="flex space-x-2" *ngIf="!form.value.all_day">
                 <div class="flex flex-col flex-1">
                     <label for="start-time">Start Time<span>*</span>:</label>
                     <a-time-field
@@ -183,6 +190,10 @@ export class EventFormComponent {
             l.filter((_) => _.toLowerCase().includes(s.toLowerCase()))
         )
     );
+
+    public get allow_all_day() {
+        return !!this._settings.get('app.events.allow_all_day');
+    }
 
     public get has_assets() {
         return !!this._settings.get('app.events.has_assets');

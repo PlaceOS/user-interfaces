@@ -25,8 +25,8 @@ import { OrganisationService } from '@placeos/organisation';
                         {{ space?.display_name || space?.name }}
                     </span>
                     <span *ngIf="!space">meeting</span> has been successfully
-                    booked for the {{ last_event.date | date: 'mediumDate'
-                    }}<span *ngIf="last_event?.all_day">
+                    booked for {{ last_event.date | date: 'mediumDate'
+                    }}<span *ngIf="!last_event?.all_day">
                         at {{ last_event.date | date: time_format }}-{{
                             last_event.date + last_event.duration * 60 * 1000
                                 | date: time_format
