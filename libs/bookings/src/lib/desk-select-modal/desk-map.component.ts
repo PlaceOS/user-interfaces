@@ -169,19 +169,19 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
 
     public ngOnInit(): void {
         this.subscription(
+            'options_change',
+            this._state.options.subscribe(({ zone_id }) => {
+                if (zone_id && zone_id !== this.level?.id) {
+                    this.level = this._org.levels.find((_) => _.id === zone_id);
+                }
+            })
+        );
+        this.subscription(
             'levels_update',
             this.levels.subscribe((levels) => {
                 if (!levels.find((_) => _.id === this.level?.id)) {
                     this.level = levels[0];
                     this.setOptions({ zone_id: this.level?.id });
-                }
-            })
-        );
-        this.subscription(
-            'options_change',
-            this._state.options.subscribe(({ zone_id }) => {
-                if (zone_id && zone_id !== this.level?.id) {
-                    this.level = this._org.levels.find((_) => _.id === zone_id);
                 }
             })
         );
