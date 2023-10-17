@@ -81,45 +81,55 @@ import { currentPeriod, nextPeriod } from './helpers';
                             </ng-container>
                         </ng-container>
                         <ng-template #free_for_state>
-                            <ng-container
-                                *ngIf="(event_state | async)?.current[1]"
-                            >
-                                {{
-                                    'PANEL.FREE_FOR_HOURS_AND_MINUTES'
-                                        | translate
-                                            : {
-                                                  hour: (event_state | async)
-                                                      ?.current[1],
-                                                  minute: (event_state | async)
-                                                      ?.current[2]
-                                              }
-                                }}
+                            <ng-container *ngIf="(state | async) === 'busy'">
+                                {{ 'PANEL.EARLY_CHECKIN' | translate }}
                             </ng-container>
-                            <ng-container
-                                *ngIf="
-                                    (event_state | async)?.current[1] <= 0 &&
-                                    (event_state | async)?.current[2] > 1
-                                "
-                            >
-                                {{
-                                    'PANEL.FREE_FOR_MINUTES'
-                                        | translate
-                                            : {
-                                                  minute: (event_state | async)
-                                                      ?.current[2]
-                                              }
-                                }}
-                            </ng-container>
-                            <ng-container
-                                *ngIf="
-                                    (event_state | async)?.current[1] <= 0 &&
-                                    (event_state | async)?.current[2] <= 1
-                                "
-                            >
-                                {{
-                                    'PANEL.FREE_FOR_LESS_THAN_MINUTE'
-                                        | translate
-                                }}
+                            <ng-container *ngIf="(state | async) !== 'busy'">
+                                <ng-container
+                                    *ngIf="(event_state | async)?.current[1]"
+                                >
+                                    {{
+                                        'PANEL.FREE_FOR_HOURS_AND_MINUTES'
+                                            | translate
+                                                : {
+                                                      hour: (
+                                                          event_state | async
+                                                      )?.current[1],
+                                                      minute: (
+                                                          event_state | async
+                                                      )?.current[2]
+                                                  }
+                                    }}
+                                </ng-container>
+                                <ng-container
+                                    *ngIf="
+                                        (event_state | async)?.current[1] <=
+                                            0 &&
+                                        (event_state | async)?.current[2] > 1
+                                    "
+                                >
+                                    {{
+                                        'PANEL.FREE_FOR_MINUTES'
+                                            | translate
+                                                : {
+                                                      minute: (
+                                                          event_state | async
+                                                      )?.current[2]
+                                                  }
+                                    }}
+                                </ng-container>
+                                <ng-container
+                                    *ngIf="
+                                        (event_state | async)?.current[1] <=
+                                            0 &&
+                                        (event_state | async)?.current[2] <= 1
+                                    "
+                                >
+                                    {{
+                                        'PANEL.FREE_FOR_LESS_THAN_MINUTE'
+                                            | translate
+                                    }}
+                                </ng-container>
                             </ng-container>
                         </ng-template>
                     </ng-container>
