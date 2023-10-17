@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
-import { updateMetadata } from '@placeos/ts-client';
 import { HashMap, notifyError, notifySuccess } from '@placeos/common';
 import {
-    CalendarEvent,
     checkinEventGuest,
     newCalendarEventFromBooking,
     showEvent,
 } from '@placeos/events';
+import { CalendarEvent } from 'libs/events/src/lib/event.class';
 import {
     GuestUser,
     generateGuestForm,
