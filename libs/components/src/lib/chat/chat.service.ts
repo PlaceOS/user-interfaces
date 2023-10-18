@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { AsyncHandler, currentUser, randomString } from '@placeos/common';
+import { AsyncHandler, currentUser, log, randomString } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { getModule, token } from '@placeos/ts-client';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
 import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 
@@ -36,9 +36,10 @@ export class ChatService extends AsyncHandler {
         }),
         shareReplay(1)
     );
+    private _change = new BehaviorSubject(0);
     private _socket?: WebSocketSubject<any>;
-    private _chat_pipe = this._chat_system.pipe(
-        switchMap((id) => {
+    private _chat_pipe = combineLatest([this._chat_system, this._change]).pipe(
+        switchMap(([id]) => {
             const url = `ws${location.origin.replace(
                 'http',
                 ''
@@ -85,11 +86,14 @@ export class ChatService extends AsyncHandler {
 
     public startChat() {
         if (this._socket) return;
+        this._change.next(Date.now());
+        log('CHAT', 'Starting chat connection.');
         this.subscription('chat', this._chat_pipe.subscribe());
         return () => this.endChat();
     }
 
     public endChat() {
+        log('CHAT', 'Dropping chat connection.');
         this._socket?.complete();
         this._cleanup();
     }
@@ -98,6 +102,23 @@ export class ChatService extends AsyncHandler {
         if (!message) return;
         this._onMessage({ chat_id: '', message, user_id: currentUser().id });
         this._socket?.next(message);
+    }
+
+    private _timeoutSocket(delay = 55 * 1000) {
+        this.timeout(
+            'socket',
+            () => {
+                const msg_list = this._chat_messages.getValue();
+                if (
+                    msg_list.length > 0 &&
+                    msg_list[msg_list.length - 1].user_id !== 'assistant'
+                ) {
+                    return this._timeoutSocket(delay);
+                }
+                this.endChat();
+            },
+            delay
+        );
     }
 
     private _cleanup() {
@@ -117,5 +138,6 @@ export class ChatService extends AsyncHandler {
                 timestamp: Date.now(),
             },
         ]);
+        this._timeoutSocket();
     }
 }
