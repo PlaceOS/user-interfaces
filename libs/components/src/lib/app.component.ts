@@ -74,6 +74,7 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
         <div class="flex-1 w-full relative h-1/2">
             <router-outlet></router-outlet>
         </div>
+        <global-chat></global-chat>
         <global-loading></global-loading>
         <debug-console *ngIf="debug"></debug-console>
     `,

@@ -69,6 +69,8 @@ import { AuthenticatedImageDirective } from './authenticated-image.directive';
 import { UploadPermissionsModalComponent } from './upload-permissions-modal.component';
 import { IndoorMapsComponent } from './indoor-maps.component';
 import { PrintableComponent } from './printable.component';
+import { ChatComponent } from './chat/chat.component';
+import { DateFromPipe } from './date-from.pipe';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -128,6 +130,7 @@ const COMPONENTS: Type<any>[] = [
     DurationPipe,
     LevelPipe,
     BuildingPipe,
+    DateFromPipe,
 
     UserControlsComponent,
     BuildingSelectComponent,
@@ -137,6 +140,7 @@ const COMPONENTS: Type<any>[] = [
     LanguageSelectComponent,
     UploadPermissionsModalComponent,
     PrintableComponent,
+    ChatComponent,
 ];
 
 const DIRECTIVES: Type<any>[] = [BindingDirective, AuthenticatedImageDirective];

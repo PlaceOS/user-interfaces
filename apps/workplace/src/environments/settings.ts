@@ -202,6 +202,9 @@ const app: any = {
         enabled: true,
         tracking_id: '',
     },
+    chat: {
+        enabled: false,
+    },
     hide_contacts: false,
     schedule,
 };

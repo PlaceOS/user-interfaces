@@ -55,7 +55,7 @@ const EMPTY = [];
         ></indoor-maps>
         <explore-zoom-controls
             *ngIf="!(use_mapsindoors$ | async)"
-            class="absolute bottom-2 right-2"
+            class="absolute top-1/2 -translate-y-1/2 right-2"
         ></explore-zoom-controls>
         <div
             *ngIf="!(use_mapsindoors$ | async)"
