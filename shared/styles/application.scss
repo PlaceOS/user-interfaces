@@ -164,3 +164,22 @@ div.tox-tinymce {
 #placeos .mat-radio-label-content {
     font-weight: normal;
 }
+
+#placeos .markdown {
+    ol {
+        list-style-type: decimal;
+        margin-left: 1.5rem;
+    }
+    ul {
+        list-style-type: disc;
+        margin-left: 1.5rem;
+    }
+
+    li {
+        margin-bottom: 0.25rem;
+    }
+
+    p:not(:last-child) {
+        margin-bottom: 0.75rem;
+    }
+}

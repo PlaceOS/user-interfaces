@@ -66,10 +66,9 @@ import { map } from 'rxjs/operators';
                             </div>
                         </div>
                         <div
-                            class="bg-white border-gray-200 p-4 rounded shadow text-sm"
-                        >
-                            {{ message.content }}
-                        </div>
+                            class="bg-white border-gray-200 p-4 rounded shadow text-sm markdown"
+                            [innerHTML]="message.content | sanitize"
+                        ></div>
                     </div>
                 </div>
                 <div
@@ -118,7 +117,7 @@ import { map } from 'rxjs/operators';
                 animation-delay: 0.5s;
             }
 
-            :last-child .waiting-margin {
+            .waiting-margin:last-child {
                 padding-bottom: 2.5rem;
             }
         `,

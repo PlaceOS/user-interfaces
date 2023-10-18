@@ -6,10 +6,13 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 
+import * as marked from 'marked';
+
 export interface ChatMessage {
     id: string;
     chat_id: string;
     user_id: string;
+    message: string;
     content: string;
     timestamp: number;
 }
@@ -108,7 +111,8 @@ export class ChatService extends AsyncHandler {
             {
                 id: `msg-${randomString(6)}`,
                 chat_id: msg.chat_id,
-                content: msg.message,
+                message: msg.message,
+                content: marked.parse(msg.message),
                 user_id: msg.user_id || 'assistant',
                 timestamp: Date.now(),
             },
