@@ -2,6 +2,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { AsyncHandler, SettingsService, current_user } from '@placeos/common';
 import { ChatService } from './chat.service';
 import { StaffUser } from '@placeos/users';
+import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'global-chat',
@@ -51,6 +52,7 @@ import { StaffUser } from '@placeos/users';
                         [class.items-left]="message.user_id !== user.id"
                         [class.items-end]="message.user_id === user.id"
                         (click)="show_time[message.id] = !show_time[message.id]"
+                        [class.waiting-margin]="waiting | async"
                     >
                         <div class="flex items-center space-x-2">
                             <div
@@ -69,6 +71,21 @@ import { StaffUser } from '@placeos/users';
                             {{ message.content }}
                         </div>
                     </div>
+                </div>
+                <div
+                    class="absolute bottom-16 right-2 flex items-center justify-center space-x-2 p-1 rounded-2xl bg-slate-400 border border-slate-600"
+                    *ngIf="waiting | async"
+                >
+                    <div
+                        class="h-2 w-2 bg-slate-600 rounded-full animate-bounce"
+                    ></div>
+                    <div
+                        class="h-2 w-2 bg-slate-600 rounded-full animate-bounce anim-delay-1"
+                    ></div>
+                    <div
+                        class="h-2 w-2 bg-slate-600 rounded-full animate-bounce anim-delay-2"
+                    ></div>
+                    <span class="sr-only">Waiting for reply...</span>
                 </div>
                 <div
                     class="flex items-center bg-white focus-within:outline outline-blue-500 border-t border-gray-200"
@@ -92,7 +109,20 @@ import { StaffUser } from '@placeos/users';
             </div>
         </div>
     `,
-    styles: [],
+    styles: [
+        `
+            .anim-delay-1 {
+                animation-delay: 0.25s;
+            }
+            .anim-delay-2 {
+                animation-delay: 0.5s;
+            }
+
+            :last-child .waiting-margin {
+                padding-bottom: 2.5rem;
+            }
+        `,
+    ],
 })
 export class ChatComponent extends AsyncHandler implements OnInit {
     public show = false;
@@ -102,6 +132,9 @@ export class ChatComponent extends AsyncHandler implements OnInit {
 
     public readonly hint = this._chat.chat_hint;
     public readonly messages = this._chat.messages;
+    public readonly waiting = this._chat.messages.pipe(
+        map((_) => _.length !== 0 && _[_.length - 1]?.user_id === this.user?.id)
+    );
 
     public get can_show() {
         return this._settings.get('app.chat.enabled');
@@ -112,7 +145,6 @@ export class ChatComponent extends AsyncHandler implements OnInit {
 
     public toggleChat() {
         this.show = !this.show;
-        if (this.show) this._chat.startChat();
     }
 
     constructor(
@@ -139,6 +171,10 @@ export class ChatComponent extends AsyncHandler implements OnInit {
 
     public sendMessage() {
         if (!this.message) return;
+        if (!this._chat.connected) {
+            this._chat.startChat();
+            return this.timeout('send', () => this.sendMessage(), 100);
+        }
         this._chat.sendMessage(this.message);
         this.message = '';
         setTimeout(() => this._input_el.nativeElement.focus(), 100);

@@ -59,7 +59,11 @@ export class ChatService extends AsyncHandler {
             });
             this.subscription(
                 'chat-ws',
-                this._socket.subscribe((_) => this._onMessage(_))
+                this._socket.subscribe(
+                    (_) => this._onMessage(_),
+                    (e) => this._cleanup(),
+                    () => this._cleanup()
+                )
             );
             return this._socket;
         }),
@@ -67,6 +71,10 @@ export class ChatService extends AsyncHandler {
     );
 
     public readonly messages = this._chat_messages.asObservable();
+
+    public get connected() {
+        return !!this._socket;
+    }
 
     constructor(private _org: OrganisationService) {
         super();
@@ -80,15 +88,18 @@ export class ChatService extends AsyncHandler {
 
     public endChat() {
         this._socket?.complete();
-        this._socket = null;
-        this._chat_messages.next([]);
-        this.unsubWith('chat');
+        this._cleanup();
     }
 
     public sendMessage(message: string) {
         if (!message) return;
         this._onMessage({ chat_id: '', message, user_id: currentUser().id });
         this._socket?.next(message);
+    }
+
+    private _cleanup() {
+        this._socket = null;
+        this.unsubWith('chat');
     }
 
     private _onMessage(msg) {
