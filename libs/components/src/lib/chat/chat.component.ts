@@ -66,7 +66,8 @@ import { map } from 'rxjs/operators';
                             </div>
                         </div>
                         <div
-                            class="bg-white border-gray-200 p-4 rounded shadow text-sm markdown"
+                            message
+                            class="bg-white border-gray-200 p-4 rounded shadow text-sm markdown selectable"
                             [innerHTML]="message.content | sanitize"
                         ></div>
                     </div>
@@ -118,7 +119,7 @@ import { map } from 'rxjs/operators';
             }
 
             .waiting-margin:last-child {
-                padding-bottom: 2.5rem;
+                padding-bottom: 2rem;
             }
         `,
     ],

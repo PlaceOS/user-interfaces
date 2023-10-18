@@ -183,3 +183,10 @@ div.tox-tinymce {
         margin-bottom: 0.75rem;
     }
 }
+
+#placeos .selectable {
+    user-select: auto;
+    p, li, code, pre, div {
+        user-select: text;
+    }
+}
