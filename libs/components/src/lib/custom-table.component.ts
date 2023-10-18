@@ -41,7 +41,6 @@ import { Observable } from 'rxjs';
                         [style.width]="(column_size[i] || '8') + 'em'"
                         [style.flex]="column_size[i] === 'flex' ? '1' : ''"
                         *cdkCellDef="let row; let idx = index"
-                        [title]="row[column]"
                     >
                         <ng-container
                             *ngIf="column !== '_index'; else index_outlet"
