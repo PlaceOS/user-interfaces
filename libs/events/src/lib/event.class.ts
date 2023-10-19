@@ -297,8 +297,8 @@ export class CalendarEvent {
             'email'
         );
         if (this.all_day) {
-            delete obj.extension_data.setup;
-            delete obj.extension_data.breakdown;
+            delete obj.extension_data.setup_time;
+            delete obj.extension_data.breakdown_time;
             obj.extension_data.all_day_date = format(date, 'yyyy-MM-dd');
         }
         obj.extension_data.catering = obj.extension_data.catering.map(

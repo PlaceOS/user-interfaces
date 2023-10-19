@@ -1,11 +1,17 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { startOfDay, differenceInMinutes, format, addMinutes } from 'date-fns';
+import {
+    startOfDay,
+    differenceInMinutes,
+    format,
+    addMinutes,
+    differenceInSeconds,
+} from 'date-fns';
 
 import { CalendarEvent } from '@placeos/events';
 import { EventsStateService } from './events-state.service';
 import { SettingsService } from '@placeos/common';
 
-const DAY_IN_MINUTES = 24 * 60;
+const DAY_IN_SECONDS = 24 * 60 * 60;
 
 @Component({
     selector: 'dayview-event',
@@ -167,16 +173,16 @@ export class DayviewEventComponent implements OnChanges {
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.event && this.event) {
             const start = startOfDay(new Date(this.event.date));
-            const diff = differenceInMinutes(new Date(this.event.date), start);
-            this.top = diff / DAY_IN_MINUTES;
-            this.height = this.event.duration / DAY_IN_MINUTES;
+            const diff = differenceInSeconds(new Date(this.event.date), start);
+            this.top = diff / DAY_IN_SECONDS;
+            this.height = (this.event.duration * 60) / DAY_IN_SECONDS;
             this.overflow_top =
-                (diff - (this.event.ext('setup') || 0)) / DAY_IN_MINUTES;
+                (diff - (this.event.ext('setup_time') || 0)) / DAY_IN_SECONDS;
             this.overflow_height =
-                (this.event.duration +
-                    (this.event.ext('setup') || 0) +
-                    (this.event.ext('breakdown') || 0)) /
-                DAY_IN_MINUTES;
+                (this.event.duration * 60 +
+                    (this.event.ext('setup_time') || 0) +
+                    (this.event.ext('breakdown_time') || 0)) /
+                DAY_IN_SECONDS;
         }
     }
 }
