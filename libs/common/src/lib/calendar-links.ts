@@ -1,12 +1,5 @@
 import { User } from 'libs/users/src/lib/user.class';
-import {
-    addMinutes,
-    endOfDay,
-    format,
-    set,
-    startOfDay,
-    startOfMinute,
-} from 'date-fns';
+import { addMinutes, format, set, startOfMinute } from 'date-fns';
 import { toQueryString } from './api';
 import { localToTimezone } from './timezone-helpers';
 import { unique } from './general';

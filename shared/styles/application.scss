@@ -37,6 +37,11 @@
     .screen-only {
         display: none !important;
     }
+    html, body {
+        position: relative;
+        width: 21cm;
+        min-height: 29.7cm;
+    }
 }
 
 html,
