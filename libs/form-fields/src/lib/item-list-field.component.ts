@@ -83,7 +83,7 @@ export function removeChipItem<T = string>(
     ],
 })
 export class ItemListFieldComponent<T = any> implements ControlValueAccessor {
-    @Input() public separators: number[] = [ENTER, COMMA, SPACE];
+    @Input() public separators: number[] = [ENTER, COMMA];
 
     @Input() public placeholder = '';
     /** List of items stored */
