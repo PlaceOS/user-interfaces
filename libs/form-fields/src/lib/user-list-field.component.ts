@@ -380,7 +380,7 @@ export class UserListFieldComponent
                 el.email = `${display}+${id}@guest.${USER_DOMAIN}`;
             }
             const internal_emails = this._settings.get(
-                'app.booking.internal_emails'
+                'app.bookings.internal_emails'
             ) || ['place.tech'];
             el.visit_expected =
                 el.visit_expected ??

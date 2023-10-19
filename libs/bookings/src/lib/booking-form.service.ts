@@ -691,7 +691,7 @@ export class BookingFormService extends AsyncHandler {
             }
         }
         const allowed_bookings =
-            this._settings.get(`app.booking.allowed_daily_${type}_count`) ?? 1;
+            this._settings.get(`app.bookings.allowed_daily_${type}_count`) ?? 1;
         if (
             allowed_bookings > 0 &&
             bookings.filter(

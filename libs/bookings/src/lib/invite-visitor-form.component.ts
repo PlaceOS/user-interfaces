@@ -305,7 +305,7 @@ export class InviteVisitorFormComponent extends AsyncHandler {
     public filtered_visitors = [];
 
     public get multiple() {
-        return this._settings.get('app.booking.multiple_visitors');
+        return this._settings.get('app.bookings.multiple_visitors');
     }
 
     public get building() {
