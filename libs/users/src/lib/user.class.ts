@@ -127,6 +127,7 @@ export class GuestUser extends User {
             ? 'declined'
             : data.extension_data?.status || data.status || 'pending';
         this.booking = data.booking;
+        this.extension_data.event = (data as any).event_metadata;
     }
 }
 

@@ -74,6 +74,13 @@ export class CheckinStateService {
             this._form.next(generateGuestForm(guest, event.host));
             return { guest, event };
         }
+        if (guest.extension_data.event) {
+            const event = new CalendarEvent(guest.extension_data.event);
+            this._guest.next(guest);
+            this._event.next(event);
+            this._form.next(generateGuestForm(guest, event.host));
+            return { guest, event };
+        }
         const upcoming = await listGuestMeetings(email).toPromise();
         const today = new Date();
         const todays_events = upcoming.filter((event) =>

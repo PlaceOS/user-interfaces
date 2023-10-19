@@ -100,13 +100,13 @@ const app = {
     desks: { can_book_for_others: true },
     events: {
         allow_setup_breakdown: false,
-        // custom_actions: [
-        //     {
-        //         id: 'set_setup_breakdown',
-        //         name: 'Set Setup/Breakdown',
-        //         icon: 'manage_history',
-        //     },
-        // ],
+        custom_actions: [
+            {
+                id: 'set_setup_breakdown',
+                name: 'Set Setup/Breakdown',
+                icon: 'manage_history',
+            },
+        ],
     },
 };
 
