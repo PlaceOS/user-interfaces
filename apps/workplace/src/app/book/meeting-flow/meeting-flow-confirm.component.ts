@@ -189,7 +189,7 @@ export class MeetingFlowConfirmComponent extends AsyncHandler {
     }
 
     public get event(): CalendarEvent {
-        return this._event_form.form.value as any;
+        return this._event_form.form.getRawValue() as any;
     }
 
     public get space() {

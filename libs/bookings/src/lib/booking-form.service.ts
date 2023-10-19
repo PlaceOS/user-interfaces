@@ -285,7 +285,7 @@ export class BookingFormService extends AsyncHandler {
 
     public newForm(
         booking: Booking = new Booking({
-            all_day: this._settings.get('app.events.all_day_default'),
+            all_day: this._settings.get('app.bookings.all_day_default'),
         })
     ) {
         this.form.reset();
@@ -363,6 +363,9 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public resetForm() {
+        if (!sessionStorage.getItem('PLACEOS.booking_form')) {
+            return this.newForm();
+        }
         const booking = this._booking.getValue();
         this.form.reset({ user: currentUser(), booked_by: currentUser() });
         this.form.patchValue(

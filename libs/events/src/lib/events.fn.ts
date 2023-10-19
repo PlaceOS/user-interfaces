@@ -116,7 +116,7 @@ export function updateEvent(
         `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${
             query ? '?' + query : ''
         }`,
-        method === 'patch' ? data : new CalendarEvent(data).toJSON()
+        new CalendarEvent(data).toJSON()
     ).pipe(map((item) => new CalendarEvent(item)));
 }
 

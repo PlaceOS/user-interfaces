@@ -183,8 +183,7 @@ const app: any = {
     explore,
     bookings: {
         no_approval: false,
-    },
-    booking: {
+        all_day_default: false,
         allowed_daily_visitor_count: 100,
         multiple_visitors: true,
     },

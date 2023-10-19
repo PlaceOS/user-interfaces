@@ -121,10 +121,7 @@ export class CalendarEvent {
     public readonly update_master: boolean;
 
     public get is_all_day() {
-        return (
-            this.all_day ||
-            (new Date(this.date).getHours() <= 12 && this.duration >= 12 * 60)
-        );
+        return this.all_day || this.duration >= 12 * 60;
     }
 
     /** Get field from extension data */

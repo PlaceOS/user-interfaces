@@ -429,6 +429,7 @@ export class EventFormService extends AsyncHandler {
         this._form.patchValue({
             ...event.extension_data,
             ...event,
+            duration: event.duration >= 12 * 60 ? 30 : event.duration,
             host: event?.host || currentUser().email,
             organiser:
                 event?.organiser ||
@@ -459,6 +460,9 @@ export class EventFormService extends AsyncHandler {
     }
 
     public loadForm() {
+        if (!sessionStorage.getItem('PLACEOS.event_form')) {
+            return this.newForm();
+        }
         const form_data = JSON.parse(
             sessionStorage.getItem('PLACEOS.event_form') || '{}'
         );
@@ -694,7 +698,7 @@ export class EventFormService extends AsyncHandler {
                               : 'tentative',
                       } as any)
                   ).pipe(map((_) => newCalendarEventFromBooking(_)))
-                : saveEvent(event.toJSON(), query)
+                : saveEvent(event, query)
         ).toPromise();
     }
 
