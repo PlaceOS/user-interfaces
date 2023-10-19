@@ -1,5 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HashMap, notifyError, notifySuccess } from '@placeos/common';
+import {
+    HashMap,
+    currentUser,
+    notifyError,
+    notifySuccess,
+} from '@placeos/common';
 import {
     checkinEventGuest,
     newCalendarEventFromBooking,
@@ -138,7 +143,7 @@ export class CheckinStateService {
             state,
             event.resources?.length
                 ? {
-                      // calendar: event.host || currentUser()?.email,
+                      calendar: event.host || currentUser()?.email,
                       system_id: space.id,
                   }
                 : {}

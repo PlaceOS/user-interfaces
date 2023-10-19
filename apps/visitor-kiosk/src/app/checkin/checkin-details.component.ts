@@ -157,7 +157,7 @@ export class CheckinDetailsComponent implements OnInit {
             //     }`
             // );
             this.loading = false;
-            // throw e;
+            throw e;
         });
         this.loading = false;
         this._router.navigate(['/checkin', 'results']);
