@@ -71,8 +71,10 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
         catering_charge_code: new FormControl(
             event.extension_data?.catering[0]?.charge_code || ''
         ),
-        setup: new FormControl(event.extension_data?.setup || 0),
-        breakdown: new FormControl(event.extension_data?.breakdown || 0),
+        setup_time: new FormControl(event.extension_data?.setup_time || 0),
+        breakdown_time: new FormControl(
+            event.extension_data?.breakdown_time || 0
+        ),
         assets: new FormControl(
             assetsToGroups(event.extension_data?.assets || [])
         ),

@@ -171,11 +171,11 @@ export function getFreeTimeSlots(
     list.sort((a, b) => a.date - b.date);
     for (const booking of list) {
         const bkn_start = new Date(
-            addMinutes(booking.date, -booking.extension_data?.setup || 0)
+            addMinutes(booking.date, -booking.extension_data?.setup_time || 0)
         );
         const bkn_end = addMinutes(
             booking.date,
-            booking.duration + (booking.extension_data?.breakdown || 0)
+            booking.duration + (booking.extension_data?.breakdown_time || 0)
         );
         if (isAfter(booking.date, start)) {
             const diff = Math.abs(differenceInMinutes(bkn_start, start));

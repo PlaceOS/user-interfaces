@@ -56,8 +56,12 @@ import { currentUser, notifyError, notifySuccess } from '@placeos/common';
 export class SetupBreakdownModalComponent {
     public loading = false;
     public readonly form = new FormGroup({
-        setup: new FormControl(this._event.ext('setup') || 0),
-        breakdown: new FormControl(this._event.ext('breakdown') || 0),
+        setup: new FormControl(
+            Math.floor(this._event.ext('setup_time') / 60) || 0
+        ),
+        breakdown: new FormControl(
+            Math.floor(this._event.ext('breakdown_time') / 60) || 0
+        ),
     });
 
     constructor(
@@ -77,7 +81,8 @@ export class SetupBreakdownModalComponent {
                 ...this._event,
                 extension_data: {
                     ...this._event.extension_data,
-                    ...this.form.value,
+                    setup_time: this.form.value.setup * 60,
+                    breakdown_time: this.form.value.breakdown * 60,
                 },
             }).toJSON(),
             query
