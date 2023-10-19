@@ -14,7 +14,7 @@ import { SettingsService } from '@placeos/common';
             <h3 class="text-xl">You are checked in!</h3>
             <p class="text-center">
                 Welcome, you have a meeting at
-                {{ (event | async)?.date || '' | date: 'shortDate' }}
+                {{ (event | async)?.date || '' | date: 'mediumDate' }}
                 with {{ (event | async).organiser?.name || '' }}.<br />
                 {{ (event | async).organiser?.name || '' }} has been notified
                 and will be with you shortly.&nbsp;
