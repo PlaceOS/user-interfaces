@@ -146,7 +146,7 @@ import { map, tap } from 'rxjs/operators';
                     <label for="setup">Setup Duration</label>
                     <a-duration-field
                         name="setup"
-                        formControlName="setup"
+                        formControlName="setup_time"
                         [min]="0"
                     ></a-duration-field>
                 </div>
@@ -155,7 +155,7 @@ import { map, tap } from 'rxjs/operators';
                     <a-duration-field
                         name="breakdown"
                         [min]="0"
-                        formControlName="breakdown"
+                        formControlName="breakdown_time"
                     ></a-duration-field>
                 </div>
             </div>
