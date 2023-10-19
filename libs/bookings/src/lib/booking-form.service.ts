@@ -283,17 +283,17 @@ export class BookingFormService extends AsyncHandler {
         return this._resource_use[id];
     }
 
-    public newForm(booking: Booking = new Booking()) {
+    public newForm(
+        booking: Booking = new Booking({
+            all_day: this._settings.get('app.events.all_day_default'),
+        })
+    ) {
         this.form.reset();
         this.form.patchValue(
             cleanObject(
                 {
                     ...booking,
                     ...booking.extension_data,
-                    all_day:
-                        (booking.id
-                            ? this._settings.get('app.bookings.all_day_default')
-                            : false) || booking.all_day,
                 },
                 [null, undefined, '']
             )

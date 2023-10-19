@@ -388,7 +388,11 @@ export class EventFormService extends AsyncHandler {
         this._options.next({ ...this._options.getValue(), ...value });
     }
 
-    public async newForm(event: CalendarEvent = new CalendarEvent()) {
+    public async newForm(
+        event: CalendarEvent = new CalendarEvent({
+            all_day: this._settings.get('app.events.all_day_default'),
+        })
+    ) {
         this._event.next(event);
         if (event.recurring_event_id) {
             const master = await showEvent(
@@ -425,10 +429,6 @@ export class EventFormService extends AsyncHandler {
         this._form.patchValue({
             ...event.extension_data,
             ...event,
-            all_day:
-                (event.id
-                    ? this._settings.get('app.events.all_day_default')
-                    : false) || event.all_day,
             host: event?.host || currentUser().email,
             organiser:
                 event?.organiser ||
