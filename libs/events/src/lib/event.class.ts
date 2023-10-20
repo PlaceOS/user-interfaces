@@ -226,6 +226,9 @@ export class CalendarEvent {
             this.resources.push(new Space(system as any));
         }
         this.system = system || (this.resources[0] as any) || null;
+        if (!system && data.system_id) {
+            this.system = { id: data.system_id } as any;
+        }
         this.old_system = data.old_system || data.system;
         this.attachments = data.attachments || [];
         this.extension_data = data.extension_data || {};

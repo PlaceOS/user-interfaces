@@ -109,7 +109,7 @@ export class CheckinStateService {
 
     public async checkinGuest() {
         const guest = this._guest.getValue();
-        const event = this._event.getValue();
+        const event = this._event.getValue() || guest.extension_data.event;
         if (!guest || !event) return;
         const checkin_fn = this._checkinCall(event, guest.email, true);
         await checkin_fn.catch((e) => {
@@ -148,10 +148,10 @@ export class CheckinStateService {
             event.id,
             email,
             state,
-            event.resources?.length
+            space || event.system
                 ? {
                       calendar: event.host || currentUser()?.email,
-                      system_id: space.id,
+                      system_id: space.id || event.system.id,
                   }
                 : {}
         ).toPromise();
