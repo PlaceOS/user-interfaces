@@ -9,6 +9,7 @@ import {
 import {
     AsyncHandler,
     SettingsService,
+    flatten,
     notifySuccess,
     unique,
 } from '@placeos/common';
@@ -19,6 +20,7 @@ import {
     debounceTime,
     distinctUntilChanged,
     filter,
+    first,
     map,
     shareReplay,
     switchMap,
@@ -38,11 +40,16 @@ import {
     saveAsset,
     showGroupFull,
 } from '@placeos/assets';
-import { cleanObject } from '@placeos/ts-client';
+import { cleanObject, showMetadata, updateMetadata } from '@placeos/ts-client';
 import { OrganisationService } from '@placeos/organisation';
 import { MatDialog } from '@angular/material/dialog';
 import { AssetCategoryManagementModalComponent } from './asset-category-management-modal.component';
 import { AssetCategoryFormComponent } from './asset-category-form.component';
+import {
+    AttachedResourceConfigModalComponent,
+    AttachedResourceConfigModalData,
+    AttachedResourceRuleset,
+} from '@placeos/components';
 
 export interface AssetOptions {
     date?: number;
@@ -359,5 +366,50 @@ export class AssetManagerStateService extends AsyncHandler {
         notifySuccess(`Successfully ${data.id ? 'updated' : 'created'} asset`);
         this.resetForm();
         return asset.id;
+    }
+
+    public async editConfig() {
+        const config = await this.getConfig(this._org.building.id);
+        const items = await this.products.pipe(take(1)).toPromise();
+        const types = unique(flatten(items.map((i) => [i.name])));
+        const ref = this._dialog.open<
+            AttachedResourceConfigModalComponent,
+            AttachedResourceConfigModalData
+        >(AttachedResourceConfigModalComponent, {
+            data: {
+                resource_name: 'Assets',
+                config,
+                types,
+                require_notes: false,
+            },
+        });
+        const details = await Promise.race([
+            ref.componentInstance.event
+                .pipe(first((_) => _.reason === 'done'))
+                .toPromise(),
+            ref.afterClosed().toPromise(),
+        ]);
+        if (details?.reason !== 'done') return;
+        this.updateConfig(this._org.building.id, details.metadata).then(
+            () => ref.close(),
+            () => (ref.componentInstance.loading = false)
+        );
+    }
+
+    public async getConfig(
+        zone_id: string = this._org.building.id
+    ): Promise<AttachedResourceRuleset[]> {
+        const rules = (await showMetadata(zone_id, 'assets_config').toPromise())
+            .details;
+        return rules instanceof Array ? (rules as any) : [];
+    }
+
+    private updateConfig(zone_id: string, config: AttachedResourceRuleset[]) {
+        return updateMetadata(zone_id, {
+            id: zone_id,
+            name: 'assets_config',
+            details: config,
+            description: `Assets config for ${zone_id}`,
+        }).toPromise();
     }
 }

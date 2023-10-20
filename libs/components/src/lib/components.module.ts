@@ -71,6 +71,7 @@ import { IndoorMapsComponent } from './indoor-maps.component';
 import { PrintableComponent } from './printable.component';
 import { ChatComponent } from './chat/chat.component';
 import { DateFromPipe } from './date-from.pipe';
+import { AttachedResourceConfigModalComponent } from './attached-resource-config-modal.component';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -141,6 +142,7 @@ const COMPONENTS: Type<any>[] = [
     UploadPermissionsModalComponent,
     PrintableComponent,
     ChatComponent,
+    AttachedResourceConfigModalComponent,
 ];
 
 const DIRECTIVES: Type<any>[] = [BindingDirective, AuthenticatedImageDirective];

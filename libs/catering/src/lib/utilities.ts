@@ -2,35 +2,35 @@ import { isAfter, isBefore, setHours, subHours } from 'date-fns';
 
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
 import { CateringItem } from './catering-item.class';
-import { CateringRuleset } from './catering.interfaces';
 import { Observable, of } from 'rxjs';
 import { showMetadata } from '@placeos/ts-client';
 import { catchError, map } from 'rxjs/operators';
 import { stringToMinutes } from '@placeos/common';
+import { AttachedResourceRuleset } from '@placeos/components';
 
-const RULE_REQUESTS: Record<string, Observable<CateringRuleset[]>> = {};
+const RULE_REQUESTS: Record<string, Observable<AttachedResourceRuleset[]>> = {};
 
 export function getCateringRulesForZone(
     zone_id: string,
     fresh: boolean = false
 ) {
-    if (!zone_id) return of([] as CateringRuleset[]);
+    if (!zone_id) return of([] as AttachedResourceRuleset[]);
     if (!RULE_REQUESTS[zone_id] || fresh)
         RULE_REQUESTS[zone_id] = showMetadata(zone_id, 'catering_config').pipe(
             map(
                 (_) =>
                     (_.details instanceof Array
                         ? _.details
-                        : []) as CateringRuleset[]
+                        : []) as AttachedResourceRuleset[]
             ),
-            catchError((e) => of([] as CateringRuleset[]))
+            catchError((e) => of([] as AttachedResourceRuleset[]))
         );
     return RULE_REQUESTS[zone_id];
 }
 
 export function cateringItemAvailable(
     item: CateringItem,
-    rules: CateringRuleset[],
+    rules: AttachedResourceRuleset[],
     event: CalendarEvent
 ) {
     let is_available = true;

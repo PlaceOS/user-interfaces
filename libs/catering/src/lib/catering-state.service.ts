@@ -5,7 +5,7 @@ import {
     showMetadata,
     PlaceMetadata,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -37,16 +37,17 @@ import {
     CateringItemOptionModalData,
 } from './catering-option-modal.component';
 import {
-    CateringConfigModalComponent,
-    CateringConfigModalData,
-} from './catering-config-modal.component';
+    AttachedResourceConfigModalComponent,
+    AttachedResourceRuleset,
+    AttachedResourceConfigModalData,
+} from '@placeos/components';
 import { CateringItem } from './catering-item.class';
 import { CateringOrder } from './catering-order.class';
 import {
     CateringOrderModalComponent,
     CateringOrderModalData,
 } from './catering-order-modal.component';
-import { CateringOption, CateringRuleset } from './catering.interfaces';
+import { CateringOption } from './catering.interfaces';
 import {
     CateringOrderOptionsModalComponent,
     CateringOrderOptionsModalData,
@@ -327,9 +328,9 @@ export class CateringStateService extends AsyncHandler {
         const menu = this._menu.getValue();
         const types = unique(flatten(menu.map((i) => [i.category, ...i.tags])));
         const ref = this._dialog.open<
-            CateringConfigModalComponent,
-            CateringConfigModalData
-        >(CateringConfigModalComponent, {
+            AttachedResourceConfigModalComponent,
+            AttachedResourceConfigModalData
+        >(AttachedResourceConfigModalComponent, {
             data: {
                 config,
                 types,
@@ -401,14 +402,14 @@ export class CateringStateService extends AsyncHandler {
 
     public async getCateringConfig(
         zone_id: string = this._org.building.id
-    ): Promise<CateringRuleset[]> {
+    ): Promise<AttachedResourceRuleset[]> {
         const rules = (
             await showMetadata(zone_id, 'catering_config').toPromise()
         ).details;
         return rules instanceof Array ? (rules as any) : [];
     }
 
-    private updateConfig(zone_id: string, config: CateringRuleset[]) {
+    private updateConfig(zone_id: string, config: AttachedResourceRuleset[]) {
         return updateMetadata(zone_id, {
             id: zone_id,
             name: 'catering_config',

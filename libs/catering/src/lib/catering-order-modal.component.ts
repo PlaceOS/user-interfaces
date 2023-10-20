@@ -6,16 +6,17 @@ import { AsyncHandler, DialogEvent, HashMap, unique } from '@placeos/common';
 
 import { CateringItem } from './catering-item.class';
 import { CateringOrder } from './catering-order.class';
-import { CateringOption, CateringRuleset } from './catering.interfaces';
+import { CateringOption } from './catering.interfaces';
 import { OrganisationService } from '@placeos/organisation';
 import { cateringItemAvailable } from './utilities';
+import { AttachedResourceRuleset } from '@placeos/components';
 
 export interface CateringOrderModalData {
     order: CateringOrder;
     code: string;
     menu: Observable<CateringItem[]>;
     loading: Observable<boolean>;
-    getCateringConfig: (_: string) => Promise<CateringRuleset[]>;
+    getCateringConfig: (_: string) => Promise<AttachedResourceRuleset[]>;
     selectOptions: (_: CateringOption[]) => Promise<CateringOption[]>;
 }
 
@@ -232,7 +233,7 @@ export class CateringOrderModalComponent
     /** Whether order details should be shown */
     public show_order_details: boolean;
     /** Catering rules for selected space */
-    public rules: readonly CateringRuleset[];
+    public rules: readonly AttachedResourceRuleset[];
     /** List of menu items to show */
     public menu_items: HashMap<CateringItem[]> = {};
     /** List of categories for the active menu */

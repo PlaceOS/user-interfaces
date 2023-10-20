@@ -4,11 +4,35 @@ import { AsyncHandler } from '@placeos/common';
 
 import { DialogEvent, Identity } from 'libs/common/src/lib/types';
 
-import { CateringRuleset, RULE_TYPES } from './catering.interfaces';
+export type AttachedResourceRule =
+    | ['after_hour' | 'before_hour' | 'is_before' | 'within_hours', number]
+    | ['min_length' | 'max_length' | 'visitor_type', string]
+    | ['groups', string[]];
 
-export interface CateringConfigModalData {
+export interface AttachedResourceRuleset {
+    /** ID of the ruleset. Zone ID, category or tag */
+    id: string;
+    /** Descriptive name of the ruleset */
+    name: string;
+    /** List of rules for the id */
+    rules: AttachedResourceRule[];
+}
+
+export const RULE_TYPES: Identity[] = [
+    { id: 'after_hour', name: 'After Hour of Day' },
+    { id: 'before_hour', name: 'Before Hour of Day' },
+    { id: 'min_length', name: 'Min. Meeting Length' },
+    { id: 'max_length', name: 'Max. Meeting Length' },
+    { id: 'is_before', name: 'Is Hours before Meeting' },
+    { id: 'within_hours', name: 'Within Hours before Meeting' },
+    { id: 'visitor_type', name: 'Visitor Type' },
+    { id: 'groups', name: 'User in Groups' },
+];
+
+export interface AttachedResourceConfigModalData {
+    resource_name?: string;
     /** List of catering rules */
-    config: CateringRuleset[];
+    config: AttachedResourceRuleset[];
     /** List of available categories and tags */
     types?: string[];
     require_notes?: boolean;
@@ -16,18 +40,21 @@ export interface CateringConfigModalData {
 }
 
 @Component({
-    selector: 'catering-config-modal',
+    selector: 'attached-resource-config-modal',
     template: `
         <header>
-            <h3>Edit Catering Configuration</h3>
+            <h3>Edit {{ resource_name }} Configuration</h3>
             <button icon mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
         </header>
         <main
-            class="overflow-auto text-center max-w-lg px-4 pt-2 pb-4 space-y-2"
+            class="overflow-auto text-center max-w-lg min-w-[32rem] px-4 pt-2 pb-4 space-y-2"
         >
-            <div class="text-left p-2 rounded bg-gray-100">
+            <div
+                class="text-left p-2 rounded bg-gray-100"
+                *ngIf="can_save_notes"
+            >
                 <mat-checkbox
                     [ngModel]="require_notes"
                     (ngModelChange)="saveNotesSetting($event)"
@@ -90,7 +117,7 @@ export interface CateringConfigModalData {
                                 }}</app-icon>
                                 <div>
                                     {{
-                                        show_rules === set.id ? 'Hide' : 'show'
+                                        show_rules === set.id ? 'Hide' : 'Show'
                                     }}
                                     Rules
                                 </div>
@@ -172,7 +199,7 @@ export interface CateringConfigModalData {
         `,
     ],
 })
-export class CateringConfigModalComponent extends AsyncHandler {
+export class AttachedResourceConfigModalComponent extends AsyncHandler {
     /** Emitter for events on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Whether changes are being saved */
@@ -180,8 +207,9 @@ export class CateringConfigModalComponent extends AsyncHandler {
     /** Whether to show rules for a ruleset */
     public show_rules: string;
     public require_notes = this._data.require_notes;
+    public readonly resource_name = this._data.resource_name || 'Catering';
 
-    public readonly rulesets: CateringRuleset[];
+    public readonly rulesets: AttachedResourceRuleset[];
 
     public readonly rule_types: readonly Identity[] = RULE_TYPES;
 
@@ -189,8 +217,12 @@ export class CateringConfigModalComponent extends AsyncHandler {
         return 'ruleset-' + Math.floor(Math.random() * 9999_9999);
     }
 
+    public get can_save_notes() {
+        return !!this._data.saveNotes;
+    }
+
     constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: CateringConfigModalData
+        @Inject(MAT_DIALOG_DATA) private _data: AttachedResourceConfigModalData
     ) {
         super();
         this.rulesets = (_data.config || []).map((set) => {

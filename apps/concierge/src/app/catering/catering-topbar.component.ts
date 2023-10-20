@@ -39,41 +39,46 @@ import { MatDialog } from '@angular/material/dialog';
                 "
                 btn
                 matRipple
+                matTooltip="Add Item"
                 (click)="addItem()"
             >
-                Add Item
+                <app-icon class="text-2xl">add</app-icon>
             </button>
             <button
                 *ngIf="page === 'menu'"
                 btn
                 matRipple
+                matTooltip="Edit Config"
                 (click)="editConfig()"
             >
-                Edit Config
+                <app-icon class="text-2xl">menu_book</app-icon>
             </button>
             <button
                 *ngIf="page === 'menu'"
                 btn
                 matRipple
+                matTooltip="Import Menu"
                 (click)="importMenu()"
             >
-                Import Menu
+                <app-icon class="text-2xl">cloud_upload</app-icon>
             </button>
             <button
                 *ngIf="page === 'menu'"
                 btn
                 matRipple
+                matTooltip="Room Availability"
                 (click)="setRoomAvailability()"
             >
-                Room Availability
+                <app-icon class="text-2xl">event_available</app-icon>
             </button>
             <button
                 *ngIf="page === 'menu'"
                 btn
                 matRipple
+                matTooltip="Charge Codes"
                 (click)="setChargeCodes()"
             >
-                Charge Codes
+                <app-icon class="text-2xl">payments</app-icon>
             </button>
             <div class="flex-1 w-2"></div>
             <!-- <searchbar class="mr-2"></searchbar> -->

@@ -51,6 +51,17 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 matRipple
                 *ngIf="active === 'items'"
                 class="border border-gray-200"
+                matTooltip="Edit Config"
+                (click)="editConfig()"
+            >
+                <app-icon>menu_book</app-icon>
+            </button>
+            <button
+                btn
+                icon
+                matRipple
+                *ngIf="active === 'items'"
+                class="border border-gray-200"
                 matTooltip="Manage Categories"
                 (click)="manageCategories()"
             >
@@ -78,6 +89,7 @@ export class AssetManagerTopbarComponent {
 
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly manageCategories = () => this._state.manageCategories();
+    public readonly editConfig = () => this._state.editConfig();
 
     public get base_route() {
         return this._state.base_route;
