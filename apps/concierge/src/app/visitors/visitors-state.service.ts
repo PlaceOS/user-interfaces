@@ -428,7 +428,7 @@ export class VisitorsStateService extends AsyncHandler {
             state,
             event.resources?.length
                 ? {
-                      // calendar: event.host || currentUser()?.email,
+                      calendar: event.host,
                       system_id: space.id,
                   }
                 : {}
