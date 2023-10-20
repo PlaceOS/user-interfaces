@@ -48,6 +48,7 @@ export interface EventExtensionData {
     category?: string;
     tags?: string[];
     system_id?: string;
+    event_id?: string;
 }
 
 export interface RecurrenceDetails {

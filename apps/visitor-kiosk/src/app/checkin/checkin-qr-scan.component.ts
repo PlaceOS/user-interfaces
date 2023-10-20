@@ -1,12 +1,12 @@
 import {
+    AfterViewInit,
     Component,
     ElementRef,
     OnDestroy,
-    OnInit,
     ViewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { notifyError } from '@placeos/common';
+import { AsyncHandler, notifyError } from '@placeos/common';
 import QrScanner from 'qr-scanner';
 
 import { CheckinStateService } from './checkin-state.service';
@@ -16,6 +16,7 @@ import { CheckinStateService } from './checkin-state.service';
     template: `
         <div
             class="bg-white rounded shadow overflow-hidden relative flex flex-col items-center"
+            [class.hidden]="checking_code"
         >
             <p class="mt-6 mb-4">
                 Please enter your email address or scan your QR code
@@ -36,7 +37,7 @@ import { CheckinStateService } from './checkin-state.service';
                 class="relative rounded m-4 bg-gray-200 border border-gray-500 overflow-hidden"
             >
                 <div
-                    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-30 flex flex-col items-center space-y-2"
+                    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-30 flex flex-col items-center space-y-2 z-0"
                 >
                     <app-icon class="text-6xl">videocam_off</app-icon>
                     <p>Camera feed loading or is not available</p>
@@ -48,7 +49,7 @@ import { CheckinStateService } from './checkin-state.service';
                     width="640"
                     height="480"
                     autoplay
-                    class="object-cover"
+                    class="object-cover relative z-10"
                 ></video>
             </div>
             <a
@@ -59,6 +60,13 @@ import { CheckinStateService } from './checkin-state.service';
             >
                 <app-icon>close</app-icon>
             </a>
+        </div>
+        <div
+            class="bg-white rounded shadow overflow-hidden relative flex flex-col items-center p-16"
+            [class.hidden]="!checking_code"
+        >
+            <mat-spinner diameter="32"></mat-spinner>
+            <p class="mt-6 mb-4">Loading visitor information...</p>
         </div>
     `,
     styles: [
@@ -88,7 +96,11 @@ import { CheckinStateService } from './checkin-state.service';
         `,
     ],
 })
-export class CheckinQRScanComponent implements OnInit, OnDestroy {
+export class CheckinQRScanComponent
+    extends AsyncHandler
+    implements AfterViewInit, OnDestroy
+{
+    public checking_code = false;
     /** Email address of the visitor */
     public email: string;
     /** Video element to emit camera feed */
@@ -100,9 +112,11 @@ export class CheckinQRScanComponent implements OnInit, OnDestroy {
     constructor(
         private _checkin: CheckinStateService,
         private _router: Router
-    ) {}
+    ) {
+        super();
+    }
 
-    public ngOnInit() {
+    public ngAfterViewInit() {
         this.setupQRReader();
     }
 
@@ -116,22 +130,29 @@ export class CheckinQRScanComponent implements OnInit, OnDestroy {
     }
 
     public async checkQRCode(raw_text: string) {
-        const chunks = raw_text.split(',');
-        const [visit_block, system_id, event_id, host_email] = chunks;
-        const [_, visitor_email] = visit_block.split(':');
-        if (!visitor_email && !event_id) {
-            notifyError('Invalid QRCode');
-            this.setupQRReader();
-            return;
-        } else {
+        if (this.checking_code) return;
+        this.timeout('check_qr_code', async () => {
+            this._reader?.stop();
+            this.checking_code = true;
+            const chunks = raw_text.split(',');
+            const [visit_block, system_id, event_id, host_email] = chunks;
+            const [_, visitor_email] = visit_block.split(':');
+            if (!visitor_email && !event_id) {
+                notifyError('Invalid QRCode');
+                this.setupQRReader();
+                this.checking_code = false;
+                return;
+            }
             await this._checkin
                 .loadGuestAndEvent(visitor_email, event_id)
                 .catch((err) => {
                     this.handleError(err.message || err);
+                    this.checking_code = false;
                     throw err;
                 });
             this._router.navigate(['/checkin', 'details']);
-        }
+            this.checking_code = false;
+        });
     }
 
     public async checkEmail(email: string) {
@@ -146,22 +167,25 @@ export class CheckinQRScanComponent implements OnInit, OnDestroy {
     }
 
     private setupQRReader() {
-        if (navigator.mediaDevices?.getUserMedia) {
-            navigator.mediaDevices
-                .getUserMedia({ video: true })
-                .then(
-                    (stream) =>
-                        (this._video_el.nativeElement.srcObject = stream)
-                )
-                .catch((e) =>
-                    console.error('Unable to fetch media devices!', e)
-                );
-        }
-        if (!QrScanner) return;
-        this._reader = new QrScanner(this._video_el.nativeElement, (r) =>
-            this.checkQRCode(r)
-        );
-        this._reader.start();
+        this.timeout('setup_qr_reader', () => {
+            if (!this._video_el?.nativeElement) return this.setupQRReader();
+            if (navigator.mediaDevices?.getUserMedia) {
+                navigator.mediaDevices
+                    .getUserMedia({ video: true })
+                    .then(
+                        (stream) =>
+                            (this._video_el.nativeElement.srcObject = stream)
+                    )
+                    .catch((e) =>
+                        console.error('Unable to fetch media devices!', e)
+                    );
+            }
+            if (!QrScanner) return;
+            this._reader = new QrScanner(this._video_el.nativeElement, (r) =>
+                this.checkQRCode(r)
+            );
+            this._reader.start();
+        });
     }
 
     private handleError(message: any) {

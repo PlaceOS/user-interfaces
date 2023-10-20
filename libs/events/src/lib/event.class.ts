@@ -130,7 +130,7 @@ export class CalendarEvent {
     }
 
     constructor(data: Partial<CalendarEventExtended> = {}) {
-        this.id = data.id || '';
+        this.id = data.event_id || data.id || '';
         this.event_start =
             data.event_start ||
             getUnixTime(

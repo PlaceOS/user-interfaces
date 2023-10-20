@@ -19,7 +19,7 @@ import {
 } from '@placeos/users';
 import { isSameDay } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
-import { checkinBookingAttendee } from '@placeos/bookings';
+import { checkinBookingAttendee, showBooking } from '@placeos/bookings';
 import { SpacePipe } from '@placeos/spaces';
 
 @Injectable({
@@ -61,7 +61,13 @@ export class CheckinStateService {
     public async loadGuestAndEvent(email: string, event_id?: string) {
         const guest = await showGuest(email).toPromise();
         if (event_id) {
-            const event = await showEvent(event_id).toPromise();
+            let event = await showEvent(event_id)
+                .toPromise()
+                .catch((_) => null);
+            if (!event) {
+                const data = await showBooking(event_id).toPromise();
+                event = newCalendarEventFromBooking(data);
+            }
             this._guest.next(guest);
             this._event.next(event);
             this._form.next(generateGuestForm(guest, event.host));
