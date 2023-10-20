@@ -80,7 +80,7 @@ export class CheckinStateService {
             this._form.next(generateGuestForm(guest, event.host));
             return { guest, event };
         }
-        if (guest.extension_data.event) {
+        if (guest.extension_data?.event) {
             const event = new CalendarEvent(guest.extension_data.event);
             this._guest.next(guest);
             this._event.next(event);
