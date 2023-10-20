@@ -24,24 +24,34 @@ export interface CateringConfigModalData {
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <main class="overflow-auto text-center max-w-lg px-4 pt-2 pb-4">
-            <mat-checkbox
-                class="m-2"
-                [ngModel]="require_notes"
-                (ngModelChange)="saveNotesSetting($event)"
-            >
-                Require notes for orders
-            </mat-checkbox>
-            <br />
+        <main
+            class="overflow-auto text-center max-w-lg px-4 pt-2 pb-4 space-y-2"
+        >
+            <div class="text-left p-2 rounded bg-gray-100">
+                <mat-checkbox
+                    [ngModel]="require_notes"
+                    (ngModelChange)="saveNotesSetting($event)"
+                >
+                    Require notes for orders
+                </mat-checkbox>
+            </div>
             <button
+                btn
                 matRipple
+                class="w-full"
                 (click)="rulesets.push({ id: new_id, rules: [] })"
             >
                 New Ruleset
             </button>
-            <div *ngFor="let set of rulesets; let i = index" class="ruleset">
-                <div class="flex">
-                    <mat-form-field class="flex-1" appearance="outline">
+            <div
+                *ngFor="let set of rulesets; let i = index"
+                class="ruleset mb-2"
+            >
+                <div class="flex items-center mb-2 space-x-2">
+                    <mat-form-field
+                        class="flex-1 no-subscript"
+                        appearance="outline"
+                    >
                         <input
                             matInput
                             name="name"
@@ -51,51 +61,68 @@ export interface CateringConfigModalData {
                         />
                         <mat-error>Ruleset name is required</mat-error>
                     </mat-form-field>
-                    <button
-                        icon
-                        matRipple
-                        class="mb-6"
-                        (click)="set.rules.push(['', '']); show_rules = set.id"
-                    >
-                        <app-icon>add</app-icon>
+                    <button icon matRipple [matMenuTriggerFor]="menu">
+                        <app-icon>more_vert</app-icon>
                     </button>
-                    <button
-                        icon
-                        matRipple
-                        class="mb-6"
-                        [disabled]="!set.rules.length"
-                        (click)="
-                            show_rules = show_rules !== set.id ? set.id : ''
-                        "
-                    >
-                        <app-icon>{{
-                            show_rules === set.id
-                                ? 'expand_less'
-                                : 'expand_more'
-                        }}</app-icon>
-                    </button>
-                    <button
-                        icon
-                        matRipple
-                        class="mb-6"
-                        (click)="rulesets.splice(i, 1)"
-                    >
-                        <app-icon>delete</app-icon>
-                    </button>
+                    <mat-menu #menu="matMenu">
+                        <button
+                            mat-menu-item
+                            (click)="
+                                set.rules.push(['', '']); show_rules = set.id
+                            "
+                        >
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-2xl">add</app-icon>
+                                <div>Add Rule</div>
+                            </div>
+                        </button>
+                        <button
+                            mat-menu-item
+                            (click)="
+                                show_rules = show_rules !== set.id ? set.id : ''
+                            "
+                        >
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-2xl">{{
+                                    show_rules === set.id
+                                        ? 'expand_less'
+                                        : 'expand_more'
+                                }}</app-icon>
+                                <div>
+                                    {{
+                                        show_rules === set.id ? 'Hide' : 'show'
+                                    }}
+                                    Rules
+                                </div>
+                            </div>
+                        </button>
+                        <button mat-menu-item (click)="rulesets.splice(i, 1)">
+                            <div class="flex items-center space-x-2 text-error">
+                                <app-icon class="text-2xl">delete</app-icon>
+                                <div>Remove Ruleset</div>
+                            </div>
+                        </button>
+                    </mat-menu>
                 </div>
                 <div
                     name="rules"
-                    class="bg-gray-100 rounded overflow-hidden"
+                    class="overflow-hidden"
                     [style.height]="
-                        (show_rules === set.id ? 5 * set.rules.length : 0) +
+                        (show_rules === set.id ? 4 * set.rules.length : 0) +
                         'em'
                     "
                 >
                     <div
-                        class="flex items-center px-2 h-20 space-x-2"
+                        class="flex items-center pl-7 h-16 space-x-2 relative"
                         *ngFor="let rule of set.rules; let i = index"
                     >
-                        <mat-form-field class="flex-1" appearance="outline">
+                        <div
+                            class="absolute left-3 top-1/2 -translate-y-full w-4 h-32 border-b-2 border-l-2 border-gray-400"
+                        ></div>
+                        <mat-form-field
+                            class="flex-1 no-subscript"
+                            appearance="outline"
+                        >
                             <mat-select
                                 name="booking-type"
                                 [(ngModel)]="rule[0]"
@@ -109,7 +136,10 @@ export interface CateringConfigModalData {
                                 </mat-option>
                             </mat-select>
                         </mat-form-field>
-                        <mat-form-field class="flex-1" appearance="outline">
+                        <mat-form-field
+                            class="flex-1 no-subscript"
+                            appearance="outline"
+                        >
                             <input
                                 matInput
                                 name="value"
@@ -119,12 +149,7 @@ export interface CateringConfigModalData {
                             />
                             <mat-error>Rule value is required</mat-error>
                         </mat-form-field>
-                        <button
-                            icon
-                            matRipple
-                            class="mb-6"
-                            (click)="set.rules.splice(i, 1)"
-                        >
+                        <button icon matRipple (click)="set.rules.splice(i, 1)">
                             <app-icon>delete</app-icon>
                         </button>
                     </div>
@@ -132,9 +157,9 @@ export interface CateringConfigModalData {
             </div>
         </main>
         <footer
-            class="flex p-2 items-center justify-center border-t border-solid border-gray-300"
+            class="flex py-2 px-4 items-center justify-end border-t border-solid border-gray-300"
         >
-            <button btn matRipple class="mx-auto w-32" (click)="saveChanges()">
+            <button btn matRipple class="w-36" (click)="saveChanges()">
                 Save Changes
             </button>
         </footer>
