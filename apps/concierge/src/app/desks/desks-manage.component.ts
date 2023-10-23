@@ -29,7 +29,7 @@ const QR_CODES = {};
             (window:dragend)="handleDrag('end', $event)"
         >
             <custom-table
-                class="min-w-[72rem] block"
+                class="min-w-[76rem] block"
                 [dataSource]="desks"
                 [filter]="(filters | async)?.search"
                 [columns]="[
@@ -48,7 +48,7 @@ const QR_CODES = {};
                     'Features',
                     ' '
                 ]"
-                [column_size]="['8r', '6r', '12r', 'flex', '16r', '10r']"
+                [column_size]="['12r', '6r', '12r', 'flex', '16r', '10r']"
                 [template]="{
                     map_id: text_edit_template,
                     name: text_edit_template,
