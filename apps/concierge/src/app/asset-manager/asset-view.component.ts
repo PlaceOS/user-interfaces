@@ -390,6 +390,10 @@ import { combineLatest } from 'rxjs';
     `,
     styles: [
         `
+            :host {
+                height: 100%;
+            }
+
             [data-table] > div:nth-child(2n) {
                 background: #0001;
             }
