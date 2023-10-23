@@ -48,7 +48,7 @@ export async function openBookingModal(
             class="p-2"
         >
             <div class="field" *ngIf="!hide_host && form.controls.organiser">
-                <label for="host">Host<span>*</span>:</label>
+                <label for="host">Booked by<span>*</span>:</label>
                 <a-user-search-field
                     name="host"
                     formControlName="organiser"
@@ -73,7 +73,7 @@ export async function openBookingModal(
                 </div>
             </div>
             <div class="flex flex-col" *ngIf="form.controls.title">
-                <label for="host">Title:</label>
+                <label for="title">Title:</label>
                 <mat-form-field appearance="outline" class="w-full">
                     <input
                         matInput
