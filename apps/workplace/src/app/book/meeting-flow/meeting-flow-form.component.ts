@@ -25,6 +25,7 @@ import { BehaviorSubject, combineLatest, timer } from 'rxjs';
 import { first, map, take, tap } from 'rxjs/operators';
 import { MeetingFlowConfirmModalComponent } from './meeting-flow-confirm-modal.component';
 import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
+import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 
 @Component({
     selector: 'meeting-flow-form',
@@ -502,6 +503,7 @@ export class MeetingFlowFormComponent extends AsyncHandler {
     constructor(
         private _state: EventFormService,
         private _catering: CateringOrderStateService,
+        private _assets: AssetStateService,
         private _settings: SettingsService,
         private _router: Router,
         private _dialog: MatDialog,
@@ -517,23 +519,23 @@ export class MeetingFlowFormComponent extends AsyncHandler {
         this.subscription(
             'space_changes',
             this.form.controls.resources.valueChanges.subscribe((l) =>
-                this._checkCateringEligibility(l)
+                this._checkSubResourceEligibility(l)
             )
         );
         this.subscription(
             'date_changes',
             this.form.controls.date.valueChanges.subscribe((l) =>
-                this._checkCateringEligibility(this.form.value.resources)
+                this._checkSubResourceEligibility(this.form.value.resources)
             )
         );
         this.subscription(
             'duration_changes',
             this.form.controls.duration.valueChanges.subscribe((l) =>
-                this._checkCateringEligibility(this.form.value.resources)
+                this._checkSubResourceEligibility(this.form.value.resources)
             )
         );
         this._catering.setOptions({ zone: '' });
-        this._checkCateringEligibility(this.form.value.resources || []);
+        this._checkSubResourceEligibility(this.form.value.resources || []);
         this.subscription(
             'idle-listen',
             this._idle
@@ -585,6 +587,58 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                 duration: ref.componentInstance.duration,
             });
         });
+    }
+
+    private async _checkSubResourceEligibility(list: Space[]) {
+        return Promise.all([
+            this._checkAssetsEligibility(list),
+            this._checkCateringEligibility(list),
+        ]);
+    }
+
+    private async _checkAssetsEligibility(list: Space[]) {
+        if (list?.length) {
+            await timer(100).toPromise();
+            const value = this.form.getRawValue();
+            this._assets.setOptions({
+                date: value.date,
+                duration: value.duration,
+                resources: list,
+                zone_id: this._org.levelWithID(list[0].zones)?.parent_id,
+                tags: [],
+                categories: [],
+            } as any);
+            await timer(500).toPromise();
+            const items = await this._assets.filtered_assets
+                .pipe(take(1))
+                .toPromise();
+            const disabled_rooms = await this._catering.availability
+                .pipe(take(1))
+                .toPromise();
+            const can_cater = list.every(
+                (s) =>
+                    items.filter(
+                        (_) =>
+                            !(_ as any).hide_for_zones?.find((z) =>
+                                s.zones.includes(z)
+                            )
+                    ).length > 0
+            );
+            if (
+                !can_cater ||
+                disabled_rooms.find((_) => list.find((i) => i.id === _))
+            ) {
+                this.form.patchValue({ catering: [] });
+                this.form.controls.catering.disable();
+                notifyWarn(
+                    `Catering is unavailable for some of the selected spaces.`
+                );
+            } else {
+                this.form.controls.catering.enable();
+            }
+        } else {
+            this.form.controls.catering.disable();
+        }
     }
 
     private async _checkCateringEligibility(list: Space[]) {

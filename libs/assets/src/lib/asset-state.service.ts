@@ -3,6 +3,7 @@ import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
+    filter,
     map,
     shareReplay,
     switchMap,
@@ -21,6 +22,7 @@ import {
 import { AssetGroup } from './asset.class';
 import { updateAssetGroupList } from './asset-group.pipe';
 import { OrganisationService } from '@placeos/organisation';
+import { assetAvailable, getAssetRulesForZone } from './asset.utilities';
 
 export interface AssetOptions {
     zone?: string;
@@ -39,6 +41,24 @@ export class AssetStateService {
 
     public readonly search = this._search.asObservable();
     public readonly loading = this._loading.asObservable();
+
+    public readonly rules = combineLatest([
+        this._options,
+        this._org.active_building,
+    ]).pipe(
+        filter(([_, bld]) => !!bld),
+        debounceTime(300),
+        switchMap(([options, bld]) => {
+            this._loading.next(this._loading.getValue() + '[Rules]');
+            return getAssetRulesForZone(bld.id || options.zone || '');
+        }),
+        tap((_) =>
+            this._loading.next(
+                this._loading.getValue().replace(/\[Rules\]/g, '')
+            )
+        ),
+        shareReplay(1)
+    );
 
     public readonly asset_list = of(0).pipe(
         switchMap(() => {
@@ -98,15 +118,18 @@ export class AssetStateService {
     public readonly filtered_assets = combineLatest([
         this._search,
         this.available_groups,
+        this.rules,
     ]).pipe(
-        map(([search, assets]) => {
+        map(([search, assets, rules]) => {
             const s = search.toLowerCase();
-            return assets.filter(
+            let list = assets.filter(
                 (_) =>
                     _.assets?.length &&
                     (_.name.toLowerCase().includes(s) ||
-                        _.description.toLowerCase().includes(s))
+                        _.description.toLowerCase().includes(s)) &&
+                    assetAvailable(_, rules, this._options.getValue() as any)
             );
+            return list;
         }),
         shareReplay(1)
     );

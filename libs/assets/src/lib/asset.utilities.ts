@@ -5,7 +5,13 @@ import {
     AssetGroup,
     AssetPurchaseOrder,
 } from './asset.class';
-import { flatten } from '@placeos/common';
+import { flatten, stringToMinutes } from '@placeos/common';
+import { AttachedResourceRuleset } from '@placeos/components';
+import { CalendarEvent } from '@placeos/events';
+import { isAfter, isBefore, setHours, subHours } from 'date-fns';
+import { catchError, map } from 'rxjs/operators';
+import { showMetadata } from '@placeos/ts-client';
+import { Observable, of } from 'rxjs';
 
 export function generateAssetCategoryForm(category: AssetCategory = {} as any) {
     return new FormGroup({
@@ -94,4 +100,112 @@ export function groupsToAssets(groups: AssetGroup[]) {
                 .map((asset) => ({ ...asset, name: _.name }))
         )
     );
+}
+
+const RULE_REQUESTS: Record<string, Observable<AttachedResourceRuleset[]>> = {};
+
+export function getAssetRulesForZone(zone_id: string, fresh: boolean = false) {
+    if (!zone_id) return of([] as AttachedResourceRuleset[]);
+    if (!RULE_REQUESTS[zone_id] || fresh)
+        RULE_REQUESTS[zone_id] = showMetadata(zone_id, 'assets_config').pipe(
+            map(
+                (_) =>
+                    (_.details instanceof Array
+                        ? _.details
+                        : []) as AttachedResourceRuleset[]
+            ),
+            catchError((e) => of([] as AttachedResourceRuleset[]))
+        );
+    return RULE_REQUESTS[zone_id];
+}
+
+export function assetAvailable(
+    item: AssetGroup,
+    rules: AttachedResourceRuleset[],
+    event: CalendarEvent
+): boolean {
+    const current_date = Date.now();
+    const event_date = new Date(event.date);
+
+    const isRuleMatch = (rule: AttachedResourceRuleset): boolean =>
+        item.name === rule.name ||
+        item.category.name.includes(rule.name) ||
+        event.resources.some((resource) =>
+            resource.zones.includes(rule.name)
+        ) ||
+        event.space?.zones.includes(rule.name) ||
+        rule.name === '*';
+
+    const countMatches = (rule: AttachedResourceRuleset): number =>
+        rule.rules.reduce((matches, condition) => {
+            switch (condition[0]) {
+                case 'is_before':
+                    return (
+                        matches +
+                        (isBefore(
+                            current_date,
+                            subHours(event_date, condition[1])
+                        )
+                            ? 1
+                            : 0)
+                    );
+                case 'within_hours':
+                    return (
+                        matches +
+                        (isAfter(
+                            current_date,
+                            subHours(event_date, condition[1])
+                        )
+                            ? 1
+                            : 0)
+                    );
+                case 'after_hour':
+                    return (
+                        matches +
+                        (isAfter(event_date, setHours(event_date, condition[1]))
+                            ? 1
+                            : 0)
+                    );
+                case 'before_hour':
+                    return (
+                        matches +
+                        (isBefore(
+                            event_date,
+                            setHours(event_date, condition[1])
+                        )
+                            ? 1
+                            : 0)
+                    );
+                case 'min_length':
+                    return (
+                        matches +
+                        (event.duration >= stringToMinutes(condition[1])
+                            ? 1
+                            : 0)
+                    );
+                case 'max_length':
+                    return (
+                        matches +
+                        (event.duration <= stringToMinutes(condition[1])
+                            ? 1
+                            : 0)
+                    );
+                case 'visitor_type':
+                    return (
+                        matches +
+                        (event.ext('visitor_type') === condition[1] ? 1 : 0)
+                    );
+                default:
+                    return matches + 1;
+            }
+        }, 0);
+
+    for (const rule of rules) {
+        if (isRuleMatch(rule)) {
+            if (countMatches(rule) < rule.rules.length) {
+                return false;
+            }
+        }
+    }
+    return true;
 }
