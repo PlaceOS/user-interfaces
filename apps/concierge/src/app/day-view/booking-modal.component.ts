@@ -1,7 +1,12 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { DialogEvent, notifyError, notifySuccess } from '@placeos/common';
+import {
+    DialogEvent,
+    SettingsService,
+    notifyError,
+    notifySuccess,
+} from '@placeos/common';
 import { CalendarEvent, EventFormService, queryEvents } from '@placeos/events';
 
 export interface BookingModalData {
@@ -61,7 +66,8 @@ export class BookingModalComponent implements OnInit {
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: BookingModalData,
         private _service: EventFormService,
-        private _dialog_ref: MatDialogRef<BookingModalComponent>
+        private _dialog_ref: MatDialogRef<BookingModalComponent>,
+        private _settings: SettingsService
     ) {}
 
     public async ngOnInit() {
@@ -75,6 +81,11 @@ export class BookingModalComponent implements OnInit {
                         ical_uid: event.ical_uid,
                     }).toPromise()
                 ).find((_) => _.ical_uid === (event as any).ical_uid) || event;
+        }
+        if (!event.id) {
+            (event as any).all_day =
+                this._settings.get('app.events.all_day_default') ??
+                event.all_day;
         }
         this._service.newForm(event);
     }
