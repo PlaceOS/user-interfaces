@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     AsyncHandler,
+    InjectMapApiService,
     notifyError,
     SettingsService,
     unique,
@@ -43,14 +44,26 @@ import { first, take } from 'rxjs/operators';
         <!-- <explore-map-stack class="z-0"></explore-map-stack> -->
         <div class="absolute inset-0">
             <i-map
+                *ngIf="!(use_mapsindoors$ | async)"
                 [src]="url | async"
                 [zoom]="(positions | async)?.zoom"
                 [center]="(positions | async)?.center"
+                (zoomChange)="updateZoom($event)"
+                (centerChange)="updateCenter($event)"
                 [styles]="styles | async"
                 [features]="features | async"
                 [actions]="actions | async"
                 [labels]="labels | async"
             ></i-map>
+            <indoor-maps
+                *ngIf="use_mapsindoors$ | async"
+                [styles]="styles | async"
+                [actions]="actions | async"
+                [custom_coordinates]="{
+                    latitude: 30.3603774 ,
+                    longitude:  -97.7426772,
+                }"
+            ></indoor-maps>
         </div>
         <explore-zoom-controls
             class="absolute top-1/2 transform -translate-y-1/2 right-0"
@@ -209,6 +222,8 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         return !!this._settings.get('app.explore.search_enabled');
     }
 
+    public readonly use_mapsindoors$ = this._maps.is_initialised$;
+
     constructor(
         private _state: ExploreStateService,
         private _s: ExploreSpacesService,
@@ -220,7 +235,8 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         private _dialog: MatDialog,
         private _route: ActivatedRoute,
         private _router: Router,
-        private _space_pipe: SpacePipe
+        private _space_pipe: SpacePipe,
+        private _maps: InjectMapApiService
     ) {
         super();
     }
