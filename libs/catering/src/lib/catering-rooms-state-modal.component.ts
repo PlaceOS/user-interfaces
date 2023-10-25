@@ -57,9 +57,9 @@ import { CateringStateService } from './catering';
                                 ></mat-checkbox>
                             </td>
                             <td>{{ space.display_name || space.name }}</td>
-                            <td class="text-right">
-                                <span
-                                    class="px-2 py-1 rounded-2xl"
+                            <td class="text-center">
+                                <div
+                                    class="ml-auto px-3 py-1 rounded-2xl text-white w-24"
                                     [class.bg-green-600]="
                                         !(availability | async)?.includes(
                                             space.id
@@ -78,7 +78,7 @@ import { CateringStateService } from './catering';
                                             ? 'Enabled'
                                             : 'Disabled'
                                     }}
-                                </span>
+                                </div>
                             </td>
                         </tr>
                     </tbody>

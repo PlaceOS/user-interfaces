@@ -97,6 +97,7 @@ import {
                         <div
                             class="absolute bg-primary right-0 translate-x-1/2 -translate-y-1/2 h-2 w-2 rounded-full z-30"
                             [style.top]="timeToOffset(now) + 'px'"
+                            *ngIf="is_today | async"
                         ></div>
                     </div>
                 </div>
@@ -119,7 +120,7 @@ import {
                             class="h-12 w-full border-t border-gray-200"
                         ></div>
                         <div
-                            *ngIf="is_today"
+                            *ngIf="is_today | async"
                             class="absolute inset-x-0 -translate-y-px h-0.5 bg-primary z-30"
                             [style.top]="
                                 timeToOffset(now) -

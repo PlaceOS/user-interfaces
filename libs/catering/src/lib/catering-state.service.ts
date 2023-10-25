@@ -5,7 +5,7 @@ import {
     showMetadata,
     PlaceMetadata,
 } from '@placeos/ts-client';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -71,6 +71,8 @@ export class CateringStateService extends AsyncHandler {
     private _loading = new BehaviorSubject<boolean>(false);
     /** Currency code for the active building */
     private _currency = new BehaviorSubject<string>('USD');
+
+    private _change = new BehaviorSubject(0);
     /** Observable for the active menu */
     public readonly menu = this._menu.asObservable();
     /** Observable for whether the menu for the active building is loadingg */
@@ -78,9 +80,12 @@ export class CateringStateService extends AsyncHandler {
     /** Observable for the currency code of the active building */
     public readonly currency = this._currency.asObservable();
 
-    public readonly settings = this._org.active_building.pipe(
-        filter((_) => !!_),
-        switchMap((_) =>
+    public readonly settings = combineLatest([
+        this._org.active_building,
+        this._change,
+    ]).pipe(
+        filter(([_]) => !!_),
+        switchMap(([_]) =>
             showMetadata(_.id, 'catering-settings').pipe(
                 catchError((_) => of({} as PlaceMetadata))
             )
@@ -386,12 +391,14 @@ export class CateringStateService extends AsyncHandler {
 
     public async saveSettings(settings: CateringSettings) {
         const old_settings = await this.settings.pipe(take(1)).toPromise();
-        return updateMetadata(this._org.building.id, {
+        const result = await updateMetadata(this._org.building.id, {
             id: this._org.building.id,
             name: 'catering-settings',
             details: { ...old_settings, ...settings },
             description: `Catering settings for ${this._org.building.id}`,
         }).toPromise();
+        this._change.next(Date.now());
+        return result;
     }
 
     private async getCateringForZone(zone_id: string): Promise<CateringItem[]> {
