@@ -8,7 +8,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 @Component({
     selector: 'app-settings-modal',
     template: `
-        <div class="w-screen h-screen bg-white flex flex-col">
+        <div class="w-screen h-screen bg-base-100 flex flex-col">
             <header
                 class="sticky top-0 py-2 px-0 mx-auto max-w-[640px] w-full border-none z-10"
             >
@@ -25,7 +25,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                     <div class="flex flex-wrap items-center -mx-2 py-2">
                         <button
                             matRipple
-                            class="flex items-center space-x-2 m-2 p-2 border border-gray-300 w-[calc(50%-1rem)]"
+                            class="flex items-center space-x-2 m-2 p-2 border border-base-200 w-[calc(50%-1rem)]"
                             (click)="
                                 active_features['use_24_hour_time'] =
                                     !active_features['use_24_hour_time']
@@ -45,7 +45,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                         <button
                             *ngFor="let feature of available_features"
                             matRipple
-                            class="flex items-center space-x-2 m-2 p-2 border border-gray-300 w-[calc(50%-1rem)]"
+                            class="flex items-center space-x-2 m-2 p-2 border border-base-200 w-[calc(50%-1rem)]"
                             (click)="
                                 active_features[feature] =
                                     !active_features[feature]
@@ -65,7 +65,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                         <button
                             *ngFor="let feature of landing_features"
                             matRipple
-                            class="flex items-center space-x-2 m-2 p-2 border border-gray-300 w-[calc(50%-1rem)]"
+                            class="flex items-center space-x-2 m-2 p-2 border border-base-200 w-[calc(50%-1rem)]"
                             (click)="
                                 active_features[feature] =
                                     !active_features[feature]
@@ -86,7 +86,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                             <button
                                 *ngFor="let feature of room_features"
                                 matRipple
-                                class="flex items-center space-x-2 m-2 p-2 border border-gray-300 w-[calc(50%-1rem)]"
+                                class="flex items-center space-x-2 m-2 p-2 border border-base-200 w-[calc(50%-1rem)]"
                                 (click)="
                                     active_features[feature] =
                                         !active_features[feature]
@@ -108,7 +108,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                             <button
                                 *ngFor="let feature of desk_features"
                                 matRipple
-                                class="flex items-center space-x-2 m-2 p-2 border border-gray-300 w-[calc(50%-1rem)]"
+                                class="flex items-center space-x-2 m-2 p-2 border border-base-200 w-[calc(50%-1rem)]"
                                 (click)="
                                     active_features[feature] =
                                         !active_features[feature]
@@ -127,7 +127,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                 </div>
             </main>
             <footer
-                class="sticky bottom-0 flex items-center justify-end space-x-2 p-2 mx-auto max-w-[640px] w-full bg-white z-10"
+                class="sticky bottom-0 flex items-center justify-end space-x-2 p-2 mx-auto max-w-[640px] w-full bg-base-100 z-10"
                 *ngIf="!loading"
             >
                 <button btn matRipple class="inverse w-32" mat-dialog-close>

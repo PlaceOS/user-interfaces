@@ -26,7 +26,7 @@ import { StaffStateService } from './staff-state.service';
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
-                background-color: #fff;
+                background-color: var(--b1);
             }
         `,
     ],

@@ -62,22 +62,22 @@ import { SpaceFiltersComponent } from './space-filters.component';
             <div
                 filter-item
                 zone
-                class="dark:border-neutral-500"
+                class="dark:border-base-200-500"
                 *ngIf="location"
             >
                 {{ location }}
             </div>
-            <div filter-item date class="dark:border-neutral-500">
+            <div filter-item date class="dark:border-base-200-500">
                 {{ start | date: 'mediumDate' }}
             </div>
-            <div filter-item time class="dark:border-neutral-500">
+            <div filter-item time class="dark:border-base-200-500">
                 <ng-container *ngIf="!all_day">
                     {{ start | date: time_format }} &mdash;
                     {{ end | date: time_format }}
                 </ng-container>
                 <ng-container *ngIf="all_day">All Day</ng-container>
             </div>
-            <div filter-item count class="dark:border-neutral-500" i18n>
+            <div filter-item count class="dark:border-base-200-500" i18n>
                 Min. {{ (options | async)?.capacity || 2 }} People
             </div>
             <div filter-item *ngFor="let feat of (options | async)?.features">
@@ -86,7 +86,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
                     icon
                     matRipple
                     name="remove-space-filter"
-                    class="-mr-4 dark:border-neutral-500"
+                    class="-mr-4"
                     (click)="removeFeature(feat)"
                 >
                     <app-icon>close</app-icon>

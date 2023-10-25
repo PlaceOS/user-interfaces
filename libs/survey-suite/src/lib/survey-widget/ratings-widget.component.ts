@@ -6,11 +6,13 @@ import { parseRatingAnswers, parseRatingStats } from './survey-helper';
 
 @Component({
     selector: 'ratings-widget',
-    styles: [`
-        :host{
-            padding-bottom: 0.5rem;
-        }
-    `],
+    styles: [
+        `
+            :host {
+                padding-bottom: 0.5rem;
+            }
+        `,
+    ],
     template: `
         <ng-container *ngIf="chart_data$ | async as data">
             <div class="flex flex-row space-x-4 p-4">
@@ -27,9 +29,9 @@ import { parseRatingAnswers, parseRatingStats } from './survey-helper';
                             >
                         </div>
 
-                        <div class="progress-bar bg-gray-200 h-5">
+                        <div class="progress-bar bg-base-200 h-5">
                             <span
-                                class="progress-bar-fill bg-yellow-500 h-5 rounded-lg"
+                                class="progress-bar-fill bg-warning h-5 rounded-lg"
                                 [ngStyle]="{ width: stats.percentage + '%' }"
                             ></span>
                         </div>
@@ -44,9 +46,9 @@ import { parseRatingAnswers, parseRatingStats } from './survey-helper';
                         <div class="w-3 flex justify-end">
                             <span> {{ i + 1 }}</span>
                         </div>
-                        <div class="progress-bar bg-gray-200 h-3">
+                        <div class="progress-bar bg-base-200 h-3">
                             <span
-                                class="progress-bar-fill bg-yellow-500 h-3"
+                                class="progress-bar-fill bg-warning h-3"
                                 [ngStyle]="{ width: d + '%' }"
                             ></span>
                         </div>

@@ -117,9 +117,7 @@ import { filter, first, map, take } from 'rxjs/operators';
                 </div>
             </div>
         </div>
-        <div
-            class="flex-1 w-full bg-gray-100 dark:bg-neutral-600 overflow-auto"
-        >
+        <div class="flex-1 w-full bg-base-200 overflow-auto">
             <ng-container *ngIf="!(loading | async); else load_state">
                 <ng-container
                     *ngIf="(spaces | async)?.length > 0; else empty_state"
@@ -138,10 +136,7 @@ import { filter, first, map, take } from 'rxjs/operators';
                 </ng-container>
             </ng-container>
         </div>
-        <div
-            *ngIf="multiple"
-            class="bg-white dark:bg-neutral-700 border-t border-gray-200"
-        >
+        <div *ngIf="multiple" class="bg-base-100 border-t border-base-200">
             <div
                 class="flex items-center w-[640px] max-w-[calc(100%-2rem)] mx-auto p-2"
             >
@@ -224,7 +219,7 @@ import { filter, first, map, take } from 'rxjs/operators';
             }
 
             [filters] {
-                background-color: var(--secondary);
+                background-color: var(--p);
             }
         `,
     ],

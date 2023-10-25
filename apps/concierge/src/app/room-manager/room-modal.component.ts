@@ -331,7 +331,7 @@ import { FormControl, FormGroup } from '@angular/forms';
             </form>
         </main>
         <footer
-            class="p-2 flex justify-end border-t border-gray-200"
+            class="p-2 flex justify-end border-t border-base-200"
             *ngIf="!loading"
         >
             <button btn class="w-32" (click)="save()">Save</button>

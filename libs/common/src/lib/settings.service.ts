@@ -102,7 +102,6 @@ export class SettingsService extends AsyncHandler {
      * Initialise the settings
      */
     public async init() {
-        this._setDarkMode();
         if (this.get('debug')) window.debug = true;
         if (this.get('app')?.name) {
             this._app_name = this.get('app').name;
@@ -123,7 +122,8 @@ export class SettingsService extends AsyncHandler {
         const user = await current_user.pipe(first((_) => !!_)).toPromise();
         const data = await showMetadata(user.id, 'settings').toPromise();
         this._user_settings.next(data.details || {});
-        this._setDarkMode();
+        this._initDarkMode();
+        this._applyTheme();
         this._setFontSize();
     }
 
@@ -161,7 +161,7 @@ export class SettingsService extends AsyncHandler {
 
     public saveUserSetting<T>(name: string, value: T) {
         this._pending_settings[name] = value;
-        if (name === 'dark_mode') this._setDarkMode();
+        if (name === 'dark_mode') this.setTheme(value ? 'dark' : '');
         if (name === 'font_size') this._setFontSize();
         this.timeout('save_settings', () => this._savePendingChanges(), 5000);
     }
@@ -180,6 +180,13 @@ export class SettingsService extends AsyncHandler {
         element.innerText = `html, body { --${key}: ${value} ${
             important ? '!important' : ''
         }}`;
+    }
+
+    public setTheme(theme: string) {
+        const current_theme = this.get('theme');
+        if (current_theme === theme) return;
+        this.saveUserSetting('theme', theme);
+        this._applyTheme();
     }
 
     private _applyCssVariables() {
@@ -226,12 +233,26 @@ export class SettingsService extends AsyncHandler {
         this.overrideCssVariable('font-size', `${this.get('font_size')}px`);
     }
 
-    private _setDarkMode() {
-        // const os_dark = false; // window?.matchMedia ? window?.matchMedia('(prefers-color-scheme: dark)')?.matches : false;
-        // if (this.get('dark_mode') ?? os_dark) {
-        //     document.body.classList.add('dark');
-        // } else {
-        //     document.body.classList.remove('dark');
-        // }
+    private _applyTheme() {
+        const theme = this.get('theme');
+        const class_list = document.body.classList.value.split(' ');
+        for (const item of class_list) {
+            if (item.startsWith('theme-')) {
+                document.body.classList.remove(item);
+            }
+        }
+        if (theme) {
+            document.body.classList.add(`theme-${theme}`);
+        } else {
+            document.body.classList.remove(`theme-${theme}`);
+        }
+    }
+
+    private _initDarkMode() {
+        if (this.get('theme') || true) return;
+        const os_dark = window?.matchMedia
+            ? window?.matchMedia('(prefers-color-scheme: dark)')?.matches
+            : false;
+        this.setTheme(os_dark ? 'dark' : '');
     }
 }

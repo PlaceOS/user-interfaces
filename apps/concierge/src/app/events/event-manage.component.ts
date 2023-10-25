@@ -8,7 +8,7 @@ const EMPTY = [];
 @Component({
     selector: 'app-event-manage',
     template: `
-        <div class="absolute inset-0 bg-white overflow-auto">
+        <div class="absolute inset-0 bg-base-100 overflow-auto">
             <a
                 icon
                 matRipple

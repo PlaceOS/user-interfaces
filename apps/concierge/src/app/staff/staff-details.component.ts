@@ -8,7 +8,7 @@ import { StaffStateService } from './staff-state.service';
     selector: 'staff-details',
     template: `
         <div
-            class="w-full flex items-center px-4 py-2 bg-white dark:bg-neutral-700 border-b border-gray-200 dark:border-neutral-500 hover:opacity-80"
+            class="w-full flex items-center px-4 py-2 bg-base-100 border-b border-base-200 hover:opacity-80"
             details
             *ngIf="user"
         >

@@ -7,7 +7,7 @@ import { ApplicationLinkInternal, SettingsService } from '@placeos/common';
     template: `
         <sidebar class="h-full"></sidebar>
         <main
-            class="relative overflow-hidden flex flex-col flex-1 w-1/2 h-full bg-gray-200 dark:bg-neutral-600"
+            class="relative overflow-hidden flex flex-col flex-1 w-1/2 h-full bg-base-200"
         >
             <dayview-topbar></dayview-topbar>
             <dayview-timeline></dayview-timeline>

@@ -5,7 +5,7 @@ import { CheckinStateService } from './checkin-state.service';
     selector: 'checkin-error',
     template: `
         <div
-            class="bg-white rounded shadow overflow-hidden relative flex flex-col items-center my-4 mx-auto p-4"
+            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center my-4 mx-auto p-4"
         >
             <h3 class="text-2xl mb-4">Please see reception.</h3>
             <p class="mb-2" *ngIf="error | async">{{ error | async }}</p>

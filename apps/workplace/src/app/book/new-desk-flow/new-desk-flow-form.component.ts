@@ -19,22 +19,18 @@ import { NewDeskFlowConfirmComponent } from './new-desk-flow-confirm.component';
     selector: 'new-desk-flow-form',
     styles: [],
     template: `
-        <div
-            class="h-full w-full bg-gray-100 dark:bg-neutral-600 overflow-auto"
-        >
+        <div class="h-full w-full bg-base-200 overflow-auto">
             <div
-                class="max-w-full w-[48rem] mx-auto sm:my-4 bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500"
+                class="max-w-full w-[48rem] mx-auto sm:my-4 bg-base-100 border border-base-200"
             >
                 <h2
-                    class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-gray-300 dark:border-neutral-500"
+                    class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-base-200"
                     i18n
                 >
                     Book Desk
                 </h2>
                 <new-desk-form-details [form]="form"></new-desk-form-details>
-                <div
-                    class="sm:mb-2 border-b border-gray-300 dark:border-neutral-500 w-full"
-                ></div>
+                <div class="sm:mb-2 border-b border-base-200 w-full"></div>
                 <section
                     class="flex flex-col sm:flex-row items-center sm:space-x-2 p-2 sm:px-16 sm:mb-2"
                 >

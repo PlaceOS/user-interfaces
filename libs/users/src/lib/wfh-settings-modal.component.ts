@@ -15,14 +15,14 @@ const WFH_SETTING_KEY = 'wfh-days';
             *ngIf="!loading; else load_state"
         >
             <div
-                class="w-full px-4 py-8 flex flex-col items-center border-b border-gray-200"
+                class="w-full px-4 py-8 flex flex-col items-center border-b border-base-200"
             >
                 <a-user-avatar [user]="user"></a-user-avatar>
                 <div>{{ user.name }}</div>
                 <div class="text-xs opacity-30">{{ user.email }}</div>
                 <div class="text-xs opacity-30">{{ user.phone }}</div>
             </div>
-            <div class="w-full p-4 flex flex-col  border-b border-gray-200">
+            <div class="w-full p-4 flex flex-col  border-b border-base-200">
                 <h3 class="-mt-2 mb-2 text-sm font-medium">
                     Today's Working Location
                 </h3>
@@ -40,7 +40,7 @@ const WFH_SETTING_KEY = 'wfh-days';
                 </button>
                 <div class="flex items-center pt-4 space-x-2">
                     <div
-                        class="h-8 w-8 rounded-full bg-gray-300 dark:bg-neutral-800 flex items-center justify-center"
+                        class="h-8 w-8 rounded-full bg-base-200 flex items-center justify-center"
                     >
                         <app-icon>home</app-icon>
                     </div>
@@ -55,7 +55,7 @@ const WFH_SETTING_KEY = 'wfh-days';
                     Default Office Days
                 </h3>
                 <div
-                    class="border border-gray-200 rounded flex items-center justify-between px-2 pt-2"
+                    class="border border-base-200 rounded flex items-center justify-between px-2 pt-2"
                 >
                     <div
                         class="flex flex-col items-center flex-1 w-px"
@@ -106,7 +106,7 @@ const WFH_SETTING_KEY = 'wfh-days';
         <ng-template #load_state>
             <div
                 loading
-                class="relative bg-white flex flex-col justify-center items-center rounded overflow-hidden w-[18rem] h-[18rem]"
+                class="relative bg-base-100 flex flex-col justify-center items-center rounded overflow-hidden w-[18rem] h-[18rem]"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>Saving changes to work location settings...</p>

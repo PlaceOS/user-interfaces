@@ -21,7 +21,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
     template: `
         <div
             header
-            class="p-4 flex items-center justify-center border-b border-grey-200 relative"
+            class="p-4 flex items-center justify-center border-b border-base-200 relative"
         >
             <button
                 icon
@@ -40,8 +40,8 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 [class.opacity-0]="!(loading | async)"
             ></mat-spinner>
         </div>
-        <main class="min-w-[48rem] divide-y divide-gray-300 p-4 space-y-4">
-            <div class="flex divide-x divide-gray-300">
+        <main class="min-w-[48rem] divide-y divide-base-200 p-4 space-y-4">
+            <div class="flex divide-x divide-base-200">
                 <div class="pr-4 py-4 pl-16 relative space-y-2 flex-1">
                     <div
                         class="absolute top-4 left-4 flex items-center justify-center rounded-full border border-success text-success text-2xl"
@@ -126,7 +126,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 </div>
             </div>
             <div
-                class="flex divide-x divide-gray-300"
+                class="flex divide-x divide-base-200"
                 *ngIf="event.catering?.length || event.assets?.length"
             >
                 <div
@@ -146,14 +146,14 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                         >
                             <div
                                 count
-                                class="flex items-center justify-center min-w-[2rem] h-8 rounded-full bg-gray-200"
+                                class="flex items-center justify-center min-w-[2rem] h-8 rounded-full bg-base-200"
                             >
                                 ×{{ item.quantity }}
                             </div>
                             <div name class="flex-1">{{ item.name }}</div>
                             <div class="flex items-center space-x-2">
                                 <div
-                                    class="flex items-center text-xs px-2 py-1 rounded-2xl bg-gray-100"
+                                    class="flex items-center text-xs px-2 py-1 rounded-2xl bg-base-200"
                                     [matTooltip]="opt.name"
                                     *ngFor="let opt of item.option_list"
                                 >
@@ -189,7 +189,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                                 {{ item.total_cost / 100 | currency: code }}
                             </div>
                         </div>
-                        <div class="w-full bg-gray-200 flex justify-end p-2">
+                        <div class="w-full bg-base-200 flex justify-end p-2">
                             <div class="font-medium">Total:</div>
                             <div class="font-mono text-right min-w-[6rem]">
                                 {{
@@ -235,7 +235,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             </div>
         </main>
         <footer
-            class="p-2 border-t border-gray-200 flex items-center justify-end"
+            class="p-2 border-t border-base-200 flex items-center justify-end"
         >
             <button
                 btn

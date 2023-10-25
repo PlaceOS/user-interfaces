@@ -11,7 +11,7 @@ import { uploadFiles } from '@placeos/cloud-uploads';
     selector: 'upload-file',
     template: `
         <div
-            class="bg-gray-50 hover:bg-gray-100 cursor-pointer p-2 rounded border border-gray-200 w-full relative"
+            class="bg-base-200 hover:bg-base-200 cursor-pointer p-2 rounded border border-base-200 w-full relative"
         >
             <input
                 type="file"
@@ -21,8 +21,8 @@ import { uploadFiles } from '@placeos/cloud-uploads';
             <div
                 item
                 *ngIf="item; else empty_state"
-                class="w-full flex items-center border border-gray-200 rounded bg-white hover:bg-gray-100 relative z-50"
-                [class.!bg-red-600]="item.progress < 1"
+                class="w-full flex items-center border border-base-200 rounded bg-base-100 hover:bg-base-200 relative z-50"
+                [class.!bg-error]="item.progress < 1"
                 [class.!bg-opacity-20]="item.progress < 1"
             >
                 <div class="flex-1 w-px font-mono truncate px-2 text-sm">

@@ -12,7 +12,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                 class="flex-1 h-full text-white flex flex-col items-center justify-center relative"
                 [class.bg-error]="(state | async) === 'busy'"
                 [class.bg-success]="(state | async) === 'free'"
-                [class.bg-pending]="(state | async) === 'pending'"
+                [class.bg-warning]="(state | async) === 'pending'"
             >
                 <div
                     [innerHTML]="
@@ -138,7 +138,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                     </ng-template>
                 </p>
                 <div
-                    class="absolute top-0 inset-x-0 flex items-center justify-center text-2xl bg-black/40 p-4 space-x-4"
+                    class="absolute top-0 inset-x-0 flex items-center justify-center text-2xl bg-[#0008] p-4 space-x-4"
                     *ngIf="(state | async) === 'pending' && can_book"
                 >
                     <p class="uppercase">
@@ -147,7 +147,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                     <app-icon>arrow_forward</app-icon>
                 </div>
                 <div
-                    class="absolute top-0 inset-x-0 flex items-center justify-center text-2xl bg-black/40 p-4 space-x-4"
+                    class="absolute top-0 inset-x-0 flex items-center justify-center text-2xl bg-[#0008] p-4 space-x-4"
                     *ngIf="(state | async) === 'free' && can_book"
                 >
                     <p class="uppercase">
@@ -156,7 +156,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                     <app-icon>arrow_forward</app-icon>
                 </div>
                 <div
-                    class="absolute top-0 inset-x-0 flex items-center justify-center text-2xl bg-black/40 p-4 space-x-4"
+                    class="absolute top-0 inset-x-0 flex items-center justify-center text-2xl bg-[#0008] p-4 space-x-4"
                     *ngIf="(state | async) === 'busy' && can_end"
                 >
                     <p class="uppercase">
@@ -166,7 +166,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                 </div>
             </div>
             <div
-                class="flex-1 h-full bg-white text-black flex flex-col items-center justify-center space-y-4"
+                class="flex-1 h-full bg-base-100 text-base-content flex flex-col items-center justify-center space-y-4"
             >
                 <div
                     [innerHTML]="

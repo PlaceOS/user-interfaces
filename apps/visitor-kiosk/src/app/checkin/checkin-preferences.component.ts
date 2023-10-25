@@ -16,7 +16,7 @@ import { CheckinStateService } from './checkin-state.service';
     selector: 'checkin-preferences',
     template: `
         <div
-            class="bg-white rounded shadow overflow-hidden relative flex flex-col items-center my-4 p-4 mx-auto"
+            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center my-4 p-4 mx-auto"
         >
             <h3 class="text-xl mb-2 w-full">Would you like a drink?</h3>
             <div class="w-full">

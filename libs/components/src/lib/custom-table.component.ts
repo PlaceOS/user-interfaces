@@ -21,13 +21,13 @@ import { Observable } from 'rxjs';
         <cdk-table
             [dataSource]="data_source"
             matSort
-            class="block border border-gray-300 divide-y divide-gray-300 dark:border-neutral-500 text-sm"
+            class="block border border-base-200 divide-y divide-base-200 text-sm"
         >
             <ng-container *ngFor="let column of columns; let i = index">
                 <ng-container [cdkColumnDef]="column">
                     <div
                         cdk-header-cell
-                        class="capitalize p-2 h-12 bg-black/5 flex items-center"
+                        class="capitalize p-2 h-12 bg-base-300 flex items-center"
                         [style.width]="(column_size[i] || '8') + 'em'"
                         [style.flex]="column_size[i] === 'flex' ? '1' : ''"
                         *cdkHeaderCellDef
@@ -81,12 +81,12 @@ import { Observable } from 'rxjs';
             </ng-container>
 
             <cdk-header-row
-                class="sticky flex items-center bg-white dark:bg-neutral-700 top-0 z-10"
+                class="sticky flex items-center bg-base-100 top-0 z-10"
                 *cdkHeaderRowDef="columns"
             ></cdk-header-row>
             <cdk-row
                 row
-                class="flex z-0 relative hover:bg-black/5 dark:hover:bg-white/5 divide-x divide-gray-300"
+                class="flex z-0 relative hover:bg-neutral:bg-base-100/5 divide-x divide-base-200"
                 (click)="row_clicked.emit(row)"
                 *cdkRowDef="let row; columns: columns"
             ></cdk-row>

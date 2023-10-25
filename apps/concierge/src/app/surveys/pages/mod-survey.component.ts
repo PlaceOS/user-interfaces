@@ -13,14 +13,14 @@ import { SurveyService } from '../services/survey.service';
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
-                background-color: #fff;
+                background-color: var(--b1);
             }
         `,
     ],
     template: `
         <div
             *ngIf="(loading$ | async).length"
-            class="flex absolute inset-0 opacity-60 bg-white dark:bg-black z-10"
+            class="flex absolute inset-0 opacity-60 bg-base-100 z-10"
         >
             <div class="flex flex-col m-auto items-center">
                 <mat-spinner [diameter]="32"></mat-spinner>

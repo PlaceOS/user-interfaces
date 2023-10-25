@@ -30,27 +30,25 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 @Component({
     selector: 'meeting-flow-form',
     template: `
-        <div
-            class="h-full w-full bg-gray-100 dark:bg-neutral-900 overflow-auto"
-        >
+        <div class="h-full w-full bg-base-200 overflow-auto">
             <div
-                class="max-w-full w-[48rem] mx-auto sm:my-4 bg-white dark:bg-[#1F2021] border border-gray-300 dark:border-neutral-700"
+                class="max-w-full w-[48rem] mx-auto sm:my-4 bg-base-100 border border-base-300"
             >
                 <h2
-                    class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-gray-300 dark:border-neutral-700"
+                    class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-base-300"
                 >
                     {{ !!form.value.id ? 'Edit' : 'Book' }}
                     {{ 'WPA.BOOK_MEETING_HEADING' | translate }}
                 </h2>
                 <form
-                    class="p-0 sm:py-4 sm:px-16 divide-y divide-gray-300 space-y-2"
+                    class="p-0 sm:py-4 sm:px-16 divide-y divide-base-200 space-y-2"
                     [formGroup]="form"
                     *ngIf="form"
                 >
                     <section class="p-2">
                         <h3 class="space-x-2 flex items-center">
                             <div
-                                class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
                             >
                                 1
                             </div>
@@ -86,7 +84,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                     <section class="p-2" *ngIf="!hide_attendees">
                         <h3 class="space-x-2 flex items-center">
                             <div
-                                class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
                             >
                                 2
                             </div>
@@ -97,7 +95,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                             <button
                                 matRipple
                                 name="find-attendee-availability"
-                                class="bg-none underline text-xs text-blue-500"
+                                class="bg-none underline text-xs text-info"
                                 (click)="findAvailableTime()"
                             >
                                 {{ 'WPA.AVAILABILITY' | translate }}
@@ -131,7 +129,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                     <section class="p-2">
                         <h3 class="space-x-2 flex items-center">
                             <div
-                                class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
                             >
                                 3
                             </div>
@@ -165,7 +163,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                                     total_capacity <=
                                         form.value.attendees?.length
                                 "
-                                class="bg-yellow-500 rounded shadow p-2 text-xs mx-auto my-2 text-black inline-flex"
+                                class="bg-warning text-warning-content rounded shadow p-2 text-xs mx-auto my-2 inline-flex"
                             >
                                 The selected room has less capacity than the
                                 number of meeting attendees.
@@ -179,7 +177,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                     <section class="p-2" *ngIf="has_catering | async">
                         <h3 class="space-x-2 flex items-center">
                             <div
-                                class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
                             >
                                 4
                             </div>
@@ -232,7 +230,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                                 >
                                     <input
                                         #input
-                                        class="sticky top-0 bg-white px-4 py-3 text-base border-x-0 border-t-0 border-b focus:border-b border-gray-200 w-full rounded-none z-50"
+                                        class="sticky top-0 bg-base-100 px-4 py-3 text-base border-x-0 border-t-0 border-b focus:border-b border-base-200 w-full rounded-none z-50"
                                         [ngModel]="code_filter.getValue()"
                                         (ngModelChange)="
                                             code_filter.next($event)
@@ -279,7 +277,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                     <section class="p-2" *ngIf="has_assets">
                         <h3 class="space-x-2 flex items-center">
                             <div
-                                class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
                             >
                                 {{ !(has_catering | async) ? '4' : '5' }}
                             </div>
@@ -314,7 +312,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                     <section class="p-2" *ngIf="!hide_notes">
                         <h3 class="space-x-2 flex items-center mb-4">
                             <div
-                                class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
                             >
                                 {{
                                     !(has_catering | async) || !has_assets

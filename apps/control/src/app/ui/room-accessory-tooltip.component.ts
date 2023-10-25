@@ -8,7 +8,7 @@ import { ControlStateService } from '../control-state.service';
     selector: 'room-accessory-tooltip',
     template: `
         <div
-            class="p-4 my-2 bg-white shadow rounded flex flex-col items-center space-y-2"
+            class="p-4 my-2 bg-base-100 shadow rounded flex flex-col items-center space-y-2"
         >
             <h3 class="mb-2 text-xl font-medium">Room Accessories</h3>
             <ng-container *ngIf="(list | async)?.length; else empty_state">

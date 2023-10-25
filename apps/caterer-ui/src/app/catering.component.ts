@@ -6,9 +6,7 @@ import { AsyncHandler } from '@placeos/common';
 @Component({
     selector: 'app-catering',
     template: `
-        <main
-            class="relative w-full flex flex-col bg-gray-200 dark:bg-neutral-600"
-        >
+        <main class="relative w-full flex flex-col bg-base-200">
             <catering-topbar
                 *ngIf="page"
                 class="relative z-10"
@@ -28,7 +26,7 @@ import { AsyncHandler } from '@placeos/common';
                 >
                     <a
                         matRipple
-                        class="rounded flex flex-col items-center bg-white dark:bg-neutral-700 shadow text-black dark:text-white overflow-hidden"
+                        class="rounded flex flex-col items-center bg-base-100 shadow text-black overflow-hidden"
                         [routerLink]="['/menu']"
                     >
                         <div
@@ -48,7 +46,7 @@ import { AsyncHandler } from '@placeos/common';
                     </a>
                     <a
                         matRipple
-                        class="rounded flex flex-col items-center bg-white dark:bg-neutral-700 shadow text-black dark:text-white overflow-hidden"
+                        class="rounded flex flex-col items-center bg-base-100 shadow text-black overflow-hidden"
                         [routerLink]="['/orders']"
                     >
                         <div

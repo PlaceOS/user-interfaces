@@ -39,7 +39,7 @@ export interface BookingModalData {
         </main>
         <footer
             *ngIf="!(loading | async)"
-            class="flex justify-center items-center p-2 border-t border-gray-200"
+            class="flex justify-center items-center p-2 border-t border-base-200"
         >
             <button btn matRipple class="w-32" (click)="save()">Save</button>
         </footer>
@@ -82,7 +82,7 @@ export class BookingModalComponent implements OnInit {
                     }).toPromise()
                 ).find((_) => _.ical_uid === (event as any).ical_uid) || event;
         }
-        if (!event.id) {
+        if (event && !event.id) {
             (event as any).all_day =
                 this._settings.get('app.events.all_day_default') ??
                 event.all_day;

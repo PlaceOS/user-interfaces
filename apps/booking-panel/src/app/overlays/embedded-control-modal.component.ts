@@ -11,9 +11,9 @@ export interface EmbeddedControlModalData {
 @Component({
     selector: 'embedded-control-modal',
     template: `
-        <div class="absolute inset-0 bg-white"></div>
+        <div class="absolute inset-0 bg-base-100"></div>
         <div
-            class="absolute w-screen overflow-hidden bg-primary"
+            class="absolute w-screen overflow-hidden bg-secondary"
             modal
             [@show]
             (window:click)="reset()"

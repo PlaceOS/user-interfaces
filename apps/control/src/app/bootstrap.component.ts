@@ -20,9 +20,9 @@ const STORE_KEY = 'PLACEOS.CONTROL.system';
     selector: '[app-bootstrap]',
     template: `
         <div
-            class="rounded shadow m-4 bg-white dark:bg-neutral-700 border border-gray-200 dark:border-neutral-500 overflow-hidden mx-auto text-center flex flex-col items-center"
+            class="rounded shadow m-4 bg-base-100 border border-base-200 overflow-hidden mx-auto text-center flex flex-col items-center"
         >
-            <h2 class="bg-red-700 text-white py-2 px-4 m-0 w-full text-2xl">
+            <h2 class="bg-error text-white py-2 px-4 m-0 w-full text-2xl">
                 Control Panel Setup
             </h2>
             <ng-container

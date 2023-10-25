@@ -9,7 +9,7 @@ import { OrganisationService } from '@placeos/organisation';
     selector: 'detailed-book-space-form',
     template: `
         <form *ngIf="form" [formGroup]="form">
-            <section class="mb-4 border-b border-gray-300 dark:border-neutral-500">
+            <section class="mb-4 border-b border-base-200">
                 <div
                     class="flex flex-col sm:flex-row space-x-0 sm:space-x-2 w-[640px] max-w-[calc(100%-2rem)] mx-auto"
                 >
@@ -107,7 +107,7 @@ import { OrganisationService } from '@placeos/organisation';
                 </div>
             </section>
             <section
-                class="mb-4 border-b border-gray-300 dark:border-neutral-500"
+                class="mb-4 border-b border-base-200"
                 *ngIf="can_book_for_others || !hide_attendees"
             >
                 <div
@@ -132,7 +132,7 @@ import { OrganisationService } from '@placeos/organisation';
                     ></a-user-list-field>
                 </div>
             </section>
-            <section class="mb-4 border-b border-gray-300 dark:border-neutral-500">
+            <section class="mb-4 border-b border-base-200">
                 <div class="w-[640px] max-w-[calc(100%-2rem)] mx-auto">
                     <div class="flex flex-col">
                         <label for="title"
@@ -179,7 +179,7 @@ import { OrganisationService } from '@placeos/organisation';
                                 <div class="text-xs opacity-60 px-4">
                                     {{
                                         form?.value.catering[0].total_cost / 100
-                                            | currency:code
+                                            | currency: code
                                     }}
                                 </div>
                             </div>
@@ -198,7 +198,7 @@ export class DetailBookSpaceFormComponent {
     @Output() public optionsChange = new EventEmitter<EventFlowOptions>();
 
     public readonly buildings = this._org.building_list;
-    public readonly setBuilding = (b) => this._org.building = b;
+    public readonly setBuilding = (b) => (this._org.building = b);
 
     public get building() {
         return this._org.building;

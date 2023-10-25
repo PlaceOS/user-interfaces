@@ -20,7 +20,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                     space
                     *ngFor="let space of assets | async"
                     [class.!border-blue-400]="active === space.id"
-                    class="relative p-2 rounded-lg w-full shadow border bg-white dark:bg-neutral-700 border-gray-200 dark:border-neutral-500"
+                    class="relative p-2 rounded-lg w-full shadow border bg-base-100 border-base-200"
                 >
                     <button
                         matRipple
@@ -29,10 +29,10 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                         (click)="selectSpace(space)"
                     >
                         <div
-                            class="relative w-20 h-20 rounded-xl bg-black/20 dark:bg-white/30 mr-4 overflow-hidden flex items-center justify-center"
+                            class="relative w-20 h-20 rounded-xl bg-neutral mr-4 overflow-hidden flex items-center justify-center"
                         >
                             <div
-                                class="absolute top-1 left-1 border border-white bg-black/50 rounded-full h-6 w-6 flex items-center justify-center text-white"
+                                class="absolute top-1 left-1 border border-white bg-neutral rounded-full h-6 w-6 flex items-center justify-center text-white"
                                 *ngIf="selected.includes(space.id)"
                             >
                                 <app-icon>done</app-icon>

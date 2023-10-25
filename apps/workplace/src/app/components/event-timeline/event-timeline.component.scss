@@ -136,8 +136,8 @@
         left: 0;
         right: 0;
         border: none;
-        border-top: 2px solid var(--primary);
-        border-bottom: 2px solid var(--primary);
+        border-top: 2px solid var(--s);
+        border-bottom: 2px solid var(--s);
         pointer-events: auto;
 
         .knob {
@@ -163,7 +163,7 @@
         right: 0;
         width: auto;
         height: 2px;
-        background-color: var(--primary);
+        background-color: var(--s);
     }
 }
 
@@ -184,7 +184,7 @@
     top: 0;
     left: 0;
     bottom: 0;
-    background-color: rgba(var(--primary), 0.54);
+    background-color: rgba(var(--s), 0.54);
     border: 1px solid rgba(#fff, 0.87);
 }
 
@@ -204,9 +204,9 @@
     position: absolute;
     top: 0;
     bottom: 0;
-    background-color: rgba(var(--primary), 0.2);
-    border-left: 2px solid var(--primary);
-    border-right: 2px solid var(--primary);
+    background-color: rgba(var(--s), 0.2);
+    border-left: 2px solid var(--s);
+    border-right: 2px solid var(--s);
     pointer-events: auto;
 
     .inner {
@@ -222,7 +222,7 @@
         height: 12px;
         width: 12px;
         border-radius: 100%;
-        background-color: var(--primary);
+        background-color: var(--s);
         transform: translateX(calc(-50% - 1px));
         box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
             0 2px 1px -1px rgba(0, 0, 0, 0.12);

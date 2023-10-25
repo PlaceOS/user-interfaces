@@ -16,7 +16,7 @@ import { ParkingStateService } from './parking-state.service';
                 </div>
                 <div
                     *ngIf="!(levels | async)?.length"
-                    class="absolute inset-0 bg-white/80 dark:bg-white/20 flex flex-col items-center justify-center z-50"
+                    class="absolute inset-0 bg-base-100/80/20 flex flex-col items-center justify-center z-50"
                 >
                     <p>No parking floors for the currently selected building</p>
                 </div>
@@ -30,7 +30,7 @@ import { ParkingStateService } from './parking-state.service';
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
-                background-color: #fff;
+                background-color: var(--b1);
             }
 
             sidebar {

@@ -22,7 +22,7 @@ const CARD_WIDTH = 60 * 4;
         >
             <ng-container *ngIf="events?.length; else empty_state">
                 <div
-                    class="flex flex-col items-center justify-center bg-white shadow h-[24rem]"
+                    class="flex flex-col items-center justify-center bg-base-100 shadow h-[24rem]"
                     card
                     *ngFor="let event of events; let i = index"
                     [style.min-width]="'calc(' + 100 / cards + '% - .45rem)'"
@@ -36,7 +36,7 @@ const CARD_WIDTH = 60 * 4;
                         'rem))'
                     "
                 >
-                    <div class="w-full h-40 bg-gray-400"></div>
+                    <div class="w-full h-40 bg-base-300"></div>
                     <div
                         class="flex flex-col items-center p-2 flex-1 h-1/2 w-full space-y-2"
                     >
@@ -65,7 +65,7 @@ const CARD_WIDTH = 60 * 4;
                     matRipple
                     *ngIf="index > 0"
                     (click)="index = index - cards"
-                    class="absolute left-0 top-1/2 transform -translate-x-1/2 -translate-y-16 bg-white shadow"
+                    class="absolute left-0 top-1/2 transform -translate-x-1/2 -translate-y-16 bg-base-100 shadow"
                 >
                     <app-icon>chevron_left</app-icon>
                 </button>
@@ -74,7 +74,7 @@ const CARD_WIDTH = 60 * 4;
                     matRipple
                     *ngIf="index + cards < events.length"
                     (click)="index = index + cards"
-                    class="absolute right-0 top-1/2 transform translate-x-1/2 -translate-y-16 bg-white shadow"
+                    class="absolute right-0 top-1/2 transform translate-x-1/2 -translate-y-16 bg-base-100 shadow"
                 >
                     <app-icon>chevron_right</app-icon>
                 </button>

@@ -10,7 +10,7 @@ export interface SensorInfoData {
     selector: 'explore-sensor-info',
     template: `
         <div
-            class="absolute center bg-white rounded-lg border border-gray-300 p-2 text-xl"
+            class="absolute center bg-base-100 rounded-lg border border-base-200 p-2 text-xl"
         >
             <div
                 class="flex items-center space-x-2 whitespace-nowrap pr-2"
@@ -28,7 +28,7 @@ export interface SensorInfoData {
             </div>
             <div
                 *ngIf="temp > 82"
-                class="absolute top-0 right-0 rounded-full translate-x-1/2 -translate-y-1/2 bg-white border border-gray-300"
+                class="absolute top-0 right-0 rounded-full translate-x-1/2 -translate-y-1/2 bg-base-100 border border-base-200"
             >
                 <app-icon class="text-error text-xl">error</app-icon>
             </div>

@@ -15,7 +15,7 @@ import { CheckinStateService } from './checkin-state.service';
     selector: '[checkin-qr-scan]',
     template: `
         <div
-            class="bg-white rounded shadow overflow-hidden relative flex flex-col items-center"
+            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center"
             [class.hidden]="checking_code"
         >
             <p class="mt-6 mb-4">
@@ -34,7 +34,7 @@ import { CheckinStateService } from './checkin-state.service';
                 <mat-error>Invalid email format</mat-error>
             </mat-form-field>
             <div
-                class="relative rounded m-4 bg-gray-200 border border-gray-500 overflow-hidden"
+                class="relative rounded m-4 bg-base-200 border border-base-200 overflow-hidden"
             >
                 <div
                     class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-30 flex flex-col items-center space-y-2 z-0"
@@ -62,7 +62,7 @@ import { CheckinStateService } from './checkin-state.service';
             </a>
         </div>
         <div
-            class="bg-white rounded shadow overflow-hidden relative flex flex-col items-center p-16"
+            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center p-16"
             [class.hidden]="!checking_code"
         >
             <mat-spinner diameter="32"></mat-spinner>

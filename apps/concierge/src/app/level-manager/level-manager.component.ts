@@ -29,7 +29,7 @@ import { LevelManagementService } from './level-management.service';
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
-                background-color: #fff;
+                background-color: var(--b1);
             }
 
             sidebar {

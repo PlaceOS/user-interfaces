@@ -11,7 +11,7 @@ import { currentUser } from '@placeos/common';
     styles: [
         `
             .button-text {
-                color: var(--secondary);
+                color: var(--p);
             }
         `,
     ],
@@ -44,7 +44,8 @@ export class RoomBookingComponent implements OnInit {
 
     async findSpace() {
         this.form.markAllAsTouched();
-        if (!this.form.value.host) this.form.patchValue({ host: currentUser()?.email });
+        if (!this.form.value.host)
+            this.form.patchValue({ host: currentUser()?.email });
         if (!this.form.valid) return;
         await this._state.storeForm();
         this.router.navigate(['/schedule/view']);

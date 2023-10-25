@@ -11,17 +11,17 @@ import { map } from 'rxjs/operators';
             <button
                 icon
                 matRipple
-                class="bg-white rounded-full border border-gray-300 shadow"
+                class="bg-base-100 rounded-full border border-base-200 shadow"
                 (click)="toggleChat()"
             >
                 <app-icon>chat</app-icon>
             </button>
             <div
-                class="absolute bottom-2 right-2 bg-gray-100 rounded-xl border border-gray-200 shadow overflow-hidden w-[20rem]"
+                class="absolute bottom-2 right-2 bg-base-200 rounded-xl border border-base-200 shadow overflow-hidden w-[20rem]"
                 *ngIf="show"
             >
                 <div
-                    class="flex items-center justify-between bg-white w-full p-2 border-b border-gray-200"
+                    class="flex items-center justify-between bg-base-100 w-full p-2 border-b border-base-200"
                 >
                     <h3 class="pl-4">Virtual Assistant</h3>
                     <button icon matRipple (click)="show = false">
@@ -39,7 +39,7 @@ import { map } from 'rxjs/operators';
                         </p>
                     </div>
                     <div
-                        class="m-2 bg-white border-gray-200 p-4 rounded shadow text-sm"
+                        class="m-2 bg-base-100 border-base-200 p-4 rounded shadow text-sm"
                         *ngIf="hint | async"
                     >
                         {{ hint | async }}
@@ -67,7 +67,7 @@ import { map } from 'rxjs/operators';
                         </div>
                         <div
                             message
-                            class="bg-white border-gray-200 p-4 rounded shadow text-sm markdown selectable"
+                            class="bg-base-100 border-base-200 p-4 rounded shadow text-sm markdown selectable"
                             [innerHTML]="message.content | sanitize"
                         ></div>
                     </div>
@@ -88,7 +88,7 @@ import { map } from 'rxjs/operators';
                     <span class="sr-only">Waiting for reply...</span>
                 </div>
                 <div
-                    class="flex items-center bg-white focus-within:outline outline-blue-500 border-t border-gray-200"
+                    class="flex items-center bg-base-100 focus-within:outline outline-blue-500 border-t border-base-200"
                 >
                     <input
                         #input

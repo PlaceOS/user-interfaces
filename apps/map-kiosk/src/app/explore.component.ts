@@ -31,13 +31,13 @@ import { first, take } from 'rxjs/operators';
     selector: '[app-explore]',
     template: `
         <a
-            class="absolute top-0 left-0 bg-gray-900 rounded-br-2xl p-4 z-10 shadow border-b border-r border-gray-200"
+            class="absolute top-0 left-0 bg-base-100 rounded-br-2xl p-4 z-10 shadow border-b border-r border-base-200"
             [routerLink]="['/']"
         >
             <img class="w-32" [src]="logo?.src" />
         </a>
         <div
-            class="absolute top-0 left-1/2 -translate-x-1/2 bg-gray-900 rounded-b-2xl px-4 pb-4 pt-3 z-10 shadow border-b border-r border-gray-200 text-white"
+            class="absolute top-0 left-1/2 -translate-x-1/2 bg-base-100 rounded-b-2xl px-4 pb-4 pt-3 z-10 shadow border-b border-r border-base-200 text-white"
         >
             {{ time | date: 'fullDate' }}
         </div>
@@ -77,7 +77,7 @@ import { first, take } from 'rxjs/operators';
         ></explore-search>
         <div
             name="zones"
-            class="p-2 bg-white border border-gray-300 absolute right-1 m-2 rounded flex flex-col items-center space-y-2"
+            class="p-2 bg-base-100 border border-base-200 absolute right-1 m-2 rounded flex flex-col items-center space-y-2"
             [class.top-2]="!can_search"
             [class.top-16]="can_search"
             *ngIf="!hide_zones"
@@ -113,23 +113,23 @@ import { first, take } from 'rxjs/operators';
             </div>
         </div>
         <div
-            class="absolute bottom-2 right-2 p-2 rounded bg-white shadow border border-gray-100"
+            class="absolute bottom-2 right-2 p-2 rounded bg-base-100 shadow border border-base-200"
         >
             <div class="font-medium">Legend</div>
             <div class="flex items-center space-x-2 p-2">
                 <div class="h-3 w-3 rounded-full bg-success"></div>
                 <div class="text-center">Space Available</div>
             </div>
-            <div class="flex items-center space-x-2 rounded bg-gray-50 p-2">
+            <div class="flex items-center space-x-2 rounded bg-base-200 p-2">
                 <div class="h-3 w-3 rounded-full bg-error"></div>
                 <div class="text-center">Space In Use</div>
             </div>
-            <div class="flex items-center space-x-2 rounded bg-gray-50 p-2">
+            <div class="flex items-center space-x-2 rounded bg-base-200 p-2">
                 <div class="h-3 w-3 rounded-full bg-pending"></div>
                 <div class="text-center">Space Pending</div>
             </div>
             <div class="flex items-center space-x-2 p-2">
-                <div class="h-3 w-3 rounded-full bg-gray-400"></div>
+                <div class="h-3 w-3 rounded-full bg-base-300"></div>
                 <div class="text-center">Space Not-bookable</div>
             </div>
         </div>
@@ -145,7 +145,7 @@ import { first, take } from 'rxjs/operators';
                 left: 0;
                 right: 0;
                 bottom: 0;
-                background-color: #f0f0f0;
+                background-color: var(--b2);
             }
 
             @media screen and (max-height: 640px) {
@@ -176,8 +176,11 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     /** Number of seconds after a user action to reset the kiosk state */
     public reset_delay = 180;
 
+    /** Application logo to display */
     public get logo() {
-        return this._settings.get('app.logo_dark');
+        return this._settings.get('theme') === 'dark'
+            ? this._settings.get('app.logo_dark')
+            : this._settings.get('app.logo_light');
     }
 
     public get time() {

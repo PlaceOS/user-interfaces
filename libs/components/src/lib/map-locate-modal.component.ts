@@ -39,13 +39,13 @@ export interface Locatable {
                     <mat-spinner diameter="64"></mat-spinner>
                 </i-map>
                 <div
-                    class="absolute top-2 right-2 py-2 px-4 bg-white rounded-3xl shadow border border-gray-200"
+                    class="absolute top-2 right-2 py-2 px-4 bg-base-100 rounded-3xl shadow border border-base-200"
                 >
                     {{ level?.display_name || level?.name }}
                 </div>
             </div>
             <footer
-                class="w-full border-t border-gray-200 flex items-center justify-center p-2"
+                class="w-full border-t border-base-200 flex items-center justify-center p-2"
             >
                 <button btn matRipple class="inverse w-32" mat-dialog-close>
                     Close

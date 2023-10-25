@@ -36,7 +36,7 @@ export interface CateringOrderModalData {
                             <div class="list">
                                 <div
                                     item
-                                    class="flex items-center p-2 border-b border-gray-200"
+                                    class="flex items-center p-2 border-b border-base-200"
                                     *ngFor="let item of (menu_items || {})[cat]"
                                 >
                                     <div class="flex-1 w-1/2">
@@ -107,7 +107,7 @@ export interface CateringOrderModalData {
         </div>
         <footer
             *ngIf="!loading"
-            class="flex items-center justify-center space-x-2 p-2 border-t border-gray-200"
+            class="flex items-center justify-center space-x-2 p-2 border-t border-base-200"
         >
             <ng-container *ngIf="!show_order_details; else order_actions">
                 <button btn matRipple class="inverse" mat-dialog-close>
@@ -152,7 +152,7 @@ export interface CateringOrderModalData {
             <div class="list">
                 <div
                     item
-                    class="flex items-center p-2 border-b border-gray-50"
+                    class="flex items-center p-2 border-b border-base-200"
                     *ngFor="let item of order.items"
                 >
                     <div class="flex-1 w-1/2">
@@ -207,8 +207,8 @@ export interface CateringOrderModalData {
 
             input:focus {
                 border: none;
-                border-top: 2px solid var(--primary);
-                border-bottom: 2px solid var(--primary);
+                border-top: 2px solid var(--s);
+                border-bottom: 2px solid var(--s);
                 box-shadow: none;
             }
 

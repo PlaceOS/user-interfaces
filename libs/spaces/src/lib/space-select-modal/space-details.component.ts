@@ -16,7 +16,7 @@ import { Space } from '../space.class';
         <ng-container *ngIf="space; else empty_state">
             <section
                 image
-                class="relative w-full bg-black/20"
+                class="relative w-full bg-neutral"
                 [class.sm:h-64]="space.images?.length"
                 [class.h-40]="space.images?.length"
                 [class.sm:h-0]="!space.images?.length"
@@ -33,7 +33,7 @@ import { Space } from '../space.class';
                     matRipple
                     name="close-space-details"
                     (click)="close.emit()"
-                    class="absolute top-2 left-2 bg-black/40 sm:hidden text-white"
+                    class="absolute top-2 left-2 bg-neutral sm:hidden text-white"
                 >
                     <app-icon>arrow_back</app-icon>
                 </button>
@@ -44,7 +44,7 @@ import { Space } from '../space.class';
                     [class.text-white]="!fav"
                     [class.text-blue-400]="fav"
                     (click)="toggleFav.emit()"
-                    class="absolute top-2 right-2 bg-black/40"
+                    class="absolute top-2 right-2 bg-neutral"
                 >
                     <app-icon>{{
                         fav ? 'favorite' : 'favorite_border'
@@ -98,7 +98,7 @@ import { Space } from '../space.class';
                 </section>
                 <section
                     map
-                    class="w-full mx-auto h-64 sm:h-48 relative border border-gray-200 overflow-hidden rounded"
+                    class="w-full mx-auto h-64 sm:h-48 relative border border-base-200 overflow-hidden rounded"
                     *ngIf="!hide_map"
                 >
                     <interactive-map
@@ -110,7 +110,7 @@ import { Space } from '../space.class';
                 </section>
             </div>
             <div
-                class="px-2 pt-2 pb-[5.5rem] border-t border-gray-200 shadow sm:hidden"
+                class="px-2 pt-2 pb-[5.5rem] border-t border-base-200 shadow sm:hidden"
             >
                 <button
                     btn

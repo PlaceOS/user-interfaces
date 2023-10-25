@@ -11,14 +11,14 @@ import { ExploreSearchService } from '@placeos/explore';
                 icon
                 name="global-search"
                 matRipple
-                class="text-black h-10 w-10 rounded-full bg-gray-200 dark:bg-neutral-800 dark:text-white"
+                class="h-10 w-10 rounded-full bg-base-200"
                 (click)="showInput()"
             >
                 <app-icon class="text-2xl">search</app-icon>
             </button>
             <div
                 search
-                class="flex items-center absolute top-1/2 right-2 -translate-y-1/2 max-w-[calc(100vw-4rem)] bg-white shadow h-12 px-2 text-black rounded-[24px] space-x-2 dark:bg-neutral-700 dark:text-white border-2 border-neutral-600 dark:border-neutral-300 z-50"
+                class="flex items-center absolute top-1/2 right-2 -translate-y-1/2 max-w-[calc(100vw-4rem)] bg-base-100 shadow h-12 px-2 rounded-[24px] space-x-2 border-2 border-neutral z-50"
                 [ngClass]="{
                     'w-[32rem]': show,
                     'w-px': !show,
@@ -44,7 +44,7 @@ import { ExploreSearchService } from '@placeos/explore';
             </div>
             <div
                 search
-                class="flex flex-col items-center absolute bottom-0 right-2 translate-y-[calc(100%-1rem)] max-w-[calc(100vw-4rem)] bg-white shadow text-black rounded-b dark:bg-neutral-700 dark:text-white pt-4 overflow-hidden border border-neutral-200 dark:border-neutral-600"
+                class="flex flex-col items-center absolute bottom-0 right-2 translate-y-[calc(100%-1rem)] max-w-[calc(100vw-4rem)] bg-base-100 shadow rounded-b pt-4 overflow-hidden border border-base-200"
                 [ngClass]="{
                     'w-[32rem]': show,
                     'w-px': !show,
@@ -80,7 +80,7 @@ import { ExploreSearchService } from '@placeos/explore';
                                       zone: option.zone
                                   }
                         "
-                        class="w-full h-full flex items-center leading-tight p-4 hover:bg-black/5 dark:hover:bg-white/5"
+                        class="w-full h-full flex items-center leading-tight p-4 hover:bg-neutral:bg-base-100/5"
                     >
                         <div class="flex-1 overflow-hidden">
                             <div class="truncate w-full">
@@ -91,7 +91,7 @@ import { ExploreSearchService } from '@placeos/explore';
                             </div>
                         </div>
                         <div
-                            class="text-xs font-medium p-2 capitalize text-white bg-gray-700 rounded"
+                            class="text-xs font-medium p-2 capitalize text-white bg-base-300 rounded"
                         >
                             {{ option.type }}
                         </div>

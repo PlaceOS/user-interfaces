@@ -28,11 +28,9 @@ import { OrganisationService } from '@placeos/organisation';
                 Your meeting details
             </h2>
             <div
-                class="flex items-center py-2 space-x-2 border-b border-gray-200 w-full"
+                class="flex items-center py-2 space-x-2 border-b border-base-200 w-full"
             >
-                <div
-                    class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
-                >
+                <div class="p-2 rounded-full bg-base-200 mr-2">
                     <app-icon>event</app-icon>
                 </div>
                 <div class="flex-1 truncate">
@@ -54,11 +52,9 @@ import { OrganisationService } from '@placeos/organisation';
                 >
             </div>
             <div
-                class="flex items-center py-2 space-x-2 border-b border-gray-200 w-full"
+                class="flex items-center py-2 space-x-2 border-b border-base-200 w-full"
             >
-                <div
-                    class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
-                >
+                <div class="p-2 rounded-full bg-base-200 mr-2">
                     <app-icon>schedule</app-icon>
                 </div>
                 <div class="flex-1 truncate">
@@ -77,11 +73,9 @@ import { OrganisationService } from '@placeos/organisation';
                     Edit
                 </a>
             </div>
-            <div class="border-b border-gray-200 w-full">
+            <div class="border-b border-base-200 w-full">
                 <div class="flex items-center py-2 space-x-2 ">
-                    <div
-                        class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
-                    >
+                    <div class="p-2 rounded-full bg-base-200 mr-2">
                         <app-icon>place</app-icon>
                     </div>
                     <div class="flex-1 truncate">
@@ -132,11 +126,9 @@ import { OrganisationService } from '@placeos/organisation';
                     </div>
                 </div>
             </div>
-            <div class="border-b border-gray-200 w-full">
+            <div class="border-b border-base-200 w-full">
                 <div class="flex items-center py-2 space-x-2 ">
-                    <div
-                        class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
-                    >
+                    <div class="p-2 rounded-full bg-base-200 mr-2">
                         <app-icon>group</app-icon>
                     </div>
                     <div class="flex-1 truncate">
@@ -181,13 +173,11 @@ import { OrganisationService } from '@placeos/organisation';
                 </div>
             </div>
             <div
-                class="border-b border-gray-200 w-full"
+                class="border-b border-base-200 w-full"
                 *ngIf="form.value.catering?.length"
             >
                 <div class="flex items-center py-2 space-x-2 ">
-                    <div
-                        class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
-                    >
+                    <div class="p-2 rounded-full bg-base-200 mr-2">
                         <app-icon>group</app-icon>
                     </div>
                     <div class="flex-1 truncate">

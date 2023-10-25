@@ -200,7 +200,7 @@ export interface CateringItemModalData {
             <div class="flex items-center">
                 <label class="flex-1 w-24 min-w-0">Discount Cap</label>
                 <a-counter
-                    class="border border-gray-200 rounded"
+                    class="border border-base-200 rounded"
                     formControlName="discount_cap"
                     [min]="0"
                     [max]="100"
@@ -218,7 +218,7 @@ export interface CateringItemModalData {
         </form>
         <footer
             *ngIf="!loading"
-            class="flex p-2 items-center justify-center border-t border-solid border-gray-300"
+            class="flex p-2 items-center justify-center border-t border-solid border-base-200"
         >
             <button
                 btn

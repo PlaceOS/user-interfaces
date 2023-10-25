@@ -7,7 +7,7 @@ import { OrganisationService } from '@placeos/organisation';
         <section>
             <div class="flex flex-col p-4">
                 <div
-                    class="flex w-full items-center justify-between py-4 bg-white max-w-[68rem] m-auto"
+                    class="flex w-full items-center justify-between py-4 bg-base-100 max-w-[68rem] m-auto"
                 >
                     <span class="text-2xl">
                         {{ (buildings$ | async)?.length }} Building{{
@@ -30,7 +30,7 @@ import { OrganisationService } from '@placeos/organisation';
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
-                background-color: #fff;
+                background-color: var(--b1);
             }
         `,
     ],

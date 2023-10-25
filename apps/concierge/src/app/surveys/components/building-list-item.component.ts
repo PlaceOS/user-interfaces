@@ -9,7 +9,7 @@ import { SettingsService } from '@placeos/common';
     selector: 'building-list-item',
     template: `
         <section
-            class="building-wrapper bg-white my-4 mx-auto rounded-md overflow-hidden"
+            class="building-wrapper bg-base-100 my-4 mx-auto rounded-md overflow-hidden"
         >
             <div *ngIf="building.image" class="image-container">
                 <img
@@ -71,9 +71,7 @@ import { SettingsService } from '@placeos/common';
             </div>
         </section>
         <ng-template #loadState>
-            <div
-                class="flex absolute inset-0 opacity-60 bg-white dark:bg-black z-10"
-            >
+            <div class="flex absolute inset-0 opacity-60 bg-base-100 z-10">
                 <div class="flex flex-col m-auto items-center">
                     <mat-spinner [diameter]="32"></mat-spinner>
                     <span>{{ loading$ | async }}</span>
@@ -98,7 +96,7 @@ import { SettingsService } from '@placeos/common';
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                background-color: #fff;
+                background-color: var(--b1);
                 position: absolute;
                 height: 48px;
                 width: 48px;
@@ -166,7 +164,7 @@ import { SettingsService } from '@placeos/common';
             /* .view-button {
                 display: inline-flex;
                 color: #292f5b;
-                background-color: #fff;
+                background-color: var(--b1);
                 border-radius: 2px;
                 margin: 20px 0px 20px 20px;
                 justify-content: center;

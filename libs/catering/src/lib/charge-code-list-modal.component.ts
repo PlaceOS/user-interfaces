@@ -18,7 +18,7 @@ import { CateringStateService } from './catering-state.service';
             class="overflow-auto max-h-[65vh] min-h-[20rem] flex flex-col"
         >
             <div
-                class="flex items-center space-x-2 w-full hover:bg-black/10 px-2"
+                class="flex items-center space-x-2 w-full hover:bg-neutral px-2"
                 *ngFor="
                     let code of charge_codes;
                     let i = index;
@@ -38,7 +38,7 @@ import { CateringStateService } from './catering-state.service';
             </div>
         </main>
         <footer
-            class="flex items-center p-2 space-x-2 border-t border-gray-200"
+            class="flex items-center p-2 space-x-2 border-t border-base-200"
             *ngIf="!loading"
         >
             <button btn matRipple class="w-48 inverse relative">

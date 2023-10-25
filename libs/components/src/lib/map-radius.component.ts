@@ -28,7 +28,7 @@ export interface MapRadiusData {
                 *ngIf="message && show_message"
                 message
                 [style.top]="'-' + (radius / 2) * zoom + 'px'"
-                class="p-2 m-2 rounded bg-white text-gray-700 shadow absolute top-0 whitespace-no-wrap flex flex-col w-64"
+                class="p-2 m-2 rounded bg-base-100 text-gray-700 shadow absolute top-0 whitespace-no-wrap flex flex-col w-64"
             >
                 {{ message }}
                 <span *ngIf="last_seen" class="text-xs">

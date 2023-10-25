@@ -13,7 +13,7 @@ import { ControlStateService } from './control-state.service';
         <ng-container *ngIf="(system | async).connected; else load_state">
             <div
                 *ngIf="(system | async).active; else power_off_state"
-                class="absolute inset-0 flex flex-col bg-slate-700 dark:bg-[#1F2021]"
+                class="absolute inset-0 flex flex-col bg-base-200"
             >
                 <topbar-header></topbar-header>
                 <div control-page-view></div>
@@ -49,7 +49,7 @@ import { ControlStateService } from './control-state.service';
         <ng-template #load_state>
             <div
                 name="loader"
-                class="absolute inset-0 bg-white text-black flex flex-col items-center justify-center"
+                class="absolute inset-0 bg-base-100 text-base-content flex flex-col items-center justify-center"
             >
                 <mat-spinner class="mb-4" [diameter]="64"></mat-spinner>
                 <div class="text-2xl my-4">

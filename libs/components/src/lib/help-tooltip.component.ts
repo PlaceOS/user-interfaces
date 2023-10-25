@@ -6,12 +6,10 @@ import { CustomTooltipData } from '@placeos/components';
     selector: 'help-tooltip',
     template: `
         <div
-            class="flex flex-col w-[18.5rem] rounded bg-white shadow relative -top-12 -right-1 dark:bg-neutral-700 dark:text-white divide-y divide-gray-300 dark:divide-neutral-500"
+            class="flex flex-col w-[18.5rem] rounded bg-base-100 shadow relative -top-12 -right-1 divide-y divide-base-200"
             (click)="close()"
         >
-            <div
-                class="flex items-center space-x-2 p-2 border-b dark:border-neutral-500"
-            >
+            <div class="flex items-center space-x-2 p-2 border-b">
                 <app-icon class="text-2xl">arrow_back</app-icon>
                 <div class="" i18n>Help & Support</div>
             </div>
@@ -24,11 +22,9 @@ import { CustomTooltipData } from '@placeos/components';
                 ref="noreferer noopener"
                 [href]="tile.link"
             >
-                <div
-                    class="flex items-center space-x-2 dark:text-white py-2 w-full"
-                >
+                <div class="flex items-center space-x-2 py-2 w-full">
                     <div
-                        class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800"
+                        class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
                     >
                         <app-icon class="text-xl" [icon]="tile.icon"></app-icon>
                     </div>

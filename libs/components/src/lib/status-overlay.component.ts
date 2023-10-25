@@ -10,7 +10,7 @@ import { ApplicationLink } from '@placeos/common';
         >
             <ng-container *ngIf="!loading; else load_state">
                 <div
-                    class="text-4xl rounded-full bg-white mb-4"
+                    class="text-4xl rounded-full bg-base-100 mb-4"
                     [class.text-success]="!error"
                     [class.text-error]="error"
                 >

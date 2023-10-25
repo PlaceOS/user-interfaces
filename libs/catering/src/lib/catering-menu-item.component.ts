@@ -9,7 +9,7 @@ import { CateringOption } from './catering.interfaces';
     selector: '[catering-menu-item]',
     template: `
         <div
-            class="w-full h-full bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500 overflow-hidden rounded"
+            class="w-full h-full bg-base-100 border border-base-200 overflow-hidden rounded"
         >
             <div item class="flex items-center px-2" *ngIf="item">
                 <mat-checkbox
@@ -25,7 +25,7 @@ import { CateringOption } from './catering.interfaces';
                         </div>
                     </div>
                     <div
-                        class="p-2 m-2 text-xs font-bold text-white rounded bg-primary"
+                        class="p-2 m-2 text-xs font-bold text-secondary-content rounded bg-secondary"
                     >
                         {{ item.unit_price / 100 | currency: (symbol | async) }}
                     </div>
@@ -50,17 +50,17 @@ import { CateringOption } from './catering.interfaces';
             <div
                 options
                 *ngIf="item"
-                class="bg-gray-100 dark:bg-neutral-700 overflow-hidden"
+                class="bg-base-200 overflow-hidden"
                 [style.height]="
                     show_options ? item.options.length * 3.5 + 'rem' : '0'
                 "
             >
                 <div
-                    class="flex p-2 items-center border-t border-solid border-gray-300 dark:border-neutral-500 relative"
+                    class="flex p-2 items-center border-t border-solid border-base-200 relative"
                     *ngFor="let option of item.options"
                 >
                     <div
-                        class="absolute inset-y-0 left-0 w-2 bg-gray-400 dark:bg-neutral-600"
+                        class="absolute inset-y-0 left-0 w-2 bg-base-300"
                     ></div>
                     <div class="flex-1 pl-4 pr-2">
                         <div class="text">{{ option.name }}</div>

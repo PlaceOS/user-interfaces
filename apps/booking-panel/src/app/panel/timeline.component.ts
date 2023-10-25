@@ -22,11 +22,14 @@ import { PanelStateService } from '../panel-state.service';
                 class="flex-1 h-full relative border-dashed border-opacity-50 flex items-end"
                 [class.bg-error]="!block.free"
                 [class.border-l]="block.on_half"
-                [class.border-gray-200]="block.on_half"
+                [class.border-base-200]="block.on_half"
                 *ngFor="let block of blocks | async"
                 (click)="block.free ? newBooking(block) : ''"
             >
-                <div class="w-px h-1/2 bg-white relative" *ngIf="block.on_hour">
+                <div
+                    class="w-px h-1/2 bg-base-100 relative"
+                    *ngIf="block.on_hour"
+                >
                     <p
                         class="absolute transform -translate-x-1/2 -translate-y-full"
                     >
@@ -36,7 +39,7 @@ import { PanelStateService } from '../panel-state.service';
             </div>
             <div
                 cover
-                class="absolute top-0 left-0 bottom-0 w-1/6 bg-black bg-opacity-40"
+                class="absolute top-0 left-0 bottom-0 w-1/6 bg-neutral bg-opacity-40"
             >
                 <div
                     class="absolute top-0 right-0 bottom-0 transform translate-x-1/2 bg-primary"

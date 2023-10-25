@@ -22,7 +22,7 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
             </div>
         </div>
         <div
-            class="flex-1 overflow-auto w-full relative bg-gray-100 dark:bg-neutral-600"
+            class="flex-1 overflow-auto w-full relative bg-base-200"
             style="height: 50%"
             #container
             (scroll)="onScroll($event)"
@@ -33,7 +33,7 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
                         <div
                             group
                             [id]="'letter-' + (group === '#' ? '0' : group)"
-                            class="capitalize bg-gray-300 dark:bg-gray-700 border-b text-sm font-medium sticky top-0 z-10"
+                            class="capitalize bg-base-200 border-b text-sm font-medium sticky top-0 z-10"
                         >
                             {{ group }}
                         </div>

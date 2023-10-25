@@ -40,7 +40,7 @@ import { currentUser, notifyError, notifySuccess } from '@placeos/common';
         </main>
         <footer
             *ngIf="!loading"
-            class="flex justify-end px-4 py-2 border-t border-gray-200"
+            class="flex justify-end px-4 py-2 border-t border-base-200"
         >
             <button btn matRipple (click)="save()">Save Changes</button>
         </footer>

@@ -4,9 +4,7 @@ import { Component } from '@angular/core';
     selector: '[app-survey]',
     template: `
         <sidebar></sidebar>
-        <main
-            class="relative w-full flex flex-col bg-gray-200 dark:bg-neutral-600"
-        >
+        <main class="relative w-full flex flex-col bg-base-200">
             <router-outlet></router-outlet>
         </main>
     `,
@@ -16,7 +14,7 @@ import { Component } from '@angular/core';
                 display: flex;
                 height: 100%;
                 width: 100%;
-                background-color: #fff;
+                background-color: var(--b1);
             }
         `,
     ],

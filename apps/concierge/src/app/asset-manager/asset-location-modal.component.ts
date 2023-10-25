@@ -30,7 +30,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             </mat-form-field>
             <div class="flex items-center space-x-4 w-[90vw] text-sm">
                 <div
-                    class="flex-1 h-[60vh] w-1/2 border border-gray-300 bg-gray-50 overflow-auto"
+                    class="flex-1 h-[60vh] w-1/2 border border-base-200 bg-base-200 overflow-auto"
                 >
                     <custom-table
                         [dataSource]="requests"
@@ -55,10 +55,10 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     ></custom-table>
                 </div>
                 <div
-                    class="flex-1 h-[60vh] w-1/2 border border-gray-300 bg-gray-100 relative flex items-center justify-center"
+                    class="flex-1 h-[60vh] w-1/2 border border-base-200 bg-base-200 relative flex items-center justify-center"
                 >
                     <div
-                        class="absolute top-4 left-4 bg-white px-4 py-2 rounded-3xl border border-gray-300"
+                        class="absolute top-4 left-4 bg-base-100 px-4 py-2 rounded-3xl border border-base-200"
                         *ngIf="selected"
                     >
                         {{ level(selected.zone)?.display_name || 'N/A' }}

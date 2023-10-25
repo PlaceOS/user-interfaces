@@ -15,14 +15,14 @@ import { OrganisationService } from '@placeos/organisation';
     styles: [],
     template: `
         <div
-            class="p-0 sm:py-4 sm:px-16 divide-y divide-gray-300 space-y-2"
+            class="p-0 sm:py-4 sm:px-16 divide-y divide-base-200 space-y-2"
             *ngIf="form"
             [formGroup]="form"
         >
             <section class="p-2" [class.!border-none]="allow_groups">
                 <h3 class="space-x-2 flex items-center mb-4">
                     <div
-                        class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
+                        class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
                     >
                         1
                     </div>
@@ -88,7 +88,7 @@ import { OrganisationService } from '@placeos/organisation';
             <section class="p-2" *ngIf="form.contains('resources')">
                 <h3 class="space-x-2 flex items-center mb-4">
                     <div
-                        class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
+                        class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
                     >
                         {{ (options | async)?.group ? 3 : 2 }}
                     </div>

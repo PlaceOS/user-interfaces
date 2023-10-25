@@ -8,13 +8,10 @@ import { marked } from 'marked';
     selector: 'help-modal',
     template: `
         <div
-            class="flex flex-col sm:flex-row items-center bg-white rounded overflow-hidden sm:h-[80vh] sm:w-[80vw] sm:relative absolute inset-0 sm:inset-auto"
+            class="flex flex-col sm:flex-row items-center bg-base-100 rounded overflow-hidden sm:h-[80vh] sm:w-[80vw] sm:relative absolute inset-0 sm:inset-auto"
         >
-            <div
-                sidebar
-                class="bg-[#212121] text-white sm:h-full w-full sm:w-64"
-            >
-                <img [src]="logo?.src" class="w-24 mx-auto mt-6 sm:mb-8" />
+            <div sidebar class="bg-base-300 sm:h-full w-full sm:w-64">
+                <img [src]="logo?.src" class="w-32 mx-auto mt-6 sm:mb-8" />
                 <ul class="list-none p-0 pl-4 space-y-2 hidden sm:block">
                     <li
                         class="flex items-center rounded-l-3xl pl-4 py-2 relative"
@@ -23,14 +20,14 @@ import { marked } from 'marked';
                         (click)="active_item = item"
                     >
                         <div
-                            class="w-6 h-[5.5rem] absolute bg-white right-0 top-1/2 -translate-y-1/2 overflow-hidden"
+                            class="w-6 h-[5.5rem] absolute bg-base-100 right-0 top-1/2 -translate-y-1/2 overflow-hidden"
                             *ngIf="item.id === active_item.id"
                         >
                             <div
-                                class="w-12 h-12 absolute top-0 right-0 -translate-y-1/2 bg-[#212121] rounded-full"
+                                class="w-12 h-12 absolute top-0 right-0 -translate-y-1/2 bg-base-300 rounded-full"
                             ></div>
                             <div
-                                class="w-12 h-12 absolute bottom-0 right-0 translate-y-1/2 bg-[#212121] rounded-full"
+                                class="w-12 h-12 absolute bottom-0 right-0 translate-y-1/2 bg-base-300 rounded-full"
                             ></div>
                         </div>
                         <app-icon>{{ item.icon || 'help' }}</app-icon>
@@ -59,13 +56,13 @@ import { marked } from 'marked';
             </div>
             <div
                 content
-                class="overflow-auto flex-1 h-1/2 w-full sm:w-1/2 sm:h-full p-4 sm:p-8"
+                class="overflow-auto flex-1 h-1/2 w-full sm:w-1/2 sm:h-full p-4 sm:p-8 bg-base-100"
                 [innerHTML]="content | safe"
             ></div>
             <button
                 icon
                 matRipple
-                class="absolute top-2 right-2 text-white sm:text-black"
+                class="absolute top-2 right-2"
                 mat-dialog-close
             >
                 <app-icon>close</app-icon>
@@ -75,8 +72,8 @@ import { marked } from 'marked';
     styles: [
         `
             li.active {
-                background-color: #fff;
-                color: #000;
+                background-color: var(--b1);
+                color: var(--bc);
                 overflow: visible !important;
             }
         `,
@@ -86,8 +83,11 @@ export class HelpModalComponent {
     public active_item = { id: '', content: `` };
     public readonly items = this._data.items;
 
+    /** Application logo to display */
     public get logo() {
-        return this._settings.get('app.logo_dark');
+        return this._settings.get('theme') === 'dark'
+            ? this._settings.get('app.logo_dark')
+            : this._settings.get('app.logo_light');
     }
 
     public get content() {

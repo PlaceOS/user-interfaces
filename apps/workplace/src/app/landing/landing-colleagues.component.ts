@@ -11,7 +11,7 @@ import { LandingStateService } from './landing-state.service';
     selector: 'landing-colleagues',
     template: `
         <div
-            class="flex items-center justify-between py-2 mx-2 border-b border-gray-200"
+            class="flex items-center justify-between py-2 mx-2 border-b border-base-200"
         >
             <h2 class="mx-2" i18n>
                 {{ (contacts | async)?.length || 0 }} { (contacts |
@@ -40,7 +40,7 @@ import { LandingStateService } from './landing-state.service';
                     <div class="text-xl relative">
                         <a-user-avatar [user]="user"></a-user-avatar>
                         <!-- <div
-                            class="rounded-full h-3 w-3 border border-white dark:border-neutral-400 absolute bottom-1 right-1"
+                            class="rounded-full h-3 w-3 border border-white absolute bottom-1 right-1"
                             [class.bg-error]="!user.location"
                             [class.bg-success]="user.location"
                         ></div> -->
@@ -62,7 +62,7 @@ import { LandingStateService } from './landing-state.service';
                     <button
                         icon
                         name="colleague-more"
-                        class="!rounded bg-gray-300"
+                        class="!rounded bg-base-200"
                         [matMenuTriggerFor]="menu"
                     >
                         <app-icon>more_horiz</app-icon>
@@ -110,14 +110,14 @@ import { LandingStateService } from './landing-state.service';
         <div
             search
             [class.hidden]="!show_search"
-            class="absolute inset-x-2 top-2 bottom-[3.5rem] rounded-lg overflow-hidden flex flex-col bg-white dark:bg-neutral-600 shadow border border-gray-200"
+            class="absolute inset-x-2 top-2 bottom-[3.5rem] rounded-lg overflow-hidden flex flex-col bg-base-100 shadow border border-base-200"
         >
             <input
                 #search_input
                 [ngModel]="(options | async)?.search"
                 (ngModelChange)="updateSearch($event)"
                 placeholder="Search for users..."
-                class="w-full border-b border-gray-200 p-2 rounded-t-lg"
+                class="w-full border-b border-base-200 p-2 rounded-t-lg"
             />
             <button
                 icon
@@ -144,7 +144,7 @@ import { LandingStateService } from './landing-state.service';
                         <div class="text-base relative">
                             <a-user-avatar [user]="user"></a-user-avatar>
                             <!-- <div
-                                class="rounded-full h-3 w-3 border border-white dark:border-neutral-400 absolute bottom-1 right-1"
+                                class="rounded-full h-3 w-3 border border-white absolute bottom-1 right-1"
                                 [class.bg-error]="!user.location"
                                 [class.bg-success]="user.location"
                             ></div> -->

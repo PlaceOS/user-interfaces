@@ -9,7 +9,7 @@ import { currentBooking } from './panel-state.service';
     selector: 'app-booking-panel-select',
     template: `
         <div
-            class="absolute inset-0 flex items-center justify-center flex-wrap bg-gray-600"
+            class="absolute inset-0 flex items-center justify-center flex-wrap bg-base-300"
             (window:mousedown)="reset()"
             (window:touchstart)="reset()"
         >
@@ -49,7 +49,7 @@ import { currentBooking } from './panel-state.service';
                         <div
                             state
                             [class]="
-                                'h-36 w-36 flex items-center justify-center text-6xl bg-white bg-opacity-10 rounded' +
+                                'h-36 w-36 flex items-center justify-center text-6xl bg-base-100 bg-opacity-10 rounded' +
                                 (system_status[id]
                                     ? ' ' + system_status[id]
                                     : '')
@@ -80,7 +80,7 @@ import { currentBooking } from './panel-state.service';
                     [system_id]="active_system"
                 ></app-booking-panel>
                 <div
-                    class="absolute top-0 left-1/2 transform -translate-x-1/2 flex items-center bg-white rounded-b p-2"
+                    class="absolute top-0 left-1/2 transform -translate-x-1/2 flex items-center bg-base-100 rounded-b p-2"
                 >
                     <button
                         icon

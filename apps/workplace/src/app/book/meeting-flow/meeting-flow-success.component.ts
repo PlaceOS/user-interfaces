@@ -7,7 +7,7 @@ import { OrganisationService } from '@placeos/organisation';
     selector: 'meeting-flow-success',
     template: `
         <div
-            class="absolute inset-0 bg-white dark:bg-neutral-600 flex flex-col z-50 overflow-auto"
+            class="absolute inset-0 bg-base-100 flex flex-col z-50 overflow-auto"
         >
             <main
                 class="flex-1 flex flex-col items-center justify-center space-y-2 p-8"
@@ -38,7 +38,7 @@ import { OrganisationService } from '@placeos/organisation';
                 </p>
             </main>
             <footer
-                class="sticky bottom-0 bg-white p-2 w-full border-t border-gray-200 dark:bg-neutral-500 mt-4 flex items-center justify-center"
+                class="sticky bottom-0 bg-base-100 p-2 w-full border-t border-base-200 mt-4 flex items-center justify-center"
             >
                 <a
                     btn

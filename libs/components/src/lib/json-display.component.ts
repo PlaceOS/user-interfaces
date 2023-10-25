@@ -1,13 +1,17 @@
-import { Component, Input, Optional, SimpleChanges } from "@angular/core";
-import { CustomTooltipData } from "./custom-tooltip.component";
+import { Component, Input, Optional, SimpleChanges } from '@angular/core';
+import { CustomTooltipData } from './custom-tooltip.component';
 
 @Component({
     selector: 'json-display',
     template: `
-        <div class="bg-white dark:bg-neutral-600 shadow rounded overflow-auto max-w-[80vw] max-h-[80vh] p-2">
-            <pre class="font-mono text-sm bg-black/10 p-2">{{ formatted_json }}</pre>
+        <div
+            class="bg-base-100 shadow rounded overflow-auto max-w-[80vw] max-h-[80vh] p-2"
+        >
+            <pre class="font-mono text-sm bg-neutral p-2">{{
+                formatted_json
+            }}</pre>
         </div>
-    `
+    `,
 })
 export class JsonDisplayComponent {
     @Input() public json: Object;

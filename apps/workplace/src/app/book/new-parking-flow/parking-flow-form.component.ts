@@ -14,26 +14,24 @@ import { NewParkingFlowConfirmComponent } from './parking-flow-confirm.component
 @Component({
     selector: 'parking-flow-form',
     template: `
-        <div
-            class="h-full w-full bg-gray-100 dark:bg-neutral-600 overflow-auto"
-        >
+        <div class="h-full w-full bg-base-200 overflow-auto">
             <div
-                class="max-w-full w-[48rem] mx-auto sm:my-4 bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500"
+                class="max-w-full w-[48rem] mx-auto sm:my-4 bg-base-100 border border-base-200"
             >
                 <h2
-                    class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-gray-300 dark:border-neutral-500"
+                    class="w-full p-4 sm:py-4 sm:px-16 text-2xl font-medium border-b border-base-200"
                     i18n
                 >
                     {{ form.value.id ? 'Edit' : 'Book' }} Parking Reservation
                 </h2>
                 <form
-                    class="p-0 sm:py-4 sm:px-16 divide-y divide-gray-300 space-y-2"
+                    class="p-0 sm:py-4 sm:px-16 divide-y divide-base-200 space-y-2"
                     [formGroup]="form"
                 >
                     <section class="p-2">
                         <h3 class="space-x-2 flex items-center">
                             <div
-                                class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
                             >
                                 1
                             </div>
@@ -66,7 +64,7 @@ import { NewParkingFlowConfirmComponent } from './parking-flow-confirm.component
                     <section class="p-2">
                         <h3 class="space-x-2 flex items-center">
                             <div
-                                class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
+                                class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
                             >
                                 2
                             </div>

@@ -7,14 +7,15 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
     selector: 'app-welcome',
     template: `
         <div
-            class="absolute inset-0 bg-transparent z-50 flex flex-col items-center justify-center bg-center bg-cover"
+            class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-center bg-cover"
             [style.background-image]="'url(' + background + ')'"
         >
-            <a-topbar-header class="w-full"></a-topbar-header>
+            <a-topbar-header class="w-full z-10"></a-topbar-header>
+            <div class="absolute inset-0 z-0 bg-black opacity-60"></div>
             <div
-                class="flex flex-col flex-1 w-full items-center justify-center text-white bg-black bg-opacity-50 space-y-4"
+                class="flex flex-col flex-1 w-full items-center justify-center space-y-4 z-10"
             >
-                <h3 class="text-2xl mb-4">
+                <h3 class="text-2xl mb-4 text-white">
                     Welcome to PlaceOS Self Service Kiosk
                 </h3>
                 <a

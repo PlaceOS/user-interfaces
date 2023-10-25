@@ -10,7 +10,7 @@ import { OrganisationService } from '@placeos/organisation';
             class="relative -left-4 w-[calc(100%+2rem)] mt-4 h-[calc(100%-1rem)] flex flex-col"
         >
             <div
-                class="bg-white dark:bg-neutral-700 px-4 border-t border-b border-gray-300 dark:border-neutral-500 flex items-center justify-between"
+                class="bg-base-100 px-4 border-t border-b border-base-200 flex items-center justify-between"
             >
                 <div class="opacity-60 text-sm">
                     {{ (requests | async)?.length }} asset request{{
@@ -102,9 +102,9 @@ import { OrganisationService } from '@placeos/organisation';
             <button
                 matRipple
                 class="rounded-3xl !bg-opacity-20 flex items-center px-2 py-1 w-full text-left space-x-2"
-                [class.bg-green-600]="row.status === 'approved'"
-                [class.bg-red-600]="row.status === 'declined'"
-                [class.bg-yellow-400]="row.status === 'tentative'"
+                [class.bg-success]="row.status === 'approved'"
+                [class.bg-error]="row.status === 'declined'"
+                [class.bg-warning]="row.status === 'tentative'"
                 [matMenuTriggerFor]="menu"
                 (click)="$event.stopPropagation()"
                 [disabled]="loading[row.id]"

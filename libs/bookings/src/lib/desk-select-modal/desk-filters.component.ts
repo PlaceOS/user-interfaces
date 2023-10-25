@@ -20,7 +20,7 @@ import { BookingFormService } from '../booking-form.service';
     ],
     template: `
         <div
-            class="flex rounded-t-md items-center border-b border-gray-200 dark:border-neutral-500 pb-2 sm:p-4"
+            class="flex rounded-t-md items-center border-b border-base-200 pb-2 sm:p-4"
         >
             <div class="flex-1 pl-2">
                 <button
@@ -38,7 +38,7 @@ import { BookingFormService } from '../booking-form.service';
             <div class="flex-1"></div>
         </div>
         <form
-            class="max-h-[65vh] p-2 overflow-y-auto overflow-x-hidden divide-y divide-gray-200 w-full max-w-[100vw] sm:max-w-[30vw]"
+            class="max-h-[65vh] p-2 overflow-y-auto overflow-x-hidden divide-y divide-base-200 w-full max-w-[100vw] sm:max-w-[30vw]"
             [formGroup]="form"
         >
             <section details>
@@ -183,7 +183,7 @@ import { BookingFormService } from '../booking-form.service';
             </section>
         </form>
         <div
-            class="px-2 py-2 w-full border-t border-gray-200"
+            class="px-2 py-2 w-full border-t border-base-200"
             *ngIf="can_close"
         >
             <button

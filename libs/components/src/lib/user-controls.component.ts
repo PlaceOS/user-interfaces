@@ -27,7 +27,7 @@ export interface AppLocale {
     selector: 'user-controls',
     template: `
         <div
-            class="rounded bg-white dark:bg-neutral-700 dark:text-white shadow mt-1 flex flex-col relative divide-y divide-gray-300 dark:divide-neutral-500"
+            class="rounded bg-base-100 shadow mt-1 flex flex-col relative divide-y divide-base-200"
         >
             <div avatar class="flex flex-col items-center p-2 w-[18rem]">
                 <a-user-avatar
@@ -45,11 +45,9 @@ export interface AppLocale {
                 class="relative"
             >
                 <button btn matRipple class="clear w-full text-left h-[3.5rem]">
-                    <div
-                        class="w-full flex items-center space-x-2 dark:text-white"
-                    >
+                    <div class="w-full flex items-center space-x-2">
                         <div
-                            class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800"
+                            class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
                         >
                             <app-icon>layers</app-icon>
                         </div>
@@ -67,11 +65,9 @@ export interface AppLocale {
             </div>
             <div customTooltip [content]="building_select" class="relative">
                 <button btn matRipple class="clear w-full text-left h-[3.5rem]">
-                    <div
-                        class="w-full flex items-center space-x-2 dark:text-white"
-                    >
+                    <div class="w-full flex items-center space-x-2">
                         <div
-                            class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800"
+                            class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
                         >
                             <app-icon>business</app-icon>
                         </div>
@@ -93,11 +89,9 @@ export interface AppLocale {
                 *ngIf="features.includes('help')"
             >
                 <button btn matRipple class="clear w-full text-left h-[3.5rem]">
-                    <div
-                        class="w-full flex items-center space-x-2 dark:text-white"
-                    >
+                    <div class="w-full flex items-center space-x-2">
                         <div
-                            class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800"
+                            class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
                         >
                             <app-icon>help</app-icon>
                         </div>
@@ -115,11 +109,9 @@ export interface AppLocale {
                     class="clear w-full text-left h-[3.5rem]"
                     (click)="openWfhModal()"
                 >
-                    <div
-                        class="w-full flex items-center space-x-2 dark:text-white"
-                    >
+                    <div class="w-full flex items-center space-x-2">
                         <div
-                            class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800"
+                            class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
                         >
                             <app-icon>share_location</app-icon>
                         </div>
@@ -136,11 +128,9 @@ export interface AppLocale {
                 [class.!border-b]="!locales?.length"
             >
                 <button btn matRipple class="clear w-full text-left h-[3.5rem]">
-                    <div
-                        class="w-full flex items-center space-x-2 dark:text-white"
-                    >
+                    <div class="w-full flex items-center space-x-2">
                         <div
-                            class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800"
+                            class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
                         >
                             <app-icon>mode_night</app-icon>
                         </div>
@@ -158,11 +148,9 @@ export interface AppLocale {
                 class="!border-b"
             >
                 <button btn matRipple class="clear w-full text-left h-[3.5rem]">
-                    <div
-                        class="w-full flex items-center space-x-2 dark:text-white"
-                    >
+                    <div class="w-full flex items-center space-x-2">
                         <div
-                            class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800"
+                            class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
                         >
                             <app-icon>mode_night</app-icon>
                         </div>
@@ -183,9 +171,9 @@ export interface AppLocale {
                 *ngIf="features.includes('support-ticket')"
                 (click)="newSupportTicket()"
             >
-                <div class="w-full flex items-center space-x-2 dark:text-white">
+                <div class="w-full flex items-center space-x-2">
                     <div
-                        class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800"
+                        class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
                     >
                         <app-icon>support_agent</app-icon>
                     </div>

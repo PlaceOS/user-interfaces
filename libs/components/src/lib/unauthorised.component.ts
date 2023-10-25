@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
     selector: 'app-unauthorised',
     template: `
         <div
-            class="unauthorised rounded m-4 text-center bg-white text-black border border-gray-400 p-4 shadow"
+            class="unauthorised rounded m-4 text-center bg-base-100 text-black border border-base-200 p-4 shadow"
         >
             <h1 class="text-4xl">403</h1>
             <h3 class="text-2xl" i18n>Access forbidden.</h3>

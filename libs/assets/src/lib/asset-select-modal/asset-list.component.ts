@@ -13,9 +13,7 @@ import { map } from 'rxjs/operators';
 @Component({
     selector: 'asset-list',
     template: `
-        <div
-            class="w-full h-full overflow-auto py-2 bg-black/5 dark:bg-white/10 dark:border-neutral-500"
-        >
+        <div class="w-full h-full overflow-auto py-2 bg-neutral">
             <h3 class="font-bold px-2">Results</h3>
             <p count class="text-sm opacity-60 mb-4 px-2">
                 {{ (assets | async)?.length || 0 }} result(s) found
@@ -29,7 +27,7 @@ import { map } from 'rxjs/operators';
                         asset
                         *ngFor="let asset of assets | async"
                         matRipple
-                        class="relative p-2 rounded-lg w-full shadow border bg-white dark:bg-neutral-700 border-gray-200 dark:border-neutral-500"
+                        class="relative p-2 rounded-lg w-full shadow border bg-base-100 border-base-200"
                     >
                         <button
                             select
@@ -37,10 +35,10 @@ import { map } from 'rxjs/operators';
                             (click)="selectAsset(asset)"
                         >
                             <div
-                                class="relative w-16 h-16 rounded-xl bg-black/20 mr-4 flex items-center justify-center overflow-hidden border border-black/10"
+                                class="relative w-16 h-16 rounded-xl bg-neutral mr-4 flex items-center justify-center overflow-hidden border border-base-200"
                             >
                                 <div
-                                    class="absolute top-1 left-1 border border-white bg-black/50 rounded-full h-6 w-6 flex items-center justify-center text-white"
+                                    class="absolute top-1 left-1 border border-white bg-neutral rounded-full h-6 w-6 flex items-center justify-center text-white"
                                     *ngIf="selected.includes(asset.id)"
                                 >
                                     <span class="text-xs">

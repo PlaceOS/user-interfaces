@@ -6,7 +6,7 @@ import { ControlStateService } from '../control-state.service';
     selector: 'join-room-tooltip',
     template: `
         <div
-            class="p-4 my-2 bg-white shadow rounded flex flex-col items-center space-y-2"
+            class="p-4 my-2 bg-base-100 shadow rounded flex flex-col items-center space-y-2"
         >
             <h3 class="mb-2 font-medium text-center">Join Rooms</h3>
             <button

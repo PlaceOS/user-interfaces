@@ -1,4 +1,10 @@
-import { Component, Input, SimpleChanges, forwardRef, OnChanges } from '@angular/core';
+import {
+    Component,
+    Input,
+    SimpleChanges,
+    forwardRef,
+    OnChanges,
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import {
@@ -48,7 +54,7 @@ interface DateItem {
                 </div>
             </div>
             <div
-                class="flex items-center text-sm mb-2 pb-2 border-b border-gray-200"
+                class="flex items-center text-sm mb-2 pb-2 border-b border-base-200"
             >
                 <div
                     class="flex-1 opacity-60 text-center"
@@ -63,21 +69,18 @@ interface DateItem {
                     name="schedule-set-date"
                     class="min-w-[2.25rem] w-9 h-9 relative overflow-visible my-0.5"
                     *ngFor="let day of date_list"
-                    [class.hover:bg-blue-600]="day.id !== active_date"
-                    [class.hover:bg-opacity-20]="day.id !== active_date"
+                    [class.hover:bg-base-100]="day.id !== active_date"
                     [class.text-opacity-30]="!day.is_month"
-                    [class.text-white]="day.id === active_date"
-                    [class.text-black]="day.id !== active_date"
-                    [class.dark:text-white]="day.id !== active_date"
-                    [class.dark:text-opacity-30]="!day.is_month"
-                    [class.bg-primary]="day.id === active_date"
+                    [class.text-secondary-content]="day.id === active_date"
+                    [class.text-base-content]="day.id !== active_date"
+                    [class.bg-secondary]="day.id === active_date"
                     [class.font-normal]="day.id !== active_date"
                     (click)="setValue(day.id)"
                     [disabled]="day.id < from || day.id > to"
                 >
                     {{ day.id | date: 'd' }}
                     <div
-                        class="absolute -inset-[2px] border border-primary rounded-full overflow-hidden"
+                        class="absolute -inset-[2px] border border-secondary rounded-full overflow-hidden"
                         matRipple
                         *ngIf="today === day.id"
                     ></div>

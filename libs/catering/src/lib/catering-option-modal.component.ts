@@ -88,7 +88,7 @@ export interface CateringItemOptionModalData {
         </form>
         <footer
             *ngIf="!loading"
-            class="flex p-2 items-center justify-center border-t border-solid border-gray-300"
+            class="flex p-2 items-center justify-center border-t border-solid border-base-200"
         >
             <button
                 btn

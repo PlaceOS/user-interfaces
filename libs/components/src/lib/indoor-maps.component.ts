@@ -69,7 +69,7 @@ interface CustomCoordinates {
             </div>
         </div>
         <div
-            class="absolute flex flex-col h-min w-min top-0 left-0 bg-white rounded-lg z-50"
+            class="absolute flex flex-col h-min w-min top-0 left-0 bg-base-100 rounded-lg z-50"
         >
             <div class="flex basis-1/2 px-4">
                 <div class="flex flex-row items-center max-h-20">
@@ -86,7 +86,7 @@ interface CustomCoordinates {
                         icon
                         name="indoor-map-search"
                         matRipple
-                        class="flex text-black h-10 w-10 rounded-full bg-gray-200 ml-5"
+                        class="flex text-black h-10 w-10 rounded-full bg-base-200 ml-5"
                         aria-label="search button"
                         (click)="onSearch()"
                     >
@@ -113,7 +113,7 @@ interface CustomCoordinates {
                                         matRipple
                                         aria-label="get directions button"
                                         (click)="getRoute(item)"
-                                        class="flex text-white h-7 w-7 rounded-md bg-secondary dark:bg-neutral-800 dark:text-white"
+                                        class="flex text-white h-7 w-7 rounded-md bg-secondary"
                                     >
                                         <app-icon class="text-sm"
                                             >near_me</app-icon

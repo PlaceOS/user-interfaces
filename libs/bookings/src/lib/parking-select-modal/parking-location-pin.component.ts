@@ -65,10 +65,13 @@ import { MAP_FEATURE_DATA } from '@placeos/components';
                 class="absolute top-0 left-0 w-full h-3/4 flex items-center justify-center"
             >
                 <div
-                    class="relative z-10 h-4 w-4 rounded-full bg-white border-2 border-[#0B421D]"
+                    class="relative z-10 h-4 w-4 rounded-full bg-base-100 border-2 border-[#0B421D]"
                     *ngIf="!selected"
                 ></div>
-                <app-icon class="relative text-white z-10 text-2xl" *ngIf="selected">
+                <app-icon
+                    class="relative text-white z-10 text-2xl"
+                    *ngIf="selected"
+                >
                     done
                 </app-icon>
             </div>

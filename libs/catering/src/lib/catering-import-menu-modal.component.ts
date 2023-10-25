@@ -13,7 +13,7 @@ import { CateringItem } from './catering-item.class';
         </header>
         <main *ngIf="!loading; else load_state">
             <div
-                class="relative flex flex-col items-center justify-center space-y-2 h-[24rem] w-[24rem] border-4 border-gray-200 border-dashed rounded-xl hover:bg-gray-100 m-4 p-4 cursor-pointer"
+                class="relative flex flex-col items-center justify-center space-y-2 h-[24rem] w-[24rem] border-4 border-base-200 border-dashed rounded-xl hover:bg-base-200 m-4 p-4 cursor-pointer"
             >
                 <app-icon class="text-4xl">upload</app-icon>
                 <p>Click to select file or Drag and drop files</p>

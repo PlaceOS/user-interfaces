@@ -8,7 +8,7 @@ import { first } from 'rxjs/operators';
     template: `
         <div class="fixed inset-0 overflow-auto">
             <form
-                class="flex flex-col items-center overflow-hidden mx-auto my-4 bg-white rounded shadow p-4"
+                class="flex flex-col items-center overflow-hidden mx-auto my-4 bg-base-100 rounded shadow p-4"
             >
                 <div
                     class="flex items-center justify-center"

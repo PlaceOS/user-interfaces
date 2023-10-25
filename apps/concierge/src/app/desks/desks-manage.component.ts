@@ -139,12 +139,12 @@ const QR_CODES = {};
                         <app-icon>qr_code</app-icon>
                     </button>
                     <ng-template #qr_menu>
-                        <div class="bg-white py-2 shadow rounded">
+                        <div class="bg-base-100 py-2 shadow rounded">
                             <a
                                 [href]="row.qr_link | safe: 'url'"
                                 target="_blank"
                                 ref="noopener noreferrer"
-                                class="block p-2 mx-4 my-2 rounded-lg border border-gray-300 bg-white"
+                                class="block p-2 mx-4 my-2 rounded-lg border border-base-200 bg-base-100"
                                 printable
                             >
                                 <img class="w-48" [src]="row.qr_code" />
@@ -162,7 +162,7 @@ const QR_CODES = {};
                 </div>
             </ng-template>
             <div
-                class="fixed bottom-2 left-1/2 transform -translate-x-1/2 p-4 rounded bg-white shadow"
+                class="fixed bottom-2 left-1/2 transform -translate-x-1/2 p-4 rounded bg-base-100 shadow"
                 *ngIf="changed > 0"
             >
                 <p class="mb-2 text-xl">
@@ -175,7 +175,7 @@ const QR_CODES = {};
                 </div>
             </div>
             <div
-                class="absolute inset-0 flex flex-col items-center justify-center space-y-2 bg-white bg-opacity-60"
+                class="absolute inset-0 flex flex-col items-center justify-center space-y-2 bg-base-100 bg-opacity-60"
                 *ngIf="loading"
             >
                 <mat-spinner diameter="32"></mat-spinner>
@@ -183,11 +183,11 @@ const QR_CODES = {};
             </div>
             <div
                 *ngIf="dragging"
-                class="absolute inset-0 bg-black/60 flex items-center justify-center"
+                class="absolute inset-0 bg-neutral flex items-center justify-center"
             >
-                <div class="bg-white p-4 rounded shadow">
+                <div class="bg-base-100 p-4 rounded shadow">
                     <div
-                        class="border-4 border-gray-300 border-dashed rounded flex flex-col items-center justify-center w-64 h-64"
+                        class="border-4 border-base-200 border-dashed rounded flex flex-col items-center justify-center w-64 h-64"
                     >
                         Drop CSV file to add desks
                     </div>

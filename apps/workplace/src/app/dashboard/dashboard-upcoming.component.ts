@@ -19,7 +19,7 @@ import { DashboardStateService } from './dashboard-state.service';
         <div
             name="event"
             *ngFor="let event of event_list | async | slice: 0:3"
-            class="flex bg-white shadow rounded-lg relative overflow-hidden mb-4 dark:bg-neutral-700"
+            class="flex bg-base-100 shadow rounded-lg relative overflow-hidden mb-4"
         >
             <div
                 name="status"
@@ -27,10 +27,7 @@ import { DashboardStateService } from './dashboard-state.service';
                 [class.bg-primary]="event.asset_id"
             ></div>
             <div name="details" class="flex-1 mr-2">
-                <div
-                    time
-                    class="text-primary dark:text-secondary text-sm font-bold mb-2"
-                >
+                <div time class="text-primary text-sm font-bold mb-2">
                     {{ event.date | date: 'shortTime' }}
                 </div>
                 <div name="title" class="text-sm font-bold mb-2">
@@ -39,7 +36,7 @@ import { DashboardStateService } from './dashboard-state.service';
                 <div name="space" class="text-xs flex items-center mb-2">
                     <app-icon class="mr-2">room</app-icon>
                     <a
-                        class="text-black dark:text-white"
+                        class="text-black"
                         [class.underline]="!!event.space || !!event.asset_id"
                         [matTooltip]="event.space ? 'Locate Space' : ''"
                         (click)="

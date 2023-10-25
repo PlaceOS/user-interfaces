@@ -7,26 +7,22 @@ import { VisitorsStateService } from './visitors-state.service';
 @Component({
     selector: 'visitor-event',
     template: `
-        <div
-            event
-            class="flex items-center px-2 bg-gray-100 dark:bg-neutral-700"
-            *ngIf="event"
-        >
+        <div event class="flex items-center px-2 bg-base-200" *ngIf="event">
             <div class="w-12 text-lg flex justify-center">
                 <i
-                    class="p-2 rounded-full material-icons bg-gray-400 dark:bg-neutral-800"
+                    class="p-2 rounded-full material-icons bg-base-300"
                     *ngIf="
                         event?.status !== 'declined' && event?.state !== 'done'
                     "
                     >event</i
                 >
                 <i
-                    class="p-2 rounded-full material-icons bg-gray-400 dark:bg-neutral-800"
+                    class="p-2 rounded-full material-icons bg-base-300"
                     *ngIf="event?.status === 'declined'"
                     >close</i
                 >
                 <i
-                    class="p-2 rounded-full material-icons bg-gray-400 dark:bg-neutral-800 opacity-40"
+                    class="p-2 rounded-full material-icons bg-base-300 opacity-40"
                     *ngIf="
                         event?.state === 'done' && event?.status !== 'declined'
                     "
@@ -97,7 +93,7 @@ import { VisitorsStateService } from './visitors-state.service';
         </div>
         <div
             attendees
-            class="w-full overflow-hidden relative border-b border-gray-300 dark:border-neutral-600"
+            class="w-full overflow-hidden relative border-b border-base-200"
             [style.height]="
                 !show_attendees && !has_search
                     ? '0rem'
@@ -107,11 +103,11 @@ import { VisitorsStateService } from './visitors-state.service';
             <ng-container *ngIf="show_attendees || has_search">
                 <div
                     visitor
-                    class="relative w-full pl-12 bg-gray-200 dark:bg-neutral-600"
+                    class="relative w-full pl-12 bg-base-200"
                     *ngFor="let user of event?.attendees || []"
                 >
                     <div
-                        class="absolute left-8 top-1/2 -translate-y-full border-b-2 border-l-2 border-gray-400 dark:border-neutral-700 w-4 h-full"
+                        class="absolute left-8 top-1/2 -translate-y-full border-b-2 border-l-2 border-base-200 w-4 h-full"
                     ></div>
                     <visitor-details
                         [attr.disabled]="!matches[user.email]"

@@ -13,12 +13,12 @@ export interface AvailabilityBlock {
     selector: 'user-availability-list',
     template: `
         <div
-            class="relative w-[120rem] h-32 inset-y-0 border-b border-gray-300 dark:border-neutral-500 "
+            class="relative w-[120rem] h-32 inset-y-0 border-b border-base-200 "
         >
             <div
                 event
                 *ngFor="let event of availability"
-                class="absolute inset-y-0 bg-red-600 text-white p-2 overflow-hidden border border-red-700 rounded"
+                class="absolute inset-y-0 bg-error text-white p-2 overflow-hidden border border-red-700 rounded"
                 [style.left]="event.start + '%'"
                 [style.width]="event.size + '%'"
             >

@@ -85,7 +85,7 @@ import { first } from 'rxjs/operators';
                 height: 0;
                 border-top: 0.8rem solid transparent;
                 border-bottom: 0.8rem solid transparent;
-                border-left: 1rem solid var(--primary);
+                border-left: 1rem solid var(--s);
             }
         `,
     ],

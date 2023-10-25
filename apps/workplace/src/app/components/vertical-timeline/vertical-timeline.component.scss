@@ -76,8 +76,8 @@
     top: 0;
     left: 0;
     right: 0;
-    border: 2px solid var(--primary);
-    background-color: var(--primary);
+    border: 2px solid var(--s);
+    background-color: var(--s);
     color: #fff;
     z-index: 100;
     touch-action: none;
@@ -94,7 +94,7 @@
         height: 1em;
         width: 1em;
         border-radius: 100%;
-        background-color: var(--primary);
+        background-color: var(--s);
         box-shadow: 0 1px 3px 0 rgba(#000, 0.2), 0 1px 1px 0 rgba(#000, 0.14),
             0 2px 1px -1px rgba(#000, 0.12);
         &.top {

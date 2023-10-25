@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
     template: `
         <sidebar class="h-full"></sidebar>
         <main
-            class="relative overflow-hidden flex flex-col flex-1 w-1/2 h-full bg-gray-300 dark:bg-neutral-600"
+            class="relative overflow-hidden flex flex-col flex-1 w-1/2 h-full bg-base-200"
         >
             <router-outlet></router-outlet>
             <div

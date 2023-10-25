@@ -22,7 +22,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
                             *ngSwitchCase="'guest'"
                         ></enrolment-guest-confirm>
                         <div
-                            class="bg-white rounded p-4 border border-gray-200 shadow m-4"
+                            class="bg-base-100 rounded p-4 border border-base-200 shadow m-4"
                             *ngSwitchCase="'complete'"
                         >
                             <app-icon class="text-7xl text-success"

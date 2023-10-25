@@ -1,7 +1,7 @@
-<div class="flex flex-col w-full h-full bg-gray-100 border-l relative">
+<div class="flex flex-col w-full h-full bg-base-200 border-l relative">
     <div
         *ngIf="(loading$ | async).length"
-        class="flex absolute inset-0 opacity-60 bg-white dark:bg-black z-10"
+        class="flex absolute inset-0 opacity-60 bg-base-100 z-10"
     >
         <div class="flex flex-col m-auto items-center">
             <mat-spinner [diameter]="32"></mat-spinner>
@@ -49,11 +49,11 @@
         <div
             cdkDrag
             *ngFor="let q of questions$ | async"
-            class="bg-white border flex w-full items-center pr-2 space-x-3"
+            class="bg-base-100 border flex w-full items-center pr-2 space-x-3"
         >
             <div
                 cdkDragHandle
-                class="flex flex-col justify-center h-full hover:cursor-move p-1 bg-gray-200"
+                class="flex flex-col justify-center h-full hover:cursor-move p-1 bg-base-200"
             >
                 <app-icon>drag_indicator</app-icon>
             </div>

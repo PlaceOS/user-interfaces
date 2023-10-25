@@ -15,11 +15,11 @@ const EMPTY_FAVS: string[] = [];
         <div list class="space-y-2">
             <div
                 space
-                class="relative p-2 rounded-lg w-full flex items-center shadow border border-gray-200"
+                class="relative p-2 rounded-lg w-full flex items-center shadow border border-base-200"
                 *ngFor="let asset of items"
             >
                 <div
-                    class="w-16 h-16 rounded-xl bg-black/20 mr-4 overflow-hidden flex items-center justify-center"
+                    class="w-16 h-16 rounded-xl bg-neutral mr-4 overflow-hidden flex items-center justify-center"
                 >
                     <img
                         auth

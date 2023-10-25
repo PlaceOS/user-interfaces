@@ -24,7 +24,7 @@ import { generateUserForm } from './user.utilities';
             <user-form [form]="form"></user-form>
         </main>
         <footer
-            class="flex items-center justify-center w-full p-2 border-t border-gray-300 space-x-2"
+            class="flex items-center justify-center w-full p-2 border-t border-base-200 space-x-2"
             *ngIf="!loading"
         >
             <button btn matRipple class="inverse" mat-dialog-close>

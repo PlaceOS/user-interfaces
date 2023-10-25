@@ -4,7 +4,7 @@ import { EventsStateService } from '../day-view/events-state.service';
 @Component({
     selector: 'week-view-timeline',
     template: `
-        <div class="flex divide-x border-gray-400 h-full">
+        <div class="flex divide-x border-base-200 h-full">
             <ng-container *ngFor="let i of weekdays">
                 <ng-container
                     *ngIf="

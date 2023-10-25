@@ -29,7 +29,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
                 <label for="card-number" i18n>Card Number</label>
                 <div
                     tabindex="0"
-                    class="border border-gray-200 p-2 h-12 mb-4 focus-within:shadow focus-within:border-black flex items-center font-mono w-full rounded relative"
+                    class="border border-base-200 p-2 h-12 mb-4 focus-within:shadow focus-within:border-base-200 flex items-center font-mono w-full rounded relative"
                     (focus)="focusInput()"
                 >
                     <pre class="flex-1">{{ card_display }}</pre>

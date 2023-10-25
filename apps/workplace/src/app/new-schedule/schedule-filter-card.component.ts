@@ -6,7 +6,7 @@ import { ScheduleStateService } from './schedule-state.service';
     selector: 'schedule-filter-card',
     template: `
         <div
-            class="flex items-center border-b border-gray-300 dark:bg-neutral-700 space-x-2 mb-4 text-xl"
+            class="flex items-center border-b border-base-200 space-x-2 mb-4 text-xl"
         >
             <button icon matRipple (click)="dismiss()">
                 <app-icon>chevron_left</app-icon>
@@ -16,9 +16,7 @@ import { ScheduleStateService } from './schedule-state.service';
             </h2>
             <app-icon></app-icon>
         </div>
-        <div
-            class="space-y-4 border-b border-gray-300 mb-4 pb-4 dark:bg-neutral-700"
-        >
+        <div class="space-y-4 border-b border-base-200 mb-4 pb-4">
             <button
                 name="schedule-toggle-event-filter"
                 matRipple

@@ -16,7 +16,7 @@ import { MatDialog } from '@angular/material/dialog';
     selector: 'catering-topbar',
     template: `
         <div
-            class="flex items-center bg-white dark:bg-neutral-700 h-20 px-4 border-b border-gray-300 dark:border-neutral-500 space-x-2"
+            class="flex items-center bg-base-100 h-20 px-4 border-b border-base-200 space-x-2"
         >
             <mat-form-field appearance="outline">
                 <mat-select

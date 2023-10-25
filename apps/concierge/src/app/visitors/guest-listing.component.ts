@@ -36,12 +36,12 @@ import { CalendarEvent } from '@placeos/events';
         <ng-template #state_template let-row="row">
             <i
                 *ngIf="!row?.checked_in; else checkin_state"
-                class="p-2 rounded-full material-icons border-2 border-dotted border-gray-600 dark:border-neutral-800"
+                class="p-2 rounded-full material-icons border-2 border-dotted border-base-200"
                 >face</i
             >
             <ng-template #checkin_state>
                 <i
-                    class="p-2 rounded-full material-icons bg-green-600 border-2 border-green-600 text-white"
+                    class="p-2 rounded-full material-icons bg-success border-2 border-green-600 text-white"
                     >done</i
                 >
             </ng-template>
@@ -68,7 +68,7 @@ import { CalendarEvent } from '@placeos/events';
             </div>
             <ng-template #vaccine_confirmation>
                 <div
-                    class="bg-white rounded p-2 flex flex-col space-y-2 my-2 w-[20rem]"
+                    class="bg-base-100 rounded p-2 flex flex-col space-y-2 my-2 w-[20rem]"
                 >
                     <img
                         [src]="row.extension_data?.vaccination_proof?.url"
@@ -108,7 +108,7 @@ import { CalendarEvent } from '@placeos/events';
             </div>
             <ng-template #id_confirmation>
                 <div
-                    class="bg-white rounded p-2 flex flex-col space-y-2 my-2 w-[20rem]"
+                    class="bg-base-100 rounded p-2 flex flex-col space-y-2 my-2 w-[20rem]"
                 >
                     <img
                         [src]="row.extension_data?.id_data?.url"
@@ -133,9 +133,9 @@ import { CalendarEvent } from '@placeos/events';
         <ng-template #status_template let-row="row">
             <button
                 matRipple
-                class="rounded-3xl bg-yellow-300 border-none"
-                [class.!bg-green-400]="row?.status === 'approved'"
-                [class.!bg-red-400]="row?.status === 'declined'"
+                class="rounded-3xl bg-warning border-none"
+                [class.!bg-success]="row?.status === 'approved'"
+                [class.!bg-error]="row?.status === 'declined'"
                 [matMenuTriggerFor]="menu"
             >
                 <div class="flex items-center">

@@ -17,7 +17,7 @@ const EMPTY_FAVS: string[] = [];
         <div list class="space-y-2">
             <div
                 locker
-                class="relative p-2 rounded-lg w-full flex items-center shadow border border-gray-200"
+                class="relative p-2 rounded-lg w-full flex items-center shadow border border-base-200"
                 *ngFor="let item of items"
             >
                 <div *ngIf="features?.length" class="flex flex-col">
@@ -34,7 +34,7 @@ const EMPTY_FAVS: string[] = [];
                     </div>
                 </div>
                 <div
-                    class="w-20 h-20 rounded-xl bg-black/20 mr-4 overflow-hidden flex items-center justify-center"
+                    class="w-20 h-20 rounded-xl bg-neutral mr-4 overflow-hidden flex items-center justify-center"
                 >
                     <img
                         auth

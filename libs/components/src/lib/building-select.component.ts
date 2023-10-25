@@ -6,7 +6,7 @@ import { OrganisationService } from '@placeos/organisation';
     selector: 'building-select',
     template: `
         <div
-            class="flex flex-col w-[18.5rem] rounded bg-white shadow p-2 relative -top-12 -right-1 dark:bg-neutral-700 dark:text-white overflow-auto max-h-[65vh]"
+            class="flex flex-col w-[18.5rem] rounded bg-base-100 shadow p-2 relative -top-12 -right-1 overflow-auto max-h-[65vh]"
             (click)="close()"
         >
             <div class="flex items-center space-x-2">

@@ -9,12 +9,8 @@ import { ReportsStateService } from '../reports-state.service';
 @Component({
     selector: 'report-spaces-user-listing',
     template: `
-        <div
-            class="m-4 rounded bg-white dark:bg-neutral-700 shadow overflow-hidden"
-        >
-            <div
-                class="border-b border-gray-300 dark:border-neutral-500 px-4 py-2 flex items-center"
-            >
+        <div class="m-4 rounded bg-base-100 shadow overflow-hidden">
+            <div class="border-b border-base-200 px-4 py-2 flex items-center">
                 <h3 class="font-bold text-xl flex-1">Meeting Organisers</h3>
                 <button icon (click)="download()">
                     <app-icon>download</app-icon>

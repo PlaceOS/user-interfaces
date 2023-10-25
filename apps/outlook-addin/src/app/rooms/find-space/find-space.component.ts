@@ -32,7 +32,7 @@ import { Router } from '@angular/router';
                 font-size: 0.875rem;
             }
             .mat-button-toggle-checked {
-                border: 1px solid var(--primary);
+                border: 1px solid var(--s);
                 border-radius: 5px;
                 box-shadow: none;
             }

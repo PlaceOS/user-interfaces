@@ -103,7 +103,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 </div>
             </div>
         </section>
-        <footer class="p-2 w-full border-t border-gray-200 mt-4">
+        <footer class="p-2 w-full border-t border-base-200 mt-4">
             <button
                 btn
                 name="confirm-meeting"

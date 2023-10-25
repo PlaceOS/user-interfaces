@@ -4,9 +4,7 @@ import { Component } from '@angular/core';
     selector: '[app-facilities]',
     template: `
         <sidebar></sidebar>
-        <main
-            class="relative w-full flex flex-col bg-gray-200 dark:bg-neutral-600"
-        >
+        <main class="relative w-full flex flex-col bg-base-200">
             <facilities-topbar></facilities-topbar>
             <div class="flex flex-1">
                 <facilities-map class="flex-1 h-full"></facilities-map>

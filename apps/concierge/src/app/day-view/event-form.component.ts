@@ -101,7 +101,7 @@ import { map, tap } from 'rxjs/operators';
                     >
                         <input
                             #input
-                            class="sticky top-0 bg-white px-4 py-3 text-base border-x-0 border-t-0 border-b focus:border-b border-gray-200 w-full rounded-none z-50"
+                            class="sticky top-0 bg-base-100 px-4 py-3 text-base border-x-0 border-t-0 border-b focus:border-b border-base-200 w-full rounded-none z-50"
                             [ngModel]="code_filter.getValue()"
                             (ngModelChange)="code_filter.next($event)"
                             [ngModelOptions]="{ standalone: true }"

@@ -10,7 +10,7 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
     selector: 'dayview-topbar',
     template: `
         <div
-            class="flex items-center px-4 h-20 bg-white dark:bg-neutral-700 border-b border-gray-200 dark:border-neutral-500"
+            class="flex items-center px-4 h-20 bg-base-100 border-b border-base-200"
         >
             <button
                 btn

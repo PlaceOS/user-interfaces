@@ -99,7 +99,7 @@ export interface PaymentData {
                 </p>
             </main>
             <img src="assets/icons/payment-confirmed.svg" class="w-full" />
-            <footer class="p-4 border-t border-gray-200">
+            <footer class="p-4 border-t border-base-200">
                 <button btn matRipple mat-dialog-close class="w-full" i18n>
                     Great, thanks.
                 </button>

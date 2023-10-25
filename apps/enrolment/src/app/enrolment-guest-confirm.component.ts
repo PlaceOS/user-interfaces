@@ -6,7 +6,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
     selector: 'enrolment-guest-confirm',
     template: `
         <div
-            class="bg-white p-4 mx-auto my-4 border border-gray-300 shadow w-[480px] max-w-[calc(100vw-2rem)] rounded"
+            class="bg-base-100 p-4 mx-auto my-4 border border-base-200 shadow w-[480px] max-w-[calc(100vw-2rem)] rounded"
             [formGroup]="form"
         >
             <h3 class="text-center text-xl font-medium mb-4">
@@ -43,7 +43,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
             </div>
             <div class="flex flex-col">
                 <label>Identification:</label>
-                <div class="bg-gray-50 p-2 border border-gray-200 mb-4">
+                <div class="bg-base-200 p-2 border border-base-200 mb-4">
                     <upload-list formControlName="attachments"></upload-list>
                 </div>
             </div>

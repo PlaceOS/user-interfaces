@@ -29,7 +29,7 @@ import { BookingAsset } from '../booking-form.service';
         <ng-container *ngIf="desk; else emptyState">
             <section
                 image
-                class="relative w-full bg-black/20"
+                class="relative w-full bg-neutral"
                 [class.sm:h-64]="desk.images?.length"
                 [class.h-40]="desk.images?.length"
                 [class.sm:h-0]="!desk.images?.length"
@@ -46,7 +46,7 @@ import { BookingAsset } from '../booking-form.service';
                     matRipple
                     name="close-desk-details"
                     (click)="close.emit()"
-                    class="absolute top-2 left-2 bg-black/40 sm:hidden text-white"
+                    class="absolute top-2 left-2 bg-neutral sm:hidden text-white"
                 >
                     <app-icon>arrow_back</app-icon>
                 </button>
@@ -57,7 +57,7 @@ import { BookingAsset } from '../booking-form.service';
                     [class.text-white]="!fav"
                     [class.text-blue-400]="fav"
                     (click)="toggleFav.emit()"
-                    class="absolute top-2 right-2 bg-black/40"
+                    class="absolute top-2 right-2 bg-neutral"
                 >
                     <app-icon>{{
                         fav ? 'favorite' : 'favorite_border'
@@ -72,10 +72,7 @@ import { BookingAsset } from '../booking-form.service';
                         {{ desk.display_name || desk.name || desk.id }}
                     </h2>
                 </section>
-                <section
-                    details
-                    class="space-y-2 pb-2 border-b dark:border-neutral-500"
-                >
+                <section details class="space-y-2 pb-2 border-b">
                     <h2 class="text-xl font-medium">Details</h2>
                     <div class="flex items-center space-x-2">
                         <app-icon>person</app-icon>
@@ -95,7 +92,7 @@ import { BookingAsset } from '../booking-form.service';
                 <section
                     facilities
                     *ngIf="desk.features?.length"
-                    class="space-y-2 pb-2 border-b dark:border-neutral-500"
+                    class="space-y-2 pb-2 border-b"
                 >
                     <h2 class="text-xl font-medium" i18n>Facilities</h2>
                     <div
@@ -107,7 +104,7 @@ import { BookingAsset } from '../booking-form.service';
                 </section>
                 <section
                     map
-                    class="w-full mx-auto h-64 sm:h-48 relative border border-gray-200 dark:border-neutral-500 overflow-hidden rounded"
+                    class="w-full mx-auto h-64 sm:h-48 relative border border-base-200 overflow-hidden rounded"
                     *ngIf="!hide_map"
                 >
                     <interactive-map
@@ -119,7 +116,7 @@ import { BookingAsset } from '../booking-form.service';
                 </section>
             </div>
             <div
-                class="px-2 pt-2 pb-[5.5rem] border-t border-gray-200 dark:border-neutral-500 shadow sm:hidden"
+                class="px-2 pt-2 pb-[5.5rem] border-t border-base-200 shadow sm:hidden"
             >
                 <button
                     btn

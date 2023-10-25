@@ -12,14 +12,14 @@ import { JsonDisplayComponent } from './json-display.component';
 
 const COLOR_MAP = {
     console: 'bg-purple-600/30',
-    network: 'bg-green-600/30',
+    network: 'bg-success/30',
     dom: 'bg-indigo-600/30',
 
     log: `bg-cyan-600/50`,
-    info: `bg-blue-600/50`,
+    info: `bg-info`,
     warn: `bg-orange-600/50`,
-    debug: `bg-gray-600/50`,
-    error: `bg-red-600/50`,
+    debug: `bg-base-300/50`,
+    error: `bg-error/50`,
 };
 
 const URL_STARTS = [
@@ -36,7 +36,7 @@ const URL_STARTS = [
     selector: `debug-console`,
     template: `
         <div
-            class="absolute bottom-2 inset-x-2 bg-black/80 text-white shadow rounded overflow-hidden h-[32rem] max-h-65vh flex flex-col z-[998]"
+            class="absolute bottom-2 inset-x-2 bg-neutral text-white shadow rounded overflow-hidden h-[32rem] max-h-65vh flex flex-col z-[998]"
             *ngIf="show"
         >
             <cdk-virtual-scroll-viewport
@@ -44,14 +44,14 @@ const URL_STARTS = [
                 class="flex-1 h-[30rem] max-h-full w-full"
             >
                 <div
-                    class="font-mono h-8 truncate p-2 text-sm flex items-center max-w-full hover:bg-white/10 space-x-1"
+                    class="font-mono h-8 truncate p-2 text-sm flex items-center max-w-full hover:bg-base-100/10 space-x-1"
                     *cdkVirtualFor="
                         let log of filtered_logs | async;
                         trackBy: trackByFn
                     "
                 >
                     <div
-                        class="uppercase text-xs p-1 bg-white/10 rounded font-mono"
+                        class="uppercase text-xs p-1 bg-base-100/10 rounded font-mono"
                     >
                         {{ log.timestamp | date: 'MMM d HH:mm:ss' }}
                     </div>
@@ -109,7 +109,7 @@ const URL_STARTS = [
                 </div>
             </cdk-virtual-scroll-viewport>
             <div
-                class="absolute bottom-0 right-2 rounded-t-lg bg-black/90 p-2 flex items-center space-x-2 w-[20rem]"
+                class="absolute bottom-0 right-2 rounded-t-lg bg-neutral p-2 flex items-center space-x-2 w-[20rem]"
             >
                 <input
                     #search_input
@@ -117,7 +117,7 @@ const URL_STARTS = [
                     [ngModel]="filter | async"
                     (ngModelChange)="filter.next($event)"
                     placeholder="Filter logs..."
-                    class="border-none bg-white/10 flex-1 text-sm px-2 py-1 font-mono rounded"
+                    class="border-none bg-base-100/10 flex-1 text-sm px-2 py-1 font-mono rounded"
                 />
                 <div class="font-mono text-xs px-2 text-center">
                     <span class="font-mono" *ngIf="(filter | async)?.length">

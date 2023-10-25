@@ -6,10 +6,7 @@ import { EventFormService } from '@placeos/events';
 @Component({
     selector: 'placeos-book-locker-flow',
     template: `
-        <div
-            class="bg-white dark:bg-neutral-900 h-full w-full z-50"
-            [ngSwitch]="view"
-        >
+        <div class="bg-base-100 h-full w-full z-50" [ngSwitch]="view">
             <locker-flow-success *ngSwitchCase="'success'">
             </locker-flow-success>
             <locker-flow-confirm *ngSwitchCase="'confirm'">

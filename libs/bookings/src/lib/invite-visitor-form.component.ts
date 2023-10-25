@@ -15,12 +15,10 @@ import { User } from 'libs/users/src/lib/user.class';
     template: `
         <ng-container *ngIf="!sent; else send_state">
             <div
-                class="relative flex flex-col bg-white dark:bg-neutral-700 overflow-auto max-h-full"
+                class="relative flex flex-col bg-base-100 overflow-auto max-h-full"
                 *ngIf="!(loading | async) && !loading_many; else load_state"
             >
-                <div
-                    class="w-full border-b border-gray-200 dark:border-neutral-500 px-4 py-2"
-                >
+                <div class="w-full border-b border-base-200 px-4 py-2">
                     <h2 class="text-2xl" i18n>Invite Visitor</h2>
                 </div>
                 <form *ngIf="form" [formGroup]="form" class="p-4">
@@ -185,7 +183,7 @@ import { User } from 'libs/users/src/lib/user.class';
                     </div>
                 </form>
                 <div
-                    class="sticky p-4 border-t bg-white border-gray-200 dark:border-neutral-500 bottom-0"
+                    class="sticky p-4 border-t bg-base-100 border-base-200 bottom-0"
                 >
                     <button
                         btn
@@ -203,7 +201,7 @@ import { User } from 'libs/users/src/lib/user.class';
         <ng-template #send_state>
             <div
                 sent
-                class="absolute inset-0 bg-white dark:bg-neutral-700 flex flex-col items-center justify-center text-center"
+                class="absolute inset-0 bg-base-100 flex flex-col items-center justify-center text-center"
             >
                 <div class="w-full max-w-[32rem] flex-1 h-1/2 space-y-2 m-8">
                     <h2 class="text-3xl" i18n>
@@ -242,9 +240,7 @@ import { User } from 'libs/users/src/lib/user.class';
                         {{ last_success?.date | date: time_format }}
                     </p>
                 </div>
-                <div
-                    class="w-full p-2 border-t border-gray-200 dark:border-neutral-500"
-                >
+                <div class="w-full p-2 border-t border-base-200">
                     <div
                         class="mx-auto flex items-center space-x-2 w-full max-w-[32rem]"
                     >

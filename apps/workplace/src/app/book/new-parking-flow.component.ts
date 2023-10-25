@@ -6,10 +6,7 @@ import { AsyncHandler } from '@placeos/common';
 @Component({
     selector: 'placeos-new-parking-flow',
     template: `
-        <div
-            class="bg-white dark:bg-neutral-900 h-full w-full z-50"
-            [ngSwitch]="view"
-        >
+        <div class="bg-base-100 h-full w-full z-50" [ngSwitch]="view">
             <parking-flow-success *ngSwitchCase="'success'">
             </parking-flow-success>
             <parking-flow-confirm *ngSwitchCase="'confirm'">

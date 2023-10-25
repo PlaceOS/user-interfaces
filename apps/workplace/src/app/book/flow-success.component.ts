@@ -8,7 +8,7 @@ import { currentUser } from '@placeos/common';
             name="success"
             class="fixed inset-0 flex flex-col bg-indigo-900 items-center justify-center z-50"
         >
-            <div class="text-7xl rounded-full bg-white text-success mb-4">
+            <div class="text-7xl rounded-full bg-base-100 text-success mb-4">
                 <app-icon>done</app-icon>
             </div>
             <div class="text-center text-lg text-white mb-4 leading-10">

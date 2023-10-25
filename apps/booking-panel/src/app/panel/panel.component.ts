@@ -14,7 +14,7 @@ import { PanelStateService } from '../panel-state.service';
 @Component({
     selector: 'app-booking-panel',
     template: `
-        <div class="flex flex-col absolute inset-0 bg-gray-50">
+        <div class="flex flex-col absolute inset-0 bg-base-200">
             <panel-topbar *ngIf="topbar"></panel-topbar>
             <div
                 content

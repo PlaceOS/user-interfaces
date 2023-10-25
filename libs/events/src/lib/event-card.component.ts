@@ -32,41 +32,28 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             *ngIf="event"
         >
             <div
-                class="w-full bg-white dark:bg-[#1F2021] rounded-xl shadow py-4 relative"
+                class="w-full bg-base-100 border border-base-300 rounded-xl shadow py-4 relative"
             >
                 <h4 class="px-4 text-lg">{{ event?.title }}</h4>
                 <div class="flex mx-4 my-2">
                     <div
-                        class="flex items-center bg-opacity-30 rounded-2xl p-1 text-base space-x-2 pr-2 font-medium"
-                        [class.bg-green-600]="
+                        class="flex items-center bg-opacity-30 rounded-2xl p-1 text-base text-black space-x-2 pr-2 font-medium"
+                        [class.bg-success-light]="
                             event.state !== 'done' &&
                             event?.status === 'approved'
                         "
-                        [class.bg-yellow-500]="
+                        [class.bg-warning-light]="
                             event.state !== 'done' &&
                             event?.status === 'tentative'
                         "
-                        [class.bg-red-600]="
+                        [class.bg-error-light]="
                             event.state !== 'done' &&
                             event?.status === 'declined'
                         "
-                        [class.bg-gray-300]="event.state === 'done'"
+                        [class.bg-base-200]="event.state === 'done'"
                     >
                         <div
-                            class="rounded-full h-5 w-5 flex items-center justify-center text-white"
-                            [class.bg-success]="
-                                event.state !== 'done' &&
-                                event?.status === 'approved'
-                            "
-                            [class.text-pending]="
-                                event.state !== 'done' &&
-                                event?.status === 'tentative'
-                            "
-                            [class.bg-error]="
-                                event.state !== 'done' &&
-                                event?.status === 'declined'
-                            "
-                            [class.text-neutral-600]="event.state === 'done'"
+                            class="rounded-full h-5 w-5 flex items-center justify-center "
                         >
                             <app-icon>
                                 {{
@@ -84,7 +71,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     </div>
                 </div>
                 <div
-                    class="flex flex-wrap flex-col sm:flex-row sm:divide-x divide-neutral-500 py-2 space-y-2 sm:space-y-0"
+                    class="flex flex-wrap flex-col sm:flex-row sm:divide-x divide-base-200-500 py-2 space-y-2 sm:space-y-0"
                 >
                     <div class="flex items-center px-4">
                         <app-icon>meeting_room</app-icon>
@@ -142,7 +129,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     </div>
                     <div class="h-10 w-6" *ngIf="event?.attendees?.length > 6">
                         <div
-                            class="bg-secondary rounded-full h-10 w-10 border-2 border-white flex items-center justify-center text-white"
+                            class="bg-secondary rounded-full h-10 w-10 border-2 border-base-100 flex items-center justify-center text-secondary-content"
                         >
                             +{{ event?.attendees?.length - 5 }}
                         </div>

@@ -7,14 +7,14 @@ import { Desk } from '@placeos/organisation';
     selector: 'desk-booking-form',
     template: `
         <div
-            class="divide-y divide-gray-300 dark:divide-neutral-500 space-y-2"
+            class="divide-y divide-base-200 space-y-2"
             *ngIf="form"
             [formGroup]="form"
         >
             <section class="p-4">
                 <h3 class="space-x-2 flex items-center mb-4">
                     <div
-                        class="border border-black dark:border-neutral-500 rounded-full h-6 w-6 flex items-center justify-center"
+                        class="border border-base-200 rounded-full h-6 w-6 flex items-center justify-center"
                     >
                         1
                     </div>
@@ -93,7 +93,7 @@ import { Desk } from '@placeos/organisation';
             <section class="p-4">
                 <h3 class="space-x-2 flex items-center mb-4">
                     <div
-                        class="border border-black dark:border-neutral-500 rounded-full h-6 w-6 flex items-center justify-center"
+                        class="border border-base-200 rounded-full h-6 w-6 flex items-center justify-center"
                     >
                         2
                     </div>
@@ -104,7 +104,7 @@ import { Desk } from '@placeos/organisation';
             <section class="p-4" *ngIf="allow_assets">
                 <h3 class="space-x-2 flex items-center mb-4">
                     <div
-                        class="border border-black dark:border-neutral-500 rounded-full h-6 w-6 flex items-center justify-center"
+                        class="border border-base-200 rounded-full h-6 w-6 flex items-center justify-center"
                     >
                         3
                     </div>

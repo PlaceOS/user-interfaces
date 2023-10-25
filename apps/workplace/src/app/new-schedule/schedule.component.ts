@@ -32,12 +32,12 @@ import { combineLatest } from 'rxjs';
     template: `
         <topbar *ngIf="!hide_nav"></topbar>
         <div
-            class="flex flex-col sm:flex-row flex-1 h-1/2 bg-[#F8F8FA] dark:bg-neutral-900 relative"
+            class="flex flex-col sm:flex-row flex-1 h-1/2 bg-base-200 relative"
         >
-            <schedule-sidebar class="hidden sm:block"></schedule-sidebar>
-            <div
-                class="w-full bg-white dark:bg-[#1F2021] border-b border-gray-300 sm:hidden"
-            >
+            <schedule-sidebar
+                class="hidden sm:block bg-base-100"
+            ></schedule-sidebar>
+            <div class="w-full bg-base-100 border-b border-neutral sm:hidden">
                 <schedule-mobile-calendar
                     [ngModel]="date | async"
                     (ngModelChange)="setDate($event)"

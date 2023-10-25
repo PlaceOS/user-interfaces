@@ -8,7 +8,7 @@ import { ControlStateService, LightScene } from '../control-state.service';
     selector: 'lighting-tooltip',
     template: `
         <div
-            class="p-4 my-2 bg-white shadow rounded flex flex-col items-center space-y-2"
+            class="p-4 my-2 bg-base-100 shadow rounded flex flex-col items-center space-y-2"
         >
             <h3 class="mb-2 text-xl font-medium">Lighting Scenes</h3>
             <ng-container *ngIf="(scenes | async).length; else empty_state">

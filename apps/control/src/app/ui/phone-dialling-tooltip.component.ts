@@ -6,7 +6,7 @@ import { ControlStateService } from '../control-state.service';
     selector: 'phone-dialling-tooltip',
     template: `
         <div
-            class="p-4 my-2 bg-white shadow rounded flex flex-col items-center space-y-2"
+            class="p-4 my-2 bg-base-100 shadow rounded flex flex-col items-center space-y-2"
         >
             <mat-form-field appearance="outline" class="w-full h-[3.25rem]">
                 <input

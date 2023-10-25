@@ -7,7 +7,7 @@ import { first } from 'rxjs/operators';
     selector: 'points-topbar',
     template: `
         <div
-            class="flex items-center bg-white dark:bg-neutral-700 h-20 px-4 border-b border-gray-300 dark:border-neutral-500 space-x-2"
+            class="flex items-center bg-base-100 h-20 px-4 border-b border-base-200 space-x-2"
         >
             <div class="flex-1 w-2">
                 <ng-content></ng-content>

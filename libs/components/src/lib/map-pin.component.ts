@@ -14,7 +14,7 @@ export interface MapPinData {
         <div
             name="message"
             *ngIf="message && show_message"
-            class="p-2 m-2 rounded bg-white text-gray-700 shadow"
+            class="p-2 m-2 rounded bg-base-100 text-gray-700 shadow"
         >
             {{ message }}
         </div>

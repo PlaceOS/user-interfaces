@@ -40,10 +40,10 @@ import { CateringItem } from '@placeos/catering';
             </a>
         </div>
         <div
-            class="flex-1 w-full flex flex-col items-center bg-gray-200 dark:bg-neutral-600 p-4 overflow-auto"
+            class="flex-1 w-full flex flex-col items-center bg-base-200 p-4 overflow-auto"
         >
             <div
-                class="max-w-full w-[28rem] bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500 px-4 pb-4 divide-y divide-gray-300 dark:divide-neutral-500"
+                class="max-w-full w-[28rem] bg-base-100 border border-base-200 px-4 pb-4 divide-y divide-base-200"
                 *ngIf="event; else load_state"
             >
                 <h2 class="text-xl uppercase font-medium w-full my-4">
@@ -52,9 +52,7 @@ import { CateringItem } from '@placeos/catering';
                 <div
                     class="flex items-center py-2 space-x-2 w-full !border-none"
                 >
-                    <div
-                        class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
-                    >
+                    <div class="p-2 rounded-full bg-base-200 mr-2">
                         <app-icon>event</app-icon>
                     </div>
                     <div class="flex-1 truncate">
@@ -69,18 +67,14 @@ import { CateringItem } from '@placeos/catering';
                     </div>
                 </div>
                 <div class="flex items-center py-2 space-x-2 w-full">
-                    <div
-                        class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
-                    >
+                    <div class="p-2 rounded-full bg-base-200 mr-2">
                         <app-icon>schedule</app-icon>
                     </div>
                     <div class="flex-1 truncate">{{ duration }}</div>
                 </div>
                 <div class="w-full">
                     <div class="flex items-center py-2 space-x-2 ">
-                        <div
-                            class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
-                        >
+                        <div class="p-2 rounded-full bg-base-200 mr-2">
                             <app-icon>place</app-icon>
                         </div>
                         <div class="flex-1 truncate">
@@ -140,9 +134,7 @@ import { CateringItem } from '@placeos/catering';
                 </div>
                 <div class="w-full">
                     <div class="flex items-center py-2 space-x-2 ">
-                        <div
-                            class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
-                        >
+                        <div class="p-2 rounded-full bg-base-200 mr-2">
                             <app-icon>group</app-icon>
                         </div>
                         <div class="flex-1 truncate">
@@ -197,11 +189,9 @@ import { CateringItem } from '@placeos/catering';
                     class="w-full"
                     *ngIf="event.extension_data.catering?.length"
                 >
-                    <div class="border-b border-gray-200 w-full">
+                    <div class="border-b border-base-200 w-full">
                         <div class="flex items-center py-2 space-x-2 ">
-                            <div
-                                class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
-                            >
+                            <div class="p-2 rounded-full bg-base-200 mr-2">
                                 <app-icon>group</app-icon>
                             </div>
                             <div class="flex-1 truncate">
@@ -272,9 +262,7 @@ import { CateringItem } from '@placeos/catering';
                         class="flex items-center py-2 space-x-2 w-full"
                         *ngIf="event.body"
                     >
-                        <div
-                            class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
-                        >
+                        <div class="p-2 rounded-full bg-base-200 mr-2">
                             <app-icon>event_note</app-icon>
                         </div>
                         <div

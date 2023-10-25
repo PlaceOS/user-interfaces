@@ -11,12 +11,12 @@ import { SettingsService } from '@placeos/common';
     selector: 'view-event-details',
     template: `
         <div
-            class="fixed inset-0 bg-black bg-opacity-30"
+            class="fixed inset-0 bg-neutral bg-opacity-30"
             (click)="close()"
         ></div>
         <div
             name="panel"
-            class="absolute rounded shadow flex flex-col bg-white dark:bg-neutral-700"
+            class="absolute rounded shadow flex flex-col bg-base-100"
             (click)="$event.stopPropagation()"
         >
             <div class="p-4 overflow-auto flex-1">
@@ -44,7 +44,7 @@ import { SettingsService } from '@placeos/common';
                 </div>
                 <div class="flex flex-col mb-2">
                     <div
-                        class="flex items-center pl-6 mb-1 hover:bg-gray-100 rounded"
+                        class="flex items-center pl-6 mb-1 hover:bg-base-200 rounded"
                         *ngFor="let user of event.attendees"
                     >
                         <a-user-avatar

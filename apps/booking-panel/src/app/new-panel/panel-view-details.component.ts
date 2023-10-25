@@ -13,7 +13,7 @@ import { PanelStateService } from '../panel-state.service';
                 class="bg-cover bg-center absolute inset-0"
                 [style.background-image]="'url(' + room_image + ')'"
             ></div>
-            <div class="absolute inset-0 bg-black/60"></div>
+            <div class="absolute inset-0 bg-black opacity-50"></div>
             <div name class="absolute top-4 left-4 text-4xl font-medium">
                 {{
                     (system | async)?.display_name ||
@@ -37,7 +37,7 @@ import { PanelStateService } from '../panel-state.service';
                     !hide_meeting_details &&
                     !hide_meeting_title
                 "
-                class="absolute bottom-0 inset-x-0 bg-black/20 text-white p-4 text-center text-3xl"
+                class="absolute bottom-0 inset-x-0 bg-neutral text-white p-4 text-center text-3xl"
             >
                 {{ (current | async).title }}
                 <span class="font-light">{{

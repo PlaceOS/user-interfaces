@@ -14,7 +14,7 @@ import { AsyncHandler } from '@placeos/common';
                 <ng-container *ngIf="systems?.length > 0; else none">
                     <div
                         panel
-                        class="relative flex-1 border border-grey-300 overflow-hidden"
+                        class="relative flex-1 border border-base-200 overflow-hidden"
                         *ngFor="let id of systems | slice: 0:4; let i = index"
                         [style.height]="systems.length >= 2 ? '50%' : '100%'"
                     >

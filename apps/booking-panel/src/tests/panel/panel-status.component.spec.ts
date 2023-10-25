@@ -28,7 +28,7 @@ describe('BookingPanelComponent', () => {
         const service = spectator.inject(PanelStateService);
         (service.settings as any).next({ status: 'not-bookable' });
         spectator.detectChanges();
-        expect('[status]').toHaveClass('bg-gray-300');
+        expect('[status]').toHaveClass('bg-base-200');
     });
 
     it('should show pending status', () => {

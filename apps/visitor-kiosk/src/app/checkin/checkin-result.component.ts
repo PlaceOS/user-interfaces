@@ -8,7 +8,7 @@ import { SettingsService } from '@placeos/common';
     selector: 'checkin-results',
     template: `
         <div
-            class="bg-white rounded shadow overflow-hidden relative flex flex-col items-center my-4 p-4 mx-auto space-y-4"
+            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center my-4 p-4 mx-auto space-y-4"
             *ngIf="event | async"
         >
             <h3 class="text-xl">You are checked in!</h3>

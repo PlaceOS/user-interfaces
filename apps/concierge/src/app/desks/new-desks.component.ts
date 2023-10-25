@@ -69,7 +69,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                             icon
                             matRipple
                             matTooltip="Refresh List"
-                            class="ml-2 rounded border border-gray-200"
+                            class="ml-2 rounded border border-base-200"
                             (click)="refresh()"
                             [disabled]="loading | async"
                         >
@@ -141,7 +141,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
-                background-color: #fff;
+                background-color: var(--b1);
             }
         `,
     ],

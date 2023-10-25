@@ -30,7 +30,7 @@ import QrScanner from 'qr-scanner';
     selector: 'book-code-flow',
     template: `
         <div
-            class="flex-1 overflow-hidden flex items-center justify-center bg-black relative"
+            class="flex-1 overflow-hidden flex items-center justify-center bg-neutral relative"
             *ngIf="!loading; else load_state"
         >
             <video
@@ -81,15 +81,15 @@ import QrScanner from 'qr-scanner';
                     </div>
                 </div>
                 <div
-                    class="m-4 p-2 flex items-center space-x-2 bg-white bg-opacity-50 rounded"
+                    class="m-4 p-2 flex items-center space-x-2 bg-base-100 bg-opacity-50 rounded"
                 >
                     <button
                         matRipple
                         [class]="
                             'flex-1 text-black border-none w-40 ' +
                             (is_scanning
-                                ? 'bg-white dark:bg-neutral-600'
-                                : 'bg-transparent hover:bg-white hover:dark:bg-neutral-600 bg-opacity-50')
+                                ? 'bg-base-100'
+                                : 'bg-transparent hover:bg-base-100 hover:dark:bg-neutral-600 bg-opacity-50')
                         "
                         (click)="is_scanning = true"
                     >
@@ -100,8 +100,8 @@ import QrScanner from 'qr-scanner';
                         [class]="
                             'flex-1 text-black border-none w-40 ' +
                             (!is_scanning
-                                ? 'bg-white dark:bg-neutral-600'
-                                : 'bg-transparent hover:bg-white hover:dark:bg-neutral-600 bg-opacity-50')
+                                ? 'bg-base-100'
+                                : 'bg-transparent hover:bg-base-100 hover:dark:bg-neutral-600 bg-opacity-50')
                         "
                         (click)="is_scanning = false"
                     >

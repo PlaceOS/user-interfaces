@@ -5,7 +5,7 @@ import { UserControlsComponent } from '@placeos/components';
 @Component({
     selector: 'app-topbar',
     template: `
-        <div class="flex items-center border-b border-gray-300 p-2">
+        <div class="flex items-center border-b border-base-200 p-2">
             <div class="w-64">
                 <a [routerLink]="['/']">
                     <img class="h-12" [src]="logo.src" />
@@ -31,7 +31,7 @@ import { UserControlsComponent } from '@placeos/components';
                     matRipple
                     avatar
                     name="user-controls"
-                    class="h-10 w-10 rounded-full mr-2 bg-gray-200 dark:bg-neutral-800 flex items-center justify-center"
+                    class="h-10 w-10 rounded-full mr-2 bg-base-200 flex items-center justify-center"
                     customTooltip
                     [content]="user_controls"
                 >
@@ -52,7 +52,11 @@ export class ApplicationTopbarComponent {
     public readonly user_controls = UserControlsComponent;
 
     public get logo(): ApplicationIcon {
-        return this._settings.get('app.logo_light') || {};
+        return (
+            (this._settings.get('theme') === 'dark'
+                ? this._settings.get('app.logo_dark')
+                : this._settings.get('app.logo_light')) || {}
+        );
     }
 
     public get user() {

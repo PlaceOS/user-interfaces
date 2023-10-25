@@ -7,7 +7,7 @@ import { ScheduleStateService } from 'apps/workplace/src/app/new-schedule/schedu
 @Component({
     selector: 'placeos-upcoming-bookings',
     template: `
-        <div class="w-full h-full flex flex-1 flex-col z-0 bg-gray-50">
+        <div class="w-full h-full flex flex-1 flex-col z-0 bg-base-200">
             <h3 class="flex items-center text-xl font-bold p-4 pl-6">
                 Your Bookings
             </h3>

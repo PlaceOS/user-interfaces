@@ -22,19 +22,19 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 <ng-container *ngIf="!is_host; else host_state">
                     <i
                         *ngIf="!visitor?.checked_in; else checkin_state"
-                        class="p-2 rounded-full material-icons border-2 border-dotted border-gray-600 dark:border-neutral-800"
+                        class="p-2 rounded-full material-icons border-2 border-dotted border-base-200"
                         >face</i
                     >
                 </ng-container>
                 <ng-template #checkin_state>
                     <i
-                        class="p-2 rounded-full material-icons bg-green-600 border-2 border-green-600 text-white"
+                        class="p-2 rounded-full material-icons bg-success border-2 border-green-600 text-white"
                         >done</i
                     >
                 </ng-template>
                 <ng-template #host_state>
                     <i
-                        class="p-2 rounded-full material-icons bg-blue-600 border-2 border-blue-600 text-white"
+                        class="p-2 rounded-full material-icons bg-info border-2 border-blue-600 text-white"
                     >
                         assignment_ind
                     </i>
@@ -100,7 +100,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             <div
                 qr-code
                 *ngIf="show_qr_code"
-                class="print-only fixed inset-0 flex flex-col justify-center bg-white space-y-2"
+                class="print-only fixed inset-0 flex flex-col justify-center bg-base-100 space-y-2"
             >
                 <h2>{{ visitor?.name || visitor?.email }}</h2>
                 <div>

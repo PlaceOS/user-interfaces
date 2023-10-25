@@ -11,7 +11,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
             role="search"
             tabindex="0"
             matRipple
-            class="bg-white m-2 flex items-center z-10 relative overflow-hidden outline-none"
+            class="bg-base-100 m-2 flex items-center z-10 relative overflow-hidden outline-none"
             [class.show]="show || search_str"
         >
             <app-icon
@@ -67,7 +67,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
                             <div class="text-xs">{{ option.description }}</div>
                         </div>
                         <div
-                            class="text-xs font-bold p-2 capitalize text-white bg-gray-500 rounded"
+                            class="text-xs font-bold p-2 capitalize text-white bg-base-300 rounded"
                         >
                             {{ option.type }}
                         </div>

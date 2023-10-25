@@ -20,9 +20,7 @@ import { CateringStateService } from './catering';
                 *ngIf="!loading; else load_state"
             >
                 <table class="min-w-[32rem]">
-                    <thead
-                        class="border-b border-gray-200 dark:border-neutral-500"
-                    >
+                    <thead class="border-b border-base-200">
                         <tr>
                             <td class="w-12" (click)="toggleRoom('*')">
                                 <mat-checkbox
@@ -47,7 +45,7 @@ import { CateringStateService } from './catering';
                     <tbody>
                         <tr
                             *ngFor="let space of rooms | async"
-                            class="hover:bg-black/10 dark:hover:bg-white/5"
+                            class="hover:bg-neutral:bg-base-100/5"
                             (click)="toggleRoom(space.id)"
                         >
                             <td>
@@ -60,12 +58,12 @@ import { CateringStateService } from './catering';
                             <td class="text-center">
                                 <div
                                     class="ml-auto px-3 py-1 rounded-2xl text-white w-24"
-                                    [class.bg-green-600]="
+                                    [class.bg-success]="
                                         !(availability | async)?.includes(
                                             space.id
                                         )
                                     "
-                                    [class.bg-red-600]="
+                                    [class.bg-error]="
                                         (availability | async)?.includes(
                                             space.id
                                         )
@@ -85,7 +83,7 @@ import { CateringStateService } from './catering';
                 </table>
             </main>
             <footer
-                class="flex items-center p-2 justify-end space-x-2 border-t border-gray-200 dark:border-neutral-500"
+                class="flex items-center p-2 justify-end space-x-2 border-t border-base-200"
             >
                 <button btn matRipple (click)="enableSelected()">
                     Enable Selected

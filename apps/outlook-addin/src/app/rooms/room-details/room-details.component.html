@@ -1,6 +1,6 @@
 <div class="w-full min-h-[800px] flex flex-1 flex-col z-0 overflow-hidden">
     <section
-        class="flex bg-gray-300 min-h-[300px] justify-center items-center text-gray-500"
+        class="flex bg-base-200 min-h-[300px] justify-center items-center text-gray-500"
         *ngIf="space?.images?.length > 0"
     >
         <img
@@ -13,7 +13,7 @@
         />
     </section>
     <section
-        class="flex flex-col mx-auto w-[calc(100%-2rem)] border-b border-gray-300"
+        class="flex flex-col mx-auto w-[calc(100%-2rem)] border-b border-base-200"
     >
         <span class="text-lg font-bold mt-3"> {{ space?.name }}</span>
 
@@ -31,14 +31,14 @@
                 *ngIf="room_added == true"
                 btn
                 matRipple
-                class="bg-gray-300 border-gray-300 w-full mx-auto m-3"
+                class="bg-base-200 border-base-200 w-full mx-auto m-3"
             >
                 <span class="text-black">- Remove this room</span>
             </button>
         </div>
     </section>
     <section
-        class="flex flex-col mx-auto w-[calc(100%-2rem)] border-b border-gray-300 p-3 pl-0"
+        class="flex flex-col mx-auto w-[calc(100%-2rem)] border-b border-base-200 p-3 pl-0"
     >
         <span class="text-base font-bold">Details</span>
         <div class="flex flex-row items-center text-sm mt-3">
@@ -105,13 +105,13 @@
         </div>
     </section>
     <div
-        class="flex flex-col bg-white border-t border-gray-300 top-box-shadow p-3"
+        class="flex flex-col bg-base-100 border-t border-base-200 top-box-shadow p-3"
     >
         <button
             *ngIf="!room_added"
             btn
             matRipple
-            class="bg-white border-secondary w-full mx-auto"
+            class="bg-base-100 border-secondary w-full mx-auto"
             (click)="back()"
         >
             <span class="text-secondary">Back</span>

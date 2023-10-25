@@ -9,12 +9,12 @@ import { DashboardStateService } from './dashboard-state.service';
         <h3 class="m-0 mb-2 font-medium text-xl">Colleagues</h3>
         <div
             name="contact-list"
-            class="bg-gray-400 dark:bg-neutral-600 border border-gray-200 dark:border-neutral-500 shadow rounded-lg p-2 pl-0 space-y-2 flex flex-wrap"
+            class="bg-base-300 border border-base-200 shadow rounded-lg p-2 pl-0 space-y-2 flex flex-wrap"
         >
             <div
                 name="contact"
                 *ngFor="let user of contacts | async"
-                class="bg-white rounded-lg flex-1 flex flex-col items-center p-2 relative dark:bg-neutral-700"
+                class="bg-base-100 rounded-lg flex-1 flex flex-col items-center p-2 relative"
             >
                 <a-user-avatar
                     class="text-2xl mb-2"
@@ -37,14 +37,12 @@ import { DashboardStateService } from './dashboard-state.service';
                 name="contact"
                 btn
                 matRipple
-                class="rounded-lg flex-1 w-full dark:bg-neutral-800"
+                class="rounded-lg flex-1 w-full"
                 [matMenuTriggerFor]="menu"
                 (menuOpened)="focusInput()"
                 (menuClosed)="clearInput()"
             >
-                <div
-                    class="flex flex-col items-center p-4 text-black dark:text-white w-full"
-                >
+                <div class="flex flex-col items-center p-4 text-black w-full">
                     <app-icon
                         class="text-2xl"
                         [icon]="{

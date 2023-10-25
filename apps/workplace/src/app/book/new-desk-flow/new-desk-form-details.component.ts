@@ -15,12 +15,12 @@ import { addDays, endOfDay, set } from 'date-fns';
     selector: 'new-desk-form-details',
     styles: [],
     template: `
-        <!-- <div class="m-2 bg-yellow-500 p-2 text-center rounded shadow text-sm">
+        <!-- <div class="m-2 bg-warning p-2 text-center rounded shadow text-sm">
             The selected desk hasn't been booked. Please book the desk to be
             able to check-in.
         </div> -->
         <div
-            class="p-0 sm:py-4 sm:px-16 divide-y divide-gray-300 space-y-2"
+            class="p-0 sm:py-4 sm:px-16 divide-y divide-base-200 space-y-2"
             *ngIf="form"
             [formGroup]="form"
         >
@@ -28,38 +28,36 @@ import { addDays, endOfDay, set } from 'date-fns';
                 <button
                     matRipple
                     class="relative h-16 flex items-center justify-center flex-1 space-x-2"
-                    [class.text-primary]="!(options | async)?.group"
-                    [class.opacity-60]="(options | async)?.group"
+                    [class.text-secondary]="!(options | async)?.group"
                     (click)="setOptions({ group: false, members: [] })"
                 >
                     <app-icon class="text-2xl">person</app-icon>
                     <div class="" i18n>Single</div>
                     <div
-                        class="absolute h-2 inset-x-0 bottom-0 !m-0"
-                        [class.bg-gray-200]="(options | async)?.group"
-                        [class.bg-primary]="!(options | async)?.group"
+                        class="absolute h-1 inset-x-0 bottom-0 !m-0"
+                        [class.bg-base-200]="(options | async)?.group"
+                        [class.bg-secondary]="!(options | async)?.group"
                     ></div>
                 </button>
                 <button
                     matRipple
                     class="relative h-16 flex items-center justify-center flex-1 space-x-2"
-                    [class.text-primary]="(options | async)?.group"
-                    [class.opacity-60]="!(options | async)?.group"
+                    [class.text-secondary]="(options | async)?.group"
                     (click)="setOptions({ group: true })"
                 >
                     <app-icon class="text-2xl">group_add</app-icon>
                     <div class="" i18n>Group</div>
                     <div
-                        class="absolute h-2 inset-x-0 bottom-0 !m-0"
-                        [class.bg-gray-200]="!(options | async)?.group"
-                        [class.bg-primary]="(options | async)?.group"
+                        class="absolute h-1 inset-x-0 bottom-0 !m-0"
+                        [class.bg-base-200]="!(options | async)?.group"
+                        [class.bg-secondary]="(options | async)?.group"
                     ></div>
                 </button>
             </section>
             <section class="p-2" [class.!border-none]="allow_groups">
                 <h3 class="space-x-2 flex items-center mb-4">
                     <div
-                        class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
+                        class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
                     >
                         1
                     </div>
@@ -164,7 +162,7 @@ import { addDays, endOfDay, set } from 'date-fns';
             <section class="p-2" *ngIf="(options | async)?.group">
                 <h3 class="space-x-2 flex items-center">
                     <div
-                        class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
+                        class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
                     >
                         2
                     </div>
@@ -183,7 +181,7 @@ import { addDays, endOfDay, set } from 'date-fns';
             <section class="p-2" *ngIf="form.contains('resources')">
                 <h3 class="space-x-2 flex items-center mb-4">
                     <div
-                        class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
+                        class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
                     >
                         {{ (options | async)?.group ? 3 : 2 }}
                     </div>
@@ -192,7 +190,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                 <desk-list-field formControlName="resources"></desk-list-field>
                 <p
                     *ngIf="(options | async)?.group"
-                    class="text-center rounded px-2 py-1 bg-yellow-400 shadow text-xs"
+                    class="text-center rounded px-2 py-1 bg-warning shadow text-xs"
                 >
                     Desks nearby to the selected desk will booked for group
                     members
@@ -201,7 +199,7 @@ import { addDays, endOfDay, set } from 'date-fns';
             <section class="p-2" *ngIf="has_assets">
                 <h3 class="space-x-2 flex items-center mb-4">
                     <div
-                        class="bg-black/20 rounded-full h-6 w-6 flex items-center justify-center"
+                        class="bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
                     >
                         {{ (options | async)?.group ? 4 : 3 }}
                     </div>

@@ -24,7 +24,7 @@ import { BookingLike } from './schedule-state.service';
                 matRipple
                 item
                 *ngSwitchDefault
-                class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-20 bg-white dark:bg-neutral-700 hover:shadow p-0"
+                class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-20 bg-base-100 hover:shadow p-0"
                 [class.opacity-50]="has_ended"
                 [routerLink]="[
                     '/schedule',
@@ -36,9 +36,7 @@ import { BookingLike } from './schedule-state.service';
                     type
                 ]"
             >
-                <div
-                    class="flex items-center border border-gray-200 dark:border-neutral-500"
-                >
+                <div class="flex items-center border border-base-200">
                     <div
                         status
                         class="h-20 w-20 flex flex-col items-center justify-center text-white leading-tight"

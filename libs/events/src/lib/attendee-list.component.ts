@@ -3,12 +3,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 @Component({
     selector: 'attendee-list',
     template: `
-        <div
-            class="w-full h-full overflow-hidden flex flex-col bg-white dark:bg-neutral-700"
-        >
-            <div
-                class="flex items-center border-b border-gray-200 dark:border-neutral-500 p-2"
-            >
+        <div class="w-full h-full overflow-hidden flex flex-col bg-base-100">
+            <div class="flex items-center border-b border-base-200 p-2">
                 <button close icon matRipple (click)="close.emit()">
                     <app-icon>arrow_back</app-icon>
                 </button>

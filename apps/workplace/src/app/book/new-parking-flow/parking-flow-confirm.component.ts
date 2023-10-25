@@ -79,14 +79,14 @@ import { OrganisationService } from '@placeos/organisation';
             <div details class="leading-6">
                 <h3 i18n>{{ assets_count }} Asset(s)</h3>
                 <div class="flex space-x-2" *ngFor="let asset of assets">
-                    <div class="h-5 w-5 bg-gray-100 rounded-full">
+                    <div class="h-5 w-5 bg-base-200 rounded-full">
                         {{ asset.amount }}
                     </div>
                     <span>{{ asset.name }}</span>
                 </div>
             </div>
         </section>
-        <footer class="p-2 w-full border-t border-gray-200 mt-4">
+        <footer class="p-2 w-full border-t border-base-200 mt-4">
             <button
                 confirm
                 btn

@@ -68,16 +68,16 @@ export interface FindAvailabilityData {
                 ></a-user-search-field>
             </div>
             <div
-                class="grid flex-1 h-1/2 w-full border-t border-gray-300 dark:border-neutral-500 relative overflow-hidden divide-x divide-y divide-gray-300 dark:divide-neutral-500 max-w-[100vw] sm:max-w-[80vw]"
+                class="grid flex-1 h-1/2 w-full border-t border-base-200 relative overflow-hidden divide-x divide-y divide-base-200 max-w-[100vw] sm:max-w-[80vw]"
             >
                 <div
                     times
-                    class="col-start-2 h-10 flex overflow-hidden border-l border-gray-300"
+                    class="col-start-2 h-10 flex overflow-hidden border-l border-base-200"
                 >
                     <div
                         hour
                         *ngFor="let _ of hours; let hour = index"
-                        class="relative border-r border-gray-300 h-10 min-w-[5rem] p-2"
+                        class="relative border-r border-base-200 h-10 min-w-[5rem] p-2"
                         [attr.disabled]="today && current_hour > hour"
                         [style.left]="-offset_x + 'px'"
                     >
@@ -88,7 +88,7 @@ export interface FindAvailabilityData {
                 <div users class="row-start-2 w-24 overflow-hidden">
                     <div
                         host
-                        class="flex flex-col items-center justify-center h-32 w-24 relative border-b border-gray-300 dark:border-neutral-500 py-2"
+                        class="flex flex-col items-center justify-center h-32 w-24 relative border-b border-base-200 py-2"
                         [style.top]="-offset_y + 'px'"
                     >
                         <a-user-avatar
@@ -103,7 +103,7 @@ export interface FindAvailabilityData {
                     </div>
                     <div
                         person
-                        class="flex flex-col items-center justify-center h-32 w-24 relative border-b border-gray-300 dark:border-neutral-500 py-2"
+                        class="flex flex-col items-center justify-center h-32 w-24 relative border-b border-base-200 py-2"
                         [style.top]="-offset_y + 'px'"
                         *ngFor="let user of users | async"
                     >
@@ -129,14 +129,14 @@ export interface FindAvailabilityData {
                     <div fixed class="absolute inset-0 flex overflow-hidden">
                         <div
                             divider
-                            class="relative h-full min-w-[5rem] border-l border-gray-300"
+                            class="relative h-full min-w-[5rem] border-l border-base-200"
                             [style.left]="-(offset_x + 1) + 'px'"
                             [attr.disabled]="today && current_hour > h"
                             *ngFor="let _ of hours; let h = index"
                         ></div>
                         <div
                             selection
-                            class="absolute inset-y-0 !border-x-2 !border-blue-500 bg-blue-500/30 z-20 cursor-grab active:cursor-grabbing"
+                            class="absolute inset-y-0 !border-x-2 !border-blue-500 bg-info z-20 cursor-grab active:cursor-grabbing"
                             [style.left]="
                                 'calc(' +
                                 selection_left +
@@ -150,22 +150,22 @@ export interface FindAvailabilityData {
                         >
                             <div
                                 handle
-                                class="absolute top-1/2 -left-px -translate-x-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-blue-500"
+                                class="absolute top-1/2 -left-px -translate-x-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-info"
                             ></div>
                             <div
                                 handle
-                                class="absolute top-1/2 -right-px translate-x-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-blue-500 hover:h-4 hover:w-4 active:bg-primary"
+                                class="absolute top-1/2 -right-px translate-x-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-info hover:h-4 hover:w-4 active:bg-primary"
                                 (mousedown)="startMoveDuration($event)"
                                 (touchstart)="startMoveDuration($event)"
                             ></div>
                             <div
-                                class="bg-white dark:bg-neutral-600 border border-gray-300 dark:border-neutral-500 p-2 absolute top-2 left-1/2 -translate-x-1/2 shadow text-xs whitespace-nowrap rounded"
+                                class="bg-base-100 border border-base-200 p-2 absolute top-2 left-1/2 -translate-x-1/2 shadow text-xs whitespace-nowrap rounded"
                             >
                                 {{ duration | duration }}
                             </div>
                             <div
                                 *ngIf="move_time"
-                                class="bg-white dark:bg-neutral-600 border border-gray-300 dark:border-neutral-500 p-2 absolute top-12 left-1/2 -translate-x-1/2 shadow text-xs whitespace-nowrap rounded"
+                                class="bg-base-100 border border-base-200 p-2 absolute top-12 left-1/2 -translate-x-1/2 shadow text-xs whitespace-nowrap rounded"
                             >
                                 {{ date | date: 'shortTime' }}
                             </div>
@@ -205,7 +205,7 @@ export interface FindAvailabilityData {
             </div>
         </main>
         <footer
-            class="flex items-center justify-between p-2 border-t border-gray-200 dark:border-neutral-500 w-full"
+            class="flex items-center justify-between p-2 border-t border-base-200 w-full"
         >
             <button
                 btn
@@ -228,11 +228,11 @@ export interface FindAvailabilityData {
             }
             [disabled='true'],
             [disabled='true'] [header] {
-                background: #eee !important;
+                background: var(--b3) !important;
                 pointer-events: none;
             }
             [disabled='true'] > * {
-                color: rgba(0, 0, 0, 0.3);
+                opacity: 0.3;
             }
         `,
     ],

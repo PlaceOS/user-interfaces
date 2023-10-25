@@ -22,7 +22,7 @@ import { BehaviorSubject } from 'rxjs';
         </main>
         <footer
             *ngIf="!(loading | async)"
-            class="flex justify-center items-center p-2 border-t border-gray-200"
+            class="flex justify-center items-center p-2 border-t border-base-200"
         >
             <button btn matRipple class="w-32" (click)="save()">Save</button>
         </footer>

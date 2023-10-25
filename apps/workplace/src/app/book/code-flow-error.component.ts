@@ -8,9 +8,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
 @Component({
     selector: 'code-flow-success',
     template: `
-        <div
-            class="absolute inset-0 bg-white dark:bg-neutral-600 flex flex-col z-50"
-        >
+        <div class="absolute inset-0 bg-base-100 flex flex-col z-50">
             <main
                 class="flex-1 flex flex-col items-center justify-center space-y-2 p-8"
             >
@@ -35,7 +33,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
                 </p>
             </main>
             <footer
-                class="p-2 w-full border-t border-gray-200 dark:bg-neutral-500 mt-4 flex items-center justify-center space-x-2"
+                class="p-2 w-full border-t border-base-200 mt-4 flex items-center justify-center space-x-2"
             >
                 <a
                     button

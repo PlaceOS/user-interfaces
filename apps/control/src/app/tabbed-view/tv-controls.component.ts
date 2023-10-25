@@ -28,8 +28,8 @@ import { ControlStateService } from '../control-state.service';
         >
             <button
                 matRipple
-                class="w-32 h-28 m-2 flex flex-col items-center justify-center border border-gray-200 rounded space-y-2"
-                [class.bg-gray-50]="channel_url !== item.channel"
+                class="w-32 h-28 m-2 flex flex-col items-center justify-center border border-base-200 rounded space-y-2"
+                [class.bg-base-200]="channel_url !== item.channel"
                 [class.bg-primary]="channel_url === item.channel"
                 [class.text-white]="channel_url === item.channel"
                 *ngFor="let item of channel_list"

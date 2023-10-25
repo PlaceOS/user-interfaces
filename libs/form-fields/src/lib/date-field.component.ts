@@ -19,7 +19,7 @@ import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
     selector: 'a-date-field',
     template: `
         <button
-            class="flex items-center justify-between border border-black/30 hover:border-black rounded h-12 w-full"
+            class="flex items-center justify-between border border-neutral rounded h-12 w-full"
             customTooltip
             [content]="calendar_picker"
             yPosition="top"
@@ -38,7 +38,7 @@ import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
             <span *ngIf="false"><ng-content></ng-content></span>
         </div>
         <ng-template #calendar_picker>
-            <div class="relative w-[18rem] rounded bg-white px-2 py-4">
+            <div class="relative w-[18rem] rounded bg-base-100 px-2 py-4">
                 <date-calendar
                     [ngModel]="date"
                     [from]="from"

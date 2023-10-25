@@ -17,7 +17,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
             [(model)]="join_code"
         ></i>
         <div
-            class="h-full w-full flex flex-col items-center overflow-auto px-2 py-2 dark:text-white"
+            class="h-full w-full flex flex-col items-center overflow-auto px-2 py-2"
         >
             <div
                 class="flex items-center w-full px-1 pt-2 overflow-hidden relative"
@@ -25,9 +25,9 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
             >
                 <a
                     matRipple
-                    class="h-24 w-32 rounded-t rounded-b-none shadow mx-1 bg-gray-300 dark:bg-neutral-800 text-black/60 dark:text-white/60 flex flex-col border-t border-l border-r items-center justify-center leading-tight overflow-hidden"
+                    class="h-24 w-32 rounded-t rounded-b-none shadow mx-1 bg-base-100 opacity-60 text-base-content flex flex-col items-center justify-center leading-tight overflow-hidden"
                     [routerLink]="['/tabbed', id, tab.id || tab.name]"
-                    routerLinkActive="!bg-white dark:!bg-[#1F2021] !text-primary"
+                    routerLinkActive="!opacity-100 !text-secondary"
                     queryParamsHandling="merge"
                     *ngFor="let tab of tabs | async"
                 >
@@ -35,18 +35,18 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                     <p>{{ tab.name }}</p>
                 </a>
                 <div
-                    class="absolute top-0 bottom-2 right-0 w-20 p-2 flex flex-col bg-white dark:bg-[#1F2021] rounded shadow border-gray-200"
+                    class="absolute top-0 bottom-2 right-0 w-20 p-2 flex flex-col bg-base-100 rounded shadow"
                     *ngIf="join_code"
                 >
                     <img
                         class="w-16 min-h-[4rem] rounded overflow-hidden border border-[hsl(217,62%,38%)]"
                         src="assets/loop.png"
                     />
-                    <p class="text-black text-center">{{ join_code }}</p>
+                    <p class="text-base-content text-center">{{ join_code }}</p>
                 </div>
             </div>
             <div
-                class="flex-1 h-1/2 w-full bg-white dark:bg-[#1F2021] rounded shadow flex items-center divide-x divide-gray-200 text-black"
+                class="flex-1 h-1/2 w-full bg-base-100 rounded shadow flex items-center divide-x divide-base-200 text-base-content"
             >
                 <div
                     class="w-64 h-full space-y-2 px-4 pt-2 pb-4 overflow-auto"
@@ -77,7 +77,7 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                 </div>
                 <div
                     style="flex: 2"
-                    class="h-full relative overflow-auto min-h-full dark:text-white"
+                    class="h-full relative overflow-auto min-h-full"
                 >
                     <ng-container [ngSwitch]="(tab | async)?.controls">
                         <ng-container *ngSwitchCase="'vidconf-controls'">

@@ -13,16 +13,14 @@ import { map } from 'rxjs/operators';
 @Component({
     selector: 'sidebar',
     template: `
-        <div
-            class="flex flex-col bg-primary dark:bg-slate-800 w-48 text-white h-full"
-        >
+        <div class="flex flex-col bg-primary w-48 text-white h-full">
             <div class="logo w-full flex items-center justify-center p-3 mb-4">
                 <img class="w-full" [src]="logo.src" />
             </div>
             <div class="flex-1 overflow-auto space-y-2">
                 <ng-container *ngFor="let tile of links">
                     <a
-                        class="flex items-center mx-2 space-x-2 hover:bg-white/20 px-2 py-1 rounded"
+                        class="flex items-center mx-2 space-x-2 hover:bg-base-100/20 px-2 py-1 rounded"
                         [routerLink]="['/' + tile.route]"
                         routerLinkActive="active"
                     >
@@ -36,7 +34,7 @@ import { map } from 'rxjs/operators';
             </div>
             <button
                 mat-ripple
-                class="w-full flex items-center space-x-2 p-3 border-t border-neutral-500 hover:bg-white/20"
+                class="w-full flex items-center space-x-2 p-3 border-t border-base-200-500 hover:bg-base-100/20"
                 *ngIf="(regions | async).length > 1"
                 [matMenuTriggerFor]="region"
             >
@@ -50,7 +48,7 @@ import { map } from 'rxjs/operators';
             </button>
             <button
                 mat-ripple
-                class="w-full flex items-center space-x-2 p-3 border-t border-neutral-500 hover:bg-white/20"
+                class="w-full flex items-center space-x-2 p-3 border-t border-base-200-500 hover:bg-base-100/20"
                 *ngIf="(buildings | async).length > 1"
                 [matMenuTriggerFor]="menu"
             >
@@ -62,7 +60,7 @@ import { map } from 'rxjs/operators';
                     }}
                 </div>
             </button>
-            <div class="p-2 border-t border-neutral-500">
+            <div class="p-2 border-t border-base-200-500">
                 <div class="text-xs opacity-60 w-full">
                     <ng-container i18n>Version: </ng-container>
                     <button

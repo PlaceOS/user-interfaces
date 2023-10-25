@@ -14,18 +14,18 @@ import { CATERING_STATUSES } from './catering.vars';
     selector: 'catering-order',
     template: `
         <div
-            class="w-full flex items-center py-2 dark:bg-neutral-700"
-            [class.bg-gray-100]="!show_items"
-            [class.bg-gray-200]="show_items"
+            class="w-full flex items-center py-2"
+            [class.bg-base-200]="!show_items"
+            [class.bg-base-200]="show_items"
             *ngIf="order"
         >
             <div
                 class="w-20 flex items-center justify-center z-20 h-full"
-                [class.bg-gray-200]="show_items"
+                [class.bg-base-200]="show_items"
                 [class.dark:bg-neutral-700]="show_items"
             >
                 <div
-                    class="rounded-full bg-gray-400 dark:bg-neutral-800 p-2 text-2xl text-black dark:text-white opacity-60 flex items-center justify-center"
+                    class="rounded-full bg-base-300 p-2 text-2xl text-black opacity-60 flex items-center justify-center"
                 >
                     <app-icon>room_service</app-icon>
                 </div>

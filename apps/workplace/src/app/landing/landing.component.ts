@@ -7,18 +7,18 @@ import { startOfMinute } from 'date-fns';
     selector: 'app-landing',
     template: `
         <topbar class="z-10" *ngIf="!hide_nav"></topbar>
-        <div class="flex flex-1 h-1/2 bg-[#F8F8FA] dark:bg-neutral-900">
+        <div class="flex flex-1 h-1/2 bg-base-200">
             <div
-                class="relative hidden sm:flex flex-col w-[18rem] h-full overflow-hidden bg-white dark:bg-[#1F2021] border-r border-gray-200 dark:border-neutral-700"
+                class="relative hidden sm:flex flex-col w-[18rem] h-full overflow-hidden bg-base-100 border-r border-base-300"
                 *ngIf="!hide_landing_sidebar"
             >
-                <div class="flex items-center divide-x divide-gray-300">
+                <div class="flex items-center divide-x divide-base-200">
                     <button
                         matRipple
                         class="flex-1 font-medium p-2 flex items-center justify-center space-x-2"
                         [class.border-b]="tab !== 'people'"
-                        [class.border-gray-300]="tab !== 'people'"
-                        [class.bg-black]="tab !== 'people'"
+                        [class.border-base-200]="tab !== 'people'"
+                        [class.bg-base-200]="tab !== 'people'"
                         [class.bg-opacity-5]="tab !== 'people'"
                         (click)="tab = 'people'"
                         *ngIf="!hide_colleagues"
@@ -32,8 +32,8 @@ import { startOfMinute } from 'date-fns';
                         matRipple
                         class="flex-1 font-medium p-2 flex items-center justify-center space-x-2"
                         [class.border-b]="tab !== 'fav'"
-                        [class.border-gray-300]="tab !== 'fav'"
-                        [class.bg-black]="tab !== 'fav'"
+                        [class.border-base-200]="tab !== 'fav'"
+                        [class.bg-base-200]="tab !== 'fav'"
                         [class.bg-opacity-5]="tab !== 'fav'"
                         (click)="tab = 'fav'"
                     >
@@ -52,7 +52,7 @@ import { startOfMinute } from 'date-fns';
             </div>
             <div class="flex-1 h-full w-1/2 sm:px-4 overflow-auto z-0">
                 <header
-                    class="sticky top-0 z-50 bg-[#ECF0F3] dark:bg-zinc-800 px-4 sm:rounded-b flex items-center justify-between overflow-hidden"
+                    class="sticky top-0 z-50 bg-base-300 px-4 sm:rounded-b flex items-center justify-between overflow-hidden"
                 >
                     <div class="">
                         <div class="sm:text-xl font-medium">
@@ -84,7 +84,7 @@ import { startOfMinute } from 'date-fns';
                 ></landing-quick-links>
                 <landing-availability></landing-availability>
                 <div
-                    class="mx-4 w-[calc(100%-2rem)] h-px bg-gray-300 mb-2"
+                    class="mx-4 w-[calc(100%-2rem)] h-px bg-base-200 mb-2"
                 ></div>
                 <landing-upcoming></landing-upcoming>
             </div>

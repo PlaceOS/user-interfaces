@@ -7,19 +7,28 @@ import { ControlStateService } from '../control-state.service';
     selector: 'help-tooltip',
     template: `
         <div
-            class="p-4 my-2 bg-white shadow rounded flex flex-col items-center space-y-2"
+            class="p-4 my-2 bg-base-100 shadow rounded flex flex-col items-center space-y-2"
         >
             <h3 class="mb-2 text-xl font-medium">Need help?</h3>
             <p>
-                Contact <span contact>{{ support_contact || ' your administrator' }}</span> if you
-                require <br />assisatance at
-                <a email class="underline" [href]="'mailto:' + (support_email || 'support@place.tech')">{{
-                    support_email || 'support@place.tech'
-                }}</a>
+                Contact
+                <span contact>{{
+                    support_contact || ' your administrator'
+                }}</span>
+                if you require <br />assisatance at
+                <a
+                    email
+                    class="underline"
+                    [href]="'mailto:' + (support_email || 'support@place.tech')"
+                    >{{ support_email || 'support@place.tech' }}</a
+                >
                 or phone
-                <a phone class="underline" [href]="'tel:' + (support_phone || '0412345678')">{{
-                    support_phone || '0412345678'
-                }}</a>
+                <a
+                    phone
+                    class="underline"
+                    [href]="'tel:' + (support_phone || '0412345678')"
+                    >{{ support_phone || '0412345678' }}</a
+                >
             </p>
         </div>
     `,

@@ -86,7 +86,7 @@ import { getModule } from '@placeos/ts-client';
             </div>
         </main>
         <footer
-            class="p-2 border-t border-gray-200 flex items-center justify-center"
+            class="p-2 border-t border-base-200 flex items-center justify-center"
             *ngIf="!loading"
         >
             <button btn matRipple class="w-32" (click)="submit()" i18n>

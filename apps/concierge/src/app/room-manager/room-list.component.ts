@@ -38,8 +38,8 @@ import { RoomManagementService } from './room-management.service';
         </ng-template>
         <ng-template #bool_template let-data="data">
             <div
-                [class.bg-red-500]="!data"
-                [class.bg-green-500]="data"
+                [class.bg-error]="!data"
+                [class.bg-success]="data"
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl text-white mx-auto"
             >
                 <app-icon>{{ data ? 'done' : 'close' }}</app-icon>

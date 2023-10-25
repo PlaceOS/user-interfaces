@@ -3,21 +3,34 @@ import { Component } from '@angular/core';
 @Component({
     selector: 'facilities-status',
     template: `
-        <div class="rounded-lg flex-1 w-full shadow-sm p-6 bg-white dark:bg-neutral-700">
+        <div class="rounded-lg flex-1 w-full shadow-sm p-6 bg-base-100">
             <h3 class="mt-0 mb-4">People Count</h3>
-            <div class="w-full flex items-center border border-gray-400 dark:border-neutral-500 mb-2 rounded-lg">
+            <div
+                class="w-full flex items-center border border-base-200 mb-2 rounded-lg"
+            >
                 <div name="status" class="rounded-full">
                     <app-icon>account_circle</app-icon>
                 </div>
-                <div class="flex-1 text-bold text-xs">{{ 'Admin Services' }}</div>
+                <div class="flex-1 text-bold text-xs">
+                    {{ 'Admin Services' }}
+                </div>
                 <div class="text-bold p-4">{{ '24' }}</div>
             </div>
             <div class="text-right text-bold mr-4">Total: {{ total || 0 }}</div>
         </div>
-        <div class="rounded w-full shadow-sm p-6 bg-white dark:bg-neutral-700">
+        <div class="rounded w-full shadow-sm p-6 bg-base-100">
             <h3 class="mt-0 mb-2">Mood</h3>
-            <div name="mood" class="flex items-center w-full border border-gray-400 dark:border-neutral-500 rounded-lg overflow-hidden">
-                <app-icon class="bg-light text-2xl px-1" [icon]="{ class: 'material-icons', content: 'sentiment_very_satisfied' }"></app-icon>
+            <div
+                name="mood"
+                class="flex items-center w-full border border-base-200 rounded-lg overflow-hidden"
+            >
+                <app-icon
+                    class="bg-light text-2xl px-1"
+                    [icon]="{
+                        class: 'material-icons',
+                        content: 'sentiment_very_satisfied'
+                    }"
+                ></app-icon>
                 <div class="px-4 text-sm text-bold">4/5 Satisfied</div>
             </div>
             <h4>Feedback:</h4>
@@ -35,23 +48,21 @@ import { Component } from '@angular/core';
             }
 
             .bg-light {
-                background-color: rgba(0,0,0,0.05);
+                background-color: rgba(0, 0, 0, 0.05);
             }
 
-            [name="mood"] app-icon {
-
+            [name='mood'] app-icon {
             }
 
-            [name="status"] {
-                margin: .5em;
+            [name='status'] {
+                margin: 0.5em;
                 border: 4px solid #21a453;
                 border-radius: 100%;
             }
-        `
+        `,
     ],
 })
 export class FacilitiesStatusComponent {
     public feedback: string;
     public total: number;
-
 }

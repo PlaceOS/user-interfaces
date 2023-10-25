@@ -4,9 +4,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
 @Component({
     selector: 'asset-manager-topbar',
     template: `
-        <div
-            class="w-full px-4 py-2 bg-white dark:bg-neutral-700 flex items-center space-x-4"
-        >
+        <div class="w-full px-4 py-2 bg-base-100 flex items-center space-x-4">
             <a
                 btn
                 matRipple
@@ -50,7 +48,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 icon
                 matRipple
                 *ngIf="active === 'items'"
-                class="border border-gray-200"
+                class="border border-base-200"
                 matTooltip="Edit Config"
                 (click)="editConfig()"
             >
@@ -61,7 +59,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 icon
                 matRipple
                 *ngIf="active === 'items'"
-                class="border border-gray-200"
+                class="border border-base-200"
                 matTooltip="Manage Categories"
                 (click)="manageCategories()"
             >

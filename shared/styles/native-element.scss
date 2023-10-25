@@ -4,8 +4,7 @@ textarea {
     background: none;
 }
 
-.dark {
-
+.theme-dark {
     input {
         color-scheme: dark;
     }
@@ -23,29 +22,26 @@ textarea {
     font-weight: bold;
 
     > span:first-child {
-        color: var(--pending);
+        color: hsl(var(--wa));
     }
 
     &.error {
-        color: var(--error);
+        color: hsl(var(--er));
     }
 }
-
-    
 
 #placeos {
     .svg-viewer__label {
         min-width: 12rem;
     }
 
-    .dark {
-        ::placeholder,
-        .mat-form-field-label {
-            color: #fff8;
-        }
+    ::placeholder,
+    .mat-form-field-label,
+    .mat-mdc-select-placeholder {
+        color: var(--n);
+    }
 
-        input {
-            caret-color: #fff;
-        }
+    input {
+        caret-color: var(--p);
     }
 }

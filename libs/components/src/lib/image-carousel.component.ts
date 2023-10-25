@@ -27,7 +27,7 @@ import { Component, Input } from '@angular/core';
             <button
                 matRipple
                 *ngIf="images?.length"
-                class="opacity-0 hover:opacity-30 flex items-center justify-center absolute left-0 inset-y-0 w-1/3 bg-black/60 text-white"
+                class="opacity-0 hover:opacity-30 flex items-center justify-center absolute left-0 inset-y-0 w-1/3 bg-neutral text-white"
                 [disabled]="offset === 0"
                 (click)="offset = offset - 1"
             >
@@ -36,7 +36,7 @@ import { Component, Input } from '@angular/core';
             <button
                 matRipple
                 *ngIf="images?.length"
-                class="opacity-0 hover:opacity-30 flex items-center justify-center absolute right-0 inset-y-0 w-1/3 bg-black/60 text-white"
+                class="opacity-0 hover:opacity-30 flex items-center justify-center absolute right-0 inset-y-0 w-1/3 bg-neutral text-white"
                 [disabled]="offset >= images?.length - 1"
                 (click)="offset = offset + 1"
             >
@@ -48,9 +48,9 @@ import { Component, Input } from '@angular/core';
             >
                 <button
                     matRipple
-                    [class.!bg-white]="offset === i"
+                    [class.!bg-base-100]="offset === i"
                     *ngFor="let img of images; let i = index"
-                    class="h-4 w-4 rounded-full bg-gray-400 shadow"
+                    class="h-4 w-4 rounded-full bg-base-300 shadow"
                 ></button>
             </div>
         </div>

@@ -15,10 +15,10 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
     styles: [],
     template: `
         <div
-            class="w-[100vw] h-[100vh] sm:relative sm:w-auto sm:h-auto flex flex-col bg-white dark:bg-neutral-700"
+            class="w-[100vw] h-[100vh] sm:relative sm:w-auto sm:h-auto flex flex-col bg-base-100"
         >
             <header class="flex items-center space-x-4 w-full">
-                <button icon mat-dialog-close class="bg-black/20">
+                <button icon mat-dialog-close class="bg-neutral">
                     <app-icon>close</app-icon>
                 </button>
                 <h3 i18n>Find Locker</h3>
@@ -46,7 +46,7 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                 </div>
             </header>
             <main
-                class="flex-1 flex items-center divide-x divide-gray-200 dark:divide-neutral-500 min-h-[65vh] h-[65vh] sm:max-h-[65vh] sm:max-w-[95vw] w-full overflow-hidden"
+                class="flex-1 flex items-center divide-x divide-base-200 min-h-[65vh] h-[65vh] sm:max-h-[65vh] sm:max-w-[95vw] w-full overflow-hidden"
             >
                 <locker-filters
                     class="h-full hidden sm:flex max-w-[20rem] sm:h-[65vh] sm:max-h-full"
@@ -55,7 +55,7 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                     class="flex flex-col items-center flex-1 w-1/2 h-full sm:h-[65vh]"
                 >
                     <locker-filters-display
-                        class="w-full border-b border-gray-200 dark:border-neutral-500"
+                        class="w-full border-b border-base-200"
                         [(view)]="view"
                     ></locker-filters-display>
                     <ng-container *ngIf="!bank; else bank_view">
@@ -66,13 +66,13 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                             [favorites]="favorites"
                             (toggleFav)="toggleFavourite($event)"
                             (onSelect)="bank = $event"
-                            class="flex-1 h-1/2 bg-black/5 dark:bg-white/10"
+                            class="flex-1 h-1/2 bg-neutral"
                         ></locker-bank-list>
                     </ng-container>
                 </div>
             </main>
             <footer
-                class="flex sm:hidden flex-col-reverse items-center justify-end px-2 pt-2 pb-[5.5rem] border-t border-gray-200 dark:border-neutral-500 w-full"
+                class="flex sm:hidden flex-col-reverse items-center justify-end px-2 pt-2 pb-[5.5rem] border-t border-base-200 w-full"
             >
                 <button
                     btn
@@ -98,7 +98,7 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                 </button>
             </footer>
             <footer
-                class="hidden sm:flex items-center justify-between p-2 border-t border-gray-200 dark:border-neutral-500 w-full"
+                class="hidden sm:flex items-center justify-between p-2 border-t border-base-200 w-full"
             >
                 <button
                     btn
@@ -162,7 +162,7 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
         </ng-template>
         <ng-template #bank_view>
             <locker-grid
-                class="flex-1 h-1/2 bg-black/5 dark:bg-white/10"
+                class="flex-1 h-1/2 bg-neutral"
                 [bank]="bank"
                 [selected]="displayed?.id"
                 (clicked)="displayed = $event"

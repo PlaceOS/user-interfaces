@@ -16,7 +16,7 @@ import { getNextFreeTimeSlot } from '@placeos/events';
                 class="bg-cover bg-center absolute inset-0"
                 [style.background-image]="'url(' + room_image + ')'"
             ></div>
-            <div class="absolute inset-0 bg-black/60"></div>
+            <div class="absolute inset-0 bg-black opacity-50"></div>
             <div
                 name
                 class="absolute bottom-4 left-4 text-3xl font-medium z-10"
@@ -31,7 +31,7 @@ import { getNextFreeTimeSlot } from '@placeos/events';
         <h3 class="p-4 text-xl font-medium">
             {{ 'PANEL.UPCOMING' | translate }}
         </h3>
-        <div class="bg-white divide-y divide-gray-200">
+        <div class="bg-base-100 divide-y divide-base-200">
             <div class="flex items-center p-2">
                 <div
                     class="w-2 h-full min-h-[3rem] rounded"
@@ -197,7 +197,7 @@ import { getNextFreeTimeSlot } from '@placeos/events';
         <h3 class="p-4 text-xl font-medium">
             {{ 'PANEL.SCHEDULE' | translate }}
         </h3>
-        <div class="bg-white overflow-auto">
+        <div class="bg-base-100 overflow-auto">
             <checkin-timetable
                 [events]="bookings | async"
                 (event)="newBooking($event)"
@@ -207,13 +207,11 @@ import { getNextFreeTimeSlot } from '@placeos/events';
             {{ 'PANEL.FEATURES' | translate }}
         </h3>
         <div
-            class="bg-white overflow-auto flex-1 h-px divide-y divide-gray-200"
+            class="bg-base-100 overflow-auto flex-1 h-px divide-y divide-base-200"
             *ngIf="false"
         >
             <button btn matRipple class="flex items-center p-4 w-full">
-                <div
-                    class="text-black/40 bg-black/20 rounded-full p-2 text-2xl"
-                >
+                <div class="text-black/40 bg-neutral rounded-full p-2 text-2xl">
                     <app-icon>lightbulb</app-icon>
                 </div>
                 <div class="flex-1 px-4 font-medium text-left">
@@ -222,9 +220,7 @@ import { getNextFreeTimeSlot } from '@placeos/events';
                 <app-icon class="text-2xl opacity-40">chevron_right</app-icon>
             </button>
             <button btn matRipple class="flex items-center p-4 w-full">
-                <div
-                    class="text-black/40 bg-black/20 rounded-full p-2 text-2xl"
-                >
+                <div class="text-black/40 bg-neutral rounded-full p-2 text-2xl">
                     <app-icon>add_to_queue</app-icon>
                 </div>
                 <div class="flex-1 px-4 font-medium text-left">
@@ -233,9 +229,7 @@ import { getNextFreeTimeSlot } from '@placeos/events';
                 <app-icon class="text-2xl opacity-40">chevron_right</app-icon>
             </button>
             <button btn matRipple class="flex items-center p-4 w-full">
-                <div
-                    class="text-black/40 bg-black/20 rounded-full p-2 text-2xl"
-                >
+                <div class="text-black/40 bg-neutral rounded-full p-2 text-2xl">
                     <app-icon>restaurant</app-icon>
                 </div>
                 <div class="flex-1 px-4 font-medium text-left">
@@ -244,9 +238,7 @@ import { getNextFreeTimeSlot } from '@placeos/events';
                 <app-icon class="text-2xl opacity-40">chevron_right</app-icon>
             </button>
             <button btn matRipple class="flex items-center p-4 w-full">
-                <div
-                    class="text-black/40 bg-black/20 rounded-full p-2 text-2xl"
-                >
+                <div class="text-black/40 bg-neutral rounded-full p-2 text-2xl">
                     <app-icon>help</app-icon>
                 </div>
                 <div class="flex-1 px-4 font-medium text-left">

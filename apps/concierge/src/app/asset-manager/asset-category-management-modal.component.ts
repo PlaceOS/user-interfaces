@@ -13,7 +13,7 @@ import { Observable } from 'rxjs';
             </button>
         </header>
         <main
-            class="overflow-y-auto min-w-[20rem] divide-y divide-gray-200 max-h-[65vh]"
+            class="overflow-y-auto min-w-[20rem] divide-y divide-base-200 max-h-[65vh]"
         >
             <button
                 btn
@@ -26,7 +26,7 @@ import { Observable } from 'rxjs';
             </button>
             <ng-container *ngFor="let category of list | async">
                 <div
-                    class="flex items-center space-x-2 hover:bg-gray-100 dark:hover:bg-gray-800 p-2"
+                    class="flex items-center space-x-2 hover:bg-base-200:bg-base-300 p-2"
                     *ngIf="category.id"
                 >
                     <div class="flex-1 truncate">{{ category.name }}</div>

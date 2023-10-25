@@ -11,9 +11,7 @@ import { SurveyOptions, SurveyService } from '../services/survey.service';
     selector: 'survey-creator-topbar',
     styles: [],
     template: `
-        <div
-            class="flex flex-row items-center bg-white dark:bg-neutral-700 h-20 px-4 w-full dark:border-neutral-500"
-        >
+        <div class="flex flex-row items-center bg-base-100 h-20 px-4 w-full">
             <div class="flex space-x-2">
                 <div class="flex flex-col pt-2">
                     <label>Building</label>

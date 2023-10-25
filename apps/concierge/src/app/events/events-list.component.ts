@@ -63,7 +63,7 @@ import { addMinutes } from 'date-fns';
                     </div>
                 </div>
                 <div
-                    class="h-12 w-12 rounded overflow-hidden bg-gray-200"
+                    class="h-12 w-12 rounded overflow-hidden bg-base-200"
                 ></div>
                 <div details class="flex flex-col">
                     <div class="text-sm">{{ item.title }}</div>
@@ -104,11 +104,11 @@ import { addMinutes } from 'date-fns';
                 [class.text-white]="
                     item.state !== 'done' && item.state !== 'in_progress'
                 "
-                [class.bg-green-600]="
+                [class.bg-success]="
                     item.state !== 'done' && item.state !== 'in_progress'
                 "
-                [class.bg-yellow-400]="item.state === 'in_progress'"
-                [class.bg-gray-300]="item.state === 'done'"
+                [class.bg-warning]="item.state === 'in_progress'"
+                [class.bg-base-200]="item.state === 'done'"
             >
                 {{
                     item.state === 'done'

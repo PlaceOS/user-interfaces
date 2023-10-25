@@ -46,7 +46,7 @@ import { EventsStateService } from '../day-view/events-state.service';
             :host {
                 display: flex;
                 align-items: center;
-                background-color: #fff;
+                background-color: var(--b1);
                 height: 5em;
                 padding: 0 1em;
             }

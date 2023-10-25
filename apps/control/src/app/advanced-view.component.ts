@@ -30,7 +30,7 @@ import { ControlStateService } from './control-state.service';
                 *ngFor="let idx of page_count | async; let i = index"
                 [class.bg-primary]="page === i"
                 [class.text-black]="page !== i"
-                [class.bg-gray-100]="page !== i"
+                [class.bg-base-200]="page !== i"
                 (click)="page = i"
             >
                 {{ i + 1 }}

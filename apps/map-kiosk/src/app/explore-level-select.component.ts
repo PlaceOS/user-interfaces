@@ -7,7 +7,7 @@ import { first, take } from 'rxjs/operators';
     selector: 'explore-level-select',
     template: `
         <div
-            class="m-2 rounded overflow-hidden bg-white shadow border border-solid border-gray-300"
+            class="m-2 rounded overflow-hidden bg-base-100 shadow border border-solid border-base-300"
         >
             <button
                 *ngFor="let lvl of levels | async"
@@ -26,12 +26,12 @@ import { first, take } from 'rxjs/operators';
     styles: [
         `
             .active {
-                background: var(--secondary) !important;
+                background: var(--s) !important;
                 color: #fff !important;
             }
 
             button:not(:first-child) {
-                border-top: 1px solid #ccc !important;
+                border-top: 1px solid var(--b3) !important;
             }
         `,
     ],

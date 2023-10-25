@@ -30,7 +30,7 @@ import { combineLatest } from 'rxjs';
             *ngIf="!loading && (item | async); else loading_state"
         >
             <div
-                class="flex items-center space-x-4 p-2 bg-white border-b border-gray-200"
+                class="flex items-center space-x-4 p-2 bg-base-100 border-b border-base-200"
             >
                 <a
                     btn
@@ -56,16 +56,14 @@ import { combineLatest } from 'rxjs';
                 </div>
             </div>
             <div class="flex items-center">
-                <div
-                    class="bg-white dark:bg-neutral-700 flex-1 w-1/2 h-[22.5rem]"
-                >
+                <div class="bg-base-100 flex-1 w-1/2 h-[22.5rem]">
                     <image-carousel
                         [images]="(item | async)?.images || []"
                     ></image-carousel>
                 </div>
                 <div class="w-[32rem] h-[22.5rem] px-4 flex flex-col">
                     <div
-                        class="w-full flex items-center justify-between border-b border-gray-300 dark:border-neutral-500"
+                        class="w-full flex items-center justify-between border-b border-base-200"
                     >
                         <div class="font-medium">
                             {{ (item | async)?.name }}
@@ -86,7 +84,7 @@ import { combineLatest } from 'rxjs';
                                     <div class="mr-2 underline">Edit</div>
                                 </div>
                             </a>
-                            <div class="w-px h-4 bg-gray-300"></div>
+                            <div class="w-px h-4 bg-base-200"></div>
                             <button btn matRipple class="clear">
                                 <div
                                     class="flex items-center text-blue-600 hover:text-blue-900"
@@ -116,7 +114,7 @@ import { combineLatest } from 'rxjs';
                         </ng-template>
                     </div>
                     <div
-                        class="rounded bg-white dark:bg-neutral-700 shadow border border-gray-300 dark:border-neutral-500 w-full divide-y divide-gray-200 dark:divide-neutral-500"
+                        class="rounded bg-base-100 shadow border border-base-200 w-full divide-y divide-base-200"
                     >
                         <div class="flex items-center justify-between p-3">
                             <div class="pl-2">
@@ -247,7 +245,7 @@ import { combineLatest } from 'rxjs';
                         <h3 class="p-2">General</h3>
                         <div
                             data-table
-                            class="bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500"
+                            class="bg-base-100 border border-base-200"
                         >
                             <div class="flex items-center p-2">
                                 <label>Brand</label>
@@ -349,7 +347,7 @@ import { combineLatest } from 'rxjs';
         </ng-template>
         <ng-template #delete_tooltip>
             <div
-                class="p-4 bg-white dark:bg-neutral-700 rounded my-2 text-center w-[18rem]"
+                class="p-4 bg-base-100 rounded my-2 text-center w-[18rem]"
                 *ngIf="!deleting; else delete_loading"
             >
                 <p>Are you sure you want to permanently delete this product?</p>
@@ -374,7 +372,7 @@ import { combineLatest } from 'rxjs';
             </div>
             <ng-template #delete_loading>
                 <div
-                    class="p-4 bg-white dark:bg-neutral-700 rounded my-2 w-64 h-36 flex flex-col items-center justify-center space-y-2"
+                    class="p-4 bg-base-100 rounded my-2 w-64 h-36 flex flex-col items-center justify-center space-y-2"
                 >
                     <mat-spinner [diameter]="32"></mat-spinner>
                     <p>Deleting product details...</p>

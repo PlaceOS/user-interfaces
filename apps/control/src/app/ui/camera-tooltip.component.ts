@@ -16,7 +16,7 @@ export enum ZoomDirection {
     selector: 'camera-tooltip',
     template: `
         <div
-            class="my-2 bg-white shadow rounded flex flex-col"
+            class="my-2 bg-base-100 shadow rounded flex flex-col"
             *ngIf="(camera_list | async)?.length; else empty_state"
         >
             <mat-form-field appearance="outline" class="m-4 h-12">
@@ -33,9 +33,9 @@ export enum ZoomDirection {
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-            <div class="flex relative border-t border-gray-400 mt-1">
+            <div class="flex relative border-t border-base-200 mt-1">
                 <div
-                    class="flex flex-col items-center border-r border-gray-400 p-4 space-y-2 relative"
+                    class="flex flex-col items-center border-r border-base-200 p-4 space-y-2 relative"
                 >
                     <h3 class="mb-2 text-xl font-medium pr-12">Presets</h3>
                     <ng-container *ngIf="presets?.length; else no_presets">
@@ -111,7 +111,7 @@ export enum ZoomDirection {
                         ></joystick>
                         <div
                             zoom
-                            class="flex flex-col items-center border border-gray-600 rounded"
+                            class="flex flex-col items-center border border-base-200 rounded"
                         >
                             <button
                                 zoom-in
@@ -125,7 +125,7 @@ export enum ZoomDirection {
                                 <app-icon>add</app-icon>
                             </button>
                             <div
-                                class="text-xs h-10 w-10 flex items-center justify-center border-t border-b border-gray-600"
+                                class="text-xs h-10 w-10 flex items-center justify-center border-t border-b border-base-200"
                             >
                                 Zoom
                             </div>
@@ -145,7 +145,7 @@ export enum ZoomDirection {
                     </div>
                 </div>
                 <div
-                    class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center"
+                    class="absolute inset-0 bg-base-100 bg-opacity-75 flex items-center justify-center"
                     *ngIf="!active_camera"
                 >
                     <p>Select a camera to control.</p>
@@ -167,7 +167,7 @@ export enum ZoomDirection {
         </div>
         <ng-template #empty_state>
             <div
-                class="my-2 bg-white shadow rounded flex flex-col p-8 text-center"
+                class="my-2 bg-base-100 shadow rounded flex flex-col p-8 text-center"
             >
                 <p>No cameras available for this system</p>
             </div>

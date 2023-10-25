@@ -19,7 +19,7 @@ interface CateringOptionGroup {
     selector: 'catering-item-details',
     template: `
         <ng-container *ngIf="item; else empty_state">
-            <section image class="relative w-full h-64 sm:h-40 bg-black/20">
+            <section image class="relative w-full h-64 sm:h-40 bg-neutral">
                 <image-carousel
                     [images]="item.images"
                     class="absolute inset-0"
@@ -29,7 +29,7 @@ interface CateringOptionGroup {
                     matRipple
                     name="close-catering-item-details"
                     (click)="close.emit()"
-                    class="absolute top-2 left-2 bg-black/40 sm:hidden text-white"
+                    class="absolute top-2 left-2 bg-neutral sm:hidden text-white"
                 >
                     <app-icon>arrow_back</app-icon>
                 </button>
@@ -40,7 +40,7 @@ interface CateringOptionGroup {
                     [class.text-white]="!fav"
                     [class.text-blue-400]="fav"
                     (click)="toggleFav.emit()"
-                    class="absolute top-2 right-2 bg-black/40"
+                    class="absolute top-2 right-2 bg-neutral"
                 >
                     <app-icon>{{
                         fav ? 'favorite' : 'favorite_border'
@@ -68,7 +68,7 @@ interface CateringOptionGroup {
                 </section>
                 <section class="flex items-center flex-wrap">
                     <div
-                        class="px-2 py-1 rounded-2xl bg-gray-200 dark:bg-neutral-500 text-sm capitalize m-1"
+                        class="px-2 py-1 rounded-2xl bg-base-200 text-sm capitalize m-1"
                         *ngFor="let tag of item.tags"
                     >
                         {{ tag }}
@@ -164,7 +164,7 @@ interface CateringOptionGroup {
                 </section>
             </div>
             <div
-                class="px-2 pt-2 pb-[5.5rem] border-t border-gray-200 shadow sm:hidden"
+                class="px-2 pt-2 pb-[5.5rem] border-t border-base-200 shadow sm:hidden"
             >
                 <button
                     btn

@@ -16,7 +16,7 @@ import { BookingAsset } from '../booking-form.service';
         <ng-container *ngIf="space; else empty_state">
             <section
                 image
-                class="relative w-full bg-black/20"
+                class="relative w-full bg-neutral"
                 [class.sm:h-40]="space.images?.length"
                 [class.h-64]="space.images?.length"
                 [class.sm:h-0]="!space.images?.length"
@@ -33,7 +33,7 @@ import { BookingAsset } from '../booking-form.service';
                     matRipple
                     close
                     (click)="close.emit()"
-                    class="absolute top-2 left-2 bg-black/40 sm:hidden text-white"
+                    class="absolute top-2 left-2 bg-neutral sm:hidden text-white"
                 >
                     <app-icon>arrow_back</app-icon>
                 </button>
@@ -44,7 +44,7 @@ import { BookingAsset } from '../booking-form.service';
                     [class.text-white]="!fav"
                     [class.text-blue-400]="fav"
                     (click)="toggleFav.emit()"
-                    class="absolute top-2 right-2 bg-black/40"
+                    class="absolute top-2 right-2 bg-neutral"
                 >
                     <app-icon>{{
                         fav ? 'favorite' : 'favorite_border'
@@ -99,7 +99,7 @@ import { BookingAsset } from '../booking-form.service';
                 </section>
                 <section
                     map
-                    class="w-full mx-auto h-64 sm:h-48 relative border border-gray-200 overflow-hidden rounded"
+                    class="w-full mx-auto h-64 sm:h-48 relative border border-base-200 overflow-hidden rounded"
                 >
                     <interactive-map
                         class="pointer-events-none"
@@ -109,7 +109,7 @@ import { BookingAsset } from '../booking-form.service';
                     ></interactive-map>
                 </section>
             </div>
-            <div class="p-2 border-t border-gray-200 shadow sm:hidden">
+            <div class="p-2 border-t border-base-200 shadow sm:hidden">
                 <button
                     btn
                     matRipple

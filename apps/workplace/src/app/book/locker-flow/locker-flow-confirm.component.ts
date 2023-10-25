@@ -62,7 +62,7 @@ import { take } from 'rxjs/operators';
         </section>
         <section
             locker
-            class="flex space-x-1 py-4 px-2 border-t dark:border-neutral-500"
+            class="flex space-x-1 py-4 px-2 border-t"
             *ngIf="booking_asset?.id"
         >
             <app-icon class="text-success">done</app-icon>
@@ -84,25 +84,21 @@ import { take } from 'rxjs/operators';
         </section>
         <section
             assets
-            class="flex space-x-1 py-4 px-2 border-t dark:border-neutral-500"
+            class="flex space-x-1 py-4 px-2 border-t"
             *ngIf="assets?.length"
         >
             <app-icon class="text-success">done</app-icon>
             <div details class="leading-6">
                 <h3 i18n>{{ assets_count }} Asset(s)</h3>
                 <div class="flex space-x-2" *ngFor="let asset of assets">
-                    <div
-                        class="h-5 w-5 bg-gray-100 dark:bg-neutral-600 rounded-full"
-                    >
+                    <div class="h-5 w-5 bg-base-200 rounded-full">
                         {{ asset.amount }}
                     </div>
                     <span>{{ asset.name }}</span>
                 </div>
             </div>
         </section>
-        <footer
-            class="p-2 w-full border-t border-gray-200 dark:border-neutral-500 mt-4"
-        >
+        <footer class="p-2 w-full border-t border-base-200 mt-4">
             <button
                 name="confirm-locker"
                 btn

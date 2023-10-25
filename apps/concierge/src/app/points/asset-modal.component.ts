@@ -77,11 +77,11 @@ import { DesksStateService } from '../desks/desks-state.service';
                     </mat-autocomplete>
                 </div>
             </section>
-            <section class="border-t border-gray-200 p-2">
+            <section class="border-t border-base-200 p-2">
                 <div class="flex items-center">
                     <label class="flex-1">Standard hourly rate</label>
                     <a-counter
-                        class="border border-gray-200 rounded"
+                        class="border border-base-200 rounded"
                         formControlName="unit_price"
                         [min]="500"
                         [max]="80000"
@@ -137,7 +137,7 @@ import { DesksStateService } from '../desks/desks-state.service';
                             </div>
                             <span class="mx-2">@</span>
                             <a-counter
-                                class="border border-gray-200 rounded"
+                                class="border border-base-200 rounded"
                                 [(ngModel)]="rule.rate"
                                 [ngModelOptions]="{ standalone: true }"
                                 [min]="0"
@@ -160,7 +160,7 @@ import { DesksStateService } from '../desks/desks-state.service';
                     </button>
                 </div>
             </section>
-            <section class="border-t border-gray-200 p-2">
+            <section class="border-t border-base-200 p-2">
                 <div class="flex items-center">
                     <label>Accept Points?</label>
                     <mat-checkbox
@@ -170,7 +170,7 @@ import { DesksStateService } from '../desks/desks-state.service';
                 <div class="flex items-center">
                     <label class="flex-1">Discount Cap</label>
                     <a-counter
-                        class="border border-gray-200 rounded"
+                        class="border border-base-200 rounded"
                         formControlName="discount_cap"
                         [min]="0"
                         [max]="100"
@@ -181,7 +181,7 @@ import { DesksStateService } from '../desks/desks-state.service';
             </section>
         </main>
         <footer
-            class="flex items-center justify-center p-2 space-x-2 border-t border-gray-200"
+            class="flex items-center justify-center p-2 space-x-2 border-t border-base-200"
         >
             <button btn matRipple mat-dialog-close class="inverse flex-1">
                 Cancel

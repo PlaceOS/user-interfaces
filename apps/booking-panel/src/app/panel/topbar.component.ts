@@ -6,7 +6,7 @@ import { getUnixTime } from 'date-fns';
     selector: 'panel-topbar',
     template: `
         <div
-            class="w-full flex items-center justify-between h-16 border-b border-gray-200 bg-secondary text-white"
+            class="w-full flex items-center justify-between h-16 border-b border-base-200 bg-secondary text-white"
         >
             <img [src]="logo.src" alt="Logo" class="h-12 mx-2" />
             <div time class="flex items-center space-x-2 mx-4 text-xl">

@@ -7,10 +7,10 @@ import { CateringReportStateService } from './catering-report-state.service';
     selector: 'catering-report-items',
     template: `
         <div
-            class="w-[64rem] max-w-[calc(100%-2rem)] rounded overflow-hidden bg-white dark:bg-neutral-700 shadow mx-auto my-2"
+            class="w-[64rem] max-w-[calc(100%-2rem)] rounded overflow-hidden bg-base-100 shadow mx-auto my-2"
         >
             <div
-                class="border-b border-gray-200 dark:border-neutral-500 flex items-center justify-between px-4"
+                class="border-b border-base-200 flex items-center justify-between px-4"
             >
                 <h2 class="py-2 text-xl font-medium">Ordered Items</h2>
             </div>
@@ -42,7 +42,7 @@ import { CateringReportStateService } from './catering-report-state.service';
             ></custom-table>
             <ng-template #option_state let-data="data">
                 <span
-                    class="text-xs px-2 py-1 rounded bg-gray-300"
+                    class="text-xs px-2 py-1 rounded bg-base-200"
                     *ngIf="data.length"
                     [matTooltip]="options(data)"
                 >
@@ -50,7 +50,7 @@ import { CateringReportStateService } from './catering-report-state.service';
                 </span>
             </ng-template>
             <ng-template #cost_state let-data="data">
-                {{ (data || 0) / 100 | currency:code }}
+                {{ (data || 0) / 100 | currency: code }}
             </ng-template>
         </div>
     `,
@@ -63,7 +63,10 @@ export class CateringReportItemsComponent {
         return this._org.currency_code;
     }
 
-    constructor(private _report: CateringReportStateService, private _org: OrganisationService) {}
+    constructor(
+        private _report: CateringReportStateService,
+        private _org: OrganisationService
+    ) {}
 
     public options(opts: CateringOption[]) {
         return opts.map((_) => _.name).join('\n');

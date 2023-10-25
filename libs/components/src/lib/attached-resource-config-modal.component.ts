@@ -52,7 +52,7 @@ export interface AttachedResourceConfigModalData {
             class="overflow-auto text-center max-w-lg min-w-[32rem] px-4 pt-2 pb-4 space-y-2"
         >
             <div
-                class="text-left p-2 rounded bg-gray-100"
+                class="text-left p-2 rounded bg-base-200"
                 *ngIf="can_save_notes"
             >
                 <mat-checkbox
@@ -144,7 +144,7 @@ export interface AttachedResourceConfigModalData {
                         *ngFor="let rule of set.rules; let i = index"
                     >
                         <div
-                            class="absolute left-3 top-1/2 -translate-y-full w-4 h-32 border-b-2 border-l-2 border-gray-400"
+                            class="absolute left-3 top-1/2 -translate-y-full w-4 h-32 border-b-2 border-l-2 border-base-200"
                         ></div>
                         <mat-form-field
                             class="flex-1 no-subscript"
@@ -184,7 +184,7 @@ export interface AttachedResourceConfigModalData {
             </div>
         </main>
         <footer
-            class="flex py-2 px-4 items-center justify-end border-t border-solid border-gray-300"
+            class="flex py-2 px-4 items-center justify-end border-t border-solid border-base-200"
         >
             <button btn matRipple class="w-36" (click)="saveChanges()">
                 Save Changes

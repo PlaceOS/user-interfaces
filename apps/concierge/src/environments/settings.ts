@@ -56,6 +56,7 @@ const general = {
             icon: { class: 'material-icons', content: 'analytics' },
         },
     ],
+    dark_mode: true,
 };
 
 const custom_reports = [];

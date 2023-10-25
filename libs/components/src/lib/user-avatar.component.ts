@@ -5,13 +5,13 @@ import { User } from 'libs/users/src/lib/user.class';
     selector: 'a-user-avatar',
     template: `
         <div
-            class="flex items-center justify-center rounded-full overflow-hidden border-2 border-white"
+            class="flex items-center justify-center rounded-full overflow-hidden"
             *ngIf="user"
             [attr.user-id]="user.id"
         >
             <div
                 initials
-                class="text-white text-opacity-80 uppercase"
+                class="text-base-content text-opacity-80 uppercase"
                 *ngIf="!user.photo; else image_state"
             >
                 {{ initials }}
@@ -30,9 +30,9 @@ import { User } from 'libs/users/src/lib/user.class';
             :host > div {
                 height: 2.5em;
                 width: 2.5em;
-                background-color: var(--secondary);
+                background-color: var(--b2);
                 overflow: hidden;
-                border: 2px solid white;
+                border: 2px solid var(--b1);
             }
 
             .initials {

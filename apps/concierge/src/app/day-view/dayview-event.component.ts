@@ -22,7 +22,7 @@ const DAY_IN_MINUTES = 24 * 60;
             event
             matRipple
             [class]="
-                'absolute rounded overflow-hidden text-sm border border-gray-200 shadow-sm z-10 hover:z-30 ' +
+                'absolute rounded overflow-hidden text-sm border border-base-200 shadow-sm z-10 hover:z-30 ' +
                 type
             "
             *ngIf="event"
@@ -49,7 +49,7 @@ const DAY_IN_MINUTES = 24 * 60;
         <div
             *ngIf="event && (ui_options | async)?.show_cleaning"
             cleaning
-            class="absolute rounded overflow-hidden flex w-full shadow p-2 bg-white z-20 hover:!h-48"
+            class="absolute rounded overflow-hidden flex w-full shadow p-2 bg-base-100 z-20 hover:!h-48"
             [style.top]="top * 100 + '%'"
             [style.height]="height * 100 + '%'"
         >

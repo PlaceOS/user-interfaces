@@ -38,7 +38,7 @@ import { addDays, subDays } from 'date-fns';
         <button
             icon
             matRipple
-            class="rounded relative border border-gray-200"
+            class="rounded relative border border-base-200"
             *ngIf="!is_new"
             customTooltip
             [content]="calendar_picker"
@@ -49,7 +49,7 @@ import { addDays, subDays } from 'date-fns';
             <app-icon>today</app-icon>
         </button>
         <ng-template #calendar_picker>
-            <div class="relative w-[19rem] rounded bg-white px-2 py-4">
+            <div class="relative w-[19rem] rounded bg-base-100 px-2 py-4">
                 <date-calendar
                     [ngModel]="date"
                     [offset_weekday]="week_start"

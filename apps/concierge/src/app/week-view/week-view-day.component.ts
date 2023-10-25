@@ -9,7 +9,7 @@ import { EventsStateService } from '../day-view/events-state.service';
     selector: 'week-view-day',
     template: `
         <header
-            class="flex items-center justify-center border-b border-gray-200 bg-gray-500 w-full py-3 text-white"
+            class="flex items-center justify-center border-b border-base-200 bg-base-300 w-full py-3 text-white"
         >
             {{ date | async | date: 'EEE, MMM d, y' }}
         </header>

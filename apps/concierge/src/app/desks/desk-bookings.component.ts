@@ -187,7 +187,7 @@ import { SettingsService } from '@placeos/common';
         <button
             icon
             matRipple
-            class="absolute bottom-2 right-2 bg-white shadow"
+            class="absolute bottom-2 right-2 bg-base-100 shadow"
             [matMenuTriggerFor]="menu"
         >
             <app-icon>more_vert</app-icon>

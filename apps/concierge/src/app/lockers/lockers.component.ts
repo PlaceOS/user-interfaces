@@ -8,7 +8,7 @@ import { LockersStateService } from './locker-state.service';
     template: `
         <sidebar></sidebar>
         <main
-            class="flex-1 relative w-1/2 flex flex-col bg-gray-200 dark:bg-neutral-600 overflow-hidden"
+            class="flex-1 relative w-1/2 flex flex-col bg-base-200 overflow-hidden"
         >
             <lockers-topbar class="w-full"></lockers-topbar>
             <div class="dark">

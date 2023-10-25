@@ -56,7 +56,7 @@ import { notifyError } from '@placeos/common';
             </div>
         </main>
         <footer
-            class="flex justify-end space-x-2 p-2 border-t border-gray-100"
+            class="flex justify-end space-x-2 p-2 border-t border-base-200"
             *ngIf="!loading"
         >
             <a btn matRipple class="w-32 inverse" mat-dialog-close>Cancel</a>

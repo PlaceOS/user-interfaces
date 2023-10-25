@@ -64,10 +64,10 @@ class SpacePingComponent extends AsyncHandler {
             </div>
             <div class="flex w-full h-1/2 flex-1 z-0">
                 <div
-                    class="p-2 sm:w-[18rem] w-full h-full bg-gray-50 dark:bg-neutral-600 shadow border-r border-gray-200 dark:border-neutral-500 z-10 overflow-auto space-y-2"
+                    class="p-2 sm:w-[18rem] w-full h-full bg-base-200 shadow border-r border-base-200 z-10 overflow-auto space-y-2"
                 >
                     <div
-                        class="bg-white dark:bg-neutral-700 sticky top-0 w-full z-10"
+                        class="bg-base-100 sticky top-0 w-full z-10"
                         *ngIf="(levels | async)?.length > 1"
                     >
                         <mat-form-field
@@ -90,7 +90,7 @@ class SpacePingComponent extends AsyncHandler {
                     <p>{{ (available | async)?.length }} space(s) available</p>
                     <button
                         matRipple
-                        class="flex items-center justify-between bg-white dark:bg-neutral-700 rounded-lg border border-gray-200 p-2 w-full"
+                        class="flex items-center justify-between bg-base-100 rounded-lg border border-base-200 p-2 w-full"
                         [class.active]="(active_space | async)?.id === space.id"
                         (click)="setActive(space)"
                         *ngFor="let space of available | async"
@@ -102,7 +102,7 @@ class SpacePingComponent extends AsyncHandler {
                     </button>
                 </div>
                 <div
-                    class="bg-gray-200 dark:bg-neutral-600 flex-1 w-1/2 h-full z-0 relative hidden sm:block"
+                    class="bg-base-200 flex-1 w-1/2 h-full z-0 relative hidden sm:block"
                 >
                     <i-map
                         [src]="url | async"
@@ -119,7 +119,7 @@ class SpacePingComponent extends AsyncHandler {
                 </div>
                 <div
                     *ngIf="active_space | async"
-                    class="absolute left-1/2 bottom-2 -translate-x-1/2 bg-white dark:bg-neutral-800 shadow rounded p-4 flex flex-col space-y-2"
+                    class="absolute left-1/2 bottom-2 -translate-x-1/2 bg-base-100 shadow rounded p-4 flex flex-col space-y-2"
                 >
                     <p>
                         Parking Bay No.
@@ -137,7 +137,7 @@ class SpacePingComponent extends AsyncHandler {
                     </button>
                 </div>
                 <div
-                    class="absolute inset-0 bg-white/80 flex flex-col items-center justify-center z-50"
+                    class="absolute inset-0 bg-base-100/80 flex flex-col items-center justify-center z-50"
                     *ngIf="!(levels | async)?.length"
                 >
                     <p>
@@ -152,7 +152,7 @@ class SpacePingComponent extends AsyncHandler {
         </div>
         <ng-template #load_state>
             <div
-                class="absolute inset-0 bg-white/80 flex flex-col items-center justify-center z-50 space-y-2"
+                class="absolute inset-0 bg-base-100/80 flex flex-col items-center justify-center z-50 space-y-2"
                 *ngIf="!(levels | async)?.length"
             >
                 <mat-spinner diameter="32"></mat-spinner>
@@ -163,7 +163,7 @@ class SpacePingComponent extends AsyncHandler {
     styles: [
         `
             .active {
-                background-color: var(--primary) !important;
+                background-color: var(--s) !important;
                 color: #fff;
             }
 

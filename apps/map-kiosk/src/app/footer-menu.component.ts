@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
     selector: 'footer-menu',
     template: `
         <div
-            class="flex items-center bg-white divide-x border-t border-solid border-gray-300 w-full"
+            class="flex items-center bg-base-100 divide-x border-t border-solid border-base-200 w-full"
         >
             <a
                 btn

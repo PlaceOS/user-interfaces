@@ -12,13 +12,13 @@ import { OrganisationService } from '@placeos/organisation';
     selector: 'app-sidebar',
     template: `
         <div
-            class="w-64 h-full border-r border-gray-300 py-2 pr-3 overflow-auto"
+            class="w-64 h-full border-r border-base-200 py-2 pr-3 overflow-auto"
         >
             <ng-container *ngFor="let link of filtered_links">
                 <ng-container *ngIf="!link.children; else group_view">
                     <a
                         matRipple
-                        class="flex items-center space-x-2 rounded-r-full p-1 my-1 hover:bg-black/10 w-full"
+                        class="flex items-center space-x-2 rounded-r-full p-1 my-1 hover:bg-base-200 w-full"
                         [routerLink]="link.route"
                         routerLinkActive="active"
                     >
@@ -32,7 +32,7 @@ import { OrganisationService } from '@placeos/organisation';
                     <button
                         matRipple
                         *ngIf="link.children?.length"
-                        class="flex items-center space-x-2 rounded-r-full p-1 my-1 hover:bg-black/10 w-full"
+                        class="flex items-center space-x-2 rounded-r-full p-1 my-1 hover:bg-base-200 w-full"
                         (click)="show_block[link.id] = !show_block[link.id]"
                     >
                         <app-icon class="text-2xl opacity-60">
@@ -49,7 +49,7 @@ import { OrganisationService } from '@placeos/organisation';
                         [@show]="!show_block[link.id] ? 'show' : 'hide'"
                     >
                         <a
-                            class="flex items-center space-x-2 rounded-r-full p-1 my-1 hover:bg-black/10 w-full"
+                            class="flex items-center space-x-2 rounded-r-full p-1 my-1 hover:bg-base-200 w-full"
                             *ngFor="let child of link.children"
                             [routerLink]="child.route"
                             routerLinkActive="active"
@@ -69,13 +69,12 @@ import { OrganisationService } from '@placeos/organisation';
             }
 
             a.active {
-                background-color: var(--primary);
-                color: #fff;
+                background-color: var(--s);
+                color: var(--sc);
             }
 
             a.active:hover {
-                background-color: var(--primary);
-                color: #000;
+                color: var(--bc);
                 opacity: 0.75;
             }
         `,

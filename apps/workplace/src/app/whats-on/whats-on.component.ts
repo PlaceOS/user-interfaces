@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
     selector: '[dashboard]',
     template: `
         <topbar></topbar>
-        <div class="flex-1 flex sm:flex-row flex-col-reverse h-1/2 bg-gray-200">
+        <div class="flex-1 flex sm:flex-row flex-col-reverse h-1/2 bg-base-200">
             <div
                 class="relative z-0 flex flex-col flex-1 h-1/2 sm:h-auto overflow-hidden"
             >

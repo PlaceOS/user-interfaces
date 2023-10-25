@@ -1,30 +1,102 @@
 @import 'chartist/dist/index.css';
-@import "./quill.min.css";
+@import './quill.min.css';
 @import 'material-symbols';
 @import '@material-design-icons/font';
 
 :root {
-    --primary:#292F5B;
-    --primary-dark: #3A4174;
-    --secondary: #1565c0;
-    --secondary-dark: #003c8f;
-    --ternary: #F8C9DA;
-    --ternary-dark: #8c0032;
-    --font-light: #fff;
-    --font-dark: #000;
-    --success: #43a047;
-    --pending: #ffb300;
-    --error: #e53935;
-    --bg: #f0f0f0;
-    --bg-dark: #212121;
-    --font: 'Helvetica Neue', 'Roboto', Helvetica, sans-serif;
-    --heading-font: Georgia, 'Times New Roman', Times, serif;
-    --dark-primary: #d81b60;
-    --font-size: 16px;
+    /* Primary */
+    --p: hsl(336, 57%, 48%); /* #C52B67 */
+    --pf: hsl(336, 57%, 38%); /* Darker shade */
+    --pc: hsl(0, 0%, 100%); /* White content for contrast */
 
-    .dark {
-        --primary: var(--dark-primary);
-    }
+    /* Secondary */
+    --s: hsl(237, 37%, 20%); /* #292F5B */
+    --sf: hsl(237, 37%, 10%); /* Darker shade */
+    --sc: hsl(0, 0%, 100%); /* White content for contrast */
+
+    /* Accent (Complementary color to Primary) */
+    --a: hsl(156, 57%, 48%); /* A contrasting greenish tone */
+    --af: hsl(156, 57%, 38%); /* Darker shade of the a */
+    --ac: hsl(0, 0%, 0%); /* Black content for contrast */
+
+    /* Neutral */
+    --n: hsl(0, 0%, 50%); /* Grey */
+    --nf: hsl(0, 0%, 40%); /* Darker Grey */
+    --nc: hsl(0, 0%, 100%); /* White content on grey background */
+
+    /* Base */
+    --b1: hsl(0, 0%, 98%); /* Near White */
+    --b2: hsl(0, 0%, 90%); /* Light Grey */
+    --b3: hsl(206, 23%, 94%); /* Mid Grey */
+    --bc: hsl(0, 0%, 0%); /* Black content on white background */
+
+    /* Info */
+    --in: hsl(210, 100%, 50%); /* Light Blue */
+    --inl: hsl(210, 100%, 80%); /* Light Blue */
+    --inc: hsl(0, 0%, 100%); /* White content on light blue background */
+
+    /* Success */
+    --su: hsl(110, 70%, 40%); /* Light Green */
+    --sul: hsl(110, 70%, 70%); /* Light Green */
+    --suc: hsl(0, 0%, 100%); /* White content on light green background */
+
+    /* Warning */
+    --wa: hsl(40, 100%, 50%); /* Yellow */
+    --wal: hsl(40, 100%, 80%); /* Yellow */
+    --wac: hsl(0, 0%, 0%); /* Black content on yellow background */
+
+    /* Error */
+    --er: hsl(0, 100%, 45%); /* Red */
+    --erl: hsl(0, 100%, 75%); /* Red */
+    --erc: hsl(0, 0%, 100%); /* White content on red background */
+}
+
+.theme-dark {
+    /* Primary */
+    --p: hsl(237, 37%, 20%); /* #292F5B */
+    --pf: hsl(237, 37%, 10%); /* Darker shade */
+    --pc: hsl(0, 0%, 100%); /* White content for contrast */
+
+    /* Secondary */
+    --s: hsl(336, 57%, 48%); /* #C52B67 */
+    --sf: hsl(336, 57%, 38%); /* Darker shade */
+    --sc: hsl(0, 0%, 100%); /* White content for contrast */
+
+    /* Accent */
+    --a: hsl(156, 57%, 28%); /* Darker shade of complementary color */
+    --af: hsl(156, 57%, 18%); /* Even darker shade */
+    --ac: hsl(0, 0%, 80%); /* Lighter text for contrast */
+
+    /* Neutral */
+    --n: hsl(0, 0%, 20%); /* Dark Grey */
+    --nf: hsl(0, 0%, 15%); /* Even darker Grey */
+    --nc: hsl(0, 0%, 80%); /* Light grey text for contrast */
+
+    /* Base */
+    --b1: hsl(0, 0%, 10%); /* Near Black */
+    --b2: hsl(0, 0%, 15%); /* Dark Grey */
+    --b3: hsl(0, 0%, 20%); /* Mid-Dark Grey */
+    --bc: hsl(0, 0%, 80%); /* Light grey text for contrast */
+
+    /* Info */
+    --in: hsl(210, 100%, 40%); /* Slightly darker Light Blue */
+    --inl: hsl(210, 100%, 70%); /* Slightly darker Light Blue */
+    --inc: hsl(0, 0%, 90%); /* Light text for contrast */
+
+    /* Success */
+    --su: hsl(110, 70%, 30%); /* Slightly darker Light Green */
+    --sul: hsl(110, 70%, 60%); /* Slightly darker Light Green */
+    --suc: hsl(0, 0%, 90%); /* Light text for contrast */
+
+    /* Warning */
+    --wa: hsl(40, 100%, 40%); /* Slightly darker Yellow */
+    --wal: hsl(40, 100%, 70%); /* Slightly darker Yellow */
+    --wac: hsl(0, 0%, 10%); /* Near Black text for contrast */
+
+    /* Error */
+    --er: hsl(0, 100%, 35%); /* Slightly darker Red */
+    --erl: hsl(0, 100%, 65%); /* Slightly darker Red */
+    --erc: hsl(0, 0%, 90%); /* Light text for contrast */
 }
 
 @media screen {
@@ -37,7 +109,8 @@
     .screen-only {
         display: none !important;
     }
-    html, body {
+    html,
+    body {
         position: relative;
         width: 21cm;
         min-height: 29.7cm;
@@ -56,11 +129,8 @@ body {
 
 body {
     touch-action: pan-x pan-y;
-    background-color: #525252;
-    &.dark {
-        background-color: #525252;
-        color: #fffC;
-    }
+    background-color: var(--b1);
+    color: var(--bc);
 }
 
 * {
@@ -76,17 +146,17 @@ body {
 }
 
 span.highlight {
-    color: var(--primary);
+    color: var(--p);
 }
 
 /*========================*\
 ||   Application styles   ||
 \*========================*/
 
-.info-block {
+.i-block {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justifyc: center;
     flex-direction: column;
     margin: 0.5em auto;
     width: 100%;
@@ -95,7 +165,7 @@ span.highlight {
     .icon {
         display: flex;
         align-items: center;
-        justify-content: center;
+        justifyc: center;
         height: 1.2em;
         width: 1.2em;
         font-size: 2em;
@@ -166,7 +236,7 @@ div.tox-tinymce {
     }
 }
 
-#placeos .mat-radio-label-content {
+#placeos .mat-radio-labelc {
     font-weight: normal;
 }
 
@@ -191,7 +261,11 @@ div.tox-tinymce {
 
 #placeos .selectable {
     user-select: auto;
-    p, li, code, pre, div {
+    p,
+    li,
+    code,
+    pre,
+    div {
         user-select: text;
     }
 }

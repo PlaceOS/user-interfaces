@@ -11,7 +11,7 @@ import { AsyncHandler } from '@placeos/common';
             <main class="flex flex-col flex-1 w-1/2 h-full">
                 <catering-topbar class="relative z-10"></catering-topbar>
                 <div
-                    class="p-2 flex items-center justify-center bg-blue-600 text-white text-sm"
+                    class="p-2 flex items-center justify-center bg-info text-white text-sm"
                     *ngIf="page === 'menu'"
                 >
                     To edit the menu select "All Levels" from the top left
@@ -32,7 +32,7 @@ import { AsyncHandler } from '@placeos/common';
                         >
                             <a
                                 matRipple
-                                class="rounded flex flex-col items-center bg-white dark:bg-neutral-700 shadow text-black dark:text-white"
+                                class="rounded flex flex-col items-center bg-base-100 shadow text-black"
                                 [routerLink]="['/catering', 'menu']"
                             >
                                 <div
@@ -43,7 +43,7 @@ import { AsyncHandler } from '@placeos/common';
                                     "
                                 >
                                     <div
-                                        class="absolute inset-0 bg-black opacity-60 z-0"
+                                        class="absolute inset-0 bg-neutral opacity-60 z-0"
                                     ></div>
                                     <span class="z-10">Menus and Pricing</span>
                                 </div>
@@ -55,7 +55,7 @@ import { AsyncHandler } from '@placeos/common';
                             </a>
                             <a
                                 matRipple
-                                class="rounded flex flex-col items-center bg-white dark:bg-neutral-700 shadow text-black dark:text-white"
+                                class="rounded flex flex-col items-center bg-base-100 shadow text-black"
                                 [routerLink]="['/catering', 'orders']"
                             >
                                 <div
@@ -66,7 +66,7 @@ import { AsyncHandler } from '@placeos/common';
                                     "
                                 >
                                     <div
-                                        class="absolute inset-0 bg-black opacity-60 z-0"
+                                        class="absolute inset-0 bg-neutral opacity-60 z-0"
                                     ></div>
                                     <span class="z-10">Today's Orders</span>
                                 </div>
@@ -90,7 +90,7 @@ import { AsyncHandler } from '@placeos/common';
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
-                background-color: #fff;
+                background-color: var(--b1);
             }
 
             a {

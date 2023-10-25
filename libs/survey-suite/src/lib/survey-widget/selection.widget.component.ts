@@ -30,15 +30,16 @@ import { parseSelectionAnswers } from './survey-helper';
                 >
                     <div class="flex flex-1 flex-col space-y-1">
                         <span>{{ d.name }}</span>
-                        <div class="progress-bar bg-gray-200 h-1">
+                        <div class="progress-bar bg-base-200 h-1">
                             <span
                                 class="progress-bar-fill h-1 rounded-lg"
                                 [ngClass]="{
-                                    'bg-red-500': d.percentage <= 25,
-                                    'bg-yellow-400':
+                                    'bg-error': d.percentage <= 25,
+                                    'bg-warning':
                                         d.percentage > 25 && d.percentage <= 50,
-                                    'bg-blue-400': d.percentage > 50 && d.percentage <= 75,
-                                    'bg-green-500': d.percentage > 75
+                                    'bg-info':
+                                        d.percentage > 50 && d.percentage <= 75,
+                                    'bg-success': d.percentage > 75
                                 }"
                                 [ngStyle]="{ width: d.percentage + '%' }"
                             ></span>

@@ -5,7 +5,7 @@ import { BookingFormService } from '@placeos/bookings';
     selector: 'desk-booking-success',
     template: `
         <div
-            class="absolute inset-0 bg-white dark:bg-neutral-600 flex flex-col items-center justify-center space-y-4 p-4 text-center"
+            class="absolute inset-0 bg-base-100 flex flex-col items-center justify-center space-y-4 p-4 text-center"
         >
             <h3 class="text-3xl">Booking Confirmed!</h3>
             <img src="assets/tick_success.svg" />

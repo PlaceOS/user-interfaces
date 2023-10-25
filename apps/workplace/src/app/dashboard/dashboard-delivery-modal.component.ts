@@ -58,7 +58,7 @@ import { DialogEvent } from '@placeos/common';
             </div>
         </main>
         <footer
-            class="p-2 flex items-center justify-center border-t border-gray-100"
+            class="p-2 flex items-center justify-center border-t border-base-200"
         >
             <button btn matRipple class="w-32" (click)="register()">
                 Register

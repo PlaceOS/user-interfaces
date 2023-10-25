@@ -6,7 +6,7 @@ import { CustomTooltipData } from '@placeos/components';
     selector: 'accessibility-tooltip',
     template: `
         <div
-            class="flex flex-col w-[18.5rem] rounded bg-white shadow relative -top-12 -right-1 overflow-hidden dark:bg-neutral-700 dark:text-white"
+            class="flex flex-col w-[18.5rem] rounded bg-base-100 shadow relative -top-12 -right-1 overflow-hidden"
         >
             <div class="flex items-center space-x-2 p-2" (click)="close()">
                 <app-icon class="text-2xl">arrow_back</app-icon>
@@ -18,14 +18,14 @@ import { CustomTooltipData } from '@placeos/components';
                 class="flex items-center space-x-2 w-full text-left h-auto px-4"
             >
                 <div
-                    class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800 my-2"
+                    class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200 my-2"
                 >
                     <app-icon class="text-xl">mode_night</app-icon>
                 </div>
                 <div class="flex-1 text-sm" i18n>Dark Mode</div>
                 <mat-slide-toggle
                     [ngModel]="dark_mode"
-                    (ngModelChange)="applySetting('dark_mode', $event)"
+                    (ngModelChange)="setDarkMode($event)"
                 ></mat-slide-toggle>
             </div>
             <div
@@ -33,7 +33,7 @@ import { CustomTooltipData } from '@placeos/components';
                 class="flex items-center space-x-2 w-full text-left h-auto px-4"
             >
                 <div
-                    class="flex items-center justify-center rounded-full w-8 h-8 bg-gray-200 dark:bg-neutral-800 my-2"
+                    class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200 my-2"
                 >
                     <app-icon class="text-xl">playlist_add</app-icon>
                 </div>
@@ -44,10 +44,7 @@ import { CustomTooltipData } from '@placeos/components';
                 ></mat-slide-toggle>
             </div>
             <ng-container *ngIf="accessible">
-                <div
-                    class="px-8 py-4 bg-gray-200 dark:bg-neutral-600 text-center"
-                    i18n
-                >
+                <div class="px-8 py-4 bg-base-200 text-center" i18n>
                     Adjust your preferred reading size below.
                 </div>
                 <div class="flex items-center px-4 space-x-4">
@@ -67,7 +64,7 @@ import { CustomTooltipData } from '@placeos/components';
                     </mat-slider>
                     <span class="text-2xl">A</span>
                     <span
-                        class="text-base py-1 px-2 rounded bg-gray-700 text-white my-2"
+                        class="text-base py-1 px-2 rounded bg-base-300 text-white my-2"
                     >
                         {{ font_size }}px
                     </span>
@@ -85,7 +82,7 @@ import { CustomTooltipData } from '@placeos/components';
 })
 export class AccessibilityTooltipComponent extends AsyncHandler {
     public get dark_mode() {
-        return !!this._settings.get('dark_mode');
+        return this._settings.get('theme') === 'dark';
     }
 
     public get can_change_dark_mode() {
@@ -114,5 +111,11 @@ export class AccessibilityTooltipComponent extends AsyncHandler {
         private _settings: SettingsService
     ) {
         super();
+    }
+
+    public setDarkMode(state: boolean) {
+        const theme = this._settings.get('theme');
+        if (state && theme !== 'dark') this._settings.setTheme('dark');
+        else if (!state && theme === 'dark') this._settings.setTheme('light');
     }
 }

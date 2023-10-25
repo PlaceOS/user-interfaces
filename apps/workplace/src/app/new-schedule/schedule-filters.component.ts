@@ -8,14 +8,14 @@ import { ScheduleStateService } from './schedule-state.service';
     selector: 'schedule-filters',
     template: `
         <div
-            class="hidden sm:block bg-white dark:bg-neutral-800 border border-gray-300 rounded p-2"
+            class="hidden sm:block bg-base-100 border border-base-200 rounded p-2"
         >
             <h3 class="font-medium mb-2">
                 {{ 'WPA.SCHEDULE_CAT_FILTERS' | translate }}
             </h3>
             <div class="flex flex-wrap space-x-2">
                 <div
-                    class="flex items-center rounded-3xl border border-gray-300"
+                    class="flex items-center rounded-3xl border border-base-200"
                     *ngIf="(filters | async)?.shown_types?.includes('event')"
                 >
                     <div class=" px-2">{{ 'WPA.ROOMS' | translate }}</div>
@@ -28,7 +28,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     </button>
                 </div>
                 <div
-                    class="flex items-center rounded-3xl border border-gray-300"
+                    class="flex items-center rounded-3xl border border-base-200"
                     *ngIf="
                         (filters | async)?.shown_types?.includes('desk') &&
                         hasFeature('desks')
@@ -44,7 +44,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     </button>
                 </div>
                 <div
-                    class="flex items-center rounded-3xl border border-gray-300"
+                    class="flex items-center rounded-3xl border border-base-200"
                     *ngIf="
                         (filters | async)?.shown_types?.includes('parking') &&
                         hasFeature('parking')
@@ -61,7 +61,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     </button>
                 </div>
                 <div
-                    class="flex items-center rounded-3xl border border-gray-300"
+                    class="flex items-center rounded-3xl border border-base-200"
                     *ngIf="
                         (filters | async)?.shown_types?.includes('visitor') &&
                         hasFeature('visitor-invite')
@@ -78,7 +78,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     </button>
                 </div>
                 <div
-                    class="flex items-center rounded-3xl border border-gray-300"
+                    class="flex items-center rounded-3xl border border-base-200"
                     *ngIf="
                         (filters | async)?.shown_types?.includes('locker') &&
                         hasFeature('lockers')
@@ -110,7 +110,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 </div>
             </button>
             <div
-                class="flex items-center rounded-3xl border border-gray-300 bg-white dark:bg-neutral-700 text-sm pl-2"
+                class="flex items-center rounded-3xl border border-base-200 bg-base-100 text-sm pl-2"
                 *ngIf="(filters | async)?.shown_types?.includes('event')"
             >
                 <div>{{ 'WPA.ROOMS' | translate }}</div>
@@ -123,7 +123,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 </button>
             </div>
             <div
-                class="flex items-center rounded-3xl border border-gray-300 bg-white dark:bg-neutral-700 text-sm pl-2"
+                class="flex items-center rounded-3xl border border-base-200 bg-base-100 text-sm pl-2"
                 *ngIf="
                     (filters | async)?.shown_types?.includes('desk') &&
                     hasFeature('desks')
@@ -139,7 +139,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 </button>
             </div>
             <div
-                class="flex items-center rounded-3xl border border-gray-300 bg-white dark:bg-neutral-700 text-sm pl-2"
+                class="flex items-center rounded-3xl border border-base-200 bg-base-100 text-sm pl-2"
                 *ngIf="
                     (filters | async)?.shown_types?.includes('parking') &&
                     hasFeature('parking')
@@ -155,7 +155,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 </button>
             </div>
             <div
-                class="flex items-center rounded-3xl border border-gray-300 bg-white dark:bg-neutral-700 text-sm pl-2"
+                class="flex items-center rounded-3xl border border-base-200 bg-base-100 text-sm pl-2"
                 *ngIf="
                     (filters | async)?.shown_types?.includes('visitor') &&
                     hasFeature('visitor-invite')
@@ -171,7 +171,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 </button>
             </div>
             <div
-                class="flex items-center rounded-3xl border border-gray-300 bg-white dark:bg-neutral-700 text-sm pl-2"
+                class="flex items-center rounded-3xl border border-base-200 bg-base-100 text-sm pl-2"
                 *ngIf="
                     (filters | async)?.shown_types?.includes('locker') &&
                     hasFeature('lockers')

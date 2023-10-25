@@ -5,7 +5,7 @@ import { Component } from '@angular/core';
     template: `
         <div
             content
-            class="rounded m-4 text-center bg-white text-black border border-gray-400 p-4 shadow"
+            class="rounded m-4 text-center bg-base-100 text-black border border-base-200 p-4 shadow"
         >
             <h3 class="text-2xl" i18n="@@forbiddenLabel">
                 Application Misconfigured.

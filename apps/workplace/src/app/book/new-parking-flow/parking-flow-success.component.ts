@@ -5,7 +5,9 @@ import { SettingsService } from '@placeos/common';
 @Component({
     selector: 'parking-flow-success',
     template: `
-        <div class="absolute inset-0 bg-white flex flex-col z-50 overflow-auto">
+        <div
+            class="absolute inset-0 bg-base-100 flex flex-col z-50 overflow-auto"
+        >
             <main
                 class="flex-1 flex flex-col items-center justify-center space-y-2 p-8"
             >
@@ -27,7 +29,7 @@ import { SettingsService } from '@placeos/common';
                 <img src="assets/icons/parking-success.svg" />
             </main>
             <footer
-                class="sticky bottom-0 bg-white p-2 w-full border-t border-gray-200 mt-4 flex items-center justify-center"
+                class="sticky bottom-0 bg-base-100 p-2 w-full border-t border-base-200 mt-4 flex items-center justify-center"
             >
                 <a
                     button

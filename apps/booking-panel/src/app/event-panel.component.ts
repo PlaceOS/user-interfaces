@@ -16,7 +16,7 @@ import { PanelStateService } from './panel-state.service';
 @Component({
     selector: 'event-panel',
     template: `
-        <div class="absolute inset-0 flex flex-col items-center bg-white">
+        <div class="absolute inset-0 flex flex-col items-center bg-base-100">
             <header class="w-full flex justify-between items-center p-8">
                 <h1 class="text-3xl font-medium">{{ space_name | async }}</h1>
                 <div class="portrait:hidden flex space-x-4 items-center">
@@ -75,7 +75,7 @@ import { PanelStateService } from './panel-state.service';
                 </div>
             </main>
             <footer
-                class="w-full landscape:hidden bg-white px-8 py-3 flex justify-between items-center"
+                class="w-full landscape:hidden bg-base-100 px-8 py-3 flex justify-between items-center"
             >
                 <img
                     [src]="logo?.src | safe: 'resource'"

@@ -10,12 +10,12 @@ import { SettingsService } from '@placeos/common';
         <div class="flex w-full overflow-auto space-x-2 px-4 mb-4">
             <a
                 matRipple
-                class="w-64 p-2 rounded shadow border border-gray-200 flex items-center space-x-4 bg-white"
+                class="w-64 p-2 rounded shadow border border-base-200 flex items-center space-x-4 bg-base-100"
                 [routerLink]="['/book', 'meeting']"
                 *ngIf="features.includes('spaces')"
             >
                 <div
-                    class="min-w-[4rem] h-16 rounded bg-gray-200 flex items-center justify-center"
+                    class="min-w-[4rem] h-16 rounded bg-base-200 flex items-center justify-center"
                 >
                     <img
                         class="m-auto"
@@ -26,12 +26,12 @@ import { SettingsService } from '@placeos/common';
             </a>
             <a
                 matRipple
-                class="w-64 p-2 rounded shadow border border-gray-200 flex items-center space-x-4 bg-white"
+                class="w-64 p-2 rounded shadow border border-base-200 flex items-center space-x-4 bg-base-100"
                 [routerLink]="['/book', 'new-desk']"
                 *ngIf="features.includes('desks')"
             >
                 <div
-                    class="min-w-[4rem] h-16 rounded bg-gray-200 flex items-center justify-center"
+                    class="min-w-[4rem] h-16 rounded bg-base-200 flex items-center justify-center"
                 >
                     <img
                         class="m-auto"
@@ -42,12 +42,12 @@ import { SettingsService } from '@placeos/common';
             </a>
             <a
                 matRipple
-                class="w-64 p-2 rounded shadow border border-gray-200 flex items-center space-x-4 bg-white"
+                class="w-64 p-2 rounded shadow border border-base-200 flex items-center space-x-4 bg-base-100"
                 [routerLink]="['/book', 'new-parking']"
                 *ngIf="features.includes('parking')"
             >
                 <div
-                    class="min-w-[4rem] h-16 rounded bg-gray-200 flex items-center justify-center"
+                    class="min-w-[4rem] h-16 rounded bg-base-200 flex items-center justify-center"
                 >
                     <img
                         class="m-auto"

@@ -27,11 +27,11 @@ import { combineLatest } from 'rxjs';
                     <ng-container [ngSwitch]="(options | async).view">
                         <ng-container *ngSwitchCase="'list'">
                             <div
-                                class="rounded overflow-hidden bg-white dark:bg-neutral-700 border border-gray-300 divide-y divide-gray-200 dark:border-neutral-500"
+                                class="rounded overflow-hidden bg-base-100 border border-base-200 divide-y divide-base-200"
                             >
                                 <a
                                     matRipple
-                                    class="flex items-center text-left space-x-4 p-4 border border-black/0 hover:border-indigo-400 rounded"
+                                    class="flex items-center text-left space-x-4 p-4 border border-base-200 hover:border-indigo-400 rounded"
                                     *ngFor="
                                         let asset of (products | async)[
                                             group.id
@@ -44,7 +44,7 @@ import { combineLatest } from 'rxjs';
                                     ]"
                                 >
                                     <div
-                                        class="h-12 w-12 flex items-center justify-center border border-gray-200 bg-gray-100 dark:border-neutral-500 overflow-hidden"
+                                        class="h-12 w-12 flex items-center justify-center border border-base-200 bg-base-200 overflow-hidden"
                                     >
                                         <img
                                             *ngIf="
@@ -92,7 +92,7 @@ import { combineLatest } from 'rxjs';
                             >
                                 <a
                                     matRipple
-                                    class="bg-white dark:bg-neutral-700 rounded shadow w-40 h-44 text-left m-2 border border-gray-200 hover:border-indigo-400 flex flex-col"
+                                    class="bg-base-100 rounded shadow w-40 h-44 text-left m-2 border border-base-200 hover:border-indigo-400 flex flex-col"
                                     *ngFor="
                                         let asset of (products | async)[
                                             group.id
@@ -105,7 +105,7 @@ import { combineLatest } from 'rxjs';
                                     ]"
                                 >
                                     <div
-                                        class="w-full h-32 flex items-center justify-center bg-gray-100 overflow-hidden"
+                                        class="w-full h-32 flex items-center justify-center bg-base-200 overflow-hidden"
                                     >
                                         <img
                                             auth
@@ -124,7 +124,7 @@ import { combineLatest } from 'rxjs';
                                         </ng-template>
                                     </div>
                                     <div
-                                        class="border-t border-gray-200 dark:border-neutral-500 w-full px-3 py-1 flex-1 flex flex-col justify-center"
+                                        class="border-t border-base-200 w-full px-3 py-1 flex-1 flex flex-col justify-center"
                                     >
                                         <div class="truncate">
                                             {{ asset.name }}

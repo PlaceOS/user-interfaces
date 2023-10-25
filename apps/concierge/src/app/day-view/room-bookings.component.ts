@@ -61,7 +61,7 @@ const EMPTY = [];
                         </div>
                     </mat-menu>
                     <ng-container *ngFor="let type of types">
-                        <div class="flex items-center border border-gray-200 rounded-3xl" *ngIf="!type_list.includes(type.id)">
+                        <div class="flex items-center border border-base-200 rounded-3xl" *ngIf="!type_list.includes(type.id)">
                             <div class="h-4 w-4 m-2 rounded-full" [style.background-color]="type.color"></div>
                             <div>{{ type.name }}</div>
                             <button icon matRipple (click)="setFilter(type.id, true)">
@@ -71,7 +71,7 @@ const EMPTY = [];
                     </ng-container>
                 </div>
             </div>
-            <div class="flex w-full flex-1 h-px border-t mt-4 border-gray-200">
+            <div class="flex w-full flex-1 h-px border-t mt-4 border-base-200">
                 <room-bookings-timeline class="flex-1"/>
                 <room-bookings-approvals *ngIf="has_approvals"/>
             </div>

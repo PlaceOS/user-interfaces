@@ -26,38 +26,25 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
             *ngIf="booking"
         >
             <div
-                class="w-full bg-white dark:bg-[#1F2021] rounded-xl shadow py-4 relative"
+                class="w-full bg-base-100 border border-base-300 rounded-xl shadow py-4 relative"
             >
                 <h4 class="px-4 text-lg">{{ booking?.title }}</h4>
                 <div class="flex mx-4 my-2">
                     <div
-                        class="flex items-center bg-opacity-30 rounded-2xl p-1 text-base space-x-2 pr-2 font-medium"
-                        [class.bg-green-600]="
+                        class="flex items-center bg-opacity-30 rounded-2xl p-1 text-base text-black space-x-2 pr-2 font-medium"
+                        [class.bg-success-light]="
                             !booking.is_done && booking?.status === 'approved'
                         "
-                        [class.bg-yellow-500]="
+                        [class.bg-warning-light]="
                             !booking.is_done && booking?.status === 'tentative'
                         "
-                        [class.bg-red-600]="
+                        [class.bg-error-light]="
                             !booking.is_done && booking?.status === 'declined'
                         "
-                        [class.bg-gray-300]="booking.is_done"
+                        [class.bg-base-200]="booking.is_done"
                     >
                         <div
-                            class="rounded-full h-5 w-5 flex items-center justify-center text-white"
-                            [class.bg-success]="
-                                !booking.is_done &&
-                                booking?.status === 'approved'
-                            "
-                            [class.text-pending]="
-                                !booking.is_done &&
-                                booking?.status === 'tentative'
-                            "
-                            [class.bg-error]="
-                                !booking.is_done &&
-                                booking?.status === 'declined'
-                            "
-                            [class.text-neutral-600]="booking.is_done"
+                            class="rounded-full h-5 w-5 flex items-center justify-center"
                         >
                             <app-icon>
                                 {{
@@ -75,7 +62,7 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
                     </div>
                 </div>
                 <div
-                    class="flex flex-wrap flex-col sm:flex-row sm:divide-x divide-neutral-500 py-2 space-y-2 sm:space-y-0"
+                    class="flex flex-wrap flex-col sm:flex-row sm:divide-x divide-base-200-500 py-2 space-y-2 sm:space-y-0"
                 >
                     <div class="flex items-center px-4">
                         <app-icon *ngIf="type !== 'desk'; else desk_icon">{{
@@ -96,7 +83,7 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
                     chevron_right
                 </app-icon>
                 <div
-                    class="absolute top-2 right-2 bg-yellow-500/50 rounded-xl px-2 py-1 text-xs"
+                    class="absolute top-2 right-2 bg-warning/50 rounded-xl px-2 py-1 text-xs"
                     *ngIf="!for_current_user"
                 >
                     Associate

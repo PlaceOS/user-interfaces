@@ -29,12 +29,12 @@ import { LandingStateService } from './landing-state.service';
                     name="landing-view-space"
                     matRipple
                     *ngFor="let lvl of levels_free | async"
-                    class="flex items-center h-24 min-w-[12.5rem] rounded-lg bg-white dark:bg-[#1F2021] shadow p-4 space-x-2"
+                    class="flex items-center h-24 min-w-[12.5rem] rounded-lg bg-base-100 shadow p-4 space-x-2"
                     [routerLink]="['/explore']"
                     [queryParams]="{ level: lvl.id }"
                 >
                     <div
-                        class="w-[4.5rem] h-[4.5rem] rounded bg-gray-200 dark:bg-neutral-800 overflow-hidden flex items-center justify-center"
+                        class="w-[4.5rem] h-[4.5rem] rounded bg-base-300 overflow-hidden flex items-center justify-center"
                     >
                         <img
                             auth
@@ -94,11 +94,11 @@ import { LandingStateService } from './landing-state.service';
                         let space of space_list | async;
                         trackBy: trackBySpaceId
                     "
-                    class="flex items-center h-24 min-w-[12.5rem] rounded-lg bg-white dark:bg-[#1F2021] shadow p-4 space-x-2"
+                    class="flex items-center h-24 min-w-[12.5rem] rounded-lg bg-base-100 shadow p-4 space-x-2"
                     (click)="book(space)"
                 >
                     <div
-                        class="w-[4.5rem] h-[4.5rem] rounded bg-gray-200 dark:bg-neutral-800 overflow-hidden flex items-center justify-center"
+                        class="w-[4.5rem] h-[4.5rem] rounded bg-base-300 overflow-hidden flex items-center justify-center"
                     >
                         <img
                             auth

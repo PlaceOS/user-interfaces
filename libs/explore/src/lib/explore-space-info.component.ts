@@ -38,7 +38,7 @@ export interface SpaceInfoData {
                 name="space-info"
                 [id]="space?.id"
                 class="
-                    absolute rounded bg-white dark:bg-neutral-800 top-0 left-0 transform shadow pointer-events-none overflow-hidden
+                    absolute rounded bg-base-100 top-0 left-0 transform shadow pointer-events-none overflow-hidden
                 "
                 [class.-translate-x-full]="x_pos === 'end'"
                 [class.-translate-y-full]="y_pos === 'bottom'"
@@ -47,7 +47,7 @@ export interface SpaceInfoData {
                 <div class="relative">
                     <div
                         class="w-full overflow-hidden flex items-center justify-center relative bg-opacity-20"
-                        [class.bg-black]="space.images[0]"
+                        [class.bg-neutral]="space.images[0]"
                         [class.h-32]="space.images[0]"
                         [class.h-8]="!space.images[0]"
                     >
@@ -58,7 +58,7 @@ export interface SpaceInfoData {
                             class="object-cover min-h-full min-w-full"
                         />
                         <div
-                            class="absolute inset-0 bg-black/30"
+                            class="absolute inset-0 bg-neutral"
                             *ngIf="space.images[0]"
                         ></div>
                     </div>
@@ -95,7 +95,7 @@ export interface SpaceInfoData {
                             *ngIf="space.features?.length > 0 && show_features"
                         >
                             <li
-                                class="text-xs px-2 py-1 m-1 rounded-2xl bg-gray-200 dark:bg-neutral-600 font-medium"
+                                class="text-xs px-2 py-1 m-1 rounded-2xl bg-base-200 font-medium"
                                 *ngFor="let feature of space.features"
                             >
                                 {{ feature }}

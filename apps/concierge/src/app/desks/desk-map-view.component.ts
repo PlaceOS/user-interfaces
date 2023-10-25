@@ -30,7 +30,7 @@ import { OrganisationService } from '@placeos/organisation';
             </div>
             <div
                 info
-                class="absolute bottom-0 rounded p-2 m-2 bg-white dark:bg-neutral-700 shadow text-center"
+                class="absolute bottom-0 rounded p-2 m-2 bg-base-100 shadow text-center"
             >
                 Click/Tap an available desk to book it.
             </div>

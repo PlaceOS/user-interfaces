@@ -4,10 +4,6 @@
     }
 }
 
-#placeos .dark {
-    color: #fff;
-}
-
 .mdc-tab-body-wrapper {
     flex-grow: 1;
 }
@@ -51,11 +47,14 @@
 }
 
 .mat-mdc-form-field {
-    .mat-mdc-text-field-wrapper .mat-mdc-form-field-flex .mat-mdc-floating-label:not(.mdc-floating-label--float-above) {
+    .mat-mdc-text-field-wrapper
+        .mat-mdc-form-field-flex
+        .mat-mdc-floating-label:not(.mdc-floating-label--float-above) {
         top: 22px;
     }
 
-    &.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field .mdc-notched-outline__notch {
+    &.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field
+        .mdc-notched-outline__notch {
         border-right: none;
     }
 
@@ -72,7 +71,7 @@
         align-items: center;
         padding: 0.5em 1em;
         width: 100%;
-        @apply border-b border-gray-200 dark:border-neutral-500;
+        @apply border-b border-base-200;
 
         h1,
         h2,
@@ -110,14 +109,16 @@
     a {
         color: #3344dd;
         text-decoration: underline;
-        
-        &:hover, &:focus, &:active {
+
+        &:hover,
+        &:focus,
+        &:active {
             color: #bb1122;
             text-decoration: none;
         }
-        
+
         &:visited {
-            color: #884488
+            color: #884488;
         }
     }
 }
@@ -125,7 +126,7 @@
 mat-form-field {
     &.mdc-form-field-appearance-outline.mdc-focused {
         .mdc-form-field-outline-thick {
-            color: var(--primary);
+            color: var(--p);
         }
     }
 
@@ -155,7 +156,6 @@ custom-table {
 }
 
 mat-form-field {
-
     &.no-subscript .mat-mdc-form-field-subscript-wrapper {
         display: none;
     }
@@ -169,7 +169,7 @@ mat-form-field {
     .mdc-option {
         &.mdc-selected {
             &:not(.mdc-option-disabled) {
-                color: var(--primary);
+                color: var(--p);
             }
         }
     }
@@ -192,15 +192,15 @@ mat-select {
 
 .mdc-snack-bar-container {
     &.success {
-        background-color: var(--success);
+        background-color: var(--su);
         color: #fff;
     }
     &.warn {
-        background-color: var(--pending);
+        background-color: var(--wa);
         color: #fff;
     }
     &.error {
-        background-color: var(--error);
+        background-color: var(--er);
         color: #fff;
     }
     &.info {
@@ -256,15 +256,12 @@ mat-select {
     }
 }
 
-.dark {
-    .mdc-form-field {
-
-        &[overlay],
-        &[overlay]:hover {
-            .mdc-form-field-outline {
-                background-color: #262626;
-                border-radius: 4px;
-            }
+.mdc-form-field {
+    &[overlay],
+    &[overlay]:hover {
+        .mdc-form-field-outline {
+            background-color: var(--n);
+            border-radius: 4px;
         }
     }
 }
@@ -282,18 +279,18 @@ mat-slider {
     }
 
     .mdc-slider-thumb {
-        background-color: var(--primary);
+        background-color: var(--p);
     }
 
     .mdc-slider-track-fill {
-        background-color: var(--primary);
+        background-color: var(--p);
     }
 }
 
 mat-form-field {
     &.mdc-form-field-appearance-outline.mdc-focused {
         .mdc-form-field-outline-thick {
-            color: var(--primary);
+            color: var(--p);
         }
     }
 }
@@ -320,28 +317,28 @@ mat-form-field {
 }
 
 .mdc-button-toggle-button[aria-pressed='true'] {
-    background-color: var(--primary);
-    color: var(--font-light);
+    background-color: var(--p);
+    color: var(--pc);
 }
 
 .mdc-chip.mdc-standard-chip {
     &.mdc-primary {
-        color: var(--primary);
+        color: var(--p);
     }
     &.mdc-accent {
-        background-color: var(--pending);
+        background-color: var(--wa);
     }
 }
 
 .mdc-spinner {
     circle {
-        stroke: var(--primary);
+        stroke: var(--p);
     }
 }
 
 .mdc-progress-bar-fill {
     &::after {
-        background-color: var(--primary);
+        background-color: var(--p);
     }
 }
 
@@ -371,10 +368,10 @@ div.mdc-menu-panel {
 
 a-date-picker {
     .date.active {
-        background-color: var(--primary) !important;
+        background-color: var(--p) !important;
     }
     .dot {
-        background-color: var(--primary) !important;
+        background-color: var(--p) !important;
     }
 }
 
@@ -388,8 +385,8 @@ a-date-picker {
         width: 12px;
         transform: rotate(45deg);
         transition: transform 200ms, top 200ms;
-        border-bottom: 3px solid #000;
-        border-right: 3px solid #000;
+        border-bottom: 3px solid var(--bc);
+        border-right: 3px solid var(--bc);
     }
 
     &.upside {
@@ -457,13 +454,13 @@ form {
 custom-table[asset-requests],
 custom-table[purchase-orders] {
     cdk-row {
-        background-color: #fff;
+        background-color: var(--b1);
         [cdk-cell]:not(:first-child) {
-            border-left: 1px solid #ccc;
+            border-left: 1px solid var(--b2);
         }
     }
     cdk-header-row {
-        background: #eee !important;
+        background: var(--b3) !important;
         [cdk-header-cell] {
             background: none;
         }
@@ -485,7 +482,7 @@ custom-table[asset-view] {
     [cdk-cell],
     [cdk-header-cell] {
         min-width: 2.5rem;
-    } 
+    }
 
     cdk-header-row {
         background: #d0d0d0;
@@ -497,8 +494,8 @@ custom-table[asset-view] {
 
 custom-table[header-dark] {
     cdk-header-row {
-        background: #263238 !important;
-        color: #fff;
+        background: var(--n) !important;
+        color: var(--nc);
         [cdk-header-cell] {
             background: none;
         }
@@ -507,10 +504,10 @@ custom-table[header-dark] {
 
 button[btn]:not([icon]),
 a[btn] {
-    --color: var(--primary);
+    --color: var(--s);
     background-color: var(--color);
     border: 1px solid var(--color);
-    color: var(--font-light);
+    color: var(--sc);
     font-size: 1rem;
     min-height: 2.75em;
     padding: 0 1em;
@@ -518,7 +515,7 @@ a[btn] {
     align-items: center;
     justify-content: center;
     border-radius: 0.25rem;
-    
+
     &.inverse {
         background: none;
         color: var(--color);
@@ -526,27 +523,28 @@ a[btn] {
     }
 
     &.success {
-        --color: var(--success);
+        --color: var(--su);
     }
 
     &.clear {
         background: none;
         border: none;
-        color: var(--font-dark);
+        color: var(--bc);
     }
 
     &.error {
-        --color: var(--error);
+        --color: var(--er);
+        color: var(--erc);
     }
 
     &.black {
-        --color: #000;
+        --color: var(--bc);
     }
 
     &[disabled] {
-        background-color: #ccc;
-        --color: #000;
-        border-color: rgba(#000, 0.1);
+        background-color: var(--b3);
+        --color: var(--bc);
+        border-color: var(--bc), 0.1;
         pointer-events: none;
         opacity: 0.3;
     }
@@ -588,13 +586,12 @@ a[icon] {
 }
 
 #placeos {
-
     .mdc-text-field--outlined {
         padding: 0 1rem;
     }
 
     .mat-mdc-tab-list {
-        border-bottom: 1px solid #CCC;
+        border-bottom: 1px solid var(--b2);
     }
 
     .mat-mdc-form-field-infix {
@@ -611,7 +608,7 @@ a[icon] {
         left: -200%;
         line-height: 1.1;
     }
-    
+
     .mdc-datepicker-toggle {
         button {
             position: relative;
@@ -625,57 +622,58 @@ a[icon] {
             height: 24px;
             border-radius: 12px;
         }
-    
+
         .mdc-slide-toggle-thumb-container {
             top: 2px;
             left: 2px;
         }
-    
+
         &.mdc-slide-toggle.mdc-checked .mdc-slide-toggle-thumb-container {
             transform: translate3d(12px, 0, 0);
         }
     }
 
     mat-pseudo-checkbox.mdc-pseudo-checkbox-checked {
-        background: var(--primary);
+        background: var(--p);
     }
 
-    .mdc-checkbox-inner-container {
-        margin-left: 8px;
-    }
-    .mdc-checkbox-checked .mdc-checkbox-background {
-        background-color: var(--primary);
+    mat-checkbox {
+        .mdc-checkbox__background {
+            border-color: var(--n);
+            svg {
+                color: var(--sc);
+            }
+        }
+
+        .mdc-label {
+            font-weight: normal;
+            margin: 0;
+        }
+
+        &.mat-mdc-checkbox-checked {
+            .mdc-checkbox__background {
+                border-color: var(--s);
+                background-color: var(--s);
+            }
+        }
     }
 
     .mdc-button__label {
         color: inherit;
     }
 
-    .mdc-checkbox-label {
-        font-weight: normal;
-    }
-
-    .mdc-radio-checked {
-        .mdc-radio-outer-circle {
-            border-color: var(--primary);
-        }
-        .mdc-radio-inner-circle {
-            background-color: var(--primary);
-        }
-    }
-
     .mdc-ink-bar {
-        background-color: var(--primary);
+        background-color: var(--p);
     }
 
     mat-chip {
         &[color='internal'] {
-            color: var(--font-light);
-            background-color: var(--primary);
+            color: var(--pc);
+            background-color: var(--p);
         }
         &[color='external'] {
-            color: var(--font-light);
-            background-color: var(--pending);
+            color: var(--wac);
+            background-color: var(--wa);
         }
     }
 
@@ -711,196 +709,264 @@ a[icon] {
             align-items: center;
         }
     }
-    
-    .dark,
-    [dark] {
-        mat-tab-group {
-            .mdc-tab-label-container {
-                @apply bg-gray-900;
-            }
-            .mdc-tab-label-content {
-                @apply text-white;
-            }
+
+    mat-tab-group {
+        .mdc-tab-label-container {
+            @apply bg-neutral;
+        }
+        .mdc-tab-label-content {
+            @apply text-base-content;
+        }
+    }
+
+    .mdc-datepicker-toggle button {
+        color: var(--bc);
+    }
+
+    nav {
+        .mdc-tab-links {
+            background-color: var(--b2);
+        }
+        .mdc-tab-link {
+            color: var(--bc);
+        }
+    }
+
+    .mdc-select-value-text,
+    .mdc-select-arrow {
+        color: var(--b1);
+    }
+
+    .mdc-form-field-outline > div {
+        color: var(--b2);
+    }
+
+    .mdc-form-field {
+        ::placeholder,
+        .mdc-select-placeholder {
+            color: var(--b2);
+        }
+    }
+
+    button.mdc-button,
+    a[button] {
+        color: var(--bc);
+
+        &.inverse {
+            background: none;
+            --color: var(--b1);
         }
 
-        .mdc-datepicker-toggle button {
-            color: #fff;
-        }
-    
-        nav {
-            .mdc-tab-links {
-                @apply bg-gray-900;
-            }
-            .mdc-tab-link {
-                @apply text-white;
-            }
-        }
-    
-        .mdc-select-value-text,
-        .mdc-select-arrow {
-            color: #fff;
-        }    
-    
-        .mdc-form-field-outline > div {
-            color: #fff8;
-        }
-    
-        .mdc-form-field {
-            ::placeholder,
-            .mdc-select-placeholder {
-                color: #fff8;
-            }
-        }
-    
-        button.mdc-button,
-        a[button] {
-            color: #fff;
-            
-            &.inverse {
-                background: none;
-                --color: #fffa;
-            }
-    
-            &.error {
-                --color: var(--error)
-            }
-    
-            &[disabled] {
-                opacity: 0.3;
-            }
-        }
-    
-        .mdc-slide-toggle-bar {
-            background-color: rgba(255,255,255, 0.2);
-        }
-    
-        .mdc-checked .mdc-slide-toggle-bar {
-            background-color: rgba(255,255,255, 0.4);
+        &.error {
+            --color: var(--er);
         }
 
-        .mdc-menu-item {
-            color: inherit;
-            &:hover {
-                background-color: #fff2;
-            }
+        &[disabled] {
+            opacity: 0.3;
+        }
+    }
+
+    .mdc-slide-toggle-bar {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .mdc-checked .mdc-slide-toggle-bar {
+        background-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .mdc-menu-surface {
+        background-color: var(--b1);
+
+        .mdc-list-item__primary-text {
+            color: var(--bc);
         }
 
-        custom-table[asset-requests],
-        custom-table[purchase-orders] {
-            cdk-row {
-                background: none;
-                [cdk-cell]:not(:first-child) {
-                    border-left: 1px solid #737373;
-                }
+        .mdc-list-item--selected {
+            .mdc-list-item__primary-text {
+                color: var(--s);
             }
         }
-        mat-dialog-container {
-            background-color: #404040;
-            color: #fff;
+    }
 
+    mat-pseudo-checkbox {
+        color: var(--bc);
+        border-color: var(--n);
+        &::after {
+            color: var(--bc);
         }
 
-        mat-bottom-sheet-container {
-            background-color: #404040;
-            color: #fff;
+        &.mat-pseudo-checkbox-checked {
+            border-color: var(--s);
+            background-color: var(--s);
+            color: var(--sc);
+        }
+    }
 
+    .mdc-menu-item {
+        color: var(--bc);
+        &:hover {
+            background-color: var(--b3);
         }
 
-        .mdc-paginator {
-            background-color: inherit;
-            color: inherit;
-        }
-
-
-        .mdc-spinner {
-            circle {
-                stroke: var(--secondary);
+        mat-pseudo-checkbox {
+            color: var(--s);
+            background-color: none;
+            border-color: none;
+            &::after {
+                color: var(--s);
             }
         }
+    }
 
-        mat-pseudo-checkbox.mdc-pseudo-checkbox-checked {
-            background: var(--secondary);
-        }
-        
-        .mdc-checkbox-checkmark {
-            fill: #000A;
-        }
-        .mdc-checkbox-checked {
-            .mdc-checkbox-background {
-                background-color: #fff;
-            }
-        
-            .mdc-checkbox-mixedmark {
-                background-color: #000A;
-            }
-    
-            .mdc-checkbox-checkmark-path {
-                stroke: #000A !important;
+    .mat-mdc-option {
+        mat-pseudo-checkbox {
+            color: var(--s);
+            background-color: #0000;
+            border-color: #0000;
+            &::after {
+                color: var(--s);
             }
         }
+    }
 
-        .mdc-checkbox-frame {
-            border-color: #fff6
-        }
-
-        .mdc-radio-outer-circle {
-            border-color: #fff4;
-        }
-
-        .mdc-radio-checked {
-            .mdc-radio-outer-circle {
-                border-color: #fff;
-            }
-            .mdc-radio-inner-circle {
-                background-color: #fff;
+    custom-table[asset-requests],
+    custom-table[purchase-orders] {
+        cdk-row {
+            background: none;
+            [cdk-cell]:not(:first-child) {
+                border-left: 1px solid var(--b2);
             }
         }
+    }
+    mat-dialog-container,
+    .mdc-dialog__surface {
+        background-color: var(--b1);
+        color: var(--bc);
+    }
 
-        .mdc-autocomplete-panel {
-            @apply bg-neutral-700;
+    .mdc-label {
+        color: var(--bc);
+    }
+
+    mat-bottom-sheet-container {
+        background-color: var(--b1);
+        color: var(--bc);
+    }
+
+    .mdc-paginator {
+        background-color: inherit;
+        color: inherit;
+    }
+
+    mat-spinner {
+        svg {
+            stroke: var(--s);
         }
+    }
 
-        .mdc-ink-bar {
-            background-color: #fff;
-        }
-
-        .ql-toolbar {
-            .ql-stroke {
-                stroke: #eee;
-            }
-            .ql-picker-label::before {
-                color: #fff;
-            }
-        }
-        .ql-blank::before {
-            color: #fff8;
-        }
-
-        .mdc-menu-panel,
-        .mdc-select-panel  {
-            @apply bg-neutral-800;
-        }
-
-        .mdc-option-text {
-            @apply text-white;
-        }
-
-        mat-option.mdc-active {
-            @apply bg-white/5;
-         }
-
-       .mdc-active .mdc-option-text {
-            @apply text-blue-500;
+    .mdc-checkbox-checkmark {
+        fill: var(--pc);
+    }
+    .mdc-checkbox-checked {
+        .mdc-checkbox-background {
+            background-color: var(--p);
         }
 
-        .mdc-option:hover {
-            @apply bg-white/10;
+        .mdc-checkbox-mixedmark {
+            background-color: var(--p);
         }
-    
-        bootstrap,
-        [app-bootstrap] {
-            @apply bg-neutral-600;
+
+        .mdc-checkbox-checkmark-path {
+            stroke: var(--pc) !important;
         }
+    }
+
+    .mdc-checkbox-frame {
+        border-color: var(--b2);
+    }
+
+    .mdc-radio-outer-circle,
+    .mdc-radio__outer-circle {
+        border-color: var(--b3);
+    }
+
+    .mdc-radio-checked,
+    .mat-mdc-radio-checked {
+        .mdc-radio-outer-circle,
+        .mdc-radio__outer-circle {
+            border-color: var(--s);
+        }
+        .mdc-radio-inner-circle,
+        .mdc-radio__inner-circle {
+            border-color: var(--s);
+        }
+    }
+
+    .mat-mdc-select-value,
+    .mat-mdc-select-arrow {
+        color: var(--bc);
+    }
+
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__trailing {
+        border-color: var(--n);
+    }
+
+    .mdc-text-field__input {
+        color: var(--bc);
+    }
+
+    .mdc-text-field--focused {
+        .mdc-notched-outline__leading,
+        .mdc-notched-outline__trailing {
+            border-color: var(--s);
+        }
+    }
+
+    .mdc-autocomplete-panel {
+        background-color: var(--n);
+    }
+
+    .mdc-ink-bar {
+        background-color: var(--bc);
+    }
+
+    .ql-toolbar {
+        .ql-stroke {
+            stroke: var(--n);
+        }
+        .ql-picker-label::before {
+            color: var(--bc);
+        }
+    }
+    .ql-blank::before {
+        color: var(--n);
+    }
+
+    .mdc-menu-panel,
+    .mdc-select-panel {
+        @apply bg-neutral;
+    }
+
+    .mdc-option-text {
+        @apply text-base-content;
+    }
+
+    mat-option.mdc-active {
+        @apply bg-base-100;
+    }
+
+    .mdc-active .mdc-option-text {
+        @apply text-secondary;
+    }
+
+    .mdc-option:hover {
+        @apply bg-secondary-content;
+    }
+
+    bootstrap,
+    [app-bootstrap] {
+        @apply bg-neutral;
     }
 }
 
@@ -908,7 +974,8 @@ a[icon] {
     h1 {
         @apply text-2xl mt-2 mb-4 font-medium;
     }
-    h2,h3 {
+    h2,
+    h3 {
         @apply text-xl mb-2;
     }
     ul {
@@ -917,19 +984,16 @@ a[icon] {
     }
 }
 
-mat-list-option.mdc-list-item--selected{
+mat-list-option.mdc-list-item--selected {
     border-right: 3px solid rgba(#212121, 0.85);
 }
 
-#placeos .sv-question{
+#placeos .sv-question {
     overflow-x: hidden;
 }
 
-.ct-label{
-    color:#000;
-}
-#placeos .dark .ct-label{
-    color: white;
+.ct-label {
+    color: var(--bc);
 }
 
 .progress-bar {
@@ -942,7 +1006,7 @@ mat-list-option.mdc-list-item--selected{
     border-radius: 5px;
 }
 
-.sv-rating__item-text{
+.sv-rating__item-text {
     display: inline-flex;
     border-radius: 50%;
     align-items: center;

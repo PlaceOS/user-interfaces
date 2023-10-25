@@ -11,14 +11,14 @@ import { MeetingFlowConfirmComponent } from 'apps/workplace/src/app/book/meeting
 @Component({
     selector: 'meeting-booking',
     template: `
-        <div class="absolute inset-0 bg-gray-200 dark:bg-neutral-600">
+        <div class="absolute inset-0 bg-base-200">
             <div
                 class="mx-auto w-full max-w-[32rem] overflow-auto max-h-screen"
             >
                 <h3 class="text-2xl p-4 font-medium">Book Meeting</h3>
                 <meeting-booking-form></meeting-booking-form>
                 <div
-                    class="flex flex-col p-4 space-y-2 border-t border-gray-200 dark:border-neutral-500"
+                    class="flex flex-col p-4 space-y-2 border-t border-base-200"
                 >
                     <button
                         btn

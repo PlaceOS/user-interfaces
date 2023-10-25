@@ -47,7 +47,7 @@ export enum JoystickPan {
             (mousedown)="startPan($event)"
             (touchstart)="startPan($event)"
             (contextmenu)="$event.preventDefault()"
-            class="relative h-48 w-48 rounded-full bg-gray-600 text-white"
+            class="relative h-48 w-48 rounded-full bg-base-300 text-white"
         >
             <div class="absolute inset-0 flex text-5xl items-center">
                 <app-icon style="transform: translateX(-.5rem)">
@@ -74,12 +74,12 @@ export enum JoystickPan {
                 >
             </div>
             <div
-                class="absolute top-12 left-12 right-12 bottom-12 bg-white rounded-full flex items-center justify-center"
+                class="absolute top-12 left-12 right-12 bottom-12 bg-base-100 rounded-full flex items-center justify-center"
             >
                 <div
                     thumb
                     [style.transform]="thumb_transform"
-                    class="bg-black h-12 w-12 rounded-full"
+                    class="bg-neutral h-12 w-12 rounded-full"
                 ></div>
             </div>
         </div>

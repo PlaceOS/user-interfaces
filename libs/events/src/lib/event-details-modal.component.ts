@@ -19,10 +19,10 @@ const EMPTY_ACTIONS = [];
     selector: 'event-details-modal',
     template: `
         <div
-            class="w-[100vw] h-[100vh] sm:relative sm:inset-auto sm:w-[51rem] sm:h-auto sm:max-h-[80vh] bg-white sm:bg-gray-100 sm:dark:bg-neutral-600 dark:bg-neutral-700 sm:rounded overflow-auto space-y-2 pb-2"
+            class="w-[100vw] h-[100vh] sm:relative sm:inset-auto sm:w-[51rem] sm:h-auto sm:max-h-[80vh] bg-base-100 sm:bg-base-200 sm:dark:bg-neutral-600 sm:rounded overflow-auto space-y-2 pb-2"
         >
             <div
-                class="sm:flex flex-col items-center pb-4 max-h-screen sm:max-h-[80vh] sm:px-16 sm:border-b bg-white dark:bg-neutral-700 border-gray-300 dark:border-neutral-500"
+                class="sm:flex flex-col items-center pb-4 max-h-screen sm:max-h-[80vh] sm:px-16 sm:border-b bg-base-100 border-base-200"
             >
                 <i
                     binding
@@ -36,7 +36,7 @@ const EMPTY_ACTIONS = [];
                     *ngIf="!event?.system?.images?.length"
                 ></div>
                 <div
-                    class="bg-black/20 dark:bg-white/20 w-full h-64 sm:rounded-b overflow-hidden"
+                    class="bg-neutral w-full h-64 sm:rounded-b overflow-hidden"
                     *ngIf="event?.system?.images?.length"
                 >
                     <image-carousel
@@ -55,19 +55,19 @@ const EMPTY_ACTIONS = [];
                     <div class="flex m-2">
                         <div
                             class="flex items-center bg-opacity-30 rounded-2xl p-1 text-sm space-x-2 pr-2 font-medium"
-                            [class.bg-green-600]="
+                            [class.bg-success]="
                                 event.state !== 'done' &&
                                 event?.status === 'approved'
                             "
-                            [class.bg-yellow-500]="
+                            [class.bg-warning]="
                                 event.state !== 'done' &&
                                 event?.status === 'tentative'
                             "
-                            [class.bg-red-600]="
+                            [class.bg-error]="
                                 event.state !== 'done' &&
                                 event?.status === 'declined'
                             "
-                            [class.bg-gray-300]="event.state === 'done'"
+                            [class.bg-base-200]="event.state === 'done'"
                         >
                             <div
                                 class="rounded-full h-5 w-5 flex items-center justify-center text-white"
@@ -116,7 +116,7 @@ const EMPTY_ACTIONS = [];
                                 event?.can_check_in &&
                                 room_status !== 'free'
                             "
-                            [class.bg-green-600]="room_status !== 'pending'"
+                            [class.bg-success]="room_status !== 'pending'"
                             [class.border-none]="room_status !== 'pending'"
                             [class.pointer-events-none]="
                                 room_status !== 'pending'
@@ -144,7 +144,7 @@ const EMPTY_ACTIONS = [];
                             icon
                             matRipple
                             [matMenuTriggerFor]="menu"
-                            class="bg-primary rounded text-white h-10 w-10"
+                            class="bg-secondary rounded text-white h-10 w-10"
                             *ngIf="allow_edit"
                         >
                             <app-icon>more_horiz</app-icon>
@@ -154,7 +154,7 @@ const EMPTY_ACTIONS = [];
             </div>
             <div class="sm:flex flex-wrap sm:px-12">
                 <div
-                    class="sm:p-4 sm:bg-white sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-gray-200 dark:border-neutral-500 flex-grow-[3] min-w-1/3 sm:w-[16rem] space-y-2"
+                    class="sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem] space-y-2"
                 >
                     <h3 class="px-3 mt-2 text-lg font-medium mb-2" i18n>
                         Details
@@ -192,10 +192,10 @@ const EMPTY_ACTIONS = [];
                     </div>
                 </div>
                 <div
-                    class="mt-4 sm:p-4 sm:bg-white sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-gray-200 dark:border-neutral-500 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
+                    class="mt-4 sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
                 >
                     <div
-                        class="mx-3 border-t border-gray-300 sm:border-none dark:border-neutral-500 flex items-center justify-between"
+                        class="mx-3 border-t border-base-200 sm:border-none flex items-center justify-between"
                     >
                         <h3 class="text-lg font-medium" i18n>Attendees</h3>
                         <button
@@ -229,7 +229,7 @@ const EMPTY_ACTIONS = [];
                         </div>
                     </div>
                     <h3
-                        class="mx-3 mt-2 pt-2 text-lg font-medium border-t border-gray-300 dark:border-neutral-500"
+                        class="mx-3 mt-2 pt-2 text-lg font-medium border-t border-base-200"
                         i18n
                     >
                         Host
@@ -249,10 +249,10 @@ const EMPTY_ACTIONS = [];
                 </div>
                 <ng-container *ngIf="has_catering">
                     <div
-                        class="mt-4 sm:p-4 sm:bg-white sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-gray-200 dark:border-neutral-500 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
+                        class="mt-4 sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
                     >
                         <h3
-                            class="mx-3 mt-2 pt-2 text-lg font-medium border-t border-gray-300 dark:border-neutral-500"
+                            class="mx-3 mt-2 pt-2 text-lg font-medium border-t border-base-200"
                             i18n
                         >
                             Catering
@@ -267,7 +267,7 @@ const EMPTY_ACTIONS = [];
                             >
                                 <div
                                     count
-                                    class="flex items-center justify-center h-6 w-6 rounded-full bg-gray-200 text-sm font-medium"
+                                    class="flex items-center justify-center h-6 w-6 rounded-full bg-base-200 text-sm font-medium"
                                 >
                                     {{ item.quantity }}
                                 </div>
@@ -286,7 +286,7 @@ const EMPTY_ACTIONS = [];
                 </ng-container>
                 <button
                     map
-                    class="mt-4 sm:mt-2 h-64 sm:h-48 relative border border-gray-200 dark:border-neutral-500 overflow-hidden rounded sm:bg-white sm:dark:bg-neutral-700 m-2 flex-grow-[3] min-w-1/3 p-2 w-[calc(100%-1rem)] sm:w-[16rem]"
+                    class="mt-4 sm:mt-2 h-64 sm:h-48 relative border border-base-200 overflow-hidden rounded sm:bg-base-100 sm:dark:bg-neutral-700 m-2 flex-grow-[3] min-w-1/3 p-2 w-[calc(100%-1rem)] sm:w-[16rem]"
                     (click)="viewLocation()"
                 >
                     <interactive-map
@@ -298,11 +298,11 @@ const EMPTY_ACTIONS = [];
                     ></interactive-map>
                 </button>
                 <div
-                    class="mt-4 sm:p-4 sm:bg-white sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-gray-200 dark:border-neutral-500 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
+                    class="mt-4 sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
                     *ngIf="event.body"
                 >
                     <h3
-                        class="mx-3 text-lg font-medium border-t sm:border-none border-gray-300 dark:border-neutral-500"
+                        class="mx-3 text-lg font-medium border-t sm:border-none border-base-200"
                         i18n
                     >
                         Notes
@@ -319,12 +319,9 @@ const EMPTY_ACTIONS = [];
                 </div>
                 <ng-container *ngIf="has_assets">
                     <div
-                        class="mt-4 sm:p-4 sm:bg-white sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-gray-200 dark:border-neutral-500 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
+                        class="mt-4 sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
                     >
-                        <h3
-                            class="mx-3 pt-2 text-lg font-medium dark:border-neutral-500"
-                            i18n
-                        >
+                        <h3 class="mx-3 pt-2 text-lg font-medium" i18n>
                             Assets ({{
                                 event.extension_data.assets?.length || 0
                             }})
@@ -366,7 +363,7 @@ const EMPTY_ACTIONS = [];
                     icon
                     matRipple
                     mat-dialog-close
-                    class="absolute top-2 left-2 bg-black/30 text-white"
+                    class="absolute top-2 left-2 bg-neutral text-white"
                 >
                     <app-icon>close</app-icon>
                 </button>

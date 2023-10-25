@@ -12,7 +12,7 @@ import { uploadFiles } from '@placeos/cloud-uploads';
     template: `
         <div class="flex items-center space-x-2">
             <div
-                class="w-52 h-48 relative border-2 border-dashed border-gray-300 flex flex-col items-center justify-center rounded hover:bg-black/5 cursor-pointer"
+                class="w-52 h-48 relative border-2 border-dashed border-base-200 flex flex-col items-center justify-center rounded hover:bg-neutral cursor-pointer"
             >
                 <app-icon class="text-3xl mb-2">upload_file</app-icon>
                 <p class="text-center" i18n>Drop files</p>
@@ -34,8 +34,8 @@ import { uploadFiles } from '@placeos/cloud-uploads';
                     <div
                         item
                         *ngFor="let item of list"
-                        class="w-full flex items-center border border-gray-200 rounded bg-white hover:bg-gray-100"
-                        [class.!bg-red-600]="item.progress < 1"
+                        class="w-full flex items-center border border-base-200 rounded bg-base-100 hover:bg-base-200"
+                        [class.!bg-error]="item.progress < 1"
                         [class.!bg-opacity-20]="item.progress < 1"
                     >
                         <div

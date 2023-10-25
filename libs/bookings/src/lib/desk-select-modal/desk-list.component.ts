@@ -29,7 +29,7 @@ import { BookingFormService, BookingAsset } from '../booking-form.service';
                 <li
                     desk
                     *ngFor="let desk of desks | async"
-                    class="relative rounded-lg w-full shadow border bg-white dark:bg-neutral-600 border-gray-200 dark:border-neutral-500 overflow-hidden"
+                    class="relative rounded-lg w-full shadow border bg-base-100 border-base-200 overflow-hidden"
                     [class.!border-blue-400]="active === desk.id"
                 >
                     <button
@@ -39,10 +39,10 @@ import { BookingFormService, BookingAsset } from '../booking-form.service';
                         (click)="selectDesk(desk)"
                     >
                         <div
-                            class="relative w-20 h-20 rounded-xl bg-black/20 mr-4 flex items-center justify-center"
+                            class="relative w-20 h-20 rounded-xl bg-neutral mr-4 flex items-center justify-center"
                         >
                             <div
-                                class="absolute top-1 left-1 border border-white bg-black/50 rounded-full h-6 w-6 flex items-center justify-center text-white"
+                                class="absolute top-1 left-1 border border-white bg-neutral rounded-full h-6 w-6 flex items-center justify-center text-white"
                                 *ngIf="selected.includes(desk.id)"
                             >
                                 <app-icon>done</app-icon>

@@ -14,9 +14,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
             <h2 class="text-2xl font-medium">Room Management</h2>
             <button btn (click)="newRoom()" class="w-32">New Room</button>
         </div>
-        <div
-            class="flex items-center bg-white dark:bg-neutral-700 h-20 px-4 space-x-2"
-        >
+        <div class="flex items-center bg-base-100 h-20 px-4 space-x-2">
             <mat-form-field appearance="outline">
                 <mat-select
                     [ngModel]="(this.filters | async)?.zone"
@@ -37,7 +35,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                 btn
                 icon
                 matRipple
-                class="bg-primary text-white rounded"
+                class="bg-secondary text-secondary-content rounded"
                 (click)="manageRestrictions()"
                 matTooltip="Room Restrictions"
             >

@@ -9,10 +9,7 @@ import { VideoCallStateService } from './video-call-state.service';
 @Component({
     selector: '[video-call-page]',
     template: `
-        <div
-            class="text-black p-2 h-full w-full"
-            *ngIf="!loading; else load_state"
-        >
+        <div class="p-2 h-full w-full" *ngIf="!loading; else load_state">
             <div class="flex h-1/2 flex-1">
                 <div
                     class="flex-1 p-2 flex flex-col items-center justify-center space-y-2"
@@ -103,7 +100,7 @@ import { VideoCallStateService } from './video-call-state.service';
                     <button
                         btn
                         matRipple
-                        class="bg-error w-full"
+                        class="error w-full"
                         (click)="endCall()"
                     >
                         <div class="flex items-center space-x-4">

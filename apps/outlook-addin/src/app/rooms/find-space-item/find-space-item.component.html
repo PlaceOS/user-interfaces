@@ -1,16 +1,16 @@
 <button
     mat-ripple
-    class="flex flex-col bg-white p-4 my-2 shadow w-[375px] max-w-[calc(100%-2rem)] mx-auto rounded space-y-4"
+    class="flex flex-col bg-base-100 p-4 my-2 shadow w-[375px] max-w-[calc(100%-2rem)] mx-auto rounded space-y-4"
     [class.bg-primary]="selected"
     [class.text-white]="selected"
     (click)="toggleSelected()"
 >
     <div class="flex flex-row w-full items-center space-x-2">
         <app-icon class="text-lg">meeting_room</app-icon>
-        <div
-            >{{ space?.level?.display_name || space?.level?.name }},
-            {{ space?.display_name || space?.name }}</div
-        >
+        <div>
+            {{ space?.level?.display_name || space?.level?.name }},
+            {{ space?.display_name || space?.name }}
+        </div>
     </div>
     <div class="flex flex-row w-full items-center space-x-2">
         <app-icon class="text-lg">group</app-icon>

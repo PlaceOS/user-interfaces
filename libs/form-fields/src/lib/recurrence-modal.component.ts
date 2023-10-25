@@ -140,7 +140,7 @@ import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
             </mat-radio-group>
         </main>
         <footer
-            class="px-4 py-2 flex items-center justify-end border-t border-gray-200"
+            class="px-4 py-2 flex items-center justify-end border-t border-base-200"
         >
             <button
                 btn

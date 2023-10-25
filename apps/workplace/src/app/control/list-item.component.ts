@@ -8,7 +8,7 @@ import { Space } from '@placeos/spaces';
     selector: 'a-control-space-list-item',
     template: `
         <div
-            class="flex flex-wrap items-center sm:space-x-4 bg-white hover:bg-gray-100 overflow-hidden p-2 pl-4 mb-2"
+            class="flex flex-wrap items-center sm:space-x-4 bg-base-100 hover:bg-base-200 overflow-hidden p-2 pl-4 mb-2"
             *ngIf="space"
             [class.with-image]="show_image"
         >

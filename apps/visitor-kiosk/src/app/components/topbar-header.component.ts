@@ -4,7 +4,9 @@ import { format, startOfMinute } from 'date-fns';
 @Component({
     selector: 'a-topbar-header',
     template: `
-        <div class="flex items-center justify-between bg-gray-800 shadow">
+        <div
+            class="flex items-center justify-between bg-[hsl(237,37%,10%)] shadow"
+        >
             <a
                 matRipple
                 [routerLink]="['/']"

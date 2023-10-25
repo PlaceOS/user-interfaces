@@ -10,7 +10,7 @@ import { ParkingStateService } from './parking-state.service';
 @Component({
     selector: 'parking-topbar',
     template: `
-        <div class="flex items-center bg-white dark:bg-neutral-700 px-2 h-20">
+        <div class="flex items-center bg-base-100 px-2 h-20">
             <mat-form-field appearance="outline">
                 <mat-select
                     [ngModel]="zones[0]"

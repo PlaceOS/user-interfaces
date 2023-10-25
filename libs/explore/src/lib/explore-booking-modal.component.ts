@@ -51,7 +51,7 @@ export interface ExploreBookingModalData {
                     <label i18n>Space:</label>
                     <div
                         name="space"
-                        class="px-4 py-3 border border-gray-200 rounded w-full mb-4"
+                        class="px-4 py-3 border border-base-200 rounded w-full mb-4"
                     >
                         {{
                             form.controls.resources?.value[0]?.display_name ||
@@ -66,7 +66,7 @@ export interface ExploreBookingModalData {
                     >
                         <label i18n>Date:</label>
                         <div
-                            class="px-4 py-3 border border-gray-200 rounded w-full mb-4"
+                            class="px-4 py-3 border border-base-200 rounded w-full mb-4"
                         >
                             {{ form.value.date | date: 'mediumDate' }} at
                             {{ form.value.date | date: time_format }}
@@ -87,7 +87,7 @@ export interface ExploreBookingModalData {
                     </div>
                 </div>
             </main>
-            <footer class="flex justify-center p-2 border-t border-gray-200">
+            <footer class="flex justify-center p-2 border-t border-base-200">
                 <button btn matRipple class="w-32" (click)="save()" i18n>
                     Save
                 </button>

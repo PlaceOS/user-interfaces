@@ -6,10 +6,10 @@ import { ScheduleStateService } from './schedule-state.service';
     selector: 'schedule-sidebar',
     template: `
         <div
-            class="flex flex-col w-[18rem] h-full overflow-hidden bg-white dark:bg-[#1F2021] border-r border-gray-300 dark:border-neutral-800"
+            class="flex flex-col w-[18rem] h-full overflow-hidden bg-base-100[#1F2021] border-r border-base-200"
         >
             <date-calendar
-                class="border-b border-gray-200 dark:border-neutral-800"
+                class="border-b border-base-200"
                 [ngModel]="date | async"
                 (ngModelChange)="setDate($event)"
             ></date-calendar>
@@ -23,7 +23,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     (click)="toggleType('event')"
                 >
                     <div
-                        class="h-10 w-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-neutral-800 text-2xl"
+                        class="h-10 w-10 rounded-full flex items-center justify-center bg-base-200 text-2xl"
                     >
                         <app-icon>place</app-icon>
                     </div>
@@ -47,7 +47,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     (click)="toggleType('desk')"
                 >
                     <div
-                        class="h-10 w-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-neutral-800 text-2xl"
+                        class="h-10 w-10 rounded-full flex items-center justify-center bg-base-200 text-2xl"
                     >
                         <img src="assets/icons/desk-outline.svg" class="w-6" />
                     </div>
@@ -71,7 +71,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     (click)="toggleType('parking')"
                 >
                     <div
-                        class="h-10 w-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-neutral-800 text-2xl"
+                        class="h-10 w-10 rounded-full flex items-center justify-center bg-base-200 text-2xl"
                     >
                         <app-icon>drive_eta</app-icon>
                     </div>
@@ -95,7 +95,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     (click)="toggleType('visitor')"
                 >
                     <div
-                        class="h-10 w-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-neutral-800 text-2xl"
+                        class="h-10 w-10 rounded-full flex items-center justify-center bg-base-200 text-2xl"
                     >
                         <app-icon>people</app-icon>
                     </div>
@@ -121,7 +121,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     (click)="toggleType('locker')"
                 >
                     <div
-                        class="h-10 w-10 rounded-full flex items-center justify-center bg-gray-200 dark:bg-neutral-800 text-2xl"
+                        class="h-10 w-10 rounded-full flex items-center justify-center bg-base-200 text-2xl"
                     >
                         <app-icon>door_back</app-icon>
                     </div>

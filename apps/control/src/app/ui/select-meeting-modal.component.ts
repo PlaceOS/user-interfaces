@@ -8,7 +8,7 @@ import { ControlStateService } from '../control-state.service';
 @Component({
     selector: 'select-meeting-modal',
     template: `
-        <div class="fixed inset-0 bg-white">
+        <div class="fixed inset-0 bg-base-100">
             <button
                 icon
                 matRipple
@@ -52,7 +52,7 @@ import { ControlStateService } from '../control-state.service';
                         <button
                             btn
                             matRipple
-                            class="flex items-center p-4 w-full border border-gray-200 rounded"
+                            class="flex items-center p-4 w-full border border-base-200 rounded"
                             *ngFor="let event of events | async"
                             (click)="select(event)"
                         >

@@ -5,10 +5,10 @@ import { Router } from '@angular/router';
     selector: 'placeos-not-found',
     styles: [``],
     template: `<div
-        class="flex flex-1 flex-col z-0 bg-gray-50 h-full overflow-y-auto"
+        class="flex flex-1 flex-col z-0 bg-base-200 h-full overflow-y-auto"
     >
         <section
-            class="flex flex-col border-b border-gray-300 py-5 h-full items-center justify-center"
+            class="flex flex-col border-b border-base-200 py-5 h-full items-center justify-center"
         >
             <div class="mx-3 flex flex-row">
                 <img

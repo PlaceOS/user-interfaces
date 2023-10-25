@@ -13,17 +13,17 @@ import { checkinBooking } from './bookings.fn';
     selector: 'booking-details-modal',
     template: `
         <div
-            class="w-[100vw] h-[100vh] sm:relative sm:inset-auto sm:w-[51rem] sm:h-auto sm:max-h-[80vh] bg-white sm:bg-gray-100 sm:dark:bg-neutral-600 dark:bg-neutral-700 sm:rounded overflow-auto space-y-2 pb-2"
+            class="w-[100vw] h-[100vh] sm:relative sm:inset-auto sm:w-[51rem] sm:h-auto sm:max-h-[80vh] bg-base-100 sm:bg-base-200 sm:dark:bg-neutral-600 sm:rounded overflow-auto space-y-2 pb-2"
         >
             <div
-                class="sm:flex flex-col items-center pb-4 max-h-screen sm:max-h-[80vh] sm:px-16 sm:border-b bg-white dark:bg-neutral-700 border-gray-300 dark:border-neutral-500"
+                class="sm:flex flex-col items-center pb-4 max-h-screen sm:max-h-[80vh] sm:px-16 sm:border-b bg-base-100 border-base-200"
             >
                 <div
                     class="h-8 w-full sm:hidden block"
                     *ngIf="!booking?.extension_data?.images?.length"
                 ></div>
                 <div
-                    class="bg-black/20 dark:bg-white/20 w-full h-64 sm:rounded-b overflow-hidden"
+                    class="bg-neutral w-full h-64 sm:rounded-b overflow-hidden"
                     *ngIf="booking?.extension_data?.images?.length"
                 >
                     <image-carousel
@@ -42,19 +42,19 @@ import { checkinBooking } from './bookings.fn';
                     <div class="flex m-2">
                         <div
                             class="flex items-center bg-opacity-30 rounded-2xl p-1 text-sm space-x-2 pr-2 font-medium"
-                            [class.bg-green-600]="
+                            [class.bg-success]="
                                 !booking.is_done &&
                                 booking?.status === 'approved'
                             "
-                            [class.bg-yellow-500]="
+                            [class.bg-warning]="
                                 !booking.is_done &&
                                 booking?.status === 'tentative'
                             "
-                            [class.bg-red-600]="
+                            [class.bg-error]="
                                 !booking.is_done &&
                                 booking?.status === 'declined'
                             "
-                            [class.bg-gray-300]="booking.is_done"
+                            [class.bg-base-200]="booking.is_done"
                         >
                             <div
                                 class="rounded-full h-5 w-5 flex items-center justify-center text-white"
@@ -96,7 +96,7 @@ import { checkinBooking } from './bookings.fn';
                             btn
                             matRipple
                             class="flex-1 h-10 border-none"
-                            [class.bg-green-600]="booking.checked_in"
+                            [class.bg-success]="booking.checked_in"
                             [disabled]="checking_in"
                             *ngIf="
                                 !auto_checkin &&
@@ -131,7 +131,7 @@ import { checkinBooking } from './bookings.fn';
                             icon
                             matRipple
                             [matMenuTriggerFor]="menu"
-                            class="bg-primary rounded text-white h-10 w-10"
+                            class="bg-secondary rounded text-white h-10 w-10"
                         >
                             <app-icon>more_horiz</app-icon>
                         </button>
@@ -140,7 +140,7 @@ import { checkinBooking } from './bookings.fn';
             </div>
             <div class="sm:flex flex-wrap sm:px-12">
                 <div
-                    class="sm:p-4 sm:bg-white sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-gray-200 dark:border-neutral-500 flex-grow-[4] min-w-1/3 sm:w-[16rem]"
+                    class="sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[4] min-w-1/3 sm:w-[16rem]"
                 >
                     <h3 class="px-3 mt-2 text-lg font-medium mb-2" i18n>
                         Details
@@ -172,12 +172,9 @@ import { checkinBooking } from './bookings.fn';
                 </div>
                 <ng-container *ngIf="has_assets">
                     <div
-                        class="mt-4 sm:p-4 sm:bg-white sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-gray-200 dark:border-neutral-500 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
+                        class="mt-4 sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
                     >
-                        <h3
-                            class="mx-3 pt-2 text-lg font-medium dark:border-neutral-500"
-                            i18n
-                        >
+                        <h3 class="mx-3 pt-2 text-lg font-medium" i18n>
                             Assets ({{
                                 event.extension_data.assets?.length || 0
                             }})
@@ -217,7 +214,7 @@ import { checkinBooking } from './bookings.fn';
                 </ng-container>
                 <button
                     map
-                    class="mt-4 sm:my-2 h-64 sm:h-48 relative border border-gray-200 dark:border-neutral-500 overflow-hidden rounded sm:bg-white m-2 flex-grow-[3] min-w-1/3 w-[calc(100%-1rem)] p-2 sm:w-[16rem]"
+                    class="mt-4 sm:my-2 h-64 sm:h-48 relative border border-base-200 overflow-hidden rounded sm:bg-base-100 m-2 flex-grow-[3] min-w-1/3 w-[calc(100%-1rem)] p-2 sm:w-[16rem]"
                     (click)="viewLocation()"
                 >
                     <interactive-map
@@ -233,7 +230,7 @@ import { checkinBooking } from './bookings.fn';
                 icon
                 matRipple
                 mat-dialog-close
-                class="absolute top-0 left-2 bg-black/30 text-white"
+                class="absolute top-0 left-2 bg-neutral text-white"
             >
                 <app-icon>close</app-icon>
             </button>

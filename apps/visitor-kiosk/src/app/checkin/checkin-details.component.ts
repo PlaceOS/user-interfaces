@@ -10,7 +10,7 @@ import { notifyError } from '@placeos/common';
         <form
             *ngIf="(form | async) && !loading; else load_state"
             [formGroup]="form | async"
-            class="bg-white rounded shadow overflow-hidden relative flex flex-col items-center my-4 mx-auto"
+            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center my-4 mx-auto"
         >
             <h3 class="text-2xl m-4">Confirm Details</h3>
             <div field class="flex flex-col">
@@ -89,7 +89,7 @@ import { notifyError } from '@placeos/common';
                 class="absolute inset-0 flex flex-col items-center justify-center"
             >
                 <div
-                    class="flex flex-col items-center space-y-2 bg-white rounded shadow p-16"
+                    class="flex flex-col items-center space-y-2 bg-base-100 rounded shadow p-16"
                 >
                     <mat-spinner [diameter]="48"></mat-spinner>
                     <div class="my-4 text-lg">

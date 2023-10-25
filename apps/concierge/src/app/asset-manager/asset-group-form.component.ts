@@ -15,7 +15,7 @@ import { map } from 'rxjs/operators';
 @Component({
     selector: 'asset-group-form',
     template: `
-        <div class="absolute inset-0 bg-white">
+        <div class="absolute inset-0 bg-base-100">
             <div
                 class="h-full max-w-[32rem] mx-auto flex flex-col"
                 *ngIf="!loading; else load_state"
@@ -100,7 +100,7 @@ import { map } from 'rxjs/operators';
                     </div>
                 </main>
                 <footer
-                    class="flex justify-end space-x-2 p-2 border-t border-gray-100"
+                    class="flex justify-end space-x-2 p-2 border-t border-base-200"
                 >
                     <a
                         btn

@@ -7,7 +7,7 @@ import { CheckinStateService } from './checkin-state.service';
     selector: 'checkin-photo',
     template: `
         <div
-            class="bg-white rounded shadow overflow-hidden relative flex flex-col items-center p-4"
+            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center p-4"
             *ngIf="!loading; else load_state"
         >
             <h3 class="text-xl mb-4">Take a photo to continue</h3>

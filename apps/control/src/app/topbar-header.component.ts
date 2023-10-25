@@ -34,7 +34,9 @@ enum TOOLTIP {
         <div class="flex-1 px-4">
             <img logo class="h-10" [src]="logo?.src" alt="Logo" />
         </div>
-        <div class="p-4 text-lg">{{ (system | async).name }}</div>
+        <div class="p-4 text-lg text-base-content">
+            {{ (system | async).name }}
+        </div>
         <div
             class="flex-1 p-4 items-center justify-end space-x-2 hidden sm:flex"
         >
@@ -43,8 +45,9 @@ enum TOOLTIP {
                     <button
                         icon
                         matRipple
+                        class="bg-base-200 text-base-content"
                         [attr.type]="item.id"
-                        [class.bg-success]="item.enabled"
+                        [class.!bg-success]="item.enabled"
                         (click)="item.action ? item.action() : ''"
                     >
                         <app-icon>{{ item.icon }}</app-icon>
@@ -168,8 +171,11 @@ export class TopbarHeaderComponent extends AsyncHandler {
     public readonly viewHelp = () => this._state.viewHelp();
     public readonly powerOff = () => this._state.powerOff();
 
+    /** Application logo to display */
     public get logo() {
-        return this._settings.get('app.logo_dark') || {};
+        return this._settings.get('theme') === 'dark'
+            ? this._settings.get('app.logo_dark')
+            : this._settings.get('app.logo_light');
     }
 
     public get is_trusted() {

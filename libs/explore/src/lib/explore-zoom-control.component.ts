@@ -8,7 +8,7 @@ import { ExploreStateService } from './explore-state.service';
             z-in
             icon
             matRipple
-            class="bg-white dark:bg-neutral-800"
+            class="bg-base-100"
             (click)="zoomIn()"
             matTooltip="Zoom In"
             i18n-matTooltip
@@ -19,7 +19,7 @@ import { ExploreStateService } from './explore-state.service';
             z-out
             icon
             matRipple
-            class="bg-white dark:bg-neutral-800"
+            class="bg-base-100"
             (click)="zoomOut()"
             matTooltip="Zoom Out"
             i18n-matTooltip
@@ -30,7 +30,7 @@ import { ExploreStateService } from './explore-state.service';
             reset
             icon
             matRipple
-            class="bg-white dark:bg-neutral-800"
+            class="bg-base-100"
             (click)="reset()"
             matTooltip="Reset Zoom & Center"
             i18n-matTooltip

@@ -25,7 +25,7 @@ const DEFAULT_KEYS = [
         <ng-template cdk-portal>
             <div
                 keyboard-view
-                class="w-screen flex flex-col space-y-4 bg-gray-200 p-2 border-t border-gray-400"
+                class="w-screen flex flex-col space-y-4 bg-base-200 p-2 border-t border-base-200"
             >
                 <div
                     row
@@ -36,7 +36,7 @@ const DEFAULT_KEYS = [
                         <div
                             [attr.key]="key"
                             tabindex="0"
-                            class="rounded-xl p-2 border border-gray-300 relative cursor-pointer bg-white"
+                            class="rounded-xl p-2 border border-base-200 relative cursor-pointer bg-base-100"
                             [class.special]="key[0] === '{' && key.length > 1"
                             [class.space]="key === '{space}'"
                             (focus)="focusInput()"
@@ -54,7 +54,7 @@ const DEFAULT_KEYS = [
                             <div
                                 *ngIf="key === '{caps}'"
                                 dot
-                                class="absolute top-2 right-2 h-2 w-2 rounded-full bg-gray-300"
+                                class="absolute top-2 right-2 h-2 w-2 rounded-full bg-base-200"
                                 [class.bg-success]="state === 'shift'"
                             ></div>
                         </div>

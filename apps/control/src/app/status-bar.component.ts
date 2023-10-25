@@ -9,7 +9,7 @@ import { ControlStateService } from './control-state.service';
         <div
             recording
             *ngIf="!!(capture_mod | async)"
-            class="text-xs divide-x divide-gray-100 text-white flex items-center"
+            class="text-xs divide-x divide-base-200 text-white flex items-center"
         >
             <div hidden>
                 <i
@@ -82,7 +82,7 @@ import { ControlStateService } from './control-state.service';
                     class="p-2 rounded uppercase text-center"
                     [class.bg-error]="rec_status === 'playing'"
                     [class.bg-pending]="rec_status === 'paused'"
-                    [class.bg-gray-400]="rec_status === 'stopped'"
+                    [class.bg-base-300]="rec_status === 'stopped'"
                 >
                     {{
                         rec_status === 'playing'

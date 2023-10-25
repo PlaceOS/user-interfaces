@@ -46,7 +46,7 @@ interface EventBlock {
                 </div>
                 <div
                     *ngIf="blk.minutes % 15 === 0"
-                    class="absolute w-px bottom-0 left-0 bg-black"
+                    class="absolute w-px bottom-0 left-0 bg-neutral"
                     [style.height]="height(blk.minutes)"
                 ></div>
             </button>
@@ -54,7 +54,7 @@ interface EventBlock {
                 <div
                     event
                     *ngIf="blk.start + blk.length >= 0 && blk.start < 24 * 60"
-                    class="absolute bottom-0 h-[3.5rem] bg-gray-300 opacity-40"
+                    class="absolute bottom-0 h-[3.5rem] bg-base-200 opacity-40"
                     [style.left]="8 + blk.start + 'px'"
                     [style.width]="blk.length + 'px'"
                 ></div>

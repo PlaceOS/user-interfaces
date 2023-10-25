@@ -27,12 +27,12 @@ const EMPTY = [];
     template: `
         <div
             name="radius"
-            class="radius absolute center bg-blue-600 bg-opacity-25 border-8 border-dashed border-blue-600 rounded-full"
+            class="radius absolute center bg-info bg-opacity-25 border-8 border-dashed border-blue-600 rounded-full"
             [style]="'height: ' + diameter + '%; width: ' + diameter + '%;'"
         ></div>
         <div
             shadow
-            class="absolute center bg-black/40 h-8 w-8 rounded-full"
+            class="absolute center bg-neutral h-8 w-8 rounded-full"
         ></div>
         <div
             name="dot"
@@ -54,7 +54,7 @@ const EMPTY = [];
         <ng-template #device_tooltip>
             <div
                 name="device-info"
-                class="w-64 rounded bg-white dark:bg-neutral-800 p-4 top-0 left-0 shadow pointer-events-none mx-2"
+                class="w-64 rounded bg-base-100 p-4 top-0 left-0 shadow pointer-events-none mx-2"
                 (mouseleave)="close()"
             >
                 <div class="arrow"></div>

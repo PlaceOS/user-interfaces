@@ -36,10 +36,10 @@ import { MapLocateModalComponent } from '@placeos/components';
             </a>
         </div>
         <div
-            class="flex-1 w-full flex flex-col items-center bg-gray-200 dark:bg-neutral-600 p-4 overflow-auto"
+            class="flex-1 w-full flex flex-col items-center bg-base-200 p-4 overflow-auto"
         >
             <div
-                class="max-w-full w-[28rem] bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-500 px-4 pb-4 divide-y divide-gray-300 dark:divide-neutral-500"
+                class="max-w-full w-[28rem] bg-base-100 border border-base-200 px-4 pb-4 divide-y divide-base-200"
                 *ngIf="event; else load_state"
             >
                 <h2 class="text-xl uppercase font-medium w-full my-4">
@@ -48,9 +48,7 @@ import { MapLocateModalComponent } from '@placeos/components';
                 <div
                     class="flex items-center py-2 space-x-2 w-full !border-none"
                 >
-                    <div
-                        class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
-                    >
+                    <div class="p-2 rounded-full bg-base-200 mr-2">
                         <app-icon>event</app-icon>
                     </div>
                     <div class="flex-1 truncate">
@@ -67,9 +65,7 @@ import { MapLocateModalComponent } from '@placeos/components';
                     </div>
                 </div>
                 <div class="flex items-center py-2 space-x-2 w-full">
-                    <div
-                        class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
-                    >
+                    <div class="p-2 rounded-full bg-base-200 mr-2">
                         <app-icon>schedule</app-icon>
                     </div>
                     <div class="flex-1 truncate">
@@ -84,9 +80,7 @@ import { MapLocateModalComponent } from '@placeos/components';
                     class="flex items-center py-2 space-x-2 w-full"
                     *ngIf="event.asset_id"
                 >
-                    <div
-                        class="p-2 rounded-full bg-gray-300 dark:bg-neutral-600 mr-2"
-                    >
+                    <div class="p-2 rounded-full bg-base-200 mr-2">
                         <app-icon>menu_book</app-icon>
                     </div>
                     <div class="flex-1 truncate">

@@ -7,7 +7,7 @@ import { User } from '@placeos/users';
     selector: 'a-directory-user-list-item',
     template: `
         <div
-            class="flex flex-wrap items-center sm:space-x-4 bg-white hover:bg-gray-100 overflow-hidden p-4 mb-2"
+            class="flex flex-wrap items-center sm:space-x-4 bg-base-100 hover:bg-base-200 overflow-hidden p-4 mb-2"
             *ngIf="user"
             [class.with-image]="show_image"
         >

@@ -30,7 +30,7 @@ import {
     selector: 'room-bookings-timeline',
     template: `
         <div
-            class="relative flex items-center justify-center p-2 space-x-2 border-b border-gray-200"
+            class="relative flex items-center justify-center p-2 space-x-2 border-b border-base-200"
         >
             <date-options
                 [date]="date | async"
@@ -38,7 +38,7 @@ import {
                 [is_new]="true"
             ></date-options>
             <div
-                class="absolute top-1/2 -translate-y-1/2 left-4 text-blue-500 text-sm"
+                class="absolute top-1/2 -translate-y-1/2 left-4 text-info text-sm"
                 *ngIf="is_today | async"
             >
                 Today
@@ -57,7 +57,7 @@ import {
                 </div>
                 <div
                     spaces
-                    class="relative flex-1 h-full overflow-hidden border-r border-gray-200"
+                    class="relative flex-1 h-full overflow-hidden border-r border-base-200"
                 >
                     <div
                         class="flex absolute inset-y-0"
@@ -75,7 +75,7 @@ import {
             <div content class="flex w-full flex-1 h-px">
                 <div
                     times
-                    class="relative w-16 h-full overflow-y-hidden overflow-x-visible border-r border-gray-200"
+                    class="relative w-16 h-full overflow-y-hidden overflow-x-visible border-r border-base-200"
                 >
                     <div
                         class="absolute inset-x-0"
@@ -86,7 +86,7 @@ import {
                             *ngFor="let value of hours"
                         >
                             <div
-                                class="absolute top-0 right-0 w-2 h-px bg-gray-200"
+                                class="absolute top-0 right-0 w-2 h-px bg-base-200"
                             ></div>
                             <div
                                 class="absolute top-0 right-3 -translate-y-1/2 text-xs opacity-60"
@@ -95,7 +95,7 @@ import {
                             </div>
                         </div>
                         <div
-                            class="absolute bg-primary right-0 translate-x-1/2 -translate-y-1/2 h-2 w-2 rounded-full z-30"
+                            class="absolute bg-secondary right-0 translate-x-1/2 -translate-y-1/2 h-2 w-2 rounded-full z-30"
                             [style.top]="timeToOffset(now) + 'px'"
                             *ngIf="is_today | async"
                         ></div>
@@ -108,7 +108,7 @@ import {
                     >
                         <div
                             *ngFor="let _ of w_slots"
-                            class="w-56 h-full border-r border-gray-200"
+                            class="w-56 h-full border-r border-base-200"
                         ></div>
                     </div>
                     <div
@@ -117,11 +117,11 @@ import {
                     >
                         <div
                             *ngFor="let _ of h_slots"
-                            class="h-12 w-full border-t border-gray-200"
+                            class="h-12 w-full border-t border-base-200"
                         ></div>
                         <div
                             *ngIf="is_today | async"
-                            class="absolute inset-x-0 -translate-y-px h-0.5 bg-primary z-30"
+                            class="absolute inset-x-0 -translate-y-px h-0.5 bg-secondary z-30"
                             [style.top]="
                                 timeToOffset(now) -
                                 offset_y -
@@ -131,7 +131,7 @@ import {
                             "
                         >
                             <div
-                                class="absolute bg-primary top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 h-2 w-2 rounded-full"
+                                class="absolute bg-secondary top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 h-2 w-2 rounded-full"
                             ></div>
                         </div>
                     </div>
@@ -201,7 +201,7 @@ import {
                                         "
                                     ></div>
                                     <div
-                                        class="relative w-full h-full shadow bg-gray-100 hover:bg-gray-200 rounded-lg overflow-hidden px-3 py-1 text-xs"
+                                        class="relative w-full h-full shadow bg-base-200 hover:bg-base-200 rounded-lg overflow-hidden px-3 py-1 text-xs"
                                         [class.opacity-60]="
                                             event.state === 'done'
                                         "
@@ -211,7 +211,7 @@ import {
                                             [class.bg-pink-600]="
                                                 event.status !== 'cancelled'
                                             "
-                                            [class.bg-red-600]="
+                                            [class.bg-error]="
                                                 event.status === 'cancelled'
                                             "
                                         ></div>

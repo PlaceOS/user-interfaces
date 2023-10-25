@@ -38,7 +38,7 @@ import { UploadPermissions } from '@placeos/common';
             </div>
         </main>
         <footer
-            class="flex items-center justify-end space-x-2 px-4 py-2 border-t border-gray-200"
+            class="flex items-center justify-end space-x-2 px-4 py-2 border-t border-base-200"
         >
             <button btn class="inverse w-32" mat-dialog-close>Cancel</button>
             <button

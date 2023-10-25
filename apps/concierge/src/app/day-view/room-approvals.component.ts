@@ -8,17 +8,17 @@ import { CalendarEvent } from '@placeos/events';
     selector: 'room-bookings-approvals',
     template: `
         <div
-            class="flex flex-col h-full overflow-hidden border-l border-gray-200"
+            class="flex flex-col h-full overflow-hidden border-l border-base-200"
             [style.width]="show ? '' : '0px'"
         >
             <div
-                class="flex items-center p-2 border-b border-gray-200 space-x-2"
+                class="flex items-center p-2 border-b border-base-200 space-x-2"
             >
                 <button
                     btn
                     icon
                     matRipple
-                    class="bg-gray-200"
+                    class="bg-base-200"
                     (click)="show = !show"
                 >
                     <app-icon>chevron_right</app-icon>
@@ -40,13 +40,13 @@ import { CalendarEvent } from '@placeos/events';
                 </div>
                 <div
                     *ngFor="let event of pending | async"
-                    class="relative border border-gray-200 p-2 w-full rounded"
+                    class="relative border border-base-200 p-2 w-full rounded"
                 >
                     <h3>{{ event.title }}</h3>
                     <p class="opacity-30 text-xs mb-2">
                         {{ event.date | date: 'medium' }}
                     </p>
-                    <div class="w-64 h-32 overflow-hidden mb-2 bg-gray-100">
+                    <div class="w-64 h-32 overflow-hidden mb-2 bg-base-200">
                         <img
                             auth
                             class="object-cover min-w-full min-h-full"
@@ -59,7 +59,7 @@ import { CalendarEvent } from '@placeos/events';
                     </div>
                     <div class="flex items-center space-x-2 mb-2">
                         <div
-                            class="h-8 w-8 bg-gray-100 rounded-full flex items-center justify-center"
+                            class="h-8 w-8 bg-base-200 rounded-full flex items-center justify-center"
                         >
                             <app-icon class="text-xl">place</app-icon>
                         </div>
@@ -77,7 +77,7 @@ import { CalendarEvent } from '@placeos/events';
                     </div>
                     <div class="flex items-center space-x-2 mb-2">
                         <div
-                            class="h-8 w-8 bg-gray-100 rounded-full flex items-center justify-center"
+                            class="h-8 w-8 bg-base-200 rounded-full flex items-center justify-center"
                         >
                             <app-icon class="text-xl">person</app-icon>
                         </div>
@@ -89,7 +89,7 @@ import { CalendarEvent } from '@placeos/events';
                         <button
                             btn
                             matRipple
-                            class="border-green-600 bg-green-600/30 flex items-center space-x-2 text-black"
+                            class="border-success bg-success text-success-content flex flex-1 items-center space-x-2"
                             [disabled]="status[event.id] === 'accept'"
                             (click)="approve(event)"
                         >
@@ -105,7 +105,7 @@ import { CalendarEvent } from '@placeos/events';
                         <button
                             btn
                             matRipple
-                            class="border-red-600 bg-red-600/30 flex items-center space-x-2 text-black"
+                            class="border-error bg-error text-error-content flex flex-1 items-center space-x-2 "
                             [disabled]="status[event.id] === 'decline'"
                             (click)="reject(event)"
                         >
@@ -122,7 +122,7 @@ import { CalendarEvent } from '@placeos/events';
                 </div>
             </div>
             <div
-                class="absolute bottom-0 left-0 right-0 top-14 p-2 flex flex-col items-center justify-center bg-white/80 space-y-2"
+                class="absolute bottom-0 left-0 right-0 top-14 p-2 flex flex-col items-center justify-center bg-base-100/80 space-y-2"
                 *ngIf="loading"
             >
                 <mat-spinner diameter="32"></mat-spinner>
@@ -133,7 +133,7 @@ import { CalendarEvent } from '@placeos/events';
             btn
             icon
             matRipple
-            class="bg-pending absolute top-2 -left-8 shadow text-white"
+            class="bg-warning absolute top-2 -left-8 shadow text-warning-content"
             *ngIf="!show"
             (click)="show = !show"
         >

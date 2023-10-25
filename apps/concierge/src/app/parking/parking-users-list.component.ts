@@ -124,7 +124,7 @@ const generateUserForm = (user?: ParkingUser) =>
             <app-icon>add</app-icon>
         </button>
         <div
-            class="absolute bottom-2 right-2 bg-white border border-gray-200 p-2 text-base rounded shadow space-y-2"
+            class="absolute bottom-2 right-2 bg-base-100 border border-base-200 p-2 text-base rounded shadow space-y-2"
             *ngIf="
                 deletion.entries.length ||
                 (change_count | async) ||

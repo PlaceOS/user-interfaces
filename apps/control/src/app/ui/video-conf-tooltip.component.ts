@@ -10,14 +10,14 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
     selector: 'video-conf-tooltip',
     template: `
         <div
-            class=" my-2 bg-white shadow rounded flex flex-col items-center"
+            class=" my-2 bg-base-100 shadow rounded flex flex-col items-center"
             *ngIf="!(call | async); else enabled_state"
         >
             <video-call-dial-view (close)="close()"></video-call-dial-view>
         </div>
         <ng-template #enabled_state>
             <div
-                class=" my-2 p-2 bg-white shadow rounded flex flex-col items-center space-y-2"
+                class=" my-2 p-2 bg-base-100 shadow rounded flex flex-col items-center space-y-2"
             >
                 <h3 class="p-2 w-full text-center font-medium">In Call</h3>
                 <a

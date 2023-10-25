@@ -21,7 +21,7 @@ const EMPTY = [];
     selector: 'landing-favourites',
     template: `
         <div
-            class="flex items-center justify-between py-2 mx-2 border-b border-gray-200"
+            class="flex items-center justify-between py-2 mx-2 border-b border-base-200"
         >
             <h2 class="mx-2" i18n>
                 {{ spaces?.length || 0 }} { spaces?.length, plural, =1 {
@@ -41,7 +41,7 @@ const EMPTY = [];
             </div> -->
         </div>
         <div
-            class="flex-1 h-1/2 w-full space-y-2 overflow-auto pt-4 divide-y divide-gray-300"
+            class="flex-1 h-1/2 w-full space-y-2 overflow-auto pt-4 divide-y divide-base-200"
         >
             <ng-container
                 *ngIf="
@@ -56,7 +56,7 @@ const EMPTY = [];
                 >
                     <div class="flex w-full items-center space-x-2 relative">
                         <div
-                            class="w-20 h-20 overflow-hidden rounded relative flex items-center justify-center bg-black/10 dark:bg-white/5"
+                            class="w-20 h-20 overflow-hidden rounded relative flex items-center justify-center bg-neutral"
                         >
                             <img
                                 auth
@@ -119,7 +119,7 @@ const EMPTY = [];
                         icon
                         name="favourite-more"
                         [matMenuTriggerFor]="menu"
-                        class="absolute top-2 right-0 bg-gray-200 dark:bg-neutral-600 !rounded !m-0"
+                        class="absolute top-2 right-0 bg-base-200 !rounded !m-0"
                     >
                         <app-icon>more_horiz</app-icon>
                     </button>
@@ -149,7 +149,7 @@ const EMPTY = [];
                 >
                     <div class="flex w-full items-center space-x-2 relative">
                         <div
-                            class="w-20 h-20 overflow-hidden rounded relative flex items-center justify-center bg-black/10 dark:bg-white/5"
+                            class="w-20 h-20 overflow-hidden rounded relative flex items-center justify-center bg-neutral"
                         >
                             <img
                                 auth
@@ -201,7 +201,7 @@ const EMPTY = [];
                         icon
                         name="favourite-more"
                         [matMenuTriggerFor]="menu"
-                        class="absolute top-2 right-0 bg-gray-200 dark:bg-neutral-600 !rounded !m-0"
+                        class="absolute top-2 right-0 bg-base-200 !rounded !m-0"
                     >
                         <app-icon>more_horiz</app-icon>
                     </button>

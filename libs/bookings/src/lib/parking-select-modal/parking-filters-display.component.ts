@@ -46,19 +46,19 @@ import { BookingFormService } from '../booking-form.service';
             <div
                 filter-item
                 zone
-                class="dark:border-neutral-500"
+                class="dark:border-base-200-500"
                 *ngIf="location"
             >
                 {{ location }}
             </div>
-            <div filter-item date class="dark:border-neutral-500">
+            <div filter-item date class="dark:border-base-200-500">
                 {{ start | date: 'mediumDate' }}
             </div>
-            <div filter-item time class="dark:border-neutral-500">
+            <div filter-item time class="dark:border-base-200-500">
                 {{ start | date: time_format }} &mdash;
                 {{ end | date: time_format }}
             </div>
-            <div filter-item count class="dark:border-neutral-500" i18n>
+            <div filter-item count class="dark:border-base-200-500" i18n>
                 Min. {{ (options | async)?.capcaity || 2 }} People
             </div>
             <div filter-item *ngFor="let feat of (options | async)?.features">
@@ -66,7 +66,7 @@ import { BookingFormService } from '../booking-form.service';
                 <button
                     icon
                     matRipple
-                    class="-mr-4 dark:border-neutral-500"
+                    class="-mr-4"
                     (click)="removeFeature(feat)"
                 >
                     <app-icon>close</app-icon>

@@ -17,7 +17,7 @@ import { ControlStateService } from '../control-state.service';
 
                 <div class="h-1/2 flex-1">
                     <div
-                        class="absolute inset-4 flex flex-col bg-white rounded shadow"
+                        class="absolute inset-4 flex flex-col bg-base-100 rounded shadow"
                         video-call-page
                     ></div>
                 </div>
@@ -38,7 +38,7 @@ import { ControlStateService } from '../control-state.service';
         <ng-template #load_state>
             <div
                 name="loader"
-                class="absolute inset-0 bg-white text-black flex flex-col items-center justify-center"
+                class="absolute inset-0 bg-base-100 text-black flex flex-col items-center justify-center"
             >
                 <mat-spinner class="mb-4" [diameter]="64"></mat-spinner>
                 <div class="text-2xl my-4">
@@ -52,7 +52,7 @@ import { ControlStateService } from '../control-state.service';
     styles: [
         `
             :host > div {
-                background-color: var(--secondary);
+                background-color: var(--p);
                 color: #fff;
             }
 

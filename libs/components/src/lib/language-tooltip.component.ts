@@ -7,7 +7,7 @@ import { CustomTooltipData } from '@placeos/components';
     selector: 'language-select',
     template: `
         <div
-            class="flex flex-col w-[18.5rem] rounded bg-white shadow relative -top-12 -right-1 dark:bg-neutral-700 dark:text-white"
+            class="flex flex-col w-[18.5rem] rounded bg-base-100 shadow relative -top-12 -right-1"
             (click)="close()"
         >
             <div class="flex items-center space-x-2  p-2">
@@ -19,7 +19,7 @@ import { CustomTooltipData } from '@placeos/components';
             </div>
             <button
                 *ngFor="let lang of locales"
-                class="w-full p-4 border-t border-gray-200 dark:border-neutral-500 text-left"
+                class="w-full p-4 border-t border-base-200 text-left"
                 (click)="setLocale(lang.id)"
             >
                 {{ lang.name }} - {{ lang.flag }}

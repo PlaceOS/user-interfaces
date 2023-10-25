@@ -16,7 +16,7 @@ import { PanelStateService } from '../panel-state.service';
         <h2 class="w-full px-4 py-2 mb-2 font-medium" *ngIf="current | async">
             Current
             <span
-                class="text-xs shadow px-2 py-1 ml-8 rounded bg-gray-300"
+                class="text-xs shadow px-2 py-1 ml-8 rounded bg-base-200"
                 *ngIf="!(started | async) && (starting_in | async)"
             >
                 Starting in {{ starting_in | async }}
@@ -41,7 +41,7 @@ import { PanelStateService } from '../panel-state.service';
         <div class="mb-4 w-full" *ngIf="current | async; else empty_state">
             <div
                 current
-                class="flex items-center bg-white rounded-lg px-4 h-24 text-lg shadow-md w-full border border-gray-100 relative max-w-full"
+                class="flex items-center bg-base-100 rounded-lg px-4 h-24 text-lg shadow-md w-full border border-base-200 relative max-w-full"
                 [class.text-white]="started | async"
             >
                 <div
@@ -88,7 +88,7 @@ import { PanelStateService } from '../panel-state.service';
             Upcoming
         </h2>
         <ul
-            class="list-style-none p-0 m-0 bg-white rounded text-base shadow divide-y divide-gray-100 w-full border border-gray-100 max-w-full"
+            class="list-style-none p-0 m-0 bg-base-100 rounded text-base shadow divide-y divide-base-200 w-full border border-base-200 max-w-full"
             *ngIf="(upcoming | async)?.length"
         >
             <li
@@ -111,7 +111,7 @@ import { PanelStateService } from '../panel-state.service';
         </ul>
         <ng-template #empty_state>
             <div
-                class="flex items-center justify-center bg-white rounded px-4 py-8 shadow-md w-full border border-gray-100"
+                class="flex items-center justify-center bg-base-100 rounded px-4 py-8 shadow-md w-full border border-base-200"
             >
                 <p class="opacity-50">No upcoming events for today</p>
             </div>

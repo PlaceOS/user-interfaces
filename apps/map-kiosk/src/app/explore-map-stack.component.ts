@@ -11,7 +11,7 @@ import { OrganisationService } from '@placeos/organisation';
     selector: 'explore-map-stack',
     template: `
         <div
-            class="absolute inset-0 overflow-hidden bg-gray-200"
+            class="absolute inset-0 overflow-hidden bg-base-200"
             [class.hide-levels]="(options | async)?.show_levels"
         >
             <i-map
@@ -54,7 +54,7 @@ import { OrganisationService } from '@placeos/organisation';
                 pointer-events: auto;
             }
         `,
-    ]
+    ],
 })
 export class ExploreMapStackComponent {
     public readonly levels = this._orgs.active_levels;

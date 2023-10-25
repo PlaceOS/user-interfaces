@@ -22,7 +22,7 @@ import { StaffStateService } from './staff-state.service';
                 display: flex;
                 height: 100%;
                 width: 100%;
-                background: var(--bg);
+                background: var(--b1);
             }
         `,
     ],

@@ -6,7 +6,7 @@ import { CateringReportStateService } from './catering-report-state.service';
     selector: 'catering-report-overall',
     template: `
         <div
-            class="bg-white dark:bg-neutral-700 shadow rounded m-2 px-8 w-48 h-24 flex flex-col items-center justify-center"
+            class="bg-base-100 shadow rounded m-2 px-8 w-48 h-24 flex flex-col items-center justify-center"
         >
             <div count class="text-3xl">
                 {{ (stats | async)?.order_count || '0' }}
@@ -14,7 +14,7 @@ import { CateringReportStateService } from './catering-report-state.service';
             <div class="">Orders</div>
         </div>
         <div
-            class="bg-white dark:bg-neutral-700 shadow rounded m-2 px-8 w-48 h-24 flex flex-col items-center justify-center"
+            class="bg-base-100 shadow rounded m-2 px-8 w-48 h-24 flex flex-col items-center justify-center"
         >
             <div unique class="text-3xl">
                 {{ (stats | async)?.unique_items || '0' }}
@@ -22,24 +22,26 @@ import { CateringReportStateService } from './catering-report-state.service';
             <div class="">Unique Items</div>
         </div>
         <div
-            class="bg-white dark:bg-neutral-700 shadow rounded m-2 px-8 w-48 h-24 flex flex-col items-center justify-center"
+            class="bg-base-100 shadow rounded m-2 px-8 w-48 h-24 flex flex-col items-center justify-center"
         >
-            <div items class="text-3xl">{{ (stats | async)?.item_count || '0' }}</div>
+            <div items class="text-3xl">
+                {{ (stats | async)?.item_count || '0' }}
+            </div>
             <div class="">Ordered Items</div>
         </div>
         <div
-            class="bg-white dark:bg-neutral-700 shadow rounded m-2 px-8 w-48 h-24 flex flex-col items-center justify-center"
+            class="bg-base-100 shadow rounded m-2 px-8 w-48 h-24 flex flex-col items-center justify-center"
         >
             <div total class="text-3xl">
-                {{ (stats | async)?.total_cost / 100 || 0 | currency:code }}
+                {{ (stats | async)?.total_cost / 100 || 0 | currency: code }}
             </div>
             <div class="">Total</div>
         </div>
         <div
-            class="bg-white dark:bg-neutral-700 shadow rounded m-2 px-8 w-48 h-24 flex flex-col items-center justify-center"
+            class="bg-base-100 shadow rounded m-2 px-8 w-48 h-24 flex flex-col items-center justify-center"
         >
             <div average class="text-3xl">
-                {{ (stats | async)?.avg_cost / 100 || 0 | currency:code }}
+                {{ (stats | async)?.avg_cost / 100 || 0 | currency: code }}
             </div>
             <div class="">Order Average</div>
         </div>
@@ -63,5 +65,8 @@ export class CateringReportOverallComponent {
         return this._org.currency_code;
     }
 
-    constructor(private _report: CateringReportStateService, private _org: OrganisationService) {}
+    constructor(
+        private _report: CateringReportStateService,
+        private _org: OrganisationService
+    ) {}
 }

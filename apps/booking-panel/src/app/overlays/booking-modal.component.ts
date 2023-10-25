@@ -39,7 +39,7 @@ export async function openBookingModal(
 @Component({
     selector: 'booking-modal',
     template: `
-        <header class="bg-primary text-white p-4">
+        <header class="p-4">
             <h3>New Booking</h3>
         </header>
         <form
@@ -86,7 +86,7 @@ export async function openBookingModal(
         </form>
         <footer
             *ngIf="!loading"
-            class="flex items-center justify-center p-2 w-full border-t border-gray-200 space-x-2"
+            class="flex items-center justify-center p-2 w-full border-t border-base-200 space-x-2"
         >
             <button
                 btn

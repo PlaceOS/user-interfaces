@@ -13,7 +13,7 @@ import { SettingsService } from '@placeos/common';
             *ngIf="event"
             (click)="view(event)"
             [class]="
-                'm-2 p-2 bg-white shadow rounded border-2 text-black text-left font-normal ' +
+                'm-2 p-2 bg-base-100 shadow rounded border-2 text-black text-left font-normal ' +
                 (event?.state === 'done' ? 'done' : event?.type)
             "
         >

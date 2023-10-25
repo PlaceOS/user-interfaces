@@ -26,7 +26,7 @@ import { User } from 'libs/users/src/lib/user.class';
                 <div class="flex flex-col flex-1 w-full sm:w-1/4 mb-2">
                     <label>Resource:</label>
                     <div
-                        class="px-4 py-3 border border-gray-200 rounded w-full mb-4"
+                        class="px-4 py-3 border border-base-200 rounded w-full mb-4"
                     >
                         {{
                             resource.name ||
@@ -84,7 +84,7 @@ import { User } from 'libs/users/src/lib/user.class';
             </div>
         </main>
         <footer
-            class="w-full p-2 border-t border-gray-200 flex items-center justify-center"
+            class="w-full p-2 border-t border-base-200 flex items-center justify-center"
         >
             <button btn matRipple [mat-dialog-close]="form.value" class="w-32">
                 Continue

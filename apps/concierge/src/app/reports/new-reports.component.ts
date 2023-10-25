@@ -24,7 +24,7 @@ import { Router } from '@angular/router';
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
-                background-color: #fff;
+                background-color: var(--b1);
             }
 
             main > *:not(router-outlet) {

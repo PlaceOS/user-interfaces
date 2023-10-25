@@ -22,7 +22,7 @@ export interface CateringOrderOptionsModalData {
         </header>
         <main class="overflow-auto">
             <div
-                class="pt-1 pb-2 border-b border-gray-200"
+                class="pt-1 pb-2 border-b border-base-200"
                 *ngFor="let group of groups"
                 [attr.group]="group.name"
             >

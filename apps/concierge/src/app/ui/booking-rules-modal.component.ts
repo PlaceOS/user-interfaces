@@ -120,7 +120,7 @@ import {
             </ng-container>
         </main>
         <footer
-            class="flex items-center justify-end space-x-2 p-2 border-t border-gray-200"
+            class="flex items-center justify-end space-x-2 p-2 border-t border-base-200"
             *ngIf="!loading"
         >
             <button

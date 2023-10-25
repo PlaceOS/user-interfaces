@@ -6,8 +6,8 @@ import { CateringItem } from '../catering-item.class';
     template: `
         <li
             item
-            [class.!border-black]="active"
-            class="relative p-2 rounded-lg w-full shadow border bg-white dark:bg-neutral-600 border-gray-200 dark:border-neutral-500 sm:w-[20rem]"
+            [class.!border-base-200]="active"
+            class="relative p-2 rounded-lg w-full shadow border bg-base-100 border-base-200 sm:w-[20rem]"
         >
             <button
                 matRipple
@@ -16,10 +16,10 @@ import { CateringItem } from '../catering-item.class';
                 (click)="select.emit()"
             >
                 <div
-                    class="relative w-16 h-16 rounded-xl bg-black/20 mr-4 overflow-hidden border border-gray-100 dark:border-neutral-600 flex items-center justify-center"
+                    class="relative w-16 h-16 rounded-xl bg-neutral mr-4 overflow-hidden border border-base-200 flex items-center justify-center"
                 >
                     <div
-                        class="absolute top-1 left-1 border border-white bg-black/50 rounded-full h-6 w-6 flex items-center justify-center text-white text-xs"
+                        class="absolute top-1 left-1 border border-white bg-neutral rounded-full h-6 w-6 flex items-center justify-center text-white text-xs"
                         *ngIf="item.quantity && selected"
                     >
                         {{ item.quantity || '1' }}
@@ -46,37 +46,37 @@ import { CateringItem } from '../catering-item.class';
                     </div>
                     <div class="flex items-center text-sm space-x-1">
                         <p
-                            class="flex-1 w-px bg-white rounded"
+                            class="flex-1 w-px bg-base-100 rounded"
                             *ngIf="item.unit_price"
                         >
                             {{ item.unit_price / 100 | currency: code }}
                         </p>
                         <div
-                            class="text-xs px-2 py-1 rounded-2xl shadow border border-gray-100"
+                            class="text-xs px-2 py-1 rounded-2xl shadow border border-base-200"
                             *ngIf="item.option_list?.length"
                         >
                             {{ options }}
                         </div>
                         <div
-                            class="text-xs h-5 w-7 rounded-xl shadow bg-green-500 flex items-center justify-center"
+                            class="text-xs h-5 w-7 rounded-xl shadow bg-success flex items-center justify-center"
                             *ngIf="item.tags?.includes('Gluten Free')"
                         >
                             GF
                         </div>
                         <div
-                            class="text-xs h-5 w-7 rounded-xl shadow bg-blue-600 flex items-center justify-center"
+                            class="text-xs h-5 w-7 rounded-xl shadow bg-info flex items-center justify-center"
                             *ngIf="item.tags?.includes('Vegan')"
                         >
                             VG
                         </div>
                         <div
-                            class="text-xs h-5 w-7 rounded-xl shadow bg-blue-400 flex items-center justify-center"
+                            class="text-xs h-5 w-7 rounded-xl shadow bg-info flex items-center justify-center"
                             *ngIf="item.tags?.includes('Vegetarian')"
                         >
                             V
                         </div>
                         <div
-                            class="text-xs h-5 w-7 rounded-xl shadow bg-yellow-500 flex items-center justify-center"
+                            class="text-xs h-5 w-7 rounded-xl shadow bg-warning flex items-center justify-center"
                             *ngIf="item.tags?.includes('Contains Dairy')"
                         >
                             D

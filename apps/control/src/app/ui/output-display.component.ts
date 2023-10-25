@@ -16,13 +16,13 @@ export const ICON_MAP = {
 @Component({
     selector: 'output-display',
     template: `
-        <div class="p-4 m-2 bg-white rounded shadow text-black" *ngIf="item">
+        <div class="p-4 m-2 bg-base-100 rounded shadow text-black" *ngIf="item">
             <div
                 view
                 matRipple
-                class="h-48 border border-gray-300 relative rounded mb-2 flex flex-col items-center justify-center space-y-2"
+                class="h-48 border border-base-200 relative rounded mb-2 flex flex-col items-center justify-center space-y-2"
                 [class.opacity-60]="!(input | async)"
-                [class.bg-gray-300]="!(input | async)"
+                [class.bg-base-200]="!(input | async)"
                 (click)="switchSource()"
             >
                 <div

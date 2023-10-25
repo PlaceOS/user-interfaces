@@ -29,7 +29,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
             <ng-container *ngIf="uploads_allowed">
                 <div
                     image
-                    class="relative rounded border-2 border-gray-200 dark:border-neutral-500 border-dashed flex-shrink-0 flex flex-col items-center justify-center h-32 w-36 hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer"
+                    class="relative rounded border-2 border-base-200 border-dashed flex-shrink-0 flex flex-col items-center justify-center h-32 w-36 hover:bg-neutral:bg-base-100/10 cursor-pointer"
                     [style.transform]="'translate(-' + offset + '00%)'"
                 >
                     <app-icon class="text-4xl opacity-60">add</app-icon>
@@ -54,7 +54,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                 />
                 <div
                     overlay
-                    class="absolute inset-0 hover:bg-black/50 text-white"
+                    class="absolute inset-0 hover:bg-neutral text-white"
                 >
                     <div
                         actions
@@ -76,7 +76,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                 <div
                     image
                     *ngFor="let item of uploads | async; let i = index"
-                    class="bg-center bg-cover h-32 w-36 rounded border bg-black/10 dark:bg-white/5 border-gray-200 dark:border-neutral-500 flex items-center justify-center flex-shrink-0"
+                    class="bg-center bg-cover h-32 w-36 rounded border bg-neutral border-base-200 flex items-center justify-center flex-shrink-0"
                     [style.transform]="'translate(-' + offset + '00%)'"
                     [matTooltip]="item.error"
                     (click)="retryUpload(item)"
@@ -93,7 +93,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                     <div
                         overlay
                         *ngIf="item.error"
-                        class="absolute inset-0 hover:bg-black hover:bg-opacity-50 text-white flex items-center justify-center"
+                        class="absolute inset-0 hover:bg-neutral hover:bg-opacity-50 text-white flex items-center justify-center"
                     >
                         <app-icon class="text-3xl opacity-0">retry</app-icon>
                     </div>
@@ -104,7 +104,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                 matRipple
                 *ngIf="length > view_space"
                 [disabled]="offset === 0"
-                class="absolute top-1/2 left-0 transform -translate-y-1/2 bg-white"
+                class="absolute top-1/2 left-0 transform -translate-y-1/2 bg-base-100"
                 (click)="offset = offset - 1"
             >
                 <app-icon>chevron_left</app-icon>
@@ -114,7 +114,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                 matRipple
                 *ngIf="length > view_space"
                 [disabled]="offset >= length - view_space"
-                class="absolute top-1/2 right-0 transform -translate-y-1/2 bg-white"
+                class="absolute top-1/2 right-0 transform -translate-y-1/2 bg-base-100"
                 (click)="offset = offset + 1"
             >
                 <app-icon>chevron_right</app-icon>

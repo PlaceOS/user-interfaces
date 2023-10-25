@@ -9,11 +9,11 @@ import { BookingLike } from '../schedule/schedule-state.service';
         <a
             btn
             matRipple
-            class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-24 bg-white dark:bg-neutral-700 hover:shadow p-0"
+            class="rounded-none my-1 mx-4 w-[calc(100%-2rem)] h-24 bg-base-100 hover:shadow p-0"
             [class.opacity-50]="has_ended"
             [routerLink]="['/schedule', 'view', item?.id, type]"
         >
-            <div class="flex items-center border border-gray-200 rounded-lg">
+            <div class="flex items-center border border-base-200 rounded-lg">
                 <div
                     status
                     class="h-24 w-20 flex flex-col items-center justify-center text-white leading-tight"

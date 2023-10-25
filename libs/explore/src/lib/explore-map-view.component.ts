@@ -60,7 +60,7 @@ const EMPTY = [];
         <div
             *ngIf="!(use_mapsindoors$ | async)"
             controls
-            class="absolute top-2 left-2 max-w-[calc(100vw-1rem)] bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-500 rounded p-2 space-y-2 overflow-hidden"
+            class="absolute top-2 left-2 max-w-[calc(100vw-1rem)] bg-base-100 border border-base-200 rounded p-2 space-y-2 overflow-hidden"
         >
             <explore-map-controls></explore-map-controls>
             <div class="flex items-center space-x-2" *ngIf="hide_zones">
@@ -76,7 +76,7 @@ const EMPTY = [];
         <div
             legend
             *ngIf="show_legend && legend.length"
-            class="absolute bottom-2 left-2 p-2 rounded bg-white dark:bg-neutral-800 border border-gray-300"
+            class="absolute bottom-2 left-2 p-2 rounded bg-base-100 border border-base-200"
         >
             <h3 class="mb-2 font-medium" i18n>Legend</h3>
             <div
@@ -84,7 +84,7 @@ const EMPTY = [];
                 *ngFor="let pair of legend"
             >
                 <div
-                    class="w-3 h-3 rounded-full border border-gray-400"
+                    class="w-3 h-3 rounded-full border border-base-200"
                     [style.background-color]="pair[1]"
                 ></div>
                 <div class="text-sm">{{ pair[0] }}</div>
