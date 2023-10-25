@@ -321,7 +321,7 @@ export async function removeAssetRequests(id: string) {
 }
 
 export async function updateAssetRequestsForResource(
-    { id, ical_uid }: Partial<CalendarEvent>,
+    { id, ical_uid, from_booking }: any,
     {
         date,
         duration,
@@ -352,7 +352,8 @@ export async function updateAssetRequestsForResource(
         period_end: getUnixTime(endOfDay(date)),
         type: 'asset-request',
         email: host,
-        event_id: id,
+        event_id: from_booking ? '' : id,
+        booking_id: from_booking ? id : '',
         ical_uid,
     }).toPromise();
     const filtered = bookings.filter(
@@ -381,7 +382,7 @@ export async function updateAssetRequestsForResource(
                         extension_data: { parent_id: id, location_id },
                         zones: zones || [],
                     }),
-                    { ical_uid, event_id: id }
+                    { ical_uid, event_id: from_booking ? '' : id }
                 ).toPromise()
             )
     );

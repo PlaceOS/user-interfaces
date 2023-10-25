@@ -27,6 +27,8 @@ export interface BookingsQueryParams {
     /**  */
     event_id?: string;
     /**  */
+    booking_id?: string;
+    /**  */
     ical_uid?: string;
     /** Set the size of the page */
     limit?: number;

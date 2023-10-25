@@ -549,7 +549,7 @@ export class BookingFormService extends AsyncHandler {
             });
         if (value.assets?.length || booking.extension_data.assets?.length) {
             await updateAssetRequestsForResource(
-                result as any,
+                { ...result, from_booking: true },
                 {
                     date: value.date,
                     duration: value.duration,
