@@ -143,9 +143,11 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
                 const status =
                     this.active === desk.id
                         ? 'active'
-                        : free_desks.find((_) => _.id === desk.id)
-                        ? 'free'
-                        : 'busy';
+                        : this._state.resourceUserName(desk.id)
+                        ? free_desks.find((_) => _.id === desk.id)
+                            ? 'free'
+                            : 'busy'
+                        : 'not-bookable';
                 styles[`#${desk.map_id || desk.id}`] = {
                     fill:
                         status === 'active'
