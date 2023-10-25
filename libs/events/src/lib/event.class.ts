@@ -9,14 +9,12 @@ import {
     add,
     addMinutes,
     differenceInMinutes,
-    endOfDay,
     format,
     getUnixTime,
     isAfter,
     isBefore,
     isSameDay,
     roundToNearestMinutes,
-    set,
     startOfDay,
 } from 'date-fns';
 import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
@@ -115,9 +113,13 @@ export class CalendarEvent {
     public readonly ical_uid: string;
     /** Mailbox email address of the event */
     public readonly mailbox: string;
-
+    /** Setup in seconds */
+    public readonly setup_time?: number;
+    /** Breakdown in seconds */
+    public readonly breakdown_time?: number;
+    /** Bookings that a linked to this event */
     public readonly linked_bookings: LinkedBooking[];
-
+    /** Whether changes to this event should update the parent event */
     public readonly update_master: boolean;
 
     public get is_all_day() {
@@ -235,6 +237,8 @@ export class CalendarEvent {
         this.status = eventStatus({ ...data, ...this }) || 'none';
         this.location =
             data.location || this.space?.display_name || this.space?.name || '';
+        this.setup_time = data.setup_time || 0;
+        this.breakdown_time = data.breakdown_time || 0;
         this.type =
             this.status === 'declined'
                 ? 'cancelled'
@@ -300,8 +304,8 @@ export class CalendarEvent {
             'email'
         );
         if (this.all_day) {
-            delete obj.extension_data.setup_time;
-            delete obj.extension_data.breakdown_time;
+            obj.setup_time = 0;
+            obj.breakdown_time = 0;
             obj.extension_data.all_day_date = format(date, 'yyyy-MM-dd');
         }
         obj.extension_data.catering = obj.extension_data.catering.map(

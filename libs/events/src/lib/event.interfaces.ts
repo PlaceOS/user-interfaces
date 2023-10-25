@@ -12,10 +12,6 @@ export interface FileDetails {
 }
 
 export interface EventExtensionData {
-    /** Setup in seconds */
-    setup_time?: number;
-    /** Breakdown in seconds */
-    breakdown_time?: number;
     /** Whether event is cleaned */
     cleaned?: boolean;
     /** Catering */
@@ -128,8 +124,6 @@ export interface TimeBlock {
 export interface TimePeriod extends Record<string, any> {
     date: number;
     duration: number;
-    extension_data?: {
-        setup_time?: number;
-        breakdown_time?: number;
-    };
+    setup_time?: number;
+    breakdown_time?: number;
 }

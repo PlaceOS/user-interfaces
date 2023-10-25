@@ -26,7 +26,9 @@
         "workspace-generator": "nx workspace-generator",
         "dep-graph": "nx dep-graph",
         "help": "nx help",
-        "version": "node ./tools/apply-version.js && npx standard-version"
+        "version": "node ./tools/apply-version.js && npx standard-version",
+        "build-all": "nx run-many --target=build --parallel=4",
+        "test-all": "nx run-many --target=test --runInBand --parallel=4"
     },
     "private": true,
     "dependencies": {

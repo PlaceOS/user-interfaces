@@ -25,6 +25,7 @@ import { currentUser, notifyError, notifySuccess } from '@placeos/common';
                     name="setup"
                     formControlName="setup"
                     [min]="0"
+                    [custom_options]="[5, 10]"
                 ></a-duration-field>
             </div>
             <div class="flex flex-col space-y-2">
@@ -33,6 +34,7 @@ import { currentUser, notifyError, notifySuccess } from '@placeos/common';
                     name="breakdown"
                     [min]="0"
                     formControlName="breakdown"
+                    [custom_options]="[5, 10]"
                 ></a-duration-field>
             </div>
         </main>
@@ -56,8 +58,8 @@ import { currentUser, notifyError, notifySuccess } from '@placeos/common';
 export class SetupBreakdownModalComponent {
     public loading = false;
     public readonly form = new FormGroup({
-        setup: new FormControl(this._event.ext('setup_time') || 0),
-        breakdown: new FormControl(this._event.ext('breakdown_time') || 0),
+        setup: new FormControl(this._event.setup_time || 0),
+        breakdown: new FormControl(this._event.breakdown_time || 0),
     });
 
     constructor(
@@ -75,11 +77,8 @@ export class SetupBreakdownModalComponent {
         const event = await saveEvent(
             new CalendarEvent({
                 ...this._event,
-                extension_data: {
-                    ...this._event.extension_data,
-                    setup_time: this.form.value.setup,
-                    breakdown_time: this.form.value.breakdown,
-                },
+                setup_time: this.form.value.setup,
+                breakdown_time: this.form.value.breakdown,
             }).toJSON(),
             query
         )
