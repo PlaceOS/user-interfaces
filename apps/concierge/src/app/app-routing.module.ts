@@ -58,6 +58,13 @@ const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
     },
     {
+        path: 'book/lockers',
+        loadChildren: () =>
+            import('./lockers/lockers.module').then((m) => m.LockersModule),
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+    },
+    {
         path: 'reports',
         loadChildren: () =>
             import('./reports/reports.module').then((m) => m.ReportsModule),
