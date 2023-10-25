@@ -148,6 +148,7 @@ import { map, tap } from 'rxjs/operators';
                         name="setup"
                         formControlName="setup_time"
                         [min]="0"
+                        [custom_options]="[5, 10]"
                     ></a-duration-field>
                 </div>
                 <div class="flex flex-col space-y-2 flex-1">
@@ -156,6 +157,7 @@ import { map, tap } from 'rxjs/operators';
                         name="breakdown"
                         [min]="0"
                         formControlName="breakdown_time"
+                        [custom_options]="[5, 10]"
                     ></a-duration-field>
                 </div>
             </div>
