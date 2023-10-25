@@ -968,6 +968,41 @@ a[icon] {
     [app-bootstrap] {
         @apply bg-neutral;
     }
+
+    mat-snack-bar-container {
+        button.mdc-button {
+            color: inherit;
+        }
+        .mdc-snackbar__label {
+            color: inherit;
+        }
+        &.success {
+            .mdc-snackbar__surface {
+                background-color: var(--su);
+                color: var(--suc);
+            }
+        }
+        &.info {
+            .mdc-snackbar__surface {
+                background-color: var(--in);
+                color: var(--inc);
+            }
+        }
+        &.error {
+            .mdc-snackbar__surface {
+                background-color: var(--er);
+                color: var(--erc);
+            }
+        }
+        &.warning,
+        &.warn,
+        &.pending {
+            .mdc-snackbar__surface {
+                background-color: var(--wa);
+                color: var(--wac);
+            }
+        }
+    }
 }
 
 .markdown {
