@@ -26,12 +26,13 @@ import { map, take } from 'rxjs/operators';
             icon
             name="close-desk-confirm"
             matRipple
+            class="absolute right-2 top-2 bg-base-200"
             *ngIf="show_close"
             (click)="dismiss()"
         >
             <app-icon>close</app-icon>
         </button>
-        <header class="flex items-center justify-between px-2">
+        <header class="flex items-center justify-between px-4 pt-4">
             <h2 class="text-2xl font-medium mb-2" i18n>Confirm Desk Booking</h2>
             <mat-spinner diameter="32" *ngIf="loading | async"></mat-spinner>
         </header>
@@ -60,7 +61,7 @@ import { map, take } from 'rxjs/operators';
         </section>
         <section
             desk
-            class="flex space-x-1 py-4 px-2 border-t"
+            class="flex space-x-1 py-4 px-2 border-t border-neutral"
             *ngIf="booking_asset?.id"
         >
             <app-icon class="text-success">done</app-icon>
@@ -88,14 +89,16 @@ import { map, take } from 'rxjs/operators';
         </section>
         <section
             assets
-            class="flex space-x-1 py-4 px-2 border-t"
+            class="flex space-x-1 py-4 px-2 border-t border-neutral"
             *ngIf="assets?.length"
         >
             <app-icon class="text-success">done</app-icon>
             <div details class="leading-6">
                 <h3 i18n>{{ assets_count }} Asset(s)</h3>
                 <div class="flex space-x-2" *ngFor="let asset of assets">
-                    <div class="h-5 w-5 bg-base-200 rounded-full">
+                    <div
+                        class="h-5 w-5 bg-base-200 rounded-full flex items-center justify-center"
+                    >
                         {{ asset.amount }}
                     </div>
                     <span>{{ asset.name }}</span>

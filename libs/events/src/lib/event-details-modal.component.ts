@@ -55,37 +55,22 @@ const EMPTY_ACTIONS = [];
                     <div class="flex m-2">
                         <div
                             class="flex items-center bg-opacity-30 rounded-2xl p-1 text-sm space-x-2 pr-2 font-medium"
-                            [class.bg-success]="
+                            [class.bg-success-light]="
                                 event.state !== 'done' &&
                                 event?.status === 'approved'
                             "
-                            [class.bg-warning]="
+                            [class.bg-warning-light]="
                                 event.state !== 'done' &&
                                 event?.status === 'tentative'
                             "
-                            [class.bg-error]="
+                            [class.bg-error-light]="
                                 event.state !== 'done' &&
                                 event?.status === 'declined'
                             "
                             [class.bg-base-200]="event.state === 'done'"
                         >
                             <div
-                                class="rounded-full h-5 w-5 flex items-center justify-center text-white"
-                                [class.bg-success]="
-                                    event.state !== 'done' &&
-                                    event?.status === 'approved'
-                                "
-                                [class.text-pending]="
-                                    event.state !== 'done' &&
-                                    event?.status === 'tentative'
-                                "
-                                [class.bg-error]="
-                                    event.state !== 'done' &&
-                                    event?.status === 'declined'
-                                "
-                                [class.text-neutral-600]="
-                                    event.state === 'done'
-                                "
+                                class="rounded-full h-5 w-5 flex items-center justify-center"
                             >
                                 <app-icon>
                                     {{

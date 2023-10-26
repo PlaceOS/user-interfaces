@@ -42,35 +42,22 @@ import { checkinBooking } from './bookings.fn';
                     <div class="flex m-2">
                         <div
                             class="flex items-center bg-opacity-30 rounded-2xl p-1 text-sm space-x-2 pr-2 font-medium"
-                            [class.bg-success]="
+                            [class.bg-success-light]="
                                 !booking.is_done &&
                                 booking?.status === 'approved'
                             "
-                            [class.bg-warning]="
+                            [class.bg-warning-light]="
                                 !booking.is_done &&
                                 booking?.status === 'tentative'
                             "
-                            [class.bg-error]="
+                            [class.bg-error-light]="
                                 !booking.is_done &&
                                 booking?.status === 'declined'
                             "
                             [class.bg-base-200]="booking.is_done"
                         >
                             <div
-                                class="rounded-full h-5 w-5 flex items-center justify-center text-white"
-                                [class.bg-success]="
-                                    !booking.is_done &&
-                                    booking?.status === 'approved'
-                                "
-                                [class.text-pending]="
-                                    !booking.is_done &&
-                                    booking?.status === 'tentative'
-                                "
-                                [class.bg-error]="
-                                    !booking.is_done &&
-                                    booking?.status === 'declined'
-                                "
-                                [class.text-neutral-600]="booking.is_done"
+                                class="rounded-full h-5 w-5 flex items-center justify-center"
                             >
                                 <app-icon>
                                     {{

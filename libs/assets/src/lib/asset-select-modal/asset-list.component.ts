@@ -38,7 +38,7 @@ import { map } from 'rxjs/operators';
                                 class="relative w-16 h-16 rounded-xl bg-base-200 mr-4 flex items-center justify-center overflow-hidden border border-base-200"
                             >
                                 <div
-                                    class="absolute top-1 left-1 border border-neutral bg-base-200 rounded-full h-6 w-6 flex items-center justify-center text-white"
+                                    class="absolute top-1 left-1 border border-base-300 bg-base-200 rounded-full h-6 w-6 flex items-center justify-center"
                                     *ngIf="selected.includes(asset.id)"
                                 >
                                     <span class="text-xs">
