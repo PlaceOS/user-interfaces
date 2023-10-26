@@ -547,7 +547,7 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                             title: 'Idle Timeout',
                             content: 'Your form data is out of date',
                             icon: { content: 'update' },
-                            confirm_text: 'Reload',
+                            confirm_text: 'Refresh',
                         },
                         this._dialog
                     );
