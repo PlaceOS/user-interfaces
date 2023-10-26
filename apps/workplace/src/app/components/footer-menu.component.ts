@@ -5,11 +5,12 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
     selector: 'footer-menu',
     template: `
         <div
-            class="fixed z-20 inset-0 bottom-16 bg-neutral text-white"
+            class="fixed z-20 inset-0 bottom-16 text-white"
             *ngIf="show_book_items"
             [attr.dark]="dark_mode"
             (click)="show_book_items = false"
         >
+            <div class="absolute inset-0 bg-black opacity-50"></div>
             <div
                 class="absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-center p-4"
             >
@@ -26,9 +27,9 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     class="flex flex-col items-center justify-center space-y-2 text-base w-1/3 m-2"
                 >
                     <div
-                        class="bg-base-100 rounded-full h-12 w-12 text-black text-2xl flex items-center justify-center"
+                        class="bg-base-100 rounded-full h-12 w-12 text-2xl flex items-center justify-center"
                     >
-                        <app-icon filled class="text-neutral-500"
+                        <app-icon filled class="text-base-content"
                             >meeting_room</app-icon
                         >
                         <app-icon outline className="material-icons-outlined"
@@ -42,7 +43,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     name="footer-nav-desks"
                     [routerLink]="
                         new_features
-                            ? ['/book', 'new-desk']
+                            ? ['/book', 'new-desks']
                             : ['/book', 'desks']
                     "
                     routerLinkActive="active"
@@ -50,9 +51,9 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     class="flex flex-col items-center justify-center space-y-2 text-base w-1/3 m-2"
                 >
                     <div
-                        class="bg-base-100 rounded-full h-12 w-12 text-black text-2xl flex items-center justify-center"
+                        class="bg-base-100 rounded-full h-12 w-12 text-2xl flex items-center justify-center"
                     >
-                        <app-icon filled class="text-neutral-500"
+                        <app-icon filled class="text-base-content"
                             >desk</app-icon
                         >
                         <app-icon outline className="material-icons-outlined"
@@ -64,15 +65,15 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                 <a
                     matRipple
                     name="footer-nav-parking"
-                    [routerLink]="['/book', 'parking']"
+                    [routerLink]="['/book', 'new-parking']"
                     routerLinkActive="active"
                     *ngIf="features.includes('parking')"
                     class="flex flex-col items-center justify-center space-y-2 text-base w-1/3 m-2"
                 >
                     <div
-                        class="bg-base-100 rounded-full h-12 w-12 text-black text-2xl flex items-center justify-center"
+                        class="bg-base-100 rounded-full h-12 w-12 text-2xl flex items-center justify-center"
                     >
-                        <app-icon filled class="text-neutral-500"
+                        <app-icon filled class="text-base-content"
                             >directions_car</app-icon
                         >
                         <app-icon outline className="material-icons-outlined"
@@ -90,9 +91,9 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     class="flex flex-col items-center justify-center space-y-2 text-base w-1/3 m-2"
                 >
                     <div
-                        class="bg-base-100 rounded-full h-12 w-12 text-black text-2xl flex items-center justify-center"
+                        class="bg-base-100 rounded-full h-12 w-12 text-2xl flex items-center justify-center"
                     >
-                        <app-icon filled class="text-neutral-500"
+                        <app-icon filled class="text-base-content"
                             >person_add</app-icon
                         >
                         <app-icon outline className="material-icons-outlined"
@@ -112,9 +113,9 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     class="flex flex-col items-center justify-center space-y-2 text-base w-1/3  m-2"
                 >
                     <div
-                        class="bg-base-100 rounded-full h-12 w-12 text-black text-2xl flex items-center justify-center"
+                        class="bg-base-100 rounded-full h-12 w-12 text-2xl flex items-center justify-center"
                     >
-                        <app-icon filled class="text-neutral-500"
+                        <app-icon filled class="text-base-content"
                             >today</app-icon
                         >
                         <app-icon outline className="material-icons-outlined"
@@ -135,7 +136,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                 class="flex flex-col items-center justify-center relative flex-1"
                 [routerLink]="[default_page]"
                 name="footer-nav-home"
-                routerLinkActive="text-primary active"
+                routerLinkActive="text-secondary active"
             >
                 <app-icon filled class="text-2xl">home</app-icon>
                 <app-icon
@@ -150,7 +151,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                 matRipple
                 class="flex items-center justify-center w-12 h-12 mb-4 rounded-full z-10"
                 (click)="show_book_items = !show_book_items"
-                [class.bg-primary]="show_book_items"
+                [class.bg-secondary]="show_book_items"
                 [class.text-white]="show_book_items"
                 [class.bg-base-200]="!show_book_items"
             >
@@ -162,7 +163,7 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                 matRipple
                 class="flex flex-col items-center justify-center relative flex-1"
                 [routerLink]="['/explore']"
-                routerLinkActive="text-primary active"
+                routerLinkActive="text-secondary active"
             >
                 <app-icon filled class="text-2xl">place</app-icon>
                 <app-icon

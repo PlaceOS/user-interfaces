@@ -6,7 +6,7 @@ export type StatusValue = 'success' | 'warning' | 'error' | 'info' | 'neutral';
     selector: 'status-pill',
     template: `
         <div
-            class="flex items-center bg-opacity-30 rounded-2xl px-2 py-1 text-base space-x-2 font-medium"
+            class="flex items-center bg-opacity-30 rounded-2xl px-2 py-1 text-base space-x-2 font-medium text-black"
             [class.bg-success-light]="status === 'success'"
             [class.bg-warning-light]="status === 'warning'"
             [class.bg-error-light]="status === 'error'"
@@ -19,6 +19,7 @@ export type StatusValue = 'success' | 'warning' | 'error' | 'info' | 'neutral';
                 [class.text-warning]="status === 'warning'"
                 [class.text-error]="status === 'error'"
                 [class.text-info]="status === 'info'"
+                [class.text-base-content]="status === 'neutral'"
                 [class.opacity-40]="status === 'neutral'"
             >
                 <app-icon class="text-2xl" [ngSwitch]="status">
@@ -31,7 +32,10 @@ export type StatusValue = 'success' | 'warning' | 'error' | 'info' | 'neutral';
                     <ng-container *ngSwitchDefault>warning</ng-container>
                 </app-icon>
             </div>
-            <div [class.opacity-40]="status === 'neutral'">
+            <div
+                [class.opacity-40]="status === 'neutral'"
+                [class.text-base-content]="status === 'neutral'"
+            >
                 <ng-content></ng-content>
             </div>
         </div>

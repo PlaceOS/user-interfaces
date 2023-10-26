@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
     template: `
         <div class="bg-base-200 h-full w-full overflow-auto">
             <div
-                class="w-full h-full sm:h-auto max-w-[640px] mx-auto sm:my-4 bg-base-100 shadow border border-base-200 overflow-hidden"
+                class="w-full h-full sm:h-auto max-w-[48rem] mx-auto sm:my-4 bg-base-100 shadow border border-base-200 overflow-hidden"
             >
                 <invite-visitor-form (done)="onDone()"></invite-visitor-form>
             </div>

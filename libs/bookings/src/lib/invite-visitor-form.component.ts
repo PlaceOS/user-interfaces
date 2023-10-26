@@ -18,10 +18,14 @@ import { User } from 'libs/users/src/lib/user.class';
                 class="relative flex flex-col bg-base-100 overflow-auto max-h-full"
                 *ngIf="!(loading | async) && !loading_many; else load_state"
             >
-                <div class="w-full border-b border-base-200 px-4 py-2">
-                    <h2 class="text-2xl" i18n>Invite Visitor</h2>
+                <div class="w-full border-b border-base-200 sm:px-16 px-4 py-4">
+                    <h2 class="text-2xl font-medium" i18n>Invite Visitor</h2>
                 </div>
-                <form *ngIf="form" [formGroup]="form" class="p-4">
+                <form
+                    *ngIf="form"
+                    [formGroup]="form"
+                    class="sm:px-16 px-4 py-4"
+                >
                     <div class="flex flex-col" *ngIf="buildings?.length > 1">
                         <label for="building" i18n>
                             Building<span>*</span>
@@ -183,7 +187,7 @@ import { User } from 'libs/users/src/lib/user.class';
                     </div>
                 </form>
                 <div
-                    class="sticky p-4 border-t bg-base-100 border-base-200 bottom-0"
+                    class="sticky sm:px-16 px-4 py-4 border-t bg-base-100 border-base-200 bottom-0"
                 >
                     <button
                         btn
