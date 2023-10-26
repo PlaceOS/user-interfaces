@@ -29,7 +29,7 @@ import { BookingAsset } from '../booking-form.service';
         <ng-container *ngIf="desk; else emptyState">
             <section
                 image
-                class="relative w-full bg-neutral"
+                class="relative w-full bg-base-300"
                 [class.sm:h-64]="desk.images?.length"
                 [class.h-40]="desk.images?.length"
                 [class.sm:h-0]="!desk.images?.length"
@@ -46,7 +46,7 @@ import { BookingAsset } from '../booking-form.service';
                     matRipple
                     name="close-desk-details"
                     (click)="close.emit()"
-                    class="absolute top-2 left-2 bg-neutral sm:hidden text-white"
+                    class="absolute top-2 left-2 bg-base-200 sm:hidden text-base-content"
                 >
                     <app-icon>arrow_back</app-icon>
                 </button>
@@ -54,10 +54,10 @@ import { BookingAsset } from '../booking-form.service';
                     icon
                     matRipple
                     name="toggle-desk-favourite-details"
-                    [class.text-white]="!fav"
-                    [class.text-blue-400]="fav"
+                    [class.text-info-content]="fav"
+                    [class.!bg-info]="fav"
                     (click)="toggleFav.emit()"
-                    class="absolute top-2 right-2 bg-neutral"
+                    class="absolute top-2 right-2 bg-base-200"
                 >
                     <app-icon>{{
                         fav ? 'favorite' : 'favorite_border'

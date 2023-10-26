@@ -19,7 +19,7 @@ import { Space } from '../space.class';
                 <li
                     space
                     *ngFor="let space of available_spaces | async"
-                    [class.!border-blue-400]="active === space.id"
+                    [class.!border-info]="active === space.id"
                     class="relative p-2 rounded-lg w-full shadow border bg-base-100 border-base-200"
                 >
                     <button
@@ -29,10 +29,10 @@ import { Space } from '../space.class';
                         (click)="selectSpace(space)"
                     >
                         <div
-                            class="relative min-w-[5rem] w-20 h-20 rounded-xl bg-neutral mr-4 overflow-hidden flex items-center justify-center"
+                            class="relative min-w-[5rem] w-20 h-20 rounded-xl bg-base-200 mr-4 overflow-hidden flex items-center justify-center"
                         >
                             <div
-                                class="absolute top-1 left-1 border border-white bg-neutral rounded-full h-6 w-6 flex items-center justify-center text-white"
+                                class="absolute top-1 left-1 border border-neutral bg-base-200 rounded-full h-6 w-6 flex items-center justify-center text-white"
                                 *ngIf="selected.includes(space.id)"
                             >
                                 <app-icon>done</app-icon>
@@ -62,7 +62,7 @@ import { Space } from '../space.class';
                                 }}
                             </div>
                             <div class="flex items-center text-sm space-x-2">
-                                <app-icon class="text-blue-500">place</app-icon>
+                                <app-icon class="text-info">place</app-icon>
                                 <p class="truncate">
                                     {{
                                         space.location ||
@@ -72,9 +72,7 @@ import { Space } from '../space.class';
                                 </p>
                             </div>
                             <div class="flex items-center text-sm space-x-2">
-                                <app-icon class="text-blue-500"
-                                    >people</app-icon
-                                >
+                                <app-icon class="text-info">people</app-icon>
                                 <p i18n>
                                     {{
                                         space.capacity < 1 ? 2 : space.capacity
@@ -89,7 +87,7 @@ import { Space } from '../space.class';
                         matRipple
                         name="toggle-space-favourite"
                         class="absolute top-1 right-1"
-                        [class.text-blue-400]="isFavourite(space.id)"
+                        [class.text-info]="isFavourite(space.id)"
                         (click)="toggleFav.emit(space)"
                     >
                         <app-icon>{{

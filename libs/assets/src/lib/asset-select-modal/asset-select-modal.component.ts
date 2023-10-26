@@ -12,7 +12,7 @@ const EMPTY_FAVS: string[] = [];
             class="w-[100vw] h-[100vh] sm:relative sm:w-auto sm:h-auto flex flex-col bg-base-100"
         >
             <header class="flex items-center space-x-4 w-full">
-                <button icon mat-dialog-close class="bg-neutral">
+                <button icon mat-dialog-close class="bg-base-200">
                     <app-icon>close</app-icon>
                 </button>
                 <h3>Add Assets</h3>
@@ -83,7 +83,7 @@ const EMPTY_FAVS: string[] = [];
                     btn
                     matRipple
                     [mat-dialog-close]="selected"
-                    class="clear text-primary"
+                    class="clear text-secondary"
                 >
                     <div class="flex items-center">
                         <app-icon class="text-xl">arrow_back</app-icon>

@@ -40,10 +40,10 @@ import { LockersService } from '../lockers.service';
                         (click)="selectLockerBank(locker_bank)"
                     >
                         <div
-                            class="relative w-20 h-20 rounded-xl bg-neutral mr-4 flex items-center justify-center"
+                            class="relative w-20 h-20 rounded-xl bg-base-200 mr-4 flex items-center justify-center"
                         >
                             <div
-                                class="absolute top-1 left-1 border border-white bg-neutral rounded-full h-6 w-6 flex items-center justify-center text-white"
+                                class="absolute top-1 left-1 border border-neutral bg-base-200 rounded-full h-6 w-6 flex items-center justify-center text-white"
                                 *ngIf="selected.includes(locker_bank.id)"
                             >
                                 <app-icon>done</app-icon>

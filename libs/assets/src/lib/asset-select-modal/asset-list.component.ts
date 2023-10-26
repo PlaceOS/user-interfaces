@@ -13,7 +13,7 @@ import { map } from 'rxjs/operators';
 @Component({
     selector: 'asset-list',
     template: `
-        <div class="w-full h-full overflow-auto py-2 bg-neutral">
+        <div class="w-full h-full overflow-auto py-2 bg-base-200">
             <h3 class="font-bold px-2">Results</h3>
             <p count class="text-sm opacity-60 mb-4 px-2">
                 {{ (assets | async)?.length || 0 }} result(s) found
@@ -35,10 +35,10 @@ import { map } from 'rxjs/operators';
                             (click)="selectAsset(asset)"
                         >
                             <div
-                                class="relative w-16 h-16 rounded-xl bg-neutral mr-4 flex items-center justify-center overflow-hidden border border-base-200"
+                                class="relative w-16 h-16 rounded-xl bg-base-200 mr-4 flex items-center justify-center overflow-hidden border border-base-200"
                             >
                                 <div
-                                    class="absolute top-1 left-1 border border-white bg-neutral rounded-full h-6 w-6 flex items-center justify-center text-white"
+                                    class="absolute top-1 left-1 border border-neutral bg-base-200 rounded-full h-6 w-6 flex items-center justify-center text-white"
                                     *ngIf="selected.includes(asset.id)"
                                 >
                                     <span class="text-xs">
@@ -85,7 +85,7 @@ import { map } from 'rxjs/operators';
                             matRipple
                             fav
                             class="absolute top-1 right-1"
-                            [class.text-blue-400]="isFavourite(asset.id)"
+                            [class.text-info]="isFavourite(asset.id)"
                             (click)="toggleFav.emit(asset)"
                         >
                             <app-icon>{{

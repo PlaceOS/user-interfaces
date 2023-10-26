@@ -30,7 +30,7 @@ import { BookingFormService, BookingAsset } from '../booking-form.service';
                     desk
                     *ngFor="let desk of desks | async"
                     class="relative rounded-lg w-full shadow border bg-base-100 border-base-200 overflow-hidden"
-                    [class.!border-blue-400]="active === desk.id"
+                    [class.!border-info]="active === desk.id"
                 >
                     <button
                         name="select-desk"
@@ -39,10 +39,10 @@ import { BookingFormService, BookingAsset } from '../booking-form.service';
                         (click)="selectDesk(desk)"
                     >
                         <div
-                            class="relative w-20 h-20 rounded-xl bg-neutral mr-4 flex items-center justify-center"
+                            class="relative w-20 h-20 rounded-xl bg-base-200 mr-4 flex items-center justify-center"
                         >
                             <div
-                                class="absolute top-1 left-1 border border-white bg-neutral rounded-full h-6 w-6 flex items-center justify-center text-white"
+                                class="absolute top-1 left-1 border border-neutral bg-base-200 rounded-full h-6 w-6 flex items-center justify-center text-white"
                                 *ngIf="selected.includes(desk.id)"
                             >
                                 <app-icon>done</app-icon>
@@ -65,7 +65,7 @@ import { BookingFormService, BookingAsset } from '../booking-form.service';
                                 {{ desk.name || desk.id || 'Desk' }}
                             </span>
                             <div class="flex items-center text-sm space-x-2">
-                                <app-icon class="text-blue-500">place</app-icon>
+                                <app-icon class="text-info">place</app-icon>
                                 <p class="text-xs">
                                     {{
                                         desk.zone?.display_name ||
@@ -81,7 +81,7 @@ import { BookingFormService, BookingAsset } from '../booking-form.service';
                         matRipple
                         name="toggle-desk-favourite"
                         class="absolute top-1 right-1"
-                        [class.text-blue-400]="isFavourite(desk.id)"
+                        [class.text-info]="isFavourite(desk.id)"
                         (click)="toggleFav.emit(desk)"
                     >
                         <app-icon>{{

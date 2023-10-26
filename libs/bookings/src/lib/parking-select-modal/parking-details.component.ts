@@ -16,7 +16,7 @@ import { BookingAsset } from '../booking-form.service';
         <ng-container *ngIf="space; else empty_state">
             <section
                 image
-                class="relative w-full bg-neutral"
+                class="relative w-full bg-base-200"
                 [class.sm:h-40]="space.images?.length"
                 [class.h-64]="space.images?.length"
                 [class.sm:h-0]="!space.images?.length"
@@ -33,7 +33,7 @@ import { BookingAsset } from '../booking-form.service';
                     matRipple
                     close
                     (click)="close.emit()"
-                    class="absolute top-2 left-2 bg-neutral sm:hidden text-white"
+                    class="absolute top-2 left-2 bg-base-200 sm:hidden"
                 >
                     <app-icon>arrow_back</app-icon>
                 </button>
@@ -41,10 +41,10 @@ import { BookingAsset } from '../booking-form.service';
                     icon
                     matRipple
                     fav
-                    [class.text-white]="!fav"
-                    [class.text-blue-400]="fav"
+                    [class.text-info-content]="fav"
+                    [class.!bg-info]="fav"
                     (click)="toggleFav.emit()"
-                    class="absolute top-2 right-2 bg-neutral"
+                    class="absolute top-2 right-2 bg-base-200"
                 >
                     <app-icon>{{
                         fav ? 'favorite' : 'favorite_border'

@@ -12,7 +12,7 @@ import { flatten } from '@placeos/common';
     selector: 'asset-details',
     template: `
         <ng-container *ngIf="item; else empty_state">
-            <section image class="relative w-full h-64 sm:h-40 bg-neutral">
+            <section image class="relative w-full h-64 sm:h-40 bg-base-200">
                 <image-carousel
                     [images]="item.images"
                     class="absolute inset-0"
@@ -22,7 +22,7 @@ import { flatten } from '@placeos/common';
                     matRipple
                     close
                     (click)="close.emit()"
-                    class="absolute top-2 left-2 bg-neutral sm:hidden text-white"
+                    class="absolute top-2 left-2 bg-base-200 sm:hidden"
                 >
                     <app-icon>arrow_back</app-icon>
                 </button>
@@ -30,10 +30,10 @@ import { flatten } from '@placeos/common';
                     icon
                     matRipple
                     fav
-                    [class.text-white]="!fav"
-                    [class.text-blue-400]="fav"
+                    [class.text-info-content]="fav"
+                    [class.!bg-info]="fav"
                     (click)="toggleFav.emit()"
-                    class="absolute top-2 right-2 bg-neutral"
+                    class="absolute top-2 right-2 bg-base-200"
                 >
                     <app-icon>
                         {{ fav ? 'favorite' : 'favorite_border' }}

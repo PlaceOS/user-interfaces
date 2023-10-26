@@ -17,7 +17,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
             class="w-[100vw] h-[100vh] sm:relative sm:w-auto sm:h-auto flex flex-col bg-base-100"
         >
             <header class="flex items-center space-x-4 w-full">
-                <button icon mat-dialog-close class="bg-neutral">
+                <button icon mat-dialog-close class="bg-base-200">
                     <app-icon>close</app-icon>
                 </button>
                 <h3 i18n>Find Desk</h3>
@@ -64,7 +64,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                         [favorites]="favorites"
                         (toggleFav)="toggleFavourite($event)"
                         (onSelect)="displayed = $event"
-                        class="flex-1 h-1/2 bg-neutral"
+                        class="flex-1 h-1/2 bg-base-200"
                     ></desk-list>
                 </div>
                 <desk-details
@@ -114,7 +114,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                     matRipple
                     name="desk-return"
                     [mat-dialog-close]="selected"
-                    class="clear text-primary"
+                    class="clear text-secondary"
                 >
                     <div class="flex items-center">
                         <app-icon class="text-xl">arrow_back</app-icon>

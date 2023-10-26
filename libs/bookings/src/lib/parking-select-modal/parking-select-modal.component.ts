@@ -16,7 +16,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
             class="w-[100vw] h-[100vh] sm:relative sm:w-auto sm:h-auto flex flex-col bg-base-100"
         >
             <header class="flex items-center space-x-4 w-full">
-                <button icon matRipple mat-dialog-close class="bg-neutral">
+                <button icon matRipple mat-dialog-close class="bg-base-200">
                     <app-icon>close</app-icon>
                 </button>
                 <h3 i18n>Find Parking Space</h3>
@@ -41,7 +41,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                         [favorites]="favorites"
                         (toggleFav)="toggleFavourite($event)"
                         (onSelect)="displayed = $event"
-                        class="flex-1 h-1/2 bg-neutral"
+                        class="flex-1 h-1/2 bg-base-200"
                     ></parking-space-list>
                 </div>
                 <parking-space-details
@@ -89,7 +89,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                     btn
                     matRipple
                     [mat-dialog-close]="selected"
-                    class="clear text-primary"
+                    class="clear text-secondary"
                 >
                     <div class="flex items-center">
                         <app-icon class="text-xl">arrow_back</app-icon>
