@@ -46,7 +46,7 @@ import { ParkingStateService } from './parking-state.service';
             btn
             icon
             matRipple
-            class="absolute bottom-2 left-2 bg-primary text-white"
+            class="absolute bottom-2 left-2 bg-secondary text-secondary-content"
             (click)="editSpace()"
         >
             <app-icon>add</app-icon>

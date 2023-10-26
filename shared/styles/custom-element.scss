@@ -542,9 +542,9 @@ a[btn] {
     }
 
     &[disabled] {
-        background-color: var(--b3);
-        --color: var(--bc);
-        border-color: var(--bc), 0.1;
+        background-color: var(--n);
+        color: var(--nc);
+        border-color: var(--n);
         pointer-events: none;
         opacity: 0.3;
     }
@@ -655,6 +655,20 @@ a[icon] {
                 border-color: var(--in);
                 background-color: var(--in);
             }
+        }
+    }
+
+    .mdc-tab__text-label {
+        color: var(--bc);
+    }
+
+    .mdc-tab-indicator__content {
+        border-color: var(--s);
+    }
+
+    [aria-selected='true'] {
+        .mdc-tab__text-label {
+            color: var(--s);
         }
     }
 

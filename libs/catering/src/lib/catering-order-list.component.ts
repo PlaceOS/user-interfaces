@@ -31,7 +31,7 @@ import { CateringOrdersService } from './catering-orders.service';
                 class="info-block opacity-60"
                 *ngIf="!(order_list | async)?.length"
             >
-                <p>No Catering Orders</p>
+                <p class="p-4 text-center">No Catering Orders</p>
             </div>
         </ul>
         <mat-progress-bar

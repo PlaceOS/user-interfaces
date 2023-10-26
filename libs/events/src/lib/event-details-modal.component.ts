@@ -54,7 +54,7 @@ const EMPTY_ACTIONS = [];
                 <div class="sm:flex items-center justify-between w-full">
                     <div class="flex m-2">
                         <div
-                            class="flex items-center bg-opacity-30 rounded-2xl p-1 text-sm space-x-2 pr-2 font-medium"
+                            class="flex items-center bg-opacity-30 rounded-2xl p-1 text-sm space-x-2 pr-2 font-medium text-black"
                             [class.bg-success-light]="
                                 event.state !== 'done' &&
                                 event?.status === 'approved'

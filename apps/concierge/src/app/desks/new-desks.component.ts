@@ -81,7 +81,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                             btn
                             icon
                             matRipple
-                            class="bg-primary text-white rounded"
+                            class="bg-secondary text-white rounded"
                             (click)="newDesk()"
                             matTooltip="New Desk"
                         >
@@ -91,7 +91,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                             btn
                             icon
                             matRipple
-                            class="bg-primary relative text-white rounded"
+                            class="bg-secondary relative text-white rounded"
                             matTooltip="Upload Desks CSV"
                         >
                             <app-icon>cloud_upload</app-icon>
@@ -105,7 +105,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                             btn
                             icon
                             matRipple
-                            class="bg-primary text-white rounded"
+                            class="bg-secondary text-white rounded"
                             (click)="downloadTemplate()"
                             matTooltip="Download Template Desk CSV"
                         >
@@ -115,7 +115,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                             btn
                             icon
                             matRipple
-                            class="bg-primary text-white rounded"
+                            class="bg-secondary text-white rounded"
                             (click)="manageRestrictions()"
                             matTooltip="Desk Restrictions"
                         >

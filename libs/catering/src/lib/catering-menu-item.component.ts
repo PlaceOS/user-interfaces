@@ -60,7 +60,7 @@ import { CateringOption } from './catering.interfaces';
                     *ngFor="let option of item.options"
                 >
                     <div
-                        class="absolute inset-y-0 left-0 w-2 bg-base-300"
+                        class="absolute inset-y-0 left-0 w-2 bg-black opacity-10"
                     ></div>
                     <div class="flex-1 pl-4 pr-2">
                         <div class="text">{{ option.name }}</div>

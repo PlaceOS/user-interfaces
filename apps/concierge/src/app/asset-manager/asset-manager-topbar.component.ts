@@ -9,6 +9,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 btn
                 matRipple
                 class="secondary"
+                *ngIf="active === 'items'"
                 [routerLink]="[base_route, 'manage', 'group']"
             >
                 Add Product

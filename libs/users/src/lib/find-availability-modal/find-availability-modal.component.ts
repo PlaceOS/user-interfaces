@@ -136,7 +136,7 @@ export interface FindAvailabilityData {
                         ></div>
                         <div
                             selection
-                            class="absolute inset-y-0 !border-x-2 !border-blue-500 bg-info z-20 cursor-grab active:cursor-grabbing"
+                            class="absolute inset-y-0 !border-x-2 !border-info z-20 cursor-grab active:cursor-grabbing"
                             [style.left]="
                                 'calc(' +
                                 selection_left +
@@ -149,12 +149,15 @@ export interface FindAvailabilityData {
                             (touchstart)="startMovePeriod($event)"
                         >
                             <div
+                                class="absolute inset-0 bg-info opacity-30"
+                            ></div>
+                            <div
                                 handle
                                 class="absolute top-1/2 -left-px -translate-x-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-info"
                             ></div>
                             <div
                                 handle
-                                class="absolute top-1/2 -right-px translate-x-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-info hover:h-4 hover:w-4 active:bg-primary"
+                                class="absolute top-1/2 -right-px translate-x-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-info hover:h-4 hover:w-4 active:bg-secondary"
                                 (mousedown)="startMoveDuration($event)"
                                 (touchstart)="startMoveDuration($event)"
                             ></div>
@@ -211,7 +214,7 @@ export interface FindAvailabilityData {
                 btn
                 matRipple
                 [mat-dialog-close]="true"
-                class="clear text-primary"
+                class="clear text-secondary"
             >
                 <div class="flex items-center">
                     <app-icon class="text-xl">arrow_back</app-icon>
