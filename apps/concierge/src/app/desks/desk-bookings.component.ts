@@ -108,7 +108,7 @@ import { SettingsService } from '@placeos/common';
                     class="rounded-3xl px-2 py-1 flex items-center space-x-2 capitalize"
                     [class.bg-success]="row.approved"
                     [class.text-white]="row.approved || row.rejected"
-                    [class.bg-pending]="!row.approved && !row.rejected"
+                    [class.bg-warning]="!row.approved && !row.rejected"
                     [class.text-black]="!row.approved && !row.rejected"
                     [class.bg-error]="row.rejected"
                 >
@@ -145,7 +145,7 @@ import { SettingsService } from '@placeos/common';
                     matRipple
                     class="rounded-3xl px-2 py-1 text-white flex items-center space-x-2"
                     [matMenuTriggerFor]="checkinMenu"
-                    [class.bg-neutral-600]="!data"
+                    [class.bg-neutral]="!data"
                     [class.bg-success]="data"
                     [class.opacity-30]="row.status === 'ended'"
                     [disabled]="row.status === 'ended'"
