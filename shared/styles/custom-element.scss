@@ -641,7 +641,7 @@ a[icon] {
         .mdc-checkbox__background {
             border-color: var(--n);
             svg {
-                color: var(--sc);
+                color: var(--inc);
             }
         }
 
@@ -652,8 +652,8 @@ a[icon] {
 
         &.mat-mdc-checkbox-checked {
             .mdc-checkbox__background {
-                border-color: var(--s);
-                background-color: var(--s);
+                border-color: var(--in);
+                background-color: var(--in);
             }
         }
     }
@@ -862,27 +862,6 @@ a[icon] {
         svg {
             stroke: var(--s);
         }
-    }
-
-    .mdc-checkbox-checkmark {
-        fill: var(--pc);
-    }
-    .mdc-checkbox-checked {
-        .mdc-checkbox-background {
-            background-color: var(--p);
-        }
-
-        .mdc-checkbox-mixedmark {
-            background-color: var(--p);
-        }
-
-        .mdc-checkbox-checkmark-path {
-            stroke: var(--pc) !important;
-        }
-    }
-
-    .mdc-checkbox-frame {
-        border-color: var(--b2);
     }
 
     .mdc-radio-outer-circle,
