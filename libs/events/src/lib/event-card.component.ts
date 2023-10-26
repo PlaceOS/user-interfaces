@@ -36,39 +36,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             >
                 <h4 class="px-4 text-lg">{{ event?.title }}</h4>
                 <div class="flex mx-4 my-2">
-                    <div
-                        class="flex items-center bg-opacity-30 rounded-2xl p-1 text-base text-black space-x-2 pr-2 font-medium"
-                        [class.bg-success-light]="
-                            event.state !== 'done' &&
-                            event?.status === 'approved'
-                        "
-                        [class.bg-warning-light]="
-                            event.state !== 'done' &&
-                            event?.status === 'tentative'
-                        "
-                        [class.bg-error-light]="
-                            event.state !== 'done' &&
-                            event?.status === 'declined'
-                        "
-                        [class.bg-base-200]="event.state === 'done'"
-                    >
-                        <div
-                            class="rounded-full h-5 w-5 flex items-center justify-center "
-                        >
-                            <app-icon>
-                                {{
-                                    event.state === 'done'
-                                        ? 'not_interested'
-                                        : event?.status === 'approved'
-                                        ? 'done'
-                                        : event?.status === 'tentative'
-                                        ? 'warning'
-                                        : 'close'
-                                }}
-                            </app-icon>
-                        </div>
-                        <div class="pr-1">{{ period }}</div>
-                    </div>
+                    <status-pill [status]="status">{{ period }}</status-pill>
                 </div>
                 <div
                     class="flex flex-wrap flex-col sm:flex-row sm:divide-x divide-base-200-500 py-2 space-y-2 sm:space-y-0"
@@ -158,6 +126,14 @@ export class EventCardComponent extends AsyncHandler {
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public get status() {
+        if (this.event?.state === 'done') return 'neutral';
+        if (this.event?.status === 'approved') return 'success';
+        if (this.event?.status === 'tentative') return 'warning';
+        if (this.event?.status === 'declined') return 'error';
+        return 'warning';
     }
 
     constructor(

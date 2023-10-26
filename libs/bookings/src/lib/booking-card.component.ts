@@ -30,36 +30,7 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
             >
                 <h4 class="px-4 text-lg">{{ booking?.title }}</h4>
                 <div class="flex mx-4 my-2">
-                    <div
-                        class="flex items-center bg-opacity-30 rounded-2xl p-1 text-base text-black space-x-2 pr-2 font-medium"
-                        [class.bg-success-light]="
-                            !booking.is_done && booking?.status === 'approved'
-                        "
-                        [class.bg-warning-light]="
-                            !booking.is_done && booking?.status === 'tentative'
-                        "
-                        [class.bg-error-light]="
-                            !booking.is_done && booking?.status === 'declined'
-                        "
-                        [class.bg-base-200]="booking.is_done"
-                    >
-                        <div
-                            class="rounded-full h-5 w-5 flex items-center justify-center"
-                        >
-                            <app-icon>
-                                {{
-                                    booking.is_done
-                                        ? 'not_interested'
-                                        : booking?.status === 'approved'
-                                        ? 'done'
-                                        : booking?.status === 'tentative'
-                                        ? 'warning'
-                                        : 'close'
-                                }}
-                            </app-icon>
-                        </div>
-                        <div class="pr-1">{{ period }}</div>
-                    </div>
+                    <status-pill [status]="status">{{ period }}</status-pill>
                 </div>
                 <div
                     class="flex flex-wrap flex-col sm:flex-row sm:divide-x divide-base-200-500 py-2 space-y-2 sm:space-y-0"
@@ -120,6 +91,14 @@ export class BookingCardComponent extends AsyncHandler {
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public get status() {
+        if (this.booking?.is_done) return 'neutral';
+        if (this.booking?.status === 'approved') return 'success';
+        if (this.booking?.status === 'declined') return 'error';
+        if (this.booking?.status === 'tentative') return 'warning';
+        return 'warning';
     }
 
     constructor(

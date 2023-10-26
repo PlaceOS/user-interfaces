@@ -31,23 +31,23 @@
     --bc: hsl(0, 0%, 0%); /* Black content on white background */
 
     /* Info */
-    --in: hsl(210, 100%, 50%); /* Light Blue */
-    --inl: hsl(210, 100%, 80%); /* Light Blue */
+    --in: hsla(217, 91%, 60%, 1); /* Light Blue */
+    --inl: hsla(214, 100%, 97%, 1); /* Light Blue */
     --inc: hsl(0, 0%, 100%); /* White content on light blue background */
 
     /* Success */
-    --su: hsl(110, 70%, 40%); /* Light Green */
-    --sul: hsl(110, 70%, 70%); /* Light Green */
+    --su: hsla(118, 50%, 43%, 1); /* Light Green */
+    --sul: hsla(152, 81%, 96%, 1); /* Light Green */
     --suc: hsl(0, 0%, 100%); /* White content on light green background */
 
     /* Warning */
-    --wa: hsl(40, 100%, 50%); /* Yellow */
-    --wal: hsl(40, 100%, 80%); /* Yellow */
+    --wa: hsla(45, 100%, 64%, 1); /* Yellow */
+    --wal: hsla(48, 100%, 96%, 1); /* Yellow */
     --wac: hsl(0, 0%, 0%); /* Black content on yellow background */
 
     /* Error */
-    --er: hsl(0, 100%, 45%); /* Red */
-    --erl: hsl(0, 100%, 75%); /* Red */
+    --er: hsla(354, 75%, 53%, 1); /* Red */
+    --erl: hsla(356, 100%, 97%, 1); /* Red */
     --erc: hsl(0, 0%, 100%); /* White content on red background */
 }
 
@@ -79,24 +79,24 @@
     --bc: hsl(0, 0%, 80%); /* Light grey text for contrast */
 
     /* Info */
-    --in: hsl(210, 100%, 40%); /* Slightly darker Light Blue */
-    --inl: hsl(210, 100%, 70%); /* Slightly darker Light Blue */
-    --inc: hsl(0, 0%, 90%); /* Light text for contrast */
+    --in: hsla(217, 91%, 60%, 1); /* Light Blue */
+    --inl: hsla(214, 100%, 97%, 1); /* Light Blue */
+    --inc: hsl(0, 0%, 100%); /* White content on light blue background */
 
     /* Success */
-    --su: hsl(110, 70%, 30%); /* Slightly darker Light Green */
-    --sul: hsl(110, 70%, 60%); /* Slightly darker Light Green */
-    --suc: hsl(0, 0%, 90%); /* Light text for contrast */
+    --su: hsla(118, 50%, 43%, 1); /* Light Green */
+    --sul: hsla(152, 81%, 96%, 1); /* Light Green */
+    --suc: hsl(0, 0%, 100%); /* White content on light green background */
 
     /* Warning */
-    --wa: hsl(40, 100%, 40%); /* Slightly darker Yellow */
-    --wal: hsl(40, 100%, 70%); /* Slightly darker Yellow */
-    --wac: hsl(0, 0%, 10%); /* Near Black text for contrast */
+    --wa: hsla(45, 100%, 64%, 1); /* Yellow */
+    --wal: hsla(48, 100%, 96%, 1); /* Yellow */
+    --wac: hsl(0, 0%, 0%); /* Black content on yellow background */
 
     /* Error */
-    --er: hsl(0, 100%, 35%); /* Slightly darker Red */
-    --erl: hsl(0, 100%, 65%); /* Slightly darker Red */
-    --erc: hsl(0, 0%, 90%); /* Light text for contrast */
+    --er: hsla(354, 75%, 53%, 1); /* Red */
+    --erl: hsla(356, 100%, 97%, 1); /* Red */
+    --erc: hsl(0, 0%, 100%); /* White content on red background */
 }
 
 @media screen {

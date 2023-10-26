@@ -72,6 +72,7 @@ import { PrintableComponent } from './printable.component';
 import { ChatComponent } from './chat/chat.component';
 import { DateFromPipe } from './date-from.pipe';
 import { AttachedResourceConfigModalComponent } from './attached-resource-config-modal.component';
+import { StatusPillComponent } from './status-pill.component';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -124,6 +125,7 @@ const COMPONENTS: Type<any>[] = [
     DebugConsoleComponent,
     JsonDisplayComponent,
     ChangelogModalComponent,
+    StatusPillComponent,
 
     FixedPipe,
     SafePipe,

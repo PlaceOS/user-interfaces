@@ -53,39 +53,9 @@ const EMPTY_ACTIONS = [];
                 </h3>
                 <div class="sm:flex items-center justify-between w-full">
                     <div class="flex m-2">
-                        <div
-                            class="flex items-center bg-opacity-30 rounded-2xl p-1 text-sm space-x-2 pr-2 font-medium text-black"
-                            [class.bg-success-light]="
-                                event.state !== 'done' &&
-                                event?.status === 'approved'
-                            "
-                            [class.bg-warning-light]="
-                                event.state !== 'done' &&
-                                event?.status === 'tentative'
-                            "
-                            [class.bg-error-light]="
-                                event.state !== 'done' &&
-                                event?.status === 'declined'
-                            "
-                            [class.bg-base-200]="event.state === 'done'"
-                        >
-                            <div
-                                class="rounded-full h-5 w-5 flex items-center justify-center"
-                            >
-                                <app-icon>
-                                    {{
-                                        event.state === 'done'
-                                            ? 'not_interested'
-                                            : event?.status === 'approved'
-                                            ? 'done'
-                                            : event?.status === 'tentative'
-                                            ? 'warning'
-                                            : 'close'
-                                    }}
-                                </app-icon>
-                            </div>
-                            <div class="pr-1">{{ period }}</div>
-                        </div>
+                        <status-pill [status]="event_status">
+                            {{ period }}
+                        </status-pill>
                     </div>
                     <div
                         actions
@@ -458,6 +428,14 @@ export class EventDetailsModalComponent {
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public get event_status() {
+        if (this.event?.state === 'done') return 'neutral';
+        if (this.event?.status === 'approved') return 'success';
+        if (this.event?.status === 'tentative') return 'warning';
+        if (this.event?.status === 'declined') return 'error';
+        return 'warning';
     }
 
     constructor(
