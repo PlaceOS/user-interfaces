@@ -56,6 +56,8 @@ import { checkinBooking } from './bookings.fn';
                             [class.bg-success]="booking.checked_in"
                             [disabled]="checking_in"
                             *ngIf="
+                                !booking.checked_out_at &&
+                                !checked_out &&
                                 !auto_checkin &&
                                 (booking.state === 'upcoming' ||
                                     booking.state === 'in_progress')
@@ -230,6 +232,7 @@ export class BookingDetailsModalComponent {
     @Output() public end = new EventEmitter();
     public readonly booking = this._booking;
     public hide_map = false;
+    public checked_out = false;
     public checking_in = false;
     public readonly features = [
         {
@@ -311,6 +314,7 @@ export class BookingDetailsModalComponent {
                 throw _;
             });
         (this.booking as any).checked_in = !this.booking.checked_in;
+        this.checked_out = !this.booking.checked_in;
         notifySuccess(
             `Successfully ${
                 this.booking.checked_in ? 'checked in' : 'ended booking'
