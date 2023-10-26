@@ -46,7 +46,7 @@ const EMPTY_FAVS: string[] = [];
                 *ngFor="let space of space_list | async"
             >
                 <div
-                    class="w-24 h-24 rounded-xl bg-neutral mr-4 overflow-hidden flex items-center justify-center"
+                    class="w-24 h-24 rounded-xl bg-base-200 mr-4 overflow-hidden flex items-center justify-center"
                 >
                     <img
                         auth

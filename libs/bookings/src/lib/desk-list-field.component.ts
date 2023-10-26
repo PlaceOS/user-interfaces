@@ -34,7 +34,7 @@ const EMPTY_FAVS: string[] = [];
                     </div>
                 </div>
                 <div
-                    class="w-20 h-20 rounded-xl bg-neutral mr-4 overflow-hidden flex items-center justify-center"
+                    class="w-20 h-20 rounded-xl bg-base-200 mr-4 overflow-hidden flex items-center justify-center"
                 >
                     <img
                         auth
