@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1698300156929,
+  "timestamp": 1698623261534,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -181,14 +181,14 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_workplace_src_app_book_book_module_ts.js": "05e1dc128f8d270141a01c19f1b8a20e440a8da6",
+    "./apps_workplace_src_app_book_book_module_ts.js": "1a31fe35f529a4bd9d6f38fbae91352ab21aa7e3",
     "./apps_workplace_src_app_control_control_module_ts.js": "24fd331b647491dca97a03a10d8fa94c22c6cba4",
-    "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "fac6ec3e34a2824b25bd67f4631b34271840a418",
+    "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "9054ab6d163337d98c9bc4ddc52f086b233bb201",
     "./apps_workplace_src_app_directory_directory_module_ts.js": "481de8b4ee5313876d04e2cb3d3a2102f9fdc747",
     "./apps_workplace_src_app_explore_explore_module_ts.js": "7f60d6c578e55d086bff7680938bf4d180380c94",
     "./apps_workplace_src_app_landing_landing_module_ts.js": "d78fed3c7030c0a03df6de3886342f15e3e67d9a",
     "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "62d3f27332e586c6e21338f2010a260b01e4c1c5",
-    "./apps_workplace_src_app_schedule_schedule_module_ts.js": "621dd3d516c5e70f2bac5a2d8e3f64d0270e0152",
+    "./apps_workplace_src_app_schedule_schedule_module_ts.js": "2f51b35ecb1b465226ba349ed41eb759c052db03",
     "./apps_workplace_src_app_whats-on_whats-on_module_ts.js": "92a5e7a7c230f0540fbb9dbdab4ad846085faf6e",
     "./assets/icons/amex.svg": "3530eff717af33317b79bdd1d0ec96abfa884287",
     "./assets/icons/asset-placeholder.svg": "57d3c780a925b7434aadbe716a991457666eb450",
@@ -319,7 +319,7 @@
     "./common.js": "b8adfd3b27ca6be63c383f24f2a1261e231d9eef",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "cd5fd64b8e6ae85786ec44d52383eaa15a43edcd",
-    "./main.js": "e183eeb33a39541de300ed567c604e75106044e2",
+    "./main.js": "91496135265fffd633cd87d66763b637531aaf44",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
@@ -333,7 +333,7 @@
     "./polyfills.js": "01f2be5a88c4b4775197313693efd6e3bd41fae3",
     "./runtime.js": "ab3fdb44add31ffecf5981f94787bb180e8bf88e",
     "./styles.css": "b4c68aeaec7aa4457a086cbd387ac51c8a5dee8b",
-    "./vendor.js": "ff339ec72d526b074dab9bf697779580a081d733"
+    "./vendor.js": "431bf4148b6a606bf88629695f4eb58ac9efb08d"
   },
   "navigationUrls": [
     {
