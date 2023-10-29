@@ -28,6 +28,7 @@ export class ChatService extends AsyncHandler {
     );
 
     public chat_hint: Observable<string> = this._chat_system.pipe(
+        filter((_) => !!_),
         switchMap((id) => {
             const mod = getModule(id, 'LLM');
             const binding = mod.binding('user_hint');

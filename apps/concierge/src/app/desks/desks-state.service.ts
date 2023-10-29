@@ -12,13 +12,12 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-import { add, endOfDay, format, getUnixTime, startOfDay } from 'date-fns';
+import { endOfDay, format, getUnixTime, startOfDay } from 'date-fns';
 
 import {
     approveBooking,
     Booking,
     checkinBooking,
-    queryBookings,
     queryPagedBookings,
     rejectBooking,
     saveBooking,
@@ -33,10 +32,7 @@ import {
 import { Desk, OrganisationService } from '@placeos/organisation';
 
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
-import {
-    next,
-    QueryResponse,
-} from '@placeos/ts-client/dist/esm/resources/functions';
+import { QueryResponse } from '@placeos/ts-client/dist/esm/resources/functions';
 
 function addQRCodeToBooking(booking: Booking): Booking {
     return new Booking({
@@ -126,7 +122,9 @@ export class DesksStateService extends AsyncHandler {
                     type: 'desk',
                     zones: zones.join(','),
                     include_checked_out: true,
-                })
+                }).pipe(
+                    catchError((_) => of({ data: [], total: 0, next: null }))
+                )
             );
             this._call_next_page.next(`RESET_${Date.now()}`);
         })
@@ -150,11 +148,13 @@ export class DesksStateService extends AsyncHandler {
             // If reset is true, start over
             if (action.includes('RESET')) {
                 return next_page().pipe(
-                    map((data: any) => ({ ...data, reset: true }))
+                    map((data: any) => ({ ...data, reset: true })),
+                    catchError((_) => of({ data: [], total: 0, next: null }))
                 );
             }
             return next_page().pipe(
-                map((data: any) => ({ ...data, reset: false }))
+                map((data: any) => ({ ...data, reset: false })),
+                catchError((_) => of({ data: [], total: 0, next: null }))
             );
         }),
         scan(
