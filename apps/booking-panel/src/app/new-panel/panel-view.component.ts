@@ -21,7 +21,7 @@ import { PanelStateService } from '../panel-state.service';
                 "
             >
                 <div
-                    class="absolute top-4 left-4 w-1/2 flex items-center justify-center p-4 text-5xl bg-pending rounded shadow text-white font-medium"
+                    class="absolute top-4 left-4 w-1/2 flex items-center justify-center p-4 text-5xl bg-warning rounded shadow text-white font-medium"
                 >
                     {{
                         name ||

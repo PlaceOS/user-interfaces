@@ -82,7 +82,7 @@ import { BookingLike, ScheduleStateService } from './schedule-state.service';
                 Approved
             </div>
             <div class="flex items-center px-4 py-2 hover:bg-neutral">
-                <div class="bg-pending h-2 w-2 rounded-full mr-4"></div>
+                <div class="bg-warning h-2 w-2 rounded-full mr-4"></div>
                 Tentative
             </div>
             <div class="flex items-center px-4 py-2 hover:bg-neutral">

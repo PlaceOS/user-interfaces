@@ -8,7 +8,7 @@ import { PanelStateService } from '../panel-state.service';
             status
             class="h-12 w-[calc(100% - 2rem)] m-2 rounded shadow"
             [class.bg-base-200]="(settings | async)?.status === 'not-bookable'"
-            [class.bg-pending]="(settings | async)?.status === 'pending'"
+            [class.bg-warning]="(settings | async)?.status === 'pending'"
             [class.bg-success]="(settings | async)?.status === 'free'"
             [class.bg-error]="(settings | async)?.status === 'busy'"
         ></div>

@@ -81,7 +81,7 @@ import { ControlStateService } from './control-state.service';
                 <div
                     class="p-2 rounded uppercase text-center"
                     [class.bg-error]="rec_status === 'playing'"
-                    [class.bg-pending]="rec_status === 'paused'"
+                    [class.bg-warning]="rec_status === 'paused'"
                     [class.bg-base-300]="rec_status === 'stopped'"
                 >
                     {{

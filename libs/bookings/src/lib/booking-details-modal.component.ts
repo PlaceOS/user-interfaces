@@ -148,7 +148,7 @@ import { checkinBooking } from './bookings.fn';
                                 [class.bg-error]="
                                     status(item.id) === 'rejected'
                                 "
-                                [class.bg-pending]="
+                                [class.bg-warning]="
                                     status(item.id) !== 'approved' &&
                                     status(item.id) !== 'rejected'
                                 "

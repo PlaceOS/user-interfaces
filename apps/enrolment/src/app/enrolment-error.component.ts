@@ -5,7 +5,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
     selector: 'enrolment-error',
     template: `
         <div
-            class="bg-pending p-4 mx-auto my-4 border border-base-200 shadow w-[32rem] max-w-[calc(100vw-2rem)] rounded"
+            class="bg-warning p-4 mx-auto my-4 border border-base-200 shadow w-[32rem] max-w-[calc(100vw-2rem)] rounded"
         >
             <h3 class="text-center text-xl font-medium mb-4">
                 Unable to continue

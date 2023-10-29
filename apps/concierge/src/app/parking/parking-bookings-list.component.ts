@@ -37,10 +37,15 @@ import { ParkingStateService } from './parking-state.service';
         </ng-template>
         <ng-template #status_template let-data="data">
             <span
-                class="capitalize text-white px-2 py-1 rounded border border-base-200"
+                class="capitalize px-2 py-1 rounded border border-base-200"
                 [class.bg-success]="data === 'approved'"
-                [class.bg-pending]="data === 'tentative'"
+                [class.bg-warning]="data === 'tentative'"
                 [class.bg-error]="data === 'cancelled' || data === 'declined'"
+                [class.text-success-content]="data === 'approved'"
+                [class.text-warning-content]="data === 'tentative'"
+                [class.text-error-content]="
+                    data === 'cancelled' || data === 'declined'
+                "
             >
                 {{ data }}
             </span>

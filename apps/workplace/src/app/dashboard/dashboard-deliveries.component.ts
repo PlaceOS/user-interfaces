@@ -27,7 +27,7 @@ import { DashboardDeliveryModalComponent } from './dashboard-delivery-modal.comp
                     </div>
                     <div
                         class="m-4 h-2 w-2 rounded-full"
-                        [class.bg-pending]="!item.received"
+                        [class.bg-warning]="!item.received"
                         [class.bg-success]="item.received"
                     ></div>
                 </div>

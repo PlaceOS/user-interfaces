@@ -18,7 +18,7 @@ import { BookingLike } from '../schedule/schedule-state.service';
                     status
                     class="h-24 w-20 flex flex-col items-center justify-center text-white leading-tight"
                     [class.bg-success]="status === 'approved'"
-                    [class.bg-pending]="status === 'tentative'"
+                    [class.bg-warning]="status === 'tentative'"
                     [class.bg-error]="status === 'declined'"
                 >
                     <app-icon class="text-2xl">{{ icon }}</app-icon>

@@ -102,7 +102,7 @@ import { first, take } from 'rxjs/operators';
                         <div class="w-20 text-center">0 ~ 50%</div>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <div class="h-3 w-3 rounded-full bg-pending"></div>
+                        <div class="h-3 w-3 rounded-full bg-warning"></div>
                         <div class="w-20 text-center">51 ~ 75%</div>
                     </div>
                     <div class="flex items-center space-x-2">
@@ -125,7 +125,7 @@ import { first, take } from 'rxjs/operators';
                 <div class="text-center">Space In Use</div>
             </div>
             <div class="flex items-center space-x-2 rounded bg-base-200 p-2">
-                <div class="h-3 w-3 rounded-full bg-pending"></div>
+                <div class="h-3 w-3 rounded-full bg-warning"></div>
                 <div class="text-center">Space Pending</div>
             </div>
             <div class="flex items-center space-x-2 p-2">

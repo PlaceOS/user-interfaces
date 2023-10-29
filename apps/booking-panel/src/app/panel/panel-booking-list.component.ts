@@ -28,7 +28,7 @@ import { PanelStateService } from '../panel-state.service';
                 In Progress
             </span>
             <span
-                class="text-xs shadow px-2 py-1 ml-8 rounded bg-pending text-white"
+                class="text-xs shadow px-2 py-1 ml-8 rounded bg-warning text-white"
                 *ngIf="
                     ((current | async)?.state === 'upcoming' ||
                         (current | async)?.state === 'in_progress') &&

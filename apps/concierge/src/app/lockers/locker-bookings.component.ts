@@ -108,7 +108,7 @@ import { SettingsService } from '@placeos/common';
                     class="rounded-3xl px-2 py-1 flex items-center space-x-2 capitalize"
                     [class.bg-success]="row.approved"
                     [class.text-white]="row.approved || row.rejected"
-                    [class.bg-pending]="!row.approved && !row.rejected"
+                    [class.bg-warning]="!row.approved && !row.rejected"
                     [class.text-black]="!row.approved && !row.rejected"
                     [class.bg-error]="row.rejected"
                 >

@@ -30,7 +30,7 @@ import { MapLocateModalComponent } from '@placeos/components';
                 <button
                     matRipple
                     book
-                    [class.bg-pending]="multiple && book"
+                    [class.bg-warning]="multiple && book"
                     [class.border-pending]="multiple && book"
                     (click)="bookSpace()"
                 >

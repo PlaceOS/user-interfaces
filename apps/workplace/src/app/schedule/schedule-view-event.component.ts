@@ -113,7 +113,7 @@ import { CateringItem } from '@placeos/catering';
                                 [class.bg-success]="
                                     space.response_status === 'accepted'
                                 "
-                                [class.bg-pending]="
+                                [class.bg-warning]="
                                     space.response_status === 'tentative'
                                 "
                                 [class.bg-error]="
@@ -175,7 +175,7 @@ import { CateringItem } from '@placeos/catering';
                                 [class.bg-success]="
                                     user.response_status === 'accepted'
                                 "
-                                [class.bg-pending]="
+                                [class.bg-warning]="
                                     user.response_status === 'tentative'
                                 "
                                 [class.bg-error]="
