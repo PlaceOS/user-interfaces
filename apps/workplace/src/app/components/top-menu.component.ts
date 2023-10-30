@@ -8,7 +8,7 @@ import { OrganisationService } from '@placeos/organisation';
     template: `
         <div
             menu
-            class="flex items-center justify-center h-full w-full overflow-hidden text-neutral"
+            class="flex items-center justify-center h-full w-full overflow-hidden text-base-content"
         >
             <a
                 matRipple
@@ -24,11 +24,12 @@ import { OrganisationService } from '@placeos/organisation';
                     outline
                     className="material-icons-outlined"
                     class="text-xl !m-0"
-                    >home</app-icon
                 >
-                <span *ngIf="show_text" class="truncate hidden xl:block"
-                    >Home</span
-                >
+                    home
+                </app-icon>
+                <span *ngIf="show_text" class="truncate hidden xl:block">
+                    Home
+                </span>
                 <div
                     bar
                     class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
@@ -240,6 +241,20 @@ import { OrganisationService } from '@placeos/organisation';
 
             .active > [bar] {
                 display: block;
+            }
+
+            a:not(.active) {
+                opacity: 0.6;
+            }
+
+            a:not(.active):hover {
+                border-radius: 0.5rem;
+                margin-top: 0.25rem;
+                margin-bottom: 0.25rem;
+                height: 3rem;
+
+                background-color: var(--b2);
+                opacity: 0.4;
             }
 
             a:not(.active) > [filled],
