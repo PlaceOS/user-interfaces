@@ -7,7 +7,7 @@ import { ParkingStateService } from './parking-state.service';
     selector: 'app-parking',
     template: `
         <sidebar></sidebar>
-        <main class="relative overflow-hidden bg-base-200">
+        <main class="relative overflow-hidden bg-base-100">
             <parking-topbar></parking-topbar>
             <div class="dark">
                 <nav mat-tab-nav-bar>

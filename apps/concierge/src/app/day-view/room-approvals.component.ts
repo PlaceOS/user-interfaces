@@ -89,7 +89,7 @@ import { CalendarEvent } from '@placeos/events';
                         <button
                             btn
                             matRipple
-                            class="border-success bg-success text-success-content flex flex-1 items-center space-x-2"
+                            class="border-success bg-success-light text-black flex flex-1 items-center space-x-2"
                             [disabled]="status[event.id] === 'accept'"
                             (click)="approve(event)"
                         >
@@ -100,12 +100,12 @@ import { CalendarEvent } from '@placeos/events';
                                         : 'Approve'
                                 }}
                             </div>
-                            <app-icon class="text-green-600">done</app-icon>
+                            <app-icon class="text-success">done</app-icon>
                         </button>
                         <button
                             btn
                             matRipple
-                            class="border-error bg-error text-error-content flex flex-1 items-center space-x-2 "
+                            class="border-error bg-error-light text-black flex flex-1 items-center space-x-2 "
                             [disabled]="status[event.id] === 'decline'"
                             (click)="reject(event)"
                         >
@@ -116,17 +116,18 @@ import { CalendarEvent } from '@placeos/events';
                                         : 'Decline'
                                 }}
                             </div>
-                            <app-icon class="text-red-600">close</app-icon>
+                            <app-icon class="text-error">close</app-icon>
                         </button>
                     </div>
                 </div>
             </div>
             <div
-                class="absolute bottom-0 left-0 right-0 top-14 p-2 flex flex-col items-center justify-center bg-base-100/80 space-y-2"
+                class="absolute bottom-0 left-0 right-0 top-14 p-2 flex flex-col items-center justify-center space-y-2"
                 *ngIf="loading"
             >
+                <div class="absolute inset-0 bg-base-100 opacity-80 z-0"></div>
                 <mat-spinner diameter="32"></mat-spinner>
-                <p>Processing...</p>
+                <p class="relative z-10">Processing...</p>
             </div>
         </div>
         <button

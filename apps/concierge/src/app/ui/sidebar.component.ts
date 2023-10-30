@@ -13,7 +13,7 @@ import { map } from 'rxjs/operators';
 @Component({
     selector: 'sidebar',
     template: `
-        <div class="flex flex-col bg-primary w-48 text-white h-full">
+        <div class="flex flex-col bg-secondary w-48 text-white h-full">
             <div class="logo w-full flex items-center justify-center p-3 mb-4">
                 <img class="w-full" [src]="logo.src" />
             </div>
@@ -114,8 +114,8 @@ import { map } from 'rxjs/operators';
     styles: [
         `
             a.active {
-                background-color: var(--ternary) !important;
-                color: #000e !important;
+                background-color: var(--p) !important;
+                color: var(--pc) !important;
             }
         `,
     ],
