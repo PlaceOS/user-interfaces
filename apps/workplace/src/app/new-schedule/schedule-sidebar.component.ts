@@ -14,7 +14,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 (ngModelChange)="setDate($event)"
             ></date-calendar>
             <h3 class="mx-4 mt-4 font-medium" i18n>Filters</h3>
-            <div class="p-4 space-y-4">
+            <div class="p-4 space-y-4 flex-1 h-1/2 overflow-auto">
                 <button
                     matRipple
                     name="schedule-toggle-event-filter"
