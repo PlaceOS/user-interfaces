@@ -650,7 +650,8 @@ a[icon] {
             margin: 0;
         }
 
-        &.mat-mdc-checkbox-checked {
+        &.mat-mdc-checkbox-checked,
+        &[ng-reflect-indeterminate='true'] {
             .mdc-checkbox__background {
                 border-color: var(--in);
                 background-color: var(--in);
