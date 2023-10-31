@@ -59,20 +59,14 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
                                 <div
                                     class="ml-auto px-3 py-1 rounded-2xl text-white w-24"
                                     [class.bg-success]="
-                                        !(availability | async)?.includes(
-                                            space.id
-                                        )
+                                        !disabled_rooms?.includes(space.id)
                                     "
                                     [class.bg-error]="
-                                        (availability | async)?.includes(
-                                            space.id
-                                        )
+                                        disabled_rooms?.includes(space.id)
                                     "
                                 >
                                     {{
-                                        !(availability | async)?.includes(
-                                            space.id
-                                        )
+                                        !disabled_rooms?.includes(space.id)
                                             ? 'Enabled'
                                             : 'Disabled'
                                     }}
@@ -121,7 +115,9 @@ export class AvailableRoomsStateModalComponent {
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: any,
         private _org: OrganisationService
-    ) {}
+    ) {
+        console.log('Data:', _data);
+    }
 
     public async toggleRoom(id: string) {
         if (id === '*') {
