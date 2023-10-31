@@ -1,16 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { unique } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
 import { take } from 'rxjs/operators';
-import { CateringStateService } from './catering';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
     selector: 'catering-rooms-state-modal',
     template: `
         <div>
             <header class="flex items-center justify-between p-2">
-                <h3 class="p-2">Set Catering Availability for Rooms</h3>
+                <h3 class="p-2">Set {{ type }} Availability for Rooms</h3>
                 <button icon mat-dialog-close>
                     <app-icon>close</app-icon>
                 </button>
@@ -110,14 +110,16 @@ import { CateringStateService } from './catering';
         `,
     ],
 })
-export class CateringRoomsStateModalComponent {
+export class AvailableRoomsStateModalComponent {
+    @Output() public change = new EventEmitter<string[]>();
     public loading = false;
     public selected: string[] = [];
     public readonly rooms = requestSpacesForZone(this._org.building.id);
-    public readonly availability = this._catering.availability;
+    public readonly type: string = this._data.type;
+    public disabled_rooms: string[] = this._data.disabled_rooms;
 
     constructor(
-        private _catering: CateringStateService,
+        @Inject(MAT_DIALOG_DATA) private _data: any,
         private _org: OrganisationService
     ) {}
 
@@ -136,20 +138,17 @@ export class CateringRoomsStateModalComponent {
 
     public async enableSelected() {
         this.loading = true;
-        const disabled_list = await this.availability.pipe(take(1)).toPromise();
+        const disabled_list = this.disabled_rooms;
         const list = disabled_list.filter((_) => !this.selected.includes(_));
-        await this._catering
-            .saveSettings({ disabled_rooms: list })
-            .catch(() => null);
-        this.loading = false;
+        this.disabled_rooms = list;
+        this.change.next(list);
     }
 
     public async disableSelected() {
-        const disabled_list = await this.availability.pipe(take(1)).toPromise();
+        this.loading = true;
+        const disabled_list = this.disabled_rooms;
         const list = unique(disabled_list.concat(this.selected));
-        await this._catering
-            .saveSettings({ disabled_rooms: list })
-            .catch(() => null);
-        this.loading = false;
+        this.disabled_rooms = list;
+        this.change.next(list);
     }
 }

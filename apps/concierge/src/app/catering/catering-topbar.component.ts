@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { first } from 'rxjs/operators';
+import { first, take } from 'rxjs/operators';
 
 import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -9,8 +9,8 @@ import {
     CateringStateService,
     ChargeCodeListModalComponent,
 } from '@placeos/catering';
-import { CateringRoomsStateModalComponent } from 'libs/catering/src/lib/catering-rooms-state-modal.component';
 import { MatDialog } from '@angular/material/dialog';
+import { AvailableRoomsStateModalComponent } from '@placeos/components';
 
 @Component({
     selector: 'catering-topbar',
@@ -173,8 +173,24 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
         );
     }
 
-    public setRoomAvailability() {
-        this._dialog.open(CateringRoomsStateModalComponent);
+    public async setRoomAvailability() {
+        const ref = this._dialog.open(AvailableRoomsStateModalComponent, {
+            data: {
+                type: 'Catering',
+                disabled_rooms: await this._catering.availability
+                    .pipe(take(1))
+                    .toPromise(),
+            },
+        });
+        this.subscription(
+            'room-availability',
+            ref.componentInstance.change.subscribe(async (list) => {
+                await this._catering
+                    .saveSettings({ disabled_rooms: list })
+                    .catch();
+                ref.componentInstance.loading = false;
+            })
+        );
     }
 
     public setChargeCodes() {

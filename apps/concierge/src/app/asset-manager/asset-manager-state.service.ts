@@ -15,8 +15,9 @@ import {
 } from '@placeos/common';
 import { SpacesService } from '@placeos/spaces';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
+    catchError,
     debounceTime,
     distinctUntilChanged,
     filter,
@@ -40,7 +41,12 @@ import {
     saveAsset,
     showGroupFull,
 } from '@placeos/assets';
-import { cleanObject, showMetadata, updateMetadata } from '@placeos/ts-client';
+import {
+    PlaceMetadata,
+    cleanObject,
+    showMetadata,
+    updateMetadata,
+} from '@placeos/ts-client';
 import { OrganisationService } from '@placeos/organisation';
 import { MatDialog } from '@angular/material/dialog';
 import { AssetCategoryManagementModalComponent } from './asset-category-management-modal.component';
@@ -242,6 +248,23 @@ export class AssetManagerStateService extends AsyncHandler {
         })
     );
 
+    public readonly settings = combineLatest([
+        this._org.active_building,
+        this._change,
+    ]).pipe(
+        filter(([_]) => !!_),
+        switchMap(([_]) =>
+            showMetadata(_.id, 'assets-settings').pipe(
+                catchError((_) => of({} as PlaceMetadata))
+            )
+        ),
+        map((_) => (_.details as Record<string, any>) || {}),
+        shareReplay(1)
+    );
+    public readonly availability = this.settings.pipe(
+        map((_) => _.disabled_rooms || [])
+    );
+
     public get form() {
         return this._form;
     }
@@ -411,5 +434,17 @@ export class AssetManagerStateService extends AsyncHandler {
             details: config,
             description: `Assets config for ${zone_id}`,
         }).toPromise();
+    }
+
+    public async saveSettings(settings: Record<string, any>) {
+        const old_settings = await this.settings.pipe(take(1)).toPromise();
+        const result = await updateMetadata(this._org.building.id, {
+            id: this._org.building.id,
+            name: 'assets-settings',
+            details: { ...old_settings, ...settings },
+            description: `Assets settings for ${this._org.building.id}`,
+        }).toPromise();
+        this._change.next(Date.now());
+        return result;
     }
 }

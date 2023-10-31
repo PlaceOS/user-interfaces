@@ -23,6 +23,7 @@ import { AssetGroup } from './asset.class';
 import { updateAssetGroupList } from './asset-group.pipe';
 import { OrganisationService } from '@placeos/organisation';
 import { assetAvailable, getAssetRulesForZone } from './asset.utilities';
+import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
 
 export interface AssetOptions {
     zone?: string;
@@ -132,6 +133,20 @@ export class AssetStateService {
             return list;
         }),
         shareReplay(1)
+    );
+
+    public readonly settings = combineLatest([this._org.active_building]).pipe(
+        filter(([_]) => !!_),
+        switchMap(([_]) =>
+            showMetadata(_.id, 'assets-settings').pipe(
+                catchError((_) => of({} as PlaceMetadata))
+            )
+        ),
+        map((_) => (_.details as Record<string, any>) || {}),
+        shareReplay(1)
+    );
+    public readonly disabled_rooms = this.settings.pipe(
+        map((_) => _.disabled_rooms || [])
     );
 
     constructor(private _org: OrganisationService) {}

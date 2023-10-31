@@ -1,5 +1,9 @@
 import { Component, Input } from '@angular/core';
 import { AssetManagerStateService } from './asset-manager-state.service';
+import { AvailableRoomsStateModalComponent } from '@placeos/components';
+import { MatDialog } from '@angular/material/dialog';
+import { take } from 'rxjs/operators';
+import { AsyncHandler } from '@placeos/common';
 
 @Component({
     selector: 'asset-manager-topbar',
@@ -61,6 +65,17 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 matRipple
                 *ngIf="active === 'items'"
                 class="border border-base-200"
+                matTooltip="Room Availability"
+                (click)="setRoomAvailability()"
+            >
+                <app-icon>event_available</app-icon>
+            </button>
+            <button
+                btn
+                icon
+                matRipple
+                *ngIf="active === 'items'"
+                class="border border-base-200"
                 matTooltip="Manage Categories"
                 (click)="manageCategories()"
             >
@@ -81,7 +96,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     `,
     styles: [``],
 })
-export class AssetManagerTopbarComponent {
+export class AssetManagerTopbarComponent extends AsyncHandler {
     @Input() public active = '';
 
     public readonly options = this._state.options;
@@ -94,5 +109,30 @@ export class AssetManagerTopbarComponent {
         return this._state.base_route;
     }
 
-    constructor(private _state: AssetManagerStateService) {}
+    constructor(
+        private _state: AssetManagerStateService,
+        private _dialog: MatDialog
+    ) {
+        super();
+    }
+
+    public async setRoomAvailability() {
+        const ref = this._dialog.open(AvailableRoomsStateModalComponent, {
+            data: {
+                type: 'Assets',
+                disabled_rooms: await this._state.availability
+                    .pipe(take(1))
+                    .toPromise(),
+            },
+        });
+        this.subscription(
+            'room-availability',
+            ref.componentInstance.change.subscribe(async (list) => {
+                await this._state
+                    .saveSettings({ disabled_rooms: list })
+                    .catch();
+                ref.componentInstance.loading = false;
+            })
+        );
+    }
 }

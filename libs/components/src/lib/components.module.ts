@@ -73,6 +73,7 @@ import { ChatComponent } from './chat/chat.component';
 import { DateFromPipe } from './date-from.pipe';
 import { AttachedResourceConfigModalComponent } from './attached-resource-config-modal.component';
 import { StatusPillComponent } from './status-pill.component';
+import { AvailableRoomsStateModalComponent } from './available-rooms-state-modal.component';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -145,6 +146,7 @@ const COMPONENTS: Type<any>[] = [
     PrintableComponent,
     ChatComponent,
     AttachedResourceConfigModalComponent,
+    AvailableRoomsStateModalComponent,
 ];
 
 const DIRECTIVES: Type<any>[] = [BindingDirective, AuthenticatedImageDirective];

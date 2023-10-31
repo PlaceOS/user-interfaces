@@ -27,6 +27,7 @@ export * from './lib/redirect.component';
 export * from './lib/changelog-modal.component';
 export * from './lib/user-controls.component';
 export * from './lib/attached-resource-config-modal.component';
+export * from './lib/available-rooms-state-modal.component';
 
 export * from './lib/authorised-admin.guard';
 export * from './lib/authorised-user.guard';
