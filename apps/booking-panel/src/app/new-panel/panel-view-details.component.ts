@@ -37,12 +37,15 @@ import { PanelStateService } from '../panel-state.service';
                     !hide_meeting_details &&
                     !hide_meeting_title
                 "
-                class="absolute bottom-0 inset-x-0 bg-neutral text-white p-4 text-center text-3xl"
+                class="absolute bottom-0 inset-x-0 text-white p-4 text-center text-3xl"
             >
-                {{ (current | async).title }}
-                <span class="font-light">{{
-                    'PANEL.MEETING_IN_PROGRESS' | translate
-                }}</span>
+                <div class="absolute inset-0 bg-neutral opacity-30"></div>
+                <div class="relative">
+                    {{ (current | async).title }}
+                    <span class="font-light">{{
+                        'PANEL.MEETING_IN_PROGRESS' | translate
+                    }}</span>
+                </div>
             </div>
             <div
                 class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-normal space-y-4 text-center"
