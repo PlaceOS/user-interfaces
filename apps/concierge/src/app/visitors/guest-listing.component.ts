@@ -3,6 +3,7 @@ import { SettingsService } from '@placeos/common';
 import { VisitorsStateService } from './visitors-state.service';
 import { GuestUser } from '@placeos/users';
 import { CalendarEvent } from '@placeos/events';
+import { Booking } from '@placeos/bookings';
 
 @Component({
     selector: 'guest-listings',
@@ -11,7 +12,7 @@ import { CalendarEvent } from '@placeos/events';
             class="w-full flex flex-col flex-1 text-sm h-full overflow-auto pb-20"
         >
             <custom-table
-                class="min-w-[88rem]"
+                class="min-w-[72rem]"
                 [dataSource]="guests"
                 [filter]="search | async"
                 [columns]="columns"
@@ -22,7 +23,6 @@ import { CalendarEvent } from '@placeos/events';
                     status: status_template,
                     date: date_template,
                     host: host_template,
-                    vaccinated: vaccinated_template,
                     id_data: id_template,
                     actions: action_template
                 }"
@@ -39,6 +39,18 @@ import { CalendarEvent } from '@placeos/events';
                 class="p-2 rounded-full material-icons border-2 border-dotted border-base-200"
                 >face</i
             >
+            <div
+                matTooltip="Linked to Room Booking"
+                class="px-2"
+                [class.pointer-events-none]="!row.linked_event"
+            >
+                <app-icon
+                    class="text-2xl"
+                    [class.opacity-0]="!row.linked_event"
+                >
+                    event_available
+                </app-icon>
+            </div>
             <ng-template #checkin_state>
                 <i
                     class="p-2 rounded-full material-icons bg-success border-2 border-green-600 text-white"
@@ -133,8 +145,10 @@ import { CalendarEvent } from '@placeos/events';
         <ng-template #status_template let-row="row">
             <button
                 matRipple
-                class="rounded-3xl bg-warning border-none"
+                class="rounded-3xl bg-warning text-warning-content border-none"
+                [class.!text-success-content]="row?.status === 'approved'"
                 [class.!bg-success]="row?.status === 'approved'"
+                [class.!text-error-content]="row?.status === 'declined'"
                 [class.!bg-error]="row?.status === 'declined'"
                 [matMenuTriggerFor]="menu"
             >
@@ -162,7 +176,7 @@ import { CalendarEvent } from '@placeos/events';
         </ng-template>
         <ng-template #date_template let-row="row">
             {{
-                row.extension_data?.date
+                row.date
                     | date
                         : ((filters | async)?.period > 1
                               ? 'MMM d, ' + time_format
@@ -254,7 +268,7 @@ import { CalendarEvent } from '@placeos/events';
     styles: [``],
 })
 export class GuestListingComponent {
-    public readonly guests = this._state.filtered_guests;
+    public readonly guests = this._state.filtered_bookings;
     public readonly search = this._state.search;
     public readonly filters = this._state.filters;
 
@@ -265,50 +279,35 @@ export class GuestListingComponent {
     public readonly declineVisitor = (u) => this._state.declineVisitor(u);
     public readonly setExt = (u, f, v) => this._state.setExt(u, f, v);
 
-    public readonly checkin = async (guest: GuestUser) => {
-        const event =
-            (guest as any).event || guest.extension_data.event || guest.booking;
-        event.from_bookings = !!guest.booking;
-        await this._state
-            .checkGuestIn(event as CalendarEvent, guest)
-            .catch((e) => event);
+    public readonly checkin = async (item: Booking) => {
+        await this._state.setCheckinState(item, true);
         this._state.poll();
     };
 
-    public readonly checkout = async (guest: GuestUser) => {
-        const event =
-            (guest as any).event || guest.extension_data.event || guest.booking;
-        event.from_bookings = !!guest.booking;
-        await this._state
-            .checkGuestOut(event as CalendarEvent, guest)
-            .catch((e) => event);
+    public readonly checkout = async (item: Booking) => {
+        await this._state.setCheckinState(item, false);
         this._state.poll();
     };
 
     public get columns() {
-        return this._settings.get('app.guests.vaccine_check')
-            ? [
-                  'state',
-                  'date',
-                  'name',
-                  'host',
-                  'email',
-                  'vaccinated',
-                  'id_data',
-                  'status',
-                  'actions',
-              ]
-            : ['state', 'date', 'name', 'host', 'email', 'status', 'actions'];
+        return [
+            'state',
+            'date',
+            'asset_name',
+            'user_name',
+            'asset_id',
+            'status',
+            'actions',
+        ];
     }
 
     public get display_columns() {
         const fields = {
             state: ' ',
             date: 'Time',
-            name: 'Person',
-            host: 'Host',
-            email: 'Email',
-            vaccinated: 'Vaccinated',
+            asset_name: 'Person',
+            user_name: 'Host',
+            asset_id: 'Email',
             id_data: 'ID',
             status: 'State',
             actions: ' ',
@@ -318,12 +317,11 @@ export class GuestListingComponent {
 
     public get column_sizes() {
         const fields = {
-            state: '3.5r',
+            state: '6r',
             date: '8r',
-            name: '12r',
-            host: '12r',
-            email: 'flex',
-            vaccinated: '8r',
+            asset_name: '12r',
+            user_name: '12r',
+            asset_id: 'flex',
             id_data: '8r',
             status: '10r',
             actions: '12r',

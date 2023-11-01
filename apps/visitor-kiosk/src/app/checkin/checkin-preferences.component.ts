@@ -84,33 +84,33 @@ export class CheckinPreferencesComponent {
             .pipe(first((_) => !!_))
             .toPromise();
         if (!event) return notifyError('Unable to load event data.');
-        const order =
-            (event.ext('catering') ? event.ext('catering')[0] : null) ||
-            new CateringOrder();
-        await updateEvent(
-            event.id,
-            new CalendarEvent({
-                ...event,
-                extension_data: {
-                    ...event.extension_data,
-                    catering: [
-                        ...(event.extension_data.catering?.filter(
-                            (_) => _.id !== order.id
-                        ) || []),
-                        new CateringOrder({
-                            ...order,
-                            items: [
-                                ...order.items,
-                                new CateringItem({
-                                    ...this.beverage,
-                                    quantity: 1,
-                                }),
-                            ],
-                        }),
-                    ],
-                },
-            })
-        ).toPromise();
+        // const order =
+        //     (event.ext('catering') ? event.ext('catering')[0] : null) ||
+        //     new CateringOrder();
+        // await updateEvent(
+        //     event.id,
+        //     new CalendarEvent({
+        //         ...event,
+        //         extension_data: {
+        //             ...event.extension_data,
+        //             catering: [
+        //                 ...(event.extension_data.catering?.filter(
+        //                     (_) => _.id !== order.id
+        //                 ) || []),
+        //                 new CateringOrder({
+        //                     ...order,
+        //                     items: [
+        //                         ...order.items,
+        //                         new CateringItem({
+        //                             ...this.beverage,
+        //                             quantity: 1,
+        //                         }),
+        //                     ],
+        //                 }),
+        //             ],
+        //         },
+        //     })
+        // ).toPromise();
         notifySuccess('Successfully update event.');
         this.next();
     }

@@ -7,9 +7,6 @@ import { UIModule } from '../ui/ui.module';
 
 import { VisitorsComponent } from './visitors.component';
 import { VisitorsTopbarComponent } from './visitors-topbar.component';
-import { VisitorListingsComponent } from './visitor-listings.component';
-import { VisitorEventComponent } from './visitor-event.component';
-import { VisitorDetailsComponent } from './visitor-details.component';
 import { GuestListingComponent } from './guest-listing.component';
 import { NewVisitorsComponent } from './new-visitors.component';
 import { InviteVisitorModalComponent } from './invite-visitor-modal.component';
@@ -25,9 +22,6 @@ const ROUTES: Route[] = [
         NewVisitorsComponent,
         VisitorsComponent,
         VisitorsTopbarComponent,
-        VisitorListingsComponent,
-        VisitorEventComponent,
-        VisitorDetailsComponent,
         GuestListingComponent,
         InviteVisitorModalComponent,
     ],

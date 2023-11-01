@@ -147,8 +147,9 @@ export class ScheduleStateService extends AsyncHandler {
                 period_start: getUnixTime(startOfDay(date)),
                 period_end: getUnixTime(endOfDay(date)),
                 type: 'visitor',
-            }).pipe(catchError((_) => of([])))
+            }).pipe(catchError((_) => of([] as Booking[])))
         ),
+        map((_) => _.filter((_) => !_.parent_id && !_.linked_event)),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
         shareReplay(1)
     );

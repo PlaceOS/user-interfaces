@@ -6,6 +6,8 @@ import { toQueryString } from 'libs/common/src/lib/api';
 import { Booking, BookingType } from './booking.class';
 import { GuestUser } from 'libs/users/src/lib/user.class';
 import { addMinutes, getUnixTime } from 'date-fns';
+import { CalendarEvent } from '@placeos/events';
+import { BookableResource, flatten, unique } from '@placeos/common';
 
 export interface BookingsQueryParams {
     /** Comma seperated list of zone ids to check availability */
@@ -257,6 +259,55 @@ export function isResourceAvailable(
             (_) =>
                 _.filter((_) => _.asset_id === id && _.id !== ignore).length ===
                 0
+        )
+    );
+}
+
+/**
+ *
+ * @param event
+ * @param type
+ * @param resources
+ */
+export async function createBookingsForEvent(
+    event: CalendarEvent,
+    type: BookingType,
+    resources: BookableResource
+) {
+    const bookings = await queryBookings({
+        type,
+        period_start: getUnixTime(event.date),
+        period_end: getUnixTime(addMinutes(event.date, event.duration)),
+    })
+        .pipe(map((_) => _.filter((_) => _.parent_id === event.id)))
+        .toPromise();
+    await Promise.all(bookings.map((_) => removeBooking(_.id).toPromise()));
+    const zones =
+        (event.system?.zones as any) ||
+        unique(flatten(event.resources.map((_) => _.zones))) ||
+        [];
+    await Promise.all(
+        resources.map((item) =>
+            createBooking(
+                new Booking({
+                    type,
+                    booking_type: type,
+                    date: event.date,
+                    duration: event.duration,
+                    description: event.title,
+                    user_email: event.host,
+                    asset_id: item.email,
+                    asset_name: (item as any).name,
+                    title: (item as any).name,
+                    extension_data: {
+                        parent_id: event.id,
+                        name: (item as any).name,
+                        location_id: event.location,
+                    },
+                    zones,
+                }),
+                { ical_uid: event.ical_uid, event_id: event.id }
+            ).toPromise()
         )
     );
 }

@@ -7,14 +7,7 @@ import { VisitorsStateService } from './visitors-state.service';
         <sidebar></sidebar>
         <main class="relative w-full flex flex-col bg-base-200">
             <visitors-topbar class="w-full"></visitors-topbar>
-            <visitor-listings
-                *ngIf="!(filters | async)?.show_guests"
-                class="w-full flex-1 h-0"
-            ></visitor-listings>
-            <guest-listings
-                *ngIf="(filters | async)?.show_guests"
-                class="w-full flex-1 h-0"
-            ></guest-listings>
+            <guest-listings class="w-full flex-1 h-0"></guest-listings>
             <mat-progress-bar
                 class="w-full"
                 *ngIf="loading | async"

@@ -38,19 +38,6 @@ import { VisitorsStateService } from './visitors-state.service';
                     <mat-option [value]="30">Show Month</mat-option>
                 </mat-select>
             </mat-form-field>
-            <mat-slide-toggle
-                class="m-2"
-                [ngModel]="(filters | async)?.show_guests"
-                (ngModelChange)="setFilters({ show_guests: $event })"
-                ><div class="text-xs">Only Guests</div></mat-slide-toggle
-            >
-            <mat-slide-toggle
-                class="m-2"
-                *ngIf="!(filters | async)?.show_guests"
-                [ngModel]="(filters | async)?.all_bookings"
-                (ngModelChange)="setFilters({ all_bookings: $event })"
-                ><div class="text-xs">All Bookings</div></mat-slide-toggle
-            >
             <div class="flex-1 w-2"></div>
             <searchbar
                 class="mr-2"

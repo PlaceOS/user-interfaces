@@ -70,7 +70,7 @@ interface DateItem {
                     class="min-w-[2.25rem] w-9 h-9 relative overflow-visible my-0.5"
                     *ngFor="let day of date_list"
                     [class.hover:bg-base-100]="day.id !== active_date"
-                    [class.text-opacity-30]="!day.is_month"
+                    [class.!text-base-300]="!day.is_month"
                     [class.text-secondary-content]="day.id === active_date"
                     [class.text-base-content]="day.id !== active_date"
                     [class.bg-secondary]="day.id === active_date"

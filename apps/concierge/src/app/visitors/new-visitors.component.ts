@@ -37,31 +37,9 @@ import { InviteVisitorModalComponent } from './invite-visitor-modal.component';
                         </mat-select>
                     </mat-form-field>
                     <div class="flex-1 w-2"></div>
-                    <mat-slide-toggle
-                        class="m-2"
-                        *ngIf="!(filters | async)?.show_guests"
-                        [ngModel]="(filters | async)?.all_bookings"
-                        (ngModelChange)="setFilters({ all_bookings: $event })"
-                    >
-                        <div class="text-xs">All Bookings</div>
-                    </mat-slide-toggle>
-                    <mat-slide-toggle
-                        class="m-2"
-                        [ngModel]="(filters | async)?.show_guests"
-                        (ngModelChange)="setFilters({ show_guests: $event })"
-                    >
-                        <div class="text-xs">Only Guests</div>
-                    </mat-slide-toggle>
                     <searchbar (modelChange)="setSearch($event)"></searchbar>
                 </div>
-                <visitor-listings
-                    *ngIf="!(filters | async)?.show_guests"
-                    class="w-full flex-1 h-0"
-                ></visitor-listings>
-                <guest-listings
-                    *ngIf="(filters | async)?.show_guests"
-                    class="w-full flex-1 h-0"
-                ></guest-listings>
+                <guest-listings class="w-full flex-1 h-0"></guest-listings>
                 <mat-progress-bar
                     class="w-full"
                     *ngIf="loading | async"

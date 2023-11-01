@@ -37,6 +37,7 @@ import {
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import {
+    createBookingsForEvent,
     queryResourceAvailability,
     saveBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
@@ -635,6 +636,38 @@ export class EventFormService extends AsyncHandler {
                 this._loading.next('');
                 throw e;
             });
+            const domain = (currentUser()?.email || '@').split('@')[1];
+            const visitors = attendees.filter(
+                (user) =>
+                    user.is_external &&
+                    user.email !== event.host &&
+                    !user.email.includes(domain)
+            );
+            const on_error = async (e) => {
+                if (!this.form.value.id) {
+                    await removeEvent(
+                        result.id,
+                        spaces.length
+                            ? {
+                                  calendar:
+                                      this.form.value.host ||
+                                      currentUser()?.email,
+                                  system_id: spaces[0].id,
+                              }
+                            : {}
+                    ).toPromise();
+                    notifyError('Unable to book the selected assets.');
+                    this._loading.next('');
+                }
+                throw e;
+            };
+            if (visitors.length) {
+                await createBookingsForEvent(
+                    result,
+                    'visitor',
+                    visitors as any
+                ).catch(on_error);
+            }
             if (assets?.length || event.extension_data.assets?.length) {
                 await updateAssetRequestsForResource(
                     result,
@@ -652,24 +685,7 @@ export class EventFormService extends AsyncHandler {
                     },
                     assets,
                     event.extension_data.assets
-                ).catch(async (e) => {
-                    if (!this.form.value.id) {
-                        await removeEvent(
-                            result.id,
-                            spaces.length
-                                ? {
-                                      calendar:
-                                          this.form.value.host ||
-                                          currentUser()?.email,
-                                      system_id: spaces[0].id,
-                                  }
-                                : {}
-                        ).toPromise();
-                        notifyError('Unable to book the selected assets.');
-                        this._loading.next('');
-                    }
-                    throw e;
-                });
+                ).catch(on_error);
             }
             this.clearForm();
             this.last_success = result;
