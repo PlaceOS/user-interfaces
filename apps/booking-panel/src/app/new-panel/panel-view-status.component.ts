@@ -13,6 +13,9 @@ import { currentPeriod, nextPeriod } from './helpers';
                 [class.bg-error]="(state | async) === 'busy'"
                 [class.bg-success]="(state | async) === 'free'"
                 [class.bg-warning]="(state | async) === 'pending'"
+                [class.text-error-content]="(state | async) === 'busy'"
+                [class.text-success-content]="(state | async) === 'free'"
+                [class.text-warning-content]="(state | async) === 'pending'"
             >
                 <div
                     [innerHTML]="
