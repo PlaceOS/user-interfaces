@@ -173,14 +173,14 @@ export class PanelStateService extends AsyncHandler {
     );
     public readonly pending_check = combineLatest([
         this.current,
+        this.status,
         interval(15 * 1000),
     ]).pipe(
-        tap(([current]) => {
-            if (!current) return;
+        tap(([current, status]) => {
+            if (!current || status !== 'pending') return;
             const pending_period = this.setting('pending_period');
             if (!pending_period || pending_period < 1) return;
             const diff = differenceInMinutes(Date.now(), current.date);
-            console.log('Checking Pending Period:', diff, pending_period);
             if (diff <= pending_period) return;
             this.endCurrent('Pending period expired.');
         })
