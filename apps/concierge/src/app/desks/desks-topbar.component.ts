@@ -254,6 +254,7 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
             groups: ['test-desk-group', 'desk-bookers'],
             features: ['Standing Desk', 'Dual Monitor'],
         }).toJSON();
+        delete desk.images;
         const data = jsonToCsv([desk]);
         downloadFile('desk-template.csv', data);
     }
