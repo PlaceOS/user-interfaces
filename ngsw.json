@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1698807064416,
+  "timestamp": 1698824874764,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -147,7 +147,7 @@
     "./apps_concierge_src_app_building-manager_building-manager_module_ts.js": "e50aa3a833c722001ba35f2d825de4d2adcdc12e",
     "./apps_concierge_src_app_catering_catering_module_ts.js": "0ce1d6d7850767e4b1b6efc911bea1cde1624a9a",
     "./apps_concierge_src_app_day-view_day-view_module_ts.js": "f91ff1bd74cdc68be4c0bd530ab49ab5e0da5765",
-    "./apps_concierge_src_app_desks_desks_module_ts.js": "7a19b26b3d21a76c3ce9684fb0683e0151aa9f32",
+    "./apps_concierge_src_app_desks_desks_module_ts.js": "a00946ecd9229af065d23ee12f3cf4d0fbf2411d",
     "./apps_concierge_src_app_events_events_module_ts.js": "98e9f7309abb1095a635997c0cb863dbef3d27f9",
     "./apps_concierge_src_app_facilities_facilities_module_ts.js": "f5fc837715f91807fe65948a04a5a7cbe400c0c0",
     "./apps_concierge_src_app_level-manager_level-manager_module_ts.js": "e2ff4eef56318335d0766883556bfbe2b3401133",
@@ -244,7 +244,7 @@
     "./default-node_modules_angular_material_fesm2022_tabs_mjs.js": "0c286fe2922a6d7979b37b76cecc0e99c4cb7db2",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "173df6aefdcb82b0e2c7ea6db029d2642877f5e8",
-    "./main.js": "8d260b716a12d2167f3df1607cfcee58ea2a1a82",
+    "./main.js": "3fd64d7633f0efbafc3137913cb2dc97c262a03e",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
