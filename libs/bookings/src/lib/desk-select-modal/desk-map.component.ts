@@ -7,7 +7,7 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { AsyncHandler, SettingsService, unique } from '@placeos/common';
-import { map } from 'rxjs/operators';
+import { debounceTime, map } from 'rxjs/operators';
 
 import { BookingAsset, BookingFormService } from '../booking-form.service';
 import { BehaviorSubject, combineLatest } from 'rxjs';
@@ -112,8 +112,11 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
         )
     );
 
-    public readonly features = this._state.resources.pipe(
-        map((desks) => {
+    public readonly features = combineLatest([
+        this._state.resources,
+        this._state.available_resources,
+    ]).pipe(
+        map(([desks]) => {
             return this._settings.get('app.desks.hide_user')
                 ? []
                 : desks.map((desk) => ({
