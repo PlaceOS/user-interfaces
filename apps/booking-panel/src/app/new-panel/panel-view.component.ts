@@ -39,7 +39,7 @@ import { PanelStateService } from '../panel-state.service';
                     </div>
                 </div>
             </div>
-            <div class="absolute bottom-0 left-0 p-2">
+            <div class="absolute bottom-0 right-0 p-2">
                 <div class="text-xs opacity-40 w-full">
                     <ng-container i18n>Version: </ng-container>
                     {{ version.hash }}

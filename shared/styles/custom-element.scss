@@ -673,6 +673,17 @@ a[icon] {
         }
     }
 
+    .mat-mdc-paginator {
+        background-color: var(--b2);
+        color: var(--bc);
+
+        .mat-mdc-button-base * {
+            color: var(--bc);
+            border-color: var(--bc);
+            fill: var(--bc);
+        }
+    }
+
     .mdc-button__label {
         color: inherit;
     }
