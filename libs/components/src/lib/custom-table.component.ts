@@ -137,9 +137,11 @@ export class CustomTableComponent<T extends {} = any>
     @Input() public empty: string;
     /** Displayed value when the table is empty */
     @Input() public template: Record<string, TemplateRef<any>> = {};
-
+    /** Reset viewed page to first on change */
+    @Input() public reset_page: any;
+    /** Emitter for when a row is clicked */
     @Output() public row_clicked = new EventEmitter<T>();
-
+    /** List of items to display in the table */
     public readonly data_source: MatTableDataSource<T> = new MatTableDataSource(
         []
     );
@@ -194,6 +196,12 @@ export class CustomTableComponent<T extends {} = any>
         }
         if (!this.column_size) {
             this.column_size = [];
+        }
+        if (
+            changes.reset_page &&
+            this.reset_page !== changes.reset_page.previousValue
+        ) {
+            this._paginator?.firstPage();
         }
     }
 }

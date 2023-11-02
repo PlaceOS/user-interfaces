@@ -9,6 +9,7 @@ import {
     jsonToCsv,
     loadTextFileFromInputEvent,
     notifyError,
+    notifyInfo,
     notifySuccess,
 } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
@@ -210,8 +211,8 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
 
     public newDesk() {
         this._desks.addDesks([new Desk({ id: `desk-${randomInt(999_999)}` })]);
-        notifySuccess(
-            'New desk added to local data. Make sure to save the desk before using it.'
+        notifyInfo('New desk added to local data.', undefined, () =>
+            notifyInfo('Make sure to save the new desk before using it.')
         );
     }
 

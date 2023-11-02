@@ -7,6 +7,7 @@ import {
     jsonToCsv,
     loadTextFileFromInputEvent,
     notifyError,
+    notifyInfo,
     notifySuccess,
     randomInt,
 } from '@placeos/common';
@@ -123,7 +124,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                         </button>
                     </ng-container>
                 </div>
-                <div class="flex-1 h-1/2 w-full relative overflow-auto px-4">
+                <div class="flex-1 h-1/2 w-full relative overflow-auto">
                     <router-outlet></router-outlet>
                 </div>
                 <mat-progress-bar
@@ -230,8 +231,8 @@ export class NewDesksComponent
 
     public newDesk() {
         this._state.addDesks([new Desk({ id: `desk-${randomInt(999_999)}` })]);
-        notifySuccess(
-            'New desk added to local data. Make sure to save the desk before using it.'
+        notifyInfo('New desk added to local data.', undefined, () =>
+            notifyInfo('Make sure to save the new desk before using it.')
         );
     }
 
@@ -243,6 +244,7 @@ export class NewDesksComponent
             groups: ['test-desk-group', 'desk-bookers'],
             features: ['Standing Desk', 'Dual Monitor'],
         }).toJSON();
+        delete desk.images;
         const data = jsonToCsv([desk]);
         downloadFile('desk-template.csv', data);
     }

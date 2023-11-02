@@ -213,6 +213,13 @@ export class DesksStateService extends AsyncHandler {
         this._new_desks.next(this._new_desks.getValue().concat(list));
     }
 
+    public removeNewDesk(desk: Desk) {
+        this._filters.next(this._filters.getValue());
+        this._new_desks.next(
+            this._new_desks.getValue().filter((d) => d.id !== desk.id)
+        );
+    }
+
     public clearNewDesks() {
         this._filters.next(this._filters.getValue());
         this._new_desks.next([]);

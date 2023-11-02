@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
@@ -24,7 +24,8 @@ const QR_CODES = {};
     template: `
         <div class="w-full h-4"></div>
         <div
-            class="w-full h-full overflow-auto relative px-4 pb-4"
+            class="w-full relative pl-8 pb-4"
+            [style.margin-bottom]="changed > 0 ? '4rem' : ''"
             (dragenter)="handleDrag('enter', $event)"
             (window:dragend)="handleDrag('end', $event)"
         >
@@ -62,6 +63,7 @@ const QR_CODES = {};
                         ? 'No matching desks'
                         : 'No desks for selected level'
                 "
+                [reset_page]="page_reset"
                 [pagination]="true"
                 [page_size]="20"
             ></custom-table>
@@ -162,19 +164,6 @@ const QR_CODES = {};
                 </div>
             </ng-template>
             <div
-                class="fixed bottom-2 left-1/2 transform -translate-x-1/2 p-4 rounded bg-base-100 shadow"
-                *ngIf="changed > 0"
-            >
-                <p class="mb-2 text-xl">
-                    {{ changed }} Desk(s) with unsaved changes
-                </p>
-                <div class="flex items-center justify-center">
-                    <button save btn matRipple (click)="save()">
-                        Save Changes
-                    </button>
-                </div>
-            </div>
-            <div
                 class="absolute inset-0 flex flex-col items-center justify-center space-y-2 bg-base-100 bg-opacity-60"
                 *ngIf="loading"
             >
@@ -199,32 +188,80 @@ const QR_CODES = {};
                 />
             </div>
         </div>
+        <div
+            class="fixed bottom-0 left-64 right-0 p-2 bg-base-100 shadow border-t border-base-200 flex items-center justify-center space-x-4"
+            *ngIf="changed > 0"
+        >
+            <p class="flex-1 text-center pl-8">
+                {{ changed }} Desk(s) with unsaved changes
+            </p>
+            <div class="flex items-center justify-center space-x-2">
+                <button clear btn matRipple class="inverse" (click)="clear()">
+                    Clear Changes
+                </button>
+                <button save btn matRipple (click)="save()">
+                    Save Changes
+                </button>
+            </div>
+        </div>
     `,
     styles: [``],
 })
 export class DesksManageComponent extends AsyncHandler {
-    public changes = {};
+    public changes: Record<string, Partial<Desk>> = {};
     public loading: string;
     public dragging = false;
+    public page_reset = 0;
     public readonly filters = this._state.filters;
     public readonly desks = combineLatest([
-        this._state.desks,
         this._state.new_desks,
+        this._state.desks,
     ]).pipe(map(([d, n]) => d.concat(n)));
 
     public get changed() {
-        return (
-            (Object.keys(this.changes).length || 0) +
-            (this._state.new_desk_count || 0)
+        return Object.keys(this.changes).length || 0;
+    }
+
+    constructor(
+        private _state: DesksStateService,
+        private _org: OrganisationService,
+        private _dialog: MatDialog,
+        private _element: ElementRef
+    ) {
+        super();
+    }
+
+    public ngOnInit() {
+        this.subscription(
+            'new_desks',
+            this._state.new_desks.subscribe((desks) => {
+                this.page_reset = Date.now();
+                this._element?.nativeElement?.parentElement?.scrollTo({
+                    top: 0,
+                    behavior: 'smooth',
+                });
+                for (const desk of desks) {
+                    this.changes[desk.id] = {};
+                }
+            })
         );
     }
 
-    public setRowValue(id: string, key: string, value: any) {
+    public setRowValue<K extends keyof Desk>(
+        id: string,
+        key: K,
+        value: Desk[K]
+    ): void {
         if (!this.changes[id]) this.changes[id] = {};
         this.changes[id][key] = value;
     }
 
     public async removeDesk(desk: Desk) {
+        const new_desks = await this._state.new_desks.pipe(take(1)).toPromise();
+        if (new_desks.find((_) => _.id === desk.id)) {
+            delete this.changes[desk.id];
+            return this._state.removeNewDesk(desk);
+        }
         const resp = await openConfirmModal(
             {
                 title: 'Remove desk',
@@ -251,10 +288,10 @@ export class DesksManageComponent extends AsyncHandler {
                 notifyError(`Error saving desk data. Error: ${e.message || e}`);
                 throw e;
             });
+        delete this.changes[desk.id];
         notifySuccess('Successfully updated desks');
         this._state.setFilters({});
         this.loading = '';
-        this.changes = {};
     }
 
     public async save() {
@@ -289,6 +326,11 @@ export class DesksManageComponent extends AsyncHandler {
         this.changes = {};
     }
 
+    public clear() {
+        this._state.clearNewDesks();
+        this.changes = {};
+    }
+
     public loadQrCode(item: any) {
         item.qr_link = `${
             location.origin
@@ -298,14 +340,6 @@ export class DesksManageComponent extends AsyncHandler {
                 location.origin
             }/workplace/#/book/code?asset_id=${encodeURIComponent(item.id)}`
         );
-    }
-
-    constructor(
-        private _state: DesksStateService,
-        private _org: OrganisationService,
-        private _dialog: MatDialog
-    ) {
-        super();
     }
 
     public print() {
