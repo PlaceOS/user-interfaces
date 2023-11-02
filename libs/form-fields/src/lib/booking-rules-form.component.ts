@@ -217,7 +217,7 @@ import {
                             name="start-time"
                             [ngModel]="form.value.conditions.is_between[0] || 6"
                             [ngModelOptions]="{ standalone: true }"
-                            (ngOnChanges)="
+                            (ngModelChange)="
                                 setIsBetween(
                                     $event,
                                     form.value.conditions.is_between[1]
@@ -239,9 +239,9 @@ import {
                             [ngModel]="
                                 form.value.conditions.is_between[1] || 18
                             "
-                            (ngOnChanges)="
+                            (ngModelChange)="
                                 setIsBetween(
-                                    form.value.conditions.is_between[1],
+                                    form.value.conditions.is_between[0],
                                     $event
                                 )
                             "
