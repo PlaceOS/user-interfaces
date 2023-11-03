@@ -37,12 +37,13 @@ import { Booking } from '@placeos/bookings';
             <i
                 *ngIf="!row?.checked_in; else checkin_state"
                 matTooltip="Not checked in"
-                class="p-2 rounded-full material-icons border-2 border-dotted border-base-200"
-                >face</i
+                class="flex items-center justify-center rounded-full material-icons border-2 border-dashed border-neutral text-xl h-9 w-9"
             >
+                close
+            </i>
             <div
                 matTooltip="Linked to Room Booking"
-                class="px-2"
+                class="pl-2"
                 [class.pointer-events-none]="!row.linked_event"
             >
                 <app-icon
@@ -54,10 +55,11 @@ import { Booking } from '@placeos/bookings';
             </div>
             <ng-template #checkin_state>
                 <i
-                    class="p-2 rounded-full material-icons bg-success border-2 border-green-600 text-white"
+                    class="flex items-center justify-center rounded-full material-icons bg-success border-2 border-neutral text-white text-xl h-9 w-9"
                     matTooltip="Checked In"
-                    >done</i
                 >
+                    done
+                </i>
             </ng-template>
         </ng-template>
         <ng-template #host_template let-row="row">
