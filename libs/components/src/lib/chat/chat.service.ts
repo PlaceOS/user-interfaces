@@ -53,7 +53,7 @@ export class ChatService extends AsyncHandler {
                 this._chat_id
                     ? '&resume=' + encodeURIComponent(this._chat_id)
                     : ''
-            }'}`;
+            }`;
             this._socket = webSocket<any>({
                 url,
                 serializer: (data) =>
