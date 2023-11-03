@@ -36,6 +36,7 @@ import { Booking } from '@placeos/bookings';
         <ng-template #state_template let-row="row">
             <i
                 *ngIf="!row?.checked_in; else checkin_state"
+                matTooltip="Not checked in"
                 class="p-2 rounded-full material-icons border-2 border-dotted border-base-200"
                 >face</i
             >
@@ -54,6 +55,7 @@ import { Booking } from '@placeos/bookings';
             <ng-template #checkin_state>
                 <i
                     class="p-2 rounded-full material-icons bg-success border-2 border-green-600 text-white"
+                    matTooltip="Checked In"
                     >done</i
                 >
             </ng-template>
