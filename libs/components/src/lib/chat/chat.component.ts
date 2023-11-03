@@ -56,12 +56,14 @@ import { map } from 'rxjs/operators';
                     >
                         <div class="flex items-center space-x-2">
                             <div
-                                class="text-sm text-black/60 px-2 py-1"
+                                class="text-sm text-base-content opacity-60 px-2 py-1"
                                 *ngIf="message.user_id !== user.id"
                             >
                                 Assistant
                             </div>
-                            <div class="text-xs text-black/30 px-2 py-1">
+                            <div
+                                class="text-xs  text-base-content opacity-40 px-2 py-1"
+                            >
                                 {{ message.timestamp | dateFrom }}
                             </div>
                         </div>
@@ -71,24 +73,51 @@ import { map } from 'rxjs/operators';
                             [innerHTML]="message.content | sanitize"
                         ></div>
                     </div>
+                    <div class="p-4" *ngIf="progress | async">
+                        <button
+                            class="block p-2 rounded border-base-300 bg-info text-info-content w-full"
+                            (click)="show_info = !show_info"
+                        >
+                            <div class=" flex items-center space-x-2">
+                                <app-icon class="text-2xl">info</app-icon>
+                                <p class="text-sm">
+                                    {{ (progress | async).function }}
+                                </p>
+                            </div>
+                            <div
+                                class="relative overflow-hidden w-full rounded"
+                            >
+                                <div
+                                    class="absolute inset-0 bg-base-100 opacity-10"
+                                ></div>
+                                <div
+                                    class="text-xs text-mono text-left p-2 break-words"
+                                    *ngIf="show_info"
+                                    [innerHTML]="
+                                        (progress | async).content | sanitize
+                                    "
+                                ></div>
+                            </div>
+                        </button>
+                    </div>
                 </div>
                 <div
-                    class="absolute bottom-16 right-2 flex items-center justify-center space-x-2 p-1 rounded-2xl bg-slate-400 border border-slate-600"
+                    class="absolute bottom-16 right-2 flex items-center justify-center space-x-2 p-1 rounded-2xl bg-base-100 border border-neutral"
                     *ngIf="waiting | async"
                 >
                     <div
-                        class="h-2 w-2 bg-slate-600 rounded-full animate-bounce"
+                        class="h-2 w-2 bg-neutral rounded-full animate-bounce"
                     ></div>
                     <div
-                        class="h-2 w-2 bg-slate-600 rounded-full animate-bounce anim-delay-1"
+                        class="h-2 w-2 bg-neutral rounded-full animate-bounce anim-delay-1"
                     ></div>
                     <div
-                        class="h-2 w-2 bg-slate-600 rounded-full animate-bounce anim-delay-2"
+                        class="h-2 w-2 bg-neutral rounded-full animate-bounce anim-delay-2"
                     ></div>
                     <span class="sr-only">Waiting for reply...</span>
                 </div>
                 <div
-                    class="flex items-center bg-base-100 focus-within:outline outline-blue-500 border-t border-base-300"
+                    class="flex items-center bg-base-100 focus-within:outline outline-info border-t border-base-300"
                 >
                     <input
                         #input
@@ -126,12 +155,14 @@ import { map } from 'rxjs/operators';
 })
 export class ChatComponent extends AsyncHandler implements OnInit {
     public show = false;
+    public show_info = false;
     public message = '';
     public user: StaffUser;
     public show_time: Record<string, boolean> = {};
 
     public readonly hint = this._chat.chat_hint;
     public readonly messages = this._chat.messages;
+    public readonly progress = this._chat.progress;
     public readonly waiting = this._chat.messages.pipe(
         map((_) => _.length !== 0 && _[_.length - 1]?.user_id === this.user?.id)
     );
@@ -166,6 +197,12 @@ export class ChatComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'messages',
             this.messages.subscribe(() => this.scrollToBottom())
+        );
+        this.subscription(
+            'progress',
+            this.progress.subscribe((i) =>
+                i ? this.scrollToBottom() : (this.show_info = false)
+            )
         );
     }
 

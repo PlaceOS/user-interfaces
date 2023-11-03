@@ -14,6 +14,7 @@ export interface ChatMessage {
     user_id: string;
     message: string;
     content: string;
+    function?: string;
     timestamp: number;
 }
 
@@ -22,6 +23,7 @@ export interface ChatMessage {
 })
 export class ChatService extends AsyncHandler {
     private _chat_messages = new BehaviorSubject<ChatMessage[]>([]);
+    private _progress_message = new BehaviorSubject<ChatMessage | null>(null);
     private _chat_system = this._org.active_building.pipe(
         filter((b) => !!b),
         map((_) => this._org.binding('chat_room'))
@@ -76,6 +78,7 @@ export class ChatService extends AsyncHandler {
     );
 
     public readonly messages = this._chat_messages.asObservable();
+    public readonly progress = this._progress_message.asObservable();
 
     public get connected() {
         return !!this._socket;
@@ -128,17 +131,32 @@ export class ChatService extends AsyncHandler {
     }
 
     private _onMessage(msg) {
-        this._chat_messages.next([
-            ...this._chat_messages.getValue(),
-            {
+        if (msg.type === 'progress') {
+            this._progress_message.next({
                 id: `msg-${randomString(6)}`,
                 chat_id: msg.chat_id,
                 message: msg.message,
                 content: marked.parse(msg.message),
                 user_id: msg.user_id || 'assistant',
+                function: msg.function,
                 timestamp: Date.now(),
-            },
-        ]);
+            });
+        } else {
+            this._chat_messages.next([
+                ...this._chat_messages.getValue(),
+                {
+                    id: `msg-${randomString(6)}`,
+                    chat_id: msg.chat_id,
+                    message: msg.message,
+                    content: marked.parse(msg.message),
+                    user_id: msg.user_id || 'assistant',
+                    timestamp: Date.now(),
+                },
+            ]);
+            if (msg.type === 'response') {
+                this._progress_message.next(null);
+            }
+        }
         this._timeoutSocket();
     }
 }
