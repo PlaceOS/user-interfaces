@@ -51,7 +51,7 @@ export class ChatService extends AsyncHandler {
                 id
             )}?bearer_token=${encodeURIComponent(token())}${
                 this._chat_id
-                    ? '&chat_id=' + encodeURIComponent(this._chat_id)
+                    ? '&resume=' + encodeURIComponent(this._chat_id)
                     : ''
             }'}`;
             this._socket = webSocket<any>({
