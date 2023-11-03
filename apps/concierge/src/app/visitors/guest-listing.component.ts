@@ -216,7 +216,6 @@ import { Booking } from '@placeos/bookings';
                     row.extension_data.remote ? 'tap_and_play' : 'business'
                 "
                 (click)="setExt(row, 'remote', !row.extension_data.remote)"
-                [class.invisible]="!row?.is_external || row?.organizer"
             >
             </action-icon>
             <action-icon
@@ -226,7 +225,6 @@ import { Booking } from '@placeos/bookings';
                 [state]="row?.checked_in ? 'success' : ''"
                 content="event_available"
                 (click)="checkin(row)"
-                [class.invisible]="!row?.is_external || row?.organizer"
             >
             </action-icon>
             <action-icon
@@ -235,14 +233,17 @@ import { Booking } from '@placeos/bookings';
                 [loading]="loading === 'checkout'"
                 content="event_busy"
                 (click)="checkout(row)"
-                [class.invisible]="!row?.is_external || row?.organizer"
             >
             </action-icon>
             <a
-                [href]="'mailto:' + row?.email"
+                [href]="'mailto:' + row?.asset_id"
                 icon
                 matRipple
-                [matTooltip]="row?.organizer ? 'Email Host' : 'Email Guest'"
+                [matTooltip]="
+                    row?.user_email === row?.asset_id
+                        ? 'Email Host'
+                        : 'Email Guest'
+                "
             >
                 <app-icon>email</app-icon>
             </a>
