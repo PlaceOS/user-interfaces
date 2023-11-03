@@ -160,7 +160,9 @@ export class CateringListFieldComponent implements ControlValueAccessor {
     public readonly setDisabledState = (s: boolean) => (this.disabled = s);
 
     public removeItem(item: CateringItem) {
-        const updated_list = this.items.filter((_) => _.id !== item.id);
+        const updated_list = this.items.filter(
+            (_) => _.custom_id !== item.custom_id
+        );
         this.setValue(updated_list);
     }
 
