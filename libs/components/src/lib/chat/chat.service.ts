@@ -28,6 +28,7 @@ export class ChatService extends AsyncHandler {
         filter((b) => !!b),
         map((_) => this._org.binding('chat_room'))
     );
+    private _chat_id = '';
 
     public chat_hint: Observable<string> = this._chat_system.pipe(
         filter((_) => !!_),
@@ -48,7 +49,11 @@ export class ChatService extends AsyncHandler {
                 ''
             )}/api/engine/v2/chatgpt/chat/${encodeURIComponent(
                 id
-            )}?bearer_token=${encodeURIComponent(token())}`;
+            )}?bearer_token=${encodeURIComponent(token())}${
+                this._chat_id
+                    ? '&chat_id=' + encodeURIComponent(this._chat_id)
+                    : ''
+            }'}`;
             this._socket = webSocket<any>({
                 url,
                 serializer: (data) =>
@@ -131,6 +136,7 @@ export class ChatService extends AsyncHandler {
     }
 
     private _onMessage(msg) {
+        if (msg.chat_id) this._chat_id = msg.chat_id;
         if (msg.type === 'progress') {
             this._progress_message.next({
                 id: `msg-${randomString(6)}`,
