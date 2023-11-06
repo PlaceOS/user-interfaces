@@ -8,6 +8,7 @@ import { BehaviorSubject } from 'rxjs';
 
 import { BookingModalComponent } from '../../app/day-view/booking-modal.component';
 import { EventFormComponent } from '../../app/day-view/event-form.component';
+import { SettingsService } from '@placeos/common';
 
 describe('BookingModalComponent', () => {
     let spectator: Spectator<BookingModalComponent>;
@@ -28,6 +29,7 @@ describe('BookingModalComponent', () => {
                 postForm: jest.fn(async () => null),
                 loading: new BehaviorSubject(''),
             }),
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
         imports: [MatProgressSpinnerModule],
     });

@@ -1,10 +1,9 @@
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { MatDialog } from '@angular/material/dialog';
-import { of, timer } from 'rxjs';
+import { of } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { MockProvider } from 'ng-mocks';
 
-import { User } from '@placeos/users';
 import { SettingsService } from '@placeos/common';
 
 import { VisitorsStateService } from '../../app/visitors/visitors-state.service';
@@ -24,7 +23,9 @@ describe('VisitorStateService', () => {
         service: VisitorsStateService,
         providers: [
             MockProvider(MatDialog, { open: jest.fn() }),
-            MockProvider(OrganisationService, {}),
+            MockProvider(OrganisationService, {
+                active_building: of({ id: 'bld-1' }),
+            } as any),
             MockProvider(SettingsService, { time_format: 'h:mm a' }),
         ],
     });
@@ -42,31 +43,25 @@ describe('VisitorStateService', () => {
         (booking_mod as any).queryBookings = jest.fn(() =>
             of([{ extension_data: {} }])
         );
-        expect(event_mod.queryEvents).not.toBeCalled();
-        const events = await spectator.service.events.pipe(take(1)).toPromise();
+        expect(booking_mod.queryBookings).not.toBeCalled();
+        const events = await spectator.service.bookings
+            .pipe(take(1))
+            .toPromise();
         expect(events).toHaveLength(1);
-        expect(event_mod.queryEvents).toBeCalled();
+        expect(booking_mod.queryBookings).toBeCalled();
     });
 
     it('should allow filtering of visitor events', async () => {
-        (event_mod as any).queryEvents = jest.fn(() =>
-            of([
-                {
-                    guests: [{}],
-                    attendees: [
-                        { name: '', email: '' },
-                        { name: '', email: '' },
-                    ],
-                },
-            ])
+        (booking_mod as any).queryBookings = jest.fn(() =>
+            of([{ asset_name: 'true', extension_data: {} }])
         );
-        expect(event_mod.queryEvents).not.toBeCalled();
-        let events = await spectator.service.filtered_events
+        expect(booking_mod.queryBookings).not.toBeCalled();
+        let events = await spectator.service.filtered_bookings
             .pipe(take(1))
             .toPromise();
         expect(events).toHaveLength(1);
         spectator.service.setSearchString('test');
-        events = await spectator.service.filtered_events
+        events = await spectator.service.filtered_bookings
             .pipe(take(1))
             .toPromise();
         expect(events).toHaveLength(0);
@@ -88,64 +83,44 @@ describe('VisitorStateService', () => {
     });
 
     it('should allow checking in visitors', async () => {
-        (event_mod as any).checkinEventGuest = jest.fn(() => of({}));
+        (booking_mod as any).checkinBooking = jest.fn(() => of({}));
         (common_mod as any).notifySuccess = jest.fn(() => null);
         (common_mod as any).unique = jest.fn(() => []);
-        expect(event_mod.checkinEventGuest).not.toBeCalled();
-        await spectator.service.checkGuestIn(
-            { id: '1', attendees: [{ resource: true }] } as any,
-            new User({ email: 'jim' })
-        );
-        expect(event_mod.checkinEventGuest).toBeCalledWith('1', 'jim', true, {
-            system_id: undefined,
-        });
+        expect(booking_mod.checkinBooking).not.toBeCalled();
+        await spectator.service.setCheckinState({ id: '1' } as any);
+        expect(booking_mod.checkinBooking).toBeCalledWith('1', true);
     });
 
     it('should allow checking out visitors', async () => {
-        (event_mod as any).checkinEventGuest = jest.fn(() => of({}));
+        (booking_mod as any).checkinBooking = jest.fn(() => of({}));
         (common_mod as any).notifySuccess = jest.fn(() => null);
         (common_mod as any).unique = jest.fn(() => []);
-        expect(event_mod.checkinEventGuest).not.toBeCalled();
-        await spectator.service.checkGuestOut(
-            { id: '1', attendees: [{ id: '1', resource: true }] } as any,
-            new User({ email: 'jim' })
-        );
-        expect(event_mod.checkinEventGuest).toBeCalledWith('1', 'jim', false, {
-            system_id: undefined,
-        });
+        expect(booking_mod.checkinBooking).not.toBeCalled();
+        await spectator.service.setCheckinState({ id: '1' } as any, false);
+        expect(booking_mod.checkinBooking).toBeCalledWith('1', false);
     });
 
     it('should allow checking in all visitors', async () => {
-        (event_mod as any).checkinEventGuest = jest.fn(() => of({}));
+        (booking_mod as any).queryBookings = jest.fn(() =>
+            of([{ parent_id: '1', extension_data: {} }])
+        );
+        (booking_mod as any).checkinBooking = jest.fn(() => of({}));
         (common_mod as any).notifySuccess = jest.fn(() => null);
         (common_mod as any).unique = jest.fn(() => []);
-        expect(event_mod.checkinEventGuest).not.toBeCalled();
-        await spectator.service.checkAllGuestsIn({
-            id: '1',
-            attendees: [
-                new User({ id: 'jim' }),
-                new User({ id: 'jon' }),
-                new User({ id: 'james' }),
-                { resource: true },
-            ],
-        } as any);
-        expect(event_mod.checkinEventGuest).toBeCalledTimes(3);
+        expect(booking_mod.checkinBooking).not.toBeCalled();
+        await spectator.service.setCheckinStateForEvent('1');
+        expect(booking_mod.checkinBooking).toBeCalled();
     });
 
     it('should allow checking out all visitors', async () => {
-        (event_mod as any).checkinEventGuest = jest.fn(() => of({}));
+        (booking_mod as any).queryBookings = jest.fn(() =>
+            of([{ parent_id: '1', extension_data: {} }])
+        );
+        (booking_mod as any).checkinBooking = jest.fn(() => of({}));
         (common_mod as any).notifySuccess = jest.fn(() => null);
         (common_mod as any).unique = jest.fn(() => []);
-        expect(event_mod.checkinEventGuest).not.toBeCalled();
-        await spectator.service.checkAllGuestsOut({
-            id: '1',
-            attendees: [
-                new User({ id: 'jim', checked_in: true }),
-                new User({ id: 'jon', checked_in: true }),
-                new User({ id: 'james' }),
-                { resource: true },
-            ],
-        } as any);
-        expect(event_mod.checkinEventGuest).toBeCalledTimes(2);
+        expect(booking_mod.checkinBooking).not.toBeCalled();
+        await spectator.service.setCheckinStateForEvent('1');
+        expect(booking_mod.checkinBooking).toBeCalled();
     });
 });

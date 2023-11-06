@@ -89,10 +89,10 @@ export class VisitorsStateService extends AsyncHandler {
             const out = guest_list
                 .filter(
                     (_) =>
-                        _.asset_name.toLowerCase().includes(filter) ||
-                        _.user_name.toLowerCase().includes(filter) ||
-                        _.user_email.toLowerCase().includes(filter) ||
-                        _.asset_id.toLowerCase().includes(filter)
+                        _.asset_name?.toLowerCase().includes(filter) ||
+                        _.user_name?.toLowerCase().includes(filter) ||
+                        _.user_email?.toLowerCase().includes(filter) ||
+                        _.asset_id?.toLowerCase().includes(filter)
                 )
                 .sort((a, b) => a.date - b.date);
             return out;
@@ -209,6 +209,35 @@ export class VisitorsStateService extends AsyncHandler {
             `Successfully checked ${state ? 'in' : 'out'} ${
                 item.asset_name || item.asset_id
             } from ${item.user_name}'s meeting`
+        );
+    }
+
+    public async setCheckinStateForEvent(event_id: string, state = true) {
+        const bookings = await this.bookings.pipe(take(1)).toPromise();
+        const event_bookings = bookings.filter(
+            (_) =>
+                _.parent_id === event_id ||
+                _.extension_data.parent_id === event_id
+        );
+        if (!event_bookings.length) return;
+        await Promise.all(
+            event_bookings.map((_) =>
+                checkinBooking(_.id, state)
+                    .toPromise()
+                    .catch((e) => {
+                        notifyError(
+                            `Error checking ${state ? 'in' : 'out'} ${
+                                _.asset_name || _.asset_id
+                            } for ${_.user_name}'s meeting`
+                        );
+                        throw e;
+                    })
+            )
+        );
+        notifySuccess(
+            `Successfully checked ${state ? 'in' : 'out'} all visitors from ${
+                event_bookings[0].user_name
+            }'s meeting`
         );
     }
 

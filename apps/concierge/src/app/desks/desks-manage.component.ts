@@ -236,10 +236,9 @@ export class DesksManageComponent extends AsyncHandler {
             'new_desks',
             this._state.new_desks.subscribe((desks) => {
                 this.page_reset = Date.now();
-                this._element?.nativeElement?.parentElement?.scrollTo({
-                    top: 0,
-                    behavior: 'smooth',
-                });
+                const scroll =
+                    this._element?.nativeElement?.parentElement?.scrollTo;
+                if (scroll) scroll({ top: 0, behavior: 'smooth' });
                 for (const desk of desks) {
                     this.changes[desk.id] = {};
                 }
