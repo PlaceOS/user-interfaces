@@ -39,7 +39,7 @@ import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 
 import { setDefaultCreator } from 'libs/events/src/lib/event.class';
 
-import * as Sentry from '@sentry/angular-ivy';
+import { init as sentryInit } from '@sentry/angular-ivy';
 import { MOCKS } from '@placeos/mocks';
 import {
     Amazon,
@@ -59,7 +59,7 @@ const START_QUERY = location.search;
 
 export function initSentry(dsn: string, sample_rate: number = 0.2) {
     if (!dsn) return;
-    Sentry.init({
+    sentryInit({
         dsn,
         tracesSampleRate: sample_rate,
     });
