@@ -5,6 +5,7 @@ import { BehaviorSubject, combineLatest, interval, Observable, of } from 'rxjs';
 import {
     catchError,
     filter,
+    first,
     map,
     shareReplay,
     switchMap,
@@ -17,6 +18,7 @@ import { Space, SpacesService } from '@placeos/spaces';
 import {
     AsyncHandler,
     currentUser,
+    KeepAliveService,
     notifyError,
     notifySuccess,
     notifyWarn,
@@ -191,7 +193,8 @@ export class PanelStateService extends AsyncHandler {
         private _dialog: MatDialog,
         private _events: EventFormService,
         private _org: OrganisationService,
-        private _router: Router
+        private _router: Router,
+        private _keep_alive: KeepAliveService
     ) {
         super();
         this._system.pipe(filter((_) => !!_)).subscribe((id) => {
@@ -222,6 +225,12 @@ export class PanelStateService extends AsyncHandler {
             settings.forEach((k) => this.bindTo(id, k));
         });
         this.subscription('pending_check', this.pending_check.subscribe());
+        this._org.initialised
+            .pipe(first((_) => _))
+            .toPromise()
+            .then(() =>
+                this._keep_alive.setSystem(this._org.binding('keep_alive'))
+            );
     }
 
     /**
