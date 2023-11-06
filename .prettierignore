@@ -3,3 +3,5 @@
 /dist
 /coverage
 vanillaqr.min.*
+
+/.nx/cache

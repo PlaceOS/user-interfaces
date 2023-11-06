@@ -7,14 +7,14 @@
     "targets": {
         "test": {
             "executor": "@nx/jest:jest",
-            "outputs": ["coverage/libs/survey-suite"],
+            "outputs": ["{workspaceRoot}/coverage/libs/survey-suite"],
             "options": {
                 "jestConfig": "libs/survey-suite/jest.config.ts",
                 "passWithNoTests": true
             }
         },
         "lint": {
-            "executor": "@nx/linter:eslint",
+            "executor": "@nx/eslint:lint",
             "options": {
                 "lintFilePatterns": [
                     "libs/survey-suite/**/*.ts",

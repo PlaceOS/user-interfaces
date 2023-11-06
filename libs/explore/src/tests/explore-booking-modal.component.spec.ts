@@ -5,7 +5,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
+import { of, timer } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
 import { EventFormService, generateEventForm } from '@placeos/events';
@@ -65,7 +65,7 @@ describe('ExploreBookingModalComponent', () => {
         expect('[name="space"]').toContainText('Test Space');
     });
 
-    it('should allow booking space', fakeAsync(async () => {
+    it('should allow booking space', async () => {
         spectator.component.form.patchValue({
             host: 'host@place.tech',
             creator: 'creator@place.tech',
@@ -74,8 +74,8 @@ describe('ExploreBookingModalComponent', () => {
         const spy = jest.spyOn(spectator.component, 'save');
         spectator.click('footer button');
         expect(spy).toHaveBeenCalled();
-        spectator.tick();
+        await timer(310).toPromise();
         await spectator.fixture.whenStable();
         expect(spectator.inject(MatDialogRef).close).toHaveBeenCalled();
-    }));
+    });
 });
