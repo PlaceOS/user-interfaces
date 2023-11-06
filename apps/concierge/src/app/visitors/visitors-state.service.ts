@@ -213,12 +213,17 @@ export class VisitorsStateService extends AsyncHandler {
     }
 
     public async setCheckinStateForEvent(event_id: string, state = true) {
+        console.log('Set Checkin State event', event_id, state);
+        if (!event_id) return;
         const bookings = await this.bookings.pipe(take(1)).toPromise();
         const event_bookings = bookings.filter(
             (_) =>
                 _.parent_id === event_id ||
-                _.extension_data.parent_id === event_id
+                _.extension_data.parent_id === event_id ||
+                _.linked_event?.id === event_id ||
+                _.linked_event?.event_id === event_id
         );
+        console.log('Bookings:', event_bookings);
         if (!event_bookings.length) return;
         await Promise.all(
             event_bookings.map((_) =>
@@ -239,6 +244,7 @@ export class VisitorsStateService extends AsyncHandler {
                 event_bookings[0].user_name
             }'s meeting`
         );
+        this._poll.next(Date.now());
     }
 
     public async downloadVisitorsList() {

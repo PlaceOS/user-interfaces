@@ -41,10 +41,13 @@ import { Booking } from '@placeos/bookings';
             >
                 close
             </i>
-            <div
+            <button
+                icon
+                matRipple
                 matTooltip="Linked to Room Booking"
                 class="pl-2"
                 [class.pointer-events-none]="!row.linked_event"
+                [matMenuTriggerFor]="checkin_menu"
             >
                 <app-icon
                     class="text-2xl"
@@ -52,7 +55,21 @@ import { Booking } from '@placeos/bookings';
                 >
                     event_available
                 </app-icon>
-            </div>
+            </button>
+            <mat-menu #checkin_menu="matMenu">
+                <button mat-menu-item (click)="checkinAllVisitors(row)">
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-2xl">event_available</app-icon>
+                        <div>Checkin All for Booking</div>
+                    </div>
+                </button>
+                <button mat-menu-item (click)="checkoutAllVisitors(row)">
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-2xl">event_busy</app-icon>
+                        <div>Checkout All for Booking</div>
+                    </div>
+                </button>
+            </mat-menu>
             <ng-template #checkin_state>
                 <i
                     class="flex items-center justify-center rounded-full material-icons bg-success border-2 border-neutral text-white text-xl h-9 w-9"
@@ -282,6 +299,10 @@ export class GuestListingComponent {
 
     public readonly approveVisitor = (u) => this._state.approveVisitor(u);
     public readonly declineVisitor = (u) => this._state.declineVisitor(u);
+    public readonly checkinAllVisitors = (u) =>
+        this._state.setCheckinStateForEvent(u.linked_event?.id, true);
+    public readonly checkoutAllVisitors = (u) =>
+        this._state.setCheckinStateForEvent(u.linked_event?.id, false);
     public readonly setExt = (u, f, v) => this._state.setExt(u, f, v);
 
     public readonly checkin = async (item: Booking) => {

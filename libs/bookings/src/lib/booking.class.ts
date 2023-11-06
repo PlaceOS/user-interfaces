@@ -33,6 +33,7 @@ export interface BookingComplete extends Booking {
 }
 
 export interface LinkedCalendarEvent {
+    id?: string;
     system_id: string;
     resource_calendar: string;
     event_id: string;
