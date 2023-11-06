@@ -41,35 +41,6 @@ import { Booking } from '@placeos/bookings';
             >
                 close
             </i>
-            <button
-                icon
-                matRipple
-                matTooltip="Linked to Room Booking"
-                class="pl-2"
-                [class.pointer-events-none]="!row.linked_event"
-                [matMenuTriggerFor]="checkin_menu"
-            >
-                <app-icon
-                    class="text-2xl"
-                    [class.opacity-0]="!row.linked_event"
-                >
-                    event_available
-                </app-icon>
-            </button>
-            <mat-menu #checkin_menu="matMenu">
-                <button mat-menu-item (click)="checkinAllVisitors(row)">
-                    <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl">event_available</app-icon>
-                        <div>Checkin All for Booking</div>
-                    </div>
-                </button>
-                <button mat-menu-item (click)="checkoutAllVisitors(row)">
-                    <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl">event_busy</app-icon>
-                        <div>Checkout All for Booking</div>
-                    </div>
-                </button>
-            </mat-menu>
             <ng-template #checkin_state>
                 <i
                     class="flex items-center justify-center rounded-full material-icons bg-success border-2 border-neutral text-white text-xl h-9 w-9"
@@ -208,6 +179,35 @@ import { Booking } from '@placeos/bookings';
             <button
                 icon
                 matRipple
+                matTooltip="Linked to Room Booking"
+                class="pl-2"
+                [class.pointer-events-none]="!row.linked_event"
+                [matMenuTriggerFor]="checkin_menu"
+            >
+                <app-icon
+                    class="text-2xl"
+                    [class.opacity-0]="!row.linked_event"
+                >
+                    event
+                </app-icon>
+            </button>
+            <mat-menu #checkin_menu="matMenu">
+                <button mat-menu-item (click)="checkinAllVisitors(row)">
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-2xl">event_available</app-icon>
+                        <div>Checkin All for Booking</div>
+                    </div>
+                </button>
+                <button mat-menu-item (click)="checkoutAllVisitors(row)">
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-2xl">event_busy</app-icon>
+                        <div>Checkout All for Booking</div>
+                    </div>
+                </button>
+            </mat-menu>
+            <button
+                icon
+                matRipple
                 [disabled]="!row.attachments?.length"
                 title=""
                 matTooltip="View Attachments"
@@ -343,14 +343,14 @@ export class GuestListingComponent {
 
     public get column_sizes() {
         const fields = {
-            state: '6r',
+            state: '3.5r',
             date: '8r',
             asset_name: '12r',
             user_name: '12r',
             asset_id: 'flex',
             id_data: '8r',
             status: '10r',
-            actions: '12r',
+            actions: '16r',
         };
         return this.columns.map((_) => fields[_] || _);
     }
