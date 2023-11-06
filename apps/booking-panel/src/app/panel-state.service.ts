@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { getModule, PlaceSystem, showSystem } from '@placeos/ts-client';
+import { Router } from '@angular/router';
+import { OrganisationService } from '@placeos/organisation';
 import { BehaviorSubject, combineLatest, interval, Observable, of } from 'rxjs';
 import {
     catchError,
     filter,
-    first,
     map,
     shareReplay,
     switchMap,
@@ -18,7 +19,6 @@ import { Space, SpacesService } from '@placeos/spaces';
 import {
     AsyncHandler,
     currentUser,
-    KeepAliveService,
     notifyError,
     notifySuccess,
     notifyWarn,
@@ -37,8 +37,6 @@ import {
     startOfMinute,
 } from 'date-fns';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { OrganisationService } from '@placeos/organisation';
-import { Router } from '@angular/router';
 
 export interface PanelSettings {
     /** Name of the room */
@@ -162,7 +160,7 @@ export class PanelStateService extends AsyncHandler {
     public readonly current = combineLatest([
         interval(3 * 60 * 1000),
         this._current,
-    ]).pipe(map(([_, current]) => (current.state === 'done' ? null : current)));
+    ]).pipe(map(([_, e]) => (!e || e.state === 'done' ? null : e)));
     /** Upcoming booking */
     private _next: Observable<CalendarEvent> = this._system.pipe(
         switchMap((id) => this._listenToModuleBinding(id, 'next_booking')),
@@ -171,18 +169,18 @@ export class PanelStateService extends AsyncHandler {
     );
     /** Upcoming booking */
     public next = combineLatest([interval(3 * 60 * 1000), this._next]).pipe(
-        map(([_, next]) => (next.state === 'in_progress' ? null : next))
+        map(([_, e]) => (!e || e.state === 'in_progress' ? null : e))
     );
 
     public readonly status: Observable<string> = combineLatest([
         this._settings,
-        this.current,
+        this._current,
     ]).pipe(
         map(([{ status }, booking]) => status || (booking ? 'busy' : 'free')),
         shareReplay(1)
     );
     public readonly pending_check = combineLatest([
-        this.current,
+        this._current,
         this.status,
         interval(15 * 1000),
     ]).pipe(
@@ -201,8 +199,7 @@ export class PanelStateService extends AsyncHandler {
         private _dialog: MatDialog,
         private _events: EventFormService,
         private _org: OrganisationService,
-        private _router: Router,
-        private _keep_alive: KeepAliveService
+        private _router: Router
     ) {
         super();
         this._system.pipe(filter((_) => !!_)).subscribe((id) => {
@@ -233,12 +230,6 @@ export class PanelStateService extends AsyncHandler {
             settings.forEach((k) => this.bindTo(id, k));
         });
         this.subscription('pending_check', this.pending_check.subscribe());
-        this._org.initialised
-            .pipe(first((_) => _))
-            .toPromise()
-            .then(() =>
-                this._keep_alive.setSystem(this._org.binding('keep_alive'))
-            );
     }
 
     /**
@@ -258,7 +249,7 @@ export class PanelStateService extends AsyncHandler {
         ) {
             return this.confirmBookNow();
         }
-        const current = await this.current.pipe(take(1)).toPromise();
+        const current = await this._current.pipe(take(1)).toPromise();
         if (
             current &&
             isAfter(date, current!.date) &&
@@ -312,7 +303,7 @@ export class PanelStateService extends AsyncHandler {
 
     public async confirmBookNow() {
         const date = Date.now();
-        const current = await this.current.pipe(take(1)).toPromise();
+        const current = await this._current.pipe(take(1)).toPromise();
         if (
             current &&
             isAfter(date, current!.date) &&
@@ -411,8 +402,8 @@ export class PanelStateService extends AsyncHandler {
             );
         }
         const meeting =
-            (await this.current.pipe(take(1)).toPromise()) ||
-            (await this.next.pipe(take(1)).toPromise());
+            (await this._current.pipe(take(1)).toPromise()) ||
+            (await this._next.pipe(take(1)).toPromise());
         const mod = getModule(this.system, 'Bookings');
         if (!meeting || !mod) return;
         await mod
@@ -445,7 +436,7 @@ export class PanelStateService extends AsyncHandler {
      * @param reason Reason for ending the meeting early
      */
     public async endCurrent(reason: string = 'user_input') {
-        const current = await this.current.pipe(take(1)).toPromise();
+        const current = await this._current.pipe(take(1)).toPromise();
         const module = getModule(this.system, 'Bookings');
         if (current && module) {
             await module

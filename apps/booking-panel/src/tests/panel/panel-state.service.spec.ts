@@ -4,8 +4,9 @@ import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { SpacesService } from '@placeos/spaces';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { PanelStateService } from '../../app/panel-state.service';
+import { KeepAliveService } from '@placeos/common';
 
 describe('PanelStateService', () => {
     let spectator: SpectatorService<PanelStateService>;
@@ -14,8 +15,9 @@ describe('PanelStateService', () => {
         providers: [
             MockProvider(SpacesService, { list: new BehaviorSubject([]) }),
             MockProvider(MatDialog, { open: jest.fn() }),
-            MockProvider(EventFormService, {  } ),
-            MockProvider(OrganisationService, {})
+            MockProvider(EventFormService, {}),
+            MockProvider(OrganisationService, { initialised: of(true) }),
+            MockProvider(KeepAliveService),
         ],
     });
 
