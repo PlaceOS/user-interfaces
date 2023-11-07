@@ -147,12 +147,14 @@ export class PanelStateService extends AsyncHandler {
     }
     /** List of current bookings for active system */
     public readonly bookings: Observable<CalendarEvent[]> = this._system.pipe(
+        filter((_) => !!_),
         switchMap((id) => this._listenToModuleBinding(id, 'bookings')),
         map((_) => (_?.length ? _.map((_) => new CalendarEvent(_)) : [])),
         shareReplay(1)
     );
     /** Currently active booking */
     public readonly _current: Observable<CalendarEvent> = this._system.pipe(
+        filter((_) => !!_),
         switchMap((id) => this._listenToModuleBinding(id, 'current_booking')),
         map((_) => (_ ? new CalendarEvent(_) : null)),
         shareReplay(1)
@@ -163,6 +165,7 @@ export class PanelStateService extends AsyncHandler {
     ]).pipe(map(([_, e]) => (!e || e.state === 'done' ? null : e)));
     /** Upcoming booking */
     private _next: Observable<CalendarEvent> = this._system.pipe(
+        filter((_) => !!_),
         switchMap((id) => this._listenToModuleBinding(id, 'next_booking')),
         map((_) => (_ ? new CalendarEvent(_) : null)),
         shareReplay(1)
