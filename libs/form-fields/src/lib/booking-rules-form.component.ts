@@ -115,7 +115,10 @@ import {
                 *ngIf="available_conditions.includes('groups')"
                 formGroupName="conditions"
             >
-                <label for="groups">Groups:</label>
+                <label for="groups"
+                    >{{ form.value.rules.hidden ? 'Prevent' : 'Allow' }} Booking
+                    for Groups:</label
+                >
                 <item-list-field
                     name="groups"
                     formControlName="groups"
@@ -174,7 +177,10 @@ import {
                 *ngIf="available_conditions.includes('is_before')"
                 formGroupName="conditions"
             >
-                <label for="is-before">Start Day is before:</label>
+                <label for="is-before"
+                    >{{ form.value.rules.hidden ? 'Prevent' : 'Allow' }} booking
+                    before:</label
+                >
                 <mat-form-field appearance="outline" class="flex-1">
                     <mat-select name="is-before" formControlName="is_before">
                         <mat-option
@@ -192,7 +198,10 @@ import {
                 *ngIf="available_conditions.includes('is_after')"
                 formGroupName="conditions"
             >
-                <label for="is-after">Start Day is after:</label>
+                <label for="is-after"
+                    >{{ form.value.rules.hidden ? 'Prevent' : 'Allow' }} booking
+                    after:</label
+                >
                 <mat-form-field appearance="outline" class="flex-1">
                     <mat-select name="is-after" formControlName="is_after">
                         <mat-option
@@ -210,7 +219,10 @@ import {
                 *ngIf="available_conditions.includes('is_between')"
                 formGroupName="conditions"
             >
-                <label for="is_between">Start Time Must Be Between:</label>
+                <label for="is_between"
+                    >{{ form.value.rules.hidden ? 'Prevent' : 'Allow' }} booking
+                    between:</label
+                >
                 <div class="flex items-center space-x-2 w-full">
                     <mat-form-field appearance="outline" class="flex-1">
                         <mat-select
@@ -269,7 +281,10 @@ import {
                 *ngIf="available_conditions.includes('resource_ids')"
                 formGroupName="conditions"
             >
-                <label for="resource_ids">Resources:</label>
+                <label for="resource_ids"
+                    >{{ form.value.rules.hidden ? 'Prevent' : 'Allow' }} booking
+                    these resources:</label
+                >
                 <item-list-field
                     name="resource_ids"
                     formControlName="resource_ids"
