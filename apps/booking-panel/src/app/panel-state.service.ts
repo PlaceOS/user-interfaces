@@ -308,11 +308,11 @@ export class PanelStateService extends AsyncHandler {
             current &&
             isAfter(date, current!.date) &&
             isBefore(date, addMinutes(current!.date, current!.duration))
-        )
+        ) {
             return notifyError('Booking already exists for this time');
-
+        }
         var max_duration = undefined;
-        const next = await this.next.pipe(take(1)).toPromise();
+        const next = await this._next.pipe(take(1)).toPromise();
         if (next && date <= Date.now()) {
             const diff = Math.abs(differenceInMinutes(next.date, date));
             const max = this._settings.getValue().max_duration || 480;
