@@ -41,7 +41,7 @@ import { PanelStateService } from '../panel-state.service';
             >
                 <div class="absolute inset-0 bg-neutral opacity-30"></div>
                 <div class="relative">
-                    {{ (current | async).title }}
+                    {{ (current | async)?.title }}
                     <span class="font-light">{{
                         'PANEL.MEETING_IN_PROGRESS' | translate
                     }}</span>
