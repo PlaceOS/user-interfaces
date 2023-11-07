@@ -64,8 +64,8 @@ import { PanelStateService } from '../panel-state.service';
                 >
                     {{ 'PANEL.HOST' | translate }}
                     {{
-                        (current | async).organiser?.name ||
-                            (current | async).host
+                        (current | async)?.organiser?.name ||
+                            (current | async)?.host
                     }}
                 </p>
             </div>
