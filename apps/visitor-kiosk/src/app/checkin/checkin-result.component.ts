@@ -15,9 +15,18 @@ import { SettingsService } from '@placeos/common';
             <p class="text-center">
                 Welcome, you have a meeting at
                 {{ (event | async)?.date || '' | date: 'mediumDate' }}
-                with {{ (event | async).organiser?.name || '' }}.<br />
-                {{ (event | async).organiser?.name || '' }} has been notified
-                and will be with you shortly.&nbsp;
+                with
+                {{
+                    (event | async).organiser?.name ||
+                        (event | async).user_name ||
+                        ''
+                }}.<br />
+                {{
+                    (event | async).organiser?.name ||
+                        (event | async).user_name ||
+                        ''
+                }}
+                has been notified and will be with you shortly.&nbsp;
             </p>
             <p *ngIf="!(event | async)?.can_access_lift">
                 Please wait in the lobby.
