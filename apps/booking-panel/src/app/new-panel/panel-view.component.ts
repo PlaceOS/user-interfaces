@@ -6,7 +6,7 @@ import { PanelStateService } from '../panel-state.service';
 @Component({
     selector: 'panel-view',
     template: `
-        <div
+        <button
             class="flex flex-col items-center h-full w-full overflow-hidden"
             (click)="action()"
         >
@@ -49,7 +49,7 @@ import { PanelStateService } from '../panel-state.service';
                     ({{ version.time | date: 'shortTime' }})
                 </div>
             </div>
-        </div>
+        </button>
     `,
     styles: [``],
     providers: [PanelStateService],
@@ -96,14 +96,16 @@ export class PanelViewComponent extends AsyncHandler {
     public readonly endMeeting = () => this._state.confirmEnd();
 
     public action() {
-        const status = this._state.setting('status');
-        if (status === 'busy') {
-            if (this._state.setting('enable_end_meeting_button') === true) {
-                this.endMeeting();
+        this.timeout('action', () => {
+            const status = this._state.setting('status');
+            if (status === 'busy') {
+                if (this._state.setting('enable_end_meeting_button') === true) {
+                    this.endMeeting();
+                }
+            } else if (this.can_book) {
+                status === 'pending' ? this.checkin() : this.book();
             }
-        } else if (this.can_book) {
-            status === 'pending' ? this.checkin() : this.book();
-        }
+        });
     }
 
     constructor(
