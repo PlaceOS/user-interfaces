@@ -74,6 +74,7 @@ export class VisitorsStateService extends AsyncHandler {
                 period_start: getUnixTime(start),
                 period_end: getUnixTime(end),
                 zones: (filters.zones || []).join(',') || bld.id,
+                include_checked_out: true,
             }).pipe(catchError((_) => of([] as Booking[])));
         }),
         tap(() => this._loading.next(false)),
