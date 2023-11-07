@@ -9,6 +9,7 @@ import {
     filter,
     map,
     shareReplay,
+    startWith,
     switchMap,
     take,
     tap,
@@ -160,7 +161,7 @@ export class PanelStateService extends AsyncHandler {
         shareReplay(1)
     );
     public readonly current = combineLatest([
-        interval(3 * 60 * 1000),
+        interval(3 * 60 * 1000).pipe(startWith(0)),
         this._current,
     ]).pipe(map(([_, e]) => (!e || e.state === 'done' ? null : e)));
     /** Upcoming booking */
@@ -171,9 +172,10 @@ export class PanelStateService extends AsyncHandler {
         shareReplay(1)
     );
     /** Upcoming booking */
-    public next = combineLatest([interval(3 * 60 * 1000), this._next]).pipe(
-        map(([_, e]) => (!e || e.state === 'in_progress' ? null : e))
-    );
+    public next = combineLatest([
+        interval(3 * 60 * 1000).pipe(startWith(0)),
+        this._next,
+    ]).pipe(map(([_, e]) => (!e || e.state === 'in_progress' ? null : e)));
 
     public readonly status: Observable<string> = combineLatest([
         this._settings,
