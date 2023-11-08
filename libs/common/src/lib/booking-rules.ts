@@ -76,7 +76,9 @@ const DEFAULT_RULES: BookingRules = {
  */
 export function stringToMinutes(str: string): number {
     const parts = (str || '').split(' ');
-    return parts.length > 1 ? +parts[0] * DURATION_MAP[parts[1]] : 0;
+    return parts.length > 1
+        ? +parts[0] * DURATION_MAP[parts[1].toLowerCase()]
+        : 0;
 }
 
 export function addToDate(add: string, date: Date | number = new Date()) {
@@ -103,9 +105,13 @@ export function rulesForResource(
             ruleset.zone === details.resource.zone?.id ||
             details.resource.zones?.includes(ruleset.zone)
         ) {
-            if (checkRulesMatch(details, ruleset)) return ruleset.rules;
+            if (checkRulesMatch(details, ruleset)) {
+                console.log('Matched Ruleset:', details, ruleset);
+                return ruleset.rules;
+            }
         }
     }
+    console.log('No Matched Ruleset:', details, DEFAULT_RULES);
     return DEFAULT_RULES;
 }
 
@@ -133,8 +139,10 @@ export function checkRulesMatch(
         matches += 1;
     if (
         conditions.is_between &&
-        date_obj.getHours() >= conditions.is_between[0] &&
-        date_obj.getHours() < conditions.is_between[1]
+        date_obj.getHours() + date_obj.getMinutes() / 60 >=
+            conditions.is_between[0] &&
+        date_obj.getHours() + date_obj.getMinutes() / 60 <
+            conditions.is_between[1]
     )
         matches += 1;
     if (conditions.max_length && conditions.max_length >= duration)
