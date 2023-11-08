@@ -61,20 +61,21 @@ import {
             <div class="flex items-center space-x-2" formGroupName="rules">
                 <div class="flex flex-col flex-1">
                     <mat-checkbox
-                        name="auto_approve"
-                        formControlName="auto_approve"
-                        matTooltip="Whether resource should be auto-approved when booking if the conditions match"
-                    >
-                        Auto Approve Bookings
-                    </mat-checkbox>
-                </div>
-                <div class="flex flex-col flex-1">
-                    <mat-checkbox
                         name="hidden"
                         formControlName="hidden"
                         matTooltip="Prevent user from booking the resource if the conditions match"
                     >
                         Prevent Bookings
+                    </mat-checkbox>
+                </div>
+                <div class="flex flex-col flex-1">
+                    <mat-checkbox
+                        name="auto_approve"
+                        formControlName="auto_approve"
+                        *ngIf="!form.value.rules.hidden"
+                        matTooltip="Whether resource should be auto-approved when booking if the conditions match"
+                    >
+                        Auto Approve Bookings
                     </mat-checkbox>
                 </div>
             </div>
@@ -281,10 +282,10 @@ import {
                 *ngIf="available_conditions.includes('resource_ids')"
                 formGroupName="conditions"
             >
-                <label for="resource_ids"
-                    >{{ form.value.rules.hidden ? 'Prevent' : 'Allow' }} booking
-                    these resources:</label
-                >
+                <label for="resource_ids">
+                    {{ form.value.rules.hidden ? 'Prevent' : 'Allow' }} booking
+                    these resources:
+                </label>
                 <item-list-field
                     name="resource_ids"
                     formControlName="resource_ids"

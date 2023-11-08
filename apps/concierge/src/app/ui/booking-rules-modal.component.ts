@@ -1,9 +1,10 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import {
     BookingRuleset,
     notifyError,
     notifySuccess,
+    openConfirmModal,
     randomString,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -36,6 +37,12 @@ import {
             class="w-[48rem] max-w-[80vw] max-h-[65vh] h-[65vh] overflow-auto"
             *ngIf="!loading; else load_state"
         >
+            <div
+                class="w-full p-4 text-center bg-info text-info-content text-sm"
+            >
+                Note that the order of the rulesets are important. The first
+                ruleset that matches the resource will be used.
+            </div>
             <ng-container [ngSwitch]="view">
                 <booking-rules-form
                     [ruleset]="selected"
@@ -70,7 +77,7 @@ import {
                         '7r',
                         '7r',
                         '7r',
-                        '7r'
+                        '10r'
                     ]"
                     [template]="{
                         auto_approve: auto_approve_template,
@@ -114,6 +121,14 @@ import {
                             matTooltip="Decrease Ruleset Priority"
                         >
                             <app-icon>arrow_downward</app-icon>
+                        </button>
+                        <button
+                            icon
+                            matRipple
+                            (click)="removeRuleset(row)"
+                            matTooltip="Remove Ruleset"
+                        >
+                            <app-icon>delete</app-icon>
                         </button>
                     </div>
                 </ng-template>
@@ -193,7 +208,8 @@ export class BookingRulesModalComponent {
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: { type: string },
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _dialog: MatDialog
     ) {}
 
     public keyCount(item: Record<string, any>): number {
@@ -203,6 +219,39 @@ export class BookingRulesModalComponent {
     public editRuleset(ruleset?: BookingRuleset) {
         this.view = 'form';
         this.selected = ruleset;
+    }
+
+    public async removeRuleset(ruleset: BookingRuleset) {
+        const result = await openConfirmModal(
+            {
+                title: 'Remove Booking Ruleset',
+                content: `Are you sure you want to remove the booking ruleset for ${ruleset.name}?`,
+                icon: { content: 'delete' },
+                confirm_text: 'Remove Ruleset',
+                cancel_text: 'Cancel',
+            },
+            this._dialog
+        );
+        if (result.reason !== 'done') return;
+        result.loading('Removing Ruleset...');
+        const rules = await this.booking_rules.pipe(take(1)).toPromise();
+        const index = rules.findIndex((_) => _.id === ruleset.id);
+        if (index >= 0) {
+            rules.splice(index, 1);
+            await updateMetadata(this._org.building.id, {
+                name: `${this.type}_booking_rules`,
+                description: `${this.type} Booking Rules`,
+                details: rules,
+            })
+                .toPromise()
+                .catch((_) => {
+                    notifyError('Error removing booking rules.');
+                    throw _;
+                });
+            this.change.next(Date.now());
+        }
+        notifySuccess('Successfully removed booking rules.');
+        result.close();
     }
 
     public async updateRulesetPriority(
