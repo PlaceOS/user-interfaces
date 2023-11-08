@@ -19,7 +19,6 @@ import { Component } from '@angular/core';
                 class="p-2 w-full border-t border-base-200 mt-4 flex items-center justify-center"
             >
                 <a
-                    button
                     btn
                     matRipple
                     class="w-full max-w-[32rem]"

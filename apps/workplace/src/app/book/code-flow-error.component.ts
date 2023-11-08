@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BookingFormService, BookingType } from '@placeos/bookings';
-import { AsyncHandler, notifyError, notifyInfo } from '@placeos/common';
+import { BookingFormService } from '@placeos/bookings';
+import { AsyncHandler } from '@placeos/common';
 
 const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
 
@@ -36,7 +36,6 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
                 class="p-2 w-full border-t border-base-200 mt-4 flex items-center justify-center space-x-2"
             >
                 <a
-                    button
                     btn
                     matRipple
                     class="w-full max-w-[32rem]"
@@ -47,7 +46,6 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
                     {{ 'WPA.TRY_AGAIN' | translate }}
                 </a>
                 <a
-                    button
                     btn
                     matRipple
                     class="w-full max-w-[32rem]"
