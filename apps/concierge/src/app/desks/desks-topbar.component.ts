@@ -210,7 +210,9 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
     }
 
     public newDesk() {
-        this._desks.addDesks([new Desk({ id: `desk-${randomInt(999_999)}` })]);
+        const desk = new Desk({ id: `desk-${randomInt(999_999)}` });
+        desk.staff_name = `[NEW_DESK]`;
+        this._desks.addDesks([desk]);
         notifyInfo('New desk added to local data.', undefined, () =>
             notifyInfo('Make sure to save the new desk before using it.')
         );

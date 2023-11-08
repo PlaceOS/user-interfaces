@@ -122,7 +122,7 @@ const QR_CODES = {};
             <ng-template #action_template let-row="row">
                 <div class="flex items-center justify-end space-x-2">
                     <div
-                        class="p-2 text-2xl text-pending"
+                        class="p-2 text-2xl text-warning"
                         [class.opacity-0]="!changes[row.id]"
                         matTooltip="Desk has unsaved changes"
                     >
@@ -236,9 +236,8 @@ export class DesksManageComponent extends AsyncHandler {
             'new_desks',
             this._state.new_desks.subscribe((desks) => {
                 this.page_reset = Date.now();
-                const scroll =
-                    this._element?.nativeElement?.parentElement?.scrollTo;
-                if (scroll) scroll({ top: 0, behavior: 'smooth' });
+                const el = this._element?.nativeElement?.parentElement;
+                if (el) el.scrollTop = 0;
                 for (const desk of desks) {
                     this.changes[desk.id] = {};
                 }
