@@ -385,7 +385,7 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         if (resp.reason !== 'done') return;
         resp.loading('Requesting booking deletion...');
         await declineEvent(item.id, {
-            calendar: item.mailbox || item.host,
+            calendar: item.calendar || item.mailbox || item.host,
             system_id: space_id,
         })
             .toPromise()

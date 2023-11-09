@@ -10,7 +10,6 @@ export class DateFromPipe implements PipeTransform {
         let diff = differenceInMinutes(now, date);
         const direction = diff < 0;
         diff = Math.abs(diff);
-        console.log('Diff:', diff);
         if (diff < 1) {
             // Less than a minute
             return direction ? 'Soon' : 'Now';
