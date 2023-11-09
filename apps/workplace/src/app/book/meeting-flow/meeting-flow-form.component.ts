@@ -596,91 +596,85 @@ export class MeetingFlowFormComponent extends AsyncHandler {
     }
 
     private async _checkAssetsEligibility(list: Space[]) {
-        if (list?.length) {
-            await timer(100).toPromise();
-            const value = this.form.getRawValue();
-            this._assets.setOptions({
-                date: value.date,
-                duration: value.duration,
-                resources: list,
-                zone_id: this._org.levelWithID(list[0].zones)?.parent_id,
-                tags: [],
-                categories: [],
-            } as any);
-            await timer(500).toPromise();
-            const items = await this._assets.filtered_assets
-                .pipe(take(1))
-                .toPromise();
-            const disabled_rooms = await this._assets.disabled_rooms
-                .pipe(take(1))
-                .toPromise();
-            const can_cater = list.every(
-                (s) =>
-                    items.filter(
-                        (_) =>
-                            !(_ as any).hide_for_zones?.find((z) =>
-                                s.zones.includes(z)
-                            )
-                    ).length > 0
+        if (!list?.length) return this.form.controls.assets.disable();
+        await timer(100).toPromise();
+        const value = this.form.getRawValue();
+        this._assets.setOptions({
+            date: value.date,
+            duration: value.duration,
+            resources: list,
+            zone_id: this._org.levelWithID(list[0].zones)?.parent_id,
+            tags: [],
+            categories: [],
+        } as any);
+        await timer(500).toPromise();
+        const items = await this._assets.filtered_assets
+            .pipe(take(1))
+            .toPromise();
+        const disabled_rooms = await this._assets.disabled_rooms
+            .pipe(take(1))
+            .toPromise();
+        console.log('Disabled Rooms', disabled_rooms);
+        const can_cater = list.every(
+            (s) =>
+                items.filter(
+                    (_) =>
+                        !(_ as any).hide_for_zones?.find((z) =>
+                            s.zones.includes(z)
+                        )
+                ).length > 0
+        );
+        if (
+            !can_cater ||
+            disabled_rooms.find((_) => list.find((i) => i.id === _))
+        ) {
+            this.form.patchValue({ assets: [] });
+            this.form.controls.assets.disable();
+            notifyWarn(
+                `Assets are unavailable for some of the selected spaces.`
             );
-            if (
-                !can_cater ||
-                disabled_rooms.find((_) => list.find((i) => i.id === _))
-            ) {
-                this.form.patchValue({ catering: [] });
-                this.form.controls.catering.disable();
-                notifyWarn(
-                    `Catering is unavailable for some of the selected spaces.`
-                );
-            } else {
-                this.form.controls.catering.enable();
-            }
         } else {
-            this.form.controls.catering.disable();
+            this.form.controls.assets.enable();
         }
     }
 
     private async _checkCateringEligibility(list: Space[]) {
-        if (list?.length) {
-            await timer(100).toPromise();
-            const value = this.form.getRawValue();
-            this._catering.setFilters({
-                search: '',
-                date: value.date,
-                duration: value.duration,
-                resources: list,
-                zone_id: this._org.levelWithID(list[0].zones)?.parent_id,
-                tags: [],
-                categories: [],
-            });
-            await timer(500).toPromise();
-            const menu = await this._catering.filtered_menu
-                .pipe(take(1))
-                .toPromise();
-            const disabled_rooms = await this._catering.availability
-                .pipe(take(1))
-                .toPromise();
-            const can_cater = list.every(
-                (s) =>
-                    menu.filter(
-                        (_) =>
-                            !_.hide_for_zones.find((z) => s.zones.includes(z))
-                    ).length > 0
-            );
-            if (
-                !can_cater ||
-                disabled_rooms.find((_) => list.find((i) => i.id === _))
-            ) {
-                this.form.patchValue({ catering: [] });
-                this.form.controls.catering.disable();
-                notifyWarn(
-                    `Catering is unavailable for some of the selected spaces.`
-                );
-            } else {
-                this.form.controls.catering.enable();
-            }
-        } else {
+        if (!list?.length) return this.form.controls.catering.disable();
+        await timer(100).toPromise();
+        const value = this.form.getRawValue();
+        this._catering.setFilters({
+            search: '',
+            date: value.date,
+            duration: value.duration,
+            resources: list,
+            zone_id: this._org.levelWithID(list[0].zones)?.parent_id,
+            tags: [],
+            categories: [],
+        });
+        await timer(500).toPromise();
+        const menu = await this._catering.filtered_menu
+            .pipe(take(1))
+            .toPromise();
+        const disabled_rooms = await this._catering.availability
+            .pipe(take(1))
+            .toPromise();
+        const can_cater = list.every(
+            (s) =>
+                menu.filter(
+                    (_) => !_.hide_for_zones.find((z) => s.zones.includes(z))
+                ).length > 0
+        );
+        if (
+            !can_cater ||
+            disabled_rooms.find((_) => list.find((i) => i.id === _))
+        ) {
+            this.form.patchValue({ catering: [] });
             this.form.controls.catering.disable();
+            notifyWarn(
+                `Catering is unavailable for some of the selected spaces.`
+            );
+        } else {
+            this.form.controls.catering.enable();
         }
     }
 }

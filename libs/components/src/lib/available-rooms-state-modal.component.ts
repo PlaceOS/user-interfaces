@@ -115,9 +115,7 @@ export class AvailableRoomsStateModalComponent {
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: any,
         private _org: OrganisationService
-    ) {
-        console.log('Data:', _data);
-    }
+    ) {}
 
     public async toggleRoom(id: string) {
         if (id === '*') {
