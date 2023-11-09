@@ -2,6 +2,7 @@ input,
 textarea {
     user-select: text;
     background: none;
+    caret-color: var(--s) !important;
 }
 
 .theme-dark {
