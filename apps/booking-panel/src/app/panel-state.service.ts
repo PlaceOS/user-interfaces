@@ -246,7 +246,7 @@ export class PanelStateService extends AsyncHandler {
             let count = 0;
             this.subscription(
                 'stability-check',
-                (connectionState as any)().subscribe(([_, time]) => {
+                connectionState().subscribe(([_, time]) => {
                     if (time >= 30 * 1000) count = 0;
                     else count += 1;
                     if (count > 10) return location.reload();
