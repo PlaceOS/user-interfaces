@@ -64,7 +64,7 @@ import { map } from 'rxjs/operators';
                             <div
                                 class="text-xs  text-base-content opacity-40 px-2 py-1"
                             >
-                                {{ message.timestamp | dateFrom }}
+                                {{ message.timestamp + offset | dateFrom }}
                             </div>
                         </div>
                         <div
@@ -159,6 +159,7 @@ export class ChatComponent extends AsyncHandler implements OnInit {
     public message = '';
     public user: StaffUser;
     public show_time: Record<string, boolean> = {};
+    public offset = 0;
 
     public readonly hint = this._chat.chat_hint;
     public readonly messages = this._chat.messages;
@@ -203,6 +204,11 @@ export class ChatComponent extends AsyncHandler implements OnInit {
             this.progress.subscribe((i) =>
                 i ? this.scrollToBottom() : (this.show_info = false)
             )
+        );
+        this.interval(
+            'offset',
+            () => (this.offset = this.offset ? 0 : 1),
+            20 * 1000
         );
     }
 
