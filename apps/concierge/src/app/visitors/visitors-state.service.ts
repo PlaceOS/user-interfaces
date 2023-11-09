@@ -51,7 +51,6 @@ export class VisitorsStateService extends AsyncHandler {
     private _search = new BehaviorSubject<string>('');
 
     private _loading = new BehaviorSubject<boolean>(false);
-    private _space_pipe = new SpacePipe();
 
     public readonly loading = this._loading.asObservable();
 

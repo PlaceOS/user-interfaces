@@ -1,6 +1,11 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { getModule, PlaceSystem, showSystem } from '@placeos/ts-client';
+import {
+    connectionState,
+    getModule,
+    PlaceSystem,
+    showSystem,
+} from '@placeos/ts-client';
 import { Router } from '@angular/router';
 import { OrganisationService } from '@placeos/organisation';
 import { BehaviorSubject, combineLatest, interval, Observable, of } from 'rxjs';
@@ -24,6 +29,7 @@ import {
     notifySuccess,
     notifyWarn,
     openConfirmModal,
+    SettingsService,
     timePeriodsIntersect,
 } from '@placeos/common';
 
@@ -203,6 +209,7 @@ export class PanelStateService extends AsyncHandler {
         private _spaces: SpacesService,
         private _dialog: MatDialog,
         private _events: EventFormService,
+        private _app_settings: SettingsService,
         private _org: OrganisationService,
         private _router: Router
     ) {
@@ -235,6 +242,17 @@ export class PanelStateService extends AsyncHandler {
             settings.forEach((k) => this.bindTo(id, k));
         });
         this.subscription('pending_check', this.pending_check.subscribe());
+        if (this._app_settings.get('app.refresh_when_websocket_unstable')) {
+            let count = 0;
+            this.subscription(
+                'stability-check',
+                (connectionState as any)().subscribe(([_, time]) => {
+                    if (time >= 30 * 1000) count = 0;
+                    else count += 1;
+                    if (count > 10) return location.reload();
+                })
+            );
+        }
     }
 
     /**
