@@ -9,10 +9,13 @@ import { StaffListingComponent } from './staff-listing.component';
 import { StaffDetailsComponent } from './staff-details.component';
 import { UIModule } from '../ui/ui.module';
 import { NewStaffComponent } from './new-staff.component';
+import { EmergencyContactsComponent } from './emergency-contacts.component';
+import { EmergencyContactModalComponent } from './emergency-contact-modal.component';
 
 const ROUTES: Route[] = [
     { path: '', component: StaffComponent },
     { path: 'new', component: NewStaffComponent },
+    { path: 'emergency-contacts', component: EmergencyContactsComponent },
 ];
 
 export const COMPONENTS: Type<any>[] = [
@@ -21,6 +24,8 @@ export const COMPONENTS: Type<any>[] = [
     StaffTopbarComponent,
     StaffListingComponent,
     StaffDetailsComponent,
+    EmergencyContactsComponent,
+    EmergencyContactModalComponent,
 ];
 
 @NgModule({

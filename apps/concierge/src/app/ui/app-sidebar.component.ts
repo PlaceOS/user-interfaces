@@ -191,6 +191,12 @@ export class ApplicationSidebarComponent extends AsyncHandler {
                     name: 'Points',
                     route: ['/facilities/points/new'],
                 },
+                {
+                    id: 'emergency-contacts',
+                    name: 'Emergency Contacts',
+                    icon: 'assignment_ind',
+                    route: ['/users/staff/emergency-contacts'],
+                },
             ],
         },
         {
