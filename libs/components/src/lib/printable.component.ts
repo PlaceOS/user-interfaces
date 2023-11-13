@@ -17,7 +17,7 @@ import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
         <ng-template cdk-portal>
             <div
                 printable-view
-                class="absolute inset-0 flex-col items-end hidden print:flex pointer-events-none"
+                class="fixed top-0 left-0 flex-col items-end hidden print:flex pointer-events-none"
                 [innerHTML]="content | sanitize"
             ></div>
         </ng-template>
