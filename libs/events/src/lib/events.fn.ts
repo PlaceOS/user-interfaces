@@ -26,6 +26,7 @@ export interface CalendarEventQueryParams {
     /** ical UID associated with the booking */
     ical_uid?: string;
     limit?: number;
+    strict?: 'limit' | 'all' | 'notify';
 }
 
 export interface CalendarEventShowParams {

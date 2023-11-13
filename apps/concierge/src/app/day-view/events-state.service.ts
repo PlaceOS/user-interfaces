@@ -196,12 +196,22 @@ export class EventsStateService extends AsyncHandler {
             const start = start_fn(date);
             const end = end_fn(date);
             return queryEvents({
+                strict: 'limit',
                 zone_ids: zones.join(','),
                 period_start: getUnixTime(start),
                 period_end: getUnixTime(end),
             }).pipe(
                 map((_) => [_, start, end]),
-                catchError(() => of([[]]))
+                catchError((e) => {
+                    if (e?.status === 429) {
+                        this.timeout(
+                            'retry',
+                            () => this._poll.next(Date.now()),
+                            1000
+                        );
+                    }
+                    return of([[]]);
+                })
             );
         }),
         tap(([events, start, end]) => {
