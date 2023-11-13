@@ -611,7 +611,10 @@ export class EventFormService extends AsyncHandler {
                             : '') ||
                         value.host,
                     title: value.title || 'Space Booking',
-                    attendees,
+                    attendees: attendees.map((_) => {
+                        delete _.visit_expected;
+                        return _;
+                    }),
                     date: d,
                     catering,
                     assets: groupsToAssets(assets),
@@ -641,7 +644,8 @@ export class EventFormService extends AsyncHandler {
                 (user) =>
                     user.is_external &&
                     user.email !== event.host &&
-                    !user.email.includes(domain)
+                    !user.email.includes(domain) &&
+                    user.visit_expected
             );
             const on_error = async (e) => {
                 if (!this.form.value.id) {
