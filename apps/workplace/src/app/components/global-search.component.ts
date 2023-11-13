@@ -91,7 +91,7 @@ import { ExploreSearchService } from '@placeos/explore';
                             </div>
                         </div>
                         <div
-                            class="text-xs font-medium p-2 capitalize text-white bg-base-300 rounded"
+                            class="text-xs font-medium p-2 capitalize text-white bg-secondary text-secondary-content rounded"
                         >
                             {{ option.type }}
                         </div>

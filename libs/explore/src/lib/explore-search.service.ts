@@ -5,6 +5,7 @@ import {
     listChildMetadata,
     querySystems,
     queryUsers,
+    showMetadata,
 } from '@placeos/ts-client';
 import { SettingsService, unique } from '@placeos/common';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
@@ -51,6 +52,13 @@ export class ExploreSearchService {
 
     public readonly emergency_contacts =
         this._emergency_contacts.asObservable();
+
+    private _role_assigned_contacts = this._org.active_building.pipe(
+        filter((bld) => !!bld),
+        switchMap((bld) => showMetadata(bld.id, 'emergency_contacts')),
+        map(({ details }) => (details as any)?.contacts || []),
+        shareReplay(1)
+    );
 
     private _user_search: Observable<StaffUser[]> = this._filter.pipe(
         debounceTime(400),
@@ -122,9 +130,10 @@ export class ExploreSearchService {
         this._space_search,
         this._user_search,
         this._emergency_contacts,
+        this._role_assigned_contacts,
         this._points_of_interest,
     ]).pipe(
-        map(([filter, spaces, users, contacts, features]) => {
+        map(([filter, spaces, users, contacts, roled_contacts, features]) => {
             const search = filter.toLowerCase();
             const results = unique(
                 [
@@ -141,6 +150,23 @@ export class ExploreSearchService {
                             name: s.display_name || s.name,
                             description: `Capacity: ${s.capacity} `,
                         })),
+                    ...roled_contacts
+                        .map(
+                            (u) =>
+                                ({
+                                    id: u.email,
+                                    type: (u as any).roles[0] || 'contact',
+                                    is_role: true,
+                                    name: u.name,
+                                    description: u.email,
+                                } as any)
+                        )
+                        .filter(
+                            (_) =>
+                                _.name.toLowerCase().includes(search) ||
+                                _.description.toLowerCase().includes(search) ||
+                                _.type.toLowerCase().includes(search)
+                        ),
                     ...contacts
                         .map(
                             (u) =>
