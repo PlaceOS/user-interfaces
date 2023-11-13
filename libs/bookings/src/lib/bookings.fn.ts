@@ -299,6 +299,7 @@ export async function createBookingsForEvent(
                     asset_id: item.email,
                     asset_name: (item as any).name,
                     title: (item as any).name,
+                    attendees: [item],
                     extension_data: {
                         parent_id: event.id,
                         name: (item as any).name,
