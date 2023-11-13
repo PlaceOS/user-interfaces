@@ -15,7 +15,7 @@ import {
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { queryZones } from '@placeos/ts-client';
-import { set } from 'date-fns';
+import { endOfDay, set, startOfDay } from 'date-fns';
 import { of } from 'rxjs';
 import {
     catchError,
@@ -105,6 +105,9 @@ import {
                         </mat-option>
                         <mat-option value="is_between">
                             Is Between Hours
+                        </mat-option>
+                        <mat-option value="is_period">
+                            Between Dates
                         </mat-option>
                         <mat-option value="resource_ids">Resources</mat-option>
                     </mat-select>
@@ -214,6 +217,43 @@ import {
                     </mat-select>
                     <mat-error>A valid time is required</mat-error>
                 </mat-form-field>
+            </div>
+            <div
+                class="flex flex-col"
+                *ngIf="available_conditions.includes('is_period')"
+                formGroupName="conditions"
+            >
+                <label for="is-after"
+                    >{{ form.value.rules.hidden ? 'Prevent' : 'Allow' }} booking
+                    between dates:</label
+                >
+                <div class="flex items-center space-x-2">
+                    <a-date-field
+                        class="flex-1"
+                        [ngModel]="form.value.conditions.is_period[0]"
+                        [ngModelOptions]="{ standalone: true }"
+                        (ngModelChange)="
+                            setIsPeriod(
+                                $event,
+                                form.value.conditions.is_period[1]
+                            )
+                        "
+                    >
+                    </a-date-field>
+                    <a-date-field
+                        class="flex-1"
+                        [from]="form.value.conditions.is_period[0]"
+                        [ngModel]="form.value.conditions.is_period[0]"
+                        [ngModelOptions]="{ standalone: true }"
+                        (ngModelChange)="
+                            setIsPeriod(
+                                form.value.conditions.is_period[0],
+                                $event
+                            )
+                        "
+                    >
+                    </a-date-field>
+                </div>
             </div>
             <div
                 class="flex flex-col"
@@ -364,6 +404,10 @@ export class BookingRulesFormComponent {
             is_before: new FormControl('1 Week'),
             is_after: new FormControl('1 Day'),
             is_between: new FormControl([6, 18]),
+            is_period: new FormControl([
+                startOfDay(Date.now()).valueOf(),
+                endOfDay(Date.now()).valueOf(),
+            ]),
             resource_ids: new FormControl([]),
         }),
     });
@@ -397,6 +441,19 @@ export class BookingRulesFormComponent {
         if (!start || !end) return;
         if (start > end) end = start + 0.25;
         this.form.patchValue({ conditions: { is_between: [start, end] } });
+    }
+
+    public setIsPeriod(start: number, end: number) {
+        if (!start || !end) return;
+        if (start > end) end = start;
+        this.form.patchValue({
+            conditions: {
+                is_period: [
+                    startOfDay(start).valueOf(),
+                    endOfDay(end).valueOf(),
+                ],
+            },
+        });
     }
 
     public post(): void {

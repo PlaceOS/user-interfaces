@@ -42,6 +42,8 @@ export interface BookingRuleConditions {
     is_after?: string;
     /** How far in the future this bookings must be */
     is_between?: [number, number];
+    /** Between the selected date/times */
+    is_period?: [number, number];
     /** List of resources that this rule applies to */
     resource_ids?: string[];
 }
@@ -143,6 +145,12 @@ export function checkRulesMatch(
             conditions.is_between[0] &&
         date_obj.getHours() + date_obj.getMinutes() / 60 <
             conditions.is_between[1]
+    )
+        matches += 1;
+    if (
+        conditions.is_period &&
+        date >= conditions.is_period[0] &&
+        date < conditions.is_period[1]
     )
         matches += 1;
     if (conditions.max_length && conditions.max_length >= duration)
