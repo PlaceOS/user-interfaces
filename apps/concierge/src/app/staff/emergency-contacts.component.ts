@@ -8,6 +8,7 @@ import { EmergencyContactModalComponent } from './emergency-contact-modal.compon
 import { notify, notifySuccess, openConfirmModal } from '@placeos/common';
 
 export interface EmergencyContact {
+    id: string;
     email: string;
     name: string;
     phone: string;
@@ -59,13 +60,14 @@ export interface EmergencyContactData {
                             class="no-subscript"
                             appearance="outline"
                         >
-                            <mat-select placeholder="All Roles">
+                            <mat-select
+                                [ngModel]="role_filter.getValue()"
+                                (ngModelChange)="role_filter.next($event)"
+                                placeholder="All Roles"
+                            >
                                 <mat-option value="">All Roles</mat-option>
                                 <mat-option
-                                    *ngFor="
-                                        let role of (contacts | async)?.roles ||
-                                            []
-                                    "
+                                    *ngFor="let role of (roles | async) || []"
                                     [value]="role"
                                 >
                                     {{ role }}
@@ -77,7 +79,7 @@ export interface EmergencyContactData {
                 <section class="w-full h-1/2 flex-1 overflow-auto px-8">
                     <custom-table
                         class="min-w-[40rem] block"
-                        [dataSource]="contacts"
+                        [dataSource]="filtered_contacts"
                         [filter]="search"
                         [columns]="['email', 'name', 'roles', 'actions']"
                         [display_column]="['Email', 'Name', 'Roles', ' ']"
@@ -132,6 +134,7 @@ export class EmergencyContactsComponent {
     private _change = new BehaviorSubject<number>(0);
 
     public search = '';
+    public readonly role_filter = new BehaviorSubject<string>('');
     public readonly data = combineLatest([
         this._org.active_building,
         this._change,
@@ -143,6 +146,14 @@ export class EmergencyContactsComponent {
     );
     public readonly roles = this.data.pipe(map((_) => _?.roles || []));
     public readonly contacts = this.data.pipe(map((_) => _?.contacts || []));
+    public readonly filtered_contacts = combineLatest([
+        this.contacts,
+        this.role_filter,
+    ]).pipe(
+        map(([list, role]) =>
+            list.filter((_) => !role || _.roles.includes(role))
+        )
+    );
 
     constructor(
         private _org: OrganisationService,
@@ -169,9 +180,9 @@ export class EmergencyContactsComponent {
         );
         if (result.reason !== 'done') return;
         result.loading('Removing contact...');
-        const data: any = await this.contacts.pipe(take(1)).toPromise();
+        const data: any = await this.data.pipe(take(1)).toPromise();
         const new_contacts = (data?.contacts || []).filter(
-            (_) => _.email.toLowerCase() !== contact.email.toLowerCase()
+            (_) => _.id !== contact.id
         );
         await updateMetadata(this._org.building.id, {
             name: 'emergency_contacts',
@@ -179,6 +190,7 @@ export class EmergencyContactsComponent {
             details: { roles: data.roles, contacts: new_contacts },
         }).toPromise();
         result.close();
+        this._change.next(Date.now());
         notifySuccess('Successfully removed emergency contact.');
     }
 }

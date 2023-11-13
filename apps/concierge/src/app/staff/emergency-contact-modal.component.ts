@@ -6,7 +6,7 @@ import { OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
-import { notifySuccess } from '@placeos/common';
+import { notifySuccess, randomString } from '@placeos/common';
 import { CustomTooltipComponent } from '@placeos/components';
 
 @Component({
@@ -145,6 +145,7 @@ export class EmergencyContactModalComponent {
         shareReplay(1)
     );
     public readonly form = new FormGroup({
+        id: new FormControl(this._data?.id || `ecntct-${randomString(8)}`),
         name: new FormControl(this._data?.name || ''),
         email: new FormControl(this._data?.email || ''),
         phone: new FormControl(this._data?.phone || ''),
@@ -169,7 +170,7 @@ export class EmergencyContactModalComponent {
             name: 'emergency_contacts',
             description: 'Emergency Contacts',
             details: {
-                roles: [data.roles, this.role_name],
+                roles: [...data.roles, this.role_name].filter((_) => !!_),
                 contacts: data.contacts,
             },
         }).toPromise();
@@ -196,10 +197,7 @@ export class EmergencyContactModalComponent {
         const data: any = await this.data.pipe(take(1)).toPromise();
         const contacts = data?.contacts || [];
         const new_contacts = [
-            ...contacts.filter(
-                (_) =>
-                    _.email.toLowerCase() !== this.contact?.email.toLowerCase()
-            ),
+            ...contacts.filter((_) => _.id !== this.contact?.id),
             this.form.value,
         ].sort((a, b) => a.name.localeCompare(b.name));
         await updateMetadata(this._org.building.id, {
