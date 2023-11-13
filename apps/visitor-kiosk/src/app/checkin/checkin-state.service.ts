@@ -1,22 +1,11 @@
 import { Injectable } from '@angular/core';
-import {
-    HashMap,
-    currentUser,
-    notifyError,
-    notifySuccess,
-} from '@placeos/common';
-import {
-    checkinEventGuest,
-    newCalendarEventFromBooking,
-} from '@placeos/events';
-import { CalendarEvent } from 'libs/events/src/lib/event.class';
+import { HashMap, notifyError, notifySuccess } from '@placeos/common';
 import { GuestUser, generateGuestForm, showGuest } from '@placeos/users';
-import { addMinutes, getUnixTime, isSameDay } from 'date-fns';
+import { addMinutes, getUnixTime, isSameDay, startOfHour } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
 import {
     Booking,
     checkinBooking,
-    checkinBookingAttendee,
     queryAllBookings,
     showBooking,
 } from '@placeos/bookings';
@@ -27,7 +16,17 @@ import { SpacePipe } from '@placeos/spaces';
 })
 export class CheckinStateService {
     /** Current event being checked in */
-    private _booking = new BehaviorSubject<Booking>(null);
+    private _booking = new BehaviorSubject<Booking>(
+        new Booking({
+            asset_id: 'jim@1234.com',
+            asset_name: 'Jim Jones',
+            user_email: 'alex@place.tech',
+            user_name: 'Alex Sorafumo',
+            date: startOfHour(Date.now()).valueOf(),
+            duration: 60,
+            zones: ['zone-Do2HJ00hTG'],
+        })
+    );
     /** Current guest being checked in */
     private _guest = new BehaviorSubject<GuestUser>(null);
     /** Photo of the current guest */

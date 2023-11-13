@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SettingsService } from '@placeos/common';
 import { format, startOfMinute } from 'date-fns';
 
 @Component({
@@ -12,7 +13,7 @@ import { format, startOfMinute } from 'date-fns';
                 [routerLink]="['/']"
                 class="h-full flex flex-col justify-center px-4"
             >
-                <img class="h-10 my-2" src="assets/logo-dark.svg" />
+                <img logo class="h-10 my-2" [src]="logo?.src" alt="Logo" />
             </a>
             <div
                 class="ml-auto h-full flex flex-col justify-center text-white px-4"
@@ -41,7 +42,14 @@ import { format, startOfMinute } from 'date-fns';
 export class TopbarHeaderComponent {
     public date: number;
 
+    /** Application logo to display */
+    public get logo() {
+        return this._settings.get('app.logo_dark');
+    }
+
     public get time() {
         return startOfMinute(Date.now());
     }
+
+    constructor(private _settings: SettingsService) {}
 }

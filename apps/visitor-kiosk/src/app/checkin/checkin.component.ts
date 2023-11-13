@@ -4,9 +4,9 @@ import { SettingsService } from '@placeos/common';
 @Component({
     selector: '[app-checkin]',
     template: `
-        <a-topbar-header class="w-full"></a-topbar-header>
+        <a-topbar-header class="w-full screen-only"></a-topbar-header>
         <div
-            class="flex-1 w-full bg-center bg-cover relative"
+            class="flex-1 w-full bg-center bg-cover relative screen-only"
             [style.background-image]="'url(' + background + ')'"
         >
             <router-outlet></router-outlet>
