@@ -142,15 +142,21 @@ const QR_CODES = {};
                     </button>
                     <ng-template #qr_menu>
                         <div class="bg-base-100 py-2 shadow rounded">
-                            <a
-                                [href]="row.qr_link | safe: 'url'"
-                                target="_blank"
-                                ref="noopener noreferrer"
-                                class="block p-2 mx-4 my-2 rounded-lg border border-base-200 bg-base-100"
-                                printable
-                            >
-                                <img class="w-48" [src]="row.qr_code" />
-                            </a>
+                            <div class="" printable>
+                                <a
+                                    [href]="row.qr_link | safe: 'url'"
+                                    target="_blank"
+                                    ref="noopener noreferrer"
+                                    class="block p-2 mx-4 my-2 rounded-lg border border-base-200 bg-base-100"
+                                >
+                                    <img class="w-48" [src]="row.qr_code" />
+                                </a>
+                                <div
+                                    class="w-[calc(100%-2rem)] text-center mt-2 font-mono text-sm bg-base-200 rounded p-2 mx-4"
+                                >
+                                    {{ row.name || row.id }}
+                                </div>
+                            </div>
                             <button
                                 btn
                                 matRipple
