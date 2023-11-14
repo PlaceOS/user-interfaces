@@ -186,7 +186,7 @@ import {
                                             [class.!rounded-none]="
                                                 event.is_system_event
                                             "
-                                            [class.!border-primary]="
+                                            [class.!border-secondary]="
                                                 event.is_system_event
                                             "
                                         >
@@ -194,7 +194,7 @@ import {
                                                 *ngIf="event.is_system_event"
                                             >
                                                 <div
-                                                    class="absolute inset-0 bg-primary opacity-50"
+                                                    class="absolute inset-0 bg-secondary opacity-50"
                                                 ></div>
                                             </ng-container>
                                             <ng-container
@@ -202,7 +202,7 @@ import {
                                             >
                                                 <div
                                                     class="absolute left-0 inset-y-0 w-1 "
-                                                    [class.bg-primary]="
+                                                    [class.bg-secondary]="
                                                         event.status !==
                                                         'cancelled'
                                                     "

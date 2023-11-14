@@ -240,9 +240,12 @@ export class ScheduleStateService extends AsyncHandler {
         this.parking,
         this.lockers,
     ]).pipe(
-        map(([e, v, d, p, l]) =>
-            [...e, ...v, ...d, ...p, ...l].sort((a, b) => a.date - b.date)
-        )
+        map(([e, v, d, p, l]) => {
+            const sd = d.filter((_) => !e.find((ev) => ev.meeting_id === _.id));
+            return [...e, ...v, ...sd, ...p, ...l].sort(
+                (a, b) => a.date - b.date
+            );
+        })
     );
     /** Filtered list of events and bookings for the selected date */
     public readonly filtered_bookings = combineLatest([

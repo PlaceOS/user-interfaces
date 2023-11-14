@@ -182,10 +182,13 @@ export class CalendarEvent {
             (this as any).date = startOfDay(this.date).getTime();
             (this as any).duration = Math.max(24 * 60, this.duration);
         }
+        const matches = this.body.match(/\[ID\|([^\]]+)\]/);
+        const associated_id = matches ? matches[1] : null;
         this.timezone =
             data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.meeting_url = data.meeting_url || data.online_meeting_url || '';
-        this.meeting_id = data.meeting_id || data.online_meeting_id || '';
+        this.meeting_id =
+            data.meeting_id || data.online_meeting_id || associated_id || '';
         this.meeting_provider =
             data.meeting_provider || data.online_meeting_provider || '';
         this.recurring = !!data.recurring;
