@@ -94,6 +94,7 @@ describe('EventsStateService', () => {
         await timer(305).toPromise();
         expect(events_mod.queryEvents).toBeCalledWith({
             zone_ids: 'bld-123',
+            strict: 'limit',
             period_start: getUnixTime(startOfDay(Date.now())),
             period_end: getUnixTime(endOfDay(Date.now())),
         });
@@ -110,6 +111,7 @@ describe('EventsStateService', () => {
         await timer(305).toPromise();
         expect(events_mod.queryEvents).toBeCalledWith({
             zone_ids: 'bld-123',
+            strict: 'limit',
             period_start: getUnixTime(startOfWeek(Date.now())),
             period_end: getUnixTime(endOfWeek(Date.now())),
         });
@@ -126,6 +128,7 @@ describe('EventsStateService', () => {
         await timer(305).toPromise();
         expect(events_mod.queryEvents).toBeCalledWith({
             zone_ids: 'bld-123',
+            strict: 'limit',
             period_start: getUnixTime(startOfMonth(Date.now())),
             period_end: getUnixTime(endOfMonth(Date.now())),
         });

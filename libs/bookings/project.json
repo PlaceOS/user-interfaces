@@ -19,8 +19,7 @@
             "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/libs/bookings"],
             "options": {
-                "jestConfig": "libs/bookings/jest.config.ts",
-                "passWithNoTests": true
+                "jestConfig": "libs/bookings/jest.config.ts"
             }
         }
     },

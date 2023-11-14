@@ -19,8 +19,7 @@
             "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/libs/form-fields"],
             "options": {
-                "jestConfig": "libs/form-fields/jest.config.ts",
-                "passWithNoTests": true
+                "jestConfig": "libs/form-fields/jest.config.ts"
             }
         }
     },

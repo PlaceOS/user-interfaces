@@ -44,7 +44,7 @@ import { PanelStateService } from './panel-state.service';
                             {{ current?.title }}
                         </h2>
                         <p class="text-2xl mb-4 lowercase">
-                            ending @
+                            ending &#64;
                             {{ current?.event_end * 1000 | date: 'h:mma' }}
                         </p>
                         <p class="text-base line-clamp-6 portrait:line-clamp-8">
@@ -63,7 +63,7 @@ import { PanelStateService } from './panel-state.service';
                     <ng-container *ngIf="next; else next_empty_state">
                         <h2 class="text-2xl font-medium">{{ next?.title }}</h2>
                         <p class="text-2xl lowercase">
-                            starting @
+                            starting &#64;
                             {{ next?.event_start * 1000 | date: 'h:mma' }}
                         </p>
                     </ng-container>

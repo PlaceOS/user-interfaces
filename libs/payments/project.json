@@ -9,8 +9,7 @@
             "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/libs/payments"],
             "options": {
-                "jestConfig": "libs/payments/jest.config.ts",
-                "passWithNoTests": true
+                "jestConfig": "libs/payments/jest.config.ts"
             }
         },
         "lint": {

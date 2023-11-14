@@ -135,7 +135,7 @@ import { DesksStateService } from '../desks/desks-state.service';
                                     *ngIf="rule.type === 'between'"
                                 ></a-time-field>
                             </div>
-                            <span class="mx-2">@</span>
+                            <span class="mx-2">&#64;</span>
                             <a-counter
                                 class="border border-base-200 rounded"
                                 [(ngModel)]="rule.rate"

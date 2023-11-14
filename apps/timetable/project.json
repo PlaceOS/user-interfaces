@@ -103,10 +103,10 @@
             "executor": "@angular-devkit/build-angular:dev-server",
             "configurations": {
                 "production": {
-                    "browserTarget": "timetable:build:production"
+                    "buildTarget": "timetable:build:production"
                 },
                 "development": {
-                    "browserTarget": "timetable:build:development"
+                    "buildTarget": "timetable:build:development"
                 }
             },
             "defaultConfiguration": "development"
@@ -114,7 +114,7 @@
         "extract-i18n": {
             "executor": "@angular-devkit/build-angular:extract-i18n",
             "options": {
-                "browserTarget": "timetable:build"
+                "buildTarget": "timetable:build"
             }
         },
         "lint": {
@@ -130,8 +130,7 @@
             "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/apps/timetable"],
             "options": {
-                "jestConfig": "apps/timetable/jest.config.ts",
-                "passWithNoTests": true
+                "jestConfig": "apps/timetable/jest.config.ts"
             }
         }
     },

@@ -12,7 +12,13 @@ import { IconComponent } from '@placeos/components';
 import { generateMockUser, User } from '@placeos/users';
 
 import * as users_fn from '@placeos/users';
-import * as guest_fn from '@placeos/users';
+
+jest.mock('@placeos/users', () => {
+    return {
+        __esModule: true, //    <----- this __esModule: true is important
+        ...jest.requireActual('@placeos/users'),
+    };
+});
 
 import { UserSearchFieldComponent } from '../lib/user-search-field.component';
 import { SettingsService } from '@placeos/common';
@@ -43,7 +49,7 @@ describe('UserSearchFieldComponent', () => {
             .fill(1)
             .map(() => new User(generateMockUser()));
         const staff_spy = jest.spyOn(users_fn, 'searchStaff');
-        const guest_spy = jest.spyOn(guest_fn, 'searchGuests');
+        const guest_spy = jest.spyOn(users_fn, 'searchGuests');
         staff_spy.mockImplementation((q) => of([...user_list] as any));
         guest_spy.mockImplementation((q) => of([...user_list] as any));
         spectator.dispatchFakeEvent('input', 'focusin');

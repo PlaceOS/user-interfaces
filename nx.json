@@ -40,17 +40,26 @@
             "inputs": ["default", "^production"],
             "cache": true
         },
-        "test": {
+        "lint": {
+            "inputs": ["default", "{workspaceRoot}/.eslintrc.json"],
+            "cache": true
+        },
+        "@nx/jest:jest": {
             "inputs": [
                 "default",
                 "^production",
                 "{workspaceRoot}/jest.preset.js"
             ],
-            "cache": true
-        },
-        "lint": {
-            "inputs": ["default", "{workspaceRoot}/.eslintrc.json"],
-            "cache": true
+            "cache": true,
+            "options": {
+                "passWithNoTests": true
+            },
+            "configurations": {
+                "ci": {
+                    "ci": true,
+                    "codeCoverage": true
+                }
+            }
         }
     },
     "namedInputs": {

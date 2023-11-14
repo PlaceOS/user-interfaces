@@ -123,18 +123,18 @@
             "executor": "@angular-devkit/build-angular:dev-server",
             "options": {
                 "proxyConfig": "config/proxy.conf.js",
-                "browserTarget": "workplace:build"
+                "buildTarget": "workplace:build"
             },
             "configurations": {
                 "production": {
-                    "browserTarget": "workplace:build:production"
+                    "buildTarget": "workplace:build:production"
                 }
             }
         },
         "extract-i18n": {
             "executor": "@angular-devkit/build-angular:extract-i18n",
             "options": {
-                "browserTarget": "workplace:build"
+                "buildTarget": "workplace:build"
             }
         },
         "lint": {
@@ -151,8 +151,7 @@
             "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/apps/workplace"],
             "options": {
-                "jestConfig": "apps/workplace/jest.config.ts",
-                "passWithNoTests": true
+                "jestConfig": "apps/workplace/jest.config.ts"
             }
         }
     },

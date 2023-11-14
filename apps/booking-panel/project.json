@@ -111,18 +111,18 @@
             "executor": "@angular-devkit/build-angular:dev-server",
             "options": {
                 "proxyConfig": "config/proxy.conf.js",
-                "browserTarget": "booking-panel:build"
+                "buildTarget": "booking-panel:build"
             },
             "configurations": {
                 "production": {
-                    "browserTarget": "booking-panel:build:production"
+                    "buildTarget": "booking-panel:build:production"
                 }
             }
         },
         "extract-i18n": {
             "executor": "@angular-devkit/build-angular:extract-i18n",
             "options": {
-                "browserTarget": "booking-panel:build"
+                "buildTarget": "booking-panel:build"
             }
         },
         "lint": {
@@ -139,8 +139,7 @@
             "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/apps/booking-panel"],
             "options": {
-                "jestConfig": "apps/booking-panel/jest.config.ts",
-                "passWithNoTests": true
+                "jestConfig": "apps/booking-panel/jest.config.ts"
             }
         }
     },

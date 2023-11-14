@@ -109,10 +109,10 @@
             "executor": "@angular-devkit/build-angular:dev-server",
             "configurations": {
                 "production": {
-                    "browserTarget": "enrolment:build:production"
+                    "buildTarget": "enrolment:build:production"
                 },
                 "development": {
-                    "browserTarget": "enrolment:build:development"
+                    "buildTarget": "enrolment:build:development"
                 }
             },
             "defaultConfiguration": "development"
@@ -120,7 +120,7 @@
         "extract-i18n": {
             "executor": "@angular-devkit/build-angular:extract-i18n",
             "options": {
-                "browserTarget": "enrolment:build"
+                "buildTarget": "enrolment:build"
             }
         },
         "lint": {
@@ -136,8 +136,7 @@
             "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/apps/enrolment"],
             "options": {
-                "jestConfig": "apps/enrolment/jest.config.ts",
-                "passWithNoTests": true
+                "jestConfig": "apps/enrolment/jest.config.ts"
             }
         }
     },

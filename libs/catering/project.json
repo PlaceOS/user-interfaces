@@ -19,8 +19,7 @@
             "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/libs/catering"],
             "options": {
-                "jestConfig": "libs/catering/jest.config.ts",
-                "passWithNoTests": true
+                "jestConfig": "libs/catering/jest.config.ts"
             }
         }
     },

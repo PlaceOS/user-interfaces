@@ -10,6 +10,13 @@ import { of } from 'rxjs';
 
 import * as common_mod from '@placeos/common';
 
+jest.mock('@placeos/common', () => {
+    return {
+        __esModule: true, //    <----- this __esModule: true is important
+        ...jest.requireActual('@placeos/common'),
+    };
+});
+
 describe('DeskBookingComponent', () => {
     let spectator: Spectator<DeskBookingComponent>;
     const createComponent = createComponentFactory({
@@ -22,8 +29,9 @@ describe('DeskBookingComponent', () => {
     });
 
     beforeEach(() => {
-        const spy = jest.spyOn(common_mod, 'current_user', 'get');
-        spy.mockImplementation(() => of({} as any));
+        Object.defineProperty(common_mod, 'current_user', {
+            get: () => of({} as any),
+        });
         spectator = createComponent();
     });
 
