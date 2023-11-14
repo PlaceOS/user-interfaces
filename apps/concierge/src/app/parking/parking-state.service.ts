@@ -187,12 +187,13 @@ export class ParkingStateService extends AsyncHandler {
             id: state.metadata.id || `parking-${zone}.${randomInt(999_999)}`,
         };
         const spaces = await this.spaces.pipe(take(1)).toPromise();
+        const idx = spaces.findIndex((_) => _.id === new_space.id);
+        if (idx >= 0) spaces[idx] = new_space;
+        else spaces.push(new_space);
+        const new_space_list = spaces;
         await updateMetadata(zone, {
             name: 'parking-spaces',
-            details: [
-                ...spaces.filter((_) => _.id !== new_space.id),
-                new_space,
-            ],
+            details: new_space_list,
             description: 'List of available parking spaces',
         }).toPromise();
         this._change.next(Date.now());

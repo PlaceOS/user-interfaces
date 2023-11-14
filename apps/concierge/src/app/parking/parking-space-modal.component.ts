@@ -33,10 +33,20 @@ import { ParkingSpace } from './parking-state.service';
                     </mat-error>
                 </mat-form-field>
                 <label for="user">Assigned User</label>
-                <a-user-search-field
-                    name="user"
-                    formControlName="assigned_user"
-                ></a-user-search-field>
+                <div class="flex items-center space-x-2">
+                    <a-user-search-field
+                        name="user"
+                        formControlName="assigned_user"
+                    ></a-user-search-field>
+                    <button
+                        btn
+                        matRipple
+                        class="mb-5"
+                        (click)="form.patchValue({ assigned_user: null })"
+                    >
+                        Clear
+                    </button>
+                </div>
                 <label for="notes">Notes</label>
                 <mat-form-field appearance="outline">
                     <textarea
