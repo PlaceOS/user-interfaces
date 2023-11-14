@@ -1,6 +1,5 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import {
-    addDays,
     differenceInMinutes,
     format,
     isSameDay,
@@ -153,96 +152,98 @@ import {
                                     let i = index
                                 "
                             >
-                                <div
-                                    event
+                                <ng-container
                                     *ngFor="
                                         let event of (events | async)[
                                             space.id
                                         ] || []
                                     "
-                                    class="absolute w-[13.625rem] hover:opacity-90"
-                                    [style.left]="i * 14 + 0.125 + 'rem'"
-                                    [style.top]="
-                                        timeToOffset(event.date) + 'px'
-                                    "
-                                    [style.height]="
-                                        endToOffset(event.duration) + 'px'
-                                    "
-                                    (click)="viewEvent(event, space.id)"
                                 >
                                     <div
-                                        class="absolute bg-pink-600/50 border border-pink-600 rounded-lg w-full"
-                                        [style.height]="
-                                            endToOffset(
-                                                event.duration +
-                                                    (event.ext('setup') || 0) +
-                                                    (event.ext('breakdown') ||
-                                                        0)
-                                            ) + 'px'
-                                        "
-                                        [style.top]="
-                                            -(
-                                                ((event.ext('setup') || 0) /
-                                                    60) *
-                                                48
-                                            ) + 'px'
-                                        "
+                                        event
                                         *ngIf="
-                                            (ui_options | async)
-                                                ?.show_overflow &&
-                                            (event.ext('setup') ||
-                                                event.ext('breakdown')) &&
-                                            endToOffset(
-                                                event.duration +
-                                                    (event.ext('setup') || 0) +
-                                                    (event.ext('breakdown') ||
-                                                        0)
-                                            )
+                                            !event.is_system_event ||
+                                            (ui_options | async)?.show_overflow
                                         "
-                                    ></div>
-                                    <div
-                                        class="relative w-full h-full shadow bg-base-200 hover:bg-base-200 rounded-lg overflow-hidden px-3 py-1 text-xs"
-                                        [class.opacity-60]="
-                                            event.state === 'done'
+                                        class="absolute w-[13.625rem] hover:opacity-90"
+                                        [style.left]="i * 14 + 0.125 + 'rem'"
+                                        [style.top]="
+                                            timeToOffset(event.date) + 'px'
                                         "
+                                        [style.height]="
+                                            endToOffset(event.duration) + 'px'
+                                        "
+                                        [class.pointer-events-none]="
+                                            event.is_system_event
+                                        "
+                                        (click)="viewEvent(event, space.id)"
                                     >
                                         <div
-                                            class="absolute left-0 inset-y-0 w-1 "
-                                            [class.bg-pink-600]="
-                                                event.status !== 'cancelled'
-                                            "
-                                            [class.bg-error]="
-                                                event.status === 'cancelled'
-                                            "
-                                        ></div>
-                                        <p
-                                            class="truncate"
+                                            class="relative w-full h-full shadow bg-base-100 border border-base-200 hover:bg-base-200 rounded-lg overflow-hidden px-3 py-1 text-xs"
                                             [class.opacity-60]="
-                                                event.status === 'cancelled'
+                                                event.state === 'done'
+                                            "
+                                            [class.!rounded-none]="
+                                                event.is_system_event
+                                            "
+                                            [class.!border-primary]="
+                                                event.is_system_event
                                             "
                                         >
-                                            {{
-                                                event.all_day
-                                                    ? 'All Day'
-                                                    : (event.date
-                                                      | date: time_format)
-                                            }}
-                                            &ndash;
-                                            {{
-                                                event.organiser?.name ||
-                                                    event.hjost
-                                            }}
-                                        </p>
-                                        <p
-                                            class="truncate"
-                                            [class.opacity-60]="
-                                                event.status === 'cancelled'
-                                            "
-                                        >
-                                            {{ event.title }}
-                                        </p>
+                                            <ng-container
+                                                *ngIf="event.is_system_event"
+                                            >
+                                                <div
+                                                    class="absolute inset-0 bg-primary opacity-50"
+                                                ></div>
+                                            </ng-container>
+                                            <ng-container
+                                                *ngIf="!event.is_system_event"
+                                            >
+                                                <div
+                                                    class="absolute left-0 inset-y-0 w-1 "
+                                                    [class.bg-primary]="
+                                                        event.status !==
+                                                        'cancelled'
+                                                    "
+                                                    [class.bg-error]="
+                                                        event.status ===
+                                                        'cancelled'
+                                                    "
+                                                ></div>
+                                                <p
+                                                    class="truncate"
+                                                    [class.opacity-60]="
+                                                        event.status ===
+                                                        'cancelled'
+                                                    "
+                                                >
+                                                    {{
+                                                        event.all_day
+                                                            ? 'All Day'
+                                                            : (event.date
+                                                              | date
+                                                                  : time_format)
+                                                    }}
+                                                    &ndash;
+                                                    {{
+                                                        event.organiser?.name ||
+                                                            event.hjost
+                                                    }}
+                                                </p>
+                                                <p
+                                                    class="truncate"
+                                                    [class.opacity-60]="
+                                                        event.status ===
+                                                        'cancelled'
+                                                    "
+                                                >
+                                                    {{ event.title }}
+                                                </p>
+                                            </ng-container>
+                                        </div>
                                     </div>
-                                </div>
+                                </ng-container>
                             </ng-container>
                         </div>
                     </div>
@@ -351,6 +352,7 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
     }
 
     public viewEvent(event: CalendarEvent, space_id: string) {
+        if (event.is_system_event) return;
         const ref = this._dialog.open(EventDetailsModalComponent, {
             data: event,
         });

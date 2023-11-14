@@ -122,6 +122,8 @@ export class CalendarEvent {
     /** Whether changes to this event should update the parent event */
     public readonly update_master: boolean;
 
+    public readonly is_system_event: boolean;
+
     public get is_all_day() {
         return this.all_day || this.duration >= 12 * 60;
     }
@@ -232,6 +234,7 @@ export class CalendarEvent {
             this.system = { id: data.system_id } as any;
         }
         this.old_system = data.old_system || data.system;
+        this.is_system_event = this.body.includes('main_event_id');
         this.attachments = data.attachments || [];
         this.extension_data = data.extension_data || {};
         this.status = eventStatus({ ...data, ...this }) || 'none';
