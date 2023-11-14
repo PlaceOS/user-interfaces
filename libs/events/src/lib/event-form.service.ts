@@ -612,8 +612,9 @@ export class EventFormService extends AsyncHandler {
                         value.host,
                     title: value.title || 'Space Booking',
                     attendees: attendees.map((_) => {
-                        delete _.visit_expected;
-                        return _;
+                        const v = { ..._ };
+                        delete v.visit_expected;
+                        return v;
                     }),
                     date: d,
                     catering,
