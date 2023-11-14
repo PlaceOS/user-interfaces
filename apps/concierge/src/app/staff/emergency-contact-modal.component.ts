@@ -61,6 +61,23 @@ import { CustomTooltipComponent } from '@placeos/components';
                     </div>
                 </div>
                 <div class="flex flex-col">
+                    <label for="name">Level:</label>
+                    <mat-form-field appearance="outline">
+                        <mat-select
+                            formControlName="zone"
+                            placeholder="All Levels"
+                        >
+                            <mat-option value="">All Levels</mat-option>
+                            <mat-option
+                                *ngFor="let level of levels | async"
+                                [value]="level.id"
+                            >
+                                {{ level.display_name || level.name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <div class="flex flex-col">
                     <label for="email">Roles:</label>
                     <div class="flex items-center space-x-2">
                         <mat-form-field
@@ -149,8 +166,11 @@ export class EmergencyContactModalComponent {
         name: new FormControl(this._data?.name || ''),
         email: new FormControl(this._data?.email || ''),
         phone: new FormControl(this._data?.phone || ''),
+        zone: new FormControl(this._data?.zone || ''),
         roles: new FormControl(this._data?.roles || []),
     });
+    /** List of levels for the active building */
+    public readonly levels = this._org.active_levels;
 
     @ViewChild(CustomTooltipComponent) private _tooltip: CustomTooltipComponent;
 

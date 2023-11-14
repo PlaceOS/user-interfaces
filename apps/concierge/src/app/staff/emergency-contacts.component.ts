@@ -14,6 +14,7 @@ export interface EmergencyContact {
     name: string;
     phone: string;
     roles: string[];
+    zone: string;
 }
 
 export interface EmergencyContactData {
@@ -93,11 +94,24 @@ export interface EmergencyContactData {
                         class="min-w-[40rem] block"
                         [dataSource]="filtered_contacts"
                         [filter]="search"
-                        [columns]="['email', 'name', 'roles', 'actions']"
-                        [display_column]="['Email', 'Name', 'Roles', ' ']"
+                        [columns]="[
+                            'email',
+                            'name',
+                            'roles',
+                            'zone',
+                            'actions'
+                        ]"
+                        [display_column]="[
+                            'Email',
+                            'Name',
+                            'Roles',
+                            'Level',
+                            ' '
+                        ]"
                         [column_size]="['flex', '12r', '16r', '7r']"
                         [template]="{
                             roles: roles_template,
+                            zone: zone_template,
                             actions: actions_template
                         }"
                         [empty]="
@@ -113,6 +127,9 @@ export interface EmergencyContactData {
                         >
                             {{ role }}
                         </span>
+                    </ng-template>
+                    <ng-template #zone_template let-data="data">
+                        {{ data ? (data | level)?.display_name : 'All' }}
                     </ng-template>
                     <ng-template #actions_template let-row="row">
                         <div
