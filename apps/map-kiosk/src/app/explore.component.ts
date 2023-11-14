@@ -37,7 +37,7 @@ import { first, take } from 'rxjs/operators';
             <img class="w-32" [src]="logo?.src" />
         </a>
         <div
-            class="absolute top-0 left-1/2 -translate-x-1/2 bg-base-100 rounded-b-2xl px-4 pb-4 pt-3 z-10 shadow border-b border-r border-base-200 text-white"
+            class="absolute top-0 left-1/2 -translate-x-1/2 bg-base-100 rounded-b-2xl px-4 pb-4 pt-3 z-10 shadow border-b border-r border-base-200 text-base-content"
         >
             {{ time | date: 'fullDate' }}
         </div>
