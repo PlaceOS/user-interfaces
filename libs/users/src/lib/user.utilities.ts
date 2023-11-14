@@ -89,7 +89,7 @@ export function generateUserForm(user?: User) {
         ),
         phone: new FormControl(
             user.phone || '',
-            Validators.pattern(/[+\-()0-9]{1,24}/g)
+            Validators.pattern(/^\+?(\d[\d\s\-\(\)]{5,13}\d)$/)
         ),
         assistance_required: new FormControl(user.assistance_required || false),
         visit_expected: new FormControl(user.visit_expected ?? true),
