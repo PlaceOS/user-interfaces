@@ -6,6 +6,7 @@ import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
 import { EmergencyContactModalComponent } from './emergency-contact-modal.component';
 import { notify, notifySuccess, openConfirmModal } from '@placeos/common';
+import { RoleManagementModalComponent } from './role-management-modal.component';
 
 export interface EmergencyContact {
     id: string;
@@ -31,19 +32,15 @@ export interface EmergencyContactData {
                     <div class="flex items-center justify-between">
                         <h2 class="text-2xl font-medium">Emergency Contacts</h2>
                         <div class="flex items-center space-x-2">
-                            <mat-form-field
-                                class="no-subscript"
-                                appearance="outline"
+                            <button
+                                icon
+                                matRipple
+                                class="bg-secondary text-secondary-content rounded"
+                                matTooltip="Manage Roles"
+                                (click)="manageRoles()"
                             >
-                                <app-icon class="text-2xl" matPrefix>
-                                    search
-                                </app-icon>
-                                <input
-                                    matInput
-                                    [(ngModel)]="search"
-                                    placeholder="Filter contacts..."
-                                />
-                            </mat-form-field>
+                                <app-icon>list_alt</app-icon>
+                            </button>
                             <button
                                 btn
                                 matRipple
@@ -55,7 +52,7 @@ export interface EmergencyContactData {
                             </button>
                         </div>
                     </div>
-                    <div class="flex items-center py-2 mt-2">
+                    <div class="flex items-center justify-between py-2 mt-2">
                         <mat-form-field
                             class="no-subscript"
                             appearance="outline"
@@ -74,6 +71,21 @@ export interface EmergencyContactData {
                                 </mat-option>
                             </mat-select>
                         </mat-form-field>
+                        <div class="flex items-center space-x-2">
+                            <mat-form-field
+                                class="no-subscript"
+                                appearance="outline"
+                            >
+                                <app-icon class="text-2xl" matPrefix>
+                                    search
+                                </app-icon>
+                                <input
+                                    matInput
+                                    [(ngModel)]="search"
+                                    placeholder="Filter contacts..."
+                                />
+                            </mat-form-field>
+                        </div>
                     </div>
                 </section>
                 <section class="w-full h-1/2 flex-1 overflow-auto px-8">
@@ -161,6 +173,11 @@ export class EmergencyContactsComponent {
     ) {}
 
     public ngOnInit() {}
+
+    public manageRoles() {
+        const ref = this._dialog.open(RoleManagementModalComponent, {});
+        ref.afterClosed().subscribe(() => this._change.next(Date.now()));
+    }
 
     public editContact(contact?: EmergencyContact) {
         const ref = this._dialog.open(EmergencyContactModalComponent, {

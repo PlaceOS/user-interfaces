@@ -11,6 +11,7 @@ import { UIModule } from '../ui/ui.module';
 import { NewStaffComponent } from './new-staff.component';
 import { EmergencyContactsComponent } from './emergency-contacts.component';
 import { EmergencyContactModalComponent } from './emergency-contact-modal.component';
+import { RoleManagementModalComponent } from './role-management-modal.component';
 
 const ROUTES: Route[] = [
     { path: '', component: StaffComponent },
@@ -26,6 +27,7 @@ export const COMPONENTS: Type<any>[] = [
     StaffDetailsComponent,
     EmergencyContactsComponent,
     EmergencyContactModalComponent,
+    RoleManagementModalComponent,
 ];
 
 @NgModule({
