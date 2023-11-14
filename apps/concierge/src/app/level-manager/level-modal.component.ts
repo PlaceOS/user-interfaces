@@ -64,6 +64,18 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                         />
                     </mat-form-field>
                 </div>
+                <div class="flex flex-col" *ngIf="form.controls.map_id">
+                    <label for="map-id" i18n="@@mapIdLabel"> Map URL: </label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            name="map-id"
+                            placeholder="URL of the Map SVG file"
+                            i18n-placeholder="@@mapIdPlaceholder"
+                            formControlName="map_id"
+                        />
+                    </mat-form-field>
+                </div>
             </form>
         </main>
         <footer
@@ -91,6 +103,9 @@ export class LevelModalComponent {
             Validators.required,
         ]),
         parent_id: new FormControl(this._data?.parent_id || '', [
+            Validators.required,
+        ]),
+        map_id: new FormControl(this._data?.map_id || '', [
             Validators.required,
         ]),
     });
