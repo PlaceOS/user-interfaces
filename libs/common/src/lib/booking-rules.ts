@@ -137,7 +137,7 @@ export function checkRulesMatch(
         matches += 1;
     if (conditions.is_after && isAfter(date, addToDate(conditions.is_after)))
         matches += 1;
-    if (conditions.min_length && conditions.min_length >= duration)
+    if (conditions.min_length && conditions.min_length <= duration)
         matches += 1;
     if (
         conditions.is_between &&
@@ -153,7 +153,7 @@ export function checkRulesMatch(
         date < conditions.is_period[1]
     )
         matches += 1;
-    if (conditions.max_length && conditions.max_length <= duration)
+    if (conditions.max_length && conditions.max_length >= duration)
         matches += 1;
     if (
         conditions.resource_ids &&

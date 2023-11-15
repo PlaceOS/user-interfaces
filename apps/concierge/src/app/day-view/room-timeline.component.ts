@@ -326,6 +326,7 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
 
     public ngOnInit() {
         this.subscription('poll', this._state.startPolling());
+        this.interval('scroll', () => this.onScroll(), 1000);
         const date = Date.now();
         this.onResize();
     }

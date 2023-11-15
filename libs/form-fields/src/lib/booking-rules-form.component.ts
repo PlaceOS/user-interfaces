@@ -153,7 +153,12 @@ import {
                     class="flex flex-col flex-1"
                     *ngIf="available_conditions.includes('min_length')"
                 >
-                    <label for="min_length">Minimum Booking Length:</label>
+                    <label for="min_length"
+                        >{{
+                            form.value.rules.hidden ? 'Prevent' : 'Allow'
+                        }}
+                        booking with a minimum length of:</label
+                    >
                     <a-duration-field
                         name="min_length"
                         [min]="15"
@@ -166,7 +171,12 @@ import {
                     class="flex flex-col flex-1"
                     *ngIf="available_conditions.includes('max_length')"
                 >
-                    <label for="max_length">Maximum Booking Length:</label>
+                    <label for="max_length"
+                        >{{
+                            form.value.rules.hidden ? 'Prevent' : 'Allow'
+                        }}
+                        booking with a maximum length up to:</label
+                    >
                     <a-duration-field
                         name="max_length"
                         [min]="form.value.conditions.min_length || 15"

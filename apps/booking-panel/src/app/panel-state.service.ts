@@ -167,9 +167,9 @@ export class PanelStateService extends AsyncHandler {
         shareReplay(1)
     );
     public readonly current = combineLatest([
-        interval(3 * 60 * 1000).pipe(startWith(0)),
         this._current,
-    ]).pipe(map(([_, e]) => (!e || e.state === 'done' ? null : e)));
+        interval(3 * 60 * 1000).pipe(startWith(0)),
+    ]).pipe(map(([e]) => (!e || e.state === 'done' ? null : e)));
     /** Upcoming booking */
     private _next: Observable<CalendarEvent> = this._system.pipe(
         filter((_) => !!_),
@@ -179,9 +179,12 @@ export class PanelStateService extends AsyncHandler {
     );
     /** Upcoming booking */
     public next = combineLatest([
-        interval(3 * 60 * 1000).pipe(startWith(0)),
         this._next,
-    ]).pipe(map(([_, e]) => (!e || e.state === 'in_progress' ? null : e)));
+        interval(3 * 60 * 1000).pipe(startWith(0)),
+    ]).pipe(
+        tap(([e]) => console.log('Next:', e)),
+        map(([e]) => (!e || e.state === 'in_progress' ? null : e))
+    );
 
     public readonly status: Observable<string> = combineLatest([
         this._settings,
@@ -196,7 +199,13 @@ export class PanelStateService extends AsyncHandler {
         interval(15 * 1000),
     ]).pipe(
         tap(([current, status]) => {
-            if (!current || status !== 'pending') return;
+            if (
+                !current ||
+                status !== 'pending' ||
+                current.body.includes('main_event_id')
+            ) {
+                return;
+            }
             const pending_period = this.setting('pending_period');
             if (!pending_period || pending_period < 1) return;
             const diff = differenceInMinutes(Date.now(), current.date);
