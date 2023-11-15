@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import {
     connectionState,
     getModule,
+    PlaceModuleBinding,
     PlaceSystem,
     showSystem,
 } from '@placeos/ts-client';
@@ -113,6 +114,12 @@ export type CalendarEventStatus =
     | 'pending'
     | 'busy'
     | 'not-bookable';
+
+declare global {
+    interface Window {
+        panel_module?: PlaceModuleBinding;
+    }
+}
 
 @Injectable({
     providedIn: 'root',
@@ -569,6 +576,7 @@ export class PanelStateService extends AsyncHandler {
         mod_name = 'Bookings'
     ) {
         const mod = getModule(id, mod_name);
+        if (window.debug) window.panel_module = mod;
         const binding = mod.binding(name);
         this.subscription(`binding:${mod_name}:${name}`, binding.bind());
         return binding.listen();
