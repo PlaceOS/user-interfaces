@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1696999541234,
+  "timestamp": 1700091200749,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -13,11 +13,11 @@
       "urls": [
         "./favicon.ico",
         "./index.html",
-        "./main.daf07d1a44a516c3.js",
+        "./main.cf2c114a164628b1.js",
         "./manifest.webmanifest",
-        "./polyfills.a785179035db1d2c.js",
+        "./polyfills.3be703785898b559.js",
         "./runtime.ff9097db73644f66.js",
-        "./styles.07185ed9f7167bbd.css"
+        "./styles.e13b7e6c5069c8f0.css"
       ],
       "patterns": []
     },
@@ -108,9 +108,9 @@
         "./material-icons-sharp.3885863ee4746422.woff2",
         "./material-icons-two-tone.675bd578bd14533e.woff2",
         "./material-icons.59322316b3fd6063.woff2",
-        "./material-symbols-outlined.ec45947c13a6b5c9.woff2",
-        "./material-symbols-rounded.49d65aaf6ea66a83.woff2",
-        "./material-symbols-sharp.3b5495aef790b0b2.woff2"
+        "./material-symbols-outlined.bb2683a3c71f6e97.woff2",
+        "./material-symbols-rounded.ce03b85d012749d0.woff2",
+        "./material-symbols-sharp.cbff3cfef7082994.woff2"
       ],
       "patterns": []
     }
@@ -166,11 +166,11 @@
     "./assets/icons/today-filled.svg": "1410738877666c872263634fc33cfe9b2c3ac6f1",
     "./assets/icons/today-outline.svg": "40fc045c0b90aa2313cc5385260781ba5b55b8ad",
     "./assets/icons/visa.svg": "11187e2ea86894625af0aeb5b85c17bcbf8fe192",
-    "./assets/locale/en-US.json": "a17166b5ae6d1e9d7b1d46a7d5286aa11946eaa1",
-    "./assets/locale/en.json": "3a0958078b9c527f420eddbaa293a2d937e207c6",
+    "./assets/locale/en-US.json": "3841f63e329be78a64979b096660841f14ad2507",
+    "./assets/locale/en.json": "06da5b4ee1b0b4620f0f62b0da5f2549296677a8",
     "./assets/locale/es.json": "12fcaef177f45954851f4dbfddb85122b91b0207",
     "./assets/locale/fr.json": "7beffd170a366f52b07f51eb5dc99984816391f7",
-    "./assets/locale/pt.json": "41f770be69b38fb48048ff39c8f987ad84f05c18",
+    "./assets/locale/pt.json": "0015e70d7d1cae1bfa3b79623656d0d33a6e26de",
     "./assets/logo-dark.svg": "3c5dbbd620a781a0d1e3680cb697982dd44a1613",
     "./assets/logo-light.svg": "29908fafefe60c105f06b2f8d69f7c1eed436c17",
     "./assets/maps/level_1.svg": "ba165a2e4b967619f71aa625855113950c4cde53",
@@ -192,20 +192,20 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "a5b88cd0a335c54d45099a0e6a2b66d48cf14365",
-    "./main.daf07d1a44a516c3.js": "02fa629b2c484d570116303efd70864495910b44",
+    "./index.html": "57d5563c41762169cb727e59613afa96cbefab69",
+    "./main.cf2c114a164628b1.js": "4e780c6ea2135c913511540498a3d8395d4668f0",
     "./manifest.webmanifest": "1403ffbb424e3924fdbd03de6cc312e4a7a0b0b6",
     "./material-icons-outlined.f86cb7b0aa53f0fe.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.b10ec9db5b7fbc74.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
     "./material-icons-sharp.3885863ee4746422.woff2": "cf1c7b4d066d18af44cf7bc664dd2e46652a3a30",
     "./material-icons-two-tone.675bd578bd14533e.woff2": "296ff0bff395a77c2e33e7e31fffe73980bd93cf",
     "./material-icons.59322316b3fd6063.woff2": "0bc0c675480d94ec7e8609dda6227f88c5d08d2c",
-    "./material-symbols-outlined.ec45947c13a6b5c9.woff2": "a1334e9df8a978834b6a0d8f64dc0b054aadc8e3",
-    "./material-symbols-rounded.49d65aaf6ea66a83.woff2": "1c1036602e19e739bc4e50785cbda0ba61904d3e",
-    "./material-symbols-sharp.3b5495aef790b0b2.woff2": "668f6b7dce070bbd08eb7a395919ddb1f39e3ff0",
-    "./polyfills.a785179035db1d2c.js": "1ac222616ba83ef8f4152cf5dc7062d3a3e47b5d",
+    "./material-symbols-outlined.bb2683a3c71f6e97.woff2": "ad05cec71f57bf54dff527ef3bcfd6454dab1b48",
+    "./material-symbols-rounded.ce03b85d012749d0.woff2": "1eedd967ab52c2e1ac9607d814b17740ecd8fcc6",
+    "./material-symbols-sharp.cbff3cfef7082994.woff2": "d991d290442aeb0a63e5d3bc48143a088e517de3",
+    "./polyfills.3be703785898b559.js": "b62c51850c7506ef99a70ac8c106db728fd75168",
     "./runtime.ff9097db73644f66.js": "94e1159dd2ffda6fa3cf5b296265c3c9bc1a5223",
-    "./styles.07185ed9f7167bbd.css": "5a330d7c8cacd917d8c2069d5552748ceaff0a1f"
+    "./styles.e13b7e6c5069c8f0.css": "6fb01ab6932f7c16959e5813657d13b918434ebc"
   },
   "navigationUrls": [
     {
