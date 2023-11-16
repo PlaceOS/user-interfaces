@@ -42,7 +42,13 @@ import { ParkingSpace } from './parking-state.service';
                         btn
                         matRipple
                         class="mb-5"
-                        (click)="form.patchValue({ assigned_user: null })"
+                        (click)="
+                            form.patchValue({
+                                assigned_user: null,
+                                assigned_to: null,
+                                assigned_name: null
+                            })
+                        "
                     >
                         Clear
                     </button>
