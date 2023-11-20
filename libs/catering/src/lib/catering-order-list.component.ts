@@ -11,6 +11,7 @@ import { CateringOrdersService } from './catering-orders.service';
         >
             <div class="w-20"></div>
             <div class="w-24">Time</div>
+            <div class="w-48">Meeting Time</div>
             <div class="flex-1">Location</div>
             <div class="w-56">Host</div>
             <div class="w-28">Charge Code</div>
