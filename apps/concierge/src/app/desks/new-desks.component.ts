@@ -15,7 +15,7 @@ import { DesksStateService } from './desks-state.service';
 import { DeskBookModalComponent } from './desk-book-modal.component';
 import { MatDialog } from '@angular/material/dialog';
 import { Desk, OrganisationService } from '@placeos/organisation';
-import { take } from 'rxjs/operators';
+import { take, filter } from 'rxjs/operators';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 
 @Component({
@@ -26,7 +26,9 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
             <app-sidebar></app-sidebar>
             <main class="flex flex-col flex-1 w-1/2 h-full">
                 <div class="flex items-center w-full py-4 px-8 space-x-2">
-                    <h2 class="text-2xl font-medium">Desk Bookings</h2>
+                    <h2 class="text-2xl font-medium">
+                        {{ page_title }}
+                    </h2>
                     <div class="flex-1 w-px"></div>
                     <searchbar
                         class="mr-2"
@@ -169,6 +171,7 @@ export class NewDesksComponent
         });
         this._state.setFilters({ zones });
     };
+    public page_title: string = 'Desk Bookings';
 
     constructor(
         private _state: DesksStateService,
@@ -210,6 +213,21 @@ export class NewDesksComponent
         );
         const parts = this._router.url?.split('/') || [''];
         this.path = parts[parts.length - 1].split('?')[0];
+
+        this.subscription(
+            'url',
+            this._router.events
+                .pipe(filter((event) => event instanceof NavigationEnd))
+                .subscribe((event: NavigationEnd) => {
+                    const url = event.url;
+                    console.log(url, 'desks url');
+                    if (url.includes('manage')) {
+                        this.page_title = 'Desk Management';
+                    } else {
+                        this.page_title = 'Desk Bookings';
+                    }
+                })
+        );
     }
 
     public ngOnDestroy() {
