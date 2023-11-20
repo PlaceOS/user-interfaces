@@ -192,6 +192,11 @@ export class NewDesksComponent
                     const url_parts = this._router.url?.split('/') || [''];
                     this.path = url_parts[parts.length - 1].split('?')[0];
                     console.log('Path:', this.path);
+                    if (this.path.includes('manage')) {
+                        this.page_title = 'Desk Management';
+                    } else {
+                        this.page_title = 'Desk Bookings';
+                    }
                 }
             })
         );
@@ -213,21 +218,6 @@ export class NewDesksComponent
         );
         const parts = this._router.url?.split('/') || [''];
         this.path = parts[parts.length - 1].split('?')[0];
-
-        this.subscription(
-            'url',
-            this._router.events
-                .pipe(filter((event) => event instanceof NavigationEnd))
-                .subscribe((event: NavigationEnd) => {
-                    const url = event.url;
-                    console.log(url, 'desks url');
-                    if (url.includes('manage')) {
-                        this.page_title = 'Desk Management';
-                    } else {
-                        this.page_title = 'Desk Bookings';
-                    }
-                })
-        );
     }
 
     public ngOnDestroy() {
