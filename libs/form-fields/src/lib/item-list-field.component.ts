@@ -16,9 +16,19 @@ export function addChipItem<T = string>(
     const input = event.input;
     const value = event.value as any;
     const item_list = control.value;
-    if ((value || '').trim()) {
-        item_list.push(value);
-        control.setValue(item_list);
+    if (value.includes(',')) {
+        const list = value.split(',');
+        for (const item of list) {
+            if ((item || '').trim()) {
+                item_list.push(item.trim());
+                control.setValue(item_list);
+            }
+        }
+    } else {
+        if ((value || '').trim()) {
+            item_list.push(value.trim());
+            control.setValue(item_list);
+        }
     }
 
     // Reset the input value
