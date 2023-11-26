@@ -1,4 +1,3 @@
-
 /** Building Level data */
 export class BuildingLevel {
     /** ID of the building level zone */
@@ -22,7 +21,7 @@ export class BuildingLevel {
     /** List of image URLs for the level */
     public readonly images: string[];
     /** List of points of interest for the level */
-    public readonly locations: readonly { id: string, name: string }[];
+    public readonly locations: readonly { id: string; name: string }[];
 
     constructor(_data: Partial<BuildingLevel> = {}) {
         this.id = _data.id || '';
@@ -35,10 +34,11 @@ export class BuildingLevel {
         this.tags = _data.tags || [];
         this.images = _data.images || [];
         const parts = this.display_name.split(' ');
-        this.number =
+        this.number = (
             (parts.length >= 2
                 ? parts[parts.length - 1]
                 : this.display_name[0]
-            )?.toUpperCase() || '';
+            )?.toUpperCase() || ''
+        ).substring(0, 2);
     }
 }
