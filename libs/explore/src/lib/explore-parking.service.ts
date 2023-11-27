@@ -17,7 +17,7 @@ import {
     startOfDay,
     startOfMinute,
 } from 'date-fns';
-import { BehaviorSubject, combineLatest, forkJoin } from 'rxjs';
+import { BehaviorSubject, combineLatest, forkJoin, Observable } from 'rxjs';
 import { map, shareReplay, switchMap } from 'rxjs/operators';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
@@ -28,6 +28,15 @@ import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 import { StaffUser } from '@placeos/users';
 import { SetDatetimeModalComponent } from './set-datetime-modal.component';
 import { MatDialog } from '@angular/material/dialog';
+
+export interface ParkingSpace {
+    id: string;
+    map_id: string;
+    name: string;
+    notes: string;
+    assigned_to: string;
+    zone_id?: string;
+}
 
 export interface ParkingOptions {
     enable_booking?: boolean;
@@ -100,7 +109,7 @@ export class ExploreParkingService extends AsyncHandler {
     );
 
     /** List of parking spaces for the active building */
-    public readonly spaces = this.levels.pipe(
+    public readonly spaces: Observable<ParkingSpace[]> = this.levels.pipe(
         switchMap((_) =>
             forkJoin(
                 _.map((l) =>
@@ -129,7 +138,10 @@ export class ExploreParkingService extends AsyncHandler {
         this.active_spaces,
     ]).pipe(
         map(([events, spaces]) =>
-            spaces.filter((_) => !events.find((e) => e.asset_id === _.id))
+            spaces.filter(
+                (_) =>
+                    !events.find((e) => e.asset_id === _.id) && !_.assigned_to
+            )
         )
     );
 

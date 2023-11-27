@@ -109,12 +109,22 @@ export function rulesForResource(
             details.resource.zones?.includes(ruleset.zone)
         ) {
             if (checkRulesMatch(details, ruleset)) {
-                console.log('Matched Ruleset:', details, ruleset);
+                console.log(
+                    'Matched Ruleset:',
+                    details.resource.id,
+                    details,
+                    ruleset
+                );
                 return ruleset.rules;
             }
         }
     }
-    console.log('No Matched Ruleset:', details, DEFAULT_RULES);
+    console.log(
+        'No Matched Ruleset:',
+        details.resource.id,
+        details,
+        DEFAULT_RULES
+    );
     return DEFAULT_RULES;
 }
 
