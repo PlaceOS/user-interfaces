@@ -34,9 +34,9 @@ import { CATERING_STATUSES } from './catering.vars';
                 {{ order.deliver_at | date: time_format }}
             </div>
             <div time class="w-48">
-                {{ order.event?.event_start * 1000 | date: 'h:mma' }}
+                {{ order.event?.event_start * 1000 | date: time_format }}
                 <span> - </span>
-                {{ order.event?.event_end * 1000 | date: 'h:mma' }}
+                {{ order.event?.event_end * 1000 | date: time_format }}
             </div>
             <div class="flex-1">
                 {{
