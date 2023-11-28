@@ -283,7 +283,7 @@ export class CalendarEvent {
         const obj: Record<string, any> = { ...this };
         const date = this.all_day ? startOfDay(this.date) : this.date;
         const end = this.all_day
-            ? addMinutes(date, 24 * 60)
+            ? addMinutes(date, Math.max(24 * 60, this.duration))
             : addMinutes(date, this.duration);
         obj.event_start = getUnixTime(date);
         obj.event_end = getUnixTime(end);
