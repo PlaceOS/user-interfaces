@@ -237,17 +237,21 @@ export class OrganisationService {
             this._regions.next(regions);
         } else if (zone.tags.includes('building')) {
             const bld = new Building(zone);
-            const buildings = this._buildings
+            let buildings = this._buildings
                 .getValue()
                 .filter((_) => _.id !== bld.id);
             buildings.push(bld);
+            buildings = buildings.sort((a, b) =>
+                (a.name || '').localeCompare(b.name || '')
+            );
             this._buildings.next(buildings);
         } else if (zone.tags.includes('level')) {
             const lvl = new BuildingLevel(zone);
-            const levels = this._levels
-                .getValue()
-                .filter((_) => _.id !== lvl.id);
+            let levels = this._levels.getValue().filter((_) => _.id !== lvl.id);
             levels.push(lvl);
+            levels = levels.sort((a, b) =>
+                (a.name || '').localeCompare(b.name || '')
+            );
             this._levels.next(levels);
         } else {
             console.warn(
@@ -429,8 +433,10 @@ export class OrganisationService {
         if (!level_list?.length) {
             this._router.navigate(['/misconfigured']);
         }
-        const levels = level_list.map((lvl) => new BuildingLevel(lvl));
-        levels.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        let levels = level_list.map((lvl) => new BuildingLevel(lvl));
+        levels = levels.sort((a, b) =>
+            (a.name || '').localeCompare(b.name || '')
+        );
         this._levels.next(levels);
     }
 
