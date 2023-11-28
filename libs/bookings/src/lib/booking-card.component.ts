@@ -97,6 +97,7 @@ export class BookingCardComponent extends AsyncHandler {
         if (this.booking?.is_done) return 'neutral';
         if (this.booking?.status === 'approved') return 'success';
         if (this.booking?.status === 'declined') return 'error';
+        if (this.booking?.status === 'cancelled') return 'error';
         if (this.booking?.status === 'tentative') return 'warning';
         return 'warning';
     }
