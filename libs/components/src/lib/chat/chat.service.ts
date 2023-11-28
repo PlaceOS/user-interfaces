@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AsyncHandler, currentUser, log, randomString } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { getModule, token } from '@placeos/ts-client';
+import { apiKey, getModule, token } from '@placeos/ts-client';
 import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
 import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
@@ -44,12 +44,14 @@ export class ChatService extends AsyncHandler {
     private _socket?: WebSocketSubject<any>;
     private _chat_pipe = combineLatest([this._chat_system, this._change]).pipe(
         switchMap(([id]) => {
+            const auth =
+                token() !== 'x-api-key'
+                    ? `bearer_token=${encodeURIComponent(token())}`
+                    : `x-api-key=${apiKey()}`;
             const url = `ws${location.origin.replace(
                 'http',
                 ''
-            )}/api/engine/v2/chatgpt/chat/${encodeURIComponent(
-                id
-            )}?bearer_token=${encodeURIComponent(token())}${
+            )}/api/engine/v2/chatgpt/chat/${encodeURIComponent(id)}?${auth}${
                 this._chat_id
                     ? '&resume=' + encodeURIComponent(this._chat_id)
                     : ''

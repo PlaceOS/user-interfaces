@@ -17,7 +17,7 @@ import { map } from 'rxjs/operators';
                 <app-icon>chat</app-icon>
             </button>
             <div
-                class="absolute bottom-2 right-2 bg-base-200 rounded-xl border border-base-300 shadow overflow-hidden w-[20rem]"
+                class="absolute bottom-2 right-2 bg-base-200 rounded-xl border border-base-300 shadow overflow-hidden w-[40rem] max-w-[calc(100vw-1rem)]"
                 *ngIf="show"
             >
                 <div
@@ -28,7 +28,7 @@ import { map } from 'rxjs/operators';
                         <app-icon>close</app-icon>
                     </button>
                 </div>
-                <div class="h-[24rem] overflow-auto" #container>
+                <div class="h-[32rem] max-h-[60vh] overflow-auto" #container>
                     <div
                         class="w-full flex flex-col items-center justify-center p-8 space-y-2"
                     >
@@ -81,7 +81,10 @@ import { map } from 'rxjs/operators';
                             <div class=" flex items-center space-x-2">
                                 <app-icon class="text-2xl">info</app-icon>
                                 <p class="text-sm">
-                                    {{ (progress | async).function }}
+                                    {{
+                                        (progress | async).message ||
+                                            (progress | async).function
+                                    }}
                                 </p>
                             </div>
                             <div
@@ -102,7 +105,8 @@ import { map } from 'rxjs/operators';
                     </div>
                 </div>
                 <div
-                    class="absolute bottom-16 right-2 flex items-center justify-center space-x-2 p-1 rounded-2xl bg-base-100 border border-neutral"
+                    class="absolute right-2 flex items-center justify-center space-x-2 p-1 rounded-2xl bg-base-100 border border-neutral"
+                    [style.bottom]="height + 8 + 'px'"
                     *ngIf="waiting | async"
                 >
                     <div
@@ -117,19 +121,22 @@ import { map } from 'rxjs/operators';
                     <span class="sr-only">Waiting for reply...</span>
                 </div>
                 <div
-                    class="flex items-center bg-base-100 focus-within:outline outline-info border-t border-base-300"
+                    class="flex bg-base-100 focus-within:outline outline-info border-t border-base-300 max-h-[10rem] overflow-y-auto"
                 >
-                    <input
+                    <textarea
                         #input
                         placeholder="New message..."
-                        class="p-4 flex-1 w-1/2 focus:outline-none"
+                        class="p-4 flex-1 w-1/2 focus:outline-none resize-none overflow-hidden"
+                        [style.height]="height + 'px'"
                         [(ngModel)]="message"
+                        (ngModelChange)="resizeInput()"
                         (keyup.enter)="sendMessage()"
-                    />
+                    ></textarea>
                     <button
                         icon
                         matRipple
                         [disabled]="!message"
+                        class="mt-2"
                         (click)="sendMessage()"
                     >
                         <app-icon>send</app-icon>
@@ -160,6 +167,7 @@ export class ChatComponent extends AsyncHandler implements OnInit {
     public user: StaffUser;
     public show_time: Record<string, boolean> = {};
     public offset = 0;
+    public height = 56;
 
     public readonly hint = this._chat.chat_hint;
     public readonly messages = this._chat.messages;
@@ -172,7 +180,7 @@ export class ChatComponent extends AsyncHandler implements OnInit {
         return this._settings.get('app.chat.enabled');
     }
 
-    @ViewChild('input') private _input_el: ElementRef<HTMLInputElement>;
+    @ViewChild('input') private _input_el: ElementRef<HTMLTextAreaElement>;
     @ViewChild('container') private _container_el: ElementRef<HTMLDivElement>;
 
     public toggleChat() {
@@ -212,6 +220,11 @@ export class ChatComponent extends AsyncHandler implements OnInit {
         );
     }
 
+    public resizeInput() {
+        const el = this._input_el.nativeElement;
+        this.height = Math.max(el.scrollHeight, 56);
+    }
+
     public sendMessage() {
         if (!this.message) return;
         if (!this._chat.connected) {
@@ -220,6 +233,7 @@ export class ChatComponent extends AsyncHandler implements OnInit {
         }
         this._chat.sendMessage(this.message);
         this.message = '';
+        this.height = 56;
         setTimeout(() => this._input_el.nativeElement.focus(), 100);
     }
 
