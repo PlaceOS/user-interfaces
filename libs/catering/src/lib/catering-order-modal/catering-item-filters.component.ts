@@ -69,7 +69,7 @@ const ICONS = {
         <h3 class="hidden sm:block font-medium px-2 py-2" *ngIf="!search" i18n>
             Options
         </h3>
-        <div class="flex flex-col px-2">
+        <div class="flex flex-col px-2" *ngIf="!search">
             <mat-checkbox
                 [(ngModel)]="at_time"
                 (ngModelChange)="at_timeChange.next($event)"
