@@ -7,7 +7,7 @@ import {
     queryUsers,
     showMetadata,
 } from '@placeos/ts-client';
-import { SettingsService, unique } from '@placeos/common';
+import { SettingsService, flatten, unique } from '@placeos/common';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
     catchError,
@@ -135,73 +135,72 @@ export class ExploreSearchService {
     ]).pipe(
         map(([filter, spaces, users, contacts, roled_contacts, features]) => {
             const search = filter.toLowerCase();
-            const results = unique(
-                [
-                    ...spaces
-                        .filter(
-                            (_) =>
-                                _.email.toLowerCase().includes(search) ||
-                                _.name.toLowerCase().includes(search) ||
-                                _.display_name.toLowerCase().includes(search)
-                        )
-                        .map((s) => ({
-                            id: s.id,
-                            type: 'space',
-                            name: s.display_name || s.name,
-                            description: `Capacity: ${s.capacity} `,
-                        })),
-                    ...roled_contacts
-                        .map(
-                            (u) =>
-                                ({
-                                    id: u.email,
-                                    type: (u as any).roles[0] || 'contact',
-                                    is_role: true,
-                                    name: u.name,
-                                    description: u.email,
-                                } as any)
-                        )
-                        .filter(
-                            (_) =>
-                                _.name.toLowerCase().includes(search) ||
-                                _.description.toLowerCase().includes(search) ||
-                                _.type.toLowerCase().includes(search)
-                        ),
-                    ...contacts
-                        .map(
-                            (u) =>
-                                ({
-                                    id: u.email,
-                                    type: (u as any).type || 'contact',
-                                    is_role: true,
-                                    name: u.name,
-                                    description: u.email,
-                                } as any)
-                        )
-                        .filter(
-                            (_) =>
-                                _.name.toLowerCase().includes(search) ||
-                                _.description.toLowerCase().includes(search) ||
-                                _.type.toLowerCase().includes(search)
-                        ),
-                    ...users.map((u) => ({
-                        id: u.email,
-                        type: 'user',
-                        name: u.name,
-                        description: u.email,
+            const results = [
+                ...spaces
+                    .filter(
+                        (_) =>
+                            _.email.toLowerCase().includes(search) ||
+                            _.name.toLowerCase().includes(search) ||
+                            _.display_name.toLowerCase().includes(search)
+                    )
+                    .map((s) => ({
+                        id: s.id,
+                        type: 'space',
+                        name: s.display_name || s.name,
+                        description: `Capacity: ${s.capacity} `,
                     })),
-                    ...features
-                        .filter((_) => _.name.toLowerCase().includes(search))
-                        .map((s) => ({
-                            id: s.id,
-                            type: 'feature',
-                            name: s.name,
-                            description: '',
-                            zone: (s as any).zone?.id,
-                        })),
-                ],
-                'id'
-            );
+                ...flatten(
+                    roled_contacts.map((u) =>
+                        (u as any).roles.map(
+                            (role) =>
+                                ({
+                                    id: u.email,
+                                    type: role || 'contact',
+                                    is_role: true,
+                                    name: u.name,
+                                    description: u.email,
+                                } as any)
+                        )
+                    )
+                ).filter(
+                    (_) =>
+                        _.name.toLowerCase().includes(search) ||
+                        _.description.toLowerCase().includes(search) ||
+                        _.type.toLowerCase().includes(search)
+                ),
+                ...contacts
+                    .map(
+                        (u) =>
+                            ({
+                                id: u.email,
+                                type: (u as any).type || 'contact',
+                                is_role: true,
+                                name: u.name,
+                                description: u.email,
+                            } as any)
+                    )
+                    .filter(
+                        (_) =>
+                            _.name.toLowerCase().includes(search) ||
+                            _.description.toLowerCase().includes(search) ||
+                            _.type.toLowerCase().includes(search)
+                    ),
+                ...users.map((u) => ({
+                    id: u.email,
+                    type: 'user',
+                    name: u.name,
+                    description: u.email,
+                })),
+                ...features
+                    .filter((_) => _.name.toLowerCase().includes(search))
+                    .map((s) => ({
+                        id: s.id,
+                        type: 'feature',
+                        name: s.name,
+                        description: '',
+                        zone: (s as any).zone?.id,
+                    })),
+            ];
             results.sort((a, b) => a.name.localeCompare(b.name));
             return results;
         }),
