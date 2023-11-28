@@ -28,6 +28,7 @@ import {
     SettingsService,
     flatten,
     openConfirmModal,
+    randomInt,
     timePeriodsIntersect,
     unique,
 } from '@placeos/common';
@@ -168,7 +169,7 @@ export class EventsStateService extends AsyncHandler {
         }),
         shareReplay(1)
     );
-
+    private _retries = 0;
     /** Observable for list of bookings */
     public readonly events = combineLatest([
         this._period,
@@ -201,20 +202,31 @@ export class EventsStateService extends AsyncHandler {
                 period_start: getUnixTime(start),
                 period_end: getUnixTime(end),
             }).pipe(
-                map((_) => [_, start, end]),
+                map((_) => {
+                    this._retries = 0;
+                    return [_, start, end, true];
+                }),
                 catchError((e) => {
                     if (e?.status === 429) {
+                        this._retries += 1;
+                        const timeout_base = Math.max(
+                            8000,
+                            1000 * this._retries
+                        );
                         this.timeout(
                             'retry',
                             () => this._poll.next(Date.now()),
-                            1000
+                            randomInt(timeout_base + 1000, timeout_base)
                         );
                     }
-                    return of([[]]);
+                    return of([[], undefined, undefined, false]);
                 })
             );
         }),
-        tap(([events, start, end]) => {
+        tap(([events, start, end, clear]) => {
+            if (!clear && !events?.length) {
+                return this._loading.next(false);
+            }
             this.processBookings(
                 events || [],
                 start?.valueOf(),
