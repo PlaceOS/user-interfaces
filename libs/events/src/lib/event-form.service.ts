@@ -101,7 +101,7 @@ export class EventFormService extends AsyncHandler {
         zone_ids: [],
         features: [],
     });
-    private _form = generateEventForm();
+    private _form = generateEventForm(undefined, this._settings);
     private _date = new BehaviorSubject(Date.now());
     private _event = new BehaviorSubject<CalendarEvent>(null);
     private _loading = new BehaviorSubject<string>('');

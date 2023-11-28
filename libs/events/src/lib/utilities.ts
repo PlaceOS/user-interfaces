@@ -17,7 +17,12 @@ import {
     addMinutes,
     roundToNearestMinutes,
 } from 'date-fns';
-import { currentUser, timePeriodsIntersect, unique } from '@placeos/common';
+import {
+    SettingsService,
+    currentUser,
+    timePeriodsIntersect,
+    unique,
+} from '@placeos/common';
 
 import { CalendarEvent } from './event.class';
 import { endInFuture } from './validators';
@@ -36,7 +41,10 @@ const validateCateringField =
         return null;
     };
 
-export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
+export function generateEventForm(
+    event: CalendarEvent = new CalendarEvent(),
+    settings?: SettingsService
+) {
     if (!event) event = new CalendarEvent();
     const form = new FormGroup({
         id: new FormControl(event.id),
@@ -128,23 +136,19 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
         }
     });
     form.controls.catering.valueChanges.subscribe((_) => {
-        const catering = this._form.value.catering;
+        const catering = form.value.catering;
         if (
             catering?.length &&
-            (this._settings.get('app.events.catering_notes_required') ||
-                this._settings.value('require_catering_notes'))
+            (settings?.get('app.events.catering_notes_required') ||
+                settings.value('require_catering_notes'))
         ) {
-            this._form
-                .get('catering_notes')
-                ?.setValidators([Validators.required]);
-            this._form
-                .get('catering_notes')
-                .patchValue(this._form.value.catering_notes);
+            form.get('catering_notes')?.setValidators([Validators.required]);
+            form.get('catering_notes').patchValue(form.value.catering_notes);
         } else {
-            this._form.get('catering_notes')?.clearValidators();
-            this._form.get('catering_notes').setErrors(null);
+            form.get('catering_notes')?.clearValidators();
+            form.get('catering_notes').setErrors(null);
         }
-        this._form.updateValueAndValidity();
+        form.updateValueAndValidity();
     });
     form.get('catering_charge_code').setValidators([
         validateCateringField(form.get('catering')),
