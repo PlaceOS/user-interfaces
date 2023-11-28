@@ -79,7 +79,9 @@ import { map } from 'rxjs/operators';
                             (click)="show_info = !show_info"
                         >
                             <div class=" flex items-center space-x-2">
-                                <app-icon class="text-2xl">info</app-icon>
+                                <app-icon class="text-2xl">{{
+                                    icons[(progress | async).function] || 'info'
+                                }}</app-icon>
                                 <p class="text-sm">
                                     {{
                                         (progress | async).message ||
@@ -169,6 +171,11 @@ export class ChatComponent extends AsyncHandler implements OnInit {
     public offset = 0;
     public height = 56;
 
+    public readonly icons = {
+        list_function_schemas: 'help',
+        call_function: 'settings',
+        task_complete: 'check_circle',
+    };
     public readonly hint = this._chat.chat_hint;
     public readonly messages = this._chat.messages;
     public readonly progress = this._chat.progress;
