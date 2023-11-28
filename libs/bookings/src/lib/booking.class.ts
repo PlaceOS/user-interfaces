@@ -103,7 +103,12 @@ export class Booking {
     /** Default type */
     public readonly access: boolean;
     /** Status of the booking */
-    public readonly status: 'declined' | 'approved' | 'tentative' | 'ended';
+    public readonly status:
+        | 'declined'
+        | 'cancelled'
+        | 'approved'
+        | 'tentative'
+        | 'ended';
     /** New deleted field */
     public readonly deleted: boolean;
     /** List of attendees for the booking */

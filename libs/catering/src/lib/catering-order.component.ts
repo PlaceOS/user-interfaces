@@ -33,6 +33,11 @@ import { CATERING_STATUSES } from './catering.vars';
             <div time class="w-24">
                 {{ order.deliver_at | date: time_format }}
             </div>
+            <div time class="w-48">
+                {{ order.event?.event_start * 1000 | date: 'h:mma' }}
+                <span> - </span>
+                {{ order.event?.event_end * 1000 | date: 'h:mma' }}
+            </div>
             <div class="flex-1">
                 {{
                     order.event?.space.display_name ||
@@ -157,5 +162,9 @@ export class CateringOrderComponent extends AsyncHandler {
         private _settings: SettingsService
     ) {
         super();
+    }
+
+    ngOnInit() {
+        console.log(this.order, 'order details');
     }
 }
