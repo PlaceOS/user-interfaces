@@ -21,7 +21,7 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-import { addMinutes, differenceInDays, getUnixTime, set } from 'date-fns';
+import { addMinutes, differenceInDays, getUnixTime } from 'date-fns';
 import {
     AsyncHandler,
     BookingRuleset,
@@ -46,13 +46,11 @@ import { querySpaceAvailability, saveEvent, showEvent } from './events.fn';
 import { generateEventForm, newCalendarEventFromBooking } from './utilities';
 import { newBookingFromCalendarEvent } from 'libs/bookings/src/lib/booking.utilities';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
-import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
 import { MatDialog } from '@angular/material/dialog';
 import { EventLinkModalComponent } from './event-link-modal.component';
 import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
 import { periodInFreeTimeSlot } from './helpers';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { Validators } from '@angular/forms';
 import { updateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
 import {
     assetsToGroups,
@@ -339,7 +337,7 @@ export class EventFormService extends AsyncHandler {
         );
         this.subscription(
             'form_change',
-            this._form.valueChanges.subscribe(({ date, catering, assets }) => {
+            this._form.valueChanges.subscribe(({ date, assets }) => {
                 this._assets.setOptions({
                     date: this.form.value.date,
                     duration: this.form.value.duration,
@@ -348,32 +346,6 @@ export class EventFormService extends AsyncHandler {
                     this._date.next(date);
                 this.storeForm();
             })
-        );
-        let count = 0;
-        this.interval(
-            'catering',
-            () => {
-                const catering = this._form.value.catering;
-                if (count === catering?.length) return;
-                count = catering?.length;
-                if (
-                    catering?.length &&
-                    (this._settings.get('app.events.catering_notes_required') ||
-                        this._settings.value('require_catering_notes'))
-                ) {
-                    this._form
-                        .get('catering_notes')
-                        ?.setValidators([Validators.required]);
-                    this._form
-                        .get('catering_notes')
-                        .patchValue(this._form.value.catering_notes);
-                } else {
-                    this._form.get('catering_notes')?.clearValidators();
-                    this._form.get('catering_notes').setErrors(null);
-                }
-                this._form.updateValueAndValidity();
-            },
-            500
         );
     }
 
@@ -436,7 +408,6 @@ export class EventFormService extends AsyncHandler {
                 event?.organiser ||
                 currentUser() ||
                 new User({ email: event?.host }),
-            catering: event.extension_data.catering[0]?.items || [],
             catering_charge_code:
                 event.extension_data.catering[0]?.charge_code ||
                 (event.id && has_catering ? ' ' : ''),
@@ -567,22 +538,9 @@ export class EventFormService extends AsyncHandler {
                 };
             }
             const d = value.date;
-            if (catering.length && !('items' in catering[0])) {
-                const items = catering.map((_) => ({
-                    ..._,
-                    options: _.options.map((o) => ({ ...o, active: false })),
-                }));
-                catering = [
-                    new CateringOrder({
-                        deliver_at: d,
-                        items,
-                        notes: value.catering_notes,
-                        charge_code: value.catering_charge_code,
-                    }),
-                ];
-            } else {
-                catering.notes = value.catering_notes;
-                catering.charge_code = value.catering_charge_code;
+            for (const order of catering) {
+                order.notes = value.catering_notes;
+                order.charge_code = value.catering_charge_code;
             }
             const attendees = unique(
                 [...value.attendees, value.organiser || currentUser()],

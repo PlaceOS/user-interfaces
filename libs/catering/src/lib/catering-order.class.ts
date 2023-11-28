@@ -3,6 +3,7 @@ import { CalendarEvent } from '@placeos/events';
 
 import { CateringItem } from './catering-item.class';
 import { CateringOrderStatus } from './catering.interfaces';
+import { addMinutes, set, startOfMinute } from 'date-fns';
 
 export class CateringOrder {
     /** ID of the order */
@@ -21,14 +22,42 @@ export class CateringOrder {
     public readonly invoice_number: string;
     /** Charge code for the order */
     public readonly charge_code: string;
-    /** Unix epoch in seconds of order delivery time */
-    public readonly deliver_at: number;
+    /** Minutes from set time to deliver item */
+    public readonly deliver_offset: number;
+    /** Hour to from set time to deliver item */
+    public readonly deliver_time?: number;
     /** Notes associated with the order */
     public readonly notes: string;
-    /** Current status of the order */
-    public readonly status: CateringOrderStatus;
     /** Event associated with the order */
     public readonly event: CalendarEvent | null;
+    /** Current status of the order */
+    private _status: CateringOrderStatus;
+
+    public get deliver_at() {
+        if (this.deliver_time) {
+            return startOfMinute(
+                addMinutes(
+                    set(this.event?.date || Date.now(), {
+                        hours: Math.floor(this.deliver_time),
+                        minutes: (this.deliver_time % 1) * 60,
+                    }),
+                    this.deliver_offset
+                )
+            ).valueOf();
+        }
+        return startOfMinute(
+            addMinutes(this.event?.date || Date.now(), this.deliver_offset)
+        ).valueOf();
+    }
+
+    public get status() {
+        return this._status;
+    }
+
+    public set status(value: CateringOrderStatus) {
+        this._status = value;
+        this[`${this.event_id}_status`] = value;
+    }
 
     constructor(data: Partial<CateringOrder> = {}) {
         this.id = data.id || `order-${randomInt(9_999_999, 1_000_000)}`;
@@ -44,14 +73,12 @@ export class CateringOrder {
             0
         );
         this.charge_code = data.charge_code || '';
-        this.status = data.status || 'accepted';
+        this.status =
+            data[`${this.event_id}_status`] || data.status || 'accepted';
         this.invoice_number = data.invoice_number || '';
         this.event = data.event || null;
         this.notes = data.notes || '';
-        this.deliver_at =
-            data.deliver_at ||
-            (data as any).date ||
-            this.event?.date ||
-            Date.now();
+        this.deliver_time = data.deliver_time || undefined;
+        this.deliver_offset = data.deliver_offset || 0;
     }
 }

@@ -29,6 +29,8 @@ const EMPTY_FAVS: string[] = [];
             >
                 <catering-item-filters
                     class="h-full hidden sm:block sm:max-w-[12rem] sm:h-[65vh] sm:max-h-full"
+                    [(at_time)]="exact_time"
+                    [(offset)]="offset"
                 ></catering-item-filters>
                 <div
                     class="flex flex-col items-center flex-1 w-1/2 h-full sm:h-[65vh]"
@@ -97,7 +99,7 @@ const EMPTY_FAVS: string[] = [];
                     matRipple
                     name="catering-item-return"
                     [mat-dialog-close]="selected"
-                    class="clear text-primary"
+                    class="clear text-secondary"
                 >
                     <div class="flex items-center">
                         <app-icon class="text-xl">arrow_back</app-icon>
@@ -141,6 +143,8 @@ const EMPTY_FAVS: string[] = [];
 export class NewCateringOrderModalComponent {
     public displayed: CateringItem | null = null;
     public selected: CateringItem[] = [...(this._data[0] || [])];
+    public exact_time = this._data[2] ?? false;
+    public offset = this._data[3] || 0;
 
     public get favorites() {
         return (
@@ -164,7 +168,8 @@ export class NewCateringOrderModalComponent {
         private _settings: SettingsService,
         private _order: CateringOrderStateService,
         private _org: OrganisationService,
-        @Inject(MAT_DIALOG_DATA) private _data: [CateringItem[], any]
+        @Inject(MAT_DIALOG_DATA)
+        private _data: [CateringItem[], any, boolean, number]
     ) {
         this._order.setFilters(this._data[1]);
     }

@@ -108,6 +108,7 @@ export class CateringOrdersService extends AsyncHandler {
         order: CateringOrder,
         status: CateringOrderStatus
     ) {
+        order.status = status;
         const updated_order = new CateringOrder({
             ...order,
             status,

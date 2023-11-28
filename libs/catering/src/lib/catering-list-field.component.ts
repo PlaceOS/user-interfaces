@@ -1,92 +1,138 @@
-import { Component, forwardRef, Input } from '@angular/core';
+import { Component, forwardRef, Input, SimpleChanges } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { SettingsService } from '@placeos/common';
+import {
+    ANIMATION_SHOW_CONTRACT_EXPAND,
+    SettingsService,
+} from '@placeos/common';
 
 import { CateringItem } from 'libs/catering/src/lib/catering-item.class';
 import { NewCateringOrderModalComponent } from 'libs/catering/src/lib/catering-order-modal/new-catering-order-modal.component';
+import { CateringOrder } from './catering-order.class';
+import { Organisation, OrganisationService } from '@placeos/organisation';
 
 const EMPTY_FAVS = [];
 
 @Component({
     selector: `catering-list-field`,
-    template: ` <div list class="space-y-2">
+    template: `
+        <div list class="space-y-2">
             <div
-                space
-                class="relative p-2 rounded-lg w-full flex items-center shadow border border-base-200"
-                *ngFor="let item of items"
+                order
+                *ngFor="let order of orders"
+                class="border border-base-300 shadow bg-base-100 rounded-xl overflow-hidden"
             >
-                <div
-                    class="w-16 h-16 rounded-xl bg-neutral mr-4 overflow-hidden flex items-center justify-center"
-                >
-                    <img
-                        auth
-                        *ngIf="item.images?.length; else placeholder"
-                        class="object-cover min-h-full min-w-full"
-                        [source]="item.images[0]"
-                    />
-                    <ng-template #placeholder>
-                        <img
-                            class="m-auto"
-                            src="assets/icons/catering-placeholder.svg"
-                        />
-                    </ng-template>
-                </div>
-                <div class="pb-4">
-                    <div class="font-medium flex items-center">
-                        {{ item.name || 'Item' }}
-                        <span
-                            class="text-xs opacity-60 ml-4 font-normal"
-                            *ngIf="item.option_list?.length"
-                            [matTooltip]="optionList(item)"
-                        >
-                            {{ item.option_list?.length || '0' }} option(s)
-                        </span>
+                <div class="flex items-center space-x-2 p-4">
+                    <div class="flex-1">
+                        <div class="">
+                            Order for
+                            {{ order.deliver_at | date: 'mediumDate' }} at
+                            {{ order.deliver_at | date: time_format }}
+                        </div>
+                        <div class="text-xs opacity-60">
+                            {{ order.item_count }} item(s) for
+                            {{
+                                order.total_cost / 100 | currency: currency_code
+                            }}
+                        </div>
                     </div>
-                    <div>{{ item.quantity }} requested</div>
-                    <div
-                        class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
+                    <button
+                        icon
+                        matRipple
+                        matTooltip="Edit Order"
+                        (click)="editOrder(order)"
                     >
-                        <button
-                            btn
-                            matRipple
-                            name="edit-catering-item"
-                            class="clear"
-                            (click)="addItems(item)"
+                        <app-icon>edit</app-icon>
+                    </button>
+                    <button
+                        icon
+                        matRipple
+                        matTooltip="Remove Order"
+                        class="text-error"
+                        (click)="removeOrder(order)"
+                    >
+                        <app-icon>delete</app-icon>
+                    </button>
+                    <button
+                        icon
+                        matRipple
+                        [matTooltip]="
+                            show_order[order.id]
+                                ? 'Hide order items'
+                                : 'Show order items'
+                        "
+                        (click)="show_order[order.id] = !show_order[order.id]"
+                    >
+                        <app-icon>
+                            {{
+                                show_order[order.id]
+                                    ? 'expand_less'
+                                    : 'expand_more'
+                            }}
+                        </app-icon>
+                    </button>
+                </div>
+                <div
+                    class="flex flex-col bg-base-200 divide-y divide-base-100"
+                    [@show]="show_order[order.id] ? 'show' : 'hide'"
+                >
+                    <div
+                        class="flex items-center px-4 py-1 space-x-2 hover:opacity-90"
+                        *ngFor="let item of order.items"
+                    >
+                        <div class="flex items-center flex-1">
+                            {{ item.name || 'Item' }}
+                            <span
+                                class="text-xs opacity-60 ml-4 font-normal"
+                                *ngIf="item.option_list?.length"
+                                [matTooltip]="optionList(item)"
+                            >
+                                {{ item.option_list?.length || '0' }} option(s)
+                            </span>
+                        </div>
+                        <div
+                            class="rounded bg-success text-success-content text-xs px-2 py-1"
                         >
-                            <div class="flex items-center space-x-2">
-                                <app-icon>edit</app-icon>
-                                Change
-                            </div>
+                            x{{ item.quantity }}
+                        </div>
+                        <div
+                            class="rounded bg-info text-info-content text-xs px-2 py-1"
+                        >
+                            {{
+                                item.unit_price_with_options / 100
+                                    | currency: currency_code
+                            }}
+                            ea
+                        </div>
+                        <button
+                            icon
+                            matRipple
+                            matTooltip="Remove Order Item"
+                            class="text-error"
+                            (click)="removeOrderItem(order, item)"
+                        >
+                            <app-icon>delete</app-icon>
                         </button>
                         <button
-                            btn
+                            icon
                             matRipple
-                            name="remove-catering-item"
-                            class="clear"
-                            (click)="removeItem(item)"
+                            name="toggle-catering-item-favourite"
+                            [matTooltip]="
+                                favorites.includes(item.id)
+                                    ? 'Remove from favourites'
+                                    : 'Add to favourites'
+                            "
+                            [class.text-blue-400]="favorites.includes(item.id)"
+                            (click)="toggleFavourite(item)"
                         >
-                            <div class="flex items-center space-x-2">
-                                <app-icon>close</app-icon>
-                                Remove
-                            </div>
+                            <app-icon>{{
+                                favorites.includes(item.id)
+                                    ? 'favorite'
+                                    : 'favorite_border'
+                            }}</app-icon>
                         </button>
                     </div>
                 </div>
-                <button
-                    icon
-                    matRipple
-                    name="toggle-catering-item-favourite"
-                    class="absolute top-1 right-1"
-                    [class.text-blue-400]="favorites.includes(item.id)"
-                    (click)="toggleFavourite(item)"
-                >
-                    <app-icon>{{
-                        favorites.includes(item.id)
-                            ? 'favorite'
-                            : 'favorite_border'
-                    }}</app-icon>
-                </button>
             </div>
         </div>
         <button
@@ -95,14 +141,16 @@ const EMPTY_FAVS = [];
             name="add-catering-item"
             class="w-full inverse mt-2"
             [disabled]="disabled"
-            (click)="addItems()"
+            (click)="editOrder()"
         >
             <div class="flex items-center justify-center space-x-2">
                 <app-icon>search</app-icon>
-                <span>Add Item</span>
+                <span>Add Order</span>
             </div>
-        </button>`,
+        </button>
+    `,
     styles: [``],
+    animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -118,12 +166,13 @@ export class CateringListFieldComponent implements ControlValueAccessor {
         duration?: number;
         zone_id?: string;
     } = {};
-    public items: CateringItem[] = [];
+    public orders: CateringOrder[] = [];
+    public show_order: Record<string, boolean> = {};
     public disabled = false;
 
-    private _onChange: (_: CateringItem[]) => void;
-    private _onTouch: (_: CateringItem[]) => void;
-    public selected: CateringItem[] = [];
+    private _onChange: (_: CateringOrder[]) => void;
+    private _onTouch: (_: CateringOrder[]) => void;
+    public selected: CateringOrder[] = [];
 
     public get favorites() {
         return (
@@ -131,8 +180,17 @@ export class CateringListFieldComponent implements ControlValueAccessor {
         );
     }
 
+    public get time_format() {
+        return this._settings.time_format || 'shortTime';
+    }
+
+    public get currency_code() {
+        return this._org.building?.currency || 'USD';
+    }
+
     constructor(
         private _settings: SettingsService,
+        private _org: OrganisationService,
         private _dialog: MatDialog
     ) {}
 
@@ -140,39 +198,74 @@ export class CateringListFieldComponent implements ControlValueAccessor {
      * Update the form field value
      * @param new_value New value to set on the form field
      */
-    public setValue(new_value: CateringItem[]) {
-        this.items = new_value;
-        if (this._onChange) this._onChange(this.items);
+    public setValue(new_value: CateringOrder[]) {
+        this.orders = new_value;
+        if (this._onChange) this._onChange(this.orders);
+    }
+
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes.options) {
+            for (const order of this.orders) {
+                (order as any).event = this.options;
+            }
+        }
     }
 
     /**
      * Update local value when form control value is changed
      * @param value The new value for the component
      */
-    public writeValue(value: CateringItem[]) {
-        this.items = value || [];
+    public writeValue(value: CateringOrder[]) {
+        this.orders = value || [];
     }
 
-    public readonly registerOnChange = (fn: (_: CateringItem[]) => void) =>
+    public readonly registerOnChange = (fn: (_: CateringOrder[]) => void) =>
         (this._onChange = fn);
-    public readonly registerOnTouched = (fn: (_: CateringItem[]) => void) =>
+    public readonly registerOnTouched = (fn: (_: CateringOrder[]) => void) =>
         (this._onTouch = fn);
     public readonly setDisabledState = (s: boolean) => (this.disabled = s);
 
-    public removeItem(item: CateringItem) {
-        const updated_list = this.items.filter(
-            (_) => _.custom_id !== item.custom_id
-        );
+    public removeOrder(order: CateringItem) {
+        const updated_list = this.orders.filter((_) => _.id !== order.id);
         this.setValue(updated_list);
     }
 
-    public addItems(item?: CateringItem) {
+    public removeOrderItem(order: CateringOrder, item: CateringItem) {
+        const new_order = new CateringOrder({
+            ...order,
+            items: order.items.filter((_) => _.custom_id !== item.custom_id),
+        });
+        const updated_list = this.orders.filter((_) => _.id !== order.id);
+        if (new_order.items.length > 0) {
+            this.setValue([...updated_list, new_order]);
+        } else this.setValue(updated_list);
+    }
+
+    public editOrder(order: CateringOrder = new CateringOrder()) {
         const ref = this._dialog.open(NewCateringOrderModalComponent, {
-            data: [this.items, this.options],
+            data: [
+                order.items,
+                this.options,
+                !!order.deliver_time,
+                order.deliver_offset,
+            ],
         });
         ref.afterClosed().subscribe((items?: CateringItem[]) => {
+            const orders = this.orders.filter((_) => _.id !== order.id);
             if (!items) return;
-            this.setValue(items);
+            const time = new Date(this.options.date);
+            this.setValue([
+                ...orders,
+                new CateringOrder({
+                    ...order,
+                    items,
+                    event: this.options as any,
+                    deliver_offset: ref.componentInstance.offset,
+                    deliver_time: ref.componentInstance.exact_time
+                        ? time.getHours() + time.getMinutes() / 60
+                        : null,
+                }),
+            ]);
         });
     }
 

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { take } from 'rxjs/operators';
 import { CateringOrderStateService } from './catering-order-state.service';
 
@@ -66,6 +66,27 @@ const ICONS = {
                 />
             </mat-form-field>
         </div>
+        <h3 class="hidden sm:block font-medium px-2 py-2" *ngIf="!search" i18n>
+            Options
+        </h3>
+        <div class="flex flex-col px-2">
+            <mat-checkbox
+                [(ngModel)]="at_time"
+                (ngModelChange)="at_timeChange.next($event)"
+                matTooltip="Deliver at exactly specified time. Note that changes to the booking will not be reflected in the order if this is set."
+            >
+                Exact Time
+            </mat-checkbox>
+            <label>Deliver After:</label>
+            <a-duration-field
+                [(ngModel)]="offset"
+                (ngModelChange)="offsetChange.next($event)"
+                [time]="(filters | async)?.date"
+                [step]="5"
+                [min]="0"
+                [max]="(filters | async)?.duration || 60"
+            ></a-duration-field>
+        </div>
         <h3 class="hidden sm:block font-medium px-2 py-4" *ngIf="!search" i18n>
             Catergories
         </h3>
@@ -84,14 +105,21 @@ const ICONS = {
             </mat-checkbox>
         </div>
     `,
-    styles: [`
-        :host {
-            min-width: 16rem;
-        }
-    `],
+    styles: [
+        `
+            :host {
+                min-width: 16rem;
+            }
+        `,
+    ],
 })
 export class CateringItemFiltersComponent {
     @Input() public search = false;
+
+    @Input() public at_time = false;
+    @Output() public at_timeChange = new EventEmitter<boolean>();
+    @Input() public offset = 0;
+    @Output() public offsetChange = new EventEmitter<number>();
 
     public readonly icons = ICONS;
 

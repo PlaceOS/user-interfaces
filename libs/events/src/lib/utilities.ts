@@ -127,6 +127,25 @@ export function generateEventForm(event: CalendarEvent = new CalendarEvent()) {
             });
         }
     });
+    form.controls.catering.valueChanges.subscribe((_) => {
+        const catering = this._form.value.catering;
+        if (
+            catering?.length &&
+            (this._settings.get('app.events.catering_notes_required') ||
+                this._settings.value('require_catering_notes'))
+        ) {
+            this._form
+                .get('catering_notes')
+                ?.setValidators([Validators.required]);
+            this._form
+                .get('catering_notes')
+                .patchValue(this._form.value.catering_notes);
+        } else {
+            this._form.get('catering_notes')?.clearValidators();
+            this._form.get('catering_notes').setErrors(null);
+        }
+        this._form.updateValueAndValidity();
+    });
     form.get('catering_charge_code').setValidators([
         validateCateringField(form.get('catering')),
     ]);
