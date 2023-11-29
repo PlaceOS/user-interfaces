@@ -8,10 +8,15 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { Building } from 'libs/organisation/src/lib/building.class';
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
-import { notifyError, SettingsService } from '@placeos/common';
+import {
+    ANIMATION_SHOW_CONTRACT_EXPAND,
+    notifyError,
+    SettingsService,
+} from '@placeos/common';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { getModule } from '@placeos/ts-client';
 import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-modal.component';
+import { CateringItem } from 'libs/catering/src/lib/catering-item.class';
 
 const EMPTY_ACTIONS = [];
 
@@ -206,33 +211,95 @@ const EMPTY_ACTIONS = [];
                     <div
                         class="mt-4 sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
                     >
-                        <h3
-                            class="mx-3 mt-2 pt-2 text-lg font-medium border-t border-base-200"
-                            i18n
-                        >
+                        <h3 class="mx-3 my-2 text-lg font-medium" i18n>
                             Catering
                         </h3>
-                        <div class="flex flex-col px-4 space-y-2">
+                        <div class="flex flex-col space-y-2">
                             <div
-                                catering-item
-                                class="flex space-x-2"
-                                *ngFor="
-                                    let item of event.ext('catering')[0].items
-                                "
+                                order
+                                *ngFor="let order of event.ext('catering')"
+                                class="border border-base-300 bg-base-100 rounded-xl overflow-hidden"
                             >
-                                <div
-                                    count
-                                    class="flex items-center justify-center h-6 w-6 rounded-full bg-base-200 text-sm font-medium"
-                                >
-                                    {{ item.quantity }}
-                                </div>
-                                <div details class="pt-0.5">
-                                    <div class="text-sm">{{ item.name }}</div>
-                                    <div
-                                        class="text-xs opacity-40"
-                                        *ngFor="let opt of item.options"
+                                <div class="flex items-center space-x-2 p-3">
+                                    <div class="flex-1">
+                                        <div class="text-sm">
+                                            Order at
+                                            {{
+                                                order.deliver_at
+                                                    | date: time_format
+                                            }}
+                                        </div>
+                                        <div class="text-xs opacity-60">
+                                            {{ order.item_count }} item(s) for
+                                            {{
+                                                order.total_cost / 100
+                                                    | currency: currency_code
+                                            }}
+                                        </div>
+                                    </div>
+                                    <button
+                                        icon
+                                        matRipple
+                                        [matTooltip]="
+                                            show_order[order.id]
+                                                ? 'Hide order items'
+                                                : 'Show order items'
+                                        "
+                                        (click)="
+                                            show_order[order.id] =
+                                                !show_order[order.id]
+                                        "
                                     >
-                                        {{ opt.name }}
+                                        <app-icon>
+                                            {{
+                                                show_order[order.id]
+                                                    ? 'expand_less'
+                                                    : 'expand_more'
+                                            }}
+                                        </app-icon>
+                                    </button>
+                                </div>
+                                <div
+                                    class="flex flex-col bg-base-200 divide-y divide-base-100"
+                                    [@show]="
+                                        show_order[order.id] ? 'show' : 'hide'
+                                    "
+                                >
+                                    <div
+                                        class="flex items-center px-3 py-1 space-x-2 hover:opacity-90"
+                                        *ngFor="let item of order.items"
+                                    >
+                                        <div class="flex items-center flex-1">
+                                            <span class="text-sm">{{
+                                                item.name || 'Item'
+                                            }}</span>
+                                            <span
+                                                class="text-xs opacity-60 ml-4 font-normal"
+                                                *ngIf="item.option_list?.length"
+                                                [matTooltip]="optionList(item)"
+                                            >
+                                                {{
+                                                    item.option_list?.length ||
+                                                        '0'
+                                                }}
+                                                option(s)
+                                            </span>
+                                        </div>
+                                        <div
+                                            class="rounded bg-success text-success-content text-xs px-2 py-1"
+                                        >
+                                            x{{ item.quantity }}
+                                        </div>
+                                        <div
+                                            class="rounded bg-info text-info-content text-xs px-2 py-1"
+                                        >
+                                            {{
+                                                item.unit_price_with_options /
+                                                    100
+                                                    | currency: currency_code
+                                            }}
+                                            ea
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -372,6 +439,7 @@ const EMPTY_ACTIONS = [];
         </div>
     `,
     styles: [``],
+    animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     providers: [SpacePipe],
 })
 export class EventDetailsModalComponent {
@@ -379,6 +447,7 @@ export class EventDetailsModalComponent {
     @Output() public edit = new EventEmitter();
     @Output() public remove = new EventEmitter();
 
+    public show_order = {};
     public room_status = '';
     public hide_map = false;
     public hide_edit = false;
@@ -463,6 +532,10 @@ export class EventDetailsModalComponent {
             end,
             this.time_format
         )} (${dur})`;
+    }
+
+    public optionList(item: CateringItem) {
+        return item.option_list?.map((_) => _.name).join('\n');
     }
 
     public async checkin() {
