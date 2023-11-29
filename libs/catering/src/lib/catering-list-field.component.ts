@@ -10,6 +10,7 @@ import { CateringItem } from 'libs/catering/src/lib/catering-item.class';
 import { NewCateringOrderModalComponent } from 'libs/catering/src/lib/catering-order-modal/new-catering-order-modal.component';
 import { CateringOrder } from './catering-order.class';
 import { Organisation, OrganisationService } from '@placeos/organisation';
+import { startOfDay } from 'date-fns';
 
 const EMPTY_FAVS = [];
 
@@ -164,6 +165,7 @@ export class CateringListFieldComponent implements ControlValueAccessor {
     @Input() public options: {
         date?: number;
         duration?: number;
+        all_day?: boolean;
         zone_id?: string;
     } = {};
     public orders: CateringOrder[] = [];
@@ -245,7 +247,15 @@ export class CateringListFieldComponent implements ControlValueAccessor {
         const ref = this._dialog.open(NewCateringOrderModalComponent, {
             data: [
                 order.items,
-                this.options,
+                {
+                    ...this.options,
+                    date: this.options.all_day
+                        ? startOfDay(this.options.date).valueOf()
+                        : this.options.date,
+                    duration: this.options.all_day
+                        ? Math.max(24 * 60, this.options.duration)
+                        : this.options.duration,
+                },
                 !!order.deliver_time,
                 order.deliver_offset,
             ],
