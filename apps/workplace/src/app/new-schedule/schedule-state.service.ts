@@ -285,6 +285,12 @@ export class ScheduleStateService extends AsyncHandler {
                 )
             )
         );
+        this.subscription(
+            'chat_event',
+            this._settings
+                .listen('CHAT:task_complete')
+                .subscribe(() => this.triggerPoll())
+        );
         this._deleted = JSON.parse(
             sessionStorage.getItem('PLACEOS.events.deleted') || '[]'
         );

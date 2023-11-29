@@ -1,5 +1,11 @@
 import { Injectable } from '@angular/core';
-import { AsyncHandler, currentUser, log, randomString } from '@placeos/common';
+import {
+    AsyncHandler,
+    SettingsService,
+    currentUser,
+    log,
+    randomString,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { apiKey, getModule, token } from '@placeos/ts-client';
 import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
@@ -91,7 +97,10 @@ export class ChatService extends AsyncHandler {
         return !!this._socket;
     }
 
-    constructor(private _org: OrganisationService) {
+    constructor(
+        private _org: OrganisationService,
+        private _settings: SettingsService
+    ) {
         super();
     }
 
@@ -107,6 +116,12 @@ export class ChatService extends AsyncHandler {
         log('CHAT', 'Dropping chat connection.');
         this._socket?.complete();
         this._cleanup();
+    }
+
+    public close() {
+        this.endChat();
+        this._chat_id = '';
+        this._chat_messages.next([]);
     }
 
     public sendMessage(message: string) {
@@ -149,6 +164,9 @@ export class ChatService extends AsyncHandler {
                 function: msg.function,
                 timestamp: Date.now(),
             });
+            if (msg.function === 'task_complete') {
+                this._settings.post('CHAT:task_complete', msg.task_id);
+            }
         } else {
             this._chat_messages.next([
                 ...this._chat_messages.getValue(),

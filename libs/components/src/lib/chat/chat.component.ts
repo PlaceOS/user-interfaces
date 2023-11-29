@@ -192,6 +192,7 @@ export class ChatComponent extends AsyncHandler implements OnInit {
 
     public toggleChat() {
         this.show = !this.show;
+        if (!this.show) this._chat.close();
     }
 
     constructor(
