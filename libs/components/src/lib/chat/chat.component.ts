@@ -24,7 +24,7 @@ import { map } from 'rxjs/operators';
                     class="flex items-center justify-between bg-base-100 w-full p-2 border-b border-base-300"
                 >
                     <h3 class="pl-4">Virtual Assistant</h3>
-                    <button icon matRipple (click)="show = false">
+                    <button icon matRipple (click)="toggleChat()">
                         <app-icon>close</app-icon>
                     </button>
                 </div>
