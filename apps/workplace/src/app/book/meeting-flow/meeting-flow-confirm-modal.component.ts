@@ -139,63 +139,81 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                         <app-icon>done</app-icon>
                     </div>
                     <h3 class="text-xl !mt-0" i18n>Catering</h3>
-                    <div class="space-y-2">
+                    <div class="flex flex-col space-y-2">
                         <div
-                            class="flex items-center space-x-2"
-                            *ngFor="let item of catering_order"
+                            order
+                            *ngFor="let order of catering_orders"
+                            class="border border-base-300 bg-base-100 rounded-xl overflow-hidden"
                         >
-                            <div
-                                count
-                                class="flex items-center justify-center min-w-[2rem] h-8 rounded-full bg-base-200"
-                            >
-                                ×{{ item.quantity }}
-                            </div>
-                            <div name class="flex-1">{{ item.name }}</div>
-                            <div class="flex items-center space-x-2">
-                                <div
-                                    class="flex items-center text-xs px-2 py-1 rounded-2xl bg-base-200"
-                                    [matTooltip]="opt.name"
-                                    *ngFor="let opt of item.option_list"
-                                >
-                                    <div class="font-medium">
-                                        {{ opt.name }}
-                                    </div>
-                                    <!-- <div
-                                        class="font-mono ml-2"
-                                        *ngIf="opt.unit_price"
-                                    >
-                                        +{{
-                                            opt.unit_price / 100
-                                                | currency: code
+                            <div class="flex items-center space-x-2 p-3">
+                                <div class="flex-1 flex items-center space-x-2">
+                                    <div class="text-sm flex-1">
+                                        Order at
+                                        {{
+                                            order.deliver_at | date: time_format
                                         }}
-                                    </div> -->
+                                    </div>
+                                    <div
+                                        class="text-xs bg-success text-success-content px-2 py-1 rounded"
+                                    >
+                                        {{ order.item_count }} item(s)
+                                    </div>
+                                    <div
+                                        class="text-xs bg-info text-info-content px-2 py-1 rounded"
+                                    >
+                                        Total:
+                                        {{
+                                            order.total_cost / 100
+                                                | currency: currency_code
+                                        }}
+                                    </div>
                                 </div>
                             </div>
                             <div
-                                price
-                                class="font-mono text-right p-2 text-sm"
-                                *ngIf="item.quantity > 1"
+                                class="flex flex-col bg-base-200 divide-y divide-base-100"
                             >
-                                {{
-                                    item.unit_price_with_options / 100
-                                        | currency: code
-                                }}
-                                ea
-                            </div>
-                            <div
-                                total-price
-                                class="font-mono min-w-[6rem] text-right p-2"
-                            >
-                                {{ item.total_cost / 100 | currency: code }}
-                            </div>
-                        </div>
-                        <div class="w-full bg-base-200 flex justify-end p-2">
-                            <div class="font-medium">Total:</div>
-                            <div class="font-mono text-right min-w-[6rem]">
-                                {{
-                                    catering_order.total_cost / 100
-                                        | currency: code
-                                }}
+                                <div
+                                    class="flex items-center px-3 py-1 space-x-2 hover:opacity-90"
+                                    *ngFor="let item of order.items"
+                                >
+                                    <div class="flex items-center flex-1">
+                                        <span class="text-sm">{{
+                                            item.name || 'Item'
+                                        }}</span>
+                                        <span
+                                            class="text-xs opacity-60 ml-4 font-normal"
+                                            *ngIf="item.option_list?.length"
+                                            [matTooltip]="optionList(item)"
+                                        >
+                                            {{
+                                                item.option_list?.length || '0'
+                                            }}
+                                            option(s)
+                                        </span>
+                                    </div>
+                                    <div
+                                        class="rounded bg-success text-success-content text-xs px-2 py-1"
+                                    >
+                                        x{{ item.quantity }}
+                                    </div>
+                                    <div
+                                        class="rounded bg-info text-info-content text-xs px-2 py-1"
+                                    >
+                                        {{
+                                            item.unit_price_with_options / 100
+                                                | currency: currency_code
+                                        }}
+                                        ea
+                                    </div>
+                                    <div
+                                        class="rounded bg-info text-info-content text-xs px-2 py-1"
+                                    >
+                                        {{
+                                            item.total_cost / 100
+                                                | currency: currency_code
+                                        }}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -267,8 +285,7 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
     @Input() public show_close: boolean = false;
 
     public readonly loading = this._event_form.loading;
-    public readonly catering_order =
-        this.event.catering[0]?.items || this.event.catering || [];
+    public readonly catering_orders;
 
     public readonly postForm = async () => {
         if (!this.space) {
@@ -346,5 +363,8 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
         private _settings: SettingsService
     ) {
         super();
+        this.catering_orders = this.event.catering?.map(
+            (order) => new CateringOrder({ ...order, event: this.event })
+        );
     }
 }
