@@ -86,7 +86,28 @@ export class RoleManagementModalComponent {
 
     @ViewChild(CustomTooltipComponent) private _tooltip: CustomTooltipComponent;
 
-    public removeRole(role: string) {}
+    public async removeRole(role: string) {
+        if (!role) return;
+        this.loading = true;
+        this._dialog_ref.disableClose = true;
+        const data: any = await this.data.pipe(take(1)).toPromise();
+        await updateMetadata(this._org.building.id, {
+            name: 'emergency_contacts',
+            description: 'Emergency Contacts',
+            details: {
+                roles: [...data.roles.filter((_) => _ !== role)]
+                    .filter((_) => !!_)
+                    .sort((a, b) => a.localeCompare(b)),
+                contacts: data.contacts.map((_) => ({
+                    ..._,
+                    roles: _.roles.filter((r) => r !== role),
+                })),
+            },
+        }).toPromise();
+        this._changes.next(0);
+        this.loading = false;
+        this._dialog_ref.disableClose = false;
+    }
 
     public async updateRoles() {
         if (!this.role_name) return;
