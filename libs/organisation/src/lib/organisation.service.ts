@@ -192,22 +192,10 @@ export class OrganisationService {
             .pipe(first((_) => _))
             .subscribe(() => setTimeout(() => this.init(), 1000));
         this.active_building.subscribe((bld) => {
-            if (bld) {
-                this._service.overrides = [
-                    this.buildingSettings(this.building?.id),
-                    this.regionSettings(this.region?.id),
-                    ...this._settings,
-                ];
-            }
+            if (bld) this._updateSettingOverrides();
         });
         this.active_region.subscribe((region) => {
-            if (region) {
-                this._service.overrides = [
-                    this.buildingSettings(this.building?.id),
-                    this.regionSettings(this.region?.id),
-                    ...this._settings,
-                ];
-            }
+            if (region) this._updateSettingOverrides();
         });
     }
 
