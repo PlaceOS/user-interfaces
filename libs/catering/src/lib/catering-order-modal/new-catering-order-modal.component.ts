@@ -144,7 +144,7 @@ export class NewCateringOrderModalComponent {
     public displayed: CateringItem | null = null;
     public selected: CateringItem[] = [...(this._data[0] || [])];
     public exact_time = this._data[2] ?? false;
-    public offset = this._data[3] || 0;
+    public offset: number;
 
     public get favorites() {
         return (
@@ -171,7 +171,15 @@ export class NewCateringOrderModalComponent {
         @Inject(MAT_DIALOG_DATA)
         private _data: [CateringItem[], any, boolean, number]
     ) {
+        const duration = this._data[1].duration;
         this._order.setFilters(this._data[1]);
+        this.offset = Math.min(
+            Math.max(
+                this._settings.get('app.catering.min_offset'),
+                this._data[3] || 0
+            ),
+            (duration || 60) - this._settings.get('app.catering.end_offset')
+        );
     }
 
     public isSelected(id: string) {

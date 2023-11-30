@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { take } from 'rxjs/operators';
 import { CateringOrderStateService } from './catering-order-state.service';
+import { SettingsService } from '@placeos/common';
 
 const ICONS = {
     coffee: `<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -83,8 +84,8 @@ const ICONS = {
                 (ngModelChange)="offsetChange.next($event)"
                 [time]="(filters | async)?.date"
                 [step]="5"
-                [min]="0"
-                [max]="(filters | async)?.duration || 60"
+                [min]="min_offset"
+                [max]="max_offset"
             ></a-duration-field>
         </div>
         <h3 class="hidden sm:block font-medium px-2 py-4" *ngIf="!search" i18n>
@@ -129,7 +130,22 @@ export class CateringItemFiltersComponent {
 
     public readonly categories = this._state.categories;
 
-    constructor(private _state: CateringOrderStateService) {}
+    public get min_offset() {
+        return Math.max(this._settings.get('app.catering.min_offset'), 0);
+    }
+
+    public get max_offset() {
+        const duration = this._state.getFilters().duration;
+        return Math.max(
+            15,
+            (duration || 60) - this._settings.get('app.catering.end_offset')
+        );
+    }
+
+    constructor(
+        private _state: CateringOrderStateService,
+        private _settings: SettingsService
+    ) {}
 
     public async toggleCategory(name: string) {
         const { categories } = await this.filters.pipe(take(1)).toPromise();

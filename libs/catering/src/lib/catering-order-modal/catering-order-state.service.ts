@@ -147,4 +147,8 @@ export class CateringOrderStateService {
     public setFilters(opts: Partial<CateringOrderFilters>) {
         this._filters.next({ ...this._filters.getValue(), ...opts });
     }
+
+    public getFilters() {
+        return { ...this._filters.getValue() };
+    }
 }

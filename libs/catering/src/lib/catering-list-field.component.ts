@@ -262,20 +262,19 @@ export class CateringListFieldComponent implements ControlValueAccessor {
         });
         ref.afterClosed().subscribe((items?: CateringItem[]) => {
             const orders = this.orders.filter((_) => _.id !== order.id);
-            if (!items) return;
+            if (!items?.length) return;
             const time = new Date(this.options.date);
-            this.setValue([
-                ...orders,
-                new CateringOrder({
-                    ...order,
-                    items,
-                    event: this.options as any,
-                    deliver_offset: ref.componentInstance.offset,
-                    deliver_time: ref.componentInstance.exact_time
-                        ? time.getHours() + time.getMinutes() / 60
-                        : null,
-                }),
-            ]);
+            const new_order = new CateringOrder({
+                ...order,
+                items,
+                event: this.options as any,
+                deliver_offset: ref.componentInstance.offset,
+                deliver_time: ref.componentInstance.exact_time
+                    ? time.getHours() + time.getMinutes() / 60
+                    : null,
+            });
+            if (new_order.item_count <= 0) return;
+            this.setValue([...orders, new_order]);
         });
     }
 
