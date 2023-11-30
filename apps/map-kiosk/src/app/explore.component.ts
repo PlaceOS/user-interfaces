@@ -21,6 +21,7 @@ import {
 } from '@placeos/explore';
 import { OrganisationService } from '@placeos/organisation';
 import { SpacesService } from '@placeos/spaces';
+import { Point } from '@placeos/svg-viewer';
 import { getModule } from '@placeos/ts-client';
 import { MapLocation, showStaff, User } from '@placeos/users';
 import { startOfMinute } from 'date-fns';
@@ -211,6 +212,14 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         this.timeout('reset', () => this.resetKiosk(), this.reset_delay * 1000);
 
     public readonly setOptions = (o) => this._state.setOptions(o);
+
+    public updateZoom(zoom: number) {
+        this._state.setPositions(zoom, this._state.positions.center);
+    }
+
+    public updateCenter(center: Point) {
+        this._state.setPositions(this._state.positions.zoom, center);
+    }
 
     public async toggleZones(enabled: boolean) {
         const options = await this.options.pipe(take(1)).toPromise();
