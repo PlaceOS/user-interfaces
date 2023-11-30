@@ -194,8 +194,18 @@ export class OrganisationService {
         this.active_building.subscribe((bld) => {
             if (bld) {
                 this._service.overrides = [
+                    this.buildingSettings(this.building?.id),
+                    this.regionSettings(this.region?.id),
                     ...this._settings,
-                    this.buildingSettings(bld.id),
+                ];
+            }
+        });
+        this.active_region.subscribe((region) => {
+            if (region) {
+                this._service.overrides = [
+                    this.buildingSettings(this.building?.id),
+                    this.regionSettings(this.region?.id),
+                    ...this._settings,
                 ];
             }
         });
