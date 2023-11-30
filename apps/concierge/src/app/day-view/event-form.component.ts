@@ -86,6 +86,7 @@ import { map, tap } from 'rxjs/operators';
                     [options]="{
                         date: form.value.date,
                         duration: form.value.duration,
+                        all_day: form.value.all_day,
                         zone_id: form.value.resources[0]?.level?.parent_id
                     }"
                 ></catering-list-field>
