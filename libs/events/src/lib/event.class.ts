@@ -183,7 +183,7 @@ export class CalendarEvent {
             (this as any).duration = Math.max(24 * 60, this.duration);
         }
         const matches = this.body.match(/\[ID\|([^\]]+)\]/);
-        const associated_id = matches ? matches[0] : null;
+        const associated_id = matches ? matches[1] : null;
         if (associated_id) console.log('Associated ID:', associated_id);
         this.timezone =
             data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
