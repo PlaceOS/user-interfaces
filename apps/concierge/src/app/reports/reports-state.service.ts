@@ -6,6 +6,7 @@ import {
     HashMap,
     jsonToCsv,
     notifyError,
+    SettingsService,
     timePeriodsIntersect,
     unique,
 } from '@placeos/common';
@@ -34,7 +35,6 @@ import {
     generateReportForDeskBookings,
 } from './reports.utilities';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { Space } from 'libs/spaces/src/lib/space.class';
 
 export interface ReportOptions {
     type?: 'desks' | 'events';
@@ -42,6 +42,26 @@ export interface ReportOptions {
     end?: number | Date;
     zones?: string[];
 }
+
+const DAYS_OF_WEEK = {
+    sunday: 0,
+    monday: 1,
+    tuesday: 2,
+    wednesday: 3,
+    thurday: 4,
+    friday: 5,
+    saturday: 6,
+};
+
+const DAYS_OF_WEEK_INDEX = {
+    0: 'sunday',
+    1: 'monday',
+    2: 'tuesday',
+    3: 'wednesday',
+    4: 'thurday',
+    5: 'friday',
+    6: 'saturday',
+};
 
 @Injectable({
     providedIn: 'root',
@@ -169,34 +189,41 @@ export class ReportsStateService {
     public readonly day_list = combineLatest([this.options, this.stats]).pipe(
         map(([options, stats]) => {
             const { start } = options;
+            const ignore_days =
+                this._settings
+                    .get('app.reports.ignore_days')
+                    ?.map((_) => _.toLowerCase()) || [];
             let date = startOfDay(start);
             const end = endOfDay(options.end || date);
             const dates = [];
             while (isBefore(date, end)) {
                 const s = startOfDay(date).valueOf();
                 const e = endOfDay(s).valueOf();
-                const events: Booking[] = stats.events.filter((bkn) =>
-                    timePeriodsIntersect(
-                        s,
-                        e,
-                        bkn.date,
-                        bkn.date + bkn.duration * 60 * 1000
-                    )
-                );
-                dates.push({
-                    date: s,
-                    total: stats.total,
-                    usage: unique(events, 'asset_id').length,
-                    free: stats.total - events.length,
-                    approved: events.reduce(
-                        (c, e) => c + (e.approved ? 1 : 0),
-                        0
-                    ),
-                    count: events.length,
-                    utilisation: ((events.length / stats.total) * 100).toFixed(
-                        1
-                    ),
-                });
+                if (!ignore_days.includes(DAYS_OF_WEEK_INDEX[date.getDay()])) {
+                    const events: Booking[] = stats.events.filter((bkn) =>
+                        timePeriodsIntersect(
+                            s,
+                            e,
+                            bkn.date,
+                            bkn.date + bkn.duration * 60 * 1000
+                        )
+                    );
+                    dates.push({
+                        date: s,
+                        total: stats.total,
+                        usage: unique(events, 'asset_id').length,
+                        free: stats.total - events.length,
+                        approved: events.reduce(
+                            (c, e) => c + (e.approved ? 1 : 0),
+                            0
+                        ),
+                        count: events.length,
+                        utilisation: (
+                            (events.length / stats.total) *
+                            100
+                        ).toFixed(1),
+                    });
+                }
                 date = addDays(date, 1);
             }
             return dates;
@@ -217,7 +244,10 @@ export class ReportsStateService {
         );
     }
 
-    constructor(private _org: OrganisationService) {
+    constructor(
+        private _org: OrganisationService,
+        private _settings: SettingsService
+    ) {
         this._bookings_list.subscribe((_) => _);
     }
 
