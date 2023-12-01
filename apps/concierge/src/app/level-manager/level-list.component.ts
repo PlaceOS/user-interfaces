@@ -8,15 +8,24 @@ import { LevelManagementService } from './level-management.service';
             <custom-table
                 class="block min-w-[28rem] w-full h-full"
                 [dataSource]="levels"
-                [columns]="['display_name', 'building', 'actions']"
-                [display_column]="['Name', 'Building', ' ']"
-                [column_size]="['flex', '12r', '3.75r']"
+                [columns]="['display_name', 'building', 'parking', 'actions']"
+                [display_column]="['Name', 'Building', 'Parking', ' ']"
+                [column_size]="['flex', '12r', '4r', '3.75r']"
                 [template]="{
-                    actions: action_template
+                    actions: action_template,
+                    parking: parking_template
                 }"
                 empty="No levels"
             ></custom-table>
         </div>
+        <ng-template #parking_template let-row="row">
+            <div
+                *ngIf="row.tags?.includes('parking')"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
+            >
+                <app-icon>done</app-icon>
+            </div>
+        </ng-template>
         <ng-template #action_template let-row="row">
             <div class="w-full flex justify-end space-x-2">
                 <button btn icon matRipple [matMenuTriggerFor]="menu">

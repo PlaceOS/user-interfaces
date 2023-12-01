@@ -76,6 +76,11 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                         />
                     </mat-form-field>
                 </div>
+                <div class="flex flex-col py-2" *ngIf="form.controls.parking">
+                    <mat-checkbox name="parking" formControlName="parking">
+                        Has Parking Spaces
+                    </mat-checkbox>
+                </div>
             </form>
         </main>
         <footer
@@ -108,6 +113,9 @@ export class LevelModalComponent {
         map_id: new FormControl(this._data?.map_id || '', [
             Validators.required,
         ]),
+        parking: new FormControl(
+            this._data?.tags?.includes('parking') || false
+        ),
     });
 
     constructor(
@@ -126,7 +134,7 @@ export class LevelModalComponent {
         }
         this.loading = true;
         const data: any = this.form.getRawValue();
-        data.tags = ['level'];
+        data.tags = data.parking ? ['level', 'parking'] : ['level'];
         const resp = await (data.id
             ? updateZone(data.id, {
                   ...data,
