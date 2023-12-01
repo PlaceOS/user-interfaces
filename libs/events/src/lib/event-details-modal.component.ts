@@ -402,6 +402,10 @@ const EMPTY_ACTIONS = [];
                     mat-menu-item
                     mat-dialog-close
                     (click)="edit.emit(space)"
+                    [matTooltip]="
+                        event.duration > 24 * 60 ? no_edit_message : ''
+                    "
+                    [disabled]="event.duration > 24 * 60"
                     *ngIf="!hide_edit"
                 >
                     <div class="flex items-center space-x-2 text-base">
@@ -453,6 +457,8 @@ export class EventDetailsModalComponent {
     public hide_edit = false;
     public show_attendees: boolean = false;
     public readonly event = this._event;
+    public readonly no_edit_message =
+        'Editing bookings long than \n a day is not available';
     public features = [
         {
             location: this.event?.system?.map_id,

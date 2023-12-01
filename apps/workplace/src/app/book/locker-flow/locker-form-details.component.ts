@@ -68,9 +68,9 @@ import { OrganisationService } from '@placeos/organisation';
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3 relative">
-                        <label for="end-time" i18n
-                            >End Time<span>*</span></label
-                        >
+                        <label for="end-time" i18n>
+                            End Time<span>*</span>
+                        </label>
                         <a-duration-field
                             name="end-time"
                             formControlName="duration"
