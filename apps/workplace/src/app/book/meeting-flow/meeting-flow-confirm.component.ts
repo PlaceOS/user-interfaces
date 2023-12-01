@@ -1,6 +1,7 @@
 import { Component, Input, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
+import { CateringItem } from '@placeos/catering';
 import {
     AsyncHandler,
     SettingsService,
@@ -222,5 +223,9 @@ export class MeetingFlowConfirmComponent extends AsyncHandler {
         this._space =
             (await this._space_pipe.transform(this.event.resources[0].email)) ||
             this._space;
+    }
+
+    public optionList(item: CateringItem) {
+        return item.option_list?.map((_) => _.name).join('\n');
     }
 }

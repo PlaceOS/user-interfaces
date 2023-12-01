@@ -1,6 +1,6 @@
 import { Component, Input, Optional } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { CateringOrder } from '@placeos/catering';
+import { CateringItem, CateringOrder } from '@placeos/catering';
 import {
     AsyncHandler,
     SettingsService,
@@ -366,5 +366,9 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
         this.catering_orders = this.event.catering?.map(
             (order) => new CateringOrder({ ...order, event: this.event })
         );
+    }
+
+    public optionList(item: CateringItem) {
+        return item.option_list?.map((_) => _.name).join('\n');
     }
 }
