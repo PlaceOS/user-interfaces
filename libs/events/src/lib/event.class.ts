@@ -184,7 +184,6 @@ export class CalendarEvent {
         }
         const matches = this.body.match(/\[ID\|([^\]]+)\]/);
         const associated_id = matches ? matches[1] : null;
-        if (associated_id) console.log('Associated ID:', associated_id);
         this.timezone =
             data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.meeting_url = data.meeting_url || data.online_meeting_url || '';
