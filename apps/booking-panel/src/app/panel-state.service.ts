@@ -282,11 +282,7 @@ export class PanelStateService extends AsyncHandler {
         future: boolean = false,
         force_api: boolean = false
     ) {
-        if (
-            date <= Date.now() &&
-            !user &&
-            this.setting('disable_book_now_host')
-        ) {
+        if (date <= Date.now() && !user) {
             return this.confirmBookNow();
         }
         const current = await this._current.pipe(take(1)).toPromise();

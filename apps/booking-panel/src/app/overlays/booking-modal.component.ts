@@ -4,8 +4,10 @@ import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 
 import { DialogEvent, HashMap, AsyncHandler } from '@placeos/common';
 import { Space } from '@placeos/spaces';
-import { first } from 'rxjs/operators';
+import { first, shareReplay, switchMap } from 'rxjs/operators';
 import { User } from '@placeos/users';
+import { of } from 'rxjs';
+import { getModule } from '@placeos/ts-client';
 
 export interface BookingModalData extends HashMap {
     title?: string;
@@ -51,6 +53,7 @@ export async function openBookingModal(
                 <label for="host">Booked by<span>*</span>:</label>
                 <a-user-search-field
                     name="host"
+                    [query_fn]="searchStaff"
                     formControlName="organiser"
                 ></a-user-search-field>
             </div>
@@ -148,6 +151,16 @@ export class BookingModalComponent extends AsyncHandler {
             this.hide_host = true;
         }
     }
+
+    public searchStaff = (q: string) =>
+        of(q).pipe(
+            switchMap((_) => {
+                const mod = getModule(this._data.space?.id, 'Bookings');
+                if (!mod) return of([]);
+                return mod.execute('list_users', [q]).catch((_) => []);
+            }),
+            shareReplay(1)
+        );
 
     /**
      * Post form data
