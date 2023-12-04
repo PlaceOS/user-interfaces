@@ -1,4 +1,4 @@
-import { getUnixTime } from 'date-fns';
+import { getUnixTime, startOfMinute } from 'date-fns';
 import { CateringItem } from '../lib/catering-item.class';
 
 import { CateringOrder } from '../lib/catering-order.class';
@@ -9,6 +9,7 @@ describe('CateringOrder', () => {
     beforeEach(() => (order = new CateringOrder()));
 
     it('should expose properties', () => {
+        const date = getUnixTime(startOfMinute(Date.now()));
         expect(order.id).toContain('order-');
         expect(order.system_id).toBe('');
         expect(order.event_id).toBe('');
@@ -17,7 +18,7 @@ describe('CateringOrder', () => {
         expect(order.total_cost).toBe(0);
         expect(order.invoice_number).toBe('');
         expect(order.charge_code).toBe('');
-        expect(getUnixTime(order.deliver_at)).toBe(getUnixTime(new Date()));
+        expect(getUnixTime(order.deliver_at)).toBe(date);
         expect(order.status).toBe('accepted');
         expect(order.event).toBe(null);
         order = new CateringOrder({
@@ -45,7 +46,7 @@ describe('CateringOrder', () => {
         expect(order.total_cost).toBe(700);
         expect(order.invoice_number).toBe('invoice-123');
         expect(order.charge_code).toBe('code-123');
-        expect(order.deliver_at).toBe(1);
+        expect(order.deliver_at).toBe(startOfMinute(Date.now()).valueOf());
         expect(order.status).toBe('preparing');
         expect(order.event).toEqual({});
     });

@@ -1,4 +1,4 @@
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -8,6 +8,7 @@ import { MockComponent, MockModule, MockPipe } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { CateringItemFiltersComponent } from '../../lib/catering-order-modal/catering-item-filters.component';
 import { CateringOrderStateService } from '../../lib/catering-order-modal/catering-order-state.service';
+import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 
 describe('CateringItemFiltersComponent', () => {
     let spectator: Spectator<CateringItemFiltersComponent>;
@@ -18,17 +19,23 @@ describe('CateringItemFiltersComponent', () => {
                 provide: CateringOrderStateService,
                 useValue: {
                     setFilters: jest.fn(),
+                    getFilters: jest.fn(() => ({})),
                     filters: new BehaviorSubject({ tags: [] }),
-                    categories: new BehaviorSubject(["meals", "coffee"])
+                    categories: new BehaviorSubject(['meals', 'coffee']),
                 },
             },
         ],
-        declarations: [MockComponent(IconComponent), MockPipe(SafePipe)],
+        declarations: [
+            MockComponent(IconComponent),
+            MockPipe(SafePipe),
+            MockComponent(DurationFieldComponent),
+        ],
         imports: [
             MockModule(MatFormFieldModule),
             MockModule(MatInputModule),
             MockModule(MatCheckboxModule),
             FormsModule,
+            ReactiveFormsModule,
         ],
     });
 
@@ -39,7 +46,9 @@ describe('CateringItemFiltersComponent', () => {
 
     it('should allow updating search string', () => {
         spectator.triggerEventHandler('input', 'ngModelChange', 'test');
-        expect(spectator.inject(CateringOrderStateService).setFilters).toBeCalledWith({ search: 'test' });
+        expect(
+            spectator.inject(CateringOrderStateService).setFilters
+        ).toBeCalledWith({ search: 'test' });
     });
 
     it('should allow toggling tag filters', () => {

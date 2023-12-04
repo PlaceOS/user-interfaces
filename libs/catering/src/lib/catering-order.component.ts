@@ -163,8 +163,4 @@ export class CateringOrderComponent extends AsyncHandler {
     ) {
         super();
     }
-
-    ngOnInit() {
-        console.log(this.order, 'order details');
-    }
 }

@@ -1,10 +1,13 @@
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
-import { CalendarService } from '@placeos/calendar';
-import { SettingsService } from '@placeos/common';
-import { Organisation, OrganisationService } from '@placeos/organisation';
 import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
+import { SettingsService } from '@placeos/common';
+
+import { CalendarService } from 'libs/calendar/src/lib/calendar.service';
+import { Organisation } from 'libs/organisation/src/lib/organisation.class';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { LandingStateService } from '../../app/landing/landing-state.service';
+import { ScheduleStateService } from '../../app/new-schedule/schedule-state.service';
 
 describe('LandingStateService', () => {
     let spectator: SpectatorService<LandingStateService>;
@@ -13,6 +16,9 @@ describe('LandingStateService', () => {
         providers: [
             MockProvider(CalendarService, {
                 freeBusy: jest.fn(() => of([])),
+            }),
+            MockProvider(ScheduleStateService, {
+                filtered_bookings: new BehaviorSubject([]),
             }),
             MockProvider(OrganisationService, {
                 levels: [],
