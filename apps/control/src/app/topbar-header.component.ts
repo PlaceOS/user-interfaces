@@ -207,6 +207,7 @@ export class TopbarHeaderComponent extends AsyncHandler {
                 this._call.speaker_track,
                 this._state.lighting_scenes,
                 this._state.help_items,
+                this._state.hide_join_button,
             ]).subscribe(
                 ([
                     mics,
@@ -222,6 +223,7 @@ export class TopbarHeaderComponent extends AsyncHandler {
                     speaker_track,
                     l_scenes,
                     help_items,
+                    hide_join_button,
                 ]) => {
                     (this.action_list as any)[TOOLTIP.PHONE].show = !!(
                         system as any
@@ -243,6 +245,7 @@ export class TopbarHeaderComponent extends AsyncHandler {
                         (mics as any)?.length > 0 ||
                         (microphones as any)?.length > 0;
                     this.action_list[TOOLTIP.JOIN].show =
+                        !hide_join_button &&
                         Object.keys((join_modes as any) || {}).length > 1;
                     (this.action_list[TOOLTIP.JOIN] as any).enabled =
                         (joined as any)?.room_ids?.length > 1;

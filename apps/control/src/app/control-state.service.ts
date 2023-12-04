@@ -228,6 +228,11 @@ export class ControlStateService extends AsyncHandler {
         map((_) => _ || []),
         shareReplay(1)
     );
+    public readonly hide_join_button: Observable<boolean> = this.system_id.pipe(
+        switchMap((id) => this._listenToSystemBinding(id, 'join_hide_button')),
+        map((_) => !!_),
+        shareReplay(1)
+    );
 
     public readonly calendars = this._cal.calendar_list;
 
