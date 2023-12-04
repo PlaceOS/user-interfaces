@@ -164,7 +164,7 @@ export function formatRecurrence({
  */
 export function getFreeTimeSlots(
     list: TimePeriod[],
-    min_size: number = 30
+    min_size: number = 29
 ): TimeBlock[] {
     let start = new Date(0);
     const slots: TimeBlock[] = [];
@@ -202,7 +202,7 @@ export function periodInFreeTimeSlot(
     start: number,
     end: number,
     list: TimePeriod[],
-    min_size: number = 30
+    min_size: number = 29
 ) {
     const blocks = getFreeTimeSlots(list, min_size);
     for (const blk of blocks) {
@@ -227,7 +227,7 @@ export function periodInFreeTimeSlot(
 export function getNextFreeTimeSlot(
     list: TimePeriod[],
     date: number = new Date().valueOf(),
-    min_size: number = 30
+    min_size: number = 29
 ): TimeBlock {
     const slots = getFreeTimeSlots(list, min_size);
     const time = addSeconds(startOfMinute(date), 1);
