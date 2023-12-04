@@ -136,6 +136,8 @@ export class Booking {
             data.asset_name ||
             data.extension_data?.asset_name ||
             data.extension_data?.name ||
+            data.description ||
+            data.asset_id ||
             '';
         this.zones = data.zones || [];
         this.booking_start =

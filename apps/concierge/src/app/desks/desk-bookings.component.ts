@@ -45,7 +45,6 @@ import { SettingsService } from '@placeos/common';
                 ]"
                 [template]="{
                     user_name: user_template,
-                    asset_name: desk_template,
                     date: date_template,
                     period: period_template,
                     status: status_template,
@@ -79,9 +78,6 @@ import { SettingsService } from '@placeos/common';
                         Expired
                     </div>
                 </ng-container>
-            </ng-template>
-            <ng-template #desk_template let-row="row">
-                {{ row.asset_name || row.asset_id }}
             </ng-template>
             <ng-template #user_template let-row="row">
                 <div class="flex flex-col justify-center">
