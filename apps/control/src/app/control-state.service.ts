@@ -234,6 +234,17 @@ export class ControlStateService extends AsyncHandler {
         shareReplay(1)
     );
 
+    public readonly join_status: Observable<[boolean, boolean]> =
+        this.system_id.pipe(
+            switchMap((id) =>
+                combineLatest([
+                    this._listenToSystemBinding(id, 'join_master'),
+                    this._listenToSystemBinding(id, 'join_lockout_secondary'),
+                ])
+            ),
+            shareReplay(1)
+        );
+
     public readonly calendars = this._cal.calendar_list;
 
     public readonly events = combineLatest([this._url, this._calendar]).pipe(

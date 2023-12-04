@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { AsyncHandler, VERSION } from '@placeos/common';
+import { AsyncHandler, SettingsService, VERSION } from '@placeos/common';
 import { ChangelogModalComponent } from '@placeos/components';
 
 import { ControlStateService } from '../control-state.service';
@@ -18,6 +18,22 @@ import { ControlStateService } from '../control-state.service';
                 <topbar-header></topbar-header>
                 <div class="h-1/2 flex-1 bg-base-200" tab-outlet></div>
                 <control-status-bar></control-status-bar>
+            </div>
+            <div
+                lockout
+                *ngIf="!(join_status | async)[0] && (join_status | async)[1]"
+                class="absolute inset-0 z-[9999] flex flex-col items-center justify-center space-y-2 p-16 bg-base-100"
+            >
+                <div class="absolute top-2 left-2 z-0">
+                    <img logo class="h-10" [src]="logo?.src" alt="Logo" />
+                </div>
+                <app-icon class="relative text-5xl text-base-content z-10"
+                    >lock</app-icon
+                >
+                <p class="relative text-base-content z-10">
+                    This room has been combined and is controlled from another
+                    panel
+                </p>
             </div>
         </ng-container>
         <ng-template #power_off_state>
@@ -79,6 +95,7 @@ import { ControlStateService } from '../control-state.service';
 })
 export class ControlTabbedViewComponent extends AsyncHandler implements OnInit {
     public readonly system = this._state.system;
+    public readonly join_status = this._state.join_status;
 
     public readonly powerOn = () => this._state.powerOn();
     public get id() {
@@ -98,11 +115,19 @@ export class ControlTabbedViewComponent extends AsyncHandler implements OnInit {
         this._dialog.open(ChangelogModalComponent, { data: { changelog } });
     }
 
+    /** Application logo to display */
+    public get logo() {
+        return this._settings.get('theme') === 'dark'
+            ? this._settings.get('app.logo_dark')
+            : this._settings.get('app.logo_light');
+    }
+
     constructor(
         private _route: ActivatedRoute,
         private _router: Router,
         private _state: ControlStateService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
+        private _settings: SettingsService
     ) {
         super();
     }
