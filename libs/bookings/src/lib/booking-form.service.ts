@@ -56,7 +56,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 
 export type BookingFlowView = 'form' | 'map' | 'confirm' | 'success';
 
-const BOOKING_TYPES = ['desk', 'parking'];
+const BOOKING_TYPES = ['desk', 'parking', 'locker', 'catering'];
 
 export interface BookingFlowOptions {
     /** Type of booking being made */
@@ -330,8 +330,8 @@ export class BookingFormService extends AsyncHandler {
             this._router.events.subscribe((booking: Event) => {
                 if (
                     booking instanceof NavigationEnd &&
-                    (!booking.url.includes('book') ||
-                        !BOOKING_TYPES.find((_) => booking.url.includes(_)))
+                    !booking.url.includes('book') &&
+                    !BOOKING_TYPES.find((_) => booking.url.includes(_))
                 ) {
                     this.clearForm();
                 }
