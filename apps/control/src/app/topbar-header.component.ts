@@ -41,7 +41,18 @@ enum TOOLTIP {
             class="flex-1 p-4 items-center justify-end space-x-2 hidden sm:flex"
         >
             <ng-container *ngFor="let item of action_list">
-                <div customTooltip [content]="cmp[item.id]" *ngIf="item.show">
+                <div
+                    customTooltip
+                    [content]="cmp[item.id]"
+                    *ngIf="item.show"
+                    [style.z-index]="
+                        (item.id === 'join' || item.id === 'power') &&
+                        !(join_status | async)[0] &&
+                        (join_status | async)[1]
+                            ? '99'
+                            : ''
+                    "
+                >
                     <button
                         icon
                         matRipple
@@ -108,6 +119,7 @@ export class TopbarHeaderComponent extends AsyncHandler {
     public readonly camera_list = this._state.camera_list;
     public readonly lights_list = this._state.lights;
     public readonly blinds_list = this._state.blinds;
+    public readonly join_status = this._state.join_status;
 
     public readonly cmp = {
         phone: PhoneDiallingTooltipComponent,
@@ -156,7 +168,6 @@ export class TopbarHeaderComponent extends AsyncHandler {
         { id: 'blinds', name: 'Accessories', icon: 'unfold_more', show: true },
         { id: 'mics', name: 'Microphones', icon: 'mic', show: true },
         { id: 'camera', name: 'Cameras', icon: 'photo_camera', show: true },
-        { id: 'join', name: 'Join Rooms', icon: 'link', show: true },
         {
             id: 'help',
             name: 'Help',
@@ -164,6 +175,7 @@ export class TopbarHeaderComponent extends AsyncHandler {
             show: true,
             action: () => this.viewHelp(),
         },
+        { id: 'join', name: 'Join Rooms', icon: 'link', show: true },
         { id: 'power', name: 'Power', icon: 'power_settings_new', show: true },
     ];
 

@@ -13,7 +13,7 @@ import { ControlStateService } from '../control-state.service';
         <ng-container *ngIf="(system | async).connected; else load_state">
             <div
                 *ngIf="(system | async).active; else power_off_state"
-                class="absolute inset-0 flex flex-col bg-base-100 divide divide-base-200"
+                class="relative h-full w-full flex flex-col bg-base-100 divide divide-base-200"
             >
                 <topbar-header></topbar-header>
                 <div class="h-1/2 flex-1 bg-base-200" tab-outlet></div>
@@ -22,15 +22,15 @@ import { ControlStateService } from '../control-state.service';
             <div
                 lockout
                 *ngIf="!(join_status | async)[0] && (join_status | async)[1]"
-                class="absolute inset-0 z-[9999] flex flex-col items-center justify-center space-y-2 p-16 bg-base-100"
+                class="absolute inset-0 flex flex-col items-center justify-center space-y-2 p-16 bg-base-100"
             >
-                <div class="absolute top-2 left-2 z-0">
+                <div class="absolute top-4 left-4 z-0">
                     <img logo class="h-10" [src]="logo?.src" alt="Logo" />
                 </div>
-                <app-icon class="relative text-5xl text-base-content z-10"
+                <app-icon class="relative text-8xl text-base-content z-10"
                     >lock</app-icon
                 >
-                <p class="relative text-base-content z-10">
+                <p class="relative text-base-content z-10 text-2xl">
                     This room has been combined and is controlled from another
                     panel
                 </p>
