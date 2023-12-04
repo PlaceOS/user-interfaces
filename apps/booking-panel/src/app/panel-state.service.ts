@@ -209,7 +209,8 @@ export class PanelStateService extends AsyncHandler {
             if (
                 !current ||
                 status !== 'pending' ||
-                current.body.includes('main_event_id')
+                current.body.includes('main_event_id') ||
+                this.setting('disable_end_meeting') === true
             ) {
                 return;
             }
