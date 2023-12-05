@@ -98,8 +98,13 @@ export class ExploreZonesService extends AsyncHandler {
         const value = data?.value || [];
         const labels = [];
         const features = [];
+
         for (const zone of value) {
-            const filled = zone.count / (this._capacity[zone.area_id] || 100);
+            const count =
+                zone[
+                    this._settings.get('app.explore.area_count_key') || 'count'
+                ];
+            const filled = count / (this._capacity[zone.area_id] || 100);
             this._statuses[zone.area_id] =
                 filled < 0.4 ? 'free' : filled < 0.75 ? 'pending' : 'busy';
             if (!this._location[zone.area_id]) continue;
