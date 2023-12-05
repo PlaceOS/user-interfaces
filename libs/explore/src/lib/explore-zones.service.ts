@@ -45,7 +45,6 @@ export class ExploreZonesService extends AsyncHandler {
     ]).pipe(
         filter(([bld, lvl]) => !!bld && !!lvl),
         map(([_, lvl]) => {
-            if (!lvl) return;
             this._statuses = {};
             let system_id: any = this._org.binding('area_management');
             if (!system_id) return;

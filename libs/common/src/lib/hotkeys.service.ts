@@ -5,10 +5,16 @@ import { HashMap } from './types';
 import { unique } from './general';
 
 /** List of keys that cannot be in a combination by themselves or with each other */
-const INVALID_STANDALONE_KEYS: string[] = ['control', 'shift', 'alt', 'meta', 'os'];
+const INVALID_STANDALONE_KEYS: string[] = [
+    'control',
+    'shift',
+    'alt',
+    'meta',
+    'os',
+];
 
 @Injectable({
-    providedIn: 'root'
+    providedIn: 'root',
 })
 export class HotkeysService {
     /** Map of subjects which store press states of keys */
@@ -30,7 +36,8 @@ export class HotkeysService {
             if (this.last_down !== code) {
                 if (!this.keydown_states[code]) {
                     this.keydown_states[code] = new BehaviorSubject(null);
-                    this.keydown_observers[code] = this.keydown_states[code].asObservable();
+                    this.keydown_observers[code] =
+                        this.keydown_states[code].asObservable();
                 }
                 this.keydown_states[code].next(++this.counter);
                 if (this.combo_end.indexOf(code) >= 0) {
@@ -42,7 +49,7 @@ export class HotkeysService {
 
         window.addEventListener('keyup', (event: KeyboardEvent) => {
             const code = this.mapKey((event.code || '').toLowerCase());
-            this.keydown_states[code].next(null);
+            this.keydown_states[code]?.next(null);
             if (this.last_down === code) {
                 this.last_down = null;
             }
@@ -55,14 +62,17 @@ export class HotkeysService {
      * @param next Callback for combination presses
      */
     public listen(combo: string | string[], next: () => void): Subscription {
-        combo = (combo instanceof Array ? combo : combo.split('+'));
-        const combination: string[] = combo.map(i => this.mapKey(i.toLowerCase()));
+        combo = combo instanceof Array ? combo : combo.split('+');
+        const combination: string[] = combo.map((i) =>
+            this.mapKey(i.toLowerCase())
+        );
         if (combination.length > 0 && this.validCombination(combination)) {
             this.registered_combos.push(combination);
             const last_key = combination[combination.length - 1];
             if (!this.keydown_states[last_key]) {
                 this.keydown_states[last_key] = new BehaviorSubject(null);
-                this.keydown_observers[last_key] = this.keydown_states[last_key].asObservable();
+                this.keydown_observers[last_key] =
+                    this.keydown_states[last_key].asObservable();
             }
             this.updateCombinationEndList();
             return this.keydown_observers[last_key].subscribe((count) => {
@@ -76,10 +86,15 @@ export class HotkeysService {
                         }
                         // Check that keys are pressed in the correct order
                         for (let i = 0; i < combination.length - 1; i++) {
-                            if (presses[i] > presses[i + 1]) { return; }
+                            if (presses[i] > presses[i + 1]) {
+                                return;
+                            }
                         }
                     }
-                    const total = presses.reduce((a, v) => a + (v > 0 ? 1 : -1), 0);
+                    const total = presses.reduce(
+                        (a, v) => a + (v > 0 ? 1 : -1),
+                        0
+                    );
                     if (total >= combination.length) {
                         next();
                     }
@@ -94,7 +109,11 @@ export class HotkeysService {
      * @param code Code to transform
      */
     private mapKey(code: string): string {
-        if (code.indexOf('alt') >= 0 || code.indexOf('shift') >= 0 || code.indexOf('control') >= 0) {
+        if (
+            code.indexOf('alt') >= 0 ||
+            code.indexOf('shift') >= 0 ||
+            code.indexOf('control') >= 0
+        ) {
             return code.replace('left', '').replace('right', '');
         }
         return code;
