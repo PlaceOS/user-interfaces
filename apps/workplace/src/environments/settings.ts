@@ -126,6 +126,7 @@ const explore: any = {
     can_select_building: true,
     show_legend_group_names: true,
     show_legend: true,
+    hide_zones: true,
     use_zone_polygons: false,
     show_simple_sensor_info: false,
     legend: [
