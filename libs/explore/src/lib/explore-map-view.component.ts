@@ -63,7 +63,7 @@ const EMPTY = [];
             class="absolute top-2 left-2 max-w-[calc(100vw-1rem)] bg-base-100 border border-base-200 rounded p-2 space-y-2 overflow-hidden"
         >
             <explore-map-controls></explore-map-controls>
-            <div class="flex items-center space-x-2" *ngIf="hide_zones">
+            <div class="flex items-center space-x-2" *ngIf="!hide_zones">
                 <mat-slide-toggle
                     name="zones"
                     class="ml-2"
