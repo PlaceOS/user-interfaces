@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { getModule, showMetadata } from '@placeos/ts-client';
 import { ViewerLabel, Point, ViewerFeature } from '@placeos/svg-viewer';
-import { first, map } from 'rxjs/operators';
+import { filter, first, map } from 'rxjs/operators';
 
 import { AsyncHandler, HashMap, SettingsService } from '@placeos/common';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
@@ -10,6 +10,7 @@ import { ExploreStateService } from './explore-state.service';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
 import { MapPolygonComponent } from 'libs/components/src/lib/map-polygon.component';
 import { ExploreSensorInfoComponent } from './explore-sensor-info.component';
+import { combineLatest } from 'rxjs';
 
 const EMPTY_LABEL = { location: { x: -10, y: -10 }, content: '0% Usage' };
 
@@ -18,6 +19,7 @@ export interface ZoneData {
     area_id: string;
     /** Number of devices in the zone */
     count: number;
+    area_count_key: string;
 
     temperature: number;
     people_count: number;
@@ -30,14 +32,19 @@ export interface ZoneData {
 @Injectable()
 export class ExploreZonesService extends AsyncHandler {
     private _statuses: HashMap<string> = {};
+    private _count_key: HashMap<string> = {};
     private _location: HashMap<Point> = {};
     private _capacity: HashMap<number> = {};
     private _draw: HashMap<boolean> = {};
     private _points: HashMap<[number, number][]> = {};
     private _features: ViewerFeature[] = [];
 
-    private _bind = this._state.level.pipe(
-        map((lvl) => {
+    private _bind = combineLatest([
+        this._org.active_building,
+        this._state.level,
+    ]).pipe(
+        filter(([bld, lvl]) => !!bld && !!lvl),
+        map(([_, lvl]) => {
             if (!lvl) return;
             this._statuses = {};
             let system_id: any = this._org.binding('area_management');
@@ -73,10 +80,16 @@ export class ExploreZonesService extends AsyncHandler {
             const areas = (zone?.details as any)?.areas;
             if (!areas) continue;
             for (const area of areas) {
-                const { capacity, hide_label, label_location, draw_polygon } =
-                    area.properties || {};
+                const {
+                    capacity,
+                    hide_label,
+                    label_location,
+                    draw_polygon,
+                    area_count_key,
+                } = area.properties || {};
                 const { coordinates } = area.geometry || {};
                 this._capacity[area.id] = capacity || 100;
+                this._count_key[area.id] = area_count_key || '';
                 this._location[area.id] =
                     hide_label === false
                         ? label_location ||
@@ -102,7 +115,9 @@ export class ExploreZonesService extends AsyncHandler {
         for (const zone of value) {
             const count =
                 zone[
-                    this._settings.get('app.explore.area_count_key') || 'count'
+                    this._count_key[zone.area_id] ||
+                        this._settings.get('app.explore.area_count_key') ||
+                        'count'
                 ];
             const filled = count / (this._capacity[zone.area_id] || 100);
             this._statuses[zone.area_id] =
