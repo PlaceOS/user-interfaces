@@ -65,6 +65,7 @@ export function generateEventForm(
         date: new FormControl(event.date, [Validators.required]),
         duration: new FormControl(event.duration, [endInFuture]),
         all_day: new FormControl(event.all_day),
+        date_end: new FormControl(event.date_end),
         recurring: new FormControl(event.recurring),
         recurrence: new FormControl(event.recurrence),
         recurring_event_id: new FormControl(event.recurring_event_id),
@@ -111,7 +112,65 @@ export function generateEventForm(
             form.get('date')?.enable({ emitEvent: false });
         }
     });
+    form.controls.duration.valueChanges.subscribe((duration) => {
+        form.patchValue(
+            {
+                date_end: roundToNearestMinutes(
+                    addMinutes(form.controls.date.value, duration),
+                    { nearestTo: 5, roundingMethod: 'ceil' }
+                ).valueOf(),
+            },
+            { emitEvent: false }
+        );
+    });
+    form.controls.date_end.valueChanges.subscribe((date) => {
+        if (
+            date <
+            addMinutes(
+                form.controls.date.value,
+                form.controls.duration.value
+            ).valueOf()
+        ) {
+            form.patchValue(
+                {
+                    date_end: roundToNearestMinutes(
+                        addMinutes(
+                            form.controls.date.value,
+                            form.controls.duration.value
+                        ),
+                        { nearestTo: 5, roundingMethod: 'ceil' }
+                    ).valueOf(),
+                    duration: 30,
+                },
+                { emitEvent: false }
+            );
+        } else {
+            form.patchValue(
+                {
+                    duration: differenceInMinutes(
+                        date,
+                        form.controls.date.value
+                    ),
+                },
+                { emitEvent: false }
+            );
+        }
+    });
     form.controls.date.valueChanges.subscribe((date) => {
+        if (
+            addMinutes(date, form.controls.duration.value).valueOf() >
+            form.controls.date_end.value
+        ) {
+            form.patchValue(
+                {
+                    date_end: roundToNearestMinutes(
+                        addMinutes(date, form.controls.duration.value),
+                        { nearestTo: 5, roundingMethod: 'ceil' }
+                    ).valueOf(),
+                },
+                { emitEvent: false }
+            );
+        }
         if (date < Date.now() && !form.value.id) {
             form.patchValue(
                 {

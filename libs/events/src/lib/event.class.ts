@@ -9,6 +9,7 @@ import {
     add,
     addMinutes,
     differenceInMinutes,
+    endOfDay,
     format,
     getUnixTime,
     isAfter,
@@ -121,6 +122,8 @@ export class CalendarEvent {
     public readonly linked_bookings: LinkedBooking[];
     /** Whether changes to this event should update the parent event */
     public readonly update_master: boolean;
+    /**  */
+    public readonly date_end: number;
 
     public readonly is_system_event: boolean;
 
@@ -174,13 +177,12 @@ export class CalendarEvent {
         this.private = !!data.private;
         this.all_day = !!data.all_day;
         this.date = this.event_start * 1000 || this.date;
-        this.duration =
-            data.duration ||
-            differenceInMinutes(data.event_end * 1000, this.date) ||
-            30;
+        this.date_end = this.event_end * 1000 || this.date_end;
+        this.duration = differenceInMinutes(this.date_end, this.date);
         if (this.all_day) {
             (this as any).date = startOfDay(this.date).getTime();
             (this as any).duration = Math.max(24 * 60, this.duration);
+            (this as any).date_end = endOfDay(this.date_end).getTime();
         }
         const matches = this.body.match(/\[ID\|([^\]]+)\]/);
         const associated_id = matches ? matches[1] : null;
@@ -281,9 +283,7 @@ export class CalendarEvent {
     public toJSON(): Record<string, any> {
         const obj: Record<string, any> = { ...this };
         const date = this.all_day ? startOfDay(this.date) : this.date;
-        const end = this.all_day
-            ? addMinutes(date, Math.max(24 * 60, this.duration))
-            : addMinutes(date, this.duration);
+        const end = this.all_day ? endOfDay(this.date_end) : this.date_end;
         obj.event_start = getUnixTime(date);
         obj.event_end = getUnixTime(end);
         const attendees = this.attendees;

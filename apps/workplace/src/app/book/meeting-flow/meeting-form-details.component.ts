@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { SettingsService } from '@placeos/common';
-import { addDays, endOfDay, set } from 'date-fns';
+import { addDays, endOfDay, set, startOfDay } from 'date-fns';
 
 @Component({
     selector: 'meeting-form-details',
@@ -22,6 +22,33 @@ import { addDays, endOfDay, set } from 'date-fns';
                         }}</mat-error>
                     </mat-form-field>
                 </div>
+                <div
+                    class="flex-1 min-w-[256px] relative"
+                    *ngIf="!allow_multiday"
+                >
+                    <label for="date">
+                        {{ 'FORM.DATE' | translate }}<span>*</span>
+                    </label>
+                    <a-date-field
+                        name="date"
+                        formControlName="date"
+                        [to]="end_date"
+                    >
+                        {{ 'FORM.DATE_ERROR' | translate }}
+                    </a-date-field>
+                    <mat-checkbox
+                        formControlName="all_day"
+                        *ngIf="allow_all_day"
+                        class="absolute -top-2 right-2"
+                    >
+                        {{ 'FORM.ALL_DAY' | translate }}
+                    </mat-checkbox>
+                </div>
+            </div>
+            <div
+                class="flex items-center flex-wrap sm:space-x-2"
+                *ngIf="allow_multiday"
+            >
                 <div class="flex-1 min-w-[256px] relative">
                     <label for="date">
                         {{ 'FORM.DATE' | translate }}<span>*</span>
@@ -36,10 +63,23 @@ import { addDays, endOfDay, set } from 'date-fns';
                     <mat-checkbox
                         formControlName="all_day"
                         *ngIf="allow_all_day"
-                        class="absolute -top-2 right-0"
+                        class="absolute -top-2 right-2"
                     >
                         {{ 'FORM.ALL_DAY' | translate }}
                     </mat-checkbox>
+                </div>
+                <div class="flex-1 min-w-[256px] relative">
+                    <label for="date">
+                        {{ 'FORM.END_DATE' | translate }}<span>*</span>
+                    </label>
+                    <a-date-field
+                        name="date"
+                        [formControl]="form.controls.date_end"
+                        [from]="start_date"
+                        [to]="end_date"
+                    >
+                        {{ 'FORM.DATE_ERROR' | translate }}
+                    </a-date-field>
                 </div>
             </div>
             <div
@@ -59,7 +99,19 @@ import { addDays, endOfDay, set } from 'date-fns';
                         [use_24hr]="use_24hr"
                     ></a-time-field>
                 </div>
-                <div class="flex-1 w-1/3">
+                <div class="flex-1 w-1/3" *ngIf="allow_multiday">
+                    <label for="end-time">
+                        {{ 'FORM.END_TIME' | translate }}<span>*</span>
+                    </label>
+                    <a-time-field
+                        name="end-time"
+                        [ngModel]="form.value.date_end"
+                        (ngModelChange)="form.patchValue({ date_end: $event })"
+                        [ngModelOptions]="{ standalone: true }"
+                        [use_24hr]="use_24hr"
+                    ></a-time-field>
+                </div>
+                <div class="flex-1 w-1/3" *ngIf="!allow_multiday">
                     <label for="end-time">
                         {{ 'FORM.END_TIME' | translate }}<span>*</span>
                     </label>
@@ -69,10 +121,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                         [time]="form?.value?.date"
                         [max]="max_duration"
                         [use_24hr]="use_24hr"
-                        [ngModelOptions]="{ standalone: true }"
-                    >
-                        Meeting must end at a future time.
-                    </a-duration-field>
+                    ></a-duration-field>
                 </div>
             </div>
             <div *ngIf="can_book_for_others" class="w-full flex flex-col">
@@ -126,6 +175,14 @@ export class MeetingFormDetailsComponent {
 
     public get allow_recurrence() {
         return this._settings.get('app.events.allow_recurrence');
+    }
+
+    public get allow_multiday() {
+        return this._settings.get('app.events.allow_multiday');
+    }
+
+    public get start_date() {
+        return startOfDay(this.form.value.date).valueOf();
     }
 
     public get end_date() {
