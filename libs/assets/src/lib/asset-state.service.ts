@@ -9,7 +9,11 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-import { queryAssets, queryGroupAvailability } from './assets.fn';
+import {
+    queryAssetCategories,
+    queryAssets,
+    queryGroupAvailability,
+} from './assets.fn';
 import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import {
     addMinutes,
@@ -24,6 +28,7 @@ import { updateAssetGroupList } from './asset-group.pipe';
 import { OrganisationService } from '@placeos/organisation';
 import { assetAvailable, getAssetRulesForZone } from './asset.utilities';
 import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
+import { unique } from '@placeos/common';
 
 export interface AssetOptions {
     zone?: string;
@@ -38,9 +43,11 @@ export interface AssetOptions {
 export class AssetStateService {
     private _options = new BehaviorSubject<AssetOptions>({ date: Date.now() });
     private _search = new BehaviorSubject<string>('');
+    private _category = new BehaviorSubject<string[]>([]);
     private _loading = new BehaviorSubject<string>('');
 
     public readonly search = this._search.asObservable();
+    public readonly category = this._category.asObservable();
     public readonly loading = this._loading.asObservable();
 
     public readonly rules = combineLatest([
@@ -116,16 +123,24 @@ export class AssetStateService {
         shareReplay(1)
     );
 
+    public readonly category_list = this._org.active_building.pipe(
+        switchMap((bld) => queryAssetCategories({ zone_id: bld.id })),
+        map((_) => _.sort((a, b) => a.name.localeCompare(b.name))),
+        shareReplay(1)
+    );
+
     public readonly filtered_assets = combineLatest([
         this._search,
+        this._category,
         this.available_groups,
         this.rules,
     ]).pipe(
-        map(([search, assets, rules]) => {
+        map(([search, category, assets, rules]) => {
             const s = search.toLowerCase();
             let list = assets.filter(
                 (_) =>
                     _.assets?.length &&
+                    (!category.length || category.includes(_.category_id)) &&
                     (_.name.toLowerCase().includes(s) ||
                         _.description.toLowerCase().includes(s)) &&
                     assetAvailable(_, rules, this._options.getValue() as any)
@@ -153,6 +168,15 @@ export class AssetStateService {
 
     public setSearch(value: string) {
         this._search.next(`${value}`);
+    }
+
+    public toggleCategory(value: string) {
+        const categories = this._category.getValue();
+        if (categories.includes(value)) {
+            this._category.next(categories.filter((_) => _ !== value));
+        } else {
+            this._category.next([...categories, value]);
+        }
     }
 
     public setOptions(options: Partial<AssetOptions>) {

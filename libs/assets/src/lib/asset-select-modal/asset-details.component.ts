@@ -6,7 +6,6 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { AssetGroup } from '../asset.class';
-import { flatten } from '@placeos/common';
 
 @Component({
     selector: 'asset-details',

@@ -20,7 +20,13 @@ const EMPTY_FAVS: string[] = [];
             <main
                 class="flex-1 flex items-center divide-x divide-base-200 min-h-[65vh] h-[65vh] sm:max-h-[65vh] sm:max-w-[95vw] w-full overflow-hidden"
             >
-                <asset-filters class="h-full hidden sm:block"></asset-filters>
+                <div
+                    class="flex flex-col items-center flex-1 w-1/2 h-full sm:h-[65vh]"
+                >
+                    <asset-filters
+                        class="h-full hidden sm:block"
+                    ></asset-filters>
+                </div>
                 <div
                     class="flex flex-col items-center flex-1 w-1/2 h-full sm:min-w-[20rem] sm:h-[65vh]"
                 >
