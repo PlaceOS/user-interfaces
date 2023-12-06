@@ -321,6 +321,7 @@ export class OrganisationService {
             this._router.navigate(['/misconfigured']);
         }
         await this.loadLevels();
+        this._updateSettingOverrides();
     }
 
     /**
@@ -474,9 +475,7 @@ export class OrganisationService {
         return new Promise<void>((resolve) => {
             const id = sessionStorage.getItem(`PLACEOS.building`);
             if (id && this.buildings.find((bld) => bld.id === id)) {
-                this._active_building.next(
-                    this.buildings.find((bld) => bld.id === id)
-                );
+                this.building = this.buildings.find((bld) => bld.id === id);
                 return resolve();
             }
             const use_location = !!this._service.get('app.use_geolocation');
@@ -532,14 +531,12 @@ export class OrganisationService {
               )
             : this._setRegionFromTimezone());
         this._setBuildingFromTimezone();
-        console.log('Building:', this.building);
         if (this.building) return;
         const bld_id = this._service.get('app.default_building');
         if (bld_id) {
             this.building = this.buildings.find(({ id }) => id === bld_id);
         }
         if (!this.building) this.building = this.buildings[0];
-        console.log('Building:', this.building);
     }
 
     private async _setRegionFromTimezone() {
