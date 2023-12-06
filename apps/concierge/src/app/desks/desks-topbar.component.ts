@@ -10,7 +10,6 @@ import {
     loadTextFileFromInputEvent,
     notifyError,
     notifyInfo,
-    notifySuccess,
 } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { DesksStateService } from './desks-state.service';
@@ -36,9 +35,9 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                     (ngModelChange)="updateZones([$event])"
                     placeholder="All Levels"
                 >
-                    <mat-option value="All" *ngIf="!is_map"
-                        >All Levels</mat-option
-                    >
+                    <mat-option value="All" *ngIf="!is_map">
+                        All Levels
+                    </mat-option>
                     <mat-option
                         *ngFor="let level of levels | async"
                         [value]="level.id"

@@ -79,19 +79,23 @@ export class DesksStateService extends AsyncHandler {
         switchMap((filters) => {
             const zones = filters.zones || [];
             return zones && !zones.includes('All')
-                ? showMetadata(zones[0], 'desks').pipe(map((m) => m.details))
+                ? showMetadata(zones[0], 'desks').pipe(
+                      map((m) => (m.details instanceof Array ? m.details : [])),
+                      catchError((_) => of([]))
+                  )
                 : listChildMetadata(this._org.building?.id, {
                       name: 'desks',
                   }).pipe(
                       map((m) =>
                           m
-                              .map((i) => i.metadata.desks.details)
+                              .map((i) => i.metadata?.desks?.details || [])
                               .reduce((c: any[], i: any[]) => [...c, ...i], [])
-                      )
+                      ),
+                      catchError((_) => of([]))
                   );
         }),
-        catchError((_) => []),
         map((list) => {
+            console.log('Desks:', list);
             if (!(list instanceof Array)) list = [];
             list.sort((a, b) => a.name?.localeCompare(b.name));
             return list.map((i) => new Desk({ ...i, qr_code: '' }));
