@@ -280,12 +280,7 @@ export function queryAvailableAssets(
             assets.filter(
                 (asset) =>
                     ignore?.includes(asset.id) ||
-                    !bookings.find(
-                        (booking) =>
-                            booking.asset_id === asset.id &&
-                            booking.status !== 'cancelled' &&
-                            booking.status !== 'declined'
-                    )
+                    !bookings.find((booking) => booking.asset_id === asset.id)
             )
         )
     );

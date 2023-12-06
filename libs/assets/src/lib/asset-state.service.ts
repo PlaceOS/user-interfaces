@@ -114,6 +114,7 @@ export class AssetStateService {
                         endOfMinute(addMinutes(date, duration || 30))
                     ),
                     type: 'asset-request',
+                    rejected: false,
                 } as any,
                 ignore
             ).pipe(catchError(() => of([] as AssetGroup[])));
