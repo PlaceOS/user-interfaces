@@ -3,6 +3,7 @@ import { SettingsService } from '@placeos/common';
 import { InteractiveMapComponent } from '@placeos/components';
 import {
     ExploreDesksService,
+    ExploreParkingService,
     ExploreSearchComponent,
     ExploreSpacesService,
     ExploreStateService,
@@ -35,6 +36,7 @@ describe('ExploreComponent', () => {
             MockProvider(ExploreSpacesService),
             MockProvider(ExploreDesksService, { setOptions: jest.fn() }),
             MockProvider(ExploreZonesService),
+            MockProvider(ExploreParkingService),
             MockProvider(SpacePipe, { transform: jest.fn(() => ({})) } as any),
         ],
         providers: [

@@ -15,6 +15,7 @@ import {
 } from '@placeos/components';
 import {
     ExploreDesksService,
+    ExploreParkingService,
     ExploreSpacesService,
     ExploreStateService,
     ExploreZonesService,
@@ -170,6 +171,7 @@ import { first, take } from 'rxjs/operators';
         ExploreSpacesService,
         ExploreDesksService,
         ExploreZonesService,
+        ExploreParkingService,
         SpacePipe,
     ],
 })
