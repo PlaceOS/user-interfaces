@@ -1,7 +1,15 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { take } from 'rxjs/operators';
 import { CateringOrderStateService } from './catering-order-state.service';
-import { SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
+import {
+    addDays,
+    addMinutes,
+    differenceInMinutes,
+    endOfDay,
+    format,
+    startOfDay,
+} from 'date-fns';
 
 const ICONS = {
     coffee: `<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -78,11 +86,32 @@ const ICONS = {
             >
                 Exact Time
             </mat-checkbox>
+            <ng-container *ngIf="day_options.length > 1">
+                <label>Deliver Date:</label>
+                <mat-form-field
+                    appearance="outline"
+                    class="w-full no-subscript mb-4"
+                >
+                    <mat-select
+                        [(ngModel)]="offset_day"
+                        (ngModelChange)="offset_dayChange.next($event)"
+                    >
+                        <mat-option
+                            *ngFor="let day of day_options"
+                            [value]="day.id"
+                        >
+                            {{ day.value | date: 'mediumDate' }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </ng-container>
             <label>Deliver After:</label>
             <a-duration-field
                 [(ngModel)]="offset"
                 (ngModelChange)="offsetChange.next($event)"
-                [time]="(filters | async)?.date"
+                [time]="
+                    offset_day > 0 ? start_of_date : (filters | async)?.date
+                "
                 [step]="5"
                 [min]="min_offset"
                 [max]="max_offset"
@@ -114,13 +143,21 @@ const ICONS = {
         `,
     ],
 })
-export class CateringItemFiltersComponent {
+export class CateringItemFiltersComponent
+    extends AsyncHandler
+    implements OnInit
+{
     @Input() public search = false;
 
     @Input() public at_time = false;
     @Output() public at_timeChange = new EventEmitter<boolean>();
     @Input() public offset = 0;
     @Output() public offsetChange = new EventEmitter<number>();
+    @Input() public offset_day = 0;
+    @Output() public offset_dayChange = new EventEmitter<number>();
+
+    private _min_offset = 0;
+    private _max_offset = 60;
 
     public readonly icons = ICONS;
 
@@ -133,22 +170,57 @@ export class CateringItemFiltersComponent {
     public readonly exact_tooltip =
         'Deliver at exactly specified time. \nNote that changes to the booking will not be \nreflected in the order if this is set.';
 
+    public get start_of_date() {
+        return startOfDay(
+            addDays(this._state.getFilters().date, this.offset_day)
+        ).valueOf();
+    }
+
     public get min_offset() {
-        return Math.max(this._settings.get('app.catering.min_offset'), 0);
+        return this.offset_day > 0 ? 0 : this._min_offset;
     }
 
     public get max_offset() {
-        const duration = this._state.getFilters().duration;
-        return Math.max(
-            15,
-            (duration || 60) - this._settings.get('app.catering.end_offset')
+        const end = Math.min(
+            endOfDay(
+                addDays(this._state.getFilters().date, this.offset_day)
+            ).valueOf(),
+            addMinutes(
+                this._state.getFilters().date,
+                this._state.getFilters().duration
+            ).valueOf()
         );
+        const diff = differenceInMinutes(end, this._state.getFilters().date);
+        return Math.min(diff, Math.min(24 * 60 - 1, this._max_offset));
     }
+
+    public day_options = [];
 
     constructor(
         private _state: CateringOrderStateService,
         private _settings: SettingsService
-    ) {}
+    ) {
+        super();
+    }
+
+    public ngOnInit() {
+        this._min_offset = Math.max(
+            this._settings.get('app.catering.min_offset'),
+            0
+        );
+        this.subscription(
+            'filters',
+            this._state.filters.subscribe(() => {
+                this._max_offset = Math.max(
+                    15,
+                    (this._state.getFilters().duration || 60) -
+                        this._settings.get('app.catering.end_offset')
+                );
+                this._updateDayOptions();
+            })
+        );
+        this._updateDayOptions();
+    }
 
     public async toggleCategory(name: string) {
         const { categories } = await this.filters.pipe(take(1)).toPromise();
@@ -164,5 +236,19 @@ export class CateringItemFiltersComponent {
         if (tags.includes(tag))
             this.setFilters({ tags: tags.filter((_) => _ !== tag) });
         else this.setFilters({ tags: [...tags, tag] });
+    }
+
+    private _updateDayOptions() {
+        const { date, duration } = this._state.getFilters();
+        let day = startOfDay(date);
+        let count = 0;
+        const end = endOfDay(addMinutes(date, duration)).valueOf();
+        const options = [];
+        while (day.valueOf() <= end) {
+            options.push({ id: count, value: day.valueOf() });
+            day = addDays(day, 1);
+            count++;
+        }
+        this.day_options = options;
     }
 }

@@ -31,6 +31,7 @@ const EMPTY_FAVS: string[] = [];
                     class="h-full hidden sm:block sm:max-w-[12rem] sm:h-[65vh] sm:max-h-full"
                     [(at_time)]="exact_time"
                     [(offset)]="offset"
+                    [(offset_day)]="offset_day"
                 ></catering-item-filters>
                 <div
                     class="flex flex-col items-center flex-1 w-1/2 h-full sm:h-[65vh]"
@@ -145,6 +146,7 @@ export class NewCateringOrderModalComponent {
     public selected: CateringItem[] = [...(this._data[0] || [])];
     public exact_time = this._data[2] ?? false;
     public offset: number;
+    public offset_day: number;
 
     public get favorites() {
         return (
@@ -169,17 +171,24 @@ export class NewCateringOrderModalComponent {
         private _order: CateringOrderStateService,
         private _org: OrganisationService,
         @Inject(MAT_DIALOG_DATA)
-        private _data: [CateringItem[], any, boolean, number]
+        private _data: {
+            items: CateringItem[];
+            details: any;
+            exact_time?: boolean;
+            offset?: number;
+            offset_day?: number;
+        }
     ) {
-        const duration = this._data[1].duration;
+        const { duration } = this._data.details;
         this._order.setFilters(this._data[1]);
         this.offset = Math.min(
             Math.max(
                 this._settings.get('app.catering.min_offset'),
-                this._data[3] || 0
+                this._data.offset || 0
             ),
             (duration || 60) - this._settings.get('app.catering.end_offset')
         );
+        this.offset_day = this._data.offset_day || 0;
     }
 
     public isSelected(id: string) {

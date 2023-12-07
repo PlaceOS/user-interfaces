@@ -160,7 +160,7 @@ const EMPTY_FAVS = [];
             btn
             matRipple
             name="add-catering-item"
-            class="w-[calc(100%-1px)] inverse mt-2"
+            class="w-full inverse mt-2"
             [disabled]="disabled"
             (click)="editOrder()"
         >
@@ -285,9 +285,9 @@ export class CateringListFieldComponent implements ControlValueAccessor {
 
     public editOrder(order: CateringOrder = new CateringOrder()) {
         const ref = this._dialog.open(NewCateringOrderModalComponent, {
-            data: [
-                order.items,
-                {
+            data: {
+                items: order.items,
+                details: {
                     ...this.options,
                     date: this.options.all_day
                         ? startOfDay(this.options.date).valueOf()
@@ -296,9 +296,10 @@ export class CateringListFieldComponent implements ControlValueAccessor {
                         ? Math.max(24 * 60, this.options.duration)
                         : this.options.duration,
                 },
-                !!order.deliver_time,
-                order.deliver_offset,
-            ],
+                exact_time: !!order.deliver_time,
+                offset: order.deliver_offset,
+                offset_day: order.deliver_day_offset,
+            },
         });
         ref.afterClosed().subscribe((items?: CateringItem[]) => {
             const orders = this.orders.filter((_) => _.id !== order.id);
@@ -312,6 +313,7 @@ export class CateringListFieldComponent implements ControlValueAccessor {
                 deliver_time: ref.componentInstance.exact_time
                     ? time.getHours() + time.getMinutes() / 60
                     : null,
+                deliver_day_offset: ref.componentInstance.offset_day || 0,
             });
             if (new_order.item_count <= 0) return;
             this.setValue([...orders, new_order]);

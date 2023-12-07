@@ -174,7 +174,10 @@ export class MeetingFormDetailsComponent {
     }
 
     public get allow_recurrence() {
-        return this._settings.get('app.events.allow_recurrence');
+        return (
+            this._settings.get('app.events.allow_recurrence') &&
+            this.form.value.duration <= 24 * 60
+        );
     }
 
     public get allow_multiday() {

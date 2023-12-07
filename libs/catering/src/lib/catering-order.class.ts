@@ -3,7 +3,14 @@ import { CalendarEvent } from '@placeos/events';
 
 import { CateringItem } from './catering-item.class';
 import { CateringOrderStatus } from './catering.interfaces';
-import { addMinutes, format, set, startOfMinute } from 'date-fns';
+import {
+    addDays,
+    addMinutes,
+    format,
+    set,
+    startOfDay,
+    startOfMinute,
+} from 'date-fns';
 
 export class CateringOrder {
     /** ID of the order */
@@ -23,6 +30,8 @@ export class CateringOrder {
     /** Charge code for the order */
     public readonly charge_code: string;
     /** Minutes from set time to deliver item */
+    public readonly deliver_day_offset: number;
+    /** Minutes from set time to deliver item */
     public readonly deliver_offset: number;
     /** Hour to from set time to deliver item */
     public readonly deliver_time?: number;
@@ -34,20 +43,17 @@ export class CateringOrder {
     private _status: CateringOrderStatus;
 
     public get deliver_at() {
+        let date = this.event?.date || Date.now();
         if (this.deliver_time) {
-            return startOfMinute(
-                addMinutes(
-                    set(this.event?.date || Date.now(), {
-                        hours: Math.floor(this.deliver_time),
-                        minutes: (this.deliver_time % 1) * 60,
-                    }),
-                    this.deliver_offset
-                )
-            ).valueOf();
+            date = set(date, {
+                hours: Math.floor(this.deliver_time),
+                minutes: (this.deliver_time % 1) * 60,
+            }).valueOf();
         }
-        return startOfMinute(
-            addMinutes(this.event?.date || Date.now(), this.deliver_offset)
-        ).valueOf();
+        if (this.deliver_day_offset > 0) {
+            date = addDays(startOfDay(date), this.deliver_day_offset).valueOf();
+        }
+        return addMinutes(date, this.deliver_offset).valueOf();
     }
 
     public get status() {
@@ -80,6 +86,6 @@ export class CateringOrder {
         this.notes = data.notes || '';
         this.deliver_time = data.deliver_time || undefined;
         this.deliver_offset = data.deliver_offset || 0;
-        console.log('Order:', format(this.deliver_at, 'Do MMM, HH:mm'));
+        this.deliver_day_offset = data.deliver_day_offset || 0;
     }
 }

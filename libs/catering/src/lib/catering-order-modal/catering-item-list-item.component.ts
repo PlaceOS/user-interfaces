@@ -7,12 +7,12 @@ import { CateringItem } from '../catering-item.class';
         <li
             item
             [class.!border-base-200]="active"
+            matRipple
             class="relative p-2 rounded-lg w-full shadow border bg-base-100 border-base-200 sm:w-[20rem]"
         >
             <button
-                matRipple
                 name="select-catering-item"
-                class="w-full h-full flex items-center"
+                class="w-full h-full flex items-center z-0"
                 (click)="select.emit()"
             >
                 <div
