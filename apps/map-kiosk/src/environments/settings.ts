@@ -14,7 +14,7 @@ const app = {
     title: 'PlaceOS',
     description: 'Map Kiosk UI',
     short_name: 'PlaceOS',
-    logo: {
+    logo_light: {
         type: 'img',
         src: 'assets/logo-light.svg',
     },

@@ -243,6 +243,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         private _s: ExploreSpacesService,
         private _desks: ExploreDesksService,
         private _zones: ExploreZonesService,
+        private _parking: ExploreParkingService,
         private _settings: SettingsService,
         private _org: OrganisationService,
         private _spaces: SpacesService,
