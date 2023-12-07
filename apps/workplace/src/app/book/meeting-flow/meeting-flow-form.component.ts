@@ -615,7 +615,6 @@ export class MeetingFlowFormComponent extends AsyncHandler {
         const disabled_rooms = await this._assets.disabled_rooms
             .pipe(take(1))
             .toPromise();
-        console.log('Disabled Rooms', disabled_rooms);
         const can_cater = list.every(
             (s) =>
                 items.filter(

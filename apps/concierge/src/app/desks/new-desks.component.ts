@@ -190,7 +190,6 @@ export class NewDesksComponent
                 if (e instanceof NavigationEnd) {
                     const url_parts = this._router.url?.split('/') || [''];
                     this.path = url_parts[parts.length - 1].split('?')[0];
-                    console.log('Path:', this.path);
                     if (this.path.includes('manage')) {
                         this.page_title = 'Desk Management';
                     } else {

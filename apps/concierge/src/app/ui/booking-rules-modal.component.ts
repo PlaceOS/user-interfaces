@@ -282,7 +282,6 @@ export class BookingRulesModalComponent {
     }
 
     public async save(new_ruleset?: BookingRuleset) {
-        console.log('New Ruleset', new_ruleset);
         this.loading = true;
         const rules = await this.booking_rules.pipe(take(1)).toPromise();
         if (new_ruleset) {

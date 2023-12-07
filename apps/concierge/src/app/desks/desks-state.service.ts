@@ -95,7 +95,6 @@ export class DesksStateService extends AsyncHandler {
                   );
         }),
         map((list) => {
-            console.log('Desks:', list);
             if (!(list instanceof Array)) list = [];
             list.sort((a, b) => a.name?.localeCompare(b.name));
             return list.map((i) => new Desk({ ...i, qr_code: '' }));
@@ -230,7 +229,6 @@ export class DesksStateService extends AsyncHandler {
     }
 
     public async checkinDesk(desk: Booking, state: boolean = true) {
-        console.log('Check-in:', desk);
         const status: any = await checkinBooking(desk.id, state ?? true)
             .toPromise()
             .catch((_) => ({ failed: true, error: _ }));
