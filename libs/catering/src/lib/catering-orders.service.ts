@@ -1,7 +1,14 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
-import { map, switchMap, debounceTime, tap, shareReplay } from 'rxjs/operators';
-import { startOfDay, endOfDay, getUnixTime } from 'date-fns';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import {
+    map,
+    switchMap,
+    debounceTime,
+    tap,
+    shareReplay,
+    catchError,
+} from 'rxjs/operators';
+import { startOfDay, endOfDay, getUnixTime, format } from 'date-fns';
 
 import { AsyncHandler, flatten } from '@placeos/common';
 import { queryEvents, saveEvent } from 'libs/events/src/lib/events.fn';
@@ -55,9 +62,20 @@ export class CateringOrdersService extends AsyncHandler {
                 zone_ids: (zones || []).join(','),
                 period_start: start,
                 period_end: end,
-            });
+            }).pipe(
+                catchError(() => of([])),
+                map((events) =>
+                    flatten(events.map((event) => event.valid_catering))
+                ),
+                map((orders) =>
+                    orders.filter(
+                        (o) =>
+                            format(o.deliver_at, 'yyyy-MM-dd') ===
+                            format(date, 'yyyy-MM-dd')
+                    )
+                )
+            );
         }),
-        map((events) => flatten(events.map((event) => event.valid_catering))),
         tap(() => this._loading.next(false)),
         shareReplay(1)
     );
