@@ -402,10 +402,8 @@ const EMPTY_ACTIONS = [];
                     mat-menu-item
                     mat-dialog-close
                     (click)="edit.emit(space)"
-                    [matTooltip]="
-                        event.duration > 24 * 60 ? no_edit_message : ''
-                    "
-                    [disabled]="event.duration > 24 * 60"
+                    [matTooltip]="!can_edit ? no_edit_message : ''"
+                    [disabled]="!can_edit"
                     *ngIf="!hide_edit"
                 >
                     <div class="flex items-center space-x-2 text-base">
@@ -470,6 +468,13 @@ export class EventDetailsModalComponent {
     public readonly has_assets = !!this.event?.linked_bookings?.find(
         (_) => _.booking_type === 'asset-request'
     );
+
+    public get can_edit() {
+        return (
+            this.event.duration <= 24 * 60 ||
+            this._settings.get('app.events.allow_multiday')
+        );
+    }
 
     public level: BuildingLevel = new BuildingLevel();
     public building: Building = new Building();
