@@ -10,7 +10,7 @@ import { CateringItem } from 'libs/catering/src/lib/catering-item.class';
 import { NewCateringOrderModalComponent } from 'libs/catering/src/lib/catering-order-modal/new-catering-order-modal.component';
 import { CateringOrder } from './catering-order.class';
 import { Organisation, OrganisationService } from '@placeos/organisation';
-import { startOfDay } from 'date-fns';
+import { format, startOfDay } from 'date-fns';
 
 const EMPTY_FAVS = [];
 
@@ -21,14 +21,25 @@ const EMPTY_FAVS = [];
             <div
                 order
                 *ngFor="let order of orders"
-                class="border border-base-300 shadow bg-base-100 rounded-xl overflow-hidden"
+                class="border shadow bg-base-100 rounded-xl overflow-hidden"
+                [class.border-error]="end_time < order.deliver_at"
+                [class.border-base-300]="end_time >= order.deliver_at"
             >
                 <div class="flex items-center space-x-2 p-4">
                     <div class="flex-1">
-                        <div class="">
-                            Order for
-                            {{ order.deliver_at | date: 'mediumDate' }} at
-                            {{ order.deliver_at | date: time_format }}
+                        <div class="flex items-center space-x-4">
+                            <div>
+                                Order for
+                                {{ order.deliver_at | date: 'mediumDate' }} at
+                                {{ order.deliver_at | date: time_format }}
+                            </div>
+                            <div
+                                class="flex items-center justify-center h-6 w-6 rounded-full bg-error text-error-content"
+                                [matTooltip]="err_tooltip"
+                                *ngIf="end_time < order.deliver_at"
+                            >
+                                <app-icon>priority_high</app-icon>
+                            </div>
                         </div>
                         <div class="text-xs opacity-60">
                             {{ order.item_count }} item(s) for
@@ -140,7 +151,7 @@ const EMPTY_FAVS = [];
             btn
             matRipple
             name="add-catering-item"
-            class="w-full inverse mt-2"
+            class="w-[calc(100%-1px)] inverse mt-2"
             [disabled]="disabled"
             (click)="editOrder()"
         >
@@ -171,6 +182,8 @@ export class CateringListFieldComponent implements ControlValueAccessor {
     public orders: CateringOrder[] = [];
     public show_order: Record<string, boolean> = {};
     public disabled = false;
+    public err_tooltip =
+        'Delivery time is outside of the event time.\nThis order will be ignored.';
 
     private _onChange: (_: CateringOrder[]) => void;
     private _onTouch: (_: CateringOrder[]) => void;
@@ -179,6 +192,13 @@ export class CateringListFieldComponent implements ControlValueAccessor {
     public get favorites() {
         return (
             this._settings.get<string[]>('favourite_menu_items') || EMPTY_FAVS
+        );
+    }
+
+    public get end_time() {
+        return (
+            (this.options.date || Date.now()) +
+            (this.options.duration || 30) * 60 * 1000
         );
     }
 
@@ -218,7 +238,10 @@ export class CateringListFieldComponent implements ControlValueAccessor {
      * @param value The new value for the component
      */
     public writeValue(value: CateringOrder[]) {
-        this.orders = value || [];
+        this.orders = value instanceof Array ? [...value] : [];
+        if (this.orders.length && !(this.orders[0] instanceof CateringOrder)) {
+            this.orders = this.orders.map((_) => new CateringOrder(_));
+        }
     }
 
     public readonly registerOnChange = (fn: (_: CateringOrder[]) => void) =>

@@ -57,7 +57,7 @@ export class CateringOrdersService extends AsyncHandler {
                 period_end: end,
             });
         }),
-        map((events) => flatten(events.map((event) => event.ext('catering')))),
+        map((events) => flatten(events.map((event) => event.valid_catering))),
         tap(() => this._loading.next(false)),
         shareReplay(1)
     );

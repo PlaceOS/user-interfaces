@@ -277,6 +277,12 @@ export class CalendarEvent {
         return isSameDay(this.date, Date.now());
     }
 
+    public get valid_catering() {
+        return (this.ext('catering') || []).filter(
+            (order) => order.deliver_at > this.date_end
+        );
+    }
+
     /**
      * Convert class data to simple JSON object
      */

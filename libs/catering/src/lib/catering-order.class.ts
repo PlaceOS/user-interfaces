@@ -3,7 +3,7 @@ import { CalendarEvent } from '@placeos/events';
 
 import { CateringItem } from './catering-item.class';
 import { CateringOrderStatus } from './catering.interfaces';
-import { addMinutes, set, startOfMinute } from 'date-fns';
+import { addMinutes, format, set, startOfMinute } from 'date-fns';
 
 export class CateringOrder {
     /** ID of the order */
@@ -80,5 +80,6 @@ export class CateringOrder {
         this.notes = data.notes || '';
         this.deliver_time = data.deliver_time || undefined;
         this.deliver_offset = data.deliver_offset || 0;
+        console.log('Order:', format(this.deliver_at, 'Do MMM, HH:mm'));
     }
 }

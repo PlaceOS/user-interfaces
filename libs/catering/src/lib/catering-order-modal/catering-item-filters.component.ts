@@ -74,7 +74,7 @@ const ICONS = {
             <mat-checkbox
                 [(ngModel)]="at_time"
                 (ngModelChange)="at_timeChange.next($event)"
-                matTooltip="Deliver at exactly specified time. Note that changes to the booking will not be reflected in the order if this is set."
+                [matTooltip]="exact_tooltip"
             >
                 Exact Time
             </mat-checkbox>
@@ -129,6 +129,9 @@ export class CateringItemFiltersComponent {
     public readonly setFilters = (f) => this._state.setFilters(f);
 
     public readonly categories = this._state.categories;
+
+    public readonly exact_tooltip =
+        'Deliver at exactly specified time. \nNote that changes to the booking will not be \nreflected in the order if this is set.';
 
     public get min_offset() {
         return Math.max(this._settings.get('app.catering.min_offset'), 0);

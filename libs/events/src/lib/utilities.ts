@@ -122,6 +122,18 @@ export function generateEventForm(
             },
             { emitEvent: false }
         );
+        form.patchValue(
+            {
+                catering: form.value.catering.map((order: any) => ({
+                    ...order,
+                    event: {
+                        date: form.value.date,
+                        duration: form.value.duration,
+                    },
+                })),
+            },
+            { emitEvent: false }
+        );
     });
     form.controls.date_end.valueChanges.subscribe((date) => {
         if (
@@ -155,6 +167,18 @@ export function generateEventForm(
                 { emitEvent: false }
             );
         }
+        form.patchValue(
+            {
+                catering: form.value.catering.map((order: any) => ({
+                    ...order,
+                    event: {
+                        date: form.value.date,
+                        duration: form.value.duration,
+                    },
+                })),
+            },
+            { emitEvent: false }
+        );
     });
     form.controls.date.valueChanges.subscribe((date) => {
         if (
@@ -193,6 +217,18 @@ export function generateEventForm(
                 },
             });
         }
+        form.patchValue(
+            {
+                catering: form.value.catering.map((order: any) => ({
+                    ...order,
+                    event: {
+                        date: form.value.date,
+                        duration: form.value.duration,
+                    },
+                })),
+            },
+            { emitEvent: false }
+        );
     });
     form.controls.catering.valueChanges.subscribe((_) => {
         const catering = form.value.catering;

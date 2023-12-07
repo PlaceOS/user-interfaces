@@ -218,7 +218,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                             ></catering-list-field>
                             <mat-form-field
                                 appearance="outline"
-                                class="w-full mt-2"
+                                class="w-[calc(100%-1px)] mt-2"
                                 *ngIf="
                                     form.value.catering?.length && has_codes
                                         | async
@@ -255,7 +255,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                             </mat-form-field>
                             <mat-form-field
                                 appearance="outline"
-                                class="w-full"
+                                class="w-[calc(100%-1px)]"
                                 [class.mt-2]="
                                     !(
                                         form.value.catering?.length && has_codes
