@@ -11,26 +11,16 @@ import { ReportsStateService } from '../reports-state.service';
 })
 export class CateringReportStateService {
     /** List of catering orders for the selected period and levels */
-    public readonly catering_orders = this._reports.bookings.pipe(
-        map((list) => {
+    public readonly catering_orders = combineLatest([
+        this._reports.options,
+        this._reports.bookings,
+    ]).pipe(
+        map(([{ start, end }, list]: [any, CalendarEvent[]]) => {
             const orders: CateringOrder[] = flatten(
-                list
-                    .filter(
-                        (_: CalendarEvent) => _.extension_data?.catering?.length
-                    )
-                    .map((_) =>
-                        _.extension_data?.catering.map(
-                            (o) =>
-                                new CateringOrder({
-                                    ...o,
-                                    deliver_at: _.date,
-                                    event: _,
-                                })
-                        )
-                    )
+                list.map((_) => _.valid_catering || [])
             );
             return orders
-                .filter((_) => _)
+                .filter((_) => _.deliver_time >= start && _.deliver_time < end)
                 .sort((a, b) => a.event?.date - b.event?.date);
         }),
         shareReplay(1)
