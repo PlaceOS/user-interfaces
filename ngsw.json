@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1701852435880,
+  "timestamp": 1701918556657,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -237,14 +237,14 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./common.js": "d8f6ec760c40c0bc8ba5d8c217ce9fd450e538d6",
     "./default-libs_bookings_src_lib_bookings_module_ts.js": "341632521a2be166e093d2fe13ffbd38c0fb924e",
-    "./default-libs_catering_src_index_ts.js": "78bd0134bf2c8f7ea2ae996203fb324833e35e6a",
+    "./default-libs_catering_src_index_ts.js": "839366ccf1135379a1e12585095272a8c804fa3e",
     "./default-libs_explore_src_index_ts.js": "cde14848472ab107eb583c76f1e20a6e404172a5",
     "./default-libs_users_src_index_ts.js": "651317de61e6c0f3d673ca19ba761eb152e6c503",
     "./default-node_modules_angular_material_fesm2022_icon_mjs.js": "2c4a0873f3cfcfd925d65b7520e27582c72e3768",
     "./default-node_modules_angular_material_fesm2022_tabs_mjs.js": "2e20a48eb6436ea9f374c0659fa4f63457ad04f6",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "a1f4328ca44d917db7e87dc66d0cc159f82731b1",
-    "./main.js": "0fc12872488442d76ba8106812af7c1d629e667d",
+    "./main.js": "056f222f3211e034698f34c90497c50e0b40313d",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
@@ -256,7 +256,7 @@
     "./material-symbols-sharp.woff2": "d991d290442aeb0a63e5d3bc48143a088e517de3",
     "./polyfills.js": "77c1332bbf7998a0bc6efdf6085acae61d34b58b",
     "./runtime.js": "4d5e529aa8350ee83659185276a1940d360131b8",
-    "./styles.css": "7525ac56034a6660ad7d4ad41c73c5479624d46c",
+    "./styles.css": "166a93e7be1e87827932312b08fa068539649d6f",
     "./vendor.js": "6e7653a1cbb4b5124bffd301bdb2416992611199"
   },
   "navigationUrls": [
