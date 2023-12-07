@@ -3,6 +3,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
+    randomString,
     SettingsService,
 } from '@placeos/common';
 
@@ -48,6 +49,14 @@ const EMPTY_FAVS = [];
                             }}
                         </div>
                     </div>
+                    <button
+                        icon
+                        matRipple
+                        matTooltip="Duplicate Order"
+                        (click)="duplicateOrder(order)"
+                    >
+                        <app-icon>content_copy</app-icon>
+                    </button>
                     <button
                         icon
                         matRipple
@@ -253,6 +262,14 @@ export class CateringListFieldComponent implements ControlValueAccessor {
     public removeOrder(order: CateringItem) {
         const updated_list = this.orders.filter((_) => _.id !== order.id);
         this.setValue(updated_list);
+    }
+
+    public duplicateOrder(order: CateringOrder) {
+        const new_order = new CateringOrder({
+            ...order,
+            id: `order-${randomString(8)}`,
+        });
+        this.setValue([...this.orders, new_order]);
     }
 
     public removeOrderItem(order: CateringOrder, item: CateringItem) {
