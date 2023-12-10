@@ -91,7 +91,11 @@ export class PanelViewComponent extends AsyncHandler {
         return this._state.setting('disable_book_now') !== true;
     }
 
-    public readonly book = () => this._state.newBooking();
+    public readonly book = () =>
+        this._state.newBooking(
+            Date.now(),
+            this._state.setting('disable_book_now_host') === false
+        );
     public readonly checkin = () => this._state.checkin();
     public readonly endMeeting = () => this._state.confirmEnd();
 
