@@ -411,6 +411,9 @@ export class EventFormService extends AsyncHandler {
                 (event.id && has_catering ? ' ' : ''),
             assets: assetsToGroups(event.extension_data.assets || []),
         });
+        this._form.patchValue({
+            date_end: event.date_end || this._form.value.date_end,
+        });
         this._options.next({ features: [] });
         this.storeForm();
     }
