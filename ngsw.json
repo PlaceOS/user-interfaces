@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1702271010115,
+  "timestamp": 1702278224849,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -104,6 +104,7 @@
         "./assets/icons/today-filled.svg",
         "./assets/icons/today-outline.svg",
         "./assets/icons/visa.svg",
+        "./assets/locale/ar.json",
         "./assets/locale/en-US.json",
         "./assets/locale/en.json",
         "./assets/locale/es.json",
@@ -210,6 +211,7 @@
     "./assets/icons/today-filled.svg": "1410738877666c872263634fc33cfe9b2c3ac6f1",
     "./assets/icons/today-outline.svg": "40fc045c0b90aa2313cc5385260781ba5b55b8ad",
     "./assets/icons/visa.svg": "11187e2ea86894625af0aeb5b85c17bcbf8fe192",
+    "./assets/locale/ar.json": "e1cc59b9719d8fcc0d94d8a86ec9660b6c91116f",
     "./assets/locale/en-US.json": "3841f63e329be78a64979b096660841f14ad2507",
     "./assets/locale/en.json": "74ffa5ff586701de9b95a574fc8b17bdb897eb37",
     "./assets/locale/es.json": "12fcaef177f45954851f4dbfddb85122b91b0207",
@@ -244,7 +246,7 @@
     "./default-node_modules_angular_material_fesm2022_tabs_mjs.js": "2e20a48eb6436ea9f374c0659fa4f63457ad04f6",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "a1f4328ca44d917db7e87dc66d0cc159f82731b1",
-    "./main.js": "2d5c122ed199104c30ca5b30123403cc29b4b9f8",
+    "./main.js": "d6a294ee21ceacb03f2c9b005c15f023bfaf6ab4",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
