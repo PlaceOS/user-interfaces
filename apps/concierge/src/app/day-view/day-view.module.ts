@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Route } from '@angular/router';
 
@@ -20,6 +20,8 @@ import { RoomBookingsComponent } from './room-bookings.component';
 import { RoomBookingsTimelineComponent } from './room-timeline.component';
 import { RoomBookingsApprovalsComponent } from './room-approvals.component';
 import { NewDayViewComponent } from './new-dayview.component';
+import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-form-details.component';
+import { EventBookModalComponent } from './event-book-modal.component';
 
 const ROUTES: Route[] = [
     { path: '', component: DayViewComponent },
@@ -41,6 +43,8 @@ const ROUTES: Route[] = [
         RoomBookingsComponent,
         RoomBookingsTimelineComponent,
         RoomBookingsApprovalsComponent,
+        EventBookModalComponent,
+        MeetingFormDetailsComponent,
     ],
     imports: [
         CommonModule,
