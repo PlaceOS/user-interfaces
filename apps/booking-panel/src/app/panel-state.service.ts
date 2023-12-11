@@ -178,20 +178,16 @@ export class PanelStateService extends AsyncHandler {
         interval(3 * 60 * 1000).pipe(startWith(0)),
     ]).pipe(map(([e]) => (!e || e.state === 'done' ? null : e)));
     /** Upcoming booking */
-    private _next: Observable<CalendarEvent> = this._system.pipe(
+    public readonly _next: Observable<CalendarEvent> = this._system.pipe(
         filter((_) => !!_),
         switchMap((id) => this._listenToModuleBinding(id, 'next_booking')),
         map((_) => (_ ? new CalendarEvent(_) : null)),
         shareReplay(1)
     );
-    /** Upcoming booking */
-    public next = combineLatest([
+    public readonly next = combineLatest([
         this._next,
         interval(3 * 60 * 1000).pipe(startWith(0)),
-    ]).pipe(
-        tap(([e]) => console.log('Next:', e)),
-        map(([e]) => (!e || e.state === 'in_progress' ? null : e))
-    );
+    ]).pipe(map(([e]) => (!e || Date.now() < e.date ? null : e)));
 
     public readonly status: Observable<string> = combineLatest([
         this._settings,
