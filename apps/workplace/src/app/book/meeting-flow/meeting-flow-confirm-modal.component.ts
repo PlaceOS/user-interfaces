@@ -162,7 +162,8 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                                     <div class="text-sm flex-1">
                                         Order at
                                         {{
-                                            order.deliver_at | date: time_format
+                                            order.deliver_at
+                                                | date: 'MMM d, ' + time_format
                                         }}
                                     </div>
                                     <div

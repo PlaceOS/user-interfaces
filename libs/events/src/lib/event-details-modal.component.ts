@@ -226,7 +226,9 @@ const EMPTY_ACTIONS = [];
                                             Order at
                                             {{
                                                 order.deliver_at
-                                                    | date: time_format
+                                                    | date
+                                                        : 'MMM d, ' +
+                                                              time_format
                                             }}
                                         </div>
                                         <div class="text-xs opacity-60">
