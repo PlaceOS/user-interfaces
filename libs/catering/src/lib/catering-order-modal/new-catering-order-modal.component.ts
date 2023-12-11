@@ -143,8 +143,8 @@ const EMPTY_FAVS: string[] = [];
 })
 export class NewCateringOrderModalComponent {
     public displayed: CateringItem | null = null;
-    public selected: CateringItem[] = [...(this._data[0] || [])];
-    public exact_time = this._data[2] ?? false;
+    public selected: CateringItem[] = [...(this._data.items || [])];
+    public exact_time = this._data.exact_time ?? false;
     public offset: number;
     public offset_day: number;
 
@@ -180,7 +180,7 @@ export class NewCateringOrderModalComponent {
         }
     ) {
         const { duration } = this._data.details;
-        this._order.setFilters(this._data[1]);
+        this._order.setFilters(this._data.details);
         this.offset = Math.min(
             Math.max(
                 this._settings.get('app.catering.min_offset'),

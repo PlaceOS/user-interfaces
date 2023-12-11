@@ -240,6 +240,7 @@ export class CateringItemFiltersComponent
 
     private _updateDayOptions() {
         const { date, duration } = this._state.getFilters();
+        if (duration <= 24 * 60) return (this.day_options = []);
         let day = startOfDay(date);
         let count = 0;
         const end = endOfDay(addMinutes(date, duration)).valueOf();
