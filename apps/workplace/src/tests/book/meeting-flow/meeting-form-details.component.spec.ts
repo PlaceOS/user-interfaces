@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
+import { EventFormService } from '@placeos/events';
 import {
     DateFieldComponent,
     DurationFieldComponent,
@@ -16,13 +17,16 @@ import {
 } from '@placeos/form-fields';
 import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-form-details.component';
 import { HostSelectFieldComponent } from 'libs/form-fields/src/lib/host-select-field.component';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 
 describe('MeetingFormDetailsComponent', () => {
     let spectator: Spectator<MeetingFormDetailsComponent>;
     const createComponent = createRoutingFactory({
         component: MeetingFormDetailsComponent,
-        providers: [{ provide: SettingsService, useValue: { get: jest.fn() } }],
+        providers: [
+            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(EventFormService, { is_multiday: false }),
+        ],
         declarations: [
             MockComponent(DateFieldComponent),
             MockComponent(TimeFieldComponent),

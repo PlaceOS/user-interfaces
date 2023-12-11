@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { SettingsService } from '@placeos/common';
+import { EventFormService } from '@placeos/events';
 import { addDays, endOfDay, set, startOfDay } from 'date-fns';
 
 @Component({
@@ -181,7 +182,10 @@ export class MeetingFormDetailsComponent {
     }
 
     public get allow_multiday() {
-        return this._settings.get('app.events.allow_multiday');
+        return (
+            this._settings.get('app.events.allow_multiday') ||
+            this._event_form.is_multiday
+        );
     }
 
     public get start_date() {
@@ -201,5 +205,8 @@ export class MeetingFormDetailsComponent {
         return this._settings.get('app.use_24_hour_time');
     }
 
-    constructor(private _settings: SettingsService) {}
+    constructor(
+        private _settings: SettingsService,
+        private _event_form: EventFormService
+    ) {}
 }
