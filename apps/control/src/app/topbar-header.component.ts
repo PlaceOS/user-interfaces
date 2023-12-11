@@ -23,8 +23,8 @@ enum TOOLTIP {
     ACCESSORIES,
     MICS,
     CAMERA,
-    JOIN,
     HELP,
+    JOIN,
     POWER,
 }
 
