@@ -470,10 +470,11 @@ export class EventDetailsModalComponent {
     );
 
     public get can_edit() {
-        return (
-            this.event.duration <= 24 * 60 ||
-            this._settings.get('app.events.allow_multiday')
-        );
+        return true;
+        // return (
+        //     this.event.duration <= 24 * 60 ||
+        //     this._settings.get('app.events.allow_multiday')
+        // );
     }
 
     public level: BuildingLevel = new BuildingLevel();
