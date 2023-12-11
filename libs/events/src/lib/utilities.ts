@@ -219,13 +219,14 @@ export function generateEventForm(
         }
         form.patchValue(
             {
-                catering: form.value.catering.map((order: any) => ({
-                    ...order,
-                    event: {
-                        date: form.value.date,
-                        duration: form.value.duration,
-                    },
-                })),
+                catering:
+                    form.value.catering?.map((order: any) => ({
+                        ...order,
+                        event: {
+                            date: form.value.date,
+                            duration: form.value.duration,
+                        },
+                    })) || [],
             },
             { emitEvent: false }
         );
