@@ -189,20 +189,24 @@ export class EventCardComponent extends AsyncHandler {
     }
 
     public get period() {
-        if (this.event?.is_all_day) return 'All Day';
+        if (this.event?.all_day) return 'All Day';
         const start = this.event?.date || Date.now();
         const duration = this.event?.duration || 60;
         const end = addMinutes(start, duration);
+        const is_multiday = this.event?.duration > 24 * 60;
         const dur = formatDuration({
             hours: Math.floor(duration / 60),
             minutes: duration % 60,
         })
             .replace(' hour', 'hr')
             .replace(' minute', 'min');
-        return `${format(start, this.time_format)} - ${format(
+        return `${format(
+            start,
+            (is_multiday ? `MMM d, ` : '') + this.time_format
+        )} - ${format(
             end,
-            this.time_format
-        )} (${dur})`;
+            (is_multiday ? `MMM d, ` : '') + this.time_format
+        )} ${duration < 24 * 60 ? '(' + dur + ')' : ''}`;
     }
 
     public viewDetails() {

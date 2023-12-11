@@ -66,7 +66,19 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                         <app-icon>schedule</app-icon>
                         <div time>
                             {{
-                                event.all_day
+                                is_multiday
+                                    ? (event.date | date: 'MMM d') +
+                                      (event.all_day
+                                          ? ''
+                                          : (event.date
+                                            | date: ', ' + time_format)) +
+                                      ' - ' +
+                                      (event.date_end | date: 'MMM d') +
+                                      (event.all_day
+                                          ? ''
+                                          : (event.date_end
+                                            | date: ', ' + time_format))
+                                    : event.all_day
                                     ? 'All Day'
                                     : (event.date | date: time_format) +
                                       ' - ' +
@@ -311,6 +323,10 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
     public readonly dismiss = (e?) => this._dialog_ref?.close(e);
 
     private _space = this.event.resources[0];
+
+    public get is_multiday() {
+        return this.event.duration > 24 * 60;
+    }
 
     public get time_format() {
         return this._settings.time_format;
