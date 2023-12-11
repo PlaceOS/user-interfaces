@@ -210,7 +210,7 @@ export class EventsStateService extends AsyncHandler {
                 catchError((e) => {
                     if (e?.status === 429) {
                         this._retries += 1;
-                        const timeout_base = Math.max(
+                        const timeout_base = Math.min(
                             8000,
                             1000 * this._retries
                         );
