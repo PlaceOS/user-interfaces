@@ -330,7 +330,7 @@ export class EventsStateService extends AsyncHandler {
                 .toPromise(),
             ref.afterClosed().toPromise(),
         ]);
-        if (details.reason !== 'done') return;
+        if (details?.reason !== 'done') return;
         this.replace(details.metadata);
     }
 
