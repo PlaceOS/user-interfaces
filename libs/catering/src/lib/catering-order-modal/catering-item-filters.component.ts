@@ -115,6 +115,7 @@ const ICONS = {
                 [step]="5"
                 [min]="min_offset"
                 [max]="max_offset"
+                [use_24hr]="use_24hr"
             ></a-duration-field>
         </div>
         <h3 class="hidden sm:block font-medium px-2 py-4" *ngIf="!search" i18n>
@@ -192,6 +193,10 @@ export class CateringItemFiltersComponent
         );
         const diff = differenceInMinutes(end, this._state.getFilters().date);
         return Math.min(diff, Math.min(24 * 60 - 1, this._max_offset));
+    }
+
+    public get use_24hr() {
+        return this._settings.get('app.use_24_hour_time');
     }
 
     public day_options = [];
