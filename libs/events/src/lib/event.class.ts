@@ -181,8 +181,10 @@ export class CalendarEvent {
         this.duration = differenceInMinutes(this.date_end, this.date);
         if (this.all_day) {
             (this as any).date = startOfDay(this.date).getTime();
-            (this as any).duration = Math.max(24 * 60, this.duration);
-            (this as any).date_end = endOfDay(this.date_end).getTime();
+            (this as any).duration = Math.max(24 * 60 - 1, this.duration - 1);
+            (this as any).date_end = endOfDay(
+                addMinutes(this.date, this.duration).valueOf() - 1
+            ).getTime();
         }
         const matches = this.body.match(/\[ID\|([^\]]+)\]/);
         const associated_id = matches ? matches[1] : null;
