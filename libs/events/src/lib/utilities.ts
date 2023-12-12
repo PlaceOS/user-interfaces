@@ -107,6 +107,7 @@ export function generateEventForm(
         form.controls.assets[l?.length ? 'enable' : 'disable']();
     });
     const setCateringTime = () => {
+        if (!form.value.catering?.length) return;
         form.patchValue(
             {
                 catering: form.value.catering.map((order: any) => ({

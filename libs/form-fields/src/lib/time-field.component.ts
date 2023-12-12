@@ -73,6 +73,8 @@ export class TimeFieldComponent
     @Input() public no_past_times = true;
     @Input() public use_24hr = false;
     @Input() public force_time: number;
+    /** Prevent times before */
+    @Input() public from: number = startOfDay(Date.now()).valueOf();
     /** String representing the currently set time */
     public date: number = new Date().valueOf();
     /** String representing the currently set time */
@@ -223,7 +225,7 @@ export class TimeFieldComponent
         if (show_past || (!isSameDay(date, now) && isAfter(date, now))) {
             date = startOfDay(date);
         } else if (isAfter(date, now)) {
-            date = now;
+            date = new Date(Math.max(this.from, now.valueOf()));
         }
         date = roundToNearestMinutes(date, { nearestTo: step });
         const end = endOfDay(date);
