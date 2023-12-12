@@ -112,7 +112,7 @@ const ICONS = {
                 [time]="
                     offset_day > 0 ? start_of_date : (filters | async)?.date
                 "
-                [step]="5"
+                [step]="step_interval"
                 [min]="min_offset"
                 [max]="max_offset"
                 [use_24hr]="use_24hr"
@@ -179,6 +179,10 @@ export class CateringItemFiltersComponent
 
     public get min_offset() {
         return this.offset_day > 0 ? 0 : this._min_offset;
+    }
+
+    public get step_interval() {
+        return this._settings.get('app.catering.step_interval') || 5;
     }
 
     public get max_offset() {
