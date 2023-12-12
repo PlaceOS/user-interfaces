@@ -289,7 +289,9 @@ export class CalendarEvent {
     public toJSON(): Record<string, any> {
         const obj: Record<string, any> = { ...this };
         const date = this.all_day ? startOfDay(this.date) : this.date;
-        const end = this.all_day ? endOfDay(this.date_end) : this.date_end;
+        const end = this.all_day
+            ? endOfDay(this.date_end).valueOf() + 1
+            : this.date_end;
         obj.event_start = getUnixTime(date);
         obj.event_end = getUnixTime(end);
         const attendees = this.attendees;
