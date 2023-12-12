@@ -14,6 +14,7 @@ import {
 } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
+import { startOfDay } from 'date-fns';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
 @Component({
@@ -381,7 +382,16 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
     ) {
         super();
         this.catering_orders = this.event.catering?.map(
-            (order) => new CateringOrder({ ...order, event: this.event })
+            (order) =>
+                new CateringOrder({
+                    ...order,
+                    event: {
+                        ...this.event,
+                        date: this.event.all_day
+                            ? startOfDay(this.event.date).valueOf()
+                            : this.event.date,
+                    },
+                })
         );
     }
 
