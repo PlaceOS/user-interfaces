@@ -11,7 +11,7 @@ import { CateringItem } from 'libs/catering/src/lib/catering-item.class';
 import { NewCateringOrderModalComponent } from 'libs/catering/src/lib/catering-order-modal/new-catering-order-modal.component';
 import { CateringOrder } from './catering-order.class';
 import { Organisation, OrganisationService } from '@placeos/organisation';
-import { format, startOfDay } from 'date-fns';
+import { endOfDay, format, startOfDay } from 'date-fns';
 
 const EMPTY_FAVS = [];
 
@@ -205,10 +205,10 @@ export class CateringListFieldComponent implements ControlValueAccessor {
     }
 
     public get end_time() {
-        return (
-            (this.options.date || Date.now()) +
-            (this.options.duration || 30) * 60 * 1000
-        );
+        return this.options.all_day
+            ? endOfDay(this.options.date).valueOf()
+            : (this.options.date || Date.now()) +
+                  (this.options.duration || 30) * 60 * 1000;
     }
 
     public get time_format() {
