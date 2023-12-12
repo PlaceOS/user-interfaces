@@ -24,15 +24,16 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     "
                     *ngIf="features.includes('spaces')"
                     routerLinkActive="active"
-                    class="flex flex-col items-center justify-center space-y-2 text-base w-1/3 m-2"
+                    class="flex flex-col items-center justify-center space-y-2 w-1/3 m-2"
                 >
                     <div
-                        class="bg-base-100 rounded-full h-12 w-12 text-2xl flex items-center justify-center"
+                        class="bg-base-100 text-base-content rounded-full h-12 w-12 text-2xl flex items-center justify-center"
                     >
-                        <app-icon filled class="text-base-content"
-                            >meeting_room</app-icon
-                        >
-                        <app-icon outline className="material-icons-outlined"
+                        <app-icon filled>meeting_room</app-icon>
+                        <app-icon
+                            outline
+                            class="text-neutral"
+                            className="material-icons-outlined"
                             >meeting_room</app-icon
                         >
                     </div>
@@ -48,15 +49,16 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     "
                     routerLinkActive="active"
                     *ngIf="features.includes('desks')"
-                    class="flex flex-col items-center justify-center space-y-2 text-base w-1/3 m-2"
+                    class="flex flex-col items-center justify-center space-y-2 w-1/3 m-2"
                 >
                     <div
-                        class="bg-base-100 rounded-full h-12 w-12 text-2xl flex items-center justify-center"
+                        class="bg-base-100 text-base-content rounded-full h-12 w-12 text-2xl flex items-center justify-center"
                     >
-                        <app-icon filled class="text-base-content"
-                            >desk</app-icon
-                        >
-                        <app-icon outline className="material-icons-outlined"
+                        <app-icon filled>desk</app-icon>
+                        <app-icon
+                            outline
+                            class="text-neutral"
+                            className="material-icons-outlined"
                             >desk</app-icon
                         >
                     </div>
@@ -71,12 +73,13 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     class="flex flex-col items-center justify-center space-y-2 text-base w-1/3 m-2"
                 >
                     <div
-                        class="bg-base-100 rounded-full h-12 w-12 text-2xl flex items-center justify-center"
+                        class="bg-base-100 text-base-content rounded-full h-12 w-12 text-2xl flex items-center justify-center"
                     >
-                        <app-icon filled class="text-base-content"
-                            >directions_car</app-icon
-                        >
-                        <app-icon outline className="material-icons-outlined"
+                        <app-icon filled>directions_car</app-icon>
+                        <app-icon
+                            outline
+                            class="text-neutral"
+                            className="material-icons-outlined"
                             >directions_car</app-icon
                         >
                     </div>
@@ -88,15 +91,16 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     *ngIf="features.includes('visitor-invite')"
                     [routerLink]="['/book', 'visitor']"
                     routerLinkActive="active"
-                    class="flex flex-col items-center justify-center space-y-2 text-base w-1/3 m-2"
+                    class="flex flex-col items-center justify-center space-y-2 w-1/3 m-2"
                 >
                     <div
-                        class="bg-base-100 rounded-full h-12 w-12 text-2xl flex items-center justify-center"
+                        class="bg-base-100 text-base-content rounded-full h-12 w-12 text-2xl flex items-center justify-center"
                     >
-                        <app-icon filled class="text-base-content"
-                            >person_add</app-icon
-                        >
-                        <app-icon outline className="material-icons-outlined"
+                        <app-icon filled>person_add</app-icon>
+                        <app-icon
+                            outline
+                            class="text-neutral"
+                            className="material-icons-outlined"
                             >person_add</app-icon
                         >
                     </div>
@@ -113,12 +117,13 @@ import { ApplicationLink, SettingsService } from '@placeos/common';
                     class="flex flex-col items-center justify-center space-y-2 text-base w-1/3  m-2"
                 >
                     <div
-                        class="bg-base-100 rounded-full h-12 w-12 text-2xl flex items-center justify-center"
+                        class="bg-base-100 text-base-content rounded-full h-12 w-12 text-2xl flex items-center justify-center"
                     >
-                        <app-icon filled class="text-base-content"
-                            >today</app-icon
-                        >
-                        <app-icon outline className="material-icons-outlined"
+                        <app-icon filled>today</app-icon>
+                        <app-icon
+                            outline
+                            class="text-neutral"
+                            className="material-icons-outlined"
                             >today</app-icon
                         >
                     </div>
