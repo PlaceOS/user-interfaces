@@ -106,12 +106,7 @@ export function generateEventForm(
         form.controls.system.setValue(l?.length ? (l[0] as any) : null);
         form.controls.assets[l?.length ? 'enable' : 'disable']();
     });
-    form.valueChanges.subscribe((v) => {
-        if (form.value.date < Date.now() && form.value.id) {
-            form.get('date')?.disable({ emitEvent: false });
-        } else {
-            form.get('date')?.enable({ emitEvent: false });
-        }
+    const setCateringTime = () => {
         form.patchValue(
             {
                 catering: form.value.catering.map((order: any) => ({
@@ -128,6 +123,14 @@ export function generateEventForm(
             },
             { emitEvent: false }
         );
+    };
+    form.valueChanges.subscribe((v) => {
+        if (form.value.date < Date.now() && form.value.id) {
+            form.get('date')?.disable({ emitEvent: false });
+        } else {
+            form.get('date')?.enable({ emitEvent: false });
+        }
+        setCateringTime();
     });
     form.controls.duration.valueChanges.subscribe((duration) => {
         form.patchValue(
@@ -139,6 +142,7 @@ export function generateEventForm(
             },
             { emitEvent: false }
         );
+        setCateringTime();
     });
     form.controls.date_end.valueChanges.subscribe((date) => {
         if (
@@ -172,6 +176,7 @@ export function generateEventForm(
                 { emitEvent: false }
             );
         }
+        setCateringTime();
     });
     form.controls.date.valueChanges.subscribe((date) => {
         if (
@@ -210,6 +215,7 @@ export function generateEventForm(
                 },
             });
         }
+        setCateringTime();
     });
     form.controls.catering.valueChanges.subscribe((_) => {
         const catering = form.value.catering;

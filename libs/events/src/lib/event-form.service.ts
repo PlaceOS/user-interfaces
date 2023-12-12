@@ -388,6 +388,15 @@ export class EventFormService extends AsyncHandler {
             );
         }
         this._date.next(event.date);
+        this.timeout(
+            'post-event-form',
+            () => {
+                this._form.patchValue({
+                    date: event.date || this._form.value.date,
+                });
+            },
+            1000
+        );
         this.resetForm();
     }
 
@@ -416,6 +425,7 @@ export class EventFormService extends AsyncHandler {
             assets: assetsToGroups(event.extension_data.assets || []),
         });
         this._form.patchValue({
+            date: event.date || this._form.value.date,
             date_end: event.date_end || this._form.value.date_end,
         });
         this._options.next({ features: [] });
