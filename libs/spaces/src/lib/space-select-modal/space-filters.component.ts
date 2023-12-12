@@ -1,4 +1,4 @@
-import { Component, Optional } from '@angular/core';
+import { Component, Input, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { flatten, SettingsService, unique } from '@placeos/common';
 import { addDays, endOfDay, set } from 'date-fns';
@@ -34,7 +34,7 @@ import { SpacesService } from '../spaces.service';
         >
             <section details>
                 <h2 class="text-lg font-medium" i18n>Details</h2>
-                <div class="flex-1 min-w-[256px] flex flex-col">
+                <div class="flex-1 min-w-[8rem] flex flex-col">
                     <label for="location" i18n>Location</label>
                     <mat-form-field
                         appearance="outline"
@@ -78,16 +78,33 @@ import { SpacesService } from '../spaces.service';
                         </mat-select>
                     </mat-form-field>
                 </div>
-                <div class="flex-1 min-w-[256px]">
-                    <label for="date" i18n>Date<span>*</span></label>
-                    <a-date-field
-                        name="date"
-                        formControlName="date"
-                        i18n
-                        [to]="end_date"
-                    >
-                        {{ 'FORM.DATE_ERROR' | translate }}
-                    </a-date-field>
+                <div class="flex items-center flex-wrap sm:space-x-2">
+                    <div class="flex-1 min-w-[8rem]">
+                        <label for="date" i18n>Date<span>*</span></label>
+                        <a-date-field
+                            name="date"
+                            formControlName="date"
+                            i18n
+                            [to]="end_date"
+                            [short]="true"
+                        >
+                            {{ 'FORM.DATE_ERROR' | translate }}
+                        </a-date-field>
+                    </div>
+                    <div class="flex-1 min-w-[8rem] relative" *ngIf="multiday">
+                        <label for="date">
+                            {{ 'FORM.END_DATE' | translate }}<span>*</span>
+                        </label>
+                        <a-date-field
+                            name="date"
+                            [formControl]="form.controls.date_end"
+                            [from]="start_date"
+                            [to]="end_date"
+                            [short]="true"
+                        >
+                            {{ 'FORM.DATE_ERROR' | translate }}
+                        </a-date-field>
+                    </div>
                 </div>
                 <!-- All Day -->
                 <div *ngIf="allow_all_day" class="flex justify-end -mt-2 mb-2">
@@ -111,18 +128,32 @@ import { SpacesService } from '../spaces.service';
                             [use_24hr]="use_24hr"
                         ></a-time-field>
                     </div>
-                    <div class="flex-1 w-1/3">
-                        <label for="end-time" i18n
-                            >End Time<span>*</span></label
-                        >
+                    <div class="flex-1 w-1/3" *ngIf="multiday">
+                        <label for="end-time">
+                            {{ 'FORM.END_TIME' | translate }}<span>*</span>
+                        </label>
+                        <a-time-field
+                            name="end-time"
+                            [ngModel]="form.value.date_end"
+                            (ngModelChange)="
+                                form.patchValue({ date_end: $event })
+                            "
+                            [ngModelOptions]="{ standalone: true }"
+                            [from]="form?.value?.date"
+                            [use_24hr]="use_24hr"
+                        ></a-time-field>
+                    </div>
+                    <div class="flex-1 w-1/3" *ngIf="!multiday">
+                        <label for="end-time">
+                            {{ 'FORM.END_TIME' | translate }}<span>*</span>
+                        </label>
                         <a-duration-field
                             name="end-time"
                             formControlName="duration"
                             [time]="form?.value?.date"
                             [max]="max_duration"
                             [use_24hr]="use_24hr"
-                        >
-                        </a-duration-field>
+                        ></a-duration-field>
                     </div>
                 </div>
             </section>
@@ -197,6 +228,7 @@ import { SpacesService } from '../spaces.service';
     ],
 })
 export class SpaceFiltersComponent {
+    @Input() public multiday: boolean;
     public can_close = false;
     public readonly options = this._event_form.options;
 

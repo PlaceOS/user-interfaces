@@ -46,6 +46,7 @@ import { Space } from '../space.class';
             >
                 <space-filters
                     class="h-full hidden sm:flex max-w-[20rem] sm:h-[65vh] sm:max-h-full"
+                    [multiday]="multiday"
                 ></space-filters>
                 <div
                     class="flex flex-col items-center flex-1 w-1/2 h-full sm:h-[65vh]"
@@ -161,6 +162,7 @@ export class NewSpaceSelectModalComponent {
     public displayed?: Space;
     public selected: Space[] = [];
     public view = 'list';
+    public readonly multiday = !!this._data.multiday;
 
     public get selected_ids() {
         return this.selected.map((_) => _.id).join(',');
@@ -175,7 +177,11 @@ export class NewSpaceSelectModalComponent {
         private _settings: SettingsService,
         private _event_form: EventFormService,
         @Inject(MAT_DIALOG_DATA)
-        _data: { spaces: Space[]; options: Partial<EventFlowOptions> }
+        private _data: {
+            spaces: Space[];
+            options: Partial<EventFlowOptions>;
+            multiday?: boolean;
+        }
     ) {
         this.selected = [...(_data.spaces || [])];
         this._event_form.setOptions(_data.options);

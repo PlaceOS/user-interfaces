@@ -171,6 +171,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                             <space-list-field
                                 class="w-full"
                                 formControlName="resources"
+                                [multiday]="allow_multiday"
                             ></space-list-field>
                         </div>
                     </section>
@@ -426,6 +427,13 @@ export class MeetingFlowFormComponent extends AsyncHandler {
     public get total_capacity() {
         return (
             this.form.value.resources?.reduce((c, i) => c + i.capacity, 0) || 0
+        );
+    }
+
+    public get allow_multiday() {
+        return (
+            this._settings.get('app.events.allow_multiday') ||
+            this._state.is_multiday
         );
     }
 

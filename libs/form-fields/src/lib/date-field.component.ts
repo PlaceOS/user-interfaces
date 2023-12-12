@@ -28,7 +28,7 @@ import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
             matRipple
         >
             <p class="px-4 py-2 flex-1 truncate w-1/2 text-left font-normal">
-                {{ date | date: 'MMMM d, yyyy' }}
+                {{ date | date: (short ? 'MMM d, yyyy' : 'MMMM d, yyyy') }}
             </p>
             <div class="h-10 w-10 flex items-center justify-center text-2xl">
                 <app-icon>today</app-icon>
@@ -70,6 +70,7 @@ export class DateFieldComponent
     @Input() public week_start: number = 0;
     /** Whether form control is disabled */
     @Input() public disabled: boolean;
+    @Input() public short = false;
     /** Currently selected date */
     public date: number = Date.now();
 

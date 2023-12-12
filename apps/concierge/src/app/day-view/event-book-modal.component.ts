@@ -17,7 +17,7 @@ import { map, tap } from 'rxjs/operators';
     selector: 'event-book-modal',
     template: `
         <header>
-            <h2>New Meeting Booking</h2>
+            <h2>{{ form.value.id ? 'Edit' : 'New' }} Meeting Booking</h2>
             <div class="flex-1 w-0"></div>
             <button icon mat-dialog-close>
                 <app-icon>close</app-icon>
@@ -141,6 +141,7 @@ import { map, tap } from 'rxjs/operators';
                     <space-list-field
                         class="w-full"
                         formControlName="resources"
+                        [multiday]="allow_multiday"
                     ></space-list-field>
                 </div>
             </section>
@@ -367,6 +368,13 @@ export class EventBookModalComponent {
     public get total_capacity() {
         return (
             this.form.value.resources?.reduce((c, i) => c + i.capacity, 0) || 0
+        );
+    }
+
+    public get allow_multiday() {
+        return (
+            this._settings.get('app.events.allow_multiday') ||
+            this._event_form.is_multiday
         );
     }
 

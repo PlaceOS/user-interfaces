@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, forwardRef } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 
@@ -153,6 +153,7 @@ const EMPTY_FAVS: string[] = [];
     ],
 })
 export class SpaceListFieldComponent implements ControlValueAccessor {
+    @Input() multiday = false;
     public room_size = 4;
     public spaces = new BehaviorSubject<Space[]>([]);
     public space_list = this.spaces.pipe(debounceTime(300));
@@ -186,6 +187,7 @@ export class SpaceListFieldComponent implements ControlValueAccessor {
             data: {
                 spaces: this.spaces.getValue(),
                 options: { capacity: this.room_size },
+                multiday: this.multiday,
             },
         });
         this._dialog_ref.afterClosed().subscribe(() => {
