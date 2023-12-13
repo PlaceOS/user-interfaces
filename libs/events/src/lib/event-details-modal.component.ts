@@ -217,7 +217,7 @@ const EMPTY_ACTIONS = [];
                         <div class="flex flex-col space-y-2">
                             <div
                                 order
-                                *ngFor="let order of event.ext('catering')"
+                                *ngFor="let order of event.valid_catering"
                                 class="border border-base-300 bg-base-100 rounded-xl overflow-hidden"
                             >
                                 <div class="flex items-center space-x-2 p-3">
