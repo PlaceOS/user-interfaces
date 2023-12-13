@@ -281,7 +281,7 @@ export class CalendarEvent {
 
     public get valid_catering() {
         return (this.ext('catering') || []).filter(
-            (order) => order.deliver_at > this.date_end
+            (order) => order.deliver_at_time < this.date_end
         );
     }
 

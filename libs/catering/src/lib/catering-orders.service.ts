@@ -71,7 +71,7 @@ export class CateringOrdersService extends AsyncHandler {
                     orders.filter(
                         (o) =>
                             format(o.deliver_at, 'yyyy-MM-dd') ===
-                            format(date, 'yyyy-MM-dd')
+                            format(start * 1000, 'yyyy-MM-dd')
                     )
                 )
             );
