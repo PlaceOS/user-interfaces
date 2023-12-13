@@ -33,24 +33,39 @@ import { CATERING_STATUSES } from './catering.vars';
             <div time class="w-24">
                 {{ order.deliver_at | date: time_format }}
             </div>
-            <div time class="w-48">
+            <div time class="w-36 text-sm">
+                {{ order.event?.event_start * 1000 | date: 'MMM d' }},
                 {{ order.event?.event_start * 1000 | date: time_format }}
-                <span> - </span>
+                <br />
+                {{ order.event?.event_end * 1000 | date: 'MMM d' }},
                 {{ order.event?.event_end * 1000 | date: time_format }}
             </div>
             <div class="flex-1">
                 {{
                     order.event?.space.display_name ||
                         order.event?.space.name ||
-                        '~ No Location ~'
+                        ''
                 }}
+                <span
+                    class="opacity-30"
+                    *ngIf="
+                        !(
+                            order.event?.space.display_name ||
+                            order.event?.space.name
+                        )
+                    "
+                >
+                    No Location
+                </span>
             </div>
             <div class="w-56">
-                {{
-                    order.event?.organiser?.name ||
-                        order.event?.host ||
-                        '~ Unknown Host ~'
-                }}
+                {{ order.event?.organiser?.name || order.event?.host || '' }}
+                <span
+                    class="opacity-30"
+                    *ngIf="!(order.event?.organiser?.name || order.event?.host)"
+                >
+                    Unknown Host
+                </span>
             </div>
             <div class="w-28">{{ order.charge_code || '~ No Code ~' }}</div>
             <div class="w-24">
@@ -63,7 +78,10 @@ import { CATERING_STATUSES } from './catering.vars';
                 </button>
             </div>
             <div class="w-28">
-                {{ order.invoice_number || '~ No Invoice ~' }}
+                {{ order.invoice_number || '' }}
+                <span class="opacity-30" *ngIf="!order.invoice_number">
+                    No Invoice
+                </span>
             </div>
             <div class="w-36">
                 <button

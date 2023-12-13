@@ -205,10 +205,10 @@ export class CateringListFieldComponent implements ControlValueAccessor {
     }
 
     public get end_time() {
-        return this.options.all_day
-            ? endOfDay(this.options.date).valueOf()
-            : (this.options.date || Date.now()) +
-                  (this.options.duration || 30) * 60 * 1000;
+        const time =
+            (this.options.date || Date.now()) +
+            (this.options.duration || 30) * 60 * 1000;
+        return this.options.all_day ? endOfDay(time).valueOf() : time;
     }
 
     public get time_format() {
