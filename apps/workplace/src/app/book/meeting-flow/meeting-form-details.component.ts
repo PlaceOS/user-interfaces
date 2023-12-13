@@ -2,7 +2,14 @@ import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
-import { addDays, endOfDay, set, startOfDay } from 'date-fns';
+import {
+    addDays,
+    addMinutes,
+    endOfDay,
+    format,
+    set,
+    startOfDay,
+} from 'date-fns';
 
 @Component({
     selector: 'meeting-form-details',
@@ -190,7 +197,13 @@ export class MeetingFormDetailsComponent {
     }
 
     public get start_date() {
-        return startOfDay(this.form.value.date).valueOf();
+        const date = this.form.getRawValue().date;
+        const date_end = this.form.getRawValue().date_end;
+        const is_next_day =
+            format(date, 'yyyy-MM-dd') !== format(date_end, 'yyyy-MM-dd');
+        return is_next_day
+            ? startOfDay(date).valueOf()
+            : addMinutes(date, 30).valueOf();
     }
 
     public get end_date() {
