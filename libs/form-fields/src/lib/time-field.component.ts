@@ -221,13 +221,13 @@ export class TimeFieldComponent
         show_past: boolean,
         step: number = 15
     ): Identity[] {
-        const now = new Date();
+        const now = new Date(Math.max(this.from, Date.now()));
         let date = new Date(datestamp);
         const blocks = [];
         if (show_past || (!isSameDay(date, now) && isAfter(date, now))) {
             date = startOfDay(date);
         } else if (isAfter(date, now)) {
-            date = new Date(Math.max(this.from, now.valueOf()));
+            date = new Date(now);
         }
         date = roundToNearestMinutes(date, { nearestTo: step });
         const end = endOfDay(date);

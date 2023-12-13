@@ -118,7 +118,7 @@ import {
                         [ngModel]="form.value.date_end"
                         (ngModelChange)="form.patchValue({ date_end: $event })"
                         [ngModelOptions]="{ standalone: true }"
-                        [from]="form?.value?.date + 30 * 60 * 1000"
+                        [from]="form?.getRawValue()?.date + 30 * 60 * 1000"
                         [use_24hr]="use_24hr"
                         [extra_info_fn]="duration_info"
                     ></a-time-field>
@@ -130,7 +130,7 @@ import {
                     <a-duration-field
                         name="end-time"
                         formControlName="duration"
-                        [time]="form?.value?.date"
+                        [time]="form?.getRawValue()?.date"
                         [max]="max_duration"
                         [use_24hr]="use_24hr"
                     ></a-duration-field>
