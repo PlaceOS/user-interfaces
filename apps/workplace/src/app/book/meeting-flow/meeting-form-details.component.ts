@@ -109,7 +109,7 @@ import { addDays, endOfDay, set, startOfDay } from 'date-fns';
                         [ngModel]="form.value.date_end"
                         (ngModelChange)="form.patchValue({ date_end: $event })"
                         [ngModelOptions]="{ standalone: true }"
-                        [from]="form?.value?.date"
+                        [from]="form?.value?.date + 30 * 60 * 1000"
                         [use_24hr]="use_24hr"
                     ></a-time-field>
                 </div>
