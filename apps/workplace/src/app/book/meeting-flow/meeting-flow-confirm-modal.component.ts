@@ -14,7 +14,7 @@ import {
 } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
-import { startOfDay } from 'date-fns';
+import { endOfDay, startOfDay } from 'date-fns';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
 @Component({
@@ -156,17 +156,29 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                         <div
                             order
                             *ngFor="let order of catering_orders"
-                            class="border border-base-300 bg-base-100 rounded-xl overflow-hidden"
+                            class="border bg-base-100 rounded-xl overflow-hidden"
+                            [class.border-error]="end_time < order.deliver_at"
+                            [class.border-base-300]="
+                                end_time >= order.deliver_at
+                            "
                         >
                             <div class="flex items-center space-x-2 p-3">
                                 <div class="flex-1 flex items-center space-x-2">
-                                    <div class="text-sm flex-1">
+                                    <div class="text-sm">
                                         Order at
                                         {{
                                             order.deliver_at
                                                 | date: 'MMM d, ' + time_format
                                         }}
                                     </div>
+                                    <div
+                                        class="flex items-center justify-center h-6 w-6 rounded-full bg-error text-error-content"
+                                        [matTooltip]="err_tooltip"
+                                        *ngIf="end_time < order.deliver_at"
+                                    >
+                                        <app-icon>priority_high</app-icon>
+                                    </div>
+                                    <div class="flex-1"></div>
                                     <div
                                         class="text-xs bg-success text-success-content px-2 py-1 rounded"
                                     >
@@ -300,6 +312,8 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
 
     public readonly loading = this._event_form.loading;
     public readonly catering_orders;
+    public err_tooltip =
+        'Delivery time is outside of the event time.\nThis order will be ignored.';
 
     public readonly postForm = async () => {
         if (!this.space) {
@@ -332,6 +346,12 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public get end_time() {
+        return this.event.all_day
+            ? endOfDay(this.event.date_end).valueOf()
+            : this.event.date_end;
     }
 
     public async ngOnInit() {
