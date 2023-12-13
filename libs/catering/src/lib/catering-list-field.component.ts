@@ -247,10 +247,10 @@ export class CateringListFieldComponent implements ControlValueAccessor {
      * @param value The new value for the component
      */
     public writeValue(value: CateringOrder[]) {
-        this.orders = value instanceof Array ? [...value] : [];
-        if (this.orders.length && !(this.orders[0] instanceof CateringOrder)) {
-            this.orders = this.orders.map((_) => new CateringOrder(_));
-        }
+        this.orders =
+            value instanceof Array
+                ? value.map((_) => new CateringOrder(_))
+                : [];
     }
 
     public readonly registerOnChange = (fn: (_: CateringOrder[]) => void) =>

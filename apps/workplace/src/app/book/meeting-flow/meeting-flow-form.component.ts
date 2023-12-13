@@ -208,7 +208,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                             <catering-list-field
                                 formControlName="catering"
                                 [options]="{
-                                    date: form.value.date,
+                                    date: form.getRawValue().date,
                                     duration: form.value.duration,
                                     all_day: form.value.all_day,
                                     zone_id: form.value?.resources?.length
@@ -305,7 +305,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                             [@show]="hide_block.assets ? 'hide' : 'show'"
                         >
                             <asset-list-field
-                                [date]="form.value.date"
+                                [date]="form.getRawValue().date"
                                 [duration]="form.value.duration"
                                 formControlName="assets"
                             ></asset-list-field>

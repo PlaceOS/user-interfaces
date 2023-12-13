@@ -75,7 +75,7 @@ import { addDays, endOfDay, set, startOfDay } from 'date-fns';
                     </label>
                     <a-date-field
                         name="date"
-                        [formControl]="form.controls.date_end"
+                        formControlName="date_end"
                         [from]="start_date"
                         [to]="end_date"
                     >
@@ -94,7 +94,7 @@ import { addDays, endOfDay, set, startOfDay } from 'date-fns';
                     </label>
                     <a-time-field
                         name="start-time"
-                        [ngModel]="form.value.date"
+                        [ngModel]="form.getRawValue().date"
                         (ngModelChange)="form.patchValue({ date: $event })"
                         [ngModelOptions]="{ standalone: true }"
                         [use_24hr]="use_24hr"
@@ -141,7 +141,7 @@ import { addDays, endOfDay, set, startOfDay } from 'date-fns';
                 </label>
                 <recurrence-field
                     name="recurrence"
-                    [date]="form.value.date"
+                    [date]="form.getRawValue().date"
                     formControlName="recurrence"
                 ></recurrence-field>
                 <mat-checkbox

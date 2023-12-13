@@ -3,14 +3,7 @@ import { CalendarEvent } from '@placeos/events';
 
 import { CateringItem } from './catering-item.class';
 import { CateringOrderStatus } from './catering.interfaces';
-import {
-    addDays,
-    addMinutes,
-    format,
-    set,
-    startOfDay,
-    startOfMinute,
-} from 'date-fns';
+import { addDays, addMinutes, set, startOfDay, startOfMinute } from 'date-fns';
 
 export class CateringOrder {
     /** ID of the order */
@@ -39,11 +32,13 @@ export class CateringOrder {
     public readonly notes: string;
     /** Event associated with the order */
     public readonly event: CalendarEvent | null;
+    public readonly deliver_at_time: number;
     /** Current status of the order */
     private _status: CateringOrderStatus;
+    private _time = startOfMinute(Date.now()).valueOf();
 
     public get deliver_at() {
-        let date = this.event?.date || Date.now();
+        let date = this.event?.date || this._time;
         if (this.deliver_time) {
             date = set(date, {
                 hours: Math.floor(this.deliver_time),
@@ -87,5 +82,6 @@ export class CateringOrder {
         this.deliver_time = data.deliver_time || undefined;
         this.deliver_offset = data.deliver_offset || 0;
         this.deliver_day_offset = data.deliver_day_offset || 0;
+        this.deliver_at_time = this.deliver_at;
     }
 }

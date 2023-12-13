@@ -107,7 +107,7 @@ export function generateEventForm(
         form.controls.assets[l?.length ? 'enable' : 'disable']();
     });
     const setCateringTime = () => {
-        if (!form.value.catering?.length) return;
+        if (!form.value.catering?.length || !form.value.date) return;
         form.patchValue(
             {
                 catering: form.value.catering.map((order: any) => ({
@@ -131,7 +131,7 @@ export function generateEventForm(
         } else {
             form.get('date')?.enable({ emitEvent: false });
         }
-        setCateringTime();
+        if (v.date || v.duration || v.all_day) setCateringTime();
     });
     form.controls.duration.valueChanges.subscribe((duration) => {
         form.patchValue(
@@ -146,20 +146,11 @@ export function generateEventForm(
         setCateringTime();
     });
     form.controls.date_end.valueChanges.subscribe((date) => {
-        if (
-            date <
-            addMinutes(
-                form.controls.date.value,
-                form.controls.duration.value
-            ).valueOf()
-        ) {
+        if (date < addMinutes(form.value.date, 30).valueOf()) {
             form.patchValue(
                 {
                     date_end: roundToNearestMinutes(
-                        addMinutes(
-                            form.controls.date.value,
-                            form.controls.duration.value
-                        ),
+                        addMinutes(form.value.date, 30),
                         { nearestTo: 5, roundingMethod: 'ceil' }
                     ).valueOf(),
                     duration: 30,
@@ -169,10 +160,7 @@ export function generateEventForm(
         } else {
             form.patchValue(
                 {
-                    duration: differenceInMinutes(
-                        date,
-                        form.controls.date.value
-                    ),
+                    duration: differenceInMinutes(date, form.value.date),
                 },
                 { emitEvent: false }
             );
