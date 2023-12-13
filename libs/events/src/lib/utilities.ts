@@ -107,15 +107,15 @@ export function generateEventForm(
         form.controls.assets[l?.length ? 'enable' : 'disable']();
     });
     const setCateringTime = () => {
-        if (!form.value.catering?.length || !form.value.date) return;
+        if (!form.value.catering?.length || !form.getRawValue().date) return;
         form.patchValue(
             {
                 catering: form.value.catering.map((order: any) => ({
                     ...order,
                     event: {
                         date: form.value.all_day
-                            ? startOfDay(form.value.date)
-                            : form.value.date,
+                            ? startOfDay(form.getRawValue().date)
+                            : form.getRawValue().date,
                         duration: form.value.all_day
                             ? 24 * 60
                             : form.value.duration,
@@ -126,7 +126,7 @@ export function generateEventForm(
         );
     };
     form.valueChanges.subscribe((v) => {
-        if (form.value.date < Date.now() && form.value.id) {
+        if (form.getRawValue().date < Date.now() && form.value.id) {
             form.get('date')?.disable({ emitEvent: false });
         } else {
             form.get('date')?.enable({ emitEvent: false });
@@ -146,11 +146,11 @@ export function generateEventForm(
         setCateringTime();
     });
     form.controls.date_end.valueChanges.subscribe((date) => {
-        if (date < addMinutes(form.value.date, 30).valueOf()) {
+        if (date < addMinutes(form.getRawValue().date, 30).valueOf()) {
             form.patchValue(
                 {
                     date_end: roundToNearestMinutes(
-                        addMinutes(form.value.date, 30),
+                        addMinutes(form.getRawValue().date, 30),
                         { nearestTo: 5, roundingMethod: 'ceil' }
                     ).valueOf(),
                     duration: 30,
@@ -160,7 +160,10 @@ export function generateEventForm(
         } else {
             form.patchValue(
                 {
-                    duration: differenceInMinutes(date, form.value.date),
+                    duration: differenceInMinutes(
+                        date,
+                        form.getRawValue().date
+                    ),
                 },
                 { emitEvent: false }
             );
