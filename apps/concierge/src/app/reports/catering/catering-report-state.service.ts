@@ -5,6 +5,7 @@ import { CalendarEvent } from '@placeos/events';
 import { combineLatest } from 'rxjs';
 import { map, shareReplay, take } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
+import { endOfDay, format, startOfDay } from 'date-fns';
 
 @Injectable({
     providedIn: 'root',
@@ -16,12 +17,19 @@ export class CateringReportStateService {
         this._reports.bookings,
     ]).pipe(
         map(([{ start, end }, list]: [any, CalendarEvent[]]) => {
+            const start_date = startOfDay(start).valueOf();
+            const end_date = endOfDay(end).valueOf();
             const orders: CateringOrder[] = flatten(
                 list.map((_) => _.valid_catering || [])
             );
-            return orders
-                .filter((_) => _.deliver_time >= start && _.deliver_time < end)
+            const out = orders
+                .filter(
+                    (_) =>
+                        _.deliver_at_time >= start_date &&
+                        _.deliver_at_time < end_date
+                )
                 .sort((a, b) => a.event?.date - b.event?.date);
+            return out;
         }),
         shareReplay(1)
     );
