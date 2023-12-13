@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1702432802026,
+  "timestamp": 1702438426135,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -239,14 +239,14 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./common.js": "2be948e378c4f408f6d7ba6640235b10e8a59977",
     "./default-libs_bookings_src_lib_bookings_module_ts.js": "63f355bbf47d155c222b17dc7eff040934219f09",
-    "./default-libs_catering_src_index_ts.js": "d4945be0aafd664265fe1a46525f49e1e42bbd02",
+    "./default-libs_catering_src_index_ts.js": "d0a37a9b315ba6a80e094fac7b8960745ae55c05",
     "./default-libs_explore_src_index_ts.js": "9012c502f79e2d0918338f3dad4ac89655af81b0",
     "./default-libs_users_src_index_ts.js": "4d276ec5b9044dc13c03b2ffd74bcbb08b861513",
     "./default-node_modules_angular_material_fesm2022_icon_mjs.js": "2c4a0873f3cfcfd925d65b7520e27582c72e3768",
     "./default-node_modules_angular_material_fesm2022_tabs_mjs.js": "2e20a48eb6436ea9f374c0659fa4f63457ad04f6",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "a1f4328ca44d917db7e87dc66d0cc159f82731b1",
-    "./main.js": "729ee3ca58c12027fba7fd53e73852e55a5a7cff",
+    "./main.js": "9b322098e5df39304e63ca3de1e64882a1aabcaf",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
