@@ -34,11 +34,11 @@ import { CATERING_STATUSES } from './catering.vars';
                 {{ order.deliver_at | date: time_format }}
             </div>
             <div time class="w-36 text-sm">
-                {{ order.event?.event_start * 1000 | date: 'MMM d' }},
-                {{ order.event?.event_start * 1000 | date: time_format }}
+                {{ order.event?.date | date: 'MMM d' }},
+                {{ order.event?.date | date: time_format }}
                 <br />
-                {{ order.event?.event_end * 1000 | date: 'MMM d' }},
-                {{ order.event?.event_end * 1000 | date: time_format }}
+                {{ order.event?.date_end | date: 'MMM d' }},
+                {{ order.event?.date_end | date: time_format }}
             </div>
             <div class="flex-1">
                 {{
