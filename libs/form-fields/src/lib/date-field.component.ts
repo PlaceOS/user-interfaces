@@ -35,7 +35,7 @@ import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
             </div>
         </button>
         <div class="error h-5 p-1 text-xs text-error">
-            <span *ngIf="false"><ng-content></ng-content></span>
+            <span *ngIf="has_error"><ng-content></ng-content></span>
         </div>
         <ng-template #calendar_picker>
             <div class="relative w-[18rem] rounded bg-base-100 px-2 py-4">

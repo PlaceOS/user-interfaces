@@ -225,7 +225,8 @@ export class EventFormService extends AsyncHandler {
     ]).pipe(
         map(([list, bookings, booking_rules]) => {
             this._loading.next('Updating available spaces...');
-            let { date, duration, organiser } = this._form.getRawValue();
+            let { ical_uid, date, duration, organiser } =
+                this._form.getRawValue();
             list = filterResourcesFromRules(
                 list,
                 { date, duration, resource: null, host: currentUser() },
@@ -236,7 +237,9 @@ export class EventFormService extends AsyncHandler {
                     return periodInFreeTimeSlot(
                         date,
                         date + duration * MINUTES,
-                        bookings[idx] || []
+                        (bookings[idx] || []).filter(
+                            (_) => _.ical_uid !== ical_uid
+                        )
                     );
                 })
                 .sort((a, b) => a.capacity - b.capacity);

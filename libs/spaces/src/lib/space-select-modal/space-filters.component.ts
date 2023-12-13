@@ -83,7 +83,9 @@ import { SpacesService } from '../spaces.service';
                         <label for="date" i18n>Date<span>*</span></label>
                         <a-date-field
                             name="date"
-                            formControlName="date"
+                            [ngModel]="form.getRawValue().date"
+                            (ngModelChange)="form.patchValue({ date: $event })"
+                            [ngModelOptions]="{ standalone: true }"
                             i18n
                             [to]="end_date"
                             [short]="true"
@@ -97,7 +99,11 @@ import { SpacesService } from '../spaces.service';
                         </label>
                         <a-date-field
                             name="date"
-                            [formControl]="form.controls.date_end"
+                            [ngModel]="form.getRawValue().date_end"
+                            (ngModelChange)="
+                                form.patchValue({ date_end: $event })
+                            "
+                            [ngModelOptions]="{ standalone: true }"
                             [from]="start_date"
                             [to]="end_date"
                             [short]="true"
@@ -122,7 +128,7 @@ import { SpacesService } from '../spaces.service';
                         </label>
                         <a-time-field
                             name="start-time"
-                            [ngModel]="form.value.date"
+                            [ngModel]="form.getRawValue().date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
                             [use_24hr]="use_24hr"
@@ -139,7 +145,7 @@ import { SpacesService } from '../spaces.service';
                                 form.patchValue({ date_end: $event })
                             "
                             [ngModelOptions]="{ standalone: true }"
-                            [from]="form?.value?.date"
+                            [from]="form?.getRawValue()?.date"
                             [use_24hr]="use_24hr"
                         ></a-time-field>
                     </div>
@@ -150,7 +156,7 @@ import { SpacesService } from '../spaces.service';
                         <a-duration-field
                             name="end-time"
                             formControlName="duration"
-                            [time]="form?.value?.date"
+                            [time]="form?.getRawValue()?.date"
                             [max]="max_duration"
                             [use_24hr]="use_24hr"
                         ></a-duration-field>

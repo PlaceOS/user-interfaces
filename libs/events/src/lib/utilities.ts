@@ -49,6 +49,7 @@ export function generateEventForm(
     if (!event) event = new CalendarEvent();
     const form = new FormGroup({
         id: new FormControl(event.id),
+        ical_uid: new FormControl(event.ical_uid),
         host: new FormControl(
             event.host || event.organiser?.email || currentUser()?.email || '',
             [Validators.required]
@@ -137,7 +138,7 @@ export function generateEventForm(
         form.patchValue(
             {
                 date_end: roundToNearestMinutes(
-                    addMinutes(form.controls.date.value, duration),
+                    addMinutes(form.getRawValue().date, duration),
                     { nearestTo: 5, roundingMethod: 'ceil' }
                 ).valueOf(),
             },
@@ -171,20 +172,15 @@ export function generateEventForm(
         setCateringTime();
     });
     form.controls.date.valueChanges.subscribe((date) => {
-        if (
-            addMinutes(date, form.controls.duration.value).valueOf() >
-            form.controls.date_end.value
-        ) {
-            form.patchValue(
-                {
-                    date_end: roundToNearestMinutes(
-                        addMinutes(date, form.controls.duration.value),
-                        { nearestTo: 5, roundingMethod: 'ceil' }
-                    ).valueOf(),
-                },
-                { emitEvent: false }
-            );
-        }
+        form.patchValue(
+            {
+                date_end: roundToNearestMinutes(
+                    addMinutes(date, form.value.duration),
+                    { nearestTo: 5, roundingMethod: 'ceil' }
+                ).valueOf(),
+            },
+            { emitEvent: false }
+        );
         if (date < Date.now() && !form.value.id) {
             form.patchValue(
                 {
