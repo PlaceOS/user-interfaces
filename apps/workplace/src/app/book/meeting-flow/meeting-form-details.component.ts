@@ -5,8 +5,10 @@ import { EventFormService } from '@placeos/events';
 import {
     addDays,
     addMinutes,
+    differenceInMinutes,
     endOfDay,
     format,
+    formatDuration,
     set,
     startOfDay,
 } from 'date-fns';
@@ -118,6 +120,7 @@ import {
                         [ngModelOptions]="{ standalone: true }"
                         [from]="form?.value?.date + 30 * 60 * 1000"
                         [use_24hr]="use_24hr"
+                        [extra_info_fn]="duration_info"
                     ></a-time-field>
                 </div>
                 <div class="flex-1 w-1/3" *ngIf="!allow_multiday">
@@ -218,6 +221,17 @@ export class MeetingFormDetailsComponent {
     public get use_24hr() {
         return this._settings.get('app.use_24_hour_time');
     }
+
+    public readonly duration_info = (time: number) => {
+        const date = this.form.getRawValue().date;
+        if (format(date, 'yyyy-MM-dd') !== format(time, 'yyyy-MM-dd'))
+            return '';
+        const diff = differenceInMinutes(time, date);
+        return ` (${formatDuration({
+            hours: Math.floor(diff / 60),
+            minutes: diff % 60,
+        })})`;
+    };
 
     constructor(
         private _settings: SettingsService,

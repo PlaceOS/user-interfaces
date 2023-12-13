@@ -42,6 +42,7 @@ import {
                     {{
                         option.date | date: (use_24hr ? 'HH : mm' : 'h : mm a')
                     }}
+                    {{ extra_info_fn(option.date) }}
                 </mat-option>
             </mat-select>
         </mat-form-field>
@@ -73,6 +74,7 @@ export class TimeFieldComponent
     @Input() public no_past_times = true;
     @Input() public use_24hr = false;
     @Input() public force_time: number;
+    @Input() public extra_info_fn = (t?: number) => '';
     /** Prevent times before */
     @Input() public from: number = startOfDay(Date.now()).valueOf();
     /** String representing the currently set time */
