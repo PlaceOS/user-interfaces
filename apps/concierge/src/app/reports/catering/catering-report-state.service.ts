@@ -26,7 +26,8 @@ export class CateringReportStateService {
                 .filter(
                     (_) =>
                         _.deliver_at_time >= start_date &&
-                        _.deliver_at_time < end_date
+                        _.deliver_at_time < end_date &&
+                        _.status !== 'cancelled'
                 )
                 .sort((a, b) => a.event?.date - b.event?.date);
             return out;
