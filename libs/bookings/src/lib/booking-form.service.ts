@@ -553,6 +553,7 @@ export class BookingFormService extends AsyncHandler {
                 {
                     date: value.date,
                     duration: value.duration,
+                    all_day: value.all_day,
                     host: value.booked_by_email,
                 },
                 value.assets

@@ -330,6 +330,7 @@ export async function updateAssetRequestsForResource(
     {
         date,
         duration,
+        all_day,
         host,
         location_name,
         location_id,
@@ -337,6 +338,7 @@ export async function updateAssetRequestsForResource(
     }: {
         date: number;
         duration: number;
+        all_day: boolean;
         host: string;
         location_name?: string;
         location_id?: string;
@@ -364,6 +366,7 @@ export async function updateAssetRequestsForResource(
                     booking_type: 'asset-request',
                     date,
                     duration,
+                    all_day,
                     description: location_name,
                     user_email: host,
                     asset_id: request.id,

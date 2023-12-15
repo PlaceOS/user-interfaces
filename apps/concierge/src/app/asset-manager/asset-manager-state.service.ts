@@ -126,26 +126,36 @@ export class AssetManagerStateService extends AsyncHandler {
         this._spaces.initialised,
     ]).pipe(
         debounceTime(200),
-        switchMap(([{ date }, bld]) =>
-            queryBookings({
+        switchMap(([{ date }, bld]) => {
+            const start = startOfDay(date || Date.now());
+            const end = endOfDay(date || Date.now());
+            return queryBookings({
                 zones: bld?.id,
-                period_start: getUnixTime(startOfDay(date || Date.now())),
-                period_end: getUnixTime(endOfDay(date || Date.now())),
+                period_start: getUnixTime(start),
+                period_end: getUnixTime(end),
                 type: 'asset-request',
-            })
-        ),
-        map((_) =>
-            _.map(
-                (b) =>
-                    new Booking({
-                        ...b,
-                        extension_data: {
-                            ...b.extension_data,
-                            space: this._spaces.find(b.extension_data.space_id),
-                        },
-                    })
-            )
-        ),
+            }).pipe(
+                map((_) =>
+                    _.map(
+                        (b) =>
+                            new Booking({
+                                ...b,
+                                extension_data: {
+                                    ...b.extension_data,
+                                    space: this._spaces.find(
+                                        b.extension_data.space_id
+                                    ),
+                                },
+                            })
+                    ).filter(
+                        (b) =>
+                            b.extension_data.request?.deliver_at_time >=
+                                start &&
+                            b.extension_data.request?.deliver_at_time < end
+                    )
+                )
+            );
+        }),
         shareReplay(1)
     );
     /** Filtered list of asset requests */

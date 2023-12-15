@@ -40,8 +40,8 @@ import { OrganisationService } from '@placeos/organisation';
                     [display_column]="[
                         'Requester',
                         'Asset',
-                        'Date',
-                        'Time',
+                        'Deliver At',
+                        'Meeting Time',
                         'Floor',
                         'Location',
                         'Approval',
@@ -51,7 +51,7 @@ import { OrganisationService } from '@placeos/organisation';
                         'flex',
                         '12r',
                         '',
-                        '9.5r',
+                        '8r',
                         '6r',
                         '12r',
                         '10r',
@@ -93,14 +93,20 @@ import { OrganisationService } from '@placeos/organisation';
             </div>
         </ng-template>
         <ng-template #date_template let-row="row">
-            {{ row.date | date: 'mediumDate' }}
+            {{
+                row.extension_data?.request?.deliver_at
+                    | date: 'MMM d, ' + time_format
+            }}
         </ng-template>
         <ng-template #level_template let-data="data">
             {{ level(data)?.display_name || 'N/A' }}
         </ng-template>
         <ng-template #period_template let-row="row">
-            {{ row.date | date: time_format }} &ndash;
-            {{ row.date + row.duration * 60 * 1000 | date: time_format }}
+            {{ row.date | date: 'MMM d, ' + time_format }} <br />
+            {{
+                row.date + row.duration * 60 * 1000
+                    | date: 'MMM d, ' + time_format
+            }}
         </ng-template>
         <ng-template #approval_template let-row="row">
             <button

@@ -645,6 +645,7 @@ export class EventFormService extends AsyncHandler {
                         date,
                         duration,
                         host,
+                        all_day,
                         location_name:
                             spaces[0]?.display_name || spaces[0]?.name || '',
                         location_id: spaces[0]?.id || '',

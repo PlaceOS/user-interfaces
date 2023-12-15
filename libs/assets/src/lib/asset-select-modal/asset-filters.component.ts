@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { AssetStateService } from '../asset-state.service';
-import { SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import {
     addDays,
     addMinutes,
@@ -94,7 +94,7 @@ import {
         `,
     ],
 })
-export class AssetFiltersComponent {
+export class AssetFiltersComponent extends AsyncHandler {
     @Input() public search = false;
 
     @Input() public at_time = false;
@@ -155,5 +155,41 @@ export class AssetFiltersComponent {
     constructor(
         private _state: AssetStateService,
         private _settings: SettingsService
-    ) {}
+    ) {
+        super();
+    }
+
+    public ngOnInit() {
+        this._min_offset = Math.max(
+            this._settings.get('app.assets.min_offset'),
+            0
+        );
+        this.subscription(
+            'filters',
+            this._state.options.subscribe(() => {
+                this._max_offset = Math.max(
+                    15,
+                    (this._state.getOptions().duration || 60) -
+                        this._settings.get('app.assets.end_offset')
+                );
+                this._updateDayOptions();
+            })
+        );
+        this._updateDayOptions();
+    }
+
+    private _updateDayOptions() {
+        const { date, duration } = this._state.getOptions();
+        if (duration <= 24 * 60) return (this.day_options = []);
+        let day = startOfDay(date);
+        let count = 0;
+        const end = endOfDay(addMinutes(date, duration)).valueOf();
+        const options = [];
+        while (day.valueOf() <= end) {
+            options.push({ id: count, value: day.valueOf() });
+            day = addDays(day, 1);
+            count++;
+        }
+        this.day_options = options;
+    }
 }
