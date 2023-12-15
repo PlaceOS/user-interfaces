@@ -555,8 +555,7 @@ export class BookingFormService extends AsyncHandler {
                     duration: value.duration,
                     host: value.booked_by_email,
                 },
-                value.assets,
-                booking.extension_data.assets
+                value.assets
             ).catch((e) => {
                 this._loading.next('');
                 throw e?.error || e;

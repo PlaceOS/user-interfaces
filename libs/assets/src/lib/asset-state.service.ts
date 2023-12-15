@@ -48,6 +48,7 @@ export class AssetStateService {
 
     public readonly search = this._search.asObservable();
     public readonly category = this._category.asObservable();
+    public readonly options = this._options.asObservable();
     public readonly loading = this._loading.asObservable();
 
     public readonly rules = combineLatest([
@@ -178,6 +179,10 @@ export class AssetStateService {
         } else {
             this._category.next([...categories, value]);
         }
+    }
+
+    public getOptions() {
+        return this._options.getValue();
     }
 
     public setOptions(options: Partial<AssetOptions>) {

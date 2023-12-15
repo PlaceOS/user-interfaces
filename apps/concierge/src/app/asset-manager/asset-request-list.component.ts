@@ -29,7 +29,7 @@ import { OrganisationService } from '@placeos/organisation';
                     [dataSource]="requests"
                     [columns]="[
                         'user',
-                        'title',
+                        'assets',
                         'date',
                         'period',
                         'zones',
@@ -83,8 +83,12 @@ import { OrganisationService } from '@placeos/organisation';
         </ng-template>
         <ng-template #assets_template let-row="row">
             <div class="flex flex-col">
-                <div *ngFor="let asset of row.extension_data?.assets || []">
-                    {{ asset.amount || 1 }}× {{ asset.name }}
+                <div
+                    *ngFor="
+                        let asset of row.extension_data?.request?.items || []
+                    "
+                >
+                    {{ asset.quantity || 1 }}× {{ asset.name }}
                 </div>
             </div>
         </ng-template>
@@ -105,16 +109,14 @@ import { OrganisationService } from '@placeos/organisation';
                 [class.bg-success]="row.status === 'approved'"
                 [class.bg-error]="row.status === 'declined'"
                 [class.bg-warning]="row.status === 'tentative'"
+                [class.text-success-content]="row.status === 'approved'"
+                [class.text-error-content]="row.status === 'declined'"
+                [class.text-warning-content]="row.status === 'tentative'"
                 [matMenuTriggerFor]="menu"
                 (click)="$event.stopPropagation()"
                 [disabled]="loading[row.id]"
             >
-                <app-icon
-                    class="text-xl"
-                    [class.text-green-600]="row.status === 'approved'"
-                    [class.text-red-600]="row.status === 'declined'"
-                    [class.text-yellow-400]="row.status === 'tentative'"
-                >
+                <app-icon class="text-xl">
                     {{
                         row.status === 'approved'
                             ? 'done'

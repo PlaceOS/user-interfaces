@@ -305,8 +305,15 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                             [@show]="hide_block.assets ? 'hide' : 'show'"
                         >
                             <asset-list-field
-                                [date]="form.getRawValue().date"
-                                [duration]="form.value.duration"
+                                [options]="{
+                                    date: form.getRawValue().date,
+                                    duration: form.value.duration,
+                                    all_day: form.value.all_day,
+                                    zone_id: form.value?.resources?.length
+                                        ? form.value?.resources[0]?.level
+                                              ?.parent_id
+                                        : ''
+                                }"
                                 formControlName="assets"
                             ></asset-list-field>
                         </div>

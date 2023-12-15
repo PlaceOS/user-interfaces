@@ -255,16 +255,55 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     </div>
                     <h3 class="text-xl !mt-0" i18n>Assets</h3>
                     <div
-                        class="flex items-center"
-                        *ngFor="let item of event.assets"
+                        request
+                        *ngFor="let request of event.assets"
+                        class="border bg-base-100 rounded-xl overflow-hidden"
+                        [class.border-error]="end_time < request.deliver_at"
+                        [class.border-base-300]="end_time >= request.deliver_at"
                     >
-                        <div
-                            count
-                            class="flex items-center justify-center w-12 h-12 rounded-full"
-                        >
-                            {{ item.amount }}
+                        <div class="flex items-center space-x-2 p-3">
+                            <div class="flex-1 flex items-center space-x-2">
+                                <div class="text-sm">
+                                    Requested for
+                                    {{
+                                        request.deliver_at_time
+                                            | date: 'MMM d, ' + time_format
+                                    }}
+                                </div>
+                                <div
+                                    class="flex items-center justify-center h-6 w-6 rounded-full bg-error text-error-content"
+                                    [matTooltip]="err_tooltip"
+                                    *ngIf="end_time < request.deliver_at"
+                                >
+                                    <app-icon>priority_high</app-icon>
+                                </div>
+                                <div class="flex-1"></div>
+                                <div
+                                    class="text-xs bg-success text-success-content px-2 py-1 rounded"
+                                >
+                                    {{ request.item_count }} item(s)
+                                </div>
+                            </div>
                         </div>
-                        <div name class="flex-1">{{ item.name }}</div>
+                        <div
+                            class="flex flex-col bg-base-200 divide-y divide-base-100"
+                        >
+                            <div
+                                class="flex items-center px-3 py-1 space-x-2 hover:opacity-90"
+                                *ngFor="let item of request.items"
+                            >
+                                <div class="flex items-center flex-1">
+                                    <span class="text-sm">{{
+                                        item.name || 'Item'
+                                    }}</span>
+                                </div>
+                                <div
+                                    class="rounded bg-success text-success-content text-xs px-2 py-1"
+                                >
+                                    x{{ item.quantity }}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

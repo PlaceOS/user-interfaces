@@ -251,6 +251,9 @@ export class CateringListFieldComponent implements ControlValueAccessor {
             value instanceof Array
                 ? value.map((_) => new CateringOrder(_))
                 : [];
+        for (const order of this.orders) {
+            (order as any).event = this.options;
+        }
     }
 
     public readonly registerOnChange = (fn: (_: CateringOrder[]) => void) =>

@@ -12,6 +12,7 @@ import { isAfter, isBefore, setHours, subHours } from 'date-fns';
 import { catchError, map } from 'rxjs/operators';
 import { showMetadata } from '@placeos/ts-client';
 import { Observable, of } from 'rxjs';
+import { AssetRequest } from './asset-request.class';
 
 export function generateAssetCategoryForm(category: AssetCategory = {} as any) {
     return new FormGroup({
@@ -70,36 +71,6 @@ export function generateAssetForm(asset: Asset = new Asset()) {
         other_data: new FormControl(asset.other_data || {}),
         purchase_order_id: new FormControl(asset.purchase_order_id),
     });
-}
-
-export function assetsToGroups(assets: Asset[]) {
-    const groups: AssetGroup[] = [];
-    for (const asset of assets) {
-        const group = groups.find((_) => _.id === (asset as any).asset_type_id);
-        if (group) {
-            group.assets.push(asset);
-        } else {
-            groups.push({
-                id: (asset as any).asset_type_id,
-                name: (asset as any).name,
-                assets: [asset],
-            } as AssetGroup);
-        }
-    }
-    for (const group of groups) {
-        group.amount = group.assets.length;
-    }
-    return groups;
-}
-
-export function groupsToAssets(groups: AssetGroup[]) {
-    return flatten(
-        groups.map((_) =>
-            _.assets
-                .slice(0, (_ as any).amount)
-                .map((asset) => ({ ...asset, name: _.name }))
-        )
-    );
 }
 
 const RULE_REQUESTS: Record<string, Observable<AttachedResourceRuleset[]>> = {};

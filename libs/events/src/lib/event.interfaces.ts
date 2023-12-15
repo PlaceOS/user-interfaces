@@ -1,7 +1,5 @@
-import { Asset } from 'libs/assets/src/lib/asset.class';
-import { Space } from 'libs/spaces/src/lib/space.class';
-import { User } from 'libs/users/src/lib/user.class';
 import { CateringOrder } from 'libs/catering/src/lib/catering-order.class';
+import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
 
 export interface FileDetails {
     /** Name of the file */
@@ -17,7 +15,7 @@ export interface EventExtensionData {
     /** Catering */
     catering?: CateringOrder[];
     /** List of assets assigned to event */
-    assets?: Asset[];
+    assets?: AssetRequest[];
     /** Parking */
     needs_parking?: boolean;
     /** Configuration */

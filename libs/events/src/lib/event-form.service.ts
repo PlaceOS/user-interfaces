@@ -52,10 +52,6 @@ import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
 import { periodInFreeTimeSlot } from './helpers';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { updateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
-import {
-    assetsToGroups,
-    groupsToAssets,
-} from 'libs/assets/src/lib/asset.utilities';
 import { User } from 'libs/users/src/lib/user.class';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { removeEvent } from './events.fn';
@@ -425,7 +421,7 @@ export class EventFormService extends AsyncHandler {
             catering_charge_code:
                 event.extension_data.catering[0]?.charge_code ||
                 (event.id && has_catering ? ' ' : ''),
-            assets: assetsToGroups(event.extension_data.assets || []),
+            assets: event.extension_data.assets || [],
         });
         this._form.patchValue({
             date: event.date || this._form.value.date,
@@ -456,13 +452,7 @@ export class EventFormService extends AsyncHandler {
         const form_data = JSON.parse(
             sessionStorage.getItem('PLACEOS.event_form') || '{}'
         );
-        this._form.patchValue({
-            ...form_data,
-            assets:
-                (form_data.assets?.length && form_data.assets[0].type_id
-                    ? assetsToGroups(form_data.assets)
-                    : form_data.assets) || [],
-        });
+        this._form.patchValue({ ...form_data });
     }
 
     public readonly cancelPostForm = () => this.unsub('post-event-form');
@@ -594,7 +584,6 @@ export class EventFormService extends AsyncHandler {
                     }),
                     date: d,
                     catering,
-                    assets: groupsToAssets(assets),
                     extension_data:
                         this._settings.get('app.events.force_host') ||
                         this._settings.get('app.events.room_as_host')
@@ -664,8 +653,7 @@ export class EventFormService extends AsyncHandler {
                             this._org.building?.parent_id,
                         ],
                     },
-                    assets,
-                    event.extension_data.assets
+                    assets
                 ).catch(on_error);
             }
             this.clearForm();

@@ -27,6 +27,7 @@ import {
     RecurrenceDetails,
 } from './event.interfaces';
 import { eventStatus, parseRecurrence } from './helpers';
+import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
 
 let _default_user: Identity = { id: 'default', name: 'Default User' };
 
@@ -265,6 +266,10 @@ export class CalendarEvent {
             (i) =>
                 new CateringOrder({ ...i, event: this, date: this.date } as any)
         );
+        this.extension_data.assets = (this.extension_data.assets || []).map(
+            (i) =>
+                new AssetRequest({ ...i, event: this, date: this.date } as any)
+        );
     }
 
     /** List of external attendees associated with the event */
@@ -326,6 +331,9 @@ export class CalendarEvent {
         }
         obj.extension_data.catering = obj.extension_data.catering.map(
             (i) => new CateringOrder({ ...i, event: null })
+        );
+        obj.extension_data.assets = obj.extension_data.assets.map(
+            (i) => new AssetRequest({ ...i, event: null })
         );
         obj.system_id = this.system?.id;
         delete obj.catering;

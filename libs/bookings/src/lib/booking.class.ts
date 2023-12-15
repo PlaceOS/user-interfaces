@@ -15,6 +15,7 @@ import {
     isSameDay,
     roundToNearestMinutes,
 } from 'date-fns';
+import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
 
 export type BookingType =
     | 'desk'
@@ -66,6 +67,8 @@ export class Booking {
     public readonly event_id?: string;
     /** Identifier of the physical asset assocated with the booking */
     public readonly asset_id: string;
+    /** List of identifier of the physical assets assocated with the booking */
+    public readonly asset_ids: string[];
     /** Name of the physical asset assocated with the booking */
     public readonly asset_name: string;
     /** Zones associated with the asset ID */
@@ -132,6 +135,7 @@ export class Booking {
         this.id = data.id || '';
         this.parent_id = data.parent_id || '';
         this.asset_id = data.asset_id || '';
+        this.asset_ids = data.asset_ids || [data.asset_id].filter((_) => _);
         this.asset_name =
             data.asset_name ||
             data.extension_data?.asset_name ||
@@ -209,11 +213,31 @@ export class Booking {
                     data[key] || this.extension_data[key];
             }
         }
+        this.extension_data.assets = (this.extension_data.assets || []).map(
+            (i) =>
+                new AssetRequest({ ...i, event: this, date: this.date } as any)
+        );
+        if (this.extension_data.request) {
+            this.extension_data.request = new AssetRequest({
+                ...this.extension_data.request,
+                event: this,
+                date: this.date,
+            } as any);
+        }
     }
 
     public toJSON(this: Booking): Partial<Booking> {
         const data = { ...this };
         if (!this.id) delete data.id;
+        data.extension_data.assets = data.extension_data.assets.map(
+            (i) => new AssetRequest({ ...i, event: null })
+        );
+        if (data.extension_data.request) {
+            data.extension_data.request = new AssetRequest({
+                ...data.extension_data.request,
+                event: null,
+            });
+        }
         delete data.date;
         delete data.duration;
         removeEmptyFields(data);

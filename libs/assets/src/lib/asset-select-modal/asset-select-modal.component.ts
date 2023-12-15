@@ -1,7 +1,8 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
-import { Asset, AssetGroup } from '../asset.class';
+import { AssetGroup } from '../asset.class';
+import { AssetStateService } from '../asset-state.service';
 
 const EMPTY_FAVS: string[] = [];
 
@@ -25,6 +26,9 @@ const EMPTY_FAVS: string[] = [];
                 >
                     <asset-filters
                         class="h-full hidden sm:block"
+                        [(at_time)]="exact_time"
+                        [(offset)]="offset"
+                        [(offset_day)]="offset_day"
                     ></asset-filters>
                 </div>
                 <div
@@ -124,7 +128,10 @@ const EMPTY_FAVS: string[] = [];
 })
 export class AssetSelectModalComponent {
     public displayed: AssetGroup | null = null;
-    public selected: AssetGroup[] = [...(this._items || [])];
+    public selected: AssetGroup[] = [...(this._data.items || [])];
+    public exact_time = this._data.exact_time ?? false;
+    public offset: number;
+    public offset_day: number;
 
     public get favorites() {
         return this._settings.get<string[]>('favourite_assets') || EMPTY_FAVS;
@@ -135,7 +142,7 @@ export class AssetSelectModalComponent {
     }
 
     public get count() {
-        return this.selected.reduce((t, i: any) => t + i.amount, 0);
+        return this.selected.reduce((t, i: any) => t + i.quantity, 0);
     }
 
     public isSelected(id: string) {
@@ -144,8 +151,27 @@ export class AssetSelectModalComponent {
 
     constructor(
         private _settings: SettingsService,
-        @Inject(MAT_DIALOG_DATA) private _items: AssetGroup[]
-    ) {}
+        private _state: AssetStateService,
+        @Inject(MAT_DIALOG_DATA)
+        private _data: {
+            items: AssetGroup[];
+            details: any;
+            exact_time?: boolean;
+            offset?: number;
+            offset_day?: number;
+        }
+    ) {
+        const { duration } = this._data.details;
+        this._state.setOptions(this._data.details);
+        this.offset = Math.min(
+            Math.max(
+                this._settings.get('app.assets.min_offset'),
+                this._data.offset || 0
+            ),
+            (duration || 60) - this._settings.get('app.assets.end_offset')
+        );
+        this.offset_day = this._data.offset_day || 0;
+    }
 
     public setSelected(group: AssetGroup, state: boolean) {
         const list = this.selected.filter((_) => _.id !== group.id);
@@ -156,7 +182,7 @@ export class AssetSelectModalComponent {
     public updateSelectedCount(count: number) {
         if (!this.displayed) return;
         const item = this.selected.find((_) => _.id === this.displayed.id);
-        if (item) item.amount = count;
+        if (item) item.quantity = count;
         item.assets = this.displayed.assets;
     }
 

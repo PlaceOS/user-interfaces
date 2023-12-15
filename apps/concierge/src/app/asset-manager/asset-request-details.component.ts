@@ -10,10 +10,11 @@ import { SettingsService } from '@placeos/common';
     selector: 'asset-request-details',
     template: `
         <div
-            class="fixed inset-0 bg-neutral z-50"
+            class="fixed inset-0 z-50"
             *ngIf="request"
             (click)="request = null; requestChange.emit(request)"
         >
+            <div class="absolute inset-0 bg-black opacity-50"></div>
             <div
                 class="absolute inset-y-0 right-0 bg-base-100 w-[480px]"
                 (click)="$event.stopPropagation()"
@@ -67,7 +68,14 @@ import { SettingsService } from '@placeos/common';
                         <div class="font-medium">Asset Requested</div>
                     </div>
                     <div class="pl-10 flex flex-col mt-1">
-                        {{ request.title }}
+                        <div *ngFor="let item of items">
+                            {{ item.name }}
+                            <span
+                                class="text-xs bg-success text-success-content px-2 py-1 rounded"
+                            >
+                                x{{ item.quantity }}
+                            </span>
+                        </div>
                     </div>
                     <div class="flex items-center space-x-4 mt-4">
                         <div
@@ -213,6 +221,10 @@ export class AssetRequestDetailsComponent {
     @Output() public requestChange = new EventEmitter<any>();
 
     public loading = false;
+
+    public get items() {
+        return this.request?.extension_data?.request?.items || [];
+    }
 
     public get time_format() {
         return this._settings.time_format;

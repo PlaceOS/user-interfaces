@@ -48,7 +48,7 @@ import { AssetGroup } from '../asset.class';
                         <p>{{ item.assets?.length || 0 }} Available</p>
                     </div>
                     <a-counter
-                        [(ngModel)]="item.amount"
+                        [(ngModel)]="item.quantity"
                         (ngModelChange)="countChange.emit($event)"
                         [min]="1"
                         [max]="item.assets?.length || 1"
@@ -119,12 +119,12 @@ export class AssetDetailsComponent {
     @Output() public close = new EventEmitter<void>();
 
     public ngOnInit() {
-        if (this.item && !this.item.amount) this.item.amount = 1;
+        if (this.item && !this.item.quantity) this.item.quantity = 1;
     }
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.item && this.item) {
-            if (!this.item.amount) this.item.amount = 1;
+            if (!this.item.quantity) this.item.quantity = 1;
         }
     }
 }

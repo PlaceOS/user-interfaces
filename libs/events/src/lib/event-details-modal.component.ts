@@ -350,34 +350,95 @@ const EMPTY_ACTIONS = [];
                                 event.extension_data.assets?.length || 0
                             }})
                         </h3>
-                        <div class="flex px-4 flex-wrap">
+                        <div class="flex flex-col space-y-2">
                             <div
-                                asset
-                                class="flex space-x-2 m-1 rounded-2xl text-white pl-1 pr-2 py-1"
-                                [class.bg-success]="
-                                    status(item.id) === 'approved'
-                                "
-                                [class.bg-error]="
-                                    status(item.id) === 'rejected'
-                                "
-                                [class.bg-warning]="
-                                    status(item.id) !== 'approved' &&
-                                    status(item.id) !== 'rejected'
-                                "
-                                *ngFor="
-                                    let item of event.extension_data.assets ||
-                                        []
-                                "
+                                request
+                                *ngFor="let request of event.ext('assets')"
+                                class="border border-base-300 bg-base-100 rounded-xl overflow-hidden"
                             >
-                                <app-icon>{{
-                                    status(item.id) === 'approved'
-                                        ? 'done'
-                                        : status(item.id) === 'rejected'
-                                        ? 'close'
-                                        : 'question_mark'
-                                }}</app-icon>
-                                <div class="text-sm whitespace-nowrap pr-2">
-                                    {{ item.name }}
+                                <div class="flex items-center space-x-2 p-3">
+                                    <div class="flex-1">
+                                        <div class="text-sm">
+                                            Requested for
+                                            {{
+                                                request.deliver_at
+                                                    | date
+                                                        : 'MMM d, ' +
+                                                              time_format
+                                            }}
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="flex items-center justify-center"
+                                        [class.bg-success]="
+                                            request.status === 'approved'
+                                        "
+                                        [class.bg-warning]="
+                                            request.status === 'tentative'
+                                        "
+                                        [class.bg-error]="
+                                            request.status === 'rejected'
+                                        "
+                                    >
+                                        <app-icon>
+                                            {{
+                                                request.status === 'approved'
+                                                    ? 'done'
+                                                    : request.status ===
+                                                      'tentative'
+                                                    ? 'schedule'
+                                                    : request.status ===
+                                                      'rejected'
+                                                    ? 'close'
+                                                    : ''
+                                            }}
+                                        </app-icon>
+                                    </div>
+                                    <button
+                                        icon
+                                        matRipple
+                                        [matTooltip]="
+                                            show_request[request.id]
+                                                ? 'Hide requested items'
+                                                : 'Show requested items'
+                                        "
+                                        (click)="
+                                            show_request[request.id] =
+                                                !show_request[request.id]
+                                        "
+                                    >
+                                        <app-icon>
+                                            {{
+                                                show_request[request.id]
+                                                    ? 'expand_less'
+                                                    : 'expand_more'
+                                            }}
+                                        </app-icon>
+                                    </button>
+                                </div>
+                                <div
+                                    class="flex flex-col bg-base-200 divide-y divide-base-100"
+                                    [@show]="
+                                        show_request[request.id]
+                                            ? 'show'
+                                            : 'hide'
+                                    "
+                                >
+                                    <div
+                                        class="flex items-center px-3 py-1 space-x-2 hover:opacity-90"
+                                        *ngFor="let item of request.items"
+                                    >
+                                        <div class="flex items-center flex-1">
+                                            <span class="text-sm">{{
+                                                item.name || 'Item'
+                                            }}</span>
+                                        </div>
+                                        <div
+                                            class="rounded bg-success text-success-content text-xs px-2 py-1"
+                                        >
+                                            x{{ item.quantity }}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -452,6 +513,7 @@ export class EventDetailsModalComponent {
     @Output() public remove = new EventEmitter();
 
     public show_order = {};
+    public show_request = {};
     public room_status = '';
     public hide_map = false;
     public hide_edit = false;

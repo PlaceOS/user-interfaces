@@ -4,8 +4,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 
 import { AssetSelectModalComponent } from 'libs/assets/src/lib/asset-select-modal/asset-select-modal.component';
-import { AssetGroup } from 'libs/assets/src/lib/asset.class';
 import { AssetStateService } from './asset-state.service';
+import { AssetItem, AssetRequest } from './asset-request.class';
+import { ANIMATION_SHOW_CONTRACT_EXPAND, randomString } from '@placeos/common';
+import { endOfDay, startOfDay } from 'date-fns';
 
 const EMPTY_FAVS: string[] = [];
 
@@ -14,77 +16,120 @@ const EMPTY_FAVS: string[] = [];
     template: `
         <div list class="space-y-2">
             <div
-                space
-                class="relative p-2 rounded-lg w-full flex items-center shadow border border-base-200"
-                *ngFor="let asset of items"
+                request
+                *ngFor="let request of asset_requests"
+                class="border shadow bg-base-100 rounded-xl overflow-hidden"
+                [class.border-error]="end_time < request.deliver_at"
+                [class.border-base-300]="end_time >= request.deliver_at"
             >
-                <div
-                    class="w-16 h-16 rounded-xl bg-base-200 mr-4 overflow-hidden flex items-center justify-center"
-                >
-                    <img
-                        auth
-                        *ngIf="asset.images?.length; else placeholder"
-                        [source]="asset.images[0]"
-                        class="min-h-full object-cover"
-                    />
-                    <ng-template #placeholder>
-                        <img
-                            class="m-auto"
-                            src="assets/icons/asset-placeholder.svg"
-                        />
-                    </ng-template>
-                </div>
-                <div class="pb-4">
-                    <div class="font-medium">
-                        {{
-                            (asset.id | assetgroup | async)?.name ||
-                                'AssetGroup'
-                        }}
+                <div class="flex items-center space-x-2 p-4">
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-4">
+                            <div>
+                                Request for
+                                {{ request.deliver_at | date: 'mediumDate' }} at
+                                {{ request.deliver_at | date: time_format }}
+                            </div>
+                            <div
+                                class="flex items-center justify-center h-6 w-6 rounded-full bg-error text-error-content"
+                                [matTooltip]="err_tooltip"
+                                *ngIf="end_time < request.deliver_at"
+                            >
+                                <app-icon>priority_high</app-icon>
+                            </div>
+                        </div>
                     </div>
-                    <div i18n>{{ asset.amount }} requested</div>
-                    <div
-                        class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
+                    <button
+                        icon
+                        matRipple
+                        matTooltip="Duplicate Request"
+                        (click)="duplicateRequest(request)"
                     >
-                        <button
-                            btn
-                            matRipple
-                            edit-space
-                            class="clear"
-                            (click)="addAssetGroups(asset)"
+                        <app-icon>content_copy</app-icon>
+                    </button>
+                    <button
+                        icon
+                        matRipple
+                        matTooltip="Edit Request"
+                        (click)="editRequest(request)"
+                    >
+                        <app-icon>edit</app-icon>
+                    </button>
+                    <button
+                        icon
+                        matRipple
+                        matTooltip="Remove Request"
+                        class="text-error"
+                        (click)="removeRequest(request)"
+                    >
+                        <app-icon>delete</app-icon>
+                    </button>
+                    <button
+                        icon
+                        matRipple
+                        [matTooltip]="
+                            show_request[request.id]
+                                ? 'Hide order items'
+                                : 'Show order items'
+                        "
+                        (click)="
+                            show_request[request.id] = !show_request[request.id]
+                        "
+                    >
+                        <app-icon>
+                            {{
+                                show_request[request.id]
+                                    ? 'expand_less'
+                                    : 'expand_more'
+                            }}
+                        </app-icon>
+                    </button>
+                </div>
+                <div
+                    class="flex flex-col bg-base-200 divide-y divide-base-100"
+                    [@show]="show_request[request.id] ? 'show' : 'hide'"
+                >
+                    <div
+                        class="flex items-center px-4 py-1 space-x-2 hover:opacity-90"
+                        *ngFor="let item of request.items"
+                    >
+                        <div class="flex items-center flex-1">
+                            {{ item.name || 'Item' }}
+                        </div>
+                        <div
+                            class="rounded bg-success text-success-content text-xs px-2 py-1"
                         >
-                            <div class="flex items-center space-x-2" i18n>
-                                <app-icon>edit</app-icon>
-                                Change
-                            </div>
+                            x{{ item.quantity }}
+                        </div>
+                        <button
+                            icon
+                            matRipple
+                            matTooltip="Remove Request Item"
+                            class="text-error"
+                            (click)="removeRequestItem(request, item)"
+                        >
+                            <app-icon>delete</app-icon>
                         </button>
                         <button
-                            btn
+                            icon
                             matRipple
-                            remove-space
-                            class="clear"
-                            (click)="removeAssetGroup(asset)"
+                            name="toggle-catering-item-favourite"
+                            [matTooltip]="
+                                favorites.includes(item.id)
+                                    ? 'Remove from favourites'
+                                    : 'Add to favourites'
+                            "
+                            [class.text-blue-400]="favorites.includes(item.id)"
+                            (click)="toggleFavourite(item)"
                         >
-                            <div class="flex items-center space-x-2" i18n>
-                                <app-icon>close</app-icon>
-                                Remove
-                            </div>
+                            <app-icon>{{
+                                favorites.includes(item.id)
+                                    ? 'favorite'
+                                    : 'favorite_border'
+                            }}</app-icon>
                         </button>
                     </div>
                 </div>
-                <button
-                    icon
-                    matRipple
-                    fav
-                    class="absolute top-1 right-1"
-                    [class.text-blue-400]="favorites.includes(asset.id)"
-                    (click)="toggleFavourite(asset)"
-                >
-                    <app-icon>{{
-                        favorites.includes(asset.id)
-                            ? 'favorite'
-                            : 'favorite_border'
-                    }}</app-icon>
-                </button>
             </div>
         </div>
         <button
@@ -93,7 +138,7 @@ const EMPTY_FAVS: string[] = [];
             add-space
             class="w-full inverse mt-2"
             [disabled]="disabled"
-            (click)="addAssetGroups()"
+            (click)="editRequest()"
         >
             <div class="flex items-center justify-center space-x-2">
                 <app-icon>search</app-icon>
@@ -110,19 +155,36 @@ const EMPTY_FAVS: string[] = [];
             multi: true,
         },
     ],
+    animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
 })
 export class AssetListFieldComponent implements ControlValueAccessor {
-    @Input() public date = Date.now();
-    @Input() public duration = 30;
-    public items: AssetGroup[] = [];
+    @Input() public options: {
+        date?: number;
+        duration?: number;
+        all_day?: boolean;
+        zone_id?: string;
+    } = {};
+    public asset_requests: AssetRequest[] = [];
     public disabled = false;
+    public show_request: Record<string, boolean> = {};
 
-    private _onChange: (_: AssetGroup[]) => void;
-    private _onTouch: (_: AssetGroup[]) => void;
-    public selected: AssetGroup[] = [];
+    private _onChange: (_: AssetRequest[]) => void;
+    private _onTouch: (_: AssetRequest[]) => void;
+    public selected: AssetRequest[] = [];
 
     public get favorites() {
         return this._settings.get<string[]>('favourite_assets') || EMPTY_FAVS;
+    }
+
+    public get end_time() {
+        const time =
+            (this.options.date || Date.now()) +
+            (this.options.duration || 30) * 60 * 1000;
+        return this.options.all_day ? endOfDay(time).valueOf() : time;
+    }
+
+    public get time_format() {
+        return this._settings.time_format || 'shortTime';
     }
 
     constructor(
@@ -132,10 +194,13 @@ export class AssetListFieldComponent implements ControlValueAccessor {
     ) {}
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (changes.date || changes.duration) {
+        if (changes.options) {
+            for (const request of this.asset_requests) {
+                (request as any).event = this.options;
+            }
             this._state.setOptions({
-                date: this.date,
-                duration: this.duration,
+                date: this.options.date,
+                duration: this.options.duration,
             });
         }
     }
@@ -144,45 +209,101 @@ export class AssetListFieldComponent implements ControlValueAccessor {
      * Update the form field value
      * @param new_value New value to set on the form field
      */
-    public setValue(new_value: AssetGroup[]) {
-        this.items = new_value;
-        if (this._onChange) this._onChange(this.items);
+    public setValue(new_value: AssetRequest[]) {
+        this.asset_requests = new_value;
+        if (this._onChange) this._onChange(this.asset_requests);
     }
 
     /**
      * Update local value when form control value is changed
      * @param value The new value for the component
      */
-    public writeValue(value: AssetGroup[]) {
-        this.items = value || [];
+    public writeValue(value: AssetRequest[]) {
+        this.asset_requests = (value || []).map((_) => new AssetRequest(_));
+        for (const request of this.asset_requests) {
+            (request as any).event = this.options;
+        }
     }
 
-    public readonly registerOnChange = (fn: (_: AssetGroup[]) => void) =>
+    public readonly registerOnChange = (fn: (_: AssetRequest[]) => void) =>
         (this._onChange = fn);
-    public readonly registerOnTouched = (fn: (_: AssetGroup[]) => void) =>
+    public readonly registerOnTouched = (fn: (_: AssetRequest[]) => void) =>
         (this._onTouch = fn);
     public readonly setDisabledState = (s: boolean) => (this.disabled = s);
 
-    public removeAssetGroup(asset: AssetGroup) {
-        const updated_list = this.items.filter((_) => _.id !== asset.id);
+    public editRequest(order: AssetRequest = new AssetRequest()) {
+        const ref = this._dialog.open(AssetSelectModalComponent, {
+            data: {
+                items: order.items,
+                details: {
+                    ...this.options,
+                    date: this.options.all_day
+                        ? startOfDay(this.options.date).valueOf()
+                        : this.options.date,
+                    duration: this.options.all_day
+                        ? Math.max(24 * 60, this.options.duration)
+                        : this.options.duration,
+                },
+                exact_time: !!order.deliver_time,
+                offset: order.deliver_offset,
+                offset_day: order.deliver_day_offset,
+            },
+        });
+        ref.afterClosed().subscribe((items?: AssetItem[]) => {
+            const orders = this.asset_requests.filter((_) => _.id !== order.id);
+            if (!items?.length) return;
+            for (const item of items) {
+                if ((item as any).assets?.length) {
+                    item.item_ids = new Array(item.quantity)
+                        .fill(0)
+                        .map((_, idx) => (item as any).assets[idx].id);
+                }
+            }
+            const time = new Date(this.options.date);
+            const new_order = new AssetRequest({
+                ...order,
+                items,
+                event: this.options as any,
+                deliver_offset: ref.componentInstance.offset,
+                deliver_time: ref.componentInstance.exact_time
+                    ? time.getHours() + time.getMinutes() / 60
+                    : null,
+                deliver_day_offset: ref.componentInstance.offset_day || 0,
+            });
+            if (new_order.item_count <= 0) return;
+            this.setValue([...orders, new_order]);
+        });
+    }
+
+    public removeRequest(request: AssetRequest) {
+        const updated_list = this.asset_requests.filter(
+            (_) => _.id !== request.id
+        );
         this.setValue(updated_list);
     }
 
-    public addAssetGroups(asset?: AssetGroup) {
-        const ref = this._dialog.open(AssetSelectModalComponent, {
-            data: this.items,
+    public duplicateRequest(order: AssetRequest) {
+        const new_order = new AssetRequest({
+            ...order,
+            id: `order-${randomString(8)}`,
         });
-        ref.afterClosed().subscribe((items?: AssetGroup[]) => {
-            if (!items) items = ref.componentInstance.selected;
-            items = items.map((item) => ({ ...item }));
-            for (const item of items) {
-                item.assets = item.assets.slice(0, item.amount);
-            }
-            this.setValue(items);
-        });
+        this.setValue([...this.asset_requests, new_order]);
     }
 
-    public toggleFavourite(asset: AssetGroup) {
+    public removeRequestItem(order: AssetRequest, item: AssetItem) {
+        const new_order = new AssetRequest({
+            ...order,
+            items: order.items.filter((_) => _.id !== item.id),
+        });
+        const updated_list = this.asset_requests.filter(
+            (_) => _.id !== order.id
+        );
+        if (new_order.items.length > 0) {
+            this.setValue([...updated_list, new_order]);
+        } else this.setValue(updated_list);
+    }
+
+    public toggleFavourite(asset: AssetItem) {
         const fav_list = this.favorites;
         const new_state = !fav_list.includes(asset.id);
         if (new_state) {

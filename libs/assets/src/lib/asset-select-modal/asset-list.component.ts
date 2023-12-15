@@ -42,7 +42,7 @@ import { map } from 'rxjs/operators';
                                     *ngIf="selected.includes(asset.id)"
                                 >
                                     <span class="text-xs">
-                                        {{ asset.amount || 1 }}
+                                        {{ asset.quantity || 1 }}
                                     </span>
                                 </div>
                                 <img
@@ -143,7 +143,7 @@ export class AssetListComponent {
     ]).pipe(
         map(([counts, assets]) => {
             for (const item of assets) {
-                item.amount = counts[item.id] || 0;
+                item.quantity = counts[item.id] || 0;
                 const selected = this.selected_items.find(
                     (i) => i.id === item.id
                 );
@@ -159,7 +159,7 @@ export class AssetListComponent {
         if (changes.selected_items && this.selected_items?.length) {
             const counts = {};
             for (const item of this.selected_items) {
-                counts[item.id] = item.amount;
+                counts[item.id] = item.quantity;
             }
             this.counts.next(counts);
         }

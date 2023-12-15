@@ -18,6 +18,7 @@ import {
 import { Booking } from 'libs/bookings/src/lib/booking.class';
 import { flatten } from '@placeos/common';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
+import { AssetRequest } from './asset-request.class';
 
 const BASE_ENDPOINT = '/api/engine/v2';
 
@@ -280,7 +281,11 @@ export function queryAvailableAssets(
             assets.filter(
                 (asset) =>
                     ignore?.includes(asset.id) ||
-                    !bookings.find((booking) => booking.asset_id === asset.id)
+                    !bookings.find(
+                        (booking) =>
+                            booking.asset_id === asset.id ||
+                            booking.asset_ids?.includes(asset.id)
+                    )
             )
         )
     );
@@ -315,7 +320,7 @@ export async function removeAssetRequests(id: string) {
     }).toPromise();
     return Promise.all(
         requests
-            .filter((_) => _.asset_id === id)
+            .filter((_) => _.asset_id === id || _.asset_ids?.includes(id))
             .map((request) => removeBooking(request.id).toPromise())
     );
 }
@@ -337,16 +342,8 @@ export async function updateAssetRequestsForResource(
         location_id?: string;
         zones?: string[];
     },
-    new_assets: AssetGroup[],
-    old_assets: Asset[]
+    new_assets: AssetRequest[]
 ) {
-    const assets: Asset[] = flatten(
-        new_assets.map((_) =>
-            _.assets
-                .slice(0, (_ as any).amount)
-                .map((asset) => ({ ...asset, name: _.name }))
-        )
-    );
     const bookings = await queryBookings({
         period_start: getUnixTime(startOfDay(date)),
         period_end: getUnixTime(endOfDay(date)),
@@ -356,35 +353,32 @@ export async function updateAssetRequestsForResource(
         booking_id: from_booking ? id : '',
         ical_uid,
     }).toPromise();
-    const filtered = bookings.filter(
-        (item) =>
-            item.extension_data.parent_id === id &&
-            !assets.find((_) => _.id === item.asset_id)
+    await Promise.all(
+        bookings.map((item) => removeBooking(item.id).toPromise())
     );
     await Promise.all(
-        filtered.map((item) => removeBooking(item.id).toPromise())
+        new_assets.map((request) =>
+            createBooking(
+                new Booking({
+                    type: 'asset-request',
+                    booking_type: 'asset-request',
+                    date,
+                    duration,
+                    description: location_name,
+                    user_email: host,
+                    asset_id: request.id,
+                    asset_ids: flatten(request.items.map((_) => _.item_ids)),
+                    asset_name: request.items.map((_) => _.name).join(', '),
+                    title: request.items.map((_) => _.name).join(', '),
+                    extension_data: {
+                        parent_id: id,
+                        location_id,
+                        request: new AssetRequest({ ...request, event: null }),
+                    },
+                    zones: zones || [],
+                }),
+                { ical_uid, event_id: from_booking ? '' : id }
+            ).toPromise()
+        )
     );
-    await Promise.all(
-        assets
-            .filter(({ id }) => !old_assets?.find((_) => _.id === id))
-            .map((item) =>
-                createBooking(
-                    new Booking({
-                        type: 'asset-request',
-                        booking_type: 'asset-request',
-                        date,
-                        duration,
-                        description: location_name,
-                        user_email: host,
-                        asset_id: item.id,
-                        asset_name: (item as any).name,
-                        title: (item as any).name,
-                        extension_data: { parent_id: id, location_id },
-                        zones: zones || [],
-                    }),
-                    { ical_uid, event_id: from_booking ? '' : id }
-                ).toPromise()
-            )
-    );
-    return assets;
 }

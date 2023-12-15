@@ -206,8 +206,11 @@ import { addDays, endOfDay, set } from 'date-fns';
                     <div class="text-xl" i18n>Request Asset</div>
                 </h3>
                 <asset-list-field
-                    [date]="form.value.date"
-                    [duration]="form.value.duration"
+                    [options]="{
+                        date: form.getRawValue().date,
+                        duration: form.value.duration,
+                        all_day: form.value.all_day,
+                    }"
                     formControlName="assets"
                 ></asset-list-field>
             </section>
