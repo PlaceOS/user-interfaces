@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1702600686824,
+  "timestamp": 1702608683290,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -144,7 +144,7 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "75b63762f9d9a004dbfd3626e250672dd9b7a9b5",
+    "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "9f43f53cea28f2c271d42140df94deeca3c2b54c",
     "./apps_concierge_src_app_building-manager_building-manager_module_ts.js": "b104f2fc653486fb74c965e6ebf40743df2c4041",
     "./apps_concierge_src_app_catering_catering_module_ts.js": "eb6db46eb935329a92388656128b54f60cdaf067",
     "./apps_concierge_src_app_day-view_day-view_module_ts.js": "845339ddd09b16ed6ccdba32e0f745707e962e79",
@@ -238,7 +238,7 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./common.js": "2be948e378c4f408f6d7ba6640235b10e8a59977",
-    "./default-libs_bookings_src_lib_bookings_module_ts.js": "e05658c0188f4bda5e044ed522d5b9194a67b4b4",
+    "./default-libs_bookings_src_lib_bookings_module_ts.js": "fae32599775cdee6f90aa9e86c3856153d8e6ff4",
     "./default-libs_catering_src_index_ts.js": "72decde2547c90bd664d28c74ba5f27f55a5e382",
     "./default-libs_explore_src_index_ts.js": "9012c502f79e2d0918338f3dad4ac89655af81b0",
     "./default-libs_users_src_index_ts.js": "4d276ec5b9044dc13c03b2ffd74bcbb08b861513",
@@ -246,7 +246,7 @@
     "./default-node_modules_angular_material_fesm2022_tabs_mjs.js": "2e20a48eb6436ea9f374c0659fa4f63457ad04f6",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "a1f4328ca44d917db7e87dc66d0cc159f82731b1",
-    "./main.js": "f0d16dcb36e5aa5a9eed801db2329b91e49ae517",
+    "./main.js": "8557c7569732c9be9c4935e67290e0e39f3b3635",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
