@@ -9,11 +9,13 @@ import {
     addHours,
     addMinutes,
     differenceInMinutes,
+    endOfDay,
     getUnixTime,
     isAfter,
     isBefore,
     isSameDay,
     roundToNearestMinutes,
+    startOfDay,
 } from 'date-fns';
 import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
 
@@ -80,6 +82,8 @@ export class Booking {
     public readonly booking_type: BookingType;
     /** Start time of booking in ms */
     public readonly date: number;
+    /** End time of booking in ms */
+    public readonly date_end: number;
     /** Duration of the event in minutes */
     public readonly duration: number;
     /** Whether it is an all day booking */
@@ -180,6 +184,8 @@ export class Booking {
                 )
             ) ||
             60;
+        this.date_end =
+            this.booking_end * 1000 || this.date + this.duration * 60 * 1000;
         this.timezone =
             data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.user_email = data.user_email || '';
@@ -205,7 +211,17 @@ export class Booking {
         this.access = !!data.extension_data?.access;
         this.event_id = data.event_id;
         this.attendees = data.attendees || data.members || [];
-        this.all_day = data.all_day ?? this.duration >= 12 * 60;
+        this.all_day = data.all_day || this.duration >= 24 * 60;
+        if (this.all_day) {
+            (this as any).date = startOfDay(this.date).getTime();
+            (this as any).duration = Math.max(
+                24 * 60 - 1,
+                this.duration - ((this.duration % 24) * 60 === 0 ? 1 : 0)
+            );
+            (this as any).date_end = endOfDay(
+                addMinutes(this.date, this.duration - 1).valueOf()
+            ).getTime();
+        }
         this.checked_out_at = data.checked_out_at;
         this.linked_event = data.linked_event || null;
         this.linked_bookings = data.linked_bookings || [];
