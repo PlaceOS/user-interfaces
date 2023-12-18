@@ -8,10 +8,12 @@ import {
     Router,
 } from '@angular/router';
 import { onlineState } from '@placeos/ts-client';
-import { current_user } from '@placeos/common';
+import { SettingsService, current_user } from '@placeos/common';
 import { first } from 'rxjs/operators';
 
 import { StaffUser } from '../../../users/src/lib/user.class';
+import { OrganisationService } from '@placeos/organisation';
+import { combineLatest } from 'rxjs';
 
 export abstract class PLACEOS_APP_ACCESS {
     public readonly group: string;
@@ -23,6 +25,8 @@ export abstract class PLACEOS_APP_ACCESS {
 export class AuthorisedUserGuard {
     constructor(
         private _router: Router,
+        private _settings: SettingsService,
+        private _org: OrganisationService,
         @Optional() private _access: PLACEOS_APP_ACCESS
     ) {}
 
@@ -41,15 +45,18 @@ export class AuthorisedUserGuard {
     }
 
     private async checkUser() {
-        await onlineState()
-            .pipe(first((_) => _))
+        await combineLatest([onlineState(), this._org.initialised])
+            .pipe(first(([online, org_init]) => online && org_init))
             .toPromise();
         const user: StaffUser = await current_user
             .pipe(first((_) => !!_))
             .toPromise();
+        const groups = this._access?.group
+            ? [this._access.group]
+            : this._settings.get('app.access_groups') || [];
         const can_activate = !!(
             user &&
-            (!this._access?.group || user.groups.includes(this._access.group))
+            (!groups.length || groups.find((_) => user.groups.includes(_)))
         );
         if (!can_activate) {
             this._router.navigate(['/unauthorised']);
