@@ -27,8 +27,13 @@ const EMPTY_FAVS: string[] = [];
                         <div class="flex items-center space-x-4">
                             <div>
                                 Request for
-                                {{ request.deliver_at | date: 'mediumDate' }} at
-                                {{ request.deliver_at | date: time_format }}
+                                {{
+                                    request.deliver_at_time | date: 'mediumDate'
+                                }}
+                                at
+                                {{
+                                    request.deliver_at_time | date: time_format
+                                }}
                             </div>
                             <div
                                 class="flex items-center justify-center h-6 w-6 rounded-full bg-error text-error-content"
@@ -197,9 +202,9 @@ export class AssetListFieldComponent implements ControlValueAccessor {
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.options) {
-            for (const request of this.asset_requests) {
-                (request as any).event = this.options;
-            }
+            this.asset_requests = (this.asset_requests || []).map(
+                (_) => new AssetRequest({ ..._, event: this.options as any })
+            );
             this._state.setOptions({
                 date: this.options.date,
                 duration: this.options.duration,
@@ -221,10 +226,9 @@ export class AssetListFieldComponent implements ControlValueAccessor {
      * @param value The new value for the component
      */
     public writeValue(value: AssetRequest[]) {
-        this.asset_requests = (value || []).map((_) => new AssetRequest(_));
-        for (const request of this.asset_requests) {
-            (request as any).event = this.options;
-        }
+        this.asset_requests = (value || []).map(
+            (_) => new AssetRequest({ ..._, event: this.options as any })
+        );
     }
 
     public readonly registerOnChange = (fn: (_: AssetRequest[]) => void) =>

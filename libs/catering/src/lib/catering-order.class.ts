@@ -5,6 +5,20 @@ import { CateringItem } from './catering-item.class';
 import { CateringOrderStatus } from './catering.interfaces';
 import { addDays, addMinutes, set, startOfDay, startOfMinute } from 'date-fns';
 
+function deliverAtTime(order: CateringOrder) {
+    let date = order.event?.date || (order as any)._time;
+    if (order.deliver_time) {
+        date = set(date, {
+            hours: Math.floor(order.deliver_time),
+            minutes: (order.deliver_time % 1) * 60,
+        }).valueOf();
+    }
+    if (order.deliver_day_offset > 0 || order.event?.all_day) {
+        date = addDays(startOfDay(date), order.deliver_day_offset).valueOf();
+    }
+    return addMinutes(date, order.deliver_offset).valueOf();
+}
+
 export class CateringOrder {
     /** ID of the order */
     public readonly id: string;
@@ -38,17 +52,7 @@ export class CateringOrder {
     private _time = startOfMinute(Date.now()).valueOf();
 
     public get deliver_at() {
-        let date = this.event?.date || this._time;
-        if (this.deliver_time) {
-            date = set(date, {
-                hours: Math.floor(this.deliver_time),
-                minutes: (this.deliver_time % 1) * 60,
-            }).valueOf();
-        }
-        if (this.deliver_day_offset > 0) {
-            date = addDays(startOfDay(date), this.deliver_day_offset).valueOf();
-        }
-        return addMinutes(date, this.deliver_offset).valueOf();
+        return deliverAtTime(this);
     }
 
     public get status() {
@@ -82,6 +86,6 @@ export class CateringOrder {
         this.deliver_time = data.deliver_time || undefined;
         this.deliver_offset = data.deliver_offset || 0;
         this.deliver_day_offset = data.deliver_day_offset || 0;
-        this.deliver_at_time = this.deliver_at;
+        this.deliver_at_time = deliverAtTime(this);
     }
 }

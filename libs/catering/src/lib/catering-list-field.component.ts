@@ -31,8 +31,9 @@ const EMPTY_FAVS = [];
                         <div class="flex items-center space-x-4">
                             <div>
                                 Order for
-                                {{ order.deliver_at | date: 'mediumDate' }} at
-                                {{ order.deliver_at | date: time_format }}
+                                {{ order.deliver_at_time | date: 'mediumDate' }}
+                                at
+                                {{ order.deliver_at_time | date: time_format }}
                             </div>
                             <div
                                 class="flex items-center justify-center h-6 w-6 rounded-full bg-error text-error-content"
@@ -236,9 +237,9 @@ export class CateringListFieldComponent implements ControlValueAccessor {
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.options) {
-            for (const order of this.orders) {
-                (order as any).event = this.options;
-            }
+            this.orders = (this.orders || []).map(
+                (_) => new CateringOrder({ ..._, event: this.options as any })
+            );
         }
     }
 
@@ -247,13 +248,9 @@ export class CateringListFieldComponent implements ControlValueAccessor {
      * @param value The new value for the component
      */
     public writeValue(value: CateringOrder[]) {
-        this.orders =
-            value instanceof Array
-                ? value.map((_) => new CateringOrder(_))
-                : [];
-        for (const order of this.orders) {
-            (order as any).event = this.options;
-        }
+        this.orders = (value || []).map(
+            (_) => new CateringOrder({ ..._, event: this.options as any })
+        );
     }
 
     public readonly registerOnChange = (fn: (_: CateringOrder[]) => void) =>

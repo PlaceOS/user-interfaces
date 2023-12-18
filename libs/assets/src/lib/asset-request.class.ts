@@ -17,6 +17,20 @@ export interface AssetItem {
     item_ids: string[]; // List of physical item IDs
 }
 
+function deliverAtTime(request: AssetRequest) {
+    let date = request.event?.date || (request as any)._time;
+    if (request.deliver_time) {
+        date = set(date, {
+            hours: Math.floor(request.deliver_time),
+            minutes: (request.deliver_time % 1) * 60,
+        }).valueOf();
+    }
+    if (request.deliver_day_offset > 0 || request.event?.all_day) {
+        date = addDays(startOfDay(date), request.deliver_day_offset).valueOf();
+    }
+    return addMinutes(date, request.deliver_offset).valueOf();
+}
+
 export class AssetRequest {
     /** ID of the order */
     public readonly id: string;
@@ -50,17 +64,7 @@ export class AssetRequest {
     private _time = startOfMinute(Date.now()).valueOf();
 
     public get deliver_at() {
-        let date = this.event?.date || this._time;
-        if (this.deliver_time) {
-            date = set(date, {
-                hours: Math.floor(this.deliver_time),
-                minutes: (this.deliver_time % 1) * 60,
-            }).valueOf();
-        }
-        if (this.deliver_day_offset > 0) {
-            date = addDays(startOfDay(date), this.deliver_day_offset).valueOf();
-        }
-        return addMinutes(date, this.deliver_offset).valueOf();
+        return deliverAtTime(this);
     }
 
     public get status() {
@@ -99,6 +103,6 @@ export class AssetRequest {
             data.deliver_day_offset ||
             data.extension_data?.deliver_day_offset ||
             0;
-        this.deliver_at_time = this.deliver_at;
+        this.deliver_at_time = deliverAtTime(this);
     }
 }
