@@ -357,7 +357,9 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         const ref = this._dialog.open(EventDetailsModalComponent, {
             data: event,
         });
-        ref.componentInstance.hide_edit = true;
+        ref.componentInstance.hide_edit = !!this._settings.get(
+            'app.events.allow_edit'
+        );
         this.subscription(
             'remove',
             ref.componentInstance.remove.subscribe(() =>
