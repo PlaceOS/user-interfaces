@@ -361,7 +361,7 @@ export class AssetManagerStateService extends AsyncHandler {
 
     public async setTracking(item: Booking, tracking: string) {
         const result = await updateBooking(item.id, {
-            ...item,
+            ...item.toJSON(),
             extension_data: { ...item.extension_data, tracking },
         }).toPromise();
         this._change.next(Date.now());

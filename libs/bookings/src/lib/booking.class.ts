@@ -238,6 +238,7 @@ export class Booking {
                 event: null,
             });
         }
+        if (!data.parent_id) delete data.parent_id;
         delete data.date;
         delete data.duration;
         removeEmptyFields(data);
