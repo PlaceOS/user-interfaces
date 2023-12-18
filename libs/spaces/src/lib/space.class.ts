@@ -61,4 +61,16 @@ export class Space {
         this.level = data.level || new BuildingLevel();
         this.availability = data.availability || [];
     }
+
+    public inUseAt(start: number, duration: number): boolean {
+        const end = start + duration * 60 * 1000;
+        return (
+            this.availability.filter(
+                (i) =>
+                    i.date == start &&
+                    i.date + i.duration * 60 * 1000 == end &&
+                    i.status !== 'free'
+            ).length > 0
+        );
+    }
 }

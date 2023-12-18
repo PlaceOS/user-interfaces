@@ -264,7 +264,10 @@ export class EventFormService extends AsyncHandler {
                     spaces.map(({ id }) => id),
                     date,
                     duration,
-                    this.event?.id || undefined
+                    this?.event?.resources[0]?.id ||
+                        this.event?.system?.id ||
+                        this.event?.id ||
+                        undefined
                 ).pipe(
                     map((availability) => {
                         var list = spaces.filter((_, i) => availability[i]);

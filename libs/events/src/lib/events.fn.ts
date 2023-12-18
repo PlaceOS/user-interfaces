@@ -1,5 +1,5 @@
 import { del, get, patch, post, put, query } from '@placeos/ts-client';
-import { Observable, of } from 'rxjs';
+import { Observable, combineLatest, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
 import { toQueryString } from 'libs/common/src/lib/api';
@@ -7,7 +7,10 @@ import { GuestUser } from 'libs/users/src/lib/user.class';
 
 import { CalendarEvent } from './event.class';
 import { addMinutes, getUnixTime } from 'date-fns';
-import { queryCalendarAvailability } from 'libs/calendar/src/lib/calendar.fn';
+import {
+    queryCalendarAvailability,
+    querySpaceFreeBusy,
+} from 'libs/calendar/src/lib/calendar.fn';
 import { EventExtensionData } from './event.interfaces';
 
 export interface CalendarEventQueryParams {
@@ -294,18 +297,37 @@ export function querySpaceAvailability(
     duration: number,
     ignore?: string
 ) {
-    return queryCalendarAvailability({
-        system_ids: id_list.join(),
-        period_start: getUnixTime(start),
-        period_end: getUnixTime(addMinutes(start, duration)),
-    }).pipe(
-        map((spaces) =>
-            id_list.map(
+    const end = addMinutes(start, duration).valueOf();
+    return combineLatest([
+        queryCalendarAvailability({
+            system_ids: id_list.join(),
+            period_start: getUnixTime(start),
+            period_end: getUnixTime(end),
+        }),
+        ignore && id_list.includes(ignore)
+            ? querySpaceFreeBusy({
+                  period_start: getUnixTime(start),
+                  period_end: getUnixTime(end),
+                  system_ids: ignore,
+              })
+            : of([]),
+    ]).pipe(
+        map(([spaces, ignore_check]) => {
+            const short_list = id_list.map(
                 (id) =>
                     !!spaces.find(
                         (s) => s.id === id || (s as any).resource?.id === id
                     )
-            )
-        )
+            );
+            if (
+                ignore_check.length &&
+                ignore_check[0].id === ignore &&
+                id_list.includes(ignore) &&
+                ignore_check[0].inUseAt(start, duration)
+            ) {
+                short_list[id_list.indexOf(ignore)] = true;
+            }
+            return short_list;
+        })
     );
 }
