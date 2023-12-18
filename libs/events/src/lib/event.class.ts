@@ -290,6 +290,12 @@ export class CalendarEvent {
         );
     }
 
+    public get valid_assets() {
+        return (this.ext('assets') || []).filter(
+            (request) => request.deliver_at_time < this.date_end
+        );
+    }
+
     /**
      * Convert class data to simple JSON object
      */

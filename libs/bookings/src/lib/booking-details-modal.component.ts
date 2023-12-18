@@ -134,16 +134,12 @@ import { checkinBooking } from './bookings.fn';
                         class="mt-4 sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
                     >
                         <h3 class="mx-3 pt-2 text-lg font-medium" i18n>
-                            Assets ({{
-                                booking.extension_data.assets?.length || 0
-                            }})
+                            Assets ({{ booking.valid_assets?.length || 0 }})
                         </h3>
                         <div class="flex flex-col space-y-2">
                             <div
                                 request
-                                *ngFor="
-                                    let request of booking.extension_data.assets
-                                "
+                                *ngFor="let request of booking.valid_assets"
                                 class="border border-base-300 bg-base-100 rounded-xl overflow-hidden"
                             >
                                 <div class="flex items-center space-x-2 p-3">

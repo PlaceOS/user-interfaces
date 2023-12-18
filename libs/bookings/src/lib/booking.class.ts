@@ -131,6 +131,13 @@ export class Booking {
         return this.all_day || this.duration >= 12 * 60;
     }
 
+    public get valid_assets() {
+        return (this.extension_data.assets || []).filter(
+            (request) =>
+                request.deliver_at_time < this.date + this.duration * 60 * 1000
+        );
+    }
+
     constructor(data: Partial<BookingComplete> = {}) {
         this.id = data.id || '';
         this.parent_id = data.parent_id || '';

@@ -167,6 +167,8 @@ export class AssetListFieldComponent implements ControlValueAccessor {
     public asset_requests: AssetRequest[] = [];
     public disabled = false;
     public show_request: Record<string, boolean> = {};
+    public err_tooltip =
+        'Delivery time is outside of the event time.\nThis order will be ignored.';
 
     private _onChange: (_: AssetRequest[]) => void;
     private _onTouch: (_: AssetRequest[]) => void;
