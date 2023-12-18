@@ -53,7 +53,7 @@ export class AuthorisedUserGuard {
             .toPromise();
         const groups = this._access?.group
             ? [this._access.group]
-            : this._settings.get('app.access_groups') || [];
+            : this._settings.get('app.allow_access_groups') || [];
         const can_activate = !!(
             user &&
             (!groups.length || groups.find((_) => user.groups.includes(_)))
