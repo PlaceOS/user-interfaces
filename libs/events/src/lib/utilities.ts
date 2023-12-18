@@ -203,7 +203,7 @@ export function generateEventForm(
         setCateringTime();
     });
     form.controls.catering.valueChanges.subscribe((_) => {
-        const catering = form.value.catering;
+        const catering = form.getRawValue().catering || [];
         if (
             catering?.length &&
             (settings?.get('app.events.catering_notes_required') ||
