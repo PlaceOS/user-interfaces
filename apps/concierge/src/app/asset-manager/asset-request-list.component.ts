@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { AssetManagerStateService } from './asset-manager-state.service';
 import { OrganisationService } from '@placeos/organisation';
+import { startOfDay } from 'date-fns';
 
 @Component({
     selector: 'app-asset-request-list',
@@ -102,9 +103,9 @@ import { OrganisationService } from '@placeos/organisation';
             {{ level(data)?.display_name || 'N/A' }}
         </ng-template>
         <ng-template #period_template let-row="row">
-            {{ row.date | date: 'MMM d, ' + time_format }} <br />
+            {{ date(row) | date: 'MMM d, ' + time_format }} <br />
             {{
-                row.date + row.duration * 60 * 1000
+                date(row) + row.duration * 60 * 1000
                     | date: 'MMM d, ' + time_format
             }}
         </ng-template>
@@ -189,6 +190,12 @@ export class AssetRequestListComponent extends AsyncHandler {
     public request;
 
     public readonly loading: Record<string, boolean> = {};
+
+    public date(booking: any) {
+        return booking.all_day
+            ? startOfDay(booking.date).valueOf()
+            : booking.date;
+    }
 
     public async setStatus(item: any, status: string) {
         this.loading[item.id] = true;
