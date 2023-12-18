@@ -127,8 +127,8 @@ export class AssetManagerStateService extends AsyncHandler {
     ]).pipe(
         debounceTime(200),
         switchMap(([{ date }, bld]) => {
-            const start = startOfDay(date || Date.now());
-            const end = endOfDay(date || Date.now());
+            const start = startOfDay(date || Date.now()).valueOf();
+            const end = endOfDay(date || Date.now()).valueOf();
             return queryBookings({
                 zones: bld?.id,
                 period_start: getUnixTime(start),
@@ -147,12 +147,21 @@ export class AssetManagerStateService extends AsyncHandler {
                                     ),
                                 },
                             })
-                    ).filter(
-                        (b) =>
-                            b.extension_data.request?.deliver_at_time >=
-                                start &&
-                            b.extension_data.request?.deliver_at_time < end
-                    )
+                    ).filter((b) => {
+                        const request = b.extension_data.request || {
+                            deliver_at_time: start,
+                        };
+                        const event_end =
+                            b.linked_event?.date_end ||
+                            (b.linked_event as any)?.event_end * 1000 ||
+                            (b.linked_bookings[0] as any)?.booking_end * 1000 ||
+                            end;
+                        return (
+                            request?.deliver_at_time >= start &&
+                            request?.deliver_at_time < end &&
+                            request?.deliver_at_time < event_end
+                        );
+                    })
                 )
             );
         }),

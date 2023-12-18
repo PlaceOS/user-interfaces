@@ -9,6 +9,8 @@ export interface LinkedBooking {
     user_name: string;
     description: string;
     booking_type: string;
+    date: number;
+    duration: number;
     status: string;
     approved?: string;
     rejected?: string;
