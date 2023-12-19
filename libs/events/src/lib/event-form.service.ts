@@ -21,7 +21,13 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-import { addMinutes, differenceInDays, getUnixTime } from 'date-fns';
+import {
+    addMinutes,
+    differenceInDays,
+    endOfDay,
+    getUnixTime,
+    startOfDay,
+} from 'date-fns';
 import {
     AsyncHandler,
     BookingRuleset,
@@ -490,6 +496,7 @@ export class EventFormService extends AsyncHandler {
                 id,
                 host,
                 date,
+                date_end,
                 duration,
                 creator,
                 all_day,
@@ -505,13 +512,19 @@ export class EventFormService extends AsyncHandler {
                 (!id || date !== event.date || duration !== event.duration) &&
                 spaces.length
             ) {
-                const start = getUnixTime(date);
                 await this.checkSelectedSpacesAreAvailable(
                     spaces,
-                    date,
-                    duration,
+                    all_day ? startOfDay(date).valueOf() : date,
+                    all_day ? Math.max(24 * 60, duration) : duration,
                     id
-                        ? { start, end: start + event.duration * 60 }
+                        ? {
+                              start: getUnixTime(
+                                  all_day ? startOfDay(date) : date
+                              ),
+                              end: getUnixTime(
+                                  all_day ? endOfDay(date_end) : date_end
+                              ),
+                          }
                         : undefined,
                     ical_uid || id || ''
                 ).catch((_) => {
