@@ -142,12 +142,18 @@ import { Booking } from '@placeos/bookings';
                 [class.!bg-success]="row?.status === 'approved'"
                 [class.!text-error-content]="row?.status === 'declined'"
                 [class.!bg-error]="row?.status === 'declined'"
+                [class.!text-neutral-content]="row?.status === 'ended'"
+                [class.!bg-neutral]="row?.status === 'ended'"
+                [class.opacity-60]="row?.status === 'ended'"
                 [matMenuTriggerFor]="menu"
+                [disabled]="row?.status === 'ended'"
             >
                 <div class="flex items-center">
                     <div class="mx-2">
                         {{
-                            row?.status === 'approved'
+                            row?.status === 'ended'
+                                ? 'Ended'
+                                : row?.status === 'approved'
                                 ? 'Approved'
                                 : row?.status === 'declined'
                                 ? 'Declined'
