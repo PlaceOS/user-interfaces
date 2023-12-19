@@ -227,7 +227,7 @@ export class EventFormService extends AsyncHandler {
     ]).pipe(
         map(([list, bookings, booking_rules]) => {
             this._loading.next('Updating available spaces...');
-            let { ical_uid, date, duration, organiser } =
+            let { ical_uid, date, duration, all_day, organiser } =
                 this._form.getRawValue();
             list = filterResourcesFromRules(
                 list,
@@ -236,9 +236,14 @@ export class EventFormService extends AsyncHandler {
             ) as any;
             return (list || [])
                 .filter((_, idx) => {
+                    const start = all_day ? startOfDay(date).valueOf() : date;
+                    const end =
+                        start +
+                        (all_day ? Math.max(24 * 60, duration) : duration) *
+                            MINUTES;
                     return periodInFreeTimeSlot(
-                        date,
-                        date + duration * MINUTES,
+                        start,
+                        end,
                         (bookings[idx] || []).filter(
                             (_) => _.ical_uid !== ical_uid
                         )
@@ -251,13 +256,17 @@ export class EventFormService extends AsyncHandler {
     );
 
     public readonly future_available_spaces: Observable<Space[]> =
-        combineLatest([this.filtered_spaces, this.booking_rules]).pipe(
+        combineLatest([
+            this.filtered_spaces,
+            this.booking_rules,
+            merge(this.form.valueChanges, timer(1000)),
+        ]).pipe(
             filter(() => !this._loading.getValue()),
             debounceTime(300),
             switchMap(([spaces, booking_rules]) => {
                 if (!spaces.length) return of([]);
                 this._loading.next('Retrieving available spaces...');
-                let { date, duration } = this._form.getRawValue();
+                let { date, duration, all_day } = this._form.getRawValue();
                 const availability_method = this.has_calendar
                     ? querySpaceAvailability
                     : queryResourceAvailability;
@@ -268,8 +277,8 @@ export class EventFormService extends AsyncHandler {
                 ) as any;
                 return availability_method(
                     spaces.map(({ id }) => id),
-                    date,
-                    duration,
+                    all_day ? startOfDay(date).valueOf() : date,
+                    all_day ? Math.max(24 * 60, duration) : duration,
                     this?.event?.resources[0]?.id ||
                         this.event?.system?.id ||
                         this.event?.id ||
@@ -299,11 +308,13 @@ export class EventFormService extends AsyncHandler {
     public readonly available_spaces = this._date.pipe(
         switchMap((d) => {
             const diff = Math.abs(differenceInDays(d, Date.now()));
-            return diff <
-                (this._settings.get('app.events.cache_duration_in_days') || 14)
+            const cache_length =
+                this._settings.get('app.events.cache_duration_in_days') || 14;
+            return diff < cache_length
                 ? this.current_available_spaces
                 : this.future_available_spaces;
-        })
+        }),
+        shareReplay(1)
     );
 
     public get view() {
@@ -352,8 +363,9 @@ export class EventFormService extends AsyncHandler {
                     date: this.form.value.date,
                     duration: this.form.value.duration,
                 });
-                if (date && date !== this._date.getValue())
+                if (date && date !== this._date.getValue()) {
                     this._date.next(date);
+                }
                 this.storeForm();
             })
         );

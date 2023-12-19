@@ -1,7 +1,7 @@
 import { Component, Input, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { flatten, SettingsService, unique } from '@placeos/common';
-import { addDays, endOfDay, set } from 'date-fns';
+import { addDays, endOfDay, set, startOfDay } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 
@@ -279,6 +279,10 @@ export class SpaceFiltersComponent {
 
     public get use_24hr() {
         return this._settings.get('app.use_24_hour_time');
+    }
+
+    public get start_date() {
+        return startOfDay(this.form.getRawValue().date).valueOf();
     }
 
     public get end_date() {
