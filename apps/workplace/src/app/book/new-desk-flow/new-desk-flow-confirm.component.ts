@@ -88,52 +88,58 @@ import { map, take } from 'rxjs/operators';
                 </ng-container>
             </div>
         </section>
-        <section class="px-4">
-            <div
-                request
-                *ngFor="let request of assets"
-                class="border bg-base-100 rounded-xl overflow-hidden"
-                [class.border-error]="end_time < request.deliver_at"
-                [class.border-base-300]="end_time >= request.deliver_at"
-            >
-                <div class="flex items-center space-x-2 p-3">
-                    <div class="flex-1 flex items-center space-x-2">
-                        <div class="text-sm">
-                            Requested for
-                            {{
-                                request.deliver_at_time
-                                    | date: 'MMM d, ' + time_format
-                            }}
-                        </div>
-                        <div
-                            class="flex items-center justify-center h-6 w-6 rounded-full bg-error text-error-content"
-                            [matTooltip]="err_tooltip"
-                            *ngIf="end_time < request.deliver_at"
-                        >
-                            <app-icon>priority_high</app-icon>
-                        </div>
-                        <div class="flex-1"></div>
-                        <div
-                            class="text-xs bg-success text-success-content px-2 py-1 rounded"
-                        >
-                            {{ request.item_count }} item(s)
+        <section assets class="flex space-x-1 py-4 px-2 border-t">
+            <app-icon class="text-success">done</app-icon>
+            <div details class="flex-1 leading-6 w-1/2 pr-2">
+                <h3 i18n>Asset Requests</h3>
+                <div
+                    request
+                    *ngFor="let request of assets"
+                    class="border bg-base-100 rounded-xl overflow-hidden"
+                    [class.border-error]="end_time < request.deliver_at"
+                    [class.border-base-300]="end_time >= request.deliver_at"
+                >
+                    <div class="flex items-center space-x-2 p-3">
+                        <div class="flex-1 flex items-center space-x-2">
+                            <div class="text-sm">
+                                Requested for
+                                {{
+                                    request.deliver_at_time
+                                        | date: 'MMM d, ' + time_format
+                                }}
+                            </div>
+                            <div
+                                class="flex items-center justify-center h-6 w-6 rounded-full bg-error text-error-content"
+                                [matTooltip]="err_tooltip"
+                                *ngIf="end_time < request.deliver_at"
+                            >
+                                <app-icon>priority_high</app-icon>
+                            </div>
+                            <div class="flex-1"></div>
+                            <div
+                                class="text-xs bg-success text-success-content px-2 py-1 rounded"
+                            >
+                                {{ request.item_count }} item(s)
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="flex flex-col bg-base-200 divide-y divide-base-100">
                     <div
-                        class="flex items-center px-3 py-1 space-x-2 hover:opacity-90"
-                        *ngFor="let item of request.items"
+                        class="flex flex-col bg-base-200 divide-y divide-base-100"
                     >
-                        <div class="flex items-center flex-1">
-                            <span class="text-sm">{{
-                                item.name || 'Item'
-                            }}</span>
-                        </div>
                         <div
-                            class="rounded bg-success text-success-content text-xs px-2 py-1"
+                            class="flex items-center px-3 py-1 space-x-2 hover:opacity-90"
+                            *ngFor="let item of request.items"
                         >
-                            x{{ item.quantity }}
+                            <div class="flex items-center flex-1">
+                                <span class="text-sm">{{
+                                    item.name || 'Item'
+                                }}</span>
+                            </div>
+                            <div
+                                class="rounded bg-success text-success-content text-xs px-2 py-1"
+                            >
+                                x{{ item.quantity }}
+                            </div>
                         </div>
                     </div>
                 </div>
