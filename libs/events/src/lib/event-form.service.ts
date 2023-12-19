@@ -736,7 +736,12 @@ export class EventFormService extends AsyncHandler {
             ).toPromise();
             let count = 0;
             for (const space of response) {
-                if (!spaces.find(({ id }) => id === space.id)) continue;
+                if (
+                    !spaces.find(({ id }) => id === space.id) ||
+                    (exclude && space.inUseAt(exclude.start, exclude.end))
+                ) {
+                    continue;
+                }
                 const busy = space.availability.filter(
                     (_) =>
                         _.status === 'busy' &&
