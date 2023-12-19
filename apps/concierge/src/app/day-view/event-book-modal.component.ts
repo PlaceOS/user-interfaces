@@ -1,5 +1,5 @@
-import { Component, Output, EventEmitter } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { Component, Output, EventEmitter, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     DialogEvent,
@@ -8,7 +8,7 @@ import {
     notifyError,
     notifySuccess,
 } from '@placeos/common';
-import { EventFormService } from '@placeos/events';
+import { CalendarEvent, EventFormService } from '@placeos/events';
 import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
@@ -398,11 +398,18 @@ export class EventBookModalComponent {
     }
 
     constructor(
+        @Inject(MAT_DIALOG_DATA) private _data: { event: CalendarEvent },
         private _event_form: EventFormService,
         private _settings: SettingsService,
         private _catering: CateringOrderStateService,
         private _dialog_ref: MatDialogRef<EventBookModalComponent>
     ) {}
+
+    public async ngOnInit() {
+        console.log('Form:', this._data);
+        await this._event_form.newForm(this._data.event);
+        console.log('Form:', this.form.value);
+    }
 
     public async save() {
         this.loading.next(true);

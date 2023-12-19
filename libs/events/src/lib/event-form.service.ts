@@ -390,13 +390,15 @@ export class EventFormService extends AsyncHandler {
     ) {
         this._event.next(event);
         if (event.recurring_event_id) {
-            const master = await showEvent(
-                event.recurring_event_id
-            ).toPromise();
-            (this._event.getValue() as any).recurrence = {
-                ...master.recurrence,
-                _pattern: master.recurrence.pattern,
-            };
+            const master = await showEvent(event.recurring_event_id)
+                .toPromise()
+                .catch((_) => null);
+            if (master) {
+                (this._event.getValue() as any).recurrence = {
+                    ...master.recurrence,
+                    _pattern: master.recurrence.pattern,
+                };
+            }
         }
         this._assets.setOptions({
             ignore: event.extension_data.assets?.map((_) => _.id),
