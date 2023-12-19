@@ -3,6 +3,7 @@ import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { BookingFormService } from '@placeos/bookings';
 import { AsyncHandler, SettingsService, notifyError } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
+import { addMinutes, endOfDay } from 'date-fns';
 import { map, take } from 'rxjs/operators';
 
 @Component({
@@ -87,26 +88,59 @@ import { map, take } from 'rxjs/operators';
                 </ng-container>
             </div>
         </section>
-        <section
-            assets
-            class="flex space-x-1 py-4 px-2 border-t border-neutral"
-            *ngIf="assets?.length"
-        >
-            <app-icon class="text-success">done</app-icon>
-            <div details class="leading-6">
-                <h3 i18n>{{ assets_count }} Asset(s)</h3>
-                <div class="flex space-x-2" *ngFor="let asset of assets">
-                    <div
-                        class="h-5 w-5 bg-base-200 rounded-full flex items-center justify-center"
-                    >
-                        {{ asset.amount }}
+        <section class="px-4">
+            <div
+                request
+                *ngFor="let request of assets"
+                class="border bg-base-100 rounded-xl overflow-hidden"
+                [class.border-error]="end_time < request.deliver_at"
+                [class.border-base-300]="end_time >= request.deliver_at"
+            >
+                <div class="flex items-center space-x-2 p-3">
+                    <div class="flex-1 flex items-center space-x-2">
+                        <div class="text-sm">
+                            Requested for
+                            {{
+                                request.deliver_at_time
+                                    | date: 'MMM d, ' + time_format
+                            }}
+                        </div>
+                        <div
+                            class="flex items-center justify-center h-6 w-6 rounded-full bg-error text-error-content"
+                            [matTooltip]="err_tooltip"
+                            *ngIf="end_time < request.deliver_at"
+                        >
+                            <app-icon>priority_high</app-icon>
+                        </div>
+                        <div class="flex-1"></div>
+                        <div
+                            class="text-xs bg-success text-success-content px-2 py-1 rounded"
+                        >
+                            {{ request.item_count }} item(s)
+                        </div>
                     </div>
-                    <span>{{ asset.name }}</span>
+                </div>
+                <div class="flex flex-col bg-base-200 divide-y divide-base-100">
+                    <div
+                        class="flex items-center px-3 py-1 space-x-2 hover:opacity-90"
+                        *ngFor="let item of request.items"
+                    >
+                        <div class="flex items-center flex-1">
+                            <span class="text-sm">{{
+                                item.name || 'Item'
+                            }}</span>
+                        </div>
+                        <div
+                            class="rounded bg-success text-success-content text-xs px-2 py-1"
+                        >
+                            x{{ item.quantity }}
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
         <section
-            assets
+            locker
             class="flex space-x-1 py-4 px-2 border-t"
             *ngIf="needs_locker"
         >
@@ -157,6 +191,14 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
         }
     };
     public readonly dismiss = (e?) => this._sheet_ref?.dismiss(e);
+
+    public get end_time() {
+        const end = addMinutes(
+            this.booking.date,
+            this.booking.duration
+        ).valueOf();
+        return this.booking.all_day ? endOfDay(end).valueOf() : end;
+    }
 
     public get booking() {
         return this._state.form.value as any;
