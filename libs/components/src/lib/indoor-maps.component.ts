@@ -6,7 +6,12 @@ import {
     Input,
     SimpleChanges,
 } from '@angular/core';
-import { AsyncHandler, HashMap, notifyError } from '@placeos/common';
+import {
+    AsyncHandler,
+    HashMap,
+    InjectMapApiService,
+    notifyError,
+} from '@placeos/common';
 import { ViewerStyles, ViewAction } from '@placeos/svg-viewer';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ExploreStateService } from '../../../explore/src/lib/explore-state.service';
@@ -17,9 +22,11 @@ import {
 } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
 import { filter, map, first, take } from 'rxjs/operators';
+import { MapService } from 'libs/common/src/lib/inject-map-api.service';
 
 declare let mapsindoors: any;
 declare let google: any;
+declare let mapboxgl: any;
 
 interface GeolocationCoordinates {
     latitude: number;
@@ -143,12 +150,11 @@ interface CustomCoordinates {
     ],
 })
 export class IndoorMapsComponent extends AsyncHandler implements OnInit {
-    public map_view_options: any;
-    public map_view_instance: any;
-    public mapsIndoors_instance: any;
-    public googleMaps_instance: any;
-    public mapsIndoors_directions_service_instance: any;
-    public mapsIndoors_directions_renderer_instance: any;
+    public view_instance: any;
+    public maps_service: any;
+    public map_instance: any;
+    public directions_service: any;
+    public directions_renderer: any;
 
     public live_data_status: string | boolean = 'enabled';
     public search_result_items: any[];
@@ -195,6 +201,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     @ViewChild('searchResultItems') searchResults: ElementRef;
 
     constructor(
+        private _api_service: InjectMapApiService,
         private _state: ExploreStateService,
         private _org: OrganisationService
     ) {
@@ -231,60 +238,56 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     }
 
     ngAfterViewInit() {
-        this.mapsIndoors_instance?.addListener(
-            'click',
-            (location: any, e: Event) => {
-                const found_action = this.actions_hashmap[location.id];
-                if (found_action) {
-                    found_action.callback(e);
-                }
+        this.maps_service?.addListener('click', (location: any, e: Event) => {
+            const found_action = this.actions_hashmap[location.id];
+            if (found_action) {
+                found_action.callback(e);
             }
-        );
+        });
     }
 
     initMapView(): Promise<void> {
-        // Hardcoded coordinates for mock map in Austin
-        // this.map_view_options = {
-        //     element: document.getElementById('maps-indoors'),
-        //     center: { lat: 30.3603774, lng: -97.7426772 },
-        //     zoom: 21,
-        //     maxZoom: 26,
-        // };
-
-        this.map_view_options = {
+        const view_options: any = {
             element: document.getElementById('maps-indoors'),
             center: { lat: this.user_latitude, lng: this.user_longitude },
             zoom: 21,
             maxZoom: 26,
         };
-        this.map_view_instance = new mapsindoors.mapView.GoogleMapsView(
-            this.map_view_options
-        );
 
-        this.mapsIndoors_instance = new mapsindoors.MapsIndoors({
-            mapView: this.map_view_instance,
+        if (this._api_service.map_service === MapService.GoogleMaps) {
+            this.view_instance = new mapsindoors.mapView.GoogleMapsView(
+                view_options
+            );
+        } else {
+            view_options.accessToken = this._api_service.map_token;
+            this.view_instance = new mapsindoors.mapView.MapboxView(
+                view_options
+            );
+        }
+        if (!this.view_instance) return;
+        this.maps_service = new mapsindoors.MapsIndoors({
+            mapView: this.view_instance,
         });
-        return (this.googleMaps_instance = this.map_view_instance.getMap());
+        return (this.map_instance = this.view_instance.getMap());
     }
 
     initDirections() {
         const externalDirectionsProvider =
             new mapsindoors.directions.GoogleMapsProvider();
-        this.mapsIndoors_directions_service_instance =
-            new mapsindoors.services.DirectionsService(
-                externalDirectionsProvider
-            );
+        this.directions_service = new mapsindoors.services.DirectionsService(
+            externalDirectionsProvider
+        );
         const directionsRendererOptions = {
-            mapsIndoors: this.mapsIndoors_instance,
+            mapsIndoors: this.maps_service,
         };
-        this.mapsIndoors_directions_renderer_instance =
+        this.directions_renderer =
             new mapsindoors.directions.DirectionsRenderer(
                 directionsRendererOptions
             );
     }
 
     async mapFloorsToIndex() {
-        const building = await this.mapsIndoors_instance?.getBuilding();
+        const building = await this.maps_service?.getBuilding();
         const input_string =
             building?.buildingInfo?.fields?.floorMapping?.value;
         const pairs = input_string?.split(',\n').map((pair) => pair.split(':'));
@@ -292,7 +295,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             accumulator[key] = value;
             return accumulator;
         }, {});
-        const floor_index: string = await this.mapsIndoors_instance?.getFloor();
+        const floor_index: string = await this.maps_service?.getFloor();
         if (floor_index && this.floor_mapping) {
             const level_id = this.floor_mapping[floor_index];
             this._state.setLevel(level_id);
@@ -301,22 +304,19 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
 
     handleLocationChange() {
         const floorSelectorElement = document.createElement('div');
-        new mapsindoors.FloorSelector(
-            floorSelectorElement,
-            this.mapsIndoors_instance
+        new mapsindoors.FloorSelector(floorSelectorElement, this.maps_service);
+        this.map_instance.controls[google.maps.ControlPosition.RIGHT_TOP].push(
+            floorSelectorElement
         );
-        this.googleMaps_instance.controls[
-            google.maps.ControlPosition.RIGHT_TOP
-        ].push(floorSelectorElement);
 
-        this.mapsIndoors_instance?.addListener('building_changed', (e: any) => {
+        this.maps_service?.addListener('building_changed', (e: any) => {
             const found_building = this.buildings_list.find((building) => {
                 building.name.toLowerCase() ===
                     e.buildingInfo?.name.toLowerCase();
                 this.setBuilding(found_building);
             });
         });
-        this.mapsIndoors_instance?.addListener('floor_changed', (e: string) => {
+        this.maps_service?.addListener('floor_changed', (e: string) => {
             if (e && this.floor_mapping) {
                 const level_id: string = this.floor_mapping[e];
                 this._state.setLevel(level_id);
@@ -425,12 +425,10 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                 travelMode: 'WALKING',
             };
 
-            this.mapsIndoors_directions_service_instance
+            this.directions_service
                 .getRoute(routeParameters)
                 .then((directionsResult: any) => {
-                    this.mapsIndoors_directions_renderer_instance?.setRoute(
-                        directionsResult
-                    );
+                    this.directions_renderer?.setRoute(directionsResult);
                 })
                 .catch((error: any) => {
                     console.error('Error fetching route: ' + error);
@@ -476,7 +474,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     }
 
     private async _setPolygonFill(location_id: string, colour: string) {
-        await this.mapsIndoors_instance?.setDisplayRule(location_id, {
+        await this.maps_service?.setDisplayRule(location_id, {
             polygonVisible: true,
             polygonFillOpacity: 0.6,
             polygonZoomFrom: 16,
