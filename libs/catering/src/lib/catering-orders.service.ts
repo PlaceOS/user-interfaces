@@ -133,7 +133,9 @@ export class CateringOrdersService extends AsyncHandler {
             event: null,
         });
         const catering = [
-            ...order.event.ext('catering').filter((o) => o.id !== order.id),
+            ...(order.event.extension_data.catering || []).filter(
+                (o) => o.id !== order.id
+            ),
             updated_order,
         ].map((i) => new CateringOrder({ ...i }));
         const event = new CalendarEvent({
