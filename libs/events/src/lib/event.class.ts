@@ -262,13 +262,19 @@ export class CalendarEvent {
                     data[key] || this.extension_data[key];
             }
         }
+        const simple_event = {
+            date: this.date,
+            duration: this.duration,
+            date_end: this.date_end,
+            all_day: this.all_day,
+            space: this.space,
+            organiser: this.organiser,
+        };
         this.extension_data.catering = (this.extension_data.catering || []).map(
-            (i) =>
-                new CateringOrder({ ...i, event: this, date: this.date } as any)
+            (i) => new CateringOrder({ ...i, event: simple_event } as any)
         );
         this.extension_data.assets = (this.extension_data.assets || []).map(
-            (i) =>
-                new AssetRequest({ ...i, event: this, date: this.date } as any)
+            (i) => new AssetRequest({ ...i, event: simple_event } as any)
         );
     }
 
@@ -286,13 +292,13 @@ export class CalendarEvent {
 
     public get valid_catering() {
         return (this.ext('catering') || []).filter(
-            (order) => order.deliver_at_time < this.date_end
+            (order) => order.deliver_at < this.date_end
         );
     }
 
     public get valid_assets() {
         return (this.ext('assets') || []).filter(
-            (request) => request.deliver_at_time < this.date_end
+            (request) => request.deliver_at < this.date_end
         );
     }
 
