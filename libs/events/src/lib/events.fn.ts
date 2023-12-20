@@ -243,6 +243,25 @@ export function checkinEventGuest(
 }
 
 /**
+ * Get the extension data for an event
+ * @param id ID of the event
+ * @param system_id  ID of the system associated with the event
+ * @param query Extra query parameters to pass to the API request
+ */
+export function getEventMetadata(
+    id: string,
+    system_id: string,
+    query: { ical_uid?: string } = {}
+) {
+    const q = toQueryString({ ...query });
+    return get(
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(
+            id
+        )}/metadata/${encodeURIComponent(system_id)}${q ? '?' + q : ''}`
+    ).pipe(map((item) => item as EventExtensionData));
+}
+
+/**
  * Update the extension data for an event
  * @param id ID of the event
  * @param system_id ID of the system associated with the event

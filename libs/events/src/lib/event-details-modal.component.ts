@@ -17,6 +17,7 @@ import { Space } from 'libs/spaces/src/lib/space.class';
 import { getModule } from '@placeos/ts-client';
 import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-modal.component';
 import { CateringItem } from 'libs/catering/src/lib/catering-item.class';
+import { getEventMetadata } from './events.fn';
 
 const EMPTY_ACTIONS = [];
 
@@ -639,6 +640,25 @@ export class EventDetailsModalComponent {
                 content: MapPinComponent,
             },
         ];
+        if (
+            this.event.extension_data.catering?.length ||
+            this.event.extension_data.assets?.length
+        ) {
+            return;
+        }
+        const metadata = await getEventMetadata(
+            this._event.id,
+            this.space.id
+        ).toPromise();
+        if (metadata) {
+            this._event = new CalendarEvent({
+                ...this._event,
+                extension_data: {
+                    ...this._event.extension_data,
+                    ...metadata,
+                },
+            });
+        }
     }
 
     public status(id: string): string {
