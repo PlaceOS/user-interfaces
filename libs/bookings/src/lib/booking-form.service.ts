@@ -20,7 +20,7 @@ import {
     PlaceZone,
     showMetadata,
 } from '@placeos/ts-client';
-import { format, getUnixTime, addMinutes, set, startOfDay } from 'date-fns';
+import { format, getUnixTime, addMinutes, startOfDay } from 'date-fns';
 import {
     BehaviorSubject,
     combineLatest,

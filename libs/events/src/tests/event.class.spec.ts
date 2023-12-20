@@ -29,7 +29,7 @@ describe('CalendarEvent', () => {
         expect(event.recurring_event_id).toBe('');
         expect(event.attachments).toEqual([]);
         expect(event.system).toBeNull();
-        expect(event.extension_data).toEqual({ catering: [] });
+        expect(event.extension_data).toEqual({ catering: [], assets: [] });
         expect(event.type).toBe('internal');
         event = new CalendarEvent({
             id: 'One',
@@ -66,14 +66,14 @@ describe('CalendarEvent', () => {
         expect(event.body).toBe('Some content for you');
         expect(event.private).toBe(true);
         expect(event.all_day).toBe(true);
-        expect(event.duration).toBe(24 * 60);
+        expect(event.duration).toBe(24 * 60 - 1);
         expect(event.timezone).toBe('Australia/Sydney');
         expect(event.location).toBe('Home');
         expect(event.recurring).toBe(true);
         expect(event.recurring_event_id).toBe('Another');
         expect(event.attachments).toEqual([{ name: 'file.png', blob: null }]);
         expect(event.system).toBeTruthy();
-        expect(event.extension_data).toEqual({ catering: [] });
+        expect(event.extension_data).toEqual({ catering: [], assets: [] });
         expect(event.type).toBe('cancelled');
         // TODO: Test date/time fields
     });

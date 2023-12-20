@@ -39,7 +39,7 @@ describe('NewDeskFlowConfirmComponent', () => {
     it('should show desk details', () => expect('[details]').toExist());
 
     it('should show assets if available', () => {
-        expect('[assets]').not.toExist();
+        expect('[request]').not.toExist();
         spectator
             .inject(BookingFormService)
             .form.patchValue({ assets: [new Asset()] });

@@ -19,7 +19,7 @@ describe('AssetSelectModalComponent', () => {
                 provide: SettingsService,
                 useValue: { get: jest.fn(), saveUserSetting: jest.fn() },
             },
-            { provide: MAT_DIALOG_DATA, useValue: [] },
+            { provide: MAT_DIALOG_DATA, useValue: { details: {} } },
         ],
         declarations: [
             MockComponent(IconComponent),

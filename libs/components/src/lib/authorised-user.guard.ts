@@ -8,12 +8,13 @@ import {
     Router,
 } from '@angular/router';
 import { onlineState } from '@placeos/ts-client';
-import { SettingsService, current_user } from '@placeos/common';
+import { current_user } from '@placeos/common';
 import { first } from 'rxjs/operators';
-
-import { StaffUser } from '../../../users/src/lib/user.class';
-import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
+
+import { StaffUser } from 'libs/users/src/lib/user.class';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 
 export abstract class PLACEOS_APP_ACCESS {
     public readonly group: string;

@@ -22,6 +22,8 @@ import { AttendeeListComponent } from '../lib/attendee-list.component';
 import { EventDetailsModalComponent } from '../lib/event-details-modal.component';
 import { CalendarEvent } from '../lib/event.class';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 describe('EventDetailsModalComponent', () => {
     let spectator: Spectator<EventDetailsModalComponent>;
@@ -50,8 +52,13 @@ describe('EventDetailsModalComponent', () => {
             MockComponent(UserAvatarComponent),
             MockComponent(AttendeeListComponent),
             MockDirective(BindingDirective),
+            MockComponent(StatusPillComponent),
         ],
-        imports: [MockModule(MatMenuModule), MockModule(MatDialogModule)],
+        imports: [
+            MockModule(MatMenuModule),
+            MockModule(MatDialogModule),
+            MockModule(MatTooltipModule),
+        ],
     });
 
     beforeEach(() => (spectator = createComponent()));

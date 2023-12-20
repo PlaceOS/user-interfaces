@@ -42,16 +42,16 @@ import { CATERING_STATUSES } from './catering.vars';
             </div>
             <div class="flex-1">
                 {{
-                    order.event?.space.display_name ||
-                        order.event?.space.name ||
+                    order.event?.space?.display_name ||
+                        order.event?.space?.name ||
                         ''
                 }}
                 <span
                     class="opacity-30"
                     *ngIf="
                         !(
-                            order.event?.space.display_name ||
-                            order.event?.space.name
+                            order.event?.space?.display_name ||
+                            order.event?.space?.name
                         )
                     "
                 >

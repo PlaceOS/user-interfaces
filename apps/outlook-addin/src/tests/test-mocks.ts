@@ -118,7 +118,7 @@ export const mockSpace: Space = {
         tags: ['tag-1'],
         settings: {},
         locations: [] as any,
-        images: []
+        images: [],
     },
     features: [''],
     availability: [
@@ -128,6 +128,7 @@ export const mockSpace: Space = {
             status: '',
         },
     ],
+    inUseAt: () => false,
 };
 
 export const mockSpaceWithViews: Space = {
@@ -155,7 +156,7 @@ export const mockSpaceWithViews: Space = {
         tags: ['tag-1'],
         settings: {},
         locations: [] as any,
-        images: []
+        images: [],
     },
     features: [''],
     availability: [
@@ -165,6 +166,7 @@ export const mockSpaceWithViews: Space = {
             status: '',
         },
     ],
+    inUseAt: () => false,
 };
 
 export const mockCalendarEvent: any = {

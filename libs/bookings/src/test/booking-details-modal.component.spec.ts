@@ -12,6 +12,7 @@ import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
 import { BookingDetailsModalComponent } from '../lib/booking-details-modal.component';
 import { Booking } from '../lib/booking.class';
+import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 
 describe('BookingDetailsModalComponent', () => {
     let spectator: Spectator<BookingDetailsModalComponent>;
@@ -32,6 +33,7 @@ describe('BookingDetailsModalComponent', () => {
             MockComponent(ImageCarouselComponent),
             MockComponent(InteractiveMapComponent),
             MockComponent(IconComponent),
+            MockComponent(StatusPillComponent),
         ],
         imports: [MockModule(MatMenuModule), MockModule(MatDialogModule)],
     });

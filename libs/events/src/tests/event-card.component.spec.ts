@@ -8,12 +8,16 @@ import { MockComponent, MockProvider } from 'ng-mocks';
 import { EventCardComponent } from '../lib/event-card.component';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { SettingsService } from '@placeos/common';
+import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 
 describe('EventCardComponent', () => {
     let spectator: SpectatorRouting<EventCardComponent>;
     const createComponent = createRoutingFactory({
         component: EventCardComponent,
-        declarations: [MockComponent(IconComponent)],
+        declarations: [
+            MockComponent(IconComponent),
+            MockComponent(StatusPillComponent),
+        ],
         providers: [
             MockProvider(OrganisationService, {
                 levelWithID: jest.fn(),

@@ -4,26 +4,26 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent, SafePipe } from '@placeos/components';
-import { MockComponent, MockModule, MockPipe } from 'ng-mocks';
+import { MockComponent, MockModule, MockPipe, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { CateringItemFiltersComponent } from '../../lib/catering-order-modal/catering-item-filters.component';
 import { CateringOrderStateService } from '../../lib/catering-order-modal/catering-order-state.service';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { SettingsService } from '@placeos/common';
 
 describe('CateringItemFiltersComponent', () => {
     let spectator: Spectator<CateringItemFiltersComponent>;
     const createComponent = createRoutingFactory({
         component: CateringItemFiltersComponent,
         providers: [
-            {
-                provide: CateringOrderStateService,
-                useValue: {
-                    setFilters: jest.fn(),
-                    getFilters: jest.fn(() => ({})),
-                    filters: new BehaviorSubject({ tags: [] }),
-                    categories: new BehaviorSubject(['meals', 'coffee']),
-                },
-            },
+            MockProvider(CateringOrderStateService, {
+                setFilters: jest.fn(),
+                getFilters: jest.fn(() => ({})),
+                filters: new BehaviorSubject({ tags: [] }),
+                categories: new BehaviorSubject(['meals', 'coffee']),
+            } as any),
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
         declarations: [
             MockComponent(IconComponent),
@@ -34,6 +34,7 @@ describe('CateringItemFiltersComponent', () => {
             MockModule(MatFormFieldModule),
             MockModule(MatInputModule),
             MockModule(MatCheckboxModule),
+            MockModule(MatTooltipModule),
             FormsModule,
             ReactiveFormsModule,
         ],

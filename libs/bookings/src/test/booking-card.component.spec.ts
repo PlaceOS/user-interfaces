@@ -9,12 +9,16 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
 import { Booking } from '../lib/booking.class';
 import { BookingCardComponent } from '../lib/booking-card.component';
 import { SettingsService } from '@placeos/common';
+import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 
 describe('BookingCardComponent', () => {
     let spectator: SpectatorRouting<BookingCardComponent>;
     const createComponent = createRoutingFactory({
         component: BookingCardComponent,
-        declarations: [MockComponent(IconComponent)],
+        declarations: [
+            MockComponent(IconComponent),
+            MockComponent(StatusPillComponent),
+        ],
         providers: [
             MockProvider(OrganisationService, { levelWithID: jest.fn() }),
             MockProvider(MatDialog, { open: jest.fn() }),

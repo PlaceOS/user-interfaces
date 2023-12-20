@@ -20,7 +20,7 @@ describe('NewCateringOrderModalComponent', () => {
                 get: jest.fn(),
                 saveUserSetting: jest.fn(),
             }),
-            MockProvider(MAT_DIALOG_DATA, [[], {}, false, 0]),
+            MockProvider(MAT_DIALOG_DATA, { details: {} }),
             MockProvider(OrganisationService, {}),
             MockProvider(CateringOrderStateService, {}),
         ],

@@ -4,7 +4,7 @@ import { FormGroup } from '@angular/forms';
 import { NavigationEnd } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { PaymentsService } from '@placeos/payments';
-import { of, Subject } from 'rxjs';
+import { BehaviorSubject, of, Subject } from 'rxjs';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
@@ -30,6 +30,7 @@ describe('BookingFormService', () => {
             MockProvider(SettingsService, { get: jest.fn() }),
             MockProvider(OrganisationService, {
                 initialised: of(true),
+                active_building: new BehaviorSubject({ id: 'bld-1' }),
                 building: { id: 'bld-1' },
             } as any),
             MockProvider(MatDialog, { open: jest.fn() }),

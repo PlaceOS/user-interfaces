@@ -38,7 +38,7 @@ describe('CateringOrderComponent', () => {
     });
 
     it('should show order details', () => {
-        const order = new CateringOrder({ deliver_at: 1 });
+        const order = new CateringOrder({ event: { date: 1 } as any });
         spectator.setInput({ order });
         spectator.detectChanges();
         expect('[time]').toContainText(format(1, 'h:mm a'));

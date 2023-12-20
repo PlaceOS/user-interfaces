@@ -15,32 +15,30 @@ jest.mock('@placeos/ts-client');
 
 import * as ts_client from '@placeos/ts-client';
 import { fakeAsync, tick } from '@angular/core/testing';
+import { MockProvider } from 'ng-mocks';
 
 describe('ExploreStateService', () => {
     let spectator: SpectatorService<ExploreZonesService>;
     const createService = createServiceFactory({
         service: ExploreZonesService,
         providers: [
-            {
-                provide: ExploreStateService,
-                useValue: {
-                    level: new BehaviorSubject(null),
-                    setFeatures: jest.fn(),
-                    setLabels: jest.fn(),
-                    setStyles: jest.fn(),
-                },
-            },
-            {
-                provide: OrganisationService,
-                useValue: {
-                    organisation: new Organisation(),
-                    binding: jest.fn(),
-                    initialised: of(true),
-                    levels: [],
-                    buildings: [],
-                },
-            },
-            { provide: SettingsService, useValue: { get: jest.fn() } },
+            MockProvider(ExploreStateService, {
+                level: new BehaviorSubject({ id: 'lvl-1' } as any),
+                setFeatures: jest.fn(),
+                setLabels: jest.fn(),
+                setStyles: jest.fn(),
+            }),
+            MockProvider(OrganisationService, {
+                organisation: new Organisation(),
+                binding: jest.fn(),
+                initialised: of(true),
+                levels: [],
+                buildings: [],
+                active_building: new BehaviorSubject<Building>({
+                    id: 'bld-1',
+                } as any),
+            }),
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
     });
 

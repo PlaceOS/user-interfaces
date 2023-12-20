@@ -12,14 +12,19 @@ import {
     AuthorisedUserGuard,
     PLACEOS_APP_ACCESS,
 } from '../lib/authorised-user.guard';
+import { MockProvider } from 'ng-mocks';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { OrganisationService } from '@placeos/organisation';
 
 describe('AuthorisedUserGuard', () => {
     let spectator: SpectatorService<AuthorisedUserGuard>;
     const createService = createServiceFactory({
         service: AuthorisedUserGuard,
         providers: [
-            { provide: Router, useValue: { navigate: jest.fn() } },
-            { provide: PLACEOS_APP_ACCESS, useValue: {} },
+            MockProvider(Router, { navigate: jest.fn() }),
+            MockProvider(PLACEOS_APP_ACCESS, {}),
+            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(OrganisationService, { initialised: of(true) }),
         ],
     });
 

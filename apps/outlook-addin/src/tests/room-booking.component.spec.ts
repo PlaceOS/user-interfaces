@@ -1,7 +1,7 @@
 import { RoomBookingComponent } from '../app/rooms/room-booking.component';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { Location } from '@angular/common';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import {
     FormsModule,
     ReactiveFormsModule,
@@ -13,6 +13,7 @@ import { BookModule } from '../app/rooms/book.module';
 import { EventFormService } from '@placeos/events';
 import { FindSpaceComponent } from '../app/rooms/find-space/find-space.component';
 import { SettingsService } from '@placeos/common';
+import { Router } from '@angular/router';
 
 describe('RoomBookingComponent', () => {
     const formModel = {
@@ -40,19 +41,16 @@ describe('RoomBookingComponent', () => {
             BookModule,
         ],
         providers: [
-            {
-                provide: EventFormService,
-                useValue: {
-                    setView: jest.fn(() => {}),
-                    newForm: jest.fn(() => {}),
-                    clearForm: jest.fn(),
-                    storeForm: jest.fn(() => {}),
-                    loadForm: jest.fn(),
-                    postForm: jest.fn(),
-                    view: '',
-                },
-            },
-            { provide: SettingsService, useValue: { get: jest.fn() } }
+            MockProvider(EventFormService, {
+                setView: jest.fn(() => {}),
+                newForm: jest.fn(() => {}),
+                clearForm: jest.fn(),
+                storeForm: jest.fn(() => {}),
+                loadForm: jest.fn(),
+                postForm: jest.fn(),
+                view: '',
+            } as any),
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
         declarations: [MockComponent(FindSpaceComponent)],
         stubsEnabled: false,

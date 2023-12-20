@@ -2,7 +2,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
-import { MockComponent, MockProvider } from 'ng-mocks';
+import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 
 import {
@@ -73,10 +73,14 @@ describe('ExploreMapViewComponent', () => {
             }),
             MockProvider(SettingsService, {
                 value: jest.fn(),
-                get: jest.fn(() => true),
+                get: jest.fn(() => false),
             } as any),
         ],
-        imports: [MatSlideToggleModule, MatSelectModule, FormsModule],
+        imports: [
+            MockModule(MatSlideToggleModule),
+            MockModule(MatSelectModule),
+            FormsModule,
+        ],
     });
 
     beforeEach(() => (spectator = createComponent()));
