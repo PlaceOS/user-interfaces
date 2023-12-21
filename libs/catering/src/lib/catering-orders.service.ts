@@ -65,7 +65,13 @@ export class CateringOrdersService extends AsyncHandler {
             }).pipe(
                 catchError(() => of([])),
                 map((events) =>
-                    flatten(events.map((event) => event.valid_catering))
+                    flatten(
+                        events.map((event) =>
+                            event.valid_catering.map(
+                                (o) => new CateringOrder({ ...o, event })
+                            )
+                        )
+                    )
                 ),
                 map((orders) =>
                     orders.filter(
