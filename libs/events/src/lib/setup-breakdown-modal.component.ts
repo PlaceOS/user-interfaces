@@ -2,7 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { CalendarEvent } from './event.class';
-import { saveEvent } from './events.fn';
+import { saveEvent, updateEventMetadata } from './events.fn';
 import { currentUser, notifyError, notifySuccess } from '@placeos/common';
 
 @Component({
@@ -74,7 +74,7 @@ export class SetupBreakdownModalComponent {
         const query: any = {
             system_id: this._event?.resources[0]?.id || this._event?.system?.id,
         };
-        const event = await saveEvent(
+        let event = await saveEvent(
             new CalendarEvent({
                 ...this._event,
                 setup_time: this.form.value.setup,
@@ -83,12 +83,24 @@ export class SetupBreakdownModalComponent {
             query
         )
             .toPromise()
-            .catch((_) => {
-                this.loading = false;
-                this._dialog_ref.disableClose = false;
-                notifyError(`Error updating setup and breakdown. ${_.error}`);
-                throw _;
-            });
+            .catch((_) => null);
+        if (!event) {
+            event = await updateEventMetadata(this._event.id, query.system_id, {
+                ...this._event.extension_data,
+                setup_time: this.form.value.setup,
+                breakdown_time: this.form.value.breakdown,
+                setup: this.form.value.setup,
+                breakdown: this.form.value.breakdown,
+            } as any)
+                .toPromise()
+                .catch((_) => null);
+        }
+        if (!event) {
+            this.loading = false;
+            this._dialog_ref.disableClose = false;
+            notifyError(`Error updating setup and breakdown.`);
+            return;
+        }
         notifySuccess('Succesfully updated setup and breakdown period.');
         this._dialog_ref.disableClose = false;
         this.loading = false;
