@@ -5,6 +5,7 @@ import { CheckinStateService } from './checkin-state.service';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
+import { roundToNearestMinutes, startOfMinute } from 'date-fns';
 
 @Component({
     selector: 'checkin-results',
@@ -16,7 +17,7 @@ import { combineLatest } from 'rxjs';
             <h3 class="text-xl">You are checked in!</h3>
             <p class="text-center">
                 Welcome, you have a meeting at
-                {{ (event | async)?.date || '' | date: 'mediumDate' }}
+                {{ (event | async)?.date || now | date: 'mediumDate' }}
                 with
                 {{
                     (event | async).organiser?.name ||
@@ -142,6 +143,12 @@ export class CheckinResultsComponent implements OnInit {
     ]).pipe(map(([_]) => (_ ? this._org.levelWithID(_.zones) : null)));
 
     public readonly print = () => window.print();
+
+    public get now() {
+        return startOfMinute(
+            roundToNearestMinutes(Date.now(), { nearestTo: 5 })
+        );
+    }
 
     /** Application logo to display */
     public get logo() {
