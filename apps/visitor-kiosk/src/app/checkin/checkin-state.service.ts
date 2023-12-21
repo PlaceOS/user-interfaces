@@ -70,7 +70,7 @@ export class CheckinStateService {
             this._guest.next(guest);
             this._booking.next(guest.booking);
             this._form.next(generateGuestForm(guest, guest.booking.user_email));
-            return { guest, event };
+            return { guest, event: guest.booking };
         }
         let upcoming = await queryAllBookings({
             type: 'visitor',
