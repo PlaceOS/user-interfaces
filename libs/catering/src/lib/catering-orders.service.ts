@@ -10,8 +10,12 @@ import {
 } from 'rxjs/operators';
 import { startOfDay, endOfDay, getUnixTime, format } from 'date-fns';
 
-import { AsyncHandler, flatten } from '@placeos/common';
-import { queryEvents, saveEvent } from 'libs/events/src/lib/events.fn';
+import { AsyncHandler, currentUser, flatten } from '@placeos/common';
+import {
+    queryEvents,
+    saveEvent,
+    updateEventMetadata,
+} from 'libs/events/src/lib/events.fn';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
 
 import { CateringOrder } from './catering-order.class';
@@ -53,7 +57,7 @@ export class CateringOrdersService extends AsyncHandler {
         this._filters,
         this._poll,
     ]).pipe(
-        debounceTime(500),
+        debounceTime(1000),
         switchMap(([{ date, zones }]) => {
             this._loading.next(true);
             const start = getUnixTime(startOfDay(date || Date.now()));
@@ -148,8 +152,13 @@ export class CateringOrdersService extends AsyncHandler {
             ...order.event,
             catering,
         });
-        const booking = await saveEvent(event.toJSON()).toPromise();
-        this._poll.next(Date.now());
+        const system_id = event?.resources[0]?.id || event?.system?.id;
+        const booking = await updateEventMetadata(
+            event.id,
+            system_id,
+            event.extension_data
+        ).toPromise();
+        this.timeout('refresh-list', () => this._poll.next(Date.now()), 1000);
         (order as any).status = status;
         return booking;
     }
