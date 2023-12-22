@@ -72,9 +72,7 @@ export function generateEventForm(
         recurring_event_id: new FormControl(event.recurring_event_id),
         master: new FormControl(event.master),
         attachments: new FormControl(event.attachments),
-        catering: new FormControl(
-            (event.extension_data?.catering[0]?.items || []) as any
-        ),
+        catering: new FormControl(event.extension_data?.catering as any),
         catering_notes: new FormControl(
             event.extension_data?.catering[0]?.notes || ''
         ),
