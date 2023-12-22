@@ -108,6 +108,7 @@
         "ALL_DAY": "All Day",
         "HOST": "Host",
         "DATE": "Date",
+        "END_DATE": "End Date",
         "DATE_ERROR": "Date and time must be in the future",
         "START_TIME": "Start Time",
         "END_TIME": "End Time",
