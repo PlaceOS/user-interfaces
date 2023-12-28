@@ -2,7 +2,12 @@ import { padString, predictableRandomInt } from '@placeos/common';
 import { registerMockEndpoint } from '@placeos/ts-client';
 import { MOCK_MENU } from './catering.data';
 import { MOCK_STAFF } from './users.data';
-import { MOCK_ORGS, MOCK_LEVELS, MOCK_BUILDINGS } from './zone.data';
+import {
+    MOCK_ORGS,
+    MOCK_LEVELS,
+    MOCK_BUILDINGS,
+    MOCK_ZONES,
+} from './zone.data';
 
 const MOCK_METADATA = {
     current: {
@@ -48,6 +53,10 @@ function registerMocks() {
                 return MOCK_BUILDINGS;
             } else if (request.query_params.tags === 'level') {
                 return MOCK_LEVELS;
+            } else if (request.query_params.tags) {
+                return MOCK_ZONES.filter((_) =>
+                    _.tags.includes(request.query_params.tags)
+                );
             }
             throw { status: 404, message: 'Zones not found' };
         },

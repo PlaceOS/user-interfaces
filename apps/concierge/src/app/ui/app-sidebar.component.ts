@@ -33,7 +33,10 @@ import { OrganisationService } from '@placeos/organisation';
                         matRipple
                         *ngIf="link.children?.length"
                         class="flex items-center space-x-2 rounded-r-full p-1 my-1 hover:bg-base-200 w-full"
-                        (click)="show_block[link.id] = !show_block[link.id]"
+                        (click)="
+                            show_block[link.id || link._id] =
+                                !show_block[link.id || link._id]
+                        "
                     >
                         <app-icon class="text-2xl opacity-60">
                             {{ link.icon }}
@@ -46,7 +49,9 @@ import { OrganisationService } from '@placeos/organisation';
                     <section
                         class="overflow-hidden w-full"
                         *ngIf="link.children?.length"
-                        [@show]="!show_block[link.id] ? 'show' : 'hide'"
+                        [@show]="
+                            !show_block[link.id || link._id] ? 'show' : 'hide'
+                        "
                     >
                         <a
                             class="flex items-center space-x-2 rounded-r-full p-1 my-1 hover:bg-base-200 w-full"
@@ -196,6 +201,11 @@ export class ApplicationSidebarComponent extends AsyncHandler {
                     name: 'Emergency Contacts',
                     icon: 'assignment_ind',
                     route: ['/users/staff/emergency-contacts'],
+                },
+                {
+                    id: 'signage',
+                    name: 'Digital Signage',
+                    route: ['/signage'],
                 },
             ],
         },

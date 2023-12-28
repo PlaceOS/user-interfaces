@@ -4,7 +4,7 @@ export const MOCK_ORGS = [
         updated_at: 1587692680,
         name: 'PlaceOS',
         description: '',
-        tags: 'org',
+        tags: ['org'],
         count: 0,
         capacity: 0,
         parent_id: '',
@@ -17,7 +17,7 @@ export const MOCK_BUILDINGS = [
     {
         name: 'Sydney',
         description: '',
-        tags: 'building',
+        tags: ['building'],
         count: 0,
         capacity: 0,
         parent_id: 'zone-EmWFTjuYExK',
@@ -28,7 +28,7 @@ export const MOCK_BUILDINGS = [
     {
         name: 'Brisbane',
         description: '',
-        tags: 'building',
+        tags: ['building'],
         count: 0,
         capacity: 0,
         parent_id: 'zone-EmWFTjuYExK',
@@ -37,6 +37,8 @@ export const MOCK_BUILDINGS = [
         levels: ['lvl-2', 'lvl-3'],
     },
 ];
+
+export const MOCK_ZONES = [];
 
 const mockLevel = (
     id: string,
@@ -51,7 +53,7 @@ const mockLevel = (
         name: `Level ${id.endsWith('00') ? 'G' : id.split('-')[1]}`,
         parent_id: building.id,
         description: '',
-        tags: 'level',
+        tags: ['level'],
         map_id,
         code: 'level code 12',
         type: 'staff floor',
@@ -66,18 +68,21 @@ export const MOCK_LEVELS = MOCK_BUILDINGS.map((bld) =>
     bld.levels.map((level, idx) =>
         mockLevel(level, idx, bld, level.split('-')[1])
     )
-).reduce((p, c) => p.concat(c), [
-    // {
-    //     id: 'test',
-    //     parent_id: 'bld-01',
-    //     name: 'Test',
-    //     map_id: 'assets/maps/test.svg',
-    // },
-    {
-        id: 'level-p1',
-        parent_id: 'bld-01',
-        name: 'Level P1',
-        tags: ['level', 'parking'],
-        map_id: 'assets/maps/level_P1.svg',
-    },
-]);
+).reduce(
+    (p, c) => p.concat(c),
+    [
+        // {
+        //     id: 'test',
+        //     parent_id: 'bld-01',
+        //     name: 'Test',
+        //     map_id: 'assets/maps/test.svg',
+        // },
+        {
+            id: 'level-p1',
+            parent_id: 'bld-01',
+            name: 'Level P1',
+            tags: ['level', 'parking'],
+            map_id: 'assets/maps/level_P1.svg',
+        },
+    ]
+);

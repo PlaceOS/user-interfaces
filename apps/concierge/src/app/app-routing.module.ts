@@ -149,6 +149,13 @@ const routes: Routes = [
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
     },
+    {
+        path: 'signage',
+        loadChildren: () =>
+            import('./signage/signage.module').then((m) => m.SignageModule),
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+    },
     { path: '**', redirectTo: '-' },
 ];
 
