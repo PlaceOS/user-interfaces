@@ -35,7 +35,7 @@ function formatAllDay(date: Date | number) {
 export function generateCalendarFileLink(event: CalEvent): string {
     const chunks: [string, any][] = [];
     const description = formatCalFileText(
-        `${event.body}${event.id ? '\n\n[ID|' + event.id + ']' : ''}`
+        `${event.body || ''}${event.id ? '\n\n[ID|' + event.id + ']' : ''}`
     );
     const location = formatCalFileText(`${event.location}`);
     chunks.push(['BEGIN', 'VCALENDAR']);
@@ -83,7 +83,9 @@ export function generateGoogleCalendarLink(event: CalEvent): string {
     const details: any = {
         action: 'TEMPLATE',
         text: event.title,
-        details: `${event.body}${event.id ? '\n\n[ID|' + event.id + ']' : ''}`,
+        details: `${event.body || ''}${
+            event.id ? '\n\n[ID|' + event.id + ']' : ''
+        }`,
         location: event.location,
         trp: false,
         dates: `${fmt(event.date)}/${fmt(
@@ -112,7 +114,9 @@ export function generateMicrosoftCalendarLink(
         startdt: new Date(event.date).toISOString(),
         enddt: addMinutes(event.date, event.duration ?? 60).toISOString(),
         subject: event.title,
-        body: `${event.body}${event.id ? '\n\n[ID|' + event.id + ']' : ''}`,
+        body: `${event.body || ''}${
+            event.id ? '\n\n[ID|' + event.id + ']' : ''
+        }`,
         location: event.location,
         allday: event.all_day ?? false,
     };

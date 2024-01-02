@@ -141,10 +141,12 @@ export class NewDeskFlowSuccessComponent {
     ) {}
 
     public ngOnInit() {
-        this.outlook_link = generateMicrosoftCalendarLink(
-            this.last_event as any
-        );
-        this.google_link = generateGoogleCalendarLink(this.last_event as any);
-        this.ical_link = generateCalendarFileLink(this.last_event as any);
+        const event: any = {
+            ...this.last_event,
+            location: `${this.location}, ${this.last_event.asset_name || ''}`,
+        };
+        this.outlook_link = generateMicrosoftCalendarLink(event);
+        this.google_link = generateGoogleCalendarLink(event);
+        this.ical_link = generateCalendarFileLink(event);
     }
 }

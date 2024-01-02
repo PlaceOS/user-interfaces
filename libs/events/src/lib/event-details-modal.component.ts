@@ -324,7 +324,7 @@ const EMPTY_ACTIONS = [];
                 </button>
                 <div
                     class="mt-4 sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
-                    *ngIf="event.body"
+                    *ngIf="body"
                 >
                     <h3
                         class="mx-3 text-lg font-medium border-t sm:border-none border-base-200"
@@ -335,9 +335,9 @@ const EMPTY_ACTIONS = [];
                     <div
                         notes
                         class="mx-4 overflow-hidden max-w-full"
-                        *ngIf="event.body"
+                        *ngIf="body"
                         [innerHTML]="
-                            (event.body | sanitize) ||
+                            (body | sanitize) ||
                             'Unable to sanitize notes contents'
                         "
                     ></div>
@@ -561,6 +561,10 @@ export class EventDetailsModalComponent {
                     : 0),
         0
     );
+
+    public get body() {
+        return this.event.body.replace(/\\n\\n\[ID\|.*\]/gm, '');
+    }
 
     public get allow_edit() {
         return !this._settings.get('app.events.booking_unavailable');
