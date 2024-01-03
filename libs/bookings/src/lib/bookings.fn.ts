@@ -225,7 +225,8 @@ export function queryResourceAvailability(
     start: number,
     duration: number,
     ignore?: string,
-    type: BookingType = 'room'
+    type: BookingType = 'room',
+    ignore_period: [number, number] = [0, 0]
 ): Observable<boolean[]> {
     return queryBookings({
         type,

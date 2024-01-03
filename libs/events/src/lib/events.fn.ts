@@ -314,7 +314,9 @@ export function querySpaceAvailability(
     id_list: string[],
     start: number,
     duration: number,
-    ignore?: string
+    ignore?: string,
+    type?: any,
+    ignore_period: [number, number] = [0, 0]
 ) {
     const end = addMinutes(start, duration).valueOf();
     return combineLatest([
@@ -342,7 +344,10 @@ export function querySpaceAvailability(
                 ignore_check.length &&
                 ignore_check[0].id === ignore &&
                 id_list.includes(ignore) &&
-                ignore_check[0].inUseAt(start, duration)
+                ignore_check[0].inUseAt(
+                    ignore_period[0] || start,
+                    ignore_check[1] || duration
+                )
             ) {
                 short_list[id_list.indexOf(ignore)] = true;
             }

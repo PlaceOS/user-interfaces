@@ -18,6 +18,7 @@ import {
     filter,
     map,
     shareReplay,
+    startWith,
     switchMap,
     tap,
 } from 'rxjs/operators';
@@ -259,7 +260,7 @@ export class EventFormService extends AsyncHandler {
         combineLatest([
             this.filtered_spaces,
             this.booking_rules,
-            merge(this.form.valueChanges, timer(1000)),
+            this.form.valueChanges.pipe(debounceTime(400), startWith({})),
         ]).pipe(
             filter(() => !this._loading.getValue()),
             debounceTime(300),
@@ -282,7 +283,9 @@ export class EventFormService extends AsyncHandler {
                     this?.event?.resources[0]?.id ||
                         this.event?.system?.id ||
                         this.event?.id ||
-                        undefined
+                        undefined,
+                    undefined,
+                    [this.event?.date, this.event?.duration]
                 ).pipe(
                     map((availability) => {
                         var list = spaces.filter((_, i) => availability[i]);
