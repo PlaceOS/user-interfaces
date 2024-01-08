@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { first, map } from 'rxjs/operators';
+import { filter, first, map } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
 import { roundToNearestMinutes, startOfMinute } from 'date-fns';
+import { DatePipe } from '@angular/common';
 
 @Component({
     selector: 'checkin-results',
@@ -15,28 +16,7 @@ import { roundToNearestMinutes, startOfMinute } from 'date-fns';
             *ngIf="event | async"
         >
             <h3 class="text-xl">You are checked in!</h3>
-            <p class="text-center">
-                Welcome, you have a meeting at
-                {{ (event | async)?.date || now | date: time_format }}
-                with
-                {{
-                    (event | async).organiser?.name ||
-                        (event | async).user_name ||
-                        ''
-                }}.<br />
-                {{
-                    (event | async).organiser?.name ||
-                        (event | async).user_name ||
-                        ''
-                }}
-                has been notified and will be with you shortly.&nbsp;
-            </p>
-            <p *ngIf="!(event | async)?.can_access_lift">
-                Please wait in the lobby.
-            </p>
-            <p *ngIf="(event | async)?.can_access_lift">
-                Please use the vistor access lift over there.
-            </p>
+            <div class="" [innerHTML]="template | async"></div>
             <div
                 printable
                 class="relative w-[24rem] h-[14rem] rounded-xl border border-neutral m-4 p-4 bg-base-100 print-only"
@@ -142,6 +122,51 @@ export class CheckinResultsComponent implements OnInit {
         this._org.initialised,
     ]).pipe(map(([_]) => (_ ? this._org.levelWithID(_.zones) : null)));
 
+    public readonly checkedInTemplate = combineLatest([
+        this.event,
+        this.guest,
+    ]).pipe(
+        filter(([event, guest]) => !!event && !!guest),
+        map(([event, guest]) => {
+            const template =
+                this._settings.get('app.checked_in_template') ||
+                `
+    <p class="text-center">
+        Welcome, you have a meeting at {{ time }} with {{ host_name }}.<br />
+        {{ host_name }} has been notified and will be with you shortly.&nbsp;
+    </p>
+    <p>{{ can_use_lift }}</p>
+        `;
+            return template
+                .replace(
+                    '{{ date }}',
+                    this._date.transform(event.date || this.now, 'mediumDate')
+                )
+                .replace(
+                    '{{ time }}',
+                    this._date.transform(
+                        event.date || this.now,
+                        this.time_format
+                    )
+                )
+                .replace('{{ title }}', event.title || '')
+                .replace(
+                    '{{ room_name }}',
+                    event.extension_data.location_id || ''
+                )
+                .replace('{{ host_name }}', event.user_name || '')
+                .replace('{{ host_email }}', event.user_email || '')
+                .replace('{{ visitor_name }}', guest.name || '')
+                .replace('{{ visitor_email }}', guest.email || '')
+                .replace(
+                    '{{ can_use_lift }}',
+                    event.extension_data.can_use_lift
+                        ? `Please use the vistor access lift over there`
+                        : `Please wait in the lobby.`
+                );
+        })
+    );
+
     public readonly print = () => window.print();
 
     public get time_format() {
@@ -166,7 +191,8 @@ export class CheckinResultsComponent implements OnInit {
         private _org: OrganisationService,
         private _checkin: CheckinStateService,
         private _settings: SettingsService,
-        private _router: Router
+        private _router: Router,
+        private _date: DatePipe
     ) {}
 
     public ngOnInit(): void {
