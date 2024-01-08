@@ -17,7 +17,7 @@ import { roundToNearestMinutes, startOfMinute } from 'date-fns';
             <h3 class="text-xl">You are checked in!</h3>
             <p class="text-center">
                 Welcome, you have a meeting at
-                {{ (event | async)?.date || now | date: 'mediumDate' }}
+                {{ (event | async)?.date || now | date: time_format }}
                 with
                 {{
                     (event | async).organiser?.name ||
@@ -143,6 +143,10 @@ export class CheckinResultsComponent implements OnInit {
     ]).pipe(map(([_]) => (_ ? this._org.levelWithID(_.zones) : null)));
 
     public readonly print = () => window.print();
+
+    public get time_format() {
+        return this._settings.time_format;
+    }
 
     public get now() {
         return startOfMinute(
