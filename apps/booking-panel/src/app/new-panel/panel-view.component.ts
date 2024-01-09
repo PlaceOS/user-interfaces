@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler, VERSION } from '@placeos/common';
+import { AsyncHandler, RemoteLoggingService, VERSION } from '@placeos/common';
 import { PanelStateService } from '../panel-state.service';
 
 @Component({
@@ -114,7 +114,8 @@ export class PanelViewComponent extends AsyncHandler {
 
     constructor(
         private _state: PanelStateService,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
+        private _logger: RemoteLoggingService
     ) {
         super();
     }
@@ -126,6 +127,7 @@ export class PanelViewComponent extends AsyncHandler {
             this._route.paramMap.subscribe((params) => {
                 if (params.has('system_id')) {
                     this._state.system = params.get('system_id');
+                    this._logger.setMetadata(params.get('system_id'));
                 }
             })
         );

@@ -14,6 +14,7 @@ export interface ClientEvent {
     timestamp: number;
     raw: any;
     data: any;
+    metadata: any;
 }
 
 function hookMethod<T, K extends keyof T>(
@@ -29,7 +30,7 @@ function hookMethod<T, K extends keyof T>(
     return previousFunction;
 }
 
-const DEVICE_ID =
+let DEVICE_ID =
     localStorage.getItem('PLACEOS.DEVICE_ID') || `DEV-${randomString(8)}`;
 
 @Injectable({
@@ -39,7 +40,8 @@ export class RemoteLoggingService extends AsyncHandler {
     private _system_id = new BehaviorSubject<string>('');
     private _events = new Subject<ClientEvent>();
 
-    private _event_history = this._events.pipe(shareReplay(1000));
+    private _event_history = this._events.pipe(shareReplay(20000));
+    private _metadata = null;
 
     private _logging_bindings = this._system_id.pipe(
         filter((_) => !!_),
@@ -56,6 +58,8 @@ export class RemoteLoggingService extends AsyncHandler {
     );
 
     public readonly history = this._event_history;
+
+    public setMetadata(metadata: any) {}
 
     constructor() {
         super();
@@ -95,6 +99,7 @@ export class RemoteLoggingService extends AsyncHandler {
             data: blob.filter(
                 (_) => typeof _ !== 'string' || !_.startsWith('color:')
             ),
+            metadata: this._metadata || null,
         });
     }
 

@@ -10,6 +10,7 @@ import {
 } from 'libs/common/src/lib/remote-logging.service';
 import { JsonDisplayComponent } from './json-display.component';
 import { OrganisationService } from '@placeos/organisation';
+import { SettingsService } from '@placeos/common';
 
 const COLOR_MAP = {
     console: 'bg-success-light text-black',
@@ -136,6 +137,15 @@ const URL_STARTS = [
                 </div>
             </div>
         </div>
+        <button
+            activation
+            *ngIf="can_activate"
+            class="absolute bottom-0 right-0 h-12 w-12"
+            (mousedown)="onStart()"
+            (touchstart)="onStart()"
+            (mouseup)="onEnd()"
+            (touchend)="onEnd()"
+        ></button>
     `,
     styles: [``],
 })
@@ -159,10 +169,19 @@ export class DebugConsoleComponent extends AsyncHandler {
         )
     );
 
+    public readonly onStart = () =>
+        this.timeout('show', () => (this.show = true), 5000);
+    public readonly onEnd = () => this.clearTimeout('show');
+
+    public get can_activate() {
+        return !!this._settings.get('app.debug_console');
+    }
+
     constructor(
         private _org: OrganisationService,
         private _logs: RemoteLoggingService,
-        private _hotkey: HotkeysService
+        private _hotkey: HotkeysService,
+        private _settings: SettingsService
     ) {
         super();
     }
@@ -176,9 +195,15 @@ export class DebugConsoleComponent extends AsyncHandler {
         );
         this.subscription(
             'logs',
-            this._logs.history.subscribe((event) =>
-                this.logs.next([...this.logs.getValue(), event])
-            )
+            this._logs.history.subscribe((event) => {
+                let logs = this.logs.getValue();
+                if (
+                    logs.length >
+                    (this._settings.get('app.log_limits') || 20000)
+                )
+                    logs.splice(0, 1);
+                this.logs.next([...logs, event]);
+            })
         );
         this.subscription(
             'toggle',
