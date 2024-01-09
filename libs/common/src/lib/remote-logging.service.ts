@@ -11,6 +11,7 @@ export interface ClientEvent {
     type: 'network' | 'console' | 'dom';
     subtype: string;
     timestamp: number;
+    raw: any;
     data: any;
 }
 
@@ -26,6 +27,8 @@ function hookMethod<T, K extends keyof T>(
     };
     return previousFunction;
 }
+
+const log = console.log;
 
 @Injectable({
     providedIn: 'root',
@@ -76,14 +79,16 @@ export class RemoteLoggingService extends AsyncHandler {
     }
 
     private _handleEvent(type: string, data: any, event_type: any = 'console') {
-        data[0] =
-            typeof data[0] === 'string' ? data[0].replace(/%c/g, '') : data[0];
+        const blob = [...data[0]];
+        blob[0] =
+            typeof blob[0] === 'string' ? blob[0].replace(/\%c/g, '') : blob[0];
         this._events.next({
             id: `${event_type}-${randomInt(99999_99999)}`,
             type: event_type,
             subtype: type,
             timestamp: Date.now(),
-            data: data.filter(
+            raw: data,
+            data: blob.filter(
                 (_) => typeof _ !== 'string' || !_.startsWith('color:')
             ),
         });

@@ -7,6 +7,10 @@ textarea {
     span[required] {
         color: var(--wa);
     }
+
+    &::placeholder {
+        color: var(--b3);
+    }
 }
 
 .theme-dark {

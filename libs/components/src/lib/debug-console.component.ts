@@ -11,15 +11,15 @@ import {
 import { JsonDisplayComponent } from './json-display.component';
 
 const COLOR_MAP = {
-    console: 'bg-purple-600/30',
-    network: 'bg-success/30',
-    dom: 'bg-indigo-600/30',
+    console: 'bg-success-light text-black',
+    network: 'bg-success text-success-content',
+    dom: 'bg-warning-light text-black',
 
-    log: `bg-cyan-600/50`,
-    info: `bg-info`,
-    warn: `bg-orange-600/50`,
-    debug: `bg-base-300/50`,
-    error: `bg-error/50`,
+    log: `bg-info-light text-black`,
+    info: `bg-info text-info-content`,
+    warn: `bg-warning text-warning-content`,
+    debug: `bg-base-300 text-base-content`,
+    error: `bg-error text-error-content`,
 };
 
 const URL_STARTS = [
@@ -36,15 +36,21 @@ const URL_STARTS = [
     selector: `debug-console`,
     template: `
         <div
-            class="absolute bottom-2 inset-x-2 bg-neutral text-white shadow rounded overflow-hidden h-[32rem] max-h-65vh flex flex-col z-[998]"
+            class="absolute bottom-2 left-2 max-w-[80vw] w-[40rem] border border-base-300 bg-base-200 text-base-content shadow rounded overflow-hidden h-[24rem] max-h-[65vh] flex flex-col z-[998]"
             *ngIf="show"
         >
+            <div class="flex items-center justify-between bg-base-100">
+                <div class="p-2">Console</div>
+                <button icon matRipple (click)="show = false">
+                    <app-icon>close</app-icon>
+                </button>
+            </div>
             <cdk-virtual-scroll-viewport
                 itemSize="32"
                 class="flex-1 h-[30rem] max-h-full w-full"
             >
                 <div
-                    class="font-mono h-8 truncate p-2 text-sm flex items-center max-w-full hover:bg-base-100/10 space-x-1"
+                    class="font-mono h-8 truncate p-2 text-sm flex items-center max-w-full hover:bg-base-100 space-x-1"
                     *cdkVirtualFor="
                         let log of filtered_logs | async;
                         trackBy: trackByFn
@@ -74,7 +80,7 @@ const URL_STARTS = [
                         {{ log.subtype }}
                     </div>
                     <div
-                        class="font-mono"
+                        class="font-mono pl-1"
                         *ngFor="let obj of log.data"
                         [attr.data-type]="type(obj)"
                     >
@@ -90,7 +96,7 @@ const URL_STARTS = [
                             </ng-container>
                             <ng-container *ngSwitchCase="'object'">
                                 [<span
-                                    class="underline font-mono hover:text-blue-500"
+                                    class="underline font-mono hover:text-info"
                                     customTooltip
                                     xPosition="center"
                                     yPosition="bottom"
@@ -107,9 +113,11 @@ const URL_STARTS = [
                         </ng-container>
                     </div>
                 </div>
+                <div class="h-8 w-full"></div>
+                <div class="h-8 w-full"></div>
             </cdk-virtual-scroll-viewport>
             <div
-                class="absolute bottom-0 right-2 rounded-t-lg bg-neutral p-2 flex items-center space-x-2 w-[20rem]"
+                class="absolute bottom-0 right-2 rounded-t-lg bg-base-300 p-2 flex items-center space-x-2 w-[20rem] border-t border-x border-base-100"
             >
                 <input
                     #search_input
