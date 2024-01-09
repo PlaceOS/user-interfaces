@@ -8,6 +8,16 @@
     flex-grow: 1;
 }
 
+code {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.675rem;
+    background-color: var(--in);
+    color: var(--inc);
+    border-radius: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    margin: 0 0.25rem;
+}
+
 .panel {
     .mdc-icon-button {
         display: flex;
@@ -594,6 +604,10 @@ a[icon] {
 }
 
 #placeos {
+    .mat-mdc-menu-item-text {
+        width: 100%;
+    }
+
     .mdc-text-field--outlined {
         padding: 0 1rem;
     }

@@ -1,9 +1,15 @@
 import { Injectable } from '@angular/core';
 import { uploadFiles } from '@placeos/cloud-uploads';
-import { notifySuccess, randomInt, randomString } from '@placeos/common';
+import {
+    notifySuccess,
+    predictableRandomInt,
+    randomInt,
+    randomString,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import {
     PlaceMetadata,
+    queryZones,
     showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
@@ -20,9 +26,14 @@ import {
 } from 'rxjs/operators';
 
 import * as blobUtil from 'blob-util';
-import { SignageMedia } from './signage.classes';
+import {
+    SignageDisplay,
+    SignageMedia,
+    SignagePlaylist,
+} from './signage.classes';
 import { MatDialog } from '@angular/material/dialog';
 import { SignageMediaPreviewModalComponent } from './signage-media-preview-modal.component';
+import { SignagePlaylistModalComponent } from './signage-playlist-modal.component';
 
 @Injectable({
     providedIn: 'root',
@@ -48,7 +59,7 @@ export class SignageStateService {
             (_) =>
                 (_.details instanceof Array ? _.details : null) || [
                     {
-                        id: `media-${randomString(8)}`,
+                        id: `media-0001`,
                         name: 'Welcome to PlaceOS',
                         description: 'This is a sample media file',
                         url: 'https://assets-global.website-files.com/6171e55cb416782d0a8e7a4c/6171e8d5fe3ffc10c0c800bc_PlaceOS-Logo-Dark-Alt.png',
@@ -56,7 +67,7 @@ export class SignageStateService {
                         duration: 15,
                     },
                     {
-                        id: `media-${randomString(8)}`,
+                        id: `media-0002`,
                         name: 'Welcome to PlaceOS',
                         description: 'This is a sample media file',
                         url: 'https://assets-global.website-files.com/6171e55cb416782d0a8e7a4c/6171e8d5fe3ffc10c0c800bc_PlaceOS-Logo-Dark-Alt.png',
@@ -64,7 +75,7 @@ export class SignageStateService {
                         duration: 30,
                     },
                     {
-                        id: `media-${randomString(8)}`,
+                        id: `media-0003`,
                         name: 'Welcome to PlaceOS',
                         description: 'This is a sample media file',
                         url: 'https://assets-global.website-files.com/6171e55cb416782d0a8e7a4c/6171e8d5fe3ffc10c0c800bc_PlaceOS-Logo-Dark-Alt.png',
@@ -72,7 +83,7 @@ export class SignageStateService {
                         duration: 60,
                     },
                     {
-                        id: `media-${randomString(8)}`,
+                        id: `media-0004`,
                         name: 'Welcome to PlaceOS',
                         description: 'This is a sample media file',
                         url: 'https://assets-global.website-files.com/6171e55cb416782d0a8e7a4c/6171e8d5fe3ffc10c0c800bc_PlaceOS-Logo-Dark-Alt.png',
@@ -80,7 +91,7 @@ export class SignageStateService {
                         duration: 15,
                     },
                     {
-                        id: `media-${randomString(8)}`,
+                        id: `media-0005`,
                         name: 'Welcome to PlaceOS',
                         description: 'This is a sample media file',
                         url: 'https://assets-global.website-files.com/6171e55cb416782d0a8e7a4c/6171e8d5fe3ffc10c0c800bc_PlaceOS-Logo-Dark-Alt.png',
@@ -88,7 +99,7 @@ export class SignageStateService {
                         duration: 30,
                     },
                     {
-                        id: `media-${randomString(8)}`,
+                        id: `media-0006`,
                         name: 'Welcome to PlaceOS',
                         description: 'This is a sample media file',
                         url: 'https://assets-global.website-files.com/6171e55cb416782d0a8e7a4c/6171e8d5fe3ffc10c0c800bc_PlaceOS-Logo-Dark-Alt.png',
@@ -100,10 +111,104 @@ export class SignageStateService {
         shareReplay(1)
     );
 
+    public readonly playlists: Observable<SignagePlaylist[]> = combineLatest([
+        this._org.active_building,
+        this._change,
+    ]).pipe(
+        filter(([_]) => !!_?.id),
+        switchMap(([bld]) =>
+            showMetadata(bld.id, 'signage-playlists').pipe(
+                catchError(() => of({} as PlaceMetadata))
+            )
+        ),
+        map((_) => (_.details instanceof Array ? _.details : null))
+    );
+
+    public readonly displays: Observable<SignageDisplay[]> = combineLatest([
+        this._org.active_building,
+        this._change,
+    ]).pipe(
+        filter(([_]) => !!_?.id),
+        switchMap(([bld]) =>
+            showMetadata(bld.id, 'signage-displays').pipe(
+                catchError(() => of({} as PlaceMetadata))
+            )
+        ),
+        map((_) => (_.details instanceof Array ? _.details : null))
+    );
+
+    public readonly zones = combineLatest([
+        this._org.active_building,
+        this._change,
+    ]).pipe(
+        filter(([_]) => !!_?.id),
+        switchMap(([bld]) =>
+            queryZones({ parent_id: bld.id, tags: 'signage', limit: 100 }).pipe(
+                catchError(() => of({ data: [] }))
+            )
+        ),
+        map((_) => _.data || [])
+    );
+
     constructor(
         private _org: OrganisationService,
         private _dialog: MatDialog
     ) {}
+
+    public editPlaylist(playlist: SignagePlaylist = new SignagePlaylist()) {
+        const ref = this._dialog.open(SignagePlaylistModalComponent, {
+            data: playlist,
+        });
+        ref.afterClosed().subscribe(() => this._change.next(Date.now()));
+    }
+
+    public async savePlaylist(playlist: SignagePlaylist, remove = false) {
+        const bld = this._org.building.id;
+        const playlist_list =
+            (await this.playlists.pipe(take(1)).toPromise()) || [];
+        const idx = playlist_list.findIndex((_) => _.id === playlist.id);
+        if (idx >= 0) playlist_list.splice(idx, 1);
+        if (!playlist.id) (playlist as any).id = `playlist-${randomString(8)}`;
+        if (!remove) playlist_list.push(playlist);
+        await updateMetadata(bld, {
+            name: 'signage-playlists',
+            details: playlist_list,
+            description: 'Playlists for signage displays',
+        }).toPromise();
+        notifySuccess(`Successfully ${remove ? 'removed' : 'saved'} playlist.`);
+        this._change.next(Date.now());
+    }
+
+    public async removePlaylist(playlist: SignagePlaylist) {
+        await this.savePlaylist(playlist, true);
+    }
+
+    public editDisplay(display: SignageDisplay = new SignageDisplay()) {
+        const ref = this._dialog.open(SignagePlaylistModalComponent, {
+            data: display,
+        });
+        ref.afterClosed().subscribe(() => this._change.next(Date.now()));
+    }
+
+    public async saveDisplay(display: SignageDisplay, remove = false) {
+        const bld = this._org.building.id;
+        const display_list = await this.displays.pipe(take(1)).toPromise();
+        const idx = display_list.findIndex((_) => _.id === display.id);
+        if (idx >= 0) display_list.splice(idx, 1);
+        if (!display.id) (display as any).id = `display-${randomString(8)}`;
+        if (!remove) display_list.push(display);
+        await updateMetadata(bld, {
+            name: 'signage-displays',
+            details: display_list,
+            description: 'Displays for signage displays',
+        }).toPromise();
+        notifySuccess(`Successfully ${remove ? 'removed' : 'saved'} display.`);
+        this._change.next(Date.now());
+    }
+
+    public async removeDisplay(display: SignageDisplay) {
+        await this.saveDisplay(display, true);
+    }
 
     public previewMedia(item: SignageMedia) {
         const { url, type, name } = item;

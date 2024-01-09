@@ -14,13 +14,14 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { SignageMediaComponent } from './signage-media.component';
 import { SignageMediaPreviewModalComponent } from './signage-media-preview-modal.component';
 import { ComponentsModule } from '@placeos/components';
+import { SignagePlaylistModalComponent } from './signage-playlist-modal.component';
 
 const ROUTES: Route[] = [
     {
         path: '',
         component: SignageComponent,
         children: [
-            { path: '', component: SignagePlaylistsComponent },
+            { path: '', redirectTo: 'playlists', pathMatch: 'full' },
             { path: 'playlists', component: SignagePlaylistsComponent },
             { path: 'media', component: SignageMediaComponent },
             { path: 'displays', component: SignageDisplaysComponent },
@@ -40,6 +41,7 @@ export const COMPONENTS: Type<any>[] = [
     SignageZonesComponent,
     SignageTriggersComponent,
     SignageMediaPreviewModalComponent,
+    SignagePlaylistModalComponent,
 ];
 
 @NgModule({

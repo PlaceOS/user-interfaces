@@ -3,6 +3,10 @@ textarea {
     user-select: text;
     background: none;
     caret-color: var(--s) !important;
+
+    span[required] {
+        color: var(--wa);
+    }
 }
 
 .theme-dark {

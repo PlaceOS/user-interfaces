@@ -63,6 +63,12 @@ import { Observable } from 'rxjs';
                                     *ngTemplateOutlet="
                                         template[column];
                                         context: {
+                                            first: idx === 0,
+                                            last:
+                                                idx ===
+                                                    data_source.data.length -
+                                                        1 ||
+                                                idx === data_source.length - 1,
                                             index: i,
                                             data: row[column],
                                             row: row,
