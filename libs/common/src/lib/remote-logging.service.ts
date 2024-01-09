@@ -4,10 +4,11 @@ import { BehaviorSubject, combineLatest, of, Subject } from 'rxjs';
 import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
 
 import { AsyncHandler } from './async-handler.class';
-import { randomInt } from './general';
+import { randomInt, randomString } from './general';
 
 export interface ClientEvent {
     id: string;
+    device_id: string;
     type: 'network' | 'console' | 'dom';
     subtype: string;
     timestamp: number;
@@ -28,7 +29,8 @@ function hookMethod<T, K extends keyof T>(
     return previousFunction;
 }
 
-const log = console.log;
+const DEVICE_ID =
+    localStorage.getItem('PLACEOS.DEVICE_ID') || `DEV-${randomString(8)}`;
 
 @Injectable({
     providedIn: 'root',
@@ -57,6 +59,7 @@ export class RemoteLoggingService extends AsyncHandler {
 
     constructor() {
         super();
+        localStorage.setItem('PLACEOS.DEVICE_ID', DEVICE_ID);
         this._patchConsoleMethods();
         this._logging_bindings.subscribe();
     }
@@ -84,6 +87,7 @@ export class RemoteLoggingService extends AsyncHandler {
             typeof blob[0] === 'string' ? blob[0].replace(/\%c/g, '') : blob[0];
         this._events.next({
             id: `${event_type}-${randomInt(99999_99999)}`,
+            device_id: DEVICE_ID,
             type: event_type,
             subtype: type,
             timestamp: Date.now(),

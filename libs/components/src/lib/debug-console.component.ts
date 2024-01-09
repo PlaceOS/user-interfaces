@@ -9,6 +9,7 @@ import {
     RemoteLoggingService,
 } from 'libs/common/src/lib/remote-logging.service';
 import { JsonDisplayComponent } from './json-display.component';
+import { OrganisationService } from '@placeos/organisation';
 
 const COLOR_MAP = {
     console: 'bg-success-light text-black',
@@ -159,6 +160,7 @@ export class DebugConsoleComponent extends AsyncHandler {
     );
 
     constructor(
+        private _org: OrganisationService,
         private _logs: RemoteLoggingService,
         private _hotkey: HotkeysService
     ) {
@@ -166,6 +168,12 @@ export class DebugConsoleComponent extends AsyncHandler {
     }
 
     public ngOnInit() {
+        this.subscription(
+            'binding',
+            this._org.active_building.subscribe(() =>
+                this._logs.setSystem(this._org.binding('remote_logger'))
+            )
+        );
         this.subscription(
             'logs',
             this._logs.history.subscribe((event) =>
