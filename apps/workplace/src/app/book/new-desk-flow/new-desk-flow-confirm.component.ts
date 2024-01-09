@@ -88,7 +88,10 @@ import { map, take } from 'rxjs/operators';
                 </ng-container>
             </div>
         </section>
-        <section assets class="flex space-x-1 py-4 px-2 border-t">
+        <section
+            assets
+            class="flex space-x-1 py-4 px-2 border-t max-h-[50vh] overflow-auto"
+        >
             <app-icon class="text-success">done</app-icon>
             <div details class="flex-1 leading-6 w-1/2 pr-2">
                 <h3 i18n>Asset Requests</h3>

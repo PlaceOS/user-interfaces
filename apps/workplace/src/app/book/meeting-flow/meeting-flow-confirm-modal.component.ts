@@ -41,7 +41,9 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 [class.opacity-0]="!(loading | async)"
             ></mat-spinner>
         </div>
-        <main class="min-w-[48rem] divide-y divide-base-200 p-4 space-y-4">
+        <main
+            class="min-w-[48rem] divide-y divide-base-200 p-4 space-y-4 max-h-[65vh] overflow-auto"
+        >
             <div class="flex divide-x divide-base-200">
                 <div class="pr-4 py-4 pl-16 relative space-y-2 flex-1">
                     <div
