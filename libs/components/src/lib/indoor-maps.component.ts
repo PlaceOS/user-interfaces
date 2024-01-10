@@ -247,11 +247,15 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     }
 
     initMapView(): Promise<void> {
+        if (!this._api_service.is_ready) {
+            this.timeout('init', () => this.initMapView(), 1000);
+            return;
+        }
         const view_options: any = {
             element: document.getElementById('maps-indoors'),
             center: { lat: this.user_latitude, lng: this.user_longitude },
             zoom: 21,
-            maxZoom: 26,
+            maxZoom: 24,
         };
 
         if (this._api_service.map_service === MapService.GoogleMaps) {
@@ -272,10 +276,12 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     }
 
     initDirections() {
-        const externalDirectionsProvider =
-            new mapsindoors.directions.GoogleMapsProvider();
+        const provider =
+            this._api_service.map_service === MapService.GoogleMaps
+                ? new mapsindoors.directions.GoogleMapsProvider()
+                : new mapsindoors.directions.MapboxProvider();
         this.directions_service = new mapsindoors.services.DirectionsService(
-            externalDirectionsProvider
+            provider
         );
         const directionsRendererOptions = {
             mapsIndoors: this.maps_service,
@@ -302,12 +308,20 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         }
     }
 
-    handleLocationChange() {
+    public handleLocationChange() {
         const floorSelectorElement = document.createElement('div');
         new mapsindoors.FloorSelector(floorSelectorElement, this.maps_service);
-        this.map_instance.controls[google.maps.ControlPosition.RIGHT_TOP].push(
-            floorSelectorElement
-        );
+        if (this._api_service.map_service === MapService.GoogleMaps) {
+            this.map_instance.controls[
+                google.maps.ControlPosition.RIGHT_TOP
+            ].push(floorSelectorElement);
+        } else {
+            const instance = this.view_instance.getMap();
+            instance.addControl({
+                onAdd: () => floorSelectorElement,
+                onRemove: () => {},
+            });
+        }
 
         this.maps_service?.addListener('building_changed', (e: any) => {
             const found_building = this.buildings_list.find((building) => {

@@ -155,7 +155,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
     }
 
     public readonly use_mapsindoors$: Observable<boolean> =
-        this._maps.is_initialised$;
+        this._maps.use_mapspeople$;
 
     constructor(
         private _state: ExploreStateService,
