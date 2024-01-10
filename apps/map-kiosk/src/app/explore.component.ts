@@ -236,7 +236,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         return !!this._settings.get('app.explore.search_enabled');
     }
 
-    public readonly use_mapsindoors$ = this._maps.is_initialised$;
+    public readonly use_mapsindoors$ = this._maps.use_mapspeople$;
 
     constructor(
         private _state: ExploreStateService,
