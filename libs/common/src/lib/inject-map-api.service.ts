@@ -13,11 +13,9 @@ export enum MapService {
 export class InjectMapApiService {
     private _map_service = new BehaviorSubject<MapService>(null);
     private _map_token = new BehaviorSubject<string>('');
-    private is_initialised: BehaviorSubject<boolean> =
-        new BehaviorSubject<boolean>(null);
+    private is_initialised = new BehaviorSubject(false);
 
-    public readonly is_initialised$: Observable<boolean> =
-        this.is_initialised.asObservable();
+    public readonly is_initialised$ = this.is_initialised.asObservable();
 
     public get map_service(): MapService {
         return this._map_service.getValue();
@@ -62,7 +60,7 @@ export class InjectMapApiService {
             this._map_token.next(mapbox_key);
         }
 
-        if (maps_key && google_key) {
+        if (maps_key && (google_key || mapbox_key)) {
             this.is_initialised.next(true);
         }
     }
