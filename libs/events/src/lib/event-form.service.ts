@@ -735,26 +735,18 @@ export class EventFormService extends AsyncHandler {
         };
         if (exclude) query.exclude_range = `${exclude.start}...${exclude.end}`;
         if (this.has_calendar) {
-            const response = await querySpaceFreeBusy(
-                { ...query, system_ids: spaces.map((_) => _.id) },
-                this._org
+            const response = await querySpaceAvailability(
+                spaces.map(({ id }) => id),
+                date,
+                duration,
+                this?.event?.resources[0]?.id ||
+                    this.event?.system?.id ||
+                    this.event?.id ||
+                    undefined,
+                undefined,
+                [this.event?.date, this.event?.duration]
             ).toPromise();
-            let count = 0;
-            for (const space of response) {
-                if (
-                    !spaces.find(({ id }) => id === space.id) ||
-                    (exclude && space.inUseAt(exclude.start, exclude.end))
-                ) {
-                    continue;
-                }
-                const busy = space.availability.filter(
-                    (_) =>
-                        _.status === 'busy' &&
-                        (!exclude || getUnixTime(_.date) !== exclude?.start)
-                );
-                if (busy.length <= 0) count++;
-            }
-            if (count !== spaces.length) {
+            if (!response.every((_) => _)) {
                 throw `${
                     spaces.length > 1
                         ? 'The selected space'
