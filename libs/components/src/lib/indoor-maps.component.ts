@@ -372,13 +372,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                             this.user_longitude = position.coords.longitude;
                             resolve(position);
                         },
-                        (error) => {
-                            this.geolocation_error_message =
-                                'Error: ' +
-                                error.message?.toString() +
-                                '. Please enable geolocation settings.';
-                            reject(error);
-                        },
+                        (error) => resolve(this._setLocationToBuilding()),
                         options
                     );
                     navigator.geolocation.watchPosition(
@@ -386,12 +380,22 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                         (_) => this._handleGeolocationError(_)
                     );
                 }
-            } else {
-                this.geolocation_error_message =
-                    'Error: geolocation is not supported.';
-                reject('Geolocation not supported');
-            }
+            } else resolve(this._setLocationToBuilding());
         });
+    }
+
+    private _setLocationToBuilding() {
+        const [lat, long] = this._org.building?.location.split(',');
+        this.user_latitude = parseFloat(lat);
+        this.user_longitude = parseFloat(long);
+        return {
+            coords: {
+                latitude: this.user_latitude,
+                longitude: this.user_longitude,
+                accuracy: 10,
+            },
+            timestamp: new Date().getTime(),
+        } as GeolocationPosition;
     }
 
     private _updateGeolocation(updated_location: GeolocationPosition) {
