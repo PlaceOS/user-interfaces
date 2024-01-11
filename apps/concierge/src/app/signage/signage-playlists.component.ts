@@ -54,7 +54,6 @@ export class SignagePlaylistsComponent {
         this.playlists,
         this.media,
     ]).pipe(
-        tap(console.log),
         map(([playlists, media]) =>
             playlists.map((playlist) => ({
                 ...playlist,
@@ -67,8 +66,7 @@ export class SignagePlaylistsComponent {
                     0
                 ),
             }))
-        ),
-        tap(console.log)
+        )
     );
 
     constructor(private _state: SignageStateService) {}
