@@ -221,11 +221,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             this.coordinates = this.custom_coordinates;
         }
         await this._getUserLocation();
-
         await this.initMapView();
-        this.initDirections();
-
-        this.handleLocationChange();
     }
 
     async ngOnChanges(change: SimpleChanges) {
@@ -272,7 +268,9 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         this.maps_service = new mapsindoors.MapsIndoors({
             mapView: this.view_instance,
         });
-        return (this.map_instance = this.view_instance.getMap());
+        this.map_instance = this.view_instance.getMap();
+        this.initDirections();
+        this.handleLocationChange();
     }
 
     initDirections() {

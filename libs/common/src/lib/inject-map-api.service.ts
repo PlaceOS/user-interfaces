@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { SettingsService, notifyError } from '@placeos/common';
+import { AsyncHandler, SettingsService, notifyError } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 
 export enum MapService {
@@ -12,7 +12,7 @@ export enum MapService {
 @Injectable({
     providedIn: 'root',
 })
-export class InjectMapApiService {
+export class InjectMapApiService extends AsyncHandler {
     private _map_service = new BehaviorSubject<MapService>(null);
     private _map_token = new BehaviorSubject<string>('');
     private _ready = new BehaviorSubject(false);
@@ -43,7 +43,9 @@ export class InjectMapApiService {
     constructor(
         private _settings: SettingsService,
         private _org: OrganisationService
-    ) {}
+    ) {
+        super();
+    }
 
     public injectMapsApiKeys() {
         this._ready.next(false);
@@ -82,6 +84,8 @@ export class InjectMapApiService {
             this._map_token.next(mapbox_key);
             this._injected.mapbox = true;
         }
-        if (google_key || mapbox_key) this._ready.next(true);
+
+        if (google_key || mapbox_key)
+            this.timeout('ready', () => this._ready.next(true), 300);
     }
 }
