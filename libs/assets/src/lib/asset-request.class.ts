@@ -59,6 +59,7 @@ export class AssetRequest {
     /** Event associated with the order */
     public readonly event: Booking | null;
     public readonly deliver_at_time: number;
+    public _changed = false;
     /** Current status of the order */
     private _status: AssetStatus;
     private _time = startOfMinute(Date.now()).valueOf();

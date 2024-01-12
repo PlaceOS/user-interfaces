@@ -288,8 +288,13 @@ export async function createBookingsForEvent(
         unique(flatten(event.resources.map((_) => _.zones))) ||
         [];
     await Promise.all(
-        resources.map((item) =>
-            createBooking(
+        resources.map((item) => {
+            const booking = bookings.find((_) =>
+                _.asset_ids.find((id) =>
+                    item.items?.find((i) => i.item_ids.includes(id))
+                )
+            );
+            return createBooking(
                 new Booking({
                     type,
                     booking_type: type,
@@ -301,6 +306,8 @@ export async function createBookingsForEvent(
                     asset_name: (item as any).name,
                     title: (item as any).name,
                     attendees: [item],
+                    approved: booking?.approved && !item._changed,
+                    rejected: booking?.rejected && !item._changed,
                     extension_data: {
                         parent_id: event.id,
                         name: (item as any).name,
@@ -309,7 +316,7 @@ export async function createBookingsForEvent(
                     zones,
                 }),
                 { ical_uid: event.ical_uid, event_id: event.id }
-            ).toPromise()
-        )
+            ).toPromise();
+        })
     );
 }

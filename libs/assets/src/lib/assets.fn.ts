@@ -335,6 +335,7 @@ export async function updateAssetRequestsForResource(
         location_name,
         location_id,
         zones,
+        reset_state,
     }: {
         date: number;
         duration: number;
@@ -343,6 +344,7 @@ export async function updateAssetRequestsForResource(
         location_name?: string;
         location_id?: string;
         zones?: string[];
+        reset_state?: boolean;
     },
     new_assets: AssetRequest[]
 ) {
@@ -359,8 +361,13 @@ export async function updateAssetRequestsForResource(
         bookings.map((item) => removeBooking(item.id).toPromise())
     );
     await Promise.all(
-        new_assets.map((request) =>
-            createBooking(
+        new_assets.map((request) => {
+            const booking = bookings.find((_) =>
+                _.asset_ids.find((id) =>
+                    request.items?.find((i) => i.item_ids.includes(id))
+                )
+            );
+            return createBooking(
                 new Booking({
                     type: 'asset-request',
                     booking_type: 'asset-request',
@@ -373,6 +380,10 @@ export async function updateAssetRequestsForResource(
                     asset_ids: flatten(request.items.map((_) => _.item_ids)),
                     asset_name: request.items.map((_) => _.name).join(', '),
                     title: request.items.map((_) => _.name).join(', '),
+                    approved:
+                        !reset_state && booking?.approved && !request._changed,
+                    rejected:
+                        !reset_state && booking?.rejected && !request._changed,
                     extension_data: {
                         parent_id: id,
                         location_id,
@@ -381,7 +392,7 @@ export async function updateAssetRequestsForResource(
                     zones: zones || [],
                 }),
                 { ical_uid, event_id: from_booking ? '' : id }
-            ).toPromise()
-        )
+            ).toPromise();
+        })
     );
 }

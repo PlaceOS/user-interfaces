@@ -525,10 +525,12 @@ export class EventFormService extends AsyncHandler {
             if (recurrence?._pattern && recurrence?._pattern !== 'none') {
                 this.form.patchValue({ recurring: true });
             }
+            let changed_times = false;
             if (
                 (!id || date !== event.date || duration !== event.duration) &&
                 spaces.length
             ) {
+                changed_times = true;
                 await this.checkSelectedSpacesAreAvailable(
                     spaces,
                     all_day ? startOfDay(date).valueOf() : date,
@@ -686,6 +688,7 @@ export class EventFormService extends AsyncHandler {
                             this._org.building?.id,
                             this._org.building?.parent_id,
                         ],
+                        reset_state: changed_times,
                     },
                     assets
                 ).catch(on_error);

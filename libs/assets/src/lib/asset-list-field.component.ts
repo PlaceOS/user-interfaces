@@ -268,6 +268,13 @@ export class AssetListFieldComponent implements ControlValueAccessor {
             const time = new Date(this.options.date);
             const new_order = new AssetRequest({
                 ...order,
+                _changed:
+                    order._changed ||
+                    order.items.find(
+                        (_) =>
+                            items.find((__) => __.id === _.id)?.quantity !==
+                            _.quantity
+                    ),
                 items,
                 event: this.options as any,
                 deliver_offset: ref.componentInstance.offset,
