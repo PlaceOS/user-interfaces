@@ -135,7 +135,7 @@ export class CheckinQRScanComponent
             this._reader?.stop();
             this.checking_code = true;
             const chunks = raw_text.split(',');
-            const [visit_block, system_id, event_id, host_email] = chunks;
+            let [visit_block, system_id, event_id, host_email] = chunks;
             const [_, visitor_email] = visit_block.split(':');
             if (!visitor_email && !event_id) {
                 notifyError('Invalid QRCode');
@@ -143,6 +143,7 @@ export class CheckinQRScanComponent
                 this.checking_code = false;
                 return;
             }
+            if (!/^\d+$/.test(event_id)) event_id = undefined;
             await this._checkin
                 .loadGuestAndEvent(visitor_email, event_id)
                 .catch((err) => {
