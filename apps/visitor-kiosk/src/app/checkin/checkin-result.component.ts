@@ -1,12 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { filter, first, map } from 'rxjs/operators';
+import { filter, first, map, startWith } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
 import { roundToNearestMinutes, startOfMinute } from 'date-fns';
 import { DatePipe } from '@angular/common';
+
+const DEFAULT_TEMPLATE = `
+<p class="text-center">
+    Welcome, you have a meeting at {{ time }} with {{ host_name }}.
+    <br />{{ host_name }} has been notified and will be with you shortly.
+</p>
+<p>{{ can_use_lift }}</p>
+`;
 
 @Component({
     selector: 'checkin-results',
@@ -16,7 +24,10 @@ import { DatePipe } from '@angular/common';
             *ngIf="event | async"
         >
             <h3 class="text-xl">You are checked in!</h3>
-            <div class="" [innerHTML]="template | async"></div>
+            <div
+                class=""
+                [innerHTML]="result_template | async | sanitize: 'html'"
+            ></div>
             <div
                 printable
                 class="relative w-[24rem] h-[14rem] rounded-xl border border-neutral m-4 p-4 bg-base-100 print-only"
@@ -113,6 +124,7 @@ import { DatePipe } from '@angular/common';
             }
         `,
     ],
+    providers: [DatePipe],
 })
 export class CheckinResultsComponent implements OnInit {
     public readonly event = this._checkin.event;
@@ -122,49 +134,50 @@ export class CheckinResultsComponent implements OnInit {
         this._org.initialised,
     ]).pipe(map(([_]) => (_ ? this._org.levelWithID(_.zones) : null)));
 
-    public readonly checkedInTemplate = combineLatest([
+    public readonly result_template = combineLatest([
         this.event,
         this.guest,
     ]).pipe(
         filter(([event, guest]) => !!event && !!guest),
         map(([event, guest]) => {
-            const template =
-                this._settings.get('app.checked_in_template') ||
-                `
-    <p class="text-center">
-        Welcome, you have a meeting at {{ time }} with {{ host_name }}.<br />
-        {{ host_name }} has been notified and will be with you shortly.&nbsp;
-    </p>
-    <p>{{ can_use_lift }}</p>
-        `;
-            return template
+            let template = this._settings.get('app.checked_in_template');
+            if (!template) template = DEFAULT_TEMPLATE;
+            let updated_template = template
+                .replace(/{{ title }}/g, event?.title || '')
                 .replace(
-                    '{{ date }}',
-                    this._date.transform(event.date || this.now, 'mediumDate')
+                    /{{ room_name }}/g,
+                    event.extension_data?.location_id || ''
                 )
+                .replace(/{{ host_name }}/g, event?.user_name || '')
+                .replace(/{{ host_email }}/g, event?.user_email || '')
+                .replace(/{{ visitor_name }}/g, guest?.name || '')
+                .replace(/{{ visitor_email }}/g, guest?.email || '')
                 .replace(
-                    '{{ time }}',
-                    this._date.transform(
-                        event.date || this.now,
-                        this.time_format
-                    )
-                )
-                .replace('{{ title }}', event.title || '')
-                .replace(
-                    '{{ room_name }}',
-                    event.extension_data.location_id || ''
-                )
-                .replace('{{ host_name }}', event.user_name || '')
-                .replace('{{ host_email }}', event.user_email || '')
-                .replace('{{ visitor_name }}', guest.name || '')
-                .replace('{{ visitor_email }}', guest.email || '')
-                .replace(
-                    '{{ can_use_lift }}',
+                    /{{ can_use_lift }}/g,
                     event.extension_data.can_use_lift
                         ? `Please use the vistor access lift over there`
                         : `Please wait in the lobby.`
                 );
-        })
+            try {
+                updated_template = updated_template
+                    .replace(
+                        /{{ date }}/g,
+                        this._date.transform(
+                            event.date || this.now,
+                            'mediumDate'
+                        )
+                    )
+                    .replace(
+                        /{{ time }}/g,
+                        this._date.transform(
+                            event.date || this.now,
+                            this.time_format
+                        )
+                    );
+            } catch {}
+            return updated_template;
+        }),
+        startWith(DEFAULT_TEMPLATE)
     );
 
     public readonly print = () => window.print();
