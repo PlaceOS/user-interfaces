@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { currentUser, SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
 import { getModule } from '@placeos/ts-client';
 import { BehaviorSubject, of } from 'rxjs';
 import { shareReplay, switchMap, tap } from 'rxjs/operators';
+
+import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { currentUser } from 'libs/common/src/lib/user-state';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { PaymentCardDetails } from './card-input-field.component';
 import { PaymentModalComponent } from './payment-modal.component';
 

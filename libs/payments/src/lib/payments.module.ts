@@ -6,10 +6,10 @@ import { MatInputModule } from '@angular/material/input';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { PaymentModalComponent } from './payment-modal.component';
 import { CardInputFieldComponent } from './card-input-field.component';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 const COMPONENTS = [PaymentModalComponent, CardInputFieldComponent];
 
@@ -17,11 +17,11 @@ const COMPONENTS = [PaymentModalComponent, CardInputFieldComponent];
     declarations: [...COMPONENTS],
     imports: [
         CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
         MatFormFieldModule,
         MatInputModule,
         MatDialogModule,
-        FormsModule,
-        ReactiveFormsModule,
         MatButtonModule,
         MatSelectModule,
         MatProgressSpinnerModule,

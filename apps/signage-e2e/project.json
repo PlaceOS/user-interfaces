@@ -1,0 +1,33 @@
+{
+    "name": "signage-e2e",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "application",
+    "sourceRoot": "apps/signage-e2e/src",
+    "targets": {
+        "e2e": {
+            "executor": "@nx/cypress:cypress",
+            "options": {
+                "cypressConfig": "apps/signage-e2e/cypress.config.ts",
+                "testingType": "e2e",
+                "devServerTarget": "signage:serve:development"
+            },
+            "configurations": {
+                "production": {
+                    "devServerTarget": "signage:serve:production"
+                },
+                "ci": {
+                    "devServerTarget": "signage:serve-static"
+                }
+            }
+        },
+        "lint": {
+            "executor": "@nx/eslint:lint",
+            "outputs": ["{options.outputFile}"],
+            "options": {
+                "lintFilePatterns": ["apps/signage-e2e/**/*.{js,ts}"]
+            }
+        }
+    },
+    "tags": [],
+    "implicitDependencies": ["signage"]
+}
