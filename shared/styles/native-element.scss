@@ -13,6 +13,12 @@ textarea {
     }
 }
 
+label {
+    span[required] {
+        color: var(--wa);
+    }
+}
+
 .theme-dark {
     input {
         color-scheme: dark;
@@ -31,11 +37,11 @@ textarea {
     font-weight: bold;
 
     > span:first-child {
-        color: hsl(var(--wa));
+        color: var(--wa);
     }
 
     &.error {
-        color: hsl(var(--er));
+        color: var(--er);
     }
 }
 

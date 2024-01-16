@@ -7,17 +7,25 @@ import { map } from 'rxjs/operators';
 @Component({
     selector: 'signage-displays',
     template: ` <custom-table
-            class="block min-w-[48rem]"
+            class="block min-w-[52rem]"
             [dataSource]="display_list"
             [columns]="[
                 'name',
                 'description',
                 'playlists',
+                'orientation',
                 'duration',
                 'actions'
             ]"
-            [display_column]="['Name', 'Description', 'Media', 'Duration', ' ']"
-            [column_size]="['8r', 'flex', '10r', '6r', '5r']"
+            [display_column]="[
+                'Name',
+                'Description',
+                'Media',
+                'Orientation',
+                'Duration',
+                ' '
+            ]"
+            [column_size]="['8r', 'flex', '8r', '7r', '6r', '5r']"
             [template]="{
                 playlists: playlists_template,
                 duration: duration_template,
@@ -60,11 +68,12 @@ export class SignageDisplaysComponent {
         this.media,
     ]).pipe(
         map(([displays, playlists, media]) =>
-            displays.map((display) => ({
+            (displays || []).map((display) => ({
                 ...display,
-                playlists: display.playlists.map((id) =>
-                    playlists.find((i) => i.id === id)
-                ),
+                playlists:
+                    display.playlists?.map((id) =>
+                        playlists.find((i) => i.id === id)
+                    ) || [],
                 duration: display.playlists.reduce((acc, id) => {
                     const playlist = playlists.find((_) => _.id === id);
                     if (!playlist) return acc;

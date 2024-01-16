@@ -18,12 +18,14 @@ export class SignageDisplay {
     public readonly id: string;
     public readonly name: string;
     public readonly description: string;
+    public readonly orientation: 'landscape' | 'portrait';
     public readonly playlists: string[];
 
     constructor(_data: Partial<SignageDisplay> = {}) {
         this.id = _data.id || '';
         this.name = _data.name || '';
         this.description = _data.description || '';
+        this.orientation = _data.orientation || 'landscape';
         this.playlists = _data.playlists || [];
     }
 }
@@ -66,6 +68,7 @@ export class SignageMedia {
     public readonly description: string;
     public readonly type: 'image' | 'video';
     public readonly duration: number;
+    public readonly orientation: 'landscape' | 'portrait';
     public readonly url: string;
 
     constructor(_data: Partial<SignageMedia> = {}) {
@@ -74,6 +77,7 @@ export class SignageMedia {
         this.description = _data.description || '';
         this.type = _data.type || 'image';
         this.duration = _data.duration || 15;
+        this.orientation = _data.orientation || 'landscape';
         this.url = _data.url || '';
     }
 }

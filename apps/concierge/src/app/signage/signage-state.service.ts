@@ -34,6 +34,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { SignageMediaPreviewModalComponent } from './signage-media-preview-modal.component';
 import { SignagePlaylistModalComponent } from './signage-playlist-modal.component';
+import { SignageDisplayModalComponent } from './signage-display-modal.component';
 
 @Injectable({
     providedIn: 'root',
@@ -121,7 +122,7 @@ export class SignageStateService {
                 catchError(() => of({} as PlaceMetadata))
             )
         ),
-        map((_) => (_.details instanceof Array ? _.details : null))
+        map((_) => (_.details instanceof Array ? _.details : []))
     );
 
     public readonly displays: Observable<SignageDisplay[]> = combineLatest([
@@ -134,7 +135,7 @@ export class SignageStateService {
                 catchError(() => of({} as PlaceMetadata))
             )
         ),
-        map((_) => (_.details instanceof Array ? _.details : null))
+        map((_) => (_.details instanceof Array ? _.details : []))
     );
 
     public readonly zones = combineLatest([
@@ -184,7 +185,7 @@ export class SignageStateService {
     }
 
     public editDisplay(display: SignageDisplay = new SignageDisplay()) {
-        const ref = this._dialog.open(SignagePlaylistModalComponent, {
+        const ref = this._dialog.open(SignageDisplayModalComponent, {
             data: display,
         });
         ref.afterClosed().subscribe(() => this._change.next(Date.now()));
@@ -230,12 +231,34 @@ export class SignageStateService {
     public async addMedia(file: File) {
         const media = await this._uploadFile(file);
         const media_list = await this.media.pipe(take(1)).toPromise();
+        const check_landscape = new Promise((resolve) => {
+            var reader = new FileReader();
+            reader.onload = () => {
+                // file is loaded
+                if (file.type.includes('video')) {
+                    let video = document.createElement('video');
+                    video.addEventListener(
+                        'loadedmetadata',
+                        () => resolve(video.videoWidth > video.videoHeight),
+                        false
+                    );
+                    video.src = reader.result as string;
+                    return;
+                }
+                let img = new Image();
+                img.onload = () => resolve(img.width > img.height);
+                img.src = reader.result as string; // is the data URL because called with readAsDataURL
+            };
+            reader.readAsDataURL(file);
+        });
+        const is_landscape = await check_landscape;
         media_list.push({
             id: `media-${randomString(8)}`,
             name: media.name,
             description: '',
             url: media.url,
             type: file.type.includes('image') ? 'image' : 'video',
+            orientation: is_landscape ? 'landscape' : 'portrait',
             duration: 15,
         });
         const bld = this._org.building.id;

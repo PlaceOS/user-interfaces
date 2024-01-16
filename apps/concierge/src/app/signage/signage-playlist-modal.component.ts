@@ -37,6 +37,7 @@ import { th } from 'date-fns/locale';
                     placeholder="Name"
                     formControlName="name"
                 />
+                <mat-error>Name is required</mat-error>
             </mat-form-field>
             <label for="description">Description</label>
             <mat-form-field appearance="outline" class="w-full">

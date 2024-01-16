@@ -15,6 +15,7 @@ import { SignageMediaComponent } from './signage-media.component';
 import { SignageMediaPreviewModalComponent } from './signage-media-preview-modal.component';
 import { ComponentsModule } from '@placeos/components';
 import { SignagePlaylistModalComponent } from './signage-playlist-modal.component';
+import { SignageDisplayModalComponent } from './signage-display-modal.component';
 
 const ROUTES: Route[] = [
     {
@@ -42,6 +43,7 @@ export const COMPONENTS: Type<any>[] = [
     SignageTriggersComponent,
     SignageMediaPreviewModalComponent,
     SignagePlaylistModalComponent,
+    SignageDisplayModalComponent,
 ];
 
 @NgModule({
