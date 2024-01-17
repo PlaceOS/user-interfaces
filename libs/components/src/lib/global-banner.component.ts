@@ -13,11 +13,11 @@ export interface BannerDetails {
         <div
             class="flex items-center w-full p-4 space-x-4"
             [class.bg-info]="banner.type === 'info' || !banner.type"
-            [class.bg-info-content]="banner.type === 'info' || !banner.type"
+            [class.text-info-content]="banner.type === 'info' || !banner.type"
             [class.bg-warning]="banner.type === 'warn'"
-            [class.bg-warning-content]="banner.type === 'warn'"
+            [class.text-warning-content]="banner.type === 'warn'"
             [class.bg-error]="banner.type === 'error'"
-            [class.bg-error-content]="banner.type === 'error'"
+            [class.text-error-content]="banner.type === 'error'"
             *ngIf="!has_viewed"
         >
             <div class="flex-1">{{ banner?.content }}</div>
