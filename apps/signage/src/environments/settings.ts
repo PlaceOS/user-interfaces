@@ -1,18 +1,7 @@
-const general = {};
-
-const desks = {
-    hide_reason: true,
-    can_set_host: true,
-};
-
-const events = {
-    can_book_for_others: true,
-};
-
 const app = {
-    name: 'MapKiosk',
+    name: 'Signage',
     title: 'PlaceOS',
-    description: 'Map Kiosk UI',
+    description: 'Signage Panel',
     short_name: 'PlaceOS',
     logo_light: {
         type: 'img',
@@ -22,13 +11,6 @@ const app = {
         type: 'img',
         src: 'assets/logo-dark.svg',
     },
-    general,
-    desks,
-    events,
-    explore: {
-        search_enabled: true,
-    },
-    show_qr_for_booking: true,
 };
 
 /**

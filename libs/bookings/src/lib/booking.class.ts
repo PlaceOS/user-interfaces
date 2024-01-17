@@ -139,10 +139,20 @@ export class Booking {
     }
 
     public get valid_assets() {
-        return (this.extension_data.assets || []).filter(
-            (request) =>
-                request.deliver_at_time < this.date + this.duration * 60 * 1000
-        );
+        const list = this.linked_bookings;
+        return (this.extension_data.assets || [])
+            .filter((request) => request.deliver_at < this.date_end)
+            .map((request) => {
+                const booking = list.find((_) => _.asset_id === request.id);
+                if (booking) {
+                    (request as any).state = booking.approved
+                        ? 'approved'
+                        : booking.rejected
+                        ? 'rejected'
+                        : 'pending';
+                }
+                return request;
+            });
     }
 
     constructor(data: Partial<BookingComplete> = {}) {

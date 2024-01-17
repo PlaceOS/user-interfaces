@@ -185,14 +185,6 @@ mat-form-field {
     }
 }
 
-mat-select {
-    .mdc-select-trigger {
-        .mdc-select-arrow-wrapper {
-            transform: none;
-        }
-    }
-}
-
 .mdc-simple-snackbar {
     button.mdc-button {
         background: none;
@@ -604,6 +596,18 @@ a[icon] {
 }
 
 #placeos {
+    mat-select {
+        .mdc-select-trigger {
+            .mdc-select-arrow-wrapper {
+                transform: none;
+            }
+        }
+
+        [disabled='true'] {
+            opacity: 0.6;
+        }
+    }
+
     .mat-mdc-menu-item-text {
         width: 100%;
     }

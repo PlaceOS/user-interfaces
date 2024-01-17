@@ -3,73 +3,77 @@ import { Router, ActivatedRoute } from '@angular/router';
 
 import { AsyncHandler, Identity } from '@placeos/common';
 import { VirtualKeyboardComponent } from '@placeos/components';
-import {
-    Building,
-    BuildingLevel,
-    OrganisationService,
-} from '@placeos/organisation';
-import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
+import { Building, OrganisationService } from '@placeos/organisation';
+import { showMetadata } from '@placeos/ts-client';
 import { of } from 'rxjs';
-import { catchError, first, map, shareReplay, switchMap } from 'rxjs/operators';
+import {
+    catchError,
+    filter,
+    first,
+    map,
+    shareReplay,
+    switchMap,
+} from 'rxjs/operators';
 
 @Component({
     selector: '[bootstrap]',
     template: `
-        <div
-            form
-            class="absolute top-2 left-1/2 transform -translate-x-1/2 bg-base-100 overflow-hidden flex flex-col items-center shadow rounded"
-        >
-            <header
-                class="px-4 py-2 bg-primary text-white w-full text-lg font-medium mb-2"
+        <div class="absolute inset-0 bg-base-200">
+            <div
+                form
+                class="absolute top-2 left-1/2 transform -translate-x-1/2 bg-base-100 overflow-hidden flex flex-col items-center shadow rounded w-[30rem] max-w-[calc(100vw-2rem)]"
             >
-                Signage Kiosk Setup
-            </header>
-            <ng-container *ngIf="!loading; else load_state">
-                <label>Select a Building from the dropdown below</label>
-                <mat-form-field appearance="outline">
-                    <mat-select
-                        #select
-                        building
-                        [ngModel]="(active_building | async)?.id"
-                        (ngModelChange)="setBuilding($event)"
-                        placeholder="Select building"
-                    >
-                        <mat-option
-                            *ngFor="let option of buildings | async"
-                            [value]="option"
+                <header
+                    class="px-4 py-3 bg-info text-info-content w-full text-lg font-medium mb-2"
+                >
+                    Signage Kiosk Setup
+                </header>
+                <main *ngIf="!loading; else load_state" class="px-4 py-2">
+                    <label>Select a Building from the dropdown below</label>
+                    <mat-form-field appearance="outline">
+                        <mat-select
+                            #select
+                            building
+                            [ngModel]="(active_building | async)?.id"
+                            (ngModelChange)="setBuilding($event)"
+                            placeholder="Select Building"
                         >
-                            {{ option.name }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <ng-container *ngIf="(displays | async)?.length">
+                            <mat-option
+                                *ngFor="let option of buildings | async"
+                                [value]="option.id"
+                            >
+                                {{ option.name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
                     <label>Select a display from the dropdown below</label>
                     <mat-form-field appearance="outline">
                         <mat-select
                             #select
                             building
                             [(ngModel)]="active_display"
-                            placeholder="Select building"
+                            placeholder="Select Display"
+                            [disabled]="!(displays | async)?.length"
                         >
                             <mat-option
                                 *ngFor="let option of displays | async"
-                                [value]="option"
+                                [value]="option.id"
                             >
                                 {{ option.name }}
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                </ng-container>
-                <button
-                    btn
-                    matRipple
-                    class="mb-2"
-                    [disabled]="!active_building && !active_display"
-                    (click)="bootstrapKiosk()"
-                >
-                    Finish Setup
-                </button>
-            </ng-container>
+                    <button
+                        btn
+                        matRipple
+                        class="mb-2 w-full"
+                        [disabled]="!active_building || !active_display"
+                        (click)="bootstrapKiosk()"
+                    >
+                        Finish Setup
+                    </button>
+                </main>
+            </div>
         </div>
         <ng-template #load_state>
             <div class="flex flex-col items-center p-8 m-auto">
@@ -80,11 +84,6 @@ import { catchError, first, map, shareReplay, switchMap } from 'rxjs/operators';
     `,
     styles: [
         `
-            :host > div {
-                width: 24rem;
-                max-width: calc(100vw - 2rem);
-            }
-
             mat-form-field {
                 width: 100%;
             }
@@ -108,6 +107,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     public readonly buildings = this._org.building_list;
 
     public readonly displays = this.active_building.pipe(
+        filter((_) => !!_),
         switchMap((_) =>
             showMetadata(_.id, 'signage-displays').pipe(
                 catchError(() => of({ details: [] } as any))
@@ -135,20 +135,20 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                     localStorage.removeItem('SIGNAGE.display');
                 }
                 if (params.has('building')) {
-                    const bld = this._org.buildings.find(
-                        ({ id }) => id === params.get('building')
-                    );
-                    if (bld) {
-                        this.setBuilding(bld);
-                        this.bootstrapKiosk();
-                    }
+                    this.setBuilding(params.get('building'));
+                }
+                if (params.has('display')) {
+                    this.active_display = params.get('display');
+                    this.bootstrapKiosk();
                 }
             })
         );
         this.timeout('check', () => this.checkBootstrap(), 1000);
     }
 
-    public setBuilding(bld: Building) {
+    public setBuilding(bld_id: string) {
+        const bld = this._org.buildings.find(({ id }) => id === bld_id);
+        if (!bld) return;
         this._org.building = bld;
     }
 
@@ -160,12 +160,12 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         const bld = await this.active_building
             .pipe(first((_) => !!_))
             .toPromise();
-        if (!bld?.id || !this.active_display?.id || !localStorage) {
+        if (!bld?.id || !this.active_display || !localStorage) {
             this.loading = '';
             return;
         }
         localStorage.setItem('SIGNAGE.building', bld.id);
-        localStorage.setItem('SIGNAGE.display', this.active_display.id);
+        localStorage.setItem('SIGNAGE.display', this.active_display);
         this._router.navigate(['/signage']);
         this.loading = '';
     }

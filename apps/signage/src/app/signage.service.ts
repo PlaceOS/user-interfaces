@@ -1,16 +1,19 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, interval, of } from 'rxjs';
 import {
     catchError,
+    debounceTime,
     filter,
     first,
     map,
     shareReplay,
     startWith,
     switchMap,
+    tap,
 } from 'rxjs/operators';
 
 export interface SignageResource {
@@ -36,7 +39,7 @@ const CHECK_DISPLAY_INTERVAL = 5 * 60 * 1000;
 @Injectable({
     providedIn: 'root',
 })
-export class SignageService {
+export class SignageService extends AsyncHandler {
     private _media_store?: IDBObjectStore;
     private _active_display = new BehaviorSubject('');
 
@@ -46,6 +49,7 @@ export class SignageService {
         interval(CHECK_DISPLAY_INTERVAL).pipe(startWith(0)),
     ]).pipe(
         filter(([_]) => !!_?.id),
+        debounceTime(200),
         switchMap(([{ id }]) =>
             showMetadata(id, 'signage-displays').pipe(
                 catchError(() => of({ details: [] } as any))
@@ -60,13 +64,16 @@ export class SignageService {
     public readonly active_display = combineLatest([
         this._active_display,
         this._display_list,
-    ]).pipe(map(([id, list]) => list.find((_) => _.id === id)));
+    ]).pipe(
+        map(([id, list]) => list.find((_) => _.id === id)),
+        tap((_) => console.log('Active display:', _))
+    );
 
     private _playlists = combineLatest([
         this._org.active_building,
         this.active_display,
     ]).pipe(
-        filter(([_, __]) => !!_?.id && !!__?.length),
+        filter(([_, __]) => !!_?.id && !!__),
         switchMap(([{ id }]) =>
             showMetadata(id, 'signage-playlists').pipe(
                 catchError(() => of({ details: [] } as any))
@@ -81,7 +88,7 @@ export class SignageService {
         this._org.active_building,
         this.active_display,
     ]).pipe(
-        filter(([_, __]) => !!_?.id && !!__?.length),
+        filter(([_, __]) => !!_?.id && !!__),
         switchMap(([{ id }]) =>
             showMetadata(id, 'signage-media').pipe(
                 catchError(() => of({ details: [] } as any))
@@ -102,7 +109,8 @@ export class SignageService {
         filter((_) => !!_),
         map(([display, list]) =>
             list.filter((_) => display.playlists.includes(_.id))
-        )
+        ),
+        tap((_) => console.log('Active Playlists:', _))
     );
 
     public readonly media = combineLatest([
@@ -110,7 +118,9 @@ export class SignageService {
         this._media_list,
     ]).pipe(
         map(([playlists, media]) =>
-            media.filter((_) => playlists.some((__) => __.media.includes(_.id)))
+            media.filter(
+                (_) => _ && playlists.some((__) => __.media.includes(_.id))
+            )
         )
     );
 
@@ -119,17 +129,28 @@ export class SignageService {
         this.playlists,
         this.media,
     ]).pipe(
+        filter(([_]) => !!_),
         map(([display, playlists, media]) => {
+            console.log(
+                'Display:',
+                display,
+                ' | Playlists:',
+                playlists,
+                ' | Media:',
+                media
+            );
             const display_playlists = display.playlists.map((_: string) =>
                 playlists.find((__) => __.id === _)
             );
             const playlist_media: string[] = display_playlists
                 .map((_: { media: string[] }) => _.media)
                 .flat();
-            return playlist_media
-                .map((_) => media.find((__) => __.id === _))
-                .flat();
-        })
+            const media_list = playlist_media.map((_) =>
+                media.find((__) => __.id === _)
+            );
+            return media_list.filter((_) => !!_);
+        }),
+        tap((_) => console.log('Full Playlist:', _))
     );
 
     public readonly check_active_media = combineLatest([
@@ -137,6 +158,7 @@ export class SignageService {
         interval(1000).pipe(startWith(0)),
     ]).pipe(
         map(async ([media]) => {
+            console.log('Checking media:', media);
             const active_media = this._active_media.getValue();
             if (
                 !media?.length ||
@@ -156,35 +178,54 @@ export class SignageService {
         })
     );
 
-    constructor(private _router: Router, private _org: OrganisationService) {}
+    constructor(private _router: Router, private _org: OrganisationService) {
+        super();
+    }
 
     public async init() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         const bld_id = localStorage.getItem('SIGNAGE.building');
         const building = this._org.buildings.find((_) => _.id === bld_id);
         const display = localStorage.getItem('SIGNAGE.display');
+        console.log('Building:', building.name);
+        console.log('Display:', display);
         if (!building || !display) {
             this._router.navigate(['/bootstrap']);
             return;
         }
         this._org.building = building;
         this._active_display.next(display);
+        this.subscription('full_playlist', this.full_playlist.subscribe());
         const request = indexedDB.open('SIGNAGE', 1);
+        console.log('Opening media store');
         request.onupgradeneeded = () => {
+            console.log('Creating media store');
             const db = request.result;
             const media_store = db.createObjectStore('media');
             media_store.createIndex('id', 'id', { unique: true });
             media_store.createIndex('url_blob', 'url_blob', { unique: false });
 
             media_store.transaction.oncomplete = () => {
+                console.log('Media store created');
                 this._media_store = db
                     .transaction('media', 'readwrite')
                     .objectStore('media');
+                console.log('Starting media check');
+                this.subscription('check', this.check_active_media.subscribe());
             };
+        };
+        request.onsuccess = () => {
+            console.log('Media store opened');
+            this._media_store = request.result
+                .transaction('media', 'readwrite')
+                .objectStore('media');
+            console.log('Starting media check');
+            this.subscription('check', this.check_active_media.subscribe());
         };
     }
 
     private _getMedia(id: string) {
+        console.log('Getting media:', id);
         return new Promise<{ id: string; url_blob: string }>(
             (resolve, reject) => {
                 const request = this._media_store?.get(id);
@@ -199,6 +240,7 @@ export class SignageService {
     }
 
     private _setMedia(id: string, url: string) {
+        console.log('Setting media:', id);
         return new Promise<void>((resolve, reject) => {
             const request = this._media_store?.put({ id, url_blob: url });
             if (!request) return reject('No media store');
@@ -211,6 +253,7 @@ export class SignageService {
     }
 
     private async _loadMedia(media: SignageMedia): Promise<SignageResource> {
+        if (!media) throw new Error('No media provided');
         const resource = await this._getMedia(media.id).catch(() => null);
         const end = media.duration
             ? Date.now() + media.duration * 1000

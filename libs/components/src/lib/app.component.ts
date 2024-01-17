@@ -74,7 +74,7 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
         <div class="flex-1 w-full relative h-1/2">
             <router-outlet></router-outlet>
         </div>
-        <global-chat></global-chat>
+        <global-chat *ngIf="has_chat"></global-chat>
         <global-loading></global-loading>
         <debug-console *ngIf="debug"></debug-console>
     `,
@@ -92,6 +92,10 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
 export class AppComponent extends AsyncHandler implements OnInit {
     public get debug() {
         return window.debug;
+    }
+
+    public get has_chat() {
+        return this._settings.get('app.chat.enabled');
     }
 
     constructor(
