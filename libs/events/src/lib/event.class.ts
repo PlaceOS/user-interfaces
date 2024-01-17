@@ -297,9 +297,20 @@ export class CalendarEvent {
     }
 
     public get valid_assets() {
-        return (this.ext('assets') || []).filter(
-            (request) => request.deliver_at < this.date_end
-        );
+        const list = this.linked_bookings;
+        return (this.ext('assets') || [])
+            .filter((request) => request.deliver_at < this.date_end)
+            .map((request) => {
+                const booking = list.find((_) => _.asset_id === request.id);
+                if (booking) {
+                    (request as any).state = booking.approved
+                        ? 'approved'
+                        : booking.rejected
+                        ? 'rejected'
+                        : 'pending';
+                }
+                return request;
+            });
     }
 
     /**

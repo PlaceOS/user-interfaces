@@ -355,8 +355,15 @@ const EMPTY_ACTIONS = [];
                                 *ngFor="let request of event.valid_assets"
                                 class="border border-base-300 bg-base-100 rounded-xl overflow-hidden"
                             >
-                                <div class="flex items-center space-x-2 p-3">
-                                    <div class="flex-1">
+                                <button
+                                    matRipple
+                                    class="flex items-center space-x-2 p-3 w-full"
+                                    (click)="
+                                        show_request[request.id] =
+                                            !show_request[request.id]
+                                    "
+                                >
+                                    <div class="flex-1 text-left">
                                         <div class="text-sm">
                                             Requested for
                                             {{
@@ -368,53 +375,54 @@ const EMPTY_ACTIONS = [];
                                         </div>
                                     </div>
                                     <div
-                                        class="flex items-center justify-center"
+                                        class="flex items-center justify-center rounded-full w-8 h-8"
                                         [class.bg-success]="
-                                            request.status === 'approved'
+                                            request.state === 'approved'
+                                        "
+                                        [class.text-success-content]="
+                                            request.state === 'approved'
                                         "
                                         [class.bg-warning]="
-                                            request.status === 'tentative'
+                                            request.state !== 'approved' &&
+                                            request.state !== 'rejected'
+                                        "
+                                        [class.text-warning-content]="
+                                            request.state !== 'approved' &&
+                                            request.state !== 'rejected'
                                         "
                                         [class.bg-error]="
-                                            request.status === 'rejected'
+                                            request.state === 'rejected'
+                                        "
+                                        [class.text-error-content]="
+                                            request.state === 'rejected'
+                                        "
+                                        [matTooltip]="
+                                            request.state || 'Tentative'
                                         "
                                     >
                                         <app-icon>
                                             {{
-                                                request.status === 'approved'
+                                                request.state === 'approved'
                                                     ? 'done'
-                                                    : request.status ===
-                                                      'tentative'
-                                                    ? 'schedule'
-                                                    : request.status ===
+                                                    : request.state ===
                                                       'rejected'
                                                     ? 'close'
-                                                    : ''
+                                                    : 'schedule'
                                             }}
                                         </app-icon>
                                     </div>
-                                    <button
-                                        icon
-                                        matRipple
-                                        [matTooltip]="
-                                            show_request[request.id]
-                                                ? 'Hide requested items'
-                                                : 'Show requested items'
-                                        "
-                                        (click)="
-                                            show_request[request.id] =
-                                                !show_request[request.id]
-                                        "
+                                    <div
+                                        class="flex items-center justify-center rounded-full w-8 h-8"
                                     >
-                                        <app-icon>
+                                        <app-icon class="text-2xl">
                                             {{
                                                 show_request[request.id]
                                                     ? 'expand_less'
                                                     : 'expand_more'
                                             }}
                                         </app-icon>
-                                    </button>
-                                </div>
+                                    </div>
+                                </button>
                                 <div
                                     class="flex flex-col bg-base-200 divide-y divide-base-100"
                                     [@show]="
@@ -644,6 +652,7 @@ export class EventDetailsModalComponent {
                 content: MapPinComponent,
             },
         ];
+        console.log('Valid Assets:', this.event.valid_assets);
         if (
             this.event.extension_data.catering?.length ||
             this.event.extension_data.assets?.length

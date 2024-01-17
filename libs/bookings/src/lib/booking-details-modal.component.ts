@@ -142,8 +142,15 @@ import { checkinBooking } from './bookings.fn';
                                 *ngFor="let request of booking.valid_assets"
                                 class="border border-base-300 bg-base-100 rounded-xl overflow-hidden"
                             >
-                                <div class="flex items-center space-x-2 p-3">
-                                    <div class="flex-1">
+                                <button
+                                    matRipple
+                                    class="flex items-center space-x-2 p-3 w-full"
+                                    (click)="
+                                        show_request[request.id] =
+                                            !show_request[request.id]
+                                    "
+                                >
+                                    <div class="flex-1 text-left">
                                         <div class="text-sm">
                                             Requested for
                                             {{
@@ -154,28 +161,55 @@ import { checkinBooking } from './bookings.fn';
                                             }}
                                         </div>
                                     </div>
-                                    <button
-                                        icon
-                                        matRipple
-                                        [matTooltip]="
-                                            show_request[request.id]
-                                                ? 'Hide requested items'
-                                                : 'Show requested items'
+                                    <div
+                                        class="flex items-center justify-center rounded-full w-8 h-8"
+                                        [class.bg-success]="
+                                            request.state === 'approved'
                                         "
-                                        (click)="
-                                            show_request[request.id] =
-                                                !show_request[request.id]
+                                        [class.text-success-content]="
+                                            request.state === 'approved'
+                                        "
+                                        [class.bg-warning]="
+                                            request.state !== 'approved' &&
+                                            request.state !== 'rejected'
+                                        "
+                                        [class.text-warning-content]="
+                                            request.state !== 'approved' &&
+                                            request.state !== 'rejected'
+                                        "
+                                        [class.bg-error]="
+                                            request.state === 'rejected'
+                                        "
+                                        [class.text-error-content]="
+                                            request.state === 'rejected'
+                                        "
+                                        [matTooltip]="
+                                            request.state || 'Tentative'
                                         "
                                     >
                                         <app-icon>
+                                            {{
+                                                request.state === 'approved'
+                                                    ? 'done'
+                                                    : request.state ===
+                                                      'rejected'
+                                                    ? 'close'
+                                                    : 'schedule'
+                                            }}
+                                        </app-icon>
+                                    </div>
+                                    <div
+                                        class="flex items-center justify-center rounded-full w-8 h-8"
+                                    >
+                                        <app-icon class="text-2xl">
                                             {{
                                                 show_request[request.id]
                                                     ? 'expand_less'
                                                     : 'expand_more'
                                             }}
                                         </app-icon>
-                                    </button>
-                                </div>
+                                    </div>
+                                </button>
                                 <div
                                     class="flex flex-col bg-base-200 divide-y divide-base-100"
                                     [@show]="

@@ -88,12 +88,12 @@ export class AssetRequest {
             (amount, item) => amount + item.quantity,
             0
         );
-        this.status =
+        this._status =
             data[`${this.event_id}_status`] ||
             data.status ||
             (data.extension_data || {})[`${this.event_id}_status`] ||
             data.extension_data?.status ||
-            'accepted';
+            'in_storage';
         this.event = data.event || data || null;
         this.notes = data.notes || data.description || '';
         this.deliver_time =
