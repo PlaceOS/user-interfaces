@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { first, map } from 'rxjs/operators';
 
 import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
