@@ -37,6 +37,7 @@ let DEVICE_ID =
     providedIn: 'root',
 })
 export class RemoteLoggingService extends AsyncHandler {
+    private _disable_handling: boolean = false;
     private _system_id = new BehaviorSubject<string>('');
     private _events = new Subject<ClientEvent>();
 
@@ -50,9 +51,13 @@ export class RemoteLoggingService extends AsyncHandler {
         map(([id]) =>
             this.subscription(
                 'post_events',
-                this._event_history.subscribe((d) =>
-                    getModule(id, 'Logger').execute('post_event', [d])
-                )
+                this._event_history.subscribe(async (d) => {
+                    this._disable_handling = true;
+                    await getModule(id, 'Logger')
+                        .execute('post_event', [d])
+                        .catch();
+                    this._disable_handling = false;
+                })
             )
         )
     );
@@ -87,7 +92,7 @@ export class RemoteLoggingService extends AsyncHandler {
     }
 
     private _handleEvent(type: string, data: any, event_type: any = 'console') {
-        if (data.includes('"Logger"')) return;
+        if (data.includes('"Logger"') || this._disable_handling) return;
         const blob = [...data[0]];
         blob[0] =
             typeof blob[0] === 'string' ? blob[0].replace(/\%c/g, '') : blob[0];
