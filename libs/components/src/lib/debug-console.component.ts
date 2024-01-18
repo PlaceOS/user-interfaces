@@ -41,7 +41,9 @@ const URL_STARTS = [
             class="absolute bottom-2 left-2 max-w-[80vw] w-[40rem] border border-base-300 bg-base-200 text-base-content shadow rounded overflow-hidden h-[24rem] max-h-[65vh] flex flex-col z-[998]"
             *ngIf="show"
         >
-            <div class="flex items-center justify-between bg-base-100">
+            <div
+                class="flex items-center justify-between bg-base-100 border-b border-base-300"
+            >
                 <div class="p-2">Console</div>
                 <button icon matRipple (click)="show = false">
                     <app-icon>close</app-icon>
@@ -49,6 +51,7 @@ const URL_STARTS = [
             </div>
             <cdk-virtual-scroll-viewport
                 itemSize="32"
+                *ngIf="(filtered_logs | async)?.length; else empty_state"
                 class="flex-1 h-[30rem] max-h-full w-full"
             >
                 <div
@@ -116,20 +119,27 @@ const URL_STARTS = [
                     </div>
                 </div>
                 <div class="h-8 w-full"></div>
-                <div class="h-8 w-full"></div>
             </cdk-virtual-scroll-viewport>
             <div
-                class="absolute bottom-0 right-2 rounded-t-lg bg-base-300 p-2 flex items-center space-x-2 w-[20rem] border-t border-x border-base-100"
+                class="absolute bottom-1 right-1 rounded-lg p-1 flex items-center w-[20rem] overflow-hidden"
             >
+                <div
+                    class="absolute inset-0 bg-base-content opacity-60 z-0"
+                ></div>
+                <div
+                    class="absolute inset-1 bg-base-content opacity-90 rounded z-0"
+                ></div>
                 <input
                     #search_input
                     name="log-filter"
                     [ngModel]="filter | async"
                     (ngModelChange)="filter.next($event)"
                     placeholder="Filter logs..."
-                    class="border-none bg-base-100/10 flex-1 text-sm px-2 py-1 font-mono rounded"
+                    class="relative border-none flex-1 text-sm px-2 py-1 font-mono rounded text-base-100"
                 />
-                <div class="font-mono text-xs px-2 text-center">
+                <div
+                    class="relative font-mono text-xs px-2 text-center text-base-100"
+                >
                     <span class="font-mono" *ngIf="(filter | async)?.length">
                         {{ (filtered_logs | async)?.length || '0' }} of
                     </span>
@@ -146,6 +156,15 @@ const URL_STARTS = [
             (mouseup)="onEnd()"
             (touchend)="onEnd()"
         ></button>
+        <ng-template #empty_state>
+            <div
+                class="flex-1 flex flex-col items-center justify-center h-[30rem] w-full"
+            >
+                <div class="text-2xl opacity-30">
+                    No {{ filter.getValue() ? 'matching' : '' }} logs
+                </div>
+            </div>
+        </ng-template>
     `,
     styles: [``],
 })
@@ -189,9 +208,10 @@ export class DebugConsoleComponent extends AsyncHandler {
     public ngOnInit() {
         this.subscription(
             'binding',
-            this._org.active_building.subscribe(() =>
-                this._logs.setSystem(this._org.binding('remote_logger'))
-            )
+            this._org.active_building.subscribe(() => {
+                console.log('Binding:', this._org.binding('remote_logger'));
+                this._logs.setSystem(this._org.binding('remote_logger'));
+            })
         );
         this.subscription(
             'logs',

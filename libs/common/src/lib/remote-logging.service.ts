@@ -4,7 +4,7 @@ import { BehaviorSubject, combineLatest, of, Subject } from 'rxjs';
 import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
 
 import { AsyncHandler } from './async-handler.class';
-import { randomInt, randomString } from './general';
+import { log, randomInt, randomString } from './general';
 
 export interface ClientEvent {
     id: string;
@@ -66,6 +66,7 @@ export class RemoteLoggingService extends AsyncHandler {
         localStorage.setItem('PLACEOS.DEVICE_ID', DEVICE_ID);
         this._patchConsoleMethods();
         this._logging_bindings.subscribe();
+        log('Logger', 'Remote logging initialised...');
     }
 
     public setSystem(id: string) {
