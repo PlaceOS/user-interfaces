@@ -205,7 +205,8 @@ export class DebugConsoleComponent extends AsyncHandler {
         super();
     }
 
-    public ngOnInit() {
+    public async ngOnInit() {
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
         this.subscription(
             'binding',
             this._org.active_building.subscribe(() => {
@@ -232,6 +233,8 @@ export class DebugConsoleComponent extends AsyncHandler {
                 () => (this.show = !this.show)
             )
         );
+        console.log('Binding:', this._org.binding('remote_logger'));
+        this._logs.setSystem(this._org.binding('remote_logger'));
     }
 
     public type(item: any) {
