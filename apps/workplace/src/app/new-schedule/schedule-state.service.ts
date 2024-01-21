@@ -241,10 +241,10 @@ export class ScheduleStateService extends AsyncHandler {
         this.lockers,
     ]).pipe(
         map(([e, v, d, p, l]) => {
-            const sd = d.filter(
-                (_) => !e.find((ev) => `${ev.meeting_id}` === `${_.id}`)
+            const filtered_events = e.filter(
+                (ev) => !d.find((bkn) => `${ev.meeting_id}` === `${bkn.id}`)
             );
-            return [...e, ...v, ...sd, ...p, ...l].sort(
+            return [...filtered_events, ...v, ...d, ...p, ...l].sort(
                 (a, b) => a.date - b.date
             );
         })
