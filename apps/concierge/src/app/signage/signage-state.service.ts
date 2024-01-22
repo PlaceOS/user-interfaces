@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { uploadFiles } from '@placeos/cloud-uploads';
 import {
+    notifyError,
     notifySuccess,
     predictableRandomInt,
     randomInt,
@@ -223,9 +224,18 @@ export class SignageStateService {
         const url = URL.createObjectURL(media);
         const type = media.type.includes('image') ? 'image' : 'video';
         const ref = this._dialog.open(SignageMediaPreviewModalComponent, {
-            data: { url, type, name: media.name, save: true },
+            data: { url, type, name: media.name, save: true, file: media },
         });
         ref.afterClosed().subscribe(() => URL.revokeObjectURL(url));
+        ref.componentInstance.save.subscribe(async () => {
+            ref.componentInstance.loading = 'Saving...';
+            await this.addMedia(media).catch((e) => {
+                notifyError('Error saving media.');
+                ref.componentInstance.loading = '';
+                throw e;
+            });
+            ref.close();
+        });
     }
 
     public async addMedia(file: File) {
