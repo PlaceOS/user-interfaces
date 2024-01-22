@@ -22,13 +22,7 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-import {
-    addMinutes,
-    differenceInDays,
-    endOfDay,
-    getUnixTime,
-    startOfDay,
-} from 'date-fns';
+import { differenceInDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import {
     AsyncHandler,
     BookingRuleset,
@@ -62,7 +56,6 @@ import { updateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
 import { User } from 'libs/users/src/lib/user.class';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { removeEvent } from './events.fn';
-import { querySpaceFreeBusy } from 'libs/calendar/src/lib/calendar.fn';
 
 const BOOKING_URLS = [
     'book/rooms',
@@ -662,8 +655,8 @@ export class EventFormService extends AsyncHandler {
                             : {}
                     ).toPromise();
                     notifyError('Unable to book the selected assets.');
-                    this._loading.next('');
                 }
+                this._loading.next('');
                 throw e;
             };
             if (visitors.length) {
