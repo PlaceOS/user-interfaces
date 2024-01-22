@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
 import { uploadFiles } from '@placeos/cloud-uploads';
 import {
+    UploadDetails,
     notifyError,
     notifySuccess,
     predictableRandomInt,
     randomInt,
     randomString,
+    uploadFile,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import {
@@ -239,7 +241,25 @@ export class SignageStateService {
     }
 
     public async addMedia(file: File) {
-        const media = await this._uploadFile(file);
+        const upload = () =>
+            new Promise<string>((resolve, reject) => {
+                let state = null;
+                let resolved = false;
+                uploadFile(file).subscribe(
+                    (s) => {
+                        state = s;
+                        if (s.link) {
+                            resolved = true;
+                            resolve(s.link);
+                        }
+                    },
+                    reject,
+                    () => (!resolved ? resolve(state) : null)
+                );
+            });
+        console.log('Uploading media:', file.name, file.type);
+        const media = await upload();
+        console.log('Uploaded media:', media);
         const media_list = await this.media.pipe(take(1)).toPromise();
         const check_landscape = new Promise((resolve) => {
             var reader = new FileReader();
@@ -262,16 +282,18 @@ export class SignageStateService {
             reader.readAsDataURL(file);
         });
         const is_landscape = await check_landscape;
+        console.log('Is Landscape:', is_landscape);
         media_list.push({
             id: `media-${randomString(8)}`,
-            name: media.name,
+            name: file.name,
             description: '',
-            url: media.url,
+            url: media,
             type: file.type.includes('image') ? 'image' : 'video',
             orientation: is_landscape ? 'landscape' : 'portrait',
             duration: 15,
         });
         const bld = this._org.building.id;
+        console.log('Saving media:', media_list);
         await updateMetadata(bld, {
             name: 'signage-media',
             details: media_list,
@@ -280,44 +302,5 @@ export class SignageStateService {
         notifySuccess('Successfully added media.');
         this._active_upload.next(null);
         this._change.next(Date.now());
-    }
-
-    private _uploadFile(file: File): Promise<Attachment> {
-        return new Promise((resolve, reject) => {
-            const fileReader = new FileReader();
-            fileReader.addEventListener('loadend', (e: any) => {
-                const arrayBuffer = e.target.result;
-                const blob = blobUtil.arrayBufferToBlob(arrayBuffer, file.type);
-                const upload_list = uploadFiles([blob], {
-                    file_name: file.name,
-                });
-                const upload = upload_list[0];
-                const upload_details: Attachment = {
-                    id: `${randomInt(9999_9999_9999)}`,
-                    name: file.name,
-                    progress: 0,
-                    size: file.size,
-                    created_at: Date.now(),
-                    url: '',
-                };
-                upload.status
-                    .pipe(takeWhile((_) => _.status !== 'complete', true))
-                    .subscribe(
-                        (state) => {
-                            if (upload.access_url)
-                                upload_details.url = upload.access_url;
-                            upload_details.progress = state.progress;
-                            if (state.status === 'error') {
-                                upload_details.progress = -1;
-                                reject();
-                            }
-                        },
-                        reject,
-                        () => resolve(upload_details)
-                    );
-                this._active_upload.next(upload_details);
-            });
-            fileReader.readAsArrayBuffer(file);
-        });
     }
 }
