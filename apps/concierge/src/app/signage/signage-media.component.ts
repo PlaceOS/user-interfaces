@@ -19,7 +19,7 @@ import { AsyncHandler, notifyError } from '@placeos/common';
                         class="flex flex-wrap items-start justify-start w-full p-2"
                     >
                         <div
-                            class="m-2 p-2 bg-base-100 rounded-lg overflow-hidden h-[13rem] border border-base-300 shadow"
+                            class="m-2 p-2 bg-base-100 rounded-lg overflow-hidden h-[13rem] w-[17rem] border border-base-300 shadow"
                             *ngFor="let item of media | async"
                         >
                             <button
@@ -27,8 +27,17 @@ import { AsyncHandler, notifyError } from '@placeos/common';
                                 (click)="previewMedia(item)"
                             >
                                 <img
-                                    [src]="item.url"
-                                    class="object-cover w-full h-full"
+                                    *ngIf="
+                                        item.type === 'video'
+                                            ? (item.url | thumbnail)
+                                            : item.url
+                                    "
+                                    [src]="
+                                        item.type === 'video'
+                                            ? (item.url | thumbnail)
+                                            : item.url
+                                    "
+                                    class="object-contain w-full h-full"
                                 />
                                 <div
                                     class="absolute top-2 left-2 flex items-center justify-center rounded overflow-hidden"

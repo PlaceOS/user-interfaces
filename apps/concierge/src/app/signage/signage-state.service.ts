@@ -1,11 +1,7 @@
 import { Injectable } from '@angular/core';
-import { uploadFiles } from '@placeos/cloud-uploads';
 import {
-    UploadDetails,
     notifyError,
     notifySuccess,
-    predictableRandomInt,
-    randomInt,
     randomString,
     uploadFile,
 } from '@placeos/common';
@@ -25,10 +21,8 @@ import {
     shareReplay,
     switchMap,
     take,
-    takeWhile,
 } from 'rxjs/operators';
 
-import * as blobUtil from 'blob-util';
 import {
     SignageDisplay,
     SignageMedia,
@@ -59,59 +53,7 @@ export class SignageStateService {
                 catchError(() => of({} as PlaceMetadata))
             )
         ),
-        map(
-            (_) =>
-                (_.details instanceof Array ? _.details : null) || [
-                    {
-                        id: `media-0001`,
-                        name: 'Welcome to PlaceOS',
-                        description: 'This is a sample media file',
-                        url: 'https://assets-global.website-files.com/6171e55cb416782d0a8e7a4c/6171e8d5fe3ffc10c0c800bc_PlaceOS-Logo-Dark-Alt.png',
-                        type: 'image',
-                        duration: 15,
-                    },
-                    {
-                        id: `media-0002`,
-                        name: 'Welcome to PlaceOS',
-                        description: 'This is a sample media file',
-                        url: 'https://assets-global.website-files.com/6171e55cb416782d0a8e7a4c/6171e8d5fe3ffc10c0c800bc_PlaceOS-Logo-Dark-Alt.png',
-                        type: 'image',
-                        duration: 30,
-                    },
-                    {
-                        id: `media-0003`,
-                        name: 'Welcome to PlaceOS',
-                        description: 'This is a sample media file',
-                        url: 'https://assets-global.website-files.com/6171e55cb416782d0a8e7a4c/6171e8d5fe3ffc10c0c800bc_PlaceOS-Logo-Dark-Alt.png',
-                        type: 'image',
-                        duration: 60,
-                    },
-                    {
-                        id: `media-0004`,
-                        name: 'Welcome to PlaceOS',
-                        description: 'This is a sample media file',
-                        url: 'https://assets-global.website-files.com/6171e55cb416782d0a8e7a4c/6171e8d5fe3ffc10c0c800bc_PlaceOS-Logo-Dark-Alt.png',
-                        type: 'image',
-                        duration: 15,
-                    },
-                    {
-                        id: `media-0005`,
-                        name: 'Welcome to PlaceOS',
-                        description: 'This is a sample media file',
-                        url: 'https://assets-global.website-files.com/6171e55cb416782d0a8e7a4c/6171e8d5fe3ffc10c0c800bc_PlaceOS-Logo-Dark-Alt.png',
-                        type: 'image',
-                        duration: 30,
-                    },
-                    {
-                        id: `media-0006`,
-                        name: 'Welcome to PlaceOS',
-                        description: 'This is a sample media file',
-                        url: 'https://assets-global.website-files.com/6171e55cb416782d0a8e7a4c/6171e8d5fe3ffc10c0c800bc_PlaceOS-Logo-Dark-Alt.png',
-                        type: 'image',
-                        duration: 60,
-                    },
-                ]
-        ),
+        map((_) => (_.details instanceof Array ? _.details : null) || []),
         shareReplay(1)
     );
 
@@ -259,7 +201,7 @@ export class SignageStateService {
             });
         const media = await upload();
         const media_list = await this.media.pipe(take(1)).toPromise();
-        const check_landscape = new Promise((resolve) => {
+        const video_metadata = new Promise<[boolean, number]>((resolve) => {
             const url = URL.createObjectURL(file);
             // file is loaded
             if (file.type.includes('video')) {
@@ -267,16 +209,16 @@ export class SignageStateService {
                 video.src = url.toString();
                 video.addEventListener('loadedmetadata', () => {
                     const { videoWidth, videoHeight } = video;
-                    resolve(videoWidth > videoHeight);
+                    resolve([videoWidth > videoHeight, duration]);
                 });
                 video.load();
             } else {
                 let img = new Image();
-                img.onload = () => resolve(img.width > img.height);
+                img.onload = () => resolve([img.width > img.height, 0]);
                 img.src = url.toString(); // is the data URL because called with readAsDataURL
             }
         });
-        const is_landscape = await check_landscape;
+        const [is_landscape, duration] = await video_metadata;
         media_list.push({
             id: `media-${randomString(8)}`,
             name: file.name,
@@ -284,7 +226,7 @@ export class SignageStateService {
             url: media,
             type: file.type.includes('image') ? 'image' : 'video',
             orientation: is_landscape ? 'landscape' : 'portrait',
-            duration: 15,
+            duration: duration || 15,
         });
         const bld = this._org.building.id;
         await updateMetadata(bld, {

@@ -75,6 +75,7 @@ import { AttachedResourceConfigModalComponent } from './attached-resource-config
 import { StatusPillComponent } from './status-pill.component';
 import { AvailableRoomsStateModalComponent } from './available-rooms-state-modal.component';
 import { MediaDurationPipe } from './media-duration.pipe';
+import { ThumbnailPipe } from './thumbnail.pipe';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -137,6 +138,7 @@ const COMPONENTS: Type<any>[] = [
     BuildingPipe,
     DateFromPipe,
     MediaDurationPipe,
+    ThumbnailPipe,
 
     UserControlsComponent,
     BuildingSelectComponent,
