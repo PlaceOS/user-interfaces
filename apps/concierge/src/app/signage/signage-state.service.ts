@@ -257,32 +257,26 @@ export class SignageStateService {
                     () => (!resolved ? resolve(state) : null)
                 );
             });
-        console.log('Uploading media:', file.name, file.type);
         const media = await upload();
-        console.log('Uploaded media:', media);
         const media_list = await this.media.pipe(take(1)).toPromise();
         const check_landscape = new Promise((resolve) => {
-            var reader = new FileReader();
-            reader.onload = () => {
-                // file is loaded
-                if (file.type.includes('video')) {
-                    let video = document.createElement('video');
-                    video.addEventListener(
-                        'loadedmetadata',
-                        () => resolve(video.videoWidth > video.videoHeight),
-                        false
-                    );
-                    video.src = reader.result as string;
-                    return;
-                }
+            const url = URL.createObjectURL(file);
+            // file is loaded
+            if (file.type.includes('video')) {
+                let video = document.createElement('video');
+                video.src = url.toString();
+                video.addEventListener('loadedmetadata', () => {
+                    const { videoWidth, videoHeight } = video;
+                    resolve(videoWidth > videoHeight);
+                });
+                video.load();
+            } else {
                 let img = new Image();
                 img.onload = () => resolve(img.width > img.height);
-                img.src = reader.result as string; // is the data URL because called with readAsDataURL
-            };
-            reader.readAsDataURL(file);
+                img.src = url.toString(); // is the data URL because called with readAsDataURL
+            }
         });
         const is_landscape = await check_landscape;
-        console.log('Is Landscape:', is_landscape);
         media_list.push({
             id: `media-${randomString(8)}`,
             name: file.name,
@@ -293,13 +287,11 @@ export class SignageStateService {
             duration: 15,
         });
         const bld = this._org.building.id;
-        console.log('Saving media:', media_list);
         await updateMetadata(bld, {
             name: 'signage-media',
             details: media_list,
             description: 'Media for signage displays',
         }).toPromise();
-        notifySuccess('Successfully added media.');
         this._active_upload.next(null);
         this._change.next(Date.now());
     }

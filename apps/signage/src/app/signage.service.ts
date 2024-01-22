@@ -131,14 +131,6 @@ export class SignageService extends AsyncHandler {
     ]).pipe(
         filter(([_]) => !!_),
         map(([display, playlists, media]) => {
-            console.log(
-                'Display:',
-                display,
-                ' | Playlists:',
-                playlists,
-                ' | Media:',
-                media
-            );
             const display_playlists = display.playlists.map((_: string) =>
                 playlists.find((__) => __.id === _)
             );
@@ -158,7 +150,6 @@ export class SignageService extends AsyncHandler {
         interval(1000).pipe(startWith(0)),
     ]).pipe(
         map(async ([media]) => {
-            console.log('Checking media:', media);
             const active_media = this._active_media.getValue();
             if (
                 !media?.length ||

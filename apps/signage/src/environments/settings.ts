@@ -11,6 +11,7 @@ const app = {
         type: 'img',
         src: 'assets/logo-dark.svg',
     },
+    diagnostics: true,
 };
 
 /**
