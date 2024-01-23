@@ -64,13 +64,15 @@ import { first, take } from 'rxjs/operators';
             ></indoor-maps>
         </div>
         <explore-zoom-controls
+            *ngIf="!(use_mapsindoors$ | async)"
             class="absolute top-1/2 transform -translate-y-1/2 right-0"
         ></explore-zoom-controls>
         <explore-level-select
+            *ngIf="!(use_mapsindoors$ | async)"
             class="absolute left-1 top-1/2 transform -translate-y-1/2 z-10"
         ></explore-level-select>
         <explore-search
-            *ngIf="can_search"
+            *ngIf="can_search && !(use_mapsindoors$ | async)"
             class="absolute top-1 right-1"
         ></explore-search>
         <div
