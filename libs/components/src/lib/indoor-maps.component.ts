@@ -71,62 +71,74 @@ interface CustomCoordinates {
             </div>
         </div>
         <div
-            class="absolute flex flex-col h-min w-min top-0 left-0 bg-base-100 rounded-lg z-50"
+            class="absolute flex flex-col h-min w-min top-2 left-2 bg-base-100 text-base-content rounded-lg z-50 p-2 shadow"
         >
-            <div class="flex basis-1/2 px-4">
-                <div class="flex flex-row items-center max-h-20">
-                    <mat-form-field appearance="outline" class="h-16 mt-4">
-                        <input
-                            matInput
-                            #searchInput
-                            name="location-search"
-                            type="text"
-                            placeholder="Search"
-                        />
-                    </mat-form-field>
+            <mat-form-field appearance="outline" class="map no-subscript">
+                <input
+                    matInput
+                    #searchInput
+                    name="location-search"
+                    type="text"
+                    placeholder="Search"
+                    (keyup.enter)="onSearch()"
+                />
+                <div matSuffix class="h-10 relative">
                     <button
                         icon
                         name="indoor-map-search"
                         matRipple
-                        class="flex text-black h-10 w-10 rounded-full bg-base-200 ml-5"
+                        class="hover:bg-base-200"
                         aria-label="search button"
+                        matTooltip="Search..."
                         (click)="onSearch()"
                     >
-                        <app-icon matPrefix class="text-2xl relative"
-                            >search</app-icon
-                        >
+                        <app-icon matPrefix class="text-2xl relative">
+                            search
+                        </app-icon>
                     </button>
                 </div>
-            </div>
+            </mat-form-field>
 
-            <div class="flex basis-1/2 overflow-y-auto ">
-                <div class="ml-6">
-                    <ul>
-                        <div *ngIf="search_result_items">
-                            <span class="font-medium text-lg">Results</span>
-                            <li *ngFor="let item of search_result_items">
-                                <div class="flex items-center mt-3 mb-3 h-10">
-                                    <span class="flex mr-3 text-base">
-                                        {{ item.properties.name }}</span
-                                    >
-                                    <button
-                                        icon
-                                        name="get-directions"
-                                        matRipple
-                                        aria-label="get directions button"
-                                        (click)="getRoute(item)"
-                                        class="flex text-white h-7 w-7 rounded-md bg-secondary"
-                                    >
-                                        <app-icon class="text-sm"
-                                            >near_me</app-icon
-                                        >
-                                    </button>
-                                </div>
-                            </li>
-                        </div>
-                    </ul>
+            <ng-container *ngIf="search_result_items?.length">
+                <div
+                    class="flex items-center justify-between px-2 my-2 space-x-2"
+                >
+                    <h3 class="font-medium text-lg">
+                        Results ({{ search_result_items.length || '0' }})
+                    </h3>
+                    <button
+                        icon
+                        matRipple
+                        class="hover:bg-base-200"
+                        (click)="search_result_items = []"
+                        matTooltip="Clear Results"
+                    >
+                        <app-icon>close</app-icon>
+                    </button>
                 </div>
-            </div>
+                <ul
+                    class="list-none m-0 p-0 w-full space-y-2 max-h-[65vh] overflow-auto"
+                >
+                    <li
+                        class="flex items-center w-full even:bg-base-200 hover:bg-base-300 rounded p-2 space-x-2"
+                        *ngFor="let item of search_result_items | slice: 0:10"
+                    >
+                        <div class="flex-1">
+                            {{ item.properties.name }}
+                        </div>
+                        <button
+                            icon
+                            name="get-directions"
+                            matRipple
+                            aria-label="get directions button"
+                            (click)="getRoute(item)"
+                            class="flex text-white h-7 w-7 rounded-md bg-secondary"
+                        >
+                            <app-icon class="text-sm">near_me</app-icon>
+                        </button>
+                    </li>
+                </ul>
+            </ng-container>
         </div>
     `,
     styles: [
