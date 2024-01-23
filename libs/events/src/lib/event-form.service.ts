@@ -528,16 +528,6 @@ export class EventFormService extends AsyncHandler {
                     spaces,
                     all_day ? startOfDay(date).valueOf() : date,
                     all_day ? Math.max(24 * 60, duration) : duration,
-                    id
-                        ? {
-                              start: getUnixTime(
-                                  all_day ? startOfDay(date) : date
-                              ),
-                              end: getUnixTime(
-                                  all_day ? endOfDay(date_end) : date_end
-                              ),
-                          }
-                        : undefined,
                     ical_uid || id || ''
                 ).catch((_) => {
                     this._loading.next('');
@@ -721,15 +711,9 @@ export class EventFormService extends AsyncHandler {
         spaces: Space[],
         date: number,
         duration: number,
-        exclude?: { start: number; end: number },
         ignore?: string
     ) {
         if (!spaces?.length) return true;
-        const query: any = {
-            period_start: getUnixTime(date),
-            period_end: getUnixTime(date + (duration * 60 * 1000 || 30 * 1000)),
-        };
-        if (exclude) query.exclude_range = `${exclude.start}...${exclude.end}`;
         if (this.has_calendar) {
             const response = await querySpaceAvailability(
                 spaces.map(({ id }) => id),
