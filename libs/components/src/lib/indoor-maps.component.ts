@@ -344,40 +344,38 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     private _getUserLocation() {
         const options = { timeout: 10000, enableHighAccuracy: true };
 
-        return new Promise<GeolocationPosition>(async (resolve, reject) => {
-            if ('geolocation' in navigator) {
-                if (this.coordinates) {
-                    const customPosition = {
-                        coords: {
-                            latitude: this.coordinates.latitude,
-                            longitude: this.coordinates.longitude,
-                            accuracy: 10,
-                        },
-                        timestamp: new Date().getTime(),
-                    };
-                    this.user_latitude = this.coordinates.latitude;
-                    this.user_longitude = this.coordinates.longitude;
+        return new Promise<GeolocationPosition>(async (resolve) => {
+            if (!('geolocation' in navigator)) {
+                return resolve(this._setLocationToBuilding());
+            }
+            if (this.coordinates) {
+                console.log('Custom GeoLocation:', this.coordinates);
+                const customPosition = {
+                    coords: {
+                        latitude: this.coordinates.latitude,
+                        longitude: this.coordinates.longitude,
+                        accuracy: 10,
+                    },
+                    timestamp: new Date().getTime(),
+                };
+                this.user_latitude = this.coordinates.latitude;
+                this.user_longitude = this.coordinates.longitude;
 
-                    resolve(customPosition as GeolocationPosition);
-                }
-
-                if (!this.coordinates) {
-                    await navigator.geolocation.getCurrentPosition(
-                        (position: GeolocationPosition) => {
-                            this.user_latitude = position.coords.latitude;
-                            this.user_longitude = position.coords.longitude;
-                            console.log('GeoLocation: ', position);
-                            resolve(position);
-                        },
-                        (error) => resolve(this._setLocationToBuilding()),
-                        options
-                    );
-                    navigator.geolocation.watchPosition(
-                        (_) => this._updateGeolocation(_),
-                        (_) => this._handleGeolocationError(_)
-                    );
-                }
-            } else resolve(this._setLocationToBuilding());
+                resolve(customPosition as GeolocationPosition);
+            } else {
+                await navigator.geolocation.getCurrentPosition(
+                    (position: GeolocationPosition) => {
+                        this._updateGeolocation(position);
+                        resolve(position);
+                    },
+                    (error) => resolve(this._setLocationToBuilding()),
+                    options
+                );
+                navigator.geolocation.watchPosition(
+                    (_) => this._updateGeolocation(_),
+                    (_) => this._handleGeolocationError(_)
+                );
+            }
         });
     }
 
