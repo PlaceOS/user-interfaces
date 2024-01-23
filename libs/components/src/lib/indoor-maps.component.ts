@@ -424,6 +424,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     }
 
     getRoute(location: any) {
+        if (!this.directions_service) return;
         this.selected_destination = location;
         if (this.user_latitude && this.user_longitude) {
             const originLocationCoordinate: any = {
