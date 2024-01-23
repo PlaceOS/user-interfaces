@@ -61,10 +61,6 @@ import { first, take } from 'rxjs/operators';
                 *ngIf="use_mapsindoors$ | async"
                 [styles]="styles | async"
                 [actions]="actions | async"
-                [custom_coordinates]="{
-                    latitude: 30.3603774 ,
-                    longitude:  -97.7426772,
-                }"
             ></indoor-maps>
         </div>
         <explore-zoom-controls

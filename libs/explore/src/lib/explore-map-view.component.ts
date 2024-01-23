@@ -48,10 +48,6 @@ const EMPTY = [];
             *ngIf="use_mapsindoors$ | async"
             [styles]="styles | async"
             [actions]="actions | async"
-            [custom_coordinates]="{
-                latitude: 30.3603774 ,
-                longitude:  -97.7426772,
-            }"
         ></indoor-maps>
         <explore-zoom-controls
             *ngIf="!(use_mapsindoors$ | async)"
