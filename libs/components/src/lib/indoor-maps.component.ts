@@ -242,6 +242,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             this.timeout('init', () => this.initMapView(), 1000);
             return;
         }
+        this._setLocationToBuilding();
         const view_options: any = {
             element: document.getElementById('maps-indoors'),
             center: { lat: this.user_latitude, lng: this.user_longitude },
