@@ -80,7 +80,7 @@
         "@nx/workspace": "17.1.2",
         "@placeos/cloud-uploads": "^0.2.6-dev",
         "@placeos/svg-viewer": "^0.5.4-dev",
-        "@placeos/ts-client": "^3.22.27",
+        "@placeos/ts-client": "^3.22.28",
         "@schematics/angular": "17.0.0",
         "@sentry/angular-ivy": "^7.77.0",
         "@swc-node/register": "~1.6.7",
