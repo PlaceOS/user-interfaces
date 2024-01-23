@@ -13,13 +13,8 @@ import {
     notifyError,
 } from '@placeos/common';
 import { ViewerStyles, ViewAction } from '@placeos/svg-viewer';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { ExploreStateService } from '../../../explore/src/lib/explore-state.service';
-import {
-    BuildingLevel,
-    Building,
-    OrganisationService,
-} from '@placeos/organisation';
+import { Building, OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
 import { filter, map, first, take } from 'rxjs/operators';
 import { MapService } from 'libs/common/src/lib/inject-map-api.service';
@@ -370,6 +365,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                         (position: GeolocationPosition) => {
                             this.user_latitude = position.coords.latitude;
                             this.user_longitude = position.coords.longitude;
+                            console.log('GeoLocation: ', position);
                             resolve(position);
                         },
                         (error) => resolve(this._setLocationToBuilding()),
@@ -388,6 +384,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         const [lat, long] = this._org.building?.location.split(',');
         this.user_latitude = parseFloat(lat);
         this.user_longitude = parseFloat(long);
+        console.log('Updated GeoLocation to Building:', [lat, long]);
         return {
             coords: {
                 latitude: this.user_latitude,
@@ -400,6 +397,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
 
     private _updateGeolocation(updated_location: GeolocationPosition) {
         if (updated_location) {
+            console.log('Updated GeoLocation:', updated_location);
             if (
                 updated_location.coords?.latitude !== this.user_latitude ||
                 updated_location.coords?.longitude !== this.user_longitude
