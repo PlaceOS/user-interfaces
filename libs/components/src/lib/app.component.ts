@@ -91,7 +91,9 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
 })
 export class AppComponent extends AsyncHandler implements OnInit {
     public get debug() {
-        return window.debug;
+        return (
+            window.debug && this._settings.get('app.allow_debugging') !== false
+        );
     }
 
     public get has_chat() {
