@@ -176,6 +176,7 @@ export class BookingModalComponent extends AsyncHandler {
             reason: 'done',
             metadata: {
                 ...this.form.value,
+                user: this.form.value.organiser,
                 title: this.form.value.title || 'Ad-Hoc Panel Booking',
             },
         });

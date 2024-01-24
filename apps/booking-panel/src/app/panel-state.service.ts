@@ -305,9 +305,8 @@ export class PanelStateService extends AsyncHandler {
         const details = await openBookingModal(
             {
                 ...this._settings.getValue(),
-                user: user ? currentUser() : null,
                 space,
-                date,
+                date: future ? date : Date.now(),
                 future,
                 max_duration,
             },
@@ -317,6 +316,7 @@ export class PanelStateService extends AsyncHandler {
         this._events.newForm();
         this._events.form.patchValue({
             ...details.metadata,
+            host: details.organiser?.email || currentUser().email,
             resources: [space],
             system: space,
         });
@@ -394,15 +394,14 @@ export class PanelStateService extends AsyncHandler {
             await this._events.postForm();
         } else {
             const module = getModule(this.system, 'Bookings');
-            if (details && module) {
-                await module
-                    .execute('book_now', [
-                        details.duration * 60,
-                        details.title,
-                        details.host,
-                    ])
-                    .catch((e) => notifyError(`Error creating meeting. ${e}`));
-            }
+            if (!details || !module) return;
+            await module
+                .execute('book_now', [
+                    details.duration * 60,
+                    details.title,
+                    details.host,
+                ])
+                .catch((e) => notifyError(`Error creating meeting. ${e}`));
         }
     }
 
