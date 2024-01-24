@@ -10,6 +10,7 @@ import {
     AsyncHandler,
     HashMap,
     InjectMapApiService,
+    log,
     notifyError,
 } from '@placeos/common';
 import { ViewerStyles, ViewAction } from '@placeos/svg-viewer';
@@ -271,7 +272,15 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                 view_options
             );
         }
-        if (!this.view_instance) return;
+        if (!this.view_instance) {
+            log(
+                'MapsIndoors',
+                'Failed to initialise map view instance.',
+                undefined,
+                'warn'
+            );
+            return;
+        }
         this.maps_service = new mapsindoors.MapsIndoors({
             mapView: this.view_instance,
         });
@@ -288,6 +297,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         this.directions_service = new mapsindoors.services.DirectionsService(
             provider
         );
+        console.log('Directions Service:', this.directions_service, provider);
         const directionsRendererOptions = {
             mapsIndoors: this.maps_service,
         };
@@ -394,7 +404,6 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         const [lat, long] = this._org.building?.location.split(',');
         this.user_latitude = parseFloat(lat);
         this.user_longitude = parseFloat(long);
-        console.log('Updated GeoLocation to Building:', [lat, long]);
         return {
             coords: {
                 latitude: this.user_latitude,
@@ -407,7 +416,6 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
 
     private _updateGeolocation(updated_location: GeolocationPosition) {
         if (updated_location) {
-            console.log('Updated GeoLocation:', updated_location);
             if (
                 updated_location.coords?.latitude !== this.user_latitude ||
                 updated_location.coords?.longitude !== this.user_longitude
