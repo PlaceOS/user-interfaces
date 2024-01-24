@@ -187,7 +187,7 @@ export class PanelStateService extends AsyncHandler {
     public readonly next = combineLatest([
         this._next,
         interval(3 * 60 * 1000).pipe(startWith(0)),
-    ]).pipe(map(([e]) => (!e || Date.now() < e.date ? null : e)));
+    ]).pipe(map(([e]) => (!e || Date.now() > e.date ? null : e)));
 
     public readonly status: Observable<string> = combineLatest([
         this._settings,
