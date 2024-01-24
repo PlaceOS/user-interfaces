@@ -170,6 +170,7 @@ export class BookingModalComponent extends AsyncHandler {
         if (!this.form.valid) {
             return console.log('Invalid form fields. Valid states:', this.form);
         }
+        if (!this.future) this.form.patchValue({ date: new Date().valueOf() });
         this.loading = true;
         this.event.emit({
             reason: 'done',
