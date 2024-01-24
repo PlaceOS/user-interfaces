@@ -85,7 +85,6 @@ import { DashboardStateService } from './dashboard-state.service';
                 </div>
             </div>
             <a
-                button
                 btn
                 matRipple
                 *ngIf="event.meeting_link"

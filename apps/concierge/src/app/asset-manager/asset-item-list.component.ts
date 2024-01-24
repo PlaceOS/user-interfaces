@@ -167,7 +167,6 @@ import { combineLatest } from 'rxjs';
                     }}
                 </p>
                 <a
-                    button
                     btn
                     matRipple
                     *ngIf="!(options | async)?.search"

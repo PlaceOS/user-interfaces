@@ -28,7 +28,6 @@ import { Space } from '@placeos/spaces';
                 <a
                     btn
                     matRipple
-                    button
                     control
                     class="w-32 flex-1 sm:flex-none"
                     [href]="space.support_url | safe: 'url'"
@@ -38,7 +37,6 @@ import { Space } from '@placeos/spaces';
                 <a
                     btn
                     matRipple
-                    button
                     locate
                     class="w-32 flex-1 sm:flex-none inverse"
                     [routerLink]="['/explore']"

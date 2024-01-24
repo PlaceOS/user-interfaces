@@ -14,7 +14,6 @@ import { DashboardStateService } from './dashboard-state.service';
             </div>
             <div free-levels class="items space-y-2 w-full">
                 <a
-                    button
                     btn
                     matRipple
                     class="w-full"
@@ -43,7 +42,6 @@ import { DashboardStateService } from './dashboard-state.service';
             </div>
             <div class="items space-y-2 w-full">
                 <a
-                    button
                     btn
                     matRipple
                     class="w-full"

@@ -21,7 +21,6 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
             >
                 <h3 class="p-2 w-full text-center font-medium">In Call</h3>
                 <a
-                    button
                     btn
                     matRipple
                     class="w-40"
@@ -31,7 +30,6 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                     View Call
                 </a>
                 <a
-                    button
                     btn
                     matRipple
                     class="w-40"

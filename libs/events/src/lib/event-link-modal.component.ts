@@ -15,7 +15,7 @@ import { notifyError } from '@placeos/common';
         <div class="p-4 w-full pb-2" i18n>Add event to your calendar</div>
         <div class="flex flex-col items-center space-y-4 p-4 relative">
             <a
-                button
+                btn
                 matRipple
                 class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
                 [href]="outlook_link | sanitize: 'url'"
@@ -27,7 +27,7 @@ import { notifyError } from '@placeos/common';
                 <span i18n>Create in Outlook</span>
             </a>
             <a
-                button
+                btn
                 matRipple
                 class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
                 [href]="google_link | sanitize: 'url'"
@@ -39,7 +39,7 @@ import { notifyError } from '@placeos/common';
                 <span i18n>Create in Google Calendar</span>
             </a>
             <a
-                button
+                btn
                 matRipple
                 class="flex items-center p-2 space-x-2 pr-4 w-64 rounded inverse"
                 [href]="ical_link | safe: 'url'"

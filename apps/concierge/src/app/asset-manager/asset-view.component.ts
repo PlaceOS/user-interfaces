@@ -70,7 +70,6 @@ import { combineLatest } from 'rxjs';
                         </div>
                         <div class="flex items-center text-sm ">
                             <a
-                                button
                                 btn
                                 matRipple
                                 class="clear"

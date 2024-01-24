@@ -23,7 +23,6 @@ import { ApplicationLink } from '@placeos/common';
                 </div>
                 <div class="flex items-center space-x-2">
                     <a
-                        button
                         btn
                         matRipple
                         class="w-32"

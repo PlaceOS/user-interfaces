@@ -56,7 +56,6 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
                     {{ 'WPA.BOOK' | translate }}
                 </a>
                 <a
-                    button
                     btn
                     matRipple
                     class="w-full max-w-[32rem] inverse"

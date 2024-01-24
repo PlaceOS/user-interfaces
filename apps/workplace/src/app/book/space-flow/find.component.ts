@@ -13,7 +13,6 @@ import { filter, first, map, take } from 'rxjs/operators';
     template: `
         <div topbar class="">
             <a
-                button
                 class="clear h-[2.75rem] text-white"
                 btn
                 matRipple

@@ -28,7 +28,6 @@ import { User } from '@placeos/users';
                 <a
                     btn
                     matRipple
-                    button
                     class="w-32 flex-1 sm:flex-none"
                     locate
                     [routerLink]="['/explore']"
@@ -40,7 +39,6 @@ import { User } from '@placeos/users';
                 <a
                     btn
                     matRipple
-                    button
                     class="w-32 flex-1 sm:flex-nones"
                     call
                     *ngIf="user.phone"
