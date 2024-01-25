@@ -1,6 +1,11 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { notifyError, notifySuccess, SettingsService } from '@placeos/common';
+import {
+    notifyError,
+    notifySuccess,
+    SettingsService,
+    InjectMapApiService,
+} from '@placeos/common';
 import { addMinutes, format, formatDuration } from 'date-fns';
 
 import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-modal.component';
@@ -243,13 +248,24 @@ import { checkinBooking } from './bookings.fn';
                     class="mt-4 sm:my-2 h-64 sm:h-48 relative border border-base-200 overflow-hidden rounded sm:bg-base-100 m-2 flex-grow-[3] min-w-1/3 w-[calc(100%-1rem)] p-2 sm:w-[16rem]"
                     (click)="viewLocation()"
                 >
-                    <interactive-map
-                        *ngIf="!hide_map"
-                        class="pointer-events-none"
-                        [src]="level?.map_id"
-                        [features]="features"
-                        [options]="{ disable_pan: true, disable_zoom: true }"
-                    ></interactive-map>
+                    <ng-container *ngIf="!hide_map">
+                        <interactive-map
+                            *ngIf="!(use_mapsindoors$ | async); else mapspeople"
+                            class="pointer-events-none"
+                            [src]="level?.map_id"
+                            [features]="features"
+                            [options]="{
+                                disable_pan: true,
+                                disable_zoom: true
+                            }"
+                        ></interactive-map>
+                        <ng-template #mapspeople>
+                            <indoor-maps
+                                [styles]="styles | async"
+                                [actions]="actions | async"
+                            ></indoor-maps>
+                        </ng-template>
+                    </ng-container>
                 </button>
             </div>
             <button
@@ -347,12 +363,23 @@ export class BookingDetailsModalComponent {
         return 'warning';
     }
 
+    public readonly use_mapsindoors$ = this._maps_people.use_mapspeople$;
+
     constructor(
         @Inject(MAT_DIALOG_DATA) private _booking: Booking,
         private _settings: SettingsService,
         private _org: OrganisationService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
+        private _maps_people: InjectMapApiService
     ) {}
+
+    public ngOnInit() {
+        this._maps_people.setCustomZone(this.level?.id);
+    }
+
+    public ngOnDestroy() {
+        this._maps_people.setCustomZone('');
+    }
 
     public get period() {
         if (this.booking?.is_all_day) return 'All Day';

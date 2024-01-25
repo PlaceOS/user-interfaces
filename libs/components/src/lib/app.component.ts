@@ -174,7 +174,6 @@ export class AppComponent extends AsyncHandler implements OnInit {
         await setupPlace(settings).catch((_) => console.error(_));
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         setupCache(this._cache);
-        this._maps.injectMapsApiKeys();
         if (!settings.local_login) {
             this.timeout('wait_for_user', () => this.onInitError(), 30 * 1000);
         }

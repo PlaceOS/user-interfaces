@@ -2,7 +2,7 @@ import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, InjectMapApiService } from '@placeos/common';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
 import { MapPinComponent } from './map-pin.component';
@@ -31,13 +31,24 @@ export interface Locatable {
                 class="relative overflow-hidden h-[65vh] w-full sm:max-h-[65vh]"
                 *ngIf="level"
             >
-                <i-map
-                    [src]="level.map_id"
-                    [styles]="style_map"
+                <interactive-map
+                    *ngIf="!(use_mapsindoors$ | async); else mapspeople"
+                    class="pointer-events-none"
+                    [src]="level?.map_id"
                     [features]="features"
+                    [options]="{
+                        disable_pan: true,
+                        disable_zoom: true
+                    }"
                 >
-                    <mat-spinner diameter="64"></mat-spinner>
-                </i-map>
+                    <mat-spinner diameter="64"></mat-spinner
+                ></interactive-map>
+                <ng-template #mapspeople>
+                    <indoor-maps
+                        [styles]="styles | async"
+                        [actions]="actions | async"
+                    ></indoor-maps>
+                </ng-template>
                 <div
                     class="absolute top-2 right-2 py-2 px-4 bg-base-100 rounded-3xl shadow border border-base-200"
                 >
@@ -75,9 +86,12 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
         return this.item.level || this._org.levelWithID(this.item.zones || []);
     }
 
+    public readonly use_mapsindoors$ = this._maps_people.use_mapspeople$;
+
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: { item: Locatable },
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _maps_people: InjectMapApiService
     ) {
         super();
         if (!this.item.level?.id) {
@@ -86,6 +100,7 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit(): void {
+        this._maps_people.setCustomZone(this.level?.id);
         this.timeout(
             'init',
             () => {
@@ -94,6 +109,11 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
             },
             1000
         );
+    }
+
+    public ngOnDestroy(): void {
+        super.ngOnDestroy();
+        this._maps_people.setCustomZone('');
     }
 
     public processStyles(): void {

@@ -12,6 +12,7 @@ import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     notifyError,
     SettingsService,
+    InjectMapApiService,
 } from '@placeos/common';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { getModule } from '@placeos/ts-client';
@@ -314,13 +315,24 @@ const EMPTY_ACTIONS = [];
                     class="mt-4 sm:mt-2 h-64 sm:h-48 relative border border-base-200 overflow-hidden rounded sm:bg-base-100 sm:dark:bg-neutral-700 m-2 flex-grow-[3] min-w-1/3 p-2 w-[calc(100%-1rem)] sm:w-[16rem]"
                     (click)="viewLocation()"
                 >
-                    <interactive-map
-                        *ngIf="!hide_map"
-                        class="pointer-events-none"
-                        [src]="level?.map_id"
-                        [features]="features"
-                        [options]="{ disable_pan: true, disable_zoom: true }"
-                    ></interactive-map>
+                    <ng-container *ngIf="!hide_map">
+                        <interactive-map
+                            *ngIf="!(use_mapsindoors$ | async); else mapspeople"
+                            class="pointer-events-none"
+                            [src]="level?.map_id"
+                            [features]="features"
+                            [options]="{
+                                disable_pan: true,
+                                disable_zoom: true
+                            }"
+                        ></interactive-map>
+                        <ng-template #mapspeople>
+                            <indoor-maps
+                                [styles]="styles | async"
+                                [actions]="actions | async"
+                            ></indoor-maps>
+                        </ng-template>
+                    </ng-container>
                 </button>
                 <div
                     class="mt-4 sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
@@ -594,14 +606,21 @@ export class EventDetailsModalComponent {
         return 'warning';
     }
 
+    public readonly use_mapsindoors$ = this._maps_people.use_mapspeople$;
+
     constructor(
         @Inject(MAT_DIALOG_DATA) private _event: CalendarEvent,
         private _org: OrganisationService,
         private _space_pipe: SpacePipe,
         private _settings: SettingsService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
+        private _maps_people: InjectMapApiService
     ) {
         this._load().then();
+    }
+
+    public ngOnDestroy() {
+        this._maps_people.setCustomZone('');
     }
 
     public get period() {
@@ -672,6 +691,7 @@ export class EventDetailsModalComponent {
                 },
             });
         }
+        this._maps_people.setCustomZone(this.level?.parent_id);
     }
 
     public status(id: string): string {
@@ -695,6 +715,9 @@ export class EventDetailsModalComponent {
             maxHeight: '95vh',
             data: { item: this.space },
         });
-        ref.afterClosed().subscribe(() => (this.hide_map = false));
+        ref.afterClosed().subscribe(() => {
+            this.hide_map = false;
+            this._maps_people.setCustomZone(this.level?.parent_id);
+        });
     }
 }
