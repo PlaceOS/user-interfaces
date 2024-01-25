@@ -1,7 +1,7 @@
 import { Component, Input, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { BookingFormService } from '@placeos/bookings';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService, notifyError } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 @Component({
