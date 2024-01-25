@@ -37,7 +37,8 @@ export class InjectMapApiService extends AsyncHandler {
         map(
             ([bld, zone]) =>
                 this.map_keys.mapsindoors &&
-                this.use_service.includes(zone || bld.id)
+                (this.use_service.includes(zone || bld.id) ||
+                    this.use_service.includes('*'))
         )
     );
 
