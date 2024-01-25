@@ -120,7 +120,10 @@ export class NewParkingFlowConfirmComponent extends AsyncHandler {
     public readonly loading = this._state.loading;
 
     public readonly postForm = async () => {
-        await this._state.postForm();
+        await this._state.postForm().catch((_) => {
+            notifyError(`Error confirming booking. ${_}`);
+            throw _;
+        });
         this.dismiss(true);
     };
     public readonly dismiss = (e?) => this._sheet_ref?.dismiss(e);
