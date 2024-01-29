@@ -297,7 +297,7 @@ export function queryGroupAvailability(
 ) {
     return combineLatest([
         queryAssetGroups(),
-        queryAvailableAssets(query, ignore),
+        queryAvailableAssets({ limit: 5000, ...query }, ignore),
     ]).pipe(
         map(([products, assets]) => {
             for (const product of products) {
