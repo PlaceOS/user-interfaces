@@ -1,13 +1,13 @@
 import { cleanObject, del, get, post, put } from '@placeos/ts-client';
 import { toQueryString } from 'libs/common/src/lib/api';
-import { catchError, map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import {
     Asset,
     AssetCategory,
     AssetGroup,
     AssetPurchaseOrder,
 } from './asset.class';
-import { combineLatest, of } from 'rxjs';
+import { combineLatest, forkJoin, of } from 'rxjs';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import {
     BookingsQueryParams,
@@ -17,7 +17,6 @@ import {
 } from 'libs/bookings/src/lib/bookings.fn';
 import { Booking } from 'libs/bookings/src/lib/booking.class';
 import { flatten } from '@placeos/common';
-import { CalendarEvent } from 'libs/events/src/lib/event.class';
 import { AssetRequest } from './asset-request.class';
 
 const BASE_ENDPOINT = '/api/engine/v2';
@@ -74,6 +73,26 @@ export function queryAssetGroups(query: any = {}) {
     const q = toQueryString(query);
     return get(`${BASE_ENDPOINT}/asset_types${q ? '?' + q : ''}`).pipe(
         map((_) => _ as AssetGroup[])
+    );
+}
+
+export function queryAssetGroupsExtended(query: any = {}) {
+    const q = toQueryString(query);
+    return get(`${BASE_ENDPOINT}/asset_types${q ? '?' + q : ''}`).pipe(
+        map((_) => _ as AssetGroup[]),
+        switchMap((list) =>
+            forkJoin(
+                list.map((group) =>
+                    queryAssets({
+                        limit: 200,
+                        ...query,
+                        type_id: group.id,
+                    }).pipe(
+                        map((assets) => ({ ...group, assets } as AssetGroup))
+                    )
+                )
+            )
+        )
     );
 }
 
@@ -295,16 +314,21 @@ export function queryGroupAvailability(
     query: BookingsQueryParams,
     ignore?: string[]
 ) {
+    query.type = 'asset-request';
     return combineLatest([
-        queryAssetGroups(),
-        queryAvailableAssets({ limit: 5000, ...query }, ignore),
+        queryAssetGroupsExtended(query),
+        queryBookings(query),
     ]).pipe(
-        map(([products, assets]) => {
+        map(([products, bookings]) => {
             for (const product of products) {
-                product.assets = assets.filter(
+                product.assets = product.assets.filter(
                     (asset) =>
-                        asset.type_id === product.id ||
-                        (asset as any).asset_type_id === product.id
+                        ignore?.includes(asset.id) ||
+                        !bookings.find(
+                            (booking) =>
+                                booking.asset_id === asset.id ||
+                                booking.asset_ids?.includes(asset.id)
+                        )
                 );
             }
             return products;
