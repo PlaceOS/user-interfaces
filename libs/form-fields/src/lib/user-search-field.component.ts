@@ -225,6 +225,7 @@ export class UserSearchFieldComponent
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: User | string, email?: string): void {
+        if (!new_value) return;
         if (
             typeof new_value === 'string' &&
             (new_value as any) === this.search_str
@@ -234,11 +235,10 @@ export class UserSearchFieldComponent
                 email: this.search_str || email || '',
             });
         }
-        if (!(new_value instanceof User)) return;
-        this.active_user = new_value;
-        if (this._onChange) {
-            this._onChange(new_value);
-        }
+        const user = new_value as any;
+        if (!('name' in user) && !('email' in user)) return;
+        this.active_user = user;
+        if (this._onChange) this._onChange(user);
         this.resetSearchString();
     }
 
