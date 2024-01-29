@@ -56,6 +56,7 @@ import { updateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
 import { User } from 'libs/users/src/lib/user.class';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { removeEvent } from './events.fn';
+import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
 
 const BOOKING_URLS = [
     'book/rooms',
@@ -432,7 +433,6 @@ export class EventFormService extends AsyncHandler {
             ...event.extension_data,
             ...event,
             duration: event.duration >= 12 * 60 ? 30 : event.duration,
-            host: event?.host || currentUser().email,
             organiser:
                 event?.organiser ||
                 currentUser() ||
@@ -440,7 +440,9 @@ export class EventFormService extends AsyncHandler {
             catering_charge_code:
                 event.extension_data.catering[0]?.charge_code ||
                 (event.id && has_catering ? ' ' : ''),
-            assets: event.extension_data.assets || [],
+            assets: (event.extension_data.assets || []).map(
+                (_) => new AssetRequest(_)
+            ),
         });
         this._form.patchValue({
             date: event.date || this._form.value.date,
@@ -584,6 +586,9 @@ export class EventFormService extends AsyncHandler {
                 (value as any).setup = value.setup_time || setup;
                 (value as any).breakdown = value.breakdown_time || breakdown;
             }
+            const processed_assets = assets.map((_) =>
+                new AssetRequest(_).toJSON()
+            );
             const result = await this._makeBooking(
                 new CalendarEvent({
                     ...value,
@@ -602,6 +607,7 @@ export class EventFormService extends AsyncHandler {
                     }),
                     date: d,
                     catering,
+                    assets: processed_assets,
                     extension_data:
                         this._settings.get('app.events.force_host') ||
                         this._settings.get('app.events.room_as_host')

@@ -106,4 +106,22 @@ export class AssetRequest {
             0;
         this.deliver_at_time = deliverAtTime(this);
     }
+
+    public toJSON() {
+        const blob = { ...this } as any;
+        delete blob.event;
+        delete blob._changed;
+        delete blob._status;
+        delete blob._time;
+        delete blob.deliver_at_time;
+        delete blob.deliver_at;
+        blob.items = blob.items.map((_) => ({
+            id: _.id,
+            category_id: _.category_id,
+            quantity: _.quantity,
+            name: _.name,
+            item_ids: _.item_ids,
+        }));
+        return blob;
+    }
 }

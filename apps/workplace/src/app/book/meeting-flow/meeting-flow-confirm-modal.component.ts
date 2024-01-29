@@ -7,14 +7,11 @@ import {
     notifyError,
     openConfirmModal,
 } from '@placeos/common';
-import {
-    CalendarEvent,
-    EventFormService,
-    formatRecurrence,
-} from '@placeos/events';
+import { EventFormService, formatRecurrence } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { addMinutes, endOfDay, startOfDay } from 'date-fns';
+import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
 @Component({
@@ -248,7 +245,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 </div>
                 <div
                     class="pr-4 py-4 pl-16 relative space-y-2 flex-1"
-                    *ngIf="event.assets?.length"
+                    *ngIf="assets?.length"
                 >
                     <div
                         class="absolute top-4 left-4 flex items-center justify-center rounded-full border border-success text-success text-2xl"
@@ -258,7 +255,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     <h3 class="text-xl !mt-0" i18n>Assets</h3>
                     <div
                         request
-                        *ngFor="let request of event.assets"
+                        *ngFor="let request of assets"
                         class="border bg-base-100 rounded-xl overflow-hidden"
                         [class.border-error]="end_time < request.deliver_at"
                         [class.border-base-300]="end_time >= request.deliver_at"
@@ -353,6 +350,7 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
 
     public readonly loading = this._event_form.loading;
     public readonly catering_orders;
+    public readonly assets;
     public err_tooltip =
         'Delivery time is outside of the event time.\nThis order will be ignored.';
 
@@ -458,6 +456,9 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
                         ).valueOf(),
                     },
                 })
+        );
+        this.assets = this.event.assets?.map(
+            (_) => new AssetRequest({ ..._, event: this.event })
         );
     }
 

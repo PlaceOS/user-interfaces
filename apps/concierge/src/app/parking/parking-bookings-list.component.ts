@@ -24,7 +24,7 @@ import { ParkingStateService } from './parking-state.service';
                 ' '
             ]"
             [filter]="(options | async).search"
-            [column_size]="['6r', 'flex', '14r', '8r', '6r', '10r']"
+            [column_size]="['6r', 'flex', '14r', '8r', '6r', '6r']"
             [template]="{
                 plate_number: plate_template,
                 actions: action_template,
