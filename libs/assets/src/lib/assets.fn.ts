@@ -1,6 +1,6 @@
 import { cleanObject, del, get, post, put } from '@placeos/ts-client';
 import { toQueryString } from 'libs/common/src/lib/api';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, tap } from 'rxjs/operators';
 import {
     Asset,
     AssetCategory,
@@ -18,6 +18,7 @@ import {
 import { Booking } from 'libs/bookings/src/lib/booking.class';
 import { flatten } from '@placeos/common';
 import { AssetRequest } from './asset-request.class';
+import { group } from 'console';
 
 const BASE_ENDPOINT = '/api/engine/v2';
 
@@ -76,8 +77,13 @@ export function queryAssetGroups(query: any = {}) {
     );
 }
 
+const groups_cache = new Map<string, AssetGroup[]>();
+
 export function queryAssetGroupsExtended(query: any = {}) {
     const q = toQueryString(query);
+    if (groups_cache.has(query.zones)) {
+        return of(groups_cache.get(query.zones));
+    }
     return get(`${BASE_ENDPOINT}/asset_types${q ? '?' + q : ''}`).pipe(
         map((_) => _ as AssetGroup[]),
         switchMap((list) =>
@@ -92,7 +98,12 @@ export function queryAssetGroupsExtended(query: any = {}) {
                     )
                 )
             )
-        )
+        ),
+        tap((_) => {
+            groups_cache.set(query.zones, _);
+            // Clear cache after 5 minutes
+            setTimeout(() => groups_cache.delete(query.zones), 5 * 60 * 1000);
+        })
     );
 }
 
