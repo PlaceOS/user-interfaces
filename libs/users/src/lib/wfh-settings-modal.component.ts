@@ -186,7 +186,6 @@ export class WFHSettingsModalComponent implements OnInit {
             return set(this.days[idx], { hours, minutes }).valueOf();
         });
         this._initWeekdays();
-        this._loadOptionForToday();
     }
 
     public get user() {
