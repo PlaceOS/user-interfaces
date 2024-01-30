@@ -256,11 +256,21 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         };
 
         if (this._api_service.map_service === MapService.GoogleMaps) {
+            log(
+                'MapsIndoors',
+                'Google Maps API Key:',
+                this._api_service.map_keys.google
+            );
             this.view_instance = new mapsindoors.mapView.GoogleMapsView(
                 view_options
             );
         } else {
             view_options.accessToken = this._api_service.map_token;
+            log(
+                'MapsIndoors',
+                'Mapbox Access Token:',
+                view_options.accessToken
+            );
             this.view_instance = new mapsindoors.mapView.MapboxView(
                 view_options
             );
