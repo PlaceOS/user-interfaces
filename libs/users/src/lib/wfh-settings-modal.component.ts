@@ -129,7 +129,7 @@ import { showUser, updateUser } from '@placeos/ts-client';
         <ng-template #load_state>
             <div
                 loading
-                class="relative bg-base-100 flex flex-col justify-center items-center rounded overflow-hidden w-[18rem] h-[18rem]"
+                class="relative bg-base-100 flex flex-col justify-center items-center rounded overflow-hidden w-[24rem] h-[18rem] text-center space-y-2"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>Saving changes to work location settings...</p>
