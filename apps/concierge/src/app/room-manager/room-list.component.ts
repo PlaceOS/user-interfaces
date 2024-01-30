@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { RoomManagementService } from './room-management.service';
+import { Clipboard } from '@angular/cdk/clipboard';
+import { notifySuccess } from '@placeos/common';
 
 @Component({
     selector: 'room-list',
@@ -26,6 +28,7 @@ import { RoomManagementService } from './room-management.service';
                 ]"
                 [column_size]="['flex', '8r', '6r', '8r', '6r', '3.75r']"
                 [template]="{
+                    display_name: name_template,
                     bookable: bool_template,
                     zones: level_template,
                     actions: action_template
@@ -33,6 +36,14 @@ import { RoomManagementService } from './room-management.service';
                 empty="No rooms for selected level or building"
             ></custom-table>
         </div>
+        <ng-template #name_template let-row="row" let-data="data">
+            <span
+                [matTooltip]="row.id"
+                class="underline"
+                (click)="copyToClipboard(row.id)"
+                >{{ data }}</span
+            >
+        </ng-template>
         <ng-template #level_template let-data="data">
             {{ (data | level)?.display_name || (data | level)?.name }}
         </ng-template>
@@ -66,5 +77,13 @@ export class RoomListComponent {
 
     public readonly editRoom = (room) => this._manager.editRoom(room);
 
-    constructor(private _manager: RoomManagementService) {}
+    public readonly copyToClipboard = (id: string) => {
+        const success = this._clipboard.copy(id);
+        if (success) notifySuccess('Room ID copied to clipboard.');
+    };
+
+    constructor(
+        private _manager: RoomManagementService,
+        private _clipboard: Clipboard
+    ) {}
 }
