@@ -220,14 +220,9 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         this.loading = true;
         await this._org.initialised.pipe(first((_) => !!_)).toPromise();
         this.setBuilding(this._org.building);
-        this.levels_list = await this.levels.pipe(take(1)).toPromise();
-        this.buildings_list = await this._org.building_list
-            .pipe(take(1))
-            .toPromise();
-
-        if (this.custom_coordinates) {
-            this.coordinates = this.custom_coordinates;
-        }
+        this.levels_list = this._org.levels;
+        this.buildings_list = this._org.buildings;
+        if (this.custom_coordinates) this.coordinates = this.custom_coordinates;
         await this._getUserLocation();
         await this.initMapView();
     }
@@ -244,9 +239,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     ngAfterViewInit() {
         this.maps_service?.addListener('click', (location: any, e: Event) => {
             const found_action = this.actions_hashmap[location.id];
-            if (found_action) {
-                found_action.callback(e);
-            }
+            if (found_action) found_action.callback(e);
         });
     }
 
@@ -289,7 +282,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         this.handleLocationChange();
     }
 
-    initDirections() {
+    public initDirections() {
         const provider =
             this._api_service.map_service === MapService.GoogleMaps
                 ? new mapsindoors.directions.GoogleMapsProvider()
@@ -307,7 +300,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             );
     }
 
-    async mapFloorsToIndex() {
+    public async mapFloorsToIndex() {
         const building = await this.maps_service?.getBuilding();
         const input_string =
             building?.buildingInfo?.fields?.floorMapping?.value;
@@ -346,58 +339,52 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             });
         });
         this.maps_service?.addListener('floor_changed', (e: string) => {
-            if (e && this.floor_mapping) {
-                const level_id: string = this.floor_mapping[e];
-                this._state.setLevel(level_id);
-            }
+            if (!e || !this.floor_mapping) return;
+            const level_id: string = this.floor_mapping[e];
+            this._state.setLevel(level_id);
         });
     }
 
-    async onSearch(): Promise<any> {
+    public onSearch() {
         const searchParams = { q: this.searchElement.nativeElement.value };
-        await mapsindoors?.services.LocationsService.getLocations(
-            searchParams
-        ).then((locations: any[]) => {
-            this.search_result_items = locations;
-        });
+        mapsindoors?.services.LocationsService.getLocations(searchParams).then(
+            (locations: any[]) => (this.search_result_items = locations)
+        );
     }
 
-    private _getUserLocation() {
-        const options = { timeout: 10000, enableHighAccuracy: true };
+    private async _getUserLocation(): Promise<GeolocationPosition> {
+        if (!('geolocation' in navigator)) return this._setLocationToBuilding();
+        if (this.coordinates) {
+            console.log('Custom GeoLocation:', this.coordinates);
+            const customPosition = {
+                coords: {
+                    latitude: this.coordinates.latitude,
+                    longitude: this.coordinates.longitude,
+                    accuracy: 10,
+                },
+                timestamp: new Date().getTime(),
+            };
+            this.user_latitude = this.coordinates.latitude;
+            this.user_longitude = this.coordinates.longitude;
 
-        return new Promise<GeolocationPosition>(async (resolve) => {
-            if (!('geolocation' in navigator)) {
-                return resolve(this._setLocationToBuilding());
-            }
-            if (this.coordinates) {
-                console.log('Custom GeoLocation:', this.coordinates);
-                const customPosition = {
-                    coords: {
-                        latitude: this.coordinates.latitude,
-                        longitude: this.coordinates.longitude,
-                        accuracy: 10,
-                    },
-                    timestamp: new Date().getTime(),
-                };
-                this.user_latitude = this.coordinates.latitude;
-                this.user_longitude = this.coordinates.longitude;
-
-                resolve(customPosition as GeolocationPosition);
-            } else {
-                await navigator.geolocation.getCurrentPosition(
+            return customPosition as GeolocationPosition;
+        } else {
+            navigator.geolocation.watchPosition(
+                (_) => this._updateGeolocation(_),
+                (_) => this._handleGeolocationError(_)
+            );
+            return new Promise<GeolocationPosition>((resolve) => {
+                const options = { timeout: 10000, enableHighAccuracy: true };
+                navigator.geolocation.getCurrentPosition(
                     (position: GeolocationPosition) => {
                         this._updateGeolocation(position);
                         resolve(position);
                     },
-                    (error) => resolve(this._setLocationToBuilding()),
+                    () => resolve(this._setLocationToBuilding()),
                     options
                 );
-                navigator.geolocation.watchPosition(
-                    (_) => this._updateGeolocation(_),
-                    (_) => this._handleGeolocationError(_)
-                );
-            }
-        });
+            });
+        }
     }
 
     private _setLocationToBuilding() {
@@ -415,15 +402,14 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     }
 
     private _updateGeolocation(updated_location: GeolocationPosition) {
-        if (updated_location) {
-            if (
-                updated_location.coords?.latitude !== this.user_latitude ||
-                updated_location.coords?.longitude !== this.user_longitude
-            ) {
-                this.user_latitude = updated_location.coords?.latitude;
-                this.user_longitude = updated_location.coords?.longitude;
-                this.getRoute(this.selected_destination);
-            }
+        if (!updated_location) return;
+        if (
+            updated_location.coords?.latitude !== this.user_latitude ||
+            updated_location.coords?.longitude !== this.user_longitude
+        ) {
+            this.user_latitude = updated_location.coords?.latitude;
+            this.user_longitude = updated_location.coords?.longitude;
+            this.getRoute(this.selected_destination);
         }
     }
 
@@ -431,85 +417,65 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         notifyError('Error updating your geolocation.');
     }
 
-    getRoute(location: any) {
+    public async getRoute(location: any) {
         if (!this.directions_service) return;
         this.selected_destination = location;
-        if (this.user_latitude && this.user_longitude) {
-            const origin: any = {
-                lat: this.user_latitude,
-                lng: this.user_longitude,
-            };
-
-            //Hardcoded coordinates for mock map in Austin
-            // const originLocationCoordinate = {
-            //     lat: 30.3603774,
-            //     lng: -97.7426772,
-            // };
-
-            console.log('Origin: ', origin, 'Destination: ', location);
-
-            const destination = {
-                lat: location.properties.anchor.coordinates[1],
-                lng: location.properties.anchor.coordinates[0],
-                floor: location.properties.floor,
-            };
-
-            const routeParameters = {
-                origin: origin,
-                destination: destination,
-                travelMode: 'WALKING',
-            };
-
-            this.directions_service
-                .getRoute(routeParameters)
-                .then((directionsResult: any) => {
-                    this.directions_renderer?.setRoute(directionsResult);
-                })
-                .catch((error: any) => {
-                    console.error('Error fetching route: ' + error);
-                    if (
-                        error instanceof TypeError &&
-                        error.message?.includes('origin')
-                    ) {
-                        notifyError(
-                            'Error: Cannot create route as origin location is outside of map area.'
-                        );
-                    }
-                });
-        } else {
-            notifyError('Error: unable to find a route.');
+        if (!this.user_latitude || !this.user_longitude) {
+            return notifyError('Error: unable to find a route.');
         }
+        const origin: any = {
+            lat: this.user_latitude,
+            lng: this.user_longitude,
+        };
+        console.log('Origin: ', origin, 'Destination: ', location);
+
+        const destination = {
+            lat: location.properties.anchor.coordinates[1],
+            lng: location.properties.anchor.coordinates[0],
+            floor: location.properties.floor,
+        };
+
+        const routeParameters = {
+            origin: origin,
+            destination: destination,
+            travelMode: 'WALKING',
+        };
+
+        const result = await this.directions_service
+            .getRoute(routeParameters)
+            .catch((e) => {
+                console.error('Error fetching route: ', e);
+                const origin_error =
+                    e instanceof TypeError && e.message?.includes('origin');
+                if (!origin_error) throw e;
+                notifyError('Error: Origin location is outside of map area.');
+                throw e;
+            });
+        this.directions_renderer?.setDirections(result);
     }
 
     async renderSpaceStatus(): Promise<void[]> {
-        if (this.styles) {
-            const promises: Promise<void>[] = [];
-            for (const key in this.styles) {
-                const colour = this.styles[key]['fill'] as string;
-                if (key) {
-                    const updated_key = key.substring(1);
-                    promises.push(this._setPolygonFill(updated_key, colour));
-                }
+        if (!this.styles) return;
+        const promises: Promise<void>[] = [];
+        for (const key in this.styles) {
+            const colour = this.styles[key]['fill'] as string;
+            if (key) {
+                const updated_key = key.substring(1);
+                promises.push(this._setPolygonFill(updated_key, colour));
             }
-            return await Promise.all(promises);
         }
+        return await Promise.all(promises);
     }
 
-    async mapActions() {
-        return new Promise<HashMap<ViewAction>>((resolve, reject) => {
-            this.actions_hashmap = this.actions?.reduce(
-                (accumulator, currentValue) => {
-                    accumulator[currentValue.id] = currentValue;
-                    return accumulator;
-                },
-                {}
-            );
-            resolve(this.actions_hashmap);
-        });
+    public async mapActions() {
+        return this.actions?.reduce((accumulator, currentValue) => {
+            accumulator[currentValue.id] = currentValue;
+            return accumulator;
+        }, {});
     }
 
-    private async _setPolygonFill(location_id: string, colour: string) {
-        await this.maps_service?.setDisplayRule(location_id, {
+    private _setPolygonFill(location_id: string, colour: string) {
+        return this.maps_service?.setDisplayRule(location_id, {
             polygonVisible: true,
             polygonFillOpacity: 0.6,
             polygonZoomFrom: 16,
