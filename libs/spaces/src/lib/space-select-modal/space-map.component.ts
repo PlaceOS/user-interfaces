@@ -8,6 +8,7 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
 import { SpaceLocationPinComponent } from './space-location-pin.component';
 import { Space } from '../space.class';
+import { InjectMapApiService } from 'libs/common/src/lib/inject-map-api.service';
 
 @Component({
     selector: `space-map`,
@@ -21,7 +22,7 @@ import { Space } from '../space.class';
                 <mat-select
                     [(ngModel)]="level"
                     [ngModelOptions]="{ standalone: true }"
-                    (ngModelChange)="setOptions({ zone_ids: [$event.id] })"
+                    (ngModelChange)="setLevel($event)"
                 >
                     <mat-option
                         *ngFor="let lvl of levels | async"
@@ -33,13 +34,20 @@ import { Space } from '../space.class';
             </mat-form-field>
         </div>
         <div class="relative flex-1 w-full">
-            <i-map
+            <interactive-map
+                *ngIf="!(use_mapsindoors$ | async); else mapspeople"
                 [src]="map_url"
                 [(zoom)]="zoom"
                 [(center)]="center"
                 [features]="features | async"
                 [actions]="actions | async"
-            ></i-map>
+            ></interactive-map>
+            <ng-template #mapspeople>
+                <indoor-maps
+                    [styles]="styles | async"
+                    [actions]="actions | async"
+                ></indoor-maps>
+            </ng-template>
         </div>
         <div
             zoom
@@ -143,9 +151,12 @@ export class SpaceSelectMapComponent extends AsyncHandler {
         )
     );
 
+    public readonly use_mapsindoors$ = this._maps_people.use_mapspeople$;
+
     constructor(
         private _event_form: EventFormService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _maps_people: InjectMapApiService
     ) {
         super();
     }
@@ -159,10 +170,19 @@ export class SpaceSelectMapComponent extends AsyncHandler {
                     !levels.find((_) => _.id === this.level?.id)
                 ) {
                     this.level = levels[0];
-                    this.setOptions({ zone_ids: [this.level.id] });
+                    this.setLevel(this.level);
                 }
             })
         );
+    }
+
+    public ngOnDestroy() {
+        this._maps_people.setCustomZone('');
+    }
+
+    public setLevel(level: BuildingLevel) {
+        this.setOptions({ zone_id: level?.id });
+        this._maps_people.setCustomZone(level.parent_id);
     }
 
     public setZoom(new_zoom: number) {

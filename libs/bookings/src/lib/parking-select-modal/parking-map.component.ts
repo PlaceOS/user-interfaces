@@ -5,18 +5,27 @@ import { BuildingLevel } from '@placeos/organisation';
 import { debounceTime, map } from 'rxjs/operators';
 import { BookingAsset } from '../booking-form.service';
 import { ParkingSpaceLocationPinComponent } from './parking-location-pin.component';
+import { InjectMapApiService } from 'libs/common/src/lib/inject-map-api.service';
 
 @Component({
     selector: `parking-space-map`,
     template: `
-        <i-map
-            *ngIf="!is_displayed"
-            [src]="map_url"
-            [features]="features | async"
-            [actions]="actions | async"
-            [(zoom)]="zoom"
-            [(center)]="center"
-        ></i-map>
+        <ng-container *ngIf="is_displayed">
+            <interactive-map
+                *ngIf="!(use_mapsindoors$ | async); else mapspeople"
+                [src]="map_url"
+                [(zoom)]="zoom"
+                [(center)]="center"
+                [features]="features | async"
+                [actions]="actions | async"
+            ></interactive-map>
+            <ng-template #mapspeople>
+                <indoor-maps
+                    [styles]="styles | async"
+                    [actions]="actions | async"
+                ></indoor-maps>
+            </ng-template>
+        </ng-container>
         <div
             class="absolute inset-x-0 top-0 bg-base-100 p-2 border-b border-base-200"
         >
@@ -25,7 +34,10 @@ import { ParkingSpaceLocationPinComponent } from './parking-location-pin.compone
                 appearance="outline"
                 class="w-full h-[3.25rem]"
             >
-                <mat-select [(ngModel)]="level">
+                <mat-select
+                    [(ngModel)]="level"
+                    (ngModelChange)="setLevel($event)"
+                >
                     <mat-option
                         *ngFor="let opt of levels | async"
                         [value]="opt"
@@ -109,7 +121,12 @@ export class ParkingSpaceSelectMapComponent extends AsyncHandler {
         )
     );
 
-    constructor(private _event_form: EventFormService) {
+    public readonly use_mapsindoors$ = this._maps_people.use_mapspeople$;
+
+    constructor(
+        private _event_form: EventFormService,
+        private _maps_people: InjectMapApiService
+    ) {
         super();
     }
 
@@ -120,6 +137,11 @@ export class ParkingSpaceSelectMapComponent extends AsyncHandler {
                 if (!this.level && _.length) this.level = _[0].level;
             })
         );
+    }
+
+    public setLevel(level: BuildingLevel) {
+        this.level = level;
+        this._maps_people.setCustomZone(level.parent_id);
     }
 
     public setZoom(new_zoom: number) {

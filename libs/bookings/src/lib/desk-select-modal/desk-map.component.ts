@@ -6,8 +6,8 @@ import {
     Output,
     SimpleChanges,
 } from '@angular/core';
-import { AsyncHandler, SettingsService, unique } from '@placeos/common';
-import { debounceTime, map } from 'rxjs/operators';
+import { AsyncHandler, SettingsService } from '@placeos/common';
+import { map } from 'rxjs/operators';
 
 import { BookingAsset, BookingFormService } from '../booking-form.service';
 import { BehaviorSubject, combineLatest } from 'rxjs';
@@ -15,6 +15,7 @@ import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info.component';
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
 import { OrganisationService } from '@placeos/organisation';
+import { InjectMapApiService } from 'libs/common/src/lib/inject-map-api.service';
 
 @Component({
     selector: 'desk-map',
@@ -42,7 +43,7 @@ import { OrganisationService } from '@placeos/organisation';
                 <mat-select
                     [(ngModel)]="level"
                     [ngModelOptions]="{ standalone: true }"
-                    (ngModelChange)="setOptions({ zone_id: $event.id })"
+                    (ngModelChange)="setLevel($event)"
                 >
                     <mat-option
                         *ngFor="let lvl of levels | async"
@@ -54,14 +55,20 @@ import { OrganisationService } from '@placeos/organisation';
             </mat-form-field>
         </div>
         <div class="relative flex-1 w-full">
-            <i-map
+            <interactive-map
+                *ngIf="!(use_mapsindoors$ | async); else mapspeople"
                 [src]="map_url"
                 [(zoom)]="zoom"
                 [(center)]="center"
                 [features]="features | async"
-                [styles]="styles | async"
                 [actions]="actions | async"
-            ></i-map>
+            ></interactive-map>
+            <ng-template #mapspeople>
+                <indoor-maps
+                    [styles]="styles | async"
+                    [actions]="actions | async"
+                ></indoor-maps>
+            </ng-template>
         </div>
         <div
             zoom
@@ -164,10 +171,13 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
         )
     );
 
+    public readonly use_mapsindoors$ = this._maps_people.use_mapspeople$;
+
     constructor(
         private _state: BookingFormService,
         private _settings: SettingsService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _maps_people: InjectMapApiService
     ) {
         super();
     }
@@ -186,10 +196,14 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
             this.levels.subscribe((levels) => {
                 if (!levels.find((_) => _.id === this.level?.id)) {
                     this.level = levels[0];
-                    this.setOptions({ zone_id: this.level?.id });
+                    this.setLevel(this.level);
                 }
             })
         );
+    }
+
+    public ngOnDestroy() {
+        this._maps_people.setCustomZone('');
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
@@ -198,6 +212,11 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
 
     public selectDesk(desk: BookingAsset) {
         this.onSelect.emit(desk);
+    }
+
+    public setLevel(level: BuildingLevel) {
+        this.setOptions({ zone_id: level?.id });
+        this._maps_people.setCustomZone(level.parent_id);
     }
 
     public setZoom(new_zoom: number) {
