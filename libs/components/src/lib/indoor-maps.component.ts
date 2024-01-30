@@ -435,7 +435,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         if (!this.directions_service) return;
         this.selected_destination = location;
         if (this.user_latitude && this.user_longitude) {
-            const originLocationCoordinate: any = {
+            const origin: any = {
                 lat: this.user_latitude,
                 lng: this.user_longitude,
             };
@@ -446,15 +446,17 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             //     lng: -97.7426772,
             // };
 
-            const destinationCoordinate = {
+            console.log('Origin: ', origin, 'Destination: ', location);
+
+            const destination = {
                 lat: location.properties.anchor.coordinates[1],
                 lng: location.properties.anchor.coordinates[0],
                 floor: location.properties.floor,
             };
 
             const routeParameters = {
-                origin: originLocationCoordinate,
-                destination: destinationCoordinate,
+                origin: origin,
+                destination: destination,
                 travelMode: 'WALKING',
             };
 
