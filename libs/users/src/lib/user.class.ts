@@ -131,6 +131,17 @@ export class GuestUser extends User {
     }
 }
 
+export interface WorktimePreference {
+    /* Index of the day of the week. `0` being Sunday */
+    day_of_week: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+    /* Start time of work hours. e.g. `7.5` being 7:30AM */
+    start_time: number;
+    /* End time of work hours. e.g. `18.5` being 6:30PM */
+    end_time: number;
+    /** Name of the location the work is being performed at */
+    location?: string;
+}
+
 export class StaffUser extends User {
     /** Number associated with the user's access card */
     public readonly card_number: string;
@@ -140,6 +151,10 @@ export class StaffUser extends User {
     public readonly is_logged_in: boolean;
     /** Location of the user */
     public readonly location: Record<string, MapLocation>;
+    /** Default worktime preferences for the user */
+    public readonly work_preferences: WorktimePreference[];
+    /** Overrides of the worktime preferences for the user */
+    public readonly work_overrides: Record<string, WorktimePreference>;
 
     constructor(data: Partial<StaffUser> = {}) {
         super(data);
@@ -147,5 +162,7 @@ export class StaffUser extends User {
         this.staff_id = data.staff_id || '';
         this.location = data.location || {};
         this.is_logged_in = !!data.is_logged_in;
+        this.work_preferences = data.work_preferences || [];
+        this.work_overrides = data.work_overrides || ({} as any);
     }
 }

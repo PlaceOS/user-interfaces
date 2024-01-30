@@ -27,7 +27,6 @@ export type BookingType =
     | 'visitor'
     | 'asset-request'
     | 'staff'
-    | 'wfh-setting'
     | ' ';
 const IGNORE_EXT_KEYS = ['user', 'booked_by', 'resources', 'assets', 'members'];
 
