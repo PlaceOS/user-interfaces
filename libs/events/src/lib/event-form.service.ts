@@ -353,13 +353,21 @@ export class EventFormService extends AsyncHandler {
                 }
             })
         );
+        const previous = {};
         this.subscription(
             'form_change',
-            this._form.valueChanges.subscribe(({ date, assets }) => {
-                this._assets.setOptions({
-                    date: this.form.value.date,
-                    duration: this.form.value.duration,
-                });
+            this._form.valueChanges.subscribe(({ date, duration, assets }) => {
+                if (
+                    (date && date !== previous['date']) ||
+                    (duration && duration !== previous['duration'])
+                ) {
+                    this._assets.setOptions({
+                        date: this.form.value.date,
+                        duration: this.form.value.duration,
+                    });
+                    previous['date'] = date;
+                    previous['duration'] = duration;
+                }
                 if (date && date !== this._date.getValue()) {
                     this._date.next(date);
                 }
