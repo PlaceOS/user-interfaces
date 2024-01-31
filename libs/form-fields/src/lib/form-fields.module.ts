@@ -34,6 +34,7 @@ import { RecurrenceModalComponent } from './recurrence-modal.component';
 import { SupportTicketModalComponent } from './support-ticket-modal.component';
 import { DateCalendarComponent } from './date-calendar.component';
 import { BookingRulesFormComponent } from './booking-rules-form.component';
+import { PlaceUserPipe } from './place-user.pipe';
 
 const COMPONENTS: Type<any>[] = [
     ActionFieldComponent,
@@ -56,6 +57,8 @@ const COMPONENTS: Type<any>[] = [
     RecurrenceModalComponent,
     DateCalendarComponent,
     BookingRulesFormComponent,
+
+    PlaceUserPipe,
 ];
 
 @NgModule({

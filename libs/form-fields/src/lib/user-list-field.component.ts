@@ -60,7 +60,23 @@ function validateEmail(email) {
                             [class.bg-warning]="item.is_external"
                             (removed)="removeUser(item)"
                         >
-                            {{ item.name || item.email }}
+                            <div class="flex items-center space-x-2">
+                                <div>{{ item.name || item.email }}</div>
+                                <app-icon
+                                    *ngIf="!item.is_external"
+                                    [matTooltip]="
+                                        (item?.email | placeuser | async)
+                                            ?.location_name
+                                    "
+                                >
+                                    {{
+                                        (item?.email | placeuser | async)
+                                            ?.location === 'wfo'
+                                            ? 'domain'
+                                            : 'home'
+                                    }}
+                                </app-icon>
+                            </div>
                             <button
                                 matChipRemove
                                 remove
