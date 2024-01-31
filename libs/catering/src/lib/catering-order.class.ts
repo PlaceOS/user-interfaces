@@ -68,7 +68,9 @@ export class CateringOrder {
         this.id = data.id || `order-${randomInt(9_999_999, 1_000_000)}`;
         this.system_id = data.system_id || '';
         this.event_id = data.event_id || data.event?.id || '';
-        this.items = (data.items || []).map((i) => new CateringItem(i));
+        this.items = (data.items || []).map((i) =>
+            i instanceof CateringItem ? i : new CateringItem(i)
+        );
         this.item_count = this.items.reduce(
             (amount, item) => amount + item.quantity,
             0

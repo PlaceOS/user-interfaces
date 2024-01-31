@@ -305,6 +305,17 @@ export class CateringListFieldComponent implements ControlValueAccessor {
             const orders = this.orders.filter((_) => _.id !== order.id);
             if (!items?.length) return;
             const time = new Date(this.options.date);
+            for (const item of items) {
+                (item as any).options = [
+                    ...item.options.map((_) => ({ ..._ })),
+                ];
+                for (const option of item.options) {
+                    const opt = item.option_list.find(
+                        (_) => _.id === option.id
+                    );
+                    option.active = !!opt;
+                }
+            }
             const new_order = new CateringOrder({
                 ...order,
                 items,
