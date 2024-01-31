@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1706610279640,
+  "timestamp": 1706664648112,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -146,6 +146,7 @@
         "./assets/img/time.svg",
         "./assets/img/today.svg",
         "./assets/locale/ar.json",
+        "./assets/locale/en-GB.json",
         "./assets/locale/en-US.json",
         "./assets/locale/en.json",
         "./assets/locale/es.json",
@@ -187,7 +188,7 @@
     "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "45a2af35dcb84fe48c9daef0f16628852627567c",
     "./apps_workplace_src_app_directory_directory_module_ts.js": "3a78d61b2ba30a689b41e4123dd3a6969c89bb21",
     "./apps_workplace_src_app_explore_explore_module_ts.js": "d4d471bbeebb502165c9f5663f4d14a9ae9fd51b",
-    "./apps_workplace_src_app_landing_landing_module_ts.js": "00ee27419d506532f60680582ae6a20b649d4bd7",
+    "./apps_workplace_src_app_landing_landing_module_ts.js": "9c7eb2ba49c5790cbdf7b6e44649b1a3c200d95c",
     "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "8344384490750080c4071fe3a4487645de706151",
     "./apps_workplace_src_app_schedule_schedule_module_ts.js": "d0bcb627bc24137b885979e7377d5d60c7b56200",
     "./apps_workplace_src_app_whats-on_whats-on_module_ts.js": "0f1849ac33ef9e5424db3e6397181b6929a23b2b",
@@ -296,6 +297,7 @@
     "./assets/img/time.svg": "7ab08ee0812bd9f5ee992c5d3ac9eed348953bab",
     "./assets/img/today.svg": "32aa7cef9041d2f6f8b51a4cb2638a50e6ca6c84",
     "./assets/locale/ar.json": "9d39f81ce08112ff2e2c8c9d392e763f1c48083b",
+    "./assets/locale/en-GB.json": "74ffa5ff586701de9b95a574fc8b17bdb897eb37",
     "./assets/locale/en-US.json": "3841f63e329be78a64979b096660841f14ad2507",
     "./assets/locale/en.json": "74ffa5ff586701de9b95a574fc8b17bdb897eb37",
     "./assets/locale/es.json": "12fcaef177f45954851f4dbfddb85122b91b0207",
@@ -321,7 +323,7 @@
     "./common.js": "423a805196ded59997088774748919f7fa957fb3",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "1913cc11fbfc0fd6b4f762eb49716609c957056d",
-    "./main.js": "ae98a0c41d4361e5e4dd79e70a58a53f9874b093",
+    "./main.js": "0670165d997c2eabcf55928545d0fbfa4e9d19d1",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
