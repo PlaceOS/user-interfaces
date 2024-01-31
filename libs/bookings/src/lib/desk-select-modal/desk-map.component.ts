@@ -67,6 +67,7 @@ import { InjectMapApiService } from 'libs/common/src/lib/inject-map-api.service'
                 <indoor-maps
                     [styles]="styles | async"
                     [actions]="actions | async"
+                    [custom_coordinates]="coordinates"
                 ></indoor-maps>
             </ng-template>
         </div>
@@ -99,6 +100,7 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
     public zoom = 1;
     public center = { x: 0.5, y: 0.5 };
     public level?: BuildingLevel;
+    public coordinates = undefined;
 
     private _change = new BehaviorSubject(0);
 
@@ -216,6 +218,13 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
 
     public setLevel(level: BuildingLevel) {
         this.setOptions({ zone_id: level?.id });
+        const bld = this._org.buildings.find((_) => _.id === level?.parent_id);
+        if (bld) {
+            const [latitude, longitude] = bld.location
+                .split(',')
+                .map((_) => parseFloat(_));
+            this.coordinates = { latitude, longitude };
+        }
         this._maps_people.setCustomZone(level.parent_id);
     }
 
