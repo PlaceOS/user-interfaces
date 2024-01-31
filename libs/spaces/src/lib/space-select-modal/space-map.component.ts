@@ -186,9 +186,9 @@ export class SpaceSelectMapComponent extends AsyncHandler {
         this.setOptions({ zone_id: level?.id });
         const bld = this._org.buildings.find((_) => _.id === level?.parent_id);
         if (bld) {
-            const [latitude, longitude] =
-                level.location ||
-                bld.location.split(',').map((_) => parseFloat(_));
+            const [latitude, longitude] = (level.location || bld.location)
+                .split(',')
+                .map((_) => parseFloat(_));
             this.coordinates = { latitude, longitude };
         }
         this._maps_people.setCustomZone(level.parent_id);
