@@ -37,7 +37,7 @@ describe('SpaceSelectMapComponent', () => {
     it('should create component', () =>
         expect(spectator.component).toBeTruthy());
 
-    it('should show a map', () => expect('i-map').toExist());
+    it('should show a map', () => expect('interactive-map').toExist());
 
     it('should show a zoom controls', () => expect('[zoom]').toExist());
 

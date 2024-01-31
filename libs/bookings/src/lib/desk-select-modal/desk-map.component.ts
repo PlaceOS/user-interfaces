@@ -225,7 +225,7 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
                 .map((_) => parseFloat(_));
             this.coordinates = { latitude, longitude };
         }
-        this._maps_people.setCustomZone(level.parent_id);
+        this._maps_people.setCustomZone(level?.parent_id);
     }
 
     public setZoom(new_zoom: number) {

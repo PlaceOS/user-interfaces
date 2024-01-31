@@ -3,13 +3,17 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { BookingFormService } from '@placeos/bookings';
-import { IconComponent, InteractiveMapComponent } from '@placeos/components';
+import {
+    IconComponent,
+    IndoorMapsComponent,
+    InteractiveMapComponent,
+} from '@placeos/components';
 import { Desk } from '@placeos/organisation';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { DeskMapComponent } from '../../lib/desk-select-modal/desk-map.component';
-import { SettingsService } from '@placeos/common';
+import { InjectMapApiService, SettingsService } from '@placeos/common';
 
 describe('DeskMapComponent', () => {
     let spectator: Spectator<DeskMapComponent>;
@@ -22,10 +26,14 @@ describe('DeskMapComponent', () => {
                 available_resources: new BehaviorSubject([]),
             } as any),
             MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(InjectMapApiService, {
+                use_mapsindoors$: new BehaviorSubject(false),
+            } as any),
         ],
         declarations: [
             MockComponent(InteractiveMapComponent),
             MockComponent(IconComponent),
+            MockComponent(IndoorMapsComponent),
         ],
         imports: [
             MockModule(FormsModule),
@@ -39,7 +47,7 @@ describe('DeskMapComponent', () => {
     it('should create component', () =>
         expect(spectator.component).toBeTruthy());
 
-    it('should show a map', () => expect('i-map').toExist());
+    it('should show a map', () => expect('interactive-map').toExist());
 
     it('should show a zoom controls', () => expect('[zoom]').toExist());
 

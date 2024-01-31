@@ -52,8 +52,8 @@ describe('ExploreMapViewComponent', () => {
             MockProvider(ExploreLockersService),
             MockProvider(SpacePipe, { transform: jest.fn(() => ({})) } as any),
             MockProvider(InjectMapApiService, {
-                is_initialised$: new BehaviorSubject(false),
-            }),
+                use_mapspeople$: new BehaviorSubject(false),
+            } as any),
         ],
         providers: [
             MockProvider(OrganisationService, {

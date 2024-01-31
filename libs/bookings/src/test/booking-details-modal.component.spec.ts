@@ -1,7 +1,7 @@
 import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { SettingsService } from '@placeos/common';
+import { InjectMapApiService, SettingsService } from '@placeos/common';
 import {
     IconComponent,
     ImageCarouselComponent,
@@ -13,6 +13,8 @@ import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BookingDetailsModalComponent } from '../lib/booking-details-modal.component';
 import { Booking } from '../lib/booking.class';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
+import { BehaviorSubject } from 'rxjs';
+import { IndoorMapsComponent } from 'libs/components/src/lib/indoor-maps.component';
 
 describe('BookingDetailsModalComponent', () => {
     let spectator: Spectator<BookingDetailsModalComponent>;
@@ -28,12 +30,16 @@ describe('BookingDetailsModalComponent', () => {
                 get: jest.fn(),
                 time_format: 'h:mm a',
             }),
+            MockProvider(InjectMapApiService, {
+                use_mapsindoors$: new BehaviorSubject(false),
+            } as any),
         ],
         declarations: [
             MockComponent(ImageCarouselComponent),
             MockComponent(InteractiveMapComponent),
             MockComponent(IconComponent),
             MockComponent(StatusPillComponent),
+            MockComponent(IndoorMapsComponent),
         ],
         imports: [MockModule(MatMenuModule), MockModule(MatDialogModule)],
     });

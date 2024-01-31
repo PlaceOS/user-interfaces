@@ -57,19 +57,14 @@ describe('[User]', () => {
         it('should expose properties', () => {
             expect((user as StaffUser).card_number).toBe('');
             expect((user as StaffUser).staff_id).toBe('');
-            expect((user as StaffUser).location).toEqual({});
             expect((user as StaffUser).is_logged_in).toBe(false);
             user = new StaffUser({
                 card_number: '1234',
                 staff_id: 'U4321',
-                location: { desk: new MapLocation() },
                 is_logged_in: true,
             });
             expect((user as StaffUser).card_number).toBe('1234');
             expect((user as StaffUser).staff_id).toBe('U4321');
-            expect((user as StaffUser).location).toEqual({
-                desk: new MapLocation(),
-            });
             expect((user as StaffUser).is_logged_in).toBe(true);
         });
     });

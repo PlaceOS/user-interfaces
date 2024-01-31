@@ -20,6 +20,7 @@ export class BuildingLevel {
     public readonly settings: Record<string, any> = {};
     /** List of image URLs for the level */
     public readonly images: string[];
+    public readonly location: string;
     /** List of points of interest for the level */
     public readonly locations: readonly { id: string; name: string }[];
 
@@ -30,6 +31,7 @@ export class BuildingLevel {
         this.display_name = _data.display_name || '';
         this.map_id = _data.map_id || '';
         this.capacity = _data.capacity || 0;
+        this.location = _data.location || '';
         this.locations = _data.locations || [];
         this.tags = _data.tags || [];
         this.images = _data.images || [];

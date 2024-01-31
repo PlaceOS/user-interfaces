@@ -23,14 +23,14 @@ describe('DirectoryUserListItemComponent', () => {
     });
 
     it('should allow user to locate person', () => {
-        expect('a[button][locate]').not.toExist();
+        expect('a[btn][locate]').not.toExist();
         spectator.setInput({ user: { name: 'User 1', phone: '1234' } as any });
-        expect('a[button][locate]').toExist();
+        expect('a[btn][locate]').toExist();
     });
 
     it('should allow user call person', () => {
-        expect('a[button][call]').not.toExist();
+        expect('a[btn][call]').not.toExist();
         spectator.setInput({ user: { name: 'User 1', phone: '1234' } as any });
-        expect('a[button][call]').toExist();
+        expect('a[btn][call]').toExist();
     });
 });

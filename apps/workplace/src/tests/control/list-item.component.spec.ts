@@ -24,14 +24,14 @@ describe('ControlSpaceListItemComponent', () => {
     });
 
     it('should allow user to locate space', () => {
-        expect('a[button][locate]').not.toExist();
+        expect('a[btn][locate]').not.toExist();
         spectator.setInput({ space: { name: 'Space 1', capacity: 32 } as any });
-        expect('a[button][locate]').toExist();
+        expect('a[btn][locate]').toExist();
     });
 
     it('should allow user to open support URL', () => {
-        expect('a[button][control]').not.toExist();
+        expect('a[btn][control]').not.toExist();
         spectator.setInput({ space: { name: 'Space 1', capacity: 32 } as any });
-        expect('a[button][control]').toExist();
+        expect('a[btn][control]').toExist();
     });
 });

@@ -28,7 +28,7 @@ describe('StatusOverlayComponent', () => {
     });
 
     it('should be able to show links', () => {
-        expect('a[button]').toHaveLength(0);
+        expect('a[btn]').toHaveLength(0);
         spectator.setInput({
             links: [
                 { name: 'Test Link 1', route: '/one' },
@@ -36,9 +36,9 @@ describe('StatusOverlayComponent', () => {
             ],
         });
         spectator.detectChanges();
-        expect('a[button]').toHaveLength(2);
-        expect('a[button]').toContainText('Test Link 1');
-        expect('a[button]').toContainText('Test Link 2');
+        expect('a[btn]').toHaveLength(2);
+        expect('a[btn]').toContainText('Test Link 1');
+        expect('a[btn]').toContainText('Test Link 2');
     });
 
     it('should be able to show a loading state', () => {
