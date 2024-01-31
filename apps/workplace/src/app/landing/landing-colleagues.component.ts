@@ -39,11 +39,17 @@ import { LandingStateService } from './landing-state.service';
                 >
                     <div class="text-xl relative">
                         <a-user-avatar [user]="user"></a-user-avatar>
-                        <!-- <div
+                        <div
                             class="rounded-full h-3 w-3 border border-white absolute bottom-1 right-1"
-                            [class.bg-error]="!user.location"
-                            [class.bg-success]="user.location"
-                        ></div> -->
+                            [class.bg-error]="
+                                user.location === 'aol' ||
+                                user.location === 'ooo'
+                            "
+                            [class.bg-success]="user.location === 'wfo'"
+                            [class.bg-warning]="user.location === 'wfh'"
+                            [class.bg-neutral]="!user.location"
+                            [matTooltip]="user.location_name"
+                        ></div>
                     </div>
                     <div class="leading-tight flex-1 w-1/2">
                         <div class="truncate" [matTooltip]="user.name">
@@ -56,7 +62,7 @@ import { LandingStateService } from './landing-state.service';
                             {{ user.organisation }}
                         </div>
                         <div class="text-xs opacity-60 truncate">
-                            {{ user.location }}
+                            {{ user.location_name }}
                         </div>
                     </div>
                     <button

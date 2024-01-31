@@ -2,6 +2,7 @@ import { randomString } from 'libs/common/src/lib/general';
 import { MapLocation } from './location.class';
 import { USER_DOMAIN } from './user.utilities';
 import { Booking } from 'libs/bookings/src/lib/booking.class';
+import { format } from 'date-fns';
 
 export interface Attachment {
     id?: string;
@@ -149,18 +150,56 @@ export class StaffUser extends User {
     public readonly staff_id: string;
     /** Whether user is logged in */
     public readonly is_logged_in: boolean;
-    /** Location of the user */
-    public readonly location: Record<string, MapLocation>;
     /** Default worktime preferences for the user */
     public readonly work_preferences: WorktimePreference[];
     /** Overrides of the worktime preferences for the user */
     public readonly work_overrides: Record<string, WorktimePreference>;
 
+    public get location() {
+        const day = new Date().getDay();
+        const date = format(new Date(), 'yyyy-MM-dd');
+        return (
+            this.work_overrides[date]?.location ||
+            this.work_preferences.find((_) => _.day_of_week === day)?.location
+        );
+    }
+
+    public get location_name() {
+        const location = this.location;
+        if (!this.in_hours && (location === 'wfh' || location === 'wfo')) {
+            return 'Outside working hours';
+        }
+        switch (location) {
+            case 'wfh':
+                return 'Working from Home';
+            case 'wfo':
+                return 'Working from Office';
+            case 'ooo':
+                return 'Out of Office';
+            case 'aol':
+                return 'Away on Leave';
+            default:
+                return 'Unknown';
+        }
+    }
+
+    public get in_hours() {
+        const day = new Date().getDay();
+        const date = format(new Date(), 'yyyy-MM-dd');
+        const pref =
+            this.work_overrides[date] ||
+            this.work_preferences.find((_) => _.day_of_week === day);
+        if (!pref) return false;
+        const start = pref.start_time;
+        const end = pref.end_time;
+        const now = new Date().getHours() + new Date().getMinutes() / 60;
+        return start <= now && now < end;
+    }
+
     constructor(data: Partial<StaffUser> = {}) {
         super(data);
         this.card_number = data.card_number || '';
         this.staff_id = data.staff_id || '';
-        this.location = data.location || {};
         this.is_logged_in = !!data.is_logged_in;
         this.work_preferences = data.work_preferences || [];
         this.work_overrides = data.work_overrides || ({} as any);

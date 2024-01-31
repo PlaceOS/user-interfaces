@@ -171,5 +171,7 @@ export function checkRulesMatch(
         conditions.resource_ids.includes(resource.id)
     )
         matches += 1;
+    if (conditions.locations && conditions.locations.includes(resource.name))
+        matches += 1;
     return matches >= Object.keys(conditions).length;
 }

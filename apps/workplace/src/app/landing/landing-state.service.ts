@@ -6,6 +6,7 @@ import {
     PlaceVariableBinding,
     queryUsers,
     showMetadata,
+    showUser,
     updateMetadata,
 } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
@@ -211,7 +212,10 @@ export class LandingStateService extends AsyncHandler {
             'contacts'
         ).toPromise()) as any;
         const list = metadata.details instanceof Array ? metadata.details : [];
-        this._contacts.next(list.map((i) => new User(i)));
+        const users = await Promise.all(
+            list.map((_) => showUser(_.email).toPromise())
+        );
+        this._contacts.next(users.map((i) => new StaffUser(i)));
     }
 
     public async addContact(user: User) {
@@ -224,7 +228,10 @@ export class LandingStateService extends AsyncHandler {
             details: users,
         }).toPromise();
         const list = metadata.details instanceof Array ? metadata.details : [];
-        this._contacts.next(list.map((i) => new User(i)));
+        const new_users = await Promise.all(
+            list.map((_) => showUser(_.email).toPromise())
+        );
+        this._contacts.next(new_users.map((i) => new StaffUser(i)));
     }
 
     public async removeContact(user: User) {
