@@ -31,6 +31,7 @@ const DAYS_OF_WEEK = [
 export function eventStatus(
     details: HashMap
 ): 'approved' | 'tentative' | 'declined' {
+    if (details.status === 'cancelled') return 'declined';
     if (details.resources?.length) {
         if (
             details.resources.every(
