@@ -61,6 +61,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
             booking.extension_data?.other_asset_type ||
                 booking.extension_data?.secondary_resource
         ),
+        phone: new FormControl(booking.extension_data.phone),
     });
     form.valueChanges.subscribe((v) => {
         const user = v.user;

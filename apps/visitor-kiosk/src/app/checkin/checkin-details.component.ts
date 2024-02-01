@@ -51,7 +51,7 @@ import { notifyError } from '@placeos/common';
                     <mat-error>A valid email address is required</mat-error>
                 </mat-form-field>
             </div>
-            <div field class="flex flex-col">
+            <!-- <div field class="flex flex-col">
                 <label form="email">Phone Number</label>
                 <mat-form-field appearance="outline">
                     <input
@@ -62,7 +62,7 @@ import { notifyError } from '@placeos/common';
                         placeholder="Phone Number"
                     />
                 </mat-form-field>
-            </div>
+            </div> -->
             <div field class="flex flex-col">
                 <label form="org">Organisation / Company</label>
                 <mat-form-field appearance="outline">

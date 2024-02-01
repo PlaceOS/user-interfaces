@@ -138,9 +138,9 @@ import { User } from 'libs/users/src/lib/user.class';
                                     "
                                     [matAutocomplete]="email_auto"
                                 />
-                                <mat-error i18n
-                                    >A valid email is required</mat-error
-                                >
+                                <mat-error i18n>
+                                    A valid email is required
+                                </mat-error>
                             </mat-form-field>
                             <mat-autocomplete #email_auto="matAutocomplete">
                                 <mat-option
@@ -366,6 +366,7 @@ export class InviteVisitorFormComponent extends AsyncHandler {
             asset_id: item.email,
             asset_name: item.name,
             company: item.company,
+            phone: item.phone,
         });
     }
 
@@ -429,6 +430,7 @@ export class InviteVisitorFormComponent extends AsyncHandler {
                     name: value.asset_name,
                     email: value.asset_id,
                     organisation: value.company,
+                    phone: value.phone,
                 }),
             ],
         });
@@ -460,6 +462,7 @@ export class InviteVisitorFormComponent extends AsyncHandler {
                         name: user.name,
                         email: user.email,
                         organisation: user.company || user.organisation,
+                        phone: user.phone,
                     }),
                 ],
             });
