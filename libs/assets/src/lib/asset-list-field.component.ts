@@ -275,7 +275,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
                             items.find((__) => __.id === _.id)?.quantity !==
                             _.quantity
                     ),
-                items,
+                items: items.map((_) => ({ ..._ })),
                 event: this.options as any,
                 deliver_offset: ref.componentInstance.offset,
                 deliver_time: ref.componentInstance.exact_time
