@@ -169,7 +169,7 @@ export function csvToJson(csv: string, delimiter: string = ','): HashMap[] {
         if (arrMatches[1].length && arrMatches[1] !== ',') arrData.push([]);
         arrData[arrData.length - 1].push(
             arrMatches[2]
-                ? arrMatches[2].replace(new RegExp('""', 'g'), '"')
+                ? arrMatches[2]?.replace(new RegExp('""', 'g'), '"')
                 : arrMatches[3]
         );
     }
@@ -179,7 +179,7 @@ export function csvToJson(csv: string, delimiter: string = ','): HashMap[] {
         for (let i = 0; i < row.length; i++) {
             const key = (headers[i] || '').split(' ').join('_').toLowerCase();
             try {
-                element[key] = JSON.parse(row[i].replace('|', ','));
+                element[key] = JSON.parse(row[i]?.replace('|', ','));
             } catch (e) {
                 element[key] = row[i] || '';
             }
@@ -225,7 +225,9 @@ export function jsonToCsv(json: HashMap[]) {
         return `${valid_keys.join(',')}\n${json
             .map((item) =>
                 valid_keys
-                    .map((key) => JSON.stringify(item[key]).replace(',', '|'))
+                    .map((key) =>
+                        (JSON.stringify(item[key]) || '')?.replace(',', '|')
+                    )
                     .join(',')
             )
             .join('\n')}`;
@@ -297,11 +299,18 @@ export function flatten<T = any>(an_array: any[]): T[] {
  * @param start2 Unix epoch in ms of the second period's start time
  * @param end2 Unix epoch in ms of the second period's end time
  */
-export function timePeriodsIntersect(s1: number, e1: number, s2: number, e2: number) {
+export function timePeriodsIntersect(
+    s1: number,
+    e1: number,
+    s2: number,
+    e2: number
+) {
     return (
-        s1 >= s2 && s1 < e2 || s2 >= s1 && s2 < e1 || // Check start time
-        e1 > s2 && e1 <= e2 || e2 > s1 && e2 <= e1 // Check end time
-    )
+        (s1 >= s2 && s1 < e2) ||
+        (s2 >= s1 && s2 < e1) || // Check start time
+        (e1 > s2 && e1 <= e2) ||
+        (e2 > s1 && e2 <= e1) // Check end time
+    );
 }
 
 const seed = xmur3('PlaceOS');

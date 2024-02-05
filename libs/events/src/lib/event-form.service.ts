@@ -22,7 +22,7 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-import { differenceInDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { differenceInDays, startOfDay } from 'date-fns';
 import {
     AsyncHandler,
     BookingRuleset,
