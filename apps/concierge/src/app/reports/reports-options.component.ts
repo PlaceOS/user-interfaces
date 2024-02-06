@@ -71,7 +71,7 @@ import { ReportsStateService } from './reports-state.service';
                 [disabled]="!(bookings | async)?.length"
                 (click)="downloadReport()"
             >
-                <p>Download Report</p>
+                <p>Download Data</p>
             </button>
         </div>
     `,

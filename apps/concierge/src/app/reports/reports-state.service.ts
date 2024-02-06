@@ -285,7 +285,7 @@ export class ReportsStateService {
             `report+${options.type}+${format(
                 options.start,
                 'yyyy-MM-dd'
-            )}+${format(options.end, 'yyyy-MM-dd')}.csv`,
+            )}+${format(options.end, 'yyyy-MM-dd')}.tsv`,
             jsonToCsv(
                 bookings.map((bkn) => {
                     const details = bkn.toJSON();
@@ -293,7 +293,8 @@ export class ReportsStateService {
                     delete details.server_names;
                     delete details.extension_data;
                     return details;
-                })
+                }),
+                '\t'
             )
         );
     }
