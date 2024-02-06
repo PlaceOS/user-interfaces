@@ -19,6 +19,8 @@ import {
 export interface SignageResource {
     id: string;
     type: 'image' | 'video';
+    name?: string;
+    duration?: number;
     start?: number;
     end?: number;
     url: string;
@@ -35,6 +37,7 @@ export interface SignageMedia {
 }
 
 const CHECK_DISPLAY_INTERVAL = 5 * 60 * 1000;
+const IN_MEMORY_STORE: Record<string, { id: string; url_blob: string }> = {};
 
 @Injectable({
     providedIn: 'root',
@@ -64,10 +67,7 @@ export class SignageService extends AsyncHandler {
     public readonly active_display = combineLatest([
         this._active_display,
         this._display_list,
-    ]).pipe(
-        map(([id, list]) => list.find((_) => _.id === id)),
-        tap((_) => console.log('Active display:', _))
-    );
+    ]).pipe(map(([id, list]) => list.find((_) => _.id === id)));
 
     private _playlists = combineLatest([
         this._org.active_building,
@@ -109,8 +109,7 @@ export class SignageService extends AsyncHandler {
         filter((_) => !!_),
         map(([display, list]) =>
             list.filter((_) => display.playlists.includes(_.id))
-        ),
-        tap((_) => console.log('Active Playlists:', _))
+        )
     );
 
     public readonly media = combineLatest([
@@ -141,8 +140,7 @@ export class SignageService extends AsyncHandler {
                 media.find((__) => __.id === _)
             );
             return media_list.filter((_) => !!_);
-        }),
-        tap((_) => console.log('Full Playlist:', _))
+        })
     );
 
     public readonly check_active_media = combineLatest([
@@ -219,6 +217,7 @@ export class SignageService extends AsyncHandler {
         console.log('Getting media:', id);
         return new Promise<{ id: string; url_blob: string }>(
             (resolve, reject) => {
+                if (IN_MEMORY_STORE[id]) return IN_MEMORY_STORE[id];
                 const request = this._media_store?.get(id);
                 if (!request) return reject('No media store');
                 request.onerror = (event) => {
@@ -237,6 +236,7 @@ export class SignageService extends AsyncHandler {
             if (!request) return reject('No media store');
             request.onerror = (event) => {
                 console.error(event);
+                IN_MEMORY_STORE[id] = { id, url_blob: url };
                 reject('Error setting media');
             };
             request.onsuccess = () => resolve();
@@ -245,7 +245,7 @@ export class SignageService extends AsyncHandler {
 
     private async _loadMedia(media: SignageMedia): Promise<SignageResource> {
         if (!media) throw new Error('No media provided');
-        const resource = await this._getMedia(media.id).catch(() => null);
+        const resource = await this._getMedia(media.url).catch(() => null);
         const end = media.duration
             ? Date.now() + media.duration * 1000
             : undefined;
@@ -257,13 +257,15 @@ export class SignageService extends AsyncHandler {
                 start: Date.now(),
                 end,
             };
-        const url = await fetch(media.url).then((_) => _.blob());
-        const url_blob = URL.createObjectURL(url);
-        await this._setMedia(media.id, url_blob);
+        const blob = await fetch(media.url).then((_) => _.blob());
+        const url = URL.createObjectURL(blob);
+        await this._setMedia(media.url, url).catch(() => null);
         return {
             id: media.id,
             type: media.type,
-            url: url_blob,
+            name: media.name,
+            duration: media.duration,
+            url,
             start: Date.now(),
             end,
         };
