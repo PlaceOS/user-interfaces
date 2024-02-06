@@ -222,7 +222,10 @@ export class WFHSettingsModalComponent implements OnInit {
         }).toPromise();
         this.loading = false;
         this._dialog_ref.disableClose = false;
-        if (close) this._dialog_ref.close();
+        if (close) {
+            location.reload();
+            this._dialog_ref.close();
+        }
     }
 
     private _initWeekdays() {
