@@ -134,12 +134,23 @@ export class EventFormService extends AsyncHandler {
             filter((_) => !!_),
             distinctUntilKeyChanged('id')
         ),
+        this._org.active_region.pipe(
+            filter((_) => !!_),
+            distinctUntilKeyChanged('id')
+        ),
     ]).pipe(
         debounceTime(300),
         tap((_) => this.unsubWith('bind:')),
         switchMap(([{ zone_ids }]) => {
             this._loading.next('Loading space list for location...');
-            if (!zone_ids?.length) zone_ids = [this._org.building?.id];
+            if (!zone_ids?.length) {
+                const root_zone = this._settings.get(
+                    'app.events.use_region_zone'
+                )
+                    ? this._org.building?.parent_id
+                    : this._org.building?.id;
+                zone_ids = [root_zone];
+            }
             return forkJoin(
                 zone_ids.map((id) =>
                     requestSpacesForZone(id).pipe(catchError(() => of([])))
