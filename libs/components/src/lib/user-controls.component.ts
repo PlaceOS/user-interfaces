@@ -63,7 +63,12 @@ export interface AppLocale {
                     </div>
                 </button>
             </div>
-            <div customTooltip [content]="building_select" class="relative">
+            <div
+                customTooltip
+                [content]="building_select"
+                class="relative"
+                *ngIf="!disable_building_select"
+            >
                 <button btn matRipple class="clear w-full text-left h-[3.5rem]">
                     <div class="w-full flex items-center space-x-2">
                         <div
@@ -247,6 +252,10 @@ export class UserControlsComponent {
 
     public get locales(): [] {
         return this._settings.get('app.locales') || [];
+    }
+
+    public get disable_building_select() {
+        return this._settings.get('app.disable_building_select');
     }
 
     public get has_new_version() {
