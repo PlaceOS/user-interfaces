@@ -1,8 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import {
-    AssetManagerStateService,
-    AssetRequest,
-} from './asset-manager-state.service';
+import { AssetManagerStateService } from './asset-manager-state.service';
 import { OrganisationService } from '@placeos/organisation';
 import { SettingsService } from '@placeos/common';
 

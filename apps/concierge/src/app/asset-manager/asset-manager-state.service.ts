@@ -66,20 +66,6 @@ export interface AssetOptions {
     active_item?: string;
 }
 
-export interface AssetRequest {
-    id: string;
-    assets: { id: string; name: string; amount?: number }[];
-    date: number;
-    duration: number;
-    user_id: string;
-    user_name: string;
-    location_id: string;
-    location_name: string;
-    location_floor: string;
-    status: 'approved' | 'pending' | 'declined';
-    tracking: 'in_storage' | 'in_transit' | 'at_location' | 'unknown';
-}
-
 @Injectable({
     providedIn: 'root',
 })
