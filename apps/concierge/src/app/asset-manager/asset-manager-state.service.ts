@@ -56,6 +56,7 @@ import {
     AttachedResourceConfigModalData,
     AttachedResourceRuleset,
 } from '@placeos/components';
+import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
 
 export interface AssetOptions {
     date?: number;
@@ -148,13 +149,16 @@ export class AssetManagerStateService extends AsyncHandler {
                                 },
                             })
                     ).filter((b) => {
-                        const request = b.extension_data.request || {
-                            deliver_at_time: start,
-                        };
+                        const event: any =
+                            b.linked_event || b.linked_bookings[0];
+                        const request = new AssetRequest({
+                            ...b.extension_data?.request,
+                            event,
+                        });
                         const event_end =
-                            b.linked_event?.date_end ||
-                            (b.linked_event as any)?.event_end * 1000 ||
-                            (b.linked_bookings[0] as any)?.booking_end * 1000 ||
+                            event?.date_end ||
+                            event?.event_end * 1000 ||
+                            event?.booking_end * 1000 ||
                             end;
                         return (
                             request?.deliver_at_time >= start &&
