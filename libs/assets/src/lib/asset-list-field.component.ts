@@ -6,7 +6,11 @@ import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { AssetSelectModalComponent } from 'libs/assets/src/lib/asset-select-modal/asset-select-modal.component';
 import { AssetStateService } from './asset-state.service';
 import { AssetItem, AssetRequest } from './asset-request.class';
-import { ANIMATION_SHOW_CONTRACT_EXPAND, randomString } from '@placeos/common';
+import {
+    ANIMATION_SHOW_CONTRACT_EXPAND,
+    randomInt,
+    randomString,
+} from '@placeos/common';
 import { endOfDay, startOfDay } from 'date-fns';
 
 const EMPTY_FAVS: string[] = [];
@@ -262,7 +266,12 @@ export class AssetListFieldComponent implements ControlValueAccessor {
                 if ((item as any).assets?.length) {
                     item.item_ids = new Array(item.quantity)
                         .fill(0)
-                        .map((_, idx) => (item as any).assets[idx].id);
+                        .map(
+                            (_) =>
+                                (item as any).assets[
+                                    randomInt((item as any).assets.length)
+                                ].id
+                        );
                 }
             }
             const time = new Date(this.options.date);

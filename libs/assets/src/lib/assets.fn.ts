@@ -16,7 +16,7 @@ import {
     removeBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
 import { Booking } from 'libs/bookings/src/lib/booking.class';
-import { flatten } from '@placeos/common';
+import { flatten, randomInt } from '@placeos/common';
 import { AssetRequest } from './asset-request.class';
 import { group } from 'console';
 
@@ -395,6 +395,7 @@ export async function updateAssetRequestsForResource(
     await Promise.all(
         bookings.map((item) => removeBooking(item.id).toPromise())
     );
+    let used_ids: string[] = [];
     await Promise.all(
         new_assets.map((request) => {
             const booking = bookings.find((_) =>
@@ -402,6 +403,28 @@ export async function updateAssetRequestsForResource(
                     request.items?.find((i) => i.item_ids.includes(id))
                 )
             );
+            // Handle duplicate asset ids
+            let asset_ids = flatten(request.items.map((_) => _.item_ids));
+            const duplicates = asset_ids.filter((_) => used_ids.includes(_));
+            if (duplicates.length && (request as any).assets.length) {
+                for (const item of request.items) {
+                    if ((item as any).assets?.length) {
+                        item.item_ids = new Array(item.quantity)
+                            .fill(0)
+                            .map((_) => {
+                                const asset = (item as any).assets.find(
+                                    (_) => !used_ids.includes(_.id)
+                                );
+                                if (asset) return asset.id;
+                                throw new Error(
+                                    'Unable to find available assets'
+                                );
+                            });
+                    }
+                }
+                asset_ids = flatten(request.items.map((_) => _.item_ids));
+            }
+            used_ids = [...used_ids, ...asset_ids];
             return createBooking(
                 new Booking({
                     type: 'asset-request',
@@ -412,7 +435,7 @@ export async function updateAssetRequestsForResource(
                     description: location_name,
                     user_email: host,
                     asset_id: request.id,
-                    asset_ids: flatten(request.items.map((_) => _.item_ids)),
+                    asset_ids,
                     asset_name: request.items.map((_) => _.name).join(', '),
                     title: request.items.map((_) => _.name).join(', '),
                     approved:
