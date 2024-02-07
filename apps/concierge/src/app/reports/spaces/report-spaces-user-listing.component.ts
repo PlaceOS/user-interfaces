@@ -21,7 +21,7 @@ import { ReportsStateService } from '../reports-state.service';
                 [pagination]="true"
                 [columns]="[
                     'name',
-                    'count',
+                    'booking_count',
                     'avg_attendees',
                     'total_time',
                     'no_shows'
@@ -63,7 +63,7 @@ export class ReportSpacesUserListingComponent {
                         id: host.email,
                         name: host.name,
                         capacity,
-                        count: 0,
+                        booking_count: 0,
                         attendees: 0,
                         avg_attendees: 0,
                         no_shows: 0,
@@ -75,7 +75,7 @@ export class ReportSpacesUserListingComponent {
                 if (booking.extension_data?.people_count?.max === 0) {
                     details.no_shows += 1;
                 }
-                details.count += 1;
+                details.booking_count += 1;
                 details.attendees += booking.attendees.length;
                 details.total_time += booking.duration || 15;
             }
@@ -97,6 +97,13 @@ export class ReportSpacesUserListingComponent {
 
     public readonly download = async () => {
         const data = await this.user_list.pipe(take(1)).toPromise();
+        for (const item of data) {
+            delete item.attendance;
+            delete item.avg_attendance;
+            delete item.no_shows;
+            delete item.min_attendance;
+            delete item.max_attendance;
+        }
         downloadFile('report-space-attendee-usage.csv', jsonToCsv(data));
     };
 
