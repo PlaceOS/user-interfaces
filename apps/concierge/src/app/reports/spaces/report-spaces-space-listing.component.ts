@@ -131,6 +131,7 @@ export class ReportSpacesSpaceListing {
                       'booking_count',
                       'utilisation',
                       'avg_attendees',
+                      'occupancy',
                   ]
                 : [
                       'name',
@@ -143,6 +144,7 @@ export class ReportSpacesSpaceListing {
                       'no_shows',
                       'min_attendance',
                       'max_attendance',
+                      'occupancy',
                   ]
         )
     );
@@ -162,11 +164,12 @@ export class ReportSpacesSpaceListing {
                       'Bookings',
                       '% Time booked during office hrs',
                       'Avg. invitees per booking',
-                      'Total In-room Attendance',
-                      'Avg. In-room Attendance',
+                      //   'Total In-room Attendance',
+                      //   'Avg. In-room Attendance',
                       'No Shows',
                       'Min. In-room Attendance',
                       'Max. In-room Attendance',
+                      'Occupancy %',
                   ]
         )
     );
