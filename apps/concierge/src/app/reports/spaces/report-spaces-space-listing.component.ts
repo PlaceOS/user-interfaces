@@ -52,7 +52,7 @@ export class ReportSpacesSpaceListing {
                             id: space.id || space.email,
                             name: space.display_name || space.name,
                             capacity: space.capacity || 1,
-                            count: 0,
+                            booking_count: 0,
                             attendance: 0,
                             avg_attendance: 0,
                             min_attendance: 99,
@@ -70,7 +70,7 @@ export class ReportSpacesSpaceListing {
                     if (booking.extension_data?.people_count?.max === 0) {
                         details.no_shows += 1;
                     }
-                    details.count += 1;
+                    details.booking_count += 1;
                     details.attendance +=
                         booking.extension_data?.people_count?.max ?? 0;
                     details.avg_attendance +=
@@ -123,11 +123,17 @@ export class ReportSpacesSpaceListing {
     public readonly column_list = this.has_attendance.pipe(
         map((_) =>
             !_
-                ? ['name', 'capacity', 'count', 'utilisation', 'avg_attendees']
+                ? [
+                      'name',
+                      'capacity',
+                      'booking_count',
+                      'utilisation',
+                      'avg_attendees',
+                  ]
                 : [
                       'name',
                       'capacity',
-                      'count',
+                      'booking_count',
                       'utilisation',
                       'avg_attendees',
                       //   'attendance',
@@ -165,6 +171,13 @@ export class ReportSpacesSpaceListing {
 
     public readonly download = async () => {
         const data = await this.space_list.pipe(take(1)).toPromise();
+        for (const item of data) {
+            delete item.attendance;
+            delete item.avg_attendance;
+            delete item.no_shows;
+            delete item.min_attendance;
+            delete item.max_attendance;
+        }
         downloadFile('report-spaces-usage.csv', jsonToCsv(data));
     };
 
