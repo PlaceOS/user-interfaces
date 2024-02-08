@@ -156,8 +156,12 @@ export class StaffUser extends User {
     public readonly work_overrides: Record<string, WorktimePreference>;
 
     public get location() {
-        const day = new Date().getDay();
-        const date = format(new Date(), 'yyyy-MM-dd');
+        return this.location_time(Date.now());
+    }
+
+    public location_time(datetime: number) {
+        const day = new Date(datetime).getDay();
+        const date = format(new Date(datetime), 'yyyy-MM-dd');
         return (
             this.work_overrides[date]?.location ||
             this.work_preferences.find((_) => _.day_of_week === day)?.location
@@ -165,7 +169,11 @@ export class StaffUser extends User {
     }
 
     public get location_name() {
-        const location = this.location;
+        return this.location_name_time(Date.now());
+    }
+
+    public location_name_time(datetime: number) {
+        const location = this.location_time(datetime);
         if (!this.in_hours && (location === 'wfh' || location === 'wfo')) {
             return 'Outside working hours';
         }

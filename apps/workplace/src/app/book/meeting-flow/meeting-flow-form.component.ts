@@ -122,6 +122,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                             <a-user-list-field
                                 class="mt-4"
                                 formControlName="attendees"
+                                [time]="form.value.date"
                                 [guests]="allow_externals"
                             ></a-user-list-field>
                         </div>

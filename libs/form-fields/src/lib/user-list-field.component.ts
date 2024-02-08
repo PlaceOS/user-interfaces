@@ -65,13 +65,19 @@ function validateEmail(email) {
                                 <app-icon
                                     *ngIf="!item.is_external"
                                     [matTooltip]="
-                                        (item?.email | placeuser | async)
-                                            ?.location_name
+                                        (
+                                            item?.email
+                                            | placeuser
+                                            | async
+                                        )?.location_name_time(time)
                                     "
                                 >
                                     {{
-                                        (item?.email | placeuser | async)
-                                            ?.location === 'wfo'
+                                        (
+                                            item?.email
+                                            | placeuser
+                                            | async
+                                        )?.location_time(time) === 'wfo'
                                             ? 'domain'
                                             : 'home'
                                     }}
@@ -193,6 +199,7 @@ export class UserListFieldComponent
     extends AsyncHandler
     implements ControlValueAccessor
 {
+    @Input() public time = Date.now();
     /** Whether form field is disabled */
     @Input() public disabled: boolean;
     /** Number of characters needed before a search will start */
