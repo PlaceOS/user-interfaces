@@ -81,7 +81,8 @@ export class ReportSpacesUserListingComponent {
             }
             for (const space of list) {
                 space.avg_attendees =
-                    Math.floor((space.attendees / space.count) * 100) / 100;
+                    Math.floor((space.attendees / space.booking_count) * 100) /
+                    100;
                 space.occupancy =
                     Math.floor((space.avg_attendees / space.capacity) * 100) /
                     100;
