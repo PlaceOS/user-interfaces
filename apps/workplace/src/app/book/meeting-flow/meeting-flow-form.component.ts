@@ -613,6 +613,10 @@ export class MeetingFlowFormComponent extends AsyncHandler {
     }
 
     private async _checkAssetsEligibility(list: Space[]) {
+        if (this.form.value.id && this.form.value.assets?.length) {
+            this.form.controls.assets.enable();
+            return;
+        }
         if (!list?.length) return this.form.controls.assets.disable();
         await timer(100).toPromise();
         const value = this.form.getRawValue();
@@ -655,6 +659,10 @@ export class MeetingFlowFormComponent extends AsyncHandler {
     }
 
     private async _checkCateringEligibility(list: Space[]) {
+        if (this.form.value.id && this.form.value.catering?.length) {
+            this.form.controls.catering.enable();
+            return;
+        }
         if (!list?.length) return this.form.controls.catering.disable();
         await timer(100).toPromise();
         const value = this.form.getRawValue();
