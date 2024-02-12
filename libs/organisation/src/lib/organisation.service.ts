@@ -1,15 +1,17 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import {
+    EncryptionLevel,
     PlaceZone,
     authority,
     isMock,
     onlineState,
+    querySettings,
     queryZones,
     showMetadata,
 } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { catchError, first, map, shareReplay } from 'rxjs/operators';
+import { catchError, filter, first, map, shareReplay } from 'rxjs/operators';
 
 import { notifyError } from 'libs/common/src/lib/notifications';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
@@ -20,6 +22,8 @@ import { BuildingLevel } from './level.class';
 import { Organisation } from './organisation.class';
 import { Region } from './region.class';
 import { flatten, log, unique } from '@placeos/common';
+
+import * as yaml from 'js-yaml';
 
 @Injectable({
     providedIn: 'root',
@@ -191,12 +195,9 @@ export class OrganisationService {
         onlineState()
             .pipe(first((_) => _))
             .subscribe(() => setTimeout(() => this.init(), 1000));
-        this.active_building.subscribe((bld) => {
-            if (bld) this._updateSettingOverrides();
-        });
-        this.active_region.subscribe((region) => {
-            if (region) this._updateSettingOverrides();
-        });
+        combineLatest([this.active_region, this.active_building])
+            .pipe(filter(([region, bld]) => !!bld))
+            .subscribe(() => this._updateSettingOverrides());
     }
 
     /**
@@ -401,18 +402,39 @@ export class OrganisationService {
 
     public async loadBuildingData(bld: Building) {
         if (!bld || this._loaded_data[bld.id]) return;
-        const [settings, bindings, booking_rules]: any = await Promise.all([
-            showMetadata(bld.id, this.app_key)
-                .pipe(map((_) => _?.details))
-                .toPromise(),
-            showMetadata(bld.id, 'bindings')
-                .pipe(map((_) => _?.details))
-                .toPromise(),
-            showMetadata(bld.id, 'booking_rules')
-                .pipe(map((_) => _?.details))
-                .toPromise(),
-        ]);
-        this._building_settings[bld.id] = settings || {};
+        const [settings, bindings, booking_rules, driver_settings]: any =
+            await Promise.all([
+                showMetadata(bld.id, this.app_key)
+                    .pipe(map((_) => _?.details))
+                    .toPromise(),
+                showMetadata(bld.id, 'bindings')
+                    .pipe(map((_) => _?.details))
+                    .toPromise(),
+                showMetadata(bld.id, 'booking_rules')
+                    .pipe(map((_) => _?.details))
+                    .toPromise(),
+                querySettings({ parent_id: bld.id })
+                    .pipe(
+                        map((_) => {
+                            try {
+                                return yaml.load(
+                                    _?.data.find(
+                                        (_) =>
+                                            _.encryption_level ===
+                                            EncryptionLevel.None
+                                    ) || { settings_string: '' }
+                                );
+                            } catch {
+                                return {};
+                            }
+                        })
+                    )
+                    .toPromise(),
+            ]);
+        this._building_settings[bld.id] = {
+            ...(driver_settings || {}),
+            ...(settings || {}),
+        };
         (bld as any).bindings = bindings;
         (bld as any).booking_rules = booking_rules;
         this._loaded_data[bld.id] = true;

@@ -1,14 +1,19 @@
 import { Injectable } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import {
     Booking,
     Locker,
     LockersService,
+    checkinBooking,
     queryBookings,
+    removeBooking,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
+    current_user,
     currentUser,
     flatten,
+    openConfirmModal,
     SettingsService,
 } from '@placeos/common';
 import {
@@ -19,8 +24,14 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 import { requestSpacesForZone } from '@placeos/spaces';
 import { getModule } from '@placeos/ts-client';
-import { endOfDay, getUnixTime, isSameDay, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import {
+    addMinutes,
+    endOfDay,
+    getUnixTime,
+    isSameDay,
+    startOfDay,
+} from 'date-fns';
+import { BehaviorSubject, combineLatest, interval, Observable, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -271,10 +282,63 @@ export class ScheduleStateService extends AsyncHandler {
     /** Whether events and bookings are loading */
     public readonly loading = this._loading.asObservable();
 
+    private _ignore_cancel: string[] = [];
+    private _checkCancel = combineLatest([
+        current_user,
+        interval(60 * 1000),
+    ]).pipe(
+        filter(([u]) => !!u),
+        map(async ([user]) => {
+            const is_home = user.location !== 'wfo';
+            const auto_release = this._settings.get('app.auto_release');
+            if (
+                auto_release &&
+                is_home &&
+                auto_release.time_after &&
+                auto_release.resources?.length
+            ) {
+                for (const type of auto_release.resources) {
+                    const bookings = await queryBookings({
+                        period_start: getUnixTime(
+                            addMinutes(
+                                Date.now(),
+                                auto_release.time_before || 0
+                            )
+                        ),
+                        period_end: getUnixTime(
+                            addMinutes(Date.now(), auto_release.time_after || 5)
+                        ),
+                        type,
+                    }).toPromise();
+                    for (const booking of bookings) {
+                        if (this._ignore_cancel.includes(booking.id)) continue;
+                        this._dialog.closeAll();
+                        const result = await openConfirmModal(
+                            {
+                                title: `Keep ${type} booking`,
+                                content: `You have indicated you are not in the office. 
+                                Your booking will be cancelled after ${auto_release.time_after} minutes. 
+                                Do you wish to keep this booking?`,
+                                icon: { content: 'cancel' },
+                            },
+                            this._dialog
+                        );
+                        if (result.reason !== 'done') {
+                            this._ignore_cancel.push(booking.id);
+                            continue;
+                        }
+                        await checkinBooking(booking.id, true).toPromise();
+                    }
+                }
+            }
+        })
+    );
+
     constructor(
         private _settings: SettingsService,
         private _org: OrganisationService,
-        private _lockers: LockersService
+        private _lockers: LockersService,
+        private _dialog: MatDialog
     ) {
         super();
         this.subscription(
@@ -293,6 +357,7 @@ export class ScheduleStateService extends AsyncHandler {
                 .listen('CHAT:task_complete')
                 .subscribe(() => this.triggerPoll())
         );
+        this.subscription('wfh_checks', this._checkCancel.subscribe());
         this._deleted = JSON.parse(
             sessionStorage.getItem('PLACEOS.events.deleted') || '[]'
         );
