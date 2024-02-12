@@ -406,7 +406,7 @@ export async function updateAssetRequestsForResource(
             // Handle duplicate asset ids
             let asset_ids = flatten(request.items.map((_) => _.item_ids));
             const duplicates = asset_ids.filter((_) => used_ids.includes(_));
-            if (duplicates.length && (request as any).assets.length) {
+            if (duplicates?.length && (request as any).assets?.length) {
                 for (const item of request.items) {
                     if ((item as any).assets?.length) {
                         item.item_ids = new Array(item.quantity)
