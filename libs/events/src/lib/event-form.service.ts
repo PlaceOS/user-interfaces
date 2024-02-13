@@ -658,7 +658,12 @@ export class EventFormService extends AsyncHandler {
                               }
                             : {}
                     ).toPromise();
-                    notifyError('Unable to book the selected assets.');
+                    console.error("Couldn't update asset requests", e);
+                    if (e?.status === 409) {
+                        notifyError(
+                            'Some assets are already booked for the selected time'
+                        );
+                    } else notifyError('Unable to book the selected assets.');
                 }
                 this._loading.next('');
                 throw e;

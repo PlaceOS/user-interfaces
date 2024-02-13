@@ -559,6 +559,12 @@ export class BookingFormService extends AsyncHandler {
                 },
                 value.assets
             ).catch((e) => {
+                console.error("Couldn't update asset requests", e);
+                if (e?.status === 409) {
+                    notifyError(
+                        'Some assets are already booked for the selected time'
+                    );
+                }
                 this._loading.next('');
                 throw e?.error || e;
             });
