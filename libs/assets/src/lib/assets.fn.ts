@@ -383,6 +383,12 @@ export async function updateAssetRequestsForResource(
     },
     new_assets: AssetRequest[]
 ) {
+    const requests = await queryBookings({
+        period_start: getUnixTime(startOfDay(date)),
+        period_end: getUnixTime(endOfDay(date)),
+        type: 'asset-request',
+        zones: zones.join(','),
+    }).toPromise();
     const bookings = await queryBookings({
         period_start: getUnixTime(startOfDay(date)),
         period_end: getUnixTime(endOfDay(date)),
@@ -395,14 +401,12 @@ export async function updateAssetRequestsForResource(
     await Promise.all(
         bookings.map((item) => removeBooking(item.id).toPromise())
     );
-    let used_ids: string[] = [];
+    const filtered = requests.filter(
+        (_) => !bookings.find((b) => b.id === _.id)
+    );
+    let used_ids: string[] = flatten(filtered.map((_) => _.asset_ids));
     await Promise.all(
         new_assets.map((request) => {
-            const booking = bookings.find((_) =>
-                _.asset_ids.find((id) =>
-                    request.items?.find((i) => i.item_ids.includes(id))
-                )
-            );
             // Handle duplicate asset ids
             let asset_ids = flatten(request.items.map((_) => _.item_ids));
             const duplicates = asset_ids.filter((_) => used_ids.includes(_));
@@ -424,6 +428,12 @@ export async function updateAssetRequestsForResource(
                 }
                 asset_ids = flatten(request.items.map((_) => _.item_ids));
             }
+            // Grab any existing bookings for the asset for the parent event/booking
+            const booking = bookings.find((_) =>
+                _.asset_ids.find((id) =>
+                    request.items?.find((i) => i.item_ids.includes(id))
+                )
+            );
             used_ids = [...used_ids, ...asset_ids];
             return createBooking(
                 new Booking({
