@@ -101,9 +101,9 @@ export class ReportSpacesUserListingComponent {
         for (const item of data) {
             delete item.attendance;
             delete item.avg_attendance;
-            delete item.no_shows;
             delete item.min_attendance;
             delete item.max_attendance;
+            delete item.occupancy;
         }
         downloadFile('report-space-attendee-usage.csv', jsonToCsv(data));
     };
