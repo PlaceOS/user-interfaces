@@ -143,7 +143,7 @@ export class ExploreZonesService extends AsyncHandler {
                 z_index: 100,
             });
             if (
-                this._settings.get('app.explore.show_simple_sensor_info') &&
+                this._settings.get('app.explore.show_zone_sensor_info') &&
                 (zone.temperature || zone.humidity)
             ) {
                 features.push({
@@ -155,7 +155,7 @@ export class ExploreZonesService extends AsyncHandler {
             }
         }
         this._features = features;
-        if (!this._settings.get('app.explore.show_simple_sensor_info')) {
+        if (!this._settings.get('app.explore.show_zone_sensor_info')) {
             this._state.setLabels('zones', labels);
         }
         this.updateStatus();

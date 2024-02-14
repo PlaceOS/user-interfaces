@@ -229,7 +229,7 @@ export class ScheduleStateService extends AsyncHandler {
                         asset_name: i.locker_name,
                         zones: [i.building, i.level],
                         extension_data: {
-                            map_id: i.locker_id,
+                            // map_id: i.locker_id || locker.map_id,
                         },
                     });
                 })
