@@ -64,18 +64,34 @@ import { SettingsService } from '@placeos/common';
                 </div>
             </ng-template>
             <ng-template #period_template let-row="row">
-                <ng-container *ngIf="row.status !== 'declined' && !row.deleted">
+                <ng-container
+                    *ngIf="
+                        row.status !== 'declined' &&
+                        !row.deleted &&
+                        row.status !== 'ended'
+                    "
+                >
                     <ng-container *ngIf="!row.all_day">
                         {{ row.date | date: time_format }} &ndash;
                         {{ row.end | date: time_format }}
                     </ng-container>
                     <ng-container *ngIf="row.all_day">All Day</ng-container>
                 </ng-container>
-                <ng-container *ngIf="row.status === 'declined' || row.deleted">
+                <ng-container
+                    *ngIf="
+                        row.status === 'declined' ||
+                        row.deleted ||
+                        row.status === 'ended'
+                    "
+                >
                     <div
                         class="text-xs py-1 px-2 bg-error rounded-2xl text-white"
                     >
-                        Expired
+                        {{
+                            row.status === 'ended'
+                                ? 'Manually Ended'
+                                : 'Expired'
+                        }}
                     </div>
                 </ng-container>
             </ng-template>
