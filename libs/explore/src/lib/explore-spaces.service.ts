@@ -45,6 +45,7 @@ export const DEFAULT_COLOURS = {
 export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
     private _bookings: HashMap<CalendarEvent[]> = {};
     private _statuses: HashMap<string> = {};
+    private _panning = true;
 
     public readonly booking_rules: Observable<BookingRuleset[]> =
         this._org.active_building.pipe(
@@ -104,6 +105,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
     }
 
     public async bookSpace(space: Space, force: boolean = false) {
+        if (this._panning) return;
         const booking_rules = await this.booking_rules
             .pipe(take(1))
             .toPromise();
@@ -219,18 +221,29 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         const actions: ViewAction[] = [];
         for (const space of spaces) {
             if (!space.map_id) continue;
-            actions.push({
-                id: space.map_id,
-                action: 'click',
-                priority: 5,
-                callback: () => this.bookSpace(space),
-            });
-            actions.push({
-                id: space.map_id,
-                action: 'touchend',
-                priority: 5,
-                callback: () => this.bookSpace(space),
-            });
+            for (const action of ['mousedown', 'touchstart']) {
+                actions.push({
+                    id: space.map_id,
+                    action: action as any,
+                    priority: 5,
+                    callback: () => {
+                        this._panning = false;
+                        this.timeout(
+                            'panning',
+                            () => (this._panning = true),
+                            300
+                        );
+                    },
+                });
+            }
+            for (const action of ['mouseup', 'touchend']) {
+                actions.push({
+                    id: space.map_id,
+                    action: action as any,
+                    priority: 5,
+                    callback: () => this.bookSpace(space),
+                });
+            }
         }
         this.timeout(
             'set-actions',
