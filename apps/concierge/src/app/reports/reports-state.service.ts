@@ -233,15 +233,17 @@ export class ReportsStateService {
 
     public get duration() {
         const opts = this._options.getValue();
-        return Math.max(
-            1,
-            Math.abs(
-                differenceInDays(
-                    startOfDay(opts.start),
-                    addMinutes(endOfDay(opts.end), 1)
-                )
-            )
-        );
+        const ignore_days = this._settings.get('app.reports.ignore_days') || [];
+        let start = startOfDay(opts.start);
+        const end = addMinutes(endOfDay(opts.end), 1);
+        let count = 0;
+        while (start.valueOf() < end.valueOf()) {
+            if (!ignore_days.includes(DAYS_OF_WEEK_INDEX[start.getDay()])) {
+                count++;
+            }
+            start = addDays(start, 1);
+        }
+        return Math.max(1, count);
     }
 
     constructor(
