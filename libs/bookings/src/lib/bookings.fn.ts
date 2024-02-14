@@ -140,7 +140,11 @@ export function updateBooking(
 export const saveBooking = (
     data: Partial<Booking>,
     q?: { booking_id?: string; event_id?: string; ical_uid?: string }
-) => (data.id ? updateBooking(data.id, data) : createBooking(data, q));
+) => {
+    const id = data.id;
+    delete (data as any).id;
+    return id ? updateBooking(id, data) : createBooking(data, q);
+};
 
 /**
  * Remove booking from the database

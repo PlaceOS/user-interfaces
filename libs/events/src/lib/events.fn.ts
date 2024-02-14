@@ -133,11 +133,13 @@ export const saveEvent = (
     data: Partial<CalendarEvent>,
     q?: CalendarEventShowParams
 ) => {
+    const id = data.id;
     delete (data as any)?.status;
-    return data.id
+    delete (data as any).id;
+    return id
         ? updateEvent(
-              data.update_master ? data.recurring_event_id || data.id : data.id,
-              { ...data, id: data.recurring_event_id || data.id },
+              data.update_master ? data.recurring_event_id || id : id,
+              data,
               q
           )
         : createEvent(data);
