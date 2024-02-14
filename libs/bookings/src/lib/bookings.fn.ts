@@ -287,6 +287,11 @@ export async function createBookingsForEvent(
         .pipe(map((_) => _.filter((_) => _.parent_id === event.id)))
         .toPromise();
     await Promise.all(bookings.map((_) => removeBooking(_.id).toPromise()));
+    await Promise.all(
+        event.linked_bookings
+            .filter((_) => _.booking_type === type)
+            .map((_) => removeBooking(_.id).toPromise())
+    );
     const zones =
         (event.system?.zones as any) ||
         unique(flatten(event.resources.map((_) => _.zones))) ||
