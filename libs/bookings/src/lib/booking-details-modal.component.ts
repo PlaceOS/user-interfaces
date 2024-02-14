@@ -281,29 +281,29 @@ import { checkinBooking } from './bookings.fn';
             <button
                 mat-menu-item
                 mat-dialog-close
-                class="flex items-center space-x-2 text-base"
+                *ngIf="can_edit"
                 (click)="edit.emit()"
             >
-                <app-icon>edit</app-icon>
-                <div i18n>Edit booking</div>
+                <div class="flex items-center space-x-2 text-base">
+                    <app-icon>edit</app-icon>
+                    <div i18n>Edit booking</div>
+                </div>
             </button>
             <button
                 mat-menu-item
                 *ngIf="!is_in_progress"
-                class="flex items-center space-x-2 text-base"
                 (click)="remove.emit()"
             >
-                <app-icon>delete</app-icon>
-                <div i18n>Delete booking</div>
+                <div class="flex items-center space-x-2 text-base">
+                    <app-icon class="text-error">delete</app-icon>
+                    <div i18n>Delete booking</div>
+                </div>
             </button>
-            <button
-                mat-menu-item
-                *ngIf="is_in_progress"
-                class="flex items-center space-x-2 text-base"
-                (click)="end.emit()"
-            >
-                <app-icon>delete</app-icon>
-                <div i18n>End booking</div>
+            <button mat-menu-item *ngIf="is_in_progress" (click)="end.emit()">
+                <div class="flex items-center space-x-2 text-base">
+                    <app-icon class="text-error">delete</app-icon>
+                    <div i18n>End booking</div>
+                </div>
             </button>
         </mat-menu>
     `,
@@ -335,6 +335,10 @@ export class BookingDetailsModalComponent {
         return this._org.buildings.find((bld) =>
             (this.booking?.zones || []).includes(bld.id)
         );
+    }
+
+    public get can_edit() {
+        return this.booking.booking_type !== 'visitor';
     }
 
     public get auto_checkin() {
