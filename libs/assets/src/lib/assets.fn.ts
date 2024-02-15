@@ -8,7 +8,7 @@ import {
     AssetPurchaseOrder,
 } from './asset.class';
 import { combineLatest, forkJoin, of } from 'rxjs';
-import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import {
     BookingsQueryParams,
     createBooking,
@@ -384,8 +384,12 @@ export async function updateAssetRequestsForResource(
     new_assets: AssetRequest[]
 ) {
     const requests = await queryBookings({
-        period_start: getUnixTime(startOfDay(date)),
-        period_end: getUnixTime(endOfDay(date)),
+        period_start: getUnixTime(all_day ? startOfDay(date) : date),
+        period_end: getUnixTime(
+            all_day
+                ? endOfDay(addMinutes(date, duration))
+                : addMinutes(date, duration)
+        ),
         type: 'asset-request',
         zones: zones.join(','),
     }).toPromise();
@@ -402,21 +406,23 @@ export async function updateAssetRequestsForResource(
         bookings.map((item) => removeBooking(item.id).toPromise())
     );
     const filtered = requests.filter(
-        (_) => !bookings.find((b) => b.id === _.id)
+        (_) => !_.rejected && !bookings.find((b) => b.id === _.id)
     );
+    const item_list = await queryAssetGroupsExtended().toPromise();
     let used_ids: string[] = flatten(filtered.map((_) => _.asset_ids));
     await Promise.all(
         new_assets.map((request) => {
             // Handle duplicate asset ids
             let asset_ids = flatten(request.items.map((_) => _.item_ids));
             const duplicates = asset_ids.filter((_) => used_ids.includes(_));
-            if (duplicates?.length && (request as any).assets?.length) {
+            if (duplicates?.length) {
                 for (const item of request.items) {
-                    if ((item as any).assets?.length) {
+                    const group = item_list.find((_) => _.id === item.id);
+                    if (group && group.assets.length) {
                         item.item_ids = new Array(item.quantity)
                             .fill(0)
                             .map((_) => {
-                                const asset = (item as any).assets.find(
+                                const asset = group.assets.find(
                                     (_) => !used_ids.includes(_.id)
                                 );
                                 if (asset) return asset.id;
