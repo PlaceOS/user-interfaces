@@ -164,7 +164,9 @@ export class StaffUser extends User {
         const date = format(new Date(datetime), 'yyyy-MM-dd');
         return (
             this.work_overrides[date]?.location ||
-            this.work_preferences.find((_) => _.day_of_week === day)?.location
+            this.work_preferences.find((_) => _.day_of_week === day)
+                ?.location ||
+            'wfo'
         );
     }
 
