@@ -163,10 +163,9 @@ export class WFHSettingsModalComponent implements OnInit {
     constructor(private _dialog_ref: MatDialogRef<WFHSettingsModalComponent>) {}
 
     public ngOnInit() {
-        this.settings = currentUser().work_preferences;
-        const today =
-            currentUser().work_overrides?.[format(Date.now(), 'yyyy-MM-dd')];
-        if (today) this.option = today.location;
+        const user = currentUser();
+        this.settings = user.work_preferences;
+        this.option = user.location || 'wfo';
         if (this.settings?.length < 7) {
             this.settings = new Array(7).fill({}).map((_, idx) => ({
                 day_of_week: idx as any,

@@ -77,15 +77,7 @@ function validateEmail(email) {
                                             item?.email
                                             | placeuser
                                             | async
-                                        )?.location_time(time) === 'wfo'
-                                            ? 'domain'
-                                            : (
-                                                  item?.email
-                                                  | placeuser
-                                                  | async
-                                              )?.location_time(time) === 'wfh'
-                                            ? 'home'
-                                            : 'event_busy'
+                                        )?.location_icon(time)
                                     }}
                                 </app-icon>
                             </div>

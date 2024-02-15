@@ -2,7 +2,7 @@ import { randomString } from 'libs/common/src/lib/general';
 import { MapLocation } from './location.class';
 import { USER_DOMAIN } from './user.utilities';
 import { Booking } from 'libs/bookings/src/lib/booking.class';
-import { format } from 'date-fns';
+import { format, isSameDay } from 'date-fns';
 
 export interface Attachment {
     id?: string;
@@ -174,7 +174,8 @@ export class StaffUser extends User {
 
     public location_name_time(datetime: number) {
         const location = this.location_time(datetime);
-        if (!this.in_hours && (location === 'wfh' || location === 'wfo')) {
+        const in_hours = this.in_hours_time(datetime);
+        if (location.includes('w') && !in_hours) {
             return 'Outside working hours';
         }
         switch (location) {
@@ -186,21 +187,36 @@ export class StaffUser extends User {
                 return 'Out of Office';
             case 'aol':
                 return 'Away on Leave';
+            case 'aol':
+                return 'Away on Leave';
             default:
                 return 'Unknown';
         }
     }
 
     public get in_hours() {
-        const day = new Date().getDay();
-        const date = format(new Date(), 'yyyy-MM-dd');
+        return this.in_hours_time(Date.now());
+    }
+
+    public location_icon(datetime: number) {
+        const location = this.location_time(datetime);
+        const in_hours = this.in_hours_time(datetime);
+        if (location === 'wfh' && in_hours) return 'home';
+        if (location === 'wfo' && in_hours) return 'business';
+        return 'event_busy';
+    }
+
+    public in_hours_time(datetime: number) {
+        const date = new Date(datetime);
+        const day = date.getDay();
+        const date_string = format(date, 'yyyy-MM-dd');
         const pref =
-            this.work_overrides[date] ||
+            this.work_overrides[date_string] ||
             this.work_preferences.find((_) => _.day_of_week === day);
         if (!pref) return false;
         const start = pref.start_time;
         const end = pref.end_time;
-        const now = new Date().getHours() + new Date().getMinutes() / 60;
+        const now = date.getHours() + date.getMinutes() / 60;
         return start <= now && now < end;
     }
 
