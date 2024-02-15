@@ -160,10 +160,12 @@ export class StaffUser extends User {
     }
 
     public location_time(datetime: number) {
-        const day = new Date(datetime).getDay();
-        const date = format(new Date(datetime), 'yyyy-MM-dd');
+        if (!datetime) datetime = Date.now();
+        const date = new Date(datetime);
+        const day = date.getDay();
+        const date_string = format(date, 'yyyy-MM-dd');
         return (
-            this.work_overrides[date]?.location ||
+            this.work_overrides[date_string]?.location ||
             this.work_preferences.find((_) => _.day_of_week === day)
                 ?.location ||
             'wfo'
@@ -175,6 +177,7 @@ export class StaffUser extends User {
     }
 
     public location_name_time(datetime: number) {
+        if (!datetime) datetime = Date.now();
         const location = this.location_time(datetime);
         const in_hours = this.in_hours_time(datetime);
         if (location.includes('w') && !in_hours) {
@@ -201,6 +204,7 @@ export class StaffUser extends User {
     }
 
     public location_icon(datetime: number) {
+        if (!datetime) datetime = Date.now();
         const location = this.location_time(datetime);
         const in_hours = this.in_hours_time(datetime);
         if (location === 'wfh' && in_hours) return 'home';
@@ -209,6 +213,7 @@ export class StaffUser extends User {
     }
 
     public in_hours_time(datetime: number) {
+        if (!datetime) datetime = Date.now();
         const date = new Date(datetime);
         const day = date.getDay();
         const date_string = format(date, 'yyyy-MM-dd');
