@@ -425,6 +425,7 @@ export async function updateAssetRequestsForResource(
                                 const asset = group.assets.find(
                                     (_) => !used_ids.includes(_.id)
                                 );
+                                used_ids.push(asset.id);
                                 if (asset) return asset.id;
                                 throw new Error(
                                     'Unable to find available assets'
