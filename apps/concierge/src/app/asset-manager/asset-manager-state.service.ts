@@ -139,17 +139,17 @@ export class AssetManagerStateService extends AsyncHandler {
                             b.linked_event || b.linked_bookings[0];
                         const request = new AssetRequest({
                             ...b.extension_data?.request,
-                            event,
                         });
+                        (request as any)._time = event.event_start * 1000;
                         const event_end =
                             event?.date_end ||
                             event?.event_end * 1000 ||
                             event?.booking_end * 1000 ||
                             end;
                         return (
-                            request?.deliver_at_time >= start &&
-                            request?.deliver_at_time < end &&
-                            request?.deliver_at_time < event_end
+                            request?.deliver_at >= start &&
+                            request?.deliver_at < end &&
+                            request?.deliver_at < event_end
                         );
                     })
                 )
@@ -164,6 +164,7 @@ export class AssetManagerStateService extends AsyncHandler {
     ]).pipe(
         map(([list, options]) => {
             const search = (options.search || '').toLowerCase();
+            console.log('Requests:', list, search);
             return search
                 ? list.filter(
                       (i) =>
