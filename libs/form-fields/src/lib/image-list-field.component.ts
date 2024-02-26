@@ -183,7 +183,7 @@ export function uploadFile(file: File): Observable<UploadDetails> {
             <mat-chip-grid #chipList aria-label="Image List">
                 <mat-chip-row
                     *ngFor="let item of list"
-                    (removed)="removeItem(item)"
+                    (removed)="removeImage(item)"
                 >
                     <div class="truncate max-w-md">{{ item }}</div>
                     <button matChipRemove [attr.aria-label]="'Remove ' + item">
