@@ -109,14 +109,16 @@ export function uploadFile(file: File): Observable<UploadDetails> {
             <div
                 image
                 *ngFor="let url of list; let i = index"
-                class="bg-center bg-cover h-32 w-36 relative rounded overflow-hidden flex-shrink-0"
+                class="bg-center bg-cover h-32 w-36 relative rounded overflow-hidden flex-shrink-0 bg-base-200"
                 [style.transform]="'translate(-' + offset + '00%)'"
-                [style.background-image]="'url(' + url + ')'"
             >
-                <div
-                    overlay
-                    class="absolute inset-0 hover:bg-base-content/50 text-base-100"
-                >
+                <img
+                    auth
+                    [src]="url | safe: 'resource'"
+                    class="object-contain absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none"
+                />
+                <div overlay class="absolute inset-0 text-base-100 z-20">
+                    <div bg class="absolute inset-0 opacity-0 bg-black"></div>
                     <div
                         actions
                         class="absolute top-0 left-0 right-0 flex items-center justify-center space-x-2 opacity-0"
@@ -211,13 +213,17 @@ export function uploadFile(file: File): Observable<UploadDetails> {
                 transition: background 200ms;
             }
 
-            [overlay]:hover [actions],
-            [overlay]:hover > app-icon {
+            [image]:hover [actions],
+            [image]:hover > app-icon {
                 opacity: 1 !important;
             }
 
+            [image]:hover [bg] {
+                opacity: 0.4 !important;
+            }
+
             [actions],
-            [overlay] > app-icon {
+            [image] > app-icon {
                 transition: opacity 200ms;
             }
 
