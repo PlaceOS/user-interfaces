@@ -548,6 +548,15 @@ export class EventFormService extends AsyncHandler {
             const is_owner =
                 host === currentUser()?.email ||
                 creator === currentUser()?.email;
+            if (
+                !spaces.length &&
+                this._settings.get('app.events.no_space_resource')
+            ) {
+                const space = await this._space_pipe.transform(
+                    this._settings.get('app.events.no_space_resource')
+                );
+                spaces.push(space);
+            }
             const space_id = spaces[0]?.id;
             const query: any = id
                 ? {
