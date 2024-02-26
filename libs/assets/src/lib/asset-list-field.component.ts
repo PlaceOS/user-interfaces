@@ -243,6 +243,14 @@ export class AssetListFieldComponent implements ControlValueAccessor {
     public readonly setDisabledState = (s: boolean) => (this.disabled = s);
 
     public editRequest(order: AssetRequest = new AssetRequest()) {
+        const order_list = this.asset_requests.filter((_) => _.id !== order.id);
+        const requested: Record<string, number> = {};
+        for (const order of order_list) {
+            for (const item of order.items) {
+                requested[item.id] =
+                    (requested[item.id] || 0) + item?.quantity || 0;
+            }
+        }
         const ref = this._dialog.open(AssetSelectModalComponent, {
             data: {
                 items: order.items,
@@ -258,6 +266,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
                 exact_time: !!order.deliver_time,
                 offset: order.deliver_offset,
                 offset_day: order.deliver_day_offset,
+                requested,
             },
         });
         ref.afterClosed().subscribe((items?: AssetItem[]) => {
@@ -297,7 +306,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
                 const total = orders.reduce(
                     (t, c) =>
                         (t +=
-                            c.items.find((_) => _.id === item.id).quantity ||
+                            c.items.find((_) => _.id === item.id)?.quantity ||
                             0),
                     0
                 );

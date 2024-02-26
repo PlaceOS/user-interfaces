@@ -74,7 +74,11 @@ import { map } from 'rxjs/operators';
                                     class="flex items-center text-sm space-x-2"
                                 >
                                     <p>
-                                        {{ asset.assets?.length || '0' }}
+                                        {{
+                                            asset.available ||
+                                                asset.assets?.length ||
+                                                '0'
+                                        }}
                                         Available
                                     </p>
                                 </div>
@@ -131,8 +135,11 @@ export class AssetListComponent {
     @Input() public selected: string = '';
     @Input() public favorites: string[] = [];
     @Input() public selected_items: AssetGroup[] = [];
+    @Input() public requested: Record<string, number> = {};
     @Output() public toggleFav = new EventEmitter<AssetGroup>();
     @Output() public onSelect = new EventEmitter<AssetGroup>();
+
+    private _requested_items = new BehaviorSubject<Record<string, number>>({});
 
     public readonly counts = new BehaviorSubject<Record<string, number>>({});
 
@@ -140,16 +147,27 @@ export class AssetListComponent {
     public readonly assets = combineLatest([
         this.counts,
         this._asset_state.filtered_assets,
+        this._requested_items,
     ]).pipe(
-        map(([counts, assets]) => {
+        map(([counts, assets, requested]) => {
             for (const item of assets) {
                 item.quantity = counts[item.id] || 0;
                 const selected = this.selected_items.find(
                     (i) => i.id === item.id
                 );
                 if (selected) selected.assets = item.assets;
+                if (requested[item.id] !== undefined) {
+                    (item as any).available = Math.max(
+                        (item.assets?.length || 0) - requested[item.id],
+                        0
+                    );
+                }
             }
-            return assets;
+            return assets.filter(
+                (_: any) =>
+                    (_.available != null && _.available > 0) ||
+                    (_.available == null && _.assets?.length > 0)
+            );
         })
     );
 
@@ -162,6 +180,9 @@ export class AssetListComponent {
                 counts[item.id] = item.quantity;
             }
             this.counts.next(counts);
+        }
+        if (changes.requested) {
+            this._requested_items.next(this.requested);
         }
     }
 

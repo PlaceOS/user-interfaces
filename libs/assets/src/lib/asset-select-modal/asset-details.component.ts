@@ -45,13 +45,24 @@ import { AssetGroup } from '../asset.class';
                         <h2 class="text-xl font-medium mb-2 mt-4">
                             {{ item.name }}
                         </h2>
-                        <p>{{ item.assets?.length || 0 }} Available</p>
+                        <p>
+                            {{
+                                (item.available != null
+                                    ? item.available
+                                    : item.assets?.length) || 0
+                            }}
+                            Available
+                        </p>
                     </div>
                     <a-counter
                         [(ngModel)]="item.quantity"
                         (ngModelChange)="countChange.emit($event)"
                         [min]="1"
-                        [max]="item.assets?.length || 1"
+                        [max]="
+                            (item.available != null
+                                ? item.available
+                                : item.assets?.length) || 1
+                        "
                     ></a-counter>
                 </section>
                 <hr />

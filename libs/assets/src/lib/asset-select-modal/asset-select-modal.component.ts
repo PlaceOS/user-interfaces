@@ -41,6 +41,7 @@ const EMPTY_FAVS: string[] = [];
                         [selected]="selected_ids"
                         [favorites]="favorites"
                         [selected_items]="selected"
+                        [requested]="requested"
                         (toggleFav)="toggleFavourite($event)"
                         (onSelect)="displayed = $event"
                         class="flex-1 h-1/2 w-full overflow-hidden"
@@ -130,6 +131,7 @@ export class AssetSelectModalComponent {
     public displayed: AssetGroup | null = null;
     public selected: AssetGroup[] = [...(this._data.items || [])];
     public exact_time = this._data.exact_time ?? false;
+    public requested = this._data.requested;
     public offset: number;
     public offset_day: number;
 
@@ -159,6 +161,7 @@ export class AssetSelectModalComponent {
             exact_time?: boolean;
             offset?: number;
             offset_day?: number;
+            requested: Record<string, number>;
         }
     ) {
         const { duration } = this._data.details;
