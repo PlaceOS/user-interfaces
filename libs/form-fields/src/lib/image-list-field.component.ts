@@ -155,7 +155,7 @@ export function uploadFile(file: File): Observable<UploadDetails> {
                     *ngIf="item.error"
                     class="absolute inset-0 hover:bg-base-content hover:bg-opacity-50 text-base-100 flex items-center justify-center"
                 >
-                    <app-icon class="text-3xl opacity-0">retry</app-icon>
+                    <app-icon class="text-3xl opacity-0">refresh</app-icon>
                 </div>
             </div>
             <button
