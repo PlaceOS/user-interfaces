@@ -6,3 +6,4 @@ export * from './lib/timezone-helpers';
 export * from './lib/user-idle-time.service';
 export * from './lib/booking-rules';
 export * from './lib/keep-alive.service';
+export * from './lib/uploads.service';
