@@ -3,20 +3,14 @@ import { Component, ElementRef, forwardRef, ViewChild } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { Clipboard } from '@angular/cdk/clipboard';
-import {
-    humanReadableByteCount,
-    Upload,
-    uploadFiles,
-} from '@placeos/cloud-uploads';
+import { Upload } from '@placeos/cloud-uploads';
 
-import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
-import { map, take, takeWhile } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { map, take } from 'rxjs/operators';
 
-import * as blobUtil from 'blob-util';
 import {
     AsyncHandler,
     notifyInfo,
-    randomInt,
     unique,
     UploadsService,
 } from '@placeos/common';
@@ -38,50 +32,6 @@ export interface UploadDetails {
     error?: string;
     /** Upload object associated with the file */
     upload: Upload;
-}
-/**
- * Upload the given file to the cloud
- * @param file File to upload
- */
-export function uploadFile(file: File): Observable<UploadDetails> {
-    return new Observable((observer) => {
-        const fileReader = new FileReader();
-        fileReader.addEventListener('loadend', (e: any) => {
-            const arrayBuffer = e.target.result;
-            const upload_details: UploadDetails = {
-                id: randomInt(9999_9999_9999),
-                name: file.name,
-                progress: 0,
-                link: '',
-                formatted_size: humanReadableByteCount(file.size),
-                size: file.size,
-                upload: null,
-            };
-            const blob = blobUtil.arrayBufferToBlob(arrayBuffer, file.type);
-            const upload_list = uploadFiles([blob], { file_name: file.name });
-            const upload = upload_list[0];
-            upload_details.upload = upload;
-            upload.status
-                .pipe(takeWhile((_) => _.status !== 'complete', true))
-                .subscribe(
-                    (state) => {
-                        if (upload.access_url)
-                            upload_details.link = upload.access_url;
-                        upload_details.progress = state.progress;
-                        observer.next(upload_details);
-                        if (state.status === 'error')
-                            observer.error({
-                                ...upload_details,
-                                error: state.error,
-                            });
-                        if (state.status === 'complete') observer.complete();
-                    },
-                    (e) => (upload_details.error = e)
-                );
-            observer.next(upload_details);
-        });
-        fileReader.readAsArrayBuffer(file);
-    });
 }
 
 @Component({
