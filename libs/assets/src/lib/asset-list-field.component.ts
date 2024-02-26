@@ -8,6 +8,7 @@ import { AssetStateService } from './asset-state.service';
 import { AssetItem, AssetRequest } from './asset-request.class';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
+    notifyError,
     randomInt,
     randomString,
 } from '@placeos/common';
@@ -292,6 +293,21 @@ export class AssetListFieldComponent implements ControlValueAccessor {
                     : null,
                 deliver_day_offset: ref.componentInstance.offset_day || 0,
             });
+            for (const item of new_order.items) {
+                const total = orders.reduce(
+                    (t, c) =>
+                        (t +=
+                            c.items.find((_) => _.id === item.id).quantity ||
+                            0),
+                    0
+                );
+                if (total + item.quantity > (item as any).assets.length) {
+                    notifyError(
+                        `Not enough assets available to meet request [${item.name}]`
+                    );
+                    return;
+                }
+            }
             if (new_order.item_count <= 0) return;
             this.setValue([...orders, new_order]);
         });
