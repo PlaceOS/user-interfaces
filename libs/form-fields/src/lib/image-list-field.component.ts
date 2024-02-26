@@ -16,6 +16,7 @@ import * as blobUtil from 'blob-util';
 import {
     AsyncHandler,
     notifyInfo,
+    randomInt,
     unique,
     UploadsService,
 } from '@placeos/common';
@@ -308,6 +309,13 @@ export class ImageListFieldComponent extends AsyncHandler {
 
     public addImageUrl(url: string) {
         this.setValue(unique([...this.list, url]));
+    }
+
+    public retryUpload(item: UploadDetails) {
+        if (item.error) {
+            item.error = null;
+            item.upload.resume();
+        }
     }
 
     public async uploadImages(event) {
