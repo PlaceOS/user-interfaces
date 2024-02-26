@@ -303,7 +303,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
                 );
                 if (total + item.quantity > (item as any).assets.length) {
                     notifyError(
-                        `Not enough assets available to meet request [${item.name}]`
+                        `Not enough assets available to meet request [${item.name}]. Another request for this asset has been made in this meeting.`
                     );
                     return;
                 }
