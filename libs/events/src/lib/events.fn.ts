@@ -326,7 +326,7 @@ export function querySpaceAvailability(
             system_ids: id_list.join(),
             period_start: getUnixTime(start),
             period_end: getUnixTime(end),
-        }),
+        }).pipe(catchError((_) => of([]))),
         ignore && id_list.includes(ignore)
             ? querySpaceFreeBusy({
                   period_start: getUnixTime(start),
