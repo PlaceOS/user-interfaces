@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import {
     AsyncHandler,
-    HashMap,
     MapsPeopleService,
     log,
     notifyError,
@@ -181,7 +180,8 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     public readonly building = this._org.active_building;
     public readonly setBuilding = (b) => {
         this._org.building = b;
-        this._setLocationToBuilding();
+        const pos = this._setLocationToBuilding();
+        this._updateGeolocation(pos);
     };
 
     public readonly levels = combineLatest([
@@ -227,7 +227,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         this.buildings_list = this._org.buildings;
         if (this.custom_coordinates) this.coordinates = this.custom_coordinates;
         const get_location = () => {
-            this._getUserLocation().then();
+            this._getUserLocation().then(this._updateGeolocation.bind(this));
             document.removeEventListener('click', get_location);
         };
         document.addEventListener('click', get_location);
@@ -399,9 +399,9 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             return new Promise<GeolocationPosition>((resolve) => {
                 const options = { timeout: 10000, enableHighAccuracy: true };
                 navigator.geolocation.getCurrentPosition(
-                    async (position: GeolocationPosition) => {
+                    (position: GeolocationPosition) => {
                         if (!this._closeToBuildingLocation(position)) {
-                            return resolve(await this._setLocationToBuilding());
+                            return resolve(this._setLocationToBuilding());
                         }
                         log('MapsIndoors', 'Settings location to user:', [
                             position.coords,
@@ -409,7 +409,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                         this._updateGeolocation(position);
                         resolve(position);
                     },
-                    async () => resolve(await this._setLocationToBuilding()),
+                    () => resolve(this._setLocationToBuilding()),
                     options
                 );
             });
@@ -448,7 +448,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                 longitude: this.user_longitude,
                 accuracy: 10,
             },
-            timestamp: new Date().getTime(),
+            timestamp: Date.now(),
         } as GeolocationPosition;
     }
 
