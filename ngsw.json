@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1703203563241,
+  "timestamp": 1709013343993,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -13,11 +13,11 @@
       "urls": [
         "./favicon.ico",
         "./index.html",
-        "./main.a2eb28c94c49d084.js",
+        "./main.9efb0a049f7a923e.js",
         "./manifest.webmanifest",
         "./polyfills.3be703785898b559.js",
         "./runtime.ff9097db73644f66.js",
-        "./styles.8c34a4817c92bf0d.css"
+        "./styles.94557d117825802e.css"
       ],
       "patterns": []
     },
@@ -79,6 +79,7 @@
         "./assets/icons/today-outline.svg",
         "./assets/icons/visa.svg",
         "./assets/locale/ar.json",
+        "./assets/locale/en-GB.json",
         "./assets/locale/en-US.json",
         "./assets/locale/en.json",
         "./assets/locale/es.json",
@@ -167,7 +168,8 @@
     "./assets/icons/today-filled.svg": "1410738877666c872263634fc33cfe9b2c3ac6f1",
     "./assets/icons/today-outline.svg": "40fc045c0b90aa2313cc5385260781ba5b55b8ad",
     "./assets/icons/visa.svg": "11187e2ea86894625af0aeb5b85c17bcbf8fe192",
-    "./assets/locale/ar.json": "e1cc59b9719d8fcc0d94d8a86ec9660b6c91116f",
+    "./assets/locale/ar.json": "9d39f81ce08112ff2e2c8c9d392e763f1c48083b",
+    "./assets/locale/en-GB.json": "74ffa5ff586701de9b95a574fc8b17bdb897eb37",
     "./assets/locale/en-US.json": "3841f63e329be78a64979b096660841f14ad2507",
     "./assets/locale/en.json": "74ffa5ff586701de9b95a574fc8b17bdb897eb37",
     "./assets/locale/es.json": "12fcaef177f45954851f4dbfddb85122b91b0207",
@@ -194,8 +196,8 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "f1f947d4d29130c0ec1d4795433488d35728326d",
-    "./main.a2eb28c94c49d084.js": "a16976714d13e3a7f355d2b915db13b49cda2eb2",
+    "./index.html": "7146c41489450cd59bd2e337b7abdf2561cf3ac8",
+    "./main.9efb0a049f7a923e.js": "cd01119e655bbd81e947b01d5b1f3a8ff6d6d519",
     "./manifest.webmanifest": "1403ffbb424e3924fdbd03de6cc312e4a7a0b0b6",
     "./material-icons-outlined.f86cb7b0aa53f0fe.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.b10ec9db5b7fbc74.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
@@ -207,7 +209,7 @@
     "./material-symbols-sharp.cbff3cfef7082994.woff2": "d991d290442aeb0a63e5d3bc48143a088e517de3",
     "./polyfills.3be703785898b559.js": "b62c51850c7506ef99a70ac8c106db728fd75168",
     "./runtime.ff9097db73644f66.js": "94e1159dd2ffda6fa3cf5b296265c3c9bc1a5223",
-    "./styles.8c34a4817c92bf0d.css": "4436f91b912178c6f8ee2c2a2f8a44c89fc12ea5"
+    "./styles.94557d117825802e.css": "855c94e6f68f25a7275fc8a6a62b16e14352192e"
   },
   "navigationUrls": [
     {
