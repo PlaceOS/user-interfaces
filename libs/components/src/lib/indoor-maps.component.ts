@@ -179,7 +179,10 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
 
     public readonly buildings = this._org.building_list;
     public readonly building = this._org.active_building;
-    public readonly setBuilding = (b) => (this._org.building = b);
+    public readonly setBuilding = (b) => {
+        this._org.building = b;
+        this._setLocationToBuilding();
+    };
 
     public readonly levels = combineLatest([
         this.building,
@@ -222,7 +225,6 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         this.setBuilding(this._org.building);
         this.levels_list = this._org.levels;
         this.buildings_list = this._org.buildings;
-        await this._setLocationToBuilding();
         if (this.custom_coordinates) this.coordinates = this.custom_coordinates;
         const get_location = () => {
             this._getUserLocation().then();

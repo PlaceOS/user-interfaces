@@ -33,7 +33,7 @@ export class MapsPeopleService extends AsyncHandler {
         this._org.initialised,
     ]).pipe(
         filter(([_]) => !!_),
-        debounceTime(300),
+        debounceTime(1000),
         tap(() => this._injectMapsApiKeys()),
         map(
             ([bld, zone]) =>
