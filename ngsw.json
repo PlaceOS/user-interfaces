@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1703203651255,
+  "timestamp": 1709013498468,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -11,17 +11,17 @@
         "ignoreVary": true
       },
       "urls": [
-        "./157.d750115e30523b0d.js",
-        "./298.7930447bef0cc652.js",
+        "./157.97b28da0d19026b4.js",
+        "./298.e6c8ad2539af6c5b.js",
         "./663.57a9b6a3156a94c6.js",
-        "./894.effad008ef1e14b1.js",
+        "./894.725bf3cf97cfbba4.js",
         "./favicon.ico",
         "./index.html",
-        "./main.4b93cbc066b69204.js",
+        "./main.8c57e3fe6bc97614.js",
         "./manifest.webmanifest",
         "./polyfills.7094771a9c3194a2.js",
-        "./runtime.c1fc2a13bad8e525.js",
-        "./styles.8c34a4817c92bf0d.css"
+        "./runtime.f6ebba75a6c482be.js",
+        "./styles.94557d117825802e.css"
       ],
       "patterns": []
     },
@@ -115,6 +115,7 @@
         "./assets/img/stairs.svg",
         "./assets/js/instascan.min.js",
         "./assets/locale/ar.json",
+        "./assets/locale/en-GB.json",
         "./assets/locale/en-US.json",
         "./assets/locale/en.json",
         "./assets/locale/es.json",
@@ -152,10 +153,10 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./157.d750115e30523b0d.js": "6aee4b6bec54e2555e4f2572bcb3b2a4c78b41af",
-    "./298.7930447bef0cc652.js": "57d349991c0f658bf1da0a75f6eff8234c965d67",
+    "./157.97b28da0d19026b4.js": "a4ea269b9b75ebfb166095ebfd649bfcf4268710",
+    "./298.e6c8ad2539af6c5b.js": "69ca5558bceda107736f55e09dff5e497504ac92",
     "./663.57a9b6a3156a94c6.js": "9059561543b6cbaf3b66716d8808a7bb44fe6f79",
-    "./894.effad008ef1e14b1.js": "7268b7dd0813ad148d35628703685ca33b1d1954",
+    "./894.725bf3cf97cfbba4.js": "6d630e9b54d30184b119b4e5bf13ccb23d540d52",
     "./assets/icons/amex.svg": "3530eff717af33317b79bdd1d0ec96abfa884287",
     "./assets/icons/asset-placeholder.svg": "57d3c780a925b7434aadbe716a991457666eb450",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
@@ -237,7 +238,8 @@
     "./assets/img/skyline.jpg": "4ccbd85616d840a7674ecd4d53e36d0085d574f4",
     "./assets/img/stairs.svg": "7a0c56a6be12318368aa8a174812502fecc4b247",
     "./assets/js/instascan.min.js": "8ac89054c1758a60574c5e2b2689d0da83ae6f5b",
-    "./assets/locale/ar.json": "e1cc59b9719d8fcc0d94d8a86ec9660b6c91116f",
+    "./assets/locale/ar.json": "9d39f81ce08112ff2e2c8c9d392e763f1c48083b",
+    "./assets/locale/en-GB.json": "74ffa5ff586701de9b95a574fc8b17bdb897eb37",
     "./assets/locale/en-US.json": "3841f63e329be78a64979b096660841f14ad2507",
     "./assets/locale/en.json": "74ffa5ff586701de9b95a574fc8b17bdb897eb37",
     "./assets/locale/es.json": "12fcaef177f45954851f4dbfddb85122b91b0207",
@@ -262,8 +264,8 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "bf2d6880900ba3b8de652c8484050659e97efabc",
-    "./main.4b93cbc066b69204.js": "8513d206a8dcac4d575ca717645fdd7a4208b5b0",
+    "./index.html": "61ba9419c7abe1c17e74708519c3fd19213f92ff",
+    "./main.8c57e3fe6bc97614.js": "9a7c97a034119a8392ea1435718800f9cc4b085a",
     "./manifest.webmanifest": "1f969ea0e2566dc28ceb4da6116602149aa879ec",
     "./material-icons-outlined.f86cb7b0aa53f0fe.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.b10ec9db5b7fbc74.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
@@ -274,8 +276,8 @@
     "./material-symbols-rounded.ce03b85d012749d0.woff2": "1eedd967ab52c2e1ac9607d814b17740ecd8fcc6",
     "./material-symbols-sharp.cbff3cfef7082994.woff2": "d991d290442aeb0a63e5d3bc48143a088e517de3",
     "./polyfills.7094771a9c3194a2.js": "3005f82345c10428e4c00f31fb1f23b748d8b392",
-    "./runtime.c1fc2a13bad8e525.js": "8b6fd1379603e14bb9658e312ec0f5a7f33625c7",
-    "./styles.8c34a4817c92bf0d.css": "4436f91b912178c6f8ee2c2a2f8a44c89fc12ea5"
+    "./runtime.f6ebba75a6c482be.js": "89b391093e15ce3985160b7d6f784b71c0c2cd15",
+    "./styles.94557d117825802e.css": "855c94e6f68f25a7275fc8a6a62b16e14352192e"
   },
   "navigationUrls": [
     {
