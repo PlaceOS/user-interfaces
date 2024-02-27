@@ -222,6 +222,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         this.setBuilding(this._org.building);
         this.levels_list = this._org.levels;
         this.buildings_list = this._org.buildings;
+        await this._setLocationToBuilding();
         if (this.custom_coordinates) this.coordinates = this.custom_coordinates;
         const get_location = () => {
             this._getUserLocation().then();
