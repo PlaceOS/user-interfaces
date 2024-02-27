@@ -299,7 +299,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         );
         console.log('Directions Service:', this.directions_service, provider);
         const directionsRendererOptions = {
-            mapsIndoors: this.map_instance,
+            mapsIndoors: this.maps_service,
         };
         this.directions_renderer =
             new mapsindoors.directions.DirectionsRenderer(
