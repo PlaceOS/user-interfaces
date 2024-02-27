@@ -299,7 +299,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         );
         console.log('Directions Service:', this.directions_service, provider);
         const directionsRendererOptions = {
-            mapsIndoors: this.maps_service,
+            mapsIndoors: this.map_instance,
         };
         this.directions_renderer =
             new mapsindoors.directions.DirectionsRenderer(
@@ -505,7 +505,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                 notifyError('Error: Origin location is outside of map area.');
                 throw e;
             });
-        this.directions_renderer?.setDirections(result);
+        this.directions_renderer?.setRoute(result);
     }
 
     async renderSpaceStatus(): Promise<void[]> {
