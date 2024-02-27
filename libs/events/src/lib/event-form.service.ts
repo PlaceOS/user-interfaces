@@ -481,6 +481,11 @@ export class EventFormService extends AsyncHandler {
         const form_data = JSON.parse(
             sessionStorage.getItem('PLACEOS.event_form') || '{}'
         );
+        if (form_data.id !== this._event.getValue()?.id) {
+            showEvent(form_data.id).subscribe((event) =>
+                this._event.next(event)
+            );
+        }
         this._form.patchValue({ ...form_data });
     }
 
