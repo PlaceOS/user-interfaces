@@ -433,6 +433,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
 
     private _setLocationToBuilding() {
         log('MapsIndoors', 'Settings location to building:', [
+            this._org.building?.display_name || this._org.building?.name,
             this._org.building?.location,
         ]);
         const [lat, long] = this._org.building?.location.split(',');
