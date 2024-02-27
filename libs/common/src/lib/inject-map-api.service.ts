@@ -32,7 +32,7 @@ export class InjectMapApiService extends AsyncHandler {
         this._custom_zone,
         this._org.initialised,
     ]).pipe(
-        filter(([_, __, initialised]) => initialised),
+        filter(([_]) => !!_),
         tap(() => this._injectMapsApiKeys()),
         map(
             ([bld, zone]) =>

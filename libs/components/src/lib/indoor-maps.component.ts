@@ -380,13 +380,19 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             return customPosition as GeolocationPosition;
         } else {
             navigator.geolocation.watchPosition(
-                (_) => this._updateGeolocation(_),
+                (_) => {
+                    if (!this._closeToBuildingLocation(_)) return;
+                    this._updateGeolocation(_);
+                },
                 (_) => this._handleGeolocationError(_)
             );
             return new Promise<GeolocationPosition>((resolve) => {
                 const options = { timeout: 10000, enableHighAccuracy: true };
                 navigator.geolocation.getCurrentPosition(
                     (position: GeolocationPosition) => {
+                        if (!this._closeToBuildingLocation(position)) {
+                            return this._setLocationToBuilding();
+                        }
                         this._updateGeolocation(position);
                         resolve(position);
                     },
@@ -397,7 +403,29 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         }
     }
 
+    private _closeToBuildingLocation(position: GeolocationPosition) {
+        const [lat_str, long_str] =
+            this._org.building?.location.split(',') || [];
+        if (lat_str && long_str) {
+            const lat = parseFloat(lat_str);
+            const long = parseFloat(long_str);
+            const distance =
+                Math.acos(
+                    Math.sin(lat) * Math.sin(position.coords.latitude) +
+                        Math.cos(lat) *
+                            Math.cos(position.coords.latitude) *
+                            Math.cos(position.coords.longitude - long)
+                ) * 6371;
+            if (distance >= 1) return false; // Only use geolocation if user is within 1km of building
+        }
+        return true;
+    }
+
     private _setLocationToBuilding() {
+        console.log(
+            'Setting location to building:',
+            this._org.building?.location
+        );
         const [lat, long] = this._org.building?.location.split(',');
         this.user_latitude = parseFloat(lat);
         this.user_longitude = parseFloat(long);
@@ -428,7 +456,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     }
 
     public async getRoute(location: any) {
-        if (!this.directions_service) return;
+        if (!this.directions_service || !location) return;
         this.selected_destination = location;
         if (!this.user_latitude || !this.user_longitude) {
             return notifyError('Error: unable to find a route.');
@@ -437,7 +465,6 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             lat: this.user_latitude,
             lng: this.user_longitude,
         };
-        console.log('Origin: ', origin, 'Destination: ', location);
 
         const destination = {
             lat: location.properties.anchor.coordinates[1],
