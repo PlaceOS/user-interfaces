@@ -3,7 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 
 import { AsyncHandler, Identity } from '@placeos/common';
 import { VirtualKeyboardComponent } from '@placeos/components';
-import { Building, OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from '@placeos/organisation';
 import { showMetadata } from '@placeos/ts-client';
 import { of } from 'rxjs';
 import {

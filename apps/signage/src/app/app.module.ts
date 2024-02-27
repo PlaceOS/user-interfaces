@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ErrorHandler, NgModule } from '@angular/core';
+import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
 import { Router } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
@@ -23,6 +23,7 @@ import { HttpClient } from '@angular/common/http';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { SignagePanelComponent } from './signage.component';
 import { PaymentsModule } from 'libs/payments/src/lib/payments.module';
+import { SharedSpacesModule } from '@placeos/spaces';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -46,6 +47,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         MatRippleModule,
         MatFormFieldModule,
         MatSelectModule,
+        SharedSpacesModule,
         ComponentsModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
@@ -69,6 +71,12 @@ export function HttpLoaderFactory(http: HttpClient) {
         {
             provide: Sentry.TraceService,
             deps: [Router],
+        },
+        {
+            provide: APP_INITIALIZER,
+            useFactory: () => () => {},
+            deps: [Sentry.TraceService],
+            multi: true,
         },
     ],
     bootstrap: [AppComponent],

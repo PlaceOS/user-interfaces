@@ -39,7 +39,7 @@ import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 
 import { setDefaultCreator } from 'libs/events/src/lib/event.class';
 
-import { init as sentryInit } from '@sentry/angular-ivy';
+import * as Sentry from '@sentry/angular-ivy';
 import { MOCKS } from '@placeos/mocks';
 import {
     Amazon,
@@ -57,11 +57,28 @@ import { StylesManager } from 'survey-core';
 StylesManager.applyTheme('modern');
 const START_QUERY = location.search;
 
-export function initSentry(dsn: string, sample_rate: number = 0.2) {
+export function initSentry(dsn: string, sample_rate = 0.1) {
     if (!dsn) return;
-    sentryInit({
+    Sentry.init({
         dsn,
-        tracesSampleRate: sample_rate,
+        integrations: [
+            Sentry.browserTracingIntegration(),
+            Sentry.replayIntegration({
+                maskAllText: false,
+                blockAllMedia: false,
+            }),
+        ],
+        // Performance Monitoring
+        tracesSampleRate: 1.0, //  Capture 100% of the transactions
+        // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
+        tracePropagationTargets: [
+            'localhost',
+            /^https:\/\/[a-zA-Z0-9_\-]*\.[a-zA-Z0-9]*\/api/,
+            /^https:\/\/[a-zA-Z0-9_\-]*\.placeos\.run*\/api/,
+        ],
+        // Session Replay
+        replaysSessionSampleRate: sample_rate, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
+        replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
     });
 }
 
