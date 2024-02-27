@@ -461,7 +461,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     }
 
     private _handleGeolocationError(error: any) {
-        notifyError('Error updating your geolocation.');
+        notifyError(`Error retrieving your geolocation. [${error.message}]`);
     }
 
     public async getRoute(location: any) {
@@ -491,7 +491,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         const result = await this.directions_service
             .getRoute(routeParameters)
             .catch((e) => {
-                console.error('Error fetching route: ', e);
+                log('MapsIndoors', 'Error fetching route: ', [e], 'error');
                 const origin_error =
                     e instanceof TypeError && e.message?.includes('origin');
                 if (!origin_error) throw e;
