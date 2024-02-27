@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { SettingsService } from './settings.service';
 import { OrganisationService } from '@placeos/organisation';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map, tap, filter } from 'rxjs/operators';
+import { map, tap, filter, debounce, debounceTime } from 'rxjs/operators';
 import { AsyncHandler } from './async-handler.class';
 import { log } from './general';
 
@@ -33,6 +33,7 @@ export class MapsPeopleService extends AsyncHandler {
         this._org.initialised,
     ]).pipe(
         filter(([_]) => !!_),
+        debounceTime(300),
         tap(() => this._injectMapsApiKeys()),
         map(
             ([bld, zone]) =>

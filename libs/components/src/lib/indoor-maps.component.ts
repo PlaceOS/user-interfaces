@@ -50,26 +50,26 @@ interface CustomCoordinates {
         <div
             id="maps-indoors"
             class="absolute inset-0 flex items-center justify-center"
+        ></div>
+        <div
+            class="absolute inset-0 flex items-center justify-center"
+            *ngIf="loading"
         >
-            <mat-spinner
-                *ngIf="loading"
-                class="absolute"
-                [diameter]="48"
-            ></mat-spinner>
-            <div
-                *ngIf="geolocation_error_message"
-                class="flex flex-col items-center z-50"
-            >
-                <img
-                    src="assets/icons/not-found.svg"
-                    alt="graphic of magnifying glass"
-                    width="200px"
-                    class="items-center"
-                />
-                <p class="opacity-60 text-sm text-center mt-10">
-                    {{ geolocation_error_message | translate }}
-                </p>
-            </div>
+            <mat-spinner [diameter]="48"></mat-spinner>
+        </div>
+        <div
+            class="absolute inset-0 flex flex-col space-y-2 items-center justify-center"
+            *ngIf="geolocation_error_message"
+        >
+            <img
+                src="assets/icons/not-found.svg"
+                alt="graphic of magnifying glass"
+                width="200px"
+                class="items-center"
+            />
+            <p class="opacity-60 text-sm text-center mt-10">
+                {{ geolocation_error_message | translate }}
+            </p>
         </div>
         <div
             class="absolute flex flex-col h-min w-min top-2 left-2 bg-base-100 text-base-content rounded-lg z-50 p-2 shadow"
