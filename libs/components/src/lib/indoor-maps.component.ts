@@ -451,13 +451,14 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     }
 
     private _updateGeolocation(updated_location: GeolocationPosition) {
-        if (!updated_location) return;
+        if (!updated_location?.coords) return;
+        const { latitude, longitude } = updated_location.coords;
         if (
-            updated_location.coords?.latitude !== this.user_latitude ||
-            updated_location.coords?.longitude !== this.user_longitude
+            latitude !== this.user_latitude ||
+            longitude !== this.user_longitude
         ) {
-            this.user_latitude = updated_location.coords?.latitude;
-            this.user_longitude = updated_location.coords?.longitude;
+            this.user_latitude = latitude;
+            this.user_longitude = longitude;
             this.getRoute(this.selected_destination);
         }
     }
@@ -468,10 +469,14 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
 
     public async getRoute(location: any) {
         if (!this.directions_service || !location) return;
-        log('MapsIndoors', 'Getting route to location:', [location]);
+        log('MapsIndoors', 'Getting route to location:', [
+            location,
+            this.user_latitude,
+            this.user_longitude,
+        ]);
         this.selected_destination = location;
         if (!this.user_latitude || !this.user_longitude) {
-            return notifyError('Error: unable to find a route.');
+            return notifyError('Unable to find a route.');
         }
         const origin: any = {
             lat: this.user_latitude,
