@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
-import { first } from 'rxjs/operators';
+import { first, map } from 'rxjs/operators';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { ExploreStateService } from './explore-state.service';
@@ -78,7 +78,9 @@ export class ExploreMapControlComponent extends AsyncHandler implements OnInit {
     /** Currently active building */
     public readonly building = this._org.active_building;
     /** List of availabel levels */
-    public readonly levels = this._org.active_levels;
+    public readonly levels = this._org.active_levels.pipe(
+        map((_) => _.filter((lvl) => !lvl.tags?.includes('parking')))
+    );
     /** Currently active level */
     public readonly level = this._state.level;
     /** Set the currently active level */

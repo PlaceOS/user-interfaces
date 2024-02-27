@@ -28,6 +28,7 @@ import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 import { StaffUser } from '@placeos/users';
 import { SetDatetimeModalComponent } from './set-datetime-modal.component';
 import { MatDialog } from '@angular/material/dialog';
+import { ExploreDeskInfoComponent } from './explore-desk-info.component';
 
 export interface ParkingSpace {
     id: string;
@@ -132,16 +133,21 @@ export class ExploreParkingService extends AsyncHandler {
         map(([spaces, level]) => spaces.filter((_) => _.zone_id === level.id))
     );
 
+    private _users = {};
+
     /** Available parking spaces for the current level and date */
     public readonly available_spaces = combineLatest([
         this.events,
         this.active_spaces,
     ]).pipe(
         map(([events, spaces]) =>
-            spaces.filter(
-                (_) =>
-                    !events.find((e) => e.asset_id === _.id) && !_.assigned_to
-            )
+            spaces.filter((_) => {
+                const assigned =
+                    events.find((e) => e.asset_id === _.id)?.user_name ||
+                    _.assigned_to;
+                this._users[_.id] = assigned;
+                return !assigned;
+            })
         )
     );
 
@@ -191,6 +197,7 @@ export class ExploreParkingService extends AsyncHandler {
 
     private _updateParkingSpaces(spaces, available) {
         const styles = {};
+        const features = [];
         const labels = [];
         const actions = [];
         const colours = this._settings.get('app.explore.colors') || {};
@@ -205,9 +212,18 @@ export class ExploreParkingService extends AsyncHandler {
                     DEFAULT_COLOURS[`${status}`],
                 opacity: 0.6,
             };
+            features.push({
+                track_id: `parking:hover:${space.map_id}`,
+                location: `${space.map_id}`,
+                content: ExploreDeskInfoComponent,
+                full_size: true,
+                no_scale: true,
+                z_index: 20,
+                data: { ...space, user: this._users[space.id], status },
+            });
             if (!can_book) continue;
             labels.push({
-                zoom_level: 2,
+                zoom_level: 1.1,
                 location: `${space.map_id}`,
                 content: `${space.name}\nFree`,
             });
