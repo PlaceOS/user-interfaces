@@ -413,7 +413,18 @@ export async function updateAssetRequestsForResource(
     await Promise.all(
         new_assets.map((request) => {
             // Handle duplicate asset ids
-            let asset_ids = flatten(request.items.map((_) => _.item_ids));
+            let asset_ids = flatten(
+                request.items.map((_) =>
+                    _.item_ids.length
+                        ? _.item_ids
+                        : (_ as any).assets
+                              ?.map((_) => _.id)
+                              .slice(0, _.quantity)
+                )
+            );
+            if (!asset_ids.length) {
+                throw `No assets metadata to select for furfillment of request ${request.id}`;
+            }
             const duplicates = asset_ids.filter((_) => used_ids.includes(_));
             if (duplicates?.length) {
                 for (const item of request.items) {
