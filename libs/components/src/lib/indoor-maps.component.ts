@@ -256,21 +256,13 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         };
 
         if (this._api_service.map_service === MapService.GoogleMaps) {
-            log(
-                'MapsIndoors',
-                'Google Maps API Key:',
-                this._api_service.map_keys.google
-            );
+            log('MapsIndoors', 'Using Google Maps API');
             this.view_instance = new mapsindoors.mapView.GoogleMapsView(
                 view_options
             );
         } else {
             view_options.accessToken = this._api_service.map_token;
-            log(
-                'MapsIndoors',
-                'Mapbox Access Token:',
-                view_options.accessToken
-            );
+            log('MapsIndoors', 'Using Mapbox API');
             this.view_instance = new mapsindoors.mapView.MapboxView(
                 view_options
             );
@@ -382,6 +374,9 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             navigator.geolocation.watchPosition(
                 (_) => {
                     if (!this._closeToBuildingLocation(_)) return;
+                    log('MapsIndoors', 'Settings location to user:', [
+                        _.coords,
+                    ]);
                     this._updateGeolocation(_);
                 },
                 (_) => this._handleGeolocationError(_)
@@ -393,6 +388,9 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                         if (!this._closeToBuildingLocation(position)) {
                             return this._setLocationToBuilding();
                         }
+                        log('MapsIndoors', 'Settings location to user:', [
+                            position.coords,
+                        ]);
                         this._updateGeolocation(position);
                         resolve(position);
                     },
@@ -422,10 +420,9 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     }
 
     private _setLocationToBuilding() {
-        console.log(
-            'Setting location to building:',
-            this._org.building?.location
-        );
+        log('MapsIndoors', 'Settings location to building:', [
+            this._org.building?.location,
+        ]);
         const [lat, long] = this._org.building?.location.split(',');
         this.user_latitude = parseFloat(lat);
         this.user_longitude = parseFloat(long);
@@ -457,6 +454,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
 
     public async getRoute(location: any) {
         if (!this.directions_service || !location) return;
+        log('MapsIndoors', 'Getting route to location:', [location]);
         this.selected_destination = location;
         if (!this.user_latitude || !this.user_longitude) {
             return notifyError('Error: unable to find a route.');
