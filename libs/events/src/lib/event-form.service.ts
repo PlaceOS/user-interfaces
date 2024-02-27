@@ -512,17 +512,17 @@ export class EventFormService extends AsyncHandler {
                 );
             }
             const ical_uid = this.event?.ical_uid;
+            const value = this._form.getRawValue();
             let {
                 id,
                 host,
                 date,
-                date_end,
                 duration,
                 creator,
                 all_day,
                 assets,
                 recurrence,
-            } = form.getRawValue();
+            } = value;
             const spaces = form.get('resources')?.value || [];
             let catering = form.get('catering')?.value || [];
             if (recurrence?._pattern && recurrence?._pattern !== 'none') {
@@ -557,6 +557,13 @@ export class EventFormService extends AsyncHandler {
                 );
                 spaces.push(space);
             }
+            const attendees = unique(
+                [...value.attendees, value.organiser || currentUser()],
+                'email'
+            );
+            if (!spaces.length && attendees.find((_) => _.is_external)) {
+                throw 'External attendees require a space to be booked';
+            }
             const space_id = spaces[0]?.id;
             const query: any = id
                 ? {
@@ -567,7 +574,6 @@ export class EventFormService extends AsyncHandler {
                   }
                 : {};
             if (is_owner) query.calendar = host || creator;
-            const value = this._form.getRawValue();
             if (this._payments.payment_module && spaces.length) {
                 const receipt = await this._payments.makePayment({
                     type: 'space',
@@ -587,10 +593,6 @@ export class EventFormService extends AsyncHandler {
                 order.notes = value.catering_notes;
                 order.charge_code = value.catering_charge_code;
             }
-            const attendees = unique(
-                [...value.attendees, value.organiser || currentUser()],
-                'email'
-            );
             if (spaces.length) {
                 let [setup, breakdown] = [0, 0];
                 for (const space of spaces) {
