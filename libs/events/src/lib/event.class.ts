@@ -296,9 +296,19 @@ export class CalendarEvent {
         );
     }
 
+    private _valid_asset_cache = [];
+    private _valid_cache_expiry = 0;
+
     public get valid_assets() {
+        if (
+            this._valid_cache_expiry > Date.now() &&
+            this._valid_asset_cache.length
+        ) {
+            return this._valid_asset_cache;
+        }
         const list = this.linked_bookings;
-        return (this.ext('assets') || [])
+        this._valid_asset_cache = (this.ext('assets') || [])
+            .map((request) => new AssetRequest({ ...request, event: this }))
             .filter((request) => request.deliver_at < this.date_end)
             .map((request) => {
                 const booking = list.find((_) => _.asset_id === request.id);
@@ -311,6 +321,8 @@ export class CalendarEvent {
                 }
                 return request;
             });
+        this._valid_cache_expiry = addMinutes(Date.now(), 5).valueOf();
+        return this._valid_asset_cache;
     }
 
     /**
