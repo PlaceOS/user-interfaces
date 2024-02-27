@@ -15,7 +15,7 @@ import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info.component';
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
 import { OrganisationService } from '@placeos/organisation';
-import { InjectMapApiService } from 'libs/common/src/lib/inject-map-api.service';
+import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 
 @Component({
     selector: 'desk-map',
@@ -173,13 +173,13 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
         )
     );
 
-    public readonly use_mapsindoors$ = this._maps_people.use_mapspeople$;
+    public readonly use_mapsindoors$ = this._maps_people.available$;
 
     constructor(
         private _state: BookingFormService,
         private _settings: SettingsService,
         private _org: OrganisationService,
-        private _maps_people: InjectMapApiService
+        private _maps_people: MapsPeopleService
     ) {
         super();
     }

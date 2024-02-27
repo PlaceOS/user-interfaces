@@ -4,7 +4,7 @@ import {
     notifyError,
     notifySuccess,
     SettingsService,
-    InjectMapApiService,
+    MapsPeopleService,
 } from '@placeos/common';
 import { addMinutes, format, formatDuration } from 'date-fns';
 
@@ -367,14 +367,14 @@ export class BookingDetailsModalComponent {
         return 'warning';
     }
 
-    public readonly use_mapsindoors$ = this._maps_people.use_mapspeople$;
+    public readonly use_mapsindoors$ = this._maps_people.available$;
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _booking: Booking,
         private _settings: SettingsService,
         private _org: OrganisationService,
         private _dialog: MatDialog,
-        private _maps_people: InjectMapApiService
+        private _maps_people: MapsPeopleService
     ) {}
 
     public ngOnInit() {

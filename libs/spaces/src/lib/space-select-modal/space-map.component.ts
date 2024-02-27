@@ -8,7 +8,7 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
 import { SpaceLocationPinComponent } from './space-location-pin.component';
 import { Space } from '../space.class';
-import { InjectMapApiService } from 'libs/common/src/lib/inject-map-api.service';
+import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 
 @Component({
     selector: `space-map`,
@@ -153,12 +153,12 @@ export class SpaceSelectMapComponent extends AsyncHandler {
         )
     );
 
-    public readonly use_mapsindoors$ = this._maps_people.use_mapspeople$;
+    public readonly use_mapsindoors$ = this._maps_people.available$;
 
     constructor(
         private _event_form: EventFormService,
         private _org: OrganisationService,
-        private _maps_people: InjectMapApiService
+        private _maps_people: MapsPeopleService
     ) {
         super();
     }

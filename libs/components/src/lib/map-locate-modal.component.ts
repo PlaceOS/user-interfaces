@@ -2,7 +2,7 @@ import { Component, OnInit, Output, EventEmitter, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 
-import { AsyncHandler, InjectMapApiService } from '@placeos/common';
+import { AsyncHandler, MapsPeopleService } from '@placeos/common';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
 import { MapPinComponent } from './map-pin.component';
@@ -86,12 +86,12 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
         return this.item.level || this._org.levelWithID(this.item.zones || []);
     }
 
-    public readonly use_mapsindoors$ = this._maps_people.use_mapspeople$;
+    public readonly use_mapsindoors$ = this._maps_people.available$;
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: { item: Locatable },
         private _org: OrganisationService,
-        private _maps_people: InjectMapApiService
+        private _maps_people: MapsPeopleService
     ) {
         super();
         if (!this.item.level?.id) {

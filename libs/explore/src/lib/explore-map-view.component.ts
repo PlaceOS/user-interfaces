@@ -24,7 +24,7 @@ import { ExploreZonesService } from './explore-zones.service';
 import { ExploreDesksService } from './explore-desks.service';
 import { ExploreParkingService } from './explore-parking.service';
 import { ExploreLockersService } from './explore-lockers.service';
-import { InjectMapApiService } from 'libs/common/src/lib/inject-map-api.service';
+import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 
 const EMPTY = [];
 
@@ -151,7 +151,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
     }
 
     public readonly use_mapsindoors$: Observable<boolean> =
-        this._maps.use_mapspeople$;
+        this._maps.available$;
 
     constructor(
         private _state: ExploreStateService,
@@ -166,7 +166,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         private _org: OrganisationService,
         private _settings: SettingsService,
         private _space_pipe: SpacePipe,
-        private _maps: InjectMapApiService
+        private _maps: MapsPeopleService
     ) {
         super();
     }

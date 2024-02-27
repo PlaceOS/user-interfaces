@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { SettingsService } from './settings.service';
-import { notifyError } from './notifications';
 import { OrganisationService } from '@placeos/organisation';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map, tap, filter } from 'rxjs/operators';
 import { AsyncHandler } from './async-handler.class';
+import { log } from './general';
 
 export enum MapService {
     GoogleMaps,
@@ -20,14 +20,14 @@ export interface MapsPeopleKeys {
 @Injectable({
     providedIn: 'root',
 })
-export class InjectMapApiService extends AsyncHandler {
+export class MapsPeopleService extends AsyncHandler {
     private _map_service = new BehaviorSubject<MapService>(null);
     private _map_token = new BehaviorSubject<string>('');
     private _ready = new BehaviorSubject(false);
     private _injected: Record<string, boolean> = {};
     private _custom_zone = new BehaviorSubject<string>('');
 
-    public readonly use_mapspeople$ = combineLatest([
+    public readonly available$ = combineLatest([
         this._org.active_building,
         this._custom_zone,
         this._org.initialised,
@@ -74,6 +74,7 @@ export class InjectMapApiService extends AsyncHandler {
     }
 
     private _injectMapsApiKeys() {
+        log('MapsPeople', 'Initializing Maps API Keys');
         this._ready.next(false);
         const { mapsindoors, google, mapbox } = this.map_keys;
         if (!mapsindoors) return;
@@ -83,10 +84,12 @@ export class InjectMapApiService extends AsyncHandler {
             document.body.appendChild(script);
             this._injected.mapsindoors = true;
         }
-
         if (google && mapbox) {
-            notifyError(
-                "You can't use both Google and Mapbox maps at the same time"
+            log(
+                'MapsPeople',
+                'Both Google and Mapbox keys provided',
+                undefined,
+                'error'
             );
             return;
         }
@@ -110,6 +113,12 @@ export class InjectMapApiService extends AsyncHandler {
         }
 
         if (google || mapbox) {
+            log(
+                'MapsPeople',
+                `Initialized Maps API Keys for ${
+                    google ? 'Google Maps' : 'Mapbox'
+                }`
+            );
             this.timeout('ready', () => this._ready.next(true), 300);
         }
     }

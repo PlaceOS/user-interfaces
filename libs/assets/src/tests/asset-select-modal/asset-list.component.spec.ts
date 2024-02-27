@@ -31,14 +31,18 @@ describe('AssetListComponent', () => {
 
     it('should allow list available assets', () => {
         expect('[empty]').toExist();
-        (spectator.inject(AssetStateService).filtered_assets as any).next([{ id: '1' }] as any);
+        (spectator.inject(AssetStateService).filtered_assets as any).next([
+            { id: '1', assets: [{}] },
+        ] as any);
         spectator.detectChanges();
         expect('[empty]').not.toExist();
         expect('[asset]').toExist();
     });
 
     it('should allow selecting the asset', (done) => {
-        (spectator.inject(AssetStateService).filtered_assets as any).next([{ id: '1' }] as any);
+        (spectator.inject(AssetStateService).filtered_assets as any).next([
+            { id: '1', assets: [{}] },
+        ] as any);
         spectator.detectChanges();
         spectator.component.onSelect.subscribe((a) => {
             expect(a.id).toBe('1');
@@ -48,7 +52,9 @@ describe('AssetListComponent', () => {
     });
 
     it('should allow toggling the favourite state of asset', (done) => {
-        (spectator.inject(AssetStateService).filtered_assets as any).next([{ id: '1' }] as any);
+        (spectator.inject(AssetStateService).filtered_assets as any).next([
+            { id: '1', assets: [{}] },
+        ] as any);
         spectator.detectChanges();
         spectator.component.toggleFav.subscribe((a) => {
             expect(a.id).toBe('1');

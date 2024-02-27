@@ -5,7 +5,7 @@ import { BuildingLevel } from '@placeos/organisation';
 import { debounceTime, map } from 'rxjs/operators';
 import { BookingAsset } from '../booking-form.service';
 import { ParkingSpaceLocationPinComponent } from './parking-location-pin.component';
-import { InjectMapApiService } from 'libs/common/src/lib/inject-map-api.service';
+import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 
 @Component({
     selector: `parking-space-map`,
@@ -121,11 +121,11 @@ export class ParkingSpaceSelectMapComponent extends AsyncHandler {
         )
     );
 
-    public readonly use_mapsindoors$ = this._maps_people.use_mapspeople$;
+    public readonly use_mapsindoors$ = this._maps_people.available$;
 
     constructor(
         private _event_form: EventFormService,
-        private _maps_people: InjectMapApiService
+        private _maps_people: MapsPeopleService
     ) {
         super();
     }

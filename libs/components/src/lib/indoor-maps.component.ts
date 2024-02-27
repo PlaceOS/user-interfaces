@@ -9,7 +9,7 @@ import {
 import {
     AsyncHandler,
     HashMap,
-    InjectMapApiService,
+    MapsPeopleService,
     log,
     notifyError,
 } from '@placeos/common';
@@ -18,7 +18,7 @@ import { ExploreStateService } from '../../../explore/src/lib/explore-state.serv
 import { Building, OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
 import { filter, map, first, take } from 'rxjs/operators';
-import { MapService } from 'libs/common/src/lib/inject-map-api.service';
+import { MapService } from 'libs/common/src/lib/mapspeople.service';
 
 declare let mapsindoors: any;
 declare let google: any;
@@ -209,7 +209,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     @ViewChild('searchResultItems') searchResults: ElementRef;
 
     constructor(
-        private _api_service: InjectMapApiService,
+        private _api_service: MapsPeopleService,
         private _state: ExploreStateService,
         private _org: OrganisationService
     ) {
@@ -355,7 +355,15 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     }
 
     private async _getUserLocation(): Promise<GeolocationPosition> {
-        if (!('geolocation' in navigator)) return this._setLocationToBuilding();
+        if (!('geolocation' in navigator)) {
+            log(
+                'MapsIndoors',
+                "User's geolocation not available.",
+                undefined,
+                'warn'
+            );
+            return this._setLocationToBuilding();
+        }
         if (this.coordinates) {
             console.log('Custom GeoLocation:', this.coordinates);
             const customPosition = {
@@ -384,9 +392,9 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             return new Promise<GeolocationPosition>((resolve) => {
                 const options = { timeout: 10000, enableHighAccuracy: true };
                 navigator.geolocation.getCurrentPosition(
-                    (position: GeolocationPosition) => {
+                    async (position: GeolocationPosition) => {
                         if (!this._closeToBuildingLocation(position)) {
-                            return this._setLocationToBuilding();
+                            return resolve(await this._setLocationToBuilding());
                         }
                         log('MapsIndoors', 'Settings location to user:', [
                             position.coords,
@@ -394,7 +402,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                         this._updateGeolocation(position);
                         resolve(position);
                     },
-                    () => resolve(this._setLocationToBuilding()),
+                    async () => resolve(await this._setLocationToBuilding()),
                     options
                 );
             });

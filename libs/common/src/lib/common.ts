@@ -4,7 +4,7 @@ export { HotkeysService } from './hotkeys.service';
 export { SettingsService } from './settings.service';
 export { VorlonService } from './vorlon.service';
 export { VERSION } from './version';
-export { InjectMapApiService } from './inject-map-api.service';
+export { MapsPeopleService } from './mapspeople.service';
 
 export * from './angular-animations';
 export * from './api';

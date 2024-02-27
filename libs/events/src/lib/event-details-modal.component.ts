@@ -12,7 +12,7 @@ import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     notifyError,
     SettingsService,
-    InjectMapApiService,
+    MapsPeopleService,
 } from '@placeos/common';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { getModule } from '@placeos/ts-client';
@@ -606,7 +606,7 @@ export class EventDetailsModalComponent {
         return 'warning';
     }
 
-    public readonly use_mapsindoors$ = this._maps_people.use_mapspeople$;
+    public readonly use_mapsindoors$ = this._maps_people.available$;
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _event: CalendarEvent,
@@ -614,7 +614,7 @@ export class EventDetailsModalComponent {
         private _space_pipe: SpacePipe,
         private _settings: SettingsService,
         private _dialog: MatDialog,
-        private _maps_people: InjectMapApiService
+        private _maps_people: MapsPeopleService
     ) {
         this._load().then();
     }

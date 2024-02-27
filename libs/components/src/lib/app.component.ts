@@ -33,7 +33,7 @@ import {
     isMobileSafari,
     hasNewVersion,
 } from '@placeos/common';
-import { InjectMapApiService } from 'libs/common/src/lib/inject-map-api.service';
+import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 
@@ -110,7 +110,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         private _clipboard: Clipboard,
         private _route: ActivatedRoute,
         private _router: Router,
-        private _maps: InjectMapApiService,
+        private _maps: MapsPeopleService,
         @Optional() private _translate: TranslateService
     ) {
         super();

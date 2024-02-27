@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     AsyncHandler,
-    InjectMapApiService,
+    MapsPeopleService,
     notifyError,
     SettingsService,
     unique,
@@ -234,7 +234,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         return !!this._settings.get('app.explore.search_enabled');
     }
 
-    public readonly use_mapsindoors$ = this._maps.use_mapspeople$;
+    public readonly use_mapsindoors$ = this._maps.available$;
 
     constructor(
         private _state: ExploreStateService,
@@ -249,7 +249,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         private _route: ActivatedRoute,
         private _router: Router,
         private _space_pipe: SpacePipe,
-        private _maps: InjectMapApiService
+        private _maps: MapsPeopleService
     ) {
         super();
     }

@@ -13,7 +13,7 @@ import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { DeskMapComponent } from '../../lib/desk-select-modal/desk-map.component';
-import { InjectMapApiService, SettingsService } from '@placeos/common';
+import { MapsPeopleService, SettingsService } from '@placeos/common';
 
 describe('DeskMapComponent', () => {
     let spectator: Spectator<DeskMapComponent>;
@@ -26,7 +26,7 @@ describe('DeskMapComponent', () => {
                 available_resources: new BehaviorSubject([]),
             } as any),
             MockProvider(SettingsService, { get: jest.fn() }),
-            MockProvider(InjectMapApiService, {
+            MockProvider(MapsPeopleService, {
                 use_mapsindoors$: new BehaviorSubject(false),
             } as any),
         ],

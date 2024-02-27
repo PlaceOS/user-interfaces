@@ -20,7 +20,7 @@ import { ExploreStateService } from '../lib/explore-state.service';
 import { ExploreSpacesService } from '../lib/explore-spaces.service';
 import { ExploreDesksService } from '../lib/explore-desks.service';
 import { ExploreZonesService } from '../lib/explore-zones.service';
-import { InjectMapApiService } from 'libs/common/src/lib/inject-map-api.service';
+import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 
 jest.mock('@placeos/ts-client');
 jest.mock('@placeos/common');
@@ -51,7 +51,7 @@ describe('ExploreMapViewComponent', () => {
             MockProvider(ExploreParkingService),
             MockProvider(ExploreLockersService),
             MockProvider(SpacePipe, { transform: jest.fn(() => ({})) } as any),
-            MockProvider(InjectMapApiService, {
+            MockProvider(MapsPeopleService, {
                 use_mapspeople$: new BehaviorSubject(false),
             } as any),
         ],

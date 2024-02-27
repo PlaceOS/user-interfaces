@@ -1,7 +1,7 @@
 import { MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { InjectMapApiService, SettingsService } from '@placeos/common';
+import { MapsPeopleService, SettingsService } from '@placeos/common';
 import {
     IconComponent,
     ImageCarouselComponent,
@@ -30,7 +30,7 @@ describe('BookingDetailsModalComponent', () => {
                 get: jest.fn(),
                 time_format: 'h:mm a',
             }),
-            MockProvider(InjectMapApiService, {
+            MockProvider(MapsPeopleService, {
                 use_mapsindoors$: new BehaviorSubject(false),
             } as any),
         ],
