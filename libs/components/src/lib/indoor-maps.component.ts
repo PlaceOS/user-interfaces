@@ -223,7 +223,11 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         this.levels_list = this._org.levels;
         this.buildings_list = this._org.buildings;
         if (this.custom_coordinates) this.coordinates = this.custom_coordinates;
-        await this._getUserLocation();
+        const get_location = () => {
+            this._getUserLocation().then();
+            document.removeEventListener('click', get_location);
+        };
+        document.addEventListener('click', get_location);
         await this.initMapView();
     }
 
