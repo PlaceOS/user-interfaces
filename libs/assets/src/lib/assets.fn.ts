@@ -331,8 +331,9 @@ export function queryGroupAvailability(
         queryBookings(query),
     ]).pipe(
         map(([products, bookings]) => {
-            for (const product of products) {
-                product.assets = product.assets.filter(
+            return products.map((product) => ({
+                ...product,
+                assets: product.assets.filter(
                     (asset) =>
                         ignore?.includes(asset.id) ||
                         !bookings.find(
@@ -340,9 +341,8 @@ export function queryGroupAvailability(
                                 booking.asset_id === asset.id ||
                                 booking.asset_ids?.includes(asset.id)
                         )
-                );
-            }
-            return products;
+                ),
+            }));
         })
     );
 }
