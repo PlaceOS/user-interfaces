@@ -273,7 +273,11 @@ export class InteractiveMapComponent
 
     private async createView() {
         if (!authority()) {
-            return this.timeout('create_view', () => this.createView(), 300);
+            return this.timeout(
+                'create_view',
+                () => this.createView().catch((e) => console.warn(e)),
+                300
+            );
         }
         if (this.src && this._outlet_el?.nativeElement && !this.loading) {
             this.loading = true;
