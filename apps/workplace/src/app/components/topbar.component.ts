@@ -13,7 +13,7 @@ const EMPTY = [];
         >
             <a
                 name="nav-logo"
-                class="p-2 h-full flex items-center flex-1"
+                class="p-2 h-full flex items-center w-48"
                 [routerLink]="['/-']"
             >
                 <img
@@ -25,11 +25,11 @@ const EMPTY = [];
                 <span *ngIf="title">{{ title }}</span>
             </a>
             <div
-                class="flex-3 items-center justify-center h-full w-1/2 hidden sm:flex"
+                class="flex-1 items-center justify-center h-full w-1/2 hidden sm:flex relative"
             >
                 <top-menu></top-menu>
             </div>
-            <div class="flex-1 flex items-center justify-end">
+            <div class="w-48 flex items-center justify-end">
                 <global-search *ngIf="search"></global-search>
                 <button
                     icon

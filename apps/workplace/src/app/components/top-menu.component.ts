@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -7,226 +7,75 @@ import { OrganisationService } from '@placeos/organisation';
     selector: 'top-menu',
     template: `
         <div
+            #menuContainer
             menu
-            class="flex items-center justify-center h-full w-full overflow-hidden text-base-content"
+            [class.opacity-0]="mobile_menu"
+            [class.pointer-events-none]="mobile_menu"
+            [class.!h-0]="mobile_menu"
+            (window:resize)="checkMenu()"
+            class="flex items-center justify-center h-full w-full overflow-hidden text-base-content min-w-full"
         >
-            <a
-                matRipple
-                name="nav-home"
-                class="flex items-center justify-center space-x-2 relative px-8"
-                [routerLink]="[default_page]"
-                routerLinkActive="text-secondary active"
-                matTooltip="Home"
-                matTooltipPosition="below"
-            >
-                <app-icon filled class="text-xl">home</app-icon>
-                <app-icon
-                    outline
-                    className="material-icons-outlined"
-                    class="text-xl !m-0"
+            <ng-container *ngFor="let route of routes">
+                <a
+                    matRipple
+                    [name]="'nav-' + route.id"
+                    class="flex items-center justify-center space-x-2 relative px-8"
+                    [routerLink]="[route.route]"
+                    routerLinkActive="text-secondary active"
+                    [matTooltip]="route.name"
+                    *ngIf="features.includes(route.id)"
+                    matTooltipPosition="below"
                 >
-                    home
-                </app-icon>
-                <span *ngIf="show_text" class="truncate hidden xl:block">
-                    Home
-                </span>
-                <div
-                    bar
-                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
-                ></div>
-            </a>
-            <a
-                matRipple
-                name="nav-meeting"
-                class="flex items-center justify-center space-x-2 relative px-8"
-                *ngIf="features.includes('spaces')"
-                [routerLink]="
-                    new_features ? ['/book', 'meeting'] : ['/book', 'spaces']
-                "
-                routerLinkActive="text-secondary active"
-                matTooltip="Book Room"
-                matTooltipPosition="below"
-            >
-                <app-icon filled class="text-xl">meeting_room</app-icon>
-                <app-icon
-                    outline
-                    className="material-icons-outlined"
-                    class="text-xl !m-0"
-                    >meeting_room</app-icon
-                >
-                <span *ngIf="show_text" class="truncate hidden xl:block"
-                    >Book Room</span
-                >
-                <div
-                    bar
-                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
-                ></div>
-            </a>
-            <a
-                matRipple
-                name="nav-desks"
-                class="flex items-center justify-center space-x-2 relative px-8"
-                *ngIf="features.includes('desks')"
-                [routerLink]="
-                    new_features ? ['/book', 'new-desks'] : ['/book', 'desks']
-                "
-                routerLinkActive="text-secondary active"
-                matTooltip="Book Desk"
-                matTooltipPosition="below"
-            >
-                <div>
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="22.106"
-                        height="15.251"
-                        viewBox="0 0 22.106 15.251"
+                    <app-icon filled class="text-xl">{{ route.icon }}</app-icon>
+                    <app-icon
+                        outline
+                        className="material-icons-outlined"
+                        class="text-xl !m-0"
                     >
-                        <path
-                            id="Desk_Name"
-                            d="M21.809,82.031l-4.434-4.292a.85.85,0,0,0-.6-.239H5.246a.878.878,0,0,0-.6.239L.22,82.031a.838.838,0,0,0-.194.924.854.854,0,0,0,.791.526H2.293V91.9A.853.853,0,0,0,4,91.9V83.485H5.224v3.444a.853.853,0,0,0,1.706,0V83.485h8.178v3.444a.853.853,0,0,0,1.706,0V83.485h1.224V91.9a.853.853,0,0,0,1.706,0V83.485h1.476a.858.858,0,0,0,.791-.526A.874.874,0,0,0,21.809,82.031ZM5.595,79.193H16.434l2.683,2.6H2.912Z"
-                            transform="translate(0.038 -77.5)"
-                            fill="currentColor"
-                        />
-                    </svg>
-                </div>
-                <span *ngIf="show_text" class="truncate hidden xl:block" i18n
-                    >Book Desk</span
-                >
-                <div
-                    bar
-                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
-                ></div>
-            </a>
-            <a
-                matRipple
-                name="nav-meeting"
-                class="flex items-center justify-center space-x-2 relative px-8"
-                *ngIf="features.includes('lockers')"
-                [routerLink]="['/book', 'locker']"
-                routerLinkActive="text-secondary active"
-                matTooltip="Book Locker"
-                matTooltipPosition="below"
-            >
-                <app-icon filled class="text-xl">lock</app-icon>
-                <app-icon
-                    outline
-                    className="material-icons-outlined"
-                    class="text-xl !m-0"
-                    >lock</app-icon
-                >
-                <span *ngIf="show_text" class="truncate hidden xl:block"
-                    >Book Locker</span
-                >
-                <div
-                    bar
-                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
-                ></div>
-            </a>
-            <a
-                matRipple
-                name="nav-parking"
-                class="flex items-center justify-center space-x-2 relative px-8"
-                *ngIf="features.includes('parking')"
-                [routerLink]="
-                    new_features
-                        ? ['/book', 'new-parking']
-                        : ['/book', 'parking']
-                "
-                routerLinkActive="text-secondary active"
-                matTooltip="Book Car Space"
-                matTooltipPosition="below"
-            >
-                <app-icon filled class="text-xl">directions_car</app-icon>
-                <app-icon
-                    outline
-                    className="material-icons-outlined"
-                    class="text-xl !m-0"
-                    >directions_car</app-icon
-                >
-                <span *ngIf="show_text" class="truncate hidden xl:block" i18n
-                    >Book Car Space</span
-                >
-                <div
-                    bar
-                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
-                ></div>
-            </a>
-            <a
-                matRipple
-                name="nav-visitor-invite"
-                class="flex items-center justify-center space-x-2 relative px-8"
-                *ngIf="features.includes('visitor-invite')"
-                [routerLink]="['/book', 'visitor']"
-                routerLinkActive="text-secondary active"
-                matTooltip="Invite Visitor"
-                matTooltipPosition="below"
-            >
-                <app-icon filled class="text-xl">person_add</app-icon>
-                <app-icon
-                    outline
-                    className="material-icons-outlined"
-                    class="text-xl !m-0"
-                    >person_add</app-icon
-                >
-                <span *ngIf="show_text" class="truncate hidden xl:block" i18n
-                    >Invite Visitor</span
-                >
-                <div
-                    bar
-                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
-                ></div>
-            </a>
-            <a
-                matRipple
-                name="nav-explore"
-                class="flex items-center justify-center space-x-2 relative px-8"
-                *ngIf="features.includes('explore')"
-                [routerLink]="['/explore']"
-                routerLinkActive="text-secondary active"
-                matTooltip="Spaces"
-                matTooltipPosition="below"
-            >
-                <app-icon filled class="text-xl">place</app-icon>
-                <app-icon
-                    outline
-                    className="material-icons-outlined"
-                    class="text-xl !m-0"
-                    >place</app-icon
-                >
-                <span *ngIf="show_text" class="truncate hidden xl:block" i18n
-                    >Spaces</span
-                >
-                <div
-                    bar
-                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
-                ></div>
-            </a>
-            <a
-                matRipple
-                name="nav-my-day"
-                class="flex items-center justify-center space-x-2 relative px-8"
-                *ngIf="features.includes('schedule')"
-                [routerLink]="new_features ? ['/your-bookings'] : ['/schedule']"
-                routerLinkActive="text-secondary active"
-                matTooltip="Your Bookings"
-                matTooltipPosition="below"
-            >
-                <app-icon filled class="text-xl">event</app-icon>
-                <app-icon
-                    outline
-                    className="material-icons-outlined"
-                    class="text-xl !m-0"
-                    >event</app-icon
-                >
-                <span *ngIf="show_text" class="truncate hidden xl:block" i18n
-                    >Your Bookings</span
-                >
-                <div
-                    bar
-                    class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
-                ></div>
-            </a>
+                        {{ route.icon }}
+                    </app-icon>
+                    <span *ngIf="show_text" class="truncate hidden xl:block">
+                        {{ route.name }}
+                    </span>
+                    <div
+                        bar
+                        class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
+                    ></div>
+                </a>
+            </ng-container>
         </div>
+        <div
+            class="absolute inset-y-0 left-0 -right-16 flex items-center justify-end"
+        >
+            <button
+                icon
+                matRipple
+                [matMenuTriggerFor]="menu"
+                *ngIf="mobile_menu"
+            >
+                <app-icon>menu</app-icon>
+            </button>
+        </div>
+        <mat-menu #menu="matMenu">
+            <a
+                mat-menu-item
+                *ngFor="let route of routes"
+                [routerLink]="route.route"
+                routerLinkActive="text-secondary active"
+            >
+                <div class="flex items-center space-x-2">
+                    <app-icon filled class="text-xl">{{ route.icon }}</app-icon>
+                    <app-icon
+                        outline
+                        className="material-icons-outlined"
+                        class="text-xl !m-0"
+                    >
+                        {{ route.icon }}
+                    </app-icon>
+                    <div class="truncate">{{ route.name }}</div>
+                </div>
+            </a>
+        </mat-menu>
     `,
     styles: [
         `
@@ -243,11 +92,11 @@ import { OrganisationService } from '@placeos/organisation';
                 display: block;
             }
 
-            a:not(.active) {
+            a:not([mat-menu-item]):not(.active) {
                 opacity: 0.6;
             }
 
-            a:not(.active):hover {
+            a:not([mat-menu-item]):not(.active):hover {
                 border-radius: 0.5rem;
                 margin-top: 0.25rem;
                 margin-bottom: 0.25rem;
@@ -257,8 +106,8 @@ import { OrganisationService } from '@placeos/organisation';
                 opacity: 0.4;
             }
 
-            a:not(.active) > [filled],
-            a.active > [outline] {
+            a:not(.active) [filled],
+            a.active [outline] {
                 display: none;
             }
         `,
@@ -267,8 +116,44 @@ import { OrganisationService } from '@placeos/organisation';
 export class TopMenuComponent {
     public readonly buildings = this._org.building_list;
     public readonly building = this._org.active_building;
+    public mobile_menu = false;
 
     public readonly setBuilding = (b) => (this._org.building = b);
+
+    public readonly routes = [
+        { id: 'home', route: this.default_page, icon: 'home', name: 'Home' },
+        {
+            id: 'spaces',
+            route: '/book/spaces',
+            icon: 'meeting_room',
+            name: 'Book Room',
+        },
+        {
+            id: 'desks',
+            route: '/book/desks',
+            icon: 'desk',
+            name: 'Book Desk',
+        },
+        {
+            id: 'lockers',
+            route: '/book/locker',
+            icon: 'lock',
+            name: 'Book Locker',
+        },
+        {
+            id: 'parking',
+            route: '/book/parking',
+            icon: 'directions_car',
+            name: 'Book Car Space',
+        },
+        { id: 'explore', route: '/explore', icon: 'place', name: 'Spaces' },
+        {
+            id: 'schedule',
+            route: '/schedule',
+            icon: 'event',
+            name: 'Your Bookings',
+        },
+    ];
 
     public get show_text() {
         return this.features.length <= 5;
@@ -298,9 +183,22 @@ export class TopMenuComponent {
         return '';
     }
 
+    @ViewChild('menuContainer') private menu: ElementRef<HTMLDivElement>;
+
     constructor(
+        private _element: ElementRef,
         private _settings: SettingsService,
         private _org: OrganisationService,
         private _router: Router
     ) {}
+
+    public ngAfterViewInit() {
+        this.checkMenu();
+    }
+
+    public checkMenu() {
+        this.mobile_menu =
+            this.menu.nativeElement?.offsetWidth >
+            this._element.nativeElement.parentElement.offsetWidth;
+    }
 }
