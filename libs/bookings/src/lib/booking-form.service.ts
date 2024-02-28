@@ -84,6 +84,7 @@ export interface BookingAsset {
     bookable: boolean;
     zone?: PlaceZone;
     groups?: string[];
+    assigned_to?: string;
     features: string[];
 }
 
@@ -226,7 +227,8 @@ export class BookingFormService extends AsyncHandler {
                                     (bkn) =>
                                         bkn.asset_id === asset.id &&
                                         bkn.status !== 'declined'
-                                )
+                                ) &&
+                                !asset.assigned_to
                             );
                         });
                         return available;
