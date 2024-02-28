@@ -414,38 +414,21 @@ export async function updateAssetRequestsForResource(
         new_assets.map((request) => {
             // Handle duplicate asset ids
             let asset_ids = flatten(
-                request.items.map((_) =>
-                    _.item_ids.length
-                        ? _.item_ids
-                        : (_ as any).assets
-                              ?.map((_) => _.id)
-                              .slice(0, _.quantity)
-                )
+                (request.items as any).map(({ item_ids, assets, quantity }) => {
+                    const list = [];
+                    return new Array(quantity).fill(0).map((_, idx) => {
+                        const item = used_ids.includes(item_ids[idx])
+                            ? assets.find(
+                                  (_) =>
+                                      !used_ids.includes(_.id) &&
+                                      !list.includes(_.id)
+                              )
+                            : item_ids[idx];
+                        list.push(item);
+                        return item;
+                    });
+                })
             );
-            if (!asset_ids.length) {
-                throw `No assets metadata to select for furfillment of request ${request.id}`;
-            }
-            const duplicates = asset_ids.filter((_) => used_ids.includes(_));
-            if (duplicates?.length) {
-                for (const item of request.items) {
-                    const group = item_list.find((_) => _.id === item.id);
-                    if (group && group.assets.length) {
-                        item.item_ids = new Array(item.quantity)
-                            .fill(0)
-                            .map((_) => {
-                                const asset = group.assets.find(
-                                    (_) => !used_ids.includes(_.id)
-                                );
-                                used_ids.push(asset.id);
-                                if (asset) return asset.id;
-                                throw new Error(
-                                    'Unable to find available assets'
-                                );
-                            });
-                    }
-                }
-                asset_ids = flatten(request.items.map((_) => _.item_ids));
-            }
             // Grab any existing bookings for the asset for the parent event/booking
             const booking = bookings.find((_) =>
                 _.asset_ids.find((id) =>

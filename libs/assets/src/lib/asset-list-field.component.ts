@@ -274,14 +274,23 @@ export class AssetListFieldComponent implements ControlValueAccessor {
             if (!items?.length) return;
             for (const item of items) {
                 if ((item as any).assets?.length) {
+                    const list = [];
                     item.item_ids = new Array(item.quantity)
                         .fill(0)
-                        .map(
-                            (_) =>
-                                (item as any).assets[
+                        .map((_) => {
+                            let id = '';
+                            let count = 0;
+                            while (
+                                (!id || list.includes(id)) &&
+                                count < (item as any).assets.length
+                            ) {
+                                id = (item as any).assets[
                                     randomInt((item as any).assets.length)
-                                ].id
-                        );
+                                ].id;
+                            }
+                            list.push(id);
+                            return id;
+                        });
                 }
             }
             const time = new Date(this.options.date);
