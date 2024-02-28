@@ -10,7 +10,6 @@ import { OrganisationService } from '@placeos/organisation';
             #menuContainer
             menu
             [class.opacity-0]="mobile_menu"
-            [class.pointer-events-none]="mobile_menu"
             [class.!h-0]="mobile_menu"
             (window:resize)="checkMenu()"
             class="flex items-center justify-center h-full w-full overflow-hidden text-base-content min-w-full"
@@ -23,7 +22,7 @@ import { OrganisationService } from '@placeos/organisation';
                     [routerLink]="[route.route]"
                     routerLinkActive="text-secondary active"
                     [matTooltip]="route.name"
-                    *ngIf="features.includes(route.id)"
+                    *ngIf="features.includes(route.id) || route.id === 'home'"
                     matTooltipPosition="below"
                 >
                     <app-icon filled class="text-xl">{{ route.icon }}</app-icon>
@@ -46,35 +45,35 @@ import { OrganisationService } from '@placeos/organisation';
         </div>
         <div
             class="absolute inset-y-0 left-0 -right-16 flex items-center justify-end"
+            *ngIf="mobile_menu"
         >
-            <button
-                icon
-                matRipple
-                [matMenuTriggerFor]="menu"
-                *ngIf="mobile_menu"
-            >
+            <button icon matRipple [matMenuTriggerFor]="menu">
                 <app-icon>menu</app-icon>
             </button>
         </div>
         <mat-menu #menu="matMenu">
-            <a
-                mat-menu-item
-                *ngFor="let route of routes"
-                [routerLink]="route.route"
-                routerLinkActive="text-secondary active"
-            >
-                <div class="flex items-center space-x-2">
-                    <app-icon filled class="text-xl">{{ route.icon }}</app-icon>
-                    <app-icon
-                        outline
-                        className="material-icons-outlined"
-                        class="text-xl !m-0"
-                    >
-                        {{ route.icon }}
-                    </app-icon>
-                    <div class="truncate">{{ route.name }}</div>
-                </div>
-            </a>
+            <ng-container *ngFor="let route of routes">
+                <a
+                    mat-menu-item
+                    *ngIf="features.includes(route.id) || route.id === 'home'"
+                    [routerLink]="route.route"
+                    routerLinkActive="text-secondary active"
+                >
+                    <div class="flex items-center space-x-2">
+                        <app-icon filled class="text-xl">{{
+                            route.icon
+                        }}</app-icon>
+                        <app-icon
+                            outline
+                            className="material-icons-outlined"
+                            class="text-xl !m-0"
+                        >
+                            {{ route.icon }}
+                        </app-icon>
+                        <div class="truncate">{{ route.name }}</div>
+                    </div>
+                </a>
+            </ng-container>
         </mat-menu>
     `,
     styles: [
@@ -124,13 +123,13 @@ export class TopMenuComponent {
         { id: 'home', route: this.default_page, icon: 'home', name: 'Home' },
         {
             id: 'spaces',
-            route: '/book/spaces',
+            route: '/book/meeting',
             icon: 'meeting_room',
             name: 'Book Room',
         },
         {
             id: 'desks',
-            route: '/book/desks',
+            route: '/book/new-desks',
             icon: 'desk',
             name: 'Book Desk',
         },
@@ -142,14 +141,14 @@ export class TopMenuComponent {
         },
         {
             id: 'parking',
-            route: '/book/parking',
+            route: '/book/new-parking',
             icon: 'directions_car',
             name: 'Book Car Space',
         },
         { id: 'explore', route: '/explore', icon: 'place', name: 'Spaces' },
         {
             id: 'schedule',
-            route: '/schedule',
+            route: '/your-bookings',
             icon: 'event',
             name: 'Your Bookings',
         },
