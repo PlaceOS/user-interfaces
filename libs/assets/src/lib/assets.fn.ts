@@ -417,13 +417,20 @@ export async function updateAssetRequestsForResource(
                 (request.items as any).map(({ item_ids, assets, quantity }) => {
                     const list = [];
                     return new Array(quantity).fill(0).map((_, idx) => {
-                        const item = used_ids.includes(item_ids[idx])
-                            ? assets.find(
-                                  (_) =>
-                                      !used_ids.includes(_.id) &&
-                                      !list.includes(_.id)
-                              )
-                            : item_ids[idx];
+                        const item =
+                            used_ids.includes(item_ids[idx]) ||
+                            list.includes(item_ids[idx]) ||
+                            !item_ids[idx]
+                                ? assets?.find(({ id }) => {
+                                      return (
+                                          !used_ids.includes(id) &&
+                                          !list.includes(id)
+                                      );
+                                  })?.id
+                                : item_ids[idx];
+                        if (!item) {
+                            throw 'Unable to find available asset for request';
+                        }
                         list.push(item);
                         return item;
                     });
