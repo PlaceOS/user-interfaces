@@ -76,7 +76,11 @@ export class CateringOrderStateService {
         switchMap(([{ zone }, bld]) => {
             this._loading.next('[Menu]');
             return showMetadata(zone || bld.id, 'catering').pipe(
-                map((d) => d.details.map((_) => new CateringItem(_))),
+                map((d) =>
+                    (d.details instanceof Array ? d.details : []).map(
+                        (_) => new CateringItem(_)
+                    )
+                ),
                 catchError((_) => [])
             );
         }),

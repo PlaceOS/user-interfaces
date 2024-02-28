@@ -116,7 +116,9 @@ export class ExploreParkingService extends AsyncHandler {
                 _.map((l) =>
                     showMetadata(l.id, 'parking-spaces').pipe(
                         map((d) =>
-                            d.details.map((s) => ({ ...s, zone_id: l.id }))
+                            (d.details instanceof Array ? d.details : []).map(
+                                (s) => ({ ...s, zone_id: l.id })
+                            )
                         )
                     )
                 )
