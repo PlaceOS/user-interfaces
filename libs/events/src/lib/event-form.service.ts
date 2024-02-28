@@ -406,7 +406,11 @@ export class EventFormService extends AsyncHandler {
             }
         }
         this._assets.setOptions({
-            ignore: event.extension_data.assets?.map((_) => _.id),
+            ignore: flatten(
+                event.linked_bookings?.map(
+                    (_) => _.asset_ids || [_.asset_id]
+                ) || []
+            ),
         });
         for (const idx in event.resources) {
             const space = event.resources[idx];
@@ -434,7 +438,11 @@ export class EventFormService extends AsyncHandler {
             ({ extension_data: {} } as Partial<CalendarEvent>);
 
         this._assets.setOptions({
-            ignore: event.extension_data.assets?.map((_) => _.id),
+            ignore: flatten(
+                event.linked_bookings?.map(
+                    (_) => _.asset_ids || [_.asset_id]
+                ) || []
+            ),
         });
         const has_catering = !!event.extension_data.catering[0];
         this._form.patchValue({
@@ -482,9 +490,16 @@ export class EventFormService extends AsyncHandler {
             sessionStorage.getItem('PLACEOS.event_form') || '{}'
         );
         if (form_data.id && form_data.id !== this._event.getValue()?.id) {
-            showEvent(form_data.id).subscribe((event) =>
-                this._event.next(event)
-            );
+            showEvent(form_data.id).subscribe((event) => {
+                this._event.next(event);
+                this._assets.setOptions({
+                    ignore: flatten(
+                        event.linked_bookings?.map(
+                            (_) => _.asset_ids || [_.asset_id]
+                        ) || []
+                    ),
+                });
+            });
         }
         this._form.patchValue({ ...form_data });
     }
