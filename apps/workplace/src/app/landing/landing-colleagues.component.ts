@@ -74,32 +74,30 @@ import { LandingStateService } from './landing-state.service';
                         <app-icon>more_horiz</app-icon>
                     </button>
                     <mat-menu #menu="matMenu" xPosition="before">
-                        <!-- <button mat-menu-item (click)="viewUser(user)" class="flex items-center space-x-2">
-                                <app-icon class="text-2xl">face</app-icon>
-                                <div>View Colleague</div>
-                            </button> -->
                         <button
                             mat-menu-item
                             name="meeting-with-colleague"
                             (click)="newMeeting(user)"
-                            class="flex items-center space-x-2"
                         >
-                            <app-icon class="text-2xl">today</app-icon>
-                            <div>{{ 'WPA.CREATE_MEETING' | translate }}</div>
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-2xl">today</app-icon>
+                                <div>
+                                    {{ 'WPA.CREATE_MEETING' | translate }}
+                                </div>
+                            </div>
                         </button>
                         <button
                             name="remove-colleague"
                             mat-menu-item
                             (click)="removeUser(user)"
-                            class="flex items-center space-x-2"
                         >
-                            <app-icon class="text-2xl">cancel</app-icon>
-                            <div>{{ 'WPA.REMOVE_COLLEAGUE' | translate }}</div>
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-2xl">cancel</app-icon>
+                                <div>
+                                    {{ 'WPA.REMOVE_COLLEAGUE' | translate }}
+                                </div>
+                            </div>
                         </button>
-                        <!-- <button mat-menu-item (click)="viewUser(user)" class="flex items-center space-x-2">
-                                <app-icon class="text-2xl">report</app-icon>
-                                <div>Block Colleague</div>
-                            </button> -->
                     </mat-menu>
                 </div>
             </ng-container>

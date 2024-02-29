@@ -1,6 +1,6 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 @Component({
@@ -112,7 +112,7 @@ import { OrganisationService } from '@placeos/organisation';
         `,
     ],
 })
-export class TopMenuComponent {
+export class TopMenuComponent extends AsyncHandler {
     public readonly buildings = this._org.building_list;
     public readonly building = this._org.active_building;
     public mobile_menu = false;
@@ -189,10 +189,12 @@ export class TopMenuComponent {
         private _settings: SettingsService,
         private _org: OrganisationService,
         private _router: Router
-    ) {}
+    ) {
+        super();
+    }
 
     public ngAfterViewInit() {
-        this.checkMenu();
+        this.timeout('check_menu', () => this.checkMenu());
     }
 
     public checkMenu() {
