@@ -139,12 +139,6 @@
         },
         "lint": {
             "executor": "@nx/eslint:lint",
-            "options": {
-                "lintFilePatterns": [
-                    "apps/workplace/src/**/*.ts",
-                    "apps/workplace/src/**/*.html"
-                ]
-            },
             "outputs": ["{options.outputFile}"]
         },
         "test": {
