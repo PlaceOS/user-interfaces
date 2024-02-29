@@ -462,6 +462,7 @@ export async function updateAssetRequestsForResource(
                         !reset_state && booking?.rejected && !request._changed,
                     extension_data: {
                         parent_id: id,
+                        request_id: request.id,
                         location_id,
                         request: new AssetRequest({ ...request, event: null }),
                     },

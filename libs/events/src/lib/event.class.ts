@@ -311,7 +311,9 @@ export class CalendarEvent {
             .map((request) => new AssetRequest({ ...request, event: this }))
             .filter((request) => request.deliver_at < this.date_end)
             .map((request) => {
-                const booking = list.find((_) => _.asset_id === request.id);
+                const booking = list.find(
+                    (_: any) => _.extension_data.request_id === request.id
+                );
                 if (booking) {
                     (request as any).state = booking.approved
                         ? 'approved'
