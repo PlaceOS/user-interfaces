@@ -452,7 +452,7 @@ export async function updateAssetRequestsForResource(
                     all_day,
                     description: location_name,
                     user_email: host,
-                    asset_id: request.id,
+                    asset_id: asset_ids[0],
                     asset_ids,
                     asset_name: request.items.map((_) => _.name).join(', '),
                     title: request.items.map((_) => _.name).join(', '),
