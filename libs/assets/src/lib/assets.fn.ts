@@ -408,13 +408,13 @@ export async function updateAssetRequestsForResource(
     const filtered = requests.filter(
         (_) => !_.rejected && !bookings.find((b) => b.id === _.id)
     );
-    const item_list = await queryAssetGroupsExtended().toPromise();
     let used_ids: string[] = flatten(filtered.map((_) => _.asset_ids));
     await Promise.all(
         new_assets.map((request) => {
             // Handle duplicate asset ids
             let asset_ids = flatten(
                 (request.items as any).map(({ item_ids, assets, quantity }) => {
+                    if (!assets) return item_ids;
                     const list = [];
                     return new Array(quantity).fill(0).map((_, idx) => {
                         const item =
