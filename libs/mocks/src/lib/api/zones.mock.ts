@@ -63,6 +63,20 @@ function registerMocks() {
     });
 
     registerMockEndpoint({
+        path: '/api/engine/v2/settings',
+        metadata: {},
+        method: 'GET',
+        callback: (request) => [],
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/settings/:id',
+        metadata: {},
+        method: 'GET',
+        callback: (request) => ({}),
+    });
+
+    registerMockEndpoint({
         path: '/api/engine/v2/metadata/:id',
         metadata: {},
         method: 'GET',
