@@ -64,7 +64,7 @@ export interface UploadDetails {
             >
                 <img
                     auth
-                    [src]="url | safe: 'resource'"
+                    [source]="url"
                     class="object-contain absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none"
                 />
                 <div overlay class="absolute inset-0 text-base-100 z-20">
