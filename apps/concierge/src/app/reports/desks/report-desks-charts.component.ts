@@ -83,12 +83,13 @@ export class ReportDesksChartsComponent extends AsyncHandler {
             zones = this._org.levels
                 .filter((_) => _.parent_id === this._org.building.id)
                 .map((_) => _.id);
+        const zone_list = (zones || []).filter((_) => (count[_] || 0) > 0);
         const data = {
-            labels: (zones || []).map((_) => {
+            labels: zone_list.map((_) => {
                 const level = this._org.levelWithID([_]);
                 return level?.display_name || level.name || '';
             }),
-            series: (zones || []).map((_) => count[_]),
+            series: zone_list.map((_) => count[_] || 0),
         };
         this._level_chart = new PieChart('#level-chart', data);
     }
