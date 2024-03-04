@@ -5,12 +5,13 @@ import {
     PlaceSettings,
     addSettings,
     querySettings,
-    showSettings,
+    showMetadata,
+    updateMetadata,
     updateSettings,
 } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
 import * as yaml from 'js-yaml';
-import { notifySuccess } from '@placeos/common';
+import { SettingsService, notifySuccess } from '@placeos/common';
 
 @Component({
     selector: 'building-list',
@@ -170,7 +171,10 @@ export class BuildingListComponent {
     public readonly removeBuilding = (building) =>
         this._manager.removeBuilding(building);
 
-    constructor(private _manager: BuildingManagementService) {}
+    constructor(
+        private _manager: BuildingManagementService,
+        private _settings: SettingsService
+    ) {}
 
     public async loadSettings(event: Event, id: string) {
         event.preventDefault();
@@ -219,6 +223,17 @@ export class BuildingListComponent {
         unencrypted.id
             ? await updateSettings(unencrypted.id, unencrypted).toPromise()
             : await addSettings(unencrypted).toPromise();
+
+        const metadata_key =
+            this._settings.get('app.workplace_metadata_key') || 'workplace_app';
+        const metadata = await showMetadata(id, metadata_key).toPromise();
+        const details: any = metadata.details || {};
+        details.auto_release = this.settings[id];
+        await updateMetadata(id, {
+            name: metadata_key,
+            details,
+            description: '',
+        }).toPromise();
         notifySuccess('Auto-release settings updated');
     }
 }
