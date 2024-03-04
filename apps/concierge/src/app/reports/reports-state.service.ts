@@ -15,7 +15,6 @@ import { OrganisationService } from '@placeos/organisation';
 import {
     addDays,
     addMinutes,
-    differenceInDays,
     endOfDay,
     format,
     getUnixTime,
@@ -126,15 +125,25 @@ export class ReportsStateService {
                   );
         }),
         catchError((_) => []),
-        map((_) => {
+        map((list) => {
             this._loading.next('');
-            if (!_?.length) {
+            if (!list?.length) {
                 notifyError('No bookings for the selected levels and period');
             }
-            this._active_bookings.next(_ || []);
-            return _;
+            const ignore_days =
+                this._settings
+                    .get('app.reports.ignore_days')
+                    ?.map((_) => _.toLowerCase()) || [];
+            list = list.filter(
+                (bkn) =>
+                    !ignore_days.includes(
+                        DAYS_OF_WEEK_INDEX[new Date(bkn.date).getDay()]
+                    )
+            );
+            this._active_bookings.next(list || []);
+            return list;
         }),
-        shareReplay()
+        shareReplay(1)
     );
 
     public readonly loading = this._loading.asObservable();
@@ -189,41 +198,42 @@ export class ReportsStateService {
     public readonly day_list = combineLatest([this.options, this.stats]).pipe(
         map(([options, stats]) => {
             const { start } = options;
+            let date = startOfDay(start);
+            const end = endOfDay(options.end || date);
+            const dates = [];
             const ignore_days =
                 this._settings
                     .get('app.reports.ignore_days')
                     ?.map((_) => _.toLowerCase()) || [];
-            let date = startOfDay(start);
-            const end = endOfDay(options.end || date);
-            const dates = [];
             while (isBefore(date, end)) {
+                if (ignore_days.includes(DAYS_OF_WEEK_INDEX[date.getDay()])) {
+                    date = addDays(date, 1);
+                    continue;
+                }
                 const s = startOfDay(date).valueOf();
                 const e = endOfDay(s).valueOf();
-                if (!ignore_days.includes(DAYS_OF_WEEK_INDEX[date.getDay()])) {
-                    const events: Booking[] = stats.events.filter((bkn) =>
-                        timePeriodsIntersect(
-                            s,
-                            e,
-                            bkn.date,
-                            bkn.date + bkn.duration * 60 * 1000
-                        )
-                    );
-                    dates.push({
-                        date: s,
-                        total: stats.total,
-                        usage: unique(events, 'asset_id').length,
-                        free: stats.total - events.length,
-                        approved: events.reduce(
-                            (c, e) => c + (e.approved ? 1 : 0),
-                            0
-                        ),
-                        count: events.length,
-                        utilisation: (
-                            (events.length / stats.total) *
-                            100
-                        ).toFixed(1),
-                    });
-                }
+                const events: Booking[] = stats.events.filter((bkn) =>
+                    timePeriodsIntersect(
+                        s,
+                        e,
+                        bkn.date,
+                        bkn.date + bkn.duration * 60 * 1000
+                    )
+                );
+                dates.push({
+                    date: s,
+                    total: stats.total,
+                    usage: unique(events, 'asset_id').length,
+                    free: stats.total - events.length,
+                    approved: events.reduce(
+                        (c, e) => c + (e.approved ? 1 : 0),
+                        0
+                    ),
+                    count: events.length,
+                    utilisation: ((events.length / stats.total) * 100).toFixed(
+                        1
+                    ),
+                });
                 date = addDays(date, 1);
             }
             return dates;
@@ -233,7 +243,10 @@ export class ReportsStateService {
 
     public get duration() {
         const opts = this._options.getValue();
-        const ignore_days = this._settings.get('app.reports.ignore_days') || [];
+        const ignore_days =
+            this._settings
+                .get('app.reports.ignore_days')
+                ?.map((_) => _.toLowerCase()) || [];
         let start = startOfDay(opts.start);
         const end = addMinutes(endOfDay(opts.end), 1);
         let count = 0;
