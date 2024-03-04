@@ -9,7 +9,7 @@ import { OrganisationService } from '@placeos/organisation';
         <div
             #menuContainer
             menu
-            [class.opacity-0]="mobile_menu"
+            [class.opacity-0]="mobile_menu || checking"
             [class.!h-0]="mobile_menu"
             (window:resize)="checkMenu()"
             class="flex items-center justify-center h-full w-full overflow-hidden text-base-content min-w-full"
@@ -33,9 +33,9 @@ import { OrganisationService } from '@placeos/organisation';
                     >
                         {{ route.icon }}
                     </app-icon>
-                    <span *ngIf="show_text" class="truncate hidden xl:block">
-                        {{ route.name }}
-                    </span>
+                    <span *ngIf="!hide_text" class="truncate">{{
+                        route.name
+                    }}</span>
                     <div
                         bar
                         class="absolute bottom-0 inset-x-0 h-0.5 bg-secondary"
@@ -115,7 +115,10 @@ import { OrganisationService } from '@placeos/organisation';
 export class TopMenuComponent extends AsyncHandler {
     public readonly buildings = this._org.building_list;
     public readonly building = this._org.active_building;
+    public previous_size = 9999;
+    public checking = false;
     public mobile_menu = false;
+    public hide_text = false;
 
     public readonly setBuilding = (b) => (this._org.building = b);
 
@@ -154,10 +157,6 @@ export class TopMenuComponent extends AsyncHandler {
         },
     ];
 
-    public get show_text() {
-        return this.features.length <= 5;
-    }
-
     public get features(): string[] {
         return this._settings.get('app.features') || [];
     }
@@ -193,13 +192,30 @@ export class TopMenuComponent extends AsyncHandler {
         super();
     }
 
+    public ngOnInit() {}
+
     public ngAfterViewInit() {
         this.timeout('check_menu', () => this.checkMenu());
     }
 
     public checkMenu() {
-        this.mobile_menu =
-            this.menu.nativeElement?.offsetWidth >
+        const menu_width = this.menu.nativeElement?.offsetWidth || 0;
+        const container_width =
             this._element.nativeElement.parentElement.offsetWidth;
+        this.checking = false;
+        if (menu_width > container_width && !this.hide_text) {
+            this.hide_text = true;
+            this.timeout('check_menu', () => this.checkMenu(), 20);
+            this.checking = true;
+            this.previous_size = container_width;
+            return;
+        }
+        if (this.hide_text) this.mobile_menu = menu_width > container_width;
+        if (container_width > this.previous_size && this.hide_text) {
+            this.hide_text = false;
+            this.timeout('check_menu', () => this.checkMenu(), 20);
+            this.checking = true;
+        }
+        this.previous_size = container_width;
     }
 }
