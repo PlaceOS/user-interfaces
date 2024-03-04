@@ -17,14 +17,18 @@ const EMPTY_LABEL = { location: { x: -10, y: -10 }, content: '0% Usage' };
 export interface ZoneData {
     /** ID of the zone */
     area_id: string;
+    /** Max occupancy allowed in zone */
+    capacity: number;
     /** Number of devices in the zone */
     count: number;
+    /** Key in the ZoneData to use for people count */
     area_count_key: string;
-
+    /** Average temperature from the sensors in the zone */
     temperature: number;
+    /** Average humidity from the sensors in the zone */
+    humidity: number;
     people_count: number;
     people_count_sum: number;
-    humidity: number;
     queue_size: number;
     counter: number;
 }
@@ -102,23 +106,28 @@ export class ExploreZonesService extends AsyncHandler {
                 this._points[area.id] = coordinates || [];
             }
         }
+        console.log('Init Area Zone data', this);
         this.updateStatus();
         this.subscription('bind', this._bind.subscribe());
     }
 
     public parseData(data?: { value: ZoneData[] }) {
+        console.log('Parse Area Zone data', data);
         const value = data?.value || [];
         const labels = [];
         const features = [];
 
         for (const zone of value) {
+            const capacity =
+                zone.capacity || this._capacity[zone.area_id] || 100;
             const count =
                 zone[
                     this._count_key[zone.area_id] ||
                         this._settings.get('app.explore.area_count_key') ||
                         'count'
-                ];
-            const filled = count / (this._capacity[zone.area_id] || 100);
+                ] || 0;
+            const filled = count / capacity;
+            console.log('Filled Area:', filled, count, capacity, zone.area_id);
             this._statuses[zone.area_id] =
                 filled < 0.4 ? 'free' : filled < 0.75 ? 'pending' : 'busy';
             if (!this._location[zone.area_id]) continue;
@@ -137,11 +146,13 @@ export class ExploreZonesService extends AsyncHandler {
             if (zone.humidity) content += `Humidity: ${zone.humidity}%\n`;
             if (zone.queue_size) content += `Queue Size: ${zone.queue_size}%\n`;
             if (zone.counter) content += `Count: ${zone.counter}\n`;
-            labels.push({
-                location: this._location[zone.area_id],
-                content,
-                z_index: 100,
-            });
+            if (!this._settings.get('app.explore.show_zone_labels')) {
+                labels.push({
+                    location: this._location[zone.area_id],
+                    content,
+                    z_index: 100,
+                });
+            }
             if (
                 this._settings.get('app.explore.show_zone_sensor_info') &&
                 (zone.temperature || zone.humidity)
@@ -155,9 +166,7 @@ export class ExploreZonesService extends AsyncHandler {
             }
         }
         this._features = features;
-        if (!this._settings.get('app.explore.show_zone_sensor_info')) {
-            this._state.setLabels('zones', labels);
-        }
+        this._state.setLabels('zones', labels);
         this.updateStatus();
     }
 
