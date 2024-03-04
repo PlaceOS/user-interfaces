@@ -38,6 +38,7 @@ export class ExploreZonesService extends AsyncHandler {
     private _statuses: HashMap<string> = {};
     private _count_key: HashMap<string> = {};
     private _location: HashMap<Point> = {};
+    private _label_location: HashMap<Point> = {};
     private _capacity: HashMap<number> = {};
     private _draw: HashMap<boolean> = {};
     private _points: HashMap<[number, number][]> = {};
@@ -93,12 +94,12 @@ export class ExploreZonesService extends AsyncHandler {
                 const { coordinates } = area.geometry || {};
                 this._capacity[area.id] = capacity || 100;
                 this._count_key[area.id] = area_count_key || '';
-                this._location[area.id] =
+                this._location[area.id] = coordinates?.length
+                    ? getCenterPoint(coordinates)
+                    : null;
+                this._label_location[area.id] =
                     hide_label === false
-                        ? label_location ||
-                          (coordinates?.length
-                              ? getCenterPoint(coordinates)
-                              : null)
+                        ? label_location || this._location[area.id]
                         : null;
                 this._draw[area.id] =
                     !!draw_polygon ||
@@ -106,13 +107,11 @@ export class ExploreZonesService extends AsyncHandler {
                 this._points[area.id] = coordinates || [];
             }
         }
-        console.log('Init Area Zone data', this);
         this.updateStatus();
         this.subscription('bind', this._bind.subscribe());
     }
 
     public parseData(data?: { value: ZoneData[] }) {
-        console.log('Parse Area Zone data', data);
         const value = data?.value || [];
         const labels = [];
         const features = [];
@@ -127,7 +126,6 @@ export class ExploreZonesService extends AsyncHandler {
                         'count'
                 ] || 0;
             const filled = count / capacity;
-            console.log('Filled Area:', filled, count, capacity, zone.area_id);
             this._statuses[zone.area_id] =
                 filled < 0.4 ? 'free' : filled < 0.75 ? 'pending' : 'busy';
             if (!this._location[zone.area_id]) continue;
@@ -146,9 +144,12 @@ export class ExploreZonesService extends AsyncHandler {
             if (zone.humidity) content += `Humidity: ${zone.humidity}%\n`;
             if (zone.queue_size) content += `Queue Size: ${zone.queue_size}%\n`;
             if (zone.counter) content += `Count: ${zone.counter}\n`;
-            if (!this._settings.get('app.explore.show_zone_labels')) {
+            if (
+                this._label_location[zone.area_id] &&
+                !this._settings.get('app.explore.show_zone_labels')
+            ) {
                 labels.push({
-                    location: this._location[zone.area_id],
+                    location: this._label_location[zone.area_id],
                     content,
                     z_index: 100,
                 });
@@ -158,9 +159,13 @@ export class ExploreZonesService extends AsyncHandler {
                 (zone.temperature || zone.humidity)
             ) {
                 features.push({
+                    track_id: `sensors:${zone.area_id}`,
                     location: this._location[zone.area_id],
                     content: ExploreSensorInfoComponent,
-                    data: { temp: zone.temperature, humidity: zone.humidity },
+                    data: {
+                        temp: zone.temperature,
+                        humidity: zone.humidity,
+                    },
                     z_index: 98,
                 });
             }
@@ -197,7 +202,7 @@ export class ExploreZonesService extends AsyncHandler {
                 };
             }
         }
-        this._state.setFeatures('zones', [...features, this._features]);
+        this._state.setFeatures('zones', [...features, ...this._features]);
         this._state.setStyles('zones', style_map);
     }
 }
