@@ -582,7 +582,11 @@ export class EventFormService extends AsyncHandler {
                 'email'
             );
             if (!spaces.length && attendees.find((_) => _.is_external)) {
-                throw 'External attendees require a space to be booked';
+                this._loading.next('');
+                const message =
+                    'External attendees require a space to be booked';
+                reject(message);
+                throw message;
             }
             const space_id = spaces[0]?.id;
             const query: any = id
@@ -689,7 +693,7 @@ export class EventFormService extends AsyncHandler {
                               }
                             : {}
                     ).toPromise();
-                    console.error("Couldn't update asset requests", e);
+                    console.warn("Couldn't update asset requests", e);
                     if (e?.status === 409) {
                         notifyError(
                             'Some assets are already booked for the selected time'

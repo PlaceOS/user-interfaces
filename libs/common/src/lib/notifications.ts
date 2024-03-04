@@ -76,7 +76,7 @@ export function notifyError(
     on_action?: () => void,
     config: Partial<MatSnackBarConfig> = {}
 ): void {
-    !_disable_logging && console.error(msg);
+    !_disable_logging && console.debug(msg);
     if (typeof msg !== 'string')
         msg =
             (msg as any)?.error || (msg as any)?.message || 'An error occurred';
@@ -96,7 +96,7 @@ export function notifyWarn(
     on_action?: () => void,
     config: Partial<MatSnackBarConfig> = {}
 ): void {
-    !_disable_logging && console.warn(msg);
+    !_disable_logging && console.debug(msg);
     notify('warn', msg, action, on_action, config);
 }
 
@@ -113,6 +113,6 @@ export function notifyInfo(
     on_action?: () => void,
     config: Partial<MatSnackBarConfig> = {}
 ): void {
-    !_disable_logging && console.info(msg);
+    !_disable_logging && console.debug(msg);
     notify('info', msg, action, on_action, config);
 }

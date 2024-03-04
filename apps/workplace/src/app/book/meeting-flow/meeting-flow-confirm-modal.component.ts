@@ -318,13 +318,13 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
         </main>
         <footer
             class="p-2 border-t border-base-200 flex items-center justify-end"
+            *ngIf="!(loading | async)"
         >
             <button
                 btn
                 name="confirm-meeting"
                 matRipple
                 class="w-32"
-                *ngIf="!(loading | async)"
                 (click)="postForm()"
                 i18n
             >
