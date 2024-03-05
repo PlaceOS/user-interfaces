@@ -1,6 +1,7 @@
 import { randomInt } from '@placeos/common';
 
 import { addDays, addMinutes, set, startOfDay, startOfMinute } from 'date-fns';
+import { de } from 'date-fns/locale';
 import { Booking } from 'libs/bookings/src/lib/booking.class';
 
 export type AssetStatus =
@@ -59,6 +60,7 @@ export class AssetRequest {
     /** Event associated with the order */
     public readonly event: Booking | null;
     public readonly deliver_at_time: number;
+    public readonly ref_id: string;
     public _changed = false;
     /** Current status of the order */
     private _status: AssetStatus;
@@ -105,6 +107,9 @@ export class AssetRequest {
             data.extension_data?.deliver_day_offset ||
             0;
         this.deliver_at_time = deliverAtTime(this);
+        this.ref_id = `${this.deliver_at_time}|${this.items
+            .map((_) => `${_.id}:${_.quantity}`)
+            .join('|')}`;
     }
 
     public toJSON() {

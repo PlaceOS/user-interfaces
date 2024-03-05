@@ -360,6 +360,31 @@ export async function removeAssetRequests(id: string) {
     );
 }
 
+export function differenceBetweenAssetRequests(
+    new_assets: AssetRequest[],
+    old_assets: AssetRequest[]
+): string[] {
+    if ((!new_assets || new_assets?.length <= 0) && old_assets?.length)
+        return [];
+    if (!old_assets) return [];
+    console.log(
+        'New Assets:',
+        new_assets.map((_) => [_.id, _.ref_id])
+    );
+    console.log(
+        'Old Assets:',
+        old_assets.map((_) => [_.id, _.ref_id])
+    );
+    const changed: string[] = [];
+    for (const request of new_assets) {
+        const match = old_assets.find((_) => _.id === request.id);
+        if (!match || match.ref_id !== request.ref_id) {
+            changed.push(request.id);
+        }
+    }
+    return changed;
+}
+
 export async function updateAssetRequestsForResource(
     { id, ical_uid, from_booking }: any,
     {
@@ -402,15 +427,39 @@ export async function updateAssetRequestsForResource(
         booking_id: from_booking ? id : '',
         ical_uid,
     }).toPromise();
+    const request_list: [string, AssetRequest][] = bookings.map((_) => [
+        _.id,
+        new AssetRequest(_.extension_data.request),
+    ]);
+    const changed = differenceBetweenAssetRequests(
+        new_assets,
+        request_list.map(([_, r]) => r)
+    );
+    const unchanged = request_list.filter(
+        ([_, request]) => !changed.includes(request.id)
+    );
+    const changed_requests = request_list.filter(([_, { id }]) =>
+        changed.includes(id)
+    );
+    const changed_assets = new_assets.filter(({ id }) => changed.includes(id));
     await Promise.all(
-        bookings.map((item) => removeBooking(item.id).toPromise())
+        changed_requests.map(([id]) => removeBooking(id).toPromise())
     );
     const filtered = requests.filter(
-        (_) => !_.rejected && !bookings.find((b) => b.id === _.id)
+        (req) =>
+            !req.rejected &&
+            (!bookings.find((b) => b.id === req.id) ||
+                unchanged.find(([id]) => req.event_id === id))
     );
     let used_ids: string[] = flatten(filtered.map((_) => _.asset_ids));
+    for (const [_, request] of unchanged) {
+        used_ids = [
+            ...used_ids,
+            ...flatten(request.items.map((_) => _.item_ids)),
+        ];
+    }
     await Promise.all(
-        new_assets.map((request) => {
+        changed_assets.map((request) => {
             // Handle duplicate asset ids
             let asset_ids = flatten(
                 (request.items as any).map(({ item_ids, assets, quantity }) => {
