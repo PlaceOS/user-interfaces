@@ -106,9 +106,9 @@ export class AssetRequest {
             data.extension_data?.deliver_day_offset ||
             0;
         this.deliver_at_time = deliverAtTime(this);
-        this.ref_id = `${this.items
-            .map((_) => `${_.id}:${_.quantity}`)
-            .join('|')}`;
+        this.ref_id = `${this.deliver_time}|${this.deliver_offset}|${
+            this.deliver_day_offset
+        }|${this.items.map((_) => `${_.id}:${_.quantity}`).join('|')}`;
     }
 
     public toJSON() {
