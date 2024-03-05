@@ -398,7 +398,8 @@ export async function updateAssetRequestsForResource(
         zones?: string[];
         reset_state?: boolean;
     },
-    new_assets: AssetRequest[]
+    new_assets: AssetRequest[],
+    force_create = false
 ) {
     const requests = await queryBookings({
         period_start: getUnixTime(all_day ? startOfDay(date) : date),
@@ -423,10 +424,12 @@ export async function updateAssetRequestsForResource(
         _.id,
         new AssetRequest(_.extension_data.request),
     ]);
-    const changed = differenceBetweenAssetRequests(
-        new_assets,
-        request_list.map(([_, r]) => r)
-    );
+    const changed = force_create
+        ? new_assets.map((_) => _.id)
+        : differenceBetweenAssetRequests(
+              new_assets,
+              request_list.map(([_, r]) => r)
+          );
     const unchanged = request_list.filter(
         ([_, request]) => !changed.includes(request.id)
     );

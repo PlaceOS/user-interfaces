@@ -385,6 +385,7 @@ export class CalendarEvent {
         delete obj.date;
         delete obj.duration;
         delete obj.status;
+        delete obj.linked_bookings;
         if (!obj.update_master) delete obj.recurring_event_id;
         removeEmptyFields(obj);
         return obj;

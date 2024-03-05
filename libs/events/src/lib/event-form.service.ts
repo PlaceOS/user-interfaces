@@ -549,6 +549,9 @@ export class EventFormService extends AsyncHandler {
                 this.form.patchValue({ recurring: true });
             }
             let changed_times = false;
+            let changed_spaces = spaces.some(
+                (s) => !event.resources?.find((_) => _.id === s.id)
+            );
             if (
                 (!id || date !== event.date || duration !== event.duration) &&
                 spaces.length
@@ -680,6 +683,7 @@ export class EventFormService extends AsyncHandler {
                     !user.email.includes(domain) &&
                     user.visit_expected
             );
+            let creating_assets = false;
             const on_error = async (e) => {
                 if (!this.form.value.id) {
                     await removeEvent(
@@ -699,6 +703,11 @@ export class EventFormService extends AsyncHandler {
                             'Some assets are already booked for the selected time'
                         );
                     } else notifyError('Unable to book the selected assets.');
+                } else if (creating_assets) {
+                    notifyError(
+                        `Unable to update all asset requests for event. ${e}`
+                    );
+                    return;
                 }
                 this._loading.next('');
                 throw e;
@@ -710,7 +719,9 @@ export class EventFormService extends AsyncHandler {
                     visitors as any
                 ).catch(on_error);
             }
+
             if (assets?.length || event.extension_data.assets?.length) {
+                creating_assets = true;
                 await updateAssetRequestsForResource(
                     result,
                     {
@@ -727,7 +738,8 @@ export class EventFormService extends AsyncHandler {
                         ],
                         reset_state: changed_times,
                     },
-                    assets
+                    assets,
+                    changed_spaces
                 ).catch(on_error);
             }
             this.clearForm();
