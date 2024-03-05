@@ -192,7 +192,9 @@ export class TopMenuComponent extends AsyncHandler {
         super();
     }
 
-    public ngOnInit() {}
+    public ngOnInit() {
+        this.checking = true;
+    }
 
     public ngAfterViewInit() {
         this.timeout('check_menu', () => this.checkMenu());

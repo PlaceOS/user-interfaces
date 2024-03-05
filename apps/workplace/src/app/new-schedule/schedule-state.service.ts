@@ -26,10 +26,12 @@ import { requestSpacesForZone } from '@placeos/spaces';
 import { getModule } from '@placeos/ts-client';
 import {
     addMinutes,
+    differenceInMinutes,
     endOfDay,
     getUnixTime,
     isSameDay,
     startOfDay,
+    startOfMinute,
 } from 'date-fns';
 import { BehaviorSubject, combineLatest, interval, Observable, of } from 'rxjs';
 import {
@@ -40,6 +42,7 @@ import {
     filter,
     map,
     shareReplay,
+    startWith,
     switchMap,
     tap,
 } from 'rxjs/operators';
@@ -285,39 +288,52 @@ export class ScheduleStateService extends AsyncHandler {
     private _ignore_cancel: string[] = [];
     private _checkCancel = combineLatest([
         current_user,
-        interval(60 * 1000),
+        interval(60 * 1000).pipe(startWith(0)),
     ]).pipe(
         filter(([u]) => !!u),
         map(async ([user]) => {
             const is_home = user.location !== 'wfo';
             const auto_release = this._settings.get('app.auto_release');
+            console.log('Check:', is_home, auto_release);
             if (
                 auto_release &&
                 is_home &&
-                auto_release.time_after &&
+                (auto_release.time_after || auto_release.time_before) &&
                 auto_release.resources?.length
             ) {
                 for (const type of auto_release.resources) {
                     const bookings = await queryBookings({
-                        period_start: getUnixTime(
+                        period_start: getUnixTime(startOfMinute(Date.now())),
+                        period_end: getUnixTime(
                             addMinutes(
                                 Date.now(),
-                                auto_release.time_before || 0
+                                (auto_release.time_after || 5) +
+                                    (auto_release.time_before || 0)
                             )
-                        ),
-                        period_end: getUnixTime(
-                            addMinutes(Date.now(), auto_release.time_after || 5)
                         ),
                         type,
                     }).toPromise();
+                    console.log(
+                        'Check Bookings:',
+                        type,
+                        bookings,
+                        this._ignore_cancel
+                    );
                     for (const booking of bookings) {
                         if (this._ignore_cancel.includes(booking.id)) continue;
                         this._dialog.closeAll();
+                        const diff = differenceInMinutes(
+                            addMinutes(
+                                booking.date,
+                                auto_release.time_after || 0
+                            ),
+                            Date.now()
+                        );
                         const result = await openConfirmModal(
                             {
                                 title: `Keep ${type} booking`,
                                 content: `You have indicated you are not in the office. 
-                                Your booking will be cancelled after ${auto_release.time_after} minutes. 
+                                Your booking will be cancelled in ${diff} minutes. 
                                 Do you wish to keep this booking?`,
                                 icon: { content: 'cancel' },
                             },
