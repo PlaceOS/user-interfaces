@@ -367,14 +367,6 @@ export function differenceBetweenAssetRequests(
     if ((!new_assets || new_assets?.length <= 0) && old_assets?.length)
         return [];
     if (!old_assets) return [];
-    console.log(
-        'New Assets:',
-        new_assets.map((_) => [_.id, _.ref_id])
-    );
-    console.log(
-        'Old Assets:',
-        old_assets.map((_) => [_.id, _.ref_id])
-    );
     const changed: string[] = [];
     for (const request of new_assets) {
         const match = old_assets.find((_) => _.id === request.id);

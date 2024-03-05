@@ -1,7 +1,6 @@
 import { randomInt } from '@placeos/common';
 
 import { addDays, addMinutes, set, startOfDay, startOfMinute } from 'date-fns';
-import { de } from 'date-fns/locale';
 import { Booking } from 'libs/bookings/src/lib/booking.class';
 
 export type AssetStatus =
