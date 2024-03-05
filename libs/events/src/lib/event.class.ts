@@ -273,7 +273,15 @@ export class CalendarEvent {
         this.extension_data.catering = (this.extension_data.catering || []).map(
             (i) => new CateringOrder({ ...i, event: simple_event } as any)
         );
-        this.extension_data.assets = (this.extension_data.assets || []).map(
+        const linked_assets = this.linked_bookings
+            .filter((_) => _.booking_type === 'asset-request')
+            .map((_) => _.extension_data?.request)
+            .filter((_) => !!_);
+        const asset_requests =
+            (linked_assets.length
+                ? linked_assets
+                : this.extension_data.assets) || [];
+        this.extension_data.assets = asset_requests.map(
             (i) => new AssetRequest({ ...i, event: simple_event } as any)
         );
     }

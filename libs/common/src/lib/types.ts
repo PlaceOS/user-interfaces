@@ -15,6 +15,7 @@ export interface LinkedBooking {
     status: string;
     approved?: string;
     rejected?: string;
+    extension_data?: Record<string, any>;
 }
 
 /** Generic data type with identification details */
