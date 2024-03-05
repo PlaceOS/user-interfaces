@@ -294,7 +294,6 @@ export class ScheduleStateService extends AsyncHandler {
         map(async ([user]) => {
             const is_home = user.location !== 'wfo';
             const auto_release = this._settings.get('app.auto_release');
-            console.log('Check:', is_home, auto_release);
             if (
                 auto_release &&
                 is_home &&
