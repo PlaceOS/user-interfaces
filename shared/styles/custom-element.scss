@@ -551,6 +551,12 @@ a[btn] {
         --color: var(--bc);
     }
 
+    &.base {
+        --color: var(--b1);
+        background-color: var(--color);
+        color: var(--bc);
+    }
+
     &[disabled] {
         background-color: var(--n);
         color: var(--nc);

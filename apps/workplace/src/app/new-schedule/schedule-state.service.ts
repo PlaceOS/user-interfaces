@@ -336,7 +336,7 @@ export class ScheduleStateService extends AsyncHandler {
                             {
                                 title: `Keep ${type} booking`,
                                 content: `You have indicated you are not in the office. 
-                                Your booking will be cancelled in ${diff} minutes. 
+                                Your booking will be cancelled in about ${diff} minutes. 
                                 Do you wish to keep this booking?`,
                                 icon: { content: 'cancel' },
                             },

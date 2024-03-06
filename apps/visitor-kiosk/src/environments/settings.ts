@@ -1,5 +1,3 @@
-
-
 /**
  * GENERAL APPLICATION SETTINGS
  */
@@ -75,7 +73,7 @@ const general = {
  * HOME PAGE SETTINGS
  */
 const home = {
-    background: 'assets/img/skyline.jpg',
+    background: 'assets/img/skyline.png',
     tiles: [
         {
             name: 'Booking',
@@ -290,7 +288,11 @@ const explore = {
             {
                 key: 'icon-bin',
                 name: 'Bin',
-                icon: { type: 'icon', class: 'material-icons', content: 'delete' },
+                icon: {
+                    type: 'icon',
+                    class: 'material-icons',
+                    content: 'delete',
+                },
             },
         ],
     },
@@ -306,11 +308,11 @@ const app = {
     short_name: 'KIOSK',
     logo_light: {
         type: 'img',
-        src: 'assets/logo-light.svg'
+        src: 'assets/logo-light.svg',
     },
     logo_dark: {
         type: 'img',
-        src: 'assets/logo-dark.svg'
+        src: 'assets/logo-dark.svg',
     },
     general,
     home,
@@ -318,7 +320,7 @@ const app = {
     booking,
     space_display,
     directory,
-    explore
+    explore,
 };
 
 /**

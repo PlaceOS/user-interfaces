@@ -6,34 +6,49 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
 @Component({
     selector: 'app-welcome',
     template: `
-        <div
-            class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-center bg-cover"
-            [style.background-image]="'url(' + background + ')'"
-        >
-            <a-topbar-header class="w-full z-10"></a-topbar-header>
-            <div class="absolute inset-0 z-0 bg-black opacity-60"></div>
-            <div
-                class="flex flex-col flex-1 w-full items-center justify-center space-y-4 z-10"
-            >
-                <h3 class="text-2xl mb-4 text-white">
-                    Welcome to PlaceOS Self Service Kiosk
+        <div class="absolute inset-0 p-8 flex items-center">
+            <img
+                [src]="background"
+                class="absolute min-h-[100%] min-w-[100%] top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2"
+            />
+            <div class="flex flex-col justify-center space-y-8 z-10 w-[60%]">
+                <h3 class="mb-4 text-white text-6xl space-y-2">
+                    <p>Welcome to Place<span class="text-primary">OS</span></p>
+                    <p>Self Service Kiosk</p>
                 </h3>
-                <a
-                    matRipple
-                    [routerLink]="['/checkin']"
-                    class="text-xl py-2 px-8 mt-4 border-2 border-white text-white w-40 whitespace-nowrap flex items-center justify-center"
-                >
-                    Check In
-                </a>
-                <a
-                    *ngIf="level"
-                    matRipple
-                    [routerLink]="['/explore', level]"
-                    class="text-xl py-2 px-8 mt-4 border-2 border-white text-white w-40 whitespace-nowrap flex items-center justify-center"
-                >
-                    Explore
-                </a>
+                <div class="flex items-center space-x-4 font-medium">
+                    <a
+                        btn
+                        matRipple
+                        [routerLink]="['/checkin']"
+                        class="base w-40"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <div class="ml-2">Check-in</div>
+                            <app-icon class="text-2xl">chevron_right</app-icon>
+                        </div>
+                    </a>
+                    <a
+                        *ngIf="level"
+                        btn
+                        matRipple
+                        [routerLink]="['/explore', level]"
+                        class="base w-40"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <div class="ml-2">Explore</div>
+                            <app-icon class="text-2xl">place</app-icon>
+                        </div>
+                    </a>
+                </div>
             </div>
+            <div class="absolute top-4 right-4 text-2xl text-white">
+                {{ now | date: 'mediumDate' }} {{ now | date: 'shortTime' }}
+            </div>
+            <img
+                src="assets/img/building.png"
+                class="absolute w-[60%] bottom-0 right-0"
+            />
         </div>
     `,
     styles: [
@@ -49,6 +64,7 @@ export class WelcomeComponent
     extends AsyncHandler
     implements OnInit, OnDestroy
 {
+    public now = Date.now();
     /** Level to initially load on explore */
     public level = '';
 
@@ -64,6 +80,7 @@ export class WelcomeComponent
     }
 
     public ngOnInit() {
+        this.interval('time', () => (this.now = Date.now()), 30 * 1000);
         this.subscription(
             'level',
             this._settings
