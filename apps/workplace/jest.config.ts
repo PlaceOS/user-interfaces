@@ -21,4 +21,5 @@ export default {
         ],
     },
     transformIgnorePatterns: ['node_modules/(?!.*.mjs$)'],
+    modulePathIgnorePatterns: ['e2e'],
 };

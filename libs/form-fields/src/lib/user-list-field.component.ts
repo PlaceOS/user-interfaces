@@ -207,7 +207,7 @@ export class UserListFieldComponent
     /** Whether guests should also show when searching for users */
     @Input() public guests_only = false;
     /** Whether optional actions should be shown */
-    @Input('hideActions') public hide_actions = false;
+    @Input() public hide_actions = false;
     /** Whether as custom template will be provided outside the component */
     @Input() public custom_template = false;
     /** Function for filtering the results of the user list */

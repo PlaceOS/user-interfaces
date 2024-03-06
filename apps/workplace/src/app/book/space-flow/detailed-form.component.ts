@@ -127,7 +127,7 @@ import { OrganisationService } from '@placeos/organisation';
                     <label for="attendees">Attendees</label>
                     <a-user-list-field
                         name="attendees"
-                        [hideActions]="hide_actions"
+                        [hide_actions]="hide_actions"
                         formControlName="attendees"
                     ></a-user-list-field>
                 </div>
