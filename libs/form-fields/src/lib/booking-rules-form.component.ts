@@ -253,7 +253,7 @@ import {
                     <a-date-field
                         class="flex-1"
                         [from]="form.value.conditions.is_period[0]"
-                        [ngModel]="form.value.conditions.is_period[0]"
+                        [ngModel]="form.value.conditions.is_period[1]"
                         [ngModelOptions]="{ standalone: true }"
                         (ngModelChange)="
                             setIsPeriod(
