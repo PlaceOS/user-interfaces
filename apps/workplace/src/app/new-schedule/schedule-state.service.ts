@@ -318,6 +318,9 @@ export class ScheduleStateService extends AsyncHandler {
                         bookings,
                         this._ignore_cancel
                     );
+                    const check_block =
+                        (auto_release.time_after || 0) +
+                        (auto_release.time_before || 0);
                     for (const booking of bookings) {
                         if (this._ignore_cancel.includes(booking.id)) continue;
                         this._dialog.closeAll();
@@ -328,6 +331,7 @@ export class ScheduleStateService extends AsyncHandler {
                             ),
                             Date.now()
                         );
+                        if (diff > check_block) continue;
                         const result = await openConfirmModal(
                             {
                                 title: `Keep ${type} booking`,
