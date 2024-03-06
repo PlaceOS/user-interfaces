@@ -19,6 +19,7 @@ import {
     format,
     getUnixTime,
     isBefore,
+    setDay,
     startOfDay,
 } from 'date-fns';
 import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs';
@@ -246,7 +247,11 @@ export class ReportsStateService {
         const ignore_days =
             this._settings
                 .get('app.reports.ignore_days')
-                ?.map((_) => _.toLowerCase()) || [];
+                ?.map((_) =>
+                    typeof _ === 'string'
+                        ? _.toLowerCase()
+                        : format(setDay(new Date(), _), 'eeee').toLowerCase()
+                ) || [];
         let start = startOfDay(opts.start);
         const end = addMinutes(endOfDay(opts.end), 1);
         let count = 0;
