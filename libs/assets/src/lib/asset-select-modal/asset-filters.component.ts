@@ -62,7 +62,7 @@ import {
                 "
                 [step]="step_interval"
                 [min]="min_offset"
-                [max]="max_offset"
+                [max]="max_offset - 1"
                 [use_24hr]="use_24hr"
             ></a-duration-field>
         </div>
