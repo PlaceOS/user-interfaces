@@ -192,8 +192,6 @@ export class StaffUser extends User {
                 return 'Out of Office';
             case 'aol':
                 return 'Away on Leave';
-            case 'aol':
-                return 'Away on Leave';
             default:
                 return 'Unknown';
         }
