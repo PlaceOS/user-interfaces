@@ -1,0 +1,25 @@
+name: 'Cleanup PR Branches'
+
+on:
+    schedule:
+        - cron: '0 0 * * 5'
+
+jobs:
+    cleanup_pr_branches:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  fetch-depth: '2'
+
+            - name: Delete Feature branches
+              uses: dawidd6/action-delete-branch@v3
+              with:
+                  github_token: ${{github.token}}
+                  prefix: build/feat
+
+            - name: Delete Fix branches
+              uses: dawidd6/action-delete-branch@v3
+              with:
+                  github_token: ${{github.token}}
+                  prefix: build/fix

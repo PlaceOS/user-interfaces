@@ -1,0 +1,142 @@
+name: 'Feature PR'
+
+on:
+    push:
+        branches: [feat/*, fix/*]
+    pull_request:
+        branches: [feat/*, fix/*]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+    install_deps:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  fetch-depth: '2'
+
+            - name: Cache node modules
+              id: cache
+              uses: actions/cache@v3
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-build-${{ env.cache-name }}-
+                      ${{ runner.os }}-build-
+                      ${{ runner.os }}-
+
+            - name: Setup Node.js environment
+              uses: actions/setup-node@v3
+              with:
+                  node-version: '20'
+
+            - name: NPM install
+              if: steps.cache.outputs.cache-hit != 'true'
+              run: npm install --force
+
+            - name: Get short hash
+              id: vars
+              run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+            - name: Extract branch name
+              id: branch_name
+              shell: bash
+              run: echo "deploy_branch=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')" >> $GITHUB_OUTPUT
+
+            - name: Extract build configuration
+              shell: bash
+              id: build_ext
+              run: |
+                  if [[ ${{ steps.branch_name.outputs.name }} == "feat"* ]]
+                  then
+                      echo "configuration=feat" >> $GITHUB_OUTPUT
+                  elif [[ ${{ steps.branch_name.outputs.name }} == "fix"* ]]
+                  then
+                      echo "configuration=fix" >> $GITHUB_OUTPUT
+                  fi
+            - name: List affected applications
+              id: affected_apps
+              run: |
+                  echo "affected_apps=$(node ./tools/get-affected.js ${{ github.ref }})" >> $GITHUB_OUTPUT
+                  echo "affected_units=$(node ./tools/get-affected.js ${{ github.ref }} test)" >> $GITHUB_OUTPUT
+
+            - name: Print affected applications
+              run: |
+                  echo ${{ steps.affected_apps.outputs.affected_apps }}
+
+        outputs:
+            affected_apps: ${{ steps.affected_apps.outputs.affected_apps }}
+            affected_units: ${{ steps.affected_apps.outputs.affected_units }}
+            configuration: ${{ steps.build_ext.outputs.configuration }}
+            deploy_branch: ${{ steps.build_ext.outputs.deploy_branch }}
+            short_sha: ${{ steps.vars.outputs.short_sha }}
+            type: ${{ steps.vars.outputs.type }}
+
+    build:
+        runs-on: ubuntu-latest
+        needs: install_deps
+        if: ${{ fromJSON(needs.install_deps.outputs.affected_apps)[0] != null }}
+        strategy:
+            matrix:
+                package: ${{ fromJSON(needs.install_deps.outputs.affected_apps) }}
+        env:
+            configuration: ${{ needs.install_deps.outputs.configuration }}
+            deploy_branch: ${{ needs.install_deps.outputs.deploy_branch }}
+            short_sha: ${{ needs.install_deps.outputs.short_sha }}
+            type: ${{needs.install_deps.outputs.type}}
+        # Steps represent a sequence of tasks that will be executed as part of the job
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Cache node modules
+              id: cache
+              uses: actions/cache@v3
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-build-${{ env.cache-name }}-
+                      ${{ runner.os }}-build-
+                      ${{ runner.os }}-
+
+            - name: Cache nx build cache
+              id: cache-nx
+              uses: actions/cache@v3
+              with:
+                  path: node_modules/.cache/nx
+                  key: ${{ runner.os }}-nx-${{matrix.package}}-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-nx-${{matrix.package}}-
+                      ${{ runner.os }}-nx-
+
+            - name: Setup version
+              run: npm run postinstall
+
+            - name: Initialise Pipeline Chat Status
+              uses: fjogeleit/http-request-action@master
+              continue-on-error: true
+              with:
+                  url: ${{ secrets.STATUS_URL }}
+                  data: '{ "chat_url": "${{ secrets.CHAT_URL }}", "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ matrix.package }}", "branch": "${{ github.ref }}", "status": "processing", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
+
+            - name: Build affected applications
+              run: |
+                  npx nx build ${{ matrix.package }} --verbose --configuration=${{ env.configuration }}
+
+            - name: Deploy the application(${{ matrix.package }})
+              uses: s0/git-publish-subdir-action@develop
+              env:
+                  REPO: self
+                  BRANCH: build/${{env.deploy_branch}}/${{ matrix.package }} # The branch name where you want to push the assets
+                  FOLDER: dist/apps/${{ matrix.package }} # The directory where your assets are generated
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub will automatically add this - you don't need to bother getting a token
+                  MESSAGE: 'build(${{ matrix.package }}): ${{env.type}}[${{env.deploy_branch}}] CI build from {sha}' # The commit message
+
+            - name: Update Pipeline Chat Status
+              uses: fjogeleit/http-request-action@master
+              continue-on-error: true
+              with:
+                  url: ${{ secrets.STATUS_URL }}
+                  data: '{ "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ matrix.package }}", "branch": "${{ github.ref }}", "status": "${{ job.status }}", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
+              if: ${{ always() }}
