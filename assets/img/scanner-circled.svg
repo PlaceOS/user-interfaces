@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="131.714" height="139.476" viewBox="0 0 131.714 139.476">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="Rectangle_3005" data-name="Rectangle 3005" width="31" height="12" rx="3" transform="translate(-0.404 -0.394)" fill="#fff"/>
+    </clipPath>
+  </defs>
+  <g id="scanner-circled" transform="translate(-286.786 -120.004)">
+    <path id="Path_20020" data-name="Path 20020" d="M379.405,476.97a84.722,84.722,0,0,0-3.215,11.424c-1.525,8.647-1.144,17.746,2.244,25.928,5.135,12.4,16.426,20.486,28.587,25.265.735.288,1.472.582,2.2.888,16.166,6.816,35.543,6.589,51.768.262,24.6-9.593,44.57-32.108,45.987-59.143.828-15.8-5.3-30.8-14.81-43.187-5.593-7.287-14.034-13.422-21.6-18.4-15.15-9.973-33.449-16.381-51.717-13.063-5.47.994-10.391,2.361-14.781,5.8-5.3,4.158-9.119,9.987-11.889,16.063a93.008,93.008,0,0,0-5.712,18.576c-1.964,8.841-3.519,17.788-6.093,26.482C380.066,474.909,379.738,475.942,379.405,476.97Z" transform="translate(-88.55 -286.055)" fill="#00427d"/>
+    <g id="Icon_ionic-md-qr-scanner" data-name="Icon ionic-md-qr-scanner" transform="translate(325.114 166.616)">
+      <path id="Path_20013" data-name="Path 20013" d="M9.786,12.54a1.594,1.594,0,0,1,1.629-1.629H20.47V4.5H11.548a8.111,8.111,0,0,0-8.173,8.04v9.055H9.786Z" transform="translate(-3.375 -4.5)" fill="#fff"/>
+      <path id="Path_20014" data-name="Path 20014" d="M32.653,4.5H23.625v6.411H32.6a1.662,1.662,0,0,1,1.709,1.629v9.055H40.72V12.54A8.028,8.028,0,0,0,32.653,4.5Z" transform="translate(14.838 -4.5)" fill="#fff"/>
+      <path id="Path_20015" data-name="Path 20015" d="M34.309,31.421a1.594,1.594,0,0,1-1.629,1.629H23.625v6.544H32.68a8.111,8.111,0,0,0,8.04-8.173V22.5H34.309Z" transform="translate(14.838 11.69)" fill="#fff"/>
+      <path id="Path_20016" data-name="Path 20016" d="M11.415,33.051a1.594,1.594,0,0,1-1.629-1.629V22.5H3.375v8.921a8.225,8.225,0,0,0,8.173,8.173H20.47V33.051Z" transform="translate(-3.375 11.69)" fill="#fff"/>
+    </g>
+    <g id="Group_5614" data-name="Group 5614" transform="translate(326.978 179.656)">
+      <g id="Group_5613" data-name="Group 5613" transform="translate(11.522 0)">
+        <g id="Mask_Group_3" data-name="Mask Group 3" transform="translate(0.904 0.904)" clip-path="url(#clip-path)">
+          <rect id="Rectangle_3004" data-name="Rectangle 3004" width="31" height="25" rx="3" transform="translate(-0.404 -0.394)" fill="#fff"/>
+        </g>
+        <g id="Rectangle_3006" data-name="Rectangle 3006" transform="translate(0.5 -0.49)" fill="none" stroke="#fff" stroke-width="3">
+          <rect width="31" height="26" rx="3" stroke="none"/>
+          <rect x="1.5" y="1.5" width="28" height="23" rx="1.5" fill="none"/>
+        </g>
+      </g>
+      <line id="Line_764" data-name="Line 764" x2="52.155" transform="translate(0 13.436)" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="4"/>
+    </g>
+  </g>
+</svg>
