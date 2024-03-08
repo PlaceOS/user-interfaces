@@ -16,6 +16,14 @@ import { SharedExploreModule } from '@placeos/explore';
 import { FormFieldsModule } from '@placeos/form-fields';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
+import * as Sentry from '@sentry/angular-ivy';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { PaymentsModule } from '@placeos/payments';
+import { AssetsModule } from '@placeos/assets';
+import { SharedBookingsModule } from '@placeos/bookings';
+import { HttpClient } from '@angular/common/http';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from 'libs/components/src/lib/app.component';
 import { environment } from '../environments/environment';
@@ -25,14 +33,7 @@ import { ExploreLevelSelectComponent } from './explore-level-select.component';
 import { ExploreMapStackComponent } from './explore-map-stack.component';
 import { FooterMenuComponent } from './footer-menu.component';
 import { DeskBookingComponent } from './desk-booking.component';
-
-import * as Sentry from '@sentry/angular-ivy';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { PaymentsModule } from '@placeos/payments';
-import { AssetsModule } from '@placeos/assets';
-import { SharedBookingsModule } from '@placeos/bookings';
-import { HttpClient } from '@angular/common/http';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { AccessibilityControlsComponent } from './accessibility-controls.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -49,6 +50,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         ExploreMapStackComponent,
         DeskBookingComponent,
         FooterMenuComponent,
+        AccessibilityControlsComponent,
     ],
     imports: [
         BrowserModule,
