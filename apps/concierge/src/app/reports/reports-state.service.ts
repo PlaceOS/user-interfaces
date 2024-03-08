@@ -134,7 +134,14 @@ export class ReportsStateService {
             const ignore_days =
                 this._settings
                     .get('app.reports.ignore_days')
-                    ?.map((_) => _.toLowerCase()) || [];
+                    ?.map((_) =>
+                        typeof _ === 'string'
+                            ? _.toLowerCase()
+                            : format(
+                                  setDay(new Date(), _),
+                                  'eeee'
+                              ).toLowerCase()
+                    ) || [];
             list = list.filter(
                 (bkn) =>
                     !ignore_days.includes(
