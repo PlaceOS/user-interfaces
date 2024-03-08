@@ -1958,7 +1958,7 @@ function AssetFiltersComponent_div_7_Template(rf, ctx) {
     _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"](2);
     _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("ngIf", ctx_r1.day_options.length > 1);
     _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"](3);
-    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("ngModel", ctx_r1.offset)("time", ctx_r1.offset_day > 0 ? ctx_r1.start_of_date : (tmp_4_0 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵpipeBind1"](7, 9, ctx_r1.options)) == null ? null : tmp_4_0.date)("step", ctx_r1.step_interval)("min", ctx_r1.min_offset)("max", ctx_r1.max_offset)("use_24hr", ctx_r1.use_24hr);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("ngModel", ctx_r1.offset)("time", ctx_r1.offset_day > 0 ? ctx_r1.start_of_date : (tmp_4_0 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵpipeBind1"](7, 9, ctx_r1.options)) == null ? null : tmp_4_0.date)("step", ctx_r1.step_interval)("min", ctx_r1.min_offset)("max", ctx_r1.max_offset - 1)("use_24hr", ctx_r1.use_24hr);
   }
 }
 function AssetFiltersComponent_h3_8_Template(rf, ctx) {
@@ -17681,15 +17681,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "96ade9d",
-  "hash": "96ade9d",
+  "raw": "5745b9a",
+  "hash": "5745b9a",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "96ade9d",
+  "suffix": "5745b9a",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1709854754880
+  "time": 1709869176902
 };
 /* tslint:enable */
 
