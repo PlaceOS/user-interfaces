@@ -16,9 +16,8 @@ import {
     removeBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
 import { Booking } from 'libs/bookings/src/lib/booking.class';
-import { flatten, randomInt } from '@placeos/common';
+import { flatten, unique } from '@placeos/common';
 import { AssetRequest } from './asset-request.class';
-import { group } from 'console';
 
 const BASE_ENDPOINT = '/api/engine/v2';
 
@@ -362,7 +361,8 @@ export async function removeAssetRequests(id: string) {
 
 export function differenceBetweenAssetRequests(
     new_assets: AssetRequest[],
-    old_assets: AssetRequest[]
+    old_assets: AssetRequest[],
+    reset_state: boolean = false
 ): string[] {
     if ((!new_assets || new_assets?.length <= 0) && old_assets?.length)
         return [];
@@ -377,7 +377,7 @@ export function differenceBetweenAssetRequests(
     return changed;
 }
 
-export async function updateAssetRequestsForResource(
+export async function validateAssetRequestsForResource(
     { id, ical_uid, from_booking }: any,
     {
         date,
@@ -400,7 +400,7 @@ export async function updateAssetRequestsForResource(
     },
     new_assets: AssetRequest[],
     force_create = false
-) {
+): Promise<() => Promise<void>> {
     const requests = await queryBookings({
         period_start: getUnixTime(all_day ? startOfDay(date) : date),
         period_end: getUnixTime(
@@ -411,35 +411,44 @@ export async function updateAssetRequestsForResource(
         type: 'asset-request',
         zones: zones.join(','),
     }).toPromise();
-    const bookings = await queryBookings({
-        period_start: getUnixTime(startOfDay(date)),
-        period_end: getUnixTime(endOfDay(date)),
-        type: 'asset-request',
-        email: host,
-        event_id: from_booking ? '' : id,
-        booking_id: from_booking ? id : '',
-        ical_uid,
-    }).toPromise();
-    const request_list: [string, AssetRequest][] = bookings.map((_) => [
+    const bookings =
+        id && ical_uid
+            ? await queryBookings({
+                  period_start: getUnixTime(startOfDay(date)),
+                  period_end: getUnixTime(endOfDay(date)),
+                  type: 'asset-request',
+                  email: host,
+                  event_id: from_booking ? '' : id,
+                  booking_id: from_booking ? id : '',
+                  ical_uid,
+              }).toPromise()
+            : [];
+    const booking_list: [string, AssetRequest][] = bookings.map((_) => [
         _.id,
         new AssetRequest(_.extension_data.request),
     ]);
-    const changed = force_create
+    new_assets.forEach((_) => (_.conflict = false));
+    let changed = force_create
         ? new_assets.map((_) => _.id)
         : differenceBetweenAssetRequests(
               new_assets,
-              request_list.map(([_, r]) => r)
+              booking_list.map(([_, r]) => r),
+              reset_state
           );
-    const unchanged = request_list.filter(
+    if (reset_state) {
+        const has_state = bookings.filter((_) => _.approved || _.rejected);
+        changed = unique([
+            ...changed,
+            ...has_state.map((_) => _.extension_data.request_id),
+        ]);
+    }
+    const unchanged = booking_list.filter(
         ([_, request]) => !changed.includes(request.id)
     );
-    const changed_requests = request_list.filter(([_, { id }]) =>
+    const changed_requests = booking_list.filter(([_, { id }]) =>
         changed.includes(id)
     );
     const changed_assets = new_assets.filter(({ id }) => changed.includes(id));
-    await Promise.all(
-        changed_requests.map(([id]) => removeBooking(id).toPromise())
-    );
     const filtered = requests.filter(
         (req) =>
             !req.rejected &&
@@ -453,67 +462,90 @@ export async function updateAssetRequestsForResource(
             ...flatten(request.items.map((_) => _.item_ids)),
         ];
     }
-    await Promise.all(
-        changed_assets.map((request) => {
-            // Handle duplicate asset ids
-            let asset_ids = flatten(
-                (request.items as any).map(({ item_ids, assets, quantity }) => {
-                    if (!assets) return item_ids;
-                    const list = [];
-                    return new Array(quantity).fill(0).map((_, idx) => {
-                        const item =
-                            used_ids.includes(item_ids[idx]) ||
-                            list.includes(item_ids[idx]) ||
-                            !item_ids[idx]
-                                ? assets?.find(({ id }) => {
-                                      return (
-                                          !used_ids.includes(id) &&
-                                          !list.includes(id)
-                                      );
-                                  })?.id
-                                : item_ids[idx];
-                        if (!item) {
-                            throw 'Unable to find available asset for request';
-                        }
-                        list.push(item);
-                        return item;
-                    });
-                })
-            );
-            // Grab any existing bookings for the asset for the parent event/booking
-            const booking = bookings.find((_) =>
-                _.asset_ids.find((id) =>
-                    request.items?.find((i) => i.item_ids.includes(id))
-                )
-            );
-            used_ids = [...used_ids, ...asset_ids];
-            return createBooking(
-                new Booking({
-                    type: 'asset-request',
-                    booking_type: 'asset-request',
-                    date,
-                    duration,
-                    all_day,
-                    description: location_name,
-                    user_email: host,
-                    asset_id: asset_ids[0],
-                    asset_ids,
-                    asset_name: request.items.map((_) => _.name).join(', '),
-                    title: request.items.map((_) => _.name).join(', '),
-                    approved:
-                        !reset_state && booking?.approved && !request._changed,
-                    rejected:
-                        !reset_state && booking?.rejected && !request._changed,
-                    extension_data: {
-                        parent_id: id,
-                        request_id: request.id,
-                        location_id,
-                        request: new AssetRequest({ ...request, event: null }),
-                    },
-                    zones: zones || [],
-                }),
-                { ical_uid, event_id: from_booking ? '' : id }
-            ).toPromise();
-        })
+    const available_groups = await queryGroupAvailability({
+        period_start: getUnixTime(startOfDay(date)),
+        period_end: getUnixTime(endOfDay(date)),
+        type: 'asset-request',
+    }).toPromise();
+    console.log(
+        'Used IDs:',
+        used_ids,
+        changed_assets,
+        requests,
+        filtered,
+        bookings,
+        unchanged,
+        zones
     );
+    const processed_requests = changed_assets.map((request) => {
+        // Handle duplicate asset ids
+        let asset_ids = flatten(
+            (request.items as any).map(({ id, item_ids, quantity }) => {
+                const assets = available_groups.find(
+                    (_) => _.id === id
+                )?.assets;
+                if (!assets) return item_ids;
+                const list = [];
+                return new Array(quantity).fill(0).map((_, idx) => {
+                    const item =
+                        used_ids.includes(item_ids[idx]) ||
+                        list.includes(item_ids[idx]) ||
+                        !item_ids[idx]
+                            ? assets?.find(({ id }) => {
+                                  return (
+                                      !used_ids.includes(id) &&
+                                      !list.includes(id)
+                                  );
+                              })?.id
+                            : item_ids[idx];
+                    if (!item) {
+                        request.conflict = true;
+                        throw 'Unable to find available asset for request';
+                    }
+                    list.push(item);
+                    return item;
+                });
+            })
+        );
+        // Grab any existing bookings for the asset for the parent event/booking
+        const booking = bookings.find((_) =>
+            _.asset_ids.find((id) =>
+                request.items?.find((i) => i.item_ids.includes(id))
+            )
+        );
+        used_ids = [...used_ids, ...asset_ids];
+        return createBooking(
+            new Booking({
+                type: 'asset-request',
+                booking_type: 'asset-request',
+                date,
+                duration,
+                all_day,
+                description: location_name,
+                user_email: host,
+                asset_id: asset_ids[0],
+                asset_ids,
+                asset_name: request.items.map((_) => _.name).join(', '),
+                title: request.items.map((_) => _.name).join(', '),
+                approved:
+                    !reset_state && booking?.approved && !request._changed,
+                rejected:
+                    !reset_state && booking?.rejected && !request._changed,
+                extension_data: {
+                    parent_id: id,
+                    request_id: request.id,
+                    location_id,
+                    request: new AssetRequest({ ...request, event: null }),
+                },
+                zones: zones || [],
+            }),
+            { ical_uid, event_id: from_booking ? '' : id }
+        );
+    });
+    return async () => {
+        await Promise.all(
+            changed_requests.map(([id]) => removeBooking(id).toPromise())
+        );
+        await Promise.all(processed_requests.map((r) => r.toPromise()));
+    };
 }

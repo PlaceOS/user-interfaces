@@ -22,7 +22,7 @@ import { Space } from '@placeos/spaces';
 import { FindAvailabilityModalComponent } from '@placeos/users';
 import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';
 import { BehaviorSubject, combineLatest, timer } from 'rxjs';
-import { first, map, take, tap } from 'rxjs/operators';
+import { first, map, startWith, take, tap } from 'rxjs/operators';
 import { MeetingFlowConfirmModalComponent } from './meeting-flow-confirm-modal.component';
 import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
@@ -315,6 +315,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                                               ?.parent_id
                                         : ''
                                 }"
+                                [rejected_ids]="invalid_assets"
                                 formControlName="assets"
                             ></asset-list-field>
                         </div>
@@ -384,6 +385,7 @@ export class MeetingFlowFormComponent extends AsyncHandler {
     public dialog_ref: MatDialogRef<any>;
     public hide_block: Record<string, boolean> = {};
     public code_filter = new BehaviorSubject('');
+    public invalid_assets: string[] = [];
 
     public readonly has_catering = this._catering.available_menu.pipe(
         map((l) => l.length > 0)
@@ -410,6 +412,10 @@ export class MeetingFlowFormComponent extends AsyncHandler {
 
     public get form() {
         return this._state.form;
+    }
+
+    public get event() {
+        return this._state.event;
     }
 
     public get has_assets() {
@@ -529,8 +535,30 @@ export class MeetingFlowFormComponent extends AsyncHandler {
         super();
     }
 
+    private _updateValidAssets() {
+        this.invalid_assets = [];
+        if (!this.event?.id) return;
+        const requested_assets = this.form.value.assets || [];
+        const linked_bookings = this.event?.linked_bookings || [];
+        this.invalid_assets = requested_assets
+            .filter(
+                (_) =>
+                    !_._changed &&
+                    !linked_bookings.find(
+                        (bkn) => bkn.extension_data?.request_id === _.id
+                    )
+            )
+            .map((_) => _.id);
+    }
+
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
+        this.subscription(
+            'asset_changes',
+            this.form.controls.assets.valueChanges.subscribe(() =>
+                this._updateValidAssets()
+            )
+        );
         this.subscription(
             'space_changes',
             this.form.controls.resources.valueChanges.subscribe((l) =>
@@ -571,6 +599,11 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                     this._state.newForm();
                     location.reload();
                 })
+        );
+        this.timeout(
+            'init_valid_assets',
+            () => this._updateValidAssets(),
+            1000
         );
     }
 

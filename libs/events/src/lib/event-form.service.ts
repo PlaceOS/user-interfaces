@@ -52,7 +52,7 @@ import { EventLinkModalComponent } from './event-link-modal.component';
 import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
 import { periodInFreeTimeSlot } from './helpers';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { updateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
+import { validateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
 import { User } from 'libs/users/src/lib/user.class';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { removeEvent } from './events.fn';
@@ -282,7 +282,7 @@ export class EventFormService extends AsyncHandler {
                 spaces = filterResourcesFromRules(
                     spaces,
                     { date, duration, resource: null, host: currentUser() },
-                    booking_rules[this._org.building?.id]
+                    booking_rules[this._org.building?.id] || []
                 ) as any;
                 return availability_method(
                     spaces.map(({ id }) => id),
@@ -305,7 +305,7 @@ export class EventFormService extends AsyncHandler {
                                 resource: null,
                                 host: currentUser(),
                             },
-                            booking_rules[this._org.building?.id]
+                            booking_rules[this._org.building?.id] || []
                         ) as any;
                         return list;
                     }),
@@ -471,7 +471,7 @@ export class EventFormService extends AsyncHandler {
                 event.extension_data.catering[0]?.charge_code ||
                 (event.id && has_catering ? ' ' : ''),
             assets: (event.extension_data.assets || []).map(
-                (_) => new AssetRequest(_)
+                (_) => new AssetRequest({ ..._, event })
             ),
         });
         this._form.patchValue({
@@ -719,7 +719,7 @@ export class EventFormService extends AsyncHandler {
                     } else notifyError('Unable to book the selected assets.');
                 } else if (creating_assets) {
                     notifyError(
-                        `Unable to update all asset requests for event. ${e}`
+                        `Unable to update all asset requests for event.\n${e}`
                     );
                     return;
                 }
@@ -736,7 +736,7 @@ export class EventFormService extends AsyncHandler {
 
             if (assets?.length || event.extension_data.assets?.length) {
                 creating_assets = true;
-                await updateAssetRequestsForResource(
+                const requests = await validateAssetRequestsForResource(
                     result,
                     {
                         date,
@@ -746,15 +746,17 @@ export class EventFormService extends AsyncHandler {
                         location_name:
                             spaces[0]?.display_name || spaces[0]?.name || '',
                         location_id: spaces[0]?.id || '',
-                        zones: spaces[0]?.zones || [
-                            this._org.building?.id,
-                            this._org.building?.parent_id,
-                        ],
+                        zones: spaces[0]?.level?.parent_id
+                            ? [spaces[0]?.level?.parent_id]
+                            : [this._org.building?.id],
                         reset_state: changed_times,
                     },
                     assets,
-                    changed_spaces
+                    changed_spaces || changed_times
                 ).catch(on_error);
+                if (!requests) throw 'Unable to validate asset requests';
+                await requests();
+                creating_assets = false;
             }
             this.clearForm();
             this.last_success = result;

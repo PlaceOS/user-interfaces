@@ -52,7 +52,7 @@ import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
 import { findNearbyFeature } from './booking.utilities';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 import { BookingLinkModalComponent } from './booking-link-modal.component';
-import { updateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
+import { validateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 
 export type BookingFlowView = 'form' | 'map' | 'confirm' | 'success';
@@ -562,13 +562,14 @@ export class BookingFormService extends AsyncHandler {
                 throw e?.error || e;
             });
         if (value.assets?.length || booking.extension_data.assets?.length) {
-            await updateAssetRequestsForResource(
+            const requests = await validateAssetRequestsForResource(
                 { ...result, from_booking: true },
                 {
                     date: value.date,
                     duration: value.duration,
                     all_day: value.all_day,
                     host: value.booked_by_email,
+                    zones: [this._org.building?.id],
                 },
                 value.assets
             ).catch((e) => {
@@ -581,6 +582,8 @@ export class BookingFormService extends AsyncHandler {
                 this._loading.next('');
                 throw e?.error || e;
             });
+            if (!requests) throw 'Unable to validate asset requests';
+            await requests();
         }
         this._loading.next('');
         const { booking_type } = value;

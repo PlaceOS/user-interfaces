@@ -102,6 +102,7 @@ export function rulesForResource(
     details: BookingRuleDetails,
     ruleset_list: BookingRuleset[]
 ): BookingRules {
+    if (!(ruleset_list instanceof Array)) return DEFAULT_RULES;
     for (const ruleset of ruleset_list) {
         if (
             ruleset.zone === '*' ||

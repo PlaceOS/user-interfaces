@@ -1,5 +1,6 @@
 import { Component, Input, Optional } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { validateAssetRequestsForResource } from '@placeos/assets';
 import { CateringItem, CateringOrder } from '@placeos/catering';
 import {
     AsyncHandler,
@@ -13,6 +14,8 @@ import { Space } from '@placeos/spaces';
 import { addMinutes, endOfDay, startOfDay } from 'date-fns';
 import { AssetRequest } from 'libs/assets/src/lib/asset-request.class';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'meeting-flow-confirm-modal',
@@ -39,7 +42,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             ></mat-spinner>
         </div>
         <main
-            class="min-w-[48rem] divide-y divide-base-200 p-4 space-y-4 max-h-[65vh] overflow-auto"
+            class="flex-1 min-w-[48rem] divide-y divide-base-200 p-4 space-y-4 max-h-[65vh] overflow-auto"
         >
             <div class="flex divide-x divide-base-200">
                 <div class="pr-4 py-4 pl-16 relative space-y-2 flex-1">
@@ -249,8 +252,12 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 >
                     <div
                         class="absolute top-4 left-4 flex items-center justify-center rounded-full border border-success text-success text-2xl"
+                        [class.!border-error]="has_conflict"
+                        [class.!text-error]="has_conflict"
                     >
-                        <app-icon>done</app-icon>
+                        <app-icon>{{
+                            has_conflict ? 'close' : 'done'
+                        }}</app-icon>
                     </div>
                     <h3 class="text-xl !mt-0" i18n>Assets</h3>
                     <div
@@ -271,8 +278,11 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                                 </div>
                                 <div
                                     class="flex items-center justify-center h-6 w-6 rounded-full bg-error text-error-content"
-                                    [matTooltip]="err_tooltip"
-                                    *ngIf="end_time < request.deliver_at"
+                                    [matTooltip]="err_tooltip(request)"
+                                    *ngIf="
+                                        end_time < request.deliver_at ||
+                                        request.conflict
+                                    "
                                 >
                                     <app-icon>priority_high</app-icon>
                                 </div>
@@ -348,11 +358,23 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 export class MeetingFlowConfirmModalComponent extends AsyncHandler {
     @Input() public show_close: boolean = false;
 
-    public readonly loading = this._event_form.loading;
+    private _loading = new BehaviorSubject(false);
+
+    public readonly loading = combineLatest([
+        this._event_form.loading,
+        this._loading,
+    ]).pipe(map(([a, b]) => a || b));
     public readonly catering_orders;
     public readonly assets;
-    public err_tooltip =
-        'Delivery time is outside of the event time.\nThis order will be ignored.';
+    public err_tooltip(request: AssetRequest) {
+        return request.conflict
+            ? 'Some of the items are not available for the selected date and time.'
+            : 'Delivery time is outside of the event time.\nThis order will be ignored.';
+    }
+
+    public get has_conflict() {
+        return this.assets?.some((_) => _.conflict);
+    }
 
     public readonly postForm = async () => {
         if (!this.space) {
@@ -391,13 +413,6 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
         return this.event.all_day
             ? endOfDay(this.event.date_end).valueOf()
             : this.event.date_end;
-    }
-
-    public async ngOnInit() {
-        this._space =
-            (await this._space_pipe.transform(
-                this.event.resources[0]?.email
-            )) || this._space;
     }
 
     public get event() {
@@ -440,10 +455,13 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
         private _settings: SettingsService
     ) {
         super();
+    }
+
+    public async ngOnInit() {
         const date = this.event.all_day
             ? startOfDay(this.event.date).valueOf()
             : this.event.date;
-        this.catering_orders = this.event.catering?.map(
+        (this as any).catering_orders = this.event.catering?.map(
             (order) =>
                 new CateringOrder({
                     ...order,
@@ -457,9 +475,53 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
                     },
                 })
         );
-        this.assets = this.event.assets?.map(
+        (this as any).assets = this.event.assets?.map(
             (_) => new AssetRequest({ ..._, event: this.event })
         );
+        this._space =
+            (await this._space_pipe.transform(
+                this.event.resources[0]?.email
+            )) || this._space;
+        const changed_spaces =
+            !this._event_form.event ||
+            this.event.resources[0]?.id !== this._event_form.event?.space?.id;
+        const changed_times =
+            !this._event_form.event ||
+            this.event.date !== this._event_form.event.date ||
+            this.event.date_end !== this._event_form.event.date_end;
+        const event = this._event_form.form.value;
+        console.log('Changes:', changed_spaces, changed_times);
+        this._loading.next(true);
+        await validateAssetRequestsForResource(
+            this._event_form.event || {},
+            {
+                date: this.event.date,
+                duration: this.event.duration,
+                host: this.event.host,
+                all_day: this.event.all_day,
+                location_name:
+                    this._space?.display_name || this._space?.name || '',
+                location_id: this._space?.id || '',
+                zones: this._space?.level?.parent_id
+                    ? [this._space?.level?.parent_id]
+                    : [this._org.building?.id],
+                reset_state: changed_times,
+            },
+            event.assets,
+            changed_spaces || changed_times
+        ).catch((e) => notifyError(e));
+        this.timeout(
+            'update_assets',
+            () => {
+                (this as any).assets = event.assets?.map(
+                    (_) => new AssetRequest({ ..._, event })
+                );
+                this._event_form.form.patchValue({ assets: event.assets });
+            },
+            100
+        );
+        this.timeout('assets', () => console.log('Assets', event.assets));
+        this._loading.next(false);
     }
 
     public optionList(item: CateringItem) {

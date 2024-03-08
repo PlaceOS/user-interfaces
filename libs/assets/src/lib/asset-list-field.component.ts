@@ -42,8 +42,12 @@ const EMPTY_FAVS: string[] = [];
                             </div>
                             <div
                                 class="flex items-center justify-center h-6 w-6 rounded-full bg-error text-error-content"
-                                [matTooltip]="err_tooltip"
-                                *ngIf="end_time <= request.deliver_at"
+                                [matTooltip]="err_tooltip(request)"
+                                *ngIf="
+                                    end_time <= request.deliver_at ||
+                                    rejected_ids.includes(request.id) ||
+                                    request.conflict
+                                "
                             >
                                 <app-icon>priority_high</app-icon>
                             </div>
@@ -174,11 +178,15 @@ export class AssetListFieldComponent implements ControlValueAccessor {
         all_day?: boolean;
         zone_id?: string;
     } = {};
+    @Input() public rejected_ids: string[] = [];
     public asset_requests: AssetRequest[] = [];
     public disabled = false;
     public show_request: Record<string, boolean> = {};
-    public err_tooltip =
-        'Delivery time is outside of the event time.\nThis order will be ignored.';
+    public err_tooltip(request: AssetRequest) {
+        return this.rejected_ids.includes(request.id) || request.conflict
+            ? 'Some of the items are not available for the selected date and time.'
+            : 'Delivery time is outside of the event time.\nThis order will be ignored.';
+    }
 
     private _onChange: (_: AssetRequest[]) => void;
     private _onTouch: (_: AssetRequest[]) => void;
@@ -231,8 +239,14 @@ export class AssetListFieldComponent implements ControlValueAccessor {
      * @param value The new value for the component
      */
     public writeValue(value: AssetRequest[]) {
+        console.log('Requests:', value);
         this.asset_requests = (value || []).map(
-            (_) => new AssetRequest({ ..._, event: this.options as any })
+            (_) =>
+                new AssetRequest({
+                    ..._,
+                    event: this.options as any,
+                    state: _.state,
+                })
         );
     }
 
@@ -296,6 +310,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
             const time = new Date(this.options.date);
             const new_order = new AssetRequest({
                 ...order,
+                conflict: false,
                 _changed:
                     order._changed ||
                     order.items.find(
