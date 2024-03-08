@@ -43,7 +43,7 @@ const EMPTY_FAVS: string[] = [];
                             <div
                                 class="flex items-center justify-center h-6 w-6 rounded-full bg-error text-error-content"
                                 [matTooltip]="err_tooltip"
-                                *ngIf="end_time < request.deliver_at"
+                                *ngIf="end_time <= request.deliver_at"
                             >
                                 <app-icon>priority_high</app-icon>
                             </div>
