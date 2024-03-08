@@ -5752,7 +5752,7 @@ function AssetListFieldComponent_div_1_Template(rf, ctx) {
     i0.ɵɵadvance(5);
     i0.ɵɵtextInterpolate2(" Request for ", i0.ɵɵpipeBind2(6, 11, request_r1.deliver_at_time, "mediumDate"), " at ", i0.ɵɵpipeBind2(7, 14, request_r1.deliver_at_time, ctx_r0.time_format), " ");
     i0.ɵɵadvance(3);
-    i0.ɵɵproperty("ngIf", ctx_r0.end_time < request_r1.deliver_at);
+    i0.ɵɵproperty("ngIf", ctx_r0.end_time <= request_r1.deliver_at);
     i0.ɵɵadvance(10);
     i0.ɵɵproperty("matTooltip", ctx_r0.show_request[request_r1.id] ? "Hide order items" : "Show order items");
     i0.ɵɵadvance(2);
@@ -30911,15 +30911,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "07b1a9f",
-  "hash": "07b1a9f",
+  "raw": "9920398",
+  "hash": "9920398",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "07b1a9f",
+  "suffix": "9920398",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1709869700748
+  "time": 1709875679653
 };
 /* tslint:enable */
 
