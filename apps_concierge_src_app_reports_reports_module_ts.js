@@ -2197,7 +2197,7 @@ class ReportsStateService {
       if (!list?.length) {
         (0,_placeos_common__WEBPACK_IMPORTED_MODULE_3__.notifyError)('No bookings for the selected levels and period');
       }
-      const ignore_days = this._settings.get('app.reports.ignore_days')?.map(_ => _.toLowerCase()) || [];
+      const ignore_days = this._settings.get('app.reports.ignore_days')?.map(_ => typeof _ === 'string' ? _.toLowerCase() : (0,date_fns__WEBPACK_IMPORTED_MODULE_8__["default"])((0,date_fns__WEBPACK_IMPORTED_MODULE_9__["default"])(new Date(), _), 'eeee').toLowerCase()) || [];
       list = list.filter(bkn => !ignore_days.includes(DAYS_OF_WEEK_INDEX[new Date(bkn.date).getDay()]));
       this._active_bookings.next(list || []);
       return list;
