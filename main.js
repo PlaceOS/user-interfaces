@@ -6515,7 +6515,7 @@ function AssetFiltersComponent_div_7_Template(rf, ctx) {
     i0.ɵɵadvance(2);
     i0.ɵɵproperty("ngIf", ctx_r1.day_options.length > 1);
     i0.ɵɵadvance(3);
-    i0.ɵɵproperty("ngModel", ctx_r1.offset)("time", ctx_r1.offset_day > 0 ? ctx_r1.start_of_date : (tmp_4_0 = i0.ɵɵpipeBind1(7, 9, ctx_r1.options)) == null ? null : tmp_4_0.date)("step", ctx_r1.step_interval)("min", ctx_r1.min_offset)("max", ctx_r1.max_offset)("use_24hr", ctx_r1.use_24hr);
+    i0.ɵɵproperty("ngModel", ctx_r1.offset)("time", ctx_r1.offset_day > 0 ? ctx_r1.start_of_date : (tmp_4_0 = i0.ɵɵpipeBind1(7, 9, ctx_r1.options)) == null ? null : tmp_4_0.date)("step", ctx_r1.step_interval)("min", ctx_r1.min_offset)("max", ctx_r1.max_offset - 1)("use_24hr", ctx_r1.use_24hr);
   }
 }
 function AssetFiltersComponent_h3_8_Template(rf, ctx) {
@@ -30911,15 +30911,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "96ade9d",
-  "hash": "96ade9d",
+  "raw": "5745b9a",
+  "hash": "5745b9a",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "96ade9d",
+  "suffix": "5745b9a",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1709854750154
+  "time": 1709869102647
 };
 /* tslint:enable */
 
