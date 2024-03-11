@@ -114,19 +114,26 @@ export class EventFormService extends AsyncHandler {
         return this._event.getValue()?.duration > 24 * 60;
     }
 
-    public readonly booking_rules: Observable<BookingRuleset[]> =
-        this.options.pipe(
-            switchMap(() => {
-                return this._org.building
-                    ? showMetadata(
-                          this._org.building.id,
-                          `room_booking_rules`
-                      ).pipe(catchError(() => of({ details: [] })))
-                    : of({ details: [] });
-            }),
-            map((_) => (_?.details instanceof Array ? _.details : [])),
-            shareReplay(1)
-        );
+    public readonly booking_rules: Observable<
+        Record<string, BookingRuleset[]>
+    > = this._org.building_list.pipe(
+        switchMap((list) =>
+            Promise.all(
+                list.map((bld) =>
+                    showMetadata(bld.id, 'booking_rules').toPromise()
+                )
+            )
+        ),
+        map((building_rules) => {
+            const mapping = {};
+            for (const rules of building_rules) {
+                rules[rules.id] =
+                    rules.details instanceof Array ? rules.details : [];
+            }
+            return mapping;
+        }),
+        shareReplay(1)
+    );
 
     public readonly spaces: Observable<Space[]> = combineLatest([
         this._options.pipe(distinctUntilKeyChanged('zone_ids')),
@@ -139,7 +146,14 @@ export class EventFormService extends AsyncHandler {
         tap((_) => this.unsubWith('bind:')),
         switchMap(([{ zone_ids }]) => {
             this._loading.next('Loading space list for location...');
-            if (!zone_ids?.length) zone_ids = [this._org.building?.id];
+            const use_region = this._settings.get('app.use_region');
+            if (!zone_ids?.length) {
+                zone_ids = [
+                    (use_region
+                        ? this._org.building?.parent_id
+                        : this._org.building?.id) || this._org.building?.id,
+                ];
+            }
             return forkJoin(
                 zone_ids.map((id) =>
                     requestSpacesForZone(id).pipe(catchError(() => of([])))
@@ -227,7 +241,7 @@ export class EventFormService extends AsyncHandler {
             list = filterResourcesFromRules(
                 list,
                 { date, duration, resource: null, host: currentUser() },
-                booking_rules
+                booking_rules[this._org.building?.id] || []
             ) as any;
             return (list || [])
                 .filter((_, idx) => {
@@ -268,7 +282,7 @@ export class EventFormService extends AsyncHandler {
                 spaces = filterResourcesFromRules(
                     spaces,
                     { date, duration, resource: null, host: currentUser() },
-                    booking_rules
+                    booking_rules[this._org.building?.id]
                 ) as any;
                 return availability_method(
                     spaces.map(({ id }) => id),
@@ -291,7 +305,7 @@ export class EventFormService extends AsyncHandler {
                                 resource: null,
                                 host: currentUser(),
                             },
-                            booking_rules
+                            booking_rules[this._org.building?.id]
                         ) as any;
                         return list;
                     }),
@@ -381,7 +395,7 @@ export class EventFormService extends AsyncHandler {
     }
 
     public setView(value: EventFlowView) {
-        this._view.next(value);
+        this.timeout('set_view', () => this._view.next(value), 50);
     }
 
     public setOptions(value: Partial<EventFlowOptions>) {
