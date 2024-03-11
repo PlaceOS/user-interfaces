@@ -148,6 +148,12 @@ export class TopMenuComponent extends AsyncHandler {
             icon: 'directions_car',
             name: 'Book Car Space',
         },
+        {
+            id: 'visitor-invite',
+            route: '/book/visitor',
+            icon: 'person',
+            name: 'Invite Visitors',
+        },
         { id: 'explore', route: '/explore', icon: 'place', name: 'Spaces' },
         {
             id: 'schedule',
