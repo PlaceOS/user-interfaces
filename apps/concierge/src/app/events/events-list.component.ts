@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
 import { SettingsService } from '@placeos/common';
-import { CalendarEvent } from '@placeos/events';
-import { OrganisationService } from '@placeos/organisation';
-import { addMinutes } from 'date-fns';
+import { EventStateService } from './event-state.service';
 
 @Component({
     selector: 'app-event-list',
@@ -22,7 +20,7 @@ import { addMinutes } from 'date-fns';
             <div filters class=""></div>
             <div class="h-1/2 flex-1 w-full px-8 overflow-auto">
                 <custom-table
-                    class="min-w-[64rem] block"
+                    class="min-w-[60rem] block"
                     [dataSource]="event_list"
                     [columns]="[
                         'events',
@@ -40,7 +38,7 @@ import { addMinutes } from 'date-fns';
                         'Status',
                         ' '
                     ]"
-                    [column_size]="['20r', '10r', '10r', '8r', '8r', 'flex']"
+                    [column_size]="['24r', 'flex', '10r', '6r', '8r', '3.5r']"
                     [template]="{
                         events: event_template,
                         level: level_template,
@@ -55,7 +53,10 @@ import { addMinutes } from 'date-fns';
         <ng-template #event_template let-item="row">
             <div class="flex items-center space-x-2">
                 <div date class="flex flex-col items-center leading-tight">
-                    <div month class="text-sm font-medium relative top-0.5">
+                    <div
+                        month
+                        class="text-sm font-medium relative top-0.5 opacity-60"
+                    >
                         {{ item.date | date: 'MMM' }}
                     </div>
                     <div day class="text-2xl font-light relative -top-0.5">
@@ -101,14 +102,16 @@ import { addMinutes } from 'date-fns';
         <ng-template #status_template let-item="row">
             <div
                 class="px-4 py-1 rounded-full"
-                [class.text-white]="
-                    item.state !== 'done' && item.state !== 'in_progress'
-                "
                 [class.bg-success]="
                     item.state !== 'done' && item.state !== 'in_progress'
                 "
+                [class.text-success-content]="
+                    item.state !== 'done' && item.state !== 'in_progress'
+                "
                 [class.bg-warning]="item.state === 'in_progress'"
+                [class.text-warning-content]="item.state === 'in_progress'"
                 [class.bg-base-200]="item.state === 'done'"
+                [class.text-base-content]="item.state === 'done'"
             >
                 {{
                     item.state === 'done'
@@ -126,11 +129,38 @@ import { addMinutes } from 'date-fns';
                 </button>
             </div>
             <mat-menu #menu="matMenu">
-                <button mat-menu-item>Promote Event</button>
-                <button mat-menu-item>View</button>
-                <button mat-menu-item>Edit</button>
-                <button mat-menu-item>Copy URL</button>
-                <button mat-menu-item>Delete</button>
+                <button mat-menu-item>
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-2xl"
+                            >confirmation_number</app-icon
+                        >
+                        <div class="mr-2">Promote Event</div>
+                    </div>
+                </button>
+                <button mat-menu-item>
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-2xl">visibility</app-icon>
+                        <div class="mr-2">View Event</div>
+                    </div>
+                </button>
+                <button mat-menu-item>
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-2xl">edit</app-icon>
+                        <div class="mr-2">Edit Event</div>
+                    </div>
+                </button>
+                <button mat-menu-item>
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-2xl">content_copy</app-icon>
+                        <div class="mr-2">Copy URL</div>
+                    </div>
+                </button>
+                <button mat-menu-item>
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-2xl text-error">delete</app-icon>
+                        <div class="mr-2">Delete Event</div>
+                    </div>
+                </button>
             </mat-menu>
         </ng-template>
     `,
@@ -143,17 +173,14 @@ import { addMinutes } from 'date-fns';
     ],
 })
 export class EventsListComponent {
-    public event_list = [
-        new CalendarEvent({
-            title: 'Test Event',
-            date: addMinutes(new Date(), -15).valueOf(),
-            resources: [{ email: 'testroom1@0cbfs.onmicrosoft.com' } as any],
-        }),
-    ];
+    public readonly event_list = this._state.event_list;
 
     public get time_format() {
         return this._settings.time_format;
     }
 
-    constructor(private _settings: SettingsService) {}
+    constructor(
+        private _settings: SettingsService,
+        private _state: EventStateService
+    ) {}
 }

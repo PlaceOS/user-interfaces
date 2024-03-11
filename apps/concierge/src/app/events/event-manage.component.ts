@@ -1,7 +1,9 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import { Component } from '@angular/core';
 import { MatChipInputEvent } from '@angular/material/chips';
-import { EventFormService } from '@placeos/events';
+import { ActivatedRoute, Router } from '@angular/router';
+import { BookingFormService, showBooking } from '@placeos/bookings';
+import { AsyncHandler } from '@placeos/common';
 
 const EMPTY = [];
 
@@ -21,7 +23,9 @@ const EMPTY = [];
                 class="flex flex-col w-[40rem] max-w-full mx-auto px-4"
                 [formGroup]="form"
             >
-                <h3 class="py-4 text-2xl font-medium">New Event</h3>
+                <h3 class="py-4 text-2xl font-medium">
+                    {{ form.value.id ? 'Edit' : 'New' }} Group Event
+                </h3>
                 <section class="flex flex-col space-y-2">
                     <label for="title">Event Title<span>*</span></label>
                     <mat-form-field appearance="outline" class="w-full">
@@ -35,37 +39,50 @@ const EMPTY = [];
                             {{ 'FORM.TITLE_ERROR' | translate }}
                         </mat-error>
                     </mat-form-field>
+                    <div class="flex space-x-2">
+                        <div class="flex flex-col flex-1">
+                            <label for="organiser"
+                                >Start Date<span>*</span></label
+                            >
+                            <a-date-field formControlName="date"></a-date-field>
+                        </div>
+                        <!-- <div class="flex flex-col flex-1">
+                            <label for="organiser"
+                                >End Date<span>*</span></label
+                            >
+                            <a-date-field
+                                formControlName="date_end"
+                                [from]="form.value.date"
+                            ></a-date-field>
+                        </div> -->
+                    </div>
+                    <div class="flex space-x-2">
+                        <div class="flex flex-col flex-1">
+                            <label for="organiser">Start<span>*</span></label>
+                            <a-time-field formControlName="date"></a-time-field>
+                        </div>
+                        <div class="flex flex-col flex-1">
+                            <label for="organiser">End<span>*</span></label>
+                            <a-duration-field
+                                formControlName="duration"
+                                [time]="form.value.date"
+                            ></a-duration-field>
+                        </div>
+                    </div>
                     <label for="organiser">Organiser<span>*</span></label>
                     <a-user-search-field
                         class="block"
                         name="organiser"
                         formControlName="organiser"
                     ></a-user-search-field>
-                    <div class="flex space-x-4">
-                        <div class="space-y-2 flex-1">
-                            <label for="type">Type<span>*</span></label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <mat-select
-                                    name="type"
-                                    placeholder="Please select"
-                                    formControlName="event_type"
-                                >
-                                    <mat-option>None</mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
-                        <div class="space-y-2 flex-1">
-                            <label for="category">Category<span>*</span></label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <mat-select
-                                    name="category"
-                                    placeholder="Please select"
-                                    formControlName="category"
-                                >
-                                    <mat-option>None</mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
+                    <label for="title">Event Description</label>
+                    <rich-text-input
+                        formControlName="description"
+                    ></rich-text-input>
+                    <div class="py-4">
+                        <mat-checkbox formControlName="featured">
+                            Featured
+                        </mat-checkbox>
                     </div>
                     <label for="tags">Tags</label>
                     <mat-form-field appearance="outline">
@@ -88,21 +105,64 @@ const EMPTY = [];
                             />
                         </mat-chip-grid>
                     </mat-form-field>
+                    <label for="tags">Images</label>
+                    <image-list-field
+                        formControlName="images"
+                    ></image-list-field>
                 </section>
+                <div
+                    class="flex justify-end space-x-2 sticky bottom-0 w-full bg-base-100 py-4"
+                >
+                    <a
+                        btn
+                        matRipple
+                        class="inverse w-32"
+                        [routerLink]="['/entertainment', 'events']"
+                    >
+                        Cancel
+                    </a>
+                    <button btn matRipple class="w-32">Save</button>
+                </div>
             </form>
         </div>
     `,
     styles: [``],
 })
-export class EventManageComponent {
-    public readonly form = this._event_form.form;
+export class EventManageComponent extends AsyncHandler {
+    public readonly form = this._form_state.form;
     public readonly separators: number[] = [ENTER, COMMA, SPACE];
 
     public get tag_list() {
         return this.form.controls.tags.value || EMPTY;
     }
 
-    constructor(private _event_form: EventFormService) {}
+    constructor(
+        private _form_state: BookingFormService,
+        private _route: ActivatedRoute,
+        private _router: Router
+    ) {
+        super();
+    }
+
+    public ngOnInit() {
+        this._form_state.setOptions({ type: 'group-event' });
+        this.subscription(
+            'route.params',
+            this._route.paramMap.subscribe(async (params) => {
+                if (params.has('id')) {
+                    const event = await showBooking(
+                        params.get('id')
+                    ).toPromise();
+                    if (!event)
+                        return this._router.navigate([
+                            '/entertainment',
+                            'events',
+                        ]);
+                    this._form_state.newForm(event);
+                }
+            })
+        );
+    }
 
     /**
      * Add a feature to the list of features for the item
@@ -110,7 +170,7 @@ export class EventManageComponent {
      */
     public addTag(event: MatChipInputEvent): void {
         if (!this.form || !this.form.controls.tags) return;
-        const input = event.input;
+        const input = event.chipInput.inputElement;
         const value = event.value;
         const feature_list = this.tag_list;
         if ((value || '').trim()) {
