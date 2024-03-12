@@ -1759,6 +1759,11 @@ class TopMenuComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0__.Asyn
       icon: 'directions_car',
       name: 'Book Car Space'
     }, {
+      id: 'visitor-invite',
+      route: '/book/visitor',
+      icon: 'person',
+      name: 'Invite Visitors'
+    }, {
       id: 'explore',
       route: '/explore',
       icon: 'place',
@@ -19648,15 +19653,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "3f7304b",
-  "hash": "3f7304b",
+  "raw": "f35e3da",
+  "hash": "f35e3da",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "3f7304b",
+  "suffix": "f35e3da",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1710124152857
+  "time": 1710202461830
 };
 /* tslint:enable */
 
