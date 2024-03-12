@@ -7087,6 +7087,7 @@ class Booking {
     this.checked_out_at = data.checked_out_at;
     this.linked_event = data.linked_event || null;
     this.linked_bookings = data.linked_bookings || [];
+    this.images = data.images || [];
     this.status = this.checked_out_at > 0 ? 'ended' : this.rejected ? 'declined' : this.approved ? 'approved' : 'tentative';
     for (const key in data) {
       if (!(key in this) && !IGNORE_EXT_KEYS.includes(key) && data[key]) {
@@ -7232,7 +7233,9 @@ function generateBookingForm(booking = new _booking_class__WEBPACK_IMPORTED_MODU
     booked_by_id: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.booked_by_id),
     booked_by_email: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.booked_by_email),
     secondary_resource: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.extension_data?.other_asset_type || booking.extension_data?.secondary_resource),
-    phone: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.extension_data.phone)
+    phone: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.extension_data.phone),
+    images: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.images || []),
+    tags: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.tags || [])
   });
   form.valueChanges.subscribe(v => {
     const user = v.user;
@@ -19653,15 +19656,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "f35e3da",
-  "hash": "f35e3da",
+  "raw": "fb397b4",
+  "hash": "fb397b4",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "f35e3da",
+  "suffix": "fb397b4",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1710202461830
+  "time": 1710218452350
 };
 /* tslint:enable */
 
