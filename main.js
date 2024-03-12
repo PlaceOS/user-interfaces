@@ -46,27 +46,27 @@ const routes = [{
   canLoad: [_placeos_components__WEBPACK_IMPORTED_MODULE_0__.AuthorisedUserGuard]
 }, {
   path: 'book/assets',
-  loadChildren: () => Promise.all(/*! import() */[__webpack_require__.e("default-node_modules_angular_material_fesm2022_tabs_mjs"), __webpack_require__.e("default-libs_bookings_src_lib_bookings_module_ts"), __webpack_require__.e("default-node_modules_angular_material_fesm2022_icon_mjs"), __webpack_require__.e("apps_concierge_src_app_asset-manager_asset-manager_module_ts")]).then(__webpack_require__.bind(__webpack_require__, /*! ./asset-manager/asset-manager.module */ 41799)).then(m => m.AppAssetManangerModule),
+  loadChildren: () => Promise.all(/*! import() */[__webpack_require__.e("default-libs_bookings_src_lib_bookings_module_ts"), __webpack_require__.e("default-node_modules_angular_material_fesm2022_tabs_mjs"), __webpack_require__.e("default-node_modules_angular_material_fesm2022_icon_mjs"), __webpack_require__.e("apps_concierge_src_app_asset-manager_asset-manager_module_ts")]).then(__webpack_require__.bind(__webpack_require__, /*! ./asset-manager/asset-manager.module */ 41799)).then(m => m.AppAssetManangerModule),
   canActivate: [_placeos_components__WEBPACK_IMPORTED_MODULE_0__.AuthorisedUserGuard],
   canLoad: [_placeos_components__WEBPACK_IMPORTED_MODULE_0__.AuthorisedUserGuard]
 }, {
   path: 'book/desks',
-  loadChildren: () => Promise.all(/*! import() */[__webpack_require__.e("default-libs_users_src_index_ts"), __webpack_require__.e("default-node_modules_angular_material_fesm2022_tabs_mjs"), __webpack_require__.e("default-libs_bookings_src_lib_bookings_module_ts"), __webpack_require__.e("default-libs_explore_src_index_ts"), __webpack_require__.e("default-apps_concierge_src_app_desks_desks-state_service_ts"), __webpack_require__.e("apps_concierge_src_app_desks_desks_module_ts")]).then(__webpack_require__.bind(__webpack_require__, /*! ./desks/desks.module */ 3675)).then(m => m.DesksModule),
+  loadChildren: () => Promise.all(/*! import() */[__webpack_require__.e("default-libs_users_src_index_ts"), __webpack_require__.e("default-libs_bookings_src_lib_bookings_module_ts"), __webpack_require__.e("default-node_modules_angular_material_fesm2022_tabs_mjs"), __webpack_require__.e("default-libs_explore_src_index_ts"), __webpack_require__.e("default-apps_concierge_src_app_desks_desks-state_service_ts"), __webpack_require__.e("apps_concierge_src_app_desks_desks_module_ts")]).then(__webpack_require__.bind(__webpack_require__, /*! ./desks/desks.module */ 3675)).then(m => m.DesksModule),
   canActivate: [_placeos_components__WEBPACK_IMPORTED_MODULE_0__.AuthorisedUserGuard],
   canLoad: [_placeos_components__WEBPACK_IMPORTED_MODULE_0__.AuthorisedUserGuard]
 }, {
   path: 'book/lockers',
-  loadChildren: () => Promise.all(/*! import() */[__webpack_require__.e("default-libs_users_src_index_ts"), __webpack_require__.e("default-node_modules_angular_material_fesm2022_tabs_mjs"), __webpack_require__.e("default-libs_bookings_src_lib_bookings_module_ts"), __webpack_require__.e("default-libs_explore_src_index_ts"), __webpack_require__.e("apps_concierge_src_app_lockers_lockers_module_ts")]).then(__webpack_require__.bind(__webpack_require__, /*! ./lockers/lockers.module */ 17639)).then(m => m.LockersModule),
+  loadChildren: () => Promise.all(/*! import() */[__webpack_require__.e("default-libs_users_src_index_ts"), __webpack_require__.e("default-libs_bookings_src_lib_bookings_module_ts"), __webpack_require__.e("default-node_modules_angular_material_fesm2022_tabs_mjs"), __webpack_require__.e("default-libs_explore_src_index_ts"), __webpack_require__.e("apps_concierge_src_app_lockers_lockers_module_ts")]).then(__webpack_require__.bind(__webpack_require__, /*! ./lockers/lockers.module */ 17639)).then(m => m.LockersModule),
   canActivate: [_placeos_components__WEBPACK_IMPORTED_MODULE_0__.AuthorisedUserGuard],
   canLoad: [_placeos_components__WEBPACK_IMPORTED_MODULE_0__.AuthorisedUserGuard]
 }, {
   path: 'reports',
-  loadChildren: () => Promise.all(/*! import() */[__webpack_require__.e("default-libs_users_src_index_ts"), __webpack_require__.e("default-node_modules_angular_material_fesm2022_tabs_mjs"), __webpack_require__.e("default-libs_bookings_src_lib_bookings_module_ts"), __webpack_require__.e("default-libs_catering_src_index_ts"), __webpack_require__.e("apps_concierge_src_app_reports_reports_module_ts")]).then(__webpack_require__.bind(__webpack_require__, /*! ./reports/reports.module */ 14077)).then(m => m.ReportsModule),
+  loadChildren: () => Promise.all(/*! import() */[__webpack_require__.e("default-libs_users_src_index_ts"), __webpack_require__.e("default-libs_bookings_src_lib_bookings_module_ts"), __webpack_require__.e("default-node_modules_angular_material_fesm2022_tabs_mjs"), __webpack_require__.e("default-libs_catering_src_index_ts"), __webpack_require__.e("apps_concierge_src_app_reports_reports_module_ts")]).then(__webpack_require__.bind(__webpack_require__, /*! ./reports/reports.module */ 14077)).then(m => m.ReportsModule),
   canActivate: [_placeos_components__WEBPACK_IMPORTED_MODULE_0__.AuthorisedUserGuard],
   canLoad: [_placeos_components__WEBPACK_IMPORTED_MODULE_0__.AuthorisedUserGuard]
 }, {
   path: 'entertainment/events',
-  loadChildren: () => __webpack_require__.e(/*! import() */ "apps_concierge_src_app_events_events_module_ts").then(__webpack_require__.bind(__webpack_require__, /*! ./events/events.module */ 24194)).then(m => m.EventsModule),
+  loadChildren: () => Promise.all(/*! import() */[__webpack_require__.e("default-libs_bookings_src_lib_bookings_module_ts"), __webpack_require__.e("apps_concierge_src_app_events_events_module_ts")]).then(__webpack_require__.bind(__webpack_require__, /*! ./events/events.module */ 24194)).then(m => m.EventsModule),
   canActivate: [_placeos_components__WEBPACK_IMPORTED_MODULE_0__.AuthorisedUserGuard],
   canLoad: [_placeos_components__WEBPACK_IMPORTED_MODULE_0__.AuthorisedUserGuard]
 }, {
@@ -81,12 +81,12 @@ const routes = [{
   canLoad: [_placeos_components__WEBPACK_IMPORTED_MODULE_0__.AuthorisedUserGuard]
 }, {
   path: 'facilities/points',
-  loadChildren: () => Promise.all(/*! import() */[__webpack_require__.e("default-node_modules_angular_material_fesm2022_tabs_mjs"), __webpack_require__.e("default-libs_bookings_src_lib_bookings_module_ts"), __webpack_require__.e("default-apps_concierge_src_app_desks_desks-state_service_ts"), __webpack_require__.e("apps_concierge_src_app_points_points_module_ts")]).then(__webpack_require__.bind(__webpack_require__, /*! ./points/points.module */ 41934)).then(m => m.PointsModule),
+  loadChildren: () => Promise.all(/*! import() */[__webpack_require__.e("default-libs_bookings_src_lib_bookings_module_ts"), __webpack_require__.e("default-node_modules_angular_material_fesm2022_tabs_mjs"), __webpack_require__.e("default-apps_concierge_src_app_desks_desks-state_service_ts"), __webpack_require__.e("apps_concierge_src_app_points_points_module_ts")]).then(__webpack_require__.bind(__webpack_require__, /*! ./points/points.module */ 41934)).then(m => m.PointsModule),
   canActivate: [_placeos_components__WEBPACK_IMPORTED_MODULE_0__.AuthorisedUserGuard],
   canLoad: [_placeos_components__WEBPACK_IMPORTED_MODULE_0__.AuthorisedUserGuard]
 }, {
   path: 'book/parking',
-  loadChildren: () => Promise.all(/*! import() */[__webpack_require__.e("default-node_modules_angular_material_fesm2022_tabs_mjs"), __webpack_require__.e("default-libs_bookings_src_lib_bookings_module_ts"), __webpack_require__.e("apps_concierge_src_app_parking_parking_module_ts")]).then(__webpack_require__.bind(__webpack_require__, /*! ./parking/parking.module */ 28358)).then(m => m.AppParkingModule),
+  loadChildren: () => Promise.all(/*! import() */[__webpack_require__.e("default-libs_bookings_src_lib_bookings_module_ts"), __webpack_require__.e("default-node_modules_angular_material_fesm2022_tabs_mjs"), __webpack_require__.e("apps_concierge_src_app_parking_parking_module_ts")]).then(__webpack_require__.bind(__webpack_require__, /*! ./parking/parking.module */ 28358)).then(m => m.AppParkingModule),
   canActivate: [_placeos_components__WEBPACK_IMPORTED_MODULE_0__.AuthorisedUserGuard],
   canLoad: [_placeos_components__WEBPACK_IMPORTED_MODULE_0__.AuthorisedUserGuard]
 }, {
@@ -6028,6 +6028,7 @@ class Booking {
     this.checked_out_at = data.checked_out_at;
     this.linked_event = data.linked_event || null;
     this.linked_bookings = data.linked_bookings || [];
+    this.images = data.images || [];
     this.status = this.checked_out_at > 0 ? 'ended' : this.rejected ? 'declined' : this.approved ? 'approved' : 'tentative';
     for (const key in data) {
       if (!(key in this) && !IGNORE_EXT_KEYS.includes(key) && data[key]) {
@@ -6173,7 +6174,9 @@ function generateBookingForm(booking = new _booking_class__WEBPACK_IMPORTED_MODU
     booked_by_id: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.booked_by_id),
     booked_by_email: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.booked_by_email),
     secondary_resource: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.extension_data?.other_asset_type || booking.extension_data?.secondary_resource),
-    phone: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.extension_data.phone)
+    phone: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.extension_data.phone),
+    images: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.images || []),
+    tags: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.tags || [])
   });
   form.valueChanges.subscribe(v => {
     const user = v.user;
@@ -12199,15 +12202,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "f35e3da",
-  "hash": "f35e3da",
+  "raw": "fb397b4",
+  "hash": "fb397b4",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "f35e3da",
+  "suffix": "fb397b4",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1710202466313
+  "time": 1710218454450
 };
 /* tslint:enable */
 
