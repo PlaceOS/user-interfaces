@@ -10447,7 +10447,7 @@ function setBookingAsset(form, resource) {
   });
 }
 function generateBookingForm() {
-  var _booking$all_day, _booking$extension_da, _booking$extension_da2, _booking$extension_da3, _booking$extension_da4;
+  var _booking$all_day, _booking$extension_da, _booking$extension_da2, _booking$extension_da3, _booking$extension_da4, _booking$extension_da5;
   var booking = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : new booking_class_1.Booking();
   var form = new forms_1.FormGroup({
     id: new forms_1.FormControl(booking.id || ''),
@@ -10468,6 +10468,7 @@ function generateBookingForm() {
     assets: new forms_1.FormControl(((_booking$extension_da = booking.extension_data) === null || _booking$extension_da === void 0 ? void 0 : _booking$extension_da.assets) || []),
     attendees: new forms_1.FormControl(booking.attendees || []),
     map_id: new forms_1.FormControl((_booking$extension_da2 = booking.extension_data) === null || _booking$extension_da2 === void 0 ? void 0 : _booking$extension_da2.map_id),
+    featured: new forms_1.FormControl(((_booking$extension_da3 = booking.extension_data) === null || _booking$extension_da3 === void 0 ? void 0 : _booking$extension_da3.featured) || false),
     user: new forms_1.FormControl((0, common_1.currentUser)()),
     user_id: new forms_1.FormControl(booking.user_id),
     group: new forms_1.FormControl(booking.group),
@@ -10475,7 +10476,7 @@ function generateBookingForm() {
     booked_by: new forms_1.FormControl((0, common_1.currentUser)()),
     booked_by_id: new forms_1.FormControl(booking.booked_by_id),
     booked_by_email: new forms_1.FormControl(booking.booked_by_email),
-    secondary_resource: new forms_1.FormControl(((_booking$extension_da3 = booking.extension_data) === null || _booking$extension_da3 === void 0 ? void 0 : _booking$extension_da3.other_asset_type) || ((_booking$extension_da4 = booking.extension_data) === null || _booking$extension_da4 === void 0 ? void 0 : _booking$extension_da4.secondary_resource)),
+    secondary_resource: new forms_1.FormControl(((_booking$extension_da4 = booking.extension_data) === null || _booking$extension_da4 === void 0 ? void 0 : _booking$extension_da4.other_asset_type) || ((_booking$extension_da5 = booking.extension_data) === null || _booking$extension_da5 === void 0 ? void 0 : _booking$extension_da5.secondary_resource)),
     phone: new forms_1.FormControl(booking.extension_data.phone),
     images: new forms_1.FormControl(booking.images || []),
     tags: new forms_1.FormControl(booking.tags || [])
@@ -30911,15 +30912,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "fb397b4",
-  "hash": "fb397b4",
+  "raw": "1d51f00",
+  "hash": "1d51f00",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "fb397b4",
+  "suffix": "1d51f00",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1710218455277
+  "time": 1710303014237
 };
 /* tslint:enable */
 
