@@ -8704,7 +8704,7 @@ function _removeAssetRequests() {
   });
   return _removeAssetRequests.apply(this, arguments);
 }
-function differenceBetweenAssetRequests(new_assets, old_assets) {
+function differenceBetweenAssetRequests(new_assets, old_assets, reset_state = false) {
   if ((!new_assets || new_assets?.length <= 0) && old_assets?.length) return [];
   if (!old_assets) return [];
   const changed = [];
@@ -8749,10 +8749,14 @@ function _updateAssetRequestsForResource() {
       booking_id: from_booking ? id : '',
       ical_uid
     }).toPromise();
-    const request_list = bookings.map(_ => [_.id, new _asset_request_class__WEBPACK_IMPORTED_MODULE_6__.AssetRequest(_.extension_data.request)]);
-    const changed = force_create ? new_assets.map(_ => _.id) : differenceBetweenAssetRequests(new_assets, request_list.map(([_, r]) => r));
-    const unchanged = request_list.filter(([_, request]) => !changed.includes(request.id));
-    const changed_requests = request_list.filter(([_, {
+    const booking_list = bookings.map(_ => [_.id, new _asset_request_class__WEBPACK_IMPORTED_MODULE_6__.AssetRequest(_.extension_data.request)]);
+    let changed = force_create ? new_assets.map(_ => _.id) : differenceBetweenAssetRequests(new_assets, booking_list.map(([_, r]) => r), reset_state);
+    if (reset_state) {
+      const has_state = bookings.filter(_ => _.approved || _.rejected);
+      changed = (0,_placeos_common__WEBPACK_IMPORTED_MODULE_5__.unique)([...changed, ...has_state.map(_ => _.extension_data.request_id)]);
+    }
+    const unchanged = booking_list.filter(([_, request]) => !changed.includes(request.id));
+    const changed_requests = booking_list.filter(([_, {
       id
     }]) => changed.includes(id));
     const changed_assets = new_assets.filter(({
@@ -13159,15 +13163,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "722dbb9",
-  "hash": "722dbb9",
+  "raw": "8f9fc2d",
+  "hash": "8f9fc2d",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "722dbb9",
+  "suffix": "8f9fc2d",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1710202151066
+  "time": 1710322862241
 };
 /* tslint:enable */
 
