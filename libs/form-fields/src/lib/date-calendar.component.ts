@@ -37,7 +37,7 @@ interface DateItem {
                         icon
                         matRipple
                         name="schedule-next-month"
-                        [disabled]="date_list[0].id < from"
+                        [disabled]="date_list[0]?.id < from"
                         (click)="changeMonth(-1)"
                     >
                         <app-icon>chevron_left</app-icon>
@@ -46,7 +46,7 @@ interface DateItem {
                         icon
                         matRipple
                         name="schedule-previous-month"
-                        [disabled]="date_list[34].id > to"
+                        [disabled]="date_list[34]?.id > to"
                         (click)="changeMonth(1)"
                     >
                         <app-icon>chevron_right</app-icon>
@@ -60,14 +60,14 @@ interface DateItem {
                     class="flex-1 opacity-60 text-center"
                     *ngFor="let day of date_list | slice: 0:7"
                 >
-                    {{ day.id | date: 'EE' }}
+                    {{ day?.id | date: 'EE' }}
                 </div>
             </div>
             <div class="flex items-center justify-between flex-wrap">
                 <button
                     icon
                     name="schedule-set-date"
-                    class="min-w-[2.25rem] w-9 h-9 relative overflow-visible my-0.5"
+                    class="min-w-[14%] w-9 h-9 relative overflow-visible my-0.5"
                     *ngFor="let day of date_list"
                     [class.hover:bg-base-100]="day.id !== active_date"
                     [class.!text-base-300]="!day.is_month"
@@ -121,6 +121,10 @@ export class DateCalendarComponent
 
     constructor(private _settings: SettingsService) {
         super();
+    }
+
+    public ngOnInit() {
+        this.generateDates();
     }
 
     public ngOnChanges(changes: SimpleChanges) {
