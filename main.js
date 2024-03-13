@@ -9101,6 +9101,7 @@ function generateBookingForm(booking = new _booking_class__WEBPACK_IMPORTED_MODU
     assets: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.extension_data?.assets || []),
     attendees: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.attendees || []),
     map_id: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.extension_data?.map_id),
+    featured: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.extension_data?.featured || false),
     user: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl((0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.currentUser)()),
     user_id: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.user_id),
     group: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.group),
@@ -13136,15 +13137,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "fb397b4",
-  "hash": "fb397b4",
+  "raw": "1d51f00",
+  "hash": "1d51f00",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "fb397b4",
+  "suffix": "1d51f00",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1710218456099
+  "time": 1710303008660
 };
 /* tslint:enable */
 
