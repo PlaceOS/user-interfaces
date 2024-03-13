@@ -8006,6 +8006,7 @@ function _removeAssetRequests() {
 }
 exports.removeAssetRequests = removeAssetRequests;
 function differenceBetweenAssetRequests(new_assets, old_assets) {
+  var reset_state = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
   if ((!new_assets || (new_assets === null || new_assets === void 0 ? void 0 : new_assets.length) <= 0) && old_assets !== null && old_assets !== void 0 && old_assets.length) return [];
   if (!old_assets) return [];
   var changed = [];
@@ -8050,7 +8051,7 @@ function _updateAssetRequestsForResource() {
       reset_state = _ref10.reset_state;
     var force_create = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     return /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-      var requests, bookings, request_list, changed, unchanged, changed_requests, changed_assets, filtered, used_ids, _iterator3, _step3, _step3$value, _, request, available_groups;
+      var requests, bookings, booking_list, changed, has_state, unchanged, changed_requests, changed_assets, filtered, used_ids, _iterator3, _step3, _step3$value, _, request, available_groups;
       return _regeneratorRuntime().wrap(function _callee2$(_context2) {
         while (1) switch (_context2.prev = _context2.next) {
           case 0:
@@ -8075,24 +8076,32 @@ function _updateAssetRequestsForResource() {
             }).toPromise();
           case 5:
             bookings = _context2.sent;
-            request_list = bookings.map(function (_) {
+            booking_list = bookings.map(function (_) {
               return [_.id, new asset_request_class_1.AssetRequest(_.extension_data.request)];
             });
             changed = force_create ? new_assets.map(function (_) {
               return _.id;
-            }) : differenceBetweenAssetRequests(new_assets, request_list.map(function (_ref11) {
+            }) : differenceBetweenAssetRequests(new_assets, booking_list.map(function (_ref11) {
               var _ref12 = _slicedToArray(_ref11, 2),
                 _ = _ref12[0],
                 r = _ref12[1];
               return r;
-            }));
-            unchanged = request_list.filter(function (_ref13) {
+            }), reset_state);
+            if (reset_state) {
+              has_state = bookings.filter(function (_) {
+                return _.approved || _.rejected;
+              });
+              changed = (0, common_1.unique)([].concat(_toConsumableArray(changed), _toConsumableArray(has_state.map(function (_) {
+                return _.extension_data.request_id;
+              }))));
+            }
+            unchanged = booking_list.filter(function (_ref13) {
               var _ref14 = _slicedToArray(_ref13, 2),
                 _ = _ref14[0],
                 request = _ref14[1];
               return !changed.includes(request.id);
             });
-            changed_requests = request_list.filter(function (_ref15) {
+            changed_requests = booking_list.filter(function (_ref15) {
               var _ref16 = _slicedToArray(_ref15, 2),
                 _ = _ref16[0],
                 id = _ref16[1].id;
@@ -8102,13 +8111,13 @@ function _updateAssetRequestsForResource() {
               var id = _ref17.id;
               return changed.includes(id);
             });
-            _context2.next = 13;
+            _context2.next = 14;
             return Promise.all(changed_requests.map(function (_ref18) {
               var _ref19 = _slicedToArray(_ref18, 1),
                 id = _ref19[0];
               return (0, bookings_fn_1.removeBooking)(id).toPromise();
             }));
-          case 13:
+          case 14:
             filtered = requests.filter(function (req) {
               return !req.rejected && (!bookings.find(function (b) {
                 return b.id === req.id;
@@ -8134,15 +8143,15 @@ function _updateAssetRequestsForResource() {
             } finally {
               _iterator3.f();
             }
-            _context2.next = 19;
+            _context2.next = 20;
             return queryGroupAvailability({
               period_start: (0, date_fns_1.getUnixTime)((0, date_fns_1.startOfDay)(date)),
               period_end: (0, date_fns_1.getUnixTime)((0, date_fns_1.endOfDay)(date)),
               type: 'asset-request'
             }).toPromise();
-          case 19:
+          case 20:
             available_groups = _context2.sent;
-            _context2.next = 22;
+            _context2.next = 23;
             return Promise.all(changed_assets.map(function (request) {
               // Handle duplicate asset ids
               var asset_ids = (0, common_1.flatten)(request.items.map(function (_ref22) {
@@ -8210,7 +8219,7 @@ function _updateAssetRequestsForResource() {
                 event_id: from_booking ? '' : id
               }).toPromise();
             }));
-          case 22:
+          case 23:
           case "end":
             return _context2.stop();
         }
@@ -30951,15 +30960,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "722dbb9",
-  "hash": "722dbb9",
+  "raw": "8f9fc2d",
+  "hash": "8f9fc2d",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "722dbb9",
+  "suffix": "8f9fc2d",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1710202160412
+  "time": 1710322850175
 };
 /* tslint:enable */
 
