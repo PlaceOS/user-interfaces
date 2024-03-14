@@ -1327,7 +1327,7 @@ class AppSettingsModalComponent {
     this._org = _org;
     this._settings = _settings;
     this.zone = this._data.zone;
-    this.workplace_key = this._settings.get('app.workplace_setting_key') || 'workplace';
+    this.workplace_key = this._settings.get('app.workplace_metadata_key') || 'workplace';
     this.available_features = ['spaces', 'desks', 'explore', 'parking', 'help', 'schedule', 'wfh'];
     this.landing_features = ['show_quick_links', 'hide_availability', 'hide_colleagues', 'hide_landing_sidebar', 'hide_rooms', 'hide_spaces'];
     this.room_features = ['allow_all_day', 'booking_unavailable', 'can_book_for_others', 'has_assets', 'has_catering', 'allow_externals', 'hide_notes', 'allow_recurrence'];
@@ -12497,15 +12497,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "37dc75a",
-  "hash": "37dc75a",
+  "raw": "962db69",
+  "hash": "962db69",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "37dc75a",
+  "suffix": "962db69",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1710388726160
+  "time": 1710388829235
 };
 /* tslint:enable */
 
