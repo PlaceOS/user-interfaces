@@ -24,6 +24,7 @@ import { format, getUnixTime, addMinutes, startOfDay } from 'date-fns';
 import {
     BehaviorSubject,
     combineLatest,
+    forkJoin,
     merge,
     Observable,
     of,
@@ -146,17 +147,26 @@ export class BookingFormService extends AsyncHandler {
         shareReplay(1)
     );
 
-    public readonly booking_rules: Observable<BookingRuleset[]> =
-        this.options.pipe(
-            switchMap(({ type }) => {
-                return showMetadata(
-                    this._org.building.id,
-                    `${type}_booking_rules`
-                ).pipe(catchError(() => of({ details: [] })));
-            }),
-            map((_) => (_?.details instanceof Array ? _.details : [])),
-            shareReplay(1)
-        );
+    public readonly booking_rules: Observable<
+        Record<string, BookingRuleset[]>
+    > = combineLatest([this._org.building_list, this._options]).pipe(
+        switchMap(([list, { type }]) =>
+            Promise.all(
+                list.map((bld) =>
+                    showMetadata(bld.id, `${type}_booking_rules`).toPromise()
+                )
+            )
+        ),
+        map((building_rules) => {
+            const mapping = {};
+            for (const rules of building_rules) {
+                rules[rules.id] =
+                    rules.details instanceof Array ? rules.details : [];
+            }
+            return mapping;
+        }),
+        shareReplay(1)
+    );
 
     public readonly available_resources = combineLatest([
         this.options,
@@ -206,7 +216,9 @@ export class BookingFormService extends AsyncHandler {
                                     resource: asset,
                                     host: user || currentUser(),
                                 },
-                                restrictions
+                                restrictions[
+                                    asset.zone?.id || this._org.building.id
+                                ] || []
                             ).hidden;
                             return (
                                 !is_restricted &&
@@ -423,7 +435,6 @@ export class BookingFormService extends AsyncHandler {
         );
         this.form.patchValue(booking_data);
         this.setOptions({
-            zone_id: this._org.building?.id,
             ...JSON.parse(
                 sessionStorage.getItem('PLACEOS.booking_form_filters') || '{}'
             ),
@@ -723,32 +734,43 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public loadResourceList(type: BookingType) {
-        return listChildMetadata(this._org.building.id, {
-            name: type,
-        }).pipe(
-            map((data) =>
-                flatten(
-                    data.map((_) =>
-                        (_?.metadata[type]?.details instanceof Array
-                            ? _.metadata[type]?.details
-                            : []
-                        ).map((d) =>
-                            (type as any) !== 'lockers'
-                                ? {
-                                      ...d,
-                                      id: d.id || d.map_id,
-                                      zone: _.zone,
-                                  }
-                                : d.lockers?.map((_) => ({
-                                      ..._,
-                                      bank_id: d.id,
-                                      zone: _.zone,
-                                  })) || []
-                        )
+        const use_region = this._settings.get('app.use_region');
+        const map_metadata = (_) =>
+            (_?.metadata[type]?.details instanceof Array
+                ? _.metadata[type]?.details
+                : []
+            ).map((d) =>
+                (type as any) !== 'lockers'
+                    ? {
+                          ...d,
+                          id: d.id || d.map_id,
+                          zone: _.zone,
+                      }
+                    : d.lockers?.map((_) => ({
+                          ..._,
+                          bank_id: d.id,
+                          zone: _.zone,
+                      })) || []
+            );
+        const id = use_region
+            ? this._org.building.parent_id
+            : this._org.building.id;
+        if (use_region) {
+            const id = this._org.building.parent_id;
+            const buildings = this._org.buildings.filter(
+                (_) => _.parent_id === id
+            );
+            return forkJoin(
+                buildings.map((_) =>
+                    listChildMetadata(_.id, { name: type }).pipe(
+                        map((data) => flatten(data.map(map_metadata)))
                     )
                 )
-            )
-        );
+            ).pipe(map((_) => flatten(_)));
+        }
+        return listChildMetadata(id, {
+            name: type,
+        }).pipe(map((data) => flatten(data.map(map_metadata))));
     }
 
     private async _getNearbyResources(

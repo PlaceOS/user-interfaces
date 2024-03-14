@@ -5,6 +5,7 @@ import { addDays, endOfDay, set } from 'date-fns';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { BookingFormService } from '../booking-form.service';
+import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'desk-filters',
@@ -43,23 +44,21 @@ import { BookingFormService } from '../booking-form.service';
         >
             <section details>
                 <h2 class="text-lg font-medium" i18n>Details</h2>
-                <!-- Building -->
-                <div
-                    *ngIf="(buildings | async)?.length"
-                    class="flex-1 min-w-[256px] flex flex-col"
-                >
-                    <label i18n>Building</label>
-                    <mat-form-field appearance="outline" class="w-full">
+                <ng-container *ngIf="!use_region">
+                    <mat-form-field
+                        appearance="outline"
+                        class="w-full"
+                        *ngIf="(buildings | async)?.length > 1"
+                    >
                         <mat-select
                             name="building"
-                            placeholder="Select building"
-                            [(ngModel)]="building"
-                            (ngModelChange)="
-                                setOptions({
-                                    zone_id: $event?.id
-                                })
-                            "
+                            [ngModel]="building | async"
+                            (ngModelChange)="setBuilding($event)"
                             [ngModelOptions]="{ standalone: true }"
+                            [placeholder]="
+                                (building | async)?.display_name ||
+                                (building | async)?.name
+                            "
                         >
                             <mat-option
                                 *ngFor="let bld of buildings | async"
@@ -69,24 +68,14 @@ import { BookingFormService } from '../booking-form.service';
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                </div>
-                <!-- level -->
-                <div
-                    *ngIf="(levels | async)?.length > 1"
-                    class="flex-1 min-w-[256px] flex flex-col"
-                >
-                    <label>Level</label>
-                    <mat-form-field appearance="outline">
+                    <mat-form-field appearance="outline" class="w-full">
                         <mat-select
-                            placeholder="Any Level"
+                            name="location"
                             [ngModel]="(options | async)?.zone_id"
-                            [disabled]="!building"
-                            (ngModelChange)="
-                                setOptions({
-                                    zone_id: $event || building.id
-                                })
-                            "
+                            (ngModelChange)="setOptions({ zone_id: $event })"
                             [ngModelOptions]="{ standalone: true }"
+                            placeholder="Any Level"
+                            i18n-placeholder
                         >
                             <mat-option
                                 *ngFor="let lvl of levels | async"
@@ -96,7 +85,53 @@ import { BookingFormService } from '../booking-form.service';
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                </div>
+                </ng-container>
+                <ng-container *ngIf="use_region">
+                    <mat-form-field
+                        appearance="outline"
+                        class="w-full"
+                        *ngIf="(regions | async)?.length"
+                    >
+                        <mat-select
+                            name="region"
+                            [ngModel]="region"
+                            (ngModelChange)="setRegion($event)"
+                            [ngModelOptions]="{ standalone: true }"
+                            placeholder="Any Region"
+                            i18n-placeholder
+                        >
+                            <mat-option
+                                *ngFor="let reg of regions | async"
+                                [value]="reg"
+                            >
+                                {{ reg.display_name || reg.name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-select
+                            name="location"
+                            [ngModel]="(options | async)?.zone_id"
+                            (ngModelChange)="setOptions({ zone_id: $event })"
+                            [ngModelOptions]="{ standalone: true }"
+                            placeholder="Any Level"
+                            i18n-placeholder
+                        >
+                            <mat-option [value]="">Any Level</mat-option>
+                            <mat-optgroup
+                                *ngFor="let bld of region_levels | async"
+                                [label]="bld.name"
+                            >
+                                <mat-option
+                                    [value]="level.id"
+                                    *ngFor="let level of bld.levels"
+                                >
+                                    {{ level.display_name || level.name }}
+                                </mat-option>
+                            </mat-optgroup>
+                        </mat-select>
+                    </mat-form-field>
+                </ng-container>
 
                 <!-- Date -->
                 <div class="flex-1 min-w-[256px]">
@@ -206,12 +241,33 @@ export class DeskFiltersComponent {
     public readonly buildings = this._org.active_buildings;
     public readonly levels = this._org.active_levels;
     public readonly form = this._state.form;
+    public readonly regions = this._org.region_list;
+    public readonly region_levels = this._org.active_region.pipe(
+        map((_) => {
+            const region_buildings = this._org.buildings.filter(
+                (b) => !_ || b.parent_id === _.id
+            );
+            const region_levels = region_buildings.map((b) => ({
+                id: b.id,
+                name: b.display_name || b.name,
+                levels: this._org.levels.filter((l) => l.parent_id === b.id),
+            }));
+            return region_levels;
+        })
+    );
 
     public get building() {
         return this._org.building;
     }
     public set building(bld) {
         this._org.building = bld;
+    }
+
+    public get region() {
+        return this._org.region;
+    }
+    public set region(reg) {
+        this._org.region = reg;
     }
 
     public readonly close = () => this._bsheet_ref.dismiss();
@@ -240,6 +296,10 @@ export class DeskFiltersComponent {
 
     public get use_24hr() {
         return this._settings.get('app.use_24_hour_time');
+    }
+
+    public get use_region() {
+        return this._settings.get('app.use_region');
     }
 
     constructor(
