@@ -15,6 +15,7 @@ import { environment } from '../environments/environment';
 import * as Sentry from '@sentry/angular-ivy';
 import { PaymentsModule } from '@placeos/payments';
 import { AssetsModule } from '@placeos/assets';
+import { SharedExploreModule } from '@placeos/explore';
 
 @NgModule({
     declarations: [
@@ -30,6 +31,7 @@ import { AssetsModule } from '@placeos/assets';
         MatSnackBarModule,
         PaymentsModule,
         AssetsModule,
+        SharedExploreModule,
         RouterModule.forRoot(
             [
                 { path: '', component: AppTimetableComponent },

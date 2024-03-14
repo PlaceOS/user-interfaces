@@ -21,6 +21,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { PaymentsModule } from '@placeos/payments';
 import { AssetsModule } from '@placeos/assets';
 import { SharedSpacesModule } from '@placeos/spaces';
+import { SharedExploreModule } from '@placeos/explore';
 
 const ROUTES: Route[] = [
     { path: '', component: EnrolmentComponent },
@@ -48,6 +49,7 @@ const ROUTES: Route[] = [
         PaymentsModule,
         AssetsModule,
         SharedSpacesModule,
+        SharedExploreModule,
         RouterModule.forRoot(ROUTES, {
             initialNavigation: 'enabledBlocking',
             useHash: true,
