@@ -16,6 +16,7 @@ import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
                 [src]="map_url"
                 [(zoom)]="zoom"
                 [(center)]="center"
+                [styles]="styles | async"
                 [features]="features | async"
                 [actions]="actions | async"
             ></interactive-map>
