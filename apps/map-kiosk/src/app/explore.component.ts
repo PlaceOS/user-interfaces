@@ -2,6 +2,7 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
+    ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
     MapsPeopleService,
     notifyError,
@@ -32,108 +33,212 @@ import { first, take } from 'rxjs/operators';
 @Component({
     selector: '[app-explore]',
     template: `
-        <a
-            class="absolute top-0 left-0 bg-base-100 rounded-br-2xl p-4 z-10 shadow border-b border-r border-base-200"
-            [routerLink]="['/']"
-        >
-            <img class="w-32" [src]="logo?.src" />
-        </a>
         <div
-            class="absolute top-0 left-1/2 -translate-x-1/2 bg-base-100 rounded-b-2xl px-4 pb-4 pt-3 z-10 shadow border-b border-r border-base-200 text-base-content"
+            topbar
+            class="relative flex items-center justify-between p-4 border-b border-base-300 bg-base-100 text-base-content"
         >
-            {{ time | date: 'fullDate' }}
-        </div>
-        <!-- <explore-map-stack class="z-0"></explore-map-stack> -->
-        <div class="absolute inset-0">
-            <i-map
-                *ngIf="!(use_mapsindoors$ | async)"
-                [src]="url | async"
-                [zoom]="(positions | async)?.zoom"
-                [center]="(positions | async)?.center"
-                (zoomChange)="updateZoom($event)"
-                (centerChange)="updateCenter($event)"
-                [styles]="styles | async"
-                [features]="features | async"
-                [actions]="actions | async"
-                [labels]="labels | async"
-            ></i-map>
-            <indoor-maps
-                *ngIf="use_mapsindoors$ | async"
-                [styles]="styles | async"
-                [actions]="actions | async"
-            ></indoor-maps>
-        </div>
-        <explore-zoom-controls
-            *ngIf="!(use_mapsindoors$ | async)"
-            class="absolute top-1/2 transform -translate-y-1/2 right-0"
-        ></explore-zoom-controls>
-        <explore-level-select
-            *ngIf="!(use_mapsindoors$ | async)"
-            class="absolute left-1 top-1/2 transform -translate-y-1/2 z-10"
-        ></explore-level-select>
-        <explore-search
-            *ngIf="can_search && !(use_mapsindoors$ | async)"
-            class="absolute top-1 right-1"
-        ></explore-search>
-        <div
-            name="zones"
-            class="p-2 bg-base-100 border border-base-200 absolute right-1 m-2 rounded flex flex-col items-center space-y-2"
-            [class.top-2]="!can_search"
-            [class.top-16]="can_search"
-            *ngIf="!hide_zones"
-        >
-            <div class="flex items-center">
-                Zones
-                <mat-slide-toggle
-                    class="ml-2"
-                    [ngModel]="!(options | async)?.disable?.includes('zones')"
-                    (ngModelChange)="toggleZones($event)"
-                ></mat-slide-toggle>
-            </div>
+            <h2 class="text-2xl">Place<span class="text-primary">OS</span></h2>
             <div
-                zone-legend
-                *ngIf="!(options | async)?.disable?.includes('zones')"
-                class="space-y-2"
+                class="absolute top-1/2 -translate-y-1/2 right-2 flex items-center"
             >
-                <div class="font-medium">
-                    Zone Usage
-                    <div class="flex items-center space-x-2">
-                        <div class="h-3 w-3 rounded-full bg-success"></div>
-                        <div class="w-20 text-center">0 ~ 50%</div>
+                <explore-search
+                    *ngIf="can_search && !(use_mapsindoors$ | async)"
+                ></explore-search>
+                <button
+                    icon
+                    matRipple
+                    customTooltip
+                    [content]="accessibility_controls"
+                    class="bg-base-200 flex sm:hidden"
+                >
+                    <app-icon>accessible</app-icon>
+                </button>
+                <ng-template #accessibility_controls>
+                    <div class="bg-base-100 rounded p-2 w-[18rem]">
+                        <accessibility-controls></accessibility-controls>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <div class="h-3 w-3 rounded-full bg-warning"></div>
-                        <div class="w-20 text-center">51 ~ 75%</div>
+                </ng-template>
+            </div>
+        </div>
+        <ng-container *ngIf="(levels | async)?.length || legend.length">
+            <div
+                options
+                class="flex items-center bg-base-content text-base-100 p-2 space-x-2"
+            >
+                <ng-container *ngIf="(levels | async)?.length">
+                    <button
+                        btn
+                        matRipple
+                        class="clear text-base-100"
+                        [matMenuTriggerFor]="levelMenu"
+                    >
+                        <div class="flex-1 text-left font-medium">Level</div>
+                        <app-icon class="text-2xl"
+                            >keyboard_arrow_down</app-icon
+                        >
+                    </button>
+                    <mat-menu #levelMenu="matMenu">
+                        <button
+                            mat-menu-item
+                            *ngFor="let lvl of levels | async"
+                            (click)="setLevel(lvl)"
+                        >
+                            {{ lvl.display_name || lvl.name }}
+                        </button>
+                    </mat-menu>
+                </ng-container>
+                <ng-container *ngIf="legend.length">
+                    <button
+                        btn
+                        matRipple
+                        class="clear text-base-100"
+                        [matMenuTriggerFor]="legendMenu"
+                    >
+                        <div class="flex-1 text-left font-medium">Legend</div>
+                        <app-icon class="text-2xl"
+                            >keyboard_arrow_down</app-icon
+                        >
+                    </button>
+                    <mat-menu #legendMenu="matMenu">
+                        <div
+                            class="flex items-center py-2 px-4 rounded hover:bg-base-200 w-full space-x-4"
+                            *ngFor="let value of legend"
+                        >
+                            <div
+                                class="h-3 w-3 rounded-full"
+                                [style.background-color]="value.color"
+                            ></div>
+                            <div class="text-left opacity-60">
+                                {{ value.name }}
+                            </div>
+                        </div>
+                    </mat-menu>
+                </ng-container>
+            </div>
+        </ng-container>
+        <div class="flex flex-1 h-1/2">
+            <div
+                sidebar
+                class="w-[20rem] hidden sm:block bg-base-100 text-base-content border-r border-base-300 px-2 py-4"
+            >
+                <ng-container *ngIf="(levels | async)?.length">
+                    <button
+                        btn
+                        matRipple
+                        class="flex items clear w-full space-x-4 hover:bg-base-200"
+                        (click)="show_levels = !show_levels"
+                    >
+                        <app-icon class="text-2xl">corporate_fare</app-icon>
+                        <div class="flex-1 text-left font-medium">Level</div>
+                        <app-icon class="text-2xl">{{
+                            show_levels
+                                ? 'keyboard_arrow_up'
+                                : 'keyboard_arrow_down'
+                        }}</app-icon>
+                    </button>
+                    <div class="px-8" [@show]="show_levels ? 'show' : 'hide'">
+                        <div class="py-4 space-y-2">
+                            <button
+                                *ngFor="let lvl of levels | async"
+                                btn
+                                matRipple
+                                class="clear hover:bg-base-200 hover:opacity-100 w-full"
+                                [class.opacity-30]="
+                                    lvl.id !== (level | async)?.id
+                                "
+                                (click)="setLevel(lvl)"
+                            >
+                                <div class="text-left w-full">
+                                    {{ lvl.display_name || lvl.name }}
+                                </div>
+                            </button>
+                        </div>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <div class="h-3 w-3 rounded-full bg-error"></div>
-                        <div class="w-20 text-center">76 ~ 100%</div>
+                    <hr class="w-[calc(100%-4rem)] mx-auto" />
+                </ng-container>
+                <ng-container *ngIf="legend.length">
+                    <button
+                        btn
+                        matRipple
+                        class="flex items clear w-full space-x-4 hover:bg-base-200"
+                        (click)="show_legend = !show_legend"
+                    >
+                        <app-icon class="text-2xl">place</app-icon>
+                        <div class="flex-1 text-left font-medium">Legend</div>
+                        <app-icon class="text-2xl">{{
+                            show_legend
+                                ? 'keyboard_arrow_up'
+                                : 'keyboard_arrow_down'
+                        }}</app-icon>
+                    </button>
+                    <div class="px-8" [@show]="show_legend ? 'show' : 'hide'">
+                        <div class="py-4 space-y-2">
+                            <div
+                                class="flex items-center py-2 px-4 rounded hover:bg-base-200 w-full space-x-4"
+                                *ngFor="let value of legend"
+                            >
+                                <div
+                                    class="h-3 w-3 rounded-full"
+                                    [style.background-color]="value.color"
+                                ></div>
+                                <div class="text-left opacity-60">
+                                    {{ value.name }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="w-[calc(100%-4rem)] mx-auto" />
+                </ng-container>
+                <button
+                    btn
+                    matRipple
+                    class="flex items clear w-full space-x-4 hover:bg-base-200"
+                    (click)="show_accessibility = !show_accessibility"
+                >
+                    <app-icon class="text-2xl">accessible</app-icon>
+                    <div class="flex-1 text-left font-medium">
+                        Accessibility
+                    </div>
+                    <app-icon class="text-2xl">{{
+                        show_accessibility
+                            ? 'keyboard_arrow_up'
+                            : 'keyboard_arrow_down'
+                    }}</app-icon>
+                </button>
+                <div
+                    class="px-8"
+                    [@show]="show_accessibility ? 'show' : 'hide'"
+                >
+                    <div class=" py-4 space-y-2">
+                        <accessibility-controls></accessibility-controls>
                     </div>
                 </div>
+                <hr class="w-[calc(100%-4rem)] mx-auto" />
+            </div>
+            <div class="relative flex-1 h-full">
+                <i-map
+                    *ngIf="!(use_mapsindoors$ | async)"
+                    [src]="url | async"
+                    [zoom]="(positions | async)?.zoom"
+                    [center]="(positions | async)?.center"
+                    (zoomChange)="updateZoom($event)"
+                    (centerChange)="updateCenter($event)"
+                    [styles]="styles | async"
+                    [features]="features | async"
+                    [actions]="actions | async"
+                    [labels]="labels | async"
+                ></i-map>
+                <indoor-maps
+                    *ngIf="use_mapsindoors$ | async"
+                    [styles]="styles | async"
+                    [actions]="actions | async"
+                ></indoor-maps>
+                <explore-zoom-controls
+                    *ngIf="!(use_mapsindoors$ | async)"
+                    class="absolute bottom-2 sm:bottom-auto sm:top-1/2 transform -translate-y-1/2 right-0"
+                ></explore-zoom-controls>
             </div>
         </div>
-        <div
-            class="absolute bottom-2 right-2 p-2 rounded bg-base-100 shadow border border-base-200"
-        >
-            <div class="font-medium">Legend</div>
-            <div class="flex items-center space-x-2 p-2">
-                <div class="h-3 w-3 rounded-full bg-success"></div>
-                <div class="text-center">Space Available</div>
-            </div>
-            <div class="flex items-center space-x-2 rounded bg-base-200 p-2">
-                <div class="h-3 w-3 rounded-full bg-error"></div>
-                <div class="text-center">Space In Use</div>
-            </div>
-            <div class="flex items-center space-x-2 rounded bg-base-200 p-2">
-                <div class="h-3 w-3 rounded-full bg-warning"></div>
-                <div class="text-center">Space Pending</div>
-            </div>
-            <div class="flex items-center space-x-2 p-2">
-                <div class="h-3 w-3 rounded-full bg-base-300"></div>
-                <div class="text-center">Space Not-bookable</div>
-            </div>
-        </div>
-        <!-- <footer-menu class="w-full"></footer-menu> -->
     `,
     styles: [
         `
@@ -148,20 +253,9 @@ import { first, take } from 'rxjs/operators';
                 background-color: var(--b2);
             }
 
-            @media screen and (max-height: 640px) {
-                explore-level-select {
-                    transform: translateY(0) !important;
-                    top: auto !important;
-                    bottom: 0 !important;
-                }
-            }
-
-            @media screen and (orientation: landscape) {
-                explore-level-select {
-                    transform: translateY(0) !important;
-                    top: auto !important;
-                    bottom: 0 !important;
-                }
+            hr {
+                margin-top: 0.5rem !important;
+                margin-bottom: 0.5rem !important;
             }
         `,
     ],
@@ -172,10 +266,22 @@ import { first, take } from 'rxjs/operators';
         ExploreParkingService,
         SpacePipe,
     ],
+    animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
 })
 export class ExploreComponent extends AsyncHandler implements OnInit {
     /** Number of seconds after a user action to reset the kiosk state */
     public reset_delay = 180;
+    public show_levels: boolean = true;
+    public show_legend: boolean = false;
+    public show_accessibility: boolean = false;
+    public legend = [
+        { id: 'free', name: 'Space Available', color: '#43a047' },
+        { id: 'busy', name: 'Space In Use', color: '#e53935' },
+        { id: 'pending', name: 'Space Pending', color: '#ffb300' },
+        { id: 'not-bookable', name: 'Space Not-bookable', color: '#ccc' },
+    ];
+    public readonly levels = this._org.active_levels;
+    public readonly level = this._state.level;
 
     /** Application logo to display */
     public get logo() {
@@ -212,6 +318,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         this.timeout('reset', () => this.resetKiosk(), this.reset_delay * 1000);
 
     public readonly setOptions = (o) => this._state.setOptions(o);
+    public readonly setLevel = (lvl) => this._state.setLevel(lvl.id);
 
     public updateZoom(zoom: number) {
         this._state.setPositions(zoom, this._state.positions.center);
