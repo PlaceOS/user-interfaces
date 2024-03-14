@@ -1327,7 +1327,7 @@ class AppSettingsModalComponent {
     this._org = _org;
     this._settings = _settings;
     this.zone = this._data.zone;
-    this.workplace_key = this._settings.get('app.workplace_metadata_key') || 'workplace';
+    this.workplace_key = this._settings.get('app.workplace_metadata_key') || 'workplace_app';
     this.available_features = ['spaces', 'desks', 'explore', 'parking', 'help', 'schedule', 'wfh'];
     this.landing_features = ['show_quick_links', 'hide_availability', 'hide_colleagues', 'hide_landing_sidebar', 'hide_rooms', 'hide_spaces'];
     this.room_features = ['allow_all_day', 'booking_unavailable', 'can_book_for_others', 'has_assets', 'has_catering', 'allow_externals', 'hide_notes', 'allow_recurrence'];
@@ -1395,13 +1395,13 @@ class AppSettingsModalComponent {
     return (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
       _this.loading = 'Loading settings...';
       _this._dialog_ref.disableClose = true;
-      const zone_settings = (yield (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_3__.showMetadata)(_this.zone.id, `${_this.workplace_key}_app`).toPromise().catch(() => ({
+      const zone_settings = (yield (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_3__.showMetadata)(_this.zone.id, `${_this.workplace_key}`).toPromise().catch(() => ({
         details: {}
       }))).details;
-      const parent_settings = (yield (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_3__.showMetadata)(_this.zone.parent_id, `${_this.workplace_key}_app`).toPromise().catch(() => ({
+      const parent_settings = (yield (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_3__.showMetadata)(_this.zone.parent_id, `${_this.workplace_key}`).toPromise().catch(() => ({
         details: {}
       }))).details;
-      const org_settings = (yield (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_3__.showMetadata)(_this._org.organisation.id, `${_this.workplace_key}_app`).toPromise().catch(() => ({
+      const org_settings = (yield (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_3__.showMetadata)(_this._org.organisation.id, `${_this.workplace_key}`).toPromise().catch(() => ({
         details: {}
       }))).details;
       const combined_settings = {
@@ -1456,7 +1456,7 @@ class AppSettingsModalComponent {
       _this2.loading = 'Saving settings...';
       _this2._dialog_ref.disableClose = true;
       yield (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_3__.updateMetadata)(_this2.zone.id, {
-        name: `${_this2.workplace_key}_app`,
+        name: `${_this2.workplace_key}`,
         details: _this2.form.value,
         description: 'Workplace Application Settings'
       }).toPromise().catch(e => {
@@ -12497,15 +12497,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "962db69",
-  "hash": "962db69",
+  "raw": "7c173eb",
+  "hash": "7c173eb",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "962db69",
+  "suffix": "7c173eb",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1710388829235
+  "time": 1710389756205
 };
 /* tslint:enable */
 
