@@ -5244,7 +5244,7 @@ var ScheduleStateService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                 is_home = user.location !== 'wfo';
                 auto_release = _this._settings.get('app.auto_release');
                 if (!(auto_release && is_home && (auto_release.time_after || auto_release.time_before) && (_auto_release$resourc = auto_release.resources) !== null && _auto_release$resourc !== void 0 && _auto_release$resourc.length)) {
-                  _context2.next = 52;
+                  _context2.next = 54;
                   break;
                 }
                 _iterator = _createForOfIteratorHelper(auto_release.resources);
@@ -5252,7 +5252,7 @@ var ScheduleStateService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                 _iterator.s();
               case 6:
                 if ((_step = _iterator.n()).done) {
-                  _context2.next = 44;
+                  _context2.next = 46;
                   break;
                 }
                 type = _step.value;
@@ -5271,15 +5271,15 @@ var ScheduleStateService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                 _iterator2.s();
               case 16:
                 if ((_step2 = _iterator2.n()).done) {
-                  _context2.next = 34;
+                  _context2.next = 36;
                   break;
                 }
                 booking = _step2.value;
-                if (!_this._ignore_cancel.includes(booking.id)) {
+                if (!(_this._ignore_cancel.includes(booking.id) || booking.checked_in)) {
                   _context2.next = 20;
                   break;
                 }
-                return _context2.abrupt("continue", 32);
+                return _context2.abrupt("continue", 34);
               case 20:
                 _this._dialog.closeAll();
                 diff = (0, date_fns_1.differenceInMinutes)((0, date_fns_1.addMinutes)(booking.date, auto_release.time_after || 0), Date.now());
@@ -5287,7 +5287,7 @@ var ScheduleStateService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                   _context2.next = 24;
                   break;
                 }
-                return _context2.abrupt("continue", 32);
+                return _context2.abrupt("continue", 34);
               case 24:
                 _context2.next = 26;
                 return (0, common_1.openConfirmModal)({
@@ -5295,7 +5295,9 @@ var ScheduleStateService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                   content: "You have indicated you are not in the office. \n                                Your booking will be cancelled in about ".concat(diff, " minutes. \n                                Do you wish to keep this booking?"),
                   icon: {
                     content: 'cancel'
-                  }
+                  },
+                  confirm_text: 'Keep',
+                  cancel_text: 'Dismiss'
                 }, _this._dialog);
               case 26:
                 result = _context2.sent;
@@ -5304,43 +5306,46 @@ var ScheduleStateService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                   break;
                 }
                 _this._ignore_cancel.push(booking.id);
-                return _context2.abrupt("continue", 32);
+                return _context2.abrupt("continue", 34);
               case 30:
-                _context2.next = 32;
+                result.loading('Checking in booking...');
+                _context2.next = 33;
                 return (0, bookings_1.checkinBooking)(booking.id, true).toPromise();
-              case 32:
+              case 33:
+                result.close();
+              case 34:
                 _context2.next = 16;
                 break;
-              case 34:
-                _context2.next = 39;
-                break;
               case 36:
-                _context2.prev = 36;
+                _context2.next = 41;
+                break;
+              case 38:
+                _context2.prev = 38;
                 _context2.t0 = _context2["catch"](14);
                 _iterator2.e(_context2.t0);
-              case 39:
-                _context2.prev = 39;
+              case 41:
+                _context2.prev = 41;
                 _iterator2.f();
-                return _context2.finish(39);
-              case 42:
+                return _context2.finish(41);
+              case 44:
                 _context2.next = 6;
                 break;
-              case 44:
-                _context2.next = 49;
-                break;
               case 46:
-                _context2.prev = 46;
+                _context2.next = 51;
+                break;
+              case 48:
+                _context2.prev = 48;
                 _context2.t1 = _context2["catch"](4);
                 _iterator.e(_context2.t1);
-              case 49:
-                _context2.prev = 49;
+              case 51:
+                _context2.prev = 51;
                 _iterator.f();
-                return _context2.finish(49);
-              case 52:
+                return _context2.finish(51);
+              case 54:
               case "end":
                 return _context2.stop();
             }
-          }, _callee2, null, [[4, 46, 49, 52], [14, 36, 39, 42]]);
+          }, _callee2, null, [[4, 48, 51, 54], [14, 38, 41, 44]]);
         })();
       });
       return function (_x2) {
@@ -30910,15 +30915,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "c8cd2e8",
-  "hash": "c8cd2e8",
+  "raw": "644189e",
+  "hash": "644189e",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "c8cd2e8",
+  "suffix": "644189e",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1710383497612
+  "time": 1710390540804
 };
 /* tslint:enable */
 
