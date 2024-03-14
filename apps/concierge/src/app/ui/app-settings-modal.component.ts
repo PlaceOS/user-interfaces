@@ -133,7 +133,9 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                 <button btn matRipple class="inverse w-32" mat-dialog-close>
                     Discard
                 </button>
-                <button btn matRipple class="w-32">Save</button>
+                <button btn matRipple class="w-32" (click)="save()">
+                    Save
+                </button>
             </footer>
             <button
                 icon
