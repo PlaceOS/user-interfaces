@@ -13427,11 +13427,12 @@ function DeskMapComponent_interactive_map_6_Template(rf, ctx) {
     });
     i0.ɵɵpipe(1, "async");
     i0.ɵɵpipe(2, "async");
+    i0.ɵɵpipe(3, "async");
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
     var ctx_r1 = i0.ɵɵnextContext();
-    i0.ɵɵproperty("src", ctx_r1.map_url)("zoom", ctx_r1.zoom)("center", ctx_r1.center)("features", i0.ɵɵpipeBind1(1, 5, ctx_r1.features))("actions", i0.ɵɵpipeBind1(2, 7, ctx_r1.actions));
+    i0.ɵɵproperty("src", ctx_r1.map_url)("zoom", ctx_r1.zoom)("center", ctx_r1.center)("styles", i0.ɵɵpipeBind1(1, 6, ctx_r1.styles))("features", i0.ɵɵpipeBind1(2, 8, ctx_r1.features))("actions", i0.ɵɵpipeBind1(3, 10, ctx_r1.actions));
   }
 }
 function DeskMapComponent_ng_template_8_Template(rf, ctx) {
@@ -13625,7 +13626,7 @@ _class.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
   features: [i0.ɵɵInheritDefinitionFeature, i0.ɵɵNgOnChangesFeature],
   decls: 22,
   vars: 10,
-  consts: [[1, "bg-base-100", "p-2", "border-b", "border-base-200", "w-full"], ["levels", "", "appearance", "outline", 1, "w-full", "h-[3.25rem]"], [3, "ngModel", "ngModelOptions", "ngModelChange"], [3, "value", 4, "ngFor", "ngForOf"], [1, "relative", "flex-1", "w-full"], [3, "src", "zoom", "center", "features", "actions", "zoomChange", "centerChange", 4, "ngIf", "ngIfElse"], ["mapspeople", ""], ["zoom", "", 1, "absolute", "bottom-2", "right-2", "rounded-lg", "border", "border-base-200", "bg-base-100", "flex", "flex-col", "overflow-hidden"], ["zoom-in", "", "icon", "", "matRipple", "", 3, "click"], [1, "border-t", "border-base-200", "w-full"], ["zoom-out", "", "icon", "", "matRipple", "", 3, "click"], ["reset", "", "icon", "", "matRipple", "", 3, "click"], [3, "value"], [3, "src", "zoom", "center", "features", "actions", "zoomChange", "centerChange"], [3, "styles", "actions", "custom_coordinates"]],
+  consts: [[1, "bg-base-100", "p-2", "border-b", "border-base-200", "w-full"], ["levels", "", "appearance", "outline", 1, "w-full", "h-[3.25rem]"], [3, "ngModel", "ngModelOptions", "ngModelChange"], [3, "value", 4, "ngFor", "ngForOf"], [1, "relative", "flex-1", "w-full"], [3, "src", "zoom", "center", "styles", "features", "actions", "zoomChange", "centerChange", 4, "ngIf", "ngIfElse"], ["mapspeople", ""], ["zoom", "", 1, "absolute", "bottom-2", "right-2", "rounded-lg", "border", "border-base-200", "bg-base-100", "flex", "flex-col", "overflow-hidden"], ["zoom-in", "", "icon", "", "matRipple", "", 3, "click"], [1, "border-t", "border-base-200", "w-full"], ["zoom-out", "", "icon", "", "matRipple", "", 3, "click"], ["reset", "", "icon", "", "matRipple", "", 3, "click"], [3, "value"], [3, "src", "zoom", "center", "styles", "features", "actions", "zoomChange", "centerChange"], [3, "styles", "actions", "custom_coordinates"]],
   template: function DeskMapComponent_Template(rf, ctx) {
     if (rf & 1) {
       i0.ɵɵelementStart(0, "div", 0)(1, "mat-form-field", 1)(2, "mat-select", 2);
@@ -13638,7 +13639,7 @@ _class.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵpipe(4, "async");
       i0.ɵɵelementEnd()()();
       i0.ɵɵelementStart(5, "div", 4);
-      i0.ɵɵtemplate(6, DeskMapComponent_interactive_map_6_Template, 3, 9, "interactive-map", 5);
+      i0.ɵɵtemplate(6, DeskMapComponent_interactive_map_6_Template, 4, 12, "interactive-map", 5);
       i0.ɵɵpipe(7, "async");
       i0.ɵɵtemplate(8, DeskMapComponent_ng_template_8_Template, 3, 7, "ng-template", null, 6, i0.ɵɵtemplateRefExtractor);
       i0.ɵɵelementEnd();
@@ -19056,11 +19057,12 @@ function ParkingSpaceSelectMapComponent_ng_container_0_interactive_map_1_Templat
     });
     i0.ɵɵpipe(1, "async");
     i0.ɵɵpipe(2, "async");
+    i0.ɵɵpipe(3, "async");
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
     var ctx_r2 = i0.ɵɵnextContext(2);
-    i0.ɵɵproperty("src", ctx_r2.map_url)("zoom", ctx_r2.zoom)("center", ctx_r2.center)("features", i0.ɵɵpipeBind1(1, 5, ctx_r2.features))("actions", i0.ɵɵpipeBind1(2, 7, ctx_r2.actions));
+    i0.ɵɵproperty("src", ctx_r2.map_url)("zoom", ctx_r2.zoom)("center", ctx_r2.center)("styles", i0.ɵɵpipeBind1(1, 6, ctx_r2.styles))("features", i0.ɵɵpipeBind1(2, 8, ctx_r2.features))("actions", i0.ɵɵpipeBind1(3, 10, ctx_r2.actions));
   }
 }
 function ParkingSpaceSelectMapComponent_ng_container_0_ng_template_3_Template(rf, ctx) {
@@ -19077,7 +19079,7 @@ function ParkingSpaceSelectMapComponent_ng_container_0_ng_template_3_Template(rf
 function ParkingSpaceSelectMapComponent_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementContainerStart(0);
-    i0.ɵɵtemplate(1, ParkingSpaceSelectMapComponent_ng_container_0_interactive_map_1_Template, 3, 9, "interactive-map", 10);
+    i0.ɵɵtemplate(1, ParkingSpaceSelectMapComponent_ng_container_0_interactive_map_1_Template, 4, 12, "interactive-map", 10);
     i0.ɵɵpipe(2, "async");
     i0.ɵɵtemplate(3, ParkingSpaceSelectMapComponent_ng_container_0_ng_template_3_Template, 3, 6, "ng-template", null, 11, i0.ɵɵtemplateRefExtractor);
     i0.ɵɵelementContainerEnd();
@@ -19207,7 +19209,7 @@ _class.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
   features: [i0.ɵɵInheritDefinitionFeature],
   decls: 18,
   vars: 5,
-  consts: [[4, "ngIf"], [1, "absolute", "inset-x-0", "top-0", "bg-base-100", "p-2", "border-b", "border-base-200"], ["levels", "", "appearance", "outline", 1, "w-full", "h-[3.25rem]"], [3, "ngModel", "ngModelChange"], [3, "value", 4, "ngFor", "ngForOf"], ["zoom", "", 1, "absolute", "bottom-2", "right-2", "rounded-lg", "border", "border-base-200", "bg-base-100", "flex", "flex-col", "overflow-hidden"], ["zoom-in", "", "icon", "", "matRipple", "", 3, "click"], [1, "border-t", "border-base-200", "w-full"], ["zoom-out", "", "icon", "", "matRipple", "", 3, "click"], ["reset", "", "icon", "", "matRipple", "", 3, "click"], [3, "src", "zoom", "center", "features", "actions", "zoomChange", "centerChange", 4, "ngIf", "ngIfElse"], ["mapspeople", ""], [3, "src", "zoom", "center", "features", "actions", "zoomChange", "centerChange"], [3, "styles", "actions"], [3, "value"]],
+  consts: [[4, "ngIf"], [1, "absolute", "inset-x-0", "top-0", "bg-base-100", "p-2", "border-b", "border-base-200"], ["levels", "", "appearance", "outline", 1, "w-full", "h-[3.25rem]"], [3, "ngModel", "ngModelChange"], [3, "value", 4, "ngFor", "ngForOf"], ["zoom", "", 1, "absolute", "bottom-2", "right-2", "rounded-lg", "border", "border-base-200", "bg-base-100", "flex", "flex-col", "overflow-hidden"], ["zoom-in", "", "icon", "", "matRipple", "", 3, "click"], [1, "border-t", "border-base-200", "w-full"], ["zoom-out", "", "icon", "", "matRipple", "", 3, "click"], ["reset", "", "icon", "", "matRipple", "", 3, "click"], [3, "src", "zoom", "center", "styles", "features", "actions", "zoomChange", "centerChange", 4, "ngIf", "ngIfElse"], ["mapspeople", ""], [3, "src", "zoom", "center", "styles", "features", "actions", "zoomChange", "centerChange"], [3, "styles", "actions"], [3, "value"]],
   template: function ParkingSpaceSelectMapComponent_Template(rf, ctx) {
     if (rf & 1) {
       i0.ɵɵtemplate(0, ParkingSpaceSelectMapComponent_ng_container_0_Template, 5, 4, "ng-container", 0);
@@ -30960,15 +30962,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "8f9fc2d",
-  "hash": "8f9fc2d",
+  "raw": "c79662a",
+  "hash": "c79662a",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "8f9fc2d",
+  "suffix": "c79662a",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1710322850175
+  "time": 1710378330317
 };
 /* tslint:enable */
 
@@ -63492,6 +63494,7 @@ var core_1 = __webpack_require__(/*! @angular/core */ 61699);
 var common_1 = __webpack_require__(/*! @placeos/common */ 57314);
 var rxjs_1 = __webpack_require__(/*! rxjs */ 75473);
 var operators_1 = __webpack_require__(/*! rxjs/operators */ 37458);
+var explore_spaces_service_1 = __webpack_require__(/*! libs/explore/src/lib/explore-spaces.service */ 9229);
 var event_form_service_1 = __webpack_require__(/*! libs/events/src/lib/event-form.service */ 20013);
 var organisation_service_1 = __webpack_require__(/*! libs/organisation/src/lib/organisation.service */ 38203);
 var space_location_pin_component_1 = __webpack_require__(/*! ./space-location-pin.component */ 8755);
@@ -63500,14 +63503,15 @@ var i0 = __webpack_require__(/*! @angular/core */ 61699);
 var i1 = __webpack_require__(/*! libs/events/src/lib/event-form.service */ 20013);
 var i2 = __webpack_require__(/*! libs/organisation/src/lib/organisation.service */ 38203);
 var i3 = __webpack_require__(/*! libs/common/src/lib/mapspeople.service */ 39253);
-var i4 = __webpack_require__(/*! @angular/common */ 26575);
-var i5 = __webpack_require__(/*! ../../../../components/src/lib/icon.component */ 94888);
-var i6 = __webpack_require__(/*! ../../../../components/src/lib/interactive-map.component */ 51674);
-var i7 = __webpack_require__(/*! ../../../../components/src/lib/indoor-maps.component */ 21125);
-var i8 = __webpack_require__(/*! @angular/material/core */ 55309);
-var i9 = __webpack_require__(/*! @angular/material/form-field */ 51333);
-var i10 = __webpack_require__(/*! @angular/material/select */ 96355);
-var i11 = __webpack_require__(/*! @angular/forms */ 28849);
+var i4 = __webpack_require__(/*! @placeos/common */ 57314);
+var i5 = __webpack_require__(/*! @angular/common */ 26575);
+var i6 = __webpack_require__(/*! ../../../../components/src/lib/icon.component */ 94888);
+var i7 = __webpack_require__(/*! ../../../../components/src/lib/interactive-map.component */ 51674);
+var i8 = __webpack_require__(/*! ../../../../components/src/lib/indoor-maps.component */ 21125);
+var i9 = __webpack_require__(/*! @angular/material/core */ 55309);
+var i10 = __webpack_require__(/*! @angular/material/form-field */ 51333);
+var i11 = __webpack_require__(/*! @angular/material/select */ 96355);
+var i12 = __webpack_require__(/*! @angular/forms */ 28849);
 function SpaceSelectMapComponent_mat_option_3_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementStart(0, "mat-option", 12);
@@ -63536,11 +63540,12 @@ function SpaceSelectMapComponent_interactive_map_6_Template(rf, ctx) {
     });
     i0.ɵɵpipe(1, "async");
     i0.ɵɵpipe(2, "async");
+    i0.ɵɵpipe(3, "async");
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
     var ctx_r1 = i0.ɵɵnextContext();
-    i0.ɵɵproperty("src", ctx_r1.map_url)("zoom", ctx_r1.zoom)("center", ctx_r1.center)("features", i0.ɵɵpipeBind1(1, 5, ctx_r1.features))("actions", i0.ɵɵpipeBind1(2, 7, ctx_r1.actions));
+    i0.ɵɵproperty("src", ctx_r1.map_url)("zoom", ctx_r1.zoom)("center", ctx_r1.center)("styles", i0.ɵɵpipeBind1(1, 6, ctx_r1.styles))("features", i0.ɵɵpipeBind1(2, 8, ctx_r1.features))("actions", i0.ɵɵpipeBind1(3, 10, ctx_r1.actions));
   }
 }
 function SpaceSelectMapComponent_ng_template_8_Template(rf, ctx) {
@@ -63561,13 +63566,14 @@ var _c0 = function _c0() {
 };
 var SpaceSelectMapComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
   _inherits(SpaceSelectMapComponent, _common_1$AsyncHandle);
-  function SpaceSelectMapComponent(_event_form, _org, _maps_people) {
+  function SpaceSelectMapComponent(_event_form, _org, _maps_people, _settings) {
     var _this;
     _classCallCheck(this, SpaceSelectMapComponent);
     _this = _callSuper(this, SpaceSelectMapComponent);
     _this._event_form = _event_form;
     _this._org = _org;
     _this._maps_people = _maps_people;
+    _this._settings = _settings;
     _this.selected = [];
     _this.is_displayed = false;
     _this.onSelect = new core_1.EventEmitter();
@@ -63618,6 +63624,21 @@ var SpaceSelectMapComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
           callback: _this._seletedSpace(space)
         };
       });
+    }));
+    _this.styles = (0, rxjs_1.combineLatest)([_this._event_form.spaces, _this._event_form.available_spaces]).pipe((0, operators_1.map)(function (_ref4) {
+      var _ref5 = _slicedToArray(_ref4, 2),
+        spaces = _ref5[0],
+        free_spaces = _ref5[1];
+      return spaces.reduce(function (styles, space) {
+        var colours = _this._settings.get('app.explore.colors') || {};
+        var status = free_spaces.find(function (_) {
+          return _.id === space.id;
+        }) ? 'free' : 'busy';
+        styles["#".concat(space.map_id || space.id)] = {
+          fill: colours["space-".concat(status)] || colours["".concat(status)] || explore_spaces_service_1.DEFAULT_COLOURS["".concat(status)]
+        };
+        return styles;
+      }, {});
     }));
     _this.use_mapsindoors$ = _this._maps_people.available$;
     return _this;
@@ -63689,7 +63710,7 @@ var SpaceSelectMapComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
 }(common_1.AsyncHandler);
 _class = SpaceSelectMapComponent;
 _class.ɵfac = function SpaceSelectMapComponent_Factory(t) {
-  return new (t || _class)(i0.ɵɵdirectiveInject(i1.EventFormService), i0.ɵɵdirectiveInject(i2.OrganisationService), i0.ɵɵdirectiveInject(i3.MapsPeopleService));
+  return new (t || _class)(i0.ɵɵdirectiveInject(i1.EventFormService), i0.ɵɵdirectiveInject(i2.OrganisationService), i0.ɵɵdirectiveInject(i3.MapsPeopleService), i0.ɵɵdirectiveInject(i4.SettingsService));
 };
 _class.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
   type: _class,
@@ -63705,7 +63726,7 @@ _class.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
   features: [i0.ɵɵInheritDefinitionFeature],
   decls: 22,
   vars: 10,
-  consts: [[1, "bg-base-100", "p-2", "border-b", "border-base-200", "w-full"], ["levels", "", "appearance", "outline", 1, "w-full", "h-[3.25rem]"], [3, "ngModel", "ngModelOptions", "ngModelChange"], [3, "value", 4, "ngFor", "ngForOf"], [1, "relative", "flex-1", "w-full"], [3, "src", "zoom", "center", "features", "actions", "zoomChange", "centerChange", 4, "ngIf", "ngIfElse"], ["mapspeople", ""], ["zoom", "", 1, "absolute", "bottom-2", "right-2", "rounded-lg", "border", "border-base-200", "bg-base-100", "flex", "flex-col", "overflow-hidden"], ["icon", "", "matRipple", "", "name", "space-map-zoom-in", 3, "click"], [1, "border-t", "border-base-200", "w-full"], ["icon", "", "matRipple", "", "name", "space-map-zoom-out", 3, "click"], ["icon", "", "matRipple", "", "name", "space-map-reset", 3, "click"], [3, "value"], [3, "src", "zoom", "center", "features", "actions", "zoomChange", "centerChange"], [3, "styles", "actions", "custom_coordinates"]],
+  consts: [[1, "bg-base-100", "p-2", "border-b", "border-base-200", "w-full"], ["levels", "", "appearance", "outline", 1, "w-full", "h-[3.25rem]"], [3, "ngModel", "ngModelOptions", "ngModelChange"], [3, "value", 4, "ngFor", "ngForOf"], [1, "relative", "flex-1", "w-full"], [3, "src", "zoom", "center", "styles", "features", "actions", "zoomChange", "centerChange", 4, "ngIf", "ngIfElse"], ["mapspeople", ""], ["zoom", "", 1, "absolute", "bottom-2", "right-2", "rounded-lg", "border", "border-base-200", "bg-base-100", "flex", "flex-col", "overflow-hidden"], ["icon", "", "matRipple", "", "name", "space-map-zoom-in", 3, "click"], [1, "border-t", "border-base-200", "w-full"], ["icon", "", "matRipple", "", "name", "space-map-zoom-out", 3, "click"], ["icon", "", "matRipple", "", "name", "space-map-reset", 3, "click"], [3, "value"], [3, "src", "zoom", "center", "styles", "features", "actions", "zoomChange", "centerChange"], [3, "styles", "actions", "custom_coordinates"]],
   template: function SpaceSelectMapComponent_Template(rf, ctx) {
     if (rf & 1) {
       i0.ɵɵelementStart(0, "div", 0)(1, "mat-form-field", 1)(2, "mat-select", 2);
@@ -63718,7 +63739,7 @@ _class.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵpipe(4, "async");
       i0.ɵɵelementEnd()()();
       i0.ɵɵelementStart(5, "div", 4);
-      i0.ɵɵtemplate(6, SpaceSelectMapComponent_interactive_map_6_Template, 3, 9, "interactive-map", 5);
+      i0.ɵɵtemplate(6, SpaceSelectMapComponent_interactive_map_6_Template, 4, 12, "interactive-map", 5);
       i0.ɵɵpipe(7, "async");
       i0.ɵɵtemplate(8, SpaceSelectMapComponent_ng_template_8_Template, 3, 7, "ng-template", null, 6, i0.ɵɵtemplateRefExtractor);
       i0.ɵɵelementEnd();
@@ -63756,7 +63777,7 @@ _class.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵproperty("ngIf", !i0.ɵɵpipeBind1(7, 7, ctx.use_mapsindoors$))("ngIfElse", _r3);
     }
   },
-  dependencies: [i4.NgForOf, i4.NgIf, i5.IconComponent, i6.InteractiveMapComponent, i7.IndoorMapsComponent, i8.MatOption, i9.MatFormField, i10.MatSelect, i8.MatRipple, i11.NgControlStatus, i11.NgModel, i4.AsyncPipe],
+  dependencies: [i5.NgForOf, i5.NgIf, i6.IconComponent, i7.InteractiveMapComponent, i8.IndoorMapsComponent, i9.MatOption, i10.MatFormField, i11.MatSelect, i9.MatRipple, i12.NgControlStatus, i12.NgModel, i5.AsyncPipe],
   styles: ["[_nghost-%COMP%] {\n                position: relative;\n                background: rgba(0, 0, 0, 0.05);\n                display: flex;\n                flex-direction: column;\n            }\n\n            button[_ngcontent-%COMP%] {\n                border-radius: 0;\n            }\n        \n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2xpYnMvc3BhY2VzL3NyYy9saWIvc3BhY2Utc2VsZWN0LW1vZGFsL3NwYWNlLW1hcC5jb21wb25lbnQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IjtZQUNZO2dCQUNJLGtCQUFrQjtnQkFDbEIsK0JBQStCO2dCQUMvQixhQUFhO2dCQUNiLHNCQUFzQjtZQUMxQjs7WUFFQTtnQkFDSSxnQkFBZ0I7WUFDcEIiLCJzb3VyY2VzQ29udGVudCI6WyJcbiAgICAgICAgICAgIDpob3N0IHtcbiAgICAgICAgICAgICAgICBwb3NpdGlvbjogcmVsYXRpdmU7XG4gICAgICAgICAgICAgICAgYmFja2dyb3VuZDogcmdiYSgwLCAwLCAwLCAwLjA1KTtcbiAgICAgICAgICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICAgICAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47XG4gICAgICAgICAgICB9XG5cbiAgICAgICAgICAgIGJ1dHRvbiB7XG4gICAgICAgICAgICAgICAgYm9yZGVyLXJhZGl1czogMDtcbiAgICAgICAgICAgIH1cbiAgICAgICAgIl0sInNvdXJjZVJvb3QiOiIifQ== */"]
 });
 exports.SpaceSelectMapComponent = SpaceSelectMapComponent;
