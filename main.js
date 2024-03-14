@@ -5296,7 +5296,7 @@ var ScheduleStateService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                   icon: {
                     content: 'cancel'
                   },
-                  confirm_text: 'Keep Booking',
+                  confirm_text: 'Keep',
                   cancel_text: 'Dismiss'
                 }, _this._dialog);
               case 26:
@@ -30915,15 +30915,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "acadd0d",
-  "hash": "acadd0d",
+  "raw": "deea764",
+  "hash": "deea764",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "acadd0d",
+  "suffix": "deea764",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1710389535442
+  "time": 1710390266937
 };
 /* tslint:enable */
 
