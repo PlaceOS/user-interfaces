@@ -2896,6 +2896,9 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 #placeos :is(.hover\:border-base-200:hover) {
   border-color: var(--b2);
 }
+#placeos :is(.hover\:border-info:hover) {
+  border-color: var(--in);
+}
 #placeos :is(.hover\:bg-base-100:hover) {
   background-color: var(--b1);
 }
@@ -2929,6 +2932,11 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 #placeos :is(.hover\:shadow:hover) {
   --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+#placeos :is(.hover\:shadow-2xl:hover) {
+  --tw-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 #placeos :is(.hover\:shadow-lg:hover) {
