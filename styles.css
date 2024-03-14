@@ -1447,6 +1447,9 @@ video {
 #placeos :is(.w-\[1em\]) {
   width: 1em;
 }
+#placeos :is(.w-\[2\.75rem\]) {
+  width: 2.75rem;
+}
 #placeos :is(.w-\[20rem\]) {
   width: 20rem;
 }
@@ -1666,6 +1669,9 @@ video {
 #placeos :is(.max-w-\[22\.5rem\]) {
   max-width: 22.5rem;
 }
+#placeos :is(.max-w-\[24rem\]) {
+  max-width: 24rem;
+}
 #placeos :is(.max-w-\[25\%\]) {
   max-width: 25%;
 }
@@ -1686,6 +1692,9 @@ video {
 }
 #placeos :is(.max-w-\[640px\]) {
   max-width: 640px;
+}
+#placeos :is(.max-w-\[64rem\]) {
+  max-width: 64rem;
 }
 #placeos :is(.max-w-\[65vw\]) {
   max-width: 65vw;
@@ -2085,8 +2094,14 @@ video {
   border-top-left-radius: 0.375rem;
   border-top-right-radius: 0.375rem;
 }
+#placeos :is(.rounded-br) {
+  border-bottom-right-radius: 0.25rem;
+}
 #placeos :is(.rounded-br-2xl) {
   border-bottom-right-radius: 1rem;
+}
+#placeos :is(.rounded-br-xl) {
+  border-bottom-right-radius: 0.75rem;
 }
 #placeos :is(.rounded-tl-lg) {
   border-top-left-radius: 0.5rem;
