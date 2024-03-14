@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { notifyError, notifySuccess } from '@placeos/common';
+import { SettingsService, notifyError, notifySuccess } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 
@@ -158,6 +158,8 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 })
 export class AppSettingsModalComponent {
     public readonly zone = this._data.zone;
+    public readonly workplace_key =
+        this._settings.get('app.workplace_metadata_key') || 'workplace_app';
     public readonly available_features = [
         'spaces',
         'desks',
@@ -251,24 +253,28 @@ export class AppSettingsModalComponent {
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: { zone: PlaceZone },
         private _dialog_ref: MatDialogRef<AppSettingsModalComponent>,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _settings: SettingsService
     ) {}
 
     public async ngOnInit() {
         this.loading = 'Loading settings...';
         this._dialog_ref.disableClose = true;
         const zone_settings: any = (
-            await showMetadata(this.zone.id, 'workplace_app')
+            await showMetadata(this.zone.id, `${this.workplace_key}`)
                 .toPromise()
                 .catch(() => ({ details: {} }))
         ).details;
         const parent_settings: any = (
-            await showMetadata(this.zone.parent_id, 'workplace_app')
+            await showMetadata(this.zone.parent_id, `${this.workplace_key}`)
                 .toPromise()
                 .catch(() => ({ details: {} }))
         ).details;
         const org_settings: any = (
-            await showMetadata(this._org.organisation.id, 'workplace_app')
+            await showMetadata(
+                this._org.organisation.id,
+                `${this.workplace_key}`
+            )
                 .toPromise()
                 .catch(() => ({ details: {} }))
         ).details;
@@ -323,7 +329,7 @@ export class AppSettingsModalComponent {
         this.loading = 'Saving settings...';
         this._dialog_ref.disableClose = true;
         await updateMetadata(this.zone.id, {
-            name: 'workplace_app',
+            name: `${this.workplace_key}`,
             details: this.form.value,
             description: 'Workplace Application Settings',
         })
