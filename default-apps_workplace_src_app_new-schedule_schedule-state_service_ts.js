@@ -213,7 +213,9 @@ class ScheduleStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.
                                 Do you wish to keep this booking?`,
                 icon: {
                   content: 'cancel'
-                }
+                },
+                confirm_text: 'Keep Booking',
+                cancel_text: 'Dismiss'
               }, _this._dialog);
               if (result.reason !== 'done') {
                 _this._ignore_cancel.push(booking.id);
