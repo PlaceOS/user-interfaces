@@ -35,6 +35,7 @@ import { AssetsModule } from '@placeos/assets';
 import { TVControlsComponent } from './tabbed-view/tv-controls.component';
 import { HttpClient } from '@angular/common/http';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { SharedExploreModule } from '@placeos/explore';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -69,6 +70,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         MatSliderModule,
         PaymentsModule,
         AssetsModule,
+        SharedExploreModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),

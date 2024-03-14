@@ -25,6 +25,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { PaymentsModule } from '@placeos/payments';
 import { AssetsModule } from '@placeos/assets';
 import { SharedSpacesModule } from '@placeos/spaces';
+import { SharedExploreModule } from '@placeos/explore';
 
 @NgModule({
     declarations: [
@@ -47,6 +48,7 @@ import { SharedSpacesModule } from '@placeos/spaces';
         SharedCateringModule,
         ComponentsModule,
         SharedSpacesModule,
+        SharedExploreModule,
         MatRippleModule,
         PaymentsModule,
         AssetsModule,

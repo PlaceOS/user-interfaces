@@ -39,6 +39,7 @@ import { AppPanelViewModule } from './new-panel/panel-view.module';
 import { AppCheckinModule } from './checkin/checkin.module';
 import { PaymentsModule } from '@placeos/payments';
 import { AssetsModule } from '@placeos/assets';
+import { SharedExploreModule } from '@placeos/explore';
 import { EventPanelComponent } from './event-panel.component';
 
 // AoT requires an exported function for factories
@@ -81,6 +82,7 @@ const MAT_MODULES: any[] = [
         ComponentsModule,
         PaymentsModule,
         AssetsModule,
+        SharedExploreModule,
         ...MAT_MODULES,
         TranslateModule.forRoot({
             defaultLanguage: 'en',

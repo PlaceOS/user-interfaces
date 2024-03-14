@@ -24,6 +24,7 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { SignagePanelComponent } from './signage.component';
 import { PaymentsModule } from 'libs/payments/src/lib/payments.module';
 import { SharedSpacesModule } from '@placeos/spaces';
+import { SharedExploreModule } from '@placeos/explore';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -49,6 +50,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         MatSelectModule,
         SharedSpacesModule,
         ComponentsModule,
+        SharedExploreModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),
