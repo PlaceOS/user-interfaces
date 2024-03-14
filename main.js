@@ -10569,6 +10569,35 @@ function _setupPlace() {
 
 /***/ }),
 
+/***/ 98010:
+/*!****************************************!*\
+  !*** ./libs/common/src/lib/qr-code.ts ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   generateQRCode: () => (/* binding */ generateQRCode)
+/* harmony export */ });
+/* harmony import */ var _vanillaqr_min__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./vanillaqr.min */ 62692);
+
+/** Generates a DataURL for QR code image */
+function generateQRCode(code, colorLight = '#fff0', colorDark = '#000') {
+  const qr = new _vanillaqr_min__WEBPACK_IMPORTED_MODULE_0__.VanillaQR({
+    url: code || 'Hello',
+    size: 360,
+    colorLight,
+    colorDark,
+    toTable: false,
+    ecclevel: 1,
+    noBorder: true,
+    borderSize: 0
+  });
+  return qr?.toImage('svg+xml')?.src;
+}
+
+/***/ }),
+
 /***/ 64522:
 /*!*******************************************************!*\
   !*** ./libs/common/src/lib/remote-logging.service.ts ***!
@@ -12185,6 +12214,272 @@ function currentUser() {
 
 /***/ }),
 
+/***/ 62692:
+/*!**********************************************!*\
+  !*** ./libs/common/src/lib/vanillaqr.min.ts ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   VanillaQR: () => (/* binding */ VanillaQR)
+/* harmony export */ });
+// @ts-nocheck
+/** From https://github.com/chuckfairy/VanillaQR.js */
+function VanillaQR(r) {
+  var e = this;
+  r = "object" == typeof r ? r : {}, e.revision = 3, e.imageTypes = {
+    bmp: "image/bmp",
+    gif: "image/gif",
+    jpeg: "image/jpeg",
+    jpg: "image/jpg",
+    png: "image/png",
+    "svg+xml": "image/svg+xml",
+    tiff: "image/tiff",
+    webp: "image/webp",
+    "x-icon": "image/x-icon"
+  }, e.toTable = r.toTable, e.domElement = e.toTable ? document.createElement("div") : document.createElement("canvas"), e.url = r.url || "", e.size = r.size || 280, e.qrc = !1, e.colorLight = r.colorLight || "#fff", e.colorDark = r.colorDark || "#000", e.ecclevel = r.ecclevel || 1, e.noBorder = r.noBorder, e.borderSize = r.borderSize || 4;
+  var o,
+    a,
+    t,
+    i,
+    n,
+    l,
+    f,
+    c = [],
+    s = [],
+    d = [],
+    g = [],
+    h = [],
+    v = [],
+    m = function (r, e) {
+      var o;
+      r > e && (o = r, r = e, e = o), o = e, o *= e, o += e, o >>= 1, g[o += r] = 1;
+    },
+    u = function (r, e) {
+      var o;
+      for (d[r + t * e] = 1, o = -2; o < 2; o++) d[r + o + t * (e - 2)] = 1, d[r - 2 + t * (e + o + 1)] = 1, d[r + 2 + t * (e + o)] = 1, d[r + o + 1 + t * (e + 2)] = 1;
+      for (o = 0; o < 2; o++) m(r - 1, e + o), m(r + 1, e - o), m(r - o, e - 1), m(r + o, e + 1);
+    },
+    p = function (r) {
+      for (; r >= 255;) r = ((r -= 255) >> 8) + (255 & r);
+      return r;
+    },
+    b = function (r, e, o, a) {
+      var t,
+        i,
+        n,
+        l = VanillaQR.gexp,
+        f = VanillaQR.glog;
+      for (t = 0; t < a; t++) c[o + t] = 0;
+      for (t = 0; t < e; t++) {
+        if (255 != (n = f[c[r + t] ^ c[o]])) for (i = 1; i < a; i++) c[o + i - 1] = c[o + i] ^ l[p(n + v[a - i])];else for (i = o; i < o + a; i++) c[i] = c[i + 1];
+        c[o + a - 1] = 255 == n ? 0 : l[p(n + v[0])];
+      }
+    },
+    R = function (r, e) {
+      var o;
+      return r > e && (o = r, r = e, e = o), o = e, o += e * e, o >>= 1, g[o += r];
+    },
+    Q = function (r) {
+      var e, o, a, i;
+      switch (r) {
+        case 0:
+          for (o = 0; o < t; o++) for (e = 0; e < t; e++) e + o & 1 || R(e, o) || (d[e + o * t] ^= 1);
+          break;
+        case 1:
+          for (o = 0; o < t; o++) for (e = 0; e < t; e++) 1 & o || R(e, o) || (d[e + o * t] ^= 1);
+          break;
+        case 2:
+          for (o = 0; o < t; o++) for (a = 0, e = 0; e < t; e++, a++) 3 == a && (a = 0), a || R(e, o) || (d[e + o * t] ^= 1);
+          break;
+        case 3:
+          for (i = 0, o = 0; o < t; o++, i++) for (3 == i && (i = 0), a = i, e = 0; e < t; e++, a++) 3 == a && (a = 0), a || R(e, o) || (d[e + o * t] ^= 1);
+          break;
+        case 4:
+          for (o = 0; o < t; o++) for (a = 0, i = o >> 1 & 1, e = 0; e < t; e++, a++) 3 == a && (a = 0, i = !i), i || R(e, o) || (d[e + o * t] ^= 1);
+          break;
+        case 5:
+          for (i = 0, o = 0; o < t; o++, i++) for (3 == i && (i = 0), a = 0, e = 0; e < t; e++, a++) 3 == a && (a = 0), (e & o & 1) + !(!a | !i) || R(e, o) || (d[e + o * t] ^= 1);
+          break;
+        case 6:
+          for (i = 0, o = 0; o < t; o++, i++) for (3 == i && (i = 0), a = 0, e = 0; e < t; e++, a++) 3 == a && (a = 0), (e & o & 1) + (a && a == i) & 1 || R(e, o) || (d[e + o * t] ^= 1);
+          break;
+        case 7:
+          for (i = 0, o = 0; o < t; o++, i++) for (3 == i && (i = 0), a = 0, e = 0; e < t; e++, a++) 3 == a && (a = 0), (a && a == i) + (e + o & 1) & 1 || R(e, o) || (d[e + o * t] ^= 1);
+      }
+    },
+    V = function (r) {
+      var e,
+        o = 0;
+      for (e = 0; e <= r; e++) h[e] >= 5 && (o += VanillaQR.N1 + h[e] - 5);
+      for (e = 3; e < r - 1; e += 2) h[e - 2] == h[e + 2] && h[e + 2] == h[e - 1] && h[e - 1] == h[e + 1] && 3 * h[e - 1] == h[e] && (0 == h[e - 3] || e + 3 > r || 3 * h[e - 3] >= 4 * h[e] || 3 * h[e + 3] >= 4 * h[e]) && (o += VanillaQR.N3);
+      return o;
+    },
+    k = function () {
+      var r,
+        e,
+        o,
+        a,
+        i,
+        n = 0,
+        l = 0;
+      for (e = 0; e < t - 1; e++) for (r = 0; r < t - 1; r++) (d[r + t * e] && d[r + 1 + t * e] && d[r + t * (e + 1)] && d[r + 1 + t * (e + 1)] || !(d[r + t * e] || d[r + 1 + t * e] || d[r + t * (e + 1)] || d[r + 1 + t * (e + 1)])) && (n += VanillaQR.N2);
+      for (e = 0; e < t; e++) {
+        for (h[0] = 0, o = a = r = 0; r < t; r++) (i = d[r + t * e]) == a ? h[o]++ : h[++o] = 1, l += (a = i) ? 1 : -1;
+        n += V(o);
+      }
+      l < 0 && (l = -l);
+      var f = l,
+        c = 0;
+      for (f += f << 2, f <<= 1; f > t * t;) f -= t * t, c++;
+      for (n += c * VanillaQR.N4, r = 0; r < t; r++) {
+        for (h[0] = 0, o = a = e = 0; e < t; e++) (i = d[r + t * e]) == a ? h[o]++ : h[++o] = 1, a = i;
+        n += V(o);
+      }
+      return n;
+    };
+  e.genframe = function (r) {
+    var e,
+      h,
+      V,
+      x,
+      C,
+      w,
+      E,
+      N,
+      T = VanillaQR.eccblocks,
+      y = VanillaQR.gexp,
+      z = VanillaQR.glog;
+    x = r.length, a = 0;
+    do {
+      if (a++, V = 4 * (o - 1) + 16 * (a - 1), i = T[V++], n = T[V++], l = T[V++], f = T[V], x <= (V = l * (i + n) + n - 3 + (a <= 9))) break;
+    } while (a < 40);
+    for (t = 17 + 4 * a, C = l + (l + f) * (i + n) + n, x = 0; x < C; x++) s[x] = 0;
+    for (c = r.slice(0), x = 0; x < t * t; x++) d[x] = 0;
+    for (x = 0; x < (t * (t + 1) + 1) / 2; x++) g[x] = 0;
+    for (x = 0; x < 3; x++) {
+      for (V = 0, h = 0, 1 == x && (V = t - 7), 2 == x && (h = t - 7), d[h + 3 + t * (V + 3)] = 1, e = 0; e < 6; e++) d[h + e + t * V] = 1, d[h + t * (V + e + 1)] = 1, d[h + 6 + t * (V + e)] = 1, d[h + e + 1 + t * (V + 6)] = 1;
+      for (e = 1; e < 5; e++) m(h + e, V + 1), m(h + 1, V + e + 1), m(h + 5, V + e), m(h + e + 1, V + 5);
+      for (e = 2; e < 4; e++) d[h + e + t * (V + 2)] = 1, d[h + 2 + t * (V + e + 1)] = 1, d[h + 4 + t * (V + e)] = 1, d[h + e + 1 + t * (V + 4)] = 1;
+    }
+    if (a > 1) for (x = VanillaQR.adelta[a], h = t - 7;;) {
+      for (e = t - 7; e > x - 3 && (u(e, h), !(e < x));) e -= x;
+      if (h <= x + 9) break;
+      u(6, h -= x), u(h, 6);
+    }
+    for (d[8 + t * (t - 8)] = 1, h = 0; h < 7; h++) m(7, h), m(t - 8, h), m(7, h + t - 7);
+    for (e = 0; e < 8; e++) m(e, 7), m(e + t - 8, 7), m(e, t - 8);
+    for (e = 0; e < 9; e++) m(e, 8);
+    for (e = 0; e < 8; e++) m(e + t - 8, 8), m(8, e);
+    for (h = 0; h < 7; h++) m(8, h + t - 7);
+    for (e = 0; e < t - 14; e++) 1 & e ? (m(8 + e, 6), m(6, 8 + e)) : (d[8 + e + 6 * t] = 1, d[6 + t * (8 + e)] = 1);
+    if (a > 6) for (x = VanillaQR.vpat[a - 7], V = 17, e = 0; e < 6; e++) for (h = 0; h < 3; h++, V--) 1 & (V > 11 ? a >> V - 12 : x >> V) ? (d[5 - e + t * (2 - h + t - 11)] = 1, d[2 - h + t - 11 + t * (5 - e)] = 1) : (m(5 - e, 2 - h + t - 11), m(2 - h + t - 11, 5 - e));
+    for (h = 0; h < t; h++) for (e = 0; e <= h; e++) d[e + t * h] && m(e, h);
+    for (C = c.length, w = 0; w < C; w++) s[w] = c.charCodeAt(w);
+    if (c = s.slice(0), C >= (e = l * (i + n) + n) - 2 && (C = e - 2, a > 9 && C--), w = C, a > 9) {
+      for (c[w + 2] = 0, c[w + 3] = 0; w--;) x = c[w], c[w + 3] |= 255 & x << 4, c[w + 2] = x >> 4;
+      c[2] |= 255 & C << 4, c[1] = C >> 4, c[0] = 64 | C >> 12;
+    } else {
+      for (c[w + 1] = 0, c[w + 2] = 0; w--;) x = c[w], c[w + 2] |= 255 & x << 4, c[w + 1] = x >> 4;
+      c[1] |= 255 & C << 4, c[0] = 64 | C >> 4;
+    }
+    for (w = C + 3 - (a < 10); w < e;) c[w++] = 236, c[w++] = 17;
+    for (v[0] = 1, w = 0; w < f; w++) {
+      for (v[w + 1] = 1, E = w; E > 0; E--) v[E] = v[E] ? v[E - 1] ^ y[p(z[v[E]] + w)] : v[E - 1];
+      v[0] = y[p(z[v[0]] + w)];
+    }
+    for (w = 0; w <= f; w++) v[w] = z[v[w]];
+    for (V = e, h = 0, w = 0; w < i; w++) b(h, l, V, f), h += l, V += f;
+    for (w = 0; w < n; w++) b(h, l + 1, V, f), h += l + 1, V += f;
+    for (h = 0, w = 0; w < l; w++) {
+      for (E = 0; E < i; E++) s[h++] = c[w + E * l];
+      for (E = 0; E < n; E++) s[h++] = c[i * l + w + E * (l + 1)];
+    }
+    for (E = 0; E < n; E++) s[h++] = c[i * l + w + E * (l + 1)];
+    for (w = 0; w < f; w++) for (E = 0; E < i + n; E++) s[h++] = c[e + w + E * f];
+    for (c = s, e = h = t - 1, V = C = 1, N = (l + f) * (i + n) + n, w = 0; w < N; w++) for (x = c[w], E = 0; E < 8; E++, x <<= 1) {
+      128 & x && (d[e + t * h] = 1);
+      do {
+        C ? e-- : (e++, V ? 0 != h ? h-- : (V = !V, 6 == (e -= 2) && (e--, h = 9)) : h != t - 1 ? h++ : (V = !V, 6 == (e -= 2) && (e--, h -= 8))), C = !C;
+      } while (R(e, h));
+    }
+    for (c = d.slice(0), x = 0, h = 3e4, V = 0; V < 8 && (Q(V), (e = k()) < h && (h = e, x = V), 7 != x); V++) d = c.slice(0);
+    for (x != V && Q(x), h = VanillaQR.fmtword[x + (o - 1 << 3)], V = 0; V < 8; V++, h >>= 1) 1 & h && (d[t - 1 - V + 8 * t] = 1, V < 6 ? d[8 + t * V] = 1 : d[8 + t * (V + 1)] = 1);
+    for (V = 0; V < 7; V++, h >>= 1) 1 & h && (d[8 + t * (t - 7 + V)] = 1, V ? d[6 - V + 8 * t] = 1 : d[7 + 8 * t] = 1);
+    return d;
+  }, e.init = function () {
+    o = e.ecclevel;
+    var r = e.genframe(e.url);
+    e.toTable ? e.tableWrite(r, t) : e.canvasWrite(r, t);
+  }, e.init();
+}
+VanillaQR.prototype = {
+  canvasWrite: function (r, e) {
+    if (!this.qrc && (this.qrc = this.getContext(this.domElement), !this.qrc)) return this.toTable = !0, this.domElement = document.createElement("div"), void this.tableWrite(r, e);
+    var o = this.size,
+      a = this.qrc;
+    a.lineWidth = 1;
+    var t = o;
+    t /= e + 10, t = Math.round(t - .5);
+    var i = 4;
+    this.noBorder ? (a.canvas.width = a.canvas.height = t * e, i = 0) : a.canvas.width = a.canvas.height = o, a.clearRect(0, 0, o, o), a.fillStyle = this.colorLight, a.fillRect(0, 0, t * (e + 8), t * (e + 8)), a.fillStyle = this.colorDark;
+    for (var n = 0; n < e; n++) for (var l = 0; l < e; l++) r[l * e + n] && a.fillRect(t * (i + n), t * (i + l), t, t);
+  },
+  tableWrite: function (r, e) {
+    var o = this,
+      a = Math.round(this.size / e - 3.5) + "px",
+      t = e + (o.noBorder ? 0 : 2 * o.borderSize),
+      i = o.borderSize,
+      n = "width:" + a + ";height:" + a + ";",
+      l = o.colorLight,
+      f = o.colorDark,
+      c = document.createElement("table");
+    c.style.cssText = "border:0;border-collapse:collapse;";
+    for (var s, d = document.createElement("tr"), g = document.createElement("td"), h = function () {
+        return g.cloneNode();
+      }, v = function () {
+        var r = h();
+        return r.style.cssText = n + "background:" + l, r;
+      }, m = function (r) {
+        for (var e = r.firstChild, o = 0; o < i; o++) r.insertBefore(v(), e), r.appendChild(v());
+      }, u = 0; u < e; u++) {
+      var p = d.cloneNode();
+      c.appendChild(p);
+      for (var b = 0; b < e; b++) if (1 === r[u * e + b]) {
+        var R = (s = void 0, (s = h()).style.cssText = n + "background:" + f, s);
+        p.appendChild(R);
+      } else {
+        var Q = v();
+        p.appendChild(Q);
+      }
+      o.noBorder || m(p);
+    }
+    o.noBorder || function (r) {
+      for (var e = r.firstChild, a = 0; a < o.borderSize; a++) {
+        for (var i = d.cloneNode(), n = 0; n < t; n++) {
+          var l = v();
+          i.appendChild(l);
+        }
+        r.appendChild(i), r.insertBefore(i.cloneNode(!0), e);
+      }
+    }(c), o.domElement.innerHTML = "", o.domElement.appendChild(c);
+  },
+  getContext: function (r) {
+    return r.getContext && r.getContext("2d") ? r.getContext("2d") : (console.log("Browser does not have 2d Canvas support"), !1);
+  },
+  toImage: function (r) {
+    if (this.qrc) {
+      var e = this.imageTypes[r];
+      if (!e) throw new Error(r + " is not a valid image type ");
+      var o = new Image();
+      return o.src = this.domElement.toDataURL(e), o;
+    }
+  }
+}, VanillaQR.adelta = [0, 11, 15, 19, 23, 27, 31, 16, 18, 20, 22, 24, 26, 28, 20, 22, 24, 24, 26, 28, 28, 22, 24, 24, 26, 26, 28, 28, 24, 24, 26, 26, 26, 28, 28, 24, 26, 26, 26, 28, 28], VanillaQR.vpat = [3220, 1468, 2713, 1235, 3062, 1890, 2119, 1549, 2344, 2936, 1117, 2583, 1330, 2470, 1667, 2249, 2028, 3780, 481, 4011, 142, 3098, 831, 3445, 592, 2517, 1776, 2234, 1951, 2827, 1070, 2660, 1345, 3177], VanillaQR.fmtword = [30660, 29427, 32170, 30877, 26159, 25368, 27713, 26998, 21522, 20773, 24188, 23371, 17913, 16590, 20375, 19104, 13663, 12392, 16177, 14854, 9396, 8579, 11994, 11245, 5769, 5054, 7399, 6608, 1890, 597, 3340, 2107], VanillaQR.eccblocks = [1, 0, 19, 7, 1, 0, 16, 10, 1, 0, 13, 13, 1, 0, 9, 17, 1, 0, 34, 10, 1, 0, 28, 16, 1, 0, 22, 22, 1, 0, 16, 28, 1, 0, 55, 15, 1, 0, 44, 26, 2, 0, 17, 18, 2, 0, 13, 22, 1, 0, 80, 20, 2, 0, 32, 18, 2, 0, 24, 26, 4, 0, 9, 16, 1, 0, 108, 26, 2, 0, 43, 24, 2, 2, 15, 18, 2, 2, 11, 22, 2, 0, 68, 18, 4, 0, 27, 16, 4, 0, 19, 24, 4, 0, 15, 28, 2, 0, 78, 20, 4, 0, 31, 18, 2, 4, 14, 18, 4, 1, 13, 26, 2, 0, 97, 24, 2, 2, 38, 22, 4, 2, 18, 22, 4, 2, 14, 26, 2, 0, 116, 30, 3, 2, 36, 22, 4, 4, 16, 20, 4, 4, 12, 24, 2, 2, 68, 18, 4, 1, 43, 26, 6, 2, 19, 24, 6, 2, 15, 28, 4, 0, 81, 20, 1, 4, 50, 30, 4, 4, 22, 28, 3, 8, 12, 24, 2, 2, 92, 24, 6, 2, 36, 22, 4, 6, 20, 26, 7, 4, 14, 28, 4, 0, 107, 26, 8, 1, 37, 22, 8, 4, 20, 24, 12, 4, 11, 22, 3, 1, 115, 30, 4, 5, 40, 24, 11, 5, 16, 20, 11, 5, 12, 24, 5, 1, 87, 22, 5, 5, 41, 24, 5, 7, 24, 30, 11, 7, 12, 24, 5, 1, 98, 24, 7, 3, 45, 28, 15, 2, 19, 24, 3, 13, 15, 30, 1, 5, 107, 28, 10, 1, 46, 28, 1, 15, 22, 28, 2, 17, 14, 28, 5, 1, 120, 30, 9, 4, 43, 26, 17, 1, 22, 28, 2, 19, 14, 28, 3, 4, 113, 28, 3, 11, 44, 26, 17, 4, 21, 26, 9, 16, 13, 26, 3, 5, 107, 28, 3, 13, 41, 26, 15, 5, 24, 30, 15, 10, 15, 28, 4, 4, 116, 28, 17, 0, 42, 26, 17, 6, 22, 28, 19, 6, 16, 30, 2, 7, 111, 28, 17, 0, 46, 28, 7, 16, 24, 30, 34, 0, 13, 24, 4, 5, 121, 30, 4, 14, 47, 28, 11, 14, 24, 30, 16, 14, 15, 30, 6, 4, 117, 30, 6, 14, 45, 28, 11, 16, 24, 30, 30, 2, 16, 30, 8, 4, 106, 26, 8, 13, 47, 28, 7, 22, 24, 30, 22, 13, 15, 30, 10, 2, 114, 28, 19, 4, 46, 28, 28, 6, 22, 28, 33, 4, 16, 30, 8, 4, 122, 30, 22, 3, 45, 28, 8, 26, 23, 30, 12, 28, 15, 30, 3, 10, 117, 30, 3, 23, 45, 28, 4, 31, 24, 30, 11, 31, 15, 30, 7, 7, 116, 30, 21, 7, 45, 28, 1, 37, 23, 30, 19, 26, 15, 30, 5, 10, 115, 30, 19, 10, 47, 28, 15, 25, 24, 30, 23, 25, 15, 30, 13, 3, 115, 30, 2, 29, 46, 28, 42, 1, 24, 30, 23, 28, 15, 30, 17, 0, 115, 30, 10, 23, 46, 28, 10, 35, 24, 30, 19, 35, 15, 30, 17, 1, 115, 30, 14, 21, 46, 28, 29, 19, 24, 30, 11, 46, 15, 30, 13, 6, 115, 30, 14, 23, 46, 28, 44, 7, 24, 30, 59, 1, 16, 30, 12, 7, 121, 30, 12, 26, 47, 28, 39, 14, 24, 30, 22, 41, 15, 30, 6, 14, 121, 30, 6, 34, 47, 28, 46, 10, 24, 30, 2, 64, 15, 30, 17, 4, 122, 30, 29, 14, 46, 28, 49, 10, 24, 30, 24, 46, 15, 30, 4, 18, 122, 30, 13, 32, 46, 28, 48, 14, 24, 30, 42, 32, 15, 30, 20, 4, 117, 30, 40, 7, 47, 28, 43, 22, 24, 30, 10, 67, 15, 30, 19, 6, 118, 30, 18, 31, 47, 28, 34, 34, 24, 30, 20, 61, 15, 30], VanillaQR.glog = [255, 0, 1, 25, 2, 50, 26, 198, 3, 223, 51, 238, 27, 104, 199, 75, 4, 100, 224, 14, 52, 141, 239, 129, 28, 193, 105, 248, 200, 8, 76, 113, 5, 138, 101, 47, 225, 36, 15, 33, 53, 147, 142, 218, 240, 18, 130, 69, 29, 181, 194, 125, 106, 39, 249, 185, 201, 154, 9, 120, 77, 228, 114, 166, 6, 191, 139, 98, 102, 221, 48, 253, 226, 152, 37, 179, 16, 145, 34, 136, 54, 208, 148, 206, 143, 150, 219, 189, 241, 210, 19, 92, 131, 56, 70, 64, 30, 66, 182, 163, 195, 72, 126, 110, 107, 58, 40, 84, 250, 133, 186, 61, 202, 94, 155, 159, 10, 21, 121, 43, 78, 212, 229, 172, 115, 243, 167, 87, 7, 112, 192, 247, 140, 128, 99, 13, 103, 74, 222, 237, 49, 197, 254, 24, 227, 165, 153, 119, 38, 184, 180, 124, 17, 68, 146, 217, 35, 32, 137, 46, 55, 63, 209, 91, 149, 188, 207, 205, 144, 135, 151, 178, 220, 252, 190, 97, 242, 86, 211, 171, 20, 42, 93, 158, 132, 60, 57, 83, 71, 109, 65, 162, 31, 45, 67, 216, 183, 123, 164, 118, 196, 23, 73, 236, 127, 12, 111, 246, 108, 161, 59, 82, 41, 157, 85, 170, 251, 96, 134, 177, 187, 204, 62, 90, 203, 89, 95, 176, 156, 169, 160, 81, 11, 245, 22, 235, 122, 117, 44, 215, 79, 174, 213, 233, 230, 231, 173, 232, 116, 214, 244, 234, 168, 80, 88, 175], VanillaQR.gexp = [1, 2, 4, 8, 16, 32, 64, 128, 29, 58, 116, 232, 205, 135, 19, 38, 76, 152, 45, 90, 180, 117, 234, 201, 143, 3, 6, 12, 24, 48, 96, 192, 157, 39, 78, 156, 37, 74, 148, 53, 106, 212, 181, 119, 238, 193, 159, 35, 70, 140, 5, 10, 20, 40, 80, 160, 93, 186, 105, 210, 185, 111, 222, 161, 95, 190, 97, 194, 153, 47, 94, 188, 101, 202, 137, 15, 30, 60, 120, 240, 253, 231, 211, 187, 107, 214, 177, 127, 254, 225, 223, 163, 91, 182, 113, 226, 217, 175, 67, 134, 17, 34, 68, 136, 13, 26, 52, 104, 208, 189, 103, 206, 129, 31, 62, 124, 248, 237, 199, 147, 59, 118, 236, 197, 151, 51, 102, 204, 133, 23, 46, 92, 184, 109, 218, 169, 79, 158, 33, 66, 132, 21, 42, 84, 168, 77, 154, 41, 82, 164, 85, 170, 73, 146, 57, 114, 228, 213, 183, 115, 230, 209, 191, 99, 198, 145, 63, 126, 252, 229, 215, 179, 123, 246, 241, 255, 227, 219, 171, 75, 150, 49, 98, 196, 149, 55, 110, 220, 165, 87, 174, 65, 130, 25, 50, 100, 200, 141, 7, 14, 28, 56, 112, 224, 221, 167, 83, 166, 81, 162, 89, 178, 121, 242, 249, 239, 195, 155, 43, 86, 172, 69, 138, 9, 18, 36, 72, 144, 61, 122, 244, 245, 247, 243, 251, 235, 203, 139, 11, 22, 44, 88, 176, 125, 250, 233, 207, 131, 27, 54, 108, 216, 173, 71, 142, 0], VanillaQR.N1 = 3, VanillaQR.N2 = 3, VanillaQR.N3 = 40, VanillaQR.N4 = 10;
+
+/***/ }),
+
 /***/ 58129:
 /*!****************************************!*\
   !*** ./libs/common/src/lib/version.ts ***!
@@ -12199,15 +12494,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "616aef9",
-  "hash": "616aef9",
+  "raw": "986f8bd",
+  "hash": "986f8bd",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "616aef9",
+  "suffix": "986f8bd",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1710310828149
+  "time": 1710378022955
 };
 /* tslint:enable */
 
@@ -23561,6 +23856,845 @@ function isFuture(control) {
   return control.value && (0,date_fns__WEBPACK_IMPORTED_MODULE_2__["default"])(control.value, new Date()) ? {
     is_future: true
   } : null;
+}
+
+/***/ }),
+
+/***/ 97015:
+/*!***********************************************************!*\
+  !*** ./libs/explore/src/lib/explore-book-qr.component.ts ***!
+  \***********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   ExploreBookQrComponent: () => (/* binding */ ExploreBookQrComponent)
+/* harmony export */ });
+/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/material/dialog */ 17401);
+/* harmony import */ var libs_common_src_lib_settings_service__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! libs/common/src/lib/settings.service */ 84411);
+/* harmony import */ var libs_common_src_lib_qr_code__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! libs/common/src/lib/qr-code */ 98010);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @angular/core */ 61699);
+/* harmony import */ var _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../components/src/lib/icon.component */ 94888);
+
+
+
+
+
+
+
+const DEFAULT_PATH = `workplace/#/explore?space={{id}}`;
+class ExploreBookQrComponent {
+  constructor(_data, _settings) {
+    this._data = _data;
+    this._settings = _settings;
+    this.space = this._data.space;
+    this.qr_code = (0,libs_common_src_lib_qr_code__WEBPACK_IMPORTED_MODULE_1__.generateQRCode)(`${location.origin}${(this._settings.get('app.booking_qr_path') || DEFAULT_PATH).replace('{{id}}', this._data.space?.email)}`);
+  }
+  static #_ = this.ɵfac = function ExploreBookQrComponent_Factory(t) {
+    return new (t || ExploreBookQrComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵdirectiveInject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_4__.MAT_DIALOG_DATA), _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵdirectiveInject"](libs_common_src_lib_settings_service__WEBPACK_IMPORTED_MODULE_0__.SettingsService));
+  };
+  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵdefineComponent"]({
+    type: ExploreBookQrComponent,
+    selectors: [["explore-book-qr"]],
+    decls: 9,
+    vars: 2,
+    consts: () => {
+      let i18n_0;
+      if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+        /**
+         * @suppress {msgDescriptions}
+         */
+        const MSG_EXTERNAL_381017318285325317$$LIBS_EXPLORE_SRC_LIB_EXPLORE_BOOK_QR_COMPONENT_TS_0 = goog.getMsg("Book - {$interpolation}", {
+          "interpolation": "\uFFFD0\uFFFD"
+        }, {
+          original_code: {
+            "interpolation": "{{ space?.name }}"
+          }
+        });
+        i18n_0 = MSG_EXTERNAL_381017318285325317$$LIBS_EXPLORE_SRC_LIB_EXPLORE_BOOK_QR_COMPONENT_TS_0;
+      } else {
+        i18n_0 = $localize`:␟cbd43c9fe40f6bb5fd5497b1436b4dce15539dfb␟381017318285325317:Book - ${"\uFFFD0\uFFFD"}:INTERPOLATION:`;
+      }
+      return [[1, "truncate"], i18n_0, [1, "flex-1"], ["icon", "", "mat-dialog-close", ""], [1, "p-4"], [1, "w-64", "h-64", "m-auto", 3, "src"]];
+    },
+    template: function ExploreBookQrComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelementStart"](0, "header")(1, "h2", 0);
+        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵi18n"](2, 1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelement"](3, "div", 2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelementStart"](4, "button", 3)(5, "app-icon");
+        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵtext"](6, "close");
+        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelementEnd"]()()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelementStart"](7, "main", 4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelement"](8, "img", 5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelementEnd"]();
+      }
+      if (rf & 2) {
+        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵi18nExp"](ctx.space == null ? null : ctx.space.name);
+        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵi18nApply"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵadvance"](6);
+        _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵproperty"]("src", ctx.qr_code, _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵsanitizeUrl"]);
+      }
+    },
+    dependencies: [_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_2__.IconComponent, _angular_material_dialog__WEBPACK_IMPORTED_MODULE_4__.MatDialogClose]
+  });
+}
+
+/***/ }),
+
+/***/ 2182:
+/*!*****************************************************************!*\
+  !*** ./libs/explore/src/lib/explore-booking-modal.component.ts ***!
+  \*****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   ExploreBookingModalComponent: () => (/* binding */ ExploreBookingModalComponent)
+/* harmony export */ });
+/* harmony import */ var _home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js */ 71670);
+/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @angular/material/dialog */ 17401);
+/* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @placeos/common */ 57314);
+/* harmony import */ var libs_events_src_lib_event_form_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! libs/events/src/lib/event-form.service */ 20013);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @angular/core */ 61699);
+/* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @angular/router */ 27947);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @angular/common */ 26575);
+/* harmony import */ var _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../components/src/lib/icon.component */ 94888);
+/* harmony import */ var _angular_material_form_field__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @angular/material/form-field */ 51333);
+/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @angular/material/core */ 55309);
+/* harmony import */ var _angular_material_input__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! @angular/material/input */ 10026);
+/* harmony import */ var _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @angular/material/progress-spinner */ 33910);
+/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! @angular/forms */ 28849);
+/* harmony import */ var _form_fields_src_lib_duration_field_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../form-fields/src/lib/duration-field.component */ 28442);
+/* harmony import */ var _form_fields_src_lib_user_search_field_component__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../../form-fields/src/lib/user-search-field.component */ 20576);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function ExploreBookingModalComponent_button_4_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "button", 5)(1, "app-icon");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](2, "close");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
+  }
+}
+function ExploreBookingModalComponent_ng_container_6_main_1_div_11_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "div", 11)(1, "label", 22);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](2, "Host");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](3, "span");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](4, "*");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](5, ":");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](6, "a-user-search-field", 23);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
+  }
+}
+function ExploreBookingModalComponent_ng_container_6_main_1_div_18_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "div", 24)(1, "label");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18n"](2, 25);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](3, "div", 26);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](4);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipe"](5, "date");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipe"](6, "date");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
+  }
+  if (rf & 2) {
+    const ctx_r6 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](4);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtextInterpolate2"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipeBind2"](5, 2, ctx_r6.form.value.date, "mediumDate"), " at ", _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipeBind2"](6, 5, ctx_r6.form.value.date, ctx_r6.time_format), " ");
+  }
+}
+function ExploreBookingModalComponent_ng_container_6_main_1_div_19_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "div", 27)(1, "label");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18n"](2, 28);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](3, "a-duration-field", 29);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
+  }
+  if (rf & 2) {
+    const ctx_r7 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("time", ctx_r7.form.value.date)("max", ctx_r7.max_duration)("use_24hr", ctx_r7.use_24hr_time);
+  }
+}
+function ExploreBookingModalComponent_ng_container_6_main_1_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "main", 10)(1, "div", 11)(2, "label", 12);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](3, "Title");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](4, "span");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](5, "*");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](6, ":");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](7, "mat-form-field", 13);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](8, "input", 14);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](9, "mat-error");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18n"](10, 15);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](11, ExploreBookingModalComponent_ng_container_6_main_1_div_11_Template, 7, 0, "div", 16);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](12, "div", 11)(13, "label");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18n"](14, 17);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](15, "div", 18);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](16);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](17, "div", 19);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](18, ExploreBookingModalComponent_ng_container_6_main_1_div_18_Template, 7, 8, "div", 20)(19, ExploreBookingModalComponent_ng_container_6_main_1_div_19_Template, 4, 3, "div", 21);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
+  }
+  if (rf & 2) {
+    const ctx_r4 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("formGroup", ctx_r4.form);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](11);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngIf", ctx_r4.can_book_for_others);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](5);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtextInterpolate1"](" ", (ctx_r4.form.controls.resources == null ? null : ctx_r4.form.controls.resources.value[0] == null ? null : ctx_r4.form.controls.resources.value[0].display_name) || (ctx_r4.form.controls.resources == null ? null : ctx_r4.form.controls.resources.value[0] == null ? null : ctx_r4.form.controls.resources.value[0].name), " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngIf", ctx_r4.form.controls.date);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngIf", ctx_r4.form.controls.duration);
+  }
+}
+function ExploreBookingModalComponent_ng_container_6_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r9 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementContainerStart"](0);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](1, ExploreBookingModalComponent_ng_container_6_main_1_Template, 20, 5, "main", 6);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](2, "footer", 7)(3, "button", 8);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵlistener"]("click", function ExploreBookingModalComponent_ng_container_6_Template_button_click_3_listener() {
+      _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵrestoreView"](_r9);
+      const ctx_r8 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵresetView"](ctx_r8.save());
+    });
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18n"](4, 9);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementContainerEnd"]();
+  }
+  if (rf & 2) {
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngIf", ctx_r1.form);
+  }
+}
+function ExploreBookingModalComponent_ng_template_8_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "div", 30);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](1, "mat-spinner", 31);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](2, "p");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipe"](4, "async");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("diameter", 48);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtextInterpolate"](_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipeBind1"](4, 2, ctx_r2.loading));
+  }
+}
+class ExploreBookingModalComponent {
+  get form() {
+    return this._event_form.form;
+  }
+  get max_duration() {
+    return this._settings.get('app.events.max_duration') || 4 * 60;
+  }
+  get can_book_for_others() {
+    return this._settings.get('app.events.can_book_for_others');
+  }
+  get use_24hr_time() {
+    return this._settings.get('app.use_24_hour_time');
+  }
+  get time_format() {
+    return this._settings.time_format;
+  }
+  constructor(_data, _settings, _event_form, _dialog_ref, _router) {
+    this._data = _data;
+    this._settings = _settings;
+    this._event_form = _event_form;
+    this._dialog_ref = _dialog_ref;
+    this._router = _router;
+    this.loading = this._event_form.loading;
+  }
+  ngOnInit() {
+    this._event_form.newForm();
+    this.form.patchValue({
+      resources: [this._data.space],
+      host: (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.currentUser)().email,
+      organiser: (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.currentUser)()
+    });
+  }
+  save() {
+    var _this = this;
+    return (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
+      yield _this._event_form.postForm().catch(_ => {
+        (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.notifyError)(_);
+        throw _;
+      });
+      if (_this._settings.app_name.toLowerCase().includes('workplace')) {
+        _this._router.navigate(['/book', 'meeting', 'success']);
+      } else {
+        (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.notifySuccess)('Successfully booked room.');
+      }
+      _this._dialog_ref.close();
+    })();
+  }
+  static #_ = this.ɵfac = function ExploreBookingModalComponent_Factory(t) {
+    return new (t || ExploreBookingModalComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdirectiveInject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_7__.MAT_DIALOG_DATA), _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdirectiveInject"](_placeos_common__WEBPACK_IMPORTED_MODULE_1__.SettingsService), _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdirectiveInject"](libs_events_src_lib_event_form_service__WEBPACK_IMPORTED_MODULE_2__.EventFormService), _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdirectiveInject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_7__.MatDialogRef), _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdirectiveInject"](_angular_router__WEBPACK_IMPORTED_MODULE_8__.Router));
+  };
+  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdefineComponent"]({
+    type: ExploreBookingModalComponent,
+    selectors: [["explore-booking-modal"]],
+    decls: 10,
+    vars: 7,
+    consts: () => {
+      let i18n_0;
+      if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+        /**
+         * @suppress {msgDescriptions}
+         */
+        const MSG_EXTERNAL_6464057252608386690$$LIBS_EXPLORE_SRC_LIB_EXPLORE_BOOKING_MODAL_COMPONENT_TS_0 = goog.getMsg("New Booking");
+        i18n_0 = MSG_EXTERNAL_6464057252608386690$$LIBS_EXPLORE_SRC_LIB_EXPLORE_BOOKING_MODAL_COMPONENT_TS_0;
+      } else {
+        i18n_0 = $localize`:␟bd532c9813cc0577fcc3ff32640a61afef2bf40a␟6464057252608386690:New Booking`;
+      }
+      let i18n_1;
+      if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+        /**
+         * @suppress {msgDescriptions}
+         */
+        const MSG_EXTERNAL_2367152680379951719$$LIBS_EXPLORE_SRC_LIB_EXPLORE_BOOKING_MODAL_COMPONENT_TS__0 = goog.getMsg(" Save ");
+        i18n_1 = MSG_EXTERNAL_2367152680379951719$$LIBS_EXPLORE_SRC_LIB_EXPLORE_BOOKING_MODAL_COMPONENT_TS__0;
+      } else {
+        i18n_1 = $localize`:␟2fa313c798ad138557539ba3c6a3bfdc426eaaa2␟2367152680379951719: Save `;
+      }
+      let i18n_2;
+      if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+        /**
+         * @suppress {msgDescriptions}
+         */
+        const MSG_EXTERNAL_2997066279074525950$$LIBS_EXPLORE_SRC_LIB_EXPLORE_BOOKING_MODAL_COMPONENT_TS___0 = goog.getMsg("Booking Title");
+        i18n_2 = MSG_EXTERNAL_2997066279074525950$$LIBS_EXPLORE_SRC_LIB_EXPLORE_BOOKING_MODAL_COMPONENT_TS___0;
+      } else {
+        i18n_2 = $localize`:␟5cf0071757dd8065e052662e4d191a210c766579␟2997066279074525950:Booking Title`;
+      }
+      let i18n_3;
+      if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+        /**
+         * @suppress {msgDescriptions}
+         */
+        const MSG_EXTERNAL_8953173802652113530$$LIBS_EXPLORE_SRC_LIB_EXPLORE_BOOKING_MODAL_COMPONENT_TS___1 = goog.getMsg("Booking title is required");
+        i18n_3 = MSG_EXTERNAL_8953173802652113530$$LIBS_EXPLORE_SRC_LIB_EXPLORE_BOOKING_MODAL_COMPONENT_TS___1;
+      } else {
+        i18n_3 = $localize`:␟35a900d9fa8e824539ca4b0d1a10bd2f7f8c1172␟8953173802652113530:Booking title is required`;
+      }
+      let i18n_4;
+      if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+        /**
+         * @suppress {msgDescriptions}
+         */
+        const MSG_EXTERNAL_1329943553963489238$$LIBS_EXPLORE_SRC_LIB_EXPLORE_BOOKING_MODAL_COMPONENT_TS___2 = goog.getMsg("Space:");
+        i18n_4 = MSG_EXTERNAL_1329943553963489238$$LIBS_EXPLORE_SRC_LIB_EXPLORE_BOOKING_MODAL_COMPONENT_TS___2;
+      } else {
+        i18n_4 = $localize`:␟0f342dcd63b8732a5599eb91ce166b55335dbbc4␟1329943553963489238:Space:`;
+      }
+      let i18n_5;
+      if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+        /**
+         * @suppress {msgDescriptions}
+         */
+        const MSG_EXTERNAL_6899410641137821757$$LIBS_EXPLORE_SRC_LIB_EXPLORE_BOOKING_MODAL_COMPONENT_TS____0 = goog.getMsg("Date:");
+        i18n_5 = MSG_EXTERNAL_6899410641137821757$$LIBS_EXPLORE_SRC_LIB_EXPLORE_BOOKING_MODAL_COMPONENT_TS____0;
+      } else {
+        i18n_5 = $localize`:␟05fa0bded36de6e73a1fa44838b627349dace044␟6899410641137821757:Date:`;
+      }
+      let i18n_6;
+      if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+        /**
+         * @suppress {msgDescriptions}
+         */
+        const MSG_EXTERNAL_4220765745195024064$$LIBS_EXPLORE_SRC_LIB_EXPLORE_BOOKING_MODAL_COMPONENT_TS____1 = goog.getMsg("Duration:");
+        i18n_6 = MSG_EXTERNAL_4220765745195024064$$LIBS_EXPLORE_SRC_LIB_EXPLORE_BOOKING_MODAL_COMPONENT_TS____1;
+      } else {
+        i18n_6 = $localize`:␟e17a1d75189da843f541f7764f188f2b19a97df2␟4220765745195024064:Duration:`;
+      }
+      return [i18n_0, [1, "flex-1"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 4, "ngIf"], [4, "ngIf", "ngIfElse"], ["load_state", ""], ["icon", "", "matRipple", "", "mat-dialog-close", ""], ["class", "p-4 max-w-[85vw]", 3, "formGroup", 4, "ngIf"], [1, "flex", "justify-center", "p-2", "border-t", "border-base-200"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click"], i18n_1, [1, "p-4", "max-w-[85vw]", 3, "formGroup"], [1, "flex", "flex-col"], ["for", "title"], ["appearance", "outline"], ["matInput", "", "name", "title", "formControlName", "title", "placeholder", i18n_2], i18n_3, ["class", "flex flex-col", 4, "ngIf"], i18n_4, ["name", "space", 1, "px-4", "py-3", "border", "border-base-200", "rounded", "w-full", "mb-4"], [1, "flex", "sm:space-x-4", "flex-wrap"], ["class", "flex flex-col flex-1 w-full sm:w-auto", 4, "ngIf"], ["class", "flex flex-col w-full sm:w-auto", 4, "ngIf"], ["for", "host"], ["name", "host", "formControlName", "organiser"], [1, "flex", "flex-col", "flex-1", "w-full", "sm:w-auto"], i18n_5, [1, "px-4", "py-3", "border", "border-base-200", "rounded", "w-full", "mb-4"], [1, "flex", "flex-col", "w-full", "sm:w-auto"], i18n_6, ["formControlName", "duration", 1, "w-full", 3, "time", "max", "use_24hr"], ["load", "", 1, "h-64", "flex", "flex-col", "items-center", "justify-center"], [1, "m-4", 3, "diameter"]];
+    },
+    template: function ExploreBookingModalComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "header")(1, "h2");
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵi18n"](2, 0);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](3, "div", 1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](4, ExploreBookingModalComponent_button_4_Template, 3, 0, "button", 2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipe"](5, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](6, ExploreBookingModalComponent_ng_container_6_Template, 5, 1, "ng-container", 3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipe"](7, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](8, ExploreBookingModalComponent_ng_template_8_Template, 5, 4, "ng-template", null, 4, _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplateRefExtractor"]);
+      }
+      if (rf & 2) {
+        const _r3 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵreference"](9);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngIf", !_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipeBind1"](5, 3, ctx.loading));
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngIf", !_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipeBind1"](7, 5, ctx.loading))("ngIfElse", _r3);
+      }
+    },
+    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_9__.NgIf, _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_3__.IconComponent, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_10__.MatFormField, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_10__.MatError, _angular_material_core__WEBPACK_IMPORTED_MODULE_11__.MatRipple, _angular_material_dialog__WEBPACK_IMPORTED_MODULE_7__.MatDialogClose, _angular_material_input__WEBPACK_IMPORTED_MODULE_12__.MatInput, _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_13__.MatProgressSpinner, _angular_forms__WEBPACK_IMPORTED_MODULE_14__.DefaultValueAccessor, _angular_forms__WEBPACK_IMPORTED_MODULE_14__.NgControlStatus, _angular_forms__WEBPACK_IMPORTED_MODULE_14__.NgControlStatusGroup, _angular_forms__WEBPACK_IMPORTED_MODULE_14__.FormGroupDirective, _angular_forms__WEBPACK_IMPORTED_MODULE_14__.FormControlName, _form_fields_src_lib_duration_field_component__WEBPACK_IMPORTED_MODULE_4__.DurationFieldComponent, _form_fields_src_lib_user_search_field_component__WEBPACK_IMPORTED_MODULE_5__.UserSearchFieldComponent, _angular_common__WEBPACK_IMPORTED_MODULE_9__.AsyncPipe, _angular_common__WEBPACK_IMPORTED_MODULE_9__.DatePipe],
+    styles: ["header[_ngcontent-%COMP%] {\n                max-width: calc(100vw + 100%);\n            }\n\n            [load][_ngcontent-%COMP%] {\n                width: 32rem;\n                max-width: calc(100vw - 2rem);\n            }\n        \n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2xpYnMvZXhwbG9yZS9zcmMvbGliL2V4cGxvcmUtYm9va2luZy1tb2RhbC5jb21wb25lbnQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IjtZQUNZO2dCQUNJLDZCQUE2QjtZQUNqQzs7WUFFQTtnQkFDSSxZQUFZO2dCQUNaLDZCQUE2QjtZQUNqQyIsInNvdXJjZXNDb250ZW50IjpbIlxuICAgICAgICAgICAgaGVhZGVyIHtcbiAgICAgICAgICAgICAgICBtYXgtd2lkdGg6IGNhbGMoMTAwdncgKyAxMDAlKTtcbiAgICAgICAgICAgIH1cblxuICAgICAgICAgICAgW2xvYWRdIHtcbiAgICAgICAgICAgICAgICB3aWR0aDogMzJyZW07XG4gICAgICAgICAgICAgICAgbWF4LXdpZHRoOiBjYWxjKDEwMHZ3IC0gMnJlbSk7XG4gICAgICAgICAgICB9XG4gICAgICAgICJdLCJzb3VyY2VSb290IjoiIn0= */"]
+  });
+}
+
+/***/ }),
+
+/***/ 46967:
+/*!**************************************************************!*\
+  !*** ./libs/explore/src/lib/explore-space-info.component.ts ***!
+  \**************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   ExploreSpaceInfoComponent: () => (/* binding */ ExploreSpaceInfoComponent)
+/* harmony export */ });
+/* harmony import */ var libs_common_src_lib_settings_service__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! libs/common/src/lib/settings.service */ 84411);
+/* harmony import */ var libs_components_src_lib_interactive_map_component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! libs/components/src/lib/interactive-map.component */ 51674);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/core */ 61699);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @angular/common */ 26575);
+/* harmony import */ var _components_src_lib_custom_tooltip_component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../components/src/lib/custom-tooltip.component */ 33884);
+/* harmony import */ var _components_src_lib_authenticated_image_directive__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../components/src/lib/authenticated-image.directive */ 75142);
+
+
+
+
+
+
+
+
+function ExploreSpaceInfoComponent_ng_template_2_img_4_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelement"](0, "img", 17);
+  }
+  if (rf & 2) {
+    const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵnextContext"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("source", ctx_r3.space.images[0]);
+  }
+}
+function ExploreSpaceInfoComponent_ng_template_2_div_5_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelement"](0, "div", 18);
+  }
+}
+function ExploreSpaceInfoComponent_ng_template_2_div_11_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](0, "div", 19);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtext"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
+  }
+  if (rf & 2) {
+    const ctx_r5 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵnextContext"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtextInterpolate1"](" ", ctx_r5.available_until, " ");
+  }
+}
+function ExploreSpaceInfoComponent_ng_template_2_div_15_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](0, "div", 20)(1, "span");
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵi18n"](2, 21);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtext"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
+  }
+  if (rf & 2) {
+    const ctx_r6 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵnextContext"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtextInterpolate2"]("", ctx_r6.space.capacity, " ", ctx_r6.space.capacity === 1 ? "person" : "people", " ");
+  }
+}
+function ExploreSpaceInfoComponent_ng_template_2_ul_16_li_1_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](0, "li", 24);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtext"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
+  }
+  if (rf & 2) {
+    const feature_r9 = ctx.$implicit;
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtextInterpolate1"](" ", feature_r9, " ");
+  }
+}
+function ExploreSpaceInfoComponent_ng_template_2_ul_16_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](0, "ul", 22);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtemplate"](1, ExploreSpaceInfoComponent_ng_template_2_ul_16_li_1_Template, 2, 1, "li", 23);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
+  }
+  if (rf & 2) {
+    const ctx_r7 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵnextContext"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("ngForOf", ctx_r7.space.features);
+  }
+}
+function ExploreSpaceInfoComponent_ng_template_2_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](0, "div", 3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelement"](1, "div", 4);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](2, "div", 5)(3, "div", 6);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtemplate"](4, ExploreSpaceInfoComponent_ng_template_2_img_4_Template, 1, 1, "img", 7)(5, ExploreSpaceInfoComponent_ng_template_2_div_5_Template, 1, 0, "div", 8);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](6, "div", 9)(7, "div", 10);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtext"](8, " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵi18n"](9, 11);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtext"](10, " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtemplate"](11, ExploreSpaceInfoComponent_ng_template_2_div_11_Template, 2, 1, "div", 12);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](12, "div", 13)(13, "h4", 14);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtext"](14);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtemplate"](15, ExploreSpaceInfoComponent_ng_template_2_div_15_Template, 4, 2, "div", 15)(16, ExploreSpaceInfoComponent_ng_template_2_ul_16_Template, 2, 1, "ul", 16);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]()()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵclassProp"]("-translate-x-full", ctx_r1.x_pos === "end")("-translate-y-full", ctx_r1.y_pos === "bottom");
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("id", ctx_r1.space == null ? null : ctx_r1.space.id);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵclassProp"]("bg-neutral", ctx_r1.space.images[0])("h-32", ctx_r1.space.images[0])("h-8", !ctx_r1.space.images[0]);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("ngIf", ctx_r1.space.images[0]);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("ngIf", ctx_r1.space.images[0]);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵclassMap"]("capitalize rounded p-1 px-2 text-light border border-white shadow " + ctx_r1.status);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵi18nExp"](ctx_r1.status);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵi18nApply"](9);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("ngIf", ctx_r1.status !== "not-bookable");
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtextInterpolate1"](" ", ctx_r1.space.display_name || ctx_r1.space.name, " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("ngIf", ctx_r1.space.capacity >= 0);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("ngIf", (ctx_r1.space.features == null ? null : ctx_r1.space.features.length) > 0 && ctx_r1.show_features);
+  }
+}
+class ExploreSpaceInfoComponent {
+  get show_features() {
+    return !this._settings.get('app.spaces.hide_features');
+  }
+  constructor(_details, _settings, _element) {
+    this._details = _details;
+    this._settings = _settings;
+    this._element = _element;
+    /** Space to display details for */
+    this.space = this._details.space;
+    /** List of upcoming events for space */
+    this.events = this._details.events;
+    /** Current status of the space */
+    this.status = this._details.status;
+  }
+  ngOnInit() {
+    setTimeout(() => this.updateOffset(), 200);
+  }
+  updateOffset() {
+    const pos = this._element.nativeElement.getBoundingClientRect();
+    this.x_pos = pos.x < document.body.clientWidth / 2 ? 'start' : 'end';
+    this.y_pos = pos.y < document.body.clientHeight / 2 ? 'top' : 'bottom';
+  }
+  get available_until() {
+    return '';
+  }
+  static #_ = this.ɵfac = function ExploreSpaceInfoComponent_Factory(t) {
+    return new (t || ExploreSpaceInfoComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵdirectiveInject"](libs_components_src_lib_interactive_map_component__WEBPACK_IMPORTED_MODULE_1__.MAP_FEATURE_DATA), _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵdirectiveInject"](libs_common_src_lib_settings_service__WEBPACK_IMPORTED_MODULE_0__.SettingsService), _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵdirectiveInject"](_angular_core__WEBPACK_IMPORTED_MODULE_4__.ElementRef));
+  };
+  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵdefineComponent"]({
+    type: ExploreSpaceInfoComponent,
+    selectors: [["explore-space-info"]],
+    decls: 4,
+    vars: 7,
+    consts: () => {
+      let i18n_0;
+      if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+        /**
+         * @suppress {msgDescriptions}
+         */
+        const MSG_EXTERNAL_3658078071800974217$$LIBS_EXPLORE_SRC_LIB_EXPLORE_SPACE_INFO_COMPONENT_TS__0 = goog.getMsg("{VAR_SELECT, select, free {Free } busy {Busy } pending {Pending } reserved {Reserved } other {Not Bookable }}");
+        i18n_0 = MSG_EXTERNAL_3658078071800974217$$LIBS_EXPLORE_SRC_LIB_EXPLORE_SPACE_INFO_COMPONENT_TS__0;
+      } else {
+        i18n_0 = $localize`:␟86e6b3a473ea3e05830d2aef91c81199de1b9d33␟3658078071800974217:{VAR_SELECT, select, free {Free } busy {Busy } pending {Pending } reserved {Reserved } other {Not Bookable }}`;
+      }
+      i18n_0 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵi18nPostprocess"](i18n_0, {
+        "VAR_SELECT": "\uFFFD0\uFFFD"
+      });
+      let i18n_1;
+      if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+        /**
+         * @suppress {msgDescriptions}
+         */
+        const MSG_EXTERNAL_2292396409867038415$$LIBS_EXPLORE_SRC_LIB_EXPLORE_SPACE_INFO_COMPONENT_TS___0 = goog.getMsg("Capacity: ");
+        i18n_1 = MSG_EXTERNAL_2292396409867038415$$LIBS_EXPLORE_SRC_LIB_EXPLORE_SPACE_INFO_COMPONENT_TS___0;
+      } else {
+        i18n_1 = $localize`:␟36c2a5db33c6cfc9e239e589f975f5492bbb0550␟2292396409867038415:Capacity: `;
+      }
+      return [["customTooltip", "", 1, "h-full", "w-full", "pointer-events-auto", "relative", "hidden", "sm:block", "cursor-pointer", 3, "content", "backdrop", "xPosition", "yPosition", "hover", "delay", "mouseenter"], ["tooltip", ""], ["space_tooltip", ""], ["name", "space-info", 1, "absolute", "rounded", "bg-base-100", "top-0", "left-0", "transform", "shadow", "pointer-events-none", "overflow-hidden", 3, "id"], [1, "arrow"], [1, "relative"], [1, "w-full", "overflow-hidden", "flex", "items-center", "justify-center", "relative", "bg-opacity-20"], ["auth", "", "class", "object-cover min-h-full min-w-full", 3, "source", 4, "ngIf"], ["class", "absolute inset-0 bg-neutral", 4, "ngIf"], [1, "absolute", "top-2", "left-2", "flex", "flex-wrap", "text-sm"], ["status", ""], i18n_0, ["available-until", "", 4, "ngIf"], [1, "flex", "flex-col", "py-4", "px-2"], [1, "font-medium", "text-xl", "mb-2", "px-2"], ["capacity", "", "class", "text-base px-2 mb-2", 4, "ngIf"], ["class", "flex flex-wrap", 4, "ngIf"], ["auth", "", 1, "object-cover", "min-h-full", "min-w-full", 3, "source"], [1, "absolute", "inset-0", "bg-neutral"], ["available-until", ""], ["capacity", "", 1, "text-base", "px-2", "mb-2"], i18n_1, [1, "flex", "flex-wrap"], ["class", "text-xs px-2 py-1 m-1 rounded-2xl bg-base-200 font-medium", 4, "ngFor", "ngForOf"], [1, "text-xs", "px-2", "py-1", "m-1", "rounded-2xl", "bg-base-200", "font-medium"]];
+    },
+    template: function ExploreSpaceInfoComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](0, "div", 0, 1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵlistener"]("mouseenter", function ExploreSpaceInfoComponent_Template_div_mouseenter_0_listener() {
+          return ctx.updateOffset();
+        });
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtemplate"](2, ExploreSpaceInfoComponent_ng_template_2_Template, 17, 20, "ng-template", null, 2, _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtemplateRefExtractor"]);
+      }
+      if (rf & 2) {
+        const _r2 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵreference"](3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("content", _r2)("backdrop", false)("xPosition", "center")("yPosition", "center")("hover", true)("delay", 3000);
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵattribute"]("id", (ctx.space == null ? null : ctx.space.map_id) || (ctx.space == null ? null : ctx.space.id));
+      }
+    },
+    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_5__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_5__.NgIf, _components_src_lib_custom_tooltip_component__WEBPACK_IMPORTED_MODULE_2__.CustomTooltipComponent, _components_src_lib_authenticated_image_directive__WEBPACK_IMPORTED_MODULE_3__.AuthenticatedImageDirective],
+    styles: ["[name='space-info'][_ngcontent-%COMP%] {\n                width: 16rem;\n            }\n\n            [status][_ngcontent-%COMP%] {\n                background-color: #43a047;\n                font-weight: 500;\n            }\n\n            [status].busy[_ngcontent-%COMP%] {\n                background-color: #e53935;\n            }\n\n            [status].pending[_ngcontent-%COMP%] {\n                background-color: #ffb300;\n            }\n\n            [status].not-bookable[_ngcontent-%COMP%] {\n                background-color: #757575;\n            }\n        \n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2xpYnMvZXhwbG9yZS9zcmMvbGliL2V4cGxvcmUtc3BhY2UtaW5mby5jb21wb25lbnQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IjtZQUNZO2dCQUNJLFlBQVk7WUFDaEI7O1lBRUE7Z0JBQ0kseUJBQXlCO2dCQUN6QixnQkFBZ0I7WUFDcEI7O1lBRUE7Z0JBQ0kseUJBQXlCO1lBQzdCOztZQUVBO2dCQUNJLHlCQUF5QjtZQUM3Qjs7WUFFQTtnQkFDSSx5QkFBeUI7WUFDN0IiLCJzb3VyY2VzQ29udGVudCI6WyJcbiAgICAgICAgICAgIFtuYW1lPSdzcGFjZS1pbmZvJ10ge1xuICAgICAgICAgICAgICAgIHdpZHRoOiAxNnJlbTtcbiAgICAgICAgICAgIH1cblxuICAgICAgICAgICAgW3N0YXR1c10ge1xuICAgICAgICAgICAgICAgIGJhY2tncm91bmQtY29sb3I6ICM0M2EwNDc7XG4gICAgICAgICAgICAgICAgZm9udC13ZWlnaHQ6IDUwMDtcbiAgICAgICAgICAgIH1cblxuICAgICAgICAgICAgW3N0YXR1c10uYnVzeSB7XG4gICAgICAgICAgICAgICAgYmFja2dyb3VuZC1jb2xvcjogI2U1MzkzNTtcbiAgICAgICAgICAgIH1cblxuICAgICAgICAgICAgW3N0YXR1c10ucGVuZGluZyB7XG4gICAgICAgICAgICAgICAgYmFja2dyb3VuZC1jb2xvcjogI2ZmYjMwMDtcbiAgICAgICAgICAgIH1cblxuICAgICAgICAgICAgW3N0YXR1c10ubm90LWJvb2thYmxlIHtcbiAgICAgICAgICAgICAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjNzU3NTc1O1xuICAgICAgICAgICAgfVxuICAgICAgICAiXSwic291cmNlUm9vdCI6IiJ9 */"]
+  });
+}
+
+/***/ }),
+
+/***/ 9229:
+/*!********************************************************!*\
+  !*** ./libs/explore/src/lib/explore-spaces.service.ts ***!
+  \********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   DEFAULT_COLOURS: () => (/* binding */ DEFAULT_COLOURS),
+/* harmony export */   ExploreSpacesService: () => (/* binding */ ExploreSpacesService)
+/* harmony export */ });
+/* harmony import */ var _home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js */ 71670);
+/* harmony import */ var _placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @placeos/ts-client */ 64331);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! rxjs/operators */ 85046);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! rxjs/operators */ 36520);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! rxjs/operators */ 58175);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! rxjs/operators */ 47422);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! rxjs/operators */ 680);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! rxjs/operators */ 46939);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! rxjs */ 9681);
+/* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @placeos/common */ 57314);
+/* harmony import */ var libs_common_src_lib_notifications__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! libs/common/src/lib/notifications */ 52463);
+/* harmony import */ var libs_spaces_src_lib_space_class__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! libs/spaces/src/lib/space.class */ 63362);
+/* harmony import */ var libs_events_src_lib_event_class__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! libs/events/src/lib/event.class */ 78975);
+/* harmony import */ var libs_events_src_lib_event_form_service__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! libs/events/src/lib/event-form.service */ 20013);
+/* harmony import */ var libs_organisation_src_lib_organisation_service__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! libs/organisation/src/lib/organisation.service */ 38203);
+/* harmony import */ var _explore_state_service__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./explore-state.service */ 70855);
+/* harmony import */ var _explore_space_info_component__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./explore-space-info.component */ 46967);
+/* harmony import */ var _explore_booking_modal_component__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./explore-booking-modal.component */ 2182);
+/* harmony import */ var _explore_book_qr_component__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./explore-book-qr.component */ 97015);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! @angular/core */ 61699);
+/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! @angular/material/dialog */ 17401);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const DEFAULT_COLOURS = {
+  free: '#43a047',
+  pending: '#ffb300',
+  reserved: '#e65100',
+  busy: '#e53935',
+  'signs-of-life': '#1565c0',
+  'not-bookable': '#757575',
+  unknown: '#757575'
+};
+class ExploreSpacesService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.AsyncHandler {
+  constructor(_state, _settings, _event_form, _dialog, _org) {
+    super();
+    this._state = _state;
+    this._settings = _settings;
+    this._event_form = _event_form;
+    this._dialog = _dialog;
+    this._org = _org;
+    this._bookings = {};
+    this._statuses = {};
+    this._panning = true;
+    this.booking_rules = this._org.active_building.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_12__.filter)(bld => !!bld), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_13__.switchMap)(bld => (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__.showMetadata)(bld.id, `room_booking_rules`).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_14__.catchError)(() => (0,rxjs__WEBPACK_IMPORTED_MODULE_15__.of)({
+      details: []
+    })))), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_16__.map)(_ => _?.details instanceof Array ? _.details : []), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_17__.shareReplay)(1));
+    this._bind = this._state.spaces.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_16__.map)(list => {
+      this.unsubWith('b-');
+      this.unsubWith('s-');
+      this._statuses = {};
+      if (!list?.length) return;
+      for (const space of list) {
+        const mod = (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__.getModule)(space.id, 'Bookings');
+        let binding = mod.binding('bookings');
+        this.subscription(`b-${space.id}`, binding.listen().subscribe(d => this.handleBookingsChange(list, space, d)));
+        this.subscription(`b-bind-${space.id}`, binding.bind());
+        binding = mod.binding('status');
+        this.subscription(`s-${space.id}`, binding.listen().subscribe(d => this.handleStatusChange(list, space, d)));
+        this.subscription(`s-bind-${space.id}`, binding.bind());
+      }
+      this.updateActions(list);
+      this._updateHoverElements(list);
+    }));
+    this.subscription('spaces', this._bind.subscribe());
+  }
+  bookSpace(space, force = false) {
+    var _this = this;
+    return (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
+      if (_this._panning) return;
+      const booking_rules = yield _this.booking_rules.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_18__.take)(1)).toPromise();
+      const {
+        hidden
+      } = (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.rulesForResource)({
+        date: Date.now(),
+        duration: 60,
+        resource: space,
+        host: (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.currentUser)()
+      }, booking_rules) || {};
+      if (hidden) {
+        return (0,libs_common_src_lib_notifications__WEBPACK_IMPORTED_MODULE_3__.notifyError)('You do not have permission to book this space at this time.');
+      }
+      if (_this._statuses[space.id] !== 'free' && !force || !space.bookable) {
+        return (0,libs_common_src_lib_notifications__WEBPACK_IMPORTED_MODULE_3__.notifyError)(`${space.display_name || space.name} is unavailable for the selected time and duration`);
+      }
+      _this._event_form.newForm();
+      _this._event_form.form.patchValue({
+        host: (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.currentUser)()?.email,
+        resources: [space]
+      });
+      if (_this._settings.get('app.events.booking_unavailable')) {
+        return _this._event_form.openEventLinkModal();
+      }
+      _this._dialog.open(_this._settings.get('app.explore.show_booking_qr') ? _explore_book_qr_component__WEBPACK_IMPORTED_MODULE_11__.ExploreBookQrComponent : _explore_booking_modal_component__WEBPACK_IMPORTED_MODULE_10__.ExploreBookingModalComponent, {
+        data: {
+          space
+        }
+      });
+    })();
+  }
+  handleBookingsChange(spaces, space, bookings) {
+    if (!bookings) return;
+    this._bookings[space.id] = bookings.map(i => new libs_events_src_lib_event_class__WEBPACK_IMPORTED_MODULE_5__.CalendarEvent(i));
+    this.timeout('update_hover_els', () => this._updateHoverElements(spaces), 100);
+  }
+  handleStatusChange(spaces, space, status) {
+    this._statuses[space.id] = space.bookable ? status || 'free' : 'not-bookable';
+    this.timeout('update_statuses', () => {
+      this.clearTimeout('update_hover_els');
+      this._updateStatus(spaces);
+      this._updateHoverElements(spaces);
+    }, 100);
+  }
+  _updateStatus(spaces) {
+    var _this2 = this;
+    return (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
+      const style_map = {};
+      const colours = _this2._settings.get('app.explore.colors') || {};
+      for (const space of spaces) {
+        const status = _this2._statuses[space.id] || 'not-bookable';
+        style_map[`#${space.map_id}`] = {
+          fill: colours[`space-${status}`] || colours[`${status}`] || DEFAULT_COLOURS[`${status}`],
+          opacity: 0.6
+        };
+      }
+      _this2._state.setStyles('spaces', style_map);
+    })();
+  }
+  _updateHoverElements(spaces) {
+    const features = [];
+    for (const space of spaces) {
+      if (!space.map_id) continue;
+      features.push({
+        location: space.map_id,
+        full_size: true,
+        no_scale: true,
+        content: _explore_space_info_component__WEBPACK_IMPORTED_MODULE_9__.ExploreSpaceInfoComponent,
+        z_index: 10,
+        data: {
+          space: new libs_spaces_src_lib_space_class__WEBPACK_IMPORTED_MODULE_4__.Space(space),
+          events: this._bookings[space.id],
+          status: this._statuses[space.id]
+        }
+      });
+    }
+    this._state.setFeatures('spaces', features);
+  }
+  updateActions(spaces) {
+    const actions = [];
+    for (const space of spaces) {
+      if (!space.map_id) continue;
+      for (const action of ['mousedown', 'touchstart']) {
+        actions.push({
+          id: space.map_id,
+          action: action,
+          priority: 5,
+          callback: () => {
+            this._panning = false;
+            this.timeout('panning', () => this._panning = true, 300);
+          }
+        });
+      }
+      for (const action of ['mouseup', 'touchend']) {
+        actions.push({
+          id: space.map_id,
+          action: action,
+          priority: 5,
+          callback: () => this.bookSpace(space)
+        });
+      }
+    }
+    this.timeout('set-actions', () => this._state.setActions('spaces', actions), 50);
+  }
+  static #_ = this.ɵfac = function ExploreSpacesService_Factory(t) {
+    return new (t || ExploreSpacesService)(_angular_core__WEBPACK_IMPORTED_MODULE_19__["ɵɵinject"](_explore_state_service__WEBPACK_IMPORTED_MODULE_8__.ExploreStateService), _angular_core__WEBPACK_IMPORTED_MODULE_19__["ɵɵinject"](_placeos_common__WEBPACK_IMPORTED_MODULE_2__.SettingsService), _angular_core__WEBPACK_IMPORTED_MODULE_19__["ɵɵinject"](libs_events_src_lib_event_form_service__WEBPACK_IMPORTED_MODULE_6__.EventFormService), _angular_core__WEBPACK_IMPORTED_MODULE_19__["ɵɵinject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_20__.MatDialog), _angular_core__WEBPACK_IMPORTED_MODULE_19__["ɵɵinject"](libs_organisation_src_lib_organisation_service__WEBPACK_IMPORTED_MODULE_7__.OrganisationService));
+  };
+  static #_2 = this.ɵprov = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_19__["ɵɵdefineInjectable"]({
+    token: ExploreSpacesService,
+    factory: ExploreSpacesService.ɵfac
+  });
 }
 
 /***/ }),
@@ -36003,25 +37137,28 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   SpaceSelectMapComponent: () => (/* binding */ SpaceSelectMapComponent)
 /* harmony export */ });
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @angular/core */ 61699);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @angular/core */ 61699);
 /* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @placeos/common */ 57314);
-/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! rxjs */ 70462);
-/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! rxjs */ 64555);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! rxjs/operators */ 47422);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! rxjs/operators */ 15746);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! rxjs/operators */ 95933);
-/* harmony import */ var libs_events_src_lib_event_form_service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! libs/events/src/lib/event-form.service */ 20013);
-/* harmony import */ var libs_organisation_src_lib_organisation_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! libs/organisation/src/lib/organisation.service */ 38203);
-/* harmony import */ var _space_location_pin_component__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./space-location-pin.component */ 8755);
-/* harmony import */ var libs_common_src_lib_mapspeople_service__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! libs/common/src/lib/mapspeople.service */ 39253);
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! @angular/common */ 26575);
-/* harmony import */ var _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../../../components/src/lib/icon.component */ 94888);
-/* harmony import */ var _components_src_lib_interactive_map_component__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../../../components/src/lib/interactive-map.component */ 51674);
-/* harmony import */ var _components_src_lib_indoor_maps_component__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../../../components/src/lib/indoor-maps.component */ 21125);
-/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! @angular/material/core */ 55309);
-/* harmony import */ var _angular_material_form_field__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! @angular/material/form-field */ 51333);
-/* harmony import */ var _angular_material_select__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! @angular/material/select */ 96355);
-/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! @angular/forms */ 28849);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! rxjs */ 70462);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! rxjs */ 64555);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! rxjs/operators */ 47422);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! rxjs/operators */ 15746);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! rxjs/operators */ 95933);
+/* harmony import */ var libs_explore_src_lib_explore_spaces_service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! libs/explore/src/lib/explore-spaces.service */ 9229);
+/* harmony import */ var libs_events_src_lib_event_form_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! libs/events/src/lib/event-form.service */ 20013);
+/* harmony import */ var libs_organisation_src_lib_organisation_service__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! libs/organisation/src/lib/organisation.service */ 38203);
+/* harmony import */ var _space_location_pin_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./space-location-pin.component */ 8755);
+/* harmony import */ var libs_common_src_lib_mapspeople_service__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! libs/common/src/lib/mapspeople.service */ 39253);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! @angular/common */ 26575);
+/* harmony import */ var _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../../../components/src/lib/icon.component */ 94888);
+/* harmony import */ var _components_src_lib_interactive_map_component__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../../../components/src/lib/interactive-map.component */ 51674);
+/* harmony import */ var _components_src_lib_indoor_maps_component__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../../../components/src/lib/indoor-maps.component */ 21125);
+/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! @angular/material/core */ 55309);
+/* harmony import */ var _angular_material_form_field__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! @angular/material/form-field */ 51333);
+/* harmony import */ var _angular_material_select__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! @angular/material/select */ 96355);
+/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! @angular/forms */ 28849);
+
+
 
 
 
@@ -36044,48 +37181,49 @@ __webpack_require__.r(__webpack_exports__);
 
 function SpaceSelectMapComponent_mat_option_3_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](0, "mat-option", 12);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](1);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "mat-option", 12);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
   }
   if (rf & 2) {
     const lvl_r4 = ctx.$implicit;
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("value", lvl_r4);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtextInterpolate1"](" ", lvl_r4.display_name || lvl_r4.name, " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("value", lvl_r4);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtextInterpolate1"](" ", lvl_r4.display_name || lvl_r4.name, " ");
   }
 }
 function SpaceSelectMapComponent_interactive_map_6_Template(rf, ctx) {
   if (rf & 1) {
-    const _r6 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵgetCurrentView"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](0, "interactive-map", 13);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵlistener"]("zoomChange", function SpaceSelectMapComponent_interactive_map_6_Template_interactive_map_zoomChange_0_listener($event) {
-      _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵrestoreView"](_r6);
-      const ctx_r5 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]();
-      return _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵresetView"](ctx_r5.zoom = $event);
+    const _r6 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "interactive-map", 13);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("zoomChange", function SpaceSelectMapComponent_interactive_map_6_Template_interactive_map_zoomChange_0_listener($event) {
+      _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵrestoreView"](_r6);
+      const ctx_r5 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵresetView"](ctx_r5.zoom = $event);
     })("centerChange", function SpaceSelectMapComponent_interactive_map_6_Template_interactive_map_centerChange_0_listener($event) {
-      _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵrestoreView"](_r6);
-      const ctx_r7 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]();
-      return _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵresetView"](ctx_r7.center = $event);
+      _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵrestoreView"](_r6);
+      const ctx_r7 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵresetView"](ctx_r7.center = $event);
     });
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](1, "async");
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](2, "async");
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipe"](1, "async");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipe"](2, "async");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipe"](3, "async");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
   }
   if (rf & 2) {
-    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("src", ctx_r1.map_url)("zoom", ctx_r1.zoom)("center", ctx_r1.center)("features", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](1, 5, ctx_r1.features))("actions", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](2, 7, ctx_r1.actions));
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("src", ctx_r1.map_url)("zoom", ctx_r1.zoom)("center", ctx_r1.center)("styles", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](1, 6, ctx_r1.styles))("features", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](2, 8, ctx_r1.features))("actions", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](3, 10, ctx_r1.actions));
   }
 }
 function SpaceSelectMapComponent_ng_template_8_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelement"](0, "indoor-maps", 14);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](1, "async");
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](2, "async");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelement"](0, "indoor-maps", 14);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipe"](1, "async");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipe"](2, "async");
   }
   if (rf & 2) {
-    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("styles", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](1, 3, ctx_r2.styles))("actions", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](2, 5, ctx_r2.actions))("custom_coordinates", ctx_r2.coordinates);
+    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("styles", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](1, 3, ctx_r2.styles))("actions", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](2, 5, ctx_r2.actions))("custom_coordinates", ctx_r2.coordinates);
   }
 }
 const _c0 = () => ({
@@ -36095,14 +37233,15 @@ class SpaceSelectMapComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0
   get map_url() {
     return this.level?.map_id || '';
   }
-  constructor(_event_form, _org, _maps_people) {
+  constructor(_event_form, _org, _maps_people, _settings) {
     super();
     this._event_form = _event_form;
     this._org = _org;
     this._maps_people = _maps_people;
+    this._settings = _settings;
     this.selected = [];
     this.is_displayed = false;
-    this.onSelect = new _angular_core__WEBPACK_IMPORTED_MODULE_8__.EventEmitter();
+    this.onSelect = new _angular_core__WEBPACK_IMPORTED_MODULE_9__.EventEmitter();
     this.zoom = 1;
     this.center = {
       x: 0.5,
@@ -36114,25 +37253,33 @@ class SpaceSelectMapComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0
       this._change.next(Date.now());
     };
     this.level = null;
-    this._change = new rxjs__WEBPACK_IMPORTED_MODULE_9__.BehaviorSubject(0);
-    this.levels = this._event_form.available_spaces.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_10__.map)(_ => (0,_placeos_common__WEBPACK_IMPORTED_MODULE_0__.unique)(_.map(({
+    this._change = new rxjs__WEBPACK_IMPORTED_MODULE_10__.BehaviorSubject(0);
+    this.levels = this._event_form.available_spaces.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_11__.map)(_ => (0,_placeos_common__WEBPACK_IMPORTED_MODULE_0__.unique)(_.map(({
       zones
-    }) => this._org.levelWithID(zones)), 'id')), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_11__.tap)(_ => this.level = this.level ? this.level : _[0]));
+    }) => this._org.levelWithID(zones)), 'id')), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_12__.tap)(_ => this.level = this.level ? this.level : _[0]));
     this.setOptions = o => this._event_form.setOptions(o);
-    this.features = (0,rxjs__WEBPACK_IMPORTED_MODULE_12__.combineLatest)([this._event_form.available_spaces, this._change]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_13__.debounceTime)(300), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_10__.map)(([l]) => l.map(space => ({
+    this.features = (0,rxjs__WEBPACK_IMPORTED_MODULE_13__.combineLatest)([this._event_form.available_spaces, this._change]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_14__.debounceTime)(300), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_11__.map)(([l]) => l.map(space => ({
       location: space.map_id,
-      content: _space_location_pin_component__WEBPACK_IMPORTED_MODULE_3__.SpaceLocationPinComponent,
+      content: _space_location_pin_component__WEBPACK_IMPORTED_MODULE_4__.SpaceLocationPinComponent,
       data: {
         ...space,
         active: this.active === space.id,
         selected: this.selected.includes(space.id)
       }
     }))));
-    this.actions = this._event_form.available_spaces.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_10__.map)(l => l.map(space => ({
+    this.actions = this._event_form.available_spaces.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_11__.map)(l => l.map(space => ({
       id: space.map_id,
       action: ['touchend', 'mouseup'],
       callback: this._seletedSpace(space)
     }))));
+    this.styles = (0,rxjs__WEBPACK_IMPORTED_MODULE_13__.combineLatest)([this._event_form.spaces, this._event_form.available_spaces]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_11__.map)(([spaces, free_spaces]) => spaces.reduce((styles, space) => {
+      const colours = this._settings.get('app.explore.colors') || {};
+      const status = free_spaces.find(_ => _.id === space.id) ? 'free' : 'busy';
+      styles[`#${space.map_id || space.id}`] = {
+        fill: colours[`space-${status}`] || colours[`${status}`] || libs_explore_src_lib_explore_spaces_service__WEBPACK_IMPORTED_MODULE_1__.DEFAULT_COLOURS[`${status}`]
+      };
+      return styles;
+    }, {})));
     this.use_mapsindoors$ = this._maps_people.available$;
   }
   ngOnInit() {
@@ -36171,9 +37318,9 @@ class SpaceSelectMapComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0
     };
   }
   static #_ = this.ɵfac = function SpaceSelectMapComponent_Factory(t) {
-    return new (t || SpaceSelectMapComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdirectiveInject"](libs_events_src_lib_event_form_service__WEBPACK_IMPORTED_MODULE_1__.EventFormService), _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdirectiveInject"](libs_organisation_src_lib_organisation_service__WEBPACK_IMPORTED_MODULE_2__.OrganisationService), _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdirectiveInject"](libs_common_src_lib_mapspeople_service__WEBPACK_IMPORTED_MODULE_4__.MapsPeopleService));
+    return new (t || SpaceSelectMapComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵdirectiveInject"](libs_events_src_lib_event_form_service__WEBPACK_IMPORTED_MODULE_2__.EventFormService), _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵdirectiveInject"](libs_organisation_src_lib_organisation_service__WEBPACK_IMPORTED_MODULE_3__.OrganisationService), _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵdirectiveInject"](libs_common_src_lib_mapspeople_service__WEBPACK_IMPORTED_MODULE_5__.MapsPeopleService), _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵdirectiveInject"](_placeos_common__WEBPACK_IMPORTED_MODULE_0__.SettingsService));
   };
-  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdefineComponent"]({
+  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵdefineComponent"]({
     type: SpaceSelectMapComponent,
     selectors: [["space-map"]],
     inputs: {
@@ -36184,61 +37331,61 @@ class SpaceSelectMapComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0
     outputs: {
       onSelect: "onSelect"
     },
-    features: [_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵInheritDefinitionFeature"]],
+    features: [_angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵInheritDefinitionFeature"]],
     decls: 22,
     vars: 10,
-    consts: [[1, "bg-base-100", "p-2", "border-b", "border-base-200", "w-full"], ["levels", "", "appearance", "outline", 1, "w-full", "h-[3.25rem]"], [3, "ngModel", "ngModelOptions", "ngModelChange"], [3, "value", 4, "ngFor", "ngForOf"], [1, "relative", "flex-1", "w-full"], [3, "src", "zoom", "center", "features", "actions", "zoomChange", "centerChange", 4, "ngIf", "ngIfElse"], ["mapspeople", ""], ["zoom", "", 1, "absolute", "bottom-2", "right-2", "rounded-lg", "border", "border-base-200", "bg-base-100", "flex", "flex-col", "overflow-hidden"], ["icon", "", "matRipple", "", "name", "space-map-zoom-in", 3, "click"], [1, "border-t", "border-base-200", "w-full"], ["icon", "", "matRipple", "", "name", "space-map-zoom-out", 3, "click"], ["icon", "", "matRipple", "", "name", "space-map-reset", 3, "click"], [3, "value"], [3, "src", "zoom", "center", "features", "actions", "zoomChange", "centerChange"], [3, "styles", "actions", "custom_coordinates"]],
+    consts: [[1, "bg-base-100", "p-2", "border-b", "border-base-200", "w-full"], ["levels", "", "appearance", "outline", 1, "w-full", "h-[3.25rem]"], [3, "ngModel", "ngModelOptions", "ngModelChange"], [3, "value", 4, "ngFor", "ngForOf"], [1, "relative", "flex-1", "w-full"], [3, "src", "zoom", "center", "styles", "features", "actions", "zoomChange", "centerChange", 4, "ngIf", "ngIfElse"], ["mapspeople", ""], ["zoom", "", 1, "absolute", "bottom-2", "right-2", "rounded-lg", "border", "border-base-200", "bg-base-100", "flex", "flex-col", "overflow-hidden"], ["icon", "", "matRipple", "", "name", "space-map-zoom-in", 3, "click"], [1, "border-t", "border-base-200", "w-full"], ["icon", "", "matRipple", "", "name", "space-map-zoom-out", 3, "click"], ["icon", "", "matRipple", "", "name", "space-map-reset", 3, "click"], [3, "value"], [3, "src", "zoom", "center", "styles", "features", "actions", "zoomChange", "centerChange"], [3, "styles", "actions", "custom_coordinates"]],
     template: function SpaceSelectMapComponent_Template(rf, ctx) {
       if (rf & 1) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](0, "div", 0)(1, "mat-form-field", 1)(2, "mat-select", 2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵlistener"]("ngModelChange", function SpaceSelectMapComponent_Template_mat_select_ngModelChange_2_listener($event) {
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "div", 0)(1, "mat-form-field", 1)(2, "mat-select", 2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("ngModelChange", function SpaceSelectMapComponent_Template_mat_select_ngModelChange_2_listener($event) {
           return ctx.level = $event;
         })("ngModelChange", function SpaceSelectMapComponent_Template_mat_select_ngModelChange_2_listener($event) {
           return ctx.setLevel($event);
         });
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](3, SpaceSelectMapComponent_mat_option_3_Template, 2, 2, "mat-option", 3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](4, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]()()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](5, "div", 4);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](6, SpaceSelectMapComponent_interactive_map_6_Template, 3, 9, "interactive-map", 5);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](7, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](8, SpaceSelectMapComponent_ng_template_8_Template, 3, 7, "ng-template", null, 6, _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplateRefExtractor"]);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](10, "div", 7)(11, "button", 8);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵlistener"]("click", function SpaceSelectMapComponent_Template_button_click_11_listener() {
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](3, SpaceSelectMapComponent_mat_option_3_Template, 2, 2, "mat-option", 3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipe"](4, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]()()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](5, "div", 4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](6, SpaceSelectMapComponent_interactive_map_6_Template, 4, 12, "interactive-map", 5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipe"](7, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](8, SpaceSelectMapComponent_ng_template_8_Template, 3, 7, "ng-template", null, 6, _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplateRefExtractor"]);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](10, "div", 7)(11, "button", 8);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("click", function SpaceSelectMapComponent_Template_button_click_11_listener() {
           return ctx.setZoom(ctx.zoom * 1.1);
         });
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](12, "app-icon");
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](13, "zoom_in");
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelement"](14, "div", 9);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](15, "button", 10);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵlistener"]("click", function SpaceSelectMapComponent_Template_button_click_15_listener() {
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](12, "app-icon");
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](13, "zoom_in");
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelement"](14, "div", 9);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](15, "button", 10);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("click", function SpaceSelectMapComponent_Template_button_click_15_listener() {
           return ctx.setZoom(ctx.zoom * (1 / 1.1));
         });
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](16, "app-icon");
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](17, "zoom_out");
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelement"](18, "div", 9);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](19, "button", 11);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵlistener"]("click", function SpaceSelectMapComponent_Template_button_click_19_listener() {
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](16, "app-icon");
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](17, "zoom_out");
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelement"](18, "div", 9);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](19, "button", 11);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("click", function SpaceSelectMapComponent_Template_button_click_19_listener() {
           return ctx.resetMap();
         });
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](20, "app-icon");
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](21, "refresh");
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]()()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](20, "app-icon");
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](21, "refresh");
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]()()();
       }
       if (rf & 2) {
-        const _r3 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵreference"](9);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngModel", ctx.level)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpureFunction0"](9, _c0));
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](4, 5, ctx.levels));
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", !_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](7, 7, ctx.use_mapsindoors$))("ngIfElse", _r3);
+        const _r3 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵreference"](9);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngModel", ctx.level)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpureFunction0"](9, _c0));
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](4, 5, ctx.levels));
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"](3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngIf", !_angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](7, 7, ctx.use_mapsindoors$))("ngIfElse", _r3);
       }
     },
-    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_14__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_14__.NgIf, _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_5__.IconComponent, _components_src_lib_interactive_map_component__WEBPACK_IMPORTED_MODULE_6__.InteractiveMapComponent, _components_src_lib_indoor_maps_component__WEBPACK_IMPORTED_MODULE_7__.IndoorMapsComponent, _angular_material_core__WEBPACK_IMPORTED_MODULE_15__.MatOption, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_16__.MatFormField, _angular_material_select__WEBPACK_IMPORTED_MODULE_17__.MatSelect, _angular_material_core__WEBPACK_IMPORTED_MODULE_15__.MatRipple, _angular_forms__WEBPACK_IMPORTED_MODULE_18__.NgControlStatus, _angular_forms__WEBPACK_IMPORTED_MODULE_18__.NgModel, _angular_common__WEBPACK_IMPORTED_MODULE_14__.AsyncPipe],
+    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_15__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_15__.NgIf, _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_6__.IconComponent, _components_src_lib_interactive_map_component__WEBPACK_IMPORTED_MODULE_7__.InteractiveMapComponent, _components_src_lib_indoor_maps_component__WEBPACK_IMPORTED_MODULE_8__.IndoorMapsComponent, _angular_material_core__WEBPACK_IMPORTED_MODULE_16__.MatOption, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_17__.MatFormField, _angular_material_select__WEBPACK_IMPORTED_MODULE_18__.MatSelect, _angular_material_core__WEBPACK_IMPORTED_MODULE_16__.MatRipple, _angular_forms__WEBPACK_IMPORTED_MODULE_19__.NgControlStatus, _angular_forms__WEBPACK_IMPORTED_MODULE_19__.NgModel, _angular_common__WEBPACK_IMPORTED_MODULE_15__.AsyncPipe],
     styles: ["[_nghost-%COMP%] {\n                position: relative;\n                background: rgba(0, 0, 0, 0.05);\n                display: flex;\n                flex-direction: column;\n            }\n\n            button[_ngcontent-%COMP%] {\n                border-radius: 0;\n            }\n        \n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2xpYnMvc3BhY2VzL3NyYy9saWIvc3BhY2Utc2VsZWN0LW1vZGFsL3NwYWNlLW1hcC5jb21wb25lbnQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IjtZQUNZO2dCQUNJLGtCQUFrQjtnQkFDbEIsK0JBQStCO2dCQUMvQixhQUFhO2dCQUNiLHNCQUFzQjtZQUMxQjs7WUFFQTtnQkFDSSxnQkFBZ0I7WUFDcEIiLCJzb3VyY2VzQ29udGVudCI6WyJcbiAgICAgICAgICAgIDpob3N0IHtcbiAgICAgICAgICAgICAgICBwb3NpdGlvbjogcmVsYXRpdmU7XG4gICAgICAgICAgICAgICAgYmFja2dyb3VuZDogcmdiYSgwLCAwLCAwLCAwLjA1KTtcbiAgICAgICAgICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICAgICAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47XG4gICAgICAgICAgICB9XG5cbiAgICAgICAgICAgIGJ1dHRvbiB7XG4gICAgICAgICAgICAgICAgYm9yZGVyLXJhZGl1czogMDtcbiAgICAgICAgICAgIH1cbiAgICAgICAgIl0sInNvdXJjZVJvb3QiOiIifQ== */"]
   });
 }
