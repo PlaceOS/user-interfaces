@@ -200,7 +200,9 @@ class ScheduleStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.
             console.log('Check Bookings:', type, bookings, _this._ignore_cancel);
             const check_block = (auto_release.time_after || 0) + (auto_release.time_before || 0);
             for (const booking of bookings) {
-              if (_this._ignore_cancel.includes(booking.id)) continue;
+              if (_this._ignore_cancel.includes(booking.id) || booking.checked_in) {
+                continue;
+              }
               _this._dialog.closeAll();
               const diff = (0,date_fns__WEBPACK_IMPORTED_MODULE_27__["default"])((0,date_fns__WEBPACK_IMPORTED_MODULE_26__["default"])(booking.date, auto_release.time_after || 0), Date.now());
               if (diff > check_block) continue;
@@ -211,13 +213,17 @@ class ScheduleStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.
                                 Do you wish to keep this booking?`,
                 icon: {
                   content: 'cancel'
-                }
+                },
+                confirm_text: 'Keep',
+                cancel_text: 'Dismiss'
               }, _this._dialog);
               if (result.reason !== 'done') {
                 _this._ignore_cancel.push(booking.id);
                 continue;
               }
+              result.loading('Checking in booking...');
               yield (0,_placeos_bookings__WEBPACK_IMPORTED_MODULE_1__.checkinBooking)(booking.id, true).toPromise();
+              result.close();
             }
           }
         }
