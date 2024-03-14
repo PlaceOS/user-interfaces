@@ -322,7 +322,12 @@ export class ScheduleStateService extends AsyncHandler {
                         (auto_release.time_after || 0) +
                         (auto_release.time_before || 0);
                     for (const booking of bookings) {
-                        if (this._ignore_cancel.includes(booking.id)) continue;
+                        if (
+                            this._ignore_cancel.includes(booking.id) ||
+                            booking.checked_in
+                        ) {
+                            continue;
+                        }
                         this._dialog.closeAll();
                         const diff = differenceInMinutes(
                             addMinutes(
@@ -339,6 +344,8 @@ export class ScheduleStateService extends AsyncHandler {
                                 Your booking will be cancelled in about ${diff} minutes. 
                                 Do you wish to keep this booking?`,
                                 icon: { content: 'cancel' },
+                                confirm_text: 'Keep',
+                                cancel_text: 'Dismiss',
                             },
                             this._dialog
                         );
@@ -346,7 +353,9 @@ export class ScheduleStateService extends AsyncHandler {
                             this._ignore_cancel.push(booking.id);
                             continue;
                         }
+                        result.loading('Checking in booking...');
                         await checkinBooking(booking.id, true).toPromise();
+                        result.close();
                     }
                 }
             }
