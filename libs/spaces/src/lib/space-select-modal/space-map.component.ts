@@ -1,8 +1,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { AsyncHandler, unique } from '@placeos/common';
+import { AsyncHandler, SettingsService, unique } from '@placeos/common';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, map, tap } from 'rxjs/operators';
 
+import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { EventFormService } from 'libs/events/src/lib/event-form.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
@@ -39,6 +40,7 @@ import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
                 [src]="map_url"
                 [(zoom)]="zoom"
                 [(center)]="center"
+                [styles]="styles | async"
                 [features]="features | async"
                 [actions]="actions | async"
             ></interactive-map>
@@ -153,12 +155,34 @@ export class SpaceSelectMapComponent extends AsyncHandler {
         )
     );
 
+    public readonly styles = combineLatest([
+        this._event_form.spaces,
+        this._event_form.available_spaces,
+    ]).pipe(
+        map(([spaces, free_spaces]) =>
+            spaces.reduce((styles, space) => {
+                const colours = this._settings.get('app.explore.colors') || {};
+                const status = free_spaces.find((_) => _.id === space.id)
+                    ? 'free'
+                    : 'busy';
+                styles[`#${space.map_id || space.id}`] = {
+                    fill:
+                        colours[`space-${status}`] ||
+                        colours[`${status}`] ||
+                        DEFAULT_COLOURS[`${status}`],
+                };
+                return styles;
+            }, {})
+        )
+    );
+
     public readonly use_mapsindoors$ = this._maps_people.available$;
 
     constructor(
         private _event_form: EventFormService,
         private _org: OrganisationService,
-        private _maps_people: MapsPeopleService
+        private _maps_people: MapsPeopleService,
+        private _settings: SettingsService
     ) {
         super();
     }
