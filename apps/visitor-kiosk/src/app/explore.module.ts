@@ -11,6 +11,7 @@ import { SharedComponentsModule } from './components/shared-components.module';
 
 import { ExploreComponent } from 'apps/map-kiosk/src/app/explore.component';
 import { ExploreLevelSelectComponent } from 'apps/map-kiosk/src/app/explore-level-select.component';
+import { AccessibilityControlsComponent } from 'apps/map-kiosk/src/app/accessibility-controls.component';
 
 const ROUTES: Route[] = [
     { path: '', component: ExploreComponent },
@@ -18,7 +19,11 @@ const ROUTES: Route[] = [
 ];
 
 @NgModule({
-    declarations: [ExploreComponent, ExploreLevelSelectComponent],
+    declarations: [
+        ExploreComponent,
+        ExploreLevelSelectComponent,
+        AccessibilityControlsComponent,
+    ],
     imports: [
         CommonModule,
         RouterModule.forChild(ROUTES),
