@@ -696,9 +696,6 @@ video {
 #placeos :is(.left-64) {
   left: 16rem;
 }
-#placeos :is(.left-8) {
-  left: 2rem;
-}
 #placeos :is(.right-0) {
   right: 0px;
 }
@@ -740,9 +737,6 @@ video {
 }
 #placeos :is(.top-14) {
   top: 3.5rem;
-}
-#placeos :is(.top-16) {
-  top: 4rem;
 }
 #placeos :is(.top-2) {
   top: 0.5rem;
@@ -1461,9 +1455,6 @@ video {
 #placeos :is(.w-\[24rem\]) {
   width: 24rem;
 }
-#placeos :is(.w-\[26rem\]) {
-  width: 26rem;
-}
 #placeos :is(.w-\[28rem\]) {
   width: 28rem;
 }
@@ -1523,6 +1514,9 @@ video {
 }
 #placeos :is(.w-\[calc\(100\%-2rem\)\]) {
   width: calc(100% - 2rem);
+}
+#placeos :is(.w-\[calc\(100\%-4rem\)\]) {
+  width: calc(100% - 4rem);
 }
 #placeos :is(.w-\[calc\(100vw-4rem\)\]) {
   width: calc(100vw - 4rem);
@@ -1725,6 +1719,9 @@ video {
 #placeos :is(.max-w-\[calc\(100vw-4rem\)\]) {
   max-width: calc(100vw - 4rem);
 }
+#placeos :is(.max-w-\[calc\(100vw-7rem\)\]) {
+  max-width: calc(100vw - 7rem);
+}
 #placeos :is(.max-w-full) {
   max-width: 100%;
 }
@@ -1759,6 +1756,10 @@ video {
   --tw-translate-x: -50%;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
+#placeos :is(.-translate-x-14) {
+  --tw-translate-x: -3.5rem;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
 #placeos :is(.-translate-x-full) {
   --tw-translate-x: -100%;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
@@ -1781,6 +1782,10 @@ video {
 }
 #placeos :is(.translate-x-1\/2) {
   --tw-translate-x: 50%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+#placeos :is(.translate-x-14) {
+  --tw-translate-x: 3.5rem;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 #placeos :is(.translate-x-full) {
@@ -2047,10 +2052,6 @@ video {
   border-bottom-right-radius: 0.25rem;
   border-bottom-left-radius: 0.25rem;
 }
-#placeos :is(.rounded-b-2xl) {
-  border-bottom-right-radius: 1rem;
-  border-bottom-left-radius: 1rem;
-}
 #placeos :is(.rounded-b-md) {
   border-bottom-right-radius: 0.375rem;
   border-bottom-left-radius: 0.375rem;
@@ -2094,9 +2095,6 @@ video {
 #placeos :is(.rounded-t-md) {
   border-top-left-radius: 0.375rem;
   border-top-right-radius: 0.375rem;
-}
-#placeos :is(.rounded-br-2xl) {
-  border-bottom-right-radius: 1rem;
 }
 #placeos :is(.rounded-tl-lg) {
   border-top-left-radius: 0.5rem;
@@ -2175,6 +2173,9 @@ video {
 }
 #placeos :is(.\!border-base-200) {
   border-color: var(--b2) !important;
+}
+#placeos :is(.\!border-error) {
+  border-color: var(--er) !important;
 }
 #placeos :is(.\!border-info) {
   border-color: var(--in) !important;
@@ -2546,9 +2547,6 @@ video {
 #placeos :is(.pt-2) {
   padding-top: 0.5rem;
 }
-#placeos :is(.pt-3) {
-  padding-top: 0.75rem;
-}
 #placeos :is(.pt-4) {
   padding-top: 1rem;
 }
@@ -2686,6 +2684,9 @@ video {
 }
 #placeos :is(.\!text-base-content) {
   color: var(--bc) !important;
+}
+#placeos :is(.\!text-error) {
+  color: var(--er) !important;
 }
 #placeos :is(.\!text-error-content) {
   color: var(--erc) !important;
@@ -2928,6 +2929,9 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; overflow: h
 #placeos :is(.hover\:text-info:hover) {
   color: var(--in);
 }
+#placeos :is(.hover\:opacity-100:hover) {
+  opacity: 1;
+}
 #placeos :is(.hover\:opacity-30:hover) {
   opacity: 0.3;
 }
@@ -2985,6 +2989,10 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; overflow: h
 
   #placeos :is(.sm\:bottom-auto) {
     bottom: auto;
+  }
+
+  #placeos :is(.sm\:top-1\/2) {
+    top: 50%;
   }
 
   #placeos :is(.sm\:top-2) {
