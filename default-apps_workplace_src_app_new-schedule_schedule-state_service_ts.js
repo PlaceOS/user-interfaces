@@ -200,12 +200,12 @@ class ScheduleStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.
             console.log('Check Bookings:', type, bookings, _this._ignore_cancel);
             const check_block = (auto_release.time_after || 0) + (auto_release.time_before || 0);
             for (const booking of bookings) {
-              if (_this._ignore_cancel.includes(booking.id) || booking.checked_in) {
+              if (_this._ignore_cancel.includes(booking.id) || booking.checked_in || booking.rejected) {
                 continue;
               }
               _this._dialog.closeAll();
               const diff = (0,date_fns__WEBPACK_IMPORTED_MODULE_27__["default"])((0,date_fns__WEBPACK_IMPORTED_MODULE_26__["default"])(booking.date, auto_release.time_after || 0), Date.now());
-              if (diff > check_block) continue;
+              if (diff > check_block || diff < 0) continue;
               const result = yield (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.openConfirmModal)({
                 title: `Keep ${type} booking`,
                 content: `You have indicated you are not in the office. 
