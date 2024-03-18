@@ -336,7 +336,7 @@ export class ScheduleStateService extends AsyncHandler {
                             ),
                             Date.now()
                         );
-                        if (diff > check_block) continue;
+                        if (diff > check_block || diff < 0) continue;
                         const result = await openConfirmModal(
                             {
                                 title: `Keep ${type} booking`,
