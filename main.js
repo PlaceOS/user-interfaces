@@ -5275,7 +5275,7 @@ var ScheduleStateService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                   break;
                 }
                 booking = _step2.value;
-                if (!(_this._ignore_cancel.includes(booking.id) || booking.checked_in)) {
+                if (!(_this._ignore_cancel.includes(booking.id) || booking.checked_in || booking.rejected)) {
                   _context2.next = 20;
                   break;
                 }
@@ -5283,7 +5283,7 @@ var ScheduleStateService = /*#__PURE__*/function (_common_1$AsyncHandle) {
               case 20:
                 _this._dialog.closeAll();
                 diff = (0, date_fns_1.differenceInMinutes)((0, date_fns_1.addMinutes)(booking.date, auto_release.time_after || 0), Date.now());
-                if (!(diff > check_block)) {
+                if (!(diff > check_block || diff < 0)) {
                   _context2.next = 24;
                   break;
                 }
@@ -9326,27 +9326,40 @@ var BookingFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
         return a.localeCompare(b);
       });
     }), (0, operators_1.shareReplay)(1));
-    _this.booking_rules = _this.options.pipe((0, operators_1.switchMap)(function (_ref3) {
-      var type = _ref3.type;
-      return (0, ts_client_1.showMetadata)(_this._org.building.id, "".concat(type, "_booking_rules")).pipe((0, operators_1.catchError)(function () {
-        return (0, rxjs_1.of)({
-          details: []
-        });
+    _this.booking_rules = (0, rxjs_1.combineLatest)([_this._org.building_list, _this._options]).pipe((0, operators_1.switchMap)(function (_ref3) {
+      var _ref4 = _slicedToArray(_ref3, 2),
+        list = _ref4[0],
+        type = _ref4[1].type;
+      return Promise.all(list.map(function (bld) {
+        return (0, ts_client_1.showMetadata)(bld.id, "".concat(type, "_booking_rules")).toPromise();
       }));
-    }), (0, operators_1.map)(function (_) {
-      return (_ === null || _ === void 0 ? void 0 : _.details) instanceof Array ? _.details : [];
+    }), (0, operators_1.map)(function (building_rules) {
+      var mapping = {};
+      var _iterator2 = _createForOfIteratorHelper(building_rules),
+        _step2;
+      try {
+        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+          var rules = _step2.value;
+          rules[rules.id] = rules.details instanceof Array ? rules.details : [];
+        }
+      } catch (err) {
+        _iterator2.e(err);
+      } finally {
+        _iterator2.f();
+      }
+      return mapping;
     }), (0, operators_1.shareReplay)(1));
     _this.available_resources = (0, rxjs_1.combineLatest)([_this.options, _this.resources, _this.booking_rules, (0, rxjs_1.merge)(_this.form.get('date').valueChanges, (0, rxjs_1.timer)(1000)), (0, rxjs_1.merge)(_this.form.get('duration').valueChanges, (0, rxjs_1.timer)(1000))]).pipe((0, operators_1.filter)(function () {
       return _this.form.getRawValue().date > 0 && _this.form.getRawValue().duration > 0;
-    }), (0, operators_1.debounceTime)(500), (0, operators_1.tap)(function (_ref4) {
-      var _ref5 = _slicedToArray(_ref4, 1),
-        type = _ref5[0].type;
+    }), (0, operators_1.debounceTime)(500), (0, operators_1.tap)(function (_ref5) {
+      var _ref6 = _slicedToArray(_ref5, 1),
+        type = _ref6[0].type;
       return _this._loading.next("Checking ".concat(type, " availability..."));
-    }), (0, operators_1.switchMap)(function (_ref6) {
-      var _ref7 = _slicedToArray(_ref6, 3),
-        options = _ref7[0],
-        resources = _ref7[1],
-        restrictions = _ref7[2];
+    }), (0, operators_1.switchMap)(function (_ref7) {
+      var _ref8 = _slicedToArray(_ref7, 3),
+        options = _ref8[0],
+        resources = _ref8[1],
+        restrictions = _ref8[2];
       var _this$form$getRawValu = _this.form.getRawValue(),
         all_day = _this$form$getRawValu.all_day,
         date = _this$form$getRawValu.date,
@@ -9369,18 +9382,18 @@ var BookingFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
           return _this._resource_use[_.asset_id] = _.user_name;
         });
         var available = resources.filter(function (asset) {
-          var _asset$groups, _options$features, _asset$zone, _asset$zone2;
+          var _asset$zone, _asset$groups, _options$features, _asset$zone2, _asset$zone3;
           var is_restricted = (0, common_1.rulesForResource)({
             date: date,
             duration: duration,
             resource: asset,
             host: user || (0, common_1.currentUser)()
-          }, restrictions).hidden;
+          }, restrictions[((_asset$zone = asset.zone) === null || _asset$zone === void 0 ? void 0 : _asset$zone.id) || _this._org.building.id] || []).hidden;
           return !is_restricted && (!((_asset$groups = asset.groups) !== null && _asset$groups !== void 0 && _asset$groups.length) || asset.groups.some(function (grp) {
             return (0, common_1.currentUser)().groups.includes(grp);
           })) && asset.bookable !== false && (!options.features || ((_options$features = options.features) === null || _options$features === void 0 ? void 0 : _options$features.every(function (_) {
             return asset.features.includes(_);
-          }))) && (!options.zone_id || options.zone_id === ((_asset$zone = asset.zone) === null || _asset$zone === void 0 ? void 0 : _asset$zone.id) || options.zone_id === ((_asset$zone2 = asset.zone) === null || _asset$zone2 === void 0 ? void 0 : _asset$zone2.parent_id)) && !bookings.find(function (bkn) {
+          }))) && (!options.zone_id || options.zone_id === ((_asset$zone2 = asset.zone) === null || _asset$zone2 === void 0 ? void 0 : _asset$zone2.id) || options.zone_id === ((_asset$zone3 = asset.zone) === null || _asset$zone3 === void 0 ? void 0 : _asset$zone3.parent_id)) && !bookings.find(function (bkn) {
             return bkn.asset_id === asset.id && bkn.status !== 'declined';
           }) && !asset.assigned_to;
         });
@@ -9391,11 +9404,11 @@ var BookingFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
     }), (0, operators_1.tap)(function (_) {
       return _this._loading.next('');
     }), (0, operators_1.shareReplay)(1));
-    _this.grouped_availability = (0, rxjs_1.combineLatest)([_this.options, _this.available_resources]).pipe((0, operators_1.map)(function (_ref8) {
+    _this.grouped_availability = (0, rxjs_1.combineLatest)([_this.options, _this.available_resources]).pipe((0, operators_1.map)(function (_ref9) {
       var _options$members;
-      var _ref9 = _slicedToArray(_ref8, 2),
-        options = _ref9[0],
-        resource = _ref9[1];
+      var _ref10 = _slicedToArray(_ref9, 2),
+        options = _ref10[0],
+        resource = _ref10[1];
       var groups = [];
       var asset_list = _toConsumableArray(resource).sort(function (a, b) {
         var _a$zone, _b$zone;
@@ -9407,8 +9420,8 @@ var BookingFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
         var asset = asset_list.pop();
         while (group.length < members.length) {
           if (group.length && !group.find(function (_) {
-            var _$zone, _asset$zone3;
-            return ((_$zone = _.zone) === null || _$zone === void 0 ? void 0 : _$zone.id) === ((_asset$zone3 = asset.zone) === null || _asset$zone3 === void 0 ? void 0 : _asset$zone3.id);
+            var _$zone, _asset$zone4;
+            return ((_$zone = _.zone) === null || _$zone === void 0 ? void 0 : _$zone.id) === ((_asset$zone4 = asset.zone) === null || _asset$zone4 === void 0 ? void 0 : _asset$zone4.id);
           })) {
             break;
           }
@@ -9538,7 +9551,6 @@ var BookingFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
   }, {
     key: "loadForm",
     value: function loadForm() {
-      var _this$_org$building;
       this.form.reset({
         user: (0, common_1.currentUser)(),
         booked_by: (0, common_1.currentUser)()
@@ -9548,9 +9560,7 @@ var BookingFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
       this._booking.next(booking);
       var booking_data = (0, ts_client_1.cleanObject)(_objectSpread(_objectSpread(_objectSpread({}, data), booking || {}), (booking === null || booking === void 0 ? void 0 : booking.extension_data) || {}), [null, undefined, '']);
       this.form.patchValue(booking_data);
-      this.setOptions(_objectSpread({
-        zone_id: (_this$_org$building = this._org.building) === null || _this$_org$building === void 0 ? void 0 : _this$_org$building.id
-      }, JSON.parse(sessionStorage.getItem('PLACEOS.booking_form_filters') || '{}')));
+      this.setOptions(_objectSpread({}, JSON.parse(sessionStorage.getItem('PLACEOS.booking_form_filters') || '{}')));
     }
   }, {
     key: "clearOldState",
@@ -9642,7 +9652,7 @@ var BookingFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
       var _postForm = _asyncToGenerator(function () {
         var _this3 = this;
         var ignore_check = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-        return /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(_value$zones, _this3$_booking$getVa, _value$user, _value$user2, _value$user3, _ref10, _value$user4, _ref11, _value$assets, _booking$extension_da, _this3$form) {
+        return /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(_value$zones, _this3$_booking$getVa, _value$user, _value$user2, _value$user3, _ref11, _value$user4, _ref12, _value$assets, _booking$extension_da, _this3$form) {
           var value, booking, receipt, result, booking_type;
           return _regeneratorRuntime().wrap(function _callee2$(_context2) {
             while (1) switch (_context2.prev = _context2.next) {
@@ -9709,10 +9719,10 @@ var BookingFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                 return (0, bookings_fn_1.saveBooking)(new booking_class_1.Booking(_objectSpread(_objectSpread(_objectSpread({}, _this3._options.getValue()), value), {}, {
                   description: value.asset_name || value.description,
                   user_name: (_value$user = value.user) === null || _value$user === void 0 ? void 0 : _value$user.name,
-                  user_id: (!((_value$user2 = value.user) !== null && _value$user2 !== void 0 && (_value$user2 = _value$user2.id) !== null && _value$user2 !== void 0 && _value$user2.includes('@')) ? value === null || value === void 0 || (_value$user3 = value.user) === null || _value$user3 === void 0 ? void 0 : _value$user3.id : '') || ((_ref10 = (0, common_1.currentUser)()) === null || _ref10 === void 0 ? void 0 : _ref10.id),
+                  user_id: (!((_value$user2 = value.user) !== null && _value$user2 !== void 0 && (_value$user2 = _value$user2.id) !== null && _value$user2 !== void 0 && _value$user2.includes('@')) ? value === null || value === void 0 || (_value$user3 = value.user) === null || _value$user3 === void 0 ? void 0 : _value$user3.id : '') || ((_ref11 = (0, common_1.currentUser)()) === null || _ref11 === void 0 ? void 0 : _ref11.id),
                   extension_data: _objectSpread(_objectSpread({}, value.extension_data || {}), {}, {
                     phone: value.phone,
-                    department: ((_value$user4 = value.user) === null || _value$user4 === void 0 ? void 0 : _value$user4.department) || ((_ref11 = (0, common_1.currentUser)()) === null || _ref11 === void 0 ? void 0 : _ref11.department)
+                    department: ((_value$user4 = value.user) === null || _value$user4 === void 0 ? void 0 : _value$user4.department) || ((_ref12 = (0, common_1.currentUser)()) === null || _ref12 === void 0 ? void 0 : _ref12.department)
                   }),
                   approved: !_this3._settings.get('app.bookings.no_approval')
                 })), value.parent_id ? {
@@ -9772,7 +9782,7 @@ var BookingFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
       var _postFormForGroup = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
         var _active_resource$zone,
           _this4 = this;
-        var _this$_options$getVal2, members, group, type, extra_members, form, asset_list, active_resource, level, resources, group_members, available, unavailable, group_name, id, i, _asset$zone4, _asset$zone5, user, asset, bkn, _unavailable$map;
+        var _this$_options$getVal2, members, group, type, extra_members, form, asset_list, active_resource, level, resources, group_members, available, unavailable, group_name, id, i, _asset$zone5, _asset$zone6, user, asset, bkn, _unavailable$map;
         return _regeneratorRuntime().wrap(function _callee3$(_context3) {
           while (1) switch (_context3.prev = _context3.next) {
             case 0:
@@ -9848,7 +9858,7 @@ var BookingFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                 description: asset.name,
                 map_id: (asset === null || asset === void 0 ? void 0 : asset.map_id) || (asset === null || asset === void 0 ? void 0 : asset.id),
                 group: group_name,
-                zones: asset.zone ? (0, common_1.unique)([this._org.organisation.id, (_asset$zone4 = asset.zone) === null || _asset$zone4 === void 0 ? void 0 : _asset$zone4.parent_id, (_asset$zone5 = asset.zone) === null || _asset$zone5 === void 0 ? void 0 : _asset$zone5.id]) : [this._org.organisation.id]
+                zones: asset.zone ? (0, common_1.unique)([this._org.organisation.id, (_asset$zone5 = asset.zone) === null || _asset$zone5 === void 0 ? void 0 : _asset$zone5.parent_id, (_asset$zone6 = asset.zone) === null || _asset$zone6 === void 0 ? void 0 : _asset$zone6.id]) : [this._org.organisation.id]
               }));
               _context3.next = 35;
               return this.postForm(true);
@@ -9935,15 +9945,15 @@ var BookingFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
   }, {
     key: "checkResourceAvailable",
     value: (function () {
-      var _checkResourceAvailable = _asyncToGenerator(function (_ref12, type) {
+      var _checkResourceAvailable = _asyncToGenerator(function (_ref13, type) {
         var _this5 = this;
-        var id = _ref12.id,
-          asset_id = _ref12.asset_id,
-          date = _ref12.date,
-          duration = _ref12.duration,
-          user_email = _ref12.user_email;
+        var id = _ref13.id,
+          asset_id = _ref13.asset_id,
+          date = _ref13.date,
+          duration = _ref13.duration,
+          user_email = _ref13.user_email;
         return /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(_this5$_settings$get) {
-          var bookings, allowed_bookings, _ref14, current;
+          var bookings, allowed_bookings, _ref15, current;
           return _regeneratorRuntime().wrap(function _callee5$(_context5) {
             while (1) switch (_context5.prev = _context5.next) {
               case 0:
@@ -9978,13 +9988,13 @@ var BookingFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
               case 11:
                 allowed_bookings = (_this5$_settings$get = _this5._settings.get("app.bookings.allowed_daily_".concat(type, "_count"))) !== null && _this5$_settings$get !== void 0 ? _this5$_settings$get : 1;
                 if (!(allowed_bookings > 0 && bookings.filter(function (_) {
-                  var _ref13;
-                  return _.user_email.toLowerCase() === (user_email || ((_ref13 = (0, common_1.currentUser)()) === null || _ref13 === void 0 ? void 0 : _ref13.email)).toLowerCase() && _.status !== 'declined' && _.id !== id;
+                  var _ref14;
+                  return _.user_email.toLowerCase() === (user_email || ((_ref14 = (0, common_1.currentUser)()) === null || _ref14 === void 0 ? void 0 : _ref14.email)).toLowerCase() && _.status !== 'declined' && _.id !== id;
                 }).length >= allowed_bookings)) {
                   _context5.next = 15;
                   break;
                 }
-                current = user_email === ((_ref14 = (0, common_1.currentUser)()) === null || _ref14 === void 0 ? void 0 : _ref14.email);
+                current = user_email === ((_ref15 = (0, common_1.currentUser)()) === null || _ref15 === void 0 ? void 0 : _ref15.email);
                 throw "".concat(current ? 'You' : user_email, " already ").concat(current ? 'have' : 'has', " a ").concat(type, " booked");
               case 15:
                 return _context5.abrupt("return", true);
@@ -10003,24 +10013,42 @@ var BookingFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
   }, {
     key: "loadResourceList",
     value: function loadResourceList(type) {
-      return (0, ts_client_1.listChildMetadata)(this._org.building.id, {
+      var use_region = this._settings.get('app.use_region');
+      var map_metadata = function map_metadata(_) {
+        var _$metadata$type, _$metadata$type2;
+        return ((_ === null || _ === void 0 || (_$metadata$type = _.metadata[type]) === null || _$metadata$type === void 0 ? void 0 : _$metadata$type.details) instanceof Array ? (_$metadata$type2 = _.metadata[type]) === null || _$metadata$type2 === void 0 ? void 0 : _$metadata$type2.details : []).map(function (d) {
+          var _d$lockers;
+          return type !== 'lockers' ? _objectSpread(_objectSpread({}, d), {}, {
+            id: d.id || d.map_id,
+            zone: _.zone
+          }) : ((_d$lockers = d.lockers) === null || _d$lockers === void 0 ? void 0 : _d$lockers.map(function (_) {
+            return _objectSpread(_objectSpread({}, _), {}, {
+              bank_id: d.id,
+              zone: _.zone
+            });
+          })) || [];
+        });
+      };
+      var id = use_region ? this._org.building.parent_id : this._org.building.id;
+      if (use_region) {
+        var _id = this._org.building.parent_id;
+        var buildings = this._org.buildings.filter(function (_) {
+          return _.parent_id === _id;
+        });
+        return (0, rxjs_1.forkJoin)(buildings.map(function (_) {
+          return (0, ts_client_1.listChildMetadata)(_.id, {
+            name: type
+          }).pipe((0, operators_1.map)(function (data) {
+            return (0, common_1.flatten)(data.map(map_metadata));
+          }));
+        })).pipe((0, operators_1.map)(function (_) {
+          return (0, common_1.flatten)(_);
+        }));
+      }
+      return (0, ts_client_1.listChildMetadata)(id, {
         name: type
       }).pipe((0, operators_1.map)(function (data) {
-        return (0, common_1.flatten)(data.map(function (_) {
-          var _$metadata$type, _$metadata$type2;
-          return ((_ === null || _ === void 0 || (_$metadata$type = _.metadata[type]) === null || _$metadata$type === void 0 ? void 0 : _$metadata$type.details) instanceof Array ? (_$metadata$type2 = _.metadata[type]) === null || _$metadata$type2 === void 0 ? void 0 : _$metadata$type2.details : []).map(function (d) {
-            var _d$lockers;
-            return type !== 'lockers' ? _objectSpread(_objectSpread({}, d), {}, {
-              id: d.id || d.map_id,
-              zone: _.zone
-            }) : ((_d$lockers = d.lockers) === null || _d$lockers === void 0 ? void 0 : _d$lockers.map(function (_) {
-              return _objectSpread(_objectSpread({}, _), {}, {
-                bank_id: d.id,
-                zone: _.zone
-              });
-            })) || [];
-          });
-        }));
+        return (0, common_1.flatten)(data.map(map_metadata));
       }));
     }
   }, {
@@ -12550,7 +12578,7 @@ exports.DeskFiltersDisplayComponent = DeskFiltersDisplayComponent;
 var _taggedTemplateLiteral = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/taggedTemplateLiteral.js */ 76852)["default"]);
 var _classCallCheck = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/classCallCheck.js */ 45664)["default"]);
 var _createClass = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/createClass.js */ 16996)["default"]);
-var _class, _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11;
+var _class, _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13;
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
@@ -12560,6 +12588,7 @@ var common_1 = __webpack_require__(/*! @placeos/common */ 57314);
 var date_fns_1 = __webpack_require__(/*! date-fns */ 851);
 var organisation_service_1 = __webpack_require__(/*! libs/organisation/src/lib/organisation.service */ 38203);
 var booking_form_service_1 = __webpack_require__(/*! ../booking-form.service */ 63863);
+var operators_1 = __webpack_require__(/*! rxjs/operators */ 37458);
 var i0 = __webpack_require__(/*! @angular/core */ 61699);
 var i1 = __webpack_require__(/*! @angular/material/bottom-sheet */ 68740);
 var i2 = __webpack_require__(/*! ../booking-form.service */ 63863);
@@ -12590,17 +12619,17 @@ function DeskFiltersComponent_button_2_Template(rf, ctx) {
     i0.ɵɵelementEnd()();
   }
 }
-function DeskFiltersComponent_div_10_mat_option_5_Template(rf, ctx) {
+function DeskFiltersComponent_ng_container_10_mat_form_field_1_mat_option_5_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementStart(0, "mat-option", 30);
     i0.ɵɵtext(1);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
-    var bld_r10 = ctx.$implicit;
-    i0.ɵɵproperty("value", bld_r10);
+    var bld_r12 = ctx.$implicit;
+    i0.ɵɵproperty("value", bld_r12);
     i0.ɵɵadvance();
-    i0.ɵɵtextInterpolate1(" ", bld_r10.display_name || bld_r10.name, " ");
+    i0.ɵɵtextInterpolate1(" ", bld_r12.display_name || bld_r12.name, " ");
   }
 }
 var _c0 = function _c0() {
@@ -12608,37 +12637,32 @@ var _c0 = function _c0() {
     standalone: true
   };
 };
-function DeskFiltersComponent_div_10_Template(rf, ctx) {
+function DeskFiltersComponent_ng_container_10_mat_form_field_1_Template(rf, ctx) {
   if (rf & 1) {
-    var _r12 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "div", 25)(1, "label");
-    i0.ɵɵi18n(2, 26);
-    i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(3, "mat-form-field", 27)(4, "mat-select", 28);
-    i0.ɵɵlistener("ngModelChange", function DeskFiltersComponent_div_10_Template_mat_select_ngModelChange_4_listener($event) {
-      i0.ɵɵrestoreView(_r12);
-      var ctx_r11 = i0.ɵɵnextContext();
-      return i0.ɵɵresetView(ctx_r11.building = $event);
-    })("ngModelChange", function DeskFiltersComponent_div_10_Template_mat_select_ngModelChange_4_listener($event) {
-      i0.ɵɵrestoreView(_r12);
-      var ctx_r13 = i0.ɵɵnextContext();
-      return i0.ɵɵresetView(ctx_r13.setOptions({
-        zone_id: $event == null ? null : $event.id
-      }));
+    var _r14 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "mat-form-field", 26)(1, "mat-select", 29);
+    i0.ɵɵlistener("ngModelChange", function DeskFiltersComponent_ng_container_10_mat_form_field_1_Template_mat_select_ngModelChange_1_listener($event) {
+      i0.ɵɵrestoreView(_r14);
+      var ctx_r13 = i0.ɵɵnextContext(2);
+      return i0.ɵɵresetView(ctx_r13.setBuilding($event));
     });
-    i0.ɵɵtemplate(5, DeskFiltersComponent_div_10_mat_option_5_Template, 2, 2, "mat-option", 29);
+    i0.ɵɵpipe(2, "async");
+    i0.ɵɵpipe(3, "async");
+    i0.ɵɵpipe(4, "async");
+    i0.ɵɵtemplate(5, DeskFiltersComponent_ng_container_10_mat_form_field_1_mat_option_5_Template, 2, 2, "mat-option", 28);
     i0.ɵɵpipe(6, "async");
-    i0.ɵɵelementEnd()()();
+    i0.ɵɵelementEnd()();
   }
   if (rf & 2) {
-    var ctx_r1 = i0.ɵɵnextContext();
-    i0.ɵɵadvance(4);
-    i0.ɵɵproperty("ngModel", ctx_r1.building)("ngModelOptions", i0.ɵɵpureFunction0(5, _c0));
+    var ctx_r9 = i0.ɵɵnextContext(2);
+    var tmp_2_0;
     i0.ɵɵadvance();
-    i0.ɵɵproperty("ngForOf", i0.ɵɵpipeBind1(6, 3, ctx_r1.buildings));
+    i0.ɵɵproperty("ngModel", i0.ɵɵpipeBind1(2, 4, ctx_r9.building))("ngModelOptions", i0.ɵɵpureFunction0(12, _c0))("placeholder", ((tmp_2_0 = i0.ɵɵpipeBind1(3, 6, ctx_r9.building)) == null ? null : tmp_2_0.display_name) || ((tmp_2_0 = i0.ɵɵpipeBind1(4, 8, ctx_r9.building)) == null ? null : tmp_2_0.name));
+    i0.ɵɵadvance(4);
+    i0.ɵɵproperty("ngForOf", i0.ɵɵpipeBind1(6, 10, ctx_r9.buildings));
   }
 }
-function DeskFiltersComponent_div_12_mat_option_6_Template(rf, ctx) {
+function DeskFiltersComponent_ng_container_10_mat_option_6_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementStart(0, "mat-option", 30);
     i0.ɵɵtext(1);
@@ -12651,60 +12675,159 @@ function DeskFiltersComponent_div_12_mat_option_6_Template(rf, ctx) {
     i0.ɵɵtextInterpolate1(" ", lvl_r15.display_name || lvl_r15.name, " ");
   }
 }
-function DeskFiltersComponent_div_12_Template(rf, ctx) {
+function DeskFiltersComponent_ng_container_10_Template(rf, ctx) {
   if (rf & 1) {
     var _r17 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "div", 25)(1, "label");
-    i0.ɵɵtext(2, "Level");
-    i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(3, "mat-form-field", 31)(4, "mat-select", 32);
-    i0.ɵɵlistener("ngModelChange", function DeskFiltersComponent_div_12_Template_mat_select_ngModelChange_4_listener($event) {
+    i0.ɵɵelementContainerStart(0);
+    i0.ɵɵtemplate(1, DeskFiltersComponent_ng_container_10_mat_form_field_1_Template, 7, 13, "mat-form-field", 25);
+    i0.ɵɵpipe(2, "async");
+    i0.ɵɵelementStart(3, "mat-form-field", 26)(4, "mat-select", 27);
+    i0.ɵɵlistener("ngModelChange", function DeskFiltersComponent_ng_container_10_Template_mat_select_ngModelChange_4_listener($event) {
       i0.ɵɵrestoreView(_r17);
       var ctx_r16 = i0.ɵɵnextContext();
       return i0.ɵɵresetView(ctx_r16.setOptions({
-        zone_id: $event || ctx_r16.building.id
+        zone_id: $event
       }));
     });
     i0.ɵɵpipe(5, "async");
-    i0.ɵɵtemplate(6, DeskFiltersComponent_div_12_mat_option_6_Template, 2, 2, "mat-option", 29);
+    i0.ɵɵtemplate(6, DeskFiltersComponent_ng_container_10_mat_option_6_Template, 2, 2, "mat-option", 28);
     i0.ɵɵpipe(7, "async");
-    i0.ɵɵelementEnd()()();
+    i0.ɵɵelementEnd()();
+    i0.ɵɵelementContainerEnd();
+  }
+  if (rf & 2) {
+    var ctx_r1 = i0.ɵɵnextContext();
+    var tmp_0_0;
+    var tmp_1_0;
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("ngIf", ((tmp_0_0 = i0.ɵɵpipeBind1(2, 4, ctx_r1.buildings)) == null ? null : tmp_0_0.length) > 1);
+    i0.ɵɵadvance(3);
+    i0.ɵɵproperty("ngModel", (tmp_1_0 = i0.ɵɵpipeBind1(5, 6, ctx_r1.options)) == null ? null : tmp_1_0.zone_id)("ngModelOptions", i0.ɵɵpureFunction0(10, _c0));
+    i0.ɵɵadvance(2);
+    i0.ɵɵproperty("ngForOf", i0.ɵɵpipeBind1(7, 8, ctx_r1.levels));
+  }
+}
+function DeskFiltersComponent_ng_container_11_mat_form_field_1_mat_option_2_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementStart(0, "mat-option", 30);
+    i0.ɵɵtext(1);
+    i0.ɵɵelementEnd();
+  }
+  if (rf & 2) {
+    var reg_r21 = ctx.$implicit;
+    i0.ɵɵproperty("value", reg_r21);
+    i0.ɵɵadvance();
+    i0.ɵɵtextInterpolate1(" ", reg_r21.display_name || reg_r21.name, " ");
+  }
+}
+function DeskFiltersComponent_ng_container_11_mat_form_field_1_Template(rf, ctx) {
+  if (rf & 1) {
+    var _r23 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "mat-form-field", 26)(1, "mat-select", 33);
+    i0.ɵɵlistener("ngModelChange", function DeskFiltersComponent_ng_container_11_mat_form_field_1_Template_mat_select_ngModelChange_1_listener($event) {
+      i0.ɵɵrestoreView(_r23);
+      var ctx_r22 = i0.ɵɵnextContext(2);
+      return i0.ɵɵresetView(ctx_r22.setRegion($event));
+    });
+    i0.ɵɵtemplate(2, DeskFiltersComponent_ng_container_11_mat_form_field_1_mat_option_2_Template, 2, 2, "mat-option", 28);
+    i0.ɵɵpipe(3, "async");
+    i0.ɵɵelementEnd()();
+  }
+  if (rf & 2) {
+    var ctx_r18 = i0.ɵɵnextContext(2);
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("ngModel", ctx_r18.region)("ngModelOptions", i0.ɵɵpureFunction0(5, _c0));
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("ngForOf", i0.ɵɵpipeBind1(3, 3, ctx_r18.regions));
+  }
+}
+function DeskFiltersComponent_ng_container_11_mat_optgroup_8_mat_option_1_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementStart(0, "mat-option", 30);
+    i0.ɵɵtext(1);
+    i0.ɵɵelementEnd();
+  }
+  if (rf & 2) {
+    var level_r26 = ctx.$implicit;
+    i0.ɵɵproperty("value", level_r26.id);
+    i0.ɵɵadvance();
+    i0.ɵɵtextInterpolate1(" ", level_r26.display_name || level_r26.name, " ");
+  }
+}
+function DeskFiltersComponent_ng_container_11_mat_optgroup_8_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementStart(0, "mat-optgroup", 34);
+    i0.ɵɵtemplate(1, DeskFiltersComponent_ng_container_11_mat_optgroup_8_mat_option_1_Template, 2, 2, "mat-option", 28);
+    i0.ɵɵelementEnd();
+  }
+  if (rf & 2) {
+    var bld_r24 = ctx.$implicit;
+    i0.ɵɵproperty("label", bld_r24.name);
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("ngForOf", bld_r24.levels);
+  }
+}
+function DeskFiltersComponent_ng_container_11_Template(rf, ctx) {
+  if (rf & 1) {
+    var _r28 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementContainerStart(0);
+    i0.ɵɵtemplate(1, DeskFiltersComponent_ng_container_11_mat_form_field_1_Template, 4, 6, "mat-form-field", 25);
+    i0.ɵɵpipe(2, "async");
+    i0.ɵɵelementStart(3, "mat-form-field", 26)(4, "mat-select", 31);
+    i0.ɵɵlistener("ngModelChange", function DeskFiltersComponent_ng_container_11_Template_mat_select_ngModelChange_4_listener($event) {
+      i0.ɵɵrestoreView(_r28);
+      var ctx_r27 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r27.setOptions({
+        zone_id: $event
+      }));
+    });
+    i0.ɵɵpipe(5, "async");
+    i0.ɵɵelementStart(6, "mat-option", 30);
+    i0.ɵɵtext(7, "Any Level");
+    i0.ɵɵelementEnd();
+    i0.ɵɵtemplate(8, DeskFiltersComponent_ng_container_11_mat_optgroup_8_Template, 2, 2, "mat-optgroup", 32);
+    i0.ɵɵpipe(9, "async");
+    i0.ɵɵelementEnd()();
+    i0.ɵɵelementContainerEnd();
   }
   if (rf & 2) {
     var ctx_r2 = i0.ɵɵnextContext();
     var tmp_0_0;
+    var tmp_1_0;
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("ngIf", (tmp_0_0 = i0.ɵɵpipeBind1(2, 4, ctx_r2.regions)) == null ? null : tmp_0_0.length);
+    i0.ɵɵadvance(3);
+    i0.ɵɵproperty("ngModel", (tmp_1_0 = i0.ɵɵpipeBind1(5, 6, ctx_r2.options)) == null ? null : tmp_1_0.zone_id)("ngModelOptions", i0.ɵɵpureFunction0(10, _c0));
     i0.ɵɵadvance(4);
-    i0.ɵɵproperty("ngModel", (tmp_0_0 = i0.ɵɵpipeBind1(5, 4, ctx_r2.options)) == null ? null : tmp_0_0.zone_id)("disabled", !ctx_r2.building)("ngModelOptions", i0.ɵɵpureFunction0(8, _c0));
-    i0.ɵɵadvance(2);
-    i0.ɵɵproperty("ngForOf", i0.ɵɵpipeBind1(7, 6, ctx_r2.levels));
+    i0.ɵɵproperty("ngForOf", i0.ɵɵpipeBind1(9, 8, ctx_r2.region_levels));
   }
 }
-function DeskFiltersComponent_div_20_Template(rf, ctx) {
+function DeskFiltersComponent_div_18_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 33)(1, "mat-checkbox", 34);
-    i0.ɵɵi18n(2, 35);
+    i0.ɵɵelementStart(0, "div", 35)(1, "mat-checkbox", 36);
+    i0.ɵɵi18n(2, 37);
     i0.ɵɵelementEnd()();
   }
 }
-function DeskFiltersComponent_div_21_Template(rf, ctx) {
+function DeskFiltersComponent_div_19_Template(rf, ctx) {
   if (rf & 1) {
-    var _r19 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "div", 36)(1, "div", 37)(2, "label");
-    i0.ɵɵi18n(3, 38);
+    var _r30 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "div", 38)(1, "div", 39)(2, "label");
+    i0.ɵɵi18n(3, 40);
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(4, "a-time-field", 39);
-    i0.ɵɵlistener("ngModelChange", function DeskFiltersComponent_div_21_Template_a_time_field_ngModelChange_4_listener($event) {
-      i0.ɵɵrestoreView(_r19);
-      var ctx_r18 = i0.ɵɵnextContext();
-      return i0.ɵɵresetView(ctx_r18.form.patchValue({
+    i0.ɵɵelementStart(4, "a-time-field", 41);
+    i0.ɵɵlistener("ngModelChange", function DeskFiltersComponent_div_19_Template_a_time_field_ngModelChange_4_listener($event) {
+      i0.ɵɵrestoreView(_r30);
+      var ctx_r29 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r29.form.patchValue({
         date: $event
       }));
     });
     i0.ɵɵelementEnd()();
-    i0.ɵɵelementStart(5, "div", 37)(6, "label");
-    i0.ɵɵi18n(7, 40);
+    i0.ɵɵelementStart(5, "div", 39)(6, "label");
+    i0.ɵɵi18n(7, 42);
     i0.ɵɵelementEnd();
-    i0.ɵɵelement(8, "a-duration-field", 41);
+    i0.ɵɵelement(8, "a-duration-field", 43);
     i0.ɵɵelementEnd()();
   }
   if (rf & 2) {
@@ -12719,38 +12842,38 @@ function DeskFiltersComponent_div_21_Template(rf, ctx) {
 var _c1 = function _c1() {
   return [];
 };
-function DeskFiltersComponent_section_32_div_3_Template(rf, ctx) {
+function DeskFiltersComponent_section_30_div_3_Template(rf, ctx) {
   if (rf & 1) {
-    var _r23 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "div", 45)(1, "div", 46);
+    var _r34 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "div", 47)(1, "div", 48);
     i0.ɵɵtext(2);
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(3, "mat-checkbox", 47);
-    i0.ɵɵlistener("ngModelChange", function DeskFiltersComponent_section_32_div_3_Template_mat_checkbox_ngModelChange_3_listener($event) {
-      var restoredCtx = i0.ɵɵrestoreView(_r23);
-      var feat_r21 = restoredCtx.$implicit;
-      var ctx_r22 = i0.ɵɵnextContext(2);
-      return i0.ɵɵresetView(ctx_r22.setFeature(feat_r21, $event));
+    i0.ɵɵelementStart(3, "mat-checkbox", 49);
+    i0.ɵɵlistener("ngModelChange", function DeskFiltersComponent_section_30_div_3_Template_mat_checkbox_ngModelChange_3_listener($event) {
+      var restoredCtx = i0.ɵɵrestoreView(_r34);
+      var feat_r32 = restoredCtx.$implicit;
+      var ctx_r33 = i0.ɵɵnextContext(2);
+      return i0.ɵɵresetView(ctx_r33.setFeature(feat_r32, $event));
     });
     i0.ɵɵpipe(4, "async");
     i0.ɵɵelementEnd()();
   }
   if (rf & 2) {
-    var feat_r21 = ctx.$implicit;
-    var ctx_r20 = i0.ɵɵnextContext(2);
+    var feat_r32 = ctx.$implicit;
+    var ctx_r31 = i0.ɵɵnextContext(2);
     var tmp_1_0;
     i0.ɵɵadvance(2);
-    i0.ɵɵtextInterpolate(feat_r21);
+    i0.ɵɵtextInterpolate(feat_r32);
     i0.ɵɵadvance();
-    i0.ɵɵproperty("ngModel", (((tmp_1_0 = i0.ɵɵpipeBind1(4, 3, ctx_r20.options)) == null ? null : tmp_1_0.features) || i0.ɵɵpureFunction0(5, _c1)).includes(feat_r21))("ngModelOptions", i0.ɵɵpureFunction0(6, _c0));
+    i0.ɵɵproperty("ngModel", (((tmp_1_0 = i0.ɵɵpipeBind1(4, 3, ctx_r31.options)) == null ? null : tmp_1_0.features) || i0.ɵɵpureFunction0(5, _c1)).includes(feat_r32))("ngModelOptions", i0.ɵɵpureFunction0(6, _c0));
   }
 }
-function DeskFiltersComponent_section_32_Template(rf, ctx) {
+function DeskFiltersComponent_section_30_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "section", 42)(1, "h2", 8);
-    i0.ɵɵi18n(2, 43);
+    i0.ɵɵelementStart(0, "section", 44)(1, "h2", 8);
+    i0.ɵɵi18n(2, 45);
     i0.ɵɵelementEnd();
-    i0.ɵɵtemplate(3, DeskFiltersComponent_section_32_div_3_Template, 5, 7, "div", 44);
+    i0.ɵɵtemplate(3, DeskFiltersComponent_section_30_div_3_Template, 5, 7, "div", 46);
     i0.ɵɵpipe(4, "async");
     i0.ɵɵelementEnd();
   }
@@ -12760,16 +12883,16 @@ function DeskFiltersComponent_section_32_Template(rf, ctx) {
     i0.ɵɵproperty("ngForOf", i0.ɵɵpipeBind1(4, 1, ctx_r5.features));
   }
 }
-function DeskFiltersComponent_div_34_Template(rf, ctx) {
+function DeskFiltersComponent_div_32_Template(rf, ctx) {
   if (rf & 1) {
-    var _r25 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "div", 48)(1, "button", 49);
-    i0.ɵɵlistener("click", function DeskFiltersComponent_div_34_Template_button_click_1_listener() {
-      i0.ɵɵrestoreView(_r25);
-      var ctx_r24 = i0.ɵɵnextContext();
-      return i0.ɵɵresetView(ctx_r24.close());
+    var _r36 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "div", 50)(1, "button", 51);
+    i0.ɵɵlistener("click", function DeskFiltersComponent_div_32_Template_button_click_1_listener() {
+      i0.ɵɵrestoreView(_r36);
+      var ctx_r35 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r35.close());
     });
-    i0.ɵɵi18n(2, 50);
+    i0.ɵɵi18n(2, 52);
     i0.ɵɵelementEnd()();
   }
 }
@@ -12787,6 +12910,22 @@ var DeskFiltersComponent = /*#__PURE__*/function () {
     this.buildings = this._org.active_buildings;
     this.levels = this._org.active_levels;
     this.form = this._state.form;
+    this.regions = this._org.region_list;
+    this.region_levels = this._org.active_region.pipe((0, operators_1.map)(function (_) {
+      var region_buildings = _this._org.buildings.filter(function (b) {
+        return !_ || b.parent_id === _.id;
+      });
+      var region_levels = region_buildings.map(function (b) {
+        return {
+          id: b.id,
+          name: b.display_name || b.name,
+          levels: _this._org.levels.filter(function (l) {
+            return l.parent_id === b.id;
+          })
+        };
+      });
+      return region_levels;
+    }));
     this.close = function () {
       return _this._bsheet_ref.dismiss();
     };
@@ -12808,6 +12947,14 @@ var DeskFiltersComponent = /*#__PURE__*/function () {
       this._org.building = bld;
     }
   }, {
+    key: "region",
+    get: function get() {
+      return this._org.region;
+    },
+    set: function set(reg) {
+      this._org.region = reg;
+    }
+  }, {
     key: "allow_time_changes",
     get: function get() {
       return !!this._settings.get('app.desks.allow_time_changes');
@@ -12827,6 +12974,11 @@ var DeskFiltersComponent = /*#__PURE__*/function () {
     get: function get() {
       return this._settings.get('app.use_24_hour_time');
     }
+  }, {
+    key: "use_region",
+    get: function get() {
+      return this._settings.get('app.use_region');
+    }
   }]);
   return DeskFiltersComponent;
 }();
@@ -12837,8 +12989,8 @@ _class.ɵfac = function DeskFiltersComponent_Factory(t) {
 _class.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
   type: _class,
   selectors: [["desk-filters"]],
-  decls: 35,
-  vars: 29,
+  decls: 33,
+  vars: 25,
   consts: function consts() {
     var i18n_0;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
@@ -12907,62 +13059,82 @@ _class.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_5782981899482871069$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__0 = goog.getMsg("Building");
-      i18n_5 = MSG_EXTERNAL_5782981899482871069$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__0;
+      var MSG_EXTERNAL_7323982518822503502$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__0 = goog.getMsg("Any Level");
+      i18n_5 = MSG_EXTERNAL_7323982518822503502$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__0;
     } else {
-      i18n_5 = $localize(_templateObject6 || (_templateObject6 = _taggedTemplateLiteral([":\u241F6e8be3c170a661414dbcf0e4be5ce2ba65f62615\u241F5782981899482871069:Building"])));
+      i18n_5 = $localize(_templateObject6 || (_templateObject6 = _taggedTemplateLiteral([":\u241F50407595967bf29832e873b41f9de3502d5c3e03\u241F7323982518822503502:Any Level"])));
     }
     var i18n_6;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_835486935962207481$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__1 = goog.getMsg(" All Day ");
-      i18n_6 = MSG_EXTERNAL_835486935962207481$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__1;
+      var MSG_EXTERNAL_7323982518822503502$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__1 = goog.getMsg("Any Level");
+      i18n_6 = MSG_EXTERNAL_7323982518822503502$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__1;
     } else {
-      i18n_6 = $localize(_templateObject7 || (_templateObject7 = _taggedTemplateLiteral([":\u241Fd7f43e20f3a729fa3de32bc7a1f709ccd722eae5\u241F835486935962207481: All Day "])));
+      i18n_6 = $localize(_templateObject7 || (_templateObject7 = _taggedTemplateLiteral([":\u241F50407595967bf29832e873b41f9de3502d5c3e03\u241F7323982518822503502:Any Level"])));
     }
     var i18n_7;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_4204880191779081093$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__2 = goog.getMsg("Start Time");
-      i18n_7 = MSG_EXTERNAL_4204880191779081093$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__2;
+      var MSG_EXTERNAL_8264413387051126615$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS___0 = goog.getMsg("Any Region");
+      i18n_7 = MSG_EXTERNAL_8264413387051126615$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS___0;
     } else {
-      i18n_7 = $localize(_templateObject8 || (_templateObject8 = _taggedTemplateLiteral([":\u241F7c0a71d337783e527c1c8e91e433b301c5b1d8a8\u241F4204880191779081093:Start Time"])));
+      i18n_7 = $localize(_templateObject8 || (_templateObject8 = _taggedTemplateLiteral([":\u241F130845b58eba8e50c98f3fba117a0168cdba4f31\u241F8264413387051126615:Any Region"])));
     }
     var i18n_8;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_3845185958891849368$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__3 = goog.getMsg("End Time");
-      i18n_8 = MSG_EXTERNAL_3845185958891849368$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__3;
+      var MSG_EXTERNAL_835486935962207481$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__2 = goog.getMsg(" All Day ");
+      i18n_8 = MSG_EXTERNAL_835486935962207481$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__2;
     } else {
-      i18n_8 = $localize(_templateObject9 || (_templateObject9 = _taggedTemplateLiteral([":\u241Fe1f10d9bf4d3c37490cd5bf82007444ae7af46b1\u241F3845185958891849368:End Time"])));
+      i18n_8 = $localize(_templateObject9 || (_templateObject9 = _taggedTemplateLiteral([":\u241Fd7f43e20f3a729fa3de32bc7a1f709ccd722eae5\u241F835486935962207481: All Day "])));
     }
     var i18n_9;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_8650499415827640724$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__4 = goog.getMsg("Type");
-      i18n_9 = MSG_EXTERNAL_8650499415827640724$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__4;
+      var MSG_EXTERNAL_4204880191779081093$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__3 = goog.getMsg("Start Time");
+      i18n_9 = MSG_EXTERNAL_4204880191779081093$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__3;
     } else {
-      i18n_9 = $localize(_templateObject10 || (_templateObject10 = _taggedTemplateLiteral([":\u241Ff61c6867295f3b53d23557021f2f4e0aa1d0b8fc\u241F8650499415827640724:Type"])));
+      i18n_9 = $localize(_templateObject10 || (_templateObject10 = _taggedTemplateLiteral([":\u241F7c0a71d337783e527c1c8e91e433b301c5b1d8a8\u241F4204880191779081093:Start Time"])));
     }
     var i18n_10;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_2296888311792137027$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__5 = goog.getMsg(" Apply Filters ");
-      i18n_10 = MSG_EXTERNAL_2296888311792137027$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__5;
+      var MSG_EXTERNAL_3845185958891849368$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__4 = goog.getMsg("End Time");
+      i18n_10 = MSG_EXTERNAL_3845185958891849368$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__4;
     } else {
-      i18n_10 = $localize(_templateObject11 || (_templateObject11 = _taggedTemplateLiteral([":\u241Fc17e2cc448524a39eb83b2937cea3235a2e8bf37\u241F2296888311792137027: Apply Filters "])));
+      i18n_10 = $localize(_templateObject11 || (_templateObject11 = _taggedTemplateLiteral([":\u241Fe1f10d9bf4d3c37490cd5bf82007444ae7af46b1\u241F3845185958891849368:End Time"])));
     }
-    return [[1, "flex", "rounded-t-md", "items-center", "border-b", "border-base-200", "pb-2", "sm:p-4"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-desk-filters", "class", "sm:hidden", 3, "click", 4, "ngIf"], [1, "font-medium", "flex-2", "text-center"], i18n_0, [1, "flex-1"], [1, "max-h-[65vh]", "p-2", "overflow-y-auto", "overflow-x-hidden", "divide-y", "divide-base-200", "w-full", "max-w-[100vw]", "sm:max-w-[30vw]", 3, "formGroup"], ["details", ""], [1, "text-lg", "font-medium"], i18n_1, ["class", "flex-1 min-w-[256px] flex flex-col", 4, "ngIf"], [1, "flex-1", "min-w-[256px]"], i18n_2, ["name", "date", "formControlName", "date", 3, "to"], ["class", "flex justify-end -mt-2 mb-2", 4, "ngIf"], ["class", "flex items-center space-x-2", 4, "ngIf"], ["favs", "", 1, "space-y-2", "pb-4"], i18n_3, [1, "flex", "items-center"], ["for", "fav", 1, "flex-1", "w-1/2"], i18n_4, ["name", "fav", 3, "ngModel", "ngModelOptions", "ngModelChange"], ["class", "space-y-2", "features", "", 4, "ngIf"], ["class", "px-2 py-2 w-full border-t border-base-200", 4, "ngIf"], ["icon", "", "matRipple", "", "name", "close-desk-filters", 1, "sm:hidden", 3, "click"], [1, "flex-1", "min-w-[256px]", "flex", "flex-col"], i18n_5, ["appearance", "outline", 1, "w-full"], ["name", "building", "placeholder", "Select building", 3, "ngModel", "ngModelOptions", "ngModelChange"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], ["appearance", "outline"], ["placeholder", "Any Level", 3, "ngModel", "disabled", "ngModelOptions", "ngModelChange"], [1, "flex", "justify-end", "-mt-2", "mb-2"], ["formControlName", "all_day"], i18n_6, [1, "flex", "items-center", "space-x-2"], [1, "flex-1", "w-1/3"], i18n_7, ["name", "start-time", 3, "ngModel", "ngModelOptions", "use_24hr", "ngModelChange"], i18n_8, ["formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr"], ["features", "", 1, "space-y-2"], i18n_9, ["class", "flex items-center flex-wrap space-x-2", 4, "ngFor", "ngForOf"], [1, "flex", "items-center", "flex-wrap", "space-x-2"], ["for", "feat", 1, "flex-1", "w-1/2"], [3, "ngModel", "ngModelOptions", "ngModelChange"], [1, "px-2", "py-2", "w-full", "border-t", "border-base-200"], ["btn", "", "matRipple", "", "name", "apply-desk-filters", 1, "w-full", 3, "click"], i18n_10];
+    var i18n_11;
+    if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+      /**
+       * @suppress {msgDescriptions}
+       */
+      var MSG_EXTERNAL_8650499415827640724$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__5 = goog.getMsg("Type");
+      i18n_11 = MSG_EXTERNAL_8650499415827640724$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__5;
+    } else {
+      i18n_11 = $localize(_templateObject12 || (_templateObject12 = _taggedTemplateLiteral([":\u241Ff61c6867295f3b53d23557021f2f4e0aa1d0b8fc\u241F8650499415827640724:Type"])));
+    }
+    var i18n_12;
+    if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+      /**
+       * @suppress {msgDescriptions}
+       */
+      var MSG_EXTERNAL_2296888311792137027$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__6 = goog.getMsg(" Apply Filters ");
+      i18n_12 = MSG_EXTERNAL_2296888311792137027$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_FILTERS_COMPONENT_TS__6;
+    } else {
+      i18n_12 = $localize(_templateObject13 || (_templateObject13 = _taggedTemplateLiteral([":\u241Fc17e2cc448524a39eb83b2937cea3235a2e8bf37\u241F2296888311792137027: Apply Filters "])));
+    }
+    return [[1, "flex", "rounded-t-md", "items-center", "border-b", "border-base-200", "pb-2", "sm:p-4"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-desk-filters", "class", "sm:hidden", 3, "click", 4, "ngIf"], [1, "font-medium", "flex-2", "text-center"], i18n_0, [1, "flex-1"], [1, "max-h-[65vh]", "p-2", "overflow-y-auto", "overflow-x-hidden", "divide-y", "divide-base-200", "w-full", "max-w-[100vw]", "sm:max-w-[30vw]", 3, "formGroup"], ["details", ""], [1, "text-lg", "font-medium"], i18n_1, [4, "ngIf"], [1, "flex-1", "min-w-[256px]"], i18n_2, ["name", "date", "formControlName", "date", 3, "to"], ["class", "flex justify-end -mt-2 mb-2", 4, "ngIf"], ["class", "flex items-center space-x-2", 4, "ngIf"], ["favs", "", 1, "space-y-2", "pb-4"], i18n_3, [1, "flex", "items-center"], ["for", "fav", 1, "flex-1", "w-1/2"], i18n_4, ["name", "fav", 3, "ngModel", "ngModelOptions", "ngModelChange"], ["class", "space-y-2", "features", "", 4, "ngIf"], ["class", "px-2 py-2 w-full border-t border-base-200", 4, "ngIf"], ["icon", "", "matRipple", "", "name", "close-desk-filters", 1, "sm:hidden", 3, "click"], ["appearance", "outline", "class", "w-full", 4, "ngIf"], ["appearance", "outline", 1, "w-full"], ["name", "location", "placeholder", i18n_5, 3, "ngModel", "ngModelOptions", "ngModelChange"], [3, "value", 4, "ngFor", "ngForOf"], ["name", "building", 3, "ngModel", "ngModelOptions", "placeholder", "ngModelChange"], [3, "value"], ["name", "location", "placeholder", i18n_6, 3, "ngModel", "ngModelOptions", "ngModelChange"], [3, "label", 4, "ngFor", "ngForOf"], ["name", "region", "placeholder", i18n_7, 3, "ngModel", "ngModelOptions", "ngModelChange"], [3, "label"], [1, "flex", "justify-end", "-mt-2", "mb-2"], ["formControlName", "all_day"], i18n_8, [1, "flex", "items-center", "space-x-2"], [1, "flex-1", "w-1/3"], i18n_9, ["name", "start-time", 3, "ngModel", "ngModelOptions", "use_24hr", "ngModelChange"], i18n_10, ["formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr"], ["features", "", 1, "space-y-2"], i18n_11, ["class", "flex items-center flex-wrap space-x-2", 4, "ngFor", "ngForOf"], [1, "flex", "items-center", "flex-wrap", "space-x-2"], ["for", "feat", 1, "flex-1", "w-1/2"], [3, "ngModel", "ngModelOptions", "ngModelChange"], [1, "px-2", "py-2", "w-full", "border-t", "border-base-200"], ["btn", "", "matRipple", "", "name", "apply-desk-filters", 1, "w-full", 3, "click"], i18n_12];
   },
   template: function DeskFiltersComponent_Template(rf, ctx) {
     if (rf & 1) {
@@ -12977,43 +13149,38 @@ _class.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵelementStart(6, "form", 6)(7, "section", 7)(8, "h2", 8);
       i0.ɵɵi18n(9, 9);
       i0.ɵɵelementEnd();
-      i0.ɵɵtemplate(10, DeskFiltersComponent_div_10_Template, 7, 6, "div", 10);
-      i0.ɵɵpipe(11, "async");
-      i0.ɵɵtemplate(12, DeskFiltersComponent_div_12_Template, 8, 9, "div", 10);
-      i0.ɵɵpipe(13, "async");
-      i0.ɵɵelementStart(14, "div", 11)(15, "label");
-      i0.ɵɵi18n(16, 12);
+      i0.ɵɵtemplate(10, DeskFiltersComponent_ng_container_10_Template, 8, 11, "ng-container", 10)(11, DeskFiltersComponent_ng_container_11_Template, 10, 11, "ng-container", 10);
+      i0.ɵɵelementStart(12, "div", 11)(13, "label");
+      i0.ɵɵi18n(14, 12);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(17, "a-date-field", 13);
-      i0.ɵɵtext(18);
-      i0.ɵɵpipe(19, "translate");
+      i0.ɵɵelementStart(15, "a-date-field", 13);
+      i0.ɵɵtext(16);
+      i0.ɵɵpipe(17, "translate");
       i0.ɵɵelementEnd()();
-      i0.ɵɵtemplate(20, DeskFiltersComponent_div_20_Template, 3, 0, "div", 14)(21, DeskFiltersComponent_div_21_Template, 9, 9, "div", 15);
+      i0.ɵɵtemplate(18, DeskFiltersComponent_div_18_Template, 3, 0, "div", 14)(19, DeskFiltersComponent_div_19_Template, 9, 9, "div", 15);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(22, "section", 16)(23, "h2", 8);
-      i0.ɵɵi18n(24, 17);
-      i0.ɵɵpipe(25, "translate");
+      i0.ɵɵelementStart(20, "section", 16)(21, "h2", 8);
+      i0.ɵɵi18n(22, 17);
+      i0.ɵɵpipe(23, "translate");
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(26, "div", 18)(27, "div", 19);
-      i0.ɵɵi18n(28, 20);
-      i0.ɵɵpipe(29, "translate");
+      i0.ɵɵelementStart(24, "div", 18)(25, "div", 19);
+      i0.ɵɵi18n(26, 20);
+      i0.ɵɵpipe(27, "translate");
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(30, "mat-checkbox", 21);
-      i0.ɵɵlistener("ngModelChange", function DeskFiltersComponent_Template_mat_checkbox_ngModelChange_30_listener($event) {
+      i0.ɵɵelementStart(28, "mat-checkbox", 21);
+      i0.ɵɵlistener("ngModelChange", function DeskFiltersComponent_Template_mat_checkbox_ngModelChange_28_listener($event) {
         return ctx.setOptions({
           show_fav: $event
         });
       });
-      i0.ɵɵpipe(31, "async");
+      i0.ɵɵpipe(29, "async");
       i0.ɵɵelementEnd()()();
-      i0.ɵɵtemplate(32, DeskFiltersComponent_section_32_Template, 5, 3, "section", 22);
-      i0.ɵɵpipe(33, "async");
+      i0.ɵɵtemplate(30, DeskFiltersComponent_section_30_Template, 5, 3, "section", 22);
+      i0.ɵɵpipe(31, "async");
       i0.ɵɵelementEnd();
-      i0.ɵɵtemplate(34, DeskFiltersComponent_div_34_Template, 3, 0, "div", 23);
+      i0.ɵɵtemplate(32, DeskFiltersComponent_div_32_Template, 3, 0, "div", 23);
     }
     if (rf & 2) {
-      var tmp_2_0;
-      var tmp_3_0;
       var tmp_10_0;
       var tmp_12_0;
       i0.ɵɵadvance(2);
@@ -13021,32 +13188,32 @@ _class.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵadvance(4);
       i0.ɵɵproperty("formGroup", ctx.form);
       i0.ɵɵadvance(4);
-      i0.ɵɵproperty("ngIf", (tmp_2_0 = i0.ɵɵpipeBind1(11, 14, ctx.buildings)) == null ? null : tmp_2_0.length);
-      i0.ɵɵadvance(2);
-      i0.ɵɵproperty("ngIf", ((tmp_3_0 = i0.ɵɵpipeBind1(13, 16, ctx.levels)) == null ? null : tmp_3_0.length) > 1);
-      i0.ɵɵadvance(5);
+      i0.ɵɵproperty("ngIf", !ctx.use_region);
+      i0.ɵɵadvance();
+      i0.ɵɵproperty("ngIf", ctx.use_region);
+      i0.ɵɵadvance(4);
       i0.ɵɵproperty("to", ctx.end_date);
       i0.ɵɵadvance();
-      i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind1(19, 18, "FORM.DATE_ERROR"), " ");
+      i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind1(17, 14, "FORM.DATE_ERROR"), " ");
       i0.ɵɵadvance(2);
       i0.ɵɵproperty("ngIf", ctx.allow_all_day);
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngIf", !ctx.form.value.all_day);
       i0.ɵɵadvance(4);
-      i0.ɵɵi18nExp(i0.ɵɵpipeBind1(25, 20, "COMMON.FAVOURITES"));
-      i0.ɵɵi18nApply(24);
+      i0.ɵɵi18nExp(i0.ɵɵpipeBind1(23, 16, "COMMON.FAVOURITES"));
+      i0.ɵɵi18nApply(22);
       i0.ɵɵadvance(4);
-      i0.ɵɵi18nExp(i0.ɵɵpipeBind1(29, 22, "DESKS.SHOW_FAVOURITES"));
-      i0.ɵɵi18nApply(28);
+      i0.ɵɵi18nExp(i0.ɵɵpipeBind1(27, 18, "DESKS.SHOW_FAVOURITES"));
+      i0.ɵɵi18nApply(26);
       i0.ɵɵadvance();
-      i0.ɵɵproperty("ngModel", (tmp_10_0 = i0.ɵɵpipeBind1(31, 24, ctx.options)) == null ? null : tmp_10_0.show_fav)("ngModelOptions", i0.ɵɵpureFunction0(28, _c0));
+      i0.ɵɵproperty("ngModel", (tmp_10_0 = i0.ɵɵpipeBind1(29, 20, ctx.options)) == null ? null : tmp_10_0.show_fav)("ngModelOptions", i0.ɵɵpureFunction0(24, _c0));
       i0.ɵɵadvance(2);
-      i0.ɵɵproperty("ngIf", (tmp_12_0 = i0.ɵɵpipeBind1(33, 26, ctx.features)) == null ? null : tmp_12_0.length);
+      i0.ɵɵproperty("ngIf", (tmp_12_0 = i0.ɵɵpipeBind1(31, 22, ctx.features)) == null ? null : tmp_12_0.length);
       i0.ɵɵadvance(2);
       i0.ɵɵproperty("ngIf", ctx.can_close);
     }
   },
-  dependencies: [i5.NgForOf, i5.NgIf, i6.ɵNgNoValidate, i6.NgControlStatus, i6.NgControlStatusGroup, i6.NgModel, i6.FormGroupDirective, i6.FormControlName, i7.MatFormField, i8.MatCheckbox, i9.MatOption, i10.DateFieldComponent, i11.DurationFieldComponent, i12.TimeFieldComponent, i13.IconComponent, i14.MatSelect, i9.MatRipple, i5.AsyncPipe, i15.TranslatePipe],
+  dependencies: [i5.NgForOf, i5.NgIf, i6.ɵNgNoValidate, i6.NgControlStatus, i6.NgControlStatusGroup, i6.NgModel, i6.FormGroupDirective, i6.FormControlName, i7.MatFormField, i8.MatCheckbox, i9.MatOption, i9.MatOptgroup, i10.DateFieldComponent, i11.DurationFieldComponent, i12.TimeFieldComponent, i13.IconComponent, i14.MatSelect, i9.MatRipple, i5.AsyncPipe, i15.TranslatePipe],
   styles: ["[_nghost-%COMP%] {\n                display: flex;\n                flex-direction: column;\n                width: 100%;\n                max-width: 100vw;\n            }\n        \n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2xpYnMvYm9va2luZ3Mvc3JjL2xpYi9kZXNrLXNlbGVjdC1tb2RhbC9kZXNrLWZpbHRlcnMuY29tcG9uZW50LnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7WUFDWTtnQkFDSSxhQUFhO2dCQUNiLHNCQUFzQjtnQkFDdEIsV0FBVztnQkFDWCxnQkFBZ0I7WUFDcEIiLCJzb3VyY2VzQ29udGVudCI6WyJcbiAgICAgICAgICAgIDpob3N0IHtcbiAgICAgICAgICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICAgICAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47XG4gICAgICAgICAgICAgICAgd2lkdGg6IDEwMCU7XG4gICAgICAgICAgICAgICAgbWF4LXdpZHRoOiAxMDB2dztcbiAgICAgICAgICAgIH1cbiAgICAgICAgIl0sInNvdXJjZVJvb3QiOiIifQ== */"]
 });
 exports.DeskFiltersComponent = DeskFiltersComponent;
@@ -30919,15 +31086,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "6419848",
-  "hash": "6419848",
+  "raw": "a9cb218",
+  "hash": "a9cb218",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "6419848",
+  "suffix": "a9cb218",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1710391057345
+  "time": 1710743042849
 };
 /* tslint:enable */
 
@@ -39289,6 +39456,11 @@ var UserControlsComponent = /*#__PURE__*/function () {
       return this._settings.get('app.locales') || [];
     }
   }, {
+    key: "use_region",
+    get: function get() {
+      return this._settings.get('app.use_region');
+    }
+  }, {
     key: "disable_building_select",
     get: function get() {
       return this._settings.get('app.disable_building_select');
@@ -39503,7 +39675,7 @@ _class.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngIf", i0.ɵɵpipeBind1(8, 17, ctx.regions).length);
       i0.ɵɵadvance(2);
-      i0.ɵɵproperty("ngIf", !ctx.disable_building_select);
+      i0.ɵɵproperty("ngIf", !ctx.disable_building_select && !ctx.use_region);
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngIf", ctx.features.includes("help"));
       i0.ɵɵadvance();
@@ -41377,12 +41549,12 @@ exports.EventDetailsModalComponent = EventDetailsModalComponent;
 
 
 
-var _createForOfIteratorHelper = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/createForOfIteratorHelper.js */ 24126)["default"]);
 var _toConsumableArray = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/toConsumableArray.js */ 10302)["default"]);
 var _regeneratorRuntime = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/regeneratorRuntime.js */ 50857)["default"]);
 var _asyncToGenerator = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/asyncToGenerator.js */ 21778)["default"]);
 var _objectSpread = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/objectSpread2.js */ 28080)["default"]);
 var _slicedToArray = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/slicedToArray.js */ 82093)["default"]);
+var _createForOfIteratorHelper = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/createForOfIteratorHelper.js */ 24126)["default"]);
 var _classCallCheck = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/classCallCheck.js */ 45664)["default"]);
 var _createClass = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/createClass.js */ 16996)["default"]);
 var _possibleConstructorReturn = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/possibleConstructorReturn.js */ 79668)["default"]);
@@ -41452,27 +41624,40 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
     _this.last_success = new event_class_1.CalendarEvent(JSON.parse(sessionStorage.getItem('PLACEOS.last_booked_event') || '{}'));
     _this.loading = _this._loading.asObservable();
     _this.options = _this._options.asObservable();
-    _this.booking_rules = _this.options.pipe((0, operators_1.switchMap)(function () {
-      return _this._org.building ? (0, ts_client_1.showMetadata)(_this._org.building.id, "room_booking_rules").pipe((0, operators_1.catchError)(function () {
-        return (0, rxjs_1.of)({
-          details: []
-        });
-      })) : (0, rxjs_1.of)({
-        details: []
-      });
-    }), (0, operators_1.map)(function (_) {
-      return (_ === null || _ === void 0 ? void 0 : _.details) instanceof Array ? _.details : [];
+    _this.booking_rules = _this._org.building_list.pipe((0, operators_1.switchMap)(function (list) {
+      return Promise.all(list.map(function (bld) {
+        return (0, ts_client_1.showMetadata)(bld.id, 'booking_rules').toPromise();
+      }));
+    }), (0, operators_1.map)(function (building_rules) {
+      var mapping = {};
+      var _iterator = _createForOfIteratorHelper(building_rules),
+        _step;
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var rules = _step.value;
+          rules[rules.id] = rules.details instanceof Array ? rules.details : [];
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
+      }
+      return mapping;
     }), (0, operators_1.shareReplay)(1));
     _this.spaces = (0, rxjs_1.combineLatest)([_this._options.pipe((0, operators_1.distinctUntilKeyChanged)('zone_ids')), _this._org.active_building.pipe((0, operators_1.filter)(function (_) {
       return !!_;
     }), (0, operators_1.distinctUntilKeyChanged)('id'))]).pipe((0, operators_1.debounceTime)(300), (0, operators_1.tap)(function (_) {
       return _this.unsubWith('bind:');
     }), (0, operators_1.switchMap)(function (_ref) {
-      var _zone_ids, _this$_org$building;
+      var _zone_ids;
       var _ref2 = _slicedToArray(_ref, 1),
         zone_ids = _ref2[0].zone_ids;
       _this._loading.next('Loading space list for location...');
-      if (!((_zone_ids = zone_ids) !== null && _zone_ids !== void 0 && _zone_ids.length)) zone_ids = [(_this$_org$building = _this._org.building) === null || _this$_org$building === void 0 ? void 0 : _this$_org$building.id];
+      var use_region = _this._settings.get('app.use_region');
+      if (!((_zone_ids = zone_ids) !== null && _zone_ids !== void 0 && _zone_ids.length)) {
+        var _this$_org$building, _this$_org$building2, _this$_org$building3;
+        zone_ids = [(use_region ? (_this$_org$building = _this._org.building) === null || _this$_org$building === void 0 ? void 0 : _this$_org$building.parent_id : (_this$_org$building2 = _this._org.building) === null || _this$_org$building2 === void 0 ? void 0 : _this$_org$building2.id) || ((_this$_org$building3 = _this._org.building) === null || _this$_org$building3 === void 0 ? void 0 : _this$_org$building3.id)];
+      }
       return (0, rxjs_1.forkJoin)(zone_ids.map(function (id) {
         return (0, space_utilities_1.requestSpacesForZone)(id).pipe((0, operators_1.catchError)(function () {
           return (0, rxjs_1.of)([]);
@@ -41533,6 +41718,7 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
       }));
     }), (0, operators_1.shareReplay)(1));
     _this.current_available_spaces = (0, rxjs_1.combineLatest)([_this.filtered_spaces, _this._space_bookings, _this.booking_rules, (0, rxjs_1.merge)(_this.form.valueChanges, (0, rxjs_1.timer)(1000))]).pipe((0, operators_1.map)(function (_ref12) {
+      var _this$_org$building4;
       var _ref13 = _slicedToArray(_ref12, 3),
         list = _ref13[0],
         bookings = _ref13[1],
@@ -41549,7 +41735,7 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
         duration: duration,
         resource: null,
         host: (0, common_1.currentUser)()
-      }, booking_rules);
+      }, booking_rules[(_this$_org$building4 = _this._org.building) === null || _this$_org$building4 === void 0 ? void 0 : _this$_org$building4.id] || []);
       return (list || []).filter(function (_, idx) {
         var start = all_day ? (0, date_fns_1.startOfDay)(date).valueOf() : date;
         var end = start + (all_day ? Math.max(24 * 60, duration) : duration) * MINUTES;
@@ -41565,7 +41751,7 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
     _this.future_available_spaces = (0, rxjs_1.combineLatest)([_this.filtered_spaces, _this.booking_rules, _this.form.valueChanges.pipe((0, operators_1.debounceTime)(400), (0, operators_1.startWith)({}))]).pipe((0, operators_1.filter)(function () {
       return !_this._loading.getValue();
     }), (0, operators_1.debounceTime)(300), (0, operators_1.switchMap)(function (_ref14) {
-      var _assertThisInitialize, _this$event, _this$event2, _this$event3, _this$event4;
+      var _this$_org$building5, _assertThisInitialize, _this$event, _this$event2, _this$event3, _this$event4;
       var _ref15 = _slicedToArray(_ref14, 2),
         spaces = _ref15[0],
         booking_rules = _ref15[1];
@@ -41581,11 +41767,12 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
         duration: duration,
         resource: null,
         host: (0, common_1.currentUser)()
-      }, booking_rules);
+      }, booking_rules[(_this$_org$building5 = _this._org.building) === null || _this$_org$building5 === void 0 ? void 0 : _this$_org$building5.id]);
       return availability_method(spaces.map(function (_ref16) {
         var id = _ref16.id;
         return id;
       }), all_day ? (0, date_fns_1.startOfDay)(date).valueOf() : date, all_day ? Math.max(24 * 60, duration) : duration, ((_assertThisInitialize = _assertThisInitialized(_this)) === null || _assertThisInitialize === void 0 || (_assertThisInitialize = _assertThisInitialize.event) === null || _assertThisInitialize === void 0 || (_assertThisInitialize = _assertThisInitialize.resources[0]) === null || _assertThisInitialize === void 0 ? void 0 : _assertThisInitialize.id) || ((_this$event = _this.event) === null || _this$event === void 0 || (_this$event = _this$event.system) === null || _this$event === void 0 ? void 0 : _this$event.id) || ((_this$event2 = _this.event) === null || _this$event2 === void 0 ? void 0 : _this$event2.id) || undefined, undefined, [(_this$event3 = _this.event) === null || _this$event3 === void 0 ? void 0 : _this$event3.date, (_this$event4 = _this.event) === null || _this$event4 === void 0 ? void 0 : _this$event4.duration]).pipe((0, operators_1.map)(function (availability) {
+        var _this$_org$building6;
         var list = spaces.filter(function (_, i) {
           return availability[i];
         });
@@ -41594,7 +41781,7 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
           duration: duration,
           resource: null,
           host: (0, common_1.currentUser)()
-        }, booking_rules);
+        }, booking_rules[(_this$_org$building6 = _this._org.building) === null || _this$_org$building6 === void 0 ? void 0 : _this$_org$building6.id]);
         return list;
       }), (0, operators_1.catchError)(function (_) {
         return [];
@@ -41677,7 +41864,10 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
   }, {
     key: "setView",
     value: function setView(value) {
-      this._view.next(value);
+      var _this2 = this;
+      this.timeout('set_view', function () {
+        return _this2._view.next(value);
+      }, 50);
     }
   }, {
     key: "setOptions",
@@ -41688,7 +41878,7 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
     key: "newForm",
     value: function () {
       var _newForm = _asyncToGenerator(function () {
-        var _this2 = this;
+        var _this3 = this;
         var event = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : new event_class_1.CalendarEvent({
           all_day: this._settings.get('app.events.all_day_default')
         });
@@ -41697,7 +41887,7 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
           return _regeneratorRuntime().wrap(function _callee$(_context) {
             while (1) switch (_context.prev = _context.next) {
               case 0:
-                _this2._event.next(event);
+                _this3._event.next(event);
                 if (!event.recurring_event_id) {
                   _context.next = 6;
                   break;
@@ -41709,12 +41899,12 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
               case 4:
                 master = _context.sent;
                 if (master) {
-                  _this2._event.getValue().recurrence = _objectSpread(_objectSpread({}, master.recurrence), {}, {
+                  _this3._event.getValue().recurrence = _objectSpread(_objectSpread({}, master.recurrence), {}, {
                     _pattern: master.recurrence.pattern
                   });
                 }
               case 6:
-                _this2._assets.setOptions({
+                _this3._assets.setOptions({
                   ignore: (0, common_1.flatten)(((_event$linked_booking = event.linked_bookings) === null || _event$linked_booking === void 0 ? void 0 : _event$linked_booking.map(function (_) {
                     return _.asset_ids || [_.asset_id];
                   })) || [])
@@ -41728,19 +41918,19 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                 idx = _context.t1.value;
                 space = event.resources[idx];
                 _context.next = 13;
-                return _this2._space_pipe.transform(space.id || space.email);
+                return _this3._space_pipe.transform(space.id || space.email);
               case 13:
                 event.resources[idx] = _context.sent;
                 _context.next = 8;
                 break;
               case 16:
-                _this2._date.next(event.date);
-                _this2.timeout('post-event-form', function () {
-                  _this2._form.patchValue({
-                    date: event.date || _this2._form.value.date
+                _this3._date.next(event.date);
+                _this3.timeout('post-event-form', function () {
+                  _this3._form.patchValue({
+                    date: event.date || _this3._form.value.date
                   });
                 }, 1000);
-                _this2.resetForm();
+                _this3.resetForm();
               case 19:
               case "end":
                 return _context.stop();
@@ -41803,7 +41993,7 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
     key: "loadForm",
     value: function loadForm() {
       var _this$_event$getValue2,
-        _this3 = this;
+        _this4 = this;
       if (!sessionStorage.getItem('PLACEOS.event_form')) {
         return this.newForm();
       }
@@ -41811,8 +42001,8 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
       if (form_data.id && form_data.id !== ((_this$_event$getValue2 = this._event.getValue()) === null || _this$_event$getValue2 === void 0 ? void 0 : _this$_event$getValue2.id)) {
         (0, events_fn_1.showEvent)(form_data.id).subscribe(function (event) {
           var _event$linked_booking3;
-          _this3._event.next(event);
-          _this3._assets.setOptions({
+          _this4._event.next(event);
+          _this4._assets.setOptions({
             ignore: (0, common_1.flatten)(((_event$linked_booking3 = event.linked_bookings) === null || _event$linked_booking3 === void 0 ? void 0 : _event$linked_booking3.map(function (_) {
               return _.asset_ids || [_.asset_id];
             })) || [])
@@ -41824,7 +42014,7 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
   }, {
     key: "openEventLinkModal",
     value: function openEventLinkModal() {
-      var _this4 = this;
+      var _this5 = this;
       var force = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
       var form = this._form;
       form.markAllAsTouched();
@@ -41836,39 +42026,39 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
         data: event
       });
       ref.afterClosed().subscribe(function (d) {
-        return d ? _this4._router.navigate(['/']) : '';
+        return d ? _this5._router.navigate(['/']) : '';
       });
     }
   }, {
     key: "postForm",
     value: function postForm() {
-      var _this5 = this;
+      var _this6 = this;
       var force = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
       return new Promise( /*#__PURE__*/function () {
         var _ref18 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(resolve, reject) {
-          var _this5$event, _form$get, _form$get2, _ref19, _ref20, _spaces$, _this5$event2, _this5$event3, _this5$event4, _value$organiser, _ref21, _value$organiser2, _ref22, _ref23, _event$extension_data2;
-          var form, event, ical_uid, value, id, host, date, duration, creator, all_day, assets, recurrence, spaces, catering, changed_times, changed_spaces, is_owner, space, attendees, message, space_id, query, receipt, d, _iterator, _step, order, setup, breakdown, _iterator2, _step2, _space, overflow, processed_assets, result, domain, visitors, creating_assets, on_error, _spaces$2, _spaces$3, _spaces$4, _spaces$5, _this5$_org$building, _this5$_org$building2;
+          var _this6$event, _form$get, _form$get2, _ref19, _ref20, _spaces$, _this6$event2, _this6$event3, _this6$event4, _value$organiser, _ref21, _value$organiser2, _ref22, _ref23, _event$extension_data2;
+          var form, event, ical_uid, value, id, host, date, duration, creator, all_day, assets, recurrence, spaces, catering, changed_times, changed_spaces, is_owner, space, attendees, message, space_id, query, receipt, d, _iterator2, _step2, order, setup, breakdown, _iterator3, _step3, _space, overflow, processed_assets, result, domain, visitors, creating_assets, on_error, _spaces$2, _spaces$3, _spaces$4, _spaces$5, _this6$_org$building, _this6$_org$building2;
           return _regeneratorRuntime().wrap(function _callee3$(_context3) {
             while (1) switch (_context3.prev = _context3.next) {
               case 0:
-                _this5._loading.next('Creating event...');
-                form = _this5._form;
+                _this6._loading.next('Creating event...');
+                form = _this6._form;
                 form.markAllAsTouched();
-                event = _this5.event || new event_class_1.CalendarEvent();
+                event = _this6.event || new event_class_1.CalendarEvent();
                 if (!(!form.valid && !force)) {
                   _context3.next = 7;
                   break;
                 }
-                _this5._loading.next('');
+                _this6._loading.next('');
                 return _context3.abrupt("return", reject("Some form fields are invalid. [".concat((0, common_1.getInvalidFields)(form).join(', '), "]")));
               case 7:
-                ical_uid = (_this5$event = _this5.event) === null || _this5$event === void 0 ? void 0 : _this5$event.ical_uid;
-                value = _this5._form.getRawValue();
+                ical_uid = (_this6$event = _this6.event) === null || _this6$event === void 0 ? void 0 : _this6$event.ical_uid;
+                value = _this6._form.getRawValue();
                 id = value.id, host = value.host, date = value.date, duration = value.duration, creator = value.creator, all_day = value.all_day, assets = value.assets, recurrence = value.recurrence;
                 spaces = ((_form$get = form.get('resources')) === null || _form$get === void 0 ? void 0 : _form$get.value) || [];
                 catering = ((_form$get2 = form.get('catering')) === null || _form$get2 === void 0 ? void 0 : _form$get2.value) || [];
                 if (recurrence !== null && recurrence !== void 0 && recurrence._pattern && (recurrence === null || recurrence === void 0 ? void 0 : recurrence._pattern) !== 'none') {
-                  _this5.form.patchValue({
+                  _this6.form.patchValue({
                     recurring: true
                   });
                 }
@@ -41885,19 +42075,19 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                 }
                 changed_times = true;
                 _context3.next = 19;
-                return _this5.checkSelectedSpacesAreAvailable(spaces, all_day ? (0, date_fns_1.startOfDay)(date).valueOf() : date, all_day ? Math.max(24 * 60, duration) : duration, ical_uid || id || '')["catch"](function (_) {
-                  _this5._loading.next('');
+                return _this6.checkSelectedSpacesAreAvailable(spaces, all_day ? (0, date_fns_1.startOfDay)(date).valueOf() : date, all_day ? Math.max(24 * 60, duration) : duration, ical_uid || id || '')["catch"](function (_) {
+                  _this6._loading.next('');
                   reject(_);
                   throw _;
                 });
               case 19:
                 is_owner = host === ((_ref19 = (0, common_1.currentUser)()) === null || _ref19 === void 0 ? void 0 : _ref19.email) || creator === ((_ref20 = (0, common_1.currentUser)()) === null || _ref20 === void 0 ? void 0 : _ref20.email);
-                if (!(!spaces.length && _this5._settings.get('app.events.no_space_resource'))) {
+                if (!(!spaces.length && _this6._settings.get('app.events.no_space_resource'))) {
                   _context3.next = 25;
                   break;
                 }
                 _context3.next = 23;
-                return _this5._space_pipe.transform(_this5._settings.get('app.events.no_space_resource'));
+                return _this6._space_pipe.transform(_this6._settings.get('app.events.no_space_resource'));
               case 23:
                 space = _context3.sent;
                 spaces.push(space);
@@ -41909,22 +42099,22 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                   _context3.next = 31;
                   break;
                 }
-                _this5._loading.next('');
+                _this6._loading.next('');
                 message = 'External attendees require a space to be booked';
                 reject(message);
                 throw message;
               case 31:
                 space_id = (_spaces$ = spaces[0]) === null || _spaces$ === void 0 ? void 0 : _spaces$.id;
                 query = id ? {
-                  system_id: ((_this5$event2 = _this5.event) === null || _this5$event2 === void 0 || (_this5$event2 = _this5$event2.resources[0]) === null || _this5$event2 === void 0 ? void 0 : _this5$event2.id) || ((_this5$event3 = _this5.event) === null || _this5$event3 === void 0 || (_this5$event3 = _this5$event3.system) === null || _this5$event3 === void 0 ? void 0 : _this5$event3.id) || space_id
+                  system_id: ((_this6$event2 = _this6.event) === null || _this6$event2 === void 0 || (_this6$event2 = _this6$event2.resources[0]) === null || _this6$event2 === void 0 ? void 0 : _this6$event2.id) || ((_this6$event3 = _this6.event) === null || _this6$event3 === void 0 || (_this6$event3 = _this6$event3.system) === null || _this6$event3 === void 0 ? void 0 : _this6$event3.id) || space_id
                 } : {};
                 if (is_owner) query.calendar = host || creator;
-                if (!(_this5._payments.payment_module && spaces.length)) {
+                if (!(_this6._payments.payment_module && spaces.length)) {
                   _context3.next = 41;
                   break;
                 }
                 _context3.next = 37;
-                return _this5._payments.makePayment({
+                return _this6._payments.makePayment({
                   type: 'space',
                   resource_name: spaces[0].display_name || spaces[0].name,
                   date: date,
@@ -41937,7 +42127,7 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                   _context3.next = 40;
                   break;
                 }
-                return _context3.abrupt("return", _this5._loading.next(''));
+                return _context3.abrupt("return", _this6._loading.next(''));
               case 40:
                 value.extension_data = {
                   invoice: receipt,
@@ -41945,32 +42135,32 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                 };
               case 41:
                 d = value.date;
-                _iterator = _createForOfIteratorHelper(catering);
+                _iterator2 = _createForOfIteratorHelper(catering);
                 try {
-                  for (_iterator.s(); !(_step = _iterator.n()).done;) {
-                    order = _step.value;
+                  for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+                    order = _step2.value;
                     order.notes = value.catering_notes;
                     order.charge_code = value.catering_charge_code;
                   }
                 } catch (err) {
-                  _iterator.e(err);
+                  _iterator2.e(err);
                 } finally {
-                  _iterator.f();
+                  _iterator2.f();
                 }
                 if (spaces.length) {
                   setup = 0, breakdown = 0;
-                  _iterator2 = _createForOfIteratorHelper(spaces);
+                  _iterator3 = _createForOfIteratorHelper(spaces);
                   try {
-                    for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-                      _space = _step2.value;
-                      overflow = _this5._settings.get("app.events.overflow.".concat(_space.id));
+                    for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+                      _space = _step3.value;
+                      overflow = _this6._settings.get("app.events.overflow.".concat(_space.id));
                       if (overflow !== null && overflow !== void 0 && overflow.setup) setup = overflow.setup;
                       if (overflow !== null && overflow !== void 0 && overflow.breakdown) breakdown = overflow.breakdown;
                     }
                   } catch (err) {
-                    _iterator2.e(err);
+                    _iterator3.e(err);
                   } finally {
-                    _iterator2.f();
+                    _iterator3.f();
                   }
                   value.setup = value.setup_time || setup;
                   value.breakdown = value.breakdown_time || breakdown;
@@ -41979,9 +42169,9 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                   return new asset_request_class_1.AssetRequest(_).toJSON();
                 });
                 _context3.next = 48;
-                return _this5._makeBooking(new event_class_1.CalendarEvent(_objectSpread(_objectSpread({}, value), {}, {
-                  old_system: (_this5$event4 = _this5.event) === null || _this5$event4 === void 0 ? void 0 : _this5$event4.system,
-                  host: _this5._settings.get('app.events.force_host') || (_this5._settings.get('app.events.room_as_host') ? value.resources[0].email : '') || value.host,
+                return _this6._makeBooking(new event_class_1.CalendarEvent(_objectSpread(_objectSpread({}, value), {}, {
+                  old_system: (_this6$event4 = _this6.event) === null || _this6$event4 === void 0 ? void 0 : _this6$event4.system,
+                  host: _this6._settings.get('app.events.force_host') || (_this6._settings.get('app.events.room_as_host') ? value.resources[0].email : '') || value.host,
                   title: value.title || 'Space Booking',
                   attendees: attendees.map(function (_) {
                     var v = _objectSpread({}, _);
@@ -41991,7 +42181,7 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                   date: d,
                   catering: catering,
                   assets: processed_assets,
-                  extension_data: _this5._settings.get('app.events.force_host') || _this5._settings.get('app.events.room_as_host') ? {
+                  extension_data: _this6._settings.get('app.events.force_host') || _this6._settings.get('app.events.room_as_host') ? {
                     host_override: value.host,
                     department: ((_value$organiser = value.organiser) === null || _value$organiser === void 0 ? void 0 : _value$organiser.department) || ((_ref21 = (0, common_1.currentUser)()) === null || _ref21 === void 0 ? void 0 : _ref21.department)
                   } : {
@@ -41999,7 +42189,7 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                   }
                 })), query)["catch"](function (e) {
                   reject(e);
-                  _this5._loading.next('');
+                  _this6._loading.next('');
                   throw e;
                 });
               case 48:
@@ -42015,13 +42205,13 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
                       while (1) switch (_context2.prev = _context2.next) {
                         case 0:
-                          if (_this5.form.value.id) {
+                          if (_this6.form.value.id) {
                             _context2.next = 7;
                             break;
                           }
                           _context2.next = 3;
                           return (0, events_fn_2.removeEvent)(result.id, spaces.length ? {
-                            calendar: _this5.form.value.host || ((_ref25 = (0, common_1.currentUser)()) === null || _ref25 === void 0 ? void 0 : _ref25.email),
+                            calendar: _this6.form.value.host || ((_ref25 = (0, common_1.currentUser)()) === null || _ref25 === void 0 ? void 0 : _ref25.email),
                             system_id: spaces[0].id
                           } : {}).toPromise();
                         case 3:
@@ -42039,7 +42229,7 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                           (0, common_1.notifyError)("Unable to update all asset requests for event. ".concat(e));
                           return _context2.abrupt("return");
                         case 10:
-                          _this5._loading.next('');
+                          _this6._loading.next('');
                           throw e;
                         case 12:
                         case "end":
@@ -42071,16 +42261,16 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                   all_day: all_day,
                   location_name: ((_spaces$2 = spaces[0]) === null || _spaces$2 === void 0 ? void 0 : _spaces$2.display_name) || ((_spaces$3 = spaces[0]) === null || _spaces$3 === void 0 ? void 0 : _spaces$3.name) || '',
                   location_id: ((_spaces$4 = spaces[0]) === null || _spaces$4 === void 0 ? void 0 : _spaces$4.id) || '',
-                  zones: ((_spaces$5 = spaces[0]) === null || _spaces$5 === void 0 ? void 0 : _spaces$5.zones) || [(_this5$_org$building = _this5._org.building) === null || _this5$_org$building === void 0 ? void 0 : _this5$_org$building.id, (_this5$_org$building2 = _this5._org.building) === null || _this5$_org$building2 === void 0 ? void 0 : _this5$_org$building2.parent_id],
+                  zones: ((_spaces$5 = spaces[0]) === null || _spaces$5 === void 0 ? void 0 : _spaces$5.zones) || [(_this6$_org$building = _this6._org.building) === null || _this6$_org$building === void 0 ? void 0 : _this6$_org$building.id, (_this6$_org$building2 = _this6._org.building) === null || _this6$_org$building2 === void 0 ? void 0 : _this6$_org$building2.parent_id],
                   reset_state: changed_times
                 }, assets, changed_spaces)["catch"](on_error);
               case 60:
-                _this5.clearForm();
-                _this5.last_success = result;
+                _this6.clearForm();
+                _this6.last_success = result;
                 sessionStorage.setItem('PLACEOS.last_booked_event', JSON.stringify(result));
-                _this5.setView('success');
+                _this6.setView('success');
                 resolve(result);
-                _this5._loading.next('');
+                _this6._loading.next('');
               case 66:
               case "end":
                 return _context3.stop();
@@ -46965,7 +47155,8 @@ var i7 = __webpack_require__(/*! @angular/material/core */ 55309);
 var i8 = __webpack_require__(/*! @angular/material/progress-spinner */ 33910);
 var i9 = __webpack_require__(/*! @angular/forms */ 28849);
 var _c0 = ["input"];
-function ExploreSearchComponent_mat_spinner_5_Template(rf, ctx) {
+var _c1 = ["button"];
+function ExploreSearchComponent_mat_spinner_8_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelement(0, "mat-spinner", 9);
   }
@@ -46973,14 +47164,14 @@ function ExploreSearchComponent_mat_spinner_5_Template(rf, ctx) {
     i0.ɵɵproperty("diameter", 32);
   }
 }
-function ExploreSearchComponent_ng_container_11_mat_option_1_Template(rf, ctx) {
+function ExploreSearchComponent_ng_container_12_mat_option_1_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementStart(0, "mat-option", 12);
     i0.ɵɵi18n(1, 13);
     i0.ɵɵelementEnd();
   }
 }
-function ExploreSearchComponent_ng_container_11_mat_option_3_Template(rf, ctx) {
+function ExploreSearchComponent_ng_container_12_mat_option_3_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementStart(0, "mat-option", 14)(1, "div", 15)(2, "div", 16)(3, "div", 17);
     i0.ɵɵtext(4);
@@ -46993,33 +47184,33 @@ function ExploreSearchComponent_ng_container_11_mat_option_3_Template(rf, ctx) {
     i0.ɵɵelementEnd()()();
   }
   if (rf & 2) {
-    var option_r7 = ctx.$implicit;
-    i0.ɵɵproperty("value", option_r7);
+    var option_r8 = ctx.$implicit;
+    i0.ɵɵproperty("value", option_r8);
     i0.ɵɵadvance(4);
-    i0.ɵɵtextInterpolate(option_r7.name);
+    i0.ɵɵtextInterpolate(option_r8.name);
     i0.ɵɵadvance(2);
-    i0.ɵɵtextInterpolate(option_r7.description);
+    i0.ɵɵtextInterpolate(option_r8.description);
     i0.ɵɵadvance(2);
-    i0.ɵɵtextInterpolate1(" ", option_r7.type, " ");
+    i0.ɵɵtextInterpolate1(" ", option_r8.type, " ");
   }
 }
-function ExploreSearchComponent_ng_container_11_Template(rf, ctx) {
+function ExploreSearchComponent_ng_container_12_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementContainerStart(0);
-    i0.ɵɵtemplate(1, ExploreSearchComponent_ng_container_11_mat_option_1_Template, 2, 0, "mat-option", 10);
+    i0.ɵɵtemplate(1, ExploreSearchComponent_ng_container_12_mat_option_1_Template, 2, 0, "mat-option", 10);
     i0.ɵɵpipe(2, "async");
-    i0.ɵɵtemplate(3, ExploreSearchComponent_ng_container_11_mat_option_3_Template, 9, 4, "mat-option", 11);
+    i0.ɵɵtemplate(3, ExploreSearchComponent_ng_container_12_mat_option_3_Template, 9, 4, "mat-option", 11);
     i0.ɵɵpipe(4, "slice");
     i0.ɵɵpipe(5, "async");
     i0.ɵɵelementContainerEnd();
   }
   if (rf & 2) {
-    var ctx_r4 = i0.ɵɵnextContext();
+    var ctx_r5 = i0.ɵɵnextContext();
     var tmp_0_0;
     i0.ɵɵadvance();
-    i0.ɵɵproperty("ngIf", !((tmp_0_0 = i0.ɵɵpipeBind1(2, 2, ctx_r4.results)) == null ? null : tmp_0_0.length));
+    i0.ɵɵproperty("ngIf", !((tmp_0_0 = i0.ɵɵpipeBind1(2, 2, ctx_r5.results)) == null ? null : tmp_0_0.length));
     i0.ɵɵadvance(2);
-    i0.ɵɵproperty("ngForOf", i0.ɵɵpipeBind3(4, 4, i0.ɵɵpipeBind1(5, 8, ctx_r4.results), 0, 5));
+    i0.ɵɵproperty("ngForOf", i0.ɵɵpipeBind3(4, 4, i0.ɵɵpipeBind1(5, 8, ctx_r5.results), 0, 5));
   }
 }
 var ExploreSearchComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
@@ -47034,6 +47225,7 @@ var ExploreSearchComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
     _this._route = _route;
     _this.show = false;
     _this.search_str = '';
+    _this.right_size = false;
     _this.results = _this._search.search_results;
     _this.loading = _this._search.loading;
     _this.setFilter = function (s) {
@@ -47058,16 +47250,26 @@ var ExploreSearchComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
       }
     }
   }, {
-    key: "showSearch",
-    value: function showSearch() {
+    key: "ngOnInit",
+    value: function ngOnInit() {
+      this.checkButtonPosition();
+    }
+  }, {
+    key: "focusInput",
+    value: function focusInput() {
       var _this$_input_el2,
         _this2 = this;
-      this.show = true;
       if ((_this$_input_el2 = this._input_el) !== null && _this$_input_el2 !== void 0 && _this$_input_el2.nativeElement) {
         this.timeout('focus', function () {
           return _this2._input_el.nativeElement.focus();
         }, 300);
       }
+    }
+  }, {
+    key: "showSearch",
+    value: function showSearch() {
+      this.show = true;
+      this.focusInput();
     }
   }, {
     key: "closeSearch",
@@ -47093,6 +47295,14 @@ var ExploreSearchComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
         queryParams: query
       });
     }
+  }, {
+    key: "checkButtonPosition",
+    value: function checkButtonPosition() {
+      var window_width = window.innerWidth;
+      var button_rect = this._button_el.nativeElement.getBoundingClientRect();
+      var x_center = button_rect.left + button_rect.width / 2;
+      this.right_size = x_center > window_width / 2;
+    }
   }]);
   return ExploreSearchComponent;
 }(common_1.AsyncHandler);
@@ -47106,10 +47316,12 @@ _class.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
   viewQuery: function ExploreSearchComponent_Query(rf, ctx) {
     if (rf & 1) {
       i0.ɵɵviewQuery(_c0, 5);
+      i0.ɵɵviewQuery(_c1, 7);
     }
     if (rf & 2) {
       var _t;
       i0.ɵɵqueryRefresh(_t = i0.ɵɵloadQuery()) && (ctx._input_el = _t.first);
+      i0.ɵɵqueryRefresh(_t = i0.ɵɵloadQuery()) && (ctx._button_el = _t.first);
     }
   },
   hostBindings: function ExploreSearchComponent_HostBindings(rf, ctx) {
@@ -47122,8 +47334,8 @@ _class.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     }
   },
   features: [i0.ɵɵInheritDefinitionFeature],
-  decls: 13,
-  vars: 12,
+  decls: 14,
+  vars: 20,
   consts: function consts() {
     var i18n_0;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
@@ -47145,50 +47357,57 @@ _class.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     } else {
       i18n_1 = $localize(_templateObject2 || (_templateObject2 = _taggedTemplateLiteral([":\u241F0c720c4e60410fcfcd8582a32297bdd397620830\u241F3411517965707112535: No matches found "])));
     }
-    return [["role", "search", "tabindex", "0", "matRipple", "", 1, "bg-base-100", "m-2", "flex", "items-center", "z-10", "relative", "overflow-hidden", "outline-none"], ["tabindex", "0", 1, "text-2xl", "outline-none", 3, "click"], ["keyboard", "", "placeholder", i18n_0, 1, "flex-1", "text-base", "border-none", "outline-none", 3, "ngModel", "matAutocomplete", "matAutocompleteConnectedTo", "ngModelChange", "blur"], ["input", ""], ["class", "mr-2", 3, "diameter", 4, "ngIf"], ["matAutocompleteOrigin", "", 1, "absolute", "bottom-0", "left-8", "right-8", "min-w-[20rem]"], ["origin", "matAutocompleteOrigin"], ["auto", "matAutocomplete"], [4, "ngIf"], [1, "mr-2", 3, "diameter"], ["class", "pointer-events-none", 4, "ngIf"], [3, "value", 4, "ngFor", "ngForOf"], [1, "pointer-events-none"], i18n_1, [3, "value"], [1, "flex", "items-center", "leading-tight", "w-[26rem]", "max-w-[calc(100vw-2rem)]"], [1, "flex-1", "w-1/2", "overflow-hidden"], [1, "truncate", "w-full"], [1, "text-xs"], [1, "text-xs", "font-bold", "p-2", "capitalize", "text-white", "bg-base-300", "rounded"]];
+    return [["icon", "", "matRipple", "", 1, "bg-base-200", "m-2", 3, "resize", "click"], ["button", ""], ["role", "search", "tabindex", "0", "matRipple", "", "matAutocompleteOrigin", "", 1, "absolute", "top-1/2", "-translate-y-1/2", "bg-base-100", "flex", "items-center", "z-10", "overflow-hidden", "outline-none", "px-4", "max-w-[calc(100vw-7rem)]", 3, "click"], ["origin", "matAutocompleteOrigin"], ["keyboard", "", "placeholder", i18n_0, 1, "flex-1", "text-base", "border-none", "outline-none", 3, "ngModel", "matAutocomplete", "matAutocompleteConnectedTo", "ngModelChange", "blur"], ["input", ""], ["class", "mr-2", 3, "diameter", 4, "ngIf"], ["auto", "matAutocomplete"], [4, "ngIf"], [1, "mr-2", 3, "diameter"], ["class", "pointer-events-none", 4, "ngIf"], [3, "value", 4, "ngFor", "ngForOf"], [1, "pointer-events-none"], i18n_1, [3, "value"], [1, "flex", "items-center", "leading-tight", "w-[22rem]", "max-w-[calc(100vw-2rem)]"], [1, "flex-1", "w-1/2", "overflow-hidden"], [1, "truncate", "w-full"], [1, "text-xs"], [1, "text-xs", "font-bold", "p-2", "capitalize", "text-white", "bg-base-300", "rounded"]];
   },
   template: function ExploreSearchComponent_Template(rf, ctx) {
     if (rf & 1) {
-      i0.ɵɵelementStart(0, "div", 0)(1, "app-icon", 1);
-      i0.ɵɵlistener("click", function ExploreSearchComponent_Template_app_icon_click_1_listener($event) {
+      i0.ɵɵelementStart(0, "button", 0, 1);
+      i0.ɵɵlistener("resize", function ExploreSearchComponent_Template_button_resize_0_listener() {
+        return ctx.checkButtonPosition();
+      }, false, i0.ɵɵresolveWindow)("click", function ExploreSearchComponent_Template_button_click_0_listener($event) {
         return ctx.show ? ctx.closeSearch($event) : ctx.showSearch();
       });
-      i0.ɵɵtext(2);
-      i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(3, "input", 2, 3);
-      i0.ɵɵlistener("ngModelChange", function ExploreSearchComponent_Template_input_ngModelChange_3_listener($event) {
+      i0.ɵɵelementStart(2, "app-icon");
+      i0.ɵɵtext(3);
+      i0.ɵɵelementEnd()();
+      i0.ɵɵelementStart(4, "div", 2, 3);
+      i0.ɵɵlistener("click", function ExploreSearchComponent_Template_div_click_4_listener() {
+        return ctx.focusInput();
+      });
+      i0.ɵɵelementStart(6, "input", 4, 5);
+      i0.ɵɵlistener("ngModelChange", function ExploreSearchComponent_Template_input_ngModelChange_6_listener($event) {
         return ctx.search_str = $event;
-      })("ngModelChange", function ExploreSearchComponent_Template_input_ngModelChange_3_listener($event) {
+      })("ngModelChange", function ExploreSearchComponent_Template_input_ngModelChange_6_listener($event) {
         return ctx.setItem($event);
-      })("blur", function ExploreSearchComponent_Template_input_blur_3_listener() {
+      })("blur", function ExploreSearchComponent_Template_input_blur_6_listener() {
         return ctx.show = !!ctx.search_str;
       });
       i0.ɵɵelementEnd();
-      i0.ɵɵtemplate(5, ExploreSearchComponent_mat_spinner_5_Template, 1, 1, "mat-spinner", 4);
-      i0.ɵɵpipe(6, "async");
-      i0.ɵɵelement(7, "div", 5, 6);
+      i0.ɵɵtemplate(8, ExploreSearchComponent_mat_spinner_8_Template, 1, 1, "mat-spinner", 6);
+      i0.ɵɵpipe(9, "async");
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(9, "mat-autocomplete", null, 7);
-      i0.ɵɵtemplate(11, ExploreSearchComponent_ng_container_11_Template, 6, 10, "ng-container", 8);
-      i0.ɵɵpipe(12, "async");
+      i0.ɵɵelementStart(10, "mat-autocomplete", null, 7);
+      i0.ɵɵtemplate(12, ExploreSearchComponent_ng_container_12_Template, 6, 10, "ng-container", 8);
+      i0.ɵɵpipe(13, "async");
       i0.ɵɵelementEnd();
     }
     if (rf & 2) {
-      var _r2 = i0.ɵɵreference(8);
-      var _r3 = i0.ɵɵreference(10);
-      i0.ɵɵclassProp("show", ctx.show || ctx.search_str);
-      i0.ɵɵadvance(2);
-      i0.ɵɵtextInterpolate1(" ", ctx.show || ctx.search_str ? "close" : "search", " ");
+      var _r1 = i0.ɵɵreference(5);
+      var _r4 = i0.ɵɵreference(11);
+      i0.ɵɵadvance(3);
+      i0.ɵɵtextInterpolate(ctx.show || ctx.search_str ? "close" : "search");
       i0.ɵɵadvance();
-      i0.ɵɵproperty("ngModel", ctx.search_str)("matAutocomplete", _r3)("matAutocompleteConnectedTo", _r2);
+      i0.ɵɵclassProp("right-0", ctx.right_size)("-translate-x-14", ctx.right_size)("left-0", !ctx.right_size)("translate-x-14", !ctx.right_size)("show", ctx.show || ctx.search_str);
       i0.ɵɵadvance(2);
-      i0.ɵɵproperty("ngIf", i0.ɵɵpipeBind1(6, 8, ctx.loading));
-      i0.ɵɵadvance(6);
-      i0.ɵɵproperty("ngIf", i0.ɵɵpipeBind1(12, 10, ctx.loading) !== true && (ctx.show || ctx.search_str));
+      i0.ɵɵproperty("ngModel", ctx.search_str)("matAutocomplete", _r4)("matAutocompleteConnectedTo", _r1);
+      i0.ɵɵadvance(2);
+      i0.ɵɵproperty("ngIf", i0.ɵɵpipeBind1(9, 16, ctx.loading));
+      i0.ɵɵadvance(4);
+      i0.ɵɵproperty("ngIf", i0.ɵɵpipeBind1(13, 18, ctx.loading) !== true && (ctx.show || ctx.search_str));
     }
   },
   dependencies: [i3.NgForOf, i3.NgIf, i4.IconComponent, i5.VirtualKeyboardComponent, i6.MatAutocomplete, i7.MatOption, i6.MatAutocompleteTrigger, i6.MatAutocompleteOrigin, i7.MatRipple, i8.MatProgressSpinner, i9.DefaultValueAccessor, i9.NgControlStatus, i9.NgModel, i3.AsyncPipe, i3.SlicePipe],
-  styles: ["[_nghost-%COMP%] {\n                z-index: 99;\n            }\n\n            [role='search'][_ngcontent-%COMP%] {\n                height: 3.125rem;\n                width: 3.125rem;\n                border-radius: 1.5rem;\n                border: 1px solid #ccc;\n                transition: width 200ms;\n            }\n\n            app-icon[_ngcontent-%COMP%] {\n                margin: 0.55rem;\n            }\n\n            [role='search'].show[_ngcontent-%COMP%] {\n                width: 32rem;\n                max-width: calc(100vw - 1rem);\n                border-color: #1e88e5;\n            }\n        \n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2xpYnMvZXhwbG9yZS9zcmMvbGliL2V4cGxvcmUtc2VhcmNoLmNvbXBvbmVudC50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiO1lBQ1k7Z0JBQ0ksV0FBVztZQUNmOztZQUVBO2dCQUNJLGdCQUFnQjtnQkFDaEIsZUFBZTtnQkFDZixxQkFBcUI7Z0JBQ3JCLHNCQUFzQjtnQkFDdEIsdUJBQXVCO1lBQzNCOztZQUVBO2dCQUNJLGVBQWU7WUFDbkI7O1lBRUE7Z0JBQ0ksWUFBWTtnQkFDWiw2QkFBNkI7Z0JBQzdCLHFCQUFxQjtZQUN6QiIsInNvdXJjZXNDb250ZW50IjpbIlxuICAgICAgICAgICAgOmhvc3Qge1xuICAgICAgICAgICAgICAgIHotaW5kZXg6IDk5O1xuICAgICAgICAgICAgfVxuXG4gICAgICAgICAgICBbcm9sZT0nc2VhcmNoJ10ge1xuICAgICAgICAgICAgICAgIGhlaWdodDogMy4xMjVyZW07XG4gICAgICAgICAgICAgICAgd2lkdGg6IDMuMTI1cmVtO1xuICAgICAgICAgICAgICAgIGJvcmRlci1yYWRpdXM6IDEuNXJlbTtcbiAgICAgICAgICAgICAgICBib3JkZXI6IDFweCBzb2xpZCAjY2NjO1xuICAgICAgICAgICAgICAgIHRyYW5zaXRpb246IHdpZHRoIDIwMG1zO1xuICAgICAgICAgICAgfVxuXG4gICAgICAgICAgICBhcHAtaWNvbiB7XG4gICAgICAgICAgICAgICAgbWFyZ2luOiAwLjU1cmVtO1xuICAgICAgICAgICAgfVxuXG4gICAgICAgICAgICBbcm9sZT0nc2VhcmNoJ10uc2hvdyB7XG4gICAgICAgICAgICAgICAgd2lkdGg6IDMycmVtO1xuICAgICAgICAgICAgICAgIG1heC13aWR0aDogY2FsYygxMDB2dyAtIDFyZW0pO1xuICAgICAgICAgICAgICAgIGJvcmRlci1jb2xvcjogIzFlODhlNTtcbiAgICAgICAgICAgIH1cbiAgICAgICAgIl0sInNvdXJjZVJvb3QiOiIifQ== */"]
+  styles: ["[_nghost-%COMP%] {\n                z-index: 99;\n                position: relative;\n            }\n\n            [role='search'][_ngcontent-%COMP%] {\n                height: 3rem;\n                width: 0;\n                border-radius: 1.5rem;\n                border: 1px solid var(--b3);\n                transition: width 200ms opacity 200ms;\n                opacity: 0;\n                pointer-events: none;\n            }\n\n            [role='search'].show[_ngcontent-%COMP%] {\n                width: 24rem;\n                opacity: 1;\n                pointer-events: auto;\n            }\n        \n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2xpYnMvZXhwbG9yZS9zcmMvbGliL2V4cGxvcmUtc2VhcmNoLmNvbXBvbmVudC50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiO1lBQ1k7Z0JBQ0ksV0FBVztnQkFDWCxrQkFBa0I7WUFDdEI7O1lBRUE7Z0JBQ0ksWUFBWTtnQkFDWixRQUFRO2dCQUNSLHFCQUFxQjtnQkFDckIsMkJBQTJCO2dCQUMzQixxQ0FBcUM7Z0JBQ3JDLFVBQVU7Z0JBQ1Ysb0JBQW9CO1lBQ3hCOztZQUVBO2dCQUNJLFlBQVk7Z0JBQ1osVUFBVTtnQkFDVixvQkFBb0I7WUFDeEIiLCJzb3VyY2VzQ29udGVudCI6WyJcbiAgICAgICAgICAgIDpob3N0IHtcbiAgICAgICAgICAgICAgICB6LWluZGV4OiA5OTtcbiAgICAgICAgICAgICAgICBwb3NpdGlvbjogcmVsYXRpdmU7XG4gICAgICAgICAgICB9XG5cbiAgICAgICAgICAgIFtyb2xlPSdzZWFyY2gnXSB7XG4gICAgICAgICAgICAgICAgaGVpZ2h0OiAzcmVtO1xuICAgICAgICAgICAgICAgIHdpZHRoOiAwO1xuICAgICAgICAgICAgICAgIGJvcmRlci1yYWRpdXM6IDEuNXJlbTtcbiAgICAgICAgICAgICAgICBib3JkZXI6IDFweCBzb2xpZCB2YXIoLS1iMyk7XG4gICAgICAgICAgICAgICAgdHJhbnNpdGlvbjogd2lkdGggMjAwbXMgb3BhY2l0eSAyMDBtcztcbiAgICAgICAgICAgICAgICBvcGFjaXR5OiAwO1xuICAgICAgICAgICAgICAgIHBvaW50ZXItZXZlbnRzOiBub25lO1xuICAgICAgICAgICAgfVxuXG4gICAgICAgICAgICBbcm9sZT0nc2VhcmNoJ10uc2hvdyB7XG4gICAgICAgICAgICAgICAgd2lkdGg6IDI0cmVtO1xuICAgICAgICAgICAgICAgIG9wYWNpdHk6IDE7XG4gICAgICAgICAgICAgICAgcG9pbnRlci1ldmVudHM6IGF1dG87XG4gICAgICAgICAgICB9XG4gICAgICAgICJdLCJzb3VyY2VSb290IjoiIn0= */"]
 });
 exports.ExploreSearchComponent = ExploreSearchComponent;
 
@@ -62359,7 +62578,7 @@ var _asyncToGenerator = (__webpack_require__(/*! ./node_modules/@babel/runtime/h
 var _slicedToArray = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/slicedToArray.js */ 82093)["default"]);
 var _classCallCheck = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/classCallCheck.js */ 45664)["default"]);
 var _createClass = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/createClass.js */ 16996)["default"]);
-var _class, _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12;
+var _class, _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13, _templateObject14;
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
@@ -62392,7 +62611,7 @@ var i16 = __webpack_require__(/*! @ngx-translate/core */ 21916);
 function SpaceFiltersComponent_button_2_Template(rf, ctx) {
   if (rf & 1) {
     var _r9 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "button", 34);
+    i0.ɵɵelementStart(0, "button", 31);
     i0.ɵɵlistener("click", function SpaceFiltersComponent_button_2_Template_button_click_0_listener() {
       i0.ɵɵrestoreView(_r9);
       var ctx_r8 = i0.ɵɵnextContext();
@@ -62403,17 +62622,17 @@ function SpaceFiltersComponent_button_2_Template(rf, ctx) {
     i0.ɵɵelementEnd()();
   }
 }
-function SpaceFiltersComponent_mat_form_field_13_mat_option_5_Template(rf, ctx) {
+function SpaceFiltersComponent_ng_container_13_mat_form_field_1_mat_option_5_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "mat-option", 36);
+    i0.ɵɵelementStart(0, "mat-option", 37);
     i0.ɵɵtext(1);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
-    var bld_r11 = ctx.$implicit;
-    i0.ɵɵproperty("value", bld_r11);
+    var bld_r13 = ctx.$implicit;
+    i0.ɵɵproperty("value", bld_r13);
     i0.ɵɵadvance();
-    i0.ɵɵtextInterpolate1(" ", bld_r11.display_name || bld_r11.name, " ");
+    i0.ɵɵtextInterpolate1(" ", bld_r13.display_name || bld_r13.name, " ");
   }
 }
 var _c0 = function _c0() {
@@ -62421,58 +62640,182 @@ var _c0 = function _c0() {
     standalone: true
   };
 };
-function SpaceFiltersComponent_mat_form_field_13_Template(rf, ctx) {
+function SpaceFiltersComponent_ng_container_13_mat_form_field_1_Template(rf, ctx) {
   if (rf & 1) {
-    var _r13 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "mat-form-field", 14)(1, "mat-select", 35);
-    i0.ɵɵlistener("ngModelChange", function SpaceFiltersComponent_mat_form_field_13_Template_mat_select_ngModelChange_1_listener($event) {
-      i0.ɵɵrestoreView(_r13);
-      var ctx_r12 = i0.ɵɵnextContext();
-      return i0.ɵɵresetView(ctx_r12.setBuilding($event));
+    var _r15 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "mat-form-field", 33)(1, "mat-select", 36);
+    i0.ɵɵlistener("ngModelChange", function SpaceFiltersComponent_ng_container_13_mat_form_field_1_Template_mat_select_ngModelChange_1_listener($event) {
+      i0.ɵɵrestoreView(_r15);
+      var ctx_r14 = i0.ɵɵnextContext(2);
+      return i0.ɵɵresetView(ctx_r14.setBuilding($event));
     });
     i0.ɵɵpipe(2, "async");
     i0.ɵɵpipe(3, "async");
     i0.ɵɵpipe(4, "async");
-    i0.ɵɵtemplate(5, SpaceFiltersComponent_mat_form_field_13_mat_option_5_Template, 2, 2, "mat-option", 16);
+    i0.ɵɵtemplate(5, SpaceFiltersComponent_ng_container_13_mat_form_field_1_mat_option_5_Template, 2, 2, "mat-option", 35);
     i0.ɵɵpipe(6, "async");
     i0.ɵɵelementEnd()();
   }
   if (rf & 2) {
-    var ctx_r1 = i0.ɵɵnextContext();
+    var ctx_r10 = i0.ɵɵnextContext(2);
     var tmp_2_0;
     i0.ɵɵadvance();
-    i0.ɵɵproperty("ngModel", i0.ɵɵpipeBind1(2, 4, ctx_r1.building))("ngModelOptions", i0.ɵɵpureFunction0(12, _c0))("placeholder", ((tmp_2_0 = i0.ɵɵpipeBind1(3, 6, ctx_r1.building)) == null ? null : tmp_2_0.display_name) || ((tmp_2_0 = i0.ɵɵpipeBind1(4, 8, ctx_r1.building)) == null ? null : tmp_2_0.name));
+    i0.ɵɵproperty("ngModel", i0.ɵɵpipeBind1(2, 4, ctx_r10.building))("ngModelOptions", i0.ɵɵpureFunction0(12, _c0))("placeholder", ((tmp_2_0 = i0.ɵɵpipeBind1(3, 6, ctx_r10.building)) == null ? null : tmp_2_0.display_name) || ((tmp_2_0 = i0.ɵɵpipeBind1(4, 8, ctx_r10.building)) == null ? null : tmp_2_0.name));
     i0.ɵɵadvance(4);
-    i0.ɵɵproperty("ngForOf", i0.ɵɵpipeBind1(6, 10, ctx_r1.buildings));
+    i0.ɵɵproperty("ngForOf", i0.ɵɵpipeBind1(6, 10, ctx_r10.buildings));
   }
 }
-function SpaceFiltersComponent_mat_option_18_Template(rf, ctx) {
+function SpaceFiltersComponent_ng_container_13_mat_option_6_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "mat-option", 36);
+    i0.ɵɵelementStart(0, "mat-option", 37);
     i0.ɵɵtext(1);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
-    var lvl_r14 = ctx.$implicit;
-    i0.ɵɵproperty("value", lvl_r14.id);
+    var lvl_r16 = ctx.$implicit;
+    i0.ɵɵproperty("value", lvl_r16.id);
     i0.ɵɵadvance();
-    i0.ɵɵtextInterpolate1(" ", lvl_r14.display_name || lvl_r14.name, " ");
+    i0.ɵɵtextInterpolate1(" ", lvl_r16.display_name || lvl_r16.name, " ");
   }
 }
-function SpaceFiltersComponent_div_28_Template(rf, ctx) {
+function SpaceFiltersComponent_ng_container_13_Template(rf, ctx) {
   if (rf & 1) {
-    var _r16 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "div", 37)(1, "label", 19);
+    var _r18 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementContainerStart(0);
+    i0.ɵɵtemplate(1, SpaceFiltersComponent_ng_container_13_mat_form_field_1_Template, 7, 13, "mat-form-field", 32);
+    i0.ɵɵpipe(2, "async");
+    i0.ɵɵelementStart(3, "mat-form-field", 33)(4, "mat-select", 34);
+    i0.ɵɵlistener("ngModelChange", function SpaceFiltersComponent_ng_container_13_Template_mat_select_ngModelChange_4_listener($event) {
+      i0.ɵɵrestoreView(_r18);
+      var ctx_r17 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r17.setOptions({
+        zone_ids: $event
+      }));
+    });
+    i0.ɵɵpipe(5, "async");
+    i0.ɵɵtemplate(6, SpaceFiltersComponent_ng_container_13_mat_option_6_Template, 2, 2, "mat-option", 35);
+    i0.ɵɵpipe(7, "async");
+    i0.ɵɵelementEnd()();
+    i0.ɵɵelementContainerEnd();
+  }
+  if (rf & 2) {
+    var ctx_r1 = i0.ɵɵnextContext();
+    var tmp_0_0;
+    var tmp_1_0;
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("ngIf", ((tmp_0_0 = i0.ɵɵpipeBind1(2, 5, ctx_r1.buildings)) == null ? null : tmp_0_0.length) > 1);
+    i0.ɵɵadvance(3);
+    i0.ɵɵproperty("ngModel", (tmp_1_0 = i0.ɵɵpipeBind1(5, 7, ctx_r1.options)) == null ? null : tmp_1_0.zone_ids)("ngModelOptions", i0.ɵɵpureFunction0(11, _c0))("multiple", true);
+    i0.ɵɵadvance(2);
+    i0.ɵɵproperty("ngForOf", i0.ɵɵpipeBind1(7, 9, ctx_r1.levels));
+  }
+}
+function SpaceFiltersComponent_ng_container_14_mat_form_field_1_mat_option_2_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementStart(0, "mat-option", 37);
+    i0.ɵɵtext(1);
+    i0.ɵɵelementEnd();
+  }
+  if (rf & 2) {
+    var reg_r22 = ctx.$implicit;
+    i0.ɵɵproperty("value", reg_r22);
+    i0.ɵɵadvance();
+    i0.ɵɵtextInterpolate1(" ", reg_r22.display_name || reg_r22.name, " ");
+  }
+}
+function SpaceFiltersComponent_ng_container_14_mat_form_field_1_Template(rf, ctx) {
+  if (rf & 1) {
+    var _r24 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "mat-form-field", 33)(1, "mat-select", 40);
+    i0.ɵɵlistener("ngModelChange", function SpaceFiltersComponent_ng_container_14_mat_form_field_1_Template_mat_select_ngModelChange_1_listener($event) {
+      i0.ɵɵrestoreView(_r24);
+      var ctx_r23 = i0.ɵɵnextContext(2);
+      return i0.ɵɵresetView(ctx_r23.setRegion($event));
+    });
+    i0.ɵɵtemplate(2, SpaceFiltersComponent_ng_container_14_mat_form_field_1_mat_option_2_Template, 2, 2, "mat-option", 35);
+    i0.ɵɵpipe(3, "async");
+    i0.ɵɵelementEnd()();
+  }
+  if (rf & 2) {
+    var ctx_r19 = i0.ɵɵnextContext(2);
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("ngModel", ctx_r19.region)("ngModelOptions", i0.ɵɵpureFunction0(5, _c0));
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("ngForOf", i0.ɵɵpipeBind1(3, 3, ctx_r19.regions));
+  }
+}
+function SpaceFiltersComponent_ng_container_14_mat_optgroup_6_mat_option_1_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementStart(0, "mat-option", 37);
+    i0.ɵɵtext(1);
+    i0.ɵɵelementEnd();
+  }
+  if (rf & 2) {
+    var level_r27 = ctx.$implicit;
+    i0.ɵɵproperty("value", level_r27.id);
+    i0.ɵɵadvance();
+    i0.ɵɵtextInterpolate1(" ", level_r27.display_name || level_r27.name, " ");
+  }
+}
+function SpaceFiltersComponent_ng_container_14_mat_optgroup_6_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementStart(0, "mat-optgroup", 41);
+    i0.ɵɵtemplate(1, SpaceFiltersComponent_ng_container_14_mat_optgroup_6_mat_option_1_Template, 2, 2, "mat-option", 35);
+    i0.ɵɵelementEnd();
+  }
+  if (rf & 2) {
+    var bld_r25 = ctx.$implicit;
+    i0.ɵɵproperty("label", bld_r25.name);
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("ngForOf", bld_r25.levels);
+  }
+}
+function SpaceFiltersComponent_ng_container_14_Template(rf, ctx) {
+  if (rf & 1) {
+    var _r29 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementContainerStart(0);
+    i0.ɵɵtemplate(1, SpaceFiltersComponent_ng_container_14_mat_form_field_1_Template, 4, 6, "mat-form-field", 32);
+    i0.ɵɵpipe(2, "async");
+    i0.ɵɵelementStart(3, "mat-form-field", 33)(4, "mat-select", 38);
+    i0.ɵɵlistener("ngModelChange", function SpaceFiltersComponent_ng_container_14_Template_mat_select_ngModelChange_4_listener($event) {
+      i0.ɵɵrestoreView(_r29);
+      var ctx_r28 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r28.setOptions({
+        zone_ids: $event
+      }));
+    });
+    i0.ɵɵpipe(5, "async");
+    i0.ɵɵtemplate(6, SpaceFiltersComponent_ng_container_14_mat_optgroup_6_Template, 2, 2, "mat-optgroup", 39);
+    i0.ɵɵpipe(7, "async");
+    i0.ɵɵelementEnd()();
+    i0.ɵɵelementContainerEnd();
+  }
+  if (rf & 2) {
+    var ctx_r2 = i0.ɵɵnextContext();
+    var tmp_0_0;
+    var tmp_1_0;
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("ngIf", (tmp_0_0 = i0.ɵɵpipeBind1(2, 5, ctx_r2.regions)) == null ? null : tmp_0_0.length);
+    i0.ɵɵadvance(3);
+    i0.ɵɵproperty("ngModel", (tmp_1_0 = i0.ɵɵpipeBind1(5, 7, ctx_r2.options)) == null ? null : tmp_1_0.zone_ids)("ngModelOptions", i0.ɵɵpureFunction0(11, _c0))("multiple", true);
+    i0.ɵɵadvance(2);
+    i0.ɵɵproperty("ngForOf", i0.ɵɵpipeBind1(7, 9, ctx_r2.region_levels));
+  }
+}
+function SpaceFiltersComponent_div_23_Template(rf, ctx) {
+  if (rf & 1) {
+    var _r31 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "div", 42)(1, "label", 16);
     i0.ɵɵtext(2);
     i0.ɵɵpipe(3, "translate");
     i0.ɵɵelementStart(4, "span");
     i0.ɵɵtext(5, "*");
     i0.ɵɵelementEnd()();
-    i0.ɵɵelementStart(6, "a-date-field", 38);
-    i0.ɵɵlistener("ngModelChange", function SpaceFiltersComponent_div_28_Template_a_date_field_ngModelChange_6_listener($event) {
-      i0.ɵɵrestoreView(_r16);
-      var ctx_r15 = i0.ɵɵnextContext();
-      return i0.ɵɵresetView(ctx_r15.form.patchValue({
+    i0.ɵɵelementStart(6, "a-date-field", 43);
+    i0.ɵɵlistener("ngModelChange", function SpaceFiltersComponent_div_23_Template_a_date_field_ngModelChange_6_listener($event) {
+      i0.ɵɵrestoreView(_r31);
+      var ctx_r30 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r30.form.patchValue({
         date_end: $event
       }));
     });
@@ -62490,79 +62833,79 @@ function SpaceFiltersComponent_div_28_Template(rf, ctx) {
     i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind1(8, 9, "FORM.DATE_ERROR"), " ");
   }
 }
-function SpaceFiltersComponent_div_29_Template(rf, ctx) {
+function SpaceFiltersComponent_div_24_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 39)(1, "mat-checkbox", 40);
-    i0.ɵɵi18n(2, 41);
+    i0.ɵɵelementStart(0, "div", 44)(1, "mat-checkbox", 45);
+    i0.ɵɵi18n(2, 46);
     i0.ɵɵelementEnd()();
   }
 }
-function SpaceFiltersComponent_div_30_div_6_Template(rf, ctx) {
+function SpaceFiltersComponent_div_25_div_6_Template(rf, ctx) {
   if (rf & 1) {
-    var _r20 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "div", 43)(1, "label", 48);
+    var _r35 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "div", 48)(1, "label", 53);
     i0.ɵɵtext(2);
     i0.ɵɵpipe(3, "translate");
     i0.ɵɵelementStart(4, "span");
     i0.ɵɵtext(5, "*");
     i0.ɵɵelementEnd()();
-    i0.ɵɵelementStart(6, "a-time-field", 49);
-    i0.ɵɵlistener("ngModelChange", function SpaceFiltersComponent_div_30_div_6_Template_a_time_field_ngModelChange_6_listener($event) {
-      i0.ɵɵrestoreView(_r20);
-      var ctx_r19 = i0.ɵɵnextContext(2);
-      return i0.ɵɵresetView(ctx_r19.form.patchValue({
+    i0.ɵɵelementStart(6, "a-time-field", 54);
+    i0.ɵɵlistener("ngModelChange", function SpaceFiltersComponent_div_25_div_6_Template_a_time_field_ngModelChange_6_listener($event) {
+      i0.ɵɵrestoreView(_r35);
+      var ctx_r34 = i0.ɵɵnextContext(2);
+      return i0.ɵɵresetView(ctx_r34.form.patchValue({
         date_end: $event
       }));
     });
     i0.ɵɵelementEnd()();
   }
   if (rf & 2) {
-    var ctx_r17 = i0.ɵɵnextContext(2);
+    var ctx_r32 = i0.ɵɵnextContext(2);
     var tmp_3_0;
     i0.ɵɵadvance(2);
     i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind1(3, 5, "FORM.END_TIME"), "");
     i0.ɵɵadvance(4);
-    i0.ɵɵproperty("ngModel", ctx_r17.form.value.date_end)("ngModelOptions", i0.ɵɵpureFunction0(7, _c0))("from", ctx_r17.form == null ? null : (tmp_3_0 = ctx_r17.form.getRawValue()) == null ? null : tmp_3_0.date)("use_24hr", ctx_r17.use_24hr);
+    i0.ɵɵproperty("ngModel", ctx_r32.form.value.date_end)("ngModelOptions", i0.ɵɵpureFunction0(7, _c0))("from", ctx_r32.form == null ? null : (tmp_3_0 = ctx_r32.form.getRawValue()) == null ? null : tmp_3_0.date)("use_24hr", ctx_r32.use_24hr);
   }
 }
-function SpaceFiltersComponent_div_30_div_7_Template(rf, ctx) {
+function SpaceFiltersComponent_div_25_div_7_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "div", 43)(1, "label", 48);
+    i0.ɵɵelementStart(0, "div", 48)(1, "label", 53);
     i0.ɵɵtext(2);
     i0.ɵɵpipe(3, "translate");
     i0.ɵɵelementStart(4, "span");
     i0.ɵɵtext(5, "*");
     i0.ɵɵelementEnd()();
-    i0.ɵɵelement(6, "a-duration-field", 50);
+    i0.ɵɵelement(6, "a-duration-field", 55);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
-    var ctx_r18 = i0.ɵɵnextContext(2);
+    var ctx_r33 = i0.ɵɵnextContext(2);
     var tmp_1_0;
     i0.ɵɵadvance(2);
     i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind1(3, 4, "FORM.END_TIME"), "");
     i0.ɵɵadvance(4);
-    i0.ɵɵproperty("time", ctx_r18.form == null ? null : (tmp_1_0 = ctx_r18.form.getRawValue()) == null ? null : tmp_1_0.date)("max", ctx_r18.max_duration)("use_24hr", ctx_r18.use_24hr);
+    i0.ɵɵproperty("time", ctx_r33.form == null ? null : (tmp_1_0 = ctx_r33.form.getRawValue()) == null ? null : tmp_1_0.date)("max", ctx_r33.max_duration)("use_24hr", ctx_r33.use_24hr);
   }
 }
-function SpaceFiltersComponent_div_30_Template(rf, ctx) {
+function SpaceFiltersComponent_div_25_Template(rf, ctx) {
   if (rf & 1) {
-    var _r22 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "div", 42)(1, "div", 43)(2, "label", 44);
-    i0.ɵɵi18nStart(3, 45);
+    var _r37 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "div", 47)(1, "div", 48)(2, "label", 49);
+    i0.ɵɵi18nStart(3, 50);
     i0.ɵɵelement(4, "span");
     i0.ɵɵi18nEnd();
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(5, "a-time-field", 46);
-    i0.ɵɵlistener("ngModelChange", function SpaceFiltersComponent_div_30_Template_a_time_field_ngModelChange_5_listener($event) {
-      i0.ɵɵrestoreView(_r22);
-      var ctx_r21 = i0.ɵɵnextContext();
-      return i0.ɵɵresetView(ctx_r21.form.patchValue({
+    i0.ɵɵelementStart(5, "a-time-field", 51);
+    i0.ɵɵlistener("ngModelChange", function SpaceFiltersComponent_div_25_Template_a_time_field_ngModelChange_5_listener($event) {
+      i0.ɵɵrestoreView(_r37);
+      var ctx_r36 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r36.form.patchValue({
         date: $event
       }));
     });
     i0.ɵɵelementEnd()();
-    i0.ɵɵtemplate(6, SpaceFiltersComponent_div_30_div_6_Template, 7, 8, "div", 47)(7, SpaceFiltersComponent_div_30_div_7_Template, 7, 6, "div", 47);
+    i0.ɵɵtemplate(6, SpaceFiltersComponent_div_25_div_6_Template, 7, 8, "div", 52)(7, SpaceFiltersComponent_div_25_div_7_Template, 7, 6, "div", 52);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
@@ -62575,51 +62918,51 @@ function SpaceFiltersComponent_div_30_Template(rf, ctx) {
     i0.ɵɵproperty("ngIf", !ctx_r5.multiday);
   }
 }
-function SpaceFiltersComponent_section_41_ng_container_3_div_1_Template(rf, ctx) {
+function SpaceFiltersComponent_section_36_ng_container_3_div_1_Template(rf, ctx) {
   if (rf & 1) {
-    var _r28 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "div", 28)(1, "div", 55);
+    var _r43 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "div", 25)(1, "div", 60);
     i0.ɵɵtext(2);
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(3, "mat-checkbox", 56);
-    i0.ɵɵlistener("ngModelChange", function SpaceFiltersComponent_section_41_ng_container_3_div_1_Template_mat_checkbox_ngModelChange_3_listener($event) {
-      i0.ɵɵrestoreView(_r28);
-      var feat_r24 = i0.ɵɵnextContext().$implicit;
-      var ctx_r26 = i0.ɵɵnextContext(2);
-      return i0.ɵɵresetView(ctx_r26.toggleFeature(feat_r24, $event));
+    i0.ɵɵelementStart(3, "mat-checkbox", 61);
+    i0.ɵɵlistener("ngModelChange", function SpaceFiltersComponent_section_36_ng_container_3_div_1_Template_mat_checkbox_ngModelChange_3_listener($event) {
+      i0.ɵɵrestoreView(_r43);
+      var feat_r39 = i0.ɵɵnextContext().$implicit;
+      var ctx_r41 = i0.ɵɵnextContext(2);
+      return i0.ɵɵresetView(ctx_r41.toggleFeature(feat_r39, $event));
     });
     i0.ɵɵpipe(4, "async");
     i0.ɵɵelementEnd()();
   }
   if (rf & 2) {
-    var feat_r24 = i0.ɵɵnextContext().$implicit;
-    var ctx_r25 = i0.ɵɵnextContext(2);
+    var feat_r39 = i0.ɵɵnextContext().$implicit;
+    var ctx_r40 = i0.ɵɵnextContext(2);
     var tmp_1_0;
     i0.ɵɵadvance(2);
-    i0.ɵɵtextInterpolate1(" ", ctx_r25.feature_display[feat_r24] || feat_r24, " ");
+    i0.ɵɵtextInterpolate1(" ", ctx_r40.feature_display[feat_r39] || feat_r39, " ");
     i0.ɵɵadvance();
-    i0.ɵɵproperty("ngModel", (tmp_1_0 = i0.ɵɵpipeBind1(4, 3, ctx_r25.options)) == null ? null : tmp_1_0.features == null ? null : tmp_1_0.features.includes(feat_r24))("ngModelOptions", i0.ɵɵpureFunction0(5, _c0));
+    i0.ɵɵproperty("ngModel", (tmp_1_0 = i0.ɵɵpipeBind1(4, 3, ctx_r40.options)) == null ? null : tmp_1_0.features == null ? null : tmp_1_0.features.includes(feat_r39))("ngModelOptions", i0.ɵɵpureFunction0(5, _c0));
   }
 }
-function SpaceFiltersComponent_section_41_ng_container_3_Template(rf, ctx) {
+function SpaceFiltersComponent_section_36_ng_container_3_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementContainerStart(0);
-    i0.ɵɵtemplate(1, SpaceFiltersComponent_section_41_ng_container_3_div_1_Template, 5, 6, "div", 54);
+    i0.ɵɵtemplate(1, SpaceFiltersComponent_section_36_ng_container_3_div_1_Template, 5, 6, "div", 59);
     i0.ɵɵelementContainerEnd();
   }
   if (rf & 2) {
-    var feat_r24 = ctx.$implicit;
-    var ctx_r23 = i0.ɵɵnextContext(2);
+    var feat_r39 = ctx.$implicit;
+    var ctx_r38 = i0.ɵɵnextContext(2);
     i0.ɵɵadvance();
-    i0.ɵɵproperty("ngIf", !ctx_r23.hide_features.includes(feat_r24));
+    i0.ɵɵproperty("ngIf", !ctx_r38.hide_features.includes(feat_r39));
   }
 }
-function SpaceFiltersComponent_section_41_Template(rf, ctx) {
+function SpaceFiltersComponent_section_36_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "section", 51)(1, "h2", 8);
-    i0.ɵɵi18n(2, 52);
+    i0.ɵɵelementStart(0, "section", 56)(1, "h2", 8);
+    i0.ɵɵi18n(2, 57);
     i0.ɵɵelementEnd();
-    i0.ɵɵtemplate(3, SpaceFiltersComponent_section_41_ng_container_3_Template, 2, 1, "ng-container", 53);
+    i0.ɵɵtemplate(3, SpaceFiltersComponent_section_36_ng_container_3_Template, 2, 1, "ng-container", 58);
     i0.ɵɵpipe(4, "async");
     i0.ɵɵelementEnd();
   }
@@ -62629,16 +62972,16 @@ function SpaceFiltersComponent_section_41_Template(rf, ctx) {
     i0.ɵɵproperty("ngForOf", i0.ɵɵpipeBind1(4, 1, ctx_r6.features));
   }
 }
-function SpaceFiltersComponent_div_43_Template(rf, ctx) {
+function SpaceFiltersComponent_div_38_Template(rf, ctx) {
   if (rf & 1) {
-    var _r31 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "div", 57)(1, "button", 58);
-    i0.ɵɵlistener("click", function SpaceFiltersComponent_div_43_Template_button_click_1_listener() {
-      i0.ɵɵrestoreView(_r31);
-      var ctx_r30 = i0.ɵɵnextContext();
-      return i0.ɵɵresetView(ctx_r30.close());
+    var _r46 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "div", 62)(1, "button", 63);
+    i0.ɵɵlistener("click", function SpaceFiltersComponent_div_38_Template_button_click_1_listener() {
+      i0.ɵɵrestoreView(_r46);
+      var ctx_r45 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r45.close());
     });
-    i0.ɵɵi18n(2, 59);
+    i0.ɵɵi18n(2, 64);
     i0.ɵɵelementEnd()();
   }
 }
@@ -62656,6 +62999,22 @@ var SpaceFiltersComponent = /*#__PURE__*/function () {
     this.building = this._org.active_building;
     this.buildings = this._org.active_buildings;
     this.levels = this._org.active_levels;
+    this.regions = this._org.region_list;
+    this.region_levels = this._org.active_region.pipe((0, operators_1.map)(function (_) {
+      var region_buildings = _this._org.buildings.filter(function (b) {
+        return !_ || b.parent_id === _.id;
+      });
+      var region_levels = region_buildings.map(function (b) {
+        return {
+          id: b.id,
+          name: b.display_name || b.name,
+          levels: _this._org.levels.filter(function (l) {
+            return l.parent_id === b.id;
+          })
+        };
+      });
+      return region_levels;
+    }));
     this.features = (0, rxjs_1.combineLatest)([this._spaces.features, this._event_form.available_spaces]).pipe((0, operators_1.map)(function (_ref) {
       var _ref2 = _slicedToArray(_ref, 2),
         features = _ref2[0],
@@ -62678,9 +63037,19 @@ var SpaceFiltersComponent = /*#__PURE__*/function () {
       return !!this._settings.get('app.events.allow_all_day');
     }
   }, {
+    key: "use_region",
+    get: function get() {
+      return !!this._settings.get('app.use_region');
+    }
+  }, {
     key: "bld",
     get: function get() {
       return this._org.building;
+    }
+  }, {
+    key: "region",
+    get: function get() {
+      return this._org.region;
     }
   }, {
     key: "form",
@@ -62721,6 +63090,11 @@ var SpaceFiltersComponent = /*#__PURE__*/function () {
     key: "setBuilding",
     value: function setBuilding(bld) {
       this._org.building = bld;
+    }
+  }, {
+    key: "setRegion",
+    value: function setRegion(region) {
+      this._org.region = region;
     }
   }, {
     key: "toggleFeature",
@@ -62766,8 +63140,8 @@ _class.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
   inputs: {
     multiday: "multiday"
   },
-  decls: 44,
-  vars: 40,
+  decls: 39,
+  vars: 30,
   consts: function consts() {
     var i18n_0;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
@@ -62804,93 +63178,113 @@ _class.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_7323982518822503502$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS_3 = goog.getMsg("Any Level");
-      i18n_3 = MSG_EXTERNAL_7323982518822503502$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS_3;
-    } else {
-      i18n_3 = $localize(_templateObject4 || (_templateObject4 = _taggedTemplateLiteral([":\u241F50407595967bf29832e873b41f9de3502d5c3e03\u241F7323982518822503502:Any Level"])));
-    }
-    var i18n_4;
-    if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
-      /**
-       * @suppress {msgDescriptions}
-       */
-      var MSG_EXTERNAL_3158758063619980932$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS_4 = goog.getMsg("Date{$startTagSpan}*{$closeTagSpan}", {
-        "closeTagSpan": "\uFFFD/#24\uFFFD",
-        "startTagSpan": "\uFFFD#24\uFFFD"
+      var MSG_EXTERNAL_3158758063619980932$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS_3 = goog.getMsg("Date{$startTagSpan}*{$closeTagSpan}", {
+        "closeTagSpan": "\uFFFD/#19\uFFFD",
+        "startTagSpan": "\uFFFD#19\uFFFD"
       }, {
         original_code: {
           "closeTagSpan": "</span>",
           "startTagSpan": "<span>"
         }
       });
-      i18n_4 = MSG_EXTERNAL_3158758063619980932$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS_4;
+      i18n_3 = MSG_EXTERNAL_3158758063619980932$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS_3;
     } else {
-      i18n_4 = $localize(_templateObject5 || (_templateObject5 = _taggedTemplateLiteral([":\u241F04cfb5fd033651743bc4b9408bd52ba4ee894070\u241F3158758063619980932:Date", ":START_TAG_SPAN:*", ":CLOSE_TAG_SPAN:"])), "\uFFFD#24\uFFFD", "\uFFFD/#24\uFFFD");
+      i18n_3 = $localize(_templateObject4 || (_templateObject4 = _taggedTemplateLiteral([":\u241F04cfb5fd033651743bc4b9408bd52ba4ee894070\u241F3158758063619980932:Date", ":START_TAG_SPAN:*", ":CLOSE_TAG_SPAN:"])), "\uFFFD#19\uFFFD", "\uFFFD/#19\uFFFD");
     }
-    var i18n_5;
+    var i18n_4;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_3894192522062036998$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS_5 = goog.getMsg(" {$interpolation} ", {
+      var MSG_EXTERNAL_3894192522062036998$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS_4 = goog.getMsg(" {$interpolation} ", {
         "interpolation": "\uFFFD0\uFFFD"
       }, {
         original_code: {
           "interpolation": "{{ 'FORM.DATE_ERROR' | translate }}"
         }
       });
-      i18n_5 = MSG_EXTERNAL_3894192522062036998$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS_5;
+      i18n_4 = MSG_EXTERNAL_3894192522062036998$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS_4;
     } else {
-      i18n_5 = $localize(_templateObject6 || (_templateObject6 = _taggedTemplateLiteral([":\u241Fbeead5a3a21b1ca4abe67610030f8a520995de4e\u241F3894192522062036998: ", ":INTERPOLATION: "])), "\uFFFD0\uFFFD");
+      i18n_4 = $localize(_templateObject5 || (_templateObject5 = _taggedTemplateLiteral([":\u241Fbeead5a3a21b1ca4abe67610030f8a520995de4e\u241F3894192522062036998: ", ":INTERPOLATION: "])), "\uFFFD0\uFFFD");
     }
-    var i18n_6;
+    var i18n_5;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_5010873675481014004$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS_6 = goog.getMsg(" {$interpolation} ", {
+      var MSG_EXTERNAL_5010873675481014004$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS_5 = goog.getMsg(" {$interpolation} ", {
         "interpolation": "\uFFFD0\uFFFD"
       }, {
         original_code: {
           "interpolation": "{{ 'COMMON.FAVOURITES' | translate }}"
         }
       });
-      i18n_6 = MSG_EXTERNAL_5010873675481014004$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS_6;
+      i18n_5 = MSG_EXTERNAL_5010873675481014004$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS_5;
     } else {
-      i18n_6 = $localize(_templateObject7 || (_templateObject7 = _taggedTemplateLiteral([":\u241Fbde3d9fd949ba4c6014b8e64c1362753bca1cf0c\u241F5010873675481014004: ", ":INTERPOLATION: "])), "\uFFFD0\uFFFD");
+      i18n_5 = $localize(_templateObject6 || (_templateObject6 = _taggedTemplateLiteral([":\u241Fbde3d9fd949ba4c6014b8e64c1362753bca1cf0c\u241F5010873675481014004: ", ":INTERPOLATION: "])), "\uFFFD0\uFFFD");
     }
-    var i18n_7;
+    var i18n_6;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_1614226322496100282$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS_7 = goog.getMsg(" {$interpolation} ", {
+      var MSG_EXTERNAL_1614226322496100282$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS_6 = goog.getMsg(" {$interpolation} ", {
         "interpolation": "\uFFFD0\uFFFD"
       }, {
         original_code: {
           "interpolation": "{{ 'ROOMS.SHOW_FAVOURITES' | translate }}"
         }
       });
-      i18n_7 = MSG_EXTERNAL_1614226322496100282$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS_7;
+      i18n_6 = MSG_EXTERNAL_1614226322496100282$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS_6;
     } else {
-      i18n_7 = $localize(_templateObject8 || (_templateObject8 = _taggedTemplateLiteral([":\u241F210742da6591a33630e0bfba757b95e6a1d99b20\u241F1614226322496100282: ", ":INTERPOLATION: "])), "\uFFFD0\uFFFD");
+      i18n_6 = $localize(_templateObject7 || (_templateObject7 = _taggedTemplateLiteral([":\u241F210742da6591a33630e0bfba757b95e6a1d99b20\u241F1614226322496100282: ", ":INTERPOLATION: "])), "\uFFFD0\uFFFD");
+    }
+    var i18n_7;
+    if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+      /**
+       * @suppress {msgDescriptions}
+       */
+      var MSG_EXTERNAL_7323982518822503502$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS__0 = goog.getMsg("Any Level");
+      i18n_7 = MSG_EXTERNAL_7323982518822503502$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS__0;
+    } else {
+      i18n_7 = $localize(_templateObject8 || (_templateObject8 = _taggedTemplateLiteral([":\u241F50407595967bf29832e873b41f9de3502d5c3e03\u241F7323982518822503502:Any Level"])));
     }
     var i18n_8;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_835486935962207481$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS__0 = goog.getMsg(" All Day ");
-      i18n_8 = MSG_EXTERNAL_835486935962207481$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS__0;
+      var MSG_EXTERNAL_7323982518822503502$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS__1 = goog.getMsg("Any Level");
+      i18n_8 = MSG_EXTERNAL_7323982518822503502$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS__1;
     } else {
-      i18n_8 = $localize(_templateObject9 || (_templateObject9 = _taggedTemplateLiteral([":\u241Fd7f43e20f3a729fa3de32bc7a1f709ccd722eae5\u241F835486935962207481: All Day "])));
+      i18n_8 = $localize(_templateObject9 || (_templateObject9 = _taggedTemplateLiteral([":\u241F50407595967bf29832e873b41f9de3502d5c3e03\u241F7323982518822503502:Any Level"])));
     }
     var i18n_9;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_4735431816432396893$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS__1 = goog.getMsg(" Start Time{$startTagSpan}*{$closeTagSpan}", {
+      var MSG_EXTERNAL_8264413387051126615$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS___0 = goog.getMsg("Any Region");
+      i18n_9 = MSG_EXTERNAL_8264413387051126615$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS___0;
+    } else {
+      i18n_9 = $localize(_templateObject10 || (_templateObject10 = _taggedTemplateLiteral([":\u241F130845b58eba8e50c98f3fba117a0168cdba4f31\u241F8264413387051126615:Any Region"])));
+    }
+    var i18n_10;
+    if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+      /**
+       * @suppress {msgDescriptions}
+       */
+      var MSG_EXTERNAL_835486935962207481$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS__2 = goog.getMsg(" All Day ");
+      i18n_10 = MSG_EXTERNAL_835486935962207481$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS__2;
+    } else {
+      i18n_10 = $localize(_templateObject11 || (_templateObject11 = _taggedTemplateLiteral([":\u241Fd7f43e20f3a729fa3de32bc7a1f709ccd722eae5\u241F835486935962207481: All Day "])));
+    }
+    var i18n_11;
+    if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+      /**
+       * @suppress {msgDescriptions}
+       */
+      var MSG_EXTERNAL_4735431816432396893$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS__3 = goog.getMsg(" Start Time{$startTagSpan}*{$closeTagSpan}", {
         "closeTagSpan": "\uFFFD/#4\uFFFD",
         "startTagSpan": "\uFFFD#4\uFFFD"
       }, {
@@ -62899,31 +63293,31 @@ _class.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
           "startTagSpan": "<span>"
         }
       });
-      i18n_9 = MSG_EXTERNAL_4735431816432396893$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS__1;
+      i18n_11 = MSG_EXTERNAL_4735431816432396893$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS__3;
     } else {
-      i18n_9 = $localize(_templateObject10 || (_templateObject10 = _taggedTemplateLiteral([":\u241F02d39ddac5bbf95c424df03d5f0d22cc257556bd\u241F4735431816432396893: Start Time", ":START_TAG_SPAN:*", ":CLOSE_TAG_SPAN:"])), "\uFFFD#4\uFFFD", "\uFFFD/#4\uFFFD");
+      i18n_11 = $localize(_templateObject12 || (_templateObject12 = _taggedTemplateLiteral([":\u241F02d39ddac5bbf95c424df03d5f0d22cc257556bd\u241F4735431816432396893: Start Time", ":START_TAG_SPAN:*", ":CLOSE_TAG_SPAN:"])), "\uFFFD#4\uFFFD", "\uFFFD/#4\uFFFD");
     }
-    var i18n_10;
+    var i18n_12;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_1551920764795208868$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS__2 = goog.getMsg("Facilities");
-      i18n_10 = MSG_EXTERNAL_1551920764795208868$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS__2;
+      var MSG_EXTERNAL_1551920764795208868$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS__4 = goog.getMsg("Facilities");
+      i18n_12 = MSG_EXTERNAL_1551920764795208868$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS__4;
     } else {
-      i18n_10 = $localize(_templateObject11 || (_templateObject11 = _taggedTemplateLiteral([":\u241Fbf10c600bd861cfd0a23f4759562ee0ae9dbe19f\u241F1551920764795208868:Facilities"])));
+      i18n_12 = $localize(_templateObject13 || (_templateObject13 = _taggedTemplateLiteral([":\u241Fbf10c600bd861cfd0a23f4759562ee0ae9dbe19f\u241F1551920764795208868:Facilities"])));
     }
-    var i18n_11;
+    var i18n_13;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_2296888311792137027$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS__3 = goog.getMsg(" Apply Filters ");
-      i18n_11 = MSG_EXTERNAL_2296888311792137027$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS__3;
+      var MSG_EXTERNAL_2296888311792137027$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS__5 = goog.getMsg(" Apply Filters ");
+      i18n_13 = MSG_EXTERNAL_2296888311792137027$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_FILTERS_COMPONENT_TS__5;
     } else {
-      i18n_11 = $localize(_templateObject12 || (_templateObject12 = _taggedTemplateLiteral([":\u241Fc17e2cc448524a39eb83b2937cea3235a2e8bf37\u241F2296888311792137027: Apply Filters "])));
+      i18n_13 = $localize(_templateObject14 || (_templateObject14 = _taggedTemplateLiteral([":\u241Fc17e2cc448524a39eb83b2937cea3235a2e8bf37\u241F2296888311792137027: Apply Filters "])));
     }
-    return [[1, "flex", "items-center", "border-b", "border-base-200", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-space-filters", 3, "click", 4, "ngIf"], [1, "font-medium", "flex-2", "text-center"], i18n_0, [1, "flex-1"], [1, "max-h-[65vh]", "p-2", "overflow-y-auto", "overflow-x-hidden", "divide-y", "divide-base-200", "w-full", "max-w-[100vw]", 3, "formGroup"], ["details", ""], [1, "text-lg", "font-medium"], i18n_1, [1, "flex-1", "min-w-[8rem]", "flex", "flex-col"], ["for", "location"], i18n_2, ["appearance", "outline", "class", "w-full", 4, "ngIf"], ["appearance", "outline", 1, "w-full"], ["name", "location", "placeholder", i18n_3, 3, "ngModel", "ngModelOptions", "multiple", "ngModelChange"], [3, "value", 4, "ngFor", "ngForOf"], [1, "flex", "items-center", "flex-wrap", "sm:space-x-2"], [1, "flex-1", "min-w-[8rem]"], ["for", "date"], i18n_4, ["name", "date", 3, "ngModel", "ngModelOptions", "to", "short", "ngModelChange"], i18n_5, ["class", "flex-1 min-w-[8rem] relative", 4, "ngIf"], ["class", "flex justify-end -mt-2 mb-2", 4, "ngIf"], ["class", "flex items-center space-x-2", 4, "ngIf"], ["favs", "", 1, "space-y-2", "pb-4"], i18n_6, [1, "flex", "items-center"], ["for", "fav", 1, "flex-1", "w-1/2"], i18n_7, ["name", "fav", 3, "ngModel", "ngModelOptions", "ngModelChange"], ["features", "", "class", "space-y-2", 4, "ngIf"], ["class", "px-2 pt-2 w-full border-t border-base-200", 4, "ngIf"], ["icon", "", "matRipple", "", "name", "close-space-filters", 3, "click"], ["name", "building", 3, "ngModel", "ngModelOptions", "placeholder", "ngModelChange"], [3, "value"], [1, "flex-1", "min-w-[8rem]", "relative"], ["name", "date", 3, "ngModel", "ngModelOptions", "from", "to", "short", "ngModelChange"], [1, "flex", "justify-end", "-mt-2", "mb-2"], ["formControlName", "all_day"], i18n_8, [1, "flex", "items-center", "space-x-2"], [1, "flex-1", "w-1/3"], ["for", "start-time"], i18n_9, ["name", "start-time", 3, "ngModel", "ngModelOptions", "use_24hr", "ngModelChange"], ["class", "flex-1 w-1/3", 4, "ngIf"], ["for", "end-time"], ["name", "end-time", 3, "ngModel", "ngModelOptions", "from", "use_24hr", "ngModelChange"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr"], ["features", "", 1, "space-y-2"], i18n_10, [4, "ngFor", "ngForOf"], ["class", "flex items-center", 4, "ngIf"], ["for", "feat", 1, "flex-1", "w-1/2"], ["name", "feat", 3, "ngModel", "ngModelOptions", "ngModelChange"], [1, "px-2", "pt-2", "w-full", "border-t", "border-base-200"], ["btn", "", "matRipple", "", "name", "apply-space-filters", 1, "w-full", 3, "click"], i18n_11];
+    return [[1, "flex", "items-center", "border-b", "border-base-200", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-space-filters", 3, "click", 4, "ngIf"], [1, "font-medium", "flex-2", "text-center"], i18n_0, [1, "flex-1"], [1, "max-h-[65vh]", "p-2", "overflow-y-auto", "overflow-x-hidden", "divide-y", "divide-base-200", "w-full", "max-w-[100vw]", 3, "formGroup"], ["details", ""], [1, "text-lg", "font-medium"], i18n_1, [1, "flex-1", "min-w-[8rem]", "flex", "flex-col"], ["for", "location"], i18n_2, [4, "ngIf"], [1, "flex", "items-center", "flex-wrap", "sm:space-x-2"], [1, "flex-1", "min-w-[8rem]"], ["for", "date"], i18n_3, ["name", "date", 3, "ngModel", "ngModelOptions", "to", "short", "ngModelChange"], i18n_4, ["class", "flex-1 min-w-[8rem] relative", 4, "ngIf"], ["class", "flex justify-end -mt-2 mb-2", 4, "ngIf"], ["class", "flex items-center space-x-2", 4, "ngIf"], ["favs", "", 1, "space-y-2", "pb-4"], i18n_5, [1, "flex", "items-center"], ["for", "fav", 1, "flex-1", "w-1/2"], i18n_6, ["name", "fav", 3, "ngModel", "ngModelOptions", "ngModelChange"], ["features", "", "class", "space-y-2", 4, "ngIf"], ["class", "px-2 pt-2 w-full border-t border-base-200", 4, "ngIf"], ["icon", "", "matRipple", "", "name", "close-space-filters", 3, "click"], ["appearance", "outline", "class", "w-full", 4, "ngIf"], ["appearance", "outline", 1, "w-full"], ["name", "location", "placeholder", i18n_7, 3, "ngModel", "ngModelOptions", "multiple", "ngModelChange"], [3, "value", 4, "ngFor", "ngForOf"], ["name", "building", 3, "ngModel", "ngModelOptions", "placeholder", "ngModelChange"], [3, "value"], ["name", "location", "placeholder", i18n_8, 3, "ngModel", "ngModelOptions", "multiple", "ngModelChange"], [3, "label", 4, "ngFor", "ngForOf"], ["name", "region", "placeholder", i18n_9, 3, "ngModel", "ngModelOptions", "ngModelChange"], [3, "label"], [1, "flex-1", "min-w-[8rem]", "relative"], ["name", "date", 3, "ngModel", "ngModelOptions", "from", "to", "short", "ngModelChange"], [1, "flex", "justify-end", "-mt-2", "mb-2"], ["formControlName", "all_day"], i18n_10, [1, "flex", "items-center", "space-x-2"], [1, "flex-1", "w-1/3"], ["for", "start-time"], i18n_11, ["name", "start-time", 3, "ngModel", "ngModelOptions", "use_24hr", "ngModelChange"], ["class", "flex-1 w-1/3", 4, "ngIf"], ["for", "end-time"], ["name", "end-time", 3, "ngModel", "ngModelOptions", "from", "use_24hr", "ngModelChange"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr"], ["features", "", 1, "space-y-2"], i18n_12, [4, "ngFor", "ngForOf"], ["class", "flex items-center", 4, "ngIf"], ["for", "feat", 1, "flex-1", "w-1/2"], ["name", "feat", 3, "ngModel", "ngModelOptions", "ngModelChange"], [1, "px-2", "pt-2", "w-full", "border-t", "border-base-200"], ["btn", "", "matRipple", "", "name", "apply-space-filters", 1, "w-full", 3, "click"], i18n_13];
   },
   template: function SpaceFiltersComponent_Template(rf, ctx) {
     if (rf & 1) {
@@ -62941,77 +63335,63 @@ _class.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵelementStart(10, "div", 10)(11, "label", 11);
       i0.ɵɵi18n(12, 12);
       i0.ɵɵelementEnd();
-      i0.ɵɵtemplate(13, SpaceFiltersComponent_mat_form_field_13_Template, 7, 13, "mat-form-field", 13);
-      i0.ɵɵpipe(14, "async");
-      i0.ɵɵelementStart(15, "mat-form-field", 14)(16, "mat-select", 15);
-      i0.ɵɵlistener("ngModelChange", function SpaceFiltersComponent_Template_mat_select_ngModelChange_16_listener($event) {
-        return ctx.setOptions({
-          zone_ids: $event
-        });
-      });
-      i0.ɵɵpipe(17, "async");
-      i0.ɵɵtemplate(18, SpaceFiltersComponent_mat_option_18_Template, 2, 2, "mat-option", 16);
-      i0.ɵɵpipe(19, "async");
-      i0.ɵɵelementEnd()()();
-      i0.ɵɵelementStart(20, "div", 17)(21, "div", 18)(22, "label", 19);
-      i0.ɵɵi18nStart(23, 20);
-      i0.ɵɵelement(24, "span");
+      i0.ɵɵtemplate(13, SpaceFiltersComponent_ng_container_13_Template, 8, 12, "ng-container", 13)(14, SpaceFiltersComponent_ng_container_14_Template, 8, 12, "ng-container", 13);
+      i0.ɵɵelementEnd();
+      i0.ɵɵelementStart(15, "div", 14)(16, "div", 15)(17, "label", 16);
+      i0.ɵɵi18nStart(18, 17);
+      i0.ɵɵelement(19, "span");
       i0.ɵɵi18nEnd();
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(25, "a-date-field", 21);
-      i0.ɵɵlistener("ngModelChange", function SpaceFiltersComponent_Template_a_date_field_ngModelChange_25_listener($event) {
+      i0.ɵɵelementStart(20, "a-date-field", 18);
+      i0.ɵɵlistener("ngModelChange", function SpaceFiltersComponent_Template_a_date_field_ngModelChange_20_listener($event) {
         return ctx.form.patchValue({
           date: $event
         });
       });
-      i0.ɵɵi18n(26, 22);
-      i0.ɵɵpipe(27, "translate");
+      i0.ɵɵi18n(21, 19);
+      i0.ɵɵpipe(22, "translate");
       i0.ɵɵelementEnd()();
-      i0.ɵɵtemplate(28, SpaceFiltersComponent_div_28_Template, 9, 12, "div", 23);
+      i0.ɵɵtemplate(23, SpaceFiltersComponent_div_23_Template, 9, 12, "div", 20);
       i0.ɵɵelementEnd();
-      i0.ɵɵtemplate(29, SpaceFiltersComponent_div_29_Template, 3, 0, "div", 24)(30, SpaceFiltersComponent_div_30_Template, 8, 6, "div", 25);
+      i0.ɵɵtemplate(24, SpaceFiltersComponent_div_24_Template, 3, 0, "div", 21)(25, SpaceFiltersComponent_div_25_Template, 8, 6, "div", 22);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(31, "section", 26)(32, "h2", 8);
-      i0.ɵɵi18n(33, 27);
-      i0.ɵɵpipe(34, "translate");
+      i0.ɵɵelementStart(26, "section", 23)(27, "h2", 8);
+      i0.ɵɵi18n(28, 24);
+      i0.ɵɵpipe(29, "translate");
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(35, "div", 28)(36, "div", 29);
-      i0.ɵɵi18n(37, 30);
-      i0.ɵɵpipe(38, "translate");
+      i0.ɵɵelementStart(30, "div", 25)(31, "div", 26);
+      i0.ɵɵi18n(32, 27);
+      i0.ɵɵpipe(33, "translate");
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(39, "mat-checkbox", 31);
-      i0.ɵɵlistener("ngModelChange", function SpaceFiltersComponent_Template_mat_checkbox_ngModelChange_39_listener($event) {
+      i0.ɵɵelementStart(34, "mat-checkbox", 28);
+      i0.ɵɵlistener("ngModelChange", function SpaceFiltersComponent_Template_mat_checkbox_ngModelChange_34_listener($event) {
         return ctx.setOptions({
           show_fav: $event
         });
       });
-      i0.ɵɵpipe(40, "async");
+      i0.ɵɵpipe(35, "async");
       i0.ɵɵelementEnd()()();
-      i0.ɵɵtemplate(41, SpaceFiltersComponent_section_41_Template, 5, 3, "section", 32);
-      i0.ɵɵpipe(42, "async");
+      i0.ɵɵtemplate(36, SpaceFiltersComponent_section_36_Template, 5, 3, "section", 29);
+      i0.ɵɵpipe(37, "async");
       i0.ɵɵelementEnd();
-      i0.ɵɵtemplate(43, SpaceFiltersComponent_div_43_Template, 3, 0, "div", 33);
+      i0.ɵɵtemplate(38, SpaceFiltersComponent_div_38_Template, 3, 0, "div", 30);
     }
     if (rf & 2) {
-      var tmp_2_0;
-      var tmp_3_0;
-      var tmp_17_0;
-      var tmp_19_0;
+      var tmp_14_0;
+      var tmp_16_0;
       i0.ɵɵadvance(2);
       i0.ɵɵproperty("ngIf", ctx.can_close);
       i0.ɵɵadvance(4);
       i0.ɵɵproperty("formGroup", ctx.form);
       i0.ɵɵadvance(7);
-      i0.ɵɵproperty("ngIf", ((tmp_2_0 = i0.ɵɵpipeBind1(14, 21, ctx.buildings)) == null ? null : tmp_2_0.length) > 1);
-      i0.ɵɵadvance(3);
-      i0.ɵɵproperty("ngModel", (tmp_3_0 = i0.ɵɵpipeBind1(17, 23, ctx.options)) == null ? null : tmp_3_0.zone_ids)("ngModelOptions", i0.ɵɵpureFunction0(37, _c0))("multiple", true);
+      i0.ɵɵproperty("ngIf", !ctx.use_region);
+      i0.ɵɵadvance();
+      i0.ɵɵproperty("ngIf", ctx.use_region);
+      i0.ɵɵadvance(6);
+      i0.ɵɵproperty("ngModel", ctx.form.getRawValue().date)("ngModelOptions", i0.ɵɵpureFunction0(28, _c0))("to", ctx.end_date)("short", true);
       i0.ɵɵadvance(2);
-      i0.ɵɵproperty("ngForOf", i0.ɵɵpipeBind1(19, 25, ctx.levels));
-      i0.ɵɵadvance(7);
-      i0.ɵɵproperty("ngModel", ctx.form.getRawValue().date)("ngModelOptions", i0.ɵɵpureFunction0(38, _c0))("to", ctx.end_date)("short", true);
-      i0.ɵɵadvance(2);
-      i0.ɵɵi18nExp(i0.ɵɵpipeBind1(27, 27, "FORM.DATE_ERROR"));
-      i0.ɵɵi18nApply(26);
+      i0.ɵɵi18nExp(i0.ɵɵpipeBind1(22, 18, "FORM.DATE_ERROR"));
+      i0.ɵɵi18nApply(21);
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngIf", ctx.multiday);
       i0.ɵɵadvance();
@@ -63019,20 +63399,20 @@ _class.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngIf", !ctx.form.value.all_day);
       i0.ɵɵadvance(4);
-      i0.ɵɵi18nExp(i0.ɵɵpipeBind1(34, 29, "COMMON.FAVOURITES"));
-      i0.ɵɵi18nApply(33);
+      i0.ɵɵi18nExp(i0.ɵɵpipeBind1(29, 20, "COMMON.FAVOURITES"));
+      i0.ɵɵi18nApply(28);
       i0.ɵɵadvance(4);
-      i0.ɵɵi18nExp(i0.ɵɵpipeBind1(38, 31, "ROOMS.SHOW_FAVOURITES"));
-      i0.ɵɵi18nApply(37);
+      i0.ɵɵi18nExp(i0.ɵɵpipeBind1(33, 22, "ROOMS.SHOW_FAVOURITES"));
+      i0.ɵɵi18nApply(32);
       i0.ɵɵadvance();
-      i0.ɵɵproperty("ngModel", (tmp_17_0 = i0.ɵɵpipeBind1(40, 33, ctx.options)) == null ? null : tmp_17_0.show_fav)("ngModelOptions", i0.ɵɵpureFunction0(39, _c0));
+      i0.ɵɵproperty("ngModel", (tmp_14_0 = i0.ɵɵpipeBind1(35, 24, ctx.options)) == null ? null : tmp_14_0.show_fav)("ngModelOptions", i0.ɵɵpureFunction0(29, _c0));
       i0.ɵɵadvance(2);
-      i0.ɵɵproperty("ngIf", (tmp_19_0 = i0.ɵɵpipeBind1(42, 35, ctx.features)) == null ? null : tmp_19_0.length);
+      i0.ɵɵproperty("ngIf", (tmp_16_0 = i0.ɵɵpipeBind1(37, 26, ctx.features)) == null ? null : tmp_16_0.length);
       i0.ɵɵadvance(2);
       i0.ɵɵproperty("ngIf", ctx.can_close);
     }
   },
-  dependencies: [i6.NgForOf, i6.NgIf, i7.IconComponent, i8.MatOption, i9.MatFormField, i10.MatSelect, i8.MatRipple, i11.MatCheckbox, i12.DateFieldComponent, i13.DurationFieldComponent, i14.TimeFieldComponent, i15.ɵNgNoValidate, i15.NgControlStatus, i15.NgControlStatusGroup, i15.NgModel, i15.FormGroupDirective, i15.FormControlName, i6.AsyncPipe, i16.TranslatePipe],
+  dependencies: [i6.NgForOf, i6.NgIf, i7.IconComponent, i8.MatOption, i8.MatOptgroup, i9.MatFormField, i10.MatSelect, i8.MatRipple, i11.MatCheckbox, i12.DateFieldComponent, i13.DurationFieldComponent, i14.TimeFieldComponent, i15.ɵNgNoValidate, i15.NgControlStatus, i15.NgControlStatusGroup, i15.NgModel, i15.FormGroupDirective, i15.FormControlName, i6.AsyncPipe, i16.TranslatePipe],
   styles: ["[_nghost-%COMP%] {\n                display: flex;\n                flex-direction: column;\n                width: 100%;\n                max-width: 100vw;\n            }\n        \n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2xpYnMvc3BhY2VzL3NyYy9saWIvc3BhY2Utc2VsZWN0LW1vZGFsL3NwYWNlLWZpbHRlcnMuY29tcG9uZW50LnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7WUFDWTtnQkFDSSxhQUFhO2dCQUNiLHNCQUFzQjtnQkFDdEIsV0FBVztnQkFDWCxnQkFBZ0I7WUFDcEIiLCJzb3VyY2VzQ29udGVudCI6WyJcbiAgICAgICAgICAgIDpob3N0IHtcbiAgICAgICAgICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICAgICAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47XG4gICAgICAgICAgICAgICAgd2lkdGg6IDEwMCU7XG4gICAgICAgICAgICAgICAgbWF4LXdpZHRoOiAxMDB2dztcbiAgICAgICAgICAgIH1cbiAgICAgICAgIl0sInNvdXJjZVJvb3QiOiIifQ== */"]
 });
 exports.SpaceFiltersComponent = SpaceFiltersComponent;
