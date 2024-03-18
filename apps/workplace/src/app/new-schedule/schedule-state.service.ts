@@ -324,7 +324,8 @@ export class ScheduleStateService extends AsyncHandler {
                     for (const booking of bookings) {
                         if (
                             this._ignore_cancel.includes(booking.id) ||
-                            booking.checked_in
+                            booking.checked_in ||
+                            booking.rejected
                         ) {
                             continue;
                         }
