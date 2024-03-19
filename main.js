@@ -13484,6 +13484,7 @@ exports.DeskListComponent = DeskListComponent;
 
 
 
+var _taggedTemplateLiteral = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/taggedTemplateLiteral.js */ 76852)["default"]);
 var _slicedToArray = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/slicedToArray.js */ 82093)["default"]);
 var _classCallCheck = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/classCallCheck.js */ 45664)["default"]);
 var _createClass = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/createClass.js */ 16996)["default"]);
@@ -13491,7 +13492,7 @@ var _possibleConstructorReturn = (__webpack_require__(/*! ./node_modules/@babel/
 var _isNativeReflectConstruct = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/isNativeReflectConstruct.js */ 97184)["default"]);
 var _getPrototypeOf = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/getPrototypeOf.js */ 90171)["default"]);
 var _inherits = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/inherits.js */ 79035)["default"]);
-var _class;
+var _class, _templateObject;
 function _callSuper(t, o, e) { return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], _getPrototypeOf(t).constructor) : o.apply(t, e)); }
 Object.defineProperty(exports, "__esModule", ({
   value: true
@@ -13519,51 +13520,17 @@ var i9 = __webpack_require__(/*! ../../../../components/src/lib/icon.component *
 var i10 = __webpack_require__(/*! ../../../../components/src/lib/interactive-map.component */ 51674);
 var i11 = __webpack_require__(/*! ../../../../components/src/lib/indoor-maps.component */ 21125);
 var i12 = __webpack_require__(/*! @angular/material/select */ 96355);
-function DeskMapComponent_mat_option_3_Template(rf, ctx) {
+function DeskMapComponent_mat_form_field_1_mat_option_2_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "mat-option", 12);
+    i0.ɵɵelementStart(0, "mat-option", 14);
     i0.ɵɵtext(1);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
-    var lvl_r4 = ctx.$implicit;
-    i0.ɵɵproperty("value", lvl_r4);
+    var lvl_r7 = ctx.$implicit;
+    i0.ɵɵproperty("value", lvl_r7);
     i0.ɵɵadvance();
-    i0.ɵɵtextInterpolate1(" ", lvl_r4.display_name || lvl_r4.name, " ");
-  }
-}
-function DeskMapComponent_interactive_map_6_Template(rf, ctx) {
-  if (rf & 1) {
-    var _r6 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "interactive-map", 13);
-    i0.ɵɵlistener("zoomChange", function DeskMapComponent_interactive_map_6_Template_interactive_map_zoomChange_0_listener($event) {
-      i0.ɵɵrestoreView(_r6);
-      var ctx_r5 = i0.ɵɵnextContext();
-      return i0.ɵɵresetView(ctx_r5.zoom = $event);
-    })("centerChange", function DeskMapComponent_interactive_map_6_Template_interactive_map_centerChange_0_listener($event) {
-      i0.ɵɵrestoreView(_r6);
-      var ctx_r7 = i0.ɵɵnextContext();
-      return i0.ɵɵresetView(ctx_r7.center = $event);
-    });
-    i0.ɵɵpipe(1, "async");
-    i0.ɵɵpipe(2, "async");
-    i0.ɵɵpipe(3, "async");
-    i0.ɵɵelementEnd();
-  }
-  if (rf & 2) {
-    var ctx_r1 = i0.ɵɵnextContext();
-    i0.ɵɵproperty("src", ctx_r1.map_url)("zoom", ctx_r1.zoom)("center", ctx_r1.center)("styles", i0.ɵɵpipeBind1(1, 6, ctx_r1.styles))("features", i0.ɵɵpipeBind1(2, 8, ctx_r1.features))("actions", i0.ɵɵpipeBind1(3, 10, ctx_r1.actions));
-  }
-}
-function DeskMapComponent_ng_template_8_Template(rf, ctx) {
-  if (rf & 1) {
-    i0.ɵɵelement(0, "indoor-maps", 14);
-    i0.ɵɵpipe(1, "async");
-    i0.ɵɵpipe(2, "async");
-  }
-  if (rf & 2) {
-    var ctx_r2 = i0.ɵɵnextContext();
-    i0.ɵɵproperty("styles", i0.ɵɵpipeBind1(1, 3, ctx_r2.styles))("actions", i0.ɵɵpipeBind1(2, 5, ctx_r2.actions))("custom_coordinates", ctx_r2.coordinates);
+    i0.ɵɵtextInterpolate1(" ", lvl_r7.display_name || lvl_r7.name, " ");
   }
 }
 var _c0 = function _c0() {
@@ -13571,6 +13538,116 @@ var _c0 = function _c0() {
     standalone: true
   };
 };
+function DeskMapComponent_mat_form_field_1_Template(rf, ctx) {
+  if (rf & 1) {
+    var _r9 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "mat-form-field", 11)(1, "mat-select", 12);
+    i0.ɵɵlistener("ngModelChange", function DeskMapComponent_mat_form_field_1_Template_mat_select_ngModelChange_1_listener($event) {
+      i0.ɵɵrestoreView(_r9);
+      var ctx_r8 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r8.level = $event);
+    })("ngModelChange", function DeskMapComponent_mat_form_field_1_Template_mat_select_ngModelChange_1_listener($event) {
+      i0.ɵɵrestoreView(_r9);
+      var ctx_r10 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r10.setLevel($event));
+    });
+    i0.ɵɵtemplate(2, DeskMapComponent_mat_form_field_1_mat_option_2_Template, 2, 2, "mat-option", 13);
+    i0.ɵɵpipe(3, "async");
+    i0.ɵɵelementEnd()();
+  }
+  if (rf & 2) {
+    var ctx_r0 = i0.ɵɵnextContext();
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("ngModel", ctx_r0.level)("ngModelOptions", i0.ɵɵpureFunction0(5, _c0));
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("ngForOf", i0.ɵɵpipeBind1(3, 3, ctx_r0.levels));
+  }
+}
+function DeskMapComponent_ng_template_2_mat_optgroup_2_mat_option_1_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementStart(0, "mat-option", 14);
+    i0.ɵɵtext(1);
+    i0.ɵɵelementEnd();
+  }
+  if (rf & 2) {
+    var level_r14 = ctx.$implicit;
+    i0.ɵɵproperty("value", level_r14);
+    i0.ɵɵadvance();
+    i0.ɵɵtextInterpolate1(" ", level_r14.display_name || level_r14.name, " ");
+  }
+}
+function DeskMapComponent_ng_template_2_mat_optgroup_2_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementStart(0, "mat-optgroup", 18);
+    i0.ɵɵtemplate(1, DeskMapComponent_ng_template_2_mat_optgroup_2_mat_option_1_Template, 2, 2, "mat-option", 13);
+    i0.ɵɵelementEnd();
+  }
+  if (rf & 2) {
+    var bld_r12 = ctx.$implicit;
+    i0.ɵɵproperty("label", bld_r12.name);
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("ngForOf", bld_r12.levels);
+  }
+}
+function DeskMapComponent_ng_template_2_Template(rf, ctx) {
+  if (rf & 1) {
+    var _r16 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "mat-form-field", 15)(1, "mat-select", 16);
+    i0.ɵɵlistener("ngModelChange", function DeskMapComponent_ng_template_2_Template_mat_select_ngModelChange_1_listener($event) {
+      i0.ɵɵrestoreView(_r16);
+      var ctx_r15 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r15.level = $event);
+    })("ngModelChange", function DeskMapComponent_ng_template_2_Template_mat_select_ngModelChange_1_listener($event) {
+      i0.ɵɵrestoreView(_r16);
+      var ctx_r17 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r17.setLevel($event));
+    });
+    i0.ɵɵtemplate(2, DeskMapComponent_ng_template_2_mat_optgroup_2_Template, 2, 2, "mat-optgroup", 17);
+    i0.ɵɵpipe(3, "async");
+    i0.ɵɵelementEnd()();
+  }
+  if (rf & 2) {
+    var ctx_r1 = i0.ɵɵnextContext();
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("ngModel", ctx_r1.level)("ngModelOptions", i0.ɵɵpureFunction0(5, _c0));
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("ngForOf", i0.ɵɵpipeBind1(3, 3, ctx_r1.region_levels));
+  }
+}
+function DeskMapComponent_interactive_map_5_Template(rf, ctx) {
+  if (rf & 1) {
+    var _r19 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "interactive-map", 19);
+    i0.ɵɵlistener("zoomChange", function DeskMapComponent_interactive_map_5_Template_interactive_map_zoomChange_0_listener($event) {
+      i0.ɵɵrestoreView(_r19);
+      var ctx_r18 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r18.zoom = $event);
+    })("centerChange", function DeskMapComponent_interactive_map_5_Template_interactive_map_centerChange_0_listener($event) {
+      i0.ɵɵrestoreView(_r19);
+      var ctx_r20 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r20.center = $event);
+    });
+    i0.ɵɵpipe(1, "async");
+    i0.ɵɵpipe(2, "async");
+    i0.ɵɵpipe(3, "async");
+    i0.ɵɵelementEnd();
+  }
+  if (rf & 2) {
+    var ctx_r3 = i0.ɵɵnextContext();
+    i0.ɵɵproperty("src", ctx_r3.map_url)("zoom", ctx_r3.zoom)("center", ctx_r3.center)("styles", i0.ɵɵpipeBind1(1, 6, ctx_r3.styles))("features", i0.ɵɵpipeBind1(2, 8, ctx_r3.features))("actions", i0.ɵɵpipeBind1(3, 10, ctx_r3.actions));
+  }
+}
+function DeskMapComponent_ng_template_7_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelement(0, "indoor-maps", 20);
+    i0.ɵɵpipe(1, "async");
+    i0.ɵɵpipe(2, "async");
+  }
+  if (rf & 2) {
+    var ctx_r4 = i0.ɵɵnextContext();
+    i0.ɵɵproperty("styles", i0.ɵɵpipeBind1(1, 3, ctx_r4.styles))("actions", i0.ɵɵpipeBind1(2, 5, ctx_r4.actions))("custom_coordinates", ctx_r4.coordinates);
+  }
+}
 var DeskMapComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
   _inherits(DeskMapComponent, _common_1$AsyncHandle);
   function DeskMapComponent(_state, _settings, _org, _maps_people) {
@@ -13597,6 +13674,21 @@ var DeskMapComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
     _this.setOptions = function (o) {
       return _this._state.setOptions(o);
     };
+    _this.region_levels = _this._org.active_region.pipe((0, operators_1.map)(function (_) {
+      var region_buildings = _this._org.buildings.filter(function (b) {
+        return !_ || b.parent_id === _.id;
+      });
+      var region_levels = region_buildings.map(function (b) {
+        return {
+          id: b.id,
+          name: b.display_name || b.name,
+          levels: _this._org.levels.filter(function (l) {
+            return l.parent_id === b.id && !l.tags.includes('parking');
+          })
+        };
+      });
+      return region_levels;
+    }));
     _this.actions = _this._state.available_resources.pipe((0, operators_1.map)(function (desks) {
       return desks.map(function (desk) {
         return {
@@ -13652,6 +13744,11 @@ var DeskMapComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
       return ((_this$level = this.level) === null || _this$level === void 0 ? void 0 : _this$level.map_id) || '';
     }
   }, {
+    key: "use_region",
+    get: function get() {
+      return !!this._settings.get('app.use_region');
+    }
+  }, {
     key: "ngOnInit",
     value: function ngOnInit() {
       var _this2 = this;
@@ -13665,6 +13762,7 @@ var DeskMapComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
         }
       }));
       this.subscription('levels_update', this.levels.subscribe(function (levels) {
+        if (_this2.use_region) return;
         if (!levels.find(function (_) {
           var _this2$level2;
           return _.id === ((_this2$level2 = _this2.level) === null || _this2$level2 === void 0 ? void 0 : _this2$level2.id);
@@ -13711,6 +13809,7 @@ var DeskMapComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
         };
       }
       this._maps_people.setCustomZone(level === null || level === void 0 ? void 0 : level.parent_id);
+      this.level = level;
     }
   }, {
     key: "setZoom",
@@ -13744,60 +13843,65 @@ _class.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     onSelect: "onSelect"
   },
   features: [i0.ɵɵInheritDefinitionFeature, i0.ɵɵNgOnChangesFeature],
-  decls: 22,
-  vars: 10,
-  consts: [[1, "bg-base-100", "p-2", "border-b", "border-base-200", "w-full"], ["levels", "", "appearance", "outline", 1, "w-full", "h-[3.25rem]"], [3, "ngModel", "ngModelOptions", "ngModelChange"], [3, "value", 4, "ngFor", "ngForOf"], [1, "relative", "flex-1", "w-full"], [3, "src", "zoom", "center", "styles", "features", "actions", "zoomChange", "centerChange", 4, "ngIf", "ngIfElse"], ["mapspeople", ""], ["zoom", "", 1, "absolute", "bottom-2", "right-2", "rounded-lg", "border", "border-base-200", "bg-base-100", "flex", "flex-col", "overflow-hidden"], ["zoom-in", "", "icon", "", "matRipple", "", 3, "click"], [1, "border-t", "border-base-200", "w-full"], ["zoom-out", "", "icon", "", "matRipple", "", 3, "click"], ["reset", "", "icon", "", "matRipple", "", 3, "click"], [3, "value"], [3, "src", "zoom", "center", "styles", "features", "actions", "zoomChange", "centerChange"], [3, "styles", "actions", "custom_coordinates"]],
+  decls: 21,
+  vars: 6,
+  consts: function consts() {
+    var i18n_0;
+    if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+      /**
+       * @suppress {msgDescriptions}
+       */
+      var MSG_EXTERNAL_7323982518822503502$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_MAP_COMPONENT_TS__0 = goog.getMsg("Any Level");
+      i18n_0 = MSG_EXTERNAL_7323982518822503502$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_MAP_COMPONENT_TS__0;
+    } else {
+      i18n_0 = $localize(_templateObject || (_templateObject = _taggedTemplateLiteral([":\u241F50407595967bf29832e873b41f9de3502d5c3e03\u241F7323982518822503502:Any Level"])));
+    }
+    return [[1, "bg-base-100", "p-2", "border-b", "border-base-200", "w-full"], ["levels", "", "appearance", "outline", "class", "w-full no-subscript", 4, "ngIf", "ngIfElse"], ["region_level_view", ""], [1, "relative", "flex-1", "w-full"], [3, "src", "zoom", "center", "styles", "features", "actions", "zoomChange", "centerChange", 4, "ngIf", "ngIfElse"], ["mapspeople", ""], ["zoom", "", 1, "absolute", "bottom-2", "right-2", "rounded-lg", "border", "border-base-200", "bg-base-100", "flex", "flex-col", "overflow-hidden"], ["zoom-in", "", "icon", "", "matRipple", "", 3, "click"], [1, "border-t", "border-base-200", "w-full"], ["zoom-out", "", "icon", "", "matRipple", "", 3, "click"], ["reset", "", "icon", "", "matRipple", "", 3, "click"], ["levels", "", "appearance", "outline", 1, "w-full", "no-subscript"], [3, "ngModel", "ngModelOptions", "ngModelChange"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], ["appearance", "outline", 1, "w-full", "no-subscript"], ["placeholder", i18n_0, 3, "ngModel", "ngModelOptions", "ngModelChange"], [3, "label", 4, "ngFor", "ngForOf"], [3, "label"], [3, "src", "zoom", "center", "styles", "features", "actions", "zoomChange", "centerChange"], [3, "styles", "actions", "custom_coordinates"]];
+  },
   template: function DeskMapComponent_Template(rf, ctx) {
     if (rf & 1) {
-      i0.ɵɵelementStart(0, "div", 0)(1, "mat-form-field", 1)(2, "mat-select", 2);
-      i0.ɵɵlistener("ngModelChange", function DeskMapComponent_Template_mat_select_ngModelChange_2_listener($event) {
-        return ctx.level = $event;
-      })("ngModelChange", function DeskMapComponent_Template_mat_select_ngModelChange_2_listener($event) {
-        return ctx.setLevel($event);
-      });
-      i0.ɵɵtemplate(3, DeskMapComponent_mat_option_3_Template, 2, 2, "mat-option", 3);
-      i0.ɵɵpipe(4, "async");
-      i0.ɵɵelementEnd()()();
-      i0.ɵɵelementStart(5, "div", 4);
-      i0.ɵɵtemplate(6, DeskMapComponent_interactive_map_6_Template, 4, 12, "interactive-map", 5);
-      i0.ɵɵpipe(7, "async");
-      i0.ɵɵtemplate(8, DeskMapComponent_ng_template_8_Template, 3, 7, "ng-template", null, 6, i0.ɵɵtemplateRefExtractor);
+      i0.ɵɵelementStart(0, "div", 0);
+      i0.ɵɵtemplate(1, DeskMapComponent_mat_form_field_1_Template, 4, 6, "mat-form-field", 1)(2, DeskMapComponent_ng_template_2_Template, 4, 6, "ng-template", null, 2, i0.ɵɵtemplateRefExtractor);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(10, "div", 7)(11, "button", 8);
-      i0.ɵɵlistener("click", function DeskMapComponent_Template_button_click_11_listener() {
+      i0.ɵɵelementStart(4, "div", 3);
+      i0.ɵɵtemplate(5, DeskMapComponent_interactive_map_5_Template, 4, 12, "interactive-map", 4);
+      i0.ɵɵpipe(6, "async");
+      i0.ɵɵtemplate(7, DeskMapComponent_ng_template_7_Template, 3, 7, "ng-template", null, 5, i0.ɵɵtemplateRefExtractor);
+      i0.ɵɵelementEnd();
+      i0.ɵɵelementStart(9, "div", 6)(10, "button", 7);
+      i0.ɵɵlistener("click", function DeskMapComponent_Template_button_click_10_listener() {
         return ctx.setZoom(ctx.zoom * 1.1);
       });
-      i0.ɵɵelementStart(12, "app-icon");
-      i0.ɵɵtext(13, "zoom_in");
+      i0.ɵɵelementStart(11, "app-icon");
+      i0.ɵɵtext(12, "zoom_in");
       i0.ɵɵelementEnd()();
-      i0.ɵɵelement(14, "div", 9);
-      i0.ɵɵelementStart(15, "button", 10);
-      i0.ɵɵlistener("click", function DeskMapComponent_Template_button_click_15_listener() {
+      i0.ɵɵelement(13, "div", 8);
+      i0.ɵɵelementStart(14, "button", 9);
+      i0.ɵɵlistener("click", function DeskMapComponent_Template_button_click_14_listener() {
         return ctx.setZoom(ctx.zoom * (1 / 1.1));
       });
-      i0.ɵɵelementStart(16, "app-icon");
-      i0.ɵɵtext(17, "zoom_out");
+      i0.ɵɵelementStart(15, "app-icon");
+      i0.ɵɵtext(16, "zoom_out");
       i0.ɵɵelementEnd()();
-      i0.ɵɵelement(18, "div", 9);
-      i0.ɵɵelementStart(19, "button", 11);
-      i0.ɵɵlistener("click", function DeskMapComponent_Template_button_click_19_listener() {
+      i0.ɵɵelement(17, "div", 8);
+      i0.ɵɵelementStart(18, "button", 10);
+      i0.ɵɵlistener("click", function DeskMapComponent_Template_button_click_18_listener() {
         return ctx.resetMap();
       });
-      i0.ɵɵelementStart(20, "app-icon");
-      i0.ɵɵtext(21, "refresh");
+      i0.ɵɵelementStart(19, "app-icon");
+      i0.ɵɵtext(20, "refresh");
       i0.ɵɵelementEnd()()();
     }
     if (rf & 2) {
-      var _r3 = i0.ɵɵreference(9);
-      i0.ɵɵadvance(2);
-      i0.ɵɵproperty("ngModel", ctx.level)("ngModelOptions", i0.ɵɵpureFunction0(9, _c0));
+      var _r2 = i0.ɵɵreference(3);
+      var _r5 = i0.ɵɵreference(8);
       i0.ɵɵadvance();
-      i0.ɵɵproperty("ngForOf", i0.ɵɵpipeBind1(4, 5, ctx.levels));
-      i0.ɵɵadvance(3);
-      i0.ɵɵproperty("ngIf", !i0.ɵɵpipeBind1(7, 7, ctx.use_mapsindoors$))("ngIfElse", _r3);
+      i0.ɵɵproperty("ngIf", !ctx.use_region)("ngIfElse", _r2);
+      i0.ɵɵadvance(4);
+      i0.ɵɵproperty("ngIf", !i0.ɵɵpipeBind1(6, 4, ctx.use_mapsindoors$))("ngIfElse", _r5);
     }
   },
-  dependencies: [i5.NgForOf, i5.NgIf, i6.NgControlStatus, i6.NgModel, i7.MatFormField, i8.MatOption, i9.IconComponent, i10.InteractiveMapComponent, i11.IndoorMapsComponent, i12.MatSelect, i8.MatRipple, i5.AsyncPipe],
+  dependencies: [i5.NgForOf, i5.NgIf, i6.NgControlStatus, i6.NgModel, i7.MatFormField, i8.MatOption, i8.MatOptgroup, i9.IconComponent, i10.InteractiveMapComponent, i11.IndoorMapsComponent, i12.MatSelect, i8.MatRipple, i5.AsyncPipe],
   styles: ["[_nghost-%COMP%] {\n                position: relative;\n                background: rgba(0, 0, 0, 0.05);\n                display: flex;\n                flex-direction: column;\n            }\n\n            button[_ngcontent-%COMP%] {\n                border-radius: 0;\n            }\n        \n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2xpYnMvYm9va2luZ3Mvc3JjL2xpYi9kZXNrLXNlbGVjdC1tb2RhbC9kZXNrLW1hcC5jb21wb25lbnQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IjtZQUNZO2dCQUNJLGtCQUFrQjtnQkFDbEIsK0JBQStCO2dCQUMvQixhQUFhO2dCQUNiLHNCQUFzQjtZQUMxQjs7WUFFQTtnQkFDSSxnQkFBZ0I7WUFDcEIiLCJzb3VyY2VzQ29udGVudCI6WyJcbiAgICAgICAgICAgIDpob3N0IHtcbiAgICAgICAgICAgICAgICBwb3NpdGlvbjogcmVsYXRpdmU7XG4gICAgICAgICAgICAgICAgYmFja2dyb3VuZDogcmdiYSgwLCAwLCAwLCAwLjA1KTtcbiAgICAgICAgICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICAgICAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47XG4gICAgICAgICAgICB9XG5cbiAgICAgICAgICAgIGJ1dHRvbiB7XG4gICAgICAgICAgICAgICAgYm9yZGVyLXJhZGl1czogMDtcbiAgICAgICAgICAgIH1cbiAgICAgICAgIl0sInNvdXJjZVJvb3QiOiIifQ== */"]
 });
 exports.DeskMapComponent = DeskMapComponent;
@@ -31082,15 +31186,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "77a59f6",
-  "hash": "77a59f6",
+  "raw": "5276797",
+  "hash": "5276797",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "77a59f6",
+  "suffix": "5276797",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1710743374614
+  "time": 1710809554853
 };
 /* tslint:enable */
 
@@ -63010,7 +63114,7 @@ var SpaceFiltersComponent = /*#__PURE__*/function () {
           id: b.id,
           name: b.display_name || b.name,
           levels: _this._org.levels.filter(function (l) {
-            return l.parent_id === b.id;
+            return l.parent_id === b.id && !l.tags.includes('parking');
           })
         };
       });
@@ -63812,6 +63916,7 @@ exports.SpaceLocationPinComponent = SpaceLocationPinComponent;
 
 
 
+var _taggedTemplateLiteral = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/taggedTemplateLiteral.js */ 76852)["default"]);
 var _objectSpread = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/objectSpread2.js */ 28080)["default"]);
 var _slicedToArray = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/slicedToArray.js */ 82093)["default"]);
 var _classCallCheck = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/classCallCheck.js */ 45664)["default"]);
@@ -63820,7 +63925,7 @@ var _possibleConstructorReturn = (__webpack_require__(/*! ./node_modules/@babel/
 var _isNativeReflectConstruct = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/isNativeReflectConstruct.js */ 97184)["default"]);
 var _getPrototypeOf = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/getPrototypeOf.js */ 90171)["default"]);
 var _inherits = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/inherits.js */ 79035)["default"]);
-var _class;
+var _class, _templateObject;
 function _callSuper(t, o, e) { return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], _getPrototypeOf(t).constructor) : o.apply(t, e)); }
 Object.defineProperty(exports, "__esModule", ({
   value: true
@@ -63848,51 +63953,17 @@ var i9 = __webpack_require__(/*! @angular/material/core */ 55309);
 var i10 = __webpack_require__(/*! @angular/material/form-field */ 51333);
 var i11 = __webpack_require__(/*! @angular/material/select */ 96355);
 var i12 = __webpack_require__(/*! @angular/forms */ 28849);
-function SpaceSelectMapComponent_mat_option_3_Template(rf, ctx) {
+function SpaceSelectMapComponent_mat_form_field_1_mat_option_2_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "mat-option", 12);
+    i0.ɵɵelementStart(0, "mat-option", 14);
     i0.ɵɵtext(1);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
-    var lvl_r4 = ctx.$implicit;
-    i0.ɵɵproperty("value", lvl_r4);
+    var lvl_r7 = ctx.$implicit;
+    i0.ɵɵproperty("value", lvl_r7);
     i0.ɵɵadvance();
-    i0.ɵɵtextInterpolate1(" ", lvl_r4.display_name || lvl_r4.name, " ");
-  }
-}
-function SpaceSelectMapComponent_interactive_map_6_Template(rf, ctx) {
-  if (rf & 1) {
-    var _r6 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "interactive-map", 13);
-    i0.ɵɵlistener("zoomChange", function SpaceSelectMapComponent_interactive_map_6_Template_interactive_map_zoomChange_0_listener($event) {
-      i0.ɵɵrestoreView(_r6);
-      var ctx_r5 = i0.ɵɵnextContext();
-      return i0.ɵɵresetView(ctx_r5.zoom = $event);
-    })("centerChange", function SpaceSelectMapComponent_interactive_map_6_Template_interactive_map_centerChange_0_listener($event) {
-      i0.ɵɵrestoreView(_r6);
-      var ctx_r7 = i0.ɵɵnextContext();
-      return i0.ɵɵresetView(ctx_r7.center = $event);
-    });
-    i0.ɵɵpipe(1, "async");
-    i0.ɵɵpipe(2, "async");
-    i0.ɵɵpipe(3, "async");
-    i0.ɵɵelementEnd();
-  }
-  if (rf & 2) {
-    var ctx_r1 = i0.ɵɵnextContext();
-    i0.ɵɵproperty("src", ctx_r1.map_url)("zoom", ctx_r1.zoom)("center", ctx_r1.center)("styles", i0.ɵɵpipeBind1(1, 6, ctx_r1.styles))("features", i0.ɵɵpipeBind1(2, 8, ctx_r1.features))("actions", i0.ɵɵpipeBind1(3, 10, ctx_r1.actions));
-  }
-}
-function SpaceSelectMapComponent_ng_template_8_Template(rf, ctx) {
-  if (rf & 1) {
-    i0.ɵɵelement(0, "indoor-maps", 14);
-    i0.ɵɵpipe(1, "async");
-    i0.ɵɵpipe(2, "async");
-  }
-  if (rf & 2) {
-    var ctx_r2 = i0.ɵɵnextContext();
-    i0.ɵɵproperty("styles", i0.ɵɵpipeBind1(1, 3, ctx_r2.styles))("actions", i0.ɵɵpipeBind1(2, 5, ctx_r2.actions))("custom_coordinates", ctx_r2.coordinates);
+    i0.ɵɵtextInterpolate1(" ", lvl_r7.display_name || lvl_r7.name, " ");
   }
 }
 var _c0 = function _c0() {
@@ -63900,6 +63971,116 @@ var _c0 = function _c0() {
     standalone: true
   };
 };
+function SpaceSelectMapComponent_mat_form_field_1_Template(rf, ctx) {
+  if (rf & 1) {
+    var _r9 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "mat-form-field", 11)(1, "mat-select", 12);
+    i0.ɵɵlistener("ngModelChange", function SpaceSelectMapComponent_mat_form_field_1_Template_mat_select_ngModelChange_1_listener($event) {
+      i0.ɵɵrestoreView(_r9);
+      var ctx_r8 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r8.level = $event);
+    })("ngModelChange", function SpaceSelectMapComponent_mat_form_field_1_Template_mat_select_ngModelChange_1_listener($event) {
+      i0.ɵɵrestoreView(_r9);
+      var ctx_r10 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r10.setLevel($event));
+    });
+    i0.ɵɵtemplate(2, SpaceSelectMapComponent_mat_form_field_1_mat_option_2_Template, 2, 2, "mat-option", 13);
+    i0.ɵɵpipe(3, "async");
+    i0.ɵɵelementEnd()();
+  }
+  if (rf & 2) {
+    var ctx_r0 = i0.ɵɵnextContext();
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("ngModel", ctx_r0.level)("ngModelOptions", i0.ɵɵpureFunction0(5, _c0));
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("ngForOf", i0.ɵɵpipeBind1(3, 3, ctx_r0.levels));
+  }
+}
+function SpaceSelectMapComponent_ng_template_2_mat_optgroup_2_mat_option_1_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementStart(0, "mat-option", 14);
+    i0.ɵɵtext(1);
+    i0.ɵɵelementEnd();
+  }
+  if (rf & 2) {
+    var level_r14 = ctx.$implicit;
+    i0.ɵɵproperty("value", level_r14);
+    i0.ɵɵadvance();
+    i0.ɵɵtextInterpolate1(" ", level_r14.display_name || level_r14.name, " ");
+  }
+}
+function SpaceSelectMapComponent_ng_template_2_mat_optgroup_2_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementStart(0, "mat-optgroup", 18);
+    i0.ɵɵtemplate(1, SpaceSelectMapComponent_ng_template_2_mat_optgroup_2_mat_option_1_Template, 2, 2, "mat-option", 13);
+    i0.ɵɵelementEnd();
+  }
+  if (rf & 2) {
+    var bld_r12 = ctx.$implicit;
+    i0.ɵɵproperty("label", bld_r12.name);
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("ngForOf", bld_r12.levels);
+  }
+}
+function SpaceSelectMapComponent_ng_template_2_Template(rf, ctx) {
+  if (rf & 1) {
+    var _r16 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "mat-form-field", 15)(1, "mat-select", 16);
+    i0.ɵɵlistener("ngModelChange", function SpaceSelectMapComponent_ng_template_2_Template_mat_select_ngModelChange_1_listener($event) {
+      i0.ɵɵrestoreView(_r16);
+      var ctx_r15 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r15.level = $event);
+    })("ngModelChange", function SpaceSelectMapComponent_ng_template_2_Template_mat_select_ngModelChange_1_listener($event) {
+      i0.ɵɵrestoreView(_r16);
+      var ctx_r17 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r17.setLevel($event));
+    });
+    i0.ɵɵtemplate(2, SpaceSelectMapComponent_ng_template_2_mat_optgroup_2_Template, 2, 2, "mat-optgroup", 17);
+    i0.ɵɵpipe(3, "async");
+    i0.ɵɵelementEnd()();
+  }
+  if (rf & 2) {
+    var ctx_r1 = i0.ɵɵnextContext();
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("ngModel", ctx_r1.level)("ngModelOptions", i0.ɵɵpureFunction0(5, _c0));
+    i0.ɵɵadvance();
+    i0.ɵɵproperty("ngForOf", i0.ɵɵpipeBind1(3, 3, ctx_r1.region_levels));
+  }
+}
+function SpaceSelectMapComponent_interactive_map_5_Template(rf, ctx) {
+  if (rf & 1) {
+    var _r19 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "interactive-map", 19);
+    i0.ɵɵlistener("zoomChange", function SpaceSelectMapComponent_interactive_map_5_Template_interactive_map_zoomChange_0_listener($event) {
+      i0.ɵɵrestoreView(_r19);
+      var ctx_r18 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r18.zoom = $event);
+    })("centerChange", function SpaceSelectMapComponent_interactive_map_5_Template_interactive_map_centerChange_0_listener($event) {
+      i0.ɵɵrestoreView(_r19);
+      var ctx_r20 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r20.center = $event);
+    });
+    i0.ɵɵpipe(1, "async");
+    i0.ɵɵpipe(2, "async");
+    i0.ɵɵpipe(3, "async");
+    i0.ɵɵelementEnd();
+  }
+  if (rf & 2) {
+    var ctx_r3 = i0.ɵɵnextContext();
+    i0.ɵɵproperty("src", ctx_r3.map_url)("zoom", ctx_r3.zoom)("center", ctx_r3.center)("styles", i0.ɵɵpipeBind1(1, 6, ctx_r3.styles))("features", i0.ɵɵpipeBind1(2, 8, ctx_r3.features))("actions", i0.ɵɵpipeBind1(3, 10, ctx_r3.actions));
+  }
+}
+function SpaceSelectMapComponent_ng_template_7_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelement(0, "indoor-maps", 20);
+    i0.ɵɵpipe(1, "async");
+    i0.ɵɵpipe(2, "async");
+  }
+  if (rf & 2) {
+    var ctx_r4 = i0.ɵɵnextContext();
+    i0.ɵɵproperty("styles", i0.ɵɵpipeBind1(1, 3, ctx_r4.styles))("actions", i0.ɵɵpipeBind1(2, 5, ctx_r4.actions))("custom_coordinates", ctx_r4.coordinates);
+  }
+}
 var SpaceSelectMapComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
   _inherits(SpaceSelectMapComponent, _common_1$AsyncHandle);
   function SpaceSelectMapComponent(_event_form, _org, _maps_people, _settings) {
@@ -63934,6 +64115,21 @@ var SpaceSelectMapComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
       }), 'id');
     }), (0, operators_1.tap)(function (_) {
       return _this.level = _this.level ? _this.level : _[0];
+    }));
+    _this.region_levels = _this._org.active_region.pipe((0, operators_1.map)(function (_) {
+      var region_buildings = _this._org.buildings.filter(function (b) {
+        return !_ || b.parent_id === _.id;
+      });
+      var region_levels = region_buildings.map(function (b) {
+        return {
+          id: b.id,
+          name: b.display_name || b.name,
+          levels: _this._org.levels.filter(function (l) {
+            return l.parent_id === b.id && !l.tags.includes('parking');
+          })
+        };
+      });
+      return region_levels;
     }));
     _this.setOptions = function (o) {
       return _this._event_form.setOptions(o);
@@ -63986,10 +64182,16 @@ var SpaceSelectMapComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
       return ((_this$level = this.level) === null || _this$level === void 0 ? void 0 : _this$level.map_id) || '';
     }
   }, {
+    key: "use_region",
+    get: function get() {
+      return !!this._settings.get('app.use_region');
+    }
+  }, {
     key: "ngOnInit",
     value: function ngOnInit() {
       var _this2 = this;
       this.subscription('levels_update', this.levels.subscribe(function (levels) {
+        if (_this2.use_region) return;
         if (levels.length && !levels.find(function (_) {
           var _this2$level;
           return _.id === ((_this2$level = _this2.level) === null || _this2$level === void 0 ? void 0 : _this2$level.id);
@@ -64007,8 +64209,9 @@ var SpaceSelectMapComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
   }, {
     key: "setLevel",
     value: function setLevel(level) {
+      console.log('Set Level', level);
       this.setOptions({
-        zone_id: level === null || level === void 0 ? void 0 : level.id
+        zone_ids: [level === null || level === void 0 ? void 0 : level.id]
       });
       var bld = this._org.buildings.find(function (_) {
         return _.id === (level === null || level === void 0 ? void 0 : level.parent_id);
@@ -64026,6 +64229,7 @@ var SpaceSelectMapComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
         };
       }
       this._maps_people.setCustomZone(level.parent_id);
+      this.level = level;
     }
   }, {
     key: "setZoom",
@@ -64060,60 +64264,65 @@ _class.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     onSelect: "onSelect"
   },
   features: [i0.ɵɵInheritDefinitionFeature],
-  decls: 22,
-  vars: 10,
-  consts: [[1, "bg-base-100", "p-2", "border-b", "border-base-200", "w-full"], ["levels", "", "appearance", "outline", 1, "w-full", "h-[3.25rem]"], [3, "ngModel", "ngModelOptions", "ngModelChange"], [3, "value", 4, "ngFor", "ngForOf"], [1, "relative", "flex-1", "w-full"], [3, "src", "zoom", "center", "styles", "features", "actions", "zoomChange", "centerChange", 4, "ngIf", "ngIfElse"], ["mapspeople", ""], ["zoom", "", 1, "absolute", "bottom-2", "right-2", "rounded-lg", "border", "border-base-200", "bg-base-100", "flex", "flex-col", "overflow-hidden"], ["icon", "", "matRipple", "", "name", "space-map-zoom-in", 3, "click"], [1, "border-t", "border-base-200", "w-full"], ["icon", "", "matRipple", "", "name", "space-map-zoom-out", 3, "click"], ["icon", "", "matRipple", "", "name", "space-map-reset", 3, "click"], [3, "value"], [3, "src", "zoom", "center", "styles", "features", "actions", "zoomChange", "centerChange"], [3, "styles", "actions", "custom_coordinates"]],
+  decls: 21,
+  vars: 6,
+  consts: function consts() {
+    var i18n_0;
+    if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+      /**
+       * @suppress {msgDescriptions}
+       */
+      var MSG_EXTERNAL_7323982518822503502$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_MAP_COMPONENT_TS__0 = goog.getMsg("Any Level");
+      i18n_0 = MSG_EXTERNAL_7323982518822503502$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_MAP_COMPONENT_TS__0;
+    } else {
+      i18n_0 = $localize(_templateObject || (_templateObject = _taggedTemplateLiteral([":\u241F50407595967bf29832e873b41f9de3502d5c3e03\u241F7323982518822503502:Any Level"])));
+    }
+    return [[1, "bg-base-100", "p-2", "border-b", "border-base-200", "w-full"], ["levels", "", "appearance", "outline", "class", "w-full no-subscript", 4, "ngIf", "ngIfElse"], ["region_level_view", ""], [1, "relative", "flex-1", "w-full"], [3, "src", "zoom", "center", "styles", "features", "actions", "zoomChange", "centerChange", 4, "ngIf", "ngIfElse"], ["mapspeople", ""], ["zoom", "", 1, "absolute", "bottom-2", "right-2", "rounded-lg", "border", "border-base-200", "bg-base-100", "flex", "flex-col", "overflow-hidden"], ["icon", "", "matRipple", "", "name", "space-map-zoom-in", 3, "click"], [1, "border-t", "border-base-200", "w-full"], ["icon", "", "matRipple", "", "name", "space-map-zoom-out", 3, "click"], ["icon", "", "matRipple", "", "name", "space-map-reset", 3, "click"], ["levels", "", "appearance", "outline", 1, "w-full", "no-subscript"], [3, "ngModel", "ngModelOptions", "ngModelChange"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], ["appearance", "outline", 1, "w-full", "no-subscript"], ["placeholder", i18n_0, 3, "ngModel", "ngModelOptions", "ngModelChange"], [3, "label", 4, "ngFor", "ngForOf"], [3, "label"], [3, "src", "zoom", "center", "styles", "features", "actions", "zoomChange", "centerChange"], [3, "styles", "actions", "custom_coordinates"]];
+  },
   template: function SpaceSelectMapComponent_Template(rf, ctx) {
     if (rf & 1) {
-      i0.ɵɵelementStart(0, "div", 0)(1, "mat-form-field", 1)(2, "mat-select", 2);
-      i0.ɵɵlistener("ngModelChange", function SpaceSelectMapComponent_Template_mat_select_ngModelChange_2_listener($event) {
-        return ctx.level = $event;
-      })("ngModelChange", function SpaceSelectMapComponent_Template_mat_select_ngModelChange_2_listener($event) {
-        return ctx.setLevel($event);
-      });
-      i0.ɵɵtemplate(3, SpaceSelectMapComponent_mat_option_3_Template, 2, 2, "mat-option", 3);
-      i0.ɵɵpipe(4, "async");
-      i0.ɵɵelementEnd()()();
-      i0.ɵɵelementStart(5, "div", 4);
-      i0.ɵɵtemplate(6, SpaceSelectMapComponent_interactive_map_6_Template, 4, 12, "interactive-map", 5);
-      i0.ɵɵpipe(7, "async");
-      i0.ɵɵtemplate(8, SpaceSelectMapComponent_ng_template_8_Template, 3, 7, "ng-template", null, 6, i0.ɵɵtemplateRefExtractor);
+      i0.ɵɵelementStart(0, "div", 0);
+      i0.ɵɵtemplate(1, SpaceSelectMapComponent_mat_form_field_1_Template, 4, 6, "mat-form-field", 1)(2, SpaceSelectMapComponent_ng_template_2_Template, 4, 6, "ng-template", null, 2, i0.ɵɵtemplateRefExtractor);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(10, "div", 7)(11, "button", 8);
-      i0.ɵɵlistener("click", function SpaceSelectMapComponent_Template_button_click_11_listener() {
+      i0.ɵɵelementStart(4, "div", 3);
+      i0.ɵɵtemplate(5, SpaceSelectMapComponent_interactive_map_5_Template, 4, 12, "interactive-map", 4);
+      i0.ɵɵpipe(6, "async");
+      i0.ɵɵtemplate(7, SpaceSelectMapComponent_ng_template_7_Template, 3, 7, "ng-template", null, 5, i0.ɵɵtemplateRefExtractor);
+      i0.ɵɵelementEnd();
+      i0.ɵɵelementStart(9, "div", 6)(10, "button", 7);
+      i0.ɵɵlistener("click", function SpaceSelectMapComponent_Template_button_click_10_listener() {
         return ctx.setZoom(ctx.zoom * 1.1);
       });
-      i0.ɵɵelementStart(12, "app-icon");
-      i0.ɵɵtext(13, "zoom_in");
+      i0.ɵɵelementStart(11, "app-icon");
+      i0.ɵɵtext(12, "zoom_in");
       i0.ɵɵelementEnd()();
-      i0.ɵɵelement(14, "div", 9);
-      i0.ɵɵelementStart(15, "button", 10);
-      i0.ɵɵlistener("click", function SpaceSelectMapComponent_Template_button_click_15_listener() {
+      i0.ɵɵelement(13, "div", 8);
+      i0.ɵɵelementStart(14, "button", 9);
+      i0.ɵɵlistener("click", function SpaceSelectMapComponent_Template_button_click_14_listener() {
         return ctx.setZoom(ctx.zoom * (1 / 1.1));
       });
-      i0.ɵɵelementStart(16, "app-icon");
-      i0.ɵɵtext(17, "zoom_out");
+      i0.ɵɵelementStart(15, "app-icon");
+      i0.ɵɵtext(16, "zoom_out");
       i0.ɵɵelementEnd()();
-      i0.ɵɵelement(18, "div", 9);
-      i0.ɵɵelementStart(19, "button", 11);
-      i0.ɵɵlistener("click", function SpaceSelectMapComponent_Template_button_click_19_listener() {
+      i0.ɵɵelement(17, "div", 8);
+      i0.ɵɵelementStart(18, "button", 10);
+      i0.ɵɵlistener("click", function SpaceSelectMapComponent_Template_button_click_18_listener() {
         return ctx.resetMap();
       });
-      i0.ɵɵelementStart(20, "app-icon");
-      i0.ɵɵtext(21, "refresh");
+      i0.ɵɵelementStart(19, "app-icon");
+      i0.ɵɵtext(20, "refresh");
       i0.ɵɵelementEnd()()();
     }
     if (rf & 2) {
-      var _r3 = i0.ɵɵreference(9);
-      i0.ɵɵadvance(2);
-      i0.ɵɵproperty("ngModel", ctx.level)("ngModelOptions", i0.ɵɵpureFunction0(9, _c0));
+      var _r2 = i0.ɵɵreference(3);
+      var _r5 = i0.ɵɵreference(8);
       i0.ɵɵadvance();
-      i0.ɵɵproperty("ngForOf", i0.ɵɵpipeBind1(4, 5, ctx.levels));
-      i0.ɵɵadvance(3);
-      i0.ɵɵproperty("ngIf", !i0.ɵɵpipeBind1(7, 7, ctx.use_mapsindoors$))("ngIfElse", _r3);
+      i0.ɵɵproperty("ngIf", !ctx.use_region)("ngIfElse", _r2);
+      i0.ɵɵadvance(4);
+      i0.ɵɵproperty("ngIf", !i0.ɵɵpipeBind1(6, 4, ctx.use_mapsindoors$))("ngIfElse", _r5);
     }
   },
-  dependencies: [i5.NgForOf, i5.NgIf, i6.IconComponent, i7.InteractiveMapComponent, i8.IndoorMapsComponent, i9.MatOption, i10.MatFormField, i11.MatSelect, i9.MatRipple, i12.NgControlStatus, i12.NgModel, i5.AsyncPipe],
+  dependencies: [i5.NgForOf, i5.NgIf, i6.IconComponent, i7.InteractiveMapComponent, i8.IndoorMapsComponent, i9.MatOption, i9.MatOptgroup, i10.MatFormField, i11.MatSelect, i9.MatRipple, i12.NgControlStatus, i12.NgModel, i5.AsyncPipe],
   styles: ["[_nghost-%COMP%] {\n                position: relative;\n                background: rgba(0, 0, 0, 0.05);\n                display: flex;\n                flex-direction: column;\n            }\n\n            button[_ngcontent-%COMP%] {\n                border-radius: 0;\n            }\n        \n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2xpYnMvc3BhY2VzL3NyYy9saWIvc3BhY2Utc2VsZWN0LW1vZGFsL3NwYWNlLW1hcC5jb21wb25lbnQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IjtZQUNZO2dCQUNJLGtCQUFrQjtnQkFDbEIsK0JBQStCO2dCQUMvQixhQUFhO2dCQUNiLHNCQUFzQjtZQUMxQjs7WUFFQTtnQkFDSSxnQkFBZ0I7WUFDcEIiLCJzb3VyY2VzQ29udGVudCI6WyJcbiAgICAgICAgICAgIDpob3N0IHtcbiAgICAgICAgICAgICAgICBwb3NpdGlvbjogcmVsYXRpdmU7XG4gICAgICAgICAgICAgICAgYmFja2dyb3VuZDogcmdiYSgwLCAwLCAwLCAwLjA1KTtcbiAgICAgICAgICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICAgICAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47XG4gICAgICAgICAgICB9XG5cbiAgICAgICAgICAgIGJ1dHRvbiB7XG4gICAgICAgICAgICAgICAgYm9yZGVyLXJhZGl1czogMDtcbiAgICAgICAgICAgIH1cbiAgICAgICAgIl0sInNvdXJjZVJvb3QiOiIifQ== */"]
 });
 exports.SpaceSelectMapComponent = SpaceSelectMapComponent;
