@@ -48,6 +48,7 @@ const EMPTY = [];
             *ngIf="use_mapsindoors$ | async"
             [styles]="styles | async"
             [actions]="actions | async"
+            [locate]="locate"
         ></indoor-maps>
         <explore-zoom-controls
             *ngIf="!(use_mapsindoors$ | async)"
@@ -127,6 +128,8 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
     public readonly message = this._state.message;
 
     public readonly setOptions = (o) => this._state.setOptions(o);
+
+    public locate = '';
 
     public async toggleZones(enabled: boolean) {
         const options = await this.options.pipe(take(1)).toPromise();
@@ -239,6 +242,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
             z_index: 99,
             data: { message: name },
         };
+        this.locate = id;
         this.timeout('update_location', () =>
             this._state.setFeatures('_located', [feature])
         );
