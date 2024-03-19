@@ -8018,31 +8018,110 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-function DeskMapComponent_mat_option_3_Template(rf, ctx) {
+function DeskMapComponent_mat_form_field_1_mat_option_2_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "mat-option", 12);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "mat-option", 14);
     _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](1);
     _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
   }
   if (rf & 2) {
-    const lvl_r4 = ctx.$implicit;
-    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("value", lvl_r4);
+    const lvl_r7 = ctx.$implicit;
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("value", lvl_r7);
     _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtextInterpolate1"](" ", lvl_r4.display_name || lvl_r4.name, " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtextInterpolate1"](" ", lvl_r7.display_name || lvl_r7.name, " ");
   }
 }
-function DeskMapComponent_interactive_map_6_Template(rf, ctx) {
+const _c0 = () => ({
+  standalone: true
+});
+function DeskMapComponent_mat_form_field_1_Template(rf, ctx) {
   if (rf & 1) {
-    const _r6 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵgetCurrentView"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "interactive-map", 13);
-    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("zoomChange", function DeskMapComponent_interactive_map_6_Template_interactive_map_zoomChange_0_listener($event) {
-      _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵrestoreView"](_r6);
-      const ctx_r5 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
-      return _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵresetView"](ctx_r5.zoom = $event);
-    })("centerChange", function DeskMapComponent_interactive_map_6_Template_interactive_map_centerChange_0_listener($event) {
-      _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵrestoreView"](_r6);
-      const ctx_r7 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
-      return _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵresetView"](ctx_r7.center = $event);
+    const _r9 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "mat-form-field", 11)(1, "mat-select", 12);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("ngModelChange", function DeskMapComponent_mat_form_field_1_Template_mat_select_ngModelChange_1_listener($event) {
+      _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵrestoreView"](_r9);
+      const ctx_r8 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵresetView"](ctx_r8.level = $event);
+    })("ngModelChange", function DeskMapComponent_mat_form_field_1_Template_mat_select_ngModelChange_1_listener($event) {
+      _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵrestoreView"](_r9);
+      const ctx_r10 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵresetView"](ctx_r10.setLevel($event));
+    });
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](2, DeskMapComponent_mat_form_field_1_mat_option_2_Template, 2, 2, "mat-option", 13);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipe"](3, "async");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngModel", ctx_r0.level)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpureFunction0"](5, _c0));
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](3, 3, ctx_r0.levels));
+  }
+}
+function DeskMapComponent_ng_template_2_mat_optgroup_2_mat_option_1_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "mat-option", 14);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
+  }
+  if (rf & 2) {
+    const level_r14 = ctx.$implicit;
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("value", level_r14);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtextInterpolate1"](" ", level_r14.display_name || level_r14.name, " ");
+  }
+}
+function DeskMapComponent_ng_template_2_mat_optgroup_2_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "mat-optgroup", 18);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](1, DeskMapComponent_ng_template_2_mat_optgroup_2_mat_option_1_Template, 2, 2, "mat-option", 13);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
+  }
+  if (rf & 2) {
+    const bld_r12 = ctx.$implicit;
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("label", bld_r12.name);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngForOf", bld_r12.levels);
+  }
+}
+function DeskMapComponent_ng_template_2_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r16 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "mat-form-field", 15)(1, "mat-select", 16);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("ngModelChange", function DeskMapComponent_ng_template_2_Template_mat_select_ngModelChange_1_listener($event) {
+      _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵrestoreView"](_r16);
+      const ctx_r15 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵresetView"](ctx_r15.level = $event);
+    })("ngModelChange", function DeskMapComponent_ng_template_2_Template_mat_select_ngModelChange_1_listener($event) {
+      _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵrestoreView"](_r16);
+      const ctx_r17 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵresetView"](ctx_r17.setLevel($event));
+    });
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](2, DeskMapComponent_ng_template_2_mat_optgroup_2_Template, 2, 2, "mat-optgroup", 17);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipe"](3, "async");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngModel", ctx_r1.level)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpureFunction0"](5, _c0));
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](3, 3, ctx_r1.region_levels));
+  }
+}
+function DeskMapComponent_interactive_map_5_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r19 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "interactive-map", 19);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("zoomChange", function DeskMapComponent_interactive_map_5_Template_interactive_map_zoomChange_0_listener($event) {
+      _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵrestoreView"](_r19);
+      const ctx_r18 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵresetView"](ctx_r18.zoom = $event);
+    })("centerChange", function DeskMapComponent_interactive_map_5_Template_interactive_map_centerChange_0_listener($event) {
+      _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵrestoreView"](_r19);
+      const ctx_r20 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵresetView"](ctx_r20.center = $event);
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipe"](1, "async");
     _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipe"](2, "async");
@@ -8050,27 +8129,27 @@ function DeskMapComponent_interactive_map_6_Template(rf, ctx) {
     _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
   }
   if (rf & 2) {
-    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("src", ctx_r1.map_url)("zoom", ctx_r1.zoom)("center", ctx_r1.center)("styles", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](1, 6, ctx_r1.styles))("features", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](2, 8, ctx_r1.features))("actions", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](3, 10, ctx_r1.actions));
+    const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("src", ctx_r3.map_url)("zoom", ctx_r3.zoom)("center", ctx_r3.center)("styles", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](1, 6, ctx_r3.styles))("features", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](2, 8, ctx_r3.features))("actions", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](3, 10, ctx_r3.actions));
   }
 }
-function DeskMapComponent_ng_template_8_Template(rf, ctx) {
+function DeskMapComponent_ng_template_7_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelement"](0, "indoor-maps", 14);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelement"](0, "indoor-maps", 20);
     _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipe"](1, "async");
     _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipe"](2, "async");
   }
   if (rf & 2) {
-    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("styles", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](1, 3, ctx_r2.styles))("actions", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](2, 5, ctx_r2.actions))("custom_coordinates", ctx_r2.coordinates);
+    const ctx_r4 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("styles", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](1, 3, ctx_r4.styles))("actions", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](2, 5, ctx_r4.actions))("custom_coordinates", ctx_r4.coordinates);
   }
 }
-const _c0 = () => ({
-  standalone: true
-});
 class DeskMapComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0__.AsyncHandler {
   get map_url() {
     return this.level?.map_id || '';
+  }
+  get use_region() {
+    return !!this._settings.get('app.use_region');
   }
   constructor(_state, _settings, _org, _maps_people) {
     super();
@@ -8092,6 +8171,15 @@ class DeskMapComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0__.Asyn
     this._change = new rxjs__WEBPACK_IMPORTED_MODULE_10__.BehaviorSubject(0);
     this.levels = this._org.active_levels;
     this.setOptions = o => this._state.setOptions(o);
+    this.region_levels = this._org.active_region.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_11__.map)(_ => {
+      const region_buildings = this._org.buildings.filter(b => !_ || b.parent_id === _.id);
+      const region_levels = region_buildings.map(b => ({
+        id: b.id,
+        name: b.display_name || b.name,
+        levels: this._org.levels.filter(l => l.parent_id === b.id && !l.tags.includes('parking'))
+      }));
+      return region_levels;
+    }));
     this.actions = this._state.available_resources.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_11__.map)(desks => desks.map(desk => ({
       id: desk.map_id || desk.id,
       action: ['touchend', 'mouseup'],
@@ -8131,6 +8219,7 @@ class DeskMapComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0__.Asyn
       }
     }));
     this.subscription('levels_update', this.levels.subscribe(levels => {
+      if (this.use_region) return;
       if (!levels.find(_ => _.id === this.level?.id)) {
         this.level = levels[0];
         this.setLevel(this.level);
@@ -8159,6 +8248,7 @@ class DeskMapComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0__.Asyn
       };
     }
     this._maps_people.setCustomZone(level?.parent_id);
+    this.level = level;
   }
   setZoom(new_zoom) {
     this.zoom = Math.max(0.5, Math.min(10, new_zoom));
@@ -8184,60 +8274,65 @@ class DeskMapComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0__.Asyn
       onSelect: "onSelect"
     },
     features: [_angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵInheritDefinitionFeature"], _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵNgOnChangesFeature"]],
-    decls: 22,
-    vars: 10,
-    consts: [[1, "bg-base-100", "p-2", "border-b", "border-base-200", "w-full"], ["levels", "", "appearance", "outline", 1, "w-full", "h-[3.25rem]"], [3, "ngModel", "ngModelOptions", "ngModelChange"], [3, "value", 4, "ngFor", "ngForOf"], [1, "relative", "flex-1", "w-full"], [3, "src", "zoom", "center", "styles", "features", "actions", "zoomChange", "centerChange", 4, "ngIf", "ngIfElse"], ["mapspeople", ""], ["zoom", "", 1, "absolute", "bottom-2", "right-2", "rounded-lg", "border", "border-base-200", "bg-base-100", "flex", "flex-col", "overflow-hidden"], ["zoom-in", "", "icon", "", "matRipple", "", 3, "click"], [1, "border-t", "border-base-200", "w-full"], ["zoom-out", "", "icon", "", "matRipple", "", 3, "click"], ["reset", "", "icon", "", "matRipple", "", 3, "click"], [3, "value"], [3, "src", "zoom", "center", "styles", "features", "actions", "zoomChange", "centerChange"], [3, "styles", "actions", "custom_coordinates"]],
+    decls: 21,
+    vars: 6,
+    consts: () => {
+      let i18n_0;
+      if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+        /**
+         * @suppress {msgDescriptions}
+         */
+        const MSG_EXTERNAL_7323982518822503502$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_MAP_COMPONENT_TS__0 = goog.getMsg("Any Level");
+        i18n_0 = MSG_EXTERNAL_7323982518822503502$$LIBS_BOOKINGS_SRC_LIB_DESK_SELECT_MODAL_DESK_MAP_COMPONENT_TS__0;
+      } else {
+        i18n_0 = $localize`:␟50407595967bf29832e873b41f9de3502d5c3e03␟7323982518822503502:Any Level`;
+      }
+      return [[1, "bg-base-100", "p-2", "border-b", "border-base-200", "w-full"], ["levels", "", "appearance", "outline", "class", "w-full no-subscript", 4, "ngIf", "ngIfElse"], ["region_level_view", ""], [1, "relative", "flex-1", "w-full"], [3, "src", "zoom", "center", "styles", "features", "actions", "zoomChange", "centerChange", 4, "ngIf", "ngIfElse"], ["mapspeople", ""], ["zoom", "", 1, "absolute", "bottom-2", "right-2", "rounded-lg", "border", "border-base-200", "bg-base-100", "flex", "flex-col", "overflow-hidden"], ["zoom-in", "", "icon", "", "matRipple", "", 3, "click"], [1, "border-t", "border-base-200", "w-full"], ["zoom-out", "", "icon", "", "matRipple", "", 3, "click"], ["reset", "", "icon", "", "matRipple", "", 3, "click"], ["levels", "", "appearance", "outline", 1, "w-full", "no-subscript"], [3, "ngModel", "ngModelOptions", "ngModelChange"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], ["appearance", "outline", 1, "w-full", "no-subscript"], ["placeholder", i18n_0, 3, "ngModel", "ngModelOptions", "ngModelChange"], [3, "label", 4, "ngFor", "ngForOf"], [3, "label"], [3, "src", "zoom", "center", "styles", "features", "actions", "zoomChange", "centerChange"], [3, "styles", "actions", "custom_coordinates"]];
+    },
     template: function DeskMapComponent_Template(rf, ctx) {
       if (rf & 1) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "div", 0)(1, "mat-form-field", 1)(2, "mat-select", 2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("ngModelChange", function DeskMapComponent_Template_mat_select_ngModelChange_2_listener($event) {
-          return ctx.level = $event;
-        })("ngModelChange", function DeskMapComponent_Template_mat_select_ngModelChange_2_listener($event) {
-          return ctx.setLevel($event);
-        });
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](3, DeskMapComponent_mat_option_3_Template, 2, 2, "mat-option", 3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipe"](4, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]()()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](5, "div", 4);
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](6, DeskMapComponent_interactive_map_6_Template, 4, 12, "interactive-map", 5);
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipe"](7, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](8, DeskMapComponent_ng_template_8_Template, 3, 7, "ng-template", null, 6, _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplateRefExtractor"]);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "div", 0);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](1, DeskMapComponent_mat_form_field_1_Template, 4, 6, "mat-form-field", 1)(2, DeskMapComponent_ng_template_2_Template, 4, 6, "ng-template", null, 2, _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplateRefExtractor"]);
         _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](10, "div", 7)(11, "button", 8);
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("click", function DeskMapComponent_Template_button_click_11_listener() {
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](4, "div", 3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](5, DeskMapComponent_interactive_map_5_Template, 4, 12, "interactive-map", 4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipe"](6, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](7, DeskMapComponent_ng_template_7_Template, 3, 7, "ng-template", null, 5, _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplateRefExtractor"]);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](9, "div", 6)(10, "button", 7);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("click", function DeskMapComponent_Template_button_click_10_listener() {
           return ctx.setZoom(ctx.zoom * 1.1);
         });
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](12, "app-icon");
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](13, "zoom_in");
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](11, "app-icon");
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](12, "zoom_in");
         _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelement"](14, "div", 9);
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](15, "button", 10);
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("click", function DeskMapComponent_Template_button_click_15_listener() {
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelement"](13, "div", 8);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](14, "button", 9);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("click", function DeskMapComponent_Template_button_click_14_listener() {
           return ctx.setZoom(ctx.zoom * (1 / 1.1));
         });
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](16, "app-icon");
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](17, "zoom_out");
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](15, "app-icon");
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](16, "zoom_out");
         _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelement"](18, "div", 9);
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](19, "button", 11);
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("click", function DeskMapComponent_Template_button_click_19_listener() {
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelement"](17, "div", 8);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](18, "button", 10);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("click", function DeskMapComponent_Template_button_click_18_listener() {
           return ctx.resetMap();
         });
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](20, "app-icon");
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](21, "refresh");
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](19, "app-icon");
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](20, "refresh");
         _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]()()();
       }
       if (rf & 2) {
-        const _r3 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵreference"](9);
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngModel", ctx.level)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpureFunction0"](9, _c0));
+        const _r2 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵreference"](3);
+        const _r5 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵreference"](8);
         _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](4, 5, ctx.levels));
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"](3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngIf", !_angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](7, 7, ctx.use_mapsindoors$))("ngIfElse", _r3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngIf", !ctx.use_region)("ngIfElse", _r2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"](4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngIf", !_angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](6, 4, ctx.use_mapsindoors$))("ngIfElse", _r5);
       }
     },
-    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_13__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_13__.NgIf, _angular_forms__WEBPACK_IMPORTED_MODULE_14__.NgControlStatus, _angular_forms__WEBPACK_IMPORTED_MODULE_14__.NgModel, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_15__.MatFormField, _angular_material_core__WEBPACK_IMPORTED_MODULE_16__.MatOption, _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_6__.IconComponent, _components_src_lib_interactive_map_component__WEBPACK_IMPORTED_MODULE_7__.InteractiveMapComponent, _components_src_lib_indoor_maps_component__WEBPACK_IMPORTED_MODULE_8__.IndoorMapsComponent, _angular_material_select__WEBPACK_IMPORTED_MODULE_17__.MatSelect, _angular_material_core__WEBPACK_IMPORTED_MODULE_16__.MatRipple, _angular_common__WEBPACK_IMPORTED_MODULE_13__.AsyncPipe],
+    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_13__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_13__.NgIf, _angular_forms__WEBPACK_IMPORTED_MODULE_14__.NgControlStatus, _angular_forms__WEBPACK_IMPORTED_MODULE_14__.NgModel, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_15__.MatFormField, _angular_material_core__WEBPACK_IMPORTED_MODULE_16__.MatOption, _angular_material_core__WEBPACK_IMPORTED_MODULE_16__.MatOptgroup, _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_6__.IconComponent, _components_src_lib_interactive_map_component__WEBPACK_IMPORTED_MODULE_7__.InteractiveMapComponent, _components_src_lib_indoor_maps_component__WEBPACK_IMPORTED_MODULE_8__.IndoorMapsComponent, _angular_material_select__WEBPACK_IMPORTED_MODULE_17__.MatSelect, _angular_material_core__WEBPACK_IMPORTED_MODULE_16__.MatRipple, _angular_common__WEBPACK_IMPORTED_MODULE_13__.AsyncPipe],
     styles: ["[_nghost-%COMP%] {\n                position: relative;\n                background: rgba(0, 0, 0, 0.05);\n                display: flex;\n                flex-direction: column;\n            }\n\n            button[_ngcontent-%COMP%] {\n                border-radius: 0;\n            }\n        \n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2xpYnMvYm9va2luZ3Mvc3JjL2xpYi9kZXNrLXNlbGVjdC1tb2RhbC9kZXNrLW1hcC5jb21wb25lbnQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IjtZQUNZO2dCQUNJLGtCQUFrQjtnQkFDbEIsK0JBQStCO2dCQUMvQixhQUFhO2dCQUNiLHNCQUFzQjtZQUMxQjs7WUFFQTtnQkFDSSxnQkFBZ0I7WUFDcEIiLCJzb3VyY2VzQ29udGVudCI6WyJcbiAgICAgICAgICAgIDpob3N0IHtcbiAgICAgICAgICAgICAgICBwb3NpdGlvbjogcmVsYXRpdmU7XG4gICAgICAgICAgICAgICAgYmFja2dyb3VuZDogcmdiYSgwLCAwLCAwLCAwLjA1KTtcbiAgICAgICAgICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICAgICAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47XG4gICAgICAgICAgICB9XG5cbiAgICAgICAgICAgIGJ1dHRvbiB7XG4gICAgICAgICAgICAgICAgYm9yZGVyLXJhZGl1czogMDtcbiAgICAgICAgICAgIH1cbiAgICAgICAgIl0sInNvdXJjZVJvb3QiOiIifQ== */"]
   });
 }
@@ -17867,15 +17962,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "db7c488",
-  "hash": "db7c488",
+  "raw": "ffa19b2",
+  "hash": "ffa19b2",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "db7c488",
+  "suffix": "ffa19b2",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1710743280717
+  "time": 1710809806913
 };
 /* tslint:enable */
 
@@ -42281,7 +42376,7 @@ class SpaceFiltersComponent {
       const region_levels = region_buildings.map(b => ({
         id: b.id,
         name: b.display_name || b.name,
-        levels: this._org.levels.filter(l => l.parent_id === b.id)
+        levels: this._org.levels.filter(l => l.parent_id === b.id && !l.tags.includes('parking'))
       }));
       return region_levels;
     }));
@@ -43014,31 +43109,110 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-function SpaceSelectMapComponent_mat_option_3_Template(rf, ctx) {
+function SpaceSelectMapComponent_mat_form_field_1_mat_option_2_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "mat-option", 12);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "mat-option", 14);
     _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](1);
     _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
   }
   if (rf & 2) {
-    const lvl_r4 = ctx.$implicit;
-    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("value", lvl_r4);
+    const lvl_r7 = ctx.$implicit;
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("value", lvl_r7);
     _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtextInterpolate1"](" ", lvl_r4.display_name || lvl_r4.name, " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtextInterpolate1"](" ", lvl_r7.display_name || lvl_r7.name, " ");
   }
 }
-function SpaceSelectMapComponent_interactive_map_6_Template(rf, ctx) {
+const _c0 = () => ({
+  standalone: true
+});
+function SpaceSelectMapComponent_mat_form_field_1_Template(rf, ctx) {
   if (rf & 1) {
-    const _r6 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵgetCurrentView"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "interactive-map", 13);
-    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("zoomChange", function SpaceSelectMapComponent_interactive_map_6_Template_interactive_map_zoomChange_0_listener($event) {
-      _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵrestoreView"](_r6);
-      const ctx_r5 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
-      return _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵresetView"](ctx_r5.zoom = $event);
-    })("centerChange", function SpaceSelectMapComponent_interactive_map_6_Template_interactive_map_centerChange_0_listener($event) {
-      _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵrestoreView"](_r6);
-      const ctx_r7 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
-      return _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵresetView"](ctx_r7.center = $event);
+    const _r9 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "mat-form-field", 11)(1, "mat-select", 12);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("ngModelChange", function SpaceSelectMapComponent_mat_form_field_1_Template_mat_select_ngModelChange_1_listener($event) {
+      _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵrestoreView"](_r9);
+      const ctx_r8 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵresetView"](ctx_r8.level = $event);
+    })("ngModelChange", function SpaceSelectMapComponent_mat_form_field_1_Template_mat_select_ngModelChange_1_listener($event) {
+      _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵrestoreView"](_r9);
+      const ctx_r10 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵresetView"](ctx_r10.setLevel($event));
+    });
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](2, SpaceSelectMapComponent_mat_form_field_1_mat_option_2_Template, 2, 2, "mat-option", 13);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipe"](3, "async");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngModel", ctx_r0.level)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpureFunction0"](5, _c0));
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](3, 3, ctx_r0.levels));
+  }
+}
+function SpaceSelectMapComponent_ng_template_2_mat_optgroup_2_mat_option_1_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "mat-option", 14);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
+  }
+  if (rf & 2) {
+    const level_r14 = ctx.$implicit;
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("value", level_r14);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtextInterpolate1"](" ", level_r14.display_name || level_r14.name, " ");
+  }
+}
+function SpaceSelectMapComponent_ng_template_2_mat_optgroup_2_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "mat-optgroup", 18);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](1, SpaceSelectMapComponent_ng_template_2_mat_optgroup_2_mat_option_1_Template, 2, 2, "mat-option", 13);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
+  }
+  if (rf & 2) {
+    const bld_r12 = ctx.$implicit;
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("label", bld_r12.name);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngForOf", bld_r12.levels);
+  }
+}
+function SpaceSelectMapComponent_ng_template_2_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r16 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "mat-form-field", 15)(1, "mat-select", 16);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("ngModelChange", function SpaceSelectMapComponent_ng_template_2_Template_mat_select_ngModelChange_1_listener($event) {
+      _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵrestoreView"](_r16);
+      const ctx_r15 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵresetView"](ctx_r15.level = $event);
+    })("ngModelChange", function SpaceSelectMapComponent_ng_template_2_Template_mat_select_ngModelChange_1_listener($event) {
+      _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵrestoreView"](_r16);
+      const ctx_r17 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵresetView"](ctx_r17.setLevel($event));
+    });
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](2, SpaceSelectMapComponent_ng_template_2_mat_optgroup_2_Template, 2, 2, "mat-optgroup", 17);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipe"](3, "async");
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngModel", ctx_r1.level)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpureFunction0"](5, _c0));
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](3, 3, ctx_r1.region_levels));
+  }
+}
+function SpaceSelectMapComponent_interactive_map_5_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r19 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "interactive-map", 19);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("zoomChange", function SpaceSelectMapComponent_interactive_map_5_Template_interactive_map_zoomChange_0_listener($event) {
+      _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵrestoreView"](_r19);
+      const ctx_r18 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵresetView"](ctx_r18.zoom = $event);
+    })("centerChange", function SpaceSelectMapComponent_interactive_map_5_Template_interactive_map_centerChange_0_listener($event) {
+      _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵrestoreView"](_r19);
+      const ctx_r20 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵresetView"](ctx_r20.center = $event);
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipe"](1, "async");
     _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipe"](2, "async");
@@ -43046,27 +43220,27 @@ function SpaceSelectMapComponent_interactive_map_6_Template(rf, ctx) {
     _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
   }
   if (rf & 2) {
-    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("src", ctx_r1.map_url)("zoom", ctx_r1.zoom)("center", ctx_r1.center)("styles", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](1, 6, ctx_r1.styles))("features", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](2, 8, ctx_r1.features))("actions", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](3, 10, ctx_r1.actions));
+    const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("src", ctx_r3.map_url)("zoom", ctx_r3.zoom)("center", ctx_r3.center)("styles", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](1, 6, ctx_r3.styles))("features", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](2, 8, ctx_r3.features))("actions", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](3, 10, ctx_r3.actions));
   }
 }
-function SpaceSelectMapComponent_ng_template_8_Template(rf, ctx) {
+function SpaceSelectMapComponent_ng_template_7_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelement"](0, "indoor-maps", 14);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelement"](0, "indoor-maps", 20);
     _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipe"](1, "async");
     _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipe"](2, "async");
   }
   if (rf & 2) {
-    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("styles", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](1, 3, ctx_r2.styles))("actions", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](2, 5, ctx_r2.actions))("custom_coordinates", ctx_r2.coordinates);
+    const ctx_r4 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("styles", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](1, 3, ctx_r4.styles))("actions", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](2, 5, ctx_r4.actions))("custom_coordinates", ctx_r4.coordinates);
   }
 }
-const _c0 = () => ({
-  standalone: true
-});
 class SpaceSelectMapComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0__.AsyncHandler {
   get map_url() {
     return this.level?.map_id || '';
+  }
+  get use_region() {
+    return !!this._settings.get('app.use_region');
   }
   constructor(_event_form, _org, _maps_people, _settings) {
     super();
@@ -43092,6 +43266,15 @@ class SpaceSelectMapComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0
     this.levels = this._event_form.available_spaces.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_11__.map)(_ => (0,_placeos_common__WEBPACK_IMPORTED_MODULE_0__.unique)(_.map(({
       zones
     }) => this._org.levelWithID(zones)), 'id')), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_12__.tap)(_ => this.level = this.level ? this.level : _[0]));
+    this.region_levels = this._org.active_region.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_11__.map)(_ => {
+      const region_buildings = this._org.buildings.filter(b => !_ || b.parent_id === _.id);
+      const region_levels = region_buildings.map(b => ({
+        id: b.id,
+        name: b.display_name || b.name,
+        levels: this._org.levels.filter(l => l.parent_id === b.id && !l.tags.includes('parking'))
+      }));
+      return region_levels;
+    }));
     this.setOptions = o => this._event_form.setOptions(o);
     this.features = (0,rxjs__WEBPACK_IMPORTED_MODULE_13__.combineLatest)([this._event_form.available_spaces, this._change]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_14__.debounceTime)(300), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_11__.map)(([l]) => l.map(space => ({
       location: space.map_id,
@@ -43119,6 +43302,7 @@ class SpaceSelectMapComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0
   }
   ngOnInit() {
     this.subscription('levels_update', this.levels.subscribe(levels => {
+      if (this.use_region) return;
       if (levels.length && !levels.find(_ => _.id === this.level?.id)) {
         this.level = levels[0];
         this.setLevel(this.level);
@@ -43129,8 +43313,9 @@ class SpaceSelectMapComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0
     this._maps_people.setCustomZone('');
   }
   setLevel(level) {
+    console.log('Set Level', level);
     this.setOptions({
-      zone_id: level?.id
+      zone_ids: [level?.id]
     });
     const bld = this._org.buildings.find(_ => _.id === level?.parent_id);
     if (bld) {
@@ -43141,6 +43326,7 @@ class SpaceSelectMapComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0
       };
     }
     this._maps_people.setCustomZone(level.parent_id);
+    this.level = level;
   }
   setZoom(new_zoom) {
     this.zoom = Math.max(0.5, Math.min(10, new_zoom));
@@ -43167,60 +43353,65 @@ class SpaceSelectMapComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0
       onSelect: "onSelect"
     },
     features: [_angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵInheritDefinitionFeature"]],
-    decls: 22,
-    vars: 10,
-    consts: [[1, "bg-base-100", "p-2", "border-b", "border-base-200", "w-full"], ["levels", "", "appearance", "outline", 1, "w-full", "h-[3.25rem]"], [3, "ngModel", "ngModelOptions", "ngModelChange"], [3, "value", 4, "ngFor", "ngForOf"], [1, "relative", "flex-1", "w-full"], [3, "src", "zoom", "center", "styles", "features", "actions", "zoomChange", "centerChange", 4, "ngIf", "ngIfElse"], ["mapspeople", ""], ["zoom", "", 1, "absolute", "bottom-2", "right-2", "rounded-lg", "border", "border-base-200", "bg-base-100", "flex", "flex-col", "overflow-hidden"], ["icon", "", "matRipple", "", "name", "space-map-zoom-in", 3, "click"], [1, "border-t", "border-base-200", "w-full"], ["icon", "", "matRipple", "", "name", "space-map-zoom-out", 3, "click"], ["icon", "", "matRipple", "", "name", "space-map-reset", 3, "click"], [3, "value"], [3, "src", "zoom", "center", "styles", "features", "actions", "zoomChange", "centerChange"], [3, "styles", "actions", "custom_coordinates"]],
+    decls: 21,
+    vars: 6,
+    consts: () => {
+      let i18n_0;
+      if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+        /**
+         * @suppress {msgDescriptions}
+         */
+        const MSG_EXTERNAL_7323982518822503502$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_MAP_COMPONENT_TS__0 = goog.getMsg("Any Level");
+        i18n_0 = MSG_EXTERNAL_7323982518822503502$$LIBS_SPACES_SRC_LIB_SPACE_SELECT_MODAL_SPACE_MAP_COMPONENT_TS__0;
+      } else {
+        i18n_0 = $localize`:␟50407595967bf29832e873b41f9de3502d5c3e03␟7323982518822503502:Any Level`;
+      }
+      return [[1, "bg-base-100", "p-2", "border-b", "border-base-200", "w-full"], ["levels", "", "appearance", "outline", "class", "w-full no-subscript", 4, "ngIf", "ngIfElse"], ["region_level_view", ""], [1, "relative", "flex-1", "w-full"], [3, "src", "zoom", "center", "styles", "features", "actions", "zoomChange", "centerChange", 4, "ngIf", "ngIfElse"], ["mapspeople", ""], ["zoom", "", 1, "absolute", "bottom-2", "right-2", "rounded-lg", "border", "border-base-200", "bg-base-100", "flex", "flex-col", "overflow-hidden"], ["icon", "", "matRipple", "", "name", "space-map-zoom-in", 3, "click"], [1, "border-t", "border-base-200", "w-full"], ["icon", "", "matRipple", "", "name", "space-map-zoom-out", 3, "click"], ["icon", "", "matRipple", "", "name", "space-map-reset", 3, "click"], ["levels", "", "appearance", "outline", 1, "w-full", "no-subscript"], [3, "ngModel", "ngModelOptions", "ngModelChange"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], ["appearance", "outline", 1, "w-full", "no-subscript"], ["placeholder", i18n_0, 3, "ngModel", "ngModelOptions", "ngModelChange"], [3, "label", 4, "ngFor", "ngForOf"], [3, "label"], [3, "src", "zoom", "center", "styles", "features", "actions", "zoomChange", "centerChange"], [3, "styles", "actions", "custom_coordinates"]];
+    },
     template: function SpaceSelectMapComponent_Template(rf, ctx) {
       if (rf & 1) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "div", 0)(1, "mat-form-field", 1)(2, "mat-select", 2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("ngModelChange", function SpaceSelectMapComponent_Template_mat_select_ngModelChange_2_listener($event) {
-          return ctx.level = $event;
-        })("ngModelChange", function SpaceSelectMapComponent_Template_mat_select_ngModelChange_2_listener($event) {
-          return ctx.setLevel($event);
-        });
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](3, SpaceSelectMapComponent_mat_option_3_Template, 2, 2, "mat-option", 3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipe"](4, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]()()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](5, "div", 4);
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](6, SpaceSelectMapComponent_interactive_map_6_Template, 4, 12, "interactive-map", 5);
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipe"](7, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](8, SpaceSelectMapComponent_ng_template_8_Template, 3, 7, "ng-template", null, 6, _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplateRefExtractor"]);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "div", 0);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](1, SpaceSelectMapComponent_mat_form_field_1_Template, 4, 6, "mat-form-field", 1)(2, SpaceSelectMapComponent_ng_template_2_Template, 4, 6, "ng-template", null, 2, _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplateRefExtractor"]);
         _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](10, "div", 7)(11, "button", 8);
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("click", function SpaceSelectMapComponent_Template_button_click_11_listener() {
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](4, "div", 3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](5, SpaceSelectMapComponent_interactive_map_5_Template, 4, 12, "interactive-map", 4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipe"](6, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](7, SpaceSelectMapComponent_ng_template_7_Template, 3, 7, "ng-template", null, 5, _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplateRefExtractor"]);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](9, "div", 6)(10, "button", 7);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("click", function SpaceSelectMapComponent_Template_button_click_10_listener() {
           return ctx.setZoom(ctx.zoom * 1.1);
         });
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](12, "app-icon");
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](13, "zoom_in");
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](11, "app-icon");
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](12, "zoom_in");
         _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelement"](14, "div", 9);
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](15, "button", 10);
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("click", function SpaceSelectMapComponent_Template_button_click_15_listener() {
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelement"](13, "div", 8);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](14, "button", 9);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("click", function SpaceSelectMapComponent_Template_button_click_14_listener() {
           return ctx.setZoom(ctx.zoom * (1 / 1.1));
         });
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](16, "app-icon");
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](17, "zoom_out");
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](15, "app-icon");
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](16, "zoom_out");
         _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelement"](18, "div", 9);
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](19, "button", 11);
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("click", function SpaceSelectMapComponent_Template_button_click_19_listener() {
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelement"](17, "div", 8);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](18, "button", 10);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("click", function SpaceSelectMapComponent_Template_button_click_18_listener() {
           return ctx.resetMap();
         });
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](20, "app-icon");
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](21, "refresh");
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](19, "app-icon");
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtext"](20, "refresh");
         _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]()()();
       }
       if (rf & 2) {
-        const _r3 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵreference"](9);
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngModel", ctx.level)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpureFunction0"](9, _c0));
+        const _r2 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵreference"](3);
+        const _r5 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵreference"](8);
         _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](4, 5, ctx.levels));
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"](3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngIf", !_angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](7, 7, ctx.use_mapsindoors$))("ngIfElse", _r3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngIf", !ctx.use_region)("ngIfElse", _r2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"](4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngIf", !_angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵpipeBind1"](6, 4, ctx.use_mapsindoors$))("ngIfElse", _r5);
       }
     },
-    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_15__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_15__.NgIf, _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_6__.IconComponent, _components_src_lib_interactive_map_component__WEBPACK_IMPORTED_MODULE_7__.InteractiveMapComponent, _components_src_lib_indoor_maps_component__WEBPACK_IMPORTED_MODULE_8__.IndoorMapsComponent, _angular_material_core__WEBPACK_IMPORTED_MODULE_16__.MatOption, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_17__.MatFormField, _angular_material_select__WEBPACK_IMPORTED_MODULE_18__.MatSelect, _angular_material_core__WEBPACK_IMPORTED_MODULE_16__.MatRipple, _angular_forms__WEBPACK_IMPORTED_MODULE_19__.NgControlStatus, _angular_forms__WEBPACK_IMPORTED_MODULE_19__.NgModel, _angular_common__WEBPACK_IMPORTED_MODULE_15__.AsyncPipe],
+    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_15__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_15__.NgIf, _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_6__.IconComponent, _components_src_lib_interactive_map_component__WEBPACK_IMPORTED_MODULE_7__.InteractiveMapComponent, _components_src_lib_indoor_maps_component__WEBPACK_IMPORTED_MODULE_8__.IndoorMapsComponent, _angular_material_core__WEBPACK_IMPORTED_MODULE_16__.MatOption, _angular_material_core__WEBPACK_IMPORTED_MODULE_16__.MatOptgroup, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_17__.MatFormField, _angular_material_select__WEBPACK_IMPORTED_MODULE_18__.MatSelect, _angular_material_core__WEBPACK_IMPORTED_MODULE_16__.MatRipple, _angular_forms__WEBPACK_IMPORTED_MODULE_19__.NgControlStatus, _angular_forms__WEBPACK_IMPORTED_MODULE_19__.NgModel, _angular_common__WEBPACK_IMPORTED_MODULE_15__.AsyncPipe],
     styles: ["[_nghost-%COMP%] {\n                position: relative;\n                background: rgba(0, 0, 0, 0.05);\n                display: flex;\n                flex-direction: column;\n            }\n\n            button[_ngcontent-%COMP%] {\n                border-radius: 0;\n            }\n        \n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2xpYnMvc3BhY2VzL3NyYy9saWIvc3BhY2Utc2VsZWN0LW1vZGFsL3NwYWNlLW1hcC5jb21wb25lbnQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IjtZQUNZO2dCQUNJLGtCQUFrQjtnQkFDbEIsK0JBQStCO2dCQUMvQixhQUFhO2dCQUNiLHNCQUFzQjtZQUMxQjs7WUFFQTtnQkFDSSxnQkFBZ0I7WUFDcEIiLCJzb3VyY2VzQ29udGVudCI6WyJcbiAgICAgICAgICAgIDpob3N0IHtcbiAgICAgICAgICAgICAgICBwb3NpdGlvbjogcmVsYXRpdmU7XG4gICAgICAgICAgICAgICAgYmFja2dyb3VuZDogcmdiYSgwLCAwLCAwLCAwLjA1KTtcbiAgICAgICAgICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICAgICAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47XG4gICAgICAgICAgICB9XG5cbiAgICAgICAgICAgIGJ1dHRvbiB7XG4gICAgICAgICAgICAgICAgYm9yZGVyLXJhZGl1czogMDtcbiAgICAgICAgICAgIH1cbiAgICAgICAgIl0sInNvdXJjZVJvb3QiOiIifQ== */"]
   });
 }
