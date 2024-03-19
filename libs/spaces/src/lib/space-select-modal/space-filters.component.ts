@@ -303,7 +303,9 @@ export class SpaceFiltersComponent {
             const region_levels = region_buildings.map((b) => ({
                 id: b.id,
                 name: b.display_name || b.name,
-                levels: this._org.levels.filter((l) => l.parent_id === b.id),
+                levels: this._org.levels.filter(
+                    (l) => l.parent_id === b.id && !l.tags.includes('parking')
+                ),
             }));
             return region_levels;
         })

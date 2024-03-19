@@ -18,7 +18,8 @@ import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
             <mat-form-field
                 levels
                 appearance="outline"
-                class="w-full h-[3.25rem]"
+                class="w-full no-subscript"
+                *ngIf="!use_region; else region_level_view"
             >
                 <mat-select
                     [(ngModel)]="level"
@@ -33,6 +34,32 @@ import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
                     </mat-option>
                 </mat-select>
             </mat-form-field>
+            <ng-template #region_level_view>
+                <mat-form-field
+                    appearance="outline"
+                    class="w-full no-subscript"
+                >
+                    <mat-select
+                        [(ngModel)]="level"
+                        (ngModelChange)="setLevel($event)"
+                        [ngModelOptions]="{ standalone: true }"
+                        placeholder="Any Level"
+                        i18n-placeholder
+                    >
+                        <mat-optgroup
+                            *ngFor="let bld of region_levels | async"
+                            [label]="bld.name"
+                        >
+                            <mat-option
+                                [value]="level"
+                                *ngFor="let level of bld.levels"
+                            >
+                                {{ level.display_name || level.name }}
+                            </mat-option>
+                        </mat-optgroup>
+                    </mat-select>
+                </mat-form-field>
+            </ng-template>
         </div>
         <div class="relative flex-1 w-full">
             <interactive-map
@@ -124,6 +151,21 @@ export class SpaceSelectMapComponent extends AsyncHandler {
         ),
         tap((_) => (this.level = this.level ? this.level : _[0]))
     );
+    public readonly region_levels = this._org.active_region.pipe(
+        map((_) => {
+            const region_buildings = this._org.buildings.filter(
+                (b) => !_ || b.parent_id === _.id
+            );
+            const region_levels = region_buildings.map((b) => ({
+                id: b.id,
+                name: b.display_name || b.name,
+                levels: this._org.levels.filter(
+                    (l) => l.parent_id === b.id && !l.tags.includes('parking')
+                ),
+            }));
+            return region_levels;
+        })
+    );
 
     public readonly setOptions = (o) => this._event_form.setOptions(o);
 
@@ -178,6 +220,10 @@ export class SpaceSelectMapComponent extends AsyncHandler {
 
     public readonly use_mapsindoors$ = this._maps_people.available$;
 
+    public get use_region() {
+        return !!this._settings.get('app.use_region');
+    }
+
     constructor(
         private _event_form: EventFormService,
         private _org: OrganisationService,
@@ -191,6 +237,7 @@ export class SpaceSelectMapComponent extends AsyncHandler {
         this.subscription(
             'levels_update',
             this.levels.subscribe((levels) => {
+                if (this.use_region) return;
                 if (
                     levels.length &&
                     !levels.find((_) => _.id === this.level?.id)
@@ -207,7 +254,8 @@ export class SpaceSelectMapComponent extends AsyncHandler {
     }
 
     public setLevel(level: BuildingLevel) {
-        this.setOptions({ zone_id: level?.id });
+        console.log('Set Level', level);
+        this.setOptions({ zone_ids: [level?.id] });
         const bld = this._org.buildings.find((_) => _.id === level?.parent_id);
         if (bld) {
             const [latitude, longitude] = (level.location || bld.location)
@@ -216,6 +264,7 @@ export class SpaceSelectMapComponent extends AsyncHandler {
             this.coordinates = { latitude, longitude };
         }
         this._maps_people.setCustomZone(level.parent_id);
+        this.level = level;
     }
 
     public setZoom(new_zoom: number) {

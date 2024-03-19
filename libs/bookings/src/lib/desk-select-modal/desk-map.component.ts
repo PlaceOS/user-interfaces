@@ -38,7 +38,8 @@ import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
             <mat-form-field
                 levels
                 appearance="outline"
-                class="w-full h-[3.25rem]"
+                class="w-full no-subscript"
+                *ngIf="!use_region; else region_level_view"
             >
                 <mat-select
                     [(ngModel)]="level"
@@ -53,6 +54,32 @@ import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
                     </mat-option>
                 </mat-select>
             </mat-form-field>
+            <ng-template #region_level_view>
+                <mat-form-field
+                    appearance="outline"
+                    class="w-full no-subscript"
+                >
+                    <mat-select
+                        [(ngModel)]="level"
+                        (ngModelChange)="setLevel($event)"
+                        [ngModelOptions]="{ standalone: true }"
+                        placeholder="Any Level"
+                        i18n-placeholder
+                    >
+                        <mat-optgroup
+                            *ngFor="let bld of region_levels | async"
+                            [label]="bld.name"
+                        >
+                            <mat-option
+                                [value]="level"
+                                *ngFor="let level of bld.levels"
+                            >
+                                {{ level.display_name || level.name }}
+                            </mat-option>
+                        </mat-optgroup>
+                    </mat-select>
+                </mat-form-field>
+            </ng-template>
         </div>
         <div class="relative flex-1 w-full">
             <interactive-map
@@ -107,6 +134,21 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
 
     public readonly levels = this._org.active_levels;
     public readonly setOptions = (o) => this._state.setOptions(o);
+    public readonly region_levels = this._org.active_region.pipe(
+        map((_) => {
+            const region_buildings = this._org.buildings.filter(
+                (b) => !_ || b.parent_id === _.id
+            );
+            const region_levels = region_buildings.map((b) => ({
+                id: b.id,
+                name: b.display_name || b.name,
+                levels: this._org.levels.filter(
+                    (l) => l.parent_id === b.id && !l.tags.includes('parking')
+                ),
+            }));
+            return region_levels;
+        })
+    );
 
     public get map_url() {
         return this.level?.map_id || '';
@@ -176,6 +218,10 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
 
     public readonly use_mapsindoors$ = this._maps_people.available$;
 
+    public get use_region() {
+        return !!this._settings.get('app.use_region');
+    }
+
     constructor(
         private _state: BookingFormService,
         private _settings: SettingsService,
@@ -197,6 +243,7 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'levels_update',
             this.levels.subscribe((levels) => {
+                if (this.use_region) return;
                 if (!levels.find((_) => _.id === this.level?.id)) {
                     this.level = levels[0];
                     this.setLevel(this.level);
@@ -227,6 +274,7 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
             this.coordinates = { latitude, longitude };
         }
         this._maps_people.setCustomZone(level?.parent_id);
+        this.level = level;
     }
 
     public setZoom(new_zoom: number) {
