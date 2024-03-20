@@ -23192,15 +23192,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "ffa19b2",
-  "hash": "ffa19b2",
+  "raw": "111746f",
+  "hash": "111746f",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "ffa19b2",
+  "suffix": "111746f",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1710809740876
+  "time": 1710905744370
 };
 /* tslint:enable */
 
