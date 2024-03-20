@@ -119,18 +119,18 @@ import { SettingsService, notifySuccess } from '@placeos/common';
                                         [(ngModel)]="settings[row.id].resources"
                                         placeholder="Set Event Types..."
                                     >
-                                        <mat-option value="room"
-                                            >Rooms</mat-option
-                                        >
-                                        <mat-option value="desk"
-                                            >Desks</mat-option
-                                        >
-                                        <mat-option value="visitor"
-                                            >Visitors</mat-option
-                                        >
-                                        <mat-option value="parking"
-                                            >Parking</mat-option
-                                        >
+                                        <!-- <mat-option value="room">
+                                            Rooms
+                                        </mat-option> -->
+                                        <mat-option value="desk">
+                                            Desks
+                                        </mat-option>
+                                        <mat-option value="visitor">
+                                            Visitors
+                                        </mat-option>
+                                        <mat-option value="parking">
+                                            Parking
+                                        </mat-option>
                                     </mat-select>
                                 </mat-form-field>
                             </div>
