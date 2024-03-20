@@ -27370,6 +27370,7 @@ function filterResourcesFromRules(resources, details, ruleset_list) {
 }
 exports.filterResourcesFromRules = filterResourcesFromRules;
 function rulesForResource(details, ruleset_list) {
+  if (!(ruleset_list instanceof Array)) return DEFAULT_RULES;
   var _iterator = _createForOfIteratorHelper(ruleset_list),
     _step;
   try {
@@ -31280,15 +31281,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "111746f",
-  "hash": "111746f",
+  "raw": "8110546",
+  "hash": "8110546",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "111746f",
+  "suffix": "8110546",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1710905748155
+  "time": 1710978490074
 };
 /* tslint:enable */
 
@@ -41961,7 +41962,7 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
         duration: duration,
         resource: null,
         host: (0, common_1.currentUser)()
-      }, booking_rules[(_this$_org$building5 = _this._org.building) === null || _this$_org$building5 === void 0 ? void 0 : _this$_org$building5.id]);
+      }, booking_rules[(_this$_org$building5 = _this._org.building) === null || _this$_org$building5 === void 0 ? void 0 : _this$_org$building5.id] || []);
       return availability_method(spaces.map(function (_ref16) {
         var id = _ref16.id;
         return id;
@@ -41975,7 +41976,7 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
           duration: duration,
           resource: null,
           host: (0, common_1.currentUser)()
-        }, booking_rules[(_this$_org$building6 = _this._org.building) === null || _this$_org$building6 === void 0 ? void 0 : _this$_org$building6.id]);
+        }, booking_rules[(_this$_org$building6 = _this._org.building) === null || _this$_org$building6 === void 0 ? void 0 : _this$_org$building6.id] || []);
         return list;
       }), (0, operators_1.catchError)(function (_) {
         return [];
