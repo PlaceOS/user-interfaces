@@ -9277,6 +9277,7 @@ function filterResourcesFromRules(resources, details, ruleset_list) {
   }, ruleset_list)?.hidden);
 }
 function rulesForResource(details, ruleset_list) {
+  if (!(ruleset_list instanceof Array)) return DEFAULT_RULES;
   for (const ruleset of ruleset_list) {
     if (ruleset.zone === '*' || ruleset.zone === details.resource.zone?.id || details.resource.zones?.includes(ruleset.zone)) {
       if (checkRulesMatch(details, ruleset)) {
@@ -12542,15 +12543,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "111746f",
-  "hash": "111746f",
+  "raw": "8110546",
+  "hash": "8110546",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "111746f",
+  "suffix": "8110546",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1710905745047
+  "time": 1710978489208
 };
 /* tslint:enable */
 
@@ -22062,7 +22063,7 @@ class EventFormService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.Asyn
         duration,
         resource: null,
         host: (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.currentUser)()
-      }, booking_rules[this._org.building?.id]);
+      }, booking_rules[this._org.building?.id] || []);
       return availability_method(spaces.map(({
         id
       }) => id), all_day ? (0,date_fns__WEBPACK_IMPORTED_MODULE_33__["default"])(date).valueOf() : date, all_day ? Math.max(24 * 60, duration) : duration, this?.event?.resources[0]?.id || this.event?.system?.id || this.event?.id || undefined, undefined, [this.event?.date, this.event?.duration]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_20__.map)(availability => {
@@ -22072,7 +22073,7 @@ class EventFormService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.Asyn
           duration,
           resource: null,
           host: (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.currentUser)()
-        }, booking_rules[this._org.building?.id]);
+        }, booking_rules[this._org.building?.id] || []);
         return list;
       }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_28__.catchError)(_ => []));
     }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_26__.tap)(_ => this._loading.next('')), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_21__.shareReplay)(1));
