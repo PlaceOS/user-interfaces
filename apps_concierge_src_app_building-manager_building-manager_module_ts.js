@@ -435,16 +435,13 @@ function BuildingListComponent_ng_template_6_div_26_Template(rf, ctx) {
       return _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵresetView"](ctx_r21.settings[row_r11.id].resources = $event);
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](11, "mat-option", 26);
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](12, "Rooms");
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](12, " Desks ");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](13, "mat-option", 27);
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](14, "Desks");
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](14, " Visitors ");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](15, "mat-option", 28);
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](16, "Visitors");
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](17, "mat-option", 29);
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](18, "Parking");
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](16, " Parking ");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()()()();
   }
   if (rf & 2) {
@@ -509,7 +506,7 @@ function BuildingListComponent_ng_template_6_Template(rf, ctx) {
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](23, "Auto-release Settings");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()();
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](24, "mat-menu", null, 17);
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtemplate"](26, BuildingListComponent_ng_template_6_div_26_Template, 19, 5, "div", 18);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtemplate"](26, BuildingListComponent_ng_template_6_div_26_Template, 17, 5, "div", 18);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](27, "button", 19);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵlistener"]("click", function BuildingListComponent_ng_template_6_Template_button_click_27_listener() {
       const restoredCtx = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵrestoreView"](_r25);
@@ -624,7 +621,7 @@ class BuildingListComponent {
     selectors: [["building-list"]],
     decls: 8,
     vars: 12,
-    consts: [[1, "absolute", "inset-0", "overflow-auto", "px-4"], ["empty", "No buildings", 1, "block", "min-w-[60rem]", "w-full", "h-full", 3, "dataSource", "columns", "display_column", "column_size", "template"], ["level_template", ""], ["image_template", ""], ["action_template", ""], ["auth", "", "class", "max-h-[3rem] max-w-[8rem]", 3, "source", 4, "ngIf"], ["class", "opacity-30", 4, "ngIf"], ["auth", "", 1, "max-h-[3rem]", "max-w-[8rem]", 3, "source"], [1, "opacity-30"], [1, "w-full", "flex", "justify-end", "space-x-2"], ["btn", "", "icon", "", "matRipple", "", 3, "matMenuTriggerFor"], ["menu", "matMenu"], ["mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "text-xl"], ["mat-menu-item", "", 3, "matMenuTriggerFor", "click", "mouseenter"], ["className", "material-symbols-rounded", 1, "text-xl"], ["auto_release_menu", "matMenu"], ["class", "px-2", 3, "click", 4, "ngIf"], ["btn", "", "matRipple", "", 1, "w-[calc(100%-1rem)]", "mx-auto", 3, "click"], [1, "flex", "items-center", "space-x-2", "text-red-500"], [1, "text-error", "text-xl"], [1, "px-2", 3, "click"], [3, "min", "ngModel", "ngModelChange"], ["appearance", "outline", 1, "w-full"], ["multiple", "", "placeholder", "Set Event Types...", 3, "ngModel", "ngModelChange"], ["value", "room"], ["value", "desk"], ["value", "visitor"], ["value", "parking"]],
+    consts: [[1, "absolute", "inset-0", "overflow-auto", "px-4"], ["empty", "No buildings", 1, "block", "min-w-[60rem]", "w-full", "h-full", 3, "dataSource", "columns", "display_column", "column_size", "template"], ["level_template", ""], ["image_template", ""], ["action_template", ""], ["auth", "", "class", "max-h-[3rem] max-w-[8rem]", 3, "source", 4, "ngIf"], ["class", "opacity-30", 4, "ngIf"], ["auth", "", 1, "max-h-[3rem]", "max-w-[8rem]", 3, "source"], [1, "opacity-30"], [1, "w-full", "flex", "justify-end", "space-x-2"], ["btn", "", "icon", "", "matRipple", "", 3, "matMenuTriggerFor"], ["menu", "matMenu"], ["mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "text-xl"], ["mat-menu-item", "", 3, "matMenuTriggerFor", "click", "mouseenter"], ["className", "material-symbols-rounded", 1, "text-xl"], ["auto_release_menu", "matMenu"], ["class", "px-2", 3, "click", 4, "ngIf"], ["btn", "", "matRipple", "", 1, "w-[calc(100%-1rem)]", "mx-auto", 3, "click"], [1, "flex", "items-center", "space-x-2", "text-red-500"], [1, "text-error", "text-xl"], [1, "px-2", 3, "click"], [3, "min", "ngModel", "ngModelChange"], ["appearance", "outline", 1, "w-full"], ["multiple", "", "placeholder", "Set Event Types...", 3, "ngModel", "ngModelChange"], ["value", "desk"], ["value", "visitor"], ["value", "parking"]],
     template: function BuildingListComponent_Template(rf, ctx) {
       if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](0, "div", 0);
