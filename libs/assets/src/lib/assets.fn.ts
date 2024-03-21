@@ -337,8 +337,9 @@ export function queryGroupAvailability(
                         ignore?.includes(asset.id) ||
                         !bookings.find(
                             (booking) =>
-                                booking.asset_id === asset.id ||
-                                booking.asset_ids?.includes(asset.id)
+                                !ignore.includes(booking.id) &&
+                                (booking.asset_id === asset.id ||
+                                    booking.asset_ids?.includes(asset.id))
                         )
                 ),
             }));
@@ -462,21 +463,21 @@ export async function validateAssetRequestsForResource(
             ...flatten(request.items.map((_) => _.item_ids)),
         ];
     }
-    const available_groups = await queryGroupAvailability({
-        period_start: getUnixTime(startOfDay(date)),
-        period_end: getUnixTime(endOfDay(date)),
-        type: 'asset-request',
-    }).toPromise();
-    console.log(
-        'Used IDs:',
-        used_ids,
-        changed_assets,
-        requests,
-        filtered,
-        bookings,
-        unchanged,
-        zones
-    );
+    const available_groups = await queryGroupAvailability(
+        {
+            period_start: getUnixTime(startOfDay(date)),
+            period_end: getUnixTime(endOfDay(date)),
+            type: 'asset-request',
+        },
+        bookings.map((_) => _.id)
+    ).toPromise();
+    console.log('Used IDs:', used_ids);
+    console.log('Changed Assets:', changed_assets);
+    console.log('Requests:', requests);
+    console.log('Bookings:', bookings);
+    console.log('Filtered:', filtered);
+    console.log('Unchanged:', unchanged);
+    console.log('Available Groups:', available_groups);
     const processed_requests = changed_assets.map((request) => {
         // Handle duplicate asset ids
         let asset_ids = flatten(
