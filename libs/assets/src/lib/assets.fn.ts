@@ -465,8 +465,12 @@ export async function validateAssetRequestsForResource(
     }
     const available_groups = await queryGroupAvailability(
         {
-            period_start: getUnixTime(startOfDay(date)),
-            period_end: getUnixTime(endOfDay(date)),
+            period_start: getUnixTime(all_day ? startOfDay(date) : date),
+            period_end: getUnixTime(
+                all_day
+                    ? endOfDay(addMinutes(date, duration))
+                    : addMinutes(date, duration)
+            ),
             type: 'asset-request',
         },
         bookings.map((_) => _.id)
