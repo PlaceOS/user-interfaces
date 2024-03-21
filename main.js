@@ -3832,7 +3832,7 @@ function queryGroupAvailability(query, ignore) {
   return (0,rxjs__WEBPACK_IMPORTED_MODULE_12__.combineLatest)([queryAssetGroupsExtended(query), (0,libs_bookings_src_lib_bookings_fn__WEBPACK_IMPORTED_MODULE_3__.queryBookings)(query)]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_7__.map)(([products, bookings]) => {
     return products.map(product => ({
       ...product,
-      assets: product.assets.filter(asset => ignore?.includes(asset.id) || !bookings.find(booking => booking.asset_id === asset.id || booking.asset_ids?.includes(asset.id)))
+      assets: product.assets.filter(asset => ignore?.includes(asset.id) || !bookings.find(booking => !ignore.includes(booking.id) && (booking.asset_id === asset.id || booking.asset_ids?.includes(asset.id))))
     }));
   }));
 }
@@ -3918,8 +3918,14 @@ function _validateAssetRequestsForResource() {
       period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_13__["default"])((0,date_fns__WEBPACK_IMPORTED_MODULE_14__["default"])(date)),
       period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_13__["default"])((0,date_fns__WEBPACK_IMPORTED_MODULE_15__["default"])(date)),
       type: 'asset-request'
-    }).toPromise();
-    console.log('Used IDs:', used_ids, changed_assets, requests, filtered, bookings, unchanged, zones);
+    }, bookings.map(_ => _.id)).toPromise();
+    console.log('Used IDs:', used_ids);
+    console.log('Changed Assets:', changed_assets);
+    console.log('Requests:', requests);
+    console.log('Bookings:', bookings);
+    console.log('Filtered:', filtered);
+    console.log('Unchanged:', unchanged);
+    console.log('Available Groups:', available_groups);
     const processed_requests = changed_assets.map(request => {
       // Handle duplicate asset ids
       let asset_ids = (0,_placeos_common__WEBPACK_IMPORTED_MODULE_5__.flatten)(request.items.map(({
@@ -18377,15 +18383,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "8110546",
-  "hash": "8110546",
+  "raw": "83559f0",
+  "hash": "83559f0",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "8110546",
+  "suffix": "83559f0",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1710978493787
+  "time": 1710994831071
 };
 /* tslint:enable */
 
