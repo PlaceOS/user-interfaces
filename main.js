@@ -3915,8 +3915,8 @@ function _validateAssetRequestsForResource() {
       used_ids = [...used_ids, ...(0,_placeos_common__WEBPACK_IMPORTED_MODULE_5__.flatten)(request.items.map(_ => _.item_ids))];
     }
     const available_groups = yield queryGroupAvailability({
-      period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_13__["default"])((0,date_fns__WEBPACK_IMPORTED_MODULE_14__["default"])(date)),
-      period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_13__["default"])((0,date_fns__WEBPACK_IMPORTED_MODULE_15__["default"])(date)),
+      period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_13__["default"])(all_day ? (0,date_fns__WEBPACK_IMPORTED_MODULE_14__["default"])(date) : date),
+      period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_13__["default"])(all_day ? (0,date_fns__WEBPACK_IMPORTED_MODULE_15__["default"])((0,date_fns__WEBPACK_IMPORTED_MODULE_16__["default"])(date, duration)) : (0,date_fns__WEBPACK_IMPORTED_MODULE_16__["default"])(date, duration)),
       type: 'asset-request'
     }, bookings.map(_ => _.id)).toPromise();
     console.log('Used IDs:', used_ids);
@@ -18383,15 +18383,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "83559f0",
-  "hash": "83559f0",
+  "raw": "47c955c",
+  "hash": "47c955c",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "83559f0",
+  "suffix": "47c955c",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1710994831071
+  "time": 1710999645948
 };
 /* tslint:enable */
 
