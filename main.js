@@ -7973,7 +7973,7 @@ function queryGroupAvailability(query, ignore) {
         assets: product.assets.filter(function (asset) {
           return (ignore === null || ignore === void 0 ? void 0 : ignore.includes(asset.id)) || !bookings.find(function (booking) {
             var _booking$asset_ids2;
-            return booking.asset_id === asset.id || ((_booking$asset_ids2 = booking.asset_ids) === null || _booking$asset_ids2 === void 0 ? void 0 : _booking$asset_ids2.includes(asset.id));
+            return !ignore.includes(booking.id) && (booking.asset_id === asset.id || ((_booking$asset_ids2 = booking.asset_ids) === null || _booking$asset_ids2 === void 0 ? void 0 : _booking$asset_ids2.includes(asset.id)));
           });
         })
       });
@@ -8162,10 +8162,18 @@ function _validateAssetRequestsForResource() {
               period_start: (0, date_fns_1.getUnixTime)((0, date_fns_1.startOfDay)(date)),
               period_end: (0, date_fns_1.getUnixTime)((0, date_fns_1.endOfDay)(date)),
               type: 'asset-request'
-            }).toPromise();
+            }, bookings.map(function (_) {
+              return _.id;
+            })).toPromise();
           case 24:
             available_groups = _context3.sent;
-            console.log('Used IDs:', used_ids, changed_assets, requests, filtered, bookings, unchanged, zones);
+            console.log('Used IDs:', used_ids);
+            console.log('Changed Assets:', changed_assets);
+            console.log('Requests:', requests);
+            console.log('Bookings:', bookings);
+            console.log('Filtered:', filtered);
+            console.log('Unchanged:', unchanged);
+            console.log('Available Groups:', available_groups);
             processed_requests = changed_assets.map(function (request) {
               // Handle duplicate asset ids
               var asset_ids = (0, common_1.flatten)(request.items.map(function (_ref20) {
@@ -8255,7 +8263,7 @@ function _validateAssetRequestsForResource() {
                 }
               }, _callee2);
             })));
-          case 28:
+          case 34:
           case "end":
             return _context3.stop();
         }
@@ -31281,15 +31289,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "8110546",
-  "hash": "8110546",
+  "raw": "83559f0",
+  "hash": "83559f0",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "8110546",
+  "suffix": "83559f0",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1710978490074
+  "time": 1710994840034
 };
 /* tslint:enable */
 
