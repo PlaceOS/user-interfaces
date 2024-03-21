@@ -8159,8 +8159,8 @@ function _validateAssetRequestsForResource() {
             }
             _context3.next = 24;
             return queryGroupAvailability({
-              period_start: (0, date_fns_1.getUnixTime)((0, date_fns_1.startOfDay)(date)),
-              period_end: (0, date_fns_1.getUnixTime)((0, date_fns_1.endOfDay)(date)),
+              period_start: (0, date_fns_1.getUnixTime)(all_day ? (0, date_fns_1.startOfDay)(date) : date),
+              period_end: (0, date_fns_1.getUnixTime)(all_day ? (0, date_fns_1.endOfDay)((0, date_fns_1.addMinutes)(date, duration)) : (0, date_fns_1.addMinutes)(date, duration)),
               type: 'asset-request'
             }, bookings.map(function (_) {
               return _.id;
@@ -31289,15 +31289,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "83559f0",
-  "hash": "83559f0",
+  "raw": "47c955c",
+  "hash": "47c955c",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "83559f0",
+  "suffix": "47c955c",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1710994840034
+  "time": 1710999645550
 };
 /* tslint:enable */
 
