@@ -35,7 +35,7 @@ function RegionListComponent_ng_template_2_Template(rf, ctx) {
       const restoredCtx = _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵrestoreView"](_r5);
       const row_r2 = restoredCtx.row;
       const ctx_r4 = _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵnextContext"]();
-      return _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵresetView"](ctx_r4.editRegionMetadata(row_r2));
+      return _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵresetView"](ctx_r4.editMetadata(row_r2));
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelementStart"](7, "div", 7)(8, "app-icon");
     _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵtext"](9, "edit_square");
