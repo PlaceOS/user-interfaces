@@ -232,6 +232,7 @@ import { first, take } from 'rxjs/operators';
                     *ngIf="use_mapsindoors$ | async"
                     [styles]="styles | async"
                     [actions]="actions | async"
+                    [locate]="locate"
                 ></indoor-maps>
                 <explore-zoom-controls
                     *ngIf="!(use_mapsindoors$ | async)"
@@ -311,6 +312,8 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     public readonly labels = this._state.map_labels;
     /** Observable for the active map */
     public readonly options = this._state.options;
+
+    public locate = '';
 
     @HostListener('window:mousedown') public onMouse = () =>
         this.timeout('reset', () => this.resetKiosk(), this.reset_delay * 1000);
@@ -415,6 +418,8 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
                             },
                         ]);
                     });
+                } else if (params.has('locate')) {
+                    this.locate = params.get('locate');
                 } else {
                     this.timeout('update_location', () => {
                         this._state.setFeatures('_located', []);

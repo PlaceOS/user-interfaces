@@ -157,6 +157,15 @@ interface CustomCoordinates {
     ],
 })
 export class IndoorMapsComponent extends AsyncHandler implements OnInit {
+    /** Custom CSS styles to apply to the map */
+    @Input() public styles: ViewerStyles;
+    /** List of available user actions for the map */
+    @Input() public actions: ViewAction[];
+    /** Custom coordinates to fixate on the map */
+    @Input() public custom_coordinates: CustomCoordinates;
+    /** Mark location of a specific item */
+    @Input() public locate: string;
+
     public view_instance: any;
     public maps_service: any;
     public map_instance: any;
@@ -201,13 +210,6 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     public buildings_list: Building[] = [];
     public floor_mapping: { [id: string]: string } = {};
 
-    /** Custom CSS styles to apply to the map */
-    @Input() public styles: ViewerStyles;
-    /** List of available user actions for the map */
-    @Input() public actions: ViewAction[];
-    /** Custom coordinates to fixate on the map */
-    @Input() public custom_coordinates: CustomCoordinates;
-
     @ViewChild('searchInput', { static: true }) searchElement: ElementRef;
     @ViewChild('searchResultItems') searchResults: ElementRef;
 
@@ -238,6 +240,14 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         if (change.styles || change.actions) {
             await this.renderSpaceStatus();
             await this.mapActions();
+        }
+        if (change.locate && this.locate) {
+            const searchParams = { q: this.searchElement.nativeElement.value };
+            const locations =
+                await mapsindoors?.services.LocationsService.getLocations(
+                    searchParams
+                );
+            if (locations.length) this.getRoute(locations[0]);
         }
         this.mapFloorsToIndex();
         this.loading = false;
