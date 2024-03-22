@@ -31186,15 +31186,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "695484b",
-  "hash": "695484b",
+  "raw": "855f4cc",
+  "hash": "855f4cc",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "695484b",
+  "suffix": "855f4cc",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1710905680538
+  "time": 1711072078364
 };
 /* tslint:enable */
 
