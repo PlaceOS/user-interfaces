@@ -5644,13 +5644,14 @@ function AssetListFieldComponent_div_1_div_8_Template(rf, ctx) {
     i0.ɵɵelementEnd()();
   }
   if (rf & 2) {
-    var ctx_r2 = i0.ɵɵnextContext(2);
-    i0.ɵɵproperty("matTooltip", ctx_r2.err_tooltip);
+    var request_r1 = i0.ɵɵnextContext().$implicit;
+    var ctx_r2 = i0.ɵɵnextContext();
+    i0.ɵɵproperty("matTooltip", ctx_r2.err_tooltip(request_r1));
   }
 }
 function AssetListFieldComponent_div_1_div_22_Template(rf, ctx) {
   if (rf & 1) {
-    var _r7 = i0.ɵɵgetCurrentView();
+    var _r8 = i0.ɵɵgetCurrentView();
     i0.ɵɵelementStart(0, "div", 16)(1, "div", 17);
     i0.ɵɵtext(2);
     i0.ɵɵelementEnd();
@@ -5659,43 +5660,43 @@ function AssetListFieldComponent_div_1_div_22_Template(rf, ctx) {
     i0.ɵɵelementEnd();
     i0.ɵɵelementStart(5, "button", 19);
     i0.ɵɵlistener("click", function AssetListFieldComponent_div_1_div_22_Template_button_click_5_listener() {
-      var restoredCtx = i0.ɵɵrestoreView(_r7);
-      var item_r4 = restoredCtx.$implicit;
+      var restoredCtx = i0.ɵɵrestoreView(_r8);
+      var item_r5 = restoredCtx.$implicit;
       var request_r1 = i0.ɵɵnextContext().$implicit;
-      var ctx_r5 = i0.ɵɵnextContext();
-      return i0.ɵɵresetView(ctx_r5.removeRequestItem(request_r1, item_r4));
+      var ctx_r6 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r6.removeRequestItem(request_r1, item_r5));
     });
     i0.ɵɵelementStart(6, "app-icon");
     i0.ɵɵtext(7, "delete");
     i0.ɵɵelementEnd()();
     i0.ɵɵelementStart(8, "button", 20);
     i0.ɵɵlistener("click", function AssetListFieldComponent_div_1_div_22_Template_button_click_8_listener() {
-      var restoredCtx = i0.ɵɵrestoreView(_r7);
-      var item_r4 = restoredCtx.$implicit;
-      var ctx_r8 = i0.ɵɵnextContext(2);
-      return i0.ɵɵresetView(ctx_r8.toggleFavourite(item_r4));
+      var restoredCtx = i0.ɵɵrestoreView(_r8);
+      var item_r5 = restoredCtx.$implicit;
+      var ctx_r9 = i0.ɵɵnextContext(2);
+      return i0.ɵɵresetView(ctx_r9.toggleFavourite(item_r5));
     });
     i0.ɵɵelementStart(9, "app-icon");
     i0.ɵɵtext(10);
     i0.ɵɵelementEnd()()();
   }
   if (rf & 2) {
-    var item_r4 = ctx.$implicit;
+    var item_r5 = ctx.$implicit;
     var ctx_r3 = i0.ɵɵnextContext(2);
     i0.ɵɵadvance(2);
-    i0.ɵɵtextInterpolate1(" ", item_r4.name || "Item", " ");
+    i0.ɵɵtextInterpolate1(" ", item_r5.name || "Item", " ");
     i0.ɵɵadvance(2);
-    i0.ɵɵtextInterpolate1(" x", item_r4.quantity, " ");
+    i0.ɵɵtextInterpolate1(" x", item_r5.quantity, " ");
     i0.ɵɵadvance(4);
-    i0.ɵɵclassProp("text-blue-400", ctx_r3.favorites.includes(item_r4.id));
-    i0.ɵɵproperty("matTooltip", ctx_r3.favorites.includes(item_r4.id) ? "Remove from favourites" : "Add to favourites");
+    i0.ɵɵclassProp("text-blue-400", ctx_r3.favorites.includes(item_r5.id));
+    i0.ɵɵproperty("matTooltip", ctx_r3.favorites.includes(item_r5.id) ? "Remove from favourites" : "Add to favourites");
     i0.ɵɵadvance(2);
-    i0.ɵɵtextInterpolate(ctx_r3.favorites.includes(item_r4.id) ? "favorite" : "favorite_border");
+    i0.ɵɵtextInterpolate(ctx_r3.favorites.includes(item_r5.id) ? "favorite" : "favorite_border");
   }
 }
 function AssetListFieldComponent_div_1_Template(rf, ctx) {
   if (rf & 1) {
-    var _r10 = i0.ɵɵgetCurrentView();
+    var _r11 = i0.ɵɵgetCurrentView();
     i0.ɵɵelementStart(0, "div", 4)(1, "div", 5)(2, "div", 6)(3, "div", 7)(4, "div");
     i0.ɵɵtext(5);
     i0.ɵɵpipe(6, "date");
@@ -5705,40 +5706,40 @@ function AssetListFieldComponent_div_1_Template(rf, ctx) {
     i0.ɵɵelementEnd()();
     i0.ɵɵelementStart(9, "button", 9);
     i0.ɵɵlistener("click", function AssetListFieldComponent_div_1_Template_button_click_9_listener() {
-      var restoredCtx = i0.ɵɵrestoreView(_r10);
+      var restoredCtx = i0.ɵɵrestoreView(_r11);
       var request_r1 = restoredCtx.$implicit;
-      var ctx_r9 = i0.ɵɵnextContext();
-      return i0.ɵɵresetView(ctx_r9.duplicateRequest(request_r1));
+      var ctx_r10 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r10.duplicateRequest(request_r1));
     });
     i0.ɵɵelementStart(10, "app-icon");
     i0.ɵɵtext(11, "content_copy");
     i0.ɵɵelementEnd()();
     i0.ɵɵelementStart(12, "button", 10);
     i0.ɵɵlistener("click", function AssetListFieldComponent_div_1_Template_button_click_12_listener() {
-      var restoredCtx = i0.ɵɵrestoreView(_r10);
+      var restoredCtx = i0.ɵɵrestoreView(_r11);
       var request_r1 = restoredCtx.$implicit;
-      var ctx_r11 = i0.ɵɵnextContext();
-      return i0.ɵɵresetView(ctx_r11.editRequest(request_r1));
+      var ctx_r12 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r12.editRequest(request_r1));
     });
     i0.ɵɵelementStart(13, "app-icon");
     i0.ɵɵtext(14, "edit");
     i0.ɵɵelementEnd()();
     i0.ɵɵelementStart(15, "button", 11);
     i0.ɵɵlistener("click", function AssetListFieldComponent_div_1_Template_button_click_15_listener() {
-      var restoredCtx = i0.ɵɵrestoreView(_r10);
+      var restoredCtx = i0.ɵɵrestoreView(_r11);
       var request_r1 = restoredCtx.$implicit;
-      var ctx_r12 = i0.ɵɵnextContext();
-      return i0.ɵɵresetView(ctx_r12.removeRequest(request_r1));
+      var ctx_r13 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r13.removeRequest(request_r1));
     });
     i0.ɵɵelementStart(16, "app-icon");
     i0.ɵɵtext(17, "delete");
     i0.ɵɵelementEnd()();
     i0.ɵɵelementStart(18, "button", 12);
     i0.ɵɵlistener("click", function AssetListFieldComponent_div_1_Template_button_click_18_listener() {
-      var restoredCtx = i0.ɵɵrestoreView(_r10);
+      var restoredCtx = i0.ɵɵrestoreView(_r11);
       var request_r1 = restoredCtx.$implicit;
-      var ctx_r13 = i0.ɵɵnextContext();
-      return i0.ɵɵresetView(ctx_r13.show_request[request_r1.id] = !ctx_r13.show_request[request_r1.id]);
+      var ctx_r14 = i0.ɵɵnextContext();
+      return i0.ɵɵresetView(ctx_r14.show_request[request_r1.id] = !ctx_r14.show_request[request_r1.id]);
     });
     i0.ɵɵelementStart(19, "app-icon");
     i0.ɵɵtext(20);
@@ -5754,7 +5755,7 @@ function AssetListFieldComponent_div_1_Template(rf, ctx) {
     i0.ɵɵadvance(5);
     i0.ɵɵtextInterpolate2(" Request for ", i0.ɵɵpipeBind2(6, 11, request_r1.deliver_at_time, "mediumDate"), " at ", i0.ɵɵpipeBind2(7, 14, request_r1.deliver_at_time, ctx_r0.time_format), " ");
     i0.ɵɵadvance(3);
-    i0.ɵɵproperty("ngIf", ctx_r0.end_time <= request_r1.deliver_at);
+    i0.ɵɵproperty("ngIf", ctx_r0.end_time <= request_r1.deliver_at || ctx_r0.rejected_ids.includes(request_r1.id) || request_r1.conflict);
     i0.ɵɵadvance(10);
     i0.ɵɵproperty("matTooltip", ctx_r0.show_request[request_r1.id] ? "Hide order items" : "Show order items");
     i0.ɵɵadvance(2);
@@ -5774,10 +5775,10 @@ var AssetListFieldComponent = /*#__PURE__*/function () {
     this._dialog = _dialog;
     this._state = _state;
     this.options = {};
+    this.rejected_ids = [];
     this.asset_requests = [];
     this.disabled = false;
     this.show_request = {};
-    this.err_tooltip = 'Delivery time is outside of the event time.\nThis order will be ignored.';
     this.selected = [];
     this.registerOnChange = function (fn) {
       return _this._onChange = fn;
@@ -5790,6 +5791,11 @@ var AssetListFieldComponent = /*#__PURE__*/function () {
     };
   }
   _createClass(AssetListFieldComponent, [{
+    key: "err_tooltip",
+    value: function err_tooltip(request) {
+      return this.rejected_ids.includes(request.id) || request.conflict ? 'Some of the items are not available for the selected date and time.' : 'Delivery time is outside of the event time.\nThis order will be ignored.';
+    }
+  }, {
     key: "favorites",
     get: function get() {
       return this._settings.get('favourite_assets') || EMPTY_FAVS;
@@ -5839,9 +5845,11 @@ var AssetListFieldComponent = /*#__PURE__*/function () {
     key: "writeValue",
     value: function writeValue(value) {
       var _this3 = this;
+      console.log('Requests:', value);
       this.asset_requests = (value || []).map(function (_) {
         return new asset_request_class_1.AssetRequest(_objectSpread(_objectSpread({}, _), {}, {
-          event: _this3.options
+          event: _this3.options,
+          state: _.state
         }));
       });
     }
@@ -5924,6 +5932,7 @@ var AssetListFieldComponent = /*#__PURE__*/function () {
         }
         var time = new Date(_this4.options.date);
         var new_order = new asset_request_class_1.AssetRequest(_objectSpread(_objectSpread({}, order), {}, {
+          conflict: false,
           _changed: order._changed || order.items.find(function (_) {
             var _items$find;
             return ((_items$find = items.find(function (__) {
@@ -6027,7 +6036,8 @@ _class.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
   type: _class,
   selectors: [["asset-list-field"]],
   inputs: {
-    options: "options"
+    options: "options",
+    rejected_ids: "rejected_ids"
   },
   features: [i0.ɵɵProvidersFeature([{
     provide: forms_1.NG_VALUE_ACCESSOR,
@@ -6105,9 +6115,16 @@ function deliverAtTime(request) {
 }
 var AssetRequest = /*#__PURE__*/function () {
   function AssetRequest() {
-    var _data$asset_ids, _data$extension_data, _data$extension_data2, _data$extension_data3, _data$extension_data4;
+    var _data$asset_ids,
+      _data$extension_data,
+      _this$event,
+      _this = this,
+      _data$extension_data2,
+      _data$extension_data3,
+      _data$extension_data4;
     var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
     _classCallCheck(this, AssetRequest);
+    this.conflict = false;
     this._changed = false;
     this._time = (0, date_fns_1.startOfMinute)(Date.now()).valueOf();
     this.id = data.id || "order-".concat((0, common_1.randomInt)(9999999, 1000000));
@@ -6123,12 +6140,18 @@ var AssetRequest = /*#__PURE__*/function () {
     }, 0);
     this._status = data["".concat(this.event_id, "_status")] || data.status || (data.extension_data || {})["".concat(this.event_id, "_status")] || ((_data$extension_data = data.extension_data) === null || _data$extension_data === void 0 ? void 0 : _data$extension_data.status) || 'in_storage';
     this.event = data.event || data || null;
+    var booking = (_this$event = this.event) === null || _this$event === void 0 || (_this$event = _this$event.linked_bookings) === null || _this$event === void 0 ? void 0 : _this$event.find(function (_) {
+      return _.extension_data.request_id === _this.id;
+    });
+    this._booking = booking || data.booking || null;
+    this._changed = !!data._changed || !booking;
     this.notes = data.notes || data.description || '';
     this.deliver_time = data.deliver_time || ((_data$extension_data2 = data.extension_data) === null || _data$extension_data2 === void 0 ? void 0 : _data$extension_data2.deliver_time) || undefined;
     this.deliver_offset = data.deliver_offset || ((_data$extension_data3 = data.extension_data) === null || _data$extension_data3 === void 0 ? void 0 : _data$extension_data3.deliver_offset) || 0;
     this.deliver_day_offset = data.deliver_day_offset || ((_data$extension_data4 = data.extension_data) === null || _data$extension_data4 === void 0 ? void 0 : _data$extension_data4.deliver_day_offset) || 0;
     this.deliver_at_time = deliverAtTime(this);
-    this.ref_id = "".concat(this.deliver_time, "|").concat(this.deliver_offset, "|").concat(this.deliver_day_offset, "|").concat(this.items.map(function (_) {
+    this.conflict = !!data.conflict;
+    this.ref_id = "".concat(this.deliver_at_time, "|").concat(this.items.map(function (_) {
       return "".concat(_.id, ":").concat(_.quantity);
     }).join('|'));
   }
@@ -7631,7 +7654,7 @@ var _objectSpread = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpe
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports.updateAssetRequestsForResource = exports.differenceBetweenAssetRequests = exports.removeAssetRequests = exports.queryGroupAvailability = exports.queryAvailableAssets = exports.showGroupFull = exports.getGroupsWithAssets = exports.deleteAssetPurchaseOrder = exports.showAssetPurchaseOrder = exports.saveAssetPurchaseOrder = exports.updateAssetPurchaseOrder = exports.addAssetPurchaseOrder = exports.queryAssetPurchaseOrders = exports.deleteAssetsInBulk = exports.saveAssetsInBulk = exports.updateAssetsInBulk = exports.addAssetsInBulk = exports.deleteAsset = exports.showAsset = exports.saveAsset = exports.updateAsset = exports.addAsset = exports.queryAssets = exports.deleteAssetGroup = exports.showAssetGroup = exports.saveAssetGroup = exports.updateAssetGroup = exports.addAssetGroup = exports.queryAssetGroupsExtended = exports.queryAssetGroups = exports.deleteAssetCategory = exports.showAssetCategory = exports.saveAssetCategory = exports.updateAssetCategory = exports.addAssetCategory = exports.queryAssetCategories = void 0;
+exports.validateAssetRequestsForResource = exports.differenceBetweenAssetRequests = exports.removeAssetRequests = exports.queryGroupAvailability = exports.queryAvailableAssets = exports.showGroupFull = exports.getGroupsWithAssets = exports.deleteAssetPurchaseOrder = exports.showAssetPurchaseOrder = exports.saveAssetPurchaseOrder = exports.updateAssetPurchaseOrder = exports.addAssetPurchaseOrder = exports.queryAssetPurchaseOrders = exports.deleteAssetsInBulk = exports.saveAssetsInBulk = exports.updateAssetsInBulk = exports.addAssetsInBulk = exports.deleteAsset = exports.showAsset = exports.saveAsset = exports.updateAsset = exports.addAsset = exports.queryAssets = exports.deleteAssetGroup = exports.showAssetGroup = exports.saveAssetGroup = exports.updateAssetGroup = exports.addAssetGroup = exports.queryAssetGroupsExtended = exports.queryAssetGroups = exports.deleteAssetCategory = exports.showAssetCategory = exports.saveAssetCategory = exports.updateAssetCategory = exports.addAssetCategory = exports.queryAssetCategories = void 0;
 var ts_client_1 = __webpack_require__(/*! @placeos/ts-client */ 64331);
 var api_1 = __webpack_require__(/*! libs/common/src/lib/api */ 72561);
 var operators_1 = __webpack_require__(/*! rxjs/operators */ 37458);
@@ -7950,7 +7973,7 @@ function queryGroupAvailability(query, ignore) {
         assets: product.assets.filter(function (asset) {
           return (ignore === null || ignore === void 0 ? void 0 : ignore.includes(asset.id)) || !bookings.find(function (booking) {
             var _booking$asset_ids2;
-            return booking.asset_id === asset.id || ((_booking$asset_ids2 = booking.asset_ids) === null || _booking$asset_ids2 === void 0 ? void 0 : _booking$asset_ids2.includes(asset.id));
+            return !ignore.includes(booking.id) && (booking.asset_id === asset.id || ((_booking$asset_ids2 = booking.asset_ids) === null || _booking$asset_ids2 === void 0 ? void 0 : _booking$asset_ids2.includes(asset.id)));
           });
         })
       });
@@ -7991,6 +8014,7 @@ function _removeAssetRequests() {
 }
 exports.removeAssetRequests = removeAssetRequests;
 function differenceBetweenAssetRequests(new_assets, old_assets) {
+  var reset_state = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
   if ((!new_assets || (new_assets === null || new_assets === void 0 ? void 0 : new_assets.length) <= 0) && old_assets !== null && old_assets !== void 0 && old_assets.length) return [];
   if (!old_assets) return [];
   var changed = [];
@@ -8017,11 +8041,11 @@ function differenceBetweenAssetRequests(new_assets, old_assets) {
   return changed;
 }
 exports.differenceBetweenAssetRequests = differenceBetweenAssetRequests;
-function updateAssetRequestsForResource(_x2, _x3, _x4) {
-  return _updateAssetRequestsForResource.apply(this, arguments);
+function validateAssetRequestsForResource(_x2, _x3, _x4) {
+  return _validateAssetRequestsForResource.apply(this, arguments);
 }
-function _updateAssetRequestsForResource() {
-  _updateAssetRequestsForResource = _asyncToGenerator(function (_ref9, _ref10, new_assets) {
+function _validateAssetRequestsForResource() {
+  _validateAssetRequestsForResource = _asyncToGenerator(function (_ref9, _ref10, new_assets) {
     var id = _ref9.id,
       ical_uid = _ref9.ical_uid,
       from_booking = _ref9.from_booking;
@@ -8034,12 +8058,12 @@ function _updateAssetRequestsForResource() {
       zones = _ref10.zones,
       reset_state = _ref10.reset_state;
     var force_create = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-    return /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-      var requests, bookings, request_list, changed, unchanged, changed_requests, changed_assets, filtered, used_ids, _iterator3, _step3, _step3$value, _, request;
-      return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-        while (1) switch (_context2.prev = _context2.next) {
+    return /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
+      var requests, bookings, booking_list, changed, has_state, unchanged, changed_requests, changed_assets, filtered, used_ids, _iterator3, _step3, _step3$value, _, request, available_groups, processed_requests;
+      return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+        while (1) switch (_context3.prev = _context3.next) {
           case 0:
-            _context2.next = 2;
+            _context3.next = 2;
             return (0, bookings_fn_1.queryBookings)({
               period_start: (0, date_fns_1.getUnixTime)(all_day ? (0, date_fns_1.startOfDay)(date) : date),
               period_end: (0, date_fns_1.getUnixTime)(all_day ? (0, date_fns_1.endOfDay)((0, date_fns_1.addMinutes)(date, duration)) : (0, date_fns_1.addMinutes)(date, duration)),
@@ -8047,8 +8071,12 @@ function _updateAssetRequestsForResource() {
               zones: zones.join(',')
             }).toPromise();
           case 2:
-            requests = _context2.sent;
-            _context2.next = 5;
+            requests = _context3.sent;
+            if (!(id && ical_uid)) {
+              _context3.next = 9;
+              break;
+            }
+            _context3.next = 6;
             return (0, bookings_fn_1.queryBookings)({
               period_start: (0, date_fns_1.getUnixTime)((0, date_fns_1.startOfDay)(date)),
               period_end: (0, date_fns_1.getUnixTime)((0, date_fns_1.endOfDay)(date)),
@@ -8058,26 +8086,43 @@ function _updateAssetRequestsForResource() {
               booking_id: from_booking ? id : '',
               ical_uid: ical_uid
             }).toPromise();
-          case 5:
-            bookings = _context2.sent;
-            request_list = bookings.map(function (_) {
+          case 6:
+            _context3.t0 = _context3.sent;
+            _context3.next = 10;
+            break;
+          case 9:
+            _context3.t0 = [];
+          case 10:
+            bookings = _context3.t0;
+            booking_list = bookings.map(function (_) {
               return [_.id, new asset_request_class_1.AssetRequest(_.extension_data.request)];
+            });
+            new_assets.forEach(function (_) {
+              return _.conflict = false;
             });
             changed = force_create ? new_assets.map(function (_) {
               return _.id;
-            }) : differenceBetweenAssetRequests(new_assets, request_list.map(function (_ref11) {
+            }) : differenceBetweenAssetRequests(new_assets, booking_list.map(function (_ref11) {
               var _ref12 = _slicedToArray(_ref11, 2),
                 _ = _ref12[0],
                 r = _ref12[1];
               return r;
-            }));
-            unchanged = request_list.filter(function (_ref13) {
+            }), reset_state);
+            if (reset_state) {
+              has_state = bookings.filter(function (_) {
+                return _.approved || _.rejected;
+              });
+              changed = (0, common_1.unique)([].concat(_toConsumableArray(changed), _toConsumableArray(has_state.map(function (_) {
+                return _.extension_data.request_id;
+              }))));
+            }
+            unchanged = booking_list.filter(function (_ref13) {
               var _ref14 = _slicedToArray(_ref13, 2),
                 _ = _ref14[0],
                 request = _ref14[1];
               return !changed.includes(request.id);
             });
-            changed_requests = request_list.filter(function (_ref15) {
+            changed_requests = booking_list.filter(function (_ref15) {
               var _ref16 = _slicedToArray(_ref15, 2),
                 _ = _ref16[0],
                 id = _ref16[1].id;
@@ -8087,19 +8132,12 @@ function _updateAssetRequestsForResource() {
               var id = _ref17.id;
               return changed.includes(id);
             });
-            _context2.next = 13;
-            return Promise.all(changed_requests.map(function (_ref18) {
-              var _ref19 = _slicedToArray(_ref18, 1),
-                id = _ref19[0];
-              return (0, bookings_fn_1.removeBooking)(id).toPromise();
-            }));
-          case 13:
             filtered = requests.filter(function (req) {
               return !req.rejected && (!bookings.find(function (b) {
                 return b.id === req.id;
-              }) || unchanged.find(function (_ref20) {
-                var _ref21 = _slicedToArray(_ref20, 1),
-                  id = _ref21[0];
+              }) || unchanged.find(function (_ref18) {
+                var _ref19 = _slicedToArray(_ref18, 1),
+                  id = _ref19[0];
                 return req.event_id === id;
               }));
             });
@@ -8119,22 +8157,43 @@ function _updateAssetRequestsForResource() {
             } finally {
               _iterator3.f();
             }
-            _context2.next = 19;
-            return Promise.all(changed_assets.map(function (request) {
+            _context3.next = 24;
+            return queryGroupAvailability({
+              period_start: (0, date_fns_1.getUnixTime)(all_day ? (0, date_fns_1.startOfDay)(date) : date),
+              period_end: (0, date_fns_1.getUnixTime)(all_day ? (0, date_fns_1.endOfDay)((0, date_fns_1.addMinutes)(date, duration)) : (0, date_fns_1.addMinutes)(date, duration)),
+              type: 'asset-request'
+            }, bookings.map(function (_) {
+              return _.id;
+            })).toPromise();
+          case 24:
+            available_groups = _context3.sent;
+            console.log('Used IDs:', used_ids);
+            console.log('Changed Assets:', changed_assets);
+            console.log('Requests:', requests);
+            console.log('Bookings:', bookings);
+            console.log('Filtered:', filtered);
+            console.log('Unchanged:', unchanged);
+            console.log('Available Groups:', available_groups);
+            processed_requests = changed_assets.map(function (request) {
               // Handle duplicate asset ids
-              var asset_ids = (0, common_1.flatten)(request.items.map(function (_ref22) {
-                var item_ids = _ref22.item_ids,
-                  assets = _ref22.assets,
-                  quantity = _ref22.quantity;
+              var asset_ids = (0, common_1.flatten)(request.items.map(function (_ref20) {
+                var _available_groups$fin;
+                var id = _ref20.id,
+                  item_ids = _ref20.item_ids,
+                  quantity = _ref20.quantity;
+                var assets = (_available_groups$fin = available_groups.find(function (_) {
+                  return _.id === id;
+                })) === null || _available_groups$fin === void 0 ? void 0 : _available_groups$fin.assets;
                 if (!assets) return item_ids;
                 var list = [];
                 return new Array(quantity).fill(0).map(function (_, idx) {
                   var _assets$find;
-                  var item = used_ids.includes(item_ids[idx]) || list.includes(item_ids[idx]) || !item_ids[idx] ? assets === null || assets === void 0 || (_assets$find = assets.find(function (_ref23) {
-                    var id = _ref23.id;
+                  var item = used_ids.includes(item_ids[idx]) || list.includes(item_ids[idx]) || !item_ids[idx] ? assets === null || assets === void 0 || (_assets$find = assets.find(function (_ref21) {
+                    var id = _ref21.id;
                     return !used_ids.includes(id) && !list.includes(id);
                   })) === null || _assets$find === void 0 ? void 0 : _assets$find.id : item_ids[idx];
                   if (!item) {
+                    request.conflict = true;
                     throw 'Unable to find available asset for request';
                   }
                   list.push(item);
@@ -8181,18 +8240,39 @@ function _updateAssetRequestsForResource() {
               }), {
                 ical_uid: ical_uid,
                 event_id: from_booking ? '' : id
-              }).toPromise();
-            }));
-          case 19:
+              });
+            });
+            return _context3.abrupt("return", /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+              return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+                while (1) switch (_context2.prev = _context2.next) {
+                  case 0:
+                    _context2.next = 2;
+                    return Promise.all(changed_requests.map(function (_ref23) {
+                      var _ref24 = _slicedToArray(_ref23, 1),
+                        id = _ref24[0];
+                      return (0, bookings_fn_1.removeBooking)(id).toPromise();
+                    }));
+                  case 2:
+                    _context2.next = 4;
+                    return Promise.all(processed_requests.map(function (r) {
+                      return r.toPromise();
+                    }));
+                  case 4:
+                  case "end":
+                    return _context2.stop();
+                }
+              }, _callee2);
+            })));
+          case 34:
           case "end":
-            return _context2.stop();
+            return _context3.stop();
         }
-      }, _callee2);
+      }, _callee3);
     })();
   });
-  return _updateAssetRequestsForResource.apply(this, arguments);
+  return _validateAssetRequestsForResource.apply(this, arguments);
 }
-exports.updateAssetRequestsForResource = updateAssetRequestsForResource;
+exports.validateAssetRequestsForResource = validateAssetRequestsForResource;
 
 /***/ }),
 
@@ -9653,7 +9733,7 @@ var BookingFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
         var _this3 = this;
         var ignore_check = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
         return /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(_value$zones, _this3$_booking$getVa, _value$user, _value$user2, _value$user3, _ref11, _value$user4, _ref12, _value$assets, _booking$extension_da, _this3$form) {
-          var value, booking, receipt, result, booking_type;
+          var value, booking, receipt, result, _this3$_org$building, requests, booking_type;
           return _regeneratorRuntime().wrap(function _callee2$(_context2) {
             while (1) switch (_context2.prev = _context2.next) {
               case 0:
@@ -9734,17 +9814,18 @@ var BookingFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
               case 23:
                 result = _context2.sent;
                 if (!((_value$assets = value.assets) !== null && _value$assets !== void 0 && _value$assets.length || (_booking$extension_da = booking.extension_data.assets) !== null && _booking$extension_da !== void 0 && _booking$extension_da.length)) {
-                  _context2.next = 27;
+                  _context2.next = 32;
                   break;
                 }
                 _context2.next = 27;
-                return (0, assets_fn_1.updateAssetRequestsForResource)(_objectSpread(_objectSpread({}, result), {}, {
+                return (0, assets_fn_1.validateAssetRequestsForResource)(_objectSpread(_objectSpread({}, result), {}, {
                   from_booking: true
                 }), {
                   date: value.date,
                   duration: value.duration,
                   all_day: value.all_day,
-                  host: value.booked_by_email
+                  host: value.booked_by_email,
+                  zones: [(_this3$_org$building = _this3._org.building) === null || _this3$_org$building === void 0 ? void 0 : _this3$_org$building.id]
                 }, value.assets)["catch"](function (e) {
                   console.error("Couldn't update asset requests", e);
                   if ((e === null || e === void 0 ? void 0 : e.status) === 409) {
@@ -9754,6 +9835,16 @@ var BookingFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                   throw (e === null || e === void 0 ? void 0 : e.error) || e;
                 });
               case 27:
+                requests = _context2.sent;
+                if (requests) {
+                  _context2.next = 30;
+                  break;
+                }
+                throw 'Unable to validate asset requests';
+              case 30:
+                _context2.next = 32;
+                return requests();
+              case 32:
                 _this3._loading.next('');
                 booking_type = value.booking_type;
                 _this3.clearForm();
@@ -9764,7 +9855,7 @@ var BookingFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                 sessionStorage.setItem('PLACEOS.last_booked_booking', JSON.stringify(result));
                 _this3.setView('success');
                 return _context2.abrupt("return", result);
-              case 35:
+              case 40:
               case "end":
                 return _context2.stop();
             }
@@ -10280,6 +10371,8 @@ var Booking = /*#__PURE__*/function () {
       _this = this;
     var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
     _classCallCheck(this, Booking);
+    this._b_valid_asset_cache = [];
+    this._b_valid_cache_expiry = 0;
     this.id = data.id || '';
     this.parent_id = data.parent_id || '';
     this.asset_id = data.asset_id || '';
@@ -10360,18 +10453,27 @@ var Booking = /*#__PURE__*/function () {
     key: "valid_assets",
     get: function get() {
       var _this2 = this;
+      if (this._b_valid_cache_expiry > Date.now() && this._b_valid_asset_cache.length) {
+        return this._b_valid_asset_cache;
+      }
       var list = this.linked_bookings;
-      return (this.extension_data.assets || []).filter(function (request) {
+      this._b_valid_asset_cache = (this.extension_data.assets || []).map(function (request) {
+        return new asset_request_class_1.AssetRequest(_objectSpread(_objectSpread({}, request), {}, {
+          event: _this2
+        }));
+      }).filter(function (request) {
         return request.deliver_at < _this2.date_end;
       }).map(function (request) {
         var booking = list.find(function (_) {
-          return _.asset_id === request.id;
+          return _.extension_data.request_id === request.id;
         });
         if (booking) {
           request.state = booking.approved ? 'approved' : booking.rejected ? 'rejected' : 'pending';
         }
         return request;
       });
+      this._b_valid_cache_expiry = (0, date_fns_1.addMinutes)(Date.now(), 5).valueOf();
+      return this._b_valid_asset_cache;
     }
   }, {
     key: "toJSON",
@@ -27280,6 +27382,7 @@ function filterResourcesFromRules(resources, details, ruleset_list) {
 }
 exports.filterResourcesFromRules = filterResourcesFromRules;
 function rulesForResource(details, ruleset_list) {
+  if (!(ruleset_list instanceof Array)) return DEFAULT_RULES;
   var _iterator = _createForOfIteratorHelper(ruleset_list),
     _step;
   try {
@@ -31190,15 +31293,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "e1d3cf0",
-  "hash": "e1d3cf0",
+  "raw": "0f69a1c",
+  "hash": "0f69a1c",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "e1d3cf0",
+  "suffix": "0f69a1c",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1711073559071
+  "time": 1711074015898
 };
 /* tslint:enable */
 
@@ -41886,7 +41989,7 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
         duration: duration,
         resource: null,
         host: (0, common_1.currentUser)()
-      }, booking_rules[(_this$_org$building5 = _this._org.building) === null || _this$_org$building5 === void 0 ? void 0 : _this$_org$building5.id]);
+      }, booking_rules[(_this$_org$building5 = _this._org.building) === null || _this$_org$building5 === void 0 ? void 0 : _this$_org$building5.id] || []);
       return availability_method(spaces.map(function (_ref16) {
         var id = _ref16.id;
         return id;
@@ -41900,7 +42003,7 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
           duration: duration,
           resource: null,
           host: (0, common_1.currentUser)()
-        }, booking_rules[(_this$_org$building6 = _this._org.building) === null || _this$_org$building6 === void 0 ? void 0 : _this$_org$building6.id]);
+        }, booking_rules[(_this$_org$building6 = _this._org.building) === null || _this$_org$building6 === void 0 ? void 0 : _this$_org$building6.id] || []);
         return list;
       }), (0, operators_1.catchError)(function (_) {
         return [];
@@ -42083,7 +42186,9 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
         }),
         catering_charge_code: ((_event$extension_data = event.extension_data.catering[0]) === null || _event$extension_data === void 0 ? void 0 : _event$extension_data.charge_code) || (event.id && has_catering ? ' ' : ''),
         assets: (event.extension_data.assets || []).map(function (_) {
-          return new asset_request_class_1.AssetRequest(_);
+          return new asset_request_class_1.AssetRequest(_objectSpread(_objectSpread({}, _), {}, {
+            event: event
+          }));
         })
       }));
       this._form.patchValue({
@@ -42156,7 +42261,7 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
       return new Promise( /*#__PURE__*/function () {
         var _ref18 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(resolve, reject) {
           var _this6$event, _form$get, _form$get2, _ref19, _ref20, _spaces$, _this6$event2, _this6$event3, _this6$event4, _value$organiser, _ref21, _value$organiser2, _ref22, _ref23, _event$extension_data2;
-          var form, event, ical_uid, value, id, host, date, duration, creator, all_day, assets, recurrence, spaces, catering, changed_times, changed_spaces, is_owner, space, attendees, message, space_id, query, receipt, d, _iterator2, _step2, order, setup, breakdown, _iterator3, _step3, _space, overflow, processed_assets, result, domain, visitors, creating_assets, on_error, _spaces$2, _spaces$3, _spaces$4, _spaces$5, _this6$_org$building, _this6$_org$building2;
+          var form, event, ical_uid, value, id, host, date, duration, creator, all_day, assets, recurrence, spaces, catering, changed_times, changed_spaces, is_owner, space, attendees, message, space_id, query, receipt, d, _iterator2, _step2, order, setup, breakdown, _iterator3, _step3, _space, overflow, processed_assets, result, domain, visitors, creating_assets, on_error, _spaces$2, _spaces$3, _spaces$4, _spaces$5, _spaces$6, _this6$_org$building, requests;
           return _regeneratorRuntime().wrap(function _callee3$(_context3) {
             while (1) switch (_context3.prev = _context3.next) {
               case 0:
@@ -42345,7 +42450,7 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                             _context2.next = 10;
                             break;
                           }
-                          (0, common_1.notifyError)("Unable to update all asset requests for event. ".concat(e));
+                          (0, common_1.notifyError)("Unable to update all asset requests for event.\n".concat(e));
                           return _context2.abrupt("return");
                         case 10:
                           _this6._loading.next('');
@@ -42368,29 +42473,41 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                 return (0, bookings_fn_1.createBookingsForEvent)(result, 'visitor', visitors)["catch"](on_error);
               case 56:
                 if (!(assets !== null && assets !== void 0 && assets.length || (_event$extension_data2 = event.extension_data.assets) !== null && _event$extension_data2 !== void 0 && _event$extension_data2.length)) {
-                  _context3.next = 60;
+                  _context3.next = 66;
                   break;
                 }
                 creating_assets = true;
                 _context3.next = 60;
-                return (0, assets_fn_1.updateAssetRequestsForResource)(result, {
+                return (0, assets_fn_1.validateAssetRequestsForResource)(result, {
                   date: date,
                   duration: duration,
                   host: host,
                   all_day: all_day,
                   location_name: ((_spaces$2 = spaces[0]) === null || _spaces$2 === void 0 ? void 0 : _spaces$2.display_name) || ((_spaces$3 = spaces[0]) === null || _spaces$3 === void 0 ? void 0 : _spaces$3.name) || '',
                   location_id: ((_spaces$4 = spaces[0]) === null || _spaces$4 === void 0 ? void 0 : _spaces$4.id) || '',
-                  zones: ((_spaces$5 = spaces[0]) === null || _spaces$5 === void 0 ? void 0 : _spaces$5.zones) || [(_this6$_org$building = _this6._org.building) === null || _this6$_org$building === void 0 ? void 0 : _this6$_org$building.id, (_this6$_org$building2 = _this6._org.building) === null || _this6$_org$building2 === void 0 ? void 0 : _this6$_org$building2.parent_id],
+                  zones: (_spaces$5 = spaces[0]) !== null && _spaces$5 !== void 0 && (_spaces$5 = _spaces$5.level) !== null && _spaces$5 !== void 0 && _spaces$5.parent_id ? [(_spaces$6 = spaces[0]) === null || _spaces$6 === void 0 || (_spaces$6 = _spaces$6.level) === null || _spaces$6 === void 0 ? void 0 : _spaces$6.parent_id] : [(_this6$_org$building = _this6._org.building) === null || _this6$_org$building === void 0 ? void 0 : _this6$_org$building.id],
                   reset_state: changed_times
-                }, assets, changed_spaces)["catch"](on_error);
+                }, assets, changed_spaces || changed_times)["catch"](on_error);
               case 60:
+                requests = _context3.sent;
+                if (requests) {
+                  _context3.next = 63;
+                  break;
+                }
+                throw 'Unable to validate asset requests';
+              case 63:
+                _context3.next = 65;
+                return requests();
+              case 65:
+                creating_assets = false;
+              case 66:
                 _this6.clearForm();
                 _this6.last_success = result;
                 sessionStorage.setItem('PLACEOS.last_booked_event', JSON.stringify(result));
                 _this6.setView('success');
                 resolve(result);
                 _this6._loading.next('');
-              case 66:
+              case 72:
               case "end":
                 return _context3.stop();
             }
