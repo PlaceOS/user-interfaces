@@ -2181,6 +2181,9 @@ video {
 #placeos :is(.\!border-base-200) {
   border-color: var(--b2) !important;
 }
+#placeos :is(.\!border-error) {
+  border-color: var(--er) !important;
+}
 #placeos :is(.\!border-info) {
   border-color: var(--in) !important;
 }
@@ -2688,6 +2691,9 @@ video {
 }
 #placeos :is(.\!text-base-content) {
   color: var(--bc) !important;
+}
+#placeos :is(.\!text-error) {
+  color: var(--er) !important;
 }
 #placeos :is(.\!text-error-content) {
   color: var(--erc) !important;
