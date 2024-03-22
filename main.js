@@ -19941,15 +19941,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "efaf036",
-  "hash": "efaf036",
+  "raw": "af80854",
+  "hash": "af80854",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "efaf036",
+  "suffix": "af80854",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1711072465618
+  "time": 1711073239017
 };
 /* tslint:enable */
 
@@ -24380,6 +24380,13 @@ class IndoorMapsComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.A
         yield _this2.renderSpaceStatus();
         yield _this2.mapActions();
       }
+      if (change.locate && _this2.locate) {
+        const searchParams = {
+          q: _this2.searchElement.nativeElement.value
+        };
+        const locations = yield mapsindoors?.services.LocationsService.getLocations(searchParams);
+        if (locations.length) _this2.getRoute(locations[0]);
+      }
       _this2.mapFloorsToIndex();
       _this2.loading = false;
     })();
@@ -24648,7 +24655,8 @@ class IndoorMapsComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.A
     inputs: {
       styles: "styles",
       actions: "actions",
-      custom_coordinates: "custom_coordinates"
+      custom_coordinates: "custom_coordinates",
+      locate: "locate"
     },
     features: [_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵInheritDefinitionFeature"], _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵNgOnChangesFeature"]],
     decls: 12,
@@ -33179,7 +33187,7 @@ function ExploreMapViewComponent_indoor_maps_2_Template(rf, ctx) {
   }
   if (rf & 2) {
     const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_20__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_20__["ɵɵproperty"]("styles", _angular_core__WEBPACK_IMPORTED_MODULE_20__["ɵɵpipeBind1"](1, 2, ctx_r1.styles))("actions", _angular_core__WEBPACK_IMPORTED_MODULE_20__["ɵɵpipeBind1"](2, 4, ctx_r1.actions));
+    _angular_core__WEBPACK_IMPORTED_MODULE_20__["ɵɵproperty"]("styles", _angular_core__WEBPACK_IMPORTED_MODULE_20__["ɵɵpipeBind1"](1, 3, ctx_r1.styles))("actions", _angular_core__WEBPACK_IMPORTED_MODULE_20__["ɵɵpipeBind1"](2, 5, ctx_r1.actions))("locate", ctx_r1.locate);
   }
 }
 function ExploreMapViewComponent_explore_zoom_controls_4_Template(rf, ctx) {
@@ -33305,6 +33313,7 @@ class ExploreMapViewComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_2
     /** Observable for user messages */
     this.message = this._state.message;
     this.setOptions = o => this._state.setOptions(o);
+    this.locate = '';
     this.use_mapsindoors$ = this._maps.available$;
   }
   ngOnInit() {
@@ -33370,6 +33379,7 @@ class ExploreMapViewComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_2
         message: name
       }
     };
+    this.locate = id;
     this.timeout('update_location', () => this._state.setFeatures('_located', [feature]));
   }
   locateSpace(id) {
@@ -33462,13 +33472,13 @@ class ExploreMapViewComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_2
       } else {
         i18n_1 = $localize`:␟5c5419db944ed6a96f9515a2ac0ee390ec8cf3b5␟7297822327994766046:Legend`;
       }
-      return [[3, "src", "zoom", "center", "styles", "features", "actions", "labels", "zoomChange", "centerChange", 4, "ngIf"], [3, "styles", "actions", 4, "ngIf"], ["class", "absolute top-1/2 -translate-y-1/2 right-2", 4, "ngIf"], ["controls", "", "class", "absolute top-2 left-2 max-w-[calc(100vw-1rem)] bg-base-100 border border-base-200 rounded p-2 space-y-2 overflow-hidden", 4, "ngIf"], ["legend", "", "class", "absolute bottom-2 left-2 p-2 rounded bg-base-100 border border-base-200", 4, "ngIf"], [3, "src", "zoom", "center", "styles", "features", "actions", "labels", "zoomChange", "centerChange"], [3, "styles", "actions"], [1, "absolute", "top-1/2", "-translate-y-1/2", "right-2"], ["controls", "", 1, "absolute", "top-2", "left-2", "max-w-[calc(100vw-1rem)]", "bg-base-100", "border", "border-base-200", "rounded", "p-2", "space-y-2", "overflow-hidden"], ["class", "flex items-center space-x-2", 4, "ngIf"], [1, "flex", "items-center", "space-x-2"], ["name", "zones", 1, "ml-2", 3, "ngModel", "ngModelChange"], ["for", "zones", 1, "mb-0"], i18n_0, ["legend", "", 1, "absolute", "bottom-2", "left-2", "p-2", "rounded", "bg-base-100", "border", "border-base-200"], [1, "mb-2", "font-medium"], i18n_1, ["class", "flex items-center space-x-2", 4, "ngFor", "ngForOf"], [1, "w-3", "h-3", "rounded-full", "border", "border-base-200"], [1, "text-sm"]];
+      return [[3, "src", "zoom", "center", "styles", "features", "actions", "labels", "zoomChange", "centerChange", 4, "ngIf"], [3, "styles", "actions", "locate", 4, "ngIf"], ["class", "absolute top-1/2 -translate-y-1/2 right-2", 4, "ngIf"], ["controls", "", "class", "absolute top-2 left-2 max-w-[calc(100vw-1rem)] bg-base-100 border border-base-200 rounded p-2 space-y-2 overflow-hidden", 4, "ngIf"], ["legend", "", "class", "absolute bottom-2 left-2 p-2 rounded bg-base-100 border border-base-200", 4, "ngIf"], [3, "src", "zoom", "center", "styles", "features", "actions", "labels", "zoomChange", "centerChange"], [3, "styles", "actions", "locate"], [1, "absolute", "top-1/2", "-translate-y-1/2", "right-2"], ["controls", "", 1, "absolute", "top-2", "left-2", "max-w-[calc(100vw-1rem)]", "bg-base-100", "border", "border-base-200", "rounded", "p-2", "space-y-2", "overflow-hidden"], ["class", "flex items-center space-x-2", 4, "ngIf"], [1, "flex", "items-center", "space-x-2"], ["name", "zones", 1, "ml-2", 3, "ngModel", "ngModelChange"], ["for", "zones", 1, "mb-0"], i18n_0, ["legend", "", 1, "absolute", "bottom-2", "left-2", "p-2", "rounded", "bg-base-100", "border", "border-base-200"], [1, "mb-2", "font-medium"], i18n_1, ["class", "flex items-center space-x-2", 4, "ngFor", "ngForOf"], [1, "w-3", "h-3", "rounded-full", "border", "border-base-200"], [1, "text-sm"]];
     },
     template: function ExploreMapViewComponent_Template(rf, ctx) {
       if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_20__["ɵɵtemplate"](0, ExploreMapViewComponent_i_map_0_Template, 8, 21, "i-map", 0);
         _angular_core__WEBPACK_IMPORTED_MODULE_20__["ɵɵpipe"](1, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_20__["ɵɵtemplate"](2, ExploreMapViewComponent_indoor_maps_2_Template, 3, 6, "indoor-maps", 1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_20__["ɵɵtemplate"](2, ExploreMapViewComponent_indoor_maps_2_Template, 3, 7, "indoor-maps", 1);
         _angular_core__WEBPACK_IMPORTED_MODULE_20__["ɵɵpipe"](3, "async");
         _angular_core__WEBPACK_IMPORTED_MODULE_20__["ɵɵtemplate"](4, ExploreMapViewComponent_explore_zoom_controls_4_Template, 1, 0, "explore-zoom-controls", 2);
         _angular_core__WEBPACK_IMPORTED_MODULE_20__["ɵɵpipe"](5, "async");
