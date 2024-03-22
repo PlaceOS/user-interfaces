@@ -2393,6 +2393,9 @@ video {
 #placeos :is(.p-3) {
   padding: 0.75rem;
 }
+#placeos :is(.p-32) {
+  padding: 8rem;
+}
 #placeos :is(.p-4) {
   padding: 1rem;
 }
