@@ -1906,11 +1906,13 @@ class AssetManagerStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_
         }
       })).filter(b => {
         const event = b.linked_event || b.linked_bookings[0];
+        if (!event) return false;
         const request = new libs_assets_src_lib_asset_request_class__WEBPACK_IMPORTED_MODULE_10__.AssetRequest({
           ...b.extension_data?.request
         });
-        request._time = event.event_start * 1000;
-        const event_end = event?.date_end || event?.event_end * 1000 || event?.booking_end * 1000 || end;
+        const event_start = event.date || event.event_start * 1000 || event.booking_start * 1000 || start;
+        request._time = event_start;
+        const event_end = event.date_end || event.event_end * 1000 || event.booking_end * 1000 || end;
         return request?.deliver_at >= start && request?.deliver_at < end && request?.deliver_at < event_end;
       })));
     }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_15__.shareReplay)(1));
