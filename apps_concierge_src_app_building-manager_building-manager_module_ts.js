@@ -177,6 +177,7 @@ class BuildingFormComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__
     this.done = new _angular_core__WEBPACK_IMPORTED_MODULE_5__.EventEmitter();
     this.timezones = [];
     this.filtered_timezones = [];
+    this.region_list = this._org.region_list;
     this.form = new _angular_forms__WEBPACK_IMPORTED_MODULE_6__.FormGroup({
       id: new _angular_forms__WEBPACK_IMPORTED_MODULE_6__.FormControl(''),
       parent_id: new _angular_forms__WEBPACK_IMPORTED_MODULE_6__.FormControl(this._org.organisation.id, [_angular_forms__WEBPACK_IMPORTED_MODULE_6__.Validators.required]),
