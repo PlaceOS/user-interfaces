@@ -137,14 +137,20 @@ export class AssetManagerStateService extends AsyncHandler {
                     ).filter((b) => {
                         const event: any =
                             b.linked_event || b.linked_bookings[0];
+                        if (!event) return false;
                         const request = new AssetRequest({
                             ...b.extension_data?.request,
                         });
-                        (request as any)._time = event.event_start * 1000;
+                        const event_start =
+                            event.date ||
+                            event.event_start * 1000 ||
+                            event.booking_start * 1000 ||
+                            start;
+                        (request as any)._time = event_start;
                         const event_end =
-                            event?.date_end ||
-                            event?.event_end * 1000 ||
-                            event?.booking_end * 1000 ||
+                            event.date_end ||
+                            event.event_end * 1000 ||
+                            event.booking_end * 1000 ||
                             end;
                         return (
                             request?.deliver_at >= start &&

@@ -138,12 +138,24 @@ export class Booking {
         return this.all_day || this.duration >= 12 * 60;
     }
 
+    private _b_valid_asset_cache = [];
+    private _b_valid_cache_expiry = 0;
+
     public get valid_assets() {
+        if (
+            this._b_valid_cache_expiry > Date.now() &&
+            this._b_valid_asset_cache.length
+        ) {
+            return this._b_valid_asset_cache;
+        }
         const list = this.linked_bookings;
-        return (this.extension_data.assets || [])
+        this._b_valid_asset_cache = (this.extension_data.assets || [])
+            .map((request) => new AssetRequest({ ...request, event: this }))
             .filter((request) => request.deliver_at < this.date_end)
             .map((request) => {
-                const booking = list.find((_) => _.asset_id === request.id);
+                const booking = list.find(
+                    (_: any) => _.extension_data.request_id === request.id
+                );
                 if (booking) {
                     (request as any).state = booking.approved
                         ? 'approved'
@@ -153,6 +165,8 @@ export class Booking {
                 }
                 return request;
             });
+        this._b_valid_cache_expiry = addMinutes(Date.now(), 5).valueOf();
+        return this._b_valid_asset_cache;
     }
 
     constructor(data: Partial<BookingComplete> = {}) {

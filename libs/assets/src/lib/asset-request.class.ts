@@ -60,7 +60,10 @@ export class AssetRequest {
     public readonly event: Booking | null;
     public readonly deliver_at_time: number;
     public readonly ref_id: string;
+    public readonly state: string;
+    public conflict = false;
     public _changed = false;
+    public _booking: Booking | null;
     /** Current status of the order */
     private _status: AssetStatus;
     private _time = startOfMinute(Date.now()).valueOf();
@@ -96,6 +99,11 @@ export class AssetRequest {
             data.extension_data?.status ||
             'in_storage';
         this.event = data.event || data || null;
+        const booking = this.event?.linked_bookings?.find(
+            (_) => _.extension_data.request_id === this.id
+        );
+        this._booking = booking || data.booking || null;
+        this._changed = !!data._changed || !booking;
         this.notes = data.notes || data.description || '';
         this.deliver_time =
             data.deliver_time || data.extension_data?.deliver_time || undefined;
@@ -106,9 +114,10 @@ export class AssetRequest {
             data.extension_data?.deliver_day_offset ||
             0;
         this.deliver_at_time = deliverAtTime(this);
-        this.ref_id = `${this.deliver_time}|${this.deliver_offset}|${
-            this.deliver_day_offset
-        }|${this.items.map((_) => `${_.id}:${_.quantity}`).join('|')}`;
+        this.conflict = !!data.conflict;
+        this.ref_id = `${this.deliver_at_time}|${this.items
+            .map((_) => `${_.id}:${_.quantity}`)
+            .join('|')}`;
     }
 
     public toJSON() {
