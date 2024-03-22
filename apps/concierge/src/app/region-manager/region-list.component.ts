@@ -23,7 +23,7 @@ import { RegionManagementService } from './region-management.service';
                     <app-icon>more_vert</app-icon>
                 </button>
                 <mat-menu #menu="matMenu">
-                    <button mat-menu-item (click)="editRegionMetadata(row)">
+                    <button mat-menu-item (click)="editMetadata(row)">
                         <div class="flex items-center space-x-2">
                             <app-icon>edit_square</app-icon>
                             <span>App Configuration</span>

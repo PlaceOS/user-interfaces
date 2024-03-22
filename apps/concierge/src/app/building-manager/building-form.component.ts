@@ -121,6 +121,7 @@ export class BuildingFormComponent extends AsyncHandler {
 
     public timezones: string[] = [];
     public filtered_timezones: string[] = [];
+    public readonly region_list = this._org.region_list;
 
     public readonly form = new FormGroup({
         id: new FormControl(''),
