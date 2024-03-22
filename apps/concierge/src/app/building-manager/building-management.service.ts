@@ -7,6 +7,7 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { BuildingModalComponent } from './building-modal.component';
 import { AppSettingsModalComponent } from '../ui/app-settings-modal.component';
+import { AutoReleaseSettingsModalComponent } from './auto-release-settings-modal.component';
 
 export interface BuildingListOptions {
     zone?: string;
@@ -77,6 +78,13 @@ export class BuildingManagementService {
         });
         ref.afterClosed().subscribe((data) => {
             if (data) setTimeout(() => location.reload(), 300);
+        });
+    }
+
+    public setAutoRelease(building: PlaceZone) {
+        if (!building?.id) return;
+        this._dialog.open(AutoReleaseSettingsModalComponent, {
+            data: building.id,
         });
     }
 
