@@ -12503,15 +12503,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "a44e9ad",
-  "hash": "a44e9ad",
+  "raw": "bfdd6b1",
+  "hash": "bfdd6b1",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "a44e9ad",
+  "suffix": "bfdd6b1",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1711072675784
+  "time": 1711073776282
 };
 /* tslint:enable */
 
@@ -16942,6 +16942,13 @@ class IndoorMapsComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.A
         yield _this2.renderSpaceStatus();
         yield _this2.mapActions();
       }
+      if (change.locate && _this2.locate) {
+        const searchParams = {
+          q: _this2.searchElement.nativeElement.value
+        };
+        const locations = yield mapsindoors?.services.LocationsService.getLocations(searchParams);
+        if (locations.length) _this2.getRoute(locations[0]);
+      }
       _this2.mapFloorsToIndex();
       _this2.loading = false;
     })();
@@ -17210,7 +17217,8 @@ class IndoorMapsComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.A
     inputs: {
       styles: "styles",
       actions: "actions",
-      custom_coordinates: "custom_coordinates"
+      custom_coordinates: "custom_coordinates",
+      locate: "locate"
     },
     features: [_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵInheritDefinitionFeature"], _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵNgOnChangesFeature"]],
     decls: 12,
