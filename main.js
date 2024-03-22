@@ -1765,8 +1765,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   updateAssetGroup: () => (/* reexport safe */ _lib_assets_fn__WEBPACK_IMPORTED_MODULE_3__.updateAssetGroup),
 /* harmony export */   updateAssetGroupList: () => (/* reexport safe */ _lib_asset_group_pipe__WEBPACK_IMPORTED_MODULE_4__.updateAssetGroupList),
 /* harmony export */   updateAssetPurchaseOrder: () => (/* reexport safe */ _lib_assets_fn__WEBPACK_IMPORTED_MODULE_3__.updateAssetPurchaseOrder),
-/* harmony export */   updateAssetRequestsForResource: () => (/* reexport safe */ _lib_assets_fn__WEBPACK_IMPORTED_MODULE_3__.updateAssetRequestsForResource),
-/* harmony export */   updateAssetsInBulk: () => (/* reexport safe */ _lib_assets_fn__WEBPACK_IMPORTED_MODULE_3__.updateAssetsInBulk)
+/* harmony export */   updateAssetsInBulk: () => (/* reexport safe */ _lib_assets_fn__WEBPACK_IMPORTED_MODULE_3__.updateAssetsInBulk),
+/* harmony export */   validateAssetRequestsForResource: () => (/* reexport safe */ _lib_assets_fn__WEBPACK_IMPORTED_MODULE_3__.validateAssetRequestsForResource)
 /* harmony export */ });
 /* harmony import */ var _lib_assets_module__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./lib/assets.module */ 70797);
 /* harmony import */ var _lib_asset_class__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./lib/asset.class */ 33410);
@@ -1897,13 +1897,14 @@ function AssetListFieldComponent_div_1_div_8_Template(rf, ctx) {
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
   }
   if (rf & 2) {
-    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("matTooltip", ctx_r2.err_tooltip);
+    const request_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"]().$implicit;
+    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("matTooltip", ctx_r2.err_tooltip(request_r1));
   }
 }
 function AssetListFieldComponent_div_1_div_22_Template(rf, ctx) {
   if (rf & 1) {
-    const _r7 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵgetCurrentView"]();
+    const _r8 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵgetCurrentView"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "div", 16)(1, "div", 17);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](2);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
@@ -1912,43 +1913,43 @@ function AssetListFieldComponent_div_1_div_22_Template(rf, ctx) {
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](5, "button", 19);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵlistener"]("click", function AssetListFieldComponent_div_1_div_22_Template_button_click_5_listener() {
-      const restoredCtx = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵrestoreView"](_r7);
-      const item_r4 = restoredCtx.$implicit;
+      const restoredCtx = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵrestoreView"](_r8);
+      const item_r5 = restoredCtx.$implicit;
       const request_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"]().$implicit;
-      const ctx_r5 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"]();
-      return _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵresetView"](ctx_r5.removeRequestItem(request_r1, item_r4));
+      const ctx_r6 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵresetView"](ctx_r6.removeRequestItem(request_r1, item_r5));
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](6, "app-icon");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](7, "delete");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](8, "button", 20);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵlistener"]("click", function AssetListFieldComponent_div_1_div_22_Template_button_click_8_listener() {
-      const restoredCtx = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵrestoreView"](_r7);
-      const item_r4 = restoredCtx.$implicit;
-      const ctx_r8 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"](2);
-      return _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵresetView"](ctx_r8.toggleFavourite(item_r4));
+      const restoredCtx = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵrestoreView"](_r8);
+      const item_r5 = restoredCtx.$implicit;
+      const ctx_r9 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"](2);
+      return _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵresetView"](ctx_r9.toggleFavourite(item_r5));
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](9, "app-icon");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](10);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()()();
   }
   if (rf & 2) {
-    const item_r4 = ctx.$implicit;
+    const item_r5 = ctx.$implicit;
     const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"](2);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtextInterpolate1"](" ", item_r4.name || "Item", " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtextInterpolate1"](" ", item_r5.name || "Item", " ");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtextInterpolate1"](" x", item_r4.quantity, " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtextInterpolate1"](" x", item_r5.quantity, " ");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](4);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵclassProp"]("text-blue-400", ctx_r3.favorites.includes(item_r4.id));
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("matTooltip", ctx_r3.favorites.includes(item_r4.id) ? "Remove from favourites" : "Add to favourites");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵclassProp"]("text-blue-400", ctx_r3.favorites.includes(item_r5.id));
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("matTooltip", ctx_r3.favorites.includes(item_r5.id) ? "Remove from favourites" : "Add to favourites");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtextInterpolate"](ctx_r3.favorites.includes(item_r4.id) ? "favorite" : "favorite_border");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtextInterpolate"](ctx_r3.favorites.includes(item_r5.id) ? "favorite" : "favorite_border");
   }
 }
 function AssetListFieldComponent_div_1_Template(rf, ctx) {
   if (rf & 1) {
-    const _r10 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵgetCurrentView"]();
+    const _r11 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵgetCurrentView"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "div", 4)(1, "div", 5)(2, "div", 6)(3, "div", 7)(4, "div");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](5);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipe"](6, "date");
@@ -1958,40 +1959,40 @@ function AssetListFieldComponent_div_1_Template(rf, ctx) {
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](9, "button", 9);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵlistener"]("click", function AssetListFieldComponent_div_1_Template_button_click_9_listener() {
-      const restoredCtx = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵrestoreView"](_r10);
+      const restoredCtx = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵrestoreView"](_r11);
       const request_r1 = restoredCtx.$implicit;
-      const ctx_r9 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"]();
-      return _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵresetView"](ctx_r9.duplicateRequest(request_r1));
+      const ctx_r10 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵresetView"](ctx_r10.duplicateRequest(request_r1));
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](10, "app-icon");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](11, "content_copy");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](12, "button", 10);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵlistener"]("click", function AssetListFieldComponent_div_1_Template_button_click_12_listener() {
-      const restoredCtx = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵrestoreView"](_r10);
+      const restoredCtx = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵrestoreView"](_r11);
       const request_r1 = restoredCtx.$implicit;
-      const ctx_r11 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"]();
-      return _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵresetView"](ctx_r11.editRequest(request_r1));
+      const ctx_r12 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵresetView"](ctx_r12.editRequest(request_r1));
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](13, "app-icon");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](14, "edit");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](15, "button", 11);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵlistener"]("click", function AssetListFieldComponent_div_1_Template_button_click_15_listener() {
-      const restoredCtx = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵrestoreView"](_r10);
+      const restoredCtx = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵrestoreView"](_r11);
       const request_r1 = restoredCtx.$implicit;
-      const ctx_r12 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"]();
-      return _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵresetView"](ctx_r12.removeRequest(request_r1));
+      const ctx_r13 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵresetView"](ctx_r13.removeRequest(request_r1));
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](16, "app-icon");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](17, "delete");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](18, "button", 12);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵlistener"]("click", function AssetListFieldComponent_div_1_Template_button_click_18_listener() {
-      const restoredCtx = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵrestoreView"](_r10);
+      const restoredCtx = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵrestoreView"](_r11);
       const request_r1 = restoredCtx.$implicit;
-      const ctx_r13 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"]();
-      return _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵresetView"](ctx_r13.show_request[request_r1.id] = !ctx_r13.show_request[request_r1.id]);
+      const ctx_r14 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵresetView"](ctx_r14.show_request[request_r1.id] = !ctx_r14.show_request[request_r1.id]);
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](19, "app-icon");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](20);
@@ -2007,7 +2008,7 @@ function AssetListFieldComponent_div_1_Template(rf, ctx) {
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](5);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtextInterpolate2"](" Request for ", _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipeBind2"](6, 11, request_r1.deliver_at_time, "mediumDate"), " at ", _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipeBind2"](7, 14, request_r1.deliver_at_time, ctx_r0.time_format), " ");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](3);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngIf", ctx_r0.end_time <= request_r1.deliver_at);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngIf", ctx_r0.end_time <= request_r1.deliver_at || ctx_r0.rejected_ids.includes(request_r1.id) || request_r1.conflict);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](10);
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("matTooltip", ctx_r0.show_request[request_r1.id] ? "Hide order items" : "Show order items");
     _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](2);
@@ -2020,6 +2021,9 @@ function AssetListFieldComponent_div_1_Template(rf, ctx) {
 }
 const EMPTY_FAVS = [];
 class AssetListFieldComponent {
+  err_tooltip(request) {
+    return this.rejected_ids.includes(request.id) || request.conflict ? 'Some of the items are not available for the selected date and time.' : 'Delivery time is outside of the event time.\nThis order will be ignored.';
+  }
   get favorites() {
     return this._settings.get('favourite_assets') || EMPTY_FAVS;
   }
@@ -2035,10 +2039,10 @@ class AssetListFieldComponent {
     this._dialog = _dialog;
     this._state = _state;
     this.options = {};
+    this.rejected_ids = [];
     this.asset_requests = [];
     this.disabled = false;
     this.show_request = {};
-    this.err_tooltip = 'Delivery time is outside of the event time.\nThis order will be ignored.';
     this.selected = [];
     this.registerOnChange = fn => this._onChange = fn;
     this.registerOnTouched = fn => this._onTouch = fn;
@@ -2069,9 +2073,11 @@ class AssetListFieldComponent {
    * @param value The new value for the component
    */
   writeValue(value) {
+    console.log('Requests:', value);
     this.asset_requests = (value || []).map(_ => new _asset_request_class__WEBPACK_IMPORTED_MODULE_3__.AssetRequest({
       ..._,
-      event: this.options
+      event: this.options,
+      state: _.state
     }));
   }
   editRequest(order = new _asset_request_class__WEBPACK_IMPORTED_MODULE_3__.AssetRequest()) {
@@ -2116,6 +2122,7 @@ class AssetListFieldComponent {
       const time = new Date(this.options.date);
       const new_order = new _asset_request_class__WEBPACK_IMPORTED_MODULE_3__.AssetRequest({
         ...order,
+        conflict: false,
         _changed: order._changed || order.items.find(_ => items.find(__ => __.id === _.id)?.quantity !== _.quantity),
         items: items.map(_ => ({
           ..._
@@ -2176,7 +2183,8 @@ class AssetListFieldComponent {
     type: AssetListFieldComponent,
     selectors: [["asset-list-field"]],
     inputs: {
-      options: "options"
+      options: "options",
+      rejected_ids: "rejected_ids"
     },
     features: [_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵProvidersFeature"]([{
       provide: _angular_forms__WEBPACK_IMPORTED_MODULE_10__.NG_VALUE_ACCESSOR,
@@ -2262,6 +2270,7 @@ class AssetRequest {
     this[`${this.event_id}_status`] = value;
   }
   constructor(data = {}) {
+    this.conflict = false;
     this._changed = false;
     this._time = (0,date_fns__WEBPACK_IMPORTED_MODULE_5__["default"])(Date.now()).valueOf();
     this.id = data.id || `order-${(0,_placeos_common__WEBPACK_IMPORTED_MODULE_0__.randomInt)(9999999, 1000000)}`;
@@ -2273,12 +2282,16 @@ class AssetRequest {
     this.item_count = this.items.reduce((amount, item) => amount + item.quantity, 0);
     this._status = data[`${this.event_id}_status`] || data.status || (data.extension_data || {})[`${this.event_id}_status`] || data.extension_data?.status || 'in_storage';
     this.event = data.event || data || null;
+    const booking = this.event?.linked_bookings?.find(_ => _.extension_data.request_id === this.id);
+    this._booking = booking || data.booking || null;
+    this._changed = !!data._changed || !booking;
     this.notes = data.notes || data.description || '';
     this.deliver_time = data.deliver_time || data.extension_data?.deliver_time || undefined;
     this.deliver_offset = data.deliver_offset || data.extension_data?.deliver_offset || 0;
     this.deliver_day_offset = data.deliver_day_offset || data.extension_data?.deliver_day_offset || 0;
     this.deliver_at_time = deliverAtTime(this);
-    this.ref_id = `${this.deliver_time}|${this.deliver_offset}|${this.deliver_day_offset}|${this.items.map(_ => `${_.id}:${_.quantity}`).join('|')}`;
+    this.conflict = !!data.conflict;
+    this.ref_id = `${this.deliver_at_time}|${this.items.map(_ => `${_.id}:${_.quantity}`).join('|')}`;
   }
   toJSON() {
     const blob = {
@@ -3620,8 +3633,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   updateAssetCategory: () => (/* binding */ updateAssetCategory),
 /* harmony export */   updateAssetGroup: () => (/* binding */ updateAssetGroup),
 /* harmony export */   updateAssetPurchaseOrder: () => (/* binding */ updateAssetPurchaseOrder),
-/* harmony export */   updateAssetRequestsForResource: () => (/* binding */ updateAssetRequestsForResource),
-/* harmony export */   updateAssetsInBulk: () => (/* binding */ updateAssetsInBulk)
+/* harmony export */   updateAssetsInBulk: () => (/* binding */ updateAssetsInBulk),
+/* harmony export */   validateAssetRequestsForResource: () => (/* binding */ validateAssetRequestsForResource)
 /* harmony export */ });
 /* harmony import */ var _home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js */ 71670);
 /* harmony import */ var _placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @placeos/ts-client */ 64331);
@@ -3822,7 +3835,7 @@ function queryGroupAvailability(query, ignore) {
   return (0,rxjs__WEBPACK_IMPORTED_MODULE_12__.combineLatest)([queryAssetGroupsExtended(query), (0,libs_bookings_src_lib_bookings_fn__WEBPACK_IMPORTED_MODULE_3__.queryBookings)(query)]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_7__.map)(([products, bookings]) => {
     return products.map(product => ({
       ...product,
-      assets: product.assets.filter(asset => ignore?.includes(asset.id) || !bookings.find(booking => booking.asset_id === asset.id || booking.asset_ids?.includes(asset.id)))
+      assets: product.assets.filter(asset => ignore?.includes(asset.id) || !bookings.find(booking => !ignore.includes(booking.id) && (booking.asset_id === asset.id || booking.asset_ids?.includes(asset.id))))
     }));
   }));
 }
@@ -3840,7 +3853,7 @@ function _removeAssetRequests() {
   });
   return _removeAssetRequests.apply(this, arguments);
 }
-function differenceBetweenAssetRequests(new_assets, old_assets) {
+function differenceBetweenAssetRequests(new_assets, old_assets, reset_state = false) {
   if ((!new_assets || new_assets?.length <= 0) && old_assets?.length) return [];
   if (!old_assets) return [];
   const changed = [];
@@ -3852,11 +3865,11 @@ function differenceBetweenAssetRequests(new_assets, old_assets) {
   }
   return changed;
 }
-function updateAssetRequestsForResource(_x2, _x3, _x4) {
-  return _updateAssetRequestsForResource.apply(this, arguments);
+function validateAssetRequestsForResource(_x2, _x3, _x4) {
+  return _validateAssetRequestsForResource.apply(this, arguments);
 }
-function _updateAssetRequestsForResource() {
-  _updateAssetRequestsForResource = (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* ({
+function _validateAssetRequestsForResource() {
+  _validateAssetRequestsForResource = (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* ({
     id,
     ical_uid,
     from_booking
@@ -3876,7 +3889,7 @@ function _updateAssetRequestsForResource() {
       type: 'asset-request',
       zones: zones.join(',')
     }).toPromise();
-    const bookings = yield (0,libs_bookings_src_lib_bookings_fn__WEBPACK_IMPORTED_MODULE_3__.queryBookings)({
+    const bookings = id && ical_uid ? yield (0,libs_bookings_src_lib_bookings_fn__WEBPACK_IMPORTED_MODULE_3__.queryBookings)({
       period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_13__["default"])((0,date_fns__WEBPACK_IMPORTED_MODULE_14__["default"])(date)),
       period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_13__["default"])((0,date_fns__WEBPACK_IMPORTED_MODULE_15__["default"])(date)),
       type: 'asset-request',
@@ -3884,29 +3897,46 @@ function _updateAssetRequestsForResource() {
       event_id: from_booking ? '' : id,
       booking_id: from_booking ? id : '',
       ical_uid
-    }).toPromise();
-    const request_list = bookings.map(_ => [_.id, new _asset_request_class__WEBPACK_IMPORTED_MODULE_6__.AssetRequest(_.extension_data.request)]);
-    const changed = force_create ? new_assets.map(_ => _.id) : differenceBetweenAssetRequests(new_assets, request_list.map(([_, r]) => r));
-    const unchanged = request_list.filter(([_, request]) => !changed.includes(request.id));
-    const changed_requests = request_list.filter(([_, {
+    }).toPromise() : [];
+    const booking_list = bookings.map(_ => [_.id, new _asset_request_class__WEBPACK_IMPORTED_MODULE_6__.AssetRequest(_.extension_data.request)]);
+    new_assets.forEach(_ => _.conflict = false);
+    let changed = force_create ? new_assets.map(_ => _.id) : differenceBetweenAssetRequests(new_assets, booking_list.map(([_, r]) => r), reset_state);
+    if (reset_state) {
+      const has_state = bookings.filter(_ => _.approved || _.rejected);
+      changed = (0,_placeos_common__WEBPACK_IMPORTED_MODULE_5__.unique)([...changed, ...has_state.map(_ => _.extension_data.request_id)]);
+    }
+    const unchanged = booking_list.filter(([_, request]) => !changed.includes(request.id));
+    const changed_requests = booking_list.filter(([_, {
       id
     }]) => changed.includes(id));
     const changed_assets = new_assets.filter(({
       id
     }) => changed.includes(id));
-    yield Promise.all(changed_requests.map(([id]) => (0,libs_bookings_src_lib_bookings_fn__WEBPACK_IMPORTED_MODULE_3__.removeBooking)(id).toPromise()));
     const filtered = requests.filter(req => !req.rejected && (!bookings.find(b => b.id === req.id) || unchanged.find(([id]) => req.event_id === id)));
     let used_ids = (0,_placeos_common__WEBPACK_IMPORTED_MODULE_5__.flatten)(filtered.map(_ => _.asset_ids));
     for (const [_, request] of unchanged) {
       used_ids = [...used_ids, ...(0,_placeos_common__WEBPACK_IMPORTED_MODULE_5__.flatten)(request.items.map(_ => _.item_ids))];
     }
-    yield Promise.all(changed_assets.map(request => {
+    const available_groups = yield queryGroupAvailability({
+      period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_13__["default"])(all_day ? (0,date_fns__WEBPACK_IMPORTED_MODULE_14__["default"])(date) : date),
+      period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_13__["default"])(all_day ? (0,date_fns__WEBPACK_IMPORTED_MODULE_15__["default"])((0,date_fns__WEBPACK_IMPORTED_MODULE_16__["default"])(date, duration)) : (0,date_fns__WEBPACK_IMPORTED_MODULE_16__["default"])(date, duration)),
+      type: 'asset-request'
+    }, bookings.map(_ => _.id)).toPromise();
+    console.log('Used IDs:', used_ids);
+    console.log('Changed Assets:', changed_assets);
+    console.log('Requests:', requests);
+    console.log('Bookings:', bookings);
+    console.log('Filtered:', filtered);
+    console.log('Unchanged:', unchanged);
+    console.log('Available Groups:', available_groups);
+    const processed_requests = changed_assets.map(request => {
       // Handle duplicate asset ids
       let asset_ids = (0,_placeos_common__WEBPACK_IMPORTED_MODULE_5__.flatten)(request.items.map(({
+        id,
         item_ids,
-        assets,
         quantity
       }) => {
+        const assets = available_groups.find(_ => _.id === id)?.assets;
         if (!assets) return item_ids;
         const list = [];
         return new Array(quantity).fill(0).map((_, idx) => {
@@ -3916,6 +3946,7 @@ function _updateAssetRequestsForResource() {
             return !used_ids.includes(id) && !list.includes(id);
           })?.id : item_ids[idx];
           if (!item) {
+            request.conflict = true;
             throw 'Unable to find available asset for request';
           }
           list.push(item);
@@ -3952,10 +3983,14 @@ function _updateAssetRequestsForResource() {
       }), {
         ical_uid,
         event_id: from_booking ? '' : id
-      }).toPromise();
-    }));
+      });
+    });
+    return /*#__PURE__*/(0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
+      yield Promise.all(changed_requests.map(([id]) => (0,libs_bookings_src_lib_bookings_fn__WEBPACK_IMPORTED_MODULE_3__.removeBooking)(id).toPromise()));
+      yield Promise.all(processed_requests.map(r => r.toPromise()));
+    });
   });
-  return _updateAssetRequestsForResource.apply(this, arguments);
+  return _validateAssetRequestsForResource.apply(this, arguments);
 }
 
 /***/ }),
@@ -5319,14 +5354,15 @@ class BookingFormService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.As
         throw e?.error || e;
       });
       if (value.assets?.length || booking.extension_data.assets?.length) {
-        yield (0,libs_assets_src_lib_assets_fn__WEBPACK_IMPORTED_MODULE_10__.updateAssetRequestsForResource)({
+        const requests = yield (0,libs_assets_src_lib_assets_fn__WEBPACK_IMPORTED_MODULE_10__.validateAssetRequestsForResource)({
           ...result,
           from_booking: true
         }, {
           date: value.date,
           duration: value.duration,
           all_day: value.all_day,
-          host: value.booked_by_email
+          host: value.booked_by_email,
+          zones: [_this2._org.building?.id]
         }, value.assets).catch(e => {
           console.error("Couldn't update asset requests", e);
           if (e?.status === 409) {
@@ -5335,6 +5371,8 @@ class BookingFormService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.As
           _this2._loading.next('');
           throw e?.error || e;
         });
+        if (!requests) throw 'Unable to validate asset requests';
+        yield requests();
       }
       _this2._loading.next('');
       const {
@@ -5631,9 +5669,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   Booking: () => (/* binding */ Booking)
 /* harmony export */ });
 /* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @placeos/common */ 57314);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! date-fns */ 31957);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! date-fns */ 89147);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! date-fns */ 58415);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! date-fns */ 58415);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! date-fns */ 31957);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! date-fns */ 89147);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! date-fns */ 8276);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! date-fns */ 57016);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! date-fns */ 4512);
@@ -5656,26 +5694,36 @@ class Booking {
     return this.all_day || this.duration >= 12 * 60;
   }
   get valid_assets() {
+    if (this._b_valid_cache_expiry > Date.now() && this._b_valid_asset_cache.length) {
+      return this._b_valid_asset_cache;
+    }
     const list = this.linked_bookings;
-    return (this.extension_data.assets || []).filter(request => request.deliver_at < this.date_end).map(request => {
-      const booking = list.find(_ => _.asset_id === request.id);
+    this._b_valid_asset_cache = (this.extension_data.assets || []).map(request => new libs_assets_src_lib_asset_request_class__WEBPACK_IMPORTED_MODULE_1__.AssetRequest({
+      ...request,
+      event: this
+    })).filter(request => request.deliver_at < this.date_end).map(request => {
+      const booking = list.find(_ => _.extension_data.request_id === request.id);
       if (booking) {
         request.state = booking.approved ? 'approved' : booking.rejected ? 'rejected' : 'pending';
       }
       return request;
     });
+    this._b_valid_cache_expiry = (0,date_fns__WEBPACK_IMPORTED_MODULE_2__["default"])(Date.now(), 5).valueOf();
+    return this._b_valid_asset_cache;
   }
   constructor(data = {}) {
+    this._b_valid_asset_cache = [];
+    this._b_valid_cache_expiry = 0;
     this.id = data.id || '';
     this.parent_id = data.parent_id || '';
     this.asset_id = data.asset_id || '';
     this.asset_ids = data.asset_ids || [data.asset_id].filter(_ => _);
     this.asset_name = data.asset_name || data.extension_data?.asset_name || data.extension_data?.name || data.description || data.asset_id || '';
     this.zones = data.zones || [];
-    this.booking_start = Math.floor(data.date / 1000) || data.booking_start || (0,date_fns__WEBPACK_IMPORTED_MODULE_2__["default"])((0,date_fns__WEBPACK_IMPORTED_MODULE_3__["default"])((0,date_fns__WEBPACK_IMPORTED_MODULE_4__["default"])(Date.now(), 5), {
+    this.booking_start = Math.floor(data.date / 1000) || data.booking_start || (0,date_fns__WEBPACK_IMPORTED_MODULE_3__["default"])((0,date_fns__WEBPACK_IMPORTED_MODULE_4__["default"])((0,date_fns__WEBPACK_IMPORTED_MODULE_2__["default"])(Date.now(), 5), {
       nearestTo: 5
     }));
-    this.booking_end = Math.floor(data.date / 1000) + data.duration * 60 || data.booking_end || (0,date_fns__WEBPACK_IMPORTED_MODULE_2__["default"])((0,date_fns__WEBPACK_IMPORTED_MODULE_4__["default"])(this.booking_start * 1000, data.duration || 60));
+    this.booking_end = Math.floor(data.date / 1000) + data.duration * 60 || data.booking_end || (0,date_fns__WEBPACK_IMPORTED_MODULE_3__["default"])((0,date_fns__WEBPACK_IMPORTED_MODULE_2__["default"])(this.booking_start * 1000, data.duration || 60));
     this.booking_type = data.booking_type || ' ';
     this.type = data.type || data.booking_type || 'booking';
     this.date = data.date || this.booking_start * 1000 || Date.now();
@@ -5705,7 +5753,7 @@ class Booking {
     if (this.all_day) {
       this.date = (0,date_fns__WEBPACK_IMPORTED_MODULE_6__["default"])(this.date).getTime();
       this.duration = Math.max(24 * 60 - 1, this.duration - (this.duration % 24 * 60 === 0 ? 1 : 0));
-      this.date_end = (0,date_fns__WEBPACK_IMPORTED_MODULE_7__["default"])((0,date_fns__WEBPACK_IMPORTED_MODULE_4__["default"])(this.date, this.duration - 1).valueOf()).getTime();
+      this.date_end = (0,date_fns__WEBPACK_IMPORTED_MODULE_7__["default"])((0,date_fns__WEBPACK_IMPORTED_MODULE_2__["default"])(this.date, this.duration - 1).valueOf()).getTime();
     }
     this.checked_out_at = data.checked_out_at;
     this.linked_event = data.linked_event || null;
@@ -5761,7 +5809,7 @@ class Booking {
   /** Whether booking is done */
   get is_done() {
     const start = new Date();
-    const end = this.all_day ? (0,date_fns__WEBPACK_IMPORTED_MODULE_9__["default"])(this.date, 24) : (0,date_fns__WEBPACK_IMPORTED_MODULE_4__["default"])(this.date, this.duration);
+    const end = this.all_day ? (0,date_fns__WEBPACK_IMPORTED_MODULE_9__["default"])(this.date, 24) : (0,date_fns__WEBPACK_IMPORTED_MODULE_2__["default"])(this.date, this.duration);
     const checked_out = (this.checked_out_at || this.extension_data.checked_out_at || 0) * 1000;
     let end_time = end.getTime();
     if (checked_out && Date.now() > checked_out) return true;
@@ -15165,6 +15213,7 @@ function filterResourcesFromRules(resources, details, ruleset_list) {
   }, ruleset_list)?.hidden);
 }
 function rulesForResource(details, ruleset_list) {
+  if (!(ruleset_list instanceof Array)) return DEFAULT_RULES;
   for (const ruleset of ruleset_list) {
     if (ruleset.zone === '*' || ruleset.zone === details.resource.zone?.id || details.resource.zones?.includes(ruleset.zone)) {
       if (checkRulesMatch(details, ruleset)) {
@@ -18341,15 +18390,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "e1d3cf0",
-  "hash": "e1d3cf0",
+  "raw": "0f69a1c",
+  "hash": "0f69a1c",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "e1d3cf0",
+  "suffix": "0f69a1c",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1711073563904
+  "time": 1711074013983
 };
 /* tslint:enable */
 
@@ -27869,7 +27918,7 @@ class EventFormService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.Asyn
         duration,
         resource: null,
         host: (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.currentUser)()
-      }, booking_rules[this._org.building?.id]);
+      }, booking_rules[this._org.building?.id] || []);
       return availability_method(spaces.map(({
         id
       }) => id), all_day ? (0,date_fns__WEBPACK_IMPORTED_MODULE_33__["default"])(date).valueOf() : date, all_day ? Math.max(24 * 60, duration) : duration, this?.event?.resources[0]?.id || this.event?.system?.id || this.event?.id || undefined, undefined, [this.event?.date, this.event?.duration]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_20__.map)(availability => {
@@ -27879,7 +27928,7 @@ class EventFormService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.Asyn
           duration,
           resource: null,
           host: (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.currentUser)()
-        }, booking_rules[this._org.building?.id]);
+        }, booking_rules[this._org.building?.id] || []);
         return list;
       }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_28__.catchError)(_ => []));
     }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_26__.tap)(_ => this._loading.next('')), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_21__.shareReplay)(1));
@@ -27975,7 +28024,10 @@ class EventFormService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.Asyn
         email: event?.host
       }),
       catering_charge_code: event.extension_data.catering[0]?.charge_code || (event.id && has_catering ? ' ' : ''),
-      assets: (event.extension_data.assets || []).map(_ => new libs_assets_src_lib_asset_request_class__WEBPACK_IMPORTED_MODULE_17__.AssetRequest(_))
+      assets: (event.extension_data.assets || []).map(_ => new libs_assets_src_lib_asset_request_class__WEBPACK_IMPORTED_MODULE_17__.AssetRequest({
+        ..._,
+        event
+      }))
     });
     this._form.patchValue({
       date: event.date || this._form.value.date,
@@ -28154,7 +28206,7 @@ class EventFormService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.Asyn
                 (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.notifyError)('Some assets are already booked for the selected time');
               } else (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.notifyError)('Unable to book the selected assets.');
             } else if (creating_assets) {
-              (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.notifyError)(`Unable to update all asset requests for event. ${e}`);
+              (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.notifyError)(`Unable to update all asset requests for event.\n${e}`);
               return;
             }
             _this2._loading.next('');
@@ -28169,16 +28221,19 @@ class EventFormService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.Asyn
         }
         if (assets?.length || event.extension_data.assets?.length) {
           creating_assets = true;
-          yield (0,libs_assets_src_lib_assets_fn__WEBPACK_IMPORTED_MODULE_14__.updateAssetRequestsForResource)(result, {
+          const requests = yield (0,libs_assets_src_lib_assets_fn__WEBPACK_IMPORTED_MODULE_14__.validateAssetRequestsForResource)(result, {
             date,
             duration,
             host,
             all_day,
             location_name: spaces[0]?.display_name || spaces[0]?.name || '',
             location_id: spaces[0]?.id || '',
-            zones: spaces[0]?.zones || [_this2._org.building?.id, _this2._org.building?.parent_id],
+            zones: spaces[0]?.level?.parent_id ? [spaces[0]?.level?.parent_id] : [_this2._org.building?.id],
             reset_state: changed_times
-          }, assets, changed_spaces).catch(on_error);
+          }, assets, changed_spaces || changed_times).catch(on_error);
+          if (!requests) throw 'Unable to validate asset requests';
+          yield requests();
+          creating_assets = false;
         }
         _this2.clearForm();
         _this2.last_success = result;
