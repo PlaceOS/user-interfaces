@@ -31289,15 +31289,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "efaf036",
-  "hash": "efaf036",
+  "raw": "af80854",
+  "hash": "af80854",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "efaf036",
+  "suffix": "af80854",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1711072452509
+  "time": 1711073208956
 };
 /* tslint:enable */
 
@@ -36007,6 +36007,7 @@ var IndoorMapsComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
     key: "ngOnChanges",
     value: function () {
       var _ngOnChanges = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(change) {
+        var _mapsindoors, searchParams, locations;
         return _regeneratorRuntime().wrap(function _callee2$(_context2) {
           while (1) switch (_context2.prev = _context2.next) {
             case 0:
@@ -36020,9 +36021,22 @@ var IndoorMapsComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
               _context2.next = 5;
               return this.mapActions();
             case 5:
+              if (!(change.locate && this.locate)) {
+                _context2.next = 11;
+                break;
+              }
+              searchParams = {
+                q: this.searchElement.nativeElement.value
+              };
+              _context2.next = 9;
+              return (_mapsindoors = mapsindoors) === null || _mapsindoors === void 0 ? void 0 : _mapsindoors.services.LocationsService.getLocations(searchParams);
+            case 9:
+              locations = _context2.sent;
+              if (locations.length) this.getRoute(locations[0]);
+            case 11:
               this.mapFloorsToIndex();
               this.loading = false;
-            case 7:
+            case 13:
             case "end":
               return _context2.stop();
           }
@@ -36170,12 +36184,12 @@ var IndoorMapsComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
   }, {
     key: "onSearch",
     value: function onSearch() {
-      var _mapsindoors,
+      var _mapsindoors2,
         _this6 = this;
       var searchParams = {
         q: this.searchElement.nativeElement.value
       };
-      (_mapsindoors = mapsindoors) === null || _mapsindoors === void 0 || _mapsindoors.services.LocationsService.getLocations(searchParams).then(function (locations) {
+      (_mapsindoors2 = mapsindoors) === null || _mapsindoors2 === void 0 || _mapsindoors2.services.LocationsService.getLocations(searchParams).then(function (locations) {
         return _this6.search_result_items = locations;
       });
     }
@@ -36457,7 +36471,8 @@ _class.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
   inputs: {
     styles: "styles",
     actions: "actions",
-    custom_coordinates: "custom_coordinates"
+    custom_coordinates: "custom_coordinates",
+    locate: "locate"
   },
   features: [i0.ɵɵInheritDefinitionFeature, i0.ɵɵNgOnChangesFeature],
   decls: 12,
@@ -46483,7 +46498,7 @@ function ExploreMapViewComponent_indoor_maps_2_Template(rf, ctx) {
   }
   if (rf & 2) {
     var ctx_r1 = i0.ɵɵnextContext();
-    i0.ɵɵproperty("styles", i0.ɵɵpipeBind1(1, 2, ctx_r1.styles))("actions", i0.ɵɵpipeBind1(2, 4, ctx_r1.actions));
+    i0.ɵɵproperty("styles", i0.ɵɵpipeBind1(1, 3, ctx_r1.styles))("actions", i0.ɵɵpipeBind1(2, 5, ctx_r1.actions))("locate", ctx_r1.locate);
   }
 }
 function ExploreMapViewComponent_explore_zoom_controls_4_Template(rf, ctx) {
@@ -46595,6 +46610,7 @@ var ExploreMapViewComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
     _this.setOptions = function (o) {
       return _this._state.setOptions(o);
     };
+    _this.locate = '';
     _this.use_mapsindoors$ = _this._maps.available$;
     return _this;
   }
@@ -46764,6 +46780,7 @@ var ExploreMapViewComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
           message: name
         }
       };
+      this.locate = id;
       this.timeout('update_location', function () {
         return _this3._state.setFeatures('_located', [feature]);
       });
@@ -46918,13 +46935,13 @@ _class.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     } else {
       i18n_1 = $localize(_templateObject2 || (_templateObject2 = _taggedTemplateLiteral([":\u241F5c5419db944ed6a96f9515a2ac0ee390ec8cf3b5\u241F7297822327994766046:Legend"])));
     }
-    return [[3, "src", "zoom", "center", "styles", "features", "actions", "labels", "zoomChange", "centerChange", 4, "ngIf"], [3, "styles", "actions", 4, "ngIf"], ["class", "absolute top-1/2 -translate-y-1/2 right-2", 4, "ngIf"], ["controls", "", "class", "absolute top-2 left-2 max-w-[calc(100vw-1rem)] bg-base-100 border border-base-200 rounded p-2 space-y-2 overflow-hidden", 4, "ngIf"], ["legend", "", "class", "absolute bottom-2 left-2 p-2 rounded bg-base-100 border border-base-200", 4, "ngIf"], [3, "src", "zoom", "center", "styles", "features", "actions", "labels", "zoomChange", "centerChange"], [3, "styles", "actions"], [1, "absolute", "top-1/2", "-translate-y-1/2", "right-2"], ["controls", "", 1, "absolute", "top-2", "left-2", "max-w-[calc(100vw-1rem)]", "bg-base-100", "border", "border-base-200", "rounded", "p-2", "space-y-2", "overflow-hidden"], ["class", "flex items-center space-x-2", 4, "ngIf"], [1, "flex", "items-center", "space-x-2"], ["name", "zones", 1, "ml-2", 3, "ngModel", "ngModelChange"], ["for", "zones", 1, "mb-0"], i18n_0, ["legend", "", 1, "absolute", "bottom-2", "left-2", "p-2", "rounded", "bg-base-100", "border", "border-base-200"], [1, "mb-2", "font-medium"], i18n_1, ["class", "flex items-center space-x-2", 4, "ngFor", "ngForOf"], [1, "w-3", "h-3", "rounded-full", "border", "border-base-200"], [1, "text-sm"]];
+    return [[3, "src", "zoom", "center", "styles", "features", "actions", "labels", "zoomChange", "centerChange", 4, "ngIf"], [3, "styles", "actions", "locate", 4, "ngIf"], ["class", "absolute top-1/2 -translate-y-1/2 right-2", 4, "ngIf"], ["controls", "", "class", "absolute top-2 left-2 max-w-[calc(100vw-1rem)] bg-base-100 border border-base-200 rounded p-2 space-y-2 overflow-hidden", 4, "ngIf"], ["legend", "", "class", "absolute bottom-2 left-2 p-2 rounded bg-base-100 border border-base-200", 4, "ngIf"], [3, "src", "zoom", "center", "styles", "features", "actions", "labels", "zoomChange", "centerChange"], [3, "styles", "actions", "locate"], [1, "absolute", "top-1/2", "-translate-y-1/2", "right-2"], ["controls", "", 1, "absolute", "top-2", "left-2", "max-w-[calc(100vw-1rem)]", "bg-base-100", "border", "border-base-200", "rounded", "p-2", "space-y-2", "overflow-hidden"], ["class", "flex items-center space-x-2", 4, "ngIf"], [1, "flex", "items-center", "space-x-2"], ["name", "zones", 1, "ml-2", 3, "ngModel", "ngModelChange"], ["for", "zones", 1, "mb-0"], i18n_0, ["legend", "", 1, "absolute", "bottom-2", "left-2", "p-2", "rounded", "bg-base-100", "border", "border-base-200"], [1, "mb-2", "font-medium"], i18n_1, ["class", "flex items-center space-x-2", 4, "ngFor", "ngForOf"], [1, "w-3", "h-3", "rounded-full", "border", "border-base-200"], [1, "text-sm"]];
   },
   template: function ExploreMapViewComponent_Template(rf, ctx) {
     if (rf & 1) {
       i0.ɵɵtemplate(0, ExploreMapViewComponent_i_map_0_Template, 8, 21, "i-map", 0);
       i0.ɵɵpipe(1, "async");
-      i0.ɵɵtemplate(2, ExploreMapViewComponent_indoor_maps_2_Template, 3, 6, "indoor-maps", 1);
+      i0.ɵɵtemplate(2, ExploreMapViewComponent_indoor_maps_2_Template, 3, 7, "indoor-maps", 1);
       i0.ɵɵpipe(3, "async");
       i0.ɵɵtemplate(4, ExploreMapViewComponent_explore_zoom_controls_4_Template, 1, 0, "explore-zoom-controls", 2);
       i0.ɵɵpipe(5, "async");
