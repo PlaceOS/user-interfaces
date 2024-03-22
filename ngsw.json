@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1711073545023,
+  "timestamp": 1711074331606,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -146,7 +146,7 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "9400e07ac1ab411b4219bb62b795656851241f24",
+    "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "9e5d4e10acdd920f5098e20e0bde205d034755ec",
     "./apps_concierge_src_app_building-manager_building-manager_module_ts.js": "8e98dc4ebd00bb4cb55916b3de4a7c54f501fddd",
     "./apps_concierge_src_app_catering_catering_module_ts.js": "655d3de6dcc1f862b57bb7d354a8bd28082c8c61",
     "./apps_concierge_src_app_day-view_day-view_module_ts.js": "a23ef9314b320ab6ce62c9a25ac15a6e2a1ae470",
@@ -242,7 +242,7 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./common.js": "bdb03be86477ade8aaeaa945528e22c35d2a972f",
-    "./default-libs_bookings_src_lib_bookings_module_ts.js": "cf733cc0c467442390e76aae7db24811a3ddabab",
+    "./default-libs_bookings_src_lib_bookings_module_ts.js": "6f060499605a1479def4f8387a3a58c46e92c308",
     "./default-libs_catering_src_index_ts.js": "0162ffa757458f45e0cfc3ecaee7965acc20bc9a",
     "./default-libs_explore_src_index_ts.js": "56b57de2e6b8e3bc8a3996e96613c4b93772d159",
     "./default-libs_users_src_index_ts.js": "332baa7a442b512c367906b65540915540d950ea",
@@ -250,7 +250,7 @@
     "./default-node_modules_angular_material_fesm2022_tabs_mjs.js": "3880df6934f23033cf8c21c4623f5d09204ca304",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "021206ca5ac793aa2140125658eb495e63bed131",
-    "./main.js": "7de0baa1d8983f15f95d09459eaee1353d2ecada",
+    "./main.js": "56b88eb0e66620ade95838c1e96500eec1c51b0a",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
@@ -262,7 +262,7 @@
     "./material-symbols-sharp.woff2": "d991d290442aeb0a63e5d3bc48143a088e517de3",
     "./polyfills.js": "91cf6648abb63959d3ea60cacf66e8cd0de4c3b8",
     "./runtime.js": "4d5e529aa8350ee83659185276a1940d360131b8",
-    "./styles.css": "45b5cd4df1bfeccfe1e7b4d9b33f189dd184d461",
+    "./styles.css": "84dbea9e3b9d8c1b201490cc479cd9ad0ac6a064",
     "./vendor.js": "91dfeb38f15ff97361c819fbf7da0f2fb9fe3df1"
   },
   "navigationUrls": [
