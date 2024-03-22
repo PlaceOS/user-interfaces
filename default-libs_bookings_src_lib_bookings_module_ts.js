@@ -1241,14 +1241,15 @@ class BookingFormService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.As
         throw e?.error || e;
       });
       if (value.assets?.length || booking.extension_data.assets?.length) {
-        yield (0,libs_assets_src_lib_assets_fn__WEBPACK_IMPORTED_MODULE_10__.updateAssetRequestsForResource)({
+        const requests = yield (0,libs_assets_src_lib_assets_fn__WEBPACK_IMPORTED_MODULE_10__.validateAssetRequestsForResource)({
           ...result,
           from_booking: true
         }, {
           date: value.date,
           duration: value.duration,
           all_day: value.all_day,
-          host: value.booked_by_email
+          host: value.booked_by_email,
+          zones: [_this2._org.building?.id]
         }, value.assets).catch(e => {
           console.error("Couldn't update asset requests", e);
           if (e?.status === 409) {
@@ -1257,6 +1258,8 @@ class BookingFormService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.As
           _this2._loading.next('');
           throw e?.error || e;
         });
+        if (!requests) throw 'Unable to validate asset requests';
+        yield requests();
       }
       _this2._loading.next('');
       const {
