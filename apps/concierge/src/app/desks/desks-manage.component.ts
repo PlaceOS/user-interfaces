@@ -2,6 +2,7 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
+    SettingsService,
     csvToJson,
     loadTextFileFromInputEvent,
     notifyError,
@@ -232,6 +233,7 @@ export class DesksManageComponent extends AsyncHandler {
         private _state: DesksStateService,
         private _org: OrganisationService,
         private _dialog: MatDialog,
+        private _settings: SettingsService,
         private _element: ElementRef
     ) {
         super();
@@ -335,15 +337,18 @@ export class DesksManageComponent extends AsyncHandler {
         this.changes = {};
     }
 
+    public get kiosk_url() {
+        const path =
+            this._settings.get('app.workplace_url_path') || '/workplace';
+        return `${window.location.origin}${path}`;
+    }
+
     public loadQrCode(item: any) {
-        item.qr_link = `${
-            location.origin
-        }/workplace/#/book/code?asset_id=${encodeURIComponent(item.id)}`;
-        item.qr_code = generateQRCode(
-            `${
-                location.origin
-            }/workplace/#/book/code?asset_id=${encodeURIComponent(item.id)}`
-        );
+        const link = `${
+            this.kiosk_url
+        }/#/book/code?asset_id=${encodeURIComponent(item.id)}`;
+        item.qr_link = link;
+        item.qr_code = generateQRCode(link);
     }
 
     public print() {
