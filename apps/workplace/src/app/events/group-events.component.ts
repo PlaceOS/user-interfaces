@@ -37,7 +37,7 @@ import { map } from 'rxjs/operators';
                 </div>
                 <ng-template #no_events>
                     <div class="flex items-center justify-center w-full h-48">
-                        <div class="opacity-30">No events</div>
+                        <div class="opacity-30">No upcoming events</div>
                     </div>
                 </ng-template>
             </div>
@@ -68,10 +68,9 @@ import { map } from 'rxjs/operators';
     ],
 })
 export class GroupEventsComponent {
-    public readonly event_list =
-        of([new Booking(), new Booking()]) || this._state.events;
+    public readonly event_list = this._state.events;
     public readonly featured = this.event_list.pipe(
-        map((_) => _.find((_) => _.extension_data?.featured))
+        map((_) => _.find((_: any) => _.extension_data?.featured || _.featured))
     );
 
     constructor(private _state: GroupEventsStateService) {}
