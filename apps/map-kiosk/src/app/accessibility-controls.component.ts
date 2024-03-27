@@ -26,10 +26,10 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
                 (ngModelChange)="applySetting('accessible', $event)"
             ></mat-slide-toggle>
         </button>
-        <div class="flex items-center px-4 space-x-4" *ngIf="accessible">
-            <span class="text-sm">A</span>
+        <div class="flex items-center pl-2 space-x-4" *ngIf="accessible">
+            <div class="text-sm">A</div>
             <mat-slider
-                class="flex-1 w-1/2 text-[16px]"
+                class="flex-1 w-px min-w-0 text-[16px]"
                 [min]="10"
                 [max]="24"
                 [step]="2"
@@ -41,12 +41,12 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
                     (ngModelChange)="applySetting('font_size', $event)"
                 />
             </mat-slider>
-            <span class="text-2xl">A</span>
-            <span
+            <div class="text-2xl">A</div>
+            <div
                 class="text-base py-1 px-2 rounded bg-base-300 text-base-content my-2"
             >
                 {{ font_size }}px
-            </span>
+            </div>
         </div>
     `,
     styles: [``],
