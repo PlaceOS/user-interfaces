@@ -31289,15 +31289,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "e5eae93",
-  "hash": "e5eae93",
+  "raw": "c49f7a0",
+  "hash": "c49f7a0",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "e5eae93",
+  "suffix": "c49f7a0",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1711501833271
+  "time": 1711584237088
 };
 /* tslint:enable */
 
@@ -36076,7 +36076,7 @@ var IndoorMapsComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
     key: "_initMapView",
     value: function _initMapView() {
       var _this4 = this;
-      if (!this._api_service.is_ready) {
+      if (!this._api_service.is_ready || !window.mapsindoors) {
         this.timeout('init', function () {
           return _this4._initMapView();
         }, 1000);
@@ -36327,12 +36327,12 @@ var IndoorMapsComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
     key: "getRoute",
     value: function () {
       var _getRoute = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(location) {
-        var _this$directions_rend;
+        var _this$maps_service6, _this$directions_rend;
         var destination, level_id, origin, routeParameters, result;
         return _regeneratorRuntime().wrap(function _callee5$(_context5) {
           while (1) switch (_context5.prev = _context5.next) {
             case 0:
-              this.maps_service.highlight([]);
+              (_this$maps_service6 = this.maps_service) === null || _this$maps_service6 === void 0 || _this$maps_service6.highlight([]);
               if (!(!this.directions_service || !location)) {
                 _context5.next = 3;
                 break;
@@ -36348,7 +36348,7 @@ var IndoorMapsComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
               };
               level_id = (this.floor_mapping || {})[location.properties.floor];
               if (level_id) this._state.setLevel(level_id);
-              if (this._userWithinRadius([this.user_latitude, this.user_longitude], 100)) {
+              if (this._userWithinRadius([this.user_latitude, this.user_longitude], 1000)) {
                 _context5.next = 14;
                 break;
               }
@@ -36384,8 +36384,9 @@ var IndoorMapsComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
               });
             case 20:
               result = _context5.sent;
+              console.log('Route:', result);
               (_this$directions_rend = this.directions_renderer) === null || _this$directions_rend === void 0 || _this$directions_rend.setRoute(result);
-            case 22:
+            case 23:
             case "end":
               return _context5.stop();
           }
@@ -36459,8 +36460,8 @@ var IndoorMapsComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
   }, {
     key: "_setPolygonFill",
     value: function _setPolygonFill(location_id, colour) {
-      var _this$maps_service6;
-      return (_this$maps_service6 = this.maps_service) === null || _this$maps_service6 === void 0 ? void 0 : _this$maps_service6.setDisplayRule(location_id, {
+      var _this$maps_service7;
+      return (_this$maps_service7 = this.maps_service) === null || _this$maps_service7 === void 0 ? void 0 : _this$maps_service7.setDisplayRule(location_id, {
         polygonVisible: true,
         polygonFillOpacity: 0.6,
         polygonZoomFrom: 16,
