@@ -17969,15 +17969,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "d7bae09",
-  "hash": "d7bae09",
+  "raw": "5e63744",
+  "hash": "5e63744",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "d7bae09",
+  "suffix": "5e63744",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1711594969664
+  "time": 1711596829400
 };
 /* tslint:enable */
 
@@ -22459,6 +22459,7 @@ class IndoorMapsComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.A
       this.view_instance = new mapsindoors.mapView.GoogleMapsView(view_options);
     } else {
       view_options.accessToken = this._api_service.map_token;
+      console.log('View Options:', view_options);
       (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.log)('MapsIndoors', 'Using Mapbox API');
       this.view_instance = new mapsindoors.mapView.MapboxView(view_options);
     }
@@ -22476,7 +22477,7 @@ class IndoorMapsComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.A
     this._setLocationToBuilding();
   }
   initDirections() {
-    const provider = this._api_service.map_service === libs_common_src_lib_mapspeople_service__WEBPACK_IMPORTED_MODULE_4__.MapService.GoogleMaps ? new mapsindoors.directions.GoogleMapsProvider() : new mapsindoors.directions.MapboxProvider();
+    const provider = this._api_service.map_service === libs_common_src_lib_mapspeople_service__WEBPACK_IMPORTED_MODULE_4__.MapService.GoogleMaps ? new mapsindoors.directions.GoogleMapsProvider() : new mapsindoors.directions.MapboxProvider(this._api_service.map_token);
     this.directions_service = new mapsindoors.services.DirectionsService(provider);
     const directionsRendererOptions = {
       mapsIndoors: this.maps_service
@@ -22587,7 +22588,7 @@ class IndoorMapsComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.A
   }
   _updateGeolocation(updated_location) {
     if (!updated_location?.coords) return;
-    (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.log)('MapsIndoors', 'Settings location to user:', [updated_location.coords], 'warn');
+    (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.log)('MapsIndoors', 'Settings location to user:', updated_location.coords, 'warn');
     const {
       latitude,
       longitude
@@ -22606,6 +22607,7 @@ class IndoorMapsComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.A
     return (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
       _this5.maps_service?.highlight([]);
       if (!_this5.directions_service || !location) return;
+      console.log('Directions Service:', _this5.directions_service);
       (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.log)('MapsIndoors', 'Getting route to location:', [location, _this5.user_latitude, _this5.user_longitude]);
       _this5.selected_destination = location;
       const destination = {
@@ -22634,6 +22636,7 @@ class IndoorMapsComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.A
         destination: destination,
         travelMode: 'WALKING'
       };
+      console.log('Route Parameters:', routeParameters);
       const result = yield _this5.directions_service.getRoute(routeParameters).catch(e => {
         (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.log)('MapsIndoors', 'Error fetching route: ', e.message || e, 'warn');
         const origin_error = e instanceof TypeError && e.message?.includes('origin');
