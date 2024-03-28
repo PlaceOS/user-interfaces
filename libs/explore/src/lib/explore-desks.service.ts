@@ -333,7 +333,9 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 z_index: 20,
             });
             if (!desk.bookable) continue;
+            let can_book = true;
             const book_fn = async () => {
+                if (!can_book) return;
                 if (this._statuses[desk.id] !== 'free') {
                     return notifyError(
                         `${desk.name || 'Desk'} is unavailable at this time.`
@@ -396,18 +398,25 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                     `Successfully booked desk ${desk.name || desk.id}`
                 );
             };
-            actions.push({
-                id: desk.id,
-                action: 'click',
-                priority: 10,
-                callback: book_fn,
-            });
-            actions.push({
-                id: desk.id,
-                action: 'touchend',
-                priority: 10,
-                callback: book_fn,
-            });
+            ['mousedown', 'touchstart'].forEach((event) =>
+                actions.push({
+                    id: desk.id,
+                    action: event,
+                    priority: 10,
+                    callback: () => {
+                        can_book = true;
+                        this.timeout('booking', () => (can_book = false));
+                    },
+                })
+            );
+            ['mouseup', 'touchend'].forEach((event) =>
+                actions.push({
+                    id: desk.id,
+                    action: event,
+                    priority: 10,
+                    callback: book_fn,
+                })
+            );
         }
         this._state.setActions(
             'desks',
