@@ -550,13 +550,18 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         const result = await this.directions_service
             .getRoute(routeParameters)
             .catch((e) => {
-                log('MapsIndoors', 'Error fetching route: ', [e], 'error');
+                log(
+                    'MapsIndoors',
+                    'Error fetching route: ',
+                    e.message || e,
+                    'warn'
+                );
                 const origin_error =
                     e instanceof TypeError && e.message?.includes('origin');
-                if (!origin_error) throw e;
+                if (!origin_error) return;
                 notifyError('Error: Origin location is outside of map area.');
-                throw e;
             });
+        if (!result) return;
         console.log('Route:', result);
         this.directions_renderer?.setRoute(result);
     }
