@@ -76,11 +76,13 @@ const routes: Routes = [
             ),
     },
     {
-        path: 'whats-on',
+        path: 'group-events',
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
         loadChildren: () =>
-            import('./whats-on/whats-on.module').then((m) => m.WhatsOnModule),
+            import('./events/group-events.module').then(
+                (m) => m.GroupEventsModule
+            ),
     },
     { path: '**', redirectTo: '-', pathMatch: 'full' },
 ];

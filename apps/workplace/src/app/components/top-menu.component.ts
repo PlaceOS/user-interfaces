@@ -161,6 +161,12 @@ export class TopMenuComponent extends AsyncHandler {
             icon: 'event',
             name: 'Your Bookings',
         },
+        {
+            id: 'group-events',
+            route: '/group-events',
+            icon: 'local_activity',
+            name: 'Events',
+        },
     ];
 
     public get features(): string[] {
