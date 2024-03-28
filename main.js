@@ -15873,15 +15873,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "c49f7a0",
-  "hash": "c49f7a0",
+  "raw": "d7bae09",
+  "hash": "d7bae09",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "c49f7a0",
+  "suffix": "d7bae09",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1711584237676
+  "time": 1711594961977
 };
 /* tslint:enable */
 
@@ -20539,12 +20539,12 @@ class IndoorMapsComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.A
         travelMode: 'WALKING'
       };
       const result = yield _this5.directions_service.getRoute(routeParameters).catch(e => {
-        (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.log)('MapsIndoors', 'Error fetching route: ', [e], 'error');
+        (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.log)('MapsIndoors', 'Error fetching route: ', e.message || e, 'warn');
         const origin_error = e instanceof TypeError && e.message?.includes('origin');
-        if (!origin_error) throw e;
+        if (!origin_error) return;
         (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.notifyError)('Error: Origin location is outside of map area.');
-        throw e;
       });
+      if (!result) return;
       console.log('Route:', result);
       _this5.directions_renderer?.setRoute(result);
     })();
