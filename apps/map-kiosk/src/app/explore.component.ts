@@ -63,7 +63,7 @@ import { first, take } from 'rxjs/operators';
         <ng-container *ngIf="(levels | async)?.length || legend.length">
             <div
                 options
-                class="flex items-center bg-base-content text-base-100 p-2 space-x-2"
+                class="flex sm:hidden items-center bg-base-content text-base-100 p-2 space-x-2"
             >
                 <ng-container *ngIf="(levels | async)?.length">
                     <button
