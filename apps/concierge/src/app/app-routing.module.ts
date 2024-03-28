@@ -150,6 +150,15 @@ const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
     },
     {
+        path: 'points-of-interest',
+        loadChildren: () =>
+            import('./poi-manager/poi-manager.module').then(
+                (m) => m.POIManagerModule
+            ),
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+    },
+    {
         path: 'signage',
         loadChildren: () =>
             import('./signage/signage.module').then((m) => m.SignageModule),

@@ -207,6 +207,11 @@ export class ApplicationSidebarComponent extends AsyncHandler {
                     name: 'Digital Signage',
                     route: ['/signage'],
                 },
+                {
+                    id: 'points-of-interest',
+                    name: 'Points Of Interest',
+                    route: ['/points-of-interest'],
+                },
             ],
         },
         {
