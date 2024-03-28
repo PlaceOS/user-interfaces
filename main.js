@@ -15873,15 +15873,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "e5eae93",
-  "hash": "e5eae93",
+  "raw": "c49f7a0",
+  "hash": "c49f7a0",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "e5eae93",
+  "suffix": "c49f7a0",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1711501829553
+  "time": 1711584237676
 };
 /* tslint:enable */
 
@@ -20345,7 +20345,7 @@ class IndoorMapsComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.A
     });
   }
   _initMapView() {
-    if (!this._api_service.is_ready) {
+    if (!this._api_service.is_ready || !window.mapsindoors) {
       this.timeout('init', () => this._initMapView(), 1000);
       return;
     }
@@ -20508,7 +20508,7 @@ class IndoorMapsComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.A
   getRoute(location) {
     var _this5 = this;
     return (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
-      _this5.maps_service.highlight([]);
+      _this5.maps_service?.highlight([]);
       if (!_this5.directions_service || !location) return;
       (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.log)('MapsIndoors', 'Getting route to location:', [location, _this5.user_latitude, _this5.user_longitude]);
       _this5.selected_destination = location;
@@ -20519,7 +20519,7 @@ class IndoorMapsComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.A
       };
       const level_id = (_this5.floor_mapping || {})[location.properties.floor];
       if (level_id) _this5._state.setLevel(level_id);
-      if (!_this5._userWithinRadius([_this5.user_latitude, _this5.user_longitude], 100)) {
+      if (!_this5._userWithinRadius([_this5.user_latitude, _this5.user_longitude], 1000)) {
         _this5.map_instance.setZoom(19);
         _this5.map_instance.setCenter(destination);
         _this5.maps_service.setFloor(destination.floor);
@@ -20545,6 +20545,7 @@ class IndoorMapsComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.A
         (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.notifyError)('Error: Origin location is outside of map area.');
         throw e;
       });
+      console.log('Route:', result);
       _this5.directions_renderer?.setRoute(result);
     })();
   }
