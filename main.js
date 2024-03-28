@@ -31289,15 +31289,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "d7bae09",
-  "hash": "d7bae09",
+  "raw": "5e63744",
+  "hash": "5e63744",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "d7bae09",
+  "suffix": "5e63744",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1711594974439
+  "time": 1711596824064
 };
 /* tslint:enable */
 
@@ -36096,6 +36096,7 @@ var IndoorMapsComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
         this.view_instance = new mapsindoors.mapView.GoogleMapsView(view_options);
       } else {
         view_options.accessToken = this._api_service.map_token;
+        console.log('View Options:', view_options);
         (0, common_1.log)('MapsIndoors', 'Using Mapbox API');
         this.view_instance = new mapsindoors.mapView.MapboxView(view_options);
       }
@@ -36115,7 +36116,7 @@ var IndoorMapsComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
   }, {
     key: "initDirections",
     value: function initDirections() {
-      var provider = this._api_service.map_service === mapspeople_service_1.MapService.GoogleMaps ? new mapsindoors.directions.GoogleMapsProvider() : new mapsindoors.directions.MapboxProvider();
+      var provider = this._api_service.map_service === mapspeople_service_1.MapService.GoogleMaps ? new mapsindoors.directions.GoogleMapsProvider() : new mapsindoors.directions.MapboxProvider(this._api_service.map_token);
       this.directions_service = new mapsindoors.services.DirectionsService(provider);
       var directionsRendererOptions = {
         mapsIndoors: this.maps_service
@@ -36308,7 +36309,7 @@ var IndoorMapsComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
     key: "_updateGeolocation",
     value: function _updateGeolocation(updated_location) {
       if (!(updated_location !== null && updated_location !== void 0 && updated_location.coords)) return;
-      (0, common_1.log)('MapsIndoors', 'Settings location to user:', [updated_location.coords], 'warn');
+      (0, common_1.log)('MapsIndoors', 'Settings location to user:', updated_location.coords, 'warn');
       var _updated_location$coo = updated_location.coords,
         latitude = _updated_location$coo.latitude,
         longitude = _updated_location$coo.longitude;
@@ -36339,6 +36340,7 @@ var IndoorMapsComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
               }
               return _context5.abrupt("return");
             case 3:
+              console.log('Directions Service:', this.directions_service);
               (0, common_1.log)('MapsIndoors', 'Getting route to location:', [location, this.user_latitude, this.user_longitude]);
               this.selected_destination = location;
               destination = {
@@ -36349,7 +36351,7 @@ var IndoorMapsComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
               level_id = (this.floor_mapping || {})[location.properties.floor];
               if (level_id) this._state.setLevel(level_id);
               if (this._userWithinRadius([this.user_latitude, this.user_longitude], 1000)) {
-                _context5.next = 14;
+                _context5.next = 15;
                 break;
               }
               this.map_instance.setZoom(19);
@@ -36357,13 +36359,13 @@ var IndoorMapsComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
               this.maps_service.setFloor(destination.floor);
               this.maps_service.highlight([location.id]);
               return _context5.abrupt("return");
-            case 14:
+            case 15:
               if (!(!this.user_latitude || !this.user_longitude)) {
-                _context5.next = 16;
+                _context5.next = 17;
                 break;
               }
               return _context5.abrupt("return", (0, common_1.notifyError)('Unable to find a route.'));
-            case 16:
+            case 17:
               origin = {
                 lat: this.user_latitude,
                 lng: this.user_longitude
@@ -36373,7 +36375,8 @@ var IndoorMapsComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
                 destination: destination,
                 travelMode: 'WALKING'
               };
-              _context5.next = 20;
+              console.log('Route Parameters:', routeParameters);
+              _context5.next = 22;
               return this.directions_service.getRoute(routeParameters)["catch"](function (e) {
                 var _e$message;
                 (0, common_1.log)('MapsIndoors', 'Error fetching route: ', e.message || e, 'warn');
@@ -36381,17 +36384,17 @@ var IndoorMapsComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
                 if (!origin_error) return;
                 (0, common_1.notifyError)('Error: Origin location is outside of map area.');
               });
-            case 20:
+            case 22:
               result = _context5.sent;
               if (result) {
-                _context5.next = 23;
+                _context5.next = 25;
                 break;
               }
               return _context5.abrupt("return");
-            case 23:
+            case 25:
               console.log('Route:', result);
               (_this$directions_rend = this.directions_renderer) === null || _this$directions_rend === void 0 || _this$directions_rend.setRoute(result);
-            case 25:
+            case 27:
             case "end":
               return _context5.stop();
           }
