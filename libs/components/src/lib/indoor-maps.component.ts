@@ -303,6 +303,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             );
         } else {
             view_options.accessToken = this._api_service.map_token;
+            console.log('View Options:', view_options);
             log('MapsIndoors', 'Using Mapbox API');
             this.view_instance = new mapsindoors.mapView.MapboxView(
                 view_options
@@ -331,7 +332,9 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         const provider =
             this._api_service.map_service === MapService.GoogleMaps
                 ? new mapsindoors.directions.GoogleMapsProvider()
-                : new mapsindoors.directions.MapboxProvider();
+                : new mapsindoors.directions.MapboxProvider(
+                      this._api_service.map_token
+                  );
         this.directions_service = new mapsindoors.services.DirectionsService(
             provider
         );
@@ -482,7 +485,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         log(
             'MapsIndoors',
             'Settings location to user:',
-            [updated_location.coords],
+            updated_location.coords,
             'warn'
         );
         const { latitude, longitude } = updated_location.coords;
@@ -503,6 +506,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     public async getRoute(location: any) {
         this.maps_service?.highlight([]);
         if (!this.directions_service || !location) return;
+        console.log('Directions Service:', this.directions_service);
         log('MapsIndoors', 'Getting route to location:', [
             location,
             this.user_latitude,
@@ -546,6 +550,8 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             destination: destination,
             travelMode: 'WALKING',
         };
+
+        console.log('Route Parameters:', routeParameters);
 
         const result = await this.directions_service
             .getRoute(routeParameters)
