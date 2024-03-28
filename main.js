@@ -31289,15 +31289,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "c49f7a0",
-  "hash": "c49f7a0",
+  "raw": "d7bae09",
+  "hash": "d7bae09",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "c49f7a0",
+  "suffix": "d7bae09",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1711584237088
+  "time": 1711594974439
 };
 /* tslint:enable */
 
@@ -36376,17 +36376,22 @@ var IndoorMapsComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
               _context5.next = 20;
               return this.directions_service.getRoute(routeParameters)["catch"](function (e) {
                 var _e$message;
-                (0, common_1.log)('MapsIndoors', 'Error fetching route: ', [e], 'error');
+                (0, common_1.log)('MapsIndoors', 'Error fetching route: ', e.message || e, 'warn');
                 var origin_error = e instanceof TypeError && ((_e$message = e.message) === null || _e$message === void 0 ? void 0 : _e$message.includes('origin'));
-                if (!origin_error) throw e;
+                if (!origin_error) return;
                 (0, common_1.notifyError)('Error: Origin location is outside of map area.');
-                throw e;
               });
             case 20:
               result = _context5.sent;
+              if (result) {
+                _context5.next = 23;
+                break;
+              }
+              return _context5.abrupt("return");
+            case 23:
               console.log('Route:', result);
               (_this$directions_rend = this.directions_renderer) === null || _this$directions_rend === void 0 || _this$directions_rend.setRoute(result);
-            case 23:
+            case 25:
             case "end":
               return _context5.stop();
           }
