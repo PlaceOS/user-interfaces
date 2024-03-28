@@ -285,7 +285,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     }
 
     private _initMapView() {
-        if (!this._api_service.is_ready) {
+        if (!this._api_service.is_ready || !(window as any).mapsindoors) {
             this.timeout('init', () => this._initMapView(), 1000);
             return;
         }
@@ -501,7 +501,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     }
 
     public async getRoute(location: any) {
-        this.maps_service.highlight([]);
+        this.maps_service?.highlight([]);
         if (!this.directions_service || !location) return;
         log('MapsIndoors', 'Getting route to location:', [
             location,
@@ -522,7 +522,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         if (
             !this._userWithinRadius(
                 [this.user_latitude, this.user_longitude],
-                100
+                1000
             )
         ) {
             this.map_instance.setZoom(19);
@@ -557,6 +557,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                 notifyError('Error: Origin location is outside of map area.');
                 throw e;
             });
+        console.log('Route:', result);
         this.directions_renderer?.setRoute(result);
     }
 
