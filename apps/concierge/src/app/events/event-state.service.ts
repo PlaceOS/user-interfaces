@@ -16,10 +16,12 @@ export interface GroupEventOptions {
 })
 export class EventStateService {
     private _options = new BehaviorSubject<GroupEventOptions>({});
+    private _changed = new BehaviorSubject(0);
 
     public readonly event_list = combineLatest([
         this._org.active_building,
         this._options,
+        this._changed,
     ]).pipe(
         filter(([bld]) => !!bld),
         switchMap(([bld, options]) =>
@@ -34,6 +36,10 @@ export class EventStateService {
         ),
         shareReplay(1)
     );
+
+    public changed() {
+        this._changed.next(Date.now());
+    }
 
     constructor(
         private _settings: SettingsService,
