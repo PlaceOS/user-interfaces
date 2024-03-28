@@ -1,6 +1,14 @@
 import { Component } from '@angular/core';
-import { SettingsService } from '@placeos/common';
+import {
+    SettingsService,
+    notifyError,
+    notifySuccess,
+    openConfirmModal,
+} from '@placeos/common';
 import { EventStateService } from './event-state.service';
+import { MatDialog } from '@angular/material/dialog';
+import { GroupEventDetailsModalComponent } from 'apps/workplace/src/app/events/group-event-details-modal.component';
+import { removeBooking } from '@placeos/bookings';
 
 @Component({
     selector: 'app-event-list',
@@ -79,8 +87,8 @@ import { EventStateService } from './event-state.service';
                         {{
                             item.location ||
                                 (
-                                    (item.resources[0]?.email | space | async)
-                                        ?.zones | building
+                                    (item.asset_id | space | async)?.zones
+                                    | building
                                 )?.address
                         }}
                     </div>
@@ -88,13 +96,16 @@ import { EventStateService } from './event-state.service';
             </div>
         </ng-template>
         <ng-template #level_template let-item="row">
-            {{
-                ((item.resources[0]?.email | space | async)?.zones | level)
-                    ?.display_name
-            }}
+            {{ ((item.asset_id | space | async)?.zones | level)?.display_name }}
+            <span *ngIf="item.asset_id | space | async" class="opacity-30">
+                No Level
+            </span>
         </ng-template>
         <ng-template #room_template let-item="row">
-            {{ (item.resources[0]?.email | space | async)?.display_name }}
+            {{ (item.asset_id | space | async)?.display_name }}
+            <span *ngIf="item.asset_id | space | async" class="opacity-30">
+                No Room
+            </span>
         </ng-template>
         <ng-template #attending_template let-item="row">
             {{ item.attendees?.length || 1 }}
@@ -122,40 +133,48 @@ import { EventStateService } from './event-state.service';
                 }}
             </div>
         </ng-template>
-        <ng-template #actions_template let-item="row">
+        <ng-template #actions_template let-row="row">
             <div class="w-full flex items-center justify-end space-x-2">
                 <button icon matRipple [matMenuTriggerFor]="menu">
                     <app-icon>more_vert</app-icon>
                 </button>
             </div>
             <mat-menu #menu="matMenu">
-                <button mat-menu-item>
+                <button mat-menu-item [disabled]="true">
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl"
-                            >confirmation_number</app-icon
-                        >
+                        <app-icon class="text-2xl">
+                            confirmation_number
+                        </app-icon>
                         <div class="mr-2">Promote Event</div>
                     </div>
                 </button>
-                <button mat-menu-item>
+                <button mat-menu-item (click)="viewEvent(row)">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">visibility</app-icon>
                         <div class="mr-2">View Event</div>
                     </div>
                 </button>
-                <button mat-menu-item>
+                <a
+                    mat-menu-item
+                    [routerLink]="[
+                        '/entertainment',
+                        'events',
+                        'manage',
+                        row?.id
+                    ]"
+                >
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">edit</app-icon>
                         <div class="mr-2">Edit Event</div>
                     </div>
-                </button>
-                <button mat-menu-item>
+                </a>
+                <button mat-menu-item [disabled]="true">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl">content_copy</app-icon>
                         <div class="mr-2">Copy URL</div>
                     </div>
                 </button>
-                <button mat-menu-item>
+                <button mat-menu-item (click)="removeEvent(row)">
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-2xl text-error">delete</app-icon>
                         <div class="mr-2">Delete Event</div>
@@ -179,8 +198,36 @@ export class EventsListComponent {
         return this._settings.time_format;
     }
 
+    public viewEvent(event: any) {
+        this._dialog.open(GroupEventDetailsModalComponent, { data: event });
+    }
+
+    public async removeEvent(event: any) {
+        const result = await openConfirmModal(
+            {
+                title: 'Delete Event',
+                content: `Are you sure you want to delete the event "${event.title}"?`,
+                icon: { content: 'delete' },
+                confirm_text: 'Delete',
+            },
+            this._dialog
+        );
+        if (result.reason !== 'done') return;
+        result.loading('Deleting event...');
+        await removeBooking(event.id)
+            .toPromise()
+            .catch((e) => {
+                notifyError(e);
+                result.close();
+                throw e;
+            });
+        result.close();
+        notifySuccess('Successfully deleted event.');
+    }
+
     constructor(
         private _settings: SettingsService,
-        private _state: EventStateService
+        private _state: EventStateService,
+        private _dialog: MatDialog
     ) {}
 }

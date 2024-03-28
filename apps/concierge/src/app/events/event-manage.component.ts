@@ -3,14 +3,25 @@ import { Component } from '@angular/core';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BookingFormService, showBooking } from '@placeos/bookings';
-import { AsyncHandler } from '@placeos/common';
+import {
+    AsyncHandler,
+    getInvalidFields,
+    notifyError,
+    randomString,
+} from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
+import { first } from 'rxjs/operators';
+import { EventStateService } from './event-state.service';
 
 const EMPTY = [];
 
 @Component({
     selector: 'app-event-manage',
     template: `
-        <div class="absolute inset-0 bg-base-100 overflow-auto">
+        <div
+            class="absolute inset-0 bg-base-100 overflow-auto"
+            *ngIf="!loading; else load_state"
+        >
             <a
                 icon
                 matRipple
@@ -41,10 +52,11 @@ const EMPTY = [];
                     </mat-form-field>
                     <div class="flex space-x-2">
                         <div class="flex flex-col flex-1">
-                            <label for="organiser"
-                                >Start Date<span>*</span></label
-                            >
-                            <a-date-field formControlName="date"></a-date-field>
+                            <label for="date">Start Date<span>*</span></label>
+                            <a-date-field
+                                name="date"
+                                formControlName="date"
+                            ></a-date-field>
                         </div>
                         <!-- <div class="flex flex-col flex-1">
                             <label for="organiser"
@@ -58,22 +70,26 @@ const EMPTY = [];
                     </div>
                     <div class="flex space-x-2">
                         <div class="flex flex-col flex-1">
-                            <label for="organiser">Start<span>*</span></label>
-                            <a-time-field formControlName="date"></a-time-field>
+                            <label for="start">Start<span>*</span></label>
+                            <a-time-field
+                                name="start"
+                                formControlName="date"
+                            ></a-time-field>
                         </div>
                         <div class="flex flex-col flex-1">
-                            <label for="organiser">End<span>*</span></label>
+                            <label for="end">End<span>*</span></label>
                             <a-duration-field
+                                name="end"
                                 formControlName="duration"
                                 [time]="form.value.date"
                             ></a-duration-field>
                         </div>
                     </div>
-                    <label for="organiser">Organiser<span>*</span></label>
+                    <label for="host">Organiser<span>*</span></label>
                     <a-user-search-field
                         class="block"
-                        name="organiser"
-                        formControlName="organiser"
+                        name="host"
+                        formControlName="user"
                     ></a-user-search-field>
                     <label for="title">Event Description</label>
                     <rich-text-input
@@ -121,14 +137,25 @@ const EMPTY = [];
                     >
                         Cancel
                     </a>
-                    <button btn matRipple class="w-32">Save</button>
+                    <button btn matRipple class="w-32" (click)="save()">
+                        Save
+                    </button>
                 </div>
             </form>
         </div>
+        <ng-template #load_state>
+            <div
+                class="absolute inset-0 bg-base-100 flex flex-col items-center justify-center space-y-4"
+            >
+                <mat-spinner diameter="48"></mat-spinner>
+                <p>Saving event...</p>
+            </div>
+        </ng-template>
     `,
     styles: [``],
 })
 export class EventManageComponent extends AsyncHandler {
+    public loading = false;
     public readonly form = this._form_state.form;
     public readonly separators: number[] = [ENTER, COMMA, SPACE];
 
@@ -138,14 +165,22 @@ export class EventManageComponent extends AsyncHandler {
 
     constructor(
         private _form_state: BookingFormService,
+        private _state: EventStateService,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
+        private _org: OrganisationService
     ) {
         super();
     }
 
-    public ngOnInit() {
+    public async ngOnInit() {
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
         this._form_state.setOptions({ type: 'group-event' });
+        this.form.patchValue({
+            booking_type: 'group-event',
+            asset_id: `GE:${randomString(10)}`,
+            zones: [this._org.building.id, this._org.building.parent_id],
+        });
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe(async (params) => {
@@ -193,5 +228,21 @@ export class EventManageComponent extends AsyncHandler {
             tag_list.splice(index, 1);
             this.form.controls.tags.setValue(tag_list);
         }
+    }
+
+    public async save() {
+        this.form.markAllAsTouched();
+        if (!this.form.valid) {
+            return notifyError(
+                `Some form fields are invalid. [${getInvalidFields(this.form)}]`
+            );
+        }
+        this.loading = true;
+        const res = await this._form_state
+            .postForm()
+            .catch((e) => notifyError(e));
+        this._state.changed();
+        this.loading = false;
+        if (res) this._router.navigate(['/entertainment', 'events']);
     }
 }
