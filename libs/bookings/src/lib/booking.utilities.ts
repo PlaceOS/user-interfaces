@@ -50,6 +50,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         assets: new FormControl(booking.extension_data?.assets || []),
         attendees: new FormControl(booking.attendees || []),
         map_id: new FormControl(booking.extension_data?.map_id),
+        featured: new FormControl(booking.extension_data?.featured || false),
         user: new FormControl(currentUser()),
         user_id: new FormControl(booking.user_id),
         group: new FormControl(booking.group),
@@ -62,6 +63,8 @@ export function generateBookingForm(booking: Booking = new Booking()) {
                 booking.extension_data?.secondary_resource
         ),
         phone: new FormControl(booking.extension_data.phone),
+        images: new FormControl(booking.images || []),
+        tags: new FormControl(booking.tags || []),
     });
     form.valueChanges.subscribe((v) => {
         const user = v.user;

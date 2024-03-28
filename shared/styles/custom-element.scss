@@ -614,6 +614,21 @@ a[icon] {
         }
     }
 
+    .mat-mdc-menu-panel {
+        background-color: var(--b1);
+    }
+
+    .mat-mdc-menu-item-text {
+        color: var(--bc);
+    }
+
+    .mat-mdc-menu-item {
+        color: var(--bc);
+        &:hover {
+            background-color: var(--b2);
+        }
+    }
+
     .mat-mdc-menu-item-text {
         width: 100%;
     }

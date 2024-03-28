@@ -9,6 +9,8 @@ import { EventsListComponent } from './events-list.component';
 import { EventManageComponent } from './event-manage.component';
 import { SharedSpacesModule } from '@placeos/spaces';
 
+import { GroupEventDetailsModalComponent } from 'apps/workplace/src/app/events/group-event-details-modal.component';
+
 const ROUTES: Route[] = [
     {
         path: '',
@@ -21,7 +23,12 @@ const ROUTES: Route[] = [
 ];
 
 @NgModule({
-    declarations: [EventsComponent, EventsListComponent, EventManageComponent],
+    declarations: [
+        EventsComponent,
+        EventsListComponent,
+        EventManageComponent,
+        GroupEventDetailsModalComponent,
+    ],
     imports: [
         CommonModule,
         FormsModule,

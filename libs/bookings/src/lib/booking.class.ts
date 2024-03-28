@@ -110,6 +110,10 @@ export class Booking {
     public readonly extension_data: Record<string, any>;
     /** Default type */
     public readonly type: string;
+    /** List of URLs for associated booking images */
+    public readonly images: string[];
+    /** List of user defined tags associated with the booking */
+    public readonly tags: string[];
     /** Default type */
     public readonly access: boolean;
     /** Status of the booking */
@@ -249,6 +253,7 @@ export class Booking {
         this.checked_out_at = data.checked_out_at;
         this.linked_event = data.linked_event || null;
         this.linked_bookings = data.linked_bookings || [];
+        this.images = data.images || [];
         this.status =
             this.checked_out_at > 0
                 ? 'ended'

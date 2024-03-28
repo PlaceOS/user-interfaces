@@ -227,8 +227,14 @@ export class ImageListFieldComponent extends AsyncHandler {
     private _onTouch: (_: string[]) => void;
 
     public ngAfterViewInit() {
-        const box = this._list_el.nativeElement.getBoundingClientRect();
-        this.view_space = Math.floor(box.width / 152);
+        this.timeout(
+            'init_view_space',
+            () => {
+                const box = this._list_el.nativeElement.getBoundingClientRect();
+                this.view_space = Math.floor(box.width / 152);
+            },
+            100
+        );
         this.subscription(
             'upload_changes',
             this.upload_list.subscribe((list) => {
