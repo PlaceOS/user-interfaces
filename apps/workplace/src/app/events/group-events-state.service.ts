@@ -8,6 +8,7 @@ import { filter, shareReplay, switchMap } from 'rxjs/operators';
 
 export interface GroupEventOptions {
     date: number;
+    end?: number;
 }
 
 @Injectable({
@@ -25,8 +26,10 @@ export class GroupEventsStateService {
         filter(([building]) => !!building),
         switchMap(([building, options]) =>
             queryBookings({
-                period_start: getUnixTime(startOfDay(options.date)),
-                period_end: getUnixTime(endOfDay(options.date)),
+                period_start: getUnixTime(
+                    startOfDay(Math.max(Date.now(), options.date))
+                ),
+                period_end: getUnixTime(endOfDay(options.end || options.date)),
                 type: 'group-event',
                 zones: this._settings.get('app.use_region')
                     ? building.parent_id
@@ -40,4 +43,8 @@ export class GroupEventsStateService {
         private _org: OrganisationService,
         private _settings: SettingsService
     ) {}
+
+    public setOptions(options: Partial<GroupEventOptions>) {
+        this._options.next({ ...this._options.value, ...options });
+    }
 }
