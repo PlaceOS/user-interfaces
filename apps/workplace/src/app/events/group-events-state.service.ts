@@ -4,7 +4,7 @@ import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { filter, shareReplay, switchMap } from 'rxjs/operators';
+import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
 
 export interface GroupEventOptions {
     date: number;
@@ -36,6 +36,7 @@ export class GroupEventsStateService {
                     : building.id,
             })
         ),
+        map((list) => list.sort((a, b) => a.date - b.date)),
         shareReplay(1)
     );
 
