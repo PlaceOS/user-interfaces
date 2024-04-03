@@ -8,6 +8,7 @@ import {
     getInvalidFields,
     notifyError,
     randomString,
+    unique,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
@@ -179,7 +180,11 @@ export class EventManageComponent extends AsyncHandler {
         this.form.patchValue({
             booking_type: 'group-event',
             asset_id: `GE:${randomString(10)}`,
-            zones: [this._org.building.id, this._org.building.parent_id],
+            zones: unique([
+                this._org.organisation.id,
+                this._org.building.id,
+                this._org.building.parent_id,
+            ]),
         });
         this.subscription(
             'route.params',

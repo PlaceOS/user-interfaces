@@ -4,10 +4,11 @@ import { SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { filter, shareReplay, switchMap } from 'rxjs/operators';
+import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
 
 export interface GroupEventOptions {
     date?: number;
+    end?: number;
     zone_ids?: string[];
 }
 
@@ -27,13 +28,16 @@ export class EventStateService {
         switchMap(([bld, options]) =>
             queryBookings({
                 period_start: getUnixTime(
-                    startOfDay(options.date || Date.now())
+                    startOfDay(Math.max(Date.now(), options.date))
                 ),
-                period_end: getUnixTime(endOfDay(options.date || Date.now())),
+                period_end: getUnixTime(
+                    endOfDay(options.end || options.date || Date.now())
+                ),
                 type: 'group-event',
                 zones: options.zone_ids?.join(',') || bld.id,
             })
         ),
+        map((list) => list.sort((a, b) => a.date - b.date)),
         shareReplay(1)
     );
 
@@ -45,4 +49,8 @@ export class EventStateService {
         private _settings: SettingsService,
         private _org: OrganisationService
     ) {}
+
+    public setOptions(options: Partial<GroupEventOptions>) {
+        this._options.next({ ...this._options.value, ...options });
+    }
 }
