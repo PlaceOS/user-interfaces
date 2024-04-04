@@ -11,7 +11,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
             matRipple
             (click)="viewDetails()"
             *ngIf="!featured; else featured_card"
-            class="border border-base-300 hover:border-info flex flex-col bg-base-100 rounded-xl shadow hover:shadow-2xl overflow-hidden w-64 h-[20rem]"
+            class="border border-base-300 hover:border-info flex flex-col bg-base-100 rounded-xl shadow hover:shadow-2xl overflow-hidden w-60 h-[20rem]"
         >
             <div
                 class="flex items-center justify-between h-28 w-full bg-base-200 overflow-hidden"
@@ -24,7 +24,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                 />
             </div>
             <div class="p-4 flex-1 h-1/2">
-                <div class="opacity-60 text-sm">
+                <div class="opacity-60 text-sm text-left">
                     {{ event.date | date: 'EEE d MMM' }},
                     {{ event.date | date: time_format }}
                 </div>
@@ -60,10 +60,10 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
             <button
                 matRipple
                 (click)="viewDetails()"
-                class="border border-base-300 hover:border-info flex bg-base-100 rounded-xl shadow hover:shadow-2xl overflow-hidden w-full max-w-[64rem] h-64 mx-auto"
+                class="border border-base-300 hover:border-info flex bg-base-100 rounded-xl shadow hover:shadow-2xl overflow-hidden w-[48rem] max-w-full h-56 mx-auto"
             >
                 <div
-                    class="flex items-center justify-between h-full w-1/2 max-w-[24rem] bg-base-200 overflow-hidden"
+                    class="flex items-center justify-between h-full w-1/2 max-w-[20rem] bg-base-200 overflow-hidden"
                 >
                     <img
                         *ngIf="event.images?.length"
@@ -95,7 +95,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                                     | date: time_format
                             }}
                         </div>
-                        <div class="h-28 overflow-hidden">
+                        <div class="h-20 overflow-hidden">
                             {{ event.description }}
                         </div>
                         <div class="flex items-center space-x-2 text-sm">

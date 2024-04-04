@@ -27,7 +27,7 @@ import { ViewerFeature } from '@placeos/svg-viewer';
                 <img
                     *ngIf="booking.images?.length"
                     auth
-                    [source]="event.images[0]"
+                    [source]="booking.images[0]"
                     class="object-cover"
                 />
             </div>
@@ -50,25 +50,29 @@ import { ViewerFeature } from '@placeos/svg-viewer';
                 <div class="flex items-center space-x-2">
                     <div
                         btn
-                        class="clear bg-base-200 text-base-content space-x-2"
+                        class="flex items-center px-4 h-10 rounded bg-base-200 text-base-content space-x-2"
                         [class.bg-base-200]="!is_interested"
                         [class.text-base-content]="!is_interested"
                         [class.bg-success]="is_interested"
                         [class.text-success-content]="is_interested"
                     >
                         <app-icon>star</app-icon>
-                        <div class="pr-2">Interested</div>
+                        <div class="pr-2">
+                            {{ is_interested ? '' : 'Not ' }}Interested
+                        </div>
                     </div>
                     <div
                         btn
-                        class="clear bg-base-200 text-base-content space-x-2"
+                        class="flex items-center px-4 h-10 rounded bg-base-200 text-base-content space-x-2"
                         [class.bg-base-200]="!is_going"
                         [class.text-base-content]="!is_going"
                         [class.bg-success]="is_going"
                         [class.text-success-content]="is_going"
                     >
                         <app-icon>help</app-icon>
-                        <div class="pr-2">Going</div>
+                        <div class="pr-2">
+                            {{ is_going ? '' : 'Not ' }}Going
+                        </div>
                     </div>
                     <button
                         btn
@@ -79,27 +83,31 @@ import { ViewerFeature } from '@placeos/svg-viewer';
                         <app-icon class="text-2xl">more_horiz</app-icon>
                     </button>
                     <mat-menu #menu="matMenu">
-                        <button mat-menu-item (click)="toggleInterest()">
-                            <app-icon [class.text-error]="is_interested"
-                                >star</app-icon
-                            >
-                            <span
-                                >{{
-                                    is_interested ? 'Revoke' : 'Indicate'
-                                }}
-                                Interest</span
-                            >
+                        <button
+                            mat-menu-item
+                            class="flex items-center space-x-2"
+                            (click)="toggleInterest()"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <app-icon [class.text-error]="is_interested">
+                                    star
+                                </app-icon>
+                                <span>
+                                    {{ is_interested ? 'Revoke' : 'Indicate' }}
+                                    Interest
+                                </span>
+                            </div>
                         </button>
                         <button mat-menu-item (click)="toggleAttendance()">
-                            <app-icon [class.text-error]="is_going"
-                                >help</app-icon
-                            >
-                            <span
-                                >{{
-                                    is_going ? 'Revoke' : 'Indicate'
-                                }}
-                                Going</span
-                            >
+                            <div class="flex items-center space-x-2">
+                                <app-icon [class.text-error]="is_going">
+                                    help
+                                </app-icon>
+                                <span>
+                                    {{ is_going ? 'Revoke' : 'Indicate' }}
+                                    Going
+                                </span>
+                            </div>
                         </button>
                     </mat-menu>
                 </div>

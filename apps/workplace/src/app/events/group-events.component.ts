@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { GroupEventsStateService } from './group-events-state.service';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import {
     addDays,
     addMonths,
@@ -57,33 +57,35 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
                     *ngIf="featured | async; else no_featured"
                     [event]="featured | async"
                     [featured]="true"
-                    class="my-2 mx-auto"
+                    class="my-2 mx-auto w-[48rem] max-w-full"
                 ></group-event-card>
                 <ng-template #no_featured>
                     <div
-                        class="flex items-center justify-center w-full h-48 bg-base-300 rounded-xl"
+                        class="flex items-center justify-center mx-auto w-[48rem] max-w-full h-48 bg-base-300 rounded-xl"
                         *ngIf="(event_list | async)?.length"
                     >
                         <div class="opacity-30">No featured event</div>
                     </div>
                 </ng-template>
-                <ng-template
+                <ng-container
                     *ngIf="(event_list | async)?.length; else no_events"
                 >
-                    <div
-                        class="flex flex-wrap justify-center mt-2"
-                        *ngFor="let day of event_date_list | async"
-                    >
-                        <h3 class="w-full text-xl text-center">
-                            {{ day.date | date: 'mediumDate' }}
-                        </h3>
-                        <group-event-card
-                            *ngFor="let event of day.events"
-                            [event]="event"
-                            class="m-2"
-                        ></group-event-card>
-                    </div>
-                </ng-template>
+                    <ng-container *ngFor="let day of event_date_list | async">
+                        <div
+                            class="flex flex-wrap mt-2 w-[48rem] max-w-full mx-auto"
+                            *ngIf="day.events.length"
+                        >
+                            <h3 class="w-full text-xl px-4 py-6">
+                                {{ day.date | date: 'EEEE, MMM d, y' }}
+                            </h3>
+                            <group-event-card
+                                *ngFor="let event of day.events"
+                                [event]="event"
+                                class="m-2"
+                            ></group-event-card>
+                        </div>
+                    </ng-container>
+                </ng-container>
                 <ng-template #no_events>
                     <div class="flex items-center justify-center w-full h-48">
                         <div class="opacity-30">No upcoming events</div>
@@ -125,10 +127,24 @@ export class GroupEventsComponent extends AsyncHandler {
         map((_) => _.find((_: any) => _.extension_data?.featured || _.featured))
     );
 
-    public readonly event_date_list = combineLatest([this.event_list]).pipe(
+    private _change_period = new BehaviorSubject(0);
+
+    public readonly event_date_list = combineLatest([
+        this.event_list,
+        this._change_period,
+    ]).pipe(
         map(([list]) => {
-            const range = this.period_list[this.selected_range];
+            console.log(
+                'Event List:',
+                list,
+                this.period_list,
+                this.selected_range
+            );
+            const range = this.period_list.find(
+                (_) => _.id === this.selected_range
+            );
             if (!range) return [];
+            console.log('Event Range:', range);
             const days = [];
             let start = range.start;
             const end = range.end;
@@ -144,7 +160,8 @@ export class GroupEventsComponent extends AsyncHandler {
                 start = addDays(start, 1).valueOf();
             }
             return days;
-        })
+        }),
+        tap((l) => console.log('Event Day List:', l))
     );
 
     constructor(
@@ -162,6 +179,7 @@ export class GroupEventsComponent extends AsyncHandler {
                 if (this.period_list.length) {
                     this.setPeriod(this.period_list[0].id);
                     this.selected_range = this.period_list[0].id;
+                    this._change_period.next(Date.now());
                 }
             })
         );
@@ -169,7 +187,9 @@ export class GroupEventsComponent extends AsyncHandler {
         if (this.period_list.length) {
             this.setPeriod(this.period_list[0].id);
             this.selected_range = this.period_list[0].id;
+            this._change_period.next(Date.now());
         }
+        this.subscription('events', this.event_date_list.subscribe());
     }
 
     public setPeriod(id: string) {
