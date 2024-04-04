@@ -50,11 +50,13 @@ import { ViewerFeature } from '@placeos/svg-viewer';
                 <div class="flex items-center space-x-2">
                     <div
                         btn
-                        class="flex items-center px-4 h-10 rounded bg-base-200 text-base-content space-x-2"
+                        class="flex items-center px-4 h-10 rounded space-x-2"
                         [class.bg-base-200]="!is_interested"
                         [class.text-base-content]="!is_interested"
+                        [class.opacity-30]="!is_interested"
                         [class.bg-success]="is_interested"
                         [class.text-success-content]="is_interested"
+                        [class.opacity-100]="is_interested"
                     >
                         <app-icon>star</app-icon>
                         <div class="pr-2">
@@ -63,11 +65,13 @@ import { ViewerFeature } from '@placeos/svg-viewer';
                     </div>
                     <div
                         btn
-                        class="flex items-center px-4 h-10 rounded bg-base-200 text-base-content space-x-2"
+                        class="flex items-center px-4 h-10 rounded space-x-2"
                         [class.bg-base-200]="!is_going"
                         [class.text-base-content]="!is_going"
+                        [class.opacity-30]="!is_going"
                         [class.bg-success]="is_going"
                         [class.text-success-content]="is_going"
+                        [class.opacity-100]="is_going"
                     >
                         <app-icon>help</app-icon>
                         <div class="pr-2">
