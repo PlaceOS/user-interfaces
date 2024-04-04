@@ -182,6 +182,47 @@ export function rejectBooking(id: string) {
 }
 
 /**
+ * List the guests in a booking
+ * @param id ID of the booking to reject
+ */
+export function queryBookingGuests(id: string) {
+    return post(
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/guests`,
+        ''
+    ).pipe(map((item) => new GuestUser(item)));
+}
+
+/**
+ * Set the checkin state of a guest in a booking
+ * @param id ID of the booking to reject
+ * @param guest_id ID of the guest to check in
+ */
+export function checkinBookingGuest(
+    id: string,
+    guest_id: string,
+    state: boolean = true
+) {
+    return post(
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(
+            id
+        )}/guests/${encodeURIComponent(guest_id)}/check_in?state=${state}`,
+        ''
+    ).pipe(map((item) => new GuestUser(item)));
+}
+
+/**
+ * Set the checkin state of a guest in a booking
+ * @param id ID of the booking to reject
+ * @param guest_id ID of the guest to check in
+ */
+export function bookingAddGuest(id: string, guest: GuestUser) {
+    return post(
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/guests`,
+        guest
+    ).pipe(map((item) => new GuestUser(item)));
+}
+
+/**
  * Set the checkin state of a booking
  * @param id ID of the booking to grab
  * @param state New checkin state of the booking

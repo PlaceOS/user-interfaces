@@ -31,7 +31,11 @@ describe('SpaceFiltersComponent', () => {
         providers: [
             MockProvider(MatBottomSheetRef, { dismiss: jest.fn() }),
             MockProvider(SettingsService, { get: jest.fn() }),
-            MockProvider(OrganisationService, { level_list: of([]) }),
+            MockProvider(OrganisationService, {
+                active_region: new BehaviorSubject({}),
+                level_list: [],
+                buildings: [],
+            } as any),
             MockProvider(SpacesService, { features: of(['Whiteboard']) }),
             MockProvider(EventFormService, {
                 available_spaces: new BehaviorSubject([]),

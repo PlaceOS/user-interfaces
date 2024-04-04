@@ -10,6 +10,7 @@ import { BehaviorSubject } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { SpaceSelectMapComponent } from '../../lib/space-select-modal/space-map.component';
 import { Space } from '../../lib/spaces';
+import { OrganisationService } from '@placeos/organisation';
 
 describe('SpaceSelectMapComponent', () => {
     let spectator: Spectator<SpaceSelectMapComponent>;
@@ -19,6 +20,10 @@ describe('SpaceSelectMapComponent', () => {
             MockProvider(EventFormService, {
                 available_spaces: new BehaviorSubject([]),
             }),
+            MockProvider(OrganisationService, {
+                active_region: new BehaviorSubject({}),
+                buildings: [],
+            } as any),
             MockProvider(SettingsService, { get: jest.fn() }),
         ],
         declarations: [
