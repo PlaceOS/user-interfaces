@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BookingFormService, showBooking } from '@placeos/bookings';
 import {
     AsyncHandler,
+    SettingsService,
     getInvalidFields,
     notifyError,
     randomString,
@@ -13,6 +14,7 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
 import { EventStateService } from './event-state.service';
+import { differenceInMinutes, format, formatDuration } from 'date-fns';
 
 const EMPTY = [];
 
@@ -51,38 +53,90 @@ const EMPTY = [];
                             {{ 'FORM.TITLE_ERROR' | translate }}
                         </mat-error>
                     </mat-form-field>
-                    <div class="flex space-x-2">
-                        <div class="flex flex-col flex-1">
-                            <label for="date">Start Date<span>*</span></label>
+                    <div class="flex items-center flex-wrap sm:space-x-2">
+                        <div class="flex-1 min-w-[256px] relative">
+                            <label for="date">
+                                {{ 'FORM.DATE' | translate }}<span>*</span>
+                            </label>
                             <a-date-field
                                 name="date"
                                 formControlName="date"
-                            ></a-date-field>
-                        </div>
-                        <!-- <div class="flex flex-col flex-1">
-                            <label for="organiser"
-                                >End Date<span>*</span></label
+                                [to]="end_date"
                             >
+                                {{ 'FORM.DATE_ERROR' | translate }}
+                            </a-date-field>
+                            <mat-checkbox
+                                formControlName="all_day"
+                                *ngIf="allow_all_day"
+                                class="absolute -top-2 right-2"
+                            >
+                                {{ 'FORM.ALL_DAY' | translate }}
+                            </mat-checkbox>
+                        </div>
+                        <div
+                            class="flex-1 min-w-[256px] relative"
+                            *ngIf="allow_multiday"
+                        >
+                            <label for="date">
+                                {{ 'FORM.END_DATE' | translate }}<span>*</span>
+                            </label>
                             <a-date-field
+                                name="date"
                                 formControlName="date_end"
-                                [from]="form.value.date"
-                            ></a-date-field>
-                        </div> -->
+                                [from]="start_date"
+                                [to]="end_date"
+                            >
+                                {{ 'FORM.DATE_ERROR' | translate }}
+                            </a-date-field>
+                        </div>
                     </div>
-                    <div class="flex space-x-2">
-                        <div class="flex flex-col flex-1">
-                            <label for="start">Start<span>*</span></label>
+                    <div
+                        class="flex items-center space-x-2"
+                        *ngIf="!form.value.all_day"
+                    >
+                        <div class="flex-1 w-1/3">
+                            <label for="start-time">
+                                {{ 'FORM.START_TIME' | translate }}
+                                <span>*</span>
+                            </label>
                             <a-time-field
-                                name="start"
-                                formControlName="date"
+                                name="start-time"
+                                [ngModel]="form.getRawValue().date"
+                                (ngModelChange)="
+                                    form.patchValue({ date: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                                [use_24hr]="use_24hr"
                             ></a-time-field>
                         </div>
-                        <div class="flex flex-col flex-1">
-                            <label for="end">End<span>*</span></label>
+                        <div class="flex-1 w-1/3" *ngIf="allow_multiday">
+                            <label for="end-time">
+                                {{ 'FORM.END_TIME' | translate }}<span>*</span>
+                            </label>
+                            <a-time-field
+                                name="end-time"
+                                [ngModel]="form.value.date_end"
+                                (ngModelChange)="
+                                    form.patchValue({ date_end: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                                [from]="
+                                    form?.getRawValue()?.date + 30 * 60 * 1000
+                                "
+                                [use_24hr]="use_24hr"
+                                [extra_info_fn]="duration_info"
+                            ></a-time-field>
+                        </div>
+                        <div class="flex-1 w-1/3" *ngIf="!allow_multiday">
+                            <label for="end-time">
+                                {{ 'FORM.END_TIME' | translate }}<span>*</span>
+                            </label>
                             <a-duration-field
-                                name="end"
+                                name="end-time"
                                 formControlName="duration"
-                                [time]="form.value.date"
+                                [time]="form?.getRawValue()?.date"
+                                [max]="max_duration"
+                                [use_24hr]="use_24hr"
                             ></a-duration-field>
                         </div>
                     </div>
@@ -92,6 +146,18 @@ const EMPTY = [];
                         name="host"
                         formControlName="user"
                     ></a-user-search-field>
+                    <label for="location">Location</label>
+                    <mat-form-field appearance="outline" class="w-full">
+                        <input
+                            matInput
+                            name="location"
+                            formControlName="location"
+                            placeholder="e.g. 1 Apple Park Way, Cupertino, California"
+                        />
+                        <mat-error>
+                            {{ 'FORM.LOCATION_ERROR' | translate }}
+                        </mat-error>
+                    </mat-form-field>
                     <label for="title">Event Description</label>
                     <rich-text-input
                         formControlName="description"
@@ -164,12 +230,32 @@ export class EventManageComponent extends AsyncHandler {
         return this.form.controls.tags.value || EMPTY;
     }
 
+    public get max_duration() {
+        return this._settings.get('app.events.max_duration') || 480;
+    }
+
+    public get use_24hr() {
+        return this._settings.get('app.use_24_hour_time');
+    }
+
+    public readonly duration_info = (time: number) => {
+        const date = this.form.getRawValue().date;
+        if (format(date, 'yyyy-MM-dd') !== format(time, 'yyyy-MM-dd'))
+            return '';
+        const diff = differenceInMinutes(time, date);
+        return ` (${formatDuration({
+            hours: Math.floor(diff / 60),
+            minutes: diff % 60,
+        })})`;
+    };
+
     constructor(
         private _form_state: BookingFormService,
         private _state: EventStateService,
         private _route: ActivatedRoute,
         private _router: Router,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _settings: SettingsService
     ) {
         super();
     }
@@ -185,6 +271,8 @@ export class EventManageComponent extends AsyncHandler {
                 this._org.building.id,
                 this._org.building.parent_id,
             ]),
+            location:
+                this._org.building.address || this._org.building.display_name,
         });
         this.subscription(
             'route.params',

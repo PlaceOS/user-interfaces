@@ -23,7 +23,7 @@ import { BehaviorSubject } from 'rxjs';
 @Component({
     selector: 'app-event-list',
     template: `
-        <div class="w-full h-full flex flex-col">
+        <div class="absolute inset-0 flex flex-col">
             <div class="flex items-center justify-between p-8">
                 <h2 class="text-2xl font-medium">Events</h2>
                 <a
@@ -59,7 +59,7 @@ import { BehaviorSubject } from 'rxjs';
                     </mat-select>
                 </mat-form-field>
             </div>
-            <div class="h-1/2 flex-1 w-full px-8 overflow-auto">
+            <div class="h-1/2 flex-1 w-full px-8 overflow-auto mb-4">
                 <custom-table
                     class="min-w-[60rem] block"
                     [dataSource]="event_list"
@@ -93,7 +93,7 @@ import { BehaviorSubject } from 'rxjs';
         </div>
         <ng-template #event_template let-item="row">
             <div class="flex items-center space-x-2">
-                <div date class="flex flex-col items-center leading-tight">
+                <div date class="flex flex-col items-center leading-tight w-8">
                     <div
                         month
                         class="text-sm font-medium relative top-0.5 opacity-60"
@@ -105,8 +105,15 @@ import { BehaviorSubject } from 'rxjs';
                     </div>
                 </div>
                 <div
-                    class="h-12 w-12 rounded overflow-hidden bg-base-200"
-                ></div>
+                    class="flex items-center justify-center h-12 w-12 rounded overflow-hidden bg-base-200"
+                >
+                    <img
+                        *ngIf="item.images?.length"
+                        auth
+                        [source]="item.images[0]"
+                        class="min-h-full min-w-full"
+                    />
+                </div>
                 <div details class="flex flex-col">
                     <div class="text-sm">{{ item.title }}</div>
                     <div class="text-xs opacity-40">

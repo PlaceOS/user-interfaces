@@ -22,7 +22,7 @@ import { Space } from '@placeos/spaces';
 import { FindAvailabilityModalComponent } from '@placeos/users';
 import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';
 import { BehaviorSubject, combineLatest, timer } from 'rxjs';
-import { first, map, startWith, take, tap } from 'rxjs/operators';
+import { first, map, take, tap } from 'rxjs/operators';
 import { MeetingFlowConfirmModalComponent } from './meeting-flow-confirm-modal.component';
 import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';

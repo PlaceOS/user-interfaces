@@ -301,7 +301,7 @@ export class Booking {
     }
 
     public get location(): string {
-        return this.description;
+        return this.extension_data?.location || this.description;
     }
 
     /** Whether the booking occurs today */

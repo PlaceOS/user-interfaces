@@ -10,6 +10,7 @@ import { EventManageComponent } from './event-manage.component';
 import { SharedSpacesModule } from '@placeos/spaces';
 
 import { GroupEventDetailsModalComponent } from 'apps/workplace/src/app/events/group-event-details-modal.component';
+import { FormFieldsModule } from '@placeos/form-fields';
 
 const ROUTES: Route[] = [
     {
@@ -34,6 +35,7 @@ const ROUTES: Route[] = [
         FormsModule,
         UIModule,
         SharedSpacesModule,
+        FormFieldsModule,
         RouterModule.forChild(ROUTES),
     ],
 })

@@ -62,7 +62,8 @@ export function generateBookingForm(booking: Booking = new Booking()) {
             booking.extension_data?.other_asset_type ||
                 booking.extension_data?.secondary_resource
         ),
-        phone: new FormControl(booking.extension_data.phone),
+        location: new FormControl(booking.extension_data.location || ''),
+        phone: new FormControl(booking.extension_data.phone || ''),
         images: new FormControl(booking.images || []),
         tags: new FormControl(booking.tags || []),
     });
