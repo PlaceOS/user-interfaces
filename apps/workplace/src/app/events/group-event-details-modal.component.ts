@@ -1,7 +1,16 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Booking } from '@placeos/bookings';
-import { MapsPeopleService, SettingsService } from '@placeos/common';
+import {
+    Booking,
+    bookingAddGuest,
+    checkinBookingGuest,
+} from '@placeos/bookings';
+import {
+    MapsPeopleService,
+    SettingsService,
+    currentUser,
+    unique,
+} from '@placeos/common';
 import { MapPinComponent } from '@placeos/components';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { ViewerFeature } from '@placeos/svg-viewer';
@@ -39,29 +48,60 @@ import { ViewerFeature } from '@placeos/svg-viewer';
                     {{ booking.title }}
                 </h3>
                 <div class="flex items-center space-x-2">
-                    <button
+                    <div
                         btn
-                        matRipple
                         class="clear bg-base-200 text-base-content space-x-2"
+                        [class.bg-base-200]="!is_interested"
+                        [class.text-base-content]="!is_interested"
+                        [class.bg-success]="is_interested"
+                        [class.text-success-content]="is_interested"
                     >
                         <app-icon>star</app-icon>
                         <div class="pr-2">Interested</div>
-                    </button>
-                    <button
+                    </div>
+                    <div
                         btn
-                        matRipple
                         class="clear bg-base-200 text-base-content space-x-2"
+                        [class.bg-base-200]="!is_going"
+                        [class.text-base-content]="!is_going"
+                        [class.bg-success]="is_going"
+                        [class.text-success-content]="is_going"
                     >
                         <app-icon>help</app-icon>
                         <div class="pr-2">Going</div>
-                    </button>
+                    </div>
                     <button
                         btn
                         matRipple
                         class="clear bg-base-200 text-base-content w-[2.75rem]"
+                        [matMenuTriggerFor]="menu"
                     >
                         <app-icon class="text-2xl">more_horiz</app-icon>
                     </button>
+                    <mat-menu #menu="matMenu">
+                        <button mat-menu-item (click)="toggleInterest()">
+                            <app-icon [class.text-error]="is_interested"
+                                >star</app-icon
+                            >
+                            <span
+                                >{{
+                                    is_interested ? 'Revoke' : 'Indicate'
+                                }}
+                                Interest</span
+                            >
+                        </button>
+                        <button mat-menu-item (click)="toggleAttendance()">
+                            <app-icon [class.text-error]="is_going"
+                                >help</app-icon
+                            >
+                            <span
+                                >{{
+                                    is_going ? 'Revoke' : 'Indicate'
+                                }}
+                                Going</span
+                            >
+                        </button>
+                    </mat-menu>
                 </div>
             </div>
             <div class="flex overflow-y-auto overflow-x-hidden p-8">
@@ -215,6 +255,19 @@ export class GroupEventDetailsModalComponent {
         );
     }
 
+    public get is_interested() {
+        return !!this.guest_details;
+    }
+
+    public get is_going() {
+        return this.guest_details?.checked_in;
+    }
+
+    public get guest_details() {
+        const user = currentUser();
+        return this.booking.attendees?.find((_) => _.email === user.email);
+    }
+
     public readonly use_mapspeople = this._maps_people.available$;
 
     constructor(
@@ -239,5 +292,40 @@ export class GroupEventDetailsModalComponent {
 
     public ngOnDestroy(): void {
         this._maps_people.setCustomZone('');
+    }
+
+    public async toggleInterest() {
+        let user = this.guest_details;
+        if (this.is_interested && user) {
+        } else {
+            user = await bookingAddGuest(
+                this.booking.id,
+                currentUser() as any
+            ).toPromise();
+            (this.booking as any).attendees = unique(
+                [...(this.booking.attendees || []), user],
+                'email'
+            );
+        }
+    }
+
+    public async toggleAttendance() {
+        let user = this.guest_details;
+        if (!user) {
+            user = await bookingAddGuest(
+                this.booking.id,
+                currentUser() as any
+            ).toPromise();
+            (this.booking as any).attendees = unique(
+                [...(this.booking.attendees || []), user],
+                'email'
+            );
+        }
+        await checkinBookingGuest(
+            this.booking.id,
+            user.id,
+            !this.is_going
+        ).toPromise();
+        (user as any).checked_in = !this.is_going;
     }
 }
