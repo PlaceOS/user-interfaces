@@ -75,7 +75,10 @@ export class ExploreStateService extends AsyncHandler {
     /** Spaces associated with the active level */
     public readonly spaces = this._level.pipe(
         switchMap((level) =>
-            querySystems({ zone_id: level?.id, limit: 50 }).pipe(
+            querySystems({
+                zone_id: level?.id || this._org.organisation.id,
+                limit: 50,
+            }).pipe(
                 map(({ data }) => data.map((_) => new Space(_ as any))),
                 catchError((_) => of([] as Space[]))
             )
