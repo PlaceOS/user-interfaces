@@ -29,6 +29,20 @@ label {
     }
 }
 
+a[link] {
+    color: var(--in);
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover {
+        color: var(--inf);
+    }
+
+    &:active {
+        color: var(--p);
+    }
+}
+
 :not(.mat-form-field-label-wrapper) > label {
     width: 100%;
     font-size: 0.875rem;

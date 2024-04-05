@@ -212,6 +212,11 @@ export class ApplicationSidebarComponent extends AsyncHandler {
                     name: 'Points Of Interest',
                     route: ['/points-of-interest'],
                 },
+                {
+                    id: 'url-management',
+                    name: 'URL Management',
+                    route: ['/url-management'],
+                },
             ],
         },
         {

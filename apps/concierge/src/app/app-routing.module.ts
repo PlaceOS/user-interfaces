@@ -159,6 +159,15 @@ const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
     },
     {
+        path: 'url-management',
+        loadChildren: () =>
+            import('./url-management/url-manager.module').then(
+                (m) => m.UrlManagerModule
+            ),
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+    },
+    {
         path: 'signage',
         loadChildren: () =>
             import('./signage/signage.module').then((m) => m.SignageModule),
