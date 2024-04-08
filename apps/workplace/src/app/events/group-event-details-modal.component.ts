@@ -184,15 +184,10 @@ import { ViewerFeature } from '@placeos/svg-viewer';
                             matRipple
                             class="relative w-full h-40 bg-base-200"
                         >
-                            <i-map
-                                *ngIf="!(use_mapspeople | async)"
+                            <interactive-map
                                 [src]="level?.map_id"
                                 [features]="features"
-                            ></i-map>
-                            <indoor-maps
-                                *ngIf="use_mapspeople | async"
-                                [locate]="locate"
-                            ></indoor-maps>
+                            ></interactive-map>
                         </button>
                         <div class=" p-4 space-y-2">
                             <div>
@@ -280,18 +275,14 @@ export class GroupEventDetailsModalComponent {
         return this.booking.attendees?.find((_) => _.email === user.email);
     }
 
-    public readonly use_mapspeople = this._maps_people.available$;
-
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: Booking,
         private _org: OrganisationService,
-        private _settings: SettingsService,
-        private _maps_people: MapsPeopleService
+        private _settings: SettingsService
     ) {}
 
     public ngOnInit(): void {
         this.level = this._org.levelWithID(this.booking.zones);
-        this._maps_people.setCustomZone(this.level?.id);
         this.locate = this.booking.extension_data?.map_id || '';
         this.features = [
             {
@@ -300,10 +291,6 @@ export class GroupEventDetailsModalComponent {
                 data: {},
             },
         ];
-    }
-
-    public ngOnDestroy(): void {
-        this._maps_people.setCustomZone('');
     }
 
     public async toggleInterest() {
