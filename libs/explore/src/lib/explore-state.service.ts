@@ -73,8 +73,12 @@ export class ExploreStateService extends AsyncHandler {
     /** Currently active level */
     public readonly message = this._message.asObservable();
     /** Spaces associated with the active level */
-    public readonly spaces = this._level.pipe(
-        switchMap((level) =>
+    public readonly spaces = combineLatest([
+        this._level,
+        this._org.initialised,
+    ]).pipe(
+        filter(([_, initialised]) => initialised),
+        switchMap(([level]) =>
             querySystems({
                 zone_id: level?.id || this._org.organisation.id,
                 limit: 50,
