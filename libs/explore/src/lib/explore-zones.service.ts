@@ -33,6 +33,7 @@ export interface ZoneData {
     people_count_sum: number;
     queue_size: number;
     counter: number;
+    at_location?: number;
 }
 
 @Injectable()
@@ -149,8 +150,13 @@ export class ExploreZonesService extends AsyncHandler {
                         'count'
                 ] || 0;
             const filled = count / capacity;
-            this._statuses[id] =
-                filled < 0.4 ? 'free' : filled < 0.75 ? 'pending' : 'busy';
+            this._statuses[id] = zone.at_location
+                ? 'busy'
+                : filled < 0.4
+                ? 'free'
+                : filled < 0.75
+                ? 'pending'
+                : 'busy';
             if (!this._location[id]) continue;
             let content = '';
             if (zone.count) {
