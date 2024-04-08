@@ -117,18 +117,18 @@ export class ExploreZonesService extends AsyncHandler {
         const features = [];
 
         for (const zone of value) {
-            const capacity =
-                zone.capacity || this._capacity[zone.area_id] || 100;
+            const id = zone.map_id || zone.area_id;
+            const capacity = zone.capacity || this._capacity[id] || 100;
             const count =
                 zone[
-                    this._count_key[zone.area_id] ||
+                    this._count_key[id] ||
                         this._settings.get('app.explore.area_count_key') ||
                         'count'
                 ] || 0;
             const filled = count / capacity;
-            this._statuses[zone.area_id] =
+            this._statuses[id] =
                 filled < 0.4 ? 'free' : filled < 0.75 ? 'pending' : 'busy';
-            if (!this._location[zone.area_id]) continue;
+            if (!this._location[id]) continue;
             let content = '';
             if (zone.count) {
                 content += `${zone.count || 0} User Device${
@@ -145,11 +145,11 @@ export class ExploreZonesService extends AsyncHandler {
             if (zone.queue_size) content += `Queue Size: ${zone.queue_size}%\n`;
             if (zone.counter) content += `Count: ${zone.counter}\n`;
             if (
-                this._label_location[zone.area_id] &&
+                this._label_location[id] &&
                 !this._settings.get('app.explore.show_zone_labels')
             ) {
                 labels.push({
-                    location: this._label_location[zone.area_id],
+                    location: this._label_location[id],
                     content,
                     z_index: 100,
                 });
@@ -159,8 +159,8 @@ export class ExploreZonesService extends AsyncHandler {
                 (zone.temperature || zone.humidity)
             ) {
                 features.push({
-                    track_id: `sensors:${zone.area_id}`,
-                    location: this._location[zone.area_id],
+                    track_id: `sensors:${id}`,
+                    location: this._location[id],
                     content: ExploreSensorInfoComponent,
                     data: {
                         temp: zone.temperature,
