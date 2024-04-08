@@ -62,7 +62,7 @@ export class ExploreZonesService extends AsyncHandler {
                 `zones`,
                 bind_areas
                     .listen()
-                    .subscribe((d) => this.parseData(d?.values || []))
+                    .subscribe((d) => this.parseData(d?.value || []))
             );
             this.subscription('binding', bind_areas.bind());
             const bind_zone = getModule(system_id, 'AreaManagement').binding(
@@ -72,7 +72,13 @@ export class ExploreZonesService extends AsyncHandler {
                 `zones-status`,
                 bind_zone
                     .listen()
-                    .subscribe((d) => this.parseData(d?.values || []))
+                    .subscribe((d) =>
+                        this.parseData(
+                            (d?.value || []).filter(
+                                (_) => _.location === 'area'
+                            )
+                        )
+                    )
             );
             this.subscription('zone-binding', bind_zone.bind());
         })
