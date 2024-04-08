@@ -16,6 +16,8 @@ const EMPTY_LABEL = { location: { x: -10, y: -10 }, content: '0% Usage' };
 
 export interface ZoneData {
     /** ID of the zone */
+    map_id?: string;
+    /** ID of the zone */
     area_id: string;
     /** Max occupancy allowed in zone */
     capacity: number;
