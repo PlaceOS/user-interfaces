@@ -37,6 +37,7 @@ export interface ZoneData {
 
 @Injectable()
 export class ExploreZonesService extends AsyncHandler {
+    private _area_list: string[] = [];
     private _statuses: HashMap<string> = {};
     private _count_key: HashMap<string> = {};
     private _location: HashMap<Point> = {};
@@ -103,6 +104,7 @@ export class ExploreZonesService extends AsyncHandler {
         for (const zone of zone_metadata) {
             const areas = (zone?.details as any)?.areas;
             if (!areas) continue;
+            this._area_list = [];
             for (const area of areas) {
                 const {
                     capacity,
@@ -125,6 +127,7 @@ export class ExploreZonesService extends AsyncHandler {
                     !!draw_polygon ||
                     this._settings.get('app.explore.use_zone_polygons');
                 this._points[area.id] = coordinates || [];
+                this._area_list.push(area.map_id || area.id);
             }
         }
         this.updateStatus();
@@ -137,6 +140,7 @@ export class ExploreZonesService extends AsyncHandler {
 
         for (const zone of value) {
             const id = zone.map_id || zone.area_id;
+            if (!this._area_list.includes(id)) continue;
             const capacity = zone.capacity || this._capacity[id] || 100;
             const count =
                 zone[
@@ -222,7 +226,7 @@ export class ExploreZonesService extends AsyncHandler {
             }
         }
         this._state.setFeatures('zones', [...features, ...this._features]);
-        this._state.setStyles('zones', style_map);
+        this._state.setStyles('zones-styles', style_map);
     }
 }
 
