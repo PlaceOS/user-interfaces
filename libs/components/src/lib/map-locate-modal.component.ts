@@ -32,7 +32,6 @@ export interface Locatable {
                 *ngIf="level"
             >
                 <interactive-map
-                    *ngIf="!(use_mapsindoors$ | async); else mapspeople"
                     class="pointer-events-none"
                     [src]="level?.map_id"
                     [features]="features"
@@ -43,12 +42,6 @@ export interface Locatable {
                 >
                     <mat-spinner diameter="64"></mat-spinner
                 ></interactive-map>
-                <ng-template #mapspeople>
-                    <indoor-maps
-                        [styles]="styles | async"
-                        [actions]="actions | async"
-                    ></indoor-maps>
-                </ng-template>
                 <div
                     class="absolute top-2 right-2 py-2 px-4 bg-base-100 rounded-3xl shadow border border-base-200"
                 >
@@ -86,12 +79,9 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
         return this.item.level || this._org.levelWithID(this.item.zones || []);
     }
 
-    public readonly use_mapsindoors$ = this._maps_people.available$;
-
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: { item: Locatable },
-        private _org: OrganisationService,
-        private _maps_people: MapsPeopleService
+        private _org: OrganisationService
     ) {
         super();
         if (!this.item.level?.id) {
@@ -100,7 +90,6 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit(): void {
-        this._maps_people.setCustomZone(this.level?.id);
         this.timeout(
             'init',
             () => {
@@ -109,11 +98,6 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
             },
             1000
         );
-    }
-
-    public ngOnDestroy(): void {
-        super.ngOnDestroy();
-        this._maps_people.setCustomZone('');
     }
 
     public processStyles(): void {

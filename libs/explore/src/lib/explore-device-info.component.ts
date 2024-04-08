@@ -4,7 +4,6 @@ import { differenceInMinutes, formatDistanceToNow } from 'date-fns';
 import { Observable } from 'rxjs';
 
 import { AsyncHandler, SettingsService } from '@placeos/common';
-
 import { MAP_FEATURE_DATA } from 'libs/components/src/lib/interactive-map.component';
 
 export interface DeviceInfoData {

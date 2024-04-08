@@ -13,7 +13,7 @@ import { ExploreStateService } from './explore-state.service';
             <mat-form-field
                 overlay
                 buildings
-                class="flex-1 min-w-[10.5rem]"
+                class="flex-1 min-w-[10.5rem] no-subscript"
                 has-bld="true"
                 *ngIf="(buildings | async)?.length > 1"
                 appearance="outline"
@@ -35,7 +35,7 @@ import { ExploreStateService } from './explore-state.service';
             <mat-form-field
                 overlay
                 levels
-                class="flex-1 min-w-[10.25rem]"
+                class="flex-1 min-w-[10.25rem] no-subscript"
                 [attr.has-bld]="(buildings | async)?.length > 1"
                 *ngIf="(levels | async)?.length"
                 appearance="outline"
@@ -58,10 +58,6 @@ import { ExploreStateService } from './explore-state.service';
     `,
     styles: [
         `
-            mat-form-field {
-                height: 3.5rem;
-            }
-
             mat-form-field[has-bld='true'] {
                 max-width: calc(50vw - 2.5rem);
             }
