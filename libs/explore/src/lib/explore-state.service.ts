@@ -30,6 +30,7 @@ import { Space } from 'libs/spaces/src/lib/space.class';
 import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
 
 export interface MapOptions {
+    is_public: boolean;
     /** List of keys to ignore for any map resource */
     disable?: string[];
     /** List of keys to ignore for map labels */
@@ -63,6 +64,7 @@ export class ExploreStateService extends AsyncHandler {
     private _labels = new BehaviorSubject<HashMap<ViewerLabel[]>>({});
 
     private _options = new BehaviorSubject<MapOptions>({
+        is_public: false,
         disable: ['zones', 'devices'],
     });
 
@@ -231,7 +233,7 @@ export class ExploreStateService extends AsyncHandler {
             });
     }
 
-    public setOptions(options: MapOptions) {
+    public setOptions(options: Partial<MapOptions>) {
         const old_options = this._options.getValue();
         const disable = unique([
             ...(options.disable || old_options.disable),
@@ -250,6 +252,7 @@ export class ExploreStateService extends AsyncHandler {
         this._labels.next({});
         this._actions.next({});
         this._options.next({
+            is_public: false,
             disable: ['zones', 'devices'],
         });
         this.setPositions(1, { x: 0.5, y: 0.5 });

@@ -47,8 +47,9 @@ export class ExploreZonesService extends AsyncHandler {
     private _bind = combineLatest([
         this._org.active_building,
         this._state.level,
+        this._state.options,
     ]).pipe(
-        filter(([bld, lvl]) => !!bld && !!lvl),
+        filter(([bld, lvl, { is_public }]) => !!bld && !!lvl && !is_public),
         map(([_, lvl]) => {
             this._statuses = {};
             let system_id: any = this._org.binding('area_management');

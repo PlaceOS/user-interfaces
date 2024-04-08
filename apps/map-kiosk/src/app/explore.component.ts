@@ -365,6 +365,12 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
+        if (
+            location.hash.includes('public=true') ||
+            location.search.includes('public=true')
+        ) {
+            this._state.setOptions({ is_public: true });
+        }
         await this._spaces.initialised.pipe(first((_) => _)).toPromise();
         this._desks.setOptions({ custom: true });
         this.reset_delay =

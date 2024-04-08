@@ -16,11 +16,12 @@ export class ExploreLockersService extends AsyncHandler {
     private _status = new BehaviorSubject([]);
     public readonly lockers$ = this._lockers.filtered_lockers$;
     public readonly status = combineLatest([
-        this._org.active_building,
         this._explore.level,
+        this._explore.options,
+        this._org.active_building,
     ]).pipe(
-        map(([_, lvl]) => {
-            if (!lvl) return [];
+        map(([lvl, { is_public }]) => {
+            if (!lvl || is_public) return [];
             const sys_id = this._org.binding('area_management');
             if (!sys_id) return of({});
             let binding = getModule(sys_id, 'AreaManagement').binding(lvl.id);
