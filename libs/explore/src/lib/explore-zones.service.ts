@@ -55,14 +55,26 @@ export class ExploreZonesService extends AsyncHandler {
             this._statuses = {};
             let system_id: any = this._org.binding('area_management');
             if (!system_id) return;
-            const binding = getModule(system_id, 'AreaManagement').binding(
-                `${lvl.id}:areas`
+            const bind_areas = getModule(system_id, 'AreaManagement').binding(
+                `${lvl.id}`
             );
             this.subscription(
                 `zones`,
-                binding.listen().subscribe((d) => this.parseData(d))
+                bind_areas
+                    .listen()
+                    .subscribe((d) => this.parseData(d?.values || []))
             );
-            this.subscription('binding', binding.bind());
+            this.subscription('binding', bind_areas.bind());
+            const bind_zone = getModule(system_id, 'AreaManagement').binding(
+                `${lvl.id}`
+            );
+            this.subscription(
+                `zones-status`,
+                bind_zone
+                    .listen()
+                    .subscribe((d) => this.parseData(d?.values || []))
+            );
+            this.subscription('zone-binding', bind_zone.bind());
         })
     );
 
@@ -113,8 +125,7 @@ export class ExploreZonesService extends AsyncHandler {
         this.subscription('bind', this._bind.subscribe());
     }
 
-    public parseData(data?: { value: ZoneData[] }) {
-        const value = data?.value || [];
+    public parseData(value: ZoneData[] = []) {
         const labels = [];
         const features = [];
 
