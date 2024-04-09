@@ -102,10 +102,10 @@ export class ExploreZonesService extends AsyncHandler {
                 showMetadata(bld.id, 'map_regions').toPromise()
             )
         );
+        this._area_list = [];
         for (const zone of zone_metadata) {
             const areas = (zone?.details as any)?.areas;
             if (!areas) continue;
-            this._area_list = [];
             for (const area of areas) {
                 const {
                     capacity,
@@ -139,6 +139,7 @@ export class ExploreZonesService extends AsyncHandler {
         const labels = [];
         const features = [];
 
+        console.log('Area List:', this._area_list);
         for (const zone of value) {
             const id = zone.map_id || zone.area_id;
             if (!this._area_list.includes(id)) continue;
