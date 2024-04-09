@@ -43,10 +43,12 @@ interface MapsIndoorServices {
             btn
             matRipple
             class="absolute bottom-2 left-2 bg-base-100 text-base-content shadow z-10 border-base-200 space-x-2"
-            (click)="showDirections()"
+            (click)="toggleDirections()"
         >
             <app-icon>place</app-icon>
-            <div class="pr-2">Show Directions</div>
+            <div class="pr-2">
+                {{ viewing_directions ? 'Hide' : 'Show' }} Directions
+            </div>
             <mat-spinner diameter="24" *ngIf="loading_directions"></mat-spinner>
         </button>
     `,
@@ -64,7 +66,9 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
 
     public id: string;
     public show_directions = false;
+    public viewing_directions = false;
     public loading_directions = false;
+    public ignore_zoom = false;
 
     private _services: MapsIndoorServices;
     private _floor_list: any[] = [];
@@ -98,7 +102,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         if (changes.metadata) {
             this._updateMapStyling();
         }
-        if (changes.zoom && this.zoom) {
+        if (changes.zoom && this.zoom && !this.ignore_zoom) {
             this._services?.map?.setZoom(this.zoom);
         }
         if (changes.reset) {
@@ -141,7 +145,6 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             notifyWarn('Failed to initialise map view.');
             return;
         }
-        this._handleZoomChange(19);
         const provider =
             this._maps_people.map_service === MapService.GoogleMaps
                 ? new mapsindoors.directions.GoogleMapsProvider()
@@ -177,9 +180,16 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             this._handleUserClick(e)
         );
         this.timeout('focus', () => this._focusOnLocation());
+        this.timeout('init_zoom', () => this._handleZoomChange(19));
     }
 
-    public async showDirections() {
+    public async toggleDirections() {
+        if (this.viewing_directions) {
+            this._services.directions_renderer.setRoute(null);
+            this._focusOnLocation();
+            this.viewing_directions = false;
+            return;
+        }
         if (!this.focus) return;
         const items = await this._search(this.focus);
         if (!items?.length) {
@@ -228,6 +238,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                 if (!result) return;
                 console.log('Route:', result);
                 this._services.directions_renderer.setRoute(result);
+                this.viewing_directions = true;
                 this.loading_directions = false;
             },
             () => notifyError('Failed to get your current location.'),
@@ -239,8 +250,14 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         this.timeout(
             'zoom_change',
             () => {
+                this.ignore_zoom = true;
                 this.zoom = level;
                 this.zoomChange.emit(level);
+                this.timeout(
+                    'reset_ignore_zoom',
+                    () => (this.ignore_zoom = false),
+                    50
+                );
             },
             100
         );

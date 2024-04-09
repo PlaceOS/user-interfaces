@@ -50,7 +50,7 @@ export interface MapMetadata {
                 [zone]="location"
                 (zoneChange)="onLevelChange($event)"
                 [zoom]="zoom"
-                (zoomChange)="zoomChange.next($event)"
+                (zoomChange)="zoom = $event; zoomChange.next($event)"
                 [reset]="reset"
                 [focus]="focus"
                 [styles]="styles || metadata?.styles"
@@ -63,7 +63,7 @@ export interface MapMetadata {
         </ng-template>
         <div
             zoom
-            class="absolute bottom-1 sm:bottom-auto sm:top-1/2 right-1 border border-base-200 divide-y divide-base-200 shadow flex flex-col bg-base-100 text-base-content rounded overflow-hidden"
+            class="absolute bottom-16 right-1 border border-base-200 divide-y divide-base-200 shadow flex flex-col bg-base-100 text-base-content rounded overflow-hidden"
         >
             <button
                 icon
