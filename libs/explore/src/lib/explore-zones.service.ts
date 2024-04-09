@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { getModule, showMetadata } from '@placeos/ts-client';
 import { ViewerLabel, Point, ViewerFeature } from '@placeos/svg-viewer';
-import { filter, first, map } from 'rxjs/operators';
+import { debounceTime, filter, first, map } from 'rxjs/operators';
 
 import { AsyncHandler, HashMap, SettingsService } from '@placeos/common';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
@@ -58,7 +58,7 @@ export class ExploreZonesService extends AsyncHandler {
             let system_id: any = this._org.binding('area_management');
             if (!system_id) return;
             const bind_areas = getModule(system_id, 'AreaManagement').binding(
-                `${lvl.id}`
+                `${lvl.id}:areas`
             );
             const bind_zone = getModule(system_id, 'AreaManagement').binding(
                 `${lvl.id}`
@@ -67,13 +67,15 @@ export class ExploreZonesService extends AsyncHandler {
                 bind_areas.listen(),
                 bind_zone.listen(),
             ]).pipe(
-                map(([a, z]) => [...(a?.value || []), ...(z?.value || [])])
+                debounceTime(100),
+                map(([a, z]) => [
+                    ...(a?.value || []),
+                    ...(z?.value || []).filter((_) => _.location === 'area'),
+                ])
             );
             this.subscription(
                 `zones-status`,
-                zones.subscribe((l) =>
-                    this.parseData(l.filter((_) => _.location === 'area'))
-                )
+                zones.subscribe((l) => this.parseData(l))
             );
             this.subscription('binding', bind_areas.bind());
             this.subscription('zone-binding', bind_zone.bind());
