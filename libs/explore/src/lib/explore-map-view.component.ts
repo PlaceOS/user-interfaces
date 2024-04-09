@@ -38,6 +38,7 @@ const EMPTY = [];
             [actions]="actions | async"
             [labels]="labels | async"
             [focus]="locate"
+            [options]="{ controls: true }"
         ></interactive-map>
         <div
             *ngIf="!(use_mapsindoors$ | async)"

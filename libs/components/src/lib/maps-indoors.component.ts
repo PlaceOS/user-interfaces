@@ -26,6 +26,8 @@ declare let mapsindoors: any;
 declare let google: any;
 declare let mapboxgl: any;
 
+const DEFAULT_ZOOM = 18.5;
+
 interface MapsIndoorServices {
     mapsindoors: any;
     view: any;
@@ -39,7 +41,7 @@ interface MapsIndoorServices {
     template: `
         <div #map_container class="absolute inset-0 z-0"></div>
         <button
-            *ngIf="focus && !show_directions"
+            *ngIf="focus && !show_directions && options?.controls"
             btn
             matRipple
             class="absolute bottom-2 left-2 bg-base-100 text-base-content shadow z-10 border-base-200 space-x-2"
@@ -59,7 +61,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
     @Input() public metadata: MapMetadata;
     @Input() public options: any;
     @Input() public focus: string;
-    @Input() public zoom = 19;
+    @Input() public zoom = DEFAULT_ZOOM;
     @Input() public reset: number;
     @Output() public zoomChange = new EventEmitter<number>();
     @Output() public zoneChange = new EventEmitter<BuildingLevel>();
@@ -106,7 +108,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             this._services?.map?.setZoom(this.zoom);
         }
         if (changes.reset) {
-            this._services?.map?.setZoom(19);
+            this._services?.map?.setZoom(DEFAULT_ZOOM);
             this._centerOnZone();
         }
     }
@@ -122,7 +124,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         const view_options: Record<string, any> = {
             element: this._container.nativeElement,
             center: { lat: parseFloat(lat), lng: parseFloat(long) },
-            zoom: 19,
+            zoom: DEFAULT_ZOOM,
             maxZoom: 24,
         };
         let view_instance = null;
@@ -180,7 +182,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             this._handleUserClick(e)
         );
         this.timeout('focus', () => this._focusOnLocation());
-        this.timeout('init_zoom', () => this._handleZoomChange(19));
+        this.timeout('init_zoom', () => this._handleZoomChange(DEFAULT_ZOOM));
     }
 
     public async toggleDirections() {
@@ -344,7 +346,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             return;
         }
         const [lng, lat] = items[0].properties?.anchor?.coordinates || [0, 0];
-        this._services.map.setZoom(19);
+        this._services.map.setZoom(DEFAULT_ZOOM);
         this._services.map.setCenter({ lat, lng });
         this._services.mapsindoors.setFloor(items[0].properties?.floor);
         this._services.mapsindoors.highlight([items[0].id]);
@@ -357,7 +359,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         );
         if (!bld) return;
         const [lat, long] = bld?.location.split(',');
-        this._services.map.setZoom(19);
+        this._services.map.setZoom(DEFAULT_ZOOM);
         this._services.map.setCenter({
             lat: parseFloat(lat),
             lng: parseFloat(long),
@@ -368,18 +370,16 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
     }
 
     private _addFloorSelector() {
-        const floorSelectorElement = document.createElement('div');
-        new mapsindoors.FloorSelector(
-            floorSelectorElement,
-            this._services.mapsindoors
-        );
+        if (!this.options?.controls) return;
+        const element = document.createElement('div');
+        new mapsindoors.FloorSelector(element, this._services.mapsindoors);
         if (this._maps_people.map_service === MapService.GoogleMaps) {
             this._services.map.controls[
                 google.maps.ControlPosition.RIGHT_TOP
-            ].push(floorSelectorElement);
+            ].push(element);
         } else {
             this._services.map.addControl({
-                onAdd: () => floorSelectorElement,
+                onAdd: () => element,
                 onRemove: () => {},
             });
         }

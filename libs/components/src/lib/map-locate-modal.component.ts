@@ -34,6 +34,7 @@ export interface Locatable {
                 <interactive-map
                     class="pointer-events-none"
                     [src]="level?.map_id"
+                    [focus]="item?.map_id"
                     [features]="features"
                     [options]="{
                         disable_pan: true,

@@ -19,6 +19,12 @@ export const MAP_FEATURE_DATA = new InjectionToken<any>(
     'Data for Map Features'
 );
 
+export interface MapOptions {
+    disable_zoom?: boolean;
+    disable_pan?: boolean;
+    controls?: boolean;
+}
+
 export interface MapMetadata {
     styles?: ViewerStyles;
     features?: ViewerFeature[];
@@ -63,6 +69,7 @@ export interface MapMetadata {
         </ng-template>
         <div
             zoom
+            *ngIf="options?.controls"
             class="absolute bottom-16 right-1 border border-base-200 divide-y divide-base-200 shadow flex flex-col bg-base-100 text-base-content rounded overflow-hidden"
         >
             <button
@@ -106,7 +113,7 @@ export class InteractiveMapComponent extends AsyncHandler {
     @Input() public features: any[];
     @Input() public labels: any[];
     @Input() public actions: any[];
-    @Input() public options: any;
+    @Input() public options: MapOptions = {};
     @Input() public focus: string;
     @Output() public zoomChange = new EventEmitter<number>();
     @Output() public centerChange = new EventEmitter<any>();

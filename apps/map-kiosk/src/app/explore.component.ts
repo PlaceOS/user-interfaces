@@ -228,6 +228,7 @@ import { first, map, take, tap } from 'rxjs/operators';
                     [features]="features | async"
                     [actions]="actions | async"
                     [labels]="labels | async"
+                    [options]="{ controls: true }"
                 ></interactive-map>
             </div>
         </div>
