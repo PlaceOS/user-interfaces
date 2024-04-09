@@ -195,6 +195,7 @@ export class BookingFormService extends AsyncHandler {
                 period_end: getUnixTime(addMinutes(date, duration)),
                 type: options.type,
                 zones: options.zone_id,
+                limit: 1000,
             }).pipe(
                 map(
                     (bookings) => {
@@ -708,6 +709,7 @@ export class BookingFormService extends AsyncHandler {
             period_end: getUnixTime(date + duration * 60 * 1000),
             type,
             email: user_email,
+            limit: 1000,
         }).toPromise();
         if (bookings.find((_) => _.asset_id === asset_id && id !== _.id)) {
             if (asset_id.includes('@')) {
