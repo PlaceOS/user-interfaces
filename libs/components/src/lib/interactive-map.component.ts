@@ -49,8 +49,8 @@ export interface MapMetadata {
             <maps-indoors
                 [zone]="location"
                 (zoneChange)="onLevelChange($event)"
-                [zoom]="zoom"
-                (zoomChange)="zoom = $event; zoomChange.next($event)"
+                [(zoom)]="zoom"
+                (zoomChange)="zoomChange.next($event)"
                 [reset]="reset"
                 [focus]="focus"
                 [styles]="styles || metadata?.styles"
