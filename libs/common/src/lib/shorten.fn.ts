@@ -8,9 +8,8 @@ import {
     query,
     token,
 } from '@placeos/ts-client';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { UrlObject } from 'url';
 
 const ENDPOINT = '/api/engine/v2/short_url';
 

@@ -15,7 +15,7 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                 [dataSource]="features"
                 [columns]="['name', 'level', 'location', 'actions']"
                 [display_column]="['Name', 'Level', 'Location', ' ']"
-                [column_size]="['flex', '10r', '10r', '6.5r']"
+                [column_size]="['flex', '10r', '10r', '9r']"
                 [template]="{
                     level: level_template,
                     actions: action_template
@@ -28,15 +28,28 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="w-full flex justify-end space-x-2">
-                <button
-                    icon
-                    matRipple
-                    customTooltip
-                    [content]="qr_menu"
-                    (click)="loadQrCode(row)"
-                >
-                    <app-icon>qr_code</app-icon>
-                </button>
+                <div matTooltip="Private QR Code">
+                    <button
+                        icon
+                        matRipple
+                        customTooltip
+                        [content]="qr_menu"
+                        (click)="loadQrCode(row)"
+                    >
+                        <app-icon>qr_code</app-icon>
+                    </button>
+                </div>
+                <div matTooltip="Public QR Code">
+                    <button
+                        icon
+                        matRipple
+                        customTooltip
+                        [content]="qr_menu"
+                        (click)="loadPublicQrCode(row)"
+                    >
+                        <app-icon>qr_code</app-icon>
+                    </button>
+                </div>
                 <ng-template #qr_menu>
                     <div class="bg-base-100 py-2 shadow rounded">
                         <div class="" printable>
@@ -100,9 +113,19 @@ export class POIListComponent {
     }
 
     public loadQrCode(item: PointOfInterest) {
+        const location =
+            typeof item.location === 'string'
+                ? item.location
+                : item.location.join(',');
         const link = `${this.kiosk_url}/#/explore?level=${encodeURIComponent(
             item.level_id
-        )}&locate=${encodeURIComponent(item.id)}`;
+        )}&locate=${encodeURIComponent(location)}`;
+        item.qr_link = link;
+        item.qr_code = generateQRCode(link);
+    }
+
+    public loadPublicQrCode(item: PointOfInterest) {
+        const link = `${location.origin}/r/${item.short_link_id.split('-')[1]}`;
         item.qr_link = link;
         item.qr_code = generateQRCode(link);
     }
