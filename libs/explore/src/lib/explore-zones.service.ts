@@ -64,7 +64,13 @@ export class ExploreZonesService extends AsyncHandler {
                 `zones`,
                 bind_areas
                     .listen()
-                    .subscribe((d) => this.parseData(d?.value || []))
+                    .subscribe((d) =>
+                        this.parseData(
+                            (d?.value || []).filter(
+                                (_) => _.location === 'area'
+                            )
+                        )
+                    )
             );
             this.subscription('binding', bind_areas.bind());
             const bind_zone = getModule(system_id, 'AreaManagement').binding(
@@ -139,10 +145,9 @@ export class ExploreZonesService extends AsyncHandler {
         const labels = [];
         const features = [];
 
-        console.log('Area List:', this._area_list);
         for (const zone of value) {
             const id = zone.map_id || zone.area_id;
-            if (!this._area_list.includes(id)) continue;
+            // if (!this._area_list.includes(id)) continue;
             const capacity = zone.capacity || this._capacity[id] || 100;
             const count =
                 zone[
