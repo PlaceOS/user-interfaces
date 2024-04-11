@@ -15,7 +15,6 @@ import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info.component';
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
 import { OrganisationService } from '@placeos/organisation';
-import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 
 @Component({
     selector: 'desk-map',
@@ -83,7 +82,6 @@ import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
         </div>
         <div class="relative flex-1 w-full">
             <interactive-map
-                *ngIf="!(use_mapsindoors$ | async); else mapspeople"
                 [src]="map_url"
                 [(zoom)]="zoom"
                 [(center)]="center"
@@ -91,13 +89,6 @@ import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
                 [features]="features | async"
                 [actions]="actions | async"
             ></interactive-map>
-            <ng-template #mapspeople>
-                <indoor-maps
-                    [styles]="styles | async"
-                    [actions]="actions | async"
-                    [custom_coordinates]="coordinates"
-                ></indoor-maps>
-            </ng-template>
         </div>
         <div
             zoom
@@ -216,8 +207,6 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
         )
     );
 
-    public readonly use_mapsindoors$ = this._maps_people.available$;
-
     public get use_region() {
         return !!this._settings.get('app.use_region');
     }
@@ -225,8 +214,7 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
     constructor(
         private _state: BookingFormService,
         private _settings: SettingsService,
-        private _org: OrganisationService,
-        private _maps_people: MapsPeopleService
+        private _org: OrganisationService
     ) {
         super();
     }
@@ -252,10 +240,6 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
         );
     }
 
-    public ngOnDestroy() {
-        this._maps_people.setCustomZone('');
-    }
-
     public ngOnChanges(changes: SimpleChanges): void {
         if (changes.active) this._change.next(Date.now());
     }
@@ -273,7 +257,6 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
                 .map((_) => parseFloat(_));
             this.coordinates = { latitude, longitude };
         }
-        this._maps_people.setCustomZone(level?.parent_id);
         this.level = level;
     }
 

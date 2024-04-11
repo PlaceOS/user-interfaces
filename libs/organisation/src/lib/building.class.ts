@@ -101,6 +101,8 @@ export class Building {
     public readonly bindings: Record<string, string>;
     /** List of image URLs for the building */
     public readonly images: string[];
+    /** Identifier of building in relation to mapping */
+    public readonly map_id: string;
 
     public readonly orientations: Record<string, number>;
     public readonly attributes: readonly Identity[];
@@ -171,6 +173,7 @@ export class Building {
         }
         this.bindings = raw_data.bindings || {};
         this.searchables = searchables;
+        this.map_id = raw_data.map_id || '';
         this.timezone =
             raw_data.timezone || disc_info.timezone || settings.timezone || '';
         this.catering_hours = raw_data.catering_hours ||

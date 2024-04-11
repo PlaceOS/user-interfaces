@@ -14,7 +14,7 @@ import { OrganisationService } from '@placeos/organisation';
             class="absolute inset-0 overflow-hidden bg-base-200"
             [class.hide-levels]="(options | async)?.show_levels"
         >
-            <i-map
+            <interactive-map
                 class="absolute inset-0"
                 [src]="lvl?.map_id"
                 *ngFor="let lvl of levels | async; let i = index"
@@ -28,12 +28,12 @@ import { OrganisationService } from '@placeos/organisation';
                 [actions]="i === active_index ? (actions | async) : []"
                 [labels]="i === active_index ? (labels | async) : []"
             >
-            </i-map>
+            </interactive-map>
         </div>
     `,
     styles: [
         `
-            div:not(.hide-levels) i-map {
+            div:not(.hide-levels) interactive-map {
                 transform: perspective(500px) rotateX(50deg) scale(0.9);
             }
 
@@ -41,7 +41,7 @@ import { OrganisationService } from '@placeos/organisation';
                 display: none;
             }
 
-            i-map {
+            interactive-map {
                 transition: transform 200ms, opacity 200ms;
                 opacity: 0.1;
                 pointer-events: none;

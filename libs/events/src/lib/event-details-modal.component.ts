@@ -317,7 +317,6 @@ const EMPTY_ACTIONS = [];
                 >
                     <ng-container *ngIf="!hide_map">
                         <interactive-map
-                            *ngIf="!(use_mapsindoors$ | async); else mapspeople"
                             class="pointer-events-none"
                             [src]="level?.map_id"
                             [features]="features"
@@ -326,12 +325,6 @@ const EMPTY_ACTIONS = [];
                                 disable_zoom: true
                             }"
                         ></interactive-map>
-                        <ng-template #mapspeople>
-                            <indoor-maps
-                                [styles]="styles | async"
-                                [actions]="actions | async"
-                            ></indoor-maps>
-                        </ng-template>
                     </ng-container>
                 </button>
                 <div
@@ -606,21 +599,14 @@ export class EventDetailsModalComponent {
         return 'warning';
     }
 
-    public readonly use_mapsindoors$ = this._maps_people.available$;
-
     constructor(
         @Inject(MAT_DIALOG_DATA) private _event: CalendarEvent,
         private _org: OrganisationService,
         private _space_pipe: SpacePipe,
         private _settings: SettingsService,
-        private _dialog: MatDialog,
-        private _maps_people: MapsPeopleService
+        private _dialog: MatDialog
     ) {
         this._load().then();
-    }
-
-    public ngOnDestroy() {
-        this._maps_people.setCustomZone('');
     }
 
     public get period() {
@@ -691,7 +677,6 @@ export class EventDetailsModalComponent {
                 },
             });
         }
-        this._maps_people.setCustomZone(this.level?.parent_id);
     }
 
     public status(id: string): string {
@@ -717,7 +702,6 @@ export class EventDetailsModalComponent {
         });
         ref.afterClosed().subscribe(() => {
             this.hide_map = false;
-            this._maps_people.setCustomZone(this.level?.parent_id);
         });
     }
 }

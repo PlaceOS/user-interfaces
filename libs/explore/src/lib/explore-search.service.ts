@@ -7,7 +7,7 @@ import {
     queryUsers,
     showMetadata,
 } from '@placeos/ts-client';
-import { SettingsService, flatten, unique } from '@placeos/common';
+import { MapsPeopleService, SettingsService, flatten } from '@placeos/common';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
     catchError,
@@ -38,6 +38,8 @@ export interface SearchResult {
     /** Whether custom user */
     is_role?: boolean;
 }
+
+declare let mapsindoors: any;
 
 @Injectable({
     providedIn: 'root',
@@ -98,12 +100,46 @@ export class ExploreSearchService {
         catchError(() => [])
     );
 
+    private _maps_people_search: Observable<SearchResult[]> = combineLatest([
+        this._maps_people.available$,
+        this._filter,
+        this._org.active_building,
+    ]).pipe(
+        debounceTime(1000),
+        switchMap(([available, q]) =>
+            available && q.length > 2
+                ? mapsindoors?.services.LocationsService.getLocations({ q })
+                : of([])
+        ),
+        map((list: any[]) => {
+            return list.map(
+                (_) =>
+                    ({
+                        id:
+                            _.properties?.externalId ||
+                            _.properties?.roomId ||
+                            _.roomId ||
+                            _.id,
+                        map_id:
+                            _.properties?.externalId ||
+                            _.properties?.roomId ||
+                            _.roomId ||
+                            '',
+                        type: 'feature',
+                        name: _.properties?.name || '',
+                        description: `${_.properties?.roomId} , Level ${_.properties?.floorName}`,
+                    } as SearchResult)
+            );
+        }),
+        shareReplay(1)
+    );
+
     private _points_of_interest: Observable<SearchResult[]> =
         this._org.active_building.pipe(
             filter((bld) => !!bld),
             switchMap(() =>
                 listChildMetadata(this._org.building.id, {
-                    name: 'points_of_interest',
+                    name: 'maps_features',
                 }).pipe(catchError(() => of({ details: [] })))
             ),
             map((data: PlaceZoneMetadata[]) => {
@@ -132,78 +168,90 @@ export class ExploreSearchService {
         this._emergency_contacts,
         this._role_assigned_contacts,
         this._points_of_interest,
+        this._maps_people_search,
     ]).pipe(
-        map(([filter, spaces, users, contacts, roled_contacts, features]) => {
-            const search = filter.toLowerCase();
-            const results = [
-                ...spaces
-                    .filter(
-                        (_) =>
-                            _.email.toLowerCase().includes(search) ||
-                            _.name.toLowerCase().includes(search) ||
-                            _.display_name.toLowerCase().includes(search)
-                    )
-                    .map((s) => ({
-                        id: s.id,
-                        type: 'space',
-                        name: s.display_name || s.name,
-                        description: `Capacity: ${s.capacity} `,
-                    })),
-                ...flatten(
-                    roled_contacts.map((u) =>
-                        (u as any).roles.map(
-                            (role) =>
-                                ({
-                                    id: u.email,
-                                    type: role || 'contact',
-                                    is_role: true,
-                                    name: u.name,
-                                    description: u.email,
-                                } as any)
+        map(
+            ([
+                filter,
+                spaces,
+                users,
+                contacts,
+                roled_contacts,
+                features,
+                mapspeople_items,
+            ]) => {
+                const search = filter.toLowerCase();
+                const results = [
+                    ...mapspeople_items,
+                    ...spaces
+                        .filter(
+                            (_) =>
+                                _.email.toLowerCase().includes(search) ||
+                                _.name.toLowerCase().includes(search) ||
+                                _.display_name.toLowerCase().includes(search)
                         )
-                    )
-                ).filter(
-                    (_) =>
-                        _.name.toLowerCase().includes(search) ||
-                        _.description.toLowerCase().includes(search) ||
-                        _.type.toLowerCase().includes(search)
-                ),
-                ...contacts
-                    .map(
-                        (u) =>
-                            ({
-                                id: u.email,
-                                type: (u as any).type || 'contact',
-                                is_role: true,
-                                name: u.name,
-                                description: u.email,
-                            } as any)
-                    )
-                    .filter(
+                        .map((s) => ({
+                            id: s.id,
+                            type: 'space',
+                            name: s.display_name || s.name,
+                            description: `Capacity: ${s.capacity} `,
+                        })),
+                    ...flatten(
+                        roled_contacts.map((u) =>
+                            (u as any).roles.map(
+                                (role) =>
+                                    ({
+                                        id: u.email,
+                                        type: role || 'contact',
+                                        is_role: true,
+                                        name: u.name,
+                                        description: u.email,
+                                    } as any)
+                            )
+                        )
+                    ).filter(
                         (_) =>
                             _.name.toLowerCase().includes(search) ||
                             _.description.toLowerCase().includes(search) ||
                             _.type.toLowerCase().includes(search)
                     ),
-                ...users.map((u) => ({
-                    id: u.email,
-                    type: 'user',
-                    name: u.name,
-                    description: u.email,
-                })),
-                ...features
-                    .filter((_) => _.name.toLowerCase().includes(search))
-                    .map((s) => ({
-                        id: s.id,
-                        type: 'feature',
-                        name: s.name,
-                        description: '',
-                        zone: (s as any).zone?.id,
+                    ...contacts
+                        .map(
+                            (u) =>
+                                ({
+                                    id: u.email,
+                                    type: (u as any).type || 'contact',
+                                    is_role: true,
+                                    name: u.name,
+                                    description: u.email,
+                                } as any)
+                        )
+                        .filter(
+                            (_) =>
+                                _.name.toLowerCase().includes(search) ||
+                                _.description.toLowerCase().includes(search) ||
+                                _.type.toLowerCase().includes(search)
+                        ),
+                    ...users.map((u) => ({
+                        id: u.email,
+                        type: 'user',
+                        name: u.name,
+                        description: u.email,
                     })),
-            ];
-            results.sort((a, b) => a.name.localeCompare(b.name));
-            return results;
-        }),
+                    ...features
+                        .filter((_) => _.name.toLowerCase().includes(search))
+                        .map((s) => ({
+                            id: s.id,
+                            type: 'feature',
+                            name: s.name,
+                            description: '',
+                            zone: (s as any).zone?.id,
+                        })),
+                ];
+                results.sort((a, b) => a.name.localeCompare(b.name));
+                return results;
+            }
+        ),
         tap(() => this._loading.next(false)),
         shareReplay(1)
     );
@@ -219,7 +267,8 @@ export class ExploreSearchService {
 
     constructor(
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _maps_people: MapsPeopleService
     ) {
         this.search_results.subscribe();
         this.init();

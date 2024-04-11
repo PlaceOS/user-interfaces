@@ -218,8 +218,7 @@ import { first, map, take, tap } from 'rxjs/operators';
                 <hr class="w-[calc(100%-4rem)] mx-auto" />
             </div>
             <div class="relative flex-1 h-full">
-                <i-map
-                    *ngIf="!(use_mapsindoors$ | async)"
+                <interactive-map
                     [src]="url | async"
                     [zoom]="(positions | async)?.zoom"
                     [center]="(positions | async)?.center"
@@ -229,17 +228,8 @@ import { first, map, take, tap } from 'rxjs/operators';
                     [features]="features | async"
                     [actions]="actions | async"
                     [labels]="labels | async"
-                ></i-map>
-                <indoor-maps
-                    *ngIf="use_mapsindoors$ | async"
-                    [styles]="styles | async"
-                    [actions]="actions | async"
-                    [locate]="locate"
-                ></indoor-maps>
-                <explore-zoom-controls
-                    *ngIf="!(use_mapsindoors$ | async)"
-                    class="absolute bottom-2 sm:bottom-auto sm:top-1/2 transform -translate-y-1/2 right-0"
-                ></explore-zoom-controls>
+                    [options]="{ controls: true }"
+                ></interactive-map>
             </div>
         </div>
     `,

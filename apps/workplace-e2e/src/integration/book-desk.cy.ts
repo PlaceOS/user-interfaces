@@ -225,7 +225,7 @@ describe('Booking Desks', () => {
                     .click({ force: true })
                     .then(() => {
                         cy.get('desk-map').should('be.visible');
-                        cy.get('i-map').should('exist');
+                        cy.get('interactive-map').should('exist');
                     });
             });
     });
@@ -499,7 +499,7 @@ describe('Booking Desks', () => {
                     .click({ force: true })
                     .then(() => {
                         cy.get('desk-map').should('be.visible');
-                        cy.get('i-map').should('exist');
+                        cy.get('interactive-map').should('exist');
                     });
             });
     });
