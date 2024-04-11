@@ -3,9 +3,12 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     AsyncHandler,
+    SettingsService,
+    createShortURL,
     getInvalidFields,
     notifyError,
     randomString,
+    updateShortURL,
 } from '@placeos/common';
 import { OrganisationService, Building } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
@@ -196,7 +199,8 @@ export class POIModalComponent extends AsyncHandler {
     constructor(
         private _org: OrganisationService,
         @Inject(MAT_DIALOG_DATA) private _data: PointOfInterest | undefined,
-        private _dialog_ref: MatDialogRef<POIModalComponent>
+        private _dialog_ref: MatDialogRef<POIModalComponent>,
+        private _settings: SettingsService
     ) {
         super();
     }
@@ -218,6 +222,30 @@ export class POIModalComponent extends AsyncHandler {
         }
         const data: any = this.form.getRawValue();
         if (!data.id) data.id = `POI-${randomString(8)}`;
+        data.short_link_id = this._data?.short_link_id;
+        const path = this._settings.get('app.kiosk_url_path') || '/map-kiosk';
+        const public_key = this._settings.get('app.short_url_public_key');
+        const location =
+            typeof data.location === 'string'
+                ? data.location
+                : data.location.join(',');
+        let uri = `${window.location.origin}${path}/#/explore?level=${data.level_id}&locate=${location}&public=true`;
+        if (public_key) uri += `&x-api-key=${public_key}`;
+        if (!data.short_link_id) {
+            const { id } = await createShortURL({
+                name: data.name,
+                description: `Point of Interest: ${data.name}`,
+                uri,
+            } as any).toPromise();
+            data.short_link_id = id;
+        } else {
+            await updateShortURL(data.short_link_id, {
+                id: data.short_link_id,
+                name: data.name,
+                description: `Point of Interest: ${data.name}`,
+                uri,
+            } as any).toPromise();
+        }
         this.loading = true;
         const old_metadata = await showMetadata(
             this._org.building.id,

@@ -22,6 +22,7 @@ export interface PointOfInterest {
     name: string;
     level_id: string;
     location: string | [number, number];
+    short_link_id: string;
     qr_code?: string;
     qr_link?: string;
 }

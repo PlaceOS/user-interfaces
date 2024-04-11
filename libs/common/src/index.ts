@@ -7,3 +7,4 @@ export * from './lib/user-idle-time.service';
 export * from './lib/booking-rules';
 export * from './lib/keep-alive.service';
 export * from './lib/uploads.service';
+export * from './lib/shorten.fn';
