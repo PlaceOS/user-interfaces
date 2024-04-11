@@ -1,6 +1,6 @@
 import { HashMap, predictableRandomInt } from '@placeos/common';
 import { PlaceSystem, PlaceZone, querySystems } from '@placeos/ts-client';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map, shareReplay, tap } from 'rxjs/operators';
 import { USER_DOMAIN } from '../../../users/src/lib/user.utilities';
 import { Space } from './space.class';
