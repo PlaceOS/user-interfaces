@@ -229,13 +229,15 @@ export class POIModalComponent extends AsyncHandler {
             typeof data.location === 'string'
                 ? data.location
                 : data.location.join(',');
-        let uri = `${window.location.origin}${path}/#/explore?level=${data.level_id}&locate=${location}&public=true`;
+        let uri = `${path}/#/explore?level=${data.level_id}&locate=${location}&public=true`;
         if (public_key) uri += `&x-api-key=${public_key}`;
         if (!data.short_link_id) {
             const { id } = await createShortURL({
                 name: data.name,
                 description: `Point of Interest: ${data.name}`,
-                uri: `/auth/login?continue=${encodeURIComponent(uri)}`,
+                uri: `${
+                    window.location.origin
+                }/auth/login?continue=${encodeURIComponent(uri)}`,
             } as any).toPromise();
             data.short_link_id = id;
         } else {
@@ -243,7 +245,9 @@ export class POIModalComponent extends AsyncHandler {
                 id: data.short_link_id,
                 name: data.name,
                 description: `Point of Interest: ${data.name}`,
-                uri: `/auth/login?continue=${encodeURIComponent(uri)}`,
+                uri: `${
+                    window.location.origin
+                }/auth/login?continue=${encodeURIComponent(uri)}`,
             } as any).toPromise();
         }
         this.loading = true;
