@@ -93,7 +93,7 @@ describe('ExploreMapViewComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should show map component', () => expect('i-map').toExist());
+    it('should show map component', () => expect('interactive-map').toExist());
 
     it('should handle option changes', () => {
         expect('[name="zones"]').toExist();

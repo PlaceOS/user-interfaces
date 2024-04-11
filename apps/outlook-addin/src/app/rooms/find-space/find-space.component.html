@@ -145,14 +145,14 @@
                                         *ngFor="let map of selected_level"
                                         class="m-3 h-[12rem] max-w-screen relative"
                                     >
-                                        <i-map
+                                        <interactive-map
                                             [src]="map?.map_id"
                                             [styles]="map_styles$ | async"
                                             [features]="map_features$ | async"
                                             [actions]="map_actions$ | async"
                                             class="m-1 p-1 max-w-screen"
                                         >
-                                        </i-map>
+                                        </interactive-map>
                                     </div>
                                 </div>
 
@@ -161,14 +161,14 @@
                                     *ngIf="!selected_level?.length"
                                     class="m-3 h-[24rem] max-w-screen relative"
                                 >
-                                    <i-map
+                                    <interactive-map
                                         [src]="selected_level?.map_id"
                                         [styles]="map_styles$ | async"
                                         [features]="map_features$ | async"
                                         [actions]="map_actions$ | async"
                                         class="m-1 p-1 max-w-screen"
                                     >
-                                    </i-map>
+                                    </interactive-map>
                                 </div>
                             </div>
                         </div>

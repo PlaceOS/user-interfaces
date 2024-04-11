@@ -9,14 +9,14 @@ import { OrganisationService } from '@placeos/organisation';
     selector: 'desk-map-view',
     template: `
         <div map class="h-full w-full relative">
-            <i-map
+            <interactive-map
                 [src]="url | async"
                 [zoom]="(positions | async).zoom"
                 [center]="(positions | async).center"
                 [styles]="styles | async"
                 [features]="features | async"
                 [actions]="actions | async"
-            ></i-map>
+            ></interactive-map>
             <explore-zoom-controls
                 class="absolute bottom-2 right-2"
             ></explore-zoom-controls>

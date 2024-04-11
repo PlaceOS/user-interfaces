@@ -548,7 +548,6 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         const routeParameters = {
             origin: origin,
             destination: destination,
-            travelMode: 'WALKING',
         };
 
         console.log('Route Parameters:', routeParameters);

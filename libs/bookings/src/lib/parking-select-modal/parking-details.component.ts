@@ -104,6 +104,7 @@ import { BookingAsset } from '../booking-form.service';
                     <interactive-map
                         class="pointer-events-none"
                         [src]="map_url"
+                        [focus]="space.map_id"
                         [features]="features"
                         [options]="{ disable_pan: true, disable_zoom: true }"
                     ></interactive-map>

@@ -63,7 +63,6 @@ import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
         </div>
         <div class="relative flex-1 w-full">
             <interactive-map
-                *ngIf="!(use_mapsindoors$ | async); else mapspeople"
                 [src]="map_url"
                 [(zoom)]="zoom"
                 [(center)]="center"
@@ -71,13 +70,6 @@ import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
                 [features]="features | async"
                 [actions]="actions | async"
             ></interactive-map>
-            <ng-template #mapspeople>
-                <indoor-maps
-                    [styles]="styles | async"
-                    [actions]="actions | async"
-                    [custom_coordinates]="coordinates"
-                ></indoor-maps>
-            </ng-template>
         </div>
         <div
             zoom
@@ -218,8 +210,6 @@ export class SpaceSelectMapComponent extends AsyncHandler {
         )
     );
 
-    public readonly use_mapsindoors$ = this._maps_people.available$;
-
     public get use_region() {
         return !!this._settings.get('app.use_region');
     }
@@ -227,7 +217,6 @@ export class SpaceSelectMapComponent extends AsyncHandler {
     constructor(
         private _event_form: EventFormService,
         private _org: OrganisationService,
-        private _maps_people: MapsPeopleService,
         private _settings: SettingsService
     ) {
         super();
@@ -249,10 +238,6 @@ export class SpaceSelectMapComponent extends AsyncHandler {
         );
     }
 
-    public ngOnDestroy() {
-        this._maps_people.setCustomZone('');
-    }
-
     public setLevel(level: BuildingLevel) {
         console.log('Set Level', level);
         this.setOptions({ zone_ids: [level?.id] });
@@ -263,7 +248,6 @@ export class SpaceSelectMapComponent extends AsyncHandler {
                 .map((_) => parseFloat(_));
             this.coordinates = { latitude, longitude };
         }
-        this._maps_people.setCustomZone(level.parent_id);
         this.level = level;
     }
 

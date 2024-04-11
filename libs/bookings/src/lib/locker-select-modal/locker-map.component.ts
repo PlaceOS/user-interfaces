@@ -23,14 +23,14 @@ import { ExploreLockerBankInfoComponent } from 'libs/explore/src/lib/explore-loc
         `,
     ],
     template: `
-        <i-map
+        <interactive-map
             [src]="map_url"
             [(zoom)]="zoom"
             [(center)]="center"
             [features]="features | async"
             [styles]="styles | async"
             [actions]="actions | async"
-        ></i-map>
+        ></interactive-map>
         <div
             class="absolute inset-x-0 top-0 bg-base-100 p-2 border-b border-base-200"
         >

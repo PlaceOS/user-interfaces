@@ -31,29 +31,15 @@ const EMPTY = [];
 @Component({
     selector: 'explore-map-view',
     template: `
-        <i-map
-            *ngIf="!(use_mapsindoors$ | async)"
+        <interactive-map
             [src]="url | async"
-            [zoom]="(positions | async)?.zoom"
-            [center]="(positions | async)?.center"
-            (zoomChange)="updateZoom($event)"
-            (centerChange)="updateCenter($event)"
             [styles]="styles | async"
             [features]="features | async"
             [actions]="actions | async"
             [labels]="labels | async"
-        ></i-map>
-
-        <indoor-maps
-            *ngIf="use_mapsindoors$ | async"
-            [styles]="styles | async"
-            [actions]="actions | async"
-            [locate]="locate"
-        ></indoor-maps>
-        <explore-zoom-controls
-            *ngIf="!(use_mapsindoors$ | async)"
-            class="absolute top-1/2 -translate-y-1/2 right-2"
-        ></explore-zoom-controls>
+            [focus]="locate"
+            [options]="{ controls: true }"
+        ></interactive-map>
         <div
             *ngIf="!(use_mapsindoors$ | async)"
             controls

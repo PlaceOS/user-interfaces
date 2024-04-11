@@ -89,7 +89,7 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
                     class="hidden sm:block flex-1 bg-base-200 rounded-tl-lg border-l border-t border-base-200 relative overflow-hidden h-full"
                     *ngIf="!hide_map"
                 >
-                    <i-map
+                    <interactive-map
                         [src]="url | async"
                         [zoom]="(positions | async)?.zoom"
                         [center]="(positions | async)?.center"
@@ -98,7 +98,7 @@ import { debounceTime, map, startWith } from 'rxjs/operators';
                         [actions]="actions | async"
                         [labels]="labels | async"
                         [focus]="active_desk?.map_id || active_desk?.id"
-                    ></i-map>
+                    ></interactive-map>
                     <div
                         class="absolute top-2 left-2 bg-base-100 rounded-3xl h-10 px-3 flex items-center border border-base-200"
                         *ngIf="level | async"

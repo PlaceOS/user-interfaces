@@ -104,7 +104,7 @@ class SpacePingComponent extends AsyncHandler {
                 <div
                     class="bg-base-200 flex-1 w-1/2 h-full z-0 relative hidden sm:block"
                 >
-                    <i-map
+                    <interactive-map
                         [src]="url | async"
                         [zoom]="(positions | async)?.zoom"
                         [center]="(positions | async)?.center"
@@ -112,7 +112,7 @@ class SpacePingComponent extends AsyncHandler {
                         [features]="features | async"
                         [actions]="actions | async"
                         [labels]="labels | async"
-                    ></i-map>
+                    ></interactive-map>
                     <explore-zoom-controls
                         class="absolute bottom-0 right-0"
                     ></explore-zoom-controls>

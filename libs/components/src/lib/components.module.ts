@@ -76,6 +76,8 @@ import { StatusPillComponent } from './status-pill.component';
 import { AvailableRoomsStateModalComponent } from './available-rooms-state-modal.component';
 import { MediaDurationPipe } from './media-duration.pipe';
 import { ThumbnailPipe } from './thumbnail.pipe';
+import { MapRendererComponent } from './map-renderer.component';
+import { MapsIndoorsComponent } from './maps-indoors.component';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -112,6 +114,8 @@ const COMPONENTS: Type<any>[] = [
 
     ConfirmModalComponent,
     InteractiveMapComponent,
+    MapRendererComponent,
+    MapsIndoorsComponent,
     MapPinComponent,
     MapRadiusComponent,
     MapPolygonComponent,
