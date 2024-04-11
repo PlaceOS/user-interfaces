@@ -17,7 +17,7 @@ import {
     startOfDay,
     startOfMinute,
 } from 'date-fns';
-import { BehaviorSubject, combineLatest, forkJoin, Observable } from 'rxjs';
+import { BehaviorSubject, combineLatest, forkJoin, Observable, of } from 'rxjs';
 import { map, shareReplay, switchMap } from 'rxjs/operators';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
@@ -67,14 +67,21 @@ export class ExploreParkingService extends AsyncHandler {
         this._org.active_building,
         this._options,
         this._poll,
+        this._state.options,
     ]).pipe(
-        switchMap(([bld, _]) =>
-            queryBookings({
-                period_start: getUnixTime(startOfMinute(_.date || Date.now())),
-                period_end: getUnixTime(endOfMinute(_.date || Date.now())),
-                type: 'parking',
-                zones: bld?.id,
-            })
+        switchMap(([bld, _, __, { is_public }]) =>
+            is_public
+                ? of([])
+                : queryBookings({
+                      period_start: getUnixTime(
+                          startOfMinute(_.date || Date.now())
+                      ),
+                      period_end: getUnixTime(
+                          endOfMinute(_.date || Date.now())
+                      ),
+                      type: 'parking',
+                      zones: bld?.id,
+                  })
         ),
         shareReplay(1)
     );
