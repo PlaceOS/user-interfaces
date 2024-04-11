@@ -12,7 +12,6 @@ import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
     template: `
         <ng-container *ngIf="is_displayed">
             <interactive-map
-                *ngIf="!(use_mapsindoors$ | async); else mapspeople"
                 [src]="map_url"
                 [(zoom)]="zoom"
                 [(center)]="center"
@@ -20,12 +19,6 @@ import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
                 [features]="features | async"
                 [actions]="actions | async"
             ></interactive-map>
-            <ng-template #mapspeople>
-                <indoor-maps
-                    [styles]="styles | async"
-                    [actions]="actions | async"
-                ></indoor-maps>
-            </ng-template>
         </ng-container>
         <div
             class="absolute inset-x-0 top-0 bg-base-100 p-2 border-b border-base-200"
@@ -121,8 +114,6 @@ export class ParkingSpaceSelectMapComponent extends AsyncHandler {
             }))
         )
     );
-
-    public readonly use_mapsindoors$ = this._maps_people.available$;
 
     constructor(
         private _event_form: EventFormService,

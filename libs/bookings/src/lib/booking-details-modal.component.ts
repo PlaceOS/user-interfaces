@@ -250,7 +250,6 @@ import { checkinBooking } from './bookings.fn';
                 >
                     <ng-container *ngIf="!hide_map">
                         <interactive-map
-                            *ngIf="!(use_mapsindoors$ | async); else mapspeople"
                             class="pointer-events-none"
                             [src]="level?.map_id"
                             [features]="features"
@@ -259,12 +258,6 @@ import { checkinBooking } from './bookings.fn';
                                 disable_zoom: true
                             }"
                         ></interactive-map>
-                        <ng-template #mapspeople>
-                            <indoor-maps
-                                [styles]="styles | async"
-                                [actions]="actions | async"
-                            ></indoor-maps>
-                        </ng-template>
                     </ng-container>
                 </button>
             </div>
@@ -367,23 +360,12 @@ export class BookingDetailsModalComponent {
         return 'warning';
     }
 
-    public readonly use_mapsindoors$ = this._maps_people.available$;
-
     constructor(
         @Inject(MAT_DIALOG_DATA) private _booking: Booking,
         private _settings: SettingsService,
         private _org: OrganisationService,
-        private _dialog: MatDialog,
-        private _maps_people: MapsPeopleService
+        private _dialog: MatDialog
     ) {}
-
-    public ngOnInit() {
-        this._maps_people.setCustomZone(this.level?.id);
-    }
-
-    public ngOnDestroy() {
-        this._maps_people.setCustomZone('');
-    }
 
     public get period() {
         if (this.booking?.is_all_day) return 'All Day';

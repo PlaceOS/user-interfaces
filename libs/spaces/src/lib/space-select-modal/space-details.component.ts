@@ -104,6 +104,7 @@ import { Space } from '../space.class';
                     <interactive-map
                         class="pointer-events-none"
                         [src]="map_url"
+                        [focus]="space.map_id"
                         [features]="features"
                         [options]="{ disable_pan: true, disable_zoom: true }"
                     ></interactive-map>

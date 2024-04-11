@@ -60,7 +60,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     >
                         {{ level(selected.zone)?.display_name || 'N/A' }}
                     </div>
-                    <i-map
+                    <interactive-map
                         *ngIf="selected; else empty_state"
                         [src]="level(selected.zone)?.map_id || ''"
                         [styles]="{
@@ -68,7 +68,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                             '#zones': { display: 'none' }
                         }"
                         [features]="selected_feature"
-                    ></i-map>
+                    ></interactive-map>
                 </div>
             </div>
         </div>

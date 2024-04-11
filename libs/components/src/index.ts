@@ -9,6 +9,8 @@ export * from './lib/popout-menu.component';
 export * from './lib/unauthorised.component';
 export * from './lib/user-avatar.component';
 export * from './lib/interactive-map.component';
+export * from './lib/map-renderer.component';
+export * from './lib/maps-indoors.component';
 export * from './lib/map-pin.component';
 export * from './lib/map-radius.component';
 export * from './lib/indoor-maps.component';
