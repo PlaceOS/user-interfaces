@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
+    flatten,
     MapsPeopleService,
     notifyError,
     SettingsService,
@@ -28,7 +29,8 @@ import { getModule } from '@placeos/ts-client';
 import { MapLocation, showStaff, User } from '@placeos/users';
 import { startOfMinute } from 'date-fns';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { first, take } from 'rxjs/operators';
+import { combineLatest } from 'rxjs';
+import { first, map, take, tap } from 'rxjs/operators';
 
 @Component({
     selector: '[app-explore]',
@@ -281,7 +283,28 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         { id: 'pending', name: 'Space Pending', color: '#ffb300' },
         { id: 'not-bookable', name: 'Space Not-bookable', color: '#ccc' },
     ];
-    public readonly levels = this._org.active_levels;
+    public readonly levels = combineLatest([
+        this._org.active_region,
+        this._org.active_building,
+    ]).pipe(
+        map(([region, building]) => {
+            return (
+                (this._settings.get('app.use_region')
+                    ? flatten(
+                          this._org.buildings
+                              .filter((bld) => region.id === bld.parent_id)
+                              .map((bld) =>
+                                  this._org.levelsForBuilding(bld).map((_) => ({
+                                      ..._,
+                                      display_name: `${bld.display_name} - ${_.display_name}`,
+                                  }))
+                              )
+                      )
+                    : this._org.levelsForBuilding(building)) || []
+            );
+        }),
+        tap((l) => console.log('Levels:', l))
+    );
     public readonly level = this._state.level;
 
     /** Application logo to display */
@@ -365,6 +388,12 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
+        if (
+            location.hash.includes('public=true') ||
+            location.search.includes('public=true')
+        ) {
+            this._state.setOptions({ is_public: true });
+        }
         await this._spaces.initialised.pipe(first((_) => _)).toPromise();
         this._desks.setOptions({ custom: true });
         this.reset_delay =

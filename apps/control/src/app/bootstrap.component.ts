@@ -13,6 +13,7 @@ import { AsyncHandler } from '@placeos/common';
 import { Space } from '@placeos/spaces';
 import { BehaviorSubject, of } from 'rxjs';
 import { querySystems } from '@placeos/ts-client';
+import { OrganisationService } from '@placeos/organisation';
 
 const STORE_KEY = 'PLACEOS.CONTROL.system';
 
@@ -134,14 +135,22 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
             this.loading = 'search';
             return search.length < 2
                 ? of({ data: [] })
-                : querySystems({ q: search, limit: 20 });
+                : querySystems({
+                      q: search,
+                      limit: 20,
+                      zone_id: this._org.organisation.id,
+                  });
         }),
         map((_) => _.data.map((_) => new Space(_ as any))),
         tap((_) => (this.loading = '')),
         shareReplay()
     );
 
-    constructor(private route: ActivatedRoute, private _router: Router) {
+    constructor(
+        private route: ActivatedRoute,
+        private _router: Router,
+        private _org: OrganisationService
+    ) {
         super();
     }
 

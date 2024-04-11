@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { getModule, showMetadata } from '@placeos/ts-client';
 import { ViewerLabel, Point, ViewerFeature } from '@placeos/svg-viewer';
-import { filter, first, map } from 'rxjs/operators';
+import { debounceTime, filter, first, map } from 'rxjs/operators';
 
 import { AsyncHandler, HashMap, SettingsService } from '@placeos/common';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
@@ -15,6 +15,8 @@ import { combineLatest } from 'rxjs';
 const EMPTY_LABEL = { location: { x: -10, y: -10 }, content: '0% Usage' };
 
 export interface ZoneData {
+    /** ID of the zone */
+    map_id?: string;
     /** ID of the zone */
     area_id: string;
     /** Max occupancy allowed in zone */
@@ -31,10 +33,12 @@ export interface ZoneData {
     people_count_sum: number;
     queue_size: number;
     counter: number;
+    at_location?: number;
 }
 
 @Injectable()
 export class ExploreZonesService extends AsyncHandler {
+    private _area_list: string[] = [];
     private _statuses: HashMap<string> = {};
     private _count_key: HashMap<string> = {};
     private _location: HashMap<Point> = {};
@@ -47,20 +51,35 @@ export class ExploreZonesService extends AsyncHandler {
     private _bind = combineLatest([
         this._org.active_building,
         this._state.level,
+        this._state.options,
     ]).pipe(
-        filter(([bld, lvl]) => !!bld && !!lvl),
+        filter(([bld, lvl, { is_public }]) => !!bld && !!lvl && !is_public),
         map(([_, lvl]) => {
             this._statuses = {};
             let system_id: any = this._org.binding('area_management');
             if (!system_id) return;
-            const binding = getModule(system_id, 'AreaManagement').binding(
+            const bind_areas = getModule(system_id, 'AreaManagement').binding(
                 `${lvl.id}:areas`
             );
-            this.subscription(
-                `zones`,
-                binding.listen().subscribe((d) => this.parseData(d))
+            const bind_zone = getModule(system_id, 'AreaManagement').binding(
+                `${lvl.id}`
             );
-            this.subscription('binding', binding.bind());
+            const zones = combineLatest([
+                bind_areas.listen(),
+                bind_zone.listen(),
+            ]).pipe(
+                debounceTime(100),
+                map(([a, z]) => [
+                    ...(a?.value || []),
+                    ...(z?.value || []).filter((_) => _.location === 'area'),
+                ])
+            );
+            this.subscription(
+                `zones-status`,
+                zones.subscribe((l) => this.parseData(l))
+            );
+            this.subscription('binding', bind_areas.bind());
+            this.subscription('zone-binding', bind_zone.bind());
         })
     );
 
@@ -80,6 +99,7 @@ export class ExploreZonesService extends AsyncHandler {
                 showMetadata(bld.id, 'map_regions').toPromise()
             )
         );
+        this._area_list = [];
         for (const zone of zone_metadata) {
             const areas = (zone?.details as any)?.areas;
             if (!areas) continue;
@@ -105,30 +125,36 @@ export class ExploreZonesService extends AsyncHandler {
                     !!draw_polygon ||
                     this._settings.get('app.explore.use_zone_polygons');
                 this._points[area.id] = coordinates || [];
+                this._area_list.push(area.map_id || area.id);
             }
         }
         this.updateStatus();
         this.subscription('bind', this._bind.subscribe());
     }
 
-    public parseData(data?: { value: ZoneData[] }) {
-        const value = data?.value || [];
+    public parseData(value: ZoneData[] = []) {
         const labels = [];
         const features = [];
 
         for (const zone of value) {
-            const capacity =
-                zone.capacity || this._capacity[zone.area_id] || 100;
+            const id = zone.map_id || zone.area_id;
+            // if (!this._area_list.includes(id)) continue;
+            const capacity = zone.capacity || this._capacity[id] || 100;
             const count =
                 zone[
-                    this._count_key[zone.area_id] ||
+                    this._count_key[id] ||
                         this._settings.get('app.explore.area_count_key') ||
                         'count'
                 ] || 0;
             const filled = count / capacity;
-            this._statuses[zone.area_id] =
-                filled < 0.4 ? 'free' : filled < 0.75 ? 'pending' : 'busy';
-            if (!this._location[zone.area_id]) continue;
+            this._statuses[id] = zone.at_location
+                ? 'busy'
+                : filled < 0.4
+                ? 'free'
+                : filled < 0.75
+                ? 'pending'
+                : 'busy';
+            if (!this._location[id]) continue;
             let content = '';
             if (zone.count) {
                 content += `${zone.count || 0} User Device${
@@ -145,11 +171,11 @@ export class ExploreZonesService extends AsyncHandler {
             if (zone.queue_size) content += `Queue Size: ${zone.queue_size}%\n`;
             if (zone.counter) content += `Count: ${zone.counter}\n`;
             if (
-                this._label_location[zone.area_id] &&
+                this._label_location[id] &&
                 !this._settings.get('app.explore.show_zone_labels')
             ) {
                 labels.push({
-                    location: this._label_location[zone.area_id],
+                    location: this._label_location[id],
                     content,
                     z_index: 100,
                 });
@@ -159,8 +185,8 @@ export class ExploreZonesService extends AsyncHandler {
                 (zone.temperature || zone.humidity)
             ) {
                 features.push({
-                    track_id: `sensors:${zone.area_id}`,
-                    location: this._location[zone.area_id],
+                    track_id: `sensors:${id}`,
+                    location: this._location[id],
                     content: ExploreSensorInfoComponent,
                     data: {
                         temp: zone.temperature,
@@ -203,7 +229,7 @@ export class ExploreZonesService extends AsyncHandler {
             }
         }
         this._state.setFeatures('zones', [...features, ...this._features]);
-        this._state.setStyles('zones', style_map);
+        this._state.setStyles('zones-styles', style_map);
     }
 }
 

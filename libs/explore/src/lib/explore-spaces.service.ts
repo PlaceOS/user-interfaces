@@ -10,7 +10,7 @@ import {
     switchMap,
     take,
 } from 'rxjs/operators';
-import { Observable, of } from 'rxjs';
+import { combineLatest, Observable, of } from 'rxjs';
 
 import {
     AsyncHandler,
@@ -59,8 +59,12 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
             shareReplay(1)
         );
 
-    private _bind = this._state.spaces.pipe(
-        map((list) => {
+    private _bind = combineLatest([
+        this._state.spaces,
+        this._state.options,
+    ]).pipe(
+        filter(([_, { is_public }]) => !is_public),
+        map(([list]) => {
             this.unsubWith('b-');
             this.unsubWith('s-');
             this._statuses = {};

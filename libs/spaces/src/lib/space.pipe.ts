@@ -50,7 +50,10 @@ export class SpacePipe {
             }
         }
         const systems = (
-            await querySystemsWithEmails({ in: space_id }).toPromise()
+            await querySystemsWithEmails({
+                in: space_id,
+                zone_id: this._org?.organisation.id,
+            }).toPromise()
         ).data;
         if (systems.length === 1) {
             space = new Space({
