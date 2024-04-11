@@ -235,7 +235,7 @@ export class POIModalComponent extends AsyncHandler {
             const { id } = await createShortURL({
                 name: data.name,
                 description: `Point of Interest: ${data.name}`,
-                uri,
+                uri: `/auth/login?continue=${encodeURIComponent(uri)}`,
             } as any).toPromise();
             data.short_link_id = id;
         } else {
@@ -243,7 +243,7 @@ export class POIModalComponent extends AsyncHandler {
                 id: data.short_link_id,
                 name: data.name,
                 description: `Point of Interest: ${data.name}`,
-                uri,
+                uri: `/auth/login?continue=${encodeURIComponent(uri)}`,
             } as any).toPromise();
         }
         this.loading = true;
