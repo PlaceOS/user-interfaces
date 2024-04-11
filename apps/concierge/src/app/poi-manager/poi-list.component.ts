@@ -44,6 +44,7 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                         icon
                         matRipple
                         customTooltip
+                        [disabled]="!row.short_link_id"
                         [content]="qr_menu"
                         (click)="loadPublicQrCode(row)"
                     >
