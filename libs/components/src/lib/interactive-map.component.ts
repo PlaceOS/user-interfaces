@@ -57,6 +57,7 @@ export interface MapMetadata {
                 (zoneChange)="onLevelChange($event)"
                 [(zoom)]="zoom"
                 (zoomChange)="zoomChange.next($event)"
+                [options]="options"
                 [reset]="reset"
                 [focus]="focus"
                 [styles]="styles || metadata?.styles"

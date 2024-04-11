@@ -111,6 +111,9 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             this._services?.map?.setZoom(DEFAULT_ZOOM);
             this._centerOnZone();
         }
+        if (changes.options) {
+            this._addFloorSelector();
+        }
     }
 
     private _initialiseServices() {
@@ -369,8 +372,10 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         }
     }
 
+    private _added_floor_selector = false;
+
     private _addFloorSelector() {
-        if (!this.options?.controls) return;
+        if (!this.options?.controls || this._added_floor_selector) return;
         const element = document.createElement('div');
         new mapsindoors.FloorSelector(element, this._services.mapsindoors);
         if (this._maps_people.map_service === MapService.GoogleMaps) {
@@ -383,5 +388,6 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                 onRemove: () => {},
             });
         }
+        this._added_floor_selector = true;
     }
 }
