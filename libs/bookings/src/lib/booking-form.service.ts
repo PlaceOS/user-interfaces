@@ -194,7 +194,10 @@ export class BookingFormService extends AsyncHandler {
                 period_start: getUnixTime(date),
                 period_end: getUnixTime(addMinutes(date, duration)),
                 type: options.type,
-                zones: options.zone_id,
+                zones:
+                    options.zone_id ||
+                    this._org.building?.id ||
+                    this._org.organisation.id,
                 limit: 1000,
             }).pipe(
                 map(
