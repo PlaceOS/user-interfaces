@@ -1,16 +1,30 @@
 import { Component, Inject } from '@angular/core';
+import { AsyncHandler } from '@placeos/common';
 import { MAP_FEATURE_DATA } from '@placeos/components';
 
 export interface SensorInfoData {
+    id: string;
     temp: number;
     humidity: number;
 }
 
+let shown_id = '';
+
 @Component({
     selector: 'explore-sensor-info',
     template: `
-        <div
-            class="absolute center bg-base-100 rounded-lg border border-base-200 p-2 text-xl"
+        <button
+            icon
+            matRipple
+            class="absolute top-1/2 left-1/2 w-7 h-7 min-w-0 -translate-x-1/2 -translate-y-1/2 bg-base-100 shadow pointer-events-auto"
+            (click)="show = true"
+        >
+            <app-icon className="material-symbols-rounded"> help </app-icon>
+        </button>
+        <button
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-base-100 rounded-lg border border-base-200 p-2 text-xl"
+            *ngIf="show"
+            (window:click)="show = false"
         >
             <div
                 class="flex items-center space-x-2 whitespace-nowrap pr-2"
@@ -32,13 +46,23 @@ export interface SensorInfoData {
             >
                 <app-icon class="text-error text-xl">error</app-icon>
             </div>
-        </div>
+        </button>
     `,
     styles: [``],
 })
-export class ExploreSensorInfoComponent {
+export class ExploreSensorInfoComponent extends AsyncHandler {
     public readonly temp = this._details.temp || 0;
     public readonly humidity = this._details.humidity || 0;
 
-    constructor(@Inject(MAP_FEATURE_DATA) private _details: SensorInfoData) {}
+    public get show() {
+        return shown_id === this._details.id;
+    }
+
+    public set show(value: boolean) {
+        this.timeout('show', () => (shown_id = value ? this._details.id : ''));
+    }
+
+    constructor(@Inject(MAP_FEATURE_DATA) private _details: SensorInfoData) {
+        super();
+    }
 }

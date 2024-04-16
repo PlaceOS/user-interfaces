@@ -189,8 +189,9 @@ export class ExploreZonesService extends AsyncHandler {
                     location: this._location[id],
                     content: ExploreSensorInfoComponent,
                     data: {
-                        temp: zone.temperature,
-                        humidity: zone.humidity,
+                        id,
+                        temp: zone.temperature || 10,
+                        humidity: zone.humidity || 10,
                     },
                     z_index: 98,
                 });
