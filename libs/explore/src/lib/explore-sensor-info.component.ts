@@ -17,6 +17,7 @@ let shown_id = '';
             icon
             matRipple
             class="absolute top-1/2 left-1/2 w-7 h-7 min-w-0 -translate-x-1/2 -translate-y-1/2 bg-base-100 shadow pointer-events-auto"
+            (touchend)="show = true"
             (click)="show = true"
         >
             <app-icon className="material-symbols-rounded"> help </app-icon>
@@ -24,6 +25,7 @@ let shown_id = '';
         <button
             class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-base-100 rounded-lg border border-base-200 p-2 text-xl"
             *ngIf="show"
+            (window:touchend)="show = false"
             (window:click)="show = false"
         >
             <div
