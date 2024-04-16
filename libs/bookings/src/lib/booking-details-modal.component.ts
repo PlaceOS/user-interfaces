@@ -13,6 +13,7 @@ import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Booking } from './booking.class';
 import { checkinBooking } from './bookings.fn';
+import { getModule } from '@placeos/ts-client';
 
 @Component({
     selector: 'booking-details-modal',
@@ -284,6 +285,18 @@ import { checkinBooking } from './bookings.fn';
             </button>
             <button
                 mat-menu-item
+                *ngIf="(is_checked_in || true) && desk_height_enabled"
+                [matMenuTriggerFor]="height_menu"
+            >
+                <div class="flex items-center space-x-2 text-base">
+                    <app-icon className="material-symbols-rounded">
+                        height
+                    </app-icon>
+                    <div i18n>Set Desk Height</div>
+                </div>
+            </button>
+            <button
+                mat-menu-item
                 *ngIf="!is_in_progress"
                 (click)="remove.emit()"
             >
@@ -296,6 +309,25 @@ import { checkinBooking } from './bookings.fn';
                 <div class="flex items-center space-x-2 text-base">
                     <app-icon class="text-error">delete</app-icon>
                     <div i18n>End booking</div>
+                </div>
+            </button>
+        </mat-menu>
+
+        <mat-menu #height_menu="matMenu">
+            <button mat-menu-item (click)="setDeskHeight('sit')">
+                <div class="flex items-center space-x-2 text-base">
+                    <app-icon className="material-symbols-rounded">
+                        airline_seat_recline_normal
+                    </app-icon>
+                    <div i18n>Sitting</div>
+                </div>
+            </button>
+            <button mat-menu-item (click)="setDeskHeight('standing')">
+                <div class="flex items-center space-x-2 text-base">
+                    <app-icon className="material-symbols-rounded">
+                        accessibility_new
+                    </app-icon>
+                    <div i18n>Standing</div>
                 </div>
             </button>
         </mat-menu>
@@ -337,6 +369,17 @@ export class BookingDetailsModalComponent {
     public get auto_checkin() {
         return this._settings.get(
             `app.${this.booking?.type || 'bookings'}.auto_checkin`
+        );
+    }
+
+    public get is_checked_in() {
+        return this.booking.checked_in;
+    }
+
+    public get desk_height_enabled() {
+        return (
+            this.booking?.type === 'desk' &&
+            this._settings.get('app.desks.height_enabled')
         );
     }
 
@@ -434,5 +477,25 @@ export class BookingDetailsModalComponent {
             },
         });
         ref.afterClosed().subscribe(() => (this.hide_map = false));
+    }
+
+    public async setDeskHeight(pos: string) {
+        const sys_id = this._org.binding('desks');
+        if (!sys_id) return;
+        const height =
+            pos === 'sit'
+                ? this._settings.get('desk_sitting_height') || 71
+                : this._settings.get('desk_standing_height') || 102;
+        const module = getModule(sys_id, 'Desk');
+        await module
+            .execute('set_height', [
+                this.booking.asset_ids[0] || this.booking.asset_id,
+                height,
+            ])
+            .catch((_) => {
+                notifyError('Error setting desk height.' + _);
+                throw _;
+            });
+        notifySuccess('Successfully set desk height');
     }
 }
