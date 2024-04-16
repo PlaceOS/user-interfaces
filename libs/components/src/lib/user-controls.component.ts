@@ -16,6 +16,7 @@ import { HelpTooltipComponent } from './help-tooltip.component';
 import { LanguageSelectComponent } from './language-tooltip.component';
 import { RegionSelectComponent } from './region-select.component';
 import { SupportTicketModalComponent } from 'libs/form-fields/src/lib/support-ticket-modal.component';
+import { first } from 'rxjs/operators';
 
 export interface AppLocale {
     id: string;
@@ -130,7 +131,7 @@ export interface AppLocale {
             <div
                 customTooltip
                 [content]="accessibility_tooltip"
-                [class.!border-b]="!locales?.length"
+                [class.!border-b]="!locales?.length || !desk_height"
             >
                 <button btn matRipple class="clear w-full text-left h-[3.5rem]">
                     <div class="w-full flex items-center space-x-2">
@@ -146,6 +147,86 @@ export interface AppLocale {
                     </div>
                 </button>
             </div>
+            <div
+                customTooltip
+                [content]="desk_height_tooltip"
+                [class.!border-b]="!locales?.length"
+                *ngIf="desk_height"
+            >
+                <button btn matRipple class="clear w-full text-left h-[3.5rem]">
+                    <div class="w-full flex items-center space-x-2">
+                        <div
+                            class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
+                        >
+                            <app-icon>desk</app-icon>
+                        </div>
+                        <div class="flex-1" i18n>Desk Settings</div>
+                        <app-icon class="opacity-60 text-2xl"
+                            >chevron_right</app-icon
+                        >
+                    </div>
+                </button>
+            </div>
+            <ng-template #desk_height_tooltip>
+                <div class="relative p-4 bg-base-100 rounded shadow w-64">
+                    <div class="text-lg" i18n>Desk Height</div>
+                    <div class="text-xs opacity-60 mb-4" i18n>
+                        Set your desk height for the best experience
+                    </div>
+                    <div class="flex flex-col mt-2">
+                        <label>Sitting Height</label>
+                        <div class="flex items-center space-x-2">
+                            <mat-slider
+                                min="60"
+                                max="80"
+                                step="0.5"
+                                discrete
+                                class="flex-1"
+                                [displayWith]="formatLabel"
+                            >
+                                <input
+                                    matSliderThumb
+                                    [(ngModel)]="desk_sitting_height"
+                                    (ngModelChange)="
+                                        saveSetting(
+                                            'desk_sitting_height',
+                                            $event
+                                        )
+                                    "
+                                />
+                            </mat-slider>
+                            <div class="text-sm w-12 text-right">
+                                {{ desk_sitting_height.toFixed(1) }}cm
+                            </div>
+                        </div>
+                        <label>Standing Height</label>
+                        <div class="flex items-center space-x-2  mr-2">
+                            <mat-slider
+                                min="90"
+                                max="120"
+                                step="0.5"
+                                discrete
+                                class="flex-1"
+                                [displayWith]="formatLabel"
+                            >
+                                <input
+                                    matSliderThumb
+                                    [(ngModel)]="desk_standing_height"
+                                    (ngModelChange)="
+                                        saveSetting(
+                                            'desk_standing_height',
+                                            $event
+                                        )
+                                    "
+                                />
+                            </mat-slider>
+                            <div class="text-sm w-12 text-right mr-2">
+                                {{ desk_standing_height.toFixed(1) }}cm
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ng-template>
             <div
                 customTooltip
                 [content]="language_tooltip"
@@ -234,6 +315,9 @@ export class UserControlsComponent {
     public readonly accessibility_tooltip = AccessibilityTooltipComponent;
     public readonly language_tooltip = LanguageSelectComponent;
 
+    public desk_standing_height = 101;
+    public desk_sitting_height = 71;
+
     public get user() {
         return currentUser();
     }
@@ -254,6 +338,10 @@ export class UserControlsComponent {
         return this._settings.get('app.locales') || [];
     }
 
+    public get desk_height() {
+        return this._settings.get('app.desks.height_enabled');
+    }
+
     public get use_region(): boolean {
         return this._settings.get('app.use_region');
     }
@@ -271,6 +359,14 @@ export class UserControlsComponent {
         private _org: OrganisationService,
         private _dialog: MatDialog
     ) {}
+
+    public async ngOnInit() {
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
+        this.desk_sitting_height =
+            this._settings.get('desk_sitting_height') || 71;
+        this.desk_standing_height =
+            this._settings.get('desk_standing_height') || 101;
+    }
 
     public logout() {
         logout();
@@ -302,5 +398,14 @@ export class UserControlsComponent {
             )
         ).text();
         this._dialog.open(ChangelogModalComponent, { data: { changelog } });
+    }
+
+    public saveSetting(name: string, value: any) {
+        console.log('Save setting', name, value);
+        this._settings.saveUserSetting(name, value);
+    }
+
+    public formatLabel(value: number) {
+        return `${value.toFixed(1)}cm`;
     }
 }
