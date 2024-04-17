@@ -78,6 +78,7 @@ import { MediaDurationPipe } from './media-duration.pipe';
 import { ThumbnailPipe } from './thumbnail.pipe';
 import { MapRendererComponent } from './map-renderer.component';
 import { MapsIndoorsComponent } from './maps-indoors.component';
+import { MapCanvasComponent } from './map-canvas.component';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -119,6 +120,7 @@ const COMPONENTS: Type<any>[] = [
     MapPinComponent,
     MapRadiusComponent,
     MapPolygonComponent,
+    MapCanvasComponent,
     IndoorMapsComponent,
     StatusOverlayComponent,
     CustomTableComponent,
