@@ -5,10 +5,10 @@ import {
     OnInit,
     ViewChild,
 } from '@angular/core';
-import { BaseClass } from '@placeos-tools/common';
-import { Observable, combineLatest, of } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
 import { MAP_FEATURE_DATA } from './interactive-map.component';
 import { take } from 'rxjs/operators';
+import { AsyncHandler, shiftColorTowards } from '@placeos/common';
 
 export interface Polygon {
     /** Name of the region */
@@ -34,14 +34,14 @@ export interface MapPolygonData {
     template: `
         <canvas
             #canvas
-            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-auto"
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
             [style.width]="width * svg_ratio * zoom + '%'"
-            [style.height]="width * svg_ratio * zoom + '%'"
+            [style.height]="width * svg_ratio * ratio * zoom + '%'"
         ></canvas>
     `,
     styles: [],
 })
-export class MapCanvasComponent extends BaseClass implements OnInit {
+export class MapCanvasComponent extends AsyncHandler implements OnInit {
     public zoom = 1;
     public ratio = 1;
     public svg_ratio = 1;
@@ -95,8 +95,6 @@ export class MapCanvasComponent extends BaseClass implements OnInit {
         canvas.width = width;
         canvas.height = height;
 
-        console.log('Map:', zoom, ratio, svg_ratio);
-        console.log('Map Size:', width, height);
         const polygons = await this._data.polygons$.pipe(take(1)).toPromise();
         this._handleStateChange(polygons);
     }
@@ -123,7 +121,7 @@ export class MapCanvasComponent extends BaseClass implements OnInit {
         ctx.closePath();
         ctx.fill();
         // Draw Outline
-        ctx.strokeStyle = polygon.color;
+        ctx.strokeStyle = shiftColorTowards(polygon.color, '#888888', 0.5);
         ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.moveTo(points[0][0] * width, points[0][1] * height);
