@@ -121,7 +121,7 @@ export class NewParkingFlowConfirmComponent extends AsyncHandler {
 
     public readonly postForm = async () => {
         await this._state.postForm().catch((_) => {
-            notifyError(`Unable to make booking. ${_}`);
+            notifyError(`Unable to complete booking. ${_}`);
             throw _;
         });
         this.dismiss(true);
