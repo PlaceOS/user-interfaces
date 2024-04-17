@@ -1,11 +1,6 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import {
-    notifyError,
-    notifySuccess,
-    SettingsService,
-    MapsPeopleService,
-} from '@placeos/common';
+import { notifyError, notifySuccess, SettingsService } from '@placeos/common';
 import { addMinutes, format, formatDuration } from 'date-fns';
 
 import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-modal.component';
@@ -13,7 +8,8 @@ import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Booking } from './booking.class';
 import { checkinBooking } from './bookings.fn';
-import { getModule } from '@placeos/ts-client';
+
+import { DeskSettingsModalComponent } from './desk-settings-modal.component';
 
 @Component({
     selector: 'booking-details-modal',
@@ -286,7 +282,7 @@ import { getModule } from '@placeos/ts-client';
             <button
                 mat-menu-item
                 *ngIf="(is_checked_in || true) && desk_height_enabled"
-                [matMenuTriggerFor]="height_menu"
+                (click)="setDeskHeight()"
             >
                 <div class="flex items-center space-x-2 text-base">
                     <app-icon className="material-symbols-rounded">
@@ -309,25 +305,6 @@ import { getModule } from '@placeos/ts-client';
                 <div class="flex items-center space-x-2 text-base">
                     <app-icon class="text-error">delete</app-icon>
                     <div i18n>End booking</div>
-                </div>
-            </button>
-        </mat-menu>
-
-        <mat-menu #height_menu="matMenu">
-            <button mat-menu-item (click)="setDeskHeight('sit')">
-                <div class="flex items-center space-x-2 text-base">
-                    <app-icon className="material-symbols-rounded">
-                        airline_seat_recline_normal
-                    </app-icon>
-                    <div i18n>Sitting</div>
-                </div>
-            </button>
-            <button mat-menu-item (click)="setDeskHeight('standing')">
-                <div class="flex items-center space-x-2 text-base">
-                    <app-icon className="material-symbols-rounded">
-                        accessibility_new
-                    </app-icon>
-                    <div i18n>Standing</div>
                 </div>
             </button>
         </mat-menu>
@@ -479,23 +456,9 @@ export class BookingDetailsModalComponent {
         ref.afterClosed().subscribe(() => (this.hide_map = false));
     }
 
-    public async setDeskHeight(pos: string) {
-        const sys_id = this._org.binding('desks');
-        if (!sys_id) return;
-        const height =
-            pos === 'sit'
-                ? this._settings.get('desk_sitting_height') || 71
-                : this._settings.get('desk_standing_height') || 102;
-        const module = getModule(sys_id, 'Desk');
-        await module
-            .execute('set_height', [
-                this.booking.asset_ids[0] || this.booking.asset_id,
-                height,
-            ])
-            .catch((_) => {
-                notifyError('Error setting desk height.' + _);
-                throw _;
-            });
-        notifySuccess('Successfully set desk height');
+    public setDeskHeight() {
+        this._dialog.open(DeskSettingsModalComponent, {
+            data: { id: this.booking.asset_ids[0] || this.booking.asset_id },
+        });
     }
 }
