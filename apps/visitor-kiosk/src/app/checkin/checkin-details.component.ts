@@ -10,7 +10,7 @@ import { notifyError } from '@placeos/common';
         <form
             *ngIf="(form | async) && !loading; else load_state"
             [formGroup]="form | async"
-            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center my-4 mx-auto"
+            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center w-[36rem] p-4"
         >
             <h3 class="text-2xl m-4">Confirm Details</h3>
             <div field class="flex flex-col">
@@ -101,15 +101,6 @@ import { notifyError } from '@placeos/common';
     `,
     styles: [
         `
-            :host {
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background-color: rgba(0, 0, 0, 0.5);
-            }
-
             form {
                 width: 32rem;
                 max-width: calc(100vw - 2rem);
@@ -117,10 +108,6 @@ import { notifyError } from '@placeos/common';
 
             [field] {
                 width: calc(100% - 2rem);
-            }
-
-            .absolute {
-                position: absolute;
             }
 
             button {

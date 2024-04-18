@@ -112,6 +112,8 @@ export class Booking {
     public readonly type: string;
     /** Default type */
     public readonly access: boolean;
+    /** Whether asset has been inducted */
+    public readonly induction: boolean;
     /** Status of the booking */
     public readonly status:
         | 'declined'
@@ -236,6 +238,7 @@ export class Booking {
         this.event_id = data.event_id;
         this.attendees = data.attendees || data.members || [];
         this.all_day = data.all_day || this.duration >= 24 * 60;
+        this.induction = !!data.extension_data?.induction;
         if (this.all_day) {
             (this as any).date = startOfDay(this.date).getTime();
             (this as any).duration = Math.max(
