@@ -733,7 +733,7 @@ export class BookingFormService extends AsyncHandler {
             const current = user_email === currentUser()?.email;
             throw `${current ? 'You' : user_email} already ${
                 current ? 'have' : 'has'
-            } a ${type} booked`;
+            } a booking at the selected time`;
         }
         return true;
     }
