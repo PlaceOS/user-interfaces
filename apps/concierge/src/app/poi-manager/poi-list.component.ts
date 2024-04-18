@@ -113,6 +113,11 @@ export class POIListComponent {
         return `${window.location.origin}${path}`;
     }
 
+    constructor(
+        private _manager: POIManagementService,
+        private _settings: SettingsService
+    ) {}
+
     public loadQrCode(item: PointOfInterest) {
         const location =
             typeof item.location === 'string'
@@ -131,8 +136,7 @@ export class POIListComponent {
         item.qr_code = generateQRCode(link);
     }
 
-    constructor(
-        private _manager: POIManagementService,
-        private _settings: SettingsService
-    ) {}
+    public print() {
+        window.print();
+    }
 }

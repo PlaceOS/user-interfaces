@@ -108,7 +108,9 @@ export class ExploreStateService extends AsyncHandler {
             for (const key in features) {
                 if (
                     options.disable?.includes(key) ||
-                    options.disable_features?.includes(key)
+                    options.disable_features?.includes(key) ||
+                    (key === 'zones-canvas' &&
+                        options.disable?.includes('zones'))
                 )
                     continue;
                 list = list.concat(features[key]);
