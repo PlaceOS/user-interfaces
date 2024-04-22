@@ -1,16 +1,6 @@
 import { Component } from '@angular/core';
 import { BuildingManagementService } from './building-management.service';
-import {
-    EncryptionLevel,
-    PlaceSettings,
-    addSettings,
-    querySettings,
-    showMetadata,
-    updateMetadata,
-    updateSettings,
-} from '@placeos/ts-client';
-import { map } from 'rxjs/operators';
-import { SettingsService, notifySuccess } from '@placeos/common';
+import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'building-list',
@@ -84,6 +74,17 @@ import { SettingsService, notifySuccess } from '@placeos/common';
                             <span>Auto-release Settings</span>
                         </div>
                     </button>
+                    <button mat-menu-item (click)="setInduction(row)">
+                        <div class="flex items-center space-x-2">
+                            <app-icon
+                                className="material-symbols-rounded"
+                                class="text-xl"
+                            >
+                                badge
+                            </app-icon>
+                            <span>Induction Settings</span>
+                        </div>
+                    </button>
                     <button mat-menu-item (click)="removeBuilding(row)">
                         <div class="flex items-center space-x-2 text-red-500">
                             <app-icon class="text-error text-xl"
@@ -113,6 +114,9 @@ export class BuildingListComponent {
 
     public readonly setAutoRelease = (building) =>
         this._manager.setAutoRelease(building);
+
+    public readonly setInduction = (building) =>
+        this._manager.setInduction(building);
 
     constructor(
         private _manager: BuildingManagementService,

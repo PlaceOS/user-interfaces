@@ -52,6 +52,13 @@ export class CheckinInductionComponent {
         return this._settings.get('app.induction_details');
     }
 
+    public get is_enabled() {
+        return (
+            this._settings.get('app.induction_enabled') &&
+            this._settings.get('app.induction_details')
+        );
+    }
+
     constructor(
         private _checkin: CheckinStateService,
         private _router: Router,
@@ -63,7 +70,7 @@ export class CheckinInductionComponent {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         const event = await this.event.pipe(first()).toPromise();
         if (!event) this.previous();
-        if (!this._settings.get('app.induction_details') || event.induction) {
+        if (!this.is_enabled || event.induction) {
             this._router.navigate(['/checkin', 'details']);
         }
     }

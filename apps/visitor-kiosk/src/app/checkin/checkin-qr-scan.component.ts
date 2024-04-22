@@ -106,6 +106,13 @@ export class CheckinQRScanComponent
     /** QR Reader */
     private _reader;
 
+    public get is_induction_enabled() {
+        return (
+            this._settings.get('app.induction_enabled') &&
+            this._settings.get('app.induction_details')
+        );
+    }
+
     constructor(
         private _checkin: CheckinStateService,
         private _router: Router,
@@ -150,15 +157,7 @@ export class CheckinQRScanComponent
                     throw err;
                 });
             const event = await this._checkin.event.pipe(take(1)).toPromise();
-            console.log(
-                'Event:',
-                event,
-                this._settings.get('app.induction_details')
-            );
-            if (
-                !event?.induction &&
-                this._settings.get('app.induction_details')
-            ) {
+            if (this.is_induction_enabled && !event?.induction) {
                 this._router.navigate(['/checkin', 'induction']);
             } else {
                 this._router.navigate(['/checkin', 'details']);

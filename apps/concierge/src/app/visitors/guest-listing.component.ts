@@ -339,7 +339,8 @@ export class GuestListingComponent {
     };
 
     public get columns() {
-        return this._settings.get('app.induction_details')
+        return this._settings.get('app.induction_enabled') &&
+            this._settings.get('app.induction_details')
             ? [
                   'state',
                   'date',
