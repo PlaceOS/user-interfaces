@@ -22,8 +22,7 @@ import { SettingsService } from '@placeos/common';
                     'Desk',
                     'Approver',
                     'Status',
-                    'Checked In',
-                    'Induction'
+                    'Checked In'
                 ]"
                 [column_size]="[
                     '4r',
@@ -33,7 +32,6 @@ import { SettingsService } from '@placeos/common';
                     '10r',
                     '10r',
                     '8r',
-                    '7r',
                     '7r'
                 ]"
                 [template]="{
@@ -43,7 +41,6 @@ import { SettingsService } from '@placeos/common';
                     status: status_template,
                     checked_in: option_template,
                     access: option_template,
-                    induction: option_template,
                 }"
                 [empty]="
                     (filters | async)?.search
@@ -231,28 +228,16 @@ export class DeskBookingsComponent {
     public readonly loadMore = () => this._state.nextPage();
 
     public get columns() {
-        return this._settings.get('app.induction_details')
-            ? [
-                  'date',
-                  'period',
-                  'user_name',
-                  'group',
-                  'asset_name',
-                  'approver_name',
-                  'status',
-                  'checked_in',
-                  'induction',
-              ]
-            : [
-                  'date',
-                  'period',
-                  'user_name',
-                  'group',
-                  'asset_name',
-                  'approver_name',
-                  'status',
-                  'checked_in',
-              ];
+        return [
+            'date',
+            'period',
+            'user_name',
+            'group',
+            'asset_name',
+            'approver_name',
+            'status',
+            'checked_in',
+        ];
     }
 
     public readonly checkin = (d, s?) =>
