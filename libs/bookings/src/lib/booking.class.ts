@@ -114,6 +114,8 @@ export class Booking {
     public readonly images: string[];
     /** List of user defined tags associated with the booking */
     public readonly tags: string[];
+
+    public readonly permission: 'PRIVATE' | 'OPEN' | 'PUBLIC';
     /** Default type */
     public readonly access: boolean;
     /** Status of the booking */
@@ -228,6 +230,7 @@ export class Booking {
         this.checked_in = !!data.checked_in;
         this.rejected = !!data.rejected;
         this.approved = !!data.approved;
+        this.permission = data.permission || 'PRIVATE';
         this.deleted = !!data.deleted;
         this.booked_by_id = data.booked_by_id || '';
         this.booked_by_name = data.booked_by_name || '';

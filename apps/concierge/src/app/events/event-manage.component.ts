@@ -266,6 +266,7 @@ export class EventManageComponent extends AsyncHandler {
         this.form.patchValue({
             booking_type: 'group-event',
             asset_id: `GE:${randomString(10)}`,
+            permission: 'OPEN',
             zones: unique([
                 this._org.organisation.id,
                 this._org.building.id,

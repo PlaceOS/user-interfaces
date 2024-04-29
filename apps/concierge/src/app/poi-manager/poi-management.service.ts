@@ -4,14 +4,8 @@ import { OrganisationService } from '@placeos/organisation';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map, shareReplay, switchMap } from 'rxjs/operators';
 import { POIModalComponent } from './poi-modal.component';
-import {
-    SettingsService,
-    notifyError,
-    notifySuccess,
-    openConfirmModal,
-} from '@placeos/common';
+import { notifyError, notifySuccess, openConfirmModal } from '@placeos/common';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import { generateQRCode } from 'libs/common/src/lib/qr-code';
 
 export interface POIListOptions {
     search?: string;
