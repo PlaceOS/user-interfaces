@@ -211,14 +211,27 @@ export function checkinBookingGuest(
 }
 
 /**
- * Set the checkin state of a guest in a booking
- * @param id ID of the booking to reject
- * @param guest_id ID of the guest to check in
+ * Add a guest to a booking
+ * @param id ID of the booking
+ * @param guest Guest to add to the booking
  */
 export function bookingAddGuest(id: string, guest: GuestUser) {
     return post(
-        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/guests`,
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/attendee`,
         guest
+    ).pipe(map((item) => new GuestUser(item)));
+}
+
+/**
+ * Remove an attendee from a booking
+ * @param id ID of the booking
+ * @param guest Guest to remove from the booking
+ */
+export function bookingRemoveGuest(id: string, guest: GuestUser) {
+    return del(
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(
+            id
+        )}/attendee/${encodeURIComponent(guest.email)}`
     ).pipe(map((item) => new GuestUser(item)));
 }
 

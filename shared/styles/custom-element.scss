@@ -960,6 +960,13 @@ a[icon] {
         color: var(--bc);
     }
 
+    .inverse {
+        .mat-mdc-select-value,
+        .mat-mdc-select-arrow {
+            color: var(--b1);
+        }
+    }
+
     .mdc-notched-outline__leading,
     .mdc-notched-outline__trailing {
         border-color: var(--n);

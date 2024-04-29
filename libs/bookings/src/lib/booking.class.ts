@@ -33,6 +33,7 @@ const IGNORE_EXT_KEYS = ['user', 'booked_by', 'resources', 'assets', 'members'];
 
 export interface BookingComplete extends Booking {
     members?: User[];
+    guests?: User[];
 }
 
 export interface LinkedCalendarEvent {
@@ -118,6 +119,8 @@ export class Booking {
     public readonly permission: 'PRIVATE' | 'OPEN' | 'PUBLIC';
     /** Default type */
     public readonly access: boolean;
+    /** Whether asset has been inducted */
+    public readonly induction: boolean;
     /** Status of the booking */
     public readonly status:
         | 'declined'
@@ -241,7 +244,10 @@ export class Booking {
         this.extension_data = data.extension_data || {};
         this.access = !!data.extension_data?.access;
         this.event_id = data.event_id;
-        this.attendees = data.attendees || data.members || [];
+        this.permission = data.permission || 'PRIVATE';
+        this.attendees = data.attendees || data.guests || data.members || [];
+        this.tags = data.tags || [];
+        this.images = data.images || [];
         this.all_day = data.all_day || this.duration >= 24 * 60;
         if (this.all_day) {
             (this as any).date = startOfDay(this.date).getTime();

@@ -64,9 +64,9 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         ),
         location: new FormControl(booking.extension_data.location || ''),
         phone: new FormControl(booking.extension_data.phone || ''),
+        permission: new FormControl(booking.permission || 'PRIVATE'),
         images: new FormControl(booking.images || []),
         tags: new FormControl(booking.tags || []),
-        permission: new FormControl(booking.permission || 'PRIVATE'),
     });
     form.valueChanges.subscribe((v) => {
         const user = v.user;
