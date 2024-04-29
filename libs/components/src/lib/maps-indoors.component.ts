@@ -348,6 +348,9 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             notifyError('Failed to find location.');
             return;
         }
+        const item =
+            items.find((_) => _.properties?.externalId === this.focus) ||
+            items[0];
         const [lng, lat] = items[0].properties?.anchor?.coordinates || [0, 0];
         this._services.map.setZoom(DEFAULT_ZOOM);
         this._services.map.setCenter({ lat, lng });

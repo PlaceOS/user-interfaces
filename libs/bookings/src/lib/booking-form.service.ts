@@ -194,7 +194,10 @@ export class BookingFormService extends AsyncHandler {
                 period_start: getUnixTime(date),
                 period_end: getUnixTime(addMinutes(date, duration)),
                 type: options.type,
-                zones: options.zone_id,
+                zones:
+                    options.zone_id ||
+                    this._org.building?.id ||
+                    this._org.organisation.id,
                 limit: 1000,
             }).pipe(
                 map(
@@ -733,7 +736,7 @@ export class BookingFormService extends AsyncHandler {
             const current = user_email === currentUser()?.email;
             throw `${current ? 'You' : user_email} already ${
                 current ? 'have' : 'has'
-            } a ${type} booked`;
+            } a booking at the selected time`;
         }
         return true;
     }

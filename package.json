@@ -84,7 +84,7 @@
         "@nx/workspace": "18.0.8",
         "@placeos/cloud-uploads": "^0.2.6-dev",
         "@placeos/svg-viewer": "^0.5.4-dev",
-        "@placeos/ts-client": "^3.23.1",
+        "@placeos/ts-client": "^3.23.3",
         "@playwright/test": "^1.36.0",
         "@schematics/angular": "17.1.4",
         "@sentry/angular-ivy": "^7.102.0",
