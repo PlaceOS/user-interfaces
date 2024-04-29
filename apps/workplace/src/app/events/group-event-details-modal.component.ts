@@ -3,14 +3,10 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {
     Booking,
     bookingAddGuest,
+    bookingRemoveGuest,
     checkinBookingGuest,
 } from '@placeos/bookings';
-import {
-    MapsPeopleService,
-    SettingsService,
-    currentUser,
-    unique,
-} from '@placeos/common';
+import { SettingsService, currentUser, unique } from '@placeos/common';
 import { MapPinComponent } from '@placeos/components';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { ViewerFeature } from '@placeos/svg-viewer';
@@ -295,7 +291,15 @@ export class GroupEventDetailsModalComponent {
 
     public async toggleInterest() {
         let user = this.guest_details;
+        console.log('User:', user, this.is_interested);
         if (this.is_interested && user) {
+            await bookingRemoveGuest(
+                this.booking.id,
+                currentUser() as any
+            ).toPromise();
+            (this.booking as any).attendees = (
+                this.booking.attendees || []
+            ).filter((_: any) => _.email !== user.email);
         } else {
             user = await bookingAddGuest(
                 this.booking.id,
@@ -309,6 +313,7 @@ export class GroupEventDetailsModalComponent {
     }
 
     public async toggleAttendance() {
+        console.log('Toggle Attendance:', this.is_going, this.guest_details);
         let user = this.guest_details;
         if (!user) {
             user = await bookingAddGuest(
@@ -322,7 +327,7 @@ export class GroupEventDetailsModalComponent {
         }
         await checkinBookingGuest(
             this.booking.id,
-            user.id,
+            user.email,
             !this.is_going
         ).toPromise();
         (user as any).checked_in = !this.is_going;

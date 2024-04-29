@@ -40,6 +40,8 @@ export class GroupEventsStateService {
         shareReplay(1)
     );
 
+    public readonly options = this._options.asObservable();
+
     constructor(
         private _org: OrganisationService,
         private _settings: SettingsService
