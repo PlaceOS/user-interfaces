@@ -175,12 +175,7 @@ export class CheckinQRScanComponent
             throw err;
         });
         const event = await this._checkin.event.pipe(take(1)).toPromise();
-        console.log(
-            'Event:',
-            event,
-            this._settings.get('app.induction_details')
-        );
-        if (!event?.induction && this._settings.get('app.induction_details')) {
+        if (!event?.induction && this.is_induction_enabled) {
             this._router.navigate(['/checkin', 'induction']);
         } else {
             this._router.navigate(['/checkin', 'details']);

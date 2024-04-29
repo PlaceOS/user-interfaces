@@ -11,34 +11,36 @@ import { OrganisationService } from '@placeos/organisation';
         <div
             class="relative bg-base-100 rounded shadow overflow-hidden flex flex-col items-center w-[32rem] p-4"
         >
-            <p class="mt-8 mb-4">
+            <p class="my-4">
                 Please read the induction information below before proceeding.
             </p>
             <div
-                class="rounded bg-base-200 w-full p-4 text-sm overflow-y-auto overflow-x-hidden max-h-[50vh] whitespace-pre-wrap"
+                class="rounded border border-base-300 w-full p-4 opacity-60 text-sm overflow-y-auto overflow-x-hidden max-h-[50vh] whitespace-pre-wrap"
             >
                 {{ induction_details }}
             </div>
             <mat-checkbox [(ngModel)]="agree" class="my-4">
                 I agree
             </mat-checkbox>
-            <button
-                btn
-                matRipple
-                class="w-32"
-                [disabled]="!agree"
-                (click)="continue()"
-            >
-                Continue
-            </button>
-            <button
-                icon
-                matRipple
-                class="absolute top-1 right-1"
-                (click)="previous()"
-            >
-                <app-icon>close</app-icon>
-            </button>
+            <div class="flex items-center justify-center space-x-2">
+                <button
+                    btn
+                    matRipple
+                    class="w-32 clear underline"
+                    (click)="previous()"
+                >
+                    Decline
+                </button>
+                <button
+                    btn
+                    matRipple
+                    class="w-32"
+                    [disabled]="!agree"
+                    (click)="continue()"
+                >
+                    Accept
+                </button>
+            </div>
         </div>
     `,
     styles: [],
