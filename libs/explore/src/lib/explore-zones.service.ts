@@ -8,11 +8,12 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
 
 import { ExploreStateService } from './explore-state.service';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
-import { MapPolygonComponent } from 'libs/components/src/lib/map-polygon.component';
 import { ExploreSensorInfoComponent } from './explore-sensor-info.component';
-import { combineLatest } from 'rxjs';
-
-const EMPTY_LABEL = { location: { x: -10, y: -10 }, content: '0% Usage' };
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import {
+    MapCanvasComponent,
+    Polygon,
+} from 'libs/components/src/lib/map-canvas.component';
 
 export interface ZoneData {
     /** ID of the zone */
@@ -47,6 +48,7 @@ export class ExploreZonesService extends AsyncHandler {
     private _draw: HashMap<boolean> = {};
     private _points: HashMap<[number, number][]> = {};
     private _features: ViewerFeature[] = [];
+    private _polygons$ = new BehaviorSubject<Polygon[]>([]);
 
     private _bind = combineLatest([
         this._org.active_building,
@@ -128,6 +130,18 @@ export class ExploreZonesService extends AsyncHandler {
                 this._area_list.push(area.map_id || area.id);
             }
         }
+        this._state.setFeatures('zones-canvas', [
+            {
+                track_id: 'zones-canvas',
+                location: { x: 0.5, y: 0.5 },
+                content: MapCanvasComponent,
+                data: {
+                    polygons$: this._polygons$,
+                    draw_points: false,
+                    draw_labels: false,
+                },
+            },
+        ]);
         this.updateStatus();
         this.subscription('bind', this._bind.subscribe());
     }
@@ -189,8 +203,9 @@ export class ExploreZonesService extends AsyncHandler {
                     location: this._location[id],
                     content: ExploreSensorInfoComponent,
                     data: {
-                        temp: zone.temperature,
-                        humidity: zone.humidity,
+                        id,
+                        temp: zone.temperature || 10,
+                        humidity: zone.humidity || 10,
                     },
                     z_index: 98,
                 });
@@ -205,22 +220,18 @@ export class ExploreZonesService extends AsyncHandler {
         const style_map = {};
         const features = [];
         const colours = this._settings.get('app.explore.colors') || {};
+        const polygons = [];
         for (const zone_id in this._statuses) {
             const colour =
                 colours[`zone-${this._statuses[zone_id]}`] ||
                 colours[`${this._statuses[zone_id]}`] ||
                 DEFAULT_COLOURS[`${this._statuses[zone_id]}`];
             if (this._draw[zone_id]) {
-                features.push({
-                    track_id: `zone:${zone_id}`,
-                    location: getCenterPoint(this._points[zone_id]),
-                    content: MapPolygonComponent,
-                    data: {
-                        color: colour,
-                        points: this._points[zone_id],
-                    },
-                    z_index: 10,
-                });
+                polygons.push({
+                    name: zone_id,
+                    points: this._points[zone_id],
+                    color: colour,
+                } as Polygon);
             } else {
                 style_map[`#${zone_id}`] = {
                     fill: colour,
@@ -228,6 +239,7 @@ export class ExploreZonesService extends AsyncHandler {
                 };
             }
         }
+        this._polygons$.next(polygons);
         this._state.setFeatures('zones', [...features, ...this._features]);
         this._state.setStyles('zones-styles', style_map);
     }

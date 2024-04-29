@@ -448,3 +448,42 @@ export function calculateDistance(
 function degreesToRadians(degrees: number): number {
     return degrees * (Math.PI / 180);
 }
+
+//////////////////////////////////////////
+//////   Colour Conversion Utils   ///////
+//////////////////////////////////////////
+
+export function hexToRgb(hex: string): RGB {
+    let r = parseInt(hex.slice(1, 3), 16);
+    let g = parseInt(hex.slice(3, 5), 16);
+    let b = parseInt(hex.slice(5, 7), 16);
+    return [r, g, b];
+}
+
+export type RGB = [number, number, number];
+
+export function interpolateColors(rgb1: RGB, rgb2: RGB, fraction: number): RGB {
+    let r = rgb1[0] + (rgb2[0] - rgb1[0]) * fraction;
+    let g = rgb1[1] + (rgb2[1] - rgb1[1]) * fraction;
+    let b = rgb1[2] + (rgb2[2] - rgb1[2]) * fraction;
+    return [Math.round(r), Math.round(g), Math.round(b)];
+}
+
+export function rgbToHex(r: number, g: number, b: number): string {
+    function componentToHex(c) {
+        const hex = c.toString(16);
+        return hex.length == 1 ? '0' + hex : hex;
+    }
+    return '#' + componentToHex(r) + componentToHex(g) + componentToHex(b);
+}
+
+export function shiftColorTowards(
+    hex1: string,
+    hex2: string,
+    fraction: number
+) {
+    const rgb1 = hexToRgb(hex1);
+    const rgb2 = hexToRgb(hex2);
+    const resultRgb = interpolateColors(rgb1, rgb2, fraction);
+    return rgbToHex(resultRgb[0], resultRgb[1], resultRgb[2]);
+}
