@@ -15,22 +15,27 @@ import { GroupEventsStateService } from './group-events-state.service';
     selector: `group-events-sidebar`,
     template: `
         <div class="bg-base-100 w-[18rem] h-full">
-            <date-calendar></date-calendar>
-            <hr class="border-base-200 w-[calc(100%-1rem)] mx-auto" />
-            <div class="flex flex-col items-center space-y-2 p-2">
-                <mat-form-field
-                    appearance="outline"
-                    class="w-full no-subscript"
+            <div class="flex items-center space-x-2 p-2">
+                <button
+                    btn
+                    matRipple
+                    class="flex-1 rounded-3xl"
+                    [class.inverse]="(period | async) !== 'week'"
+                    (click)="period.next('week')"
                 >
-                    <mat-select
-                        [ngModel]="period.value"
-                        (ngModelChange)="period.next($event)"
-                        placeholder="Select Period Range"
-                    >
-                        <mat-option value="week">Week</mat-option>
-                        <mat-option value="month">Month</mat-option>
-                    </mat-select>
-                </mat-form-field>
+                    Week
+                </button>
+                <button
+                    btn
+                    matRipple
+                    class="flex-1 rounded-3xl"
+                    [class.inverse]="(period | async) !== 'month'"
+                    (click)="period.next('month')"
+                >
+                    Month
+                </button>
+            </div>
+            <div class="flex flex-col items-center space-y-2 pb-2 px-2">
                 <mat-form-field
                     appearance="outline"
                     class="w-full no-subscript"
@@ -49,6 +54,9 @@ import { GroupEventsStateService } from './group-events-state.service';
                     </mat-select>
                 </mat-form-field>
             </div>
+            <hr class="border-base-200 w-[calc(100%-1rem)] mx-auto" />
+            <date-calendar></date-calendar>
+            <hr class="border-base-200 w-[calc(100%-1rem)] mx-auto" />
         </div>
     `,
     styles: [``],
@@ -113,7 +121,7 @@ export class GroupEventsSidebarComponent extends AsyncHandler {
                 });
                 date = addDays(date, 7).valueOf();
             } else if (period_type === 'month') {
-                const end = addDays(addMonths(date, 1), -1).valueOf();
+                const end = endOfDay(addDays(addMonths(date, 1), -1)).valueOf();
                 periods.push({
                     id: date,
                     start: date,

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { GroupEventsStateService } from './group-events-state.service';
 import { combineLatest } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-import { addDays, startOfDay } from 'date-fns';
+import { addDays, endOfDay, startOfDay } from 'date-fns';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 
 @Component({
@@ -88,22 +88,20 @@ export class GroupEventsComponent extends AsyncHandler {
         map(([list, { date, end }]) => {
             if (!date && !end) return [];
             const days = [];
-            let start = date;
+            let start = startOfDay(date).valueOf();
             const end_time = end || date + 1;
             while (start < end_time) {
+                const end_of_day = endOfDay(start).valueOf();
                 days.push({
                     date: start,
                     events: list.filter(
-                        (_) =>
-                            startOfDay(start).valueOf() ===
-                            startOfDay(_.date).valueOf()
+                        (_) => _.date >= start && _.date < end_of_day
                     ),
                 });
                 start = addDays(start, 1).valueOf();
             }
             return days;
-        }),
-        tap((l) => console.log('Event Day List:', l))
+        })
     );
 
     constructor(

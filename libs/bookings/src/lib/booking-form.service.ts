@@ -707,6 +707,7 @@ export class BookingFormService extends AsyncHandler {
         type: BookingType
     ) {
         if (!user_email) throw 'No user was selected to book for';
+        if (type === 'group-event') return true;
         const bookings = await queryBookings({
             period_start: getUnixTime(date),
             period_end: getUnixTime(date + duration * 60 * 1000),
