@@ -181,6 +181,20 @@ export function rejectBooking(id: string) {
     ).pipe(map((item) => new Booking(item)));
 }
 
+export function setBookingState(
+    id: string,
+    state: string,
+    utm_source?: string
+) {
+    const query = toQueryString({ state, utm_source });
+    return post(
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/update_state${
+            query ? '?' + query : ''
+        }`,
+        {}
+    ).pipe(map((item) => new Booking(item)));
+}
+
 /**
  * Set the checkin state of a booking
  * @param id ID of the booking to grab

@@ -132,6 +132,8 @@ export class Booking {
 
     public readonly linked_bookings: LinkedBooking[];
 
+    public readonly process_state: string;
+
     public get group() {
         return this.extension_data.group || '';
     }
@@ -238,7 +240,11 @@ export class Booking {
         this.event_id = data.event_id;
         this.attendees = data.attendees || data.members || [];
         this.all_day = data.all_day || this.duration >= 24 * 60;
-        this.induction = !!data.extension_data?.induction;
+        this.induction =
+            (data.induction ||
+                data.extension_data?.induction ||
+                data.process_state === 'inducted') ??
+            false;
         if (this.all_day) {
             (this as any).date = startOfDay(this.date).getTime();
             (this as any).duration = Math.max(
@@ -260,6 +266,7 @@ export class Booking {
                 : this.approved
                 ? 'approved'
                 : 'tentative';
+        this.process_state = data.process_state || 'pending';
         for (const key in data) {
             if (!(key in this) && !IGNORE_EXT_KEYS.includes(key) && data[key]) {
                 this.extension_data[key] =

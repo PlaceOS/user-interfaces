@@ -4,6 +4,8 @@ import { VisitorsStateService } from './visitors-state.service';
 import { GuestUser } from '@placeos/users';
 import { CalendarEvent } from '@placeos/events';
 import { Booking } from '@placeos/bookings';
+import { showMetadata } from '@placeos/ts-client';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'guest-listings',
@@ -316,6 +318,7 @@ export class GuestListingComponent {
     public readonly guests = this._state.filtered_bookings;
     public readonly search = this._state.search;
     public readonly filters = this._state.filters;
+    private _inductions_enabled = false;
 
     public readonly downloadVisitorList = () =>
         this._state.downloadVisitorsList();
@@ -339,8 +342,7 @@ export class GuestListingComponent {
     };
 
     public get columns() {
-        return this._settings.get('app.induction_enabled') &&
-            this._settings.get('app.induction_details')
+        return this._inductions_enabled
             ? [
                   'state',
                   'date',
@@ -371,6 +373,7 @@ export class GuestListingComponent {
             asset_id: 'Email',
             id_data: 'ID',
             status: 'State',
+            induction: 'Inducted',
             actions: ' ',
         };
         return this.columns.map((_) => fields[_] || _);
@@ -397,6 +400,19 @@ export class GuestListingComponent {
 
     constructor(
         private _state: VisitorsStateService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _org: OrganisationService
     ) {}
+
+    public async ngOnInit() {
+        const visitor_kiosk_app =
+            this._settings.get('app.visitor_kiosk_app') || 'visitor-kiosk_app';
+        const metadata: any = await showMetadata(
+            this._org.building.id,
+            visitor_kiosk_app
+        ).toPromise();
+        this._inductions_enabled =
+            metadata.details?.induction_enabled &&
+            metadata.details?.induction_details;
+    }
 }

@@ -1,7 +1,12 @@
 import { Component } from '@angular/core';
 import { CheckinStateService } from './checkin-state.service';
 import { Router } from '@angular/router';
-import { SettingsService, notifyError, notifySuccess } from '@placeos/common';
+import {
+    SettingsService,
+    notifyError,
+    notifyInfo,
+    notifySuccess,
+} from '@placeos/common';
 import { first } from 'rxjs/operators';
 import { OrganisationService } from '@placeos/organisation';
 
@@ -71,13 +76,20 @@ export class CheckinInductionComponent {
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         const event = await this.event.pipe(first()).toPromise();
+        console.log('Event:', event);
         if (!event) this.previous();
         if (!this.is_enabled || event.induction) {
             this._router.navigate(['/checkin', 'details']);
         }
     }
 
-    public previous(): void {
+    public async previous() {
+        this.loading = true;
+        await this._checkin.declineInduction().catch((err) => {
+            notifyError('Error declining induction', err);
+            throw err;
+        });
+        notifyInfo('Induction declined successfully');
         this._router.navigate(['/checkin']);
     }
 
