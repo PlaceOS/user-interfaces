@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1710460121056,
+  "timestamp": 1714449858583,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -11,17 +11,17 @@
         "ignoreVary": true
       },
       "urls": [
-        "./157.1a80884ee8de0099.js",
-        "./298.d6e9dd1ed262c005.js",
+        "./157.a4b358f0bf08ce35.js",
+        "./298.bfcee2feda8fb403.js",
         "./663.57a9b6a3156a94c6.js",
-        "./894.70c045ec6cb56bbc.js",
+        "./868.4133e3949e1f96c8.js",
         "./favicon.ico",
         "./index.html",
-        "./main.56e851808d6120e4.js",
+        "./main.9bfb0e3bb9dabc32.js",
         "./manifest.webmanifest",
         "./polyfills.a73d5d71142605c1.js",
-        "./runtime.a8224dd5971d562d.js",
-        "./styles.9ed1489862b5e75a.css"
+        "./runtime.67c0bd0b2c6e2e8f.js",
+        "./styles.bfd2294c030c9268.css"
       ],
       "patterns": []
     },
@@ -100,6 +100,7 @@
         "./assets/img/book_desk.svg",
         "./assets/img/book_room.svg",
         "./assets/img/booth.svg",
+        "./assets/img/building.png",
         "./assets/img/chair.svg",
         "./assets/img/chair2.svg",
         "./assets/img/couch.svg",
@@ -112,6 +113,7 @@
         "./assets/img/mail.svg",
         "./assets/img/shower.svg",
         "./assets/img/skyline.jpg",
+        "./assets/img/skyline.png",
         "./assets/img/stairs.svg",
         "./assets/js/instascan.min.js",
         "./assets/locale/ar.json",
@@ -153,10 +155,10 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./157.1a80884ee8de0099.js": "74b87924f81a19e57e47b4ff5b41b7e92f58f3a7",
-    "./298.d6e9dd1ed262c005.js": "8b17513660acfa57767599f1a7ebb7386c956e28",
+    "./157.a4b358f0bf08ce35.js": "8a6107a17141763d8d2953b4dde41a1220da197a",
+    "./298.bfcee2feda8fb403.js": "7f00598ef73257093923bfe19ee1599d1324859d",
     "./663.57a9b6a3156a94c6.js": "9059561543b6cbaf3b66716d8808a7bb44fe6f79",
-    "./894.70c045ec6cb56bbc.js": "0519e1700c478dfe49697a466bef8c1036bc088e",
+    "./868.4133e3949e1f96c8.js": "21d35589643a3af6c97d30f0c155db0573062107",
     "./assets/icons/amex.svg": "3530eff717af33317b79bdd1d0ec96abfa884287",
     "./assets/icons/asset-placeholder.svg": "57d3c780a925b7434aadbe716a991457666eb450",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
@@ -224,6 +226,7 @@
     "./assets/img/book_desk.svg": "7898795138dbd43202541a8569252ddb0032c14f",
     "./assets/img/book_room.svg": "08a138b8c872230e088b1285095f53bbe4a002c8",
     "./assets/img/booth.svg": "28899b49228af55537b62e8b573f14cb41e5e77b",
+    "./assets/img/building.png": "4892b3b9557084a77af4dcac79400cda1b76bbae",
     "./assets/img/chair.svg": "be1e73207916e8f8b35f274c82ca19450488de86",
     "./assets/img/chair2.svg": "29530d839c650607ce0b43e1566b2c932705534a",
     "./assets/img/couch.svg": "8c1395a93fd1ef55c48b93ee7a3657c9e6bc9416",
@@ -236,6 +239,7 @@
     "./assets/img/mail.svg": "75804a6b54e702cb61e6f946d67be071d5f94ff8",
     "./assets/img/shower.svg": "bb7569d95f58214bf02cec957d9988cb0c93c258",
     "./assets/img/skyline.jpg": "4ccbd85616d840a7674ecd4d53e36d0085d574f4",
+    "./assets/img/skyline.png": "0ef19ca7548810e29a26e2f169d2b8fb9585b83a",
     "./assets/img/stairs.svg": "7a0c56a6be12318368aa8a174812502fecc4b247",
     "./assets/js/instascan.min.js": "8ac89054c1758a60574c5e2b2689d0da83ae6f5b",
     "./assets/locale/ar.json": "9d39f81ce08112ff2e2c8c9d392e763f1c48083b",
@@ -264,8 +268,8 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "fb66d23302b5e8950d1e0497a4ed58a3f458d354",
-    "./main.56e851808d6120e4.js": "ee76dacf6c2d5faa54c84e2753b57117f8168da6",
+    "./index.html": "43e1a86e6020234b4e0381525f0f370d7f948799",
+    "./main.9bfb0e3bb9dabc32.js": "9d23ca7fa7c1cc26648ef279afaa8c601bb5dc1a",
     "./manifest.webmanifest": "1f969ea0e2566dc28ceb4da6116602149aa879ec",
     "./material-icons-outlined.f86cb7b0aa53f0fe.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.b10ec9db5b7fbc74.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
@@ -276,8 +280,8 @@
     "./material-symbols-rounded.ce03b85d012749d0.woff2": "1eedd967ab52c2e1ac9607d814b17740ecd8fcc6",
     "./material-symbols-sharp.cbff3cfef7082994.woff2": "d991d290442aeb0a63e5d3bc48143a088e517de3",
     "./polyfills.a73d5d71142605c1.js": "54520b9e7b71e639ad4d5b8edc55affd8384774e",
-    "./runtime.a8224dd5971d562d.js": "0aa05688bccbe7a62e2fb53e6cfb46096f7fdf03",
-    "./styles.9ed1489862b5e75a.css": "03414aa780a0f4c719145b197ef96a7f6da0fe8a"
+    "./runtime.67c0bd0b2c6e2e8f.js": "dc85e86570b1790db7c616f81c0cfe3a1958c756",
+    "./styles.bfd2294c030c9268.css": "d599797ac6a570ccf96726aed4e16f73468436b0"
   },
   "navigationUrls": [
     {
