@@ -9,7 +9,6 @@ import { GroupEventsComponent } from './group-events.component';
 import { SharedComponentModule } from '../components/shared.module';
 import { GroupEventsSidebarComponent } from './group-events-sidebar.component';
 import { GroupEventCardComponent } from './group-event-card.component';
-import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
 
 const ROUTES: Route[] = [{ path: '', component: GroupEventsComponent }];
 
@@ -18,7 +17,6 @@ const ROUTES: Route[] = [{ path: '', component: GroupEventsComponent }];
         GroupEventsComponent,
         GroupEventsSidebarComponent,
         GroupEventCardComponent,
-        GroupEventDetailsModalComponent,
     ],
     imports: [
         CommonModule,

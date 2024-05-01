@@ -139,6 +139,34 @@ import { ScheduleStateService } from './schedule-state.service';
                         "
                     ></mat-checkbox>
                 </button>
+                <button
+                    matRipple
+                    name="schedule-toggle-locker-filter"
+                    class="flex items-center space-x-2 w-full text-left"
+                    *ngIf="hasFeature('group-events')"
+                    (click)="toggleType('group-event')"
+                >
+                    <div
+                        class="h-10 w-10 rounded-full flex items-center justify-center bg-base-200 text-2xl"
+                    >
+                        <app-icon>door_back</app-icon>
+                    </div>
+                    <div class="flex-1">
+                        <div class="" i18n>
+                            {{ 'WPA.GROUP_EVENT' | translate }}
+                        </div>
+                        <div class="text-sm opacity-60" i18n>
+                            {{ 'WPA.SCHEDULE_GROUP_EVENT_FILTER' | translate }}
+                        </div>
+                    </div>
+                    <mat-checkbox
+                        [ngModel]="
+                            (filters | async)?.shown_types?.includes(
+                                'group-event'
+                            )
+                        "
+                    ></mat-checkbox>
+                </button>
             </div>
         </div>
     `,

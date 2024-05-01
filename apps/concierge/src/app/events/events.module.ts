@@ -9,7 +9,6 @@ import { EventsListComponent } from './events-list.component';
 import { EventManageComponent } from './event-manage.component';
 import { SharedSpacesModule } from '@placeos/spaces';
 
-import { GroupEventDetailsModalComponent } from 'apps/workplace/src/app/events/group-event-details-modal.component';
 import { FormFieldsModule } from '@placeos/form-fields';
 import { EventListingComponent } from './event-listing.component';
 
@@ -30,7 +29,6 @@ const ROUTES: Route[] = [
         EventsListComponent,
         EventManageComponent,
         EventListingComponent,
-        GroupEventDetailsModalComponent,
     ],
     imports: [
         CommonModule,

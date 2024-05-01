@@ -1,8 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Booking } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
-import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
+import { GroupEventDetailsModalComponent } from '@placeos/bookings';
 
 @Component({
     selector: 'group-event-card',

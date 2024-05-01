@@ -55,7 +55,10 @@ import { GroupEventsStateService } from './group-events-state.service';
                 </mat-form-field>
             </div>
             <hr class="border-base-200 w-[calc(100%-1rem)] mx-auto" />
-            <date-calendar></date-calendar>
+            <date-calendar
+                [ngModel]="(options | async).date"
+                (ngModelChange)="setPeriodFromDate($event)"
+            ></date-calendar>
             <hr class="border-base-200 w-[calc(100%-1rem)] mx-auto" />
         </div>
     `,
@@ -65,6 +68,7 @@ export class GroupEventsSidebarComponent extends AsyncHandler {
     public period = new BehaviorSubject<'week' | 'month'>('week');
     public period_list = [];
     public selected_range: number;
+    public readonly options = this._state.options;
 
     constructor(
         private _settings: SettingsService,
@@ -88,6 +92,16 @@ export class GroupEventsSidebarComponent extends AsyncHandler {
         if (this.period_list.length) {
             this.setPeriod(this.period_list[0].id);
             this.selected_range = this.period_list[0].id;
+        }
+    }
+
+    public setPeriodFromDate(date: number) {
+        for (const period of this.period_list) {
+            if (date >= period.start && date <= period.end) {
+                this.selected_range = period.id;
+                this.setPeriod(period.id);
+                return;
+            }
         }
     }
 

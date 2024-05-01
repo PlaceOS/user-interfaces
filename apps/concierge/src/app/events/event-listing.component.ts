@@ -5,7 +5,7 @@ import {
     notifySuccess,
     openConfirmModal,
 } from '@placeos/common';
-import { GroupEventDetailsModalComponent } from 'apps/workplace/src/app/events/group-event-details-modal.component';
+import { GroupEventDetailsModalComponent } from '@placeos/bookings';
 import { EventStateService } from './event-state.service';
 import { MatDialog } from '@angular/material/dialog';
 import { removeBooking } from '@placeos/bookings';

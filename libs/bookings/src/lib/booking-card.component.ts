@@ -8,6 +8,7 @@ import { Booking } from './booking.class';
 import { BookingDetailsModalComponent } from './booking-details-modal.component';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
 
 @Component({
     selector: 'booking-card',
@@ -55,9 +56,18 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
                 </app-icon>
                 <div
                     class="absolute top-2 right-2 bg-warning/50 rounded-xl px-2 py-1 text-xs"
-                    *ngIf="!for_current_user"
+                    *ngIf="
+                        !for_current_user &&
+                        booking?.booking_type !== 'group-event'
+                    "
                 >
                     Associate
+                </div>
+                <div
+                    class="absolute top-2 right-2 bg-warning/50 rounded-xl px-2 py-1 text-xs"
+                    *ngIf="booking?.booking_type === 'group-event'"
+                >
+                    Event
                 </div>
             </div>
         </a>
@@ -160,20 +170,26 @@ export class BookingCardComponent extends AsyncHandler {
     public viewDetails() {
         if (!this.booking) return;
         this.timeout('open', () => {
-            const ref = this._dialog.open(BookingDetailsModalComponent, {
+            const view_component: any =
+                this.booking.booking_type === 'group-event'
+                    ? GroupEventDetailsModalComponent
+                    : BookingDetailsModalComponent;
+            const ref: any = this._dialog.open(view_component, {
                 data: this.booking,
             });
             this.subscription(
                 'edit',
-                ref.componentInstance.edit.subscribe(() => this.edit.emit())
+                ref.componentInstance.edit?.subscribe(() => this.edit.emit())
             );
             this.subscription(
                 'remove',
-                ref.componentInstance.remove.subscribe(() => this.remove.emit())
+                ref.componentInstance.remove?.subscribe(() =>
+                    this.remove.emit()
+                )
             );
             this.subscription(
                 'end',
-                ref.componentInstance.end.subscribe(() => this.end.emit())
+                ref.componentInstance.end?.subscribe(() => this.end.emit())
             );
         });
     }

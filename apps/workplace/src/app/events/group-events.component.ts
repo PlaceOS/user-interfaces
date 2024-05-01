@@ -42,7 +42,9 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
                         class="flex flex-col items-center justify-center w-full h-full space-y-2"
                     >
                         <img src="assets/icons/no-results.svg" class="w-32" />
-                        <div class="font-medium">No upcoming events</div>
+                        <div class="font-medium">
+                            No events for the selected time period
+                        </div>
                         <div class="opacity-30">
                             Expand you search or try again
                         </div>
