@@ -559,24 +559,18 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                 this._updateValidAssets()
             )
         );
-        this.subscription(
-            'space_changes',
-            this.form.controls.resources.valueChanges.subscribe((l) =>
-                this._checkSubResourceEligibility(l)
-            )
-        );
-        this.subscription(
-            'date_changes',
-            this.form.controls.date.valueChanges.subscribe((l) =>
-                this._checkSubResourceEligibility(this.form.value.resources)
-            )
-        );
-        this.subscription(
-            'duration_changes',
-            this.form.controls.duration.valueChanges.subscribe((l) =>
-                this._checkSubResourceEligibility(this.form.value.resources)
-            )
-        );
+        for (const key of ['resources', 'date', 'duration', 'date_end']) {
+            this.subscription(
+                `${key}_changes`,
+                this.form.controls[key].valueChanges.subscribe(() =>
+                    this.timeout('check_resources', () =>
+                        this._checkSubResourceEligibility(
+                            this.form.value.resources || []
+                        )
+                    )
+                )
+            );
+        }
         this._catering.setOptions({ zone: '' });
         this._checkSubResourceEligibility(this.form.value.resources || []);
         this.subscription(
@@ -692,10 +686,6 @@ export class MeetingFlowFormComponent extends AsyncHandler {
     }
 
     private async _checkCateringEligibility(list: Space[]) {
-        if (this.form.value.id && this.form.value.catering?.length) {
-            this.form.controls.catering.enable();
-            return;
-        }
         if (!list?.length) return this.form.controls.catering.disable();
         await timer(100).toPromise();
         const value = this.form.getRawValue();
@@ -725,11 +715,13 @@ export class MeetingFlowFormComponent extends AsyncHandler {
             !can_cater ||
             disabled_rooms.find((_) => list.find((i) => i.id === _))
         ) {
-            this.form.patchValue({ catering: [] });
+            if (!this.form.value.id && this.form.value.catering?.length) {
+                this.form.patchValue({ catering: [] });
+                notifyWarn(
+                    `Catering is unavailable for some of the selected spaces.`
+                );
+            }
             this.form.controls.catering.disable();
-            notifyWarn(
-                `Catering is unavailable for some of the selected spaces.`
-            );
         } else {
             this.form.controls.catering.enable();
         }
