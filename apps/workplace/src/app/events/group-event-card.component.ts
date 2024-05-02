@@ -40,10 +40,16 @@ import { GroupEventDetailsModalComponent } from '@placeos/bookings';
                 </div>
                 <div class="flex items-center space-x-2 text-sm">
                     <app-icon class="text-info">place</app-icon>
-                    <div class="" *ngIf="event.location">
-                        {{ event.location }}
+                    <div class="" *ngIf="item?.linked_event?.system_id">
+                        {{
+                            (item?.linked_event?.system_id | space | async)
+                                ?.display_name
+                        }}
                     </div>
-                    <div class="opacity-30" *ngIf="!event.location">
+                    <div
+                        class="opacity-30"
+                        *ngIf="!item?.linked_event?.system_id"
+                    >
                         Remote event
                     </div>
                 </div>
@@ -146,6 +152,7 @@ export class GroupEventCardComponent {
     public ngOnInit(): void {}
 
     public viewDetails(): void {
+        console.log('View Details:', this.event);
         this._dialog.open(GroupEventDetailsModalComponent, {
             data: this.event,
         });

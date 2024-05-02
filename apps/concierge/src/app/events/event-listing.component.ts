@@ -87,14 +87,17 @@ import { removeBooking } from '@placeos/bookings';
             </div>
         </ng-template>
         <ng-template #level_template let-item="row">
-            {{ ((item.asset_id | space | async)?.zones | level)?.display_name }}
-            <span *ngIf="item.asset_id | space | async" class="opacity-30">
+            {{
+                ((item.linked_event?.system_id | space | async)?.zones | level)
+                    ?.display_name
+            }}
+            <span *ngIf="!item.linked_event?.system_id" class="opacity-30">
                 No Level
             </span>
         </ng-template>
         <ng-template #room_template let-item="row">
-            {{ (item.asset_id | space | async)?.display_name }}
-            <span *ngIf="item.asset_id | space | async" class="opacity-30">
+            {{ (item.linked_event?.system_id | space | async)?.display_name }}
+            <span *ngIf="!item.linked_event?.system_id" class="opacity-30">
                 No Room
             </span>
         </ng-template>

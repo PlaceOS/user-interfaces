@@ -148,8 +148,17 @@ import { ViewerFeature } from '@placeos/svg-viewer';
                             <app-icon>place</app-icon>
                         </div>
                         <div class="text-sm">
-                            {{ booking.location }}
-                            <span *ngIf="!booking.location" class="opacity-30">
+                            {{
+                                (
+                                    booking.linked_event?.system_id
+                                    | space
+                                    | async
+                                )?.display_name
+                            }}
+                            <span
+                                *ngIf="!booking.linked_event?.system_id"
+                                class="opacity-30"
+                            >
                                 Remote Event
                             </span>
                         </div>

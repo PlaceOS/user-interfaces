@@ -614,6 +614,10 @@ a[icon] {
         }
     }
 
+    .mat-form-field-disabled {
+        opacity: 0.3;
+    }
+
     .mat-mdc-menu-panel {
         background-color: var(--b1);
     }

@@ -47,6 +47,7 @@ import { LockerFiltersDisplayComponent } from './locker-select-modal/locker-filt
 import { LockerBankListComponent } from './locker-select-modal/locker-bank-list.component';
 import { LockerMapComponent } from './locker-select-modal/locker-map.component';
 import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
+import { SharedSpacesModule } from 'libs/spaces/src/lib/spaces.module';
 
 const COMPONENTS = [
     DeskQuestionsModalComponent,
@@ -102,6 +103,7 @@ const COMPONENTS = [
         ComponentsModule,
         MatRippleModule,
         MatTooltipModule,
+        SharedSpacesModule,
     ],
     providers: [ReactiveFormsModule],
     exports: [...COMPONENTS],

@@ -135,7 +135,10 @@ export class ScheduleStateService extends AsyncHandler {
                             (a) =>
                                 a.email.toLowerCase() ===
                                 user.email.toLowerCase()
-                        ))
+                        )) &&
+                    !_.linked_bookings?.find(
+                        (b) => b.booking_type === 'group-event'
+                    )
             );
         })
     );
