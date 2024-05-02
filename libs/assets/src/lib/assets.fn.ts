@@ -399,7 +399,7 @@ export async function validateAssetRequestsForResource(
         zones?: string[];
         reset_state?: boolean;
     },
-    new_assets: AssetRequest[],
+    new_assets: AssetRequest[] = [],
     force_create = false
 ): Promise<() => Promise<void>> {
     const requests = await queryBookings({
@@ -428,7 +428,7 @@ export async function validateAssetRequestsForResource(
         _.id,
         new AssetRequest(_.extension_data.request),
     ]);
-    new_assets.forEach((_) => (_.conflict = false));
+    new_assets?.forEach((_) => (_.conflict = false));
     let changed = force_create
         ? new_assets.map((_) => _.id)
         : differenceBetweenAssetRequests(

@@ -715,7 +715,13 @@ export class MeetingFlowFormComponent extends AsyncHandler {
             !can_cater ||
             disabled_rooms.find((_) => list.find((i) => i.id === _))
         ) {
-            if (!this.form.value.id && this.form.value.catering?.length) {
+            const event = this._state.event;
+            const { id, catering, date, date_end } = this.form.getRawValue();
+            const time_changed =
+                !id ||
+                (catering?.length &&
+                    (date !== event.date || date_end !== event.date_end));
+            if (time_changed) {
                 this.form.patchValue({ catering: [] });
                 notifyWarn(
                     `Catering is unavailable for some of the selected spaces.`
