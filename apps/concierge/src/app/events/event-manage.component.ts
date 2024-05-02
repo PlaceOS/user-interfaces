@@ -24,7 +24,6 @@ import { first, startWith, take } from 'rxjs/operators';
 import { EventStateService } from './event-state.service';
 import { differenceInMinutes, format, formatDuration } from 'date-fns';
 import { CalendarEvent, EventFormService, removeEvent } from '@placeos/events';
-import { SpacePipe } from '@placeos/spaces';
 
 const EMPTY = [];
 
@@ -241,79 +240,93 @@ const EMPTY = [];
                                 <div class="mx-2">Both</div>
                             </button>
                         </div>
-                        <label for="location">Building Location</label>
-                        <mat-form-field appearance="outline">
-                            <mat-select
-                                [ngModel]="building_zone"
-                                [ngModelOptions]="{ standalone: true }"
-                                (ngModelChange)="
-                                    form.controls.zones.setValue([
-                                        $event.parent_id,
-                                        $event.id
-                                    ]);
-                                    setBuilding($event)
-                                "
-                                placeholder="Select Building"
-                            >
-                                <mat-option
-                                    *ngFor="
-                                        let building of building_list | async
+                        <ng-container
+                            *ngIf="form.value.attendance_type !== 'ONLINE'"
+                        >
+                            <label for="location">Building Location</label>
+                            <mat-form-field appearance="outline">
+                                <mat-select
+                                    [ngModel]="building_zone"
+                                    [ngModelOptions]="{ standalone: true }"
+                                    (ngModelChange)="
+                                        form.controls.zones.setValue([
+                                            $event.parent_id,
+                                            $event.id
+                                        ]);
+                                        setBuilding($event)
                                     "
-                                    [value]="building"
+                                    placeholder="Select Building"
                                 >
-                                    {{ building.display_name || building.name }}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                        <div class="flex space-x-2">
-                            <div class="flex flex-col flex-[2]">
-                                <label for="level">Level</label>
-                                <mat-form-field appearance="outline">
-                                    <mat-select
-                                        [ngModel]="level_zone"
-                                        [ngModelOptions]="{ standalone: true }"
-                                        (ngModelChange)="setLevel($event)"
-                                        placeholder="Select Level"
-                                    >
-                                        <mat-option
-                                            *ngFor="
-                                                let level of active_levels
-                                                    | async
-                                            "
-                                            [value]="level"
-                                        >
-                                            {{
-                                                level.display_name || level.name
-                                            }}
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                            <div class="flex flex-col flex-[3]">
-                                <label for="level">Room</label>
-                                <mat-form-field appearance="outline">
-                                    <mat-select
-                                        formControlName="secondary_resource"
-                                        [disabled]="
-                                            (available_spaces | async)
-                                                ?.length === 0
+                                    <mat-option
+                                        *ngFor="
+                                            let building of building_list
+                                                | async
                                         "
-                                        placeholder="Select Room"
+                                        [value]="building"
                                     >
-                                        <mat-option><i>None</i></mat-option>
-                                        <mat-option
-                                            *ngFor="
-                                                let room of available_spaces
-                                                    | async
-                                            "
-                                            [value]="room.id"
+                                        {{
+                                            building.display_name ||
+                                                building.name
+                                        }}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                            <div class="flex space-x-2">
+                                <div class="flex flex-col flex-[2]">
+                                    <label for="level">Level</label>
+                                    <mat-form-field appearance="outline">
+                                        <mat-select
+                                            [ngModel]="level_zone"
+                                            [ngModelOptions]="{
+                                                standalone: true
+                                            }"
+                                            (ngModelChange)="setLevel($event)"
+                                            placeholder="Select Level"
                                         >
-                                            {{ room.display_name || room.name }}
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
+                                            <mat-option
+                                                *ngFor="
+                                                    let level of active_levels
+                                                        | async
+                                                "
+                                                [value]="level"
+                                            >
+                                                {{
+                                                    level.display_name ||
+                                                        level.name
+                                                }}
+                                            </mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
+                                <div class="flex flex-col flex-[3]">
+                                    <label for="level">Room</label>
+                                    <mat-form-field appearance="outline">
+                                        <mat-select
+                                            formControlName="secondary_resource"
+                                            [disabled]="
+                                                (available_spaces | async)
+                                                    ?.length === 0
+                                            "
+                                            placeholder="Select Room"
+                                        >
+                                            <mat-option><i>None</i></mat-option>
+                                            <mat-option
+                                                *ngFor="
+                                                    let room of available_spaces
+                                                        | async
+                                                "
+                                                [value]="room.id"
+                                            >
+                                                {{
+                                                    room.display_name ||
+                                                        room.name
+                                                }}
+                                            </mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
                             </div>
-                        </div>
+                        </ng-container>
                     </ng-container>
                     <!-- END LOCATION -->
                     <div class="w-full h-px bg-base-200"></div>
@@ -558,6 +571,8 @@ export class EventManageComponent extends AsyncHandler {
                 location: space.display_name || space.name,
             });
         }
+        if (!this.form.getRawValue().description)
+            this.form.patchValue({ description: ' ' });
         const res = await this._form_state.postForm().catch(async (e) => {
             notifyError(e);
             if (this.form.getRawValue().event_id) {

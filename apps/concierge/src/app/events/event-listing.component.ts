@@ -76,11 +76,10 @@ import { removeBooking } from '@placeos/bookings';
                     </div>
                     <div class="text-xs">
                         {{
-                            item.location ||
-                                (
-                                    (item.asset_id | space | async)?.zones
-                                    | building
-                                )?.address
+                            (
+                                (item.linked_event?.system_id | space | async)
+                                    ?.zones | building
+                            )?.address
                         }}
                     </div>
                 </div>
