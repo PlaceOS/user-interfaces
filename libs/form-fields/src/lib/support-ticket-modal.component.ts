@@ -152,7 +152,7 @@ export class SupportTicketModalComponent {
     }
 
     public get support_request_types() {
-        return this._settings.get('app.support_request_types') || [];
+        return this._settings.get('app.support_issue_types') || [];
     }
 
     public get allow_images() {
