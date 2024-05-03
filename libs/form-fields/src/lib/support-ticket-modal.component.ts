@@ -61,10 +61,29 @@ import { getModule } from '@placeos/ts-client';
                         </mat-select>
                     </mat-form-field>
                 </div>
+                <div
+                    class="flex flex-col"
+                    *ngIf="support_request_types?.length"
+                >
+                    <label i18n>Issue Type</label>
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-select
+                            placeholder="Issue Type"
+                            formControlName="issue_type"
+                        >
+                            <mat-option
+                                *ngFor="let type of support_request_types"
+                                [value]="type"
+                            >
+                                {{ type }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
                 <div>
-                    <label class="mb-4" i18n
-                        >Issue Description<span>*</span></label
-                    >
+                    <label class="mb-4" i18n>
+                        Issue Description<span>*</span>
+                    </label>
                     <rich-text-input
                         placeholder="Issue Description"
                         formControlName="description"
@@ -117,6 +136,7 @@ export class SupportTicketModalComponent {
         email: new FormControl('', [Validators.required]),
         location: new FormControl(''),
         description: new FormControl('', [Validators.required]),
+        issue_type: new FormControl(''),
         images: new FormControl([]),
     });
 
@@ -129,6 +149,10 @@ export class SupportTicketModalComponent {
 
     public get support_email() {
         return this._settings.get('app.support_email') || 'support@place.tech';
+    }
+
+    public get support_request_types() {
+        return this._settings.get('app.support_request_types') || [];
     }
 
     public get allow_images() {
@@ -171,11 +195,13 @@ export class SupportTicketModalComponent {
                 );
             }
             const mod = getModule(stmp_system, 'Mailer');
-            const { name, email, location, description, images } =
+            const { name, email, location, description, images, issue_type } =
                 this.form.value;
             await mod.execute('send_mail', [
                 this.support_email,
-                `Support Ticket from Workplace Application`,
+                `Support Ticket from Workplace Application${
+                    issue_type ? ' - ' + issue_type : ''
+                }`,
                 `${name}\n${email}\n\n${location}\n\n${description.replace(
                     /<[^>]+>/g,
                     ''
