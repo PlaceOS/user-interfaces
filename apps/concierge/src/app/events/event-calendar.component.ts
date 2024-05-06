@@ -7,15 +7,17 @@ import { format } from 'date-fns';
 @Component({
     selector: 'event-calendar',
     template: `
-        <ng-container
-            *ngIf="period === 'week'; else month_calendar"
-        ></ng-container>
-        <ng-template #month_calendar> </ng-template>
+        <event-week-view
+            *ngIf="period !== 'month'; else month_calendar"
+        ></event-week-view>
+        <ng-template #month_calendar>
+            <event-month-view></event-month-view>
+        </ng-template>
     `,
     styles: [``],
 })
 export class EventCalendarComponent {
-    @Input() public readonly period: 'week' | 'month' = 'week';
+    @Input() public period: 'week' | 'month' = 'week';
     public readonly event_list = this._state.event_list;
     public readonly event_day_map = this.event_list.pipe(
         map((list) => {

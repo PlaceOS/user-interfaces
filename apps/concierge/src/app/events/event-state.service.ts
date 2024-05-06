@@ -41,6 +41,8 @@ export class EventStateService {
         shareReplay(1)
     );
 
+    public readonly options = this._options.asObservable();
+
     public changed() {
         this._changed.next(Date.now());
     }

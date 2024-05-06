@@ -10,6 +10,7 @@ import {
     format,
 } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
     selector: 'app-event-list',
@@ -32,7 +33,7 @@ import { BehaviorSubject } from 'rxjs';
                     matRipple
                     class="rounded-3xl"
                     [class.inverse]="view !== 'list'"
-                    (click)="view = 'list'"
+                    (click)="setView('list')"
                 >
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-xl">list</app-icon>
@@ -44,7 +45,7 @@ import { BehaviorSubject } from 'rxjs';
                     matRipple
                     class="rounded-3xl"
                     [class.inverse]="view !== 'calendar'"
-                    (click)="view = 'calendar'"
+                    (click)="setView('calendar')"
                 >
                     <div class="flex items-center space-x-2">
                         <app-icon class="text-xl">event</app-icon>
@@ -57,7 +58,7 @@ import { BehaviorSubject } from 'rxjs';
                 <mat-form-field appearance="outline" class="w-32 no-subscript">
                     <mat-select
                         [ngModel]="period.value"
-                        (ngModelChange)="period.next($event)"
+                        (ngModelChange)="setPeriodType($event)"
                     >
                         <mat-option value="week">Week</mat-option>
                         <mat-option value="month">Month</mat-option>
@@ -77,7 +78,10 @@ import { BehaviorSubject } from 'rxjs';
                     </mat-select>
                 </mat-form-field>
             </div>
-            <div class="h-1/2 flex-1 w-full px-8 overflow-auto mb-4">
+            <div
+                class="h-1/2 flex-1 w-full px-8 overflow-auto relative"
+                [class.mb-4]="view === 'list'"
+            >
                 <event-listing *ngIf="view === 'list'"></event-listing>
                 <event-calendar
                     *ngIf="view === 'calendar'"
@@ -102,7 +106,9 @@ export class EventsListComponent extends AsyncHandler {
 
     constructor(
         private _settings: SettingsService,
-        private _state: EventStateService
+        private _state: EventStateService,
+        private _router: Router,
+        private _route: ActivatedRoute
     ) {
         super();
     }
@@ -123,11 +129,52 @@ export class EventsListComponent extends AsyncHandler {
             this.setPeriod(this.period_list[0].id);
             this.selected_range = this.period_list[0].id;
         }
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((q) => {
+                if (q.has('view')) {
+                    this.view = q.get('view') as 'list' | 'calendar';
+                }
+                if (q.has('period')) {
+                    this.period.next(q.get('period') as 'week' | 'month');
+                }
+                if (q.has('range')) {
+                    this.selected_range = parseInt(q.get('range'), 10);
+                    this.setPeriod(this.selected_range);
+                }
+                this._generatePeriods();
+            })
+        );
     }
 
-    public setPeriod(id: string) {
-        const { start, end } = this.period_list.find((_) => _.id === id);
+    public setView(view: 'list' | 'calendar') {
+        this.view = view;
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { view: view },
+            queryParamsHandling: 'merge',
+        });
+    }
+
+    public setPeriodType(type: 'week' | 'month') {
+        this.period.next(type);
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { period: type },
+            queryParamsHandling: 'merge',
+        });
+    }
+
+    public setPeriod(id: number) {
+        const item = this.period_list.find((_) => _.id === id);
+        if (!item) return;
+        const { start, end } = item;
         this._state.setOptions({ date: start, end });
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { range: id },
+            queryParamsHandling: 'merge',
+        });
     }
 
     private _generatePeriods() {

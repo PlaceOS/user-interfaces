@@ -11,6 +11,9 @@ import { SharedSpacesModule } from '@placeos/spaces';
 
 import { FormFieldsModule } from '@placeos/form-fields';
 import { EventListingComponent } from './event-listing.component';
+import { EventWeekViewComponent } from './event-week-view.component';
+import { EventMonthViewComponent } from './event-month-view.component';
+import { EventCalendarComponent } from './event-calendar.component';
 
 const ROUTES: Route[] = [
     {
@@ -29,6 +32,9 @@ const ROUTES: Route[] = [
         EventsListComponent,
         EventManageComponent,
         EventListingComponent,
+        EventCalendarComponent,
+        EventWeekViewComponent,
+        EventMonthViewComponent,
     ],
     imports: [
         CommonModule,
