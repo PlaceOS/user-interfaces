@@ -54,6 +54,7 @@ const EMPTY_FAVS = [];
                         icon
                         matRipple
                         matTooltip="Duplicate Order"
+                        *ngIf="!disabled"
                         (click)="duplicateOrder(order)"
                     >
                         <app-icon>content_copy</app-icon>
@@ -62,6 +63,7 @@ const EMPTY_FAVS = [];
                         icon
                         matRipple
                         matTooltip="Edit Order"
+                        *ngIf="!disabled"
                         (click)="editOrder(order)"
                     >
                         <app-icon>edit</app-icon>
@@ -71,6 +73,7 @@ const EMPTY_FAVS = [];
                         matRipple
                         matTooltip="Remove Order"
                         class="text-error"
+                        *ngIf="!disabled"
                         (click)="removeOrder(order)"
                     >
                         <app-icon>delete</app-icon>
@@ -131,6 +134,7 @@ const EMPTY_FAVS = [];
                             matRipple
                             matTooltip="Remove Order Item"
                             class="text-error"
+                            *ngIf="!disabled"
                             (click)="removeOrderItem(order, item)"
                         >
                             <app-icon>delete</app-icon>
