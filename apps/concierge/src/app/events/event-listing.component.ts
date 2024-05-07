@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import {
+    AsyncHandler,
     SettingsService,
     notifyError,
     notifySuccess,
@@ -9,6 +10,7 @@ import { GroupEventDetailsModalComponent } from '@placeos/bookings';
 import { EventStateService } from './event-state.service';
 import { MatDialog } from '@angular/material/dialog';
 import { removeBooking } from '@placeos/bookings';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'event-listing',
@@ -178,7 +180,7 @@ import { removeBooking } from '@placeos/bookings';
     `,
     styles: [``],
 })
-export class EventListingComponent {
+export class EventListingComponent extends AsyncHandler {
     public readonly event_list = this._state.event_list;
 
     public get time_format() {
@@ -188,11 +190,27 @@ export class EventListingComponent {
     constructor(
         private _settings: SettingsService,
         private _state: EventStateService,
-        private _dialog: MatDialog
-    ) {}
+        private _dialog: MatDialog,
+        private _router: Router
+    ) {
+        super();
+    }
 
     public viewEvent(event: any) {
-        this._dialog.open(GroupEventDetailsModalComponent, { data: event });
+        const ref = this._dialog.open(GroupEventDetailsModalComponent, {
+            data: { booking: event, concierge: true },
+        });
+        this.subscription(
+            'edit',
+            ref.componentInstance.edit.subscribe(() => {
+                this._router.navigate([
+                    '/entertainment',
+                    'events',
+                    'manage',
+                    event.id,
+                ]);
+            })
+        );
     }
 
     public async removeEvent(event: any) {

@@ -5,6 +5,7 @@ import { addDays, format, startOfMinute } from 'date-fns';
 import { map, shareReplay, startWith } from 'rxjs/operators';
 import { Booking, GroupEventDetailsModalComponent } from '@placeos/bookings';
 import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'event-week-view',
@@ -158,7 +159,11 @@ export class EventWeekViewComponent extends AsyncHandler {
         return (now.getHours() * 60 + now.getMinutes()) / (24 * 60);
     }
 
-    constructor(private _state: EventStateService, private _dialog: MatDialog) {
+    constructor(
+        private _state: EventStateService,
+        private _dialog: MatDialog,
+        private _router: Router
+    ) {
         super();
     }
 
@@ -175,8 +180,19 @@ export class EventWeekViewComponent extends AsyncHandler {
     }
 
     public viewDetails(event: Booking): void {
-        this._dialog.open(GroupEventDetailsModalComponent, {
-            data: event,
+        const ref = this._dialog.open(GroupEventDetailsModalComponent, {
+            data: { booking: event, concierge: true },
         });
+        this.subscription(
+            'edit',
+            ref.componentInstance.edit.subscribe(() => {
+                this._router.navigate([
+                    '/entertainment',
+                    'events',
+                    'manage',
+                    event.id,
+                ]);
+            })
+        );
     }
 }

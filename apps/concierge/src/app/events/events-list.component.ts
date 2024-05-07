@@ -126,17 +126,11 @@ export class EventsListComponent extends AsyncHandler {
             'period',
             this.period.subscribe(() => {
                 this._generatePeriods();
-                if (this.period_list.length) {
-                    this.setPeriod(this.period_list[0].id);
-                    this.selected_range = this.period_list[0].id;
-                }
+                this._initPeriod();
             })
         );
         this._generatePeriods();
-        if (this.period_list.length) {
-            this.setPeriod(this.period_list[0].id);
-            this.selected_range = this.period_list[0].id;
-        }
+        this._initPeriod();
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((q) => {
@@ -247,5 +241,18 @@ export class EventsListComponent extends AsyncHandler {
             }
             this.period_list = periods;
         });
+    }
+
+    private _initPeriod() {
+        this.timeout(
+            'update',
+            () => {
+                if (this.period_list.length) {
+                    this.setPeriod(this.period_list[0].id);
+                    this.selected_range = this.period_list[0].id;
+                }
+            },
+            350
+        );
     }
 }

@@ -13,6 +13,7 @@ import {
 import { map, shareReplay, startWith } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { Booking, GroupEventDetailsModalComponent } from '@placeos/bookings';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'event-month-view',
@@ -127,7 +128,8 @@ export class EventMonthViewComponent extends AsyncHandler {
     constructor(
         private _state: EventStateService,
         private _settings: SettingsService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
+        private _router: Router
     ) {
         super();
     }
@@ -146,9 +148,20 @@ export class EventMonthViewComponent extends AsyncHandler {
     }
 
     public viewDetails(event: Booking): void {
-        this._dialog.open(GroupEventDetailsModalComponent, {
-            data: event,
+        const ref = this._dialog.open(GroupEventDetailsModalComponent, {
+            data: { booking: event, concierge: true },
         });
+        this.subscription(
+            'edit',
+            ref.componentInstance.edit.subscribe(() => {
+                this._router.navigate([
+                    '/entertainment',
+                    'events',
+                    'manage',
+                    event.id,
+                ]);
+            })
+        );
     }
 
     private _setMonthDays() {

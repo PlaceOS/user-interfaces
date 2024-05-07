@@ -1,12 +1,24 @@
-import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Component, Inject, Output, EventEmitter } from '@angular/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import {
     Booking,
     bookingAddGuest,
     bookingRemoveGuest,
     checkinBookingGuest,
+    removeBooking,
 } from '@placeos/bookings';
-import { SettingsService, currentUser, unique } from '@placeos/common';
+import {
+    SettingsService,
+    currentUser,
+    notifyError,
+    notifySuccess,
+    openConfirmModal,
+    unique,
+} from '@placeos/common';
 import { MapPinComponent } from '@placeos/components';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { ViewerFeature } from '@placeos/svg-viewer';
@@ -44,44 +56,82 @@ import { ViewerFeature } from '@placeos/svg-viewer';
                     {{ booking.title }}
                 </h3>
                 <div class="flex items-center space-x-2">
-                    <div
-                        btn
-                        class="flex items-center px-4 h-10 rounded space-x-2"
-                        [class.bg-base-200]="!is_interested"
-                        [class.text-base-content]="!is_interested"
-                        [class.opacity-30]="!is_interested"
-                        [class.bg-success]="is_interested"
-                        [class.text-success-content]="is_interested"
-                        [class.opacity-100]="is_interested"
-                    >
-                        <app-icon>star</app-icon>
-                        <div class="pr-2">
-                            {{ is_interested ? '' : 'Not ' }}Interested
+                    <ng-container *ngIf="!concierge">
+                        <div
+                            btn
+                            class="flex items-center px-4 h-10 rounded space-x-2"
+                            [class.bg-base-200]="!is_interested"
+                            [class.text-base-content]="!is_interested"
+                            [class.opacity-30]="!is_interested"
+                            [class.bg-success]="is_interested"
+                            [class.text-success-content]="is_interested"
+                            [class.opacity-100]="is_interested"
+                        >
+                            <app-icon>star</app-icon>
+                            <div class="pr-2">
+                                {{ is_interested ? '' : 'Not ' }}Interested
+                            </div>
                         </div>
-                    </div>
-                    <div
-                        btn
-                        class="flex items-center px-4 h-10 rounded space-x-2"
-                        [class.bg-base-200]="!is_going"
-                        [class.text-base-content]="!is_going"
-                        [class.opacity-30]="!is_going"
-                        [class.bg-success]="is_going"
-                        [class.text-success-content]="is_going"
-                        [class.opacity-100]="is_going"
-                    >
-                        <app-icon>help</app-icon>
-                        <div class="pr-2">
-                            {{ is_going ? '' : 'Not ' }}Going
+                        <div
+                            btn
+                            class="flex items-center px-4 h-10 rounded space-x-2"
+                            [class.bg-base-200]="!is_going"
+                            [class.text-base-content]="!is_going"
+                            [class.opacity-30]="!is_going"
+                            [class.bg-success]="is_going"
+                            [class.text-success-content]="is_going"
+                            [class.opacity-100]="is_going"
+                        >
+                            <app-icon>help</app-icon>
+                            <div class="pr-2">
+                                {{ is_going ? '' : 'Not ' }}Going
+                            </div>
                         </div>
-                    </div>
+                    </ng-container>
                     <button
                         btn
                         matRipple
                         class="clear bg-base-200 text-base-content w-[2.75rem]"
-                        [matMenuTriggerFor]="menu"
+                        [matMenuTriggerFor]="concierge ? concierge_menu : menu"
                     >
                         <app-icon class="text-2xl">more_horiz</app-icon>
                     </button>
+                    <mat-menu #concierge_menu="matMenu">
+                        <button mat-menu-item [disabled]="true">
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-2xl">
+                                    confirmation_number
+                                </app-icon>
+                                <div class="mr-2">Promote Event</div>
+                            </div>
+                        </button>
+                        <button
+                            mat-menu-item
+                            (click)="edit.emit()"
+                            mat-dialog-close
+                        >
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-2xl">edit</app-icon>
+                                <div class="mr-2">Edit Event</div>
+                            </div>
+                        </button>
+                        <button mat-menu-item [disabled]="true">
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-2xl"
+                                    >content_copy</app-icon
+                                >
+                                <div class="mr-2">Copy URL</div>
+                            </div>
+                        </button>
+                        <button mat-menu-item (click)="removeEvent()">
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-2xl text-error">
+                                    delete
+                                </app-icon>
+                                <div class="mr-2">Delete Event</div>
+                            </div>
+                        </button>
+                    </mat-menu>
                     <mat-menu #menu="matMenu">
                         <button
                             mat-menu-item
@@ -244,7 +294,9 @@ import { ViewerFeature } from '@placeos/svg-viewer';
     styles: [``],
 })
 export class GroupEventDetailsModalComponent {
-    public booking: Booking = this._data;
+    @Output() public edit = new EventEmitter();
+    public booking: Booking = this._data.booking;
+    public concierge = this._data.concierge;
     public level: BuildingLevel;
     public features: ViewerFeature[] = [];
     public locate = '';
@@ -281,9 +333,12 @@ export class GroupEventDetailsModalComponent {
     }
 
     constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: Booking,
+        @Inject(MAT_DIALOG_DATA)
+        private _data: { booking: Booking; concierge: boolean },
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _dialog: MatDialog,
+        private _dialog_ref: MatDialogRef<GroupEventDetailsModalComponent>
     ) {}
 
     public ngOnInit(): void {
@@ -340,5 +395,29 @@ export class GroupEventDetailsModalComponent {
             !this.is_going
         ).toPromise();
         (user as any).checked_in = !this.is_going;
+    }
+
+    public async removeEvent() {
+        const result = await openConfirmModal(
+            {
+                title: 'Delete Event',
+                content: `Are you sure you want to delete the event "${this.booking.title}"?`,
+                icon: { content: 'delete' },
+                confirm_text: 'Delete',
+            },
+            this._dialog
+        );
+        if (result.reason !== 'done') return;
+        result.loading('Deleting event...');
+        await removeBooking(this.booking.id)
+            .toPromise()
+            .catch((e) => {
+                notifyError(e);
+                result.close();
+                throw e;
+            });
+        result.close();
+        notifySuccess('Successfully deleted event.');
+        this._dialog_ref.close();
     }
 }

@@ -174,9 +174,11 @@ export class BookingCardComponent extends AsyncHandler {
                 this.booking.booking_type === 'group-event'
                     ? GroupEventDetailsModalComponent
                     : BookingDetailsModalComponent;
-            const ref: any = this._dialog.open(view_component, {
-                data: this.booking,
-            });
+            const data =
+                this.booking.booking_type === 'group-event'
+                    ? { booking: this.booking, concierge: false }
+                    : this.booking;
+            const ref: any = this._dialog.open(view_component, { data });
             this.subscription(
                 'edit',
                 ref.componentInstance.edit?.subscribe(() => this.edit.emit())

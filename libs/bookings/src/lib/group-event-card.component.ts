@@ -153,7 +153,7 @@ export class GroupEventCardComponent {
 
     public viewDetails(): void {
         this._dialog.open(GroupEventDetailsModalComponent, {
-            data: this.event,
+            data: { booking: this.event, concierge: false },
         });
     }
 }

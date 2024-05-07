@@ -11,11 +11,11 @@ import { ActivatedRoute, Router } from '@angular/router';
         <div class="flex items-center border-y border-base-200 w-full">
             <div class="flex-1 px-2 py-4">
                 <span *ngIf="is_today | async" class="text-info text-xs">{{
-                    period === 'week' ? 'This Week' : 'This Month'
+                    (period | async) === 'week' ? 'This Week' : 'This Month'
                 }}</span>
             </div>
-            <div class="flex-2 flex items-center space-x-2">
-                <div class="font-medium">
+            <div class="flex-2 flex items-center justify-center space-x-2">
+                <div class="font-medium pl-4">
                     {{ (options | async)?.date | date: 'MMM yyyy' }}
                 </div>
                 <button icon matRipple (click)="previousPeriod()">
