@@ -32,7 +32,11 @@ export class CustomTooltipData<T = any> {
         <ng-content></ng-content>
 
         <ng-template cdk-portal>
-            <div custom-tooltip class="relative print:hidden" [ngSwitch]="type">
+            <div
+                custom-tooltip
+                class="relative print:hidden pointer-events-none"
+                [ngSwitch]="type"
+            >
                 <ng-container *ngSwitchCase="'component'">
                     <ng-container
                         *ngComponentOutlet="content; injector: injector"
@@ -122,7 +126,7 @@ export class CustomTooltipComponent<T = any>
                 const default_x = 'end';
                 const default_y = 'top';
                 this._overlay_ref = this._overlay.create({
-                    hasBackdrop: !!this.backdrop,
+                    hasBackdrop: !!this.backdrop && !this.hover,
                     positionStrategy: this._overlay
                         .position()
                         .flexibleConnectedTo(this._element)

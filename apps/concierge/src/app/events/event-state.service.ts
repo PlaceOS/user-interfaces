@@ -7,6 +7,7 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
 
 export interface GroupEventOptions {
+    period: 'week' | 'month';
     date?: number;
     end?: number;
     zone_ids?: string[];
@@ -16,7 +17,9 @@ export interface GroupEventOptions {
     providedIn: 'root',
 })
 export class EventStateService {
-    private _options = new BehaviorSubject<GroupEventOptions>({});
+    private _options = new BehaviorSubject<GroupEventOptions>({
+        period: 'week',
+    });
     private _changed = new BehaviorSubject(0);
 
     public readonly event_list = combineLatest([
@@ -45,6 +48,10 @@ export class EventStateService {
 
     public changed() {
         this._changed.next(Date.now());
+    }
+
+    public get period() {
+        return this._options.getValue()?.period;
     }
 
     constructor(

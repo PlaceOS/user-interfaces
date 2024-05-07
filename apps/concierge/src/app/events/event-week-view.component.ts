@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { EventStateService } from './event-state.service';
 import { addDays, format, startOfMinute } from 'date-fns';
 import { map, shareReplay, startWith } from 'rxjs/operators';
-import { start } from 'repl';
+import { Booking, GroupEventDetailsModalComponent } from '@placeos/bookings';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
     selector: 'event-week-view',
@@ -24,7 +25,7 @@ import { start } from 'repl';
                 </div>
                 <div
                     *ngFor="let hour of hours; let i = index"
-                    class="relative min-h-10 flex-1"
+                    class="relative min-h-10 w-full flex-1 bg-base-100"
                 >
                     <div
                         hour
@@ -34,7 +35,7 @@ import { start } from 'repl';
                     </div>
                 </div>
             </div>
-            <div class="relative min-w-[70rem] min-h-full z-10">
+            <div class="relative min-w-[84rem] min-h-full z-10">
                 <div
                     header
                     class="sticky flex top-0 h-16 min-h-16 border-b border-base-200 bg-base-100 z-10"
@@ -42,7 +43,7 @@ import { start } from 'repl';
                     <div
                         *ngFor="let date of days"
                         date
-                        class="flex flex-col items-center justify-center p-4 min-w-40 flex-1 border-r border-base-200"
+                        class="flex flex-col items-center justify-center p-4 min-w-48 flex-1 border-r border-base-200"
                     >
                         <div class="text-sm opacity-60">
                             {{ date | date: 'EEEE' }}
@@ -52,12 +53,12 @@ import { start } from 'repl';
                 </div>
                 <div
                     *ngFor="let hour of hours; let i = index"
-                    class="relative flex min-h-10 min-w-[70rem] flex-1 border-x border-b border-base-200 pointer-events-none"
+                    class="relative flex min-h-10 min-w-[84rem] flex-1 border-x border-b border-base-200 pointer-events-none"
                 ></div>
                 <div
                     *ngFor="let date of days; let i = index"
                     date
-                    class="absolute top-12 left-0 w-[calc(100%/7)] h-[calc(100%-4rem)] flex-1 border-r border-base-200 pointer-events-none"
+                    class="absolute top-16 left-0 w-[calc(100%/7)] h-[60rem] flex-1 border-r border-base-200 pointer-events-none"
                     [style.transform]="'translateX(' + i * 100 + '%)'"
                 >
                     <button
@@ -67,9 +68,10 @@ import { start } from 'repl';
                             ] || []
                         "
                         matRipple
-                        class="absolute inset-x-1 bg-base-100 rounded border border-base-200 hover:border-info shadow pl-3 pr-2 py-1 overflow-hidden  pointer-events-auto"
+                        class="absolute inset-x-1 bg-base-100 rounded border border-base-200 hover:border-info shadow pl-3 pr-2 py-1 overflow-hidden pointer-events-auto"
                         [style.top]="event.offset * 100 + '%'"
                         [style.height]="event.length * 100 + '%'"
+                        (click)="viewDetails(event)"
                     >
                         <div
                             class="absolute left-0 inset-y-0 bg-info w-1.5"
@@ -78,6 +80,21 @@ import { start } from 'repl';
                             {{ event.date | date: 'shortTime' }} &mdash;
                             {{ event.title }}
                         </div>
+                        <div
+                            class="absolute inset-0"
+                            customTooltip
+                            [content]="event_card"
+                            xPosition="center"
+                            yPosition="bottom"
+                            [hover]="true"
+                        ></div>
+                        <ng-template #event_card>
+                            <div class="p-2 pointer-events-none">
+                                <group-event-card
+                                    [event]="event"
+                                ></group-event-card>
+                            </div>
+                        </ng-template>
                     </button>
                     <div
                         now
@@ -123,10 +140,12 @@ export class EventWeekViewComponent extends AsyncHandler {
     );
 
     public dateString(date: number) {
+        if (!date) return '';
         return format(date, 'yyyy-MM-dd');
     }
 
     public isCurrentDay(date: number) {
+        if (!date) return false;
         return format(Date.now(), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd');
     }
 
@@ -139,7 +158,7 @@ export class EventWeekViewComponent extends AsyncHandler {
         return (now.getHours() * 60 + now.getMinutes()) / (24 * 60);
     }
 
-    constructor(private _state: EventStateService) {
+    constructor(private _state: EventStateService, private _dialog: MatDialog) {
         super();
     }
 
@@ -147,10 +166,17 @@ export class EventWeekViewComponent extends AsyncHandler {
         this.subscription(
             'date',
             this._state.options.subscribe(({ date }) => {
+                if (!date) return;
                 this.days = this.days.map((_, idx) =>
                     addDays(date, idx).valueOf()
                 );
             })
         );
+    }
+
+    public viewDetails(event: Booking): void {
+        this._dialog.open(GroupEventDetailsModalComponent, {
+            data: event,
+        });
     }
 }

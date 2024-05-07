@@ -48,6 +48,7 @@ import { LockerBankListComponent } from './locker-select-modal/locker-bank-list.
 import { LockerMapComponent } from './locker-select-modal/locker-map.component';
 import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
 import { SharedSpacesModule } from 'libs/spaces/src/lib/spaces.module';
+import { GroupEventCardComponent } from './group-event-card.component';
 
 const COMPONENTS = [
     DeskQuestionsModalComponent,
@@ -83,6 +84,7 @@ const COMPONENTS = [
     LockerMapComponent,
 
     GroupEventDetailsModalComponent,
+    GroupEventCardComponent,
 ];
 @NgModule({
     declarations: [...COMPONENTS],

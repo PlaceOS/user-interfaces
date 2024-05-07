@@ -8,9 +8,13 @@ import {
     startOfMonth,
     startOfWeek,
     format,
+    endOfWeek,
+    endOfMonth,
+    addWeeks,
 } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
+import { distinctUntilChanged, map, take } from 'rxjs/operators';
 
 @Component({
     selector: 'app-event-list',
@@ -57,7 +61,7 @@ import { ActivatedRoute, Router } from '@angular/router';
                 </div>
                 <mat-form-field appearance="outline" class="w-32 no-subscript">
                     <mat-select
-                        [ngModel]="period.value"
+                        [ngModel]="period | async"
                         (ngModelChange)="setPeriodType($event)"
                     >
                         <mat-option value="week">Week</mat-option>
@@ -99,8 +103,12 @@ import { ActivatedRoute, Router } from '@angular/router';
     ],
 })
 export class EventsListComponent extends AsyncHandler {
+    public readonly period = this._state.options.pipe(
+        map((_) => _.period),
+        distinctUntilChanged()
+    );
+
     public view: 'list' | 'calendar' = 'list';
-    public period = new BehaviorSubject<'week' | 'month'>('week');
     public period_list = [];
     public selected_range: number;
 
@@ -135,14 +143,29 @@ export class EventsListComponent extends AsyncHandler {
                 if (q.has('view')) {
                     this.view = q.get('view') as 'list' | 'calendar';
                 }
-                if (q.has('period')) {
-                    this.period.next(q.get('period') as 'week' | 'month');
-                }
-                if (q.has('range')) {
-                    this.selected_range = parseInt(q.get('range'), 10);
-                    this.setPeriod(this.selected_range);
+                if (q.has('period') && q.get('period') !== this._state.period) {
+                    this.setPeriodType(
+                        q.get('period') as 'week' | 'month',
+                        false
+                    );
                 }
                 this._generatePeriods();
+                if (q.has('range')) {
+                    const id = parseInt(q.get('range'), 10);
+                    const item = this.period_list.find(
+                        (_) => id >= _.start && id < _.end
+                    ) ||
+                        this.period_list[0] || {
+                            start: id,
+                            end:
+                                this._state.period === 'week'
+                                    ? addWeeks(id, 1).valueOf()
+                                    : addMonths(id, 1).valueOf(),
+                        };
+                    this.selected_range = item.id || id;
+                    this._state.setOptions({ date: item.start, end: item.end });
+                    this.setPeriod(this.selected_range);
+                }
             })
         );
     }
@@ -156,62 +179,73 @@ export class EventsListComponent extends AsyncHandler {
         });
     }
 
-    public setPeriodType(type: 'week' | 'month') {
-        this.period.next(type);
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { period: type },
-            queryParamsHandling: 'merge',
-        });
+    public setPeriodType(type: 'week' | 'month', set_route = true) {
+        this._state.setOptions({ period: type });
+        if (set_route) {
+            this._router.navigate([], {
+                relativeTo: this._route,
+                queryParams: { period: type },
+                queryParamsHandling: 'merge',
+            });
+        }
     }
 
     public setPeriod(id: number) {
-        const item = this.period_list.find((_) => _.id === id);
-        if (!item) return;
-        const { start, end } = item;
-        this._state.setOptions({ date: start, end });
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { range: id },
-            queryParamsHandling: 'merge',
+        this.timeout('set_period', () => {
+            const item =
+                this.period_list.find((_) => id >= _.start && id < _.end) ||
+                this.period_list[0];
+            if (!item) return;
+            this.selected_range = item.id;
+            const { start, end } = item;
+            this._state.setOptions({ date: start, end });
+            this._router.navigate([], {
+                relativeTo: this._route,
+                queryParams: { range: id },
+                queryParamsHandling: 'merge',
+            });
         });
     }
 
     private _generatePeriods() {
-        const periods = [];
-        const period_type = this.period.value;
-        let date = Date.now();
-        const end_date = addDays(date, 12 * 30).valueOf();
-        const week_offset = this._settings.get('app.week_start') || 0;
-        if (period_type === 'month') {
-            date = startOfMonth(date).valueOf();
-        } else if (period_type === 'week') {
-            date = startOfWeek(date, { weekStartsOn: week_offset }).valueOf();
-        }
-        while (date < end_date) {
-            if (period_type === 'week') {
-                const end = endOfDay(addDays(date, 6)).valueOf();
-                periods.push({
-                    id: date,
-                    start: date,
-                    end,
-                    display: `${format(
-                        Math.max(Date.now(), date),
-                        'EEE, do MMM'
-                    )} – ${format(end, 'do MMM')}`,
-                });
-                date = addDays(date, 7).valueOf();
-            } else if (period_type === 'month') {
-                const end = addDays(addMonths(date, 1), -1).valueOf();
-                periods.push({
-                    id: date,
-                    start: date,
-                    end,
-                    display: `${format(date, 'MMMM yyyy')}`,
-                });
-                date = addMonths(date, 1).valueOf();
-            } else break;
-        }
-        this.period_list = periods;
+        this.timeout('generate_periods', async () => {
+            const periods = [];
+            const period_type = await this.period.pipe(take(1)).toPromise();
+            let date = Date.now();
+            const end_date = addDays(date, 12 * 30).valueOf();
+            const week_offset = this._settings.get('app.week_start') || 0;
+            if (period_type === 'month') {
+                date = startOfMonth(date).valueOf();
+            } else if (period_type === 'week') {
+                date = startOfWeek(date, {
+                    weekStartsOn: week_offset,
+                }).valueOf();
+            }
+            while (date < end_date) {
+                if (period_type === 'week') {
+                    const end = endOfDay(addDays(date, 6)).valueOf();
+                    periods.push({
+                        id: date,
+                        start: date,
+                        end,
+                        display: `${format(
+                            Math.max(Date.now(), date),
+                            'EEE, do MMM'
+                        )} – ${format(end, 'do MMM')}`,
+                    });
+                    date = addDays(date, 7).valueOf();
+                } else if (period_type === 'month') {
+                    const end = addDays(addMonths(date, 1), -1).valueOf();
+                    periods.push({
+                        id: date,
+                        start: date,
+                        end,
+                        display: `${format(date, 'MMMM yyyy')}`,
+                    });
+                    date = addMonths(date, 1).valueOf();
+                } else break;
+            }
+            this.period_list = periods;
+        });
     }
 }

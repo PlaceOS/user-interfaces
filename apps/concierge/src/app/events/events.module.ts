@@ -14,6 +14,7 @@ import { EventListingComponent } from './event-listing.component';
 import { EventWeekViewComponent } from './event-week-view.component';
 import { EventMonthViewComponent } from './event-month-view.component';
 import { EventCalendarComponent } from './event-calendar.component';
+import { SharedBookingsModule } from '@placeos/bookings';
 
 const ROUTES: Route[] = [
     {
@@ -41,6 +42,7 @@ const ROUTES: Route[] = [
         FormsModule,
         UIModule,
         SharedSpacesModule,
+        SharedBookingsModule,
         FormFieldsModule,
         RouterModule.forChild(ROUTES),
     ],

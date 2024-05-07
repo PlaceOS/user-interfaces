@@ -8,20 +8,17 @@ import { FormFieldsModule } from '@placeos/form-fields';
 import { GroupEventsComponent } from './group-events.component';
 import { SharedComponentModule } from '../components/shared.module';
 import { GroupEventsSidebarComponent } from './group-events-sidebar.component';
-import { GroupEventCardComponent } from './group-event-card.component';
+import { SharedBookingsModule } from '@placeos/bookings';
 
 const ROUTES: Route[] = [{ path: '', component: GroupEventsComponent }];
 
 @NgModule({
-    declarations: [
-        GroupEventsComponent,
-        GroupEventsSidebarComponent,
-        GroupEventCardComponent,
-    ],
+    declarations: [GroupEventsComponent, GroupEventsSidebarComponent],
     imports: [
         CommonModule,
         FormsModule,
         SharedComponentModule,
+        SharedBookingsModule,
         FormFieldsModule,
         RouterModule.forChild(ROUTES),
     ],

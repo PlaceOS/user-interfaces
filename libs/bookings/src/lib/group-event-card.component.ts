@@ -152,7 +152,6 @@ export class GroupEventCardComponent {
     public ngOnInit(): void {}
 
     public viewDetails(): void {
-        console.log('View Details:', this.event);
         this._dialog.open(GroupEventDetailsModalComponent, {
             data: this.event,
         });
