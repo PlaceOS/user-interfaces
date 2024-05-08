@@ -10,6 +10,7 @@ import {
 } from 'date-fns';
 import { BehaviorSubject } from 'rxjs';
 import { GroupEventsStateService } from './group-events-state.service';
+import { take } from 'rxjs/operators';
 
 @Component({
     selector: `group-events-sidebar`,
@@ -60,6 +61,25 @@ import { GroupEventsStateService } from './group-events-state.service';
                 (ngModelChange)="setPeriodFromDate($event)"
             ></date-calendar>
             <hr class="border-base-200 w-[calc(100%-1rem)] mx-auto" />
+            <h2 class="text-lg font-medium p-4">Filters</h2>
+            <div
+                class="flex flex-col space-y-2 px-4"
+                *ngIf="(tags | async)?.length"
+            >
+                <h3>Tags</h3>
+                <button
+                    matRipple
+                    class="flex items-center rounded w-full text-left"
+                    *ngFor="let tag of tags | async"
+                    (click)="toggleTag(tag)"
+                >
+                    <mat-checkbox
+                        [ngModel]="(filters | async)?.tags?.includes(tag)"
+                    >
+                        {{ tag }}
+                    </mat-checkbox>
+                </button>
+            </div>
         </div>
     `,
     styles: [``],
@@ -69,6 +89,8 @@ export class GroupEventsSidebarComponent extends AsyncHandler {
     public period_list = [];
     public selected_range: number;
     public readonly options = this._state.options;
+    public readonly filters = this._state.filters;
+    public readonly tags = this._state.tags;
 
     constructor(
         private _settings: SettingsService,
@@ -92,6 +114,15 @@ export class GroupEventsSidebarComponent extends AsyncHandler {
         if (this.period_list.length) {
             this.setPeriod(this.period_list[0].id);
             this.selected_range = this.period_list[0].id;
+        }
+    }
+
+    public async toggleTag(tag: string) {
+        const tags = (await this.filters.pipe(take(1)).toPromise())?.tags || [];
+        if (tags.includes(tag)) {
+            this._state.setFilters({ tags: tags.filter((_) => _ !== tag) });
+        } else {
+            this._state.setFilters({ tags: [...tags, tag] });
         }
     }
 

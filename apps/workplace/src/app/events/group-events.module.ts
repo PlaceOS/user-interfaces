@@ -9,11 +9,16 @@ import { GroupEventsComponent } from './group-events.component';
 import { SharedComponentModule } from '../components/shared.module';
 import { GroupEventsSidebarComponent } from './group-events-sidebar.component';
 import { SharedBookingsModule } from '@placeos/bookings';
+import { GroupEventsFiltersListComponent } from './group-events-filters-list.component';
 
 const ROUTES: Route[] = [{ path: '', component: GroupEventsComponent }];
 
 @NgModule({
-    declarations: [GroupEventsComponent, GroupEventsSidebarComponent],
+    declarations: [
+        GroupEventsComponent,
+        GroupEventsSidebarComponent,
+        GroupEventsFiltersListComponent,
+    ],
     imports: [
         CommonModule,
         FormsModule,

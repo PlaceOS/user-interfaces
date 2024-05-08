@@ -12,6 +12,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
         <main class="flex flex-1 h-1/2 bg-base-200">
             <group-events-sidebar></group-events-sidebar>
             <div class="w-1/2 flex-1 h-full overflow-auto p-4">
+                <group-events-filters-list></group-events-filters-list>
                 <group-event-card
                     *ngIf="featured | async"
                     [event]="featured | async"
@@ -21,21 +22,15 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
                 <ng-container
                     *ngIf="(event_list | async)?.length; else no_events"
                 >
-                    <ng-container *ngFor="let day of event_date_list | async">
-                        <div
-                            class="flex flex-wrap mt-2 w-[48rem] max-w-full mx-auto"
-                            *ngIf="day.events.length"
-                        >
-                            <h3 class="w-full text-xl px-4 py-6">
-                                {{ day.date | date: 'EEEE, MMM d, y' }}
-                            </h3>
-                            <group-event-card
-                                *ngFor="let event of day.events"
-                                [event]="event"
-                                class="m-2"
-                            ></group-event-card>
-                        </div>
-                    </ng-container>
+                    <div
+                        class="flex flex-wrap mt-2 w-[48rem] max-w-full mx-auto"
+                    >
+                        <group-event-card
+                            *ngFor="let event of event_list | async"
+                            [event]="event"
+                            class="m-2"
+                        ></group-event-card>
+                    </div>
                 </ng-container>
                 <ng-template #no_events>
                     <div
@@ -78,7 +73,7 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
     ],
 })
 export class GroupEventsComponent extends AsyncHandler {
-    public readonly event_list = this._state.events;
+    public readonly event_list = this._state.filtered_events;
     public readonly featured = this.event_list.pipe(
         map((_) => _.find((_: any) => _.extension_data?.featured || _.featured))
     );
