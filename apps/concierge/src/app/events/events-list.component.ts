@@ -8,11 +8,8 @@ import {
     startOfMonth,
     startOfWeek,
     format,
-    endOfWeek,
-    endOfMonth,
     addWeeks,
 } from 'date-fns';
-import { BehaviorSubject } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { distinctUntilChanged, map, take } from 'rxjs/operators';
 

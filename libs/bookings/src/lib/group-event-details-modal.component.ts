@@ -84,6 +84,7 @@ import { ViewerFeature } from '@placeos/svg-viewer';
                         btn
                         matRipple
                         class="clear bg-base-200 text-base-content w-[2.75rem]"
+                        [disabled]="row.state === 'done'"
                         [matMenuTriggerFor]="concierge ? concierge_menu : menu"
                     >
                         <app-icon class="text-2xl">more_horiz</app-icon>
