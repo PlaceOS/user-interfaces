@@ -646,7 +646,7 @@ export class EventFormService extends AsyncHandler {
                 (value as any).setup = value.setup_time || setup;
                 (value as any).breakdown = value.breakdown_time || breakdown;
             }
-            const processed_assets = assets.map((_) =>
+            const processed_assets = (assets || []).map((_) =>
                 new AssetRequest(_).toJSON()
             );
             const result = await this._makeBooking(
