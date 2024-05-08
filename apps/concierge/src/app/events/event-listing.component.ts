@@ -131,7 +131,12 @@ import { EventStateService } from './event-state.service';
         </ng-template>
         <ng-template #actions_template let-row="row">
             <div class="w-full flex items-center justify-end space-x-2">
-                <button icon matRipple [matMenuTriggerFor]="menu">
+                <button
+                    icon
+                    matRipple
+                    [matMenuTriggerFor]="menu"
+                    [disabled]="row.state === 'done'"
+                >
                     <app-icon>more_vert</app-icon>
                 </button>
             </div>

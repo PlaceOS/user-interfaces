@@ -12,7 +12,6 @@ import {
 } from 'date-fns';
 import { map, shareReplay, startWith } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
-import { Booking, GroupEventDetailsModalComponent } from '@placeos/bookings';
 import { Router } from '@angular/router';
 
 @Component({
@@ -20,7 +19,7 @@ import { Router } from '@angular/router';
     template: `
         <div class="absolute inset-0 overflow-auto">
             <div
-                class="grid grid-cols-7 w-full h-full m-2 border-b border-base-200"
+                class="grid grid-cols-7 min-w-full w-[80rem] min-h-full h-[56rem] m-2 border-b border-base-200 "
             >
                 <div
                     weekday
@@ -77,6 +76,42 @@ import { Router } from '@angular/router';
                             </div>
                         </ng-template>
                     </button>
+                    <button
+                        matRipple
+                        *ngIf="
+                            ((event_day_map | async)[dateString(day.id)] || [])
+                                .length > 3
+                        "
+                        matTooltip="More events"
+                        class="relative w-[calc(100%-0.5rem)] h-7 rounded pl-3 pr-2 py-1 overflow-hidden mx-1 underline text-sm"
+                        [matMenuTriggerFor]="menu"
+                    >
+                        {{
+                            ((event_day_map | async)[dateString(day.id)] || [])
+                                .length - 3
+                        }}
+                        more event(s)
+                    </button>
+                    <mat-menu #menu="matMenu">
+                        <button
+                            mat-menu-item
+                            *ngFor="
+                                let event of (event_day_map | async)[
+                                    dateString(day.id)
+                                ] || [] | slice: 3
+                            "
+                            (click)="viewEvent(event)"
+                        >
+                            <div class="flex items-center space-x-4">
+                                <div class="flex-1">{{ event.title }}</div>
+                                <div
+                                    class="text-xs opacity-60 py-1 px-2 rounded bg-base-200 text-base-content"
+                                >
+                                    {{ event.date | date: 'shortTime' }}
+                                </div>
+                            </div>
+                        </button>
+                    </mat-menu>
                 </div>
             </div>
         </div>
