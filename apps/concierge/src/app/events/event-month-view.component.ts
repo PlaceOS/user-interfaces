@@ -49,7 +49,7 @@ import { Router } from '@angular/router';
                                 dateString(day.id)
                             ] || [] | slice: 0:3
                         "
-                        (click)="viewDetails(event)"
+                        (click)="viewEvent(event)"
                         class="relative w-[calc(100%-0.5rem)] h-7 bg-base-100 rounded border border-base-200 hover:border-info shadow pl-3 pr-2 py-1 overflow-hidden mx-1"
                     >
                         <div
@@ -116,6 +116,8 @@ export class EventMonthViewComponent extends AsyncHandler {
         shareReplay(1)
     );
 
+    public readonly viewEvent = (event: any) => this._state.viewEvent(event);
+
     public dateString(date: number) {
         if (!date) return '';
         return format(date, 'yyyy-MM-dd');
@@ -145,23 +147,6 @@ export class EventMonthViewComponent extends AsyncHandler {
         );
         this._setMonthDays();
         this._setWeekdays();
-    }
-
-    public viewDetails(event: Booking): void {
-        const ref = this._dialog.open(GroupEventDetailsModalComponent, {
-            data: { booking: event, concierge: true },
-        });
-        this.subscription(
-            'edit',
-            ref.componentInstance.edit.subscribe(() => {
-                this._router.navigate([
-                    '/entertainment',
-                    'events',
-                    'manage',
-                    event.id,
-                ]);
-            })
-        );
     }
 
     private _setMonthDays() {

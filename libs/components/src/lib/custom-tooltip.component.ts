@@ -32,11 +32,7 @@ export class CustomTooltipData<T = any> {
         <ng-content></ng-content>
 
         <ng-template cdk-portal>
-            <div
-                custom-tooltip
-                class="relative print:hidden pointer-events-none"
-                [ngSwitch]="type"
-            >
+            <div custom-tooltip class="relative print:hidden" [ngSwitch]="type">
                 <ng-container *ngSwitchCase="'component'">
                     <ng-container
                         *ngComponentOutlet="content; injector: injector"

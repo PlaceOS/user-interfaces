@@ -1,16 +1,6 @@
 import { Component } from '@angular/core';
-import {
-    AsyncHandler,
-    SettingsService,
-    notifyError,
-    notifySuccess,
-    openConfirmModal,
-} from '@placeos/common';
-import { GroupEventDetailsModalComponent } from '@placeos/bookings';
+import { SettingsService } from '@placeos/common';
 import { EventStateService } from './event-state.service';
-import { MatDialog } from '@angular/material/dialog';
-import { removeBooking } from '@placeos/bookings';
-import { Router } from '@angular/router';
 
 @Component({
     selector: 'event-listing',
@@ -24,6 +14,7 @@ import { Router } from '@angular/router';
                 'room',
                 'attending',
                 'status',
+                'permissions',
                 'actions'
             ]"
             [display_column]="[
@@ -32,15 +23,17 @@ import { Router } from '@angular/router';
                 'Room',
                 'Attending',
                 'Status',
+                'Published',
                 ' '
             ]"
-            [column_size]="['24r', 'flex', '10r', '6r', '8r', '3.5r']"
+            [column_size]="['24r', 'flex', '10r', '6r', '8r', '5r', '3.5r']"
             [template]="{
                 date: event_template,
                 level: level_template,
                 room: room_template,
                 attending: attending_template,
                 status: status_template,
+                permissions: published_template,
                 actions: actions_template
             }"
         ></custom-table>
@@ -103,7 +96,15 @@ import { Router } from '@angular/router';
             </span>
         </ng-template>
         <ng-template #attending_template let-item="row">
-            {{ item.attendees?.length || 1 }}
+            <div class="px-2">{{ item.attendees?.length || 1 }}</div>
+        </ng-template>
+        <ng-template #published_template let-row="row">
+            <div
+                *ngIf="row.permission === 'OPEN' || row.permission === 'open'"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
+            >
+                <app-icon>done</app-icon>
+            </div>
         </ng-template>
         <ng-template #status_template let-item="row">
             <div
@@ -180,8 +181,12 @@ import { Router } from '@angular/router';
     `,
     styles: [``],
 })
-export class EventListingComponent extends AsyncHandler {
+export class EventListingComponent {
     public readonly event_list = this._state.event_list;
+
+    public readonly viewEvent = (event: any) => this._state.viewEvent(event);
+    public readonly removeEvent = (event: any) =>
+        this._state.removeEvent(event);
 
     public get time_format() {
         return this._settings.time_format;
@@ -189,50 +194,6 @@ export class EventListingComponent extends AsyncHandler {
 
     constructor(
         private _settings: SettingsService,
-        private _state: EventStateService,
-        private _dialog: MatDialog,
-        private _router: Router
-    ) {
-        super();
-    }
-
-    public viewEvent(event: any) {
-        const ref = this._dialog.open(GroupEventDetailsModalComponent, {
-            data: { booking: event, concierge: true },
-        });
-        this.subscription(
-            'edit',
-            ref.componentInstance.edit.subscribe(() => {
-                this._router.navigate([
-                    '/entertainment',
-                    'events',
-                    'manage',
-                    event.id,
-                ]);
-            })
-        );
-    }
-
-    public async removeEvent(event: any) {
-        const result = await openConfirmModal(
-            {
-                title: 'Delete Event',
-                content: `Are you sure you want to delete the event "${event.title}"?`,
-                icon: { content: 'delete' },
-                confirm_text: 'Delete',
-            },
-            this._dialog
-        );
-        if (result.reason !== 'done') return;
-        result.loading('Deleting event...');
-        await removeBooking(event.id)
-            .toPromise()
-            .catch((e) => {
-                notifyError(e);
-                result.close();
-                throw e;
-            });
-        result.close();
-        notifySuccess('Successfully deleted event.');
-    }
+        private _state: EventStateService
+    ) {}
 }

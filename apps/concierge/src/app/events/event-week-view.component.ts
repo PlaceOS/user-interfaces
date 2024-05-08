@@ -72,7 +72,7 @@ import { Router } from '@angular/router';
                         class="absolute inset-x-1 bg-base-100 rounded border border-base-200 hover:border-info shadow pl-3 pr-2 py-1 overflow-hidden pointer-events-auto"
                         [style.top]="event.offset * 100 + '%'"
                         [style.height]="event.length * 100 + '%'"
-                        (click)="viewDetails(event)"
+                        (click)="viewEvent(event)"
                     >
                         <div
                             class="absolute left-0 inset-y-0 bg-info w-1.5"
@@ -140,6 +140,8 @@ export class EventWeekViewComponent extends AsyncHandler {
         shareReplay(1)
     );
 
+    public readonly viewEvent = (event: any) => this._state.viewEvent(event);
+
     public dateString(date: number) {
         if (!date) return '';
         return format(date, 'yyyy-MM-dd');
@@ -175,23 +177,6 @@ export class EventWeekViewComponent extends AsyncHandler {
                 this.days = this.days.map((_, idx) =>
                     addDays(date, idx).valueOf()
                 );
-            })
-        );
-    }
-
-    public viewDetails(event: Booking): void {
-        const ref = this._dialog.open(GroupEventDetailsModalComponent, {
-            data: { booking: event, concierge: true },
-        });
-        this.subscription(
-            'edit',
-            ref.componentInstance.edit.subscribe(() => {
-                this._router.navigate([
-                    '/entertainment',
-                    'events',
-                    'manage',
-                    event.id,
-                ]);
             })
         );
     }

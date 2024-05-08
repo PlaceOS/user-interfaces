@@ -9,16 +9,8 @@ import {
     bookingAddGuest,
     bookingRemoveGuest,
     checkinBookingGuest,
-    removeBooking,
 } from '@placeos/bookings';
-import {
-    SettingsService,
-    currentUser,
-    notifyError,
-    notifySuccess,
-    openConfirmModal,
-    unique,
-} from '@placeos/common';
+import { SettingsService, currentUser, unique } from '@placeos/common';
 import { MapPinComponent } from '@placeos/components';
 import { BuildingLevel, OrganisationService } from '@placeos/organisation';
 import { ViewerFeature } from '@placeos/svg-viewer';
@@ -123,7 +115,7 @@ import { ViewerFeature } from '@placeos/svg-viewer';
                                 <div class="mr-2">Copy URL</div>
                             </div>
                         </button>
-                        <button mat-menu-item (click)="removeEvent()">
+                        <button mat-menu-item (click)="remove.emit()">
                             <div class="flex items-center space-x-2">
                                 <app-icon class="text-2xl text-error">
                                     delete
@@ -295,6 +287,7 @@ import { ViewerFeature } from '@placeos/svg-viewer';
 })
 export class GroupEventDetailsModalComponent {
     @Output() public edit = new EventEmitter();
+    @Output() public remove = new EventEmitter();
     public booking: Booking = this._data.booking;
     public concierge = this._data.concierge;
     public level: BuildingLevel;
@@ -395,29 +388,5 @@ export class GroupEventDetailsModalComponent {
             !this.is_going
         ).toPromise();
         (user as any).checked_in = !this.is_going;
-    }
-
-    public async removeEvent() {
-        const result = await openConfirmModal(
-            {
-                title: 'Delete Event',
-                content: `Are you sure you want to delete the event "${this.booking.title}"?`,
-                icon: { content: 'delete' },
-                confirm_text: 'Delete',
-            },
-            this._dialog
-        );
-        if (result.reason !== 'done') return;
-        result.loading('Deleting event...');
-        await removeBooking(this.booking.id)
-            .toPromise()
-            .catch((e) => {
-                notifyError(e);
-                result.close();
-                throw e;
-            });
-        result.close();
-        notifySuccess('Successfully deleted event.');
-        this._dialog_ref.close();
     }
 }

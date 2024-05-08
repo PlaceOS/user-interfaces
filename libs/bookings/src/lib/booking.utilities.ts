@@ -92,7 +92,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
                   { emitEvent: false }
               )
             : '';
-        if (form.value.date < Date.now() && form.value.id) {
+        if (form.getRawValue().date < Date.now() && form.value.id) {
             form.get('date')?.disable({ emitEvent: false });
         } else {
             form.get('date')?.enable({ emitEvent: false });
@@ -101,18 +101,6 @@ export function generateBookingForm(booking: Booking = new Booking()) {
     form.controls.resources.valueChanges.subscribe((resources) =>
         setBookingAsset(form, (resources || [])[0])
     );
-    form.controls.date.valueChanges.subscribe((date) => {
-        if (date > Date.now() || form.value.id) return;
-        form.patchValue(
-            {
-                date: roundToNearestMinutes(Date.now(), {
-                    nearestTo: 5,
-                    roundingMethod: 'ceil',
-                }).valueOf(),
-            },
-            { emitEvent: false }
-        );
-    });
     form.controls.duration.valueChanges.subscribe((duration) => {
         form.patchValue(
             {
@@ -143,6 +131,28 @@ export function generateBookingForm(booking: Booking = new Booking()) {
                         date,
                         form.getRawValue().date
                     ),
+                },
+                { emitEvent: false }
+            );
+        }
+    });
+    form.controls.date.valueChanges.subscribe((date) => {
+        form.patchValue(
+            {
+                date_end: roundToNearestMinutes(
+                    addMinutes(date, form.value.duration),
+                    { nearestTo: 5, roundingMethod: 'ceil' }
+                ).valueOf(),
+            },
+            { emitEvent: false }
+        );
+        if (date < Date.now() && !form.value.id) {
+            form.patchValue(
+                {
+                    date: roundToNearestMinutes(Date.now(), {
+                        nearestTo: 5,
+                        roundingMethod: 'ceil',
+                    }).valueOf(),
                 },
                 { emitEvent: false }
             );
