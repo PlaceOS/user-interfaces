@@ -492,7 +492,7 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                 this._assets.disabled_rooms,
             ]).pipe(
                 map(([items, disabled_rooms]) => {
-                    const can_cater = space_list.every(
+                    const assets_available = space_list.every(
                         (s) =>
                             items.filter(
                                 (_) =>
@@ -502,18 +502,18 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                             ).length > 0
                     );
                     if (
-                        can_cater &&
+                        assets_available &&
                         !disabled_rooms.find((_) =>
                             space_list.find((i) => i.id === _)
                         )
                     )
                         return true;
                     const event = this._state.event;
-                    const { id, catering, date, date_end } =
+                    const { id, assets, date, date_end } =
                         this.form.getRawValue();
                     const time_changed =
                         !id ||
-                        (catering?.length &&
+                        (assets?.length &&
                             (date !== event.date ||
                                 date_end !== event.date_end));
                     if (time_changed) {
