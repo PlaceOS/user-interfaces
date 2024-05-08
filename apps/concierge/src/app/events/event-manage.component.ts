@@ -544,7 +544,13 @@ export class EventManageComponent extends AsyncHandler {
                     this.loading = false;
                     throw e;
                 });
-            await removeBooking(booking.id);
+            await removeBooking(booking.id)
+                .toPromise()
+                .catch((e) => {
+                    notifyError(e);
+                    this.loading = false;
+                    throw e;
+                });
             this._form_state.form.patchValue({ id: null });
         }
         // Create event if linked to a space
