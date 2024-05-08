@@ -187,7 +187,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         this.timeout(
             'resize',
             () => window.dispatchEvent(new Event('resize')),
-            50
+            100
         );
         this.timeout('focus', () => this._focusOnLocation());
         this.timeout('init_zoom', () => this._handleZoomChange(DEFAULT_ZOOM));
