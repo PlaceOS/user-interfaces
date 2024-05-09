@@ -171,9 +171,8 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
     }
 
     public handleStatusChange(spaces: Space[], space: Space, status: string) {
-        this._statuses[space.id] = space.bookable
-            ? status || 'free'
-            : 'not-bookable';
+        if (space.bookable) this._statuses[space.id] = status || 'free';
+        else delete this._statuses[space.id];
         this.timeout(
             'update_statuses',
             () => {
@@ -189,7 +188,8 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         const style_map = {};
         const colours = this._settings.get('app.explore.colors') || {};
         for (const space of spaces) {
-            const status = this._statuses[space.id] || 'not-bookable';
+            if (!this._statuses[space.id]) continue;
+            const status = this._statuses[space.id];
             style_map[`#${space.map_id}`] = {
                 fill:
                     colours[`space-${status}`] ||
@@ -214,7 +214,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
                 data: {
                     space: new Space(space),
                     events: this._bookings[space.id],
-                    status: this._statuses[space.id],
+                    status: this._statuses[space.id] || 'not-bookable',
                 },
             } as any);
         }
