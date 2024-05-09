@@ -71,7 +71,10 @@ import { endOfDay } from 'date-fns';
                 </button>
             </div>
         </section>
-        <section filters class="flex items-center flex-wrap p-2">
+        <section
+            filters
+            class="flex items-center flex-wrap p-2 w-[35rem] max-w-full sm:max-w-[35rem]"
+        >
             <!-- TODO: filter chips -->
             <div filter-item date>{{ start | date: 'mediumDate' }}</div>
             <div filter-item time>
