@@ -42,7 +42,10 @@ import { BookingFormService } from '../booking-form.service';
                 </button>
             </div>
         </section>
-        <section filters class="flex items-center flex-wrap p-2">
+        <section
+            filters
+            class="flex items-center flex-wrap p-2 w-[35rem] max-w-full sm:max-w-[35rem]"
+        >
             <div
                 filter-item
                 zone
