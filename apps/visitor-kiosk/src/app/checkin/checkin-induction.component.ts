@@ -59,6 +59,10 @@ export class CheckinInductionComponent {
         return this._settings.get('app.induction_details');
     }
 
+    public get induction_after_details() {
+        return this._settings.get('app.induction_after_details');
+    }
+
     public get is_enabled() {
         return (
             this._settings.get('app.induction_enabled') &&
@@ -76,10 +80,13 @@ export class CheckinInductionComponent {
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         const event = await this.event.pipe(first()).toPromise();
-        console.log('Event:', event);
         if (!event) this.previous();
         if (!this.is_enabled || event.induction) {
-            this._router.navigate(['/checkin', 'details']);
+            if (this.induction_after_details) {
+                this._router.navigate(['/checkin', 'results']);
+            } else {
+                this._router.navigate(['/checkin', 'details']);
+            }
         }
     }
 

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
-import { notifyError } from '@placeos/common';
+import { SettingsService, notifyError } from '@placeos/common';
 
 @Component({
     selector: '[checkin-details]',
@@ -122,9 +122,14 @@ export class CheckinDetailsComponent implements OnInit {
 
     public loading = false;
 
+    public get induction_after_details() {
+        return this._settings.get('app.induction_after_details');
+    }
+
     constructor(
         private _checkin: CheckinStateService,
-        private _router: Router
+        private _router: Router,
+        private _settings: SettingsService
     ) {}
 
     public ngOnInit(): void {
@@ -147,7 +152,11 @@ export class CheckinDetailsComponent implements OnInit {
             throw e;
         });
         this.loading = false;
-        this._router.navigate(['/checkin', 'results']);
+        if (this.induction_after_details) {
+            this._router.navigate(['/checkin', 'induction']);
+        } else {
+            this._router.navigate(['/checkin', 'results']);
+        }
     }
 
     public previous() {
