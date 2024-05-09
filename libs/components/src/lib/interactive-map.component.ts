@@ -4,6 +4,7 @@ import {
     InjectionToken,
     Input,
     Output,
+    SimpleChanges,
 } from '@angular/core';
 import { AsyncHandler, MapsPeopleService, log } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -60,10 +61,7 @@ export interface MapMetadata {
                 [options]="options"
                 [reset]="reset"
                 [focus]="focus"
-                [styles]="styles || metadata?.styles"
-                [features]="features || metadata?.features"
-                [actions]="actions || metadata?.actions"
-                [labels]="labels || metadata?.labels"
+                [metadata]="metadata"
             >
                 <ng-content></ng-content>
             </maps-indoors>
@@ -109,7 +107,7 @@ export class InteractiveMapComponent extends AsyncHandler {
     @Input() public zoom = 1;
     @Input() public center: any = { x: 0.5, y: 0.5 };
     @Input() public reset = 0;
-    @Input() public metadata: MapMetadata;
+    @Input() public metadata: MapMetadata = {};
     @Input() public styles: any;
     @Input() public features: any[];
     @Input() public labels: any[];
@@ -131,6 +129,22 @@ export class InteractiveMapComponent extends AsyncHandler {
         private _explore: ExploreStateService
     ) {
         super();
+    }
+
+    public ngOnChanges(changes: SimpleChanges) {
+        if (
+            changes.actions ||
+            changes.labels ||
+            changes.styles ||
+            changes.features
+        ) {
+            this.metadata = {
+                actions: this.actions || [],
+                labels: this.labels || [],
+                styles: this.styles || {},
+                features: this.features || [],
+            };
+        }
     }
 
     public onLevelChange(zone: any) {
