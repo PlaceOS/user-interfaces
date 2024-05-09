@@ -7,7 +7,7 @@ import { ReportsStateService } from '../reports-state.service';
     selector: '[report-desks]',
     template: `
         <reports-options></reports-options>
-        <div class="flex-1 h-1/2 w-full overflow-auto">
+        <div class="flex-1 h-1/2 w-full overflow-auto" printable>
             <ng-container *ngIf="!(loading | async); else load_state">
                 <ng-container *ngIf="total_count | async; else empty_state">
                     <div
@@ -34,7 +34,9 @@ import { ReportsStateService } from '../reports-state.service';
                 </div>
             </ng-template>
             <ng-template #empty_state>
-                <div class="h-full w-full flex flex-col items-center p-8">
+                <div
+                    class="h-full w-full flex flex-col items-center p-8 screen-only"
+                >
                     <p simple>
                         Select levels and time period to generate a report.
                     </p>

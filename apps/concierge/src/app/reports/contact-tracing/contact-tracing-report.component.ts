@@ -11,6 +11,7 @@ import { SettingsService } from '@placeos/common';
             <ng-container *ngIf="!(loading | async); else load_state">
                 <div
                     class="w-[64rem] max-w-[calc(100%-2rem)] rounded overflow-hidden bg-base-100 shadow mx-auto my-2"
+                    printable
                     *ngIf="(options | async)?.user; else empty_state"
                 >
                     <div
@@ -90,7 +91,7 @@ import { SettingsService } from '@placeos/common';
         </ng-template>
         <ng-template #empty_state>
             <div
-                class="p-8 flex flex-col items-center justify-center space-y-2"
+                class="p-8 flex flex-col items-center justify-center space-y-2 screen-only"
             >
                 <p class="opacity-60">Select a user from the topbar to begin</p>
             </div>
