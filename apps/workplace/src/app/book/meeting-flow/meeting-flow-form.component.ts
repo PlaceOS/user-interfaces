@@ -517,7 +517,7 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                             (date !== event.date ||
                                 date_end !== event.date_end));
                     if (time_changed) {
-                        this.form.patchValue({ catering: [] });
+                        this.form.patchValue({ assets: [] });
                         notifyWarn(
                             `Assets are unavailable for some of the selected spaces.`
                         );
