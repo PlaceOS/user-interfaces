@@ -138,7 +138,8 @@ export class LandingStateService extends AsyncHandler {
     public loading_spaces = this._loading_spaces.asObservable();
     /** Function used to query for users */
     public search_fn = (q: string) =>
-        this._settings.get('app.basic_user_search')
+        this._settings.get('app.basic_user_search') ||
+        this._settings.get('app.colleagues_require_auth') !== false
             ? queryUsers({ q, authority_id: authority()?.id }).pipe(
                   map(({ data }) => data.map((_) => new StaffUser(_)))
               )

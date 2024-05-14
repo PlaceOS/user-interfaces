@@ -1,6 +1,10 @@
 import { Component, Inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import {
     AsyncHandler,
     SettingsService,
@@ -14,6 +18,7 @@ import { OrganisationService, Building } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { PointOfInterest } from './poi-management.service';
 import { take } from 'rxjs/operators';
+import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
 
 @Component({
     selector: 'poi-modal',
@@ -104,8 +109,14 @@ import { take } from 'rxjs/operators';
                             >
                         </mat-select>
                     </mat-form-field>
-                    <ng-container *ngIf="location_type === 'map_id'">
-                        <mat-form-field appearance="outline">
+                    <div
+                        class="flex items-center space-x-2 pb-2"
+                        *ngIf="location_type === 'map_id'"
+                    >
+                        <mat-form-field
+                            class="no-subscript"
+                            appearance="outline"
+                        >
                             <input
                                 matInput
                                 name="location"
@@ -114,7 +125,15 @@ import { take } from 'rxjs/operators';
                                 formControlName="location"
                             />
                         </mat-form-field>
-                    </ng-container>
+                        <button
+                            icon
+                            matRipple
+                            class="rounded border border-base-300 h-12 w-12"
+                            (click)="selectPOIfromMap()"
+                        >
+                            <app-icon>place</app-icon>
+                        </button>
+                    </div>
                     <div
                         class="flex items-center space-x-2"
                         *ngIf="location_type === 'coordinates'"
@@ -200,7 +219,8 @@ export class POIModalComponent extends AsyncHandler {
         private _org: OrganisationService,
         @Inject(MAT_DIALOG_DATA) private _data: PointOfInterest | undefined,
         private _dialog_ref: MatDialogRef<POIModalComponent>,
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _dialog: MatDialog
     ) {
         super();
     }
@@ -210,6 +230,16 @@ export class POIModalComponent extends AsyncHandler {
             const levels = await this.level_list.pipe(take(1)).toPromise();
             if (levels.length) this.form.patchValue({ level_id: levels[0].id });
         }
+    }
+
+    public selectPOIfromMap() {
+        const ref = this._dialog.open(SelectPOIMapModalComponent, {
+            data: this._data,
+        });
+        ref.afterClosed().subscribe((d) => {
+            if (!d) return;
+            this.form.patchValue({ location: d });
+        });
     }
 
     public async save() {
