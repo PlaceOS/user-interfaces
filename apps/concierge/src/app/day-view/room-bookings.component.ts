@@ -18,7 +18,7 @@ const EMPTY = [];
                 </button>
             </div>
             <div class="w-full flex items-center">
-                <mat-form-field appearance="outline" class="h-[3.5rem]">
+                <mat-form-field appearance="outline" class="h-[3.5rem]" *ngIf="!use_region">
                     <mat-select
                         multiple
                         [ngModel]="zones | async"
@@ -34,15 +34,15 @@ const EMPTY = [];
                     </mat-select>
                 </mat-form-field>
                 <ng-container *ngIf="allow_setup_breakdown">
-                <div class="border-l h-full ml-8 mr-4"></div>
-                <mat-slide-toggle
-                    class="m-2"
-                    [ngModel]="(ui_options | async)?.show_overflow"
-                    (ngModelChange)="updateUIOptions({ show_overflow: $event })"
-                >
-                    <div class="text-xs">Setup / Breakdown</div>
-                </mat-slide-toggle>
-</ng-container>
+                    <div class="border-l h-full ml-8 mr-4" *ngIf="!use_region"></div>
+                    <mat-slide-toggle
+                        class="m-2"
+                        [ngModel]="(ui_options | async)?.show_overflow"
+                        (ngModelChange)="updateUIOptions({ show_overflow: $event })"
+                    >
+                        <div class="text-xs">Setup / Breakdown</div>
+                    </mat-slide-toggle>
+                </ng-container>
                 <div class="border-l h-full ml-8 mr-4"></div>
                 <div class="flex items-center space-x-2">
                     <button btn matRipple class="inverse" [matMenuTriggerFor]="menu">
@@ -114,6 +114,10 @@ export class RoomBookingsComponent extends AsyncHandler {
         return this._settings.get('app.events.allow_setup_breakdown');
     }
 
+    public get use_region() {
+        return this._settings.get('app.use_region');
+    }
+
     constructor(
         private _org: OrganisationService,
         private _state: EventsStateService,
@@ -128,6 +132,7 @@ export class RoomBookingsComponent extends AsyncHandler {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
+                if (this.use_region) return;
                 if (params.has('zone_ids')) {
                     const zones = params.get('zone_ids').split(',');
                     if (zones.length) {
@@ -143,6 +148,7 @@ export class RoomBookingsComponent extends AsyncHandler {
         this.subscription(
             'levels',
             this._org.active_levels.subscribe(async (levels) => {
+                if (this.use_region) return;
                 const zones = (
                     await this.zones.pipe(take(1)).toPromise()
                 ).filter((zone) => levels.find((lvl) => lvl.id === zone));
@@ -151,6 +157,10 @@ export class RoomBookingsComponent extends AsyncHandler {
                 }
                 this.updateZones(zones);
             })
+        );
+        this.subscription(
+            'region',
+            this._org.active_region.subscribe((_) => this.updateZones([_.id]))
         );
     }
 

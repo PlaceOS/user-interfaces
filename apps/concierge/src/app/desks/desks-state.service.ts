@@ -28,6 +28,7 @@ import {
     notifyInfo,
     notifySuccess,
     openConfirmModal,
+    SettingsService,
 } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
 
@@ -116,7 +117,9 @@ export class DesksStateService extends AsyncHandler {
             const zones =
                 !filters.zones ||
                 filters.zones.some((z) => this._all_zones_keys.includes(z))
-                    ? [this._org.building.id]
+                    ? this._settings.get('app.use_region')
+                        ? this._org.buildingsForRegion().map((_) => _.id)
+                        : [this._org.building.id]
                     : filters.zones;
             this._next_page.next(() =>
                 queryPagedBookings({
@@ -185,7 +188,11 @@ export class DesksStateService extends AsyncHandler {
         this._call_next_page.next(`NEXT_${Date.now()}`);
     }
 
-    constructor(private _org: OrganisationService, private _dialog: MatDialog) {
+    constructor(
+        private _org: OrganisationService,
+        private _dialog: MatDialog,
+        private _settings: SettingsService
+    ) {
         super();
         this.setup_paging.subscribe();
     }

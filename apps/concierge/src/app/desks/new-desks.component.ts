@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import {
     AsyncHandler,
+    SettingsService,
     csvToJson,
     downloadFile,
     jsonToCsv,
@@ -46,21 +47,23 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                     </button>
                 </div>
                 <div class="w-full flex items-center px-8 space-x-2">
-                    <mat-form-field appearance="outline" class="h-[3.5rem]">
-                        <mat-select
-                            [ngModel]="(filters | async)?.zones[0]"
-                            (ngModelChange)="updateZones([$event])"
-                            placeholder="All Levels"
-                        >
-                            <mat-option
-                                *ngFor="let level of levels | async"
-                                [value]="level.id"
+                    <ng-container *ngIf="!use_region">
+                        <mat-form-field appearance="outline" class="h-[3.5rem]">
+                            <mat-select
+                                [ngModel]="(filters | async)?.zones[0]"
+                                (ngModelChange)="updateZones([$event])"
+                                placeholder="All Levels"
                             >
-                                {{ level.display_name || level.name }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <div class="border-l h-full !ml-8 !mr-4"></div>
+                                <mat-option
+                                    *ngFor="let level of levels | async"
+                                    [value]="level.id"
+                                >
+                                    {{ level.display_name || level.name }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <div class="border-l h-full !ml-8 !mr-4"></div>
+                    </ng-container>
                     <div class="flex-1 w-px"></div>
                     <ng-container *ngIf="path === 'events'">
                         <date-options
@@ -172,12 +175,17 @@ export class NewDesksComponent
     };
     public page_title: string = 'Desk Bookings';
 
+    public get use_region() {
+        return !!this._settings.get('app.use_region');
+    }
+
     constructor(
         private _state: DesksStateService,
         private _router: Router,
         private _route: ActivatedRoute,
         private _dialog: MatDialog,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _settings: SettingsService
     ) {
         super();
     }
@@ -201,6 +209,7 @@ export class NewDesksComponent
         this.subscription(
             'levels',
             this._org.active_levels.subscribe(async (levels) => {
+                if (this.use_region) return;
                 const filters = await this.filters.pipe(take(1)).toPromise();
                 const zones =
                     filters?.zones?.filter(

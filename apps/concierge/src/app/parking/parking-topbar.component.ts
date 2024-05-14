@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 import { ParkingStateService } from './parking-state.service';
@@ -72,11 +72,16 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         this._state.setOptions({ zones: z });
     };
 
+    public get use_region() {
+        return !!this._settings.get('app.use_region');
+    }
+
     constructor(
         private _state: ParkingStateService,
         private _org: OrganisationService,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
+        private _settings: SettingsService
     ) {
         super();
     }
@@ -102,6 +107,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'levels',
             this._state.levels.subscribe((levels) => {
+                if (this.use_region) return;
                 this.zones = this.zones.filter((zone) =>
                     levels.find((lvl) => lvl.id === zone)
                 );
