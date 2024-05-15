@@ -77,11 +77,6 @@ function registerMocks() {
                     message: `Unable to find booking with ID ${id}`,
                 };
             }
-            console.log(
-                'Checking in',
-                decodeURIComponent(email),
-                event.attendees
-            );
             const guest = event.attendees.find(
                 (_) => _.email === decodeURIComponent(email)
             );
@@ -93,6 +88,26 @@ function registerMocks() {
             }
             guest.checked_in = _.query_params.state === 'true';
             return guest;
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/staff/v1/bookings/:id/attendee/:email',
+        metadata: {},
+        method: 'DELETE',
+        callback: (_) => {
+            const { id, email } = _.route_params;
+            const event = MOCK_BOOKINGS.find((e) => e.id === id);
+            if (!event) {
+                throw {
+                    status: 404,
+                    message: `Unable to find booking with ID ${id}`,
+                };
+            }
+            event.attendees = event.attendees.filter(
+                (_) => _.email !== decodeURIComponent(email)
+            );
+            return event;
         },
     });
 
