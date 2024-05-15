@@ -447,6 +447,9 @@ export class GroupEventDetailsModalComponent {
                 'email'
             );
         }
+        user = { ...currentUser(), ...(user || {}) };
+        console.log('User:', user);
+        if (!user.email) return;
         await checkinBookingGuest(
             this.booking.id,
             user.email,
