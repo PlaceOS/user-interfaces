@@ -22,13 +22,13 @@ import { ViewerFeature } from '@placeos/svg-viewer';
             class="relative w-[48rem] max-w-[calc(100vw-1rem)] max-h-[80vh] overflow-hidden"
         >
             <div
-                class="flex items-center justify-between h-52 w-full bg-base-200 overflow-hidden"
+                class="relative flex items-center justify-between h-52 w-full bg-base-200 overflow-hidden"
             >
                 <img
                     *ngIf="booking.images?.length"
                     auth
                     [source]="booking.images[0]"
-                    class="object-cover"
+                    class="absolute top-1/2 left-1/2 min-h-full min-w-full object-cover -translate-x-1/2 -translate-y-1/2"
                 />
             </div>
             <div
@@ -84,7 +84,7 @@ import { ViewerFeature } from '@placeos/svg-viewer';
                         btn
                         matRipple
                         class="clear bg-base-200 text-base-content w-[2.75rem]"
-                        [disabled]="row.state === 'done'"
+                        [disabled]="booking.state === 'done'"
                         [matMenuTriggerFor]="concierge ? concierge_menu : menu"
                     >
                         <app-icon class="text-2xl">more_horiz</app-icon>
