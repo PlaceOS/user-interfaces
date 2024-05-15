@@ -1,4 +1,10 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    Output,
+    SimpleChanges,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { SettingsService, currentUser } from '@placeos/common';
@@ -36,12 +42,12 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                 <div
                     class="flex flex-wrap flex-col sm:flex-row sm:divide-x divide-base-200-500 py-2 space-y-2 sm:space-y-0"
                 >
-                    <div class="flex items-center px-4">
+                    <div class="flex items-center px-4 max-w-[33%]">
                         <app-icon *ngIf="type !== 'desk'; else desk_icon">{{
                             type
                         }}</app-icon>
-                        <div class="mx-2 truncate">
-                            {{ booking?.description || booking?.asset_id }}
+                        <div class="mx-2 truncate flex-1 w-1/2">
+                            {{ raw_description || booking?.asset_id }}
                         </div>
                     </div>
                     <div class="flex items-center px-4" *ngIf="location">
@@ -92,6 +98,8 @@ export class BookingCardComponent extends AsyncHandler {
     @Output() public remove = new EventEmitter();
     @Output() public end = new EventEmitter();
 
+    public raw_description = '';
+
     public get for_current_user() {
         return (
             this.booking?.user_email.toLowerCase() ===
@@ -133,6 +141,14 @@ export class BookingCardComponent extends AsyncHandler {
         );
     }
 
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes.booking) {
+            this.raw_description = this.removeHtmlTags(
+                this.booking?.description
+            );
+        }
+    }
+
     public get type() {
         if (this.booking?.type === 'desk') return 'desk';
         if (this.booking?.type === 'parking') return 'drive_eta';
@@ -165,6 +181,11 @@ export class BookingCardComponent extends AsyncHandler {
             end,
             this.time_format
         )} (${dur})`;
+    }
+
+    public removeHtmlTags(html: string) {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        return doc.body.textContent || '';
     }
 
     public viewDetails() {
