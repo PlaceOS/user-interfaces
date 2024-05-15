@@ -37,9 +37,10 @@ import { OrganisationService } from '@placeos/organisation';
                     {{ event.title }}
                 </h2>
                 <div
-                    class="opacity-60 text-xs flex-1 overflow-hidden h-[4.5rem] mb-2"
-                    [innerHTML]="event.description | sanitize"
-                ></div>
+                    class="opacity-60 text-xs flex-1 overflow-hidden h-[4.5rem] mb-2 text-left"
+                >
+                    <p class="line-clamp-4">{{ raw_description }}</p>
+                </div>
                 <div class="flex items-center space-x-2 text-sm">
                     <app-icon class="text-info">place</app-icon>
                     <div class="opacity-60" *ngIf="space?.id">
@@ -96,10 +97,9 @@ import { OrganisationService } from '@placeos/organisation';
                                     | date: time_format
                             }}
                         </div>
-                        <div
-                            class="h-20 overflow-hidden"
-                            [innerHTML]="event.description | sanitize"
-                        ></div>
+                        <div class="h-20 overflow-hidden text-left">
+                            <p class="line-clamp-4">{{ raw_description }}</p>
+                        </div>
                         <div class="flex items-center space-x-2 text-sm">
                             <app-icon class="text-info">place</app-icon>
                             <div class="opacity-60" *ngIf="space?.id">
@@ -137,6 +137,7 @@ export class GroupEventCardComponent {
     @Input() public event: any;
     @Input() public featured: boolean;
     public space: Space;
+    public raw_description = '';
 
     public get time_format(): string {
         return this._settings.time_format;
@@ -153,7 +154,12 @@ export class GroupEventCardComponent {
         this.space = await space_pipe.transform(
             this.event.linked_event?.system_id
         );
-        console.log('Space:', this.space);
+        this.raw_description = this.removeHtmlTags(this.event.description);
+    }
+
+    public removeHtmlTags(html: string) {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        return doc.body.textContent || '';
     }
 
     public viewDetails(): void {
