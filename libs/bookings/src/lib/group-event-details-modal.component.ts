@@ -11,13 +11,15 @@ import {
     checkinBookingGuest,
 } from '@placeos/bookings';
 import { SettingsService, currentUser, unique } from '@placeos/common';
-import { MapPinComponent } from '@placeos/components';
+import { MapLocateModalComponent, MapPinComponent } from '@placeos/components';
 import {
     Building,
     BuildingLevel,
     OrganisationService,
 } from '@placeos/organisation';
 import { ViewerFeature } from '@placeos/svg-viewer';
+import { Space } from 'libs/spaces/src/lib/space.class';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 
 @Component({
     selector: `group-event-details-modal`,
@@ -237,10 +239,13 @@ import { ViewerFeature } from '@placeos/svg-viewer';
                         <button
                             matRipple
                             class="relative w-full h-40 bg-base-200"
+                            (click)="viewLocation()"
                         >
                             <interactive-map
+                                *ngIf="!showing_map"
                                 [src]="level?.map_id"
                                 [features]="features"
+                                [styles]="styles"
                             ></interactive-map>
                         </button>
                         <div class=" p-4 space-y-2">
@@ -312,12 +317,15 @@ import { ViewerFeature } from '@placeos/svg-viewer';
 export class GroupEventDetailsModalComponent {
     @Output() public edit = new EventEmitter();
     @Output() public remove = new EventEmitter();
+    public space: Space;
     public booking: Booking = this._data.booking;
     public concierge = this._data.concierge;
     public building: Building;
     public level: BuildingLevel;
     public features: ViewerFeature[] = [];
     public locate = '';
+    public showing_map = false;
+    public styles = {};
 
     public get time_format() {
         return this._settings.time_format;
@@ -359,20 +367,41 @@ export class GroupEventDetailsModalComponent {
         private _dialog_ref: MatDialogRef<GroupEventDetailsModalComponent>
     ) {}
 
-    public ngOnInit(): void {
+    public async ngOnInit() {
+        const space_pipe = new SpacePipe(this._org);
+        this.space = await space_pipe.transform(
+            this.booking.linked_event?.system_id
+        );
+        const id = this.space?.map_id || this.booking.extension_data?.map_id;
+        if (id) {
+            this.styles[`#${id}`] = { fill: 'green' };
+            this.features = [
+                {
+                    location: id,
+                    content: MapPinComponent,
+                    data: {},
+                },
+            ];
+        }
         this.level = this._org.levelWithID(this.booking.zones);
         this.building =
             this._org.buildings.find((_) =>
                 this.booking.zones.includes(_.id)
             ) || this._org.building;
         this.locate = this.booking.extension_data?.map_id || '';
-        this.features = [
-            {
-                location: this.locate,
-                content: MapPinComponent,
-                data: {},
-            },
-        ];
+    }
+
+    public viewLocation() {
+        if (!this.space?.map_id) return;
+        this.showing_map = true;
+        const ref = this._dialog.open(MapLocateModalComponent, {
+            maxWidth: '95vw',
+            maxHeight: '95vh',
+            data: { item: this.space },
+        });
+        ref.afterClosed().subscribe(() => {
+            this.showing_map = false;
+        });
     }
 
     public async toggleInterest() {

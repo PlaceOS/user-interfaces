@@ -6,7 +6,7 @@ import { EventStateService } from './event-state.service';
     selector: 'event-listing',
     template: `
         <custom-table
-            class="min-w-[60rem] block"
+            class="min-w-[64rem] block"
             [dataSource]="event_list"
             [columns]="[
                 'date',

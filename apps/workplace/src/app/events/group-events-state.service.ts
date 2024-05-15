@@ -49,7 +49,11 @@ export class GroupEventsStateService {
                     : building.id,
             })
         ),
-        map((list) => list.sort((a, b) => a.date - b.date)),
+        map((list) =>
+            list
+                .filter((_) => _.permission !== 'PRIVATE')
+                .sort((a, b) => a.date - b.date)
+        ),
         tap((list) => {
             const old_tags = this._tag_list.getValue();
             const tags = list.map((event) => event.tags).flat();
