@@ -10,7 +10,12 @@ import {
     bookingRemoveGuest,
     checkinBookingGuest,
 } from '@placeos/bookings';
-import { SettingsService, currentUser, unique } from '@placeos/common';
+import {
+    SettingsService,
+    currentUser,
+    notifyInfo,
+    unique,
+} from '@placeos/common';
 import { MapLocateModalComponent, MapPinComponent } from '@placeos/components';
 import {
     Building,
@@ -392,7 +397,9 @@ export class GroupEventDetailsModalComponent {
     }
 
     public viewLocation() {
-        if (!this.space?.map_id) return;
+        if (!this.space?.map_id) {
+            return notifyInfo('Unable to locate space on map.');
+        }
         this.showing_map = true;
         const ref = this._dialog.open(MapLocateModalComponent, {
             maxWidth: '95vw',

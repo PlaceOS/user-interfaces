@@ -2,6 +2,9 @@ import { Component, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
 import { GroupEventDetailsModalComponent } from '@placeos/bookings';
+import { Space } from 'libs/spaces/src/lib/space.class';
+import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'group-event-card',
@@ -39,16 +42,10 @@ import { GroupEventDetailsModalComponent } from '@placeos/bookings';
                 ></div>
                 <div class="flex items-center space-x-2 text-sm">
                     <app-icon class="text-info">place</app-icon>
-                    <div class="" *ngIf="item?.linked_event?.system_id">
-                        {{
-                            (item?.linked_event?.system_id | space | async)
-                                ?.display_name
-                        }}
+                    <div class="opacity-60" *ngIf="space?.id">
+                        {{ space.display_name || space.name || '' }}
                     </div>
-                    <div
-                        class="opacity-30"
-                        *ngIf="!item?.linked_event?.system_id"
-                    >
+                    <div class="opacity-30" *ngIf="!space?.id">
                         Remote event
                     </div>
                 </div>
@@ -99,15 +96,16 @@ import { GroupEventDetailsModalComponent } from '@placeos/bookings';
                                     | date: time_format
                             }}
                         </div>
-                        <div class="h-20 overflow-hidden">
-                            {{ event.description }}
-                        </div>
+                        <div
+                            class="h-20 overflow-hidden"
+                            [innerHTML]="event.description | sanitize"
+                        ></div>
                         <div class="flex items-center space-x-2 text-sm">
                             <app-icon class="text-info">place</app-icon>
-                            <div class="" *ngIf="event.location">
-                                {{ event.location }}
+                            <div class="opacity-60" *ngIf="space?.id">
+                                {{ space.display_name || space.name || '' }}
                             </div>
-                            <div class="opacity-30" *ngIf="!event.location">
+                            <div class="opacity-30" *ngIf="!space?.id">
                                 Remote event
                             </div>
                         </div>
@@ -138,6 +136,7 @@ import { GroupEventDetailsModalComponent } from '@placeos/bookings';
 export class GroupEventCardComponent {
     @Input() public event: any;
     @Input() public featured: boolean;
+    public space: Space;
 
     public get time_format(): string {
         return this._settings.time_format;
@@ -145,10 +144,17 @@ export class GroupEventCardComponent {
 
     constructor(
         private _settings: SettingsService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
+        private _org: OrganisationService
     ) {}
 
-    public ngOnInit(): void {}
+    public async ngOnInit() {
+        const space_pipe = new SpacePipe(this._org);
+        this.space = await space_pipe.transform(
+            this.event.linked_event?.system_id
+        );
+        console.log('Space:', this.space);
+    }
 
     public viewDetails(): void {
         this._dialog.open(GroupEventDetailsModalComponent, {
