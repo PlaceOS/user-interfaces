@@ -12,7 +12,11 @@ import {
 } from '@placeos/bookings';
 import { SettingsService, currentUser, unique } from '@placeos/common';
 import { MapPinComponent } from '@placeos/components';
-import { BuildingLevel, OrganisationService } from '@placeos/organisation';
+import {
+    Building,
+    BuildingLevel,
+    OrganisationService,
+} from '@placeos/organisation';
 import { ViewerFeature } from '@placeos/svg-viewer';
 
 @Component({
@@ -220,7 +224,9 @@ import { ViewerFeature } from '@placeos/svg-viewer';
                     </div>
                     <h3 class="font-medium pt-4">About this event</h3>
                     <div class="text-sm pb-4">
-                        {{ booking.description }}
+                        <span
+                            [innerHTML]="booking.description | sanitize"
+                        ></span>
                         <span *ngIf="!booking.description" class="opacity-30">
                             No description
                         </span>
@@ -239,18 +245,35 @@ import { ViewerFeature } from '@placeos/svg-viewer';
                         </button>
                         <div class=" p-4 space-y-2">
                             <div>
-                                {{ booking.location }}
+                                {{
+                                    (
+                                        booking.linked_event?.system_id
+                                        | space
+                                        | async
+                                    )?.display_name
+                                }}
                                 <span
-                                    *ngIf="!booking.location"
+                                    *ngIf="
+                                        !(
+                                            booking.linked_event?.system_id
+                                            | space
+                                            | async
+                                        )?.display_name
+                                    "
                                     class="opacity-30"
                                 >
                                     Remote Event
                                 </span>
                             </div>
                             <div class="opacity-30 text-sm">
-                                {{ booking.location }}
+                                <span *ngIf="building && level">
+                                    {{
+                                        building.display_name || building.name
+                                    }},
+                                    {{ level?.display_name || level?.name }}
+                                </span>
                                 <span
-                                    *ngIf="!booking.location"
+                                    *ngIf="!building || !level"
                                     class="opacity-30"
                                 >
                                     No location set for this event
@@ -291,6 +314,7 @@ export class GroupEventDetailsModalComponent {
     @Output() public remove = new EventEmitter();
     public booking: Booking = this._data.booking;
     public concierge = this._data.concierge;
+    public building: Building;
     public level: BuildingLevel;
     public features: ViewerFeature[] = [];
     public locate = '';
@@ -337,6 +361,10 @@ export class GroupEventDetailsModalComponent {
 
     public ngOnInit(): void {
         this.level = this._org.levelWithID(this.booking.zones);
+        this.building =
+            this._org.buildings.find((_) =>
+                this.booking.zones.includes(_.id)
+            ) || this._org.building;
         this.locate = this.booking.extension_data?.map_id || '';
         this.features = [
             {
