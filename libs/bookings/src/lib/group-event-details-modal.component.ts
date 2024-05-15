@@ -301,7 +301,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                                 </div>
                                 <div
                                     class="flex items-center justify-center h-10 w-10 rounded-full bg-base-200"
-                                    matTooltip=""
+                                    matTooltip="Open spaces nearby"
                                 >
                                     <app-icon class="text-2xl">chat</app-icon>
                                 </div>
