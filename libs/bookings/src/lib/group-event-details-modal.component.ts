@@ -161,8 +161,8 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     </mat-menu>
                 </div>
             </div>
-            <div class="flex overflow-y-auto overflow-x-hidden p-8">
-                <div class="flex flex-1 flex-col space-y-2 w-1/2">
+            <div class="flex overflow-y-auto overflow-x-hidden p-8 space-x-6">
+                <div class="flex flex-1 flex-col space-y-2 w-1/3">
                     <div class="flex items-center space-x-4">
                         <div
                             class="flex items-center justify-center w-10 h-10 bg-base-200 rounded-full"
