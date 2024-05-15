@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { GroupEventsStateService } from './group-events-state.service';
 import { differenceInDays, endOfDay, startOfDay } from 'date-fns';
-import { map, take } from 'rxjs/operators';
+import { map, take, tap } from 'rxjs/operators';
 
 @Component({
     selector: 'group-events-filters-list',
     template: `
         <div
-            class="my-2 w-[48rem] max-w-full mx-auto border border-base-300 p-4 bg-base-100 rounded"
+            class="my-2 w-[63rem] max-w-full mx-auto border border-base-300 p-4 bg-base-100 rounded"
         >
             <div class="flex items-center justify-between space-x-2 mb-4">
                 <div>
@@ -50,7 +50,9 @@ export class GroupEventsFiltersListComponent {
     );
     public readonly period = this._state.options.pipe(
         map(({ date, end }) =>
-            differenceInDays(date, end || Date.now()) > 7 ? 'month' : 'week'
+            Math.abs(differenceInDays(date, end || Date.now())) > 7
+                ? 'month'
+                : 'week'
         )
     );
 

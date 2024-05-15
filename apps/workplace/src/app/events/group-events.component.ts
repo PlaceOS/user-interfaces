@@ -17,13 +17,13 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
                     *ngIf="featured | async"
                     [event]="featured | async"
                     [featured]="true"
-                    class="my-2 mx-auto w-[48rem] max-w-full"
+                    class="my-2 mx-auto w-[64rem] max-w-full"
                 ></group-event-card>
                 <ng-container
                     *ngIf="(event_list | async)?.length; else no_events"
                 >
                     <div
-                        class="flex flex-wrap mt-2 w-[48rem] max-w-full mx-auto"
+                        class="flex flex-wrap mt-2 w-[64rem] max-w-full mx-auto"
                     >
                         <group-event-card
                             *ngFor="let event of event_list | async"
