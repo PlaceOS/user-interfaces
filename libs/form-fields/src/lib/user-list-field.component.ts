@@ -42,7 +42,7 @@ function validateEmail(email) {
     return re.test(email);
 }
 
-const ACCEPTED_FILE_TYPES = ['text/csv', 'text/tsv', 'text/plain'];
+const ACCEPTED_FILE_TYPES = ['text/csv', 'text/plain'];
 const DENIED_FILE_TYPES = [
     'application/vnd.ms-excel',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
