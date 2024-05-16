@@ -11,17 +11,24 @@ import { ParkingStateService } from './parking-state.service';
     selector: 'parking-topbar',
     template: `
         <div class="flex items-center bg-base-100 px-2 h-20">
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" class="w-[18rem]">
                 <mat-select
-                    [ngModel]="zones[0]"
-                    (ngModelChange)="updateZones([$event]); zones = [$event]"
+                    [(ngModel)]="zones"
+                    (ngModelChange)="updateZones($event)"
                     placeholder="All Levels"
+                    multiple
                 >
                     <mat-option
                         *ngFor="let level of levels | async"
                         [value]="level.id"
                     >
-                        {{ level.display_name || level.name }}
+                        <div class="flex flex-col-reverse">
+                            <div class="text-xs opacity-30" *ngIf="use_region">
+                                {{ (level.parent_id | building)?.display_name }}
+                                <span class="opacity-0"> - </span>
+                            </div>
+                            <div>{{ level.display_name || level.name }}</div>
+                        </div>
                     </mat-option>
                 </mat-select>
             </mat-form-field>

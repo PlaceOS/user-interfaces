@@ -160,7 +160,9 @@ export class ParkingStateService extends AsyncHandler {
                 type: 'parking',
                 zones: options.zones?.length
                     ? options.zones.join(',')
-                    : bld?.id,
+                    : (this._settings.get('app.use_region')
+                          ? this._org.region?.id
+                          : '') || bld?.id,
             });
         }),
         tap(() =>

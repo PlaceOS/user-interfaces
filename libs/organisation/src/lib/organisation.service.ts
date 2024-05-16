@@ -226,6 +226,19 @@ export class OrganisationService {
         return this.buildings.filter((bld) => bld.parent_id === region?.id);
     }
 
+    /**
+     * Get list of levels for the given region
+     * @param region Region to list levels for
+     */
+    public levelsForRegion(region: Region = this.region): BuildingLevel[] {
+        const bld_list = this.buildingsForRegion(region);
+        return this.levels.filter(
+            (lvl) =>
+                lvl.parent_id &&
+                bld_list.find((bld) => bld.id === lvl.parent_id)
+        );
+    }
+
     public addZone(zone: PlaceZone) {
         if (zone.tags.includes('region')) {
             const region = new Region(zone);

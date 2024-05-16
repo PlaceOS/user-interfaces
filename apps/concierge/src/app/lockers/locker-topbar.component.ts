@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { first, take } from 'rxjs/operators';
+import { first, map, switchMap, take } from 'rxjs/operators';
 
 import {
     AsyncHandler,
+    SettingsService,
     csvToJson,
     downloadFile,
     jsonToCsv,
@@ -26,17 +27,11 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
         >
             <mat-form-field appearance="outline">
                 <mat-select
-                    [ngModel]="
-                        (filters | async).zones
-                            ? (filters | async).zones[0]
-                            : 'All'
-                    "
-                    (ngModelChange)="updateZones([$event])"
+                    [ngModel]="(filters | async).zones"
+                    (ngModelChange)="updateZones($event)"
                     placeholder="All Levels"
+                    multiple
                 >
-                    <mat-option value="All" *ngIf="!is_map"
-                        >All Levels</mat-option
-                    >
                     <mat-option
                         *ngFor="let level of levels | async"
                         [value]="level.id"
@@ -123,7 +118,13 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
 })
 export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     /** List of levels for the active building */
-    public readonly levels = this._org.active_levels;
+    public readonly levels = this._org.active_building.pipe(
+        map(() =>
+            this._settings.get('app.use_region')
+                ? this._org.levelsForRegion()
+                : this._org.levelsForBuilding()
+        )
+    );
     /** List of levels for the active building */
     public readonly filters = this._lockers.filters;
 
@@ -147,7 +148,8 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
         private _org: OrganisationService,
         private _route: ActivatedRoute,
         private _router: Router,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
+        private _settings: SettingsService
     ) {
         super();
     }
