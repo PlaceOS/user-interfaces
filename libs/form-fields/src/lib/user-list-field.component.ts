@@ -378,7 +378,7 @@ export class UserListFieldComponent
                     !ACCEPTED_FILE_TYPES.includes(file.type) ||
                     DENIED_FILE_TYPES.includes(file.type)
                 ) {
-                    notifyError('File type not supported');
+                    notifyError('Only CSV files are supported');
                     return;
                 }
                 const reader = new FileReader();
