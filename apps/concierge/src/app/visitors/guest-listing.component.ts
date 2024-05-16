@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
-import { SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { VisitorsStateService } from './visitors-state.service';
-import { GuestUser } from '@placeos/users';
-import { CalendarEvent } from '@placeos/events';
 import { Booking } from '@placeos/bookings';
 import { showMetadata } from '@placeos/ts-client';
 import { OrganisationService } from '@placeos/organisation';
+import { tap } from 'rxjs/operators';
 
 @Component({
     selector: 'guest-listings',
@@ -137,15 +136,15 @@ import { OrganisationService } from '@placeos/organisation';
                 </div>
             </ng-template>
         </ng-template>
-        <ng-template #boolean_template let-data="data">
+        <ng-template #boolean_template let-row="row">
             <div
-                *ngIf="data"
+                *ngIf="row.induction"
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
             >
                 <app-icon>done</app-icon>
             </div>
             <div
-                *ngIf="!data"
+                *ngIf="!row.induction && row.process_state.includes('declined')"
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-error text-error-content mx-auto"
             >
                 <app-icon>close</app-icon>
@@ -314,8 +313,10 @@ import { OrganisationService } from '@placeos/organisation';
     `,
     styles: [``],
 })
-export class GuestListingComponent {
-    public readonly guests = this._state.filtered_bookings;
+export class GuestListingComponent extends AsyncHandler {
+    public readonly guests = this._state.filtered_bookings.pipe(
+        tap((_: any) => console.log(_))
+    );
     public readonly search = this._state.search;
     public readonly filters = this._state.filters;
     private _inductions_enabled = false;
@@ -402,17 +403,26 @@ export class GuestListingComponent {
         private _state: VisitorsStateService,
         private _settings: SettingsService,
         private _org: OrganisationService
-    ) {}
+    ) {
+        super();
+    }
 
-    public async ngOnInit() {
-        const visitor_kiosk_app =
-            this._settings.get('app.visitor_kiosk_app') || 'visitor-kiosk_app';
-        const metadata: any = await showMetadata(
-            this._org.building.id,
-            visitor_kiosk_app
-        ).toPromise();
-        this._inductions_enabled =
-            metadata.details?.induction_enabled &&
-            metadata.details?.induction_details;
+    public ngOnInit() {
+        this.subscription(
+            'building',
+            this._org.active_building.subscribe(async (bld) => {
+                if (!bld) return;
+                const visitor_kiosk_app =
+                    this._settings.get('app.visitor_kiosk_app') ||
+                    'visitor-kiosk_app';
+                const metadata: any = await showMetadata(
+                    bld.id,
+                    visitor_kiosk_app
+                ).toPromise();
+                this._inductions_enabled =
+                    metadata.details?.induction_enabled &&
+                    metadata.details?.induction_details;
+            })
+        );
     }
 }

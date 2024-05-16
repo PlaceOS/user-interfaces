@@ -32,7 +32,7 @@ import { OrganisationService } from '@placeos/organisation';
                     btn
                     matRipple
                     class="w-32 clear underline"
-                    (click)="previous()"
+                    (click)="decline()"
                 >
                     Decline
                 </button>
@@ -80,7 +80,7 @@ export class CheckinInductionComponent {
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         const event = await this.event.pipe(first()).toPromise();
-        if (!event) this.previous();
+        if (!event) this._router.navigate(['/checkin']);
         if (!this.is_enabled || event.induction) {
             if (this.induction_after_details) {
                 this._router.navigate(['/checkin', 'results']);
@@ -90,14 +90,15 @@ export class CheckinInductionComponent {
         }
     }
 
-    public async previous() {
+    public async decline() {
         this.loading = true;
         await this._checkin.declineInduction().catch((err) => {
             notifyError('Error declining induction', err);
             throw err;
         });
+        this._checkin.setError('You have declined the induction');
         notifyInfo('Induction declined successfully');
-        this._router.navigate(['/checkin']);
+        this._router.navigate(['/checkin', 'error']);
     }
 
     public async continue() {
