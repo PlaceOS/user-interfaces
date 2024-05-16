@@ -10,6 +10,7 @@ import {
 import {
     AsyncHandler,
     SettingsService,
+    currentUser,
     getInvalidFields,
     notifyError,
     randomString,
@@ -439,6 +440,7 @@ export class EventManageComponent extends AsyncHandler {
             ]),
             location:
                 this._org.building.address || this._org.building.display_name,
+            user: currentUser(),
             attendance_type: 'ONSITE',
         });
         this.subscription(

@@ -26,7 +26,9 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
                         class="flex flex-wrap mt-2 w-[64rem] max-w-full mx-auto"
                     >
                         <group-event-card
-                            *ngFor="let event of event_list | async"
+                            *ngFor="
+                                let event of events_without_featured | async
+                            "
                             [event]="event"
                             class="m-2"
                         ></group-event-card>
@@ -77,36 +79,18 @@ export class GroupEventsComponent extends AsyncHandler {
     public readonly featured = this.event_list.pipe(
         map((_) => _.find((_: any) => _.extension_data?.featured || _.featured))
     );
-
-    public readonly event_date_list = combineLatest([
+    public readonly events_without_featured = combineLatest([
         this.event_list,
-        this._state.options,
+        this.featured,
     ]).pipe(
-        map(([list, { date, end }]) => {
-            if (!date && !end) return [];
-            const days = [];
-            let start = startOfDay(date).valueOf();
-            const end_time = end || date + 1;
-            while (start < end_time) {
-                const end_of_day = endOfDay(start).valueOf();
-                days.push({
-                    date: start,
-                    events: list.filter(
-                        (_) => _.date >= start && _.date < end_of_day
-                    ),
-                });
-                start = addDays(start, 1).valueOf();
-            }
-            return days;
-        })
+        map(([list, featured]) =>
+            list.filter(
+                (_: any) => _.id !== featured?.id && _.date_end > Date.now()
+            )
+        )
     );
 
-    constructor(
-        private _state: GroupEventsStateService,
-        private _settings: SettingsService
-    ) {
+    constructor(private _state: GroupEventsStateService) {
         super();
     }
-
-    public ngOnInit() {}
 }

@@ -68,7 +68,10 @@ export class GroupEventsStateService {
     ]).pipe(
         map(([list, { tags }]) =>
             list.filter((event) => {
-                return tags.every((tag) => event.tags.includes(tag));
+                return (
+                    tags.every((tag) => event.tags.includes(tag)) &&
+                    event.date_end > Date.now()
+                );
             })
         ),
         shareReplay(1)
