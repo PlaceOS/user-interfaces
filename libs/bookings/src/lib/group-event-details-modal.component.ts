@@ -435,7 +435,6 @@ export class GroupEventDetailsModalComponent {
     }
 
     public async toggleAttendance() {
-        console.log('Toggle Attendance:', this.is_going, this.guest_details);
         let user = this.guest_details;
         if (!user) {
             user = await bookingAddGuest(
@@ -448,13 +447,16 @@ export class GroupEventDetailsModalComponent {
             );
         }
         user = { ...currentUser(), ...(user || {}) };
-        console.log('User:', user);
         if (!user.email) return;
         await checkinBookingGuest(
             this.booking.id,
             user.email,
             !this.is_going
         ).toPromise();
-        (user as any).checked_in = !this.is_going;
+        const guest = this.booking.attendees.find(
+            (_) => _.email === user.email
+        );
+        if (!guest) return;
+        (guest as any).checked_in = !this.is_going;
     }
 }
