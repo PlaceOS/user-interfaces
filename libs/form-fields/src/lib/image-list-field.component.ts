@@ -51,6 +51,7 @@ export interface UploadDetails {
                 <app-icon class="text-4xl opacity-60">add</app-icon>
                 <p class="opacity-60" i18n>Upload Image(s)</p>
                 <input
+                    #file_input
                     type="file"
                     class="absolute inset-0 opacity-0 h-32 w-32 cursor-pointer"
                     (change)="uploadImages($event)"
@@ -213,6 +214,7 @@ export class ImageListFieldComponent extends AsyncHandler {
     }
 
     @ViewChild('image_list') private _list_el: ElementRef<HTMLDivElement>;
+    @ViewChild('file_input') private _file_input: ElementRef<HTMLInputElement>;
 
     constructor(
         private _clipboard: Clipboard,
@@ -295,6 +297,7 @@ export class ImageListFieldComponent extends AsyncHandler {
                         files[i]
                     );
                     this.upload_ids.next([...this.upload_ids.getValue(), id]);
+                    this._file_input.nativeElement.value = '';
                 }
             }
         }
