@@ -23,7 +23,12 @@ import {
 } from '@placeos/organisation';
 import { first, startWith, take } from 'rxjs/operators';
 import { EventStateService } from './event-state.service';
-import { differenceInMinutes, format, formatDuration } from 'date-fns';
+import {
+    differenceInMinutes,
+    format,
+    formatDuration,
+    startOfDay,
+} from 'date-fns';
 import { CalendarEvent, EventFormService, removeEvent } from '@placeos/events';
 
 const EMPTY = [];
@@ -459,7 +464,6 @@ export class EventManageComponent extends AsyncHandler {
                             'events',
                         ]);
                     this._form_state.newForm(event);
-                    console.log('Event:', event);
                     if (event.linked_event) {
                         this._event_form.newForm(
                             new CalendarEvent(event.linked_event)
@@ -594,6 +598,7 @@ export class EventManageComponent extends AsyncHandler {
         }
         if (!this.form.getRawValue().description)
             this.form.patchValue({ description: ' ' });
+        const date = this.form.getRawValue().date;
         const res = await this._form_state.postForm().catch(async (e) => {
             notifyError(e);
             if (this.form.getRawValue().event_id) {
@@ -602,6 +607,10 @@ export class EventManageComponent extends AsyncHandler {
         });
         this._state.changed();
         this.loading = false;
-        if (res) this._router.navigate(['/entertainment', 'events']);
+        if (res) {
+            this._router.navigate(['/entertainment', 'events'], {
+                queryParams: { range: startOfDay(date).valueOf() },
+            });
+        }
     }
 }

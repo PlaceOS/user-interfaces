@@ -141,21 +141,27 @@ export class EventsListComponent extends AsyncHandler {
                     );
                 }
                 this._generatePeriods();
+
                 if (q.has('range')) {
-                    const id = parseInt(q.get('range'), 10);
-                    const item = this.period_list.find(
-                        (_) => id >= _.start && id < _.end
-                    ) ||
-                        this.period_list[0] || {
-                            start: id,
-                            end:
-                                this._state.period === 'week'
-                                    ? addWeeks(id, 1).valueOf()
-                                    : addMonths(id, 1).valueOf(),
-                        };
-                    this.selected_range = item.id || id;
-                    this._state.setOptions({ date: item.start, end: item.end });
-                    this.setPeriod(this.selected_range);
+                    this.timeout('update', () => {
+                        const id = parseInt(q.get('range'), 10);
+                        const item = this.period_list.find(
+                            (_) => id >= _.start && id < _.end
+                        ) ||
+                            this.period_list[0] || {
+                                start: id,
+                                end:
+                                    this._state.period === 'week'
+                                        ? addWeeks(id, 1).valueOf()
+                                        : addMonths(id, 1).valueOf(),
+                            };
+                        this.selected_range = item.id || id;
+                        this._state.setOptions({
+                            date: item.start,
+                            end: item.end,
+                        });
+                        this.setPeriod(this.selected_range);
+                    });
                 }
             })
         );
