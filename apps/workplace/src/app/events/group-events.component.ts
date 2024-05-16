@@ -84,9 +84,7 @@ export class GroupEventsComponent extends AsyncHandler {
         this.featured,
     ]).pipe(
         map(([list, featured]) =>
-            list.filter(
-                (_: any) => _.id !== featured?.id && _.date_end > Date.now()
-            )
+            list.filter((_: any) => _.id !== featured?.id)
         )
     );
 

@@ -66,14 +66,16 @@ export class GroupEventsStateService {
         this.events,
         this._filters,
     ]).pipe(
-        map(([list, { tags }]) =>
-            list.filter((event) => {
+        map(([list, { tags }]) => {
+            const tag_list = tags.map((_) => _.toLowerCase());
+            return list.filter((event) => {
+                const event_tags = event.tags.map((_) => _.toLowerCase());
                 return (
-                    tags.every((tag) => event.tags.includes(tag)) &&
+                    tag_list.every((tag) => event_tags.includes(tag)) &&
                     event.date_end > Date.now()
                 );
-            })
-        ),
+            });
+        }),
         shareReplay(1)
     );
 
