@@ -30,6 +30,7 @@ import {
     startOfDay,
 } from 'date-fns';
 import { CalendarEvent, EventFormService, removeEvent } from '@placeos/events';
+import { StaffUser, User } from '@placeos/users';
 
 const EMPTY = [];
 
@@ -385,7 +386,7 @@ export class EventManageComponent extends AsyncHandler {
     public readonly available_spaces = this._event_form.available_spaces;
 
     public get tag_list() {
-        return this.form.controls.tags.value || EMPTY;
+        return this.form.getRawValue().tags || EMPTY;
     }
 
     public get max_duration() {
@@ -454,23 +455,32 @@ export class EventManageComponent extends AsyncHandler {
             'route.params',
             this._route.paramMap.subscribe(async (params) => {
                 if (params.has('id')) {
-                    const event = await showBooking(
+                    const booking = await showBooking(
                         params.get('id')
                     ).toPromise();
-                    if (!event)
+                    if (!booking)
                         return this._router.navigate([
                             '/entertainment',
                             'events',
                         ]);
-                    this._form_state.newForm(event);
-                    if (event.linked_event) {
+                    this._form_state.newForm(booking);
+                    console.log('Booking:', booking.tags);
+                    if (booking.linked_event) {
                         this._event_form.newForm(
-                            new CalendarEvent(event.linked_event)
+                            new CalendarEvent(booking.linked_event)
                         );
                         this.form.patchValue({
-                            secondary_resource: event.linked_event.system_id,
+                            secondary_resource: booking.linked_event.system_id,
                         });
                     }
+                    this.form.patchValue({
+                        tags: booking.tags,
+                        user: new StaffUser({
+                            id: booking.user_id,
+                            email: booking.user_email,
+                            name: booking.user_name,
+                        }),
+                    });
                 }
             })
         );

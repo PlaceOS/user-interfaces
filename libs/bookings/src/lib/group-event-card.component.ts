@@ -25,13 +25,13 @@ import { OrganisationService } from '@placeos/organisation';
                     class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 object-cover min-h-full min-w-full"
                 />
             </div>
-            <div class="p-4 flex-1 h-1/2">
+            <div class="p-4 flex-1 h-1/2 w-full">
                 <div class="opacity-60 text-sm text-left">
                     {{ event.date | date: 'EEE d MMM' }},
                     {{ event.date | date: time_format }}
                 </div>
                 <h2
-                    class="text-xl mb-2 text-left truncate"
+                    class="text-xl mb-2 text-left truncate w-full"
                     [title]="event.title"
                 >
                     {{ event.title }}

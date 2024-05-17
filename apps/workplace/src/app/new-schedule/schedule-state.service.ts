@@ -278,7 +278,6 @@ export class ScheduleStateService extends AsyncHandler {
         this.group_events,
     ]).pipe(
         map(([e, v, d, p, l, ge]) => {
-            console.log('Events:', e);
             const filtered_events = e.filter(
                 (ev) =>
                     !d.find((bkn) => `${ev.meeting_id}` === `${bkn.id}`) &&
