@@ -143,7 +143,7 @@ import { User } from '@placeos/users';
                     class="relative w-[20rem] h-[28rem] overflow-auto bg-white rounded shadow"
                 >
                     <attendee-list
-                        [list]="item.attendees"
+                        [list]="checkedInList(item.attendees)"
                         [host]="item.user_email"
                         [hide_close]="true"
                     ></attendee-list>
@@ -257,5 +257,10 @@ export class EventListingComponent {
     public checkedInCount(attendees: User[]) {
         if (!attendees?.length) return 0;
         return attendees.filter((user: User) => user.checked_in).length;
+    }
+
+    public checkedInList(attendees: User[]) {
+        if (!attendees?.length) return [];
+        return attendees.filter((user: User) => user.checked_in);
     }
 }
