@@ -14,6 +14,8 @@ import {
     unique,
     UploadsService,
 } from '@placeos/common';
+import { MatDialog } from '@angular/material/dialog';
+import { ImageViewerComponent } from 'libs/components/src/lib/image-viewer.component';
 
 export interface UploadDetails {
     /** Unique ID for the upload */
@@ -218,7 +220,8 @@ export class ImageListFieldComponent extends AsyncHandler {
 
     constructor(
         private _clipboard: Clipboard,
-        private _uploads: UploadsService
+        private _uploads: UploadsService,
+        private _dialog: MatDialog
     ) {
         super();
     }
@@ -259,7 +262,9 @@ export class ImageListFieldComponent extends AsyncHandler {
         notifyInfo('Copied image URL to clipboard');
     }
 
-    public viewImage(url: string) {}
+    public viewImage(url: string) {
+        this._dialog.open(ImageViewerComponent, { data: url });
+    }
 
     public removeImage(url: string) {
         this.setValue(this.list.filter((_) => _ !== url));
