@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1715907294038,
+  "timestamp": 1715907529001,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -66,6 +66,7 @@
         "./assets/icons/no-contacts.svg",
         "./assets/icons/no-favourites.svg",
         "./assets/icons/no-pending.svg",
+        "./assets/icons/no-results.svg",
         "./assets/icons/not-found.svg",
         "./assets/icons/office.svg",
         "./assets/icons/outlook.svg",
@@ -156,6 +157,7 @@
     "./assets/icons/no-contacts.svg": "5a562642efdcc8a9262f1dd6e3b1c92c841a3912",
     "./assets/icons/no-favourites.svg": "d3a2205b4ed430a4c31fa0e1fcd2dcf2595c6fa8",
     "./assets/icons/no-pending.svg": "682e19e8c784872bd1b3ff7109c505030499822c",
+    "./assets/icons/no-results.svg": "d551449f385ac95090bd5e9f63e6c4022c14260e",
     "./assets/icons/not-found.svg": "69124b6f4e1b95755c3577ab0410b7b370516a57",
     "./assets/icons/office.svg": "e33be3d77214153a8bb2d48360d1425eea944f90",
     "./assets/icons/outlook.svg": "af709f8c546089eb91c03c88af0860cb302eb28a",
@@ -198,7 +200,7 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "4702cc68457d061587daf7898ac773f4531073ba",
-    "./main.js": "33b863f4c16173bf0f7915a92fb1c5adb27c3897",
+    "./main.js": "5bf95dfdc89a7d1ca3ad6a664e8f0552eaaaeabe",
     "./manifest.webmanifest": "1403ffbb424e3924fdbd03de6cc312e4a7a0b0b6",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
@@ -210,7 +212,7 @@
     "./material-symbols-sharp.woff2": "d991d290442aeb0a63e5d3bc48143a088e517de3",
     "./polyfills.js": "43edaceebf08929ca13c3e768bf4c27fa7ad9592",
     "./runtime.js": "9022e11db4a6afac8a1b7fde5fc9e248a84403d9",
-    "./styles.css": "f4e63a8ef55a6e594938afe7fbed7b4038838aab",
+    "./styles.css": "ec8d9b496fd022565351d2e78003367869986779",
     "./vendor.js": "940140ff060e24b495fe8ede3475340e58a5a672"
   },
   "navigationUrls": [
