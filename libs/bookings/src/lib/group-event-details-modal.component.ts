@@ -217,7 +217,11 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                             </span>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-4">
+                    <button
+                        matRipple
+                        (click)="show_attendees = true"
+                        class="flex items-center space-x-4 rounded"
+                    >
                         <div
                             class="flex items-center justify-center w-10 h-10 bg-base-200 rounded-full"
                         >
@@ -228,7 +232,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                             {{ booking.attendees?.length - attendance }}
                             interested
                         </div>
-                    </div>
+                    </button>
                     <h3 class="font-medium pt-4">About this event</h3>
                     <div class="text-sm pb-4">
                         <span
@@ -316,6 +320,21 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 </div>
             </div>
         </div>
+        <div class="absolute inset-0 z-50" *ngIf="show_attendees">
+            <button
+                class="absolute inset-0 bg-base-content opacity-60"
+                (click)="show_attendees = false"
+            ></button>
+            <div
+                class="absolute left-1/2 -translate-x-1/2 w-[24rem] inset-y-8 rounded shadow overflow-hidden"
+            >
+                <attendee-list
+                    [list]="booking.attendees"
+                    [host]="booking.user_email"
+                    (click)="show_attendees = false"
+                ></attendee-list>
+            </div>
+        </div>
     `,
     styles: [``],
 })
@@ -330,6 +349,7 @@ export class GroupEventDetailsModalComponent {
     public features: ViewerFeature[] = [];
     public locate = '';
     public showing_map = false;
+    public show_attendees: boolean = false;
     public styles = {};
 
     public get time_format() {

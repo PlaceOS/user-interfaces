@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { EventStateService } from './event-state.service';
+import { User } from '@placeos/users';
 
 @Component({
     selector: 'event-listing',
@@ -21,7 +22,7 @@ import { EventStateService } from './event-state.service';
                 'Event',
                 'Level',
                 'Room',
-                'Attending',
+                'Interested (Attending)',
                 'Status',
                 'Published',
                 ' '
@@ -96,7 +97,26 @@ import { EventStateService } from './event-state.service';
             </span>
         </ng-template>
         <ng-template #attending_template let-item="row">
-            <div class="px-2">{{ item.attendees?.length || 1 }}</div>
+            <button
+                matRipple
+                customTooltip
+                [content]="view_attendees"
+                class="px-2 rounded h-full w-full flex items-center justify-center"
+            >
+                {{ item.attendees?.length || 0 }}
+                ({{ checkedInCount(item.attendees) }})
+            </button>
+            <ng-template #view_attendees>
+                <div
+                    class="relative w-[20rem] h-[28rem] overflow-auto bg-white rounded shadow"
+                >
+                    <attendee-list
+                        [list]="item.attendees"
+                        [host]="item.user_email"
+                        [hide_close]="true"
+                    ></attendee-list>
+                </div>
+            </ng-template>
         </ng-template>
         <ng-template #published_template let-row="row">
             <div
@@ -201,4 +221,9 @@ export class EventListingComponent {
         private _settings: SettingsService,
         private _state: EventStateService
     ) {}
+
+    public checkedInCount(attendees: User[]) {
+        if (!attendees?.length) return 0;
+        return attendees.filter((user: User) => user.checked_in).length;
+    }
 }

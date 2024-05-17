@@ -436,10 +436,9 @@ export class EventManageComponent extends AsyncHandler {
         this._form_state.setOptions({ type: 'group-event' });
         this.form.patchValue({
             booking_type: 'group-event',
-            asset_id:
-                currentUser()?.name ||
-                currentUser()?.email ||
-                `GROUP_EVENT ${randomString(10)}`,
+            asset_id: `${
+                currentUser()?.name || currentUser()?.email
+            } [${randomString(4)}]`,
             permission: 'OPEN',
             zones: unique([
                 this._org.organisation.id,
@@ -491,9 +490,9 @@ export class EventManageComponent extends AsyncHandler {
         this.subscription(
             'organiser_change',
             this.form.controls.user.valueChanges.subscribe((value) => {
+                const name = value?.name || value?.email;
                 const value_name =
-                    value?.name ||
-                    value?.email ||
+                    (name ? `${name} [${randomString(4)}]` : '') ||
                     this.form.getRawValue().asset_id;
                 this.form.patchValue({ asset_id: value_name });
             })
