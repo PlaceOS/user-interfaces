@@ -554,14 +554,19 @@ export class EventManageComponent extends AsyncHandler {
         this.loading = true;
         const booking = this._form_state.booking;
         // Remove Old Event if linked
-        if (booking?.id && booking.linked_event) {
-            await removeEvent(booking.linked_event.event_id)
-                .toPromise()
-                .catch((e) => {
-                    notifyError(e);
-                    this.loading = false;
-                    throw e;
-                });
+        if (
+            booking?.id &&
+            (booking.linked_event || this.form.getRawValue().secondary_resource)
+        ) {
+            if (booking.linked_event) {
+                await removeEvent(booking.linked_event.event_id)
+                    .toPromise()
+                    .catch((e) => {
+                        notifyError(e);
+                        this.loading = false;
+                        throw e;
+                    });
+            }
             await removeBooking(booking.id)
                 .toPromise()
                 .catch((e) => {
@@ -579,8 +584,12 @@ export class EventManageComponent extends AsyncHandler {
             const space = spaces.find(
                 (s) => s.id === this.form.getRawValue().secondary_resource
             );
+            const value = { ...this.form.getRawValue() };
+            delete value.id;
+            console.log('Event value:', value);
             this._event_form.form.patchValue({
-                ...this.form.getRawValue(),
+                ...value,
+                id: null,
                 resources: [space],
             });
             const event = await this._event_form.postForm().catch((e) => {
@@ -588,6 +597,7 @@ export class EventManageComponent extends AsyncHandler {
                 this.loading = false;
                 throw e;
             });
+            console.log('Event:', event);
             if (!event) return;
             this.form.patchValue({
                 ical_uid: event.ical_uid,

@@ -7,12 +7,13 @@ import { User } from '@placeos/users';
     selector: 'event-listing',
     template: `
         <custom-table
-            class="min-w-[64rem] block"
+            class="min-w-[72rem] block"
             [dataSource]="event_list"
             [columns]="[
                 'date',
                 'level',
                 'room',
+                'interested',
                 'attending',
                 'status',
                 'permissions',
@@ -22,16 +23,27 @@ import { User } from '@placeos/users';
                 'Event',
                 'Level',
                 'Room',
-                'Interested (Attending)',
+                'Interested',
+                'Attending',
                 'Status',
                 'Published',
                 ' '
             ]"
-            [column_size]="['24r', 'flex', '10r', '6r', '8r', '5r', '3.5r']"
+            [column_size]="[
+                '24r',
+                'flex',
+                '10r',
+                '6r',
+                '6r',
+                '8r',
+                '5r',
+                '3.5r'
+            ]"
             [template]="{
                 date: event_template,
                 level: level_template,
                 room: room_template,
+                interested: interested_template,
                 attending: attending_template,
                 status: status_template,
                 permissions: published_template,
@@ -96,7 +108,7 @@ import { User } from '@placeos/users';
                 No Room
             </span>
         </ng-template>
-        <ng-template #attending_template let-item="row">
+        <ng-template #interested_template let-item="row">
             <button
                 matRipple
                 customTooltip
@@ -104,7 +116,27 @@ import { User } from '@placeos/users';
                 class="px-2 rounded h-full w-full flex items-center justify-center"
             >
                 {{ item.attendees?.length || 0 }}
-                ({{ checkedInCount(item.attendees) }})
+            </button>
+            <ng-template #view_attendees>
+                <div
+                    class="relative w-[20rem] h-[28rem] overflow-auto bg-white rounded shadow"
+                >
+                    <attendee-list
+                        [list]="item.attendees"
+                        [host]="item.user_email"
+                        [hide_close]="true"
+                    ></attendee-list>
+                </div>
+            </ng-template>
+        </ng-template>
+        <ng-template #attending_template let-item="row">
+            <button
+                matRipple
+                customTooltip
+                [content]="view_attendees"
+                class="px-2 rounded h-full w-full flex items-center justify-center"
+            >
+                {{ checkedInCount(item.attendees) }}
             </button>
             <ng-template #view_attendees>
                 <div

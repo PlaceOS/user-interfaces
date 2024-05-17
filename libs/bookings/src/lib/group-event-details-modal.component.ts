@@ -42,6 +42,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     class="absolute top-1/2 left-1/2 min-h-full min-w-full object-cover -translate-x-1/2 -translate-y-1/2"
                 />
             </div>
+
             <div
                 class="absolute top-0 left-0 rounded-br py-2 pl-2 pr-4 space-x-2 bg-info text-info-content flex items-center text-sm"
                 *ngIf="featured"
@@ -166,7 +167,9 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     </mat-menu>
                 </div>
             </div>
-            <div class="flex overflow-y-auto overflow-x-hidden p-8 space-x-6">
+            <div
+                class="flex flex-1 max-h-[calc(80vh-18rem)] overflow-y-auto overflow-x-hidden p-8 space-x-6"
+            >
                 <div class="flex flex-1 flex-col space-y-2 w-1/3">
                     <div class="flex items-center space-x-4">
                         <div
@@ -229,7 +232,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                         </div>
                         <div>
                             {{ attendance }} going,
-                            {{ booking.attendees?.length - attendance }}
+                            {{ booking.attendees?.length }}
                             interested
                         </div>
                     </button>
@@ -365,8 +368,8 @@ export class GroupEventDetailsModalComponent {
 
     public get attendance() {
         return (
-            this.booking.attendees?.filter((_: any) => _.status === 'accepted')
-                ?.length || 0
+            this.booking.attendees?.filter((_: any) => _.checked_in)?.length ||
+            0
         );
     }
 

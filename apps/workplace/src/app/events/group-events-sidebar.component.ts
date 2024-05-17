@@ -15,7 +15,7 @@ import { take } from 'rxjs/operators';
 @Component({
     selector: `group-events-sidebar`,
     template: `
-        <div class="bg-base-100 w-[18rem] h-full">
+        <div class="flex flex-col bg-base-100 w-[18rem] h-full">
             <div class="flex items-center space-x-2 p-2">
                 <button
                     btn
@@ -61,24 +61,26 @@ import { take } from 'rxjs/operators';
                 (ngModelChange)="setPeriodFromDate($event)"
             ></date-calendar>
             <hr class="border-base-200 w-[calc(100%-1rem)] mx-auto" />
-            <h2 class="text-lg font-medium p-4">Filters</h2>
-            <div
-                class="flex flex-col space-y-2 px-4"
-                *ngIf="(tags | async)?.length"
-            >
-                <h3>Tags</h3>
-                <button
-                    matRipple
-                    class="flex items-center rounded w-full text-left"
-                    *ngFor="let tag of tags | async"
-                    (click)="toggleTag(tag)"
+            <div class="flex flex-col flex-1 overflow-auto">
+                <h2 class="text-lg font-medium p-4">Filters</h2>
+                <div
+                    class="flex flex-col space-y-2 px-4"
+                    *ngIf="(tags | async)?.length"
                 >
-                    <mat-checkbox
-                        [ngModel]="(filters | async)?.tags?.includes(tag)"
+                    <h3>Tags</h3>
+                    <button
+                        matRipple
+                        class="flex items-center rounded w-full text-left"
+                        *ngFor="let tag of tags | async"
+                        (click)="toggleTag(tag)"
                     >
-                        {{ tag }}
-                    </mat-checkbox>
-                </button>
+                        <mat-checkbox
+                            [ngModel]="(filters | async)?.tags?.includes(tag)"
+                        >
+                            {{ tag }}
+                        </mat-checkbox>
+                    </button>
+                </div>
             </div>
         </div>
     `,
