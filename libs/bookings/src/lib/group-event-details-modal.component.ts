@@ -223,7 +223,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     <button
                         matRipple
                         (click)="show_attendees = true"
-                        class="flex items-center space-x-4 rounded"
+                        class="flex items-center space-x-4 rounded min-h-12"
                     >
                         <div
                             class="flex items-center justify-center w-10 h-10 bg-base-200 rounded-full"
