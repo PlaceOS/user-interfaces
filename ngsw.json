@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1715907491200,
+  "timestamp": 1715907656766,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -94,6 +94,7 @@
         "./assets/icons/no-contacts.svg",
         "./assets/icons/no-favourites.svg",
         "./assets/icons/no-pending.svg",
+        "./assets/icons/no-results.svg",
         "./assets/icons/not-found.svg",
         "./assets/icons/office.svg",
         "./assets/icons/outlook.svg",
@@ -158,7 +159,7 @@
     "./apps_concierge_src_app_level-manager_level-manager_module_ts.js": "36dd5315f537782f9d6df79cbda4cf47a421d37d",
     "./apps_concierge_src_app_lockers_lockers_module_ts.js": "4934cbbe72d4b1efc6177296ec3f81541d9a8012",
     "./apps_concierge_src_app_parking_parking_module_ts.js": "d07cc1ec4614d44a0ba5320502cfdfecb906ee57",
-    "./apps_concierge_src_app_poi-manager_poi-manager_module_ts.js": "f8a48bcaa3a2f5aaffe298efba5fa6edf13558bb",
+    "./apps_concierge_src_app_poi-manager_poi-manager_module_ts.js": "3d02b7ab4eb3c2728025df5c5a10b05efd611282",
     "./apps_concierge_src_app_points_points_module_ts.js": "df3c42be177c5af79a9f6b9f0e1ad93ef6b88add",
     "./apps_concierge_src_app_region-manager_region-manager_module_ts.js": "5f553ab2360690e7b29c8b78d93cea76a5225c11",
     "./apps_concierge_src_app_reports_reports_module_ts.js": "4b421396cdbe791ebe9e51f9f7df06c19da02c0a",
@@ -205,6 +206,7 @@
     "./assets/icons/no-contacts.svg": "5a562642efdcc8a9262f1dd6e3b1c92c841a3912",
     "./assets/icons/no-favourites.svg": "d3a2205b4ed430a4c31fa0e1fcd2dcf2595c6fa8",
     "./assets/icons/no-pending.svg": "682e19e8c784872bd1b3ff7109c505030499822c",
+    "./assets/icons/no-results.svg": "d551449f385ac95090bd5e9f63e6c4022c14260e",
     "./assets/icons/not-found.svg": "69124b6f4e1b95755c3577ab0410b7b370516a57",
     "./assets/icons/office.svg": "e33be3d77214153a8bb2d48360d1425eea944f90",
     "./assets/icons/outlook.svg": "af709f8c546089eb91c03c88af0860cb302eb28a",
@@ -254,7 +256,7 @@
     "./default-node_modules_angular_material_fesm2022_tabs_mjs.js": "3880df6934f23033cf8c21c4623f5d09204ca304",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "021206ca5ac793aa2140125658eb495e63bed131",
-    "./main.js": "bcf9d057b8b1117108d0e2f2b4b3e4ec35751181",
+    "./main.js": "da1037dfeae39396dc96e1841c6f136413afd8e9",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
@@ -266,7 +268,7 @@
     "./material-symbols-sharp.woff2": "d991d290442aeb0a63e5d3bc48143a088e517de3",
     "./polyfills.js": "91cf6648abb63959d3ea60cacf66e8cd0de4c3b8",
     "./runtime.js": "4d5e529aa8350ee83659185276a1940d360131b8",
-    "./styles.css": "002607908ce349a065e8381d42d4d1185109fb2e",
+    "./styles.css": "9f78f12ca215a246d33607ec6064d8856c0715ce",
     "./vendor.js": "4afe17ac32224dc703d44dd6a641db2cdf336c36"
   },
   "navigationUrls": [
