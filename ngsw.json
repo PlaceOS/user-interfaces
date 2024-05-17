@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1715907294205,
+  "timestamp": 1715907957090,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -57,6 +57,7 @@
         "./assets/icons/no-contacts.svg",
         "./assets/icons/no-favourites.svg",
         "./assets/icons/no-pending.svg",
+        "./assets/icons/no-results.svg",
         "./assets/icons/not-found.svg",
         "./assets/icons/office.svg",
         "./assets/icons/outlook.svg",
@@ -135,6 +136,7 @@
     "./assets/icons/no-contacts.svg": "5a562642efdcc8a9262f1dd6e3b1c92c841a3912",
     "./assets/icons/no-favourites.svg": "d3a2205b4ed430a4c31fa0e1fcd2dcf2595c6fa8",
     "./assets/icons/no-pending.svg": "682e19e8c784872bd1b3ff7109c505030499822c",
+    "./assets/icons/no-results.svg": "d551449f385ac95090bd5e9f63e6c4022c14260e",
     "./assets/icons/not-found.svg": "69124b6f4e1b95755c3577ab0410b7b370516a57",
     "./assets/icons/office.svg": "e33be3d77214153a8bb2d48360d1425eea944f90",
     "./assets/icons/outlook.svg": "af709f8c546089eb91c03c88af0860cb302eb28a",
@@ -174,7 +176,7 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "4e23d0f9b6ddaf3c9ddef90dbaed2342941297b5",
     "./index.html": "c99e153675c17e1a2e2ec485b896838204617c75",
-    "./main.js": "6d8930583f501168fbe354fc84e503cabb9a5951",
+    "./main.js": "8416d990dfc6bfc7595ae085e20e87b61c4c8ccb",
     "./manifest.webmanifest": "859c98440bb281fcf0ded0850aa3d2f6da75fb5e",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
@@ -186,7 +188,7 @@
     "./material-symbols-sharp.woff2": "d991d290442aeb0a63e5d3bc48143a088e517de3",
     "./polyfills.js": "dc395b0c3dbe045081290801601244549841a5c2",
     "./runtime.js": "32a4c924c40139076fcef16c1ba443f70f8290ee",
-    "./styles.css": "f4e63a8ef55a6e594938afe7fbed7b4038838aab",
+    "./styles.css": "ec8d9b496fd022565351d2e78003367869986779",
     "./vendor.js": "ad276ae941e038801db1f230d03960f8d4fb172d"
   },
   "navigationUrls": [
