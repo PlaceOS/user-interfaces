@@ -62,6 +62,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         user_id: new FormControl(booking.user_id),
         group: new FormControl(booking.group),
         user_email: new FormControl(booking.user_email),
+        timezone: new FormControl(booking.timezone || ''),
         booked_by: new FormControl(currentUser()),
         booked_by_id: new FormControl(booking.booked_by_id),
         booked_by_email: new FormControl(booking.booked_by_email),

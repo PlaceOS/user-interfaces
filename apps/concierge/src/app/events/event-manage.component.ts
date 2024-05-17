@@ -10,6 +10,7 @@ import {
 import {
     AsyncHandler,
     SettingsService,
+    TIMEZONES_IANA,
     currentUser,
     getInvalidFields,
     notifyError,
@@ -92,7 +93,7 @@ const EMPTY = [];
                                     <app-icon matChipRemove>close</app-icon>
                                 </mat-chip-row>
                                 <input
-                                    placeholder="New tag..."
+                                    placeholder="Add new tags relevant to this event..."
                                     [matChipInputFor]="chipList"
                                     [matChipInputSeparatorKeyCodes]="separators"
                                     [matChipInputAddOnBlur]="true"
@@ -192,6 +193,36 @@ const EMPTY = [];
                                     [extra_info_fn]="duration_info"
                                 ></a-time-field>
                             </div>
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="display-name" i18n="@@displayNameLabel">
+                                Timezone:
+                            </label>
+                            <mat-form-field appearance="outline">
+                                <app-icon matPrefix class="text-2xl">
+                                    search
+                                </app-icon>
+                                <input
+                                    matInput
+                                    formControlName="timezone"
+                                    placeholder="Timezone"
+                                    [matAutocomplete]="auto"
+                                />
+                            </mat-form-field>
+                            <mat-autocomplete #auto="matAutocomplete">
+                                <mat-option
+                                    *ngFor="let tz of filtered_timezones"
+                                    [value]="tz"
+                                >
+                                    {{ tz }}
+                                </mat-option>
+                                <mat-option
+                                    *ngIf="!timezones.length"
+                                    [disabled]="true"
+                                >
+                                    No matching timezones
+                                </mat-option>
+                            </mat-autocomplete>
                         </div>
                     </ng-container>
                     <!-- END DATE TIME -->
@@ -379,6 +410,9 @@ const EMPTY = [];
 })
 export class EventManageComponent extends AsyncHandler {
     public loading = false;
+    public timezones: string[] = [];
+    public filtered_timezones: string[] = [];
+
     public readonly form = this._form_state.form;
     public readonly separators: number[] = [ENTER, COMMA, SPACE];
     public readonly building_list = this._org.building_list;
@@ -507,6 +541,11 @@ export class EventManageComponent extends AsyncHandler {
                 this.form.patchValue({ asset_id: value_name });
             })
         );
+        this._updateTimezoneList();
+        this.subscription(
+            'tz-change',
+            this.form.valueChanges.subscribe(() => this._updateTimezoneList())
+        );
     }
 
     public setBuilding(bld: Building) {
@@ -631,5 +670,13 @@ export class EventManageComponent extends AsyncHandler {
                 queryParams: { range: startOfDay(date).valueOf() },
             });
         }
+    }
+
+    private _updateTimezoneList() {
+        const timezone = this.form?.value?.timezone || '';
+        this.timezones = TIMEZONES_IANA;
+        this.filtered_timezones = this.timezones.filter((_) =>
+            _.toLowerCase().includes(timezone.toLowerCase())
+        );
     }
 }
