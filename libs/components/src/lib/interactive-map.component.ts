@@ -48,6 +48,7 @@ export interface MapMetadata {
                 [features]="features || metadata?.features"
                 [actions]="actions || metadata?.actions"
                 [labels]="labels || metadata?.labels"
+                (mapInfo)="mapInfo.next($event)"
             >
                 <ng-content></ng-content>
             </map-renderer>
@@ -75,6 +76,7 @@ export interface MapMetadata {
                 icon
                 matRipple
                 matTooltip="Zoom In"
+                matTooltipPosition="left"
                 class="rounded-none"
                 (click)="zoom = zoom * 1.1"
             >
@@ -84,6 +86,7 @@ export interface MapMetadata {
                 icon
                 matRipple
                 matTooltip="Zoom Out"
+                matTooltipPosition="left"
                 class="rounded-none"
                 (click)="zoom = zoom * (10 / 11)"
             >
@@ -93,6 +96,7 @@ export interface MapMetadata {
                 icon
                 matRipple
                 matTooltip="Reset Zoom and Position"
+                matTooltipPosition="left"
                 class="rounded-none"
                 (click)="reset = reset + 1"
             >
@@ -116,6 +120,7 @@ export class InteractiveMapComponent extends AsyncHandler {
     @Input() public focus: string;
     @Output() public zoomChange = new EventEmitter<number>();
     @Output() public centerChange = new EventEmitter<any>();
+    @Output() public mapInfo = new EventEmitter<any>();
 
     public readonly use_mapsindoors$ = this._mapspeople.available$;
 

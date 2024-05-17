@@ -314,7 +314,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         const actions = this.metadata?.actions || [];
         for (const action of actions) {
             if (
-                action.id === id &&
+                (action.id === id || action.id === '*') &&
                 action.action !== 'enter' &&
                 action.action !== 'leave'
             ) {

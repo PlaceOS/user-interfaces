@@ -37,6 +37,7 @@ import { apiKey, authority, token } from '@placeos/ts-client';
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { MAP_FEATURE_DATA } from './interactive-map.component';
+import { get } from 'http';
 
 function isSamePoint(p1: Point, p2: Point): boolean {
     return p1.x === p2.x && p1.y === p2.y;
@@ -147,6 +148,8 @@ export class MapRendererComponent
     @Output() public zoomChange = new EventEmitter<number>();
 
     @Output() public centerChange = new EventEmitter<Point>();
+
+    @Output() public mapInfo = new EventEmitter<any>();
 
     public loading: boolean;
 
@@ -321,6 +324,8 @@ export class MapRendererComponent
                     this.centerChange.emit(v.center);
                 })
             );
+            const viewer = getViewer(this.viewer);
+            this.mapInfo.emit(viewer.mappings);
             if (this.focus) this.focusOn(this.focus);
         } else if (
             (this.src && !this._outlet_el?.nativeElement) ||
