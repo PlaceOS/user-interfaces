@@ -204,20 +204,17 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                         >
                             <app-icon>place</app-icon>
                         </div>
-                        <div class="text-sm">
-                            {{
-                                (
-                                    booking.linked_event?.system_id
-                                    | space
-                                    | async
-                                )?.display_name
-                            }}
-                            <span
-                                *ngIf="!booking.linked_event?.system_id"
-                                class="opacity-30"
-                            >
-                                Remote Event
-                            </span>
+                        <div class="flex flex-col text-sm">
+                            <div *ngIf="is_onsite">
+                                {{ (system_id | space | async)?.display_name }}
+                            </div>
+                            <div *ngIf="is_online" class="opacity-30">
+                                {{
+                                    is_onsite
+                                        ? 'Can be attended online'
+                                        : 'Remote Event'
+                                }}
+                            </div>
                         </div>
                     </div>
                     <button
@@ -365,6 +362,16 @@ export class GroupEventDetailsModalComponent {
             this.booking.extension_data?.featured
         );
     }
+    public get is_onsite() {
+        return this.booking.linked_event?.system_id;
+    }
+
+    public get is_online() {
+        return (
+            !this.is_onsite ||
+            this.booking.extension_data.attendance_type === 'ANY'
+        );
+    }
 
     public get attendance() {
         return (
@@ -379,6 +386,10 @@ export class GroupEventDetailsModalComponent {
 
     public get is_going() {
         return this.guest_details?.checked_in;
+    }
+
+    public get system_id() {
+        return this.booking.linked_event?.system_id;
     }
 
     public get guest_details() {
