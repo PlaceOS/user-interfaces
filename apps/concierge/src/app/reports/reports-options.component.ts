@@ -121,13 +121,32 @@ export class ReportsOptionsComponent extends AsyncHandler {
 
     public readonly downloadReport = () => this._state.downloadReport();
 
-    public readonly setStartDate = (date) =>
-        this._state.setOptions({ start: new Date(date) });
+    public readonly setStartDate = (date) => {
+        if (date instanceof Date) date = date.valueOf();
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { start: date },
+            queryParamsHandling: 'merge',
+        });
+    };
 
-    public readonly setEndDate = (date) =>
-        this._state.setOptions({ end: new Date(date) });
+    public readonly setEndDate = (date) => {
+        if (date instanceof Date) date = date.valueOf();
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { end: date },
+            queryParamsHandling: 'merge',
+        });
+    };
 
-    public readonly setZones = (zones) => this._state.setOptions({ zones });
+    public readonly setZones = (zones) => {
+        this._state.setOptions({ zones });
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { zone_ids: zones.join(',') },
+            queryParamsHandling: 'merge',
+        });
+    };
 
     constructor(
         private _state: ReportsStateService,
@@ -163,6 +182,14 @@ export class ReportsOptionsComponent extends AsyncHandler {
                         this.setZones(zones);
                     }
                 }
+                if (params.has('start'))
+                    this._state.setOptions({
+                        start: new Date(+params.get('start')),
+                    });
+                if (params.has('end'))
+                    this._state.setOptions({
+                        end: new Date(+params.get('end')),
+                    });
             })
         );
     }
