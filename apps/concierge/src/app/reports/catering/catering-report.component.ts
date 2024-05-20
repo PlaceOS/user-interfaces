@@ -6,7 +6,10 @@ import { ReportsStateService } from '../reports-state.service';
     selector: 'catering-report',
     template: `
         <reports-options></reports-options>
-        <div class="flex-1 h-1/2 w-full overflow-auto">
+        <div
+            class="relative flex-1 h-1/2 w-full overflow-auto print:overflow-visible print:h-auto"
+            printable
+        >
             <ng-container *ngIf="!(loading | async); else load_state">
                 <div
                     class="h-full w-full"

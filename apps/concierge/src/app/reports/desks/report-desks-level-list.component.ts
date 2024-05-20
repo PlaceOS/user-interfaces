@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { downloadFile, jsonToCsv } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { differenceInDays } from 'date-fns';
@@ -10,18 +10,20 @@ import { ReportsStateService } from '../reports-state.service';
 @Component({
     selector: 'report-desks-levels-list',
     template: `
-        <div class="px-4 mb-4 w-full">
-            <div class="rounded bg-base-100 shadow overflow-hidden w-full">
+        <div class="px-4 pb-2 w-full">
+            <div
+                class="rounded bg-base-100 border border-base-200 shadow overflow-hidden w-full"
+            >
                 <div class="border-b border-base-200 p-4 flex items-center">
                     <h3 class="font-bold text-xl flex-1">Level Utilisation</h3>
-                    <button icon (click)="download()">
+                    <button icon matRipple *ngIf="!print" (click)="download()">
                         <app-icon>download</app-icon>
                     </button>
                 </div>
                 <custom-table
                     red-header
                     [dataSource]="level_list"
-                    [pagination]="true"
+                    [pagination]="print ? false : true"
                     [columns]="[
                         'name',
                         'avg_usage',
@@ -49,6 +51,8 @@ import { ReportsStateService } from '../reports-state.service';
     `,
 })
 export class ReportDesksLevelListComponent {
+    @Input() public print: boolean = false;
+
     public readonly level_list = combineLatest([
         this._state.options,
         this._state.stats,

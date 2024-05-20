@@ -11,24 +11,28 @@ import { combineLatest } from 'rxjs';
     selector: 'report-desks-charts',
     template: `
         <div class="flex items-center space-x-4 w-full px-4">
-            <div class="bg-base-100 rounded shadow flex-1">
+            <div
+                class="bg-base-100 border border-base-200 rounded shadow flex-1"
+            >
                 <div class="border-b border-base-200 p-4 text-xl font-bold">
                     Daily Utilisation
                 </div>
                 <div
                     id="day-chart"
                     #util_chart
-                    class="ct-chart ct-octave"
+                    class="ct-chart ct-octave !w-full h-56"
                 ></div>
             </div>
-            <div class="bg-base-100 rounded shadow flex-1">
+            <div
+                class="bg-base-100 border border-base-200 rounded shadow flex-1"
+            >
                 <div class="border-b border-base-200 p-4 text-xl font-bold">
                     Level Utilisation
                 </div>
                 <div
                     id="level-chart"
                     #level_chart
-                    class="ct-chart ct-octave"
+                    class="ct-chart ct-octave !w-full h-56"
                 ></div>
             </div>
         </div>

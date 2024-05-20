@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { downloadFile, jsonToCsv } from '@placeos/common';
 import { User } from '@placeos/users';
 import { formatDuration } from 'date-fns';
@@ -12,13 +12,13 @@ import { ReportsStateService } from '../reports-state.service';
         <div class="m-4 rounded bg-base-100 shadow overflow-hidden">
             <div class="border-b border-base-200 px-4 py-2 flex items-center">
                 <h3 class="font-bold text-xl flex-1">Meeting Organisers</h3>
-                <button icon (click)="download()">
+                <button icon matRipple (click)="download()" *ngIf="!print">
                     <app-icon>download</app-icon>
                 </button>
             </div>
             <custom-table
                 [dataSource]="user_list"
-                [pagination]="true"
+                [pagination]="print ? false : true"
                 [columns]="[
                     'name',
                     'booking_count',
@@ -40,6 +40,8 @@ import { ReportsStateService } from '../reports-state.service';
     styles: [``],
 })
 export class ReportSpacesUserListingComponent {
+    @Input() public print: boolean = false;
+
     public readonly user_list = combineLatest([this._reports.stats]).pipe(
         debounceTime(300),
         map(([stats]) => {

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { downloadFile, jsonToCsv, unique } from '@placeos/common';
 import { Space } from '@placeos/spaces';
 import { differenceInDays } from 'date-fns';
@@ -12,13 +12,13 @@ import { ReportsStateService } from '../reports-state.service';
         <div class="m-4 rounded bg-base-100 shadow overflow-hidden">
             <div class="border-b border-base-200 px-4 py-2 flex items-center">
                 <h3 class="font-bold text-xl flex-1">Room Utilisation</h3>
-                <button icon (click)="download()">
+                <button icon matRipple (click)="download()" *ngIf="!print">
                     <app-icon>download</app-icon>
                 </button>
             </div>
             <custom-table
                 [dataSource]="space_list"
-                [pagination]="true"
+                [pagination]="print ? false : true"
                 [columns]="column_list | async"
                 [display_column]="column_name_list | async"
                 [column_size]="['flex']"
@@ -28,6 +28,8 @@ import { ReportsStateService } from '../reports-state.service';
     styles: [``],
 })
 export class ReportSpacesSpaceListing {
+    @Input() public print: boolean = false;
+
     public readonly space_list = combineLatest([
         this._reports.stats,
         this._reports.options,

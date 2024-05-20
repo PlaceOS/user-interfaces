@@ -7,12 +7,19 @@ import { ReportsStateService } from '../reports-state.service';
     selector: '[report-spaces]',
     template: `
         <reports-options></reports-options>
-        <div class="relative flex-1 h-1/2 w-full overflow-auto z-0" printable>
+        <div
+            class="relative flex-1 h-1/2 w-full overflow-auto print:overflow-visible print:h-auto"
+            printable
+        >
             <ng-container *ngIf="!(loading | async); else load_state">
                 <ng-container *ngIf="total_count | async; else empty_state">
                     <report-spaces-overall></report-spaces-overall>
-                    <report-spaces-space-listing></report-spaces-space-listing>
-                    <report-spaces-user-listing></report-spaces-user-listing>
+                    <report-spaces-space-listing
+                        [print]="printing"
+                    ></report-spaces-space-listing>
+                    <report-spaces-user-listing
+                        [print]="printing"
+                    ></report-spaces-user-listing>
                 </ng-container>
             </ng-container>
         </div>
@@ -31,6 +38,15 @@ import { ReportsStateService } from '../reports-state.service';
                 </p>
             </div>
         </ng-template>
+        <button
+            icon
+            matRipple
+            class="absolute top-24 left-4 bg-secondary text-secondary-content border border-base-200 shadow z-20 print:hidden"
+            (click)="print()"
+            *ngIf="total_count | async"
+        >
+            <app-icon>print</app-icon>
+        </button>
     `,
     styles: [
         `
@@ -43,6 +59,7 @@ import { ReportsStateService } from '../reports-state.service';
     ],
 })
 export class ReportSpacesComponent {
+    public printing = false;
     public readonly total_count = this._state.stats.pipe(
         map((i) => i.count || 0)
     );
@@ -52,5 +69,13 @@ export class ReportSpacesComponent {
 
     public ngOnInit() {
         this._state.setOptions({ type: 'events' });
+    }
+
+    public print() {
+        this.printing = true;
+        setTimeout(() => {
+            window.print();
+            this.printing = false;
+        }, 300);
     }
 }
