@@ -114,6 +114,7 @@ import { User } from '@placeos/users';
                 customTooltip
                 [content]="view_attendees"
                 class="px-2 rounded h-full w-full flex items-center justify-center"
+                [disabled]="!item.attendees?.length"
             >
                 {{ item.attendees?.length || 0 }}
             </button>
@@ -125,6 +126,7 @@ import { User } from '@placeos/users';
                         [list]="item.attendees"
                         [host]="item.user_email"
                         [hide_close]="true"
+                        [custom_title]="'Interested'"
                     ></attendee-list>
                 </div>
             </ng-template>
@@ -135,6 +137,7 @@ import { User } from '@placeos/users';
                 customTooltip
                 [content]="view_attendees"
                 class="px-2 rounded h-full w-full flex items-center justify-center"
+                [disabled]="!checkedInCount(item.attendees)"
             >
                 {{ checkedInCount(item.attendees) }}
             </button>

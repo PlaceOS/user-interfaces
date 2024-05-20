@@ -18,8 +18,14 @@ import { User } from 'libs/users/src/lib/user.class';
                     <app-icon>arrow_back</app-icon>
                 </button>
                 <div class="flex-1 text-center font-medium" i18n>
-                    {{ list.length }} { list.length, plural, =1 { Attendee }
-                    other { Attendees } }
+                    {{ list.length }}
+                    {{
+                        custom_title
+                            ? custom_title
+                            : list.length === 1
+                            ? 'Attendee'
+                            : 'Attendees'
+                    }}
                 </div>
                 <div class="w-12" *ngIf="!hide_close"></div>
             </div>
@@ -61,5 +67,6 @@ export class AttendeeListComponent {
     @Input() public host: string = '';
     @Input() public list: User[] = [];
     @Input() public hide_close = false;
+    @Input() public custom_title = '';
     @Output() public close = new EventEmitter();
 }

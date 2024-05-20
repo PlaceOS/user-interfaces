@@ -368,7 +368,7 @@ const EMPTY = [];
                     </ng-container>
                     <!-- END LOCATION -->
                     <div class="w-full h-px bg-base-200"></div>
-                    <h3 class="py-4 text-2xl font-medium">Extra Information</h3>
+                    <h3 class="py-4 text-2xl font-medium">Event Information</h3>
                     <ng-container>
                         <label for="title">Event Description</label>
                         <rich-text-input
