@@ -153,7 +153,11 @@ export class InteractiveMapComponent extends AsyncHandler {
     }
 
     public onLevelChange(zone: any) {
-        log('Map', 'Level Changed to:', zone);
+        log(
+            'Map',
+            'Level changed to:',
+            zone?.display_name || zone?.name || zone
+        );
         this._explore.setLevel(zone);
     }
 }
