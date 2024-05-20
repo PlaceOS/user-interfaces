@@ -1,4 +1,4 @@
-import { Component, Optional } from '@angular/core';
+import { Component, Input, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { SettingsService } from '@placeos/common';
 import { addDays, endOfDay, set } from 'date-fns';
@@ -21,7 +21,7 @@ import { map } from 'rxjs/operators';
     ],
     template: `
         <div
-            class="flex rounded-t-md items-center border-b border-base-200 pb-2 sm:p-4"
+            class="flex rounded-t-md items-center border-b border-base-200 pb-2 sm:hidden"
         >
             <div class="flex-1 pl-2">
                 <button
@@ -43,7 +43,8 @@ import { map } from 'rxjs/operators';
             [formGroup]="form"
         >
             <section details>
-                <h2 class="text-lg font-medium" i18n>Details</h2>
+                <h2 class="text-lg font-medium mb-1" i18n>Details</h2>
+                <label for="location" i18n>Location</label>
                 <ng-container *ngIf="!use_region">
                     <mat-form-field
                         appearance="outline"
@@ -68,7 +69,11 @@ import { map } from 'rxjs/operators';
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                    <mat-form-field appearance="outline" class="w-full">
+                    <mat-form-field
+                        appearance="outline"
+                        class="w-full"
+                        *ngIf="!hide_levels"
+                    >
                         <mat-select
                             name="location"
                             [ngModel]="(options | async)?.zone_id"
@@ -108,7 +113,11 @@ import { map } from 'rxjs/operators';
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                    <mat-form-field appearance="outline" class="w-full">
+                    <mat-form-field
+                        appearance="outline"
+                        class="w-full"
+                        *ngIf="!hide_levels"
+                    >
                         <mat-select
                             name="location"
                             [ngModel]="(options | async)?.zone_id"
@@ -235,6 +244,8 @@ import { map } from 'rxjs/operators';
     `,
 })
 export class DeskFiltersComponent {
+    @Input() public hide_levels: boolean;
+
     public can_close = false;
     public readonly options = this._state.options;
     public readonly features = this._state.features;
@@ -250,9 +261,11 @@ export class DeskFiltersComponent {
             const region_levels = region_buildings.map((b) => ({
                 id: b.id,
                 name: b.display_name || b.name,
-                levels: this._org.levels.filter((l) => l.parent_id === b.id),
+                levels: this._org.levels.filter(
+                    (l) => l.parent_id === b.id && !l.tags.includes('parking')
+                ),
             }));
-            return region_levels;
+            return region_levels.filter((_) => _.levels.length);
         })
     );
 

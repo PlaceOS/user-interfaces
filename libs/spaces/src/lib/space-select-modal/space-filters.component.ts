@@ -34,7 +34,7 @@ import { Region } from '@placeos/organisation';
             [formGroup]="form"
         >
             <section details>
-                <h2 class="text-lg font-medium" i18n>Details</h2>
+                <h2 class="text-lg font-medium mb-1" i18n>Details</h2>
                 <div class="flex-1 min-w-[8rem] flex flex-col">
                     <label for="location" i18n>Location</label>
                     <ng-container *ngIf="!use_region">
@@ -61,7 +61,11 @@ import { Region } from '@placeos/organisation';
                                 </mat-option>
                             </mat-select>
                         </mat-form-field>
-                        <mat-form-field appearance="outline" class="w-full">
+                        <mat-form-field
+                            appearance="outline"
+                            class="w-full"
+                            *ngIf="!hide_levels"
+                        >
                             <mat-select
                                 name="location"
                                 [ngModel]="(options | async)?.zone_ids"
@@ -104,7 +108,11 @@ import { Region } from '@placeos/organisation';
                                 </mat-option>
                             </mat-select>
                         </mat-form-field>
-                        <mat-form-field appearance="outline" class="w-full">
+                        <mat-form-field
+                            appearance="outline"
+                            class="w-full"
+                            *ngIf="!hide_levels"
+                        >
                             <mat-select
                                 name="location"
                                 [ngModel]="(options | async)?.zone_ids"
@@ -288,6 +296,7 @@ import { Region } from '@placeos/organisation';
 })
 export class SpaceFiltersComponent {
     @Input() public multiday: boolean;
+    @Input() public hide_levels: boolean;
     public can_close = false;
     public readonly options = this._event_form.options;
 
@@ -307,7 +316,7 @@ export class SpaceFiltersComponent {
                     (l) => l.parent_id === b.id && !l.tags.includes('parking')
                 ),
             }));
-            return region_levels;
+            return region_levels.filter((_) => _.levels.length);
         })
     );
     public readonly features = combineLatest([
