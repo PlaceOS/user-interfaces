@@ -14,6 +14,9 @@ import { ReportsStateService } from '../reports-state.service';
             <ng-container *ngIf="!(loading | async); else load_state">
                 <ng-container *ngIf="total_count | async; else empty_state">
                     <report-spaces-overall></report-spaces-overall>
+                    <report-spaces-overall-list
+                        [print]="printing"
+                    ></report-spaces-overall-list>
                     <report-spaces-space-listing
                         [print]="printing"
                     ></report-spaces-space-listing>
