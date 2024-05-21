@@ -13,8 +13,13 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
                 <app-icon>close</app-icon>
             </button>
         </header>
-        <main class="w-[24rem] overflow-auto h-[50vh] p-2 space-y-2">
-            <button btn matRipple class="w-full" (click)="item_list.push('')">
+        <main class="w-[36rem] overflow-auto h-[50vh] p-2 space-y-2">
+            <button
+                btn
+                matRipple
+                class="w-full"
+                (click)="item_list.push({ name: '', email: '' })"
+            >
                 Add Item
             </button>
             <div
@@ -23,9 +28,15 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
             >
                 <input
                     type="text"
-                    class="w-full border border-base-200 px-4 py-3 rounded"
+                    class="flex-1 border border-base-200 px-4 py-3 rounded"
                     placeholder="Issue Name"
-                    [(ngModel)]="item_list[i]"
+                    [(ngModel)]="item_list[i].name"
+                />
+                <input
+                    type="email"
+                    class="flex-[2] border border-base-200 px-4 py-3 rounded"
+                    placeholder="Issue Email"
+                    [(ngModel)]="item_list[i].email"
                 />
                 <button
                     icon
@@ -46,7 +57,7 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
     styles: [``],
 })
 export class ItemListModalComponent {
-    public item_list: string[] = [];
+    public item_list: { name: string; email: string }[] = [];
     public loading: boolean = false;
 
     public identify = (index: number, item: any) => index;
