@@ -315,11 +315,11 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             event.properties?.roomId ||
             event.id;
         const actions = this.metadata?.actions || [];
+        const ignore_actions = ['mousedown', 'touchstart', 'enter', 'leave'];
         for (const action of actions) {
             if (
                 (action.id === id || action.id === '*') &&
-                action.action !== 'enter' &&
-                action.action !== 'leave'
+                !ignore_actions.includes(action.action as any)
             ) {
                 action.callback(event);
                 break;
