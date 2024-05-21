@@ -112,11 +112,17 @@ export class ReportsStateService {
                                   async (_: CalendarEvent) =>
                                       new CalendarEvent({
                                           ..._,
-                                          resources: await Promise.all(
-                                              _.resources.map((r) =>
-                                                  this._space_pipe.transform(
-                                                      r.id || r.email
+                                          resources: (
+                                              await Promise.all(
+                                                  _.resources.map((r) =>
+                                                      this._space_pipe.transform(
+                                                          r.id || r.email
+                                                      )
                                                   )
+                                              )
+                                          ).filter((s) =>
+                                              options.zones.find((z) =>
+                                                  s.zones.includes(z)
                                               )
                                           ),
                                       } as any)

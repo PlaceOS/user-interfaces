@@ -9,7 +9,9 @@ import { ReportsStateService } from '../reports-state.service';
 @Component({
     selector: 'report-spaces-space-listing',
     template: `
-        <div class="m-4 rounded bg-base-100 shadow overflow-hidden">
+        <div
+            class="m-4 rounded bg-base-100 border border-base-200 shadow overflow-hidden"
+        >
             <div class="border-b border-base-200 px-4 py-2 flex items-center">
                 <h3 class="font-bold text-xl flex-1">Room Utilisation</h3>
                 <button icon matRipple (click)="download()" *ngIf="!print">
