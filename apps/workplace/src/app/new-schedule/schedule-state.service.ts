@@ -340,7 +340,9 @@ export class ScheduleStateService extends AsyncHandler {
                             {
                                 title: `Keep ${type} booking`,
                                 content: `You have indicated you are not in the office. 
-                                Your booking "${booking.title}" for ${format(
+                                Your booking "<i>${
+                                    booking.title
+                                }</i>" for ${format(
                                     booking.date,
                                     this._settings.time_format
                                 )} will be cancelled at ${format(
@@ -348,7 +350,7 @@ export class ScheduleStateService extends AsyncHandler {
                                     this._settings.time_format
                                 )}.<br/><br/>
                                 Do you wish to keep this booking?`,
-                                icon: { content: 'cancel' },
+                                icon: { content: 'event_busy' },
                                 confirm_text: 'Keep',
                                 cancel_text: 'Dismiss',
                             },
