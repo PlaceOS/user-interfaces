@@ -4,7 +4,7 @@ import { ParkingStateService } from './parking-state.service';
 @Component({
     selector: 'parking-space-list',
     template: `
-        <div class="absolute inset-0 overflow-auto px-2">
+        <div class="h-full w-full overflow-auto">
             <custom-table
                 class="block min-w-[56rem]"
                 [dataSource]="spaces"

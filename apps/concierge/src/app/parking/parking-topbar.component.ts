@@ -10,7 +10,7 @@ import { ParkingStateService } from './parking-state.service';
 @Component({
     selector: 'parking-topbar',
     template: `
-        <div class="flex items-center w-full pt-4 px-8 space-x-2">
+        <div class="flex items-center w-full pt-4 pb-2 px-8 space-x-2">
             <h2 class="text-2xl font-medium">
                 {{ manage ? 'Manage Parking' : 'Parking' }}
             </h2>
@@ -32,7 +32,7 @@ import { ParkingStateService } from './parking-state.service';
             </button> -->
         </div>
         <div class="flex items-center bg-base-100 px-8 h-20">
-            <mat-form-field appearance="outline" class="w-[18rem]">
+            <mat-form-field appearance="outline" class="w-[15rem]">
                 <mat-select
                     [(ngModel)]="zones"
                     (ngModelChange)="updateZones($event)"

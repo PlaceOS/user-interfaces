@@ -47,6 +47,24 @@ export class LockersStateService extends AsyncHandler {
     // private _new_lockers = new BehaviorSubject<Locker[]>([]);
     private _locker_bookings: Booking[] = [];
     private _loading = new BehaviorSubject<boolean>(false);
+    /** List of available parking levels for the current building */
+    public levels = this._org.level_list.pipe(
+        map((_) => {
+            if (!this._settings.get('app.use_region')) {
+                const blds = this._org.buildingsForRegion();
+                const bld_ids = blds.map((bld) => bld.id);
+                const list = _.filter((lvl) => bld_ids.includes(lvl.parent_id));
+                list.map((lvl) => ({
+                    ...lvl,
+                    display_name: `${
+                        blds.find((_) => _.id === lvl.parent_id)?.display_name
+                    } - ${lvl.display_name}`,
+                }));
+                return list;
+            }
+            return _.filter((lvl) => lvl.parent_id === this._org.building.id);
+        })
+    );
 
     // public readonly new_lockers = this._new_lockers.asObservable();
 

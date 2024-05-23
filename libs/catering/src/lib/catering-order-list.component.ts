@@ -29,7 +29,7 @@ import { CateringOrdersService } from './catering-orders.service';
             </li>
             <div
                 empty
-                class="info-block opacity-60"
+                class="info-block opacity-30"
                 *ngIf="!(order_list | async)?.length"
             >
                 <p class="p-4 text-center">No Catering Orders</p>
