@@ -49,6 +49,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
             >
                 <desk-filters
                     class="h-full hidden sm:flex max-w-[20rem] sm:h-[65vh] sm:max-h-full"
+                    [hide_levels]="view !== 'list'"
                 ></desk-filters>
                 <div
                     class="flex flex-col items-center flex-1 w-1/2 h-full sm:h-[65vh]"

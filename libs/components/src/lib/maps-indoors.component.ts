@@ -285,11 +285,14 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         const bld = this._org.buildings.find(
             (_) => _.id === id || _.map_id === id
         );
+        this.timeout('set_floor', () => {
+            const has_set_floor = this._setFloorFromZone();
+            if (!has_set_floor && building.defaultFloor) {
+                this._handleLevelChange(building.defaultFloor);
+            }
+        });
         if (!bld) return;
         this._org.building = bld;
-        if (building.defaultFloor) {
-            this._handleLevelChange(building.defaultFloor);
-        }
     }
 
     private async _handleLevelChange(index: any) {
@@ -312,11 +315,11 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             event.properties?.roomId ||
             event.id;
         const actions = this.metadata?.actions || [];
+        const ignore_actions = ['mousedown', 'touchstart', 'enter', 'leave'];
         for (const action of actions) {
             if (
                 (action.id === id || action.id === '*') &&
-                action.action !== 'enter' &&
-                action.action !== 'leave'
+                !ignore_actions.includes(action.action as any)
             ) {
                 action.callback(event);
                 break;
@@ -357,28 +360,40 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         const item =
             items.find((_) => _.properties?.externalId === this.focus) ||
             items[0];
-        const [lng, lat] = items[0].properties?.anchor?.coordinates || [0, 0];
+        const [lng, lat] = item.properties?.anchor?.coordinates || [0, 0];
         this._services.map.setZoom(DEFAULT_ZOOM);
         this._services.map.setCenter({ lat, lng });
-        this._services.mapsindoors.setFloor(items[0].properties?.floor);
-        this._services.mapsindoors.highlight([items[0].id]);
+        this._services.mapsindoors.setFloor(item.properties?.floor);
+        this._services.mapsindoors.highlight([item.id]);
     }
 
     private _centerOnZone() {
         if (!this._services || !this.zone) return;
-        const bld = this._org.buildings.find(
-            (bld) => bld.id === this.zone.parent_id
-        );
-        if (!bld) return;
-        const [lat, long] = bld?.location.split(',');
-        this._services.map.setZoom(DEFAULT_ZOOM);
-        this._services.map.setCenter({
-            lat: parseFloat(lat),
-            lng: parseFloat(long),
+        this.timeout('set_center', () => {
+            const bld = this._org.buildings.find(
+                (bld) => bld.id === this.zone.parent_id
+            );
+            if (!bld) return;
+            const [lat, long] = bld?.location.split(',');
+            this._services.map.setZoom(DEFAULT_ZOOM);
+            this._services.map.setCenter({
+                lat: parseFloat(lat),
+                lng: parseFloat(long),
+            });
+            this._setFloorFromZone();
         });
-        if (this.zone.map_id) {
-            this._services.mapsindoors.setFloor(this.zone.map_id);
-        }
+    }
+
+    private _setFloorFromZone() {
+        if (!this.zone.map_id || !this._services) return false;
+        const map_id = this.zone.map_id;
+        const floor = this._floor_list.find(
+            (_) =>
+                _.index === map_id || _.externalId === map_id || _.id === map_id
+        );
+        if (!floor) return false;
+        this._services.mapsindoors.setFloor(floor.index);
+        return true;
     }
 
     private _added_floor_selector = false;
