@@ -6,7 +6,6 @@ import {
     LockersService,
     checkinBooking,
     queryBookings,
-    removeBooking,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -28,6 +27,7 @@ import {
     addMinutes,
     differenceInMinutes,
     endOfDay,
+    format,
     getUnixTime,
     isSameDay,
     startOfDay,
@@ -312,12 +312,6 @@ export class ScheduleStateService extends AsyncHandler {
                         ),
                         type,
                     }).toPromise();
-                    console.log(
-                        'Check Bookings:',
-                        type,
-                        bookings,
-                        this._ignore_cancel
-                    );
                     const check_block =
                         (auto_release.time_after || 0) +
                         (auto_release.time_before || 0);
@@ -338,13 +332,25 @@ export class ScheduleStateService extends AsyncHandler {
                             Date.now()
                         );
                         if (diff > check_block || diff < 0) continue;
+                        const time = addMinutes(
+                            booking.date,
+                            auto_release.time_after || 0
+                        );
                         const result = await openConfirmModal(
                             {
                                 title: `Keep ${type} booking`,
                                 content: `You have indicated you are not in the office. 
-                                Your booking will be cancelled in about ${diff} minutes. 
+                                Your booking "<i>${
+                                    booking.title
+                                }</i>" for ${format(
+                                    booking.date,
+                                    this._settings.time_format
+                                )} will be cancelled at ${format(
+                                    time,
+                                    this._settings.time_format
+                                )}.<br/><br/>
                                 Do you wish to keep this booking?`,
-                                icon: { content: 'cancel' },
+                                icon: { content: 'event_busy' },
                                 confirm_text: 'Keep',
                                 cancel_text: 'Dismiss',
                             },

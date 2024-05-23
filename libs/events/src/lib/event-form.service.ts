@@ -546,7 +546,7 @@ export class EventFormService extends AsyncHandler {
                 );
             }
             const ical_uid = this.event?.ical_uid;
-            const value = this._form.getRawValue();
+            let value = this._form.getRawValue();
             let {
                 id,
                 host,
@@ -561,6 +561,7 @@ export class EventFormService extends AsyncHandler {
             let catering = form.get('catering')?.value || [];
             if (recurrence?._pattern && recurrence?._pattern !== 'none') {
                 this.form.patchValue({ recurring: true });
+                value = this._form.getRawValue();
             }
             let changed_times = false;
             let changed_spaces = spaces.some(
@@ -646,7 +647,7 @@ export class EventFormService extends AsyncHandler {
                 (value as any).setup = value.setup_time || setup;
                 (value as any).breakdown = value.breakdown_time || breakdown;
             }
-            const processed_assets = assets.map((_) =>
+            const processed_assets = (assets || []).map((_) =>
                 new AssetRequest(_).toJSON()
             );
             const result = await this._makeBooking(

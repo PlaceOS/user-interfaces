@@ -43,9 +43,7 @@ import { first, map, take, tap } from 'rxjs/operators';
             <div
                 class="absolute top-1/2 -translate-y-1/2 right-2 flex items-center"
             >
-                <explore-search
-                    *ngIf="can_search && !(use_mapsindoors$ | async)"
-                ></explore-search>
+                <explore-search *ngIf="can_search"></explore-search>
                 <button
                     icon
                     matRipple
@@ -229,6 +227,7 @@ import { first, map, take, tap } from 'rxjs/operators';
                     [actions]="actions | async"
                     [labels]="labels | async"
                     [options]="{ controls: true }"
+                    [focus]="locate"
                 ></interactive-map>
             </div>
         </div>

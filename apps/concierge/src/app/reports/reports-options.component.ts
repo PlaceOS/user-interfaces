@@ -10,7 +10,7 @@ import { ReportsStateService } from './reports-state.service';
     selector: 'reports-options',
     template: `
         <div
-            class="bg-base-100 h-20 w-full flex items-center px-2 shadow z-20 border-b border-base-200"
+            class="bg-base-100 h-20 w-full flex items-center px-2 shadow z-20 border-b border-base-200 screen-only"
         >
             <mat-form-field appearance="outline" class="w-48">
                 <mat-select

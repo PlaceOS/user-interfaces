@@ -69,8 +69,9 @@ import { SettingsService } from '@placeos/common';
                             <app-icon
                                 className="material-symbols-rounded"
                                 class="text-xl"
-                                >release_alert</app-icon
                             >
+                                release_alert
+                            </app-icon>
                             <span>Auto-release Settings</span>
                         </div>
                     </button>
@@ -85,11 +86,22 @@ import { SettingsService } from '@placeos/common';
                             <span>Induction Settings</span>
                         </div>
                     </button>
+                    <button mat-menu-item (click)="setSupportIssueTypes(row)">
+                        <div class="flex items-center space-x-2">
+                            <app-icon
+                                className="material-symbols-rounded"
+                                class="text-xl"
+                            >
+                                support_agent
+                            </app-icon>
+                            <span>Support Request Types</span>
+                        </div>
+                    </button>
                     <button mat-menu-item (click)="removeBuilding(row)">
                         <div class="flex items-center space-x-2 text-red-500">
-                            <app-icon class="text-error text-xl"
-                                >delete</app-icon
-                            >
+                            <app-icon class="text-error text-xl">
+                                delete
+                            </app-icon>
                             <span>Delete Building</span>
                         </div>
                     </button>
@@ -117,6 +129,9 @@ export class BuildingListComponent {
 
     public readonly setInduction = (building) =>
         this._manager.setInduction(building);
+
+    public readonly setSupportIssueTypes = (building) =>
+        this._manager.setSupportIssueTypes(building);
 
     constructor(
         private _manager: BuildingManagementService,

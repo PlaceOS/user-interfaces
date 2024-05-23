@@ -184,6 +184,11 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         this._services.mapsindoors.addListener('click', (e) =>
             this._handleUserClick(e)
         );
+        this.timeout(
+            'resize',
+            () => window.dispatchEvent(new Event('resize')),
+            100
+        );
         this.timeout('focus', () => this._focusOnLocation());
         this.timeout('init_zoom', () => this._handleZoomChange(DEFAULT_ZOOM));
     }
@@ -306,9 +311,10 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             event.properties?.externalId ||
             event.properties?.roomId ||
             event.id;
-        for (const action of this.metadata?.actions || []) {
+        const actions = this.metadata?.actions || [];
+        for (const action of actions) {
             if (
-                action.id === id &&
+                (action.id === id || action.id === '*') &&
                 action.action !== 'enter' &&
                 action.action !== 'leave'
             ) {
