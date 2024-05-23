@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
-import { SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { VisitorsStateService } from './visitors-state.service';
-import { GuestUser } from '@placeos/users';
-import { CalendarEvent } from '@placeos/events';
 import { Booking } from '@placeos/bookings';
+import { showMetadata } from '@placeos/ts-client';
+import { OrganisationService } from '@placeos/organisation';
+import { tap } from 'rxjs/operators';
 
 @Component({
     selector: 'guest-listings',
@@ -12,7 +13,7 @@ import { Booking } from '@placeos/bookings';
             class="w-full flex flex-col flex-1 text-sm h-full overflow-auto pb-20"
         >
             <custom-table
-                class="min-w-[72rem]"
+                class="min-w-[80rem]"
                 [dataSource]="guests"
                 [filter]="search | async"
                 [columns]="columns"
@@ -24,7 +25,8 @@ import { Booking } from '@placeos/bookings';
                     date: date_template,
                     host: host_template,
                     id_data: id_template,
-                    actions: action_template
+                    actions: action_template,
+                    induction: boolean_template
                 }"
                 [empty]="
                     (search | async)
@@ -134,6 +136,20 @@ import { Booking } from '@placeos/bookings';
                 </div>
             </ng-template>
         </ng-template>
+        <ng-template #boolean_template let-row="row">
+            <div
+                *ngIf="row.induction"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
+            >
+                <app-icon>done</app-icon>
+            </div>
+            <div
+                *ngIf="!row.induction && row.process_state.includes('declined')"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-error text-error-content mx-auto"
+            >
+                <app-icon>close</app-icon>
+            </div>
+        </ng-template>
         <ng-template #status_template let-row="row">
             <button
                 matRipple
@@ -182,104 +198,106 @@ import { Booking } from '@placeos/bookings';
             }}
         </ng-template>
         <ng-template #action_template let-row="row">
-            <button
-                icon
-                matRipple
-                matTooltip="Linked to Room Booking"
-                class="pl-2"
-                [class.pointer-events-none]="!row.linked_event"
-                [matMenuTriggerFor]="checkin_menu"
-            >
-                <app-icon
-                    class="text-2xl"
-                    [class.opacity-0]="!row.linked_event"
+            <div class="flex items-center justify-end">
+                <button
+                    icon
+                    matRipple
+                    [class.pointer-events-none]="!row.linked_event"
+                    [matMenuTriggerFor]="checkin_menu"
                 >
-                    event
-                </app-icon>
-            </button>
-            <mat-menu #checkin_menu="matMenu">
-                <button mat-menu-item (click)="checkinAllVisitors(row)">
-                    <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl">event_available</app-icon>
-                        <div>Checkin All for Booking</div>
-                    </div>
+                    <app-icon
+                        class="text-2xl"
+                        [class.opacity-0]="!row.linked_event"
+                    >
+                        event
+                    </app-icon>
                 </button>
-                <button mat-menu-item (click)="checkoutAllVisitors(row)">
-                    <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl">event_busy</app-icon>
-                        <div>Checkout All for Booking</div>
-                    </div>
+                <mat-menu #checkin_menu="matMenu">
+                    <button mat-menu-item (click)="checkinAllVisitors(row)">
+                        <div class="flex items-center space-x-2">
+                            <app-icon class="text-2xl"
+                                >event_available</app-icon
+                            >
+                            <div>Checkin All for Booking</div>
+                        </div>
+                    </button>
+                    <button mat-menu-item (click)="checkoutAllVisitors(row)">
+                        <div class="flex items-center space-x-2">
+                            <app-icon class="text-2xl">event_busy</app-icon>
+                            <div>Checkout All for Booking</div>
+                        </div>
+                    </button>
+                </mat-menu>
+                <button
+                    icon
+                    matRipple
+                    [disabled]="!row.attachments?.length"
+                    title=""
+                    matTooltip="View Attachments"
+                    [matMenuTriggerFor]="menu"
+                >
+                    <app-icon>attachment</app-icon>
                 </button>
-            </mat-menu>
-            <button
-                icon
-                matRipple
-                [disabled]="!row.attachments?.length"
-                title=""
-                matTooltip="View Attachments"
-                [matMenuTriggerFor]="menu"
-            >
-                <app-icon>attachment</app-icon>
-            </button>
-            <mat-menu #menu="matMenu">
+                <mat-menu #menu="matMenu">
+                    <a
+                        *ngFor="let item of row.attachments"
+                        [href]="item.url"
+                        mat-menu-item
+                        >{{ item.name }}</a
+                    >
+                </mat-menu>
+                <action-icon
+                    remote
+                    [matTooltip]="
+                        row.extension_data.remote
+                            ? 'Set as In-Person Visitor'
+                            : 'Set as Remote Visitior'
+                    "
+                    [loading]="loading === 'remote'"
+                    [content]="
+                        row.extension_data.remote ? 'tap_and_play' : 'business'
+                    "
+                    (click)="setExt(row, 'remote', !row.extension_data.remote)"
+                >
+                </action-icon>
+                <action-icon
+                    checkin
+                    matTooltip="Checkin Guest"
+                    [loading]="loading === 'checkin'"
+                    [state]="row?.checked_in ? 'success' : ''"
+                    content="event_available"
+                    (click)="checkin(row)"
+                >
+                </action-icon>
+                <action-icon
+                    checkout
+                    matTooltip="Checkout Guest"
+                    [loading]="loading === 'checkout'"
+                    content="event_busy"
+                    (click)="checkout(row)"
+                >
+                </action-icon>
                 <a
-                    *ngFor="let item of row.attachments"
-                    [href]="item.url"
-                    mat-menu-item
-                    >{{ item.name }}</a
+                    [href]="'mailto:' + row?.asset_id"
+                    icon
+                    matRipple
+                    [matTooltip]="
+                        row?.user_email === row?.asset_id
+                            ? 'Email Host'
+                            : 'Email Guest'
+                    "
                 >
-            </mat-menu>
-            <action-icon
-                remote
-                [matTooltip]="
-                    row.extension_data.remote
-                        ? 'Set as In-Person Visitor'
-                        : 'Set as Remote Visitior'
-                "
-                [loading]="loading === 'remote'"
-                [content]="
-                    row.extension_data.remote ? 'tap_and_play' : 'business'
-                "
-                (click)="setExt(row, 'remote', !row.extension_data.remote)"
-            >
-            </action-icon>
-            <action-icon
-                checkin
-                matTooltip="Checkin Guest"
-                [loading]="loading === 'checkin'"
-                [state]="row?.checked_in ? 'success' : ''"
-                content="event_available"
-                (click)="checkin(row)"
-            >
-            </action-icon>
-            <action-icon
-                checkout
-                matTooltip="Checkout Guest"
-                [loading]="loading === 'checkout'"
-                content="event_busy"
-                (click)="checkout(row)"
-            >
-            </action-icon>
-            <a
-                [href]="'mailto:' + row?.asset_id"
-                icon
-                matRipple
-                [matTooltip]="
-                    row?.user_email === row?.asset_id
-                        ? 'Email Host'
-                        : 'Email Guest'
-                "
-            >
-                <app-icon>email</app-icon>
-            </a>
-            <action-icon
-                matTooltip="Print QR Code"
-                [loading]="loading === 'printing'"
-                content="event_busy"
-                (click)="printQRCode()"
-                [class.invisible]="!can_print"
-            >
-            </action-icon>
+                    <app-icon>email</app-icon>
+                </a>
+                <action-icon
+                    matTooltip="Print QR Code"
+                    [loading]="loading === 'printing'"
+                    content="event_busy"
+                    (click)="printQRCode()"
+                    [class.invisible]="!can_print"
+                >
+                </action-icon>
+            </div>
         </ng-template>
         <button
             class="bg-secondary hover:shadow-lg shadow absolute bottom-4 right-4 text-white h-12 w-12"
@@ -295,10 +313,13 @@ import { Booking } from '@placeos/bookings';
     `,
     styles: [``],
 })
-export class GuestListingComponent {
-    public readonly guests = this._state.filtered_bookings;
+export class GuestListingComponent extends AsyncHandler {
+    public readonly guests = this._state.filtered_bookings.pipe(
+        tap((_: any) => console.log(_))
+    );
     public readonly search = this._state.search;
     public readonly filters = this._state.filters;
+    private _inductions_enabled = false;
 
     public readonly downloadVisitorList = () =>
         this._state.downloadVisitorsList();
@@ -322,15 +343,26 @@ export class GuestListingComponent {
     };
 
     public get columns() {
-        return [
-            'state',
-            'date',
-            'asset_name',
-            'user_name',
-            'asset_id',
-            'status',
-            'actions',
-        ];
+        return this._inductions_enabled
+            ? [
+                  'state',
+                  'date',
+                  'asset_name',
+                  'user_name',
+                  'asset_id',
+                  'status',
+                  'induction',
+                  'actions',
+              ]
+            : [
+                  'state',
+                  'date',
+                  'asset_name',
+                  'user_name',
+                  'asset_id',
+                  'status',
+                  'actions',
+              ];
     }
 
     public get display_columns() {
@@ -342,6 +374,7 @@ export class GuestListingComponent {
             asset_id: 'Email',
             id_data: 'ID',
             status: 'State',
+            induction: 'Inducted',
             actions: ' ',
         };
         return this.columns.map((_) => fields[_] || _);
@@ -357,6 +390,7 @@ export class GuestListingComponent {
             id_data: '8r',
             status: '10r',
             actions: '16r',
+            induction: '5r',
         };
         return this.columns.map((_) => fields[_] || _);
     }
@@ -367,6 +401,28 @@ export class GuestListingComponent {
 
     constructor(
         private _state: VisitorsStateService,
-        private _settings: SettingsService
-    ) {}
+        private _settings: SettingsService,
+        private _org: OrganisationService
+    ) {
+        super();
+    }
+
+    public ngOnInit() {
+        this.subscription(
+            'building',
+            this._org.active_building.subscribe(async (bld) => {
+                if (!bld) return;
+                const visitor_kiosk_app =
+                    this._settings.get('app.visitor_kiosk_app') ||
+                    'visitor-kiosk_app';
+                const metadata: any = await showMetadata(
+                    bld.id,
+                    visitor_kiosk_app
+                ).toPromise();
+                this._inductions_enabled =
+                    metadata.details?.induction_enabled &&
+                    metadata.details?.induction_details;
+            })
+        );
+    }
 }
