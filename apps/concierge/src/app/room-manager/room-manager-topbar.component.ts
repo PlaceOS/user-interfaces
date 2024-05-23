@@ -2,10 +2,11 @@ import { Component } from '@angular/core';
 import { RoomManagementService } from './room-management.service';
 import { OrganisationService } from '@placeos/organisation';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
-import { first, take } from 'rxjs/operators';
+import { AsyncHandler, SettingsService } from '@placeos/common';
+import { first, map, take } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
+import { combineLatest } from 'rxjs';
 
 @Component({
     selector: 'room-manager-topbar',
@@ -15,18 +16,26 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
             <button btn (click)="newRoom()" class="w-32">New Room</button>
         </div>
         <div class="flex items-center bg-base-100 h-20 px-4 space-x-2">
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" class="no-subscript w-[15rem]">
                 <mat-select
-                    [ngModel]="(this.filters | async)?.zone"
+                    [ngModel]="(filters | async)?.zones"
                     (ngModelChange)="updateZones($event)"
                     placeholder="All Levels"
+                    multiple
                 >
-                    <mat-option [value]="building?.id">All Levels</mat-option>
                     <mat-option
                         *ngFor="let level of levels | async"
                         [value]="level.id"
                     >
-                        {{ level.display_name || level.name }}
+                        <div class="flex flex-col-reverse">
+                            <div class="text-xs opacity-30" *ngIf="use_region">
+                                {{ (level.parent_id | building)?.display_name }}
+                                <span class="opacity-0"> - </span>
+                            </div>
+                            <div>
+                                {{ level.display_name || level.name }}
+                            </div>
+                        </div>
                     </mat-option>
                 </mat-select>
             </mat-form-field>
@@ -57,7 +66,16 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
 })
 export class RoomManagerTopbarComponent extends AsyncHandler {
     /** List of levels for the active building */
-    public readonly levels = this._org.active_levels;
+    public readonly levels = combineLatest([
+        this._org.active_building,
+        this._org.active_region,
+    ]).pipe(
+        map(([bld, region]) =>
+            this.use_region
+                ? this._org.levelsForRegion(region)
+                : this._org.levelsForBuilding(bld)
+        )
+    );
 
     public readonly filters = this._manager.options;
     /** Set filtered date */
@@ -65,12 +83,11 @@ export class RoomManagerTopbarComponent extends AsyncHandler {
     /** Set filter string */
     public readonly setSearch = (str) => this._manager.setSearchString(str);
     /** Update active zones for desks */
-    public readonly updateZones = (zone) => {
+    public readonly updateZones = (zones) => {
         this._router.navigate([], {
             relativeTo: this._route,
-            queryParams: { zone_id: zone },
+            queryParams: { zone_ids: zones.join(',') },
         });
-        this._manager.setFilters({ zone });
     };
 
     public readonly newRoom = () => this._manager.editRoom();
@@ -79,12 +96,24 @@ export class RoomManagerTopbarComponent extends AsyncHandler {
         return this._org.building;
     }
 
+    public get use_region() {
+        return !!this._settings.get('app.use_region');
+    }
+
+    public get root_zone() {
+        return (
+            (this.use_region ? this._org.region.id : '') ||
+            this._org.building.id
+        );
+    }
+
     constructor(
         private _manager: RoomManagementService,
         private _org: OrganisationService,
         private _route: ActivatedRoute,
         private _router: Router,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
+        private _settings: SettingsService
     ) {
         super();
     }
@@ -100,28 +129,11 @@ export class RoomManagerTopbarComponent extends AsyncHandler {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe(async (params) => {
-                if (params.has('zone_id')) {
-                    const new_zone = params.get('zone_id');
-                    const { zone } = await this._manager.options
-                        .pipe(take(1))
-                        .toPromise();
-                    if (new_zone && new_zone !== zone) {
-                        const level = this._org.levelWithID([new_zone]);
-                        if (!level) return;
-                        this._org.building = this._org.buildings.find(
-                            (bld) => bld.id === level.parent_id
-                        );
-                        this.setFilters({ zone: new_zone });
-                    }
+                if (params.has('zone_ids')) {
+                    const zone_list = (params.get('zone_ids') || '').split(',');
+                    const zones = zone_list.filter((z) => z);
+                    this._manager.setFilters({ zones });
                 }
-            })
-        );
-        this.subscription(
-            'levels',
-            this._org.active_levels.subscribe((levels) => {
-                var zone = levels.find((lvl) => lvl.id === zone);
-                if (!zone && levels.length) zone = levels[0].id;
-                this.updateZones(zone);
             })
         );
         this.setSearch('');

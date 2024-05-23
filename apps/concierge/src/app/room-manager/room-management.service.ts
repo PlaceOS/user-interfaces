@@ -11,9 +11,10 @@ import {
     switchMap,
 } from 'rxjs/operators';
 import { RoomModalComponent } from './room-modal.component';
+import { SettingsService } from '@placeos/common';
 
 export interface RoomListOptions {
-    zone?: string;
+    zones?: string[];
     search?: string;
 }
 
@@ -28,11 +29,16 @@ export class RoomManagementService {
 
     public readonly room_list = combineLatest([
         this._org.active_building,
+        this._org.active_region,
         this._change,
     ]).pipe(
-        filter(([_]) => !!_?.id),
-        switchMap(([bld]) =>
-            querySystems({ zone_id: bld.id }).pipe(
+        filter(([b, r]) => !!b?.id),
+        switchMap(([bld, region]) =>
+            querySystems({
+                zone_id:
+                    (this._settings.get('use_region') ? region.id : '') ||
+                    bld.id,
+            }).pipe(
                 map(({ data }) => data),
                 catchError(() => of([]))
             )
@@ -50,8 +56,10 @@ export class RoomManagementService {
         this._options,
     ]).pipe(
         map(([list, options]) => {
-            if (options.zone) {
-                list = list.filter((_) => _.zones.includes(options.zone));
+            if (options.zones?.length) {
+                list = list.filter((_) =>
+                    options.zones.find((z) => _.zones.includes(z))
+                );
             }
             if (options.search) {
                 list = list.filter((_) =>
@@ -64,7 +72,8 @@ export class RoomManagementService {
 
     constructor(
         private _org: OrganisationService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
+        private _settings: SettingsService
     ) {}
 
     public setFilters(options: Partial<RoomListOptions>) {
