@@ -7,7 +7,10 @@ import { SettingsService } from '@placeos/common';
     selector: 'app-contact-tracing-report',
     template: `
         <contact-tracing-options></contact-tracing-options>
-        <div class="flex-1 h-1/2 w-full overflow-auto">
+        <div
+            class="relative flex-1 h-1/2 w-full overflow-auto print:overflow-visible print:h-auto"
+            printable
+        >
             <ng-container *ngIf="!(loading | async); else load_state">
                 <div
                     class="w-[64rem] max-w-[calc(100%-2rem)] rounded overflow-hidden bg-base-100 shadow mx-auto my-2"

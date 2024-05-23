@@ -28,6 +28,7 @@ import { GetUserPipe } from './contact-tracing/get-user.pipe';
 import { ContactTracingOptionsComponent } from './contact-tracing/contact-tracing-options.component';
 import { CustomReportComponent } from './custom-report.component';
 import { NewReportsComponent } from './new-reports.component';
+import { ReportSpacesOverallListComponent } from './spaces/report-spaces-overall-list.component';
 
 const children: Route[] = [
     { path: '', component: ReportsOptionsComponent },
@@ -55,6 +56,7 @@ const ROUTES: Route[] = [
 
         ReportSpacesComponent,
         ReportSpacesOverallComponent,
+        ReportSpacesOverallListComponent,
         ReportSpacesSpaceListing,
         ReportSpacesUserListingComponent,
 

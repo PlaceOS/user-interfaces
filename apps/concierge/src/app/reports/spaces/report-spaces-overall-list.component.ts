@@ -6,7 +6,7 @@ import { take } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
 
 @Component({
-    selector: 'report-desks-overall-list',
+    selector: 'report-spaces-overall-list',
     template: `
         <div class="pb-2 w-full">
             <div
@@ -46,7 +46,7 @@ import { ReportsStateService } from '../reports-state.service';
         </div>
     `,
 })
-export class ReportDesksOverallListComponent {
+export class ReportSpacesOverallListComponent {
     @Input() public print: boolean = false;
 
     public readonly day_list = this._state.day_list;
@@ -57,7 +57,7 @@ export class ReportDesksOverallListComponent {
             ...d,
             date: format(d.date, 'MMMM d, y(EEE)'),
         }));
-        downloadFile('desks-usage.csv', jsonToCsv(data));
+        downloadFile('spaces-usage.csv', jsonToCsv(data));
     };
 
     constructor(private _state: ReportsStateService) {}
