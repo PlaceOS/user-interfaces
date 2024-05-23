@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 @Component({
     selector: '[app-reports]',
     template: `
-        <sidebar class="h-full"></sidebar>
+        <sidebar class="h-full screen-only"></sidebar>
         <main
             class="relative overflow-hidden flex flex-col flex-1 w-1/2 h-full bg-base-200"
         >
@@ -12,7 +12,7 @@ import { Router } from '@angular/router';
             <div
                 reports-menu
                 *ngIf="path === 'reports'"
-                class="absolute inset-0"
+                class="absolute inset-0 screen-only"
             ></div>
         </main>
     `,

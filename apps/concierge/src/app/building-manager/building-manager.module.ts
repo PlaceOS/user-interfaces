@@ -14,6 +14,7 @@ import { BuildingListComponent } from './building-list.component';
 import { BuildingFormComponent } from './building-form.component';
 import { BuildingModalComponent } from './building-modal.component';
 import { AutoReleaseSettingsModalComponent } from './auto-release-settings-modal.component';
+import { ItemListModalComponent } from './item-list-modal.component';
 
 const ROUTES: Route[] = [
     { path: '', component: BuildingManagerComponent },
@@ -27,6 +28,7 @@ const ROUTES: Route[] = [
         BuildingFormComponent,
         BuildingModalComponent,
         AutoReleaseSettingsModalComponent,
+        ItemListModalComponent,
     ],
     imports: [
         CommonModule,
