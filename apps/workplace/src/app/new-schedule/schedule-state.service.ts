@@ -55,7 +55,14 @@ export class ScheduleStateService extends AsyncHandler {
     private _poll_type = new BehaviorSubject<'api' | 'ws'>('api');
     private _loading = new BehaviorSubject(false);
     private _filters = new BehaviorSubject({
-        shown_types: ['event', 'desk', 'parking', 'visitor', 'locker'],
+        shown_types: [
+            'event',
+            'desk',
+            'parking',
+            'visitor',
+            'locker',
+            'group-event',
+        ],
     });
     private _date = new BehaviorSubject(Date.now());
     private _update = combineLatest([this._date, this._poll]).pipe(
@@ -128,7 +135,10 @@ export class ScheduleStateService extends AsyncHandler {
                             (a) =>
                                 a.email.toLowerCase() ===
                                 user.email.toLowerCase()
-                        ))
+                        )) &&
+                    !_.linked_bookings?.find(
+                        (b) => b.booking_type === 'group-event'
+                    )
             );
         })
     );
@@ -187,6 +197,18 @@ export class ScheduleStateService extends AsyncHandler {
                 period_start: getUnixTime(startOfDay(date)),
                 period_end: getUnixTime(endOfDay(date)),
                 type: 'parking',
+            }).pipe(catchError((_) => of([])))
+        ),
+        tap(() => this.timeout('end_loading', () => this._loading.next(false))),
+        shareReplay(1)
+    );
+    /** List of group event bookings for the selected date */
+    public readonly group_events: Observable<Booking[]> = this._update.pipe(
+        switchMap(([date]) =>
+            queryBookings({
+                period_start: getUnixTime(startOfDay(date)),
+                period_end: getUnixTime(endOfDay(date)),
+                type: 'group-event',
             }).pipe(catchError((_) => of([])))
         ),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
@@ -253,12 +275,15 @@ export class ScheduleStateService extends AsyncHandler {
         this.desks,
         this.parking,
         this.lockers,
+        this.group_events,
     ]).pipe(
-        map(([e, v, d, p, l]) => {
+        map(([e, v, d, p, l, ge]) => {
             const filtered_events = e.filter(
-                (ev) => !d.find((bkn) => `${ev.meeting_id}` === `${bkn.id}`)
+                (ev) =>
+                    !d.find((bkn) => `${ev.meeting_id}` === `${bkn.id}`) &&
+                    ev.linked_bookings[0]?.booking_type !== 'group-event'
             );
-            return [...filtered_events, ...v, ...d, ...p, ...l].sort(
+            return [...filtered_events, ...v, ...d, ...p, ...l, ...ge].sort(
                 (a, b) => a.date - b.date
             );
         })

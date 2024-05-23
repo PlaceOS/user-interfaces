@@ -147,12 +147,7 @@ export class BuildingFormComponent extends AsyncHandler {
         this._updateTimezoneList();
         this.subscription(
             'tz-change',
-            this.form.valueChanges.subscribe(
-                ({ timezone }) =>
-                    (this.filtered_timezones = this.timezones.filter((_) =>
-                        _.toLowerCase().includes(timezone.toLowerCase())
-                    ))
-            )
+            this.form.valueChanges.subscribe(() => this._updateTimezoneList())
         );
         if (this.building) this.form.patchValue(this.building);
     }

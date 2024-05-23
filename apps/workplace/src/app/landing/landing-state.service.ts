@@ -230,9 +230,15 @@ export class LandingStateService extends AsyncHandler {
         }).toPromise();
         const list = metadata.details instanceof Array ? metadata.details : [];
         const new_users = await Promise.all(
-            list.map((_) => showUser(_.email).toPromise())
+            list.map((_) =>
+                showUser(_.email)
+                    .toPromise()
+                    .catch(() => (_.email === user.email ? user : null))
+            )
         );
-        this._contacts.next(new_users.map((i) => new StaffUser(i)));
+        this._contacts.next(
+            new_users.filter((_) => !!_).map((i) => new StaffUser(i))
+        );
     }
 
     public async removeContact(user: User) {

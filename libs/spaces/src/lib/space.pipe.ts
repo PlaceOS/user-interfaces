@@ -6,6 +6,7 @@ import { Space } from './space.class';
 import { first } from 'rxjs/operators';
 
 const SPACE_LIST: Space[] = [];
+const ATTEMPT_COUNT: Record<string, number> = {};
 
 const EMPTY_SPACE = new Space({ email: 'empty.space@place.os' });
 
@@ -16,6 +17,15 @@ export function updateSpaceList(space_list: Space[]) {
         }
     }
 }
+
+setInterval(() => {
+    for (const id in ATTEMPT_COUNT) {
+        ATTEMPT_COUNT[id] = ATTEMPT_COUNT[id] - 1;
+        if (ATTEMPT_COUNT[id] <= 0) {
+            delete ATTEMPT_COUNT[id];
+        }
+    }
+}, 10 * 1000);
 
 @Pipe({
     name: 'space',
@@ -36,6 +46,7 @@ export class SpacePipe {
             ({ id, email }) => id === space_id || email === space_id
         );
         if (space) return space;
+        if (ATTEMPT_COUNT[space_id]) return EMPTY_SPACE;
         if (!is_email) {
             const system = await showSystem(space_id)
                 .toPromise()

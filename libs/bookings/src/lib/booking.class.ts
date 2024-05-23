@@ -33,6 +33,7 @@ const IGNORE_EXT_KEYS = ['user', 'booked_by', 'resources', 'assets', 'members'];
 
 export interface BookingComplete extends Booking {
     members?: User[];
+    guests?: User[];
 }
 
 export interface LinkedCalendarEvent {
@@ -110,8 +111,16 @@ export class Booking {
     public readonly extension_data: Record<string, any>;
     /** Default type */
     public readonly type: string;
+    /** List of URLs for associated booking images */
+    public readonly images: string[];
+    /** List of user defined tags associated with the booking */
+    public readonly tags: string[];
+
+    public readonly permission: 'PRIVATE' | 'OPEN' | 'PUBLIC';
     /** Default type */
     public readonly access: boolean;
+    /** Whether asset has been inducted */
+    public readonly induction: boolean;
     /** Status of the booking */
     public readonly status:
         | 'declined'
@@ -234,7 +243,10 @@ export class Booking {
         this.extension_data = data.extension_data || {};
         this.access = !!data.extension_data?.access;
         this.event_id = data.event_id;
-        this.attendees = data.attendees || data.members || [];
+        this.permission = (data.permission || 'PRIVATE').toUpperCase() as any;
+        this.attendees = data.attendees || data.guests || data.members || [];
+        this.tags = data.tags || data.extension_data?.tags || [];
+        this.images = data.images || [];
         this.all_day = data.all_day || this.duration >= 24 * 60;
         if (this.all_day) {
             (this as any).date = startOfDay(this.date).getTime();
@@ -249,6 +261,7 @@ export class Booking {
         this.checked_out_at = data.checked_out_at;
         this.linked_event = data.linked_event || null;
         this.linked_bookings = data.linked_bookings || [];
+        this.images = data.images || [];
         this.status =
             this.checked_out_at > 0
                 ? 'ended'
@@ -267,6 +280,7 @@ export class Booking {
             (i) =>
                 new AssetRequest({ ...i, event: this, date: this.date } as any)
         );
+        this.extension_data.tags = data.tags || [];
         if (this.extension_data.request) {
             this.extension_data.request = new AssetRequest({
                 ...this.extension_data.request,
@@ -296,7 +310,7 @@ export class Booking {
     }
 
     public get location(): string {
-        return this.description;
+        return this.extension_data?.location || this.description;
     }
 
     /** Whether the booking occurs today */

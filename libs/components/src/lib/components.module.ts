@@ -79,6 +79,7 @@ import { ThumbnailPipe } from './thumbnail.pipe';
 import { MapRendererComponent } from './map-renderer.component';
 import { MapsIndoorsComponent } from './maps-indoors.component';
 import { MapCanvasComponent } from './map-canvas.component';
+import { ImageViewerComponent } from './image-viewer.component';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -135,6 +136,7 @@ const COMPONENTS: Type<any>[] = [
     JsonDisplayComponent,
     ChangelogModalComponent,
     StatusPillComponent,
+    ImageViewerComponent,
 
     FixedPipe,
     SafePipe,

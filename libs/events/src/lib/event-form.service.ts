@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Event, NavigationEnd, Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 import { getModule, showMetadata } from '@placeos/ts-client';
 import {
     BehaviorSubject,
@@ -31,9 +32,9 @@ import {
     flatten,
     getInvalidFields,
     notifyError,
-    SettingsService,
     unique,
 } from '@placeos/common';
+import { SettingsService } from 'libs/common/src/lib/settings.service';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Space } from 'libs/spaces/src/lib/space.class';
@@ -47,7 +48,6 @@ import { querySpaceAvailability, saveEvent, showEvent } from './events.fn';
 import { generateEventForm, newCalendarEventFromBooking } from './utilities';
 import { newBookingFromCalendarEvent } from 'libs/bookings/src/lib/booking.utilities';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
-import { MatDialog } from '@angular/material/dialog';
 import { EventLinkModalComponent } from './event-link-modal.component';
 import { requestSpacesForZone } from 'libs/spaces/src/lib/space.utilities';
 import { periodInFreeTimeSlot } from './helpers';
