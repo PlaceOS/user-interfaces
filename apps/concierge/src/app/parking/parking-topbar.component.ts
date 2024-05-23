@@ -10,7 +10,28 @@ import { ParkingStateService } from './parking-state.service';
 @Component({
     selector: 'parking-topbar',
     template: `
-        <div class="flex items-center bg-base-100 px-2 h-20">
+        <div class="flex items-center w-full pt-4 px-8 space-x-2">
+            <h2 class="text-2xl font-medium">
+                {{ manage ? 'Manage Parking' : 'Parking' }}
+            </h2>
+            <div class="flex-1 w-px"></div>
+            <searchbar
+                class="mr-2"
+                [model]="(options | async)?.search"
+                (modelChange)="setSearch($event)"
+            ></searchbar>
+            <!-- <button
+                btn
+                matRipple
+                *ngIf="!manage"
+                class="space-x-2"
+                (click)="newReservation()"
+            >
+                <div>New Reservation</div>
+                <app-icon>add</app-icon>
+            </button> -->
+        </div>
+        <div class="flex items-center bg-base-100 px-8 h-20">
             <mat-form-field appearance="outline" class="w-[18rem]">
                 <mat-select
                     [(ngModel)]="zones"
@@ -33,10 +54,6 @@ import { ParkingStateService } from './parking-state.service';
                 </mat-select>
             </mat-form-field>
             <div class="flex-1 w-0"></div>
-            <searchbar
-                class="mr-2"
-                (modelChange)="setSearch($event)"
-            ></searchbar>
             <date-options
                 *ngIf="!manage"
                 (dateChange)="setDate($event)"
@@ -126,4 +143,6 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         );
         this.manage = !this._router.url.includes('events');
     }
+
+    public newReservation() {}
 }

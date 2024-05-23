@@ -128,7 +128,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                         </button>
                     </ng-container>
                 </div>
-                <div class="flex-1 h-1/2 w-full relative overflow-auto">
+                <div class="flex-1 h-1/2 px-4 w-full relative overflow-auto">
                     <router-outlet></router-outlet>
                 </div>
                 <mat-progress-bar
