@@ -10,6 +10,11 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 import { getModule } from '@placeos/ts-client';
 
+export interface SupportRequestType {
+    name: string;
+    email: string;
+}
+
 @Component({
     selector: 'support-ticket-modal',
     template: `
@@ -73,9 +78,9 @@ import { getModule } from '@placeos/ts-client';
                         >
                             <mat-option
                                 *ngFor="let type of support_request_types"
-                                [value]="type"
+                                [value]="type?.name || type"
                             >
-                                {{ type }}
+                                {{ type.name || type }}
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -151,7 +156,7 @@ export class SupportTicketModalComponent {
         return this._settings.get('app.support_email') || 'support@place.tech';
     }
 
-    public get support_request_types() {
+    public get support_request_types(): SupportRequestType[] {
         return this._settings.get('app.support_issue_types') || [];
     }
 
@@ -197,8 +202,12 @@ export class SupportTicketModalComponent {
             const mod = getModule(stmp_system, 'Mailer');
             const { name, email, location, description, images, issue_type } =
                 this.form.value;
+            const support_email =
+                this.support_request_types.find(
+                    (type) => type.name === issue_type
+                )?.email || this.support_email;
             await mod.execute('send_mail', [
-                this.support_email,
+                support_email,
                 `Support Ticket from Workplace Application${
                     issue_type ? ' - ' + issue_type : ''
                 }`,
