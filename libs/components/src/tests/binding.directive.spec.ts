@@ -10,6 +10,8 @@ jest.mock('@placeos/ts-client');
 
 import * as ts_client from '@placeos/ts-client';
 import { fakeAsync } from '@angular/core/testing';
+import { exec } from 'child_process';
+import { model } from '@angular/core';
 
 describe('BindingDirective', () => {
     let spectator: SpectatorDirective<BindingDirective>;
@@ -17,7 +19,28 @@ describe('BindingDirective', () => {
 
     beforeEach(() => {
         spectator = createDirective(
-            `<div binding>Testing Binding Directive</div>`
+            `
+            <div 
+                binding 
+                [sys]="sys" [mod]="mod" [index]="index" [bind]="bind" 
+                [exec]="exec" [(model)]="model" [params]="params" 
+                [onEvent]="on_event"
+            >
+                Testing Binding Directive
+            </div>
+            `,
+            {
+                hostProps: {
+                    sys: '',
+                    mod: '',
+                    index: 1,
+                    bind: '',
+                    exec: '',
+                    model: false,
+                    params: [],
+                    on_event: '',
+                },
+            }
         );
         (ts_client as any).authority = jest.fn(() => true);
         (ts_client as any).onlineState = jest.fn(() => of(true));
@@ -35,7 +58,7 @@ describe('BindingDirective', () => {
                 listen: () => value.asObservable(),
             })),
         }));
-        spectator.setInput({
+        spectator.setHostInput({
             sys: 'system-1',
             mod: 'System',
             index: 2,
@@ -60,10 +83,14 @@ describe('BindingDirective', () => {
         (ts_client as any).getModule = jest.fn(() => ({
             execute,
         }));
-        spectator.setInput({ sys: 'system-1', mod: 'System', exec: 'power' });
+        spectator.setHostInput({
+            sys: 'system-1',
+            mod: 'System',
+            exec: 'power',
+        });
         spectator.detectChanges();
         expect(execute).not.toHaveBeenCalled();
-        spectator.setInput({ model: true });
+        spectator.setHostInput({ model: true });
         spectator.detectChanges();
         spectator.tick(1000);
         expect(ts_client.getModule).toHaveBeenCalledWith(
@@ -72,7 +99,7 @@ describe('BindingDirective', () => {
             1
         );
         expect(execute).toHaveBeenCalledWith('power', []);
-        spectator.setInput({ params: [false], model: 2 });
+        spectator.setHostInput({ params: [false], model: 2 });
         spectator.detectChanges();
         spectator.tick(1000);
         expect(execute).toHaveBeenCalledWith('power', [false]);
@@ -83,7 +110,7 @@ describe('BindingDirective', () => {
         (ts_client as any).getModule = jest.fn(() => ({
             execute,
         }));
-        spectator.setInput({
+        spectator.setHostInput({
             sys: 'system-1',
             mod: 'System',
             exec: 'power',
@@ -94,7 +121,7 @@ describe('BindingDirective', () => {
         spectator.click('[binding]');
         spectator.tick(1000);
         expect(execute).toHaveBeenCalledWith('power', []);
-        spectator.setInput({ on_event: 'random_event', params: ['Jim'] });
+        spectator.setHostInput({ on_event: 'random_event', params: ['Jim'] });
         spectator.triggerEventHandler('[binding]', 'random_event', {});
         spectator.tick(1000);
         expect(execute).toHaveBeenCalledWith('power', ['Jim']);

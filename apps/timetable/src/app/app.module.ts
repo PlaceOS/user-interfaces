@@ -12,7 +12,7 @@ import { SpaceTimetableComponent } from './space-timetable.component';
 import { SpaceEventDetailsComponent } from './space-event-details.component';
 import { environment } from '../environments/environment';
 
-import * as Sentry from '@sentry/angular-ivy';
+import * as Sentry from '@sentry/angular';
 import { PaymentsModule } from '@placeos/payments';
 import { AssetsModule } from '@placeos/assets';
 import { SharedExploreModule } from '@placeos/explore';

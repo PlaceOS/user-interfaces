@@ -39,7 +39,7 @@ import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 
 import { setDefaultCreator } from 'libs/events/src/lib/event.class';
 
-import * as Sentry from '@sentry/angular-ivy';
+import * as Sentry from '@sentry/angular';
 import { MOCKS } from '@placeos/mocks';
 import {
     Amazon,

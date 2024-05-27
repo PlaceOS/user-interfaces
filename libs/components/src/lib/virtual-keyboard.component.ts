@@ -6,6 +6,7 @@ import {
     HostListener,
     Input,
     OnDestroy,
+    SimpleChanges,
     ViewChild,
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
@@ -122,6 +123,12 @@ export class VirtualKeyboardComponent
         private _overlay: Overlay
     ) {
         super();
+    }
+
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes.keyset) {
+            if (!this.keyset) this.keyset = DEFAULT_KEYS;
+        }
     }
 
     public ngOnDestroy() {

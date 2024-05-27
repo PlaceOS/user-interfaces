@@ -657,7 +657,6 @@ export class EventDetailsModalComponent {
                 content: MapPinComponent,
             },
         ];
-        console.log('Valid Assets:', this.event.valid_assets);
         if (
             this.event.extension_data.catering?.length ||
             this.event.extension_data.assets?.length

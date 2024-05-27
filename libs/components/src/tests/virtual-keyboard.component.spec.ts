@@ -1,27 +1,36 @@
 import { OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
 import { fakeAsync } from '@angular/core/testing';
-import { createHostFactory, SpectatorHost } from '@ngneat/spectator/jest';
+import {
+    createDirectiveFactory,
+    SpectatorDirective,
+} from '@ngneat/spectator/jest';
 import { VirtualKeyboardComponent } from '../lib/virtual-keyboard.component';
 
 describe('VirtualKeyboardComponent', () => {
-    let spectator: SpectatorHost<VirtualKeyboardComponent>;
-    const createHost = createHostFactory({
-        component: VirtualKeyboardComponent,
+    let spectator: SpectatorDirective<VirtualKeyboardComponent>;
+    const createDirective = createDirectiveFactory({
+        directive: VirtualKeyboardComponent,
         imports: [PortalModule, OverlayModule],
     });
+
+    beforeEach(
+        () =>
+            (spectator = createDirective(
+                '<input keyboard [keyset]="keyset" />',
+                { hostProps: { keyset: undefined } }
+            ))
+    );
 
     afterEach(() => (VirtualKeyboardComponent.enabled = false));
 
     it('should create component', () => {
-        spectator = createHost('<input keyboard />');
-        expect(spectator.component).toBeTruthy();
+        expect(spectator.directive).toBeTruthy();
     });
 
     it('show keyboard on input focus', fakeAsync(() => {
-        spectator = createHost('<input keyboard />');
         expect('[keyboard-view]').not.toExist();
-        const input = spectator.queryHost('input');
+        const input = spectator.query('input');
         spectator.focus(input);
         spectator.detectChanges();
         expect('[keyboard-view]').not.toExist();
@@ -36,9 +45,8 @@ describe('VirtualKeyboardComponent', () => {
     }));
 
     it('should update input value on key presses', fakeAsync(() => {
-        spectator = createHost('<input keyboard />');
         VirtualKeyboardComponent.enabled = true;
-        const input = spectator.queryHost('input');
+        const input = spectator.query('input');
         spectator.focus(input);
         spectator.detectChanges();
         expect(input).toHaveValue('');
@@ -48,9 +56,8 @@ describe('VirtualKeyboardComponent', () => {
     }));
 
     it('should keep input field focused', fakeAsync(() => {
-        spectator = createHost('<input keyboard />');
         VirtualKeyboardComponent.enabled = true;
-        const input: HTMLInputElement = spectator.queryHost('input');
+        const input: HTMLInputElement = spectator.query('input');
         spectator.focus(input);
         spectator.detectChanges();
         expect(input).toBeFocused();
@@ -60,13 +67,12 @@ describe('VirtualKeyboardComponent', () => {
     }));
 
     it('should allow customising the displayed keys', () => {
-        spectator = createHost('<input keyboard />');
         VirtualKeyboardComponent.enabled = true;
-        spectator.focus(spectator.hostElement.querySelector('input'));
+        spectator.focus(spectator.query('input'));
         spectator.detectChanges();
         expect('[key]').toHaveLength(39);
         expect('[row]').toHaveLength(5);
-        spectator.setInput({
+        spectator.setHostInput({
             keyset: [['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9'], ['0']],
         });
         spectator.detectChanges();
@@ -75,9 +81,8 @@ describe('VirtualKeyboardComponent', () => {
     });
 
     it('should handle special keys', fakeAsync(() => {
-        spectator = createHost('<input keyboard />');
         VirtualKeyboardComponent.enabled = true;
-        const input = spectator.hostElement.querySelector('input');
+        const input: HTMLInputElement = spectator.query('input');
         input.value = 'Testing';
         spectator.focus(input);
         spectator.detectChanges();

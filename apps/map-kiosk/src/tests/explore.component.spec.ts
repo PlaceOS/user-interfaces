@@ -56,7 +56,7 @@ describe('ExploreComponent', () => {
                 level: of({}) as any,
                 setPositions: jest.fn(),
                 setFeatures: jest.fn(),
-            }),
+            } as any),
             MockProvider(SettingsService, {
                 get: jest.fn(),
                 initialised: of(true),

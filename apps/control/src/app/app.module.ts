@@ -29,7 +29,7 @@ import { TabOutletComponent } from './tabbed-view/tab-outlet.component';
 import { DeviceOutputListComponent } from './tabbed-view/output-list.component';
 import { DeviceOutputListItemComponent } from './tabbed-view/output-list-item.component';
 
-import * as Sentry from '@sentry/angular-ivy';
+import * as Sentry from '@sentry/angular';
 import { PaymentsModule } from '@placeos/payments';
 import { AssetsModule } from '@placeos/assets';
 import { TVControlsComponent } from './tabbed-view/tv-controls.component';
