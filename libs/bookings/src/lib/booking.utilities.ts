@@ -9,7 +9,11 @@ import {
     removeViewer,
 } from '@placeos/svg-viewer';
 import { Booking } from './booking.class';
-import { roundToNearestMinutes } from 'date-fns';
+import {
+    addMinutes,
+    differenceInMinutes,
+    roundToNearestMinutes,
+} from 'date-fns';
 
 function setBookingAsset(form: FormGroup, resource: any) {
     if (!resource) return form.patchValue({ asset_id: undefined });
@@ -32,7 +36,10 @@ export function generateBookingForm(booking: Booking = new Booking()) {
     const form = new FormGroup({
         id: new FormControl(booking.id || ''),
         parent_id: new FormControl(booking.parent_id || ''),
+        event_id: new FormControl(booking.event_id || ''),
+        ical_uid: new FormControl(booking.extension_data.ical_uid || ''),
         date: new FormControl(booking.date, [Validators.required]),
+        date_end: new FormControl(booking.date_end),
         all_day: new FormControl(booking.all_day ?? false),
         name: new FormControl(
             booking.extension_data.name || booking.asset_name || ''
@@ -50,10 +57,12 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         assets: new FormControl(booking.extension_data?.assets || []),
         attendees: new FormControl(booking.attendees || []),
         map_id: new FormControl(booking.extension_data?.map_id),
+        featured: new FormControl(booking.extension_data?.featured || false),
         user: new FormControl(currentUser()),
         user_id: new FormControl(booking.user_id),
         group: new FormControl(booking.group),
         user_email: new FormControl(booking.user_email),
+        timezone: new FormControl(booking.timezone || ''),
         booked_by: new FormControl(currentUser()),
         booked_by_id: new FormControl(booking.booked_by_id),
         booked_by_email: new FormControl(booking.booked_by_email),
@@ -61,7 +70,14 @@ export function generateBookingForm(booking: Booking = new Booking()) {
             booking.extension_data?.other_asset_type ||
                 booking.extension_data?.secondary_resource
         ),
-        phone: new FormControl(booking.extension_data.phone),
+        location: new FormControl(booking.extension_data.location || ''),
+        attendance_type: new FormControl(
+            booking.extension_data.attendance_type || 'ANY'
+        ),
+        phone: new FormControl(booking.extension_data.phone || ''),
+        permission: new FormControl(booking.permission || 'PRIVATE'),
+        images: new FormControl(booking.images || []),
+        tags: new FormControl(booking.tags || []),
     });
     form.valueChanges.subscribe((v) => {
         const user = v.user;
@@ -77,7 +93,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
                   { emitEvent: false }
               )
             : '';
-        if (form.value.date < Date.now() && form.value.id) {
+        if (form.getRawValue().date < Date.now() && form.value.id) {
             form.get('date')?.disable({ emitEvent: false });
         } else {
             form.get('date')?.enable({ emitEvent: false });
@@ -86,17 +102,62 @@ export function generateBookingForm(booking: Booking = new Booking()) {
     form.controls.resources.valueChanges.subscribe((resources) =>
         setBookingAsset(form, (resources || [])[0])
     );
-    form.controls.date.valueChanges.subscribe((date) => {
-        if (date > Date.now() || form.value.id) return;
+    form.controls.duration.valueChanges.subscribe((duration) => {
         form.patchValue(
             {
-                date: roundToNearestMinutes(Date.now(), {
-                    nearestTo: 5,
-                    roundingMethod: 'ceil',
-                }).valueOf(),
+                date_end: roundToNearestMinutes(
+                    addMinutes(form.getRawValue().date, duration),
+                    { nearestTo: 5, roundingMethod: 'ceil' }
+                ).valueOf(),
             },
             { emitEvent: false }
         );
+    });
+    form.controls.date_end.valueChanges.subscribe((date) => {
+        if (date < addMinutes(form.getRawValue().date, 30).valueOf()) {
+            form.patchValue(
+                {
+                    date_end: roundToNearestMinutes(
+                        addMinutes(form.getRawValue().date, 30),
+                        { nearestTo: 5, roundingMethod: 'ceil' }
+                    ).valueOf(),
+                    duration: 30,
+                },
+                { emitEvent: false }
+            );
+        } else {
+            form.patchValue(
+                {
+                    duration: differenceInMinutes(
+                        date,
+                        form.getRawValue().date
+                    ),
+                },
+                { emitEvent: false }
+            );
+        }
+    });
+    form.controls.date.valueChanges.subscribe((date) => {
+        form.patchValue(
+            {
+                date_end: roundToNearestMinutes(
+                    addMinutes(date, form.value.duration),
+                    { nearestTo: 5, roundingMethod: 'ceil' }
+                ).valueOf(),
+            },
+            { emitEvent: false }
+        );
+        if (date < Date.now() && !form.value.id) {
+            form.patchValue(
+                {
+                    date: roundToNearestMinutes(Date.now(), {
+                        nearestTo: 5,
+                        roundingMethod: 'ceil',
+                    }).valueOf(),
+                },
+                { emitEvent: false }
+            );
+        }
     });
     if (booking.state === 'started') form.get('date').disable();
     return form;

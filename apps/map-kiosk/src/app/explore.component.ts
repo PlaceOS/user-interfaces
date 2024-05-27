@@ -37,9 +37,11 @@ import { first, map, take, tap } from 'rxjs/operators';
     template: `
         <div
             topbar
-            class="relative flex items-center justify-between p-4 border-b border-base-300 bg-base-100 text-base-content"
+            class="relative flex items-center justify-between px-4 py-2 border-b border-base-300 bg-base-100 text-base-content"
         >
-            <h2 class="text-2xl">Place<span class="text-primary">OS</span></h2>
+            <a matRipple routerLink="/" class="text-2xl rounded p-2">
+                Place<span class="text-primary">OS</span>
+            </a>
             <div
                 class="absolute top-1/2 -translate-y-1/2 right-2 flex items-center"
             >
@@ -387,7 +389,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         this._desks.setOptions({ custom: true });
         this.reset_delay =
             this._settings.get('app.inactivity_timeout_secs') || 180;
-        this.resetKiosk();
+        this.resetKiosk(false);
         VirtualKeyboardComponent.enabled =
             localStorage.getItem('OSK.enabled') === 'true';
         this.subscription(
@@ -518,12 +520,13 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         });
     }
 
-    public resetKiosk() {
+    public resetKiosk(navigate = true) {
         if ((document.activeElement as any)?.blur)
             (document.activeElement as any)?.blur();
         const level = localStorage.getItem('KIOSK.level');
         this._state.setPositions(1, { x: 0.5, y: 0.5 });
         if (level) this._state.setLevel(level);
         this._dialog.closeAll();
+        if (navigate) this._router.navigate(['/']);
     }
 }

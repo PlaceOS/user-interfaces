@@ -21,16 +21,8 @@ import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { FindAvailabilityModalComponent } from '@placeos/users';
 import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';
-import { BehaviorSubject, combineLatest, forkJoin, of, timer } from 'rxjs';
-import {
-    debounceTime,
-    first,
-    map,
-    startWith,
-    switchMap,
-    take,
-    tap,
-} from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { debounceTime, first, map, switchMap, tap } from 'rxjs/operators';
 import { MeetingFlowConfirmModalComponent } from './meeting-flow-confirm-modal.component';
 import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';

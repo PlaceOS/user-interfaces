@@ -22,7 +22,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { BindingDirective } from './binding.directive';
@@ -79,6 +79,7 @@ import { ThumbnailPipe } from './thumbnail.pipe';
 import { MapRendererComponent } from './map-renderer.component';
 import { MapsIndoorsComponent } from './maps-indoors.component';
 import { MapCanvasComponent } from './map-canvas.component';
+import { ImageViewerComponent } from './image-viewer.component';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -135,6 +136,7 @@ const COMPONENTS: Type<any>[] = [
     JsonDisplayComponent,
     ChangelogModalComponent,
     StatusPillComponent,
+    ImageViewerComponent,
 
     FixedPipe,
     SafePipe,
@@ -161,17 +163,10 @@ const COMPONENTS: Type<any>[] = [
 
 const DIRECTIVES: Type<any>[] = [BindingDirective, AuthenticatedImageDirective];
 
-@NgModule({
-    declarations: [...COMPONENTS, ...DIRECTIVES],
-    imports: [
-        CommonModule,
+@NgModule({ declarations: [...COMPONENTS, ...DIRECTIVES],
+    exports: [...COMPONENTS, ...DIRECTIVES, ...MAT_MODULES, TranslateModule], imports: [CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        HttpClientModule,
         TranslateModule.forChild(),
-        ...MAT_MODULES,
-    ],
-    providers: [{ provide: MAP_FEATURE_DATA, useValue: {} }],
-    exports: [...COMPONENTS, ...DIRECTIVES, ...MAT_MODULES, TranslateModule],
-})
+        ...MAT_MODULES], providers: [{ provide: MAP_FEATURE_DATA, useValue: {} }, provideHttpClient(withInterceptorsFromDi())] })
 export class ComponentsModule {}

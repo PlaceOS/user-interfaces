@@ -278,7 +278,7 @@ export class MapRendererComponent
                 300
             );
         }
-        const simp_url = this.src.toLowerCase();
+        const simp_url = this.src?.toLowerCase() || '';
         if (!simp_url.includes('svg') && !simp_url.includes('upload')) return;
         if (this.src && this._outlet_el?.nativeElement && !this.loading) {
             this.loading = true;

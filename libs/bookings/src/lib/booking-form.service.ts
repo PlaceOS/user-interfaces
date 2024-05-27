@@ -541,6 +541,9 @@ export class BookingFormService extends AsyncHandler {
             value.date = startOfDay(value.date).valueOf();
             value.duration = 24 * 60 - 1;
         }
+        const { event_id, parent_id } = value;
+        delete value.event_id;
+        delete value.parent_id;
         const result = await saveBooking(
             new Booking({
                 ...this._options.getValue(),
@@ -558,7 +561,11 @@ export class BookingFormService extends AsyncHandler {
                 },
                 approved: !this._settings.get('app.bookings.no_approval'),
             }),
-            value.parent_id ? { booking_id: value.parent_id } : {}
+            event_id
+                ? { ical_uid: value.ical_uid, event_id: event_id }
+                : parent_id
+                ? { booking_id: parent_id }
+                : {}
         )
             .toPromise()
             .catch((e) => {
@@ -707,6 +714,7 @@ export class BookingFormService extends AsyncHandler {
         type: BookingType
     ) {
         if (!user_email) throw 'No user was selected to book for';
+        if (type === 'group-event') return true;
         const bookings = await queryBookings({
             period_start: getUnixTime(date),
             period_end: getUnixTime(date + duration * 60 * 1000),

@@ -12,16 +12,7 @@ import { SettingsService } from '@placeos/common';
                 class="min-w-[76rem] block"
                 [dataSource]="bookings"
                 [filter]="(filters | async)?.search"
-                [columns]="[
-                    'date',
-                    'period',
-                    'user_name',
-                    'group',
-                    'asset_name',
-                    'approver_name',
-                    'status',
-                    'checked_in'
-                ]"
+                [columns]="columns"
                 [display_column]="[
                     'Date',
                     'Period',
@@ -48,7 +39,7 @@ import { SettingsService } from '@placeos/common';
                     period: period_template,
                     status: status_template,
                     checked_in: option_template,
-                    access: option_template
+                    access: option_template,
                 }"
                 [empty]="
                     (filters | async)?.search
@@ -234,6 +225,19 @@ export class DeskBookingsComponent {
 
     public readonly rejectAll = () => this._state.rejectAllDesks();
     public readonly loadMore = () => this._state.nextPage();
+
+    public get columns() {
+        return [
+            'date',
+            'period',
+            'user_name',
+            'group',
+            'asset_name',
+            'approver_name',
+            'status',
+            'checked_in',
+        ];
+    }
 
     public readonly checkin = (d, s?) =>
         this.runMethod('checkin', async () => {

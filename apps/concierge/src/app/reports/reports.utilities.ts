@@ -21,7 +21,8 @@ export function generateReportForDeskBookings(
 
 export function generateReportForBookings(
     bookings: CalendarEvent[],
-    util_period: number = 8
+    util_period: number = 8,
+    counts: HashMap<number> = {}
 ) {
     util_period = Math.max(1, util_period);
     const total_users = bookings.reduce((c, i) => c + i.attendees.length, 0);
@@ -33,6 +34,7 @@ export function generateReportForBookings(
                 100
         ) / 100;
     const occupancy = Math.floor((total_users / total_capacity) * 100) / 100;
+    const total = Object.keys(counts).reduce((c, i) => c + (counts[i] || 0), 0);
     return {
         count: bookings.length,
         avg_length:
@@ -42,6 +44,7 @@ export function generateReportForBookings(
                     100
             ) / 100,
         efficiency: Math.floor(((utilisation + occupancy) / 2) * 100) / 100,
+        total,
         total_users,
         total_capacity,
         occupancy,

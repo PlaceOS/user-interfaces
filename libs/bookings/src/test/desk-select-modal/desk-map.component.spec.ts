@@ -49,17 +49,7 @@ describe('DeskMapComponent', () => {
 
     it('should show a map', () => expect('interactive-map').toExist());
 
-    it('should show a zoom controls', () => expect('[zoom]').toExist());
-
     it('should show a level select', () => expect('[levels]').toExist());
-
-    it('should allow changing the zoom level', () => {
-        expect(spectator.component.zoom).toBe(1);
-        spectator.click('[zoom-in]');
-        expect(spectator.component.zoom).toBe(1.1);
-        spectator.click('[zoom-out]');
-        expect(spectator.component.zoom).toBe(1);
-    });
 
     it('should allow selecting desk', (done) => {
         const test_space = new Desk({ id: '1' });

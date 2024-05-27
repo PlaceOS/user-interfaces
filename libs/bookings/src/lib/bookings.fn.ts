@@ -181,6 +181,74 @@ export function rejectBooking(id: string) {
     ).pipe(map((item) => new Booking(item)));
 }
 
+export function setBookingState(
+    id: string,
+    state: string,
+    utm_source?: string
+) {
+    const query = toQueryString({ state, utm_source });
+    return post(
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/update_state${
+            query ? '?' + query : ''
+        }`,
+        {}
+    ).pipe(map((item) => new Booking(item)));
+}
+
+/**
+ * List the guests in a booking
+ * @param id ID of the booking to reject
+ */
+export function queryBookingGuests(id: string) {
+    return post(
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/guests`,
+        ''
+    ).pipe(map((item) => new GuestUser(item)));
+}
+
+/**
+ * Set the checkin state of a guest in a booking
+ * @param id ID of the booking to reject
+ * @param guest_id ID of the guest to check in
+ */
+export function checkinBookingGuest(
+    id: string,
+    guest_id: string,
+    state: boolean = true
+) {
+    return post(
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(
+            id
+        )}/guests/${encodeURIComponent(guest_id)}/check_in?state=${state}`,
+        ''
+    ).pipe(map((item) => new GuestUser(item)));
+}
+
+/**
+ * Add a guest to a booking
+ * @param id ID of the booking
+ * @param guest Guest to add to the booking
+ */
+export function bookingAddGuest(id: string, guest: GuestUser) {
+    return post(
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/attendee`,
+        guest
+    ).pipe(map((item) => new GuestUser(item)));
+}
+
+/**
+ * Remove an attendee from a booking
+ * @param id ID of the booking
+ * @param guest Guest to remove from the booking
+ */
+export function bookingRemoveGuest(id: string, guest: GuestUser) {
+    return del(
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(
+            id
+        )}/attendee/${encodeURIComponent(guest.email)}`
+    ).pipe(map((item) => new GuestUser(item)));
+}
+
 /**
  * Set the checkin state of a booking
  * @param id ID of the booking to grab

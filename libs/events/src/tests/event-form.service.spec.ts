@@ -2,12 +2,14 @@ import { Router } from '@angular/router';
 import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/organisation';
 import { FormGroup } from '@angular/forms';
-import { take } from 'rxjs/operators';
-import { BehaviorSubject, of, Subject, timer } from 'rxjs';
-import { EventFormService } from '../lib/event-form.service';
+import { MatDialog } from '@angular/material/dialog';
+import { BehaviorSubject, of, Subject } from 'rxjs';
 import { NavigationEnd } from '@angular/router';
+import { MockProvider } from 'ng-mocks';
+import { endOfYear } from 'date-fns';
+
 import { SettingsService } from '@placeos/common';
-import { SpacesService } from '@placeos/spaces';
+import { PaymentsService } from '@placeos/payments';
 
 jest.mock('libs/calendar/src/lib/calendar.fn');
 jest.mock('libs/events/src/lib/events.fn');
@@ -16,34 +18,31 @@ jest.mock('@placeos/ts-client');
 import * as ts_client from '@placeos/ts-client';
 import * as cal_mod from 'libs/calendar/src/lib/calendar.fn';
 import * as event_mod from 'libs/events/src/lib/events.fn';
-import { PaymentsService } from '@placeos/payments';
-import { MockProvider } from 'ng-mocks';
-import { MatDialog } from '@angular/material/dialog';
-import { addDays, endOfYear } from 'date-fns';
+import { EventFormService } from '../lib/event-form.service';
+import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
+import { fakeAsync, tick } from '@angular/core/testing';
 
 describe('EventFormService', () => {
     let spectator: SpectatorService<EventFormService>;
     const createService = createServiceFactory({
         service: EventFormService,
         providers: [
-            {
-                provide: OrganisationService,
-                useValue: {
-                    initialised: of(true),
-                    building: { id: 'bld-1' },
-                    active_building: new BehaviorSubject({}),
-                },
-            },
-            {
-                provide: Router,
-                useValue: { navigate: jest.fn(), events: new Subject() },
-            },
-            {
-                provide: PaymentsService,
-                useValue: { makePayment: jest.fn(), payment_module: '' },
-            },
-            { provide: SettingsService, useValue: { get: jest.fn() } },
-            MockProvider(SpacesService, {}),
+            MockProvider(OrganisationService, {
+                initialised: of(true),
+                building: { id: 'bld-1' },
+                building_list: new BehaviorSubject([]),
+                active_building: new BehaviorSubject({}),
+            } as any),
+            MockProvider(Router, {
+                navigate: jest.fn(),
+                events: new Subject(),
+            }),
+            MockProvider(PaymentsService, {
+                makePayment: jest.fn(),
+                payment_module: '',
+            }),
+            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(AssetStateService, {}),
             MockProvider(MatDialog, { open: jest.fn() }),
         ],
     });
@@ -60,11 +59,12 @@ describe('EventFormService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
-    it('should handle view changes', () => {
+    it('should handle view changes', fakeAsync(() => {
         expect(spectator.service.view).toBe('form');
         spectator.service.setView('find');
+        tick(301);
         expect(spectator.service.view).toBe('find');
-    });
+    }));
 
     it('should handle form changes', () => {
         spectator.service.newForm();

@@ -66,7 +66,7 @@ export class NewDeskFlowFormComponent implements OnInit {
 
     public readonly viewConfirm = () => {
         const { asset_id, resources } = this.form.getRawValue();
-        if (resources.length && !asset_id) {
+        if (resources?.length && !asset_id) {
             this.form.patchValue({ asset_id: resources[0].id });
         }
         if (!this.form.valid)

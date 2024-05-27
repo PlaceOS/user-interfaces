@@ -7,6 +7,7 @@ import {
     Booking,
     checkinBooking,
     queryAllBookings,
+    setBookingState,
     showBooking,
 } from '@placeos/bookings';
 import { SpacePipe } from '@placeos/spaces';
@@ -103,6 +104,20 @@ export class CheckinStateService {
         //     details: { ...guest, ...form.value, ...(data || {}) },
         //     description: '',
         // }).toPromise();
+    }
+
+    public async completeInduction() {
+        const guest = this._guest.getValue();
+        const event = this._booking.getValue() || guest.extension_data.event;
+        if (!guest || !event) return;
+        await setBookingState(event.id, 'inducted').toPromise();
+    }
+
+    public async declineInduction() {
+        const guest = this._guest.getValue();
+        const event = this._booking.getValue() || guest.extension_data.event;
+        if (!guest || !event) return;
+        await setBookingState(event.id, 'declined_induction').toPromise();
     }
 
     public async checkinGuest() {

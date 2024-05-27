@@ -7,7 +7,10 @@ import { ReportsStateService } from '../reports-state.service';
     selector: '[report-desks]',
     template: `
         <reports-options></reports-options>
-        <div class="flex-1 h-1/2 w-full overflow-auto" printable>
+        <div
+            class="relative flex-1 h-1/2 w-full overflow-auto print:overflow-visible print:h-auto"
+            printable
+        >
             <ng-container *ngIf="!(loading | async); else load_state">
                 <ng-container *ngIf="total_count | async; else empty_state">
                     <div
@@ -23,8 +26,12 @@ import { ReportsStateService } from '../reports-state.service';
                         </div>
                     </div>
                     <report-desks-charts></report-desks-charts>
-                    <report-desks-overall-list></report-desks-overall-list>
-                    <report-desks-levels-list></report-desks-levels-list>
+                    <report-desks-overall-list
+                        [print]="printing"
+                    ></report-desks-overall-list>
+                    <report-desks-levels-list
+                        [print]="printing"
+                    ></report-desks-levels-list>
                 </ng-container>
             </ng-container>
             <ng-template #load_state>
@@ -43,6 +50,15 @@ import { ReportsStateService } from '../reports-state.service';
                 </div>
             </ng-template>
         </div>
+        <button
+            icon
+            matRipple
+            class="absolute top-24 left-4 bg-secondary text-secondary-content border border-base-200 shadow z-20 print:hidden"
+            (click)="print()"
+            *ngIf="total_count | async"
+        >
+            <app-icon>print</app-icon>
+        </button>
     `,
     styles: [
         `
@@ -63,6 +79,7 @@ import { ReportsStateService } from '../reports-state.service';
     ],
 })
 export class ReportDesksComponent {
+    public printing = false;
     public readonly total_count = this._state.stats.pipe(
         map((i) => i.count || 0)
     );
@@ -72,6 +89,14 @@ export class ReportDesksComponent {
     public readonly loading = this._state.loading;
 
     constructor(private _state: ReportsStateService) {}
+
+    public print() {
+        this.printing = true;
+        setTimeout(() => {
+            window.print();
+            this.printing = false;
+        }, 300);
+    }
 
     public ngOnInit() {
         this._state.setOptions({ type: 'desks' });

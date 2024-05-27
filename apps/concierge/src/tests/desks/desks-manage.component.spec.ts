@@ -6,8 +6,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { CustomTableComponent, IconComponent } from '@placeos/components';
 import { Desk, OrganisationService } from '@placeos/organisation';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of, timer } from 'rxjs';
+import { SettingsService } from '@placeos/common';
 
 import { ItemListFieldComponent } from 'libs/form-fields/src/lib/item-list-field.component';
 import { DesksManageComponent } from '../../app/desks/desks-manage.component';
@@ -25,26 +26,21 @@ describe('DesksManageComponent', () => {
     const createComponent = createComponentFactory({
         component: DesksManageComponent,
         providers: [
-            {
-                provide: DesksStateService,
-                useValue: {
-                    setFilters: jest.fn(),
-                    desks: new BehaviorSubject([{ id: '1' }]),
-                    new_desks: new BehaviorSubject([]),
-                    filters: new BehaviorSubject({}),
-                    clearNewDesks: jest.fn(),
-                },
-            },
-            {
-                provide: OrganisationService,
-                useValue: {
-                    active_levels: of([]),
-                    initialised: of(true),
-                    levelWithID: jest.fn(() => ({ id: 'lvl-1' })),
-                    buildings: [],
-                },
-            },
-            { provide: MatDialog, useValue: { open: jest.fn() } }
+            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(DesksStateService, {
+                setFilters: jest.fn(),
+                desks: new BehaviorSubject([{ id: '1' }]),
+                new_desks: new BehaviorSubject([]),
+                filters: new BehaviorSubject({}),
+                clearNewDesks: jest.fn(),
+            } as any),
+            MockProvider(OrganisationService, {
+                active_levels: of([]),
+                initialised: of(true),
+                levelWithID: jest.fn(() => ({ id: 'lvl-1' })),
+                buildings: [],
+            } as any),
+            MockProvider(MatDialog, { open: jest.fn() }),
         ],
         declarations: [
             MockComponent(CustomTableComponent),

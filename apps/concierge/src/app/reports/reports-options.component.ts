@@ -10,9 +10,9 @@ import { ReportsStateService } from './reports-state.service';
     selector: 'reports-options',
     template: `
         <div
-            class="bg-base-100 h-20 w-full flex items-center px-2 shadow z-20 border-b border-base-200 screen-only"
+            class="bg-base-100 h-20 w-full flex items-center space-x-4 px-2 shadow z-20 border-b border-base-200"
         >
-            <mat-form-field appearance="outline" class="w-48">
+            <mat-form-field appearance="outline" class="w-48 no-subscript">
                 <mat-select
                     multiple
                     [ngModel]="(options | async)?.zones"
@@ -28,7 +28,10 @@ import { ReportsStateService } from './reports-state.service';
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-            <mat-form-field appearance="outline" class="w-64">
+            <mat-form-field
+                appearance="outline"
+                class="w-64 no-subscript hidden"
+            >
                 <mat-date-range-input [rangePicker]="picker">
                     <input
                         matStartDate
@@ -49,10 +52,21 @@ import { ReportsStateService } from './reports-state.service';
                 ></mat-datepicker-toggle>
                 <mat-date-range-picker #picker></mat-date-range-picker>
             </mat-form-field>
+            <date-range-field>
+                <input
+                    #startDate
+                    [ngModel]="(options | async)?.start"
+                    (ngModelChange)="$event ? setStartDate($event) : ''"
+                />
+                <input
+                    #endDate
+                    [ngModel]="(options | async)?.end"
+                    (ngModelChange)="$event ? setEndDate($event) : ''"
+                />
+            </date-range-field>
             <button
                 btn
                 matRipple
-                class="ml-4"
                 [disabled]="
                     !!(loading | async) || !(options | async)?.zones?.length
                 "
@@ -67,7 +81,6 @@ import { ReportsStateService } from './reports-state.service';
             <button
                 btn
                 matRipple
-                class="ml-4"
                 [disabled]="!(bookings | async)?.length"
                 (click)="downloadReport()"
             >
@@ -80,11 +93,6 @@ import { ReportsStateService } from './reports-state.service';
             button {
                 min-width: 0;
                 padding: 0 0.85rem;
-            }
-
-            mat-form-field {
-                height: 3.25em;
-                margin-left: 1em;
             }
 
             mat-slide-toggle div {
@@ -121,13 +129,32 @@ export class ReportsOptionsComponent extends AsyncHandler {
 
     public readonly downloadReport = () => this._state.downloadReport();
 
-    public readonly setStartDate = (date) =>
-        this._state.setOptions({ start: new Date(date) });
+    public readonly setStartDate = (date) => {
+        if (date instanceof Date) date = date.valueOf();
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { start: date },
+            queryParamsHandling: 'merge',
+        });
+    };
 
-    public readonly setEndDate = (date) =>
-        this._state.setOptions({ end: new Date(date) });
+    public readonly setEndDate = (date) => {
+        if (date instanceof Date) date = date.valueOf();
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { end: date },
+            queryParamsHandling: 'merge',
+        });
+    };
 
-    public readonly setZones = (zones) => this._state.setOptions({ zones });
+    public readonly setZones = (zones) => {
+        this._state.setOptions({ zones });
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { zone_ids: zones.join(',') },
+            queryParamsHandling: 'merge',
+        });
+    };
 
     constructor(
         private _state: ReportsStateService,
@@ -163,6 +190,14 @@ export class ReportsOptionsComponent extends AsyncHandler {
                         this.setZones(zones);
                     }
                 }
+                if (params.has('start'))
+                    this._state.setOptions({
+                        start: new Date(+params.get('start')),
+                    });
+                if (params.has('end'))
+                    this._state.setOptions({
+                        end: new Date(+params.get('end')),
+                    });
             })
         );
     }

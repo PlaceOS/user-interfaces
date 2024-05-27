@@ -12,6 +12,7 @@ import { CheckinResultsComponent } from './checkin-result.component';
 import { CheckinErrorComponent } from './checkin-error.component';
 import { CheckinCovidComponent } from './checkin-covid.component';
 import { CheckinComponent } from './checkin.component';
+import { CheckinInductionComponent } from './checkin-induction.component';
 
 const ROUTES: Route[] = [
     {
@@ -25,6 +26,7 @@ const ROUTES: Route[] = [
             { path: 'results', component: CheckinResultsComponent },
             { path: 'error', component: CheckinErrorComponent },
             { path: 'covid', component: CheckinCovidComponent },
+            { path: 'induction', component: CheckinInductionComponent },
             { path: '**', redirectTo: 'scan' },
         ],
     },
@@ -41,6 +43,7 @@ const ROUTES: Route[] = [
         CheckinDetailsComponent,
         CheckinErrorComponent,
         CheckinCovidComponent,
+        CheckinInductionComponent,
     ],
     imports: [
         CommonModule,

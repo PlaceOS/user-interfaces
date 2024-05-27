@@ -2,24 +2,20 @@ import { MatDialog } from '@angular/material/dialog';
 import { fakeAsync, tick } from '@angular/core/testing';
 import { UntypedFormGroup } from '@angular/forms';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
-import { SettingsService } from '@placeos/common';
 import { BehaviorSubject, of } from 'rxjs';
 import { MockProvider } from 'ng-mocks';
 
-import { Space } from '@placeos/spaces';
+import { SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
-import {
-    DEFAULT_COLOURS,
-    ExploreSpacesService,
-} from '../lib/explore-spaces.service';
+
+import { ExploreSpacesService } from '../lib/explore-spaces.service';
 import { ExploreStateService } from '../lib/explore-state.service';
 
 jest.mock('@placeos/ts-client');
 jest.mock('libs/common/src/lib/notifications');
 
 import * as ts_client from '@placeos/ts-client';
-import * as notify from 'libs/common/src/lib/notifications';
 
 describe('ExploreSpacesService', () => {
     let spectator: SpectatorService<ExploreSpacesService>;
@@ -27,6 +23,7 @@ describe('ExploreSpacesService', () => {
         service: ExploreSpacesService,
         providers: [
             MockProvider(ExploreStateService, {
+                options: new BehaviorSubject({ is_public: false }),
                 spaces: new BehaviorSubject([]),
                 setStyles: jest.fn(),
                 setFeatures: jest.fn(),

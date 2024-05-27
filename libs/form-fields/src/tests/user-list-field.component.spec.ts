@@ -94,7 +94,9 @@ describe('UserListFieldComponent', () => {
             mock_file_reader as any
         );
         spectator.component.addUsersFromFile({
-            target: { files: [{ id: 0, size: 1, name: 'File.csv' }] },
+            target: {
+                files: [{ id: 0, type: 'text/csv', size: 1, name: 'File.csv' }],
+            },
         });
         expect(spectator.component.addUser).toHaveBeenCalledTimes(2);
         expect(spectator.component.active_list).toHaveLength(2);

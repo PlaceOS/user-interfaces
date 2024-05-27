@@ -614,6 +614,25 @@ a[icon] {
         }
     }
 
+    .mat-form-field-disabled {
+        opacity: 0.3;
+    }
+
+    .mat-mdc-menu-panel {
+        background-color: var(--b1);
+    }
+
+    .mat-mdc-menu-item-text {
+        color: var(--bc);
+    }
+
+    .mat-mdc-menu-item {
+        color: var(--bc);
+        &:hover {
+            background-color: var(--b2);
+        }
+    }
+
     .mat-mdc-menu-item-text {
         width: 100%;
     }
@@ -943,6 +962,13 @@ a[icon] {
     .mat-mdc-select-value,
     .mat-mdc-select-arrow {
         color: var(--bc);
+    }
+
+    .inverse {
+        .mat-mdc-select-value,
+        .mat-mdc-select-arrow {
+            color: var(--b1);
+        }
     }
 
     .mdc-notched-outline__leading,

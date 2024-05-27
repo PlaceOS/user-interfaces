@@ -11,7 +11,7 @@ import { ReportsStateService } from '../reports-state.service';
 @Component({
     selector: 'report-spaces-overall',
     template: ` <div
-            class="m-4 p-4 rounded bg-base-100 shadow flex justify-center items-center space-x-2"
+            class="m-4 p-4 rounded bg-base-100 border border-base-200 shadow flex justify-center items-center space-x-2"
         >
             <div class="flex flex-col items-center flex-1">
                 <h3>Business Days</h3>

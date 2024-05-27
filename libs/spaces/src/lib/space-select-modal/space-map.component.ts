@@ -9,7 +9,6 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
 import { SpaceLocationPinComponent } from './space-location-pin.component';
 import { Space } from '../space.class';
-import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 
 @Component({
     selector: `space-map`,
