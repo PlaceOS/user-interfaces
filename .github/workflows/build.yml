@@ -13,13 +13,13 @@ jobs:
     install_deps:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
               with:
                   fetch-depth: '2'
 
             - name: Cache node modules
               id: cache
-              uses: actions/cache@v3
+              uses: actions/cache@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
@@ -87,11 +87,11 @@ jobs:
             matrix:
                 package: ${{ fromJSON(needs.install_deps.outputs.affected_units) }}
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
 
             - name: Cache node modules
               id: cache
-              uses: actions/cache@v3
+              uses: actions/cache@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
@@ -102,7 +102,7 @@ jobs:
 
             - name: Cache nx build cache
               id: cache-nx
-              uses: actions/cache@v3
+              uses: actions/cache@v4
               with:
                   path: node_modules/.cache/nx
                   key: ${{ runner.os }}-nx-${{matrix.package}}-${{ hashFiles('**/package-lock.json') }}
@@ -130,11 +130,11 @@ jobs:
             short_sha: ${{ needs.install_deps.outputs.short_sha }}
         # Steps represent a sequence of tasks that will be executed as part of the job
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
 
             - name: Cache node modules
               id: cache
-              uses: actions/cache@v3
+              uses: actions/cache@v4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
@@ -145,7 +145,7 @@ jobs:
 
             - name: Cache nx build cache
               id: cache-nx
-              uses: actions/cache@v3
+              uses: actions/cache@v4
               with:
                   path: node_modules/.cache/nx
                   key: ${{ runner.os }}-nx-${{matrix.package}}-${{ hashFiles('**/package-lock.json') }}
