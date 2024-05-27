@@ -30,12 +30,12 @@ function commands(target) {
         return array;
     }
     const base = release ? '' : `--base=${baseSha}~1`;
-    const array = execSync(
-        `npx nx print-affected --target=${target} --select=tasks.target.project ${base}`
-    )
-        .toString()
-        .replace(/\n/g, '')
+    const raw_result = execSync(
+        `npx nx show projects --affected --target=${target} --select=tasks.target.project ${base}`
+    ).toString();
+    const array = raw_result
+        .replace(/\n/g, ', ')
         .split(', ')
-        .filter((_) => !!_);
+        .filter((_) => !!_ && !_.includes('-e2e'));
     return array;
 }
