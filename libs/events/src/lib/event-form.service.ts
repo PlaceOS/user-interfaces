@@ -102,6 +102,7 @@ export class EventFormService extends AsyncHandler {
     private _date = new BehaviorSubject(Date.now());
     private _event = new BehaviorSubject<CalendarEvent>(null);
     private _loading = new BehaviorSubject<string>('');
+    private _changed = new BehaviorSubject<number>(0);
     private _space_pipe: SpacePipe;
 
     public last_success: CalendarEvent = new CalendarEvent(
@@ -233,10 +234,12 @@ export class EventFormService extends AsyncHandler {
         this._space_bookings,
         this.booking_rules,
         merge(this.form.valueChanges, timer(1000)),
+        this._changed,
     ]).pipe(
+        debounceTime(300),
         map(([list, bookings, booking_rules]) => {
             this._loading.next('Updating available spaces...');
-            let { ical_uid, date, duration, all_day, organiser } =
+            let { ical_uid, date, duration, all_day } =
                 this._form.getRawValue();
             list = filterResourcesFromRules(
                 list,
@@ -250,12 +253,14 @@ export class EventFormService extends AsyncHandler {
                         start +
                         (all_day ? Math.max(24 * 60, duration) : duration) *
                             MINUTES;
+                    let booking_list = bookings[idx] || [];
+                    if (this.last_success?.system?.id === _.id) {
+                        booking_list = [...booking_list, this.last_success];
+                    }
                     return periodInFreeTimeSlot(
                         start,
                         end,
-                        (bookings[idx] || []).filter(
-                            (_) => _.ical_uid !== ical_uid
-                        )
+                        booking_list.filter((_) => _.ical_uid !== ical_uid)
                     );
                 })
                 .sort((a, b) => a.capacity - b.capacity);
@@ -766,6 +771,7 @@ export class EventFormService extends AsyncHandler {
                 JSON.stringify(result)
             );
             this.setView('success');
+            this.timeout('post_finshed', () => this._changed.next(Date.now()));
             resolve(result);
             this._loading.next('');
         });
