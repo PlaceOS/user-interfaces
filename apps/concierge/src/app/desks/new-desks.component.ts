@@ -40,11 +40,11 @@ import { map, take } from 'rxjs/operators';
                     <button
                         btn
                         matRipple
-                        class="space-x-2"
+                        class="space-x-2 w-44"
                         (click)="newDeskBooking()"
                     >
-                        <div>New Booking</div>
-                        <app-icon>add</app-icon>
+                        <div class="pl-2">New Booking</div>
+                        <app-icon class="text-2xl">add</app-icon>
                     </button>
                 </div>
                 <div class="w-full flex items-center px-8 space-x-2 mb-4">
@@ -139,7 +139,7 @@ import { map, take } from 'rxjs/operators';
                             btn
                             icon
                             matRipple
-                            class="bg-secondary text-white rounded"
+                            class="bg-secondary text-secondary-content rounded h-12 w-12"
                             (click)="newDesk()"
                             matTooltip="New Desk"
                         >
@@ -149,7 +149,7 @@ import { map, take } from 'rxjs/operators';
                             btn
                             icon
                             matRipple
-                            class="bg-secondary relative text-white rounded"
+                            class="bg-secondary text-secondary-content rounded h-12 w-12"
                             matTooltip="Upload Desks CSV"
                         >
                             <app-icon>cloud_upload</app-icon>
@@ -163,17 +163,16 @@ import { map, take } from 'rxjs/operators';
                             btn
                             icon
                             matRipple
-                            class="bg-secondary text-white rounded"
+                            class="bg-secondary text-secondary-content rounded h-12 w-12"
                             (click)="downloadTemplate()"
                             matTooltip="Download Template Desk CSV"
                         >
                             <app-icon>download</app-icon>
                         </button>
                         <button
-                            btn
                             icon
                             matRipple
-                            class="bg-secondary text-white rounded"
+                            class="bg-secondary text-secondary-content rounded h-12 w-12"
                             (click)="manageRestrictions()"
                             matTooltip="Desk Restrictions"
                         >

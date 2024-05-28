@@ -9,9 +9,9 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
 @Component({
     selector: 'poi-list',
     template: `
-        <div class="absolute inset-0 overflow-auto px-4">
+        <div class="absolute inset-0 overflow-auto px-8">
             <custom-table
-                class="block min-w-[32rem] w-full h-full"
+                class="block min-w-[40rem] w-full h-full"
                 [dataSource]="features"
                 [columns]="['name', 'level', 'location', 'actions']"
                 [display_column]="['Name', 'Level', 'Location', ' ']"

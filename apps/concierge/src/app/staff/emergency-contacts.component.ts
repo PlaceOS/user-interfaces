@@ -36,7 +36,7 @@ export interface EmergencyContactData {
                             <button
                                 icon
                                 matRipple
-                                class="bg-secondary text-secondary-content rounded"
+                                class="h-12 w-12 bg-secondary text-secondary-content rounded"
                                 matTooltip="Manage Roles"
                                 (click)="manageRoles()"
                             >
@@ -91,7 +91,7 @@ export interface EmergencyContactData {
                 </section>
                 <section class="w-full h-1/2 flex-1 overflow-auto px-8">
                     <custom-table
-                        class="min-w-[40rem] block"
+                        class="min-w-[60rem] block"
                         [dataSource]="filtered_contacts"
                         [filter]="search"
                         [columns]="[

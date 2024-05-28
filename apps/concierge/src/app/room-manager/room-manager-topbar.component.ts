@@ -11,11 +11,11 @@ import { combineLatest } from 'rxjs';
 @Component({
     selector: 'room-manager-topbar',
     template: `
-        <div class="flex items-center justify-between p-4">
+        <div class="flex items-center justify-between px-8 pt-4">
             <h2 class="text-2xl font-medium">Room Management</h2>
-            <button btn (click)="newRoom()" class="w-32">New Room</button>
+            <button btn (click)="newRoom()" class="w-40">New Room</button>
         </div>
-        <div class="flex items-center bg-base-100 h-20 px-4 space-x-2">
+        <div class="flex items-center bg-base-100 h-20 px-8 space-x-2">
             <mat-form-field appearance="outline" class="no-subscript w-[15rem]">
                 <mat-select
                     [ngModel]="(filters | async)?.zones"
@@ -44,7 +44,7 @@ import { combineLatest } from 'rxjs';
                 btn
                 icon
                 matRipple
-                class="bg-secondary text-secondary-content rounded"
+                class="bg-secondary text-secondary-content rounded h-12 w-12"
                 (click)="manageRestrictions()"
                 matTooltip="Room Restrictions"
             >

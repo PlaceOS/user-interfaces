@@ -55,45 +55,50 @@ import { combineLatest } from 'rxjs';
                 *ngIf="
                     page === 'menu' && (!zones[0] || zones[0] === building?.id)
                 "
-                btn
+                icon
                 matRipple
                 matTooltip="Add Item"
+                class="bg-secondary text-secondary-content rounded h-12 w-12"
                 (click)="addItem()"
             >
                 <app-icon class="text-2xl">add</app-icon>
             </button>
             <button
                 *ngIf="page === 'menu'"
-                btn
+                icon
                 matRipple
                 matTooltip="Edit Config"
+                class="bg-secondary text-secondary-content rounded h-12 w-12"
                 (click)="editConfig()"
             >
                 <app-icon class="text-2xl">menu_book</app-icon>
             </button>
             <button
                 *ngIf="page === 'menu'"
-                btn
+                icon
                 matRipple
                 matTooltip="Import Menu"
+                class="bg-secondary text-secondary-content rounded h-12 w-12"
                 (click)="importMenu()"
             >
                 <app-icon class="text-2xl">cloud_upload</app-icon>
             </button>
             <button
                 *ngIf="page === 'menu'"
-                btn
+                icon
                 matRipple
                 matTooltip="Room Availability"
+                class="bg-secondary text-secondary-content rounded h-12 w-12"
                 (click)="setRoomAvailability()"
             >
                 <app-icon class="text-2xl">event_available</app-icon>
             </button>
             <button
                 *ngIf="page === 'menu'"
-                btn
+                icon
                 matRipple
                 matTooltip="Charge Codes"
+                class="bg-secondary text-secondary-content rounded h-12 w-12"
                 (click)="setChargeCodes()"
             >
                 <app-icon class="text-2xl">payments</app-icon>
