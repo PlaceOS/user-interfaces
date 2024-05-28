@@ -94,7 +94,7 @@ import { OrganisationService } from '@placeos/organisation';
             class="flex items-center space-x-2 px-4 pb-2"
             *ngIf="use_region && (building | async)?.length"
         >
-            <mat-form-field appearance="outline" class="no-subscript w-[15rem]">
+            <mat-form-field appearance="outline" class="no-subscript w-48">
                 <mat-select
                     [ngModel]="(building | async)?.id"
                     (ngModelChange)="setBuilding($event)"

@@ -29,7 +29,7 @@ import { SettingsService } from '@placeos/common';
                 <div class="flex items-center px-8 pb-4">
                     <mat-form-field
                         appearance="outline"
-                        class="no-subscript w-[15rem]"
+                        class="no-subscript w-60"
                     >
                         <mat-select
                             [ngModel]="(filters | async)?.zones"

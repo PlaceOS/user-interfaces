@@ -11,12 +11,17 @@ import { combineLatest } from 'rxjs';
 @Component({
     selector: 'room-manager-topbar',
     template: `
-        <div class="flex items-center justify-between px-8 pt-4">
+        <div class="flex items-center px-8 pt-4">
             <h2 class="text-2xl font-medium">Room Management</h2>
+            <div class="flex-1 w-2"></div>
+            <searchbar
+                class="mr-2"
+                (modelChange)="setSearch($event)"
+            ></searchbar>
             <button btn (click)="newRoom()" class="w-40">New Room</button>
         </div>
         <div class="flex items-center bg-base-100 h-20 px-8 space-x-2">
-            <mat-form-field appearance="outline" class="no-subscript w-[15rem]">
+            <mat-form-field appearance="outline" class="no-subscript w-60">
                 <mat-select
                     [ngModel]="(filters | async)?.zones"
                     (ngModelChange)="updateZones($event)"
@@ -50,10 +55,6 @@ import { combineLatest } from 'rxjs';
             >
                 <app-icon>lock_open</app-icon>
             </button>
-            <searchbar
-                class="mr-2"
-                (modelChange)="setSearch($event)"
-            ></searchbar>
         </div>
     `,
     styles: [

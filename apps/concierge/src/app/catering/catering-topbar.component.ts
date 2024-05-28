@@ -28,7 +28,7 @@ import { combineLatest } from 'rxjs';
         <div
             class="flex items-center bg-base-100 h-20 px-8 border-b border-base-200 space-x-2"
         >
-            <mat-form-field appearance="outline" class="no-subscript w-[15rem]">
+            <mat-form-field appearance="outline" class="no-subscript w-60">
                 <mat-select
                     [ngModel]="(filters | async)?.zones"
                     (ngModelChange)="updateZones($event)"

@@ -50,7 +50,7 @@ import { map, take } from 'rxjs/operators';
                 <div class="w-full flex items-center px-8 space-x-2 mb-4">
                     <mat-form-field
                         appearance="outline"
-                        class="no-subscript w-[15rem]"
+                        class="no-subscript w-60"
                         *ngIf="!manage"
                     >
                         <mat-select
@@ -83,7 +83,7 @@ import { map, take } from 'rxjs/operators';
                     </mat-form-field>
                     <mat-form-field
                         appearance="outline"
-                        class="no-subscript w-[15rem]"
+                        class="no-subscript w-60"
                         *ngIf="manage"
                     >
                         <mat-select

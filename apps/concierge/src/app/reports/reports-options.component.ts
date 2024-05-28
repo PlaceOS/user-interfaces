@@ -13,7 +13,7 @@ import { combineLatest } from 'rxjs';
         <div
             class="bg-base-100 h-20 w-full flex items-center space-x-4 p-2 shadow z-20 border-b border-base-200"
         >
-            <mat-form-field appearance="outline" class="w-[15rem] no-subscript">
+            <mat-form-field appearance="outline" class="w-60 no-subscript">
                 <mat-select
                     [(ngModel)]="zones"
                     (ngModelChange)="setZones($event)"

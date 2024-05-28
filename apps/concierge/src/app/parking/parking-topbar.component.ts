@@ -32,7 +32,7 @@ import { ParkingStateService } from './parking-state.service';
             </button> -->
         </div>
         <div class="flex items-center bg-base-100 px-8 h-20">
-            <mat-form-field appearance="outline" class="w-[15rem]">
+            <mat-form-field appearance="outline" class="w-60">
                 <mat-select
                     [(ngModel)]="zones"
                     (ngModelChange)="updateZones($event)"

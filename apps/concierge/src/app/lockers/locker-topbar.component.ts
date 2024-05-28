@@ -15,7 +15,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
         <div
             class="flex items-center bg-base-100 h-20 px-4 border-b border-base-200 space-x-2"
         >
-            <mat-form-field appearance="outline" class="w-[15rem]">
+            <mat-form-field appearance="outline" class="w-60">
                 <mat-select
                     [ngModel]="(filters | async)?.zones"
                     (ngModelChange)="updateZones($event)"

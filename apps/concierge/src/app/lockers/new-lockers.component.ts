@@ -34,7 +34,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                 <div class="w-full flex items-center px-8 space-x-2">
                     <mat-form-field
                         appearance="outline"
-                        class="no-subscript w-[15rem]"
+                        class="no-subscript w-60"
                     >
                         <mat-select
                             [ngModel]="(filters | async)?.zones"
