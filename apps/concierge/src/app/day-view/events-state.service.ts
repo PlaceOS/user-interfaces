@@ -39,9 +39,9 @@ import {
     replaceBookings,
 } from '@placeos/events';
 import { Space, requestSpacesForZone } from '@placeos/spaces';
-import { BookingModalComponent } from './booking-modal.component';
 import { OrganisationService } from '@placeos/organisation';
 import { getModule } from '@placeos/ts-client';
+
 import { EventBookModalComponent } from './event-book-modal.component';
 
 export type BookingType =
