@@ -5,6 +5,7 @@ import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
     flatten,
+    log,
     MapsPeopleService,
     notifyError,
     SettingsService,
@@ -404,12 +405,15 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
             'route.query',
             this._route.queryParamMap.subscribe(async (params) => {
                 if (params.has('level')) {
+                    log('Explore', 'Level changed to:', params.get('level'));
                     this._state.setLevel(params.get('level'));
                 }
                 this._state.setFeatures('_located', []);
                 if (params.has('space')) {
+                    log('Explore', 'Focusing on space:', params.get('space'));
                     this.locateSpace(params.get('space'));
                 } else if (params.has('user')) {
+                    log('Explore', 'Focusing on user:', params.get('user'));
                     let user = this._settings.value('last_search');
                     if (!user || params.get('user') !== user.email) {
                         user = null;
@@ -429,6 +433,11 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
                         });
                     });
                 } else if (params.has('feature')) {
+                    log(
+                        'Explore',
+                        'Focusing on feature:',
+                        params.get('feature')
+                    );
                     this.timeout('update_location', () => {
                         this._state.setFeatures('_located', [
                             {
@@ -439,7 +448,21 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
                         ]);
                     });
                 } else if (params.has('locate')) {
+                    log(
+                        'Explore',
+                        'Focusing on location:',
+                        params.get('locate')
+                    );
                     this.locate = params.get('locate');
+                    this.timeout('update_location', () => {
+                        this._state.setFeatures('_located', [
+                            {
+                                location: params.get('locate'),
+                                content: MapPinComponent,
+                                data: {},
+                            },
+                        ]);
+                    });
                 } else {
                     this.timeout('update_location', () => {
                         this._state.setFeatures('_located', []);
