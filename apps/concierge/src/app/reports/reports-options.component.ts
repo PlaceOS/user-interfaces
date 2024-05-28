@@ -1,56 +1,38 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { first } from 'rxjs/operators';
+import { first, map } from 'rxjs/operators';
 
-import { AsyncHandler, Identity } from '@placeos/common';
+import { AsyncHandler, Identity, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { ReportsStateService } from './reports-state.service';
+import { combineLatest } from 'rxjs';
 
 @Component({
     selector: 'reports-options',
     template: `
         <div
-            class="bg-base-100 h-20 w-full flex items-center space-x-4 px-2 shadow z-20 border-b border-base-200"
+            class="bg-base-100 h-20 w-full flex items-center space-x-4 p-2 shadow z-20 border-b border-base-200"
         >
-            <mat-form-field appearance="outline" class="w-48 no-subscript">
+            <mat-form-field appearance="outline" class="w-[15rem] no-subscript">
                 <mat-select
-                    multiple
-                    [ngModel]="(options | async)?.zones"
+                    [(ngModel)]="zones"
                     (ngModelChange)="setZones($event)"
-                    placeholder="Select Levels..."
+                    placeholder="All Levels"
+                    multiple
                 >
-                    <mat-option value="All">All Levels</mat-option>
                     <mat-option
                         *ngFor="let level of levels | async"
                         [value]="level.id"
                     >
-                        {{ level.display_name || level.name }}
+                        <div class="flex flex-col-reverse">
+                            <div class="text-xs opacity-30" *ngIf="use_region">
+                                {{ (level.parent_id | building)?.display_name }}
+                                <span class="opacity-0"> - </span>
+                            </div>
+                            <div>{{ level.display_name || level.name }}</div>
+                        </div>
                     </mat-option>
                 </mat-select>
-            </mat-form-field>
-            <mat-form-field
-                appearance="outline"
-                class="w-64 no-subscript hidden"
-            >
-                <mat-date-range-input [rangePicker]="picker">
-                    <input
-                        matStartDate
-                        [ngModel]="(options | async)?.start"
-                        (ngModelChange)="$event ? setStartDate($event) : ''"
-                        placeholder="Start date"
-                    />
-                    <input
-                        matEndDate
-                        [ngModel]="(options | async)?.end"
-                        (ngModelChange)="$event ? setEndDate($event) : ''"
-                        placeholder="End date"
-                    />
-                </mat-date-range-input>
-                <mat-datepicker-toggle
-                    matSuffix
-                    [for]="picker"
-                ></mat-datepicker-toggle>
-                <mat-date-range-picker #picker></mat-date-range-picker>
             </mat-form-field>
             <date-range-field>
                 <input
@@ -114,8 +96,16 @@ export class ReportsOptionsComponent extends AsyncHandler {
     ];
     /** List of selected types */
     public type_list: string[] = this.types.map((i) => `${i.id}`);
-    /** List of levels for the active building */
-    public readonly levels = this._org.active_levels;
+    public readonly levels = combineLatest([
+        this._org.active_building,
+        this._org.active_region,
+    ]).pipe(
+        map(([bld, region]) =>
+            this._settings.get('app.use_region')
+                ? this._org.levelsForRegion(region)
+                : this._org.levelsForBuilding(bld)
+        )
+    );
 
     public readonly loading = this._state.loading;
 
@@ -156,9 +146,14 @@ export class ReportsOptionsComponent extends AsyncHandler {
         });
     };
 
+    public get use_region() {
+        return !!this._settings.get('app.use_region');
+    }
+
     constructor(
         private _state: ReportsStateService,
         private _org: OrganisationService,
+        private _settings: SettingsService,
         private _route: ActivatedRoute,
         private _router: Router
     ) {

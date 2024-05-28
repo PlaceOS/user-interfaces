@@ -614,6 +614,12 @@ a[icon] {
         }
     }
 
+    mat-button-toggle {
+        mat-pseudo-checkbox {
+            display: none;
+        }
+    }
+
     .mat-form-field-disabled {
         opacity: 0.3;
     }
