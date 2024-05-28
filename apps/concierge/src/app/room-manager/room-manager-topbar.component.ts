@@ -11,13 +11,10 @@ import { combineLatest } from 'rxjs';
 @Component({
     selector: 'room-manager-topbar',
     template: `
-        <div class="flex items-center px-8 pt-4">
+        <div class="flex items-center px-8 pt-4 space-x-2">
             <h2 class="text-2xl font-medium">Room Management</h2>
             <div class="flex-1 w-2"></div>
-            <searchbar
-                class="mr-2"
-                (modelChange)="setSearch($event)"
-            ></searchbar>
+            <searchbar (modelChange)="setSearch($event)"></searchbar>
             <button btn (click)="newRoom()" class="w-40">New Room</button>
         </div>
         <div class="flex items-center bg-base-100 h-20 px-8 space-x-2">
