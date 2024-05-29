@@ -17,6 +17,8 @@ import {
     getInvalidFields,
     getItemWithKeys,
     notifyError,
+    notifyInfo,
+    notifyWarn,
     unique,
 } from '@placeos/common';
 import { Space, generateSystemsFormFields } from '@placeos/spaces';
@@ -499,7 +501,11 @@ export class RoomModalComponent extends AsyncHandler {
                 events: { ...(details.events || {}), overflow },
             },
             description: '',
-        }).toPromise();
+        })
+            .toPromise()
+            .catch((e) =>
+                notifyWarn('Unable to save room setup and breakdown times')
+            );
         await (data.id
             ? updateSystem(data.id, data)
             : addSystem(data)
