@@ -40,11 +40,9 @@ export class POIManagementService {
         this._change,
     ]).pipe(
         switchMap(() =>
-            showMetadata(
-                this._org.organisation.id,
-                'points-of-interest',
-                {}
-            ).pipe(catchError((_) => of({ details: {} })))
+            showMetadata(this._org.organisation.id, 'points-of-interest').pipe(
+                catchError((_) => of({ details: {} }))
+            )
         ),
         map((_) => {
             const mapping = _.details || {};
@@ -103,14 +101,13 @@ export class POIManagementService {
         ref.loading('Removing point of interest...');
         const old_metadata = await showMetadata(
             this._org.organisation.id,
-            'points-of-interest',
-            {}
+            'points-of-interest'
         ).toPromise();
         const metadata = old_metadata.details || {};
-        if (metadata[poi.level_id]) {
-            metadata[poi.level_id] = metadata[poi.level_id].filter(
-                (_) => _.id !== poi.id
-            );
+        console.log('Metadata:', old_metadata, metadata, poi);
+        for (const lvl in metadata) {
+            if (metadata[lvl])
+                metadata[lvl] = metadata[lvl].filter((_) => _.id !== poi.id);
         }
         await updateMetadata(this._org.organisation.id, {
             name: 'points-of-interest',

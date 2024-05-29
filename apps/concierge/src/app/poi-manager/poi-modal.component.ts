@@ -294,10 +294,13 @@ export class POIModalComponent extends AsyncHandler {
         ).toPromise();
         const metadata = old_metadata.details || {};
         if (!metadata[data.level_id]) metadata[data.level_id] = [];
-        if (this._data?.level_id) {
-            metadata[this._data.level_id] = metadata[data.level_id]
-                .filter((_) => _.id !== data.id)
-                .sort((a, b) => a.name.localeCompare(b.name));
+        if (this._data?.id) {
+            for (const lvl in metadata) {
+                if (metadata[lvl])
+                    metadata[lvl] = metadata[lvl].filter(
+                        (_) => _.id !== data.id
+                    );
+            }
         }
         metadata[data.level_id] = [
             ...metadata[data.level_id].filter((_) => _.id !== data.id),
