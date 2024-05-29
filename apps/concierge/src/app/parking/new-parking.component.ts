@@ -11,6 +11,32 @@ import { ParkingStateService } from './parking-state.service';
             <app-sidebar></app-sidebar>
             <main class="flex flex-col flex-1 w-1/2 h-full relative">
                 <parking-topbar></parking-topbar>
+                <div class="px-8 pb-2" *ngIf="path !== 'events'">
+                    <nav mat-tab-nav-bar [tabPanel]="tabPanel">
+                        <a
+                            mat-tab-link
+                            [routerLink]="['/book', 'parking', 'new', 'manage']"
+                            [active]="path === 'manage'"
+                        >
+                            Spaces
+                        </a>
+                        <a
+                            mat-tab-link
+                            [routerLink]="['/book', 'parking', 'new', 'users']"
+                            [active]="path === 'users'"
+                        >
+                            Users
+                        </a>
+                        <a
+                            mat-tab-link
+                            [routerLink]="['/book', 'parking', 'new', 'map']"
+                            [active]="path === 'map'"
+                        >
+                            Map
+                        </a>
+                    </nav>
+                    <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
+                </div>
                 <div class="flex-1 h-1/2 w-full relative overflow-auto px-2">
                     <router-outlet></router-outlet>
                 </div>

@@ -4,7 +4,7 @@ import { ParkingStateService } from './parking-state.service';
 @Component({
     selector: 'parking-space-list',
     template: `
-        <div class="absolute inset-0 overflow-auto px-2">
+        <div class="absolute inset-0 overflow-auto px-8">
             <custom-table
                 class="block min-w-[56rem]"
                 [dataSource]="spaces"
@@ -22,17 +22,28 @@ import { ParkingStateService } from './parking-state.service';
                     'Notes',
                     ' '
                 ]"
-                [column_size]="['8r', '10r', '14r', 'flex', '10r']"
+                [column_size]="['8r', '10r', '14r', 'flex', '6r']"
                 [template]="{ actions: action_template }"
                 [filter]="(options | async).search"
                 [class.opacity-50]="(loading | async)?.includes('spaces')"
             ></custom-table>
             <ng-template #action_template let-row="row">
-                <div class="w-full flex items-center justify-end">
-                    <button icon (click)="editSpace(row)">
+                <div class="w-full flex items-center justify-end space-x-2">
+                    <button
+                        icon
+                        matRipple
+                        (click)="editSpace(row)"
+                        matTooltip="Edit Parking Space"
+                    >
                         <app-icon>edit</app-icon>
                     </button>
-                    <button icon (click)="removeSpace(row)">
+                    <button
+                        icon
+                        matRipple
+                        class="text-error"
+                        matTooltip="Remove Parking Space"
+                        (click)="removeSpace(row)"
+                    >
                         <app-icon>delete</app-icon>
                     </button>
                 </div>
@@ -42,15 +53,6 @@ import { ParkingStateService } from './parking-state.service';
                 class="absolute bottom-0 inset-x-0"
             ></mat-progress-bar>
         </div>
-        <button
-            btn
-            icon
-            matRipple
-            class="absolute bottom-2 left-2 bg-secondary text-secondary-content"
-            (click)="editSpace()"
-        >
-            <app-icon>add</app-icon>
-        </button>
     `,
     styles: [],
 })

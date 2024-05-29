@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, notifyInfo } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 import { ParkingStateService } from './parking-state.service';
@@ -10,8 +10,49 @@ import { ParkingStateService } from './parking-state.service';
 @Component({
     selector: 'parking-topbar',
     template: `
-        <div class="flex items-center bg-base-100 px-2 h-20">
-            <mat-form-field appearance="outline">
+        <div class="flex items-center w-full pt-4 px-8 space-x-2">
+            <h2 class="text-2xl font-medium">
+                {{ manage ? 'Parking Management' : 'Parking Reservations' }}
+            </h2>
+            <div class="flex-1 w-px"></div>
+            <searchbar
+                class="mr-2"
+                [model]="(options | async)?.search"
+                (modelChange)="setSearch($event)"
+            ></searchbar>
+            <button
+                btn
+                matRipple
+                *ngIf="manage && !users"
+                class="space-x-2 w-40"
+                (click)="newParkingSpace()"
+            >
+                <div>New Space</div>
+                <app-icon>add</app-icon>
+            </button>
+            <button
+                btn
+                matRipple
+                *ngIf="manage && users"
+                class="space-x-2 w-40"
+                (click)="newParkingUser()"
+            >
+                <div>New User</div>
+                <app-icon>add</app-icon>
+            </button>
+            <button
+                btn
+                matRipple
+                *ngIf="!manage"
+                class="space-x-2 w-40"
+                (click)="newReservation()"
+            >
+                <div>New Reservation</div>
+                <app-icon>add</app-icon>
+            </button>
+        </div>
+        <div class="flex items-center bg-base-100 px-8 h-20">
+            <mat-form-field appearance="outline" class="w-56">
                 <mat-select
                     [ngModel]="zones[0]"
                     (ngModelChange)="updateZones([$event]); zones = [$event]"
@@ -26,10 +67,6 @@ import { ParkingStateService } from './parking-state.service';
                 </mat-select>
             </mat-form-field>
             <div class="flex-1 w-0"></div>
-            <searchbar
-                class="mr-2"
-                (modelChange)="setSearch($event)"
-            ></searchbar>
             <date-options
                 *ngIf="!manage"
                 (dateChange)="setDate($event)"
@@ -52,6 +89,7 @@ import { ParkingStateService } from './parking-state.service';
 })
 export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     public manage = false;
+    public users = false;
     /** List of selected levels */
     public zones: string[] = [];
     /** List of levels for the active building */
@@ -112,5 +150,16 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
             })
         );
         this.manage = !this._router.url.includes('events');
+        this.users = this._router.url.includes('users');
     }
+
+    public newParkingSpace() {
+        this._state.editSpace();
+    }
+
+    public newParkingUser() {
+        this._state.editUser();
+    }
+
+    public newReservation() {}
 }

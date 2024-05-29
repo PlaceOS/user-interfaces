@@ -3,14 +3,14 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DialogEvent } from '@placeos/common';
 import { User } from '@placeos/users';
-import { ParkingSpace } from './parking-state.service';
+import { ParkingUser } from './parking-state.service';
 
 @Component({
-    selector: 'parking-space-modal',
+    selector: 'parking-user-modal',
     template: `
         <div class="w-[28rem]">
             <header class="flex items-center justify-between px-2 w-full">
-                <h2 class="px-2">{{ id ? 'Edit' : 'New' }} Parking Space</h2>
+                <h2 class="px-2">{{ id ? 'Edit' : 'New' }} Parking User</h2>
                 <button *ngIf="!loading" icon matRipple mat-dialog-close>
                     <app-icon>close</app-icon>
                 </button>
@@ -20,20 +20,20 @@ import { ParkingSpace } from './parking-state.service';
                 class="p-4 flex flex-col"
                 [formGroup]="form"
             >
-                <label for="name">Parking Space Name/Bay Number</label>
+                <label for="name">Parking User Name/Bay Number</label>
                 <mat-form-field appearance="outline">
                     <input matInput name="name" formControlName="name" />
-                    <mat-error>A name is required for parking spaces</mat-error>
+                    <mat-error>A name is required for parking users</mat-error>
                 </mat-form-field>
                 <label for="map-id">Map ID</label>
                 <mat-form-field appearance="outline">
                     <input matInput name="map-id" formControlName="map_id" />
                     <mat-error>
-                        A map ID is required for parking spaces
+                        A map ID is required for parking users
                     </mat-error>
                 </mat-form-field>
                 <label for="user">Assigned User</label>
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center user-x-2">
                     <a-user-search-field
                         name="user"
                         formControlName="assigned_user"
@@ -69,7 +69,7 @@ import { ParkingSpace } from './parking-state.service';
                         formControlName="map_rotation"
                     ></textarea>
                 </mat-form-field> -->
-                <div class="flex items-center justify-center space-x-2">
+                <div class="flex items-center justify-center user-x-2">
                     <button btn matRipple class="w-32 inverse" mat-dialog-close>
                         Cancel
                     </button>
@@ -81,16 +81,16 @@ import { ParkingSpace } from './parking-state.service';
         </div>
         <ng-template #load_state>
             <main
-                class="p-8 flex flex-col items-center justify-center space-y-2"
+                class="p-8 flex flex-col items-center justify-center user-y-2"
             >
                 <mat-spinner diameter="32"></mat-spinner>
-                <p>Saving parking space details...</p>
+                <p>Saving parking user details...</p>
             </main>
         </ng-template>
     `,
     styles: [``],
 })
-export class ParkingSpaceModalComponent {
+export class ParkingUserModalComponent {
     @Output() public readonly event = new EventEmitter<DialogEvent>();
     public loading: boolean;
 
@@ -110,8 +110,8 @@ export class ParkingSpaceModalComponent {
     });
 
     constructor(
-        @Inject(MAT_DIALOG_DATA) private _data: ParkingSpace,
-        private _dialog_ref: MatDialogRef<ParkingSpaceModalComponent>
+        @Inject(MAT_DIALOG_DATA) private _data: ParkingUser,
+        private _dialog_ref: MatDialogRef<ParkingUserModalComponent>
     ) {
         if (_data) this.form.patchValue(_data);
     }

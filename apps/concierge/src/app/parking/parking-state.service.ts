@@ -28,6 +28,7 @@ import {
     tap,
 } from 'rxjs/operators';
 import { ParkingSpaceModalComponent } from './parking-space-modal.component';
+import { ParkingUserModalComponent } from './parking-user-modal.component';
 
 export interface ParkingOptions {
     date: number;
@@ -222,7 +223,58 @@ export class ParkingStateService extends AsyncHandler {
         state.close();
     }
 
-    public async saveUsers(users: ParkingUser[]) {}
+    /** Add or update a space in the available list */
+    public async editUser(user?: ParkingUser) {
+        const ref = this._dialog.open(ParkingUserModalComponent, {
+            data: user,
+        });
+        const state = await Promise.race([
+            ref.afterClosed().toPromise(),
+            ref.componentInstance.event
+                .pipe(first((_) => _.reason === 'done'))
+                .toPromise(),
+        ]);
+        if (state?.reason !== 'done') return;
+        const zone = this._options.getValue().zones[0];
+        const new_space = {
+            ...state.metadata,
+            id: state.metadata.id || `parking-${zone}.${randomInt(999_999)}`,
+        };
+        const spaces = await this.spaces.pipe(take(1)).toPromise();
+        const idx = spaces.findIndex((_) => _.id === new_space.id);
+        if (idx >= 0) spaces[idx] = new_space;
+        else spaces.push(new_space);
+        const new_space_list = spaces;
+        await updateMetadata(zone, {
+            name: 'parking-users',
+            details: new_space_list,
+            description: 'List of available parking users',
+        }).toPromise();
+        this._change.next(Date.now());
+        ref.close();
+    }
+
+    /** Remove the given space from the available list */
+    public async removeUser(user: ParkingUser) {
+        const state = await openConfirmModal(
+            {
+                title: 'Remove Parking User',
+                content: `Are you sure you wish to remove the parking user "${user.name}"?`,
+                icon: { content: 'delete' },
+            },
+            this._dialog
+        );
+        if (state?.reason !== 'done') return;
+        state.loading('Removing parking user...');
+        const zone = this._options.getValue().zones[0];
+        const users = await this.users.pipe(take(1)).toPromise();
+        await updateMetadata(zone, {
+            name: 'parking-users',
+            details: users.filter((_) => _.id !== user.id),
+            description: 'List of available parking users',
+        }).toPromise();
+        state.close();
+    }
 
     public async approveBooking(booking: Booking) {
         const success = await approveBooking(booking.id)
