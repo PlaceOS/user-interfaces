@@ -234,11 +234,17 @@ export class POIModalComponent extends AsyncHandler {
 
     public selectPOIfromMap() {
         const ref = this._dialog.open(SelectPOIMapModalComponent, {
-            data: this._data,
+            data: {
+                ...this._data,
+                ...this.form.getRawValue(),
+            },
         });
         ref.afterClosed().subscribe((d) => {
             if (!d) return;
-            this.form.patchValue({ location: d });
+            this.form.patchValue({
+                location: d,
+                level_id: ref.componentInstance.level?.id,
+            });
         });
     }
 

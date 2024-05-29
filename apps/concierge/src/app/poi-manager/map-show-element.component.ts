@@ -5,14 +5,14 @@ import { MAP_FEATURE_DATA } from '@placeos/components';
     selector: 'map-show-element',
     template: `
         <div
-            class="relative w-full h-full border-2"
-            [class.border-secondary]="hover"
-            [class.border-primary]="!hover"
+            class="relative w-full h-full border-4"
+            [class.border-warning]="hover"
+            [class.border-success]="!hover"
         >
             <div
-                class="opacity-30 absolute inset-0"
-                [class.bg-secondary]="hover"
-                [class.bg-primary]="!hover"
+                class="opacity-40 absolute inset-0"
+                [class.bg-warning]="hover"
+                [class.bg-success]="!hover"
             ></div>
         </div>
     `,
