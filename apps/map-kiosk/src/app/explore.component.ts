@@ -407,6 +407,13 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
                 if (params.has('level')) {
                     log('Explore', 'Level changed to:', params.get('level'));
                     this._state.setLevel(params.get('level'));
+                    const level = this._org.levelWithID([params.get('level')]);
+                    if (!level) return;
+                    const bld = this._org.buildings.find(
+                        (_) => level.parent_id === _.id
+                    );
+                    if (!bld) return;
+                    this._org.building = bld;
                 }
                 this._state.setFeatures('_located', []);
                 if (params.has('space')) {
