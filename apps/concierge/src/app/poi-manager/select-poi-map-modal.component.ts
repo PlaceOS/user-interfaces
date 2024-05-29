@@ -151,18 +151,18 @@ declare let mapsindoors: any;
                         >
                             1
                         </button>
-                        <button icon [class.opacity-0]="page < 1">
+                        <button icon [class.opacity-0]="page < 2">
                             <app-icon>more_horiz</app-icon>
                         </button>
                         <button
                             icon
                             matRipple
                             class="!bg-secondary text-secondary-content"
-                            [class.opacity-0]="page < 1 || page > last_page - 2"
+                            [class.opacity-0]="page == 0 || page == last_page"
                         >
                             {{ page + 1 }}
                         </button>
-                        <button icon [class.opacity-0]="page > last_page - 1">
+                        <button icon [class.opacity-0]="page > last_page - 2">
                             <app-icon>more_horiz</app-icon>
                         </button>
                         <button
@@ -174,10 +174,7 @@ declare let mapsindoors: any;
                             [class.!rounded-full]="page === last_page"
                             (click)="page = last_page"
                         >
-                            {{
-                                (search_results | async)?.length / 100
-                                    | number: '1.0-0'
-                            }}
+                            {{ last_page + 1 }}
                         </button>
                         <button
                             icon
