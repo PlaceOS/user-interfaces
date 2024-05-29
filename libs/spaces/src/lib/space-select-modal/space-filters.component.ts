@@ -100,11 +100,15 @@ import { Region } from '@placeos/organisation';
                                 [value]="lvl.id"
                             >
                                 <div class="flex flex-col-reverse">
-                                    <div class="opacity-30 text-xs">
+                                    <div
+                                        class="opacity-30 text-xs"
+                                        *ngIf="use_region"
+                                    >
                                         {{
                                             (lvl.parent_id | building)
                                                 ?.display_name
                                         }}
+                                        <span class="opacity-0"> - </span>
                                     </div>
                                     <div>
                                         {{ lvl.display_name || lvl.name }}
