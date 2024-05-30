@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { AsyncHandler, notifyInfo } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 import { ParkingStateService } from './parking-state.service';
@@ -12,7 +12,11 @@ import { ParkingStateService } from './parking-state.service';
     template: `
         <div class="flex items-center w-full pt-4 px-8 space-x-2">
             <h2 class="text-2xl font-medium">
-                {{ manage ? 'Parking Management' : 'Parking Reservations' }}
+                {{
+                    path === 'events'
+                        ? 'Parking Management'
+                        : 'Parking Reservations'
+                }}
             </h2>
             <div class="flex-1 w-px"></div>
             <searchbar
@@ -23,52 +27,59 @@ import { ParkingStateService } from './parking-state.service';
             <button
                 btn
                 matRipple
-                *ngIf="manage && !users"
+                *ngIf="path === 'manage'"
                 class="space-x-2 w-40"
                 (click)="newParkingSpace()"
             >
-                <div>New Space</div>
+                <div class="pl-2">New Space</div>
                 <app-icon>add</app-icon>
             </button>
             <button
                 btn
                 matRipple
-                *ngIf="manage && users"
+                *ngIf="path === 'users'"
                 class="space-x-2 w-40"
                 (click)="newParkingUser()"
             >
-                <div>New User</div>
+                <div class="pl-2">New User</div>
                 <app-icon>add</app-icon>
             </button>
             <button
                 btn
                 matRipple
-                *ngIf="!manage"
-                class="space-x-2 w-40"
+                *ngIf="path === 'events'"
+                class="space-x-2 w-48"
                 (click)="newReservation()"
             >
-                <div>New Reservation</div>
+                <div class="pl-2">New Reservation</div>
                 <app-icon>add</app-icon>
             </button>
         </div>
         <div class="flex items-center bg-base-100 px-8 h-20">
             <mat-form-field appearance="outline" class="w-56">
                 <mat-select
-                    [ngModel]="zones[0]"
-                    (ngModelChange)="updateZones([$event]); zones = [$event]"
+                    [(ngModel)]="zones"
+                    (ngModelChange)="updateZones($event)"
                     placeholder="All Levels"
+                    multiple
                 >
                     <mat-option
                         *ngFor="let level of levels | async"
                         [value]="level.id"
                     >
-                        {{ level.display_name || level.name }}
+                        <div class="flex flex-col-reverse">
+                            <div class="text-xs opacity-30" *ngIf="use_region">
+                                {{ (level.parent_id | building)?.display_name }}
+                                <span class="opacity-0"> - </span>
+                            </div>
+                            <div>{{ level.display_name || level.name }}</div>
+                        </div>
                     </mat-option>
                 </mat-select>
             </mat-form-field>
             <div class="flex-1 w-0"></div>
             <date-options
-                *ngIf="!manage"
+                *ngIf="path === 'events' || path === 'map'"
                 (dateChange)="setDate($event)"
             ></date-options>
         </div>
@@ -88,8 +99,7 @@ import { ParkingStateService } from './parking-state.service';
     ],
 })
 export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
-    public manage = false;
-    public users = false;
+    public path = '';
     /** List of selected levels */
     public zones: string[] = [];
     /** List of levels for the active building */
@@ -110,11 +120,16 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         this._state.setOptions({ zones: z });
     };
 
+    public get use_region() {
+        return !!this._settings.get('app.use_region');
+    }
+
     constructor(
         private _state: ParkingStateService,
         private _org: OrganisationService,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
+        private _settings: SettingsService
     ) {
         super();
     }
@@ -140,6 +155,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'levels',
             this._state.levels.subscribe((levels) => {
+                if (this.use_region) return;
                 this.zones = this.zones.filter((zone) =>
                     levels.find((lvl) => lvl.id === zone)
                 );
@@ -149,8 +165,17 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
                 this.updateZones(this.zones);
             })
         );
-        this.manage = !this._router.url.includes('events');
-        this.users = this._router.url.includes('users');
+        this.subscription(
+            'router.events',
+            this._router.events.subscribe((e) => {
+                if (e instanceof NavigationEnd) {
+                    const url_parts = this._router.url?.split('/') || [''];
+                    this.path = url_parts[parts.length - 1].split('?')[0];
+                }
+            })
+        );
+        const parts = this._router.url?.split('/') || [''];
+        this.path = parts[parts.length - 1].split('?')[0];
     }
 
     public newParkingSpace() {

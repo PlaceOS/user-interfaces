@@ -8,7 +8,7 @@ import { OrganisationService } from '@placeos/organisation';
     selector: 'parking-map',
     template: `
         <div
-            class="relative w-full h-[calc(100%-0.5rem)] bg-base-200 rounded-xl shadow"
+            class="relative w-full h-[calc(100%-1.5rem)] my-2 bg-base-200 rounded-xl shadow"
         >
             <interactive-map
                 [src]="url | async"

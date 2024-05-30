@@ -5,9 +5,9 @@ import { SettingsService, ShortURL, getShortUrlQRCode } from '@placeos/common';
 @Component({
     selector: 'short-url-list',
     template: `
-        <div class="absolute inset-0 overflow-auto px-4">
+        <div class="absolute inset-0 overflow-auto px-8">
             <custom-table
-                class="block min-w-[32rem] w-full h-full"
+                class="block min-w-[72rem] w-full h-full"
                 [dataSource]="features"
                 [columns]="[
                     'name',
@@ -23,7 +23,7 @@ import { SettingsService, ShortURL, getShortUrlQRCode } from '@placeos/common';
                     'Description',
                     ' '
                 ]"
-                [column_size]="['flex', '14r', '10r', '10r', '6.5r']"
+                [column_size]="['16r', 'flex', '10r', '16r', '6.5r']"
                 [template]="{
                     uri: url_template,
                     actions: action_template

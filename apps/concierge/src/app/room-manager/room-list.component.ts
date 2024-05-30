@@ -6,7 +6,7 @@ import { notifySuccess } from '@placeos/common';
 @Component({
     selector: 'room-list',
     template: `
-        <div class="absolute inset-0 overflow-auto px-4">
+        <div class="absolute inset-0 overflow-auto px-8">
             <custom-table
                 class="block min-w-[48rem] w-full h-full"
                 [dataSource]="rooms"

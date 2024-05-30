@@ -234,11 +234,17 @@ export class POIModalComponent extends AsyncHandler {
 
     public selectPOIfromMap() {
         const ref = this._dialog.open(SelectPOIMapModalComponent, {
-            data: this._data,
+            data: {
+                ...this._data,
+                ...this.form.getRawValue(),
+            },
         });
         ref.afterClosed().subscribe((d) => {
             if (!d) return;
-            this.form.patchValue({ location: d });
+            this.form.patchValue({
+                location: d,
+                level_id: ref.componentInstance.level?.id,
+            });
         });
     }
 
@@ -282,20 +288,28 @@ export class POIModalComponent extends AsyncHandler {
         }
         this.loading = true;
         const old_metadata = await showMetadata(
-            this._org.building.id,
-            'map_features',
+            this._org.organisation.id,
+            'points-of-interest',
             {}
         ).toPromise();
         const metadata = old_metadata.details || {};
         if (!metadata[data.level_id]) metadata[data.level_id] = [];
+        if (this._data?.id) {
+            for (const lvl in metadata) {
+                if (metadata[lvl])
+                    metadata[lvl] = metadata[lvl].filter(
+                        (_) => _.id !== data.id
+                    );
+            }
+        }
         metadata[data.level_id] = [
             ...metadata[data.level_id].filter((_) => _.id !== data.id),
             data,
         ].sort((a, b) => a.name.localeCompare(b.name));
-        const resp = await updateMetadata(this._org.building.id, {
-            name: 'map_features',
+        const resp = await updateMetadata(this._org.organisation.id, {
+            name: 'points-of-interest',
             details: metadata,
-            description: '',
+            description: 'Point of Interests for maps',
         })
             .toPromise()
             .catch((e) => notifyError(e));

@@ -37,7 +37,7 @@ import { ParkingStateService } from './parking-state.service';
                     </nav>
                     <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
                 </div>
-                <div class="flex-1 h-1/2 w-full relative overflow-auto px-2">
+                <div class="relative flex-1 h-1/2 w-full overflow-auto px-8">
                     <router-outlet></router-outlet>
                 </div>
                 <div

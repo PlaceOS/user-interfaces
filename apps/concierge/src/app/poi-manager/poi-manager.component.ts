@@ -11,7 +11,7 @@ import { SettingsService } from '@placeos/common';
             <app-sidebar></app-sidebar>
             <main class="flex flex-col flex-1 w-1/2 h-full">
                 <header
-                    class="flex items-center justify-between px-4 py-8"
+                    class="flex items-center justify-between px-8 py-8"
                     [class.mb-2]="
                         !use_region || (buildings | async)?.length <= 1
                     "
@@ -24,7 +24,7 @@ import { SettingsService } from '@placeos/common';
                     </button>
                 </header>
                 <div
-                    class="flex items-center justify-between mb-2 px-4"
+                    class="flex items-center justify-between mb-2 px-8"
                     *ngIf="use_region && (buildings | async)?.length > 1"
                 >
                     <mat-form-field appearance="outline" class="w-64">

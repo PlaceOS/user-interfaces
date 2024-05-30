@@ -4,7 +4,7 @@ import { RegionManagementService } from './region-management.service';
 @Component({
     selector: 'region-list',
     template: `
-        <div class="absolute inset-0 overflow-auto px-4">
+        <div class="absolute inset-0 overflow-auto px-8">
             <custom-table
                 class="block min-w-[32rem] w-full h-full"
                 [dataSource]="regions"

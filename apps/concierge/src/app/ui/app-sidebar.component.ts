@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef } from '@angular/core';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
@@ -271,7 +271,8 @@ export class ApplicationSidebarComponent extends AsyncHandler {
 
     constructor(
         private _settings: SettingsService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _element_ref: ElementRef<HTMLElement>
     ) {
         super();
     }
@@ -284,6 +285,7 @@ export class ApplicationSidebarComponent extends AsyncHandler {
                 this.updateFilteredLinks()
             )
         );
+        this.timeout('update_inview', () => this._moveActiveLinkIntoView(), 50);
     }
 
     public updateFilteredLinks() {
@@ -335,5 +337,15 @@ export class ApplicationSidebarComponent extends AsyncHandler {
                 (_) => _.id !== 'facilities'
             );
         }
+    }
+
+    public _moveActiveLinkIntoView() {
+        const active_link =
+            this._element_ref.nativeElement.querySelector('a.active');
+        if (!active_link) return;
+        active_link.scrollIntoView({
+            block: 'center',
+            behavior: 'instant',
+        });
     }
 }

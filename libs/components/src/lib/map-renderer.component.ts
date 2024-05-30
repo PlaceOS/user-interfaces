@@ -140,6 +140,8 @@ export class MapRendererComponent
     @Input() public labels: ViewerLabel[];
     /** List of available user actions for the SVG */
     @Input() public actions: ViewAction[];
+    /** Number of times to reset the map */
+    @Input() public reset = 0;
 
     @Input() public options: any;
 
@@ -233,6 +235,14 @@ export class MapRendererComponent
             ) {
                 this.timeout('update_view', () => this.updateView());
             }
+        }
+        if (
+            changes.reset &&
+            changes.reset.currentValue !== changes.reset.previousValue
+        ) {
+            this.zoom = 1;
+            this.center = { x: 0.5, y: 0.5 };
+            this.updateDisplay();
         }
     }
 

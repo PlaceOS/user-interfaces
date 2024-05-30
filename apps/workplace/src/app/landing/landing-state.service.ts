@@ -223,34 +223,23 @@ export class LandingStateService extends AsyncHandler {
         let users = [...this._contacts.getValue()];
         users.push(user);
         users = unique(users, 'email');
-        const metadata = await updateMetadata(currentUser().id, {
+        await updateMetadata(currentUser().id, {
             name: 'contacts',
             description: 'Contacts for the User',
             details: users,
         }).toPromise();
-        const list = metadata.details instanceof Array ? metadata.details : [];
-        const new_users = await Promise.all(
-            list.map((_) =>
-                showUser(_.email)
-                    .toPromise()
-                    .catch(() => (_.email === user.email ? user : null))
-            )
-        );
-        this._contacts.next(
-            new_users.filter((_) => !!_).map((i) => new StaffUser(i))
-        );
+        this.updateContacts();
     }
 
     public async removeContact(user: User) {
         let users = [...this._contacts.getValue()];
         users = users.filter((u) => u.email !== user.email);
-        const metadata = await updateMetadata(currentUser().id, {
+        await updateMetadata(currentUser().id, {
             name: 'contacts',
             description: 'Contacts for the User',
             details: users,
         }).toPromise();
-        const list = metadata.details instanceof Array ? metadata.details : [];
-        this._contacts.next(list.map((i) => new User(i)));
+        this.updateContacts();
     }
 
     private async updateOccupancy(map: HashMap<{ recommendation: number }>) {

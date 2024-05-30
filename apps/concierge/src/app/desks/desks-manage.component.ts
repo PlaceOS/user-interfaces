@@ -23,9 +23,8 @@ const QR_CODES = {};
 @Component({
     selector: 'desks-manage',
     template: `
-        <div class="w-full h-4"></div>
         <div
-            class="w-full relative pl-8 pb-4"
+            class="overflow-auto h-full w-full pb-4"
             [style.margin-bottom]="changed > 0 ? '4rem' : ''"
             (dragenter)="handleDrag('enter', $event)"
             (window:dragend)="handleDrag('end', $event)"
