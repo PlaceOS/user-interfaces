@@ -46,15 +46,14 @@ export interface ParkingSpace {
 
 export interface ParkingUser {
     id: string;
-    email: string;
     name: string;
-    transponder: string;
-    designation: string;
+    email: string;
     car_model: string;
     car_colour: string;
     plate_number: string;
     phone: string;
     notes: string;
+    deny: boolean;
 }
 
 @Injectable({
@@ -225,6 +224,7 @@ export class ParkingStateService extends AsyncHandler {
 
     /** Add or update a space in the available list */
     public async editUser(user?: ParkingUser) {
+        console.log('Edit User', user);
         const ref = this._dialog.open(ParkingUserModalComponent, {
             data: user,
         });
@@ -235,19 +235,19 @@ export class ParkingStateService extends AsyncHandler {
                 .toPromise(),
         ]);
         if (state?.reason !== 'done') return;
-        const zone = this._options.getValue().zones[0];
-        const new_space = {
+        const zone = this._org.building.id;
+        const new_user = {
             ...state.metadata,
-            id: state.metadata.id || `parking-${zone}.${randomInt(999_999)}`,
+            id: state.metadata.id || `P:USR-${randomInt(999_999)}`,
         };
-        const spaces = await this.spaces.pipe(take(1)).toPromise();
-        const idx = spaces.findIndex((_) => _.id === new_space.id);
-        if (idx >= 0) spaces[idx] = new_space;
-        else spaces.push(new_space);
-        const new_space_list = spaces;
+        if ('user' in new_user) delete new_user.user;
+        const users = await this.users.pipe(take(1)).toPromise();
+        const idx = users.findIndex((_) => _.id === new_user.id);
+        if (idx >= 0) users[idx] = new_user;
+        else users.push(new_user);
         await updateMetadata(zone, {
             name: 'parking-users',
-            details: new_space_list,
+            details: users,
             description: 'List of available parking users',
         }).toPromise();
         this._change.next(Date.now());

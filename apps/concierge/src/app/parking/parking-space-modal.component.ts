@@ -39,9 +39,10 @@ import { ParkingSpace } from './parking-state.service';
                         formControlName="assigned_user"
                     ></a-user-search-field>
                     <button
-                        btn
+                        icon
                         matRipple
-                        class="mb-5"
+                        class="mb-5 h-12 w-12 min-w-12 rounded bg-secondary text-secondary-content"
+                        matTooltip="Clear Assigned User"
                         (click)="
                             form.patchValue({
                                 assigned_user: null,
@@ -50,7 +51,9 @@ import { ParkingSpace } from './parking-state.service';
                             })
                         "
                     >
-                        Clear
+                        <app-icon className="material-symbols-outlined">
+                            person_cancel
+                        </app-icon>
                     </button>
                 </div>
                 <label for="notes">Notes</label>

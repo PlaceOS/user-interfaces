@@ -1,30 +1,14 @@
 import { Component } from '@angular/core';
-import { ParkingStateService, ParkingUser } from './parking-state.service';
-import { FormControl, FormGroup } from '@angular/forms';
-import { map, take } from 'rxjs/operators';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { randomInt } from '@placeos/common';
-
-const generateUserForm = (user?: ParkingUser) =>
-    new FormGroup({
-        id: new FormControl(user.id || ''),
-        email: new FormControl(user.email || ''),
-        name: new FormControl(user.name || ''),
-        transponder: new FormControl(user.transponder || ''),
-        designation: new FormControl(user.designation || ''),
-        car_model: new FormControl(user.car_model || ''),
-        car_colour: new FormControl(user.car_colour || ''),
-        plate_number: new FormControl(user.plate_number || ''),
-        phone: new FormControl(user.phone || ''),
-        notes: new FormControl(user.notes || ''),
-    });
+import { ParkingStateService } from './parking-state.service';
+import { FormGroup } from '@angular/forms';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
     selector: 'parking-users-list',
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
             <custom-table
-                class="block min-w-[72rem]"
+                class="block min-w-[76rem]"
                 [dataSource]="user_list"
                 [columns]="[
                     'name',
@@ -44,7 +28,7 @@ const generateUserForm = (user?: ParkingUser) =>
                     '10r',
                     '10r',
                     '10r',
-                    '5r',
+                    '3.5r',
                     '6r'
                 ]"
                 [template]="{
@@ -62,7 +46,7 @@ const generateUserForm = (user?: ParkingUser) =>
                     <app-icon>close</app-icon>
                 </div>
             </ng-template>
-            <ng-template #action_template let-form="row">
+            <ng-template #action_template let-row="row">
                 <div class="w-full flex items-center justify-end space-x-2">
                     <button
                         icon
