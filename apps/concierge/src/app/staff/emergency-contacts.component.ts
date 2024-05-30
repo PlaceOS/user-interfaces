@@ -33,15 +33,19 @@ export interface EmergencyContactData {
                     <div class="flex items-center justify-between">
                         <h2 class="text-2xl font-medium">Emergency Contacts</h2>
                         <div class="flex items-center space-x-2">
-                            <button
-                                icon
-                                matRipple
-                                class="bg-secondary text-secondary-content rounded"
-                                matTooltip="Manage Roles"
-                                (click)="manageRoles()"
+                            <mat-form-field
+                                class="no-subscript"
+                                appearance="outline"
                             >
-                                <app-icon>list_alt</app-icon>
-                            </button>
+                                <app-icon class="text-2xl" matPrefix>
+                                    search
+                                </app-icon>
+                                <input
+                                    matInput
+                                    [(ngModel)]="search"
+                                    placeholder="Filter contacts..."
+                                />
+                            </mat-form-field>
                             <button
                                 btn
                                 matRipple
@@ -73,25 +77,21 @@ export interface EmergencyContactData {
                             </mat-select>
                         </mat-form-field>
                         <div class="flex items-center space-x-2">
-                            <mat-form-field
-                                class="no-subscript"
-                                appearance="outline"
+                            <button
+                                icon
+                                matRipple
+                                class="h-12 w-12 bg-secondary text-secondary-content rounded"
+                                matTooltip="Manage Roles"
+                                (click)="manageRoles()"
                             >
-                                <app-icon class="text-2xl" matPrefix>
-                                    search
-                                </app-icon>
-                                <input
-                                    matInput
-                                    [(ngModel)]="search"
-                                    placeholder="Filter contacts..."
-                                />
-                            </mat-form-field>
+                                <app-icon>list_alt</app-icon>
+                            </button>
                         </div>
                     </div>
                 </section>
                 <section class="w-full h-1/2 flex-1 overflow-auto px-8">
                     <custom-table
-                        class="min-w-[40rem] block"
+                        class="min-w-[60rem] block"
                         [dataSource]="filtered_contacts"
                         [filter]="search"
                         [columns]="[

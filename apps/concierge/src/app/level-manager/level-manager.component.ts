@@ -9,10 +9,10 @@ import { LevelManagementService } from './level-management.service';
             <app-sidebar></app-sidebar>
             <main class="flex flex-col flex-1 w-1/2 h-full">
                 <header
-                    class="flex items-center justify-between mb-2 px-4 py-8"
+                    class="flex items-center justify-between mb-2 px-8 pt-4 pb-8"
                 >
                     <h2 class="text-2xl font-medium">Level Management</h2>
-                    <button btn matRipple (click)="newLevel()">
+                    <button btn matRipple (click)="newLevel()" class="w-40">
                         Add Level
                     </button>
                 </header>

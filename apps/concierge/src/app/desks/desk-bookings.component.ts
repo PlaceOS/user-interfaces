@@ -7,8 +7,7 @@ import { SettingsService } from '@placeos/common';
 @Component({
     selector: 'desk-bookings',
     template: `
-        <div class="w-full h-4"></div>
-        <div class="overflow-auto h-full w-full px-4 pb-4">
+        <div class="overflow-auto h-full w-full pb-4">
             <custom-table
                 class="min-w-[76rem] block"
                 [dataSource]="bookings"

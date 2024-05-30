@@ -11,6 +11,7 @@ import {
     notifyError,
     notifySuccess,
     openConfirmModal,
+    SettingsService,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
@@ -69,8 +70,30 @@ export class ParkingStateService extends AsyncHandler {
     });
     private _loading = new BehaviorSubject<string[]>([]);
     /** List of available parking levels for the current building */
-    public levels = this._org.active_levels.pipe(
-        map((_) => _.filter((lvl) => lvl.tags.includes('parking')))
+    public levels = this._org.level_list.pipe(
+        map((_) => {
+            if (!this._settings.get('app.use_region')) {
+                const blds = this._org.buildingsForRegion();
+                const bld_ids = blds.map((bld) => bld.id);
+                const list = _.filter(
+                    (lvl) =>
+                        bld_ids.includes(lvl.parent_id) &&
+                        lvl.tags.includes('parking')
+                );
+                list.map((lvl) => ({
+                    ...lvl,
+                    display_name: `${
+                        blds.find((_) => _.id === lvl.parent_id)?.display_name
+                    } - ${lvl.display_name}`,
+                }));
+                return list;
+            }
+            return _.filter(
+                (lvl) =>
+                    lvl.parent_id === this._org.building.id &&
+                    lvl.tags.includes('parking')
+            );
+        })
     );
     /** List of parking spaces for the current building/level */
     public spaces = combineLatest([
@@ -137,7 +160,9 @@ export class ParkingStateService extends AsyncHandler {
                 type: 'parking',
                 zones: options.zones?.length
                     ? options.zones.join(',')
-                    : bld?.id,
+                    : (this._settings.get('app.use_region')
+                          ? this._org.region?.id
+                          : '') || bld?.id,
             });
         }),
         tap(() =>
@@ -151,7 +176,11 @@ export class ParkingStateService extends AsyncHandler {
     public readonly options = this._options.asObservable();
     public readonly loading = this._loading.asObservable();
 
-    constructor(private _org: OrganisationService, private _dialog: MatDialog) {
+    constructor(
+        private _org: OrganisationService,
+        private _dialog: MatDialog,
+        private _settings: SettingsService
+    ) {
         super();
     }
 
