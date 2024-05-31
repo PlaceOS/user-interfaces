@@ -4,36 +4,31 @@ import { ParkingStateService } from './parking-state.service';
 @Component({
     selector: 'parking-bookings-list',
     template: `
-        <custom-table
-            class="block min-w-[60rem]"
-            [dataSource]="events"
+        <simple-table
+            class="min-w-[76rem] block text-sm"
+            [data]="events"
             [columns]="[
-                'asset_name',
-                'booked_by_name',
-                'user_name',
-                'plate_number',
-                'status',
-                'actions'
+                { key: 'asset_name', name: 'Bay Number' },
+                { key: 'booked_by_name', name: 'Reserved By' },
+                { key: 'user_name', name: 'Reverved For' },
+                {
+                    key: 'plate_number',
+                    name: 'Plate Number',
+                    content: plate_template
+                },
+                { key: 'status', name: 'Status', content: status_template },
+                {
+                    key: 'actions',
+                    name: ' ',
+                    content: action_template,
+                    size: '7.5rem'
+                }
             ]"
-            [display_column]="[
-                'Bay No.',
-                'Reserved By',
-                'Reserved For',
-                'Car Plate #',
-                'Status',
-                ' '
-            ]"
-            [filter]="(options | async).search"
-            [column_size]="['6r', 'flex', '14r', '8r', '6r', '6r']"
-            [template]="{
-                plate_number: plate_template,
-                actions: action_template,
-                status: status_template
-            }"
-            [class.opacity-50]="(loading | async)?.includes('bookings')"
-        ></custom-table>
+            [filter]="(options | async)?.search"
+            [sortable]="true"
+        ></simple-table>
         <ng-template #plate_template let-row="row">
-            {{ row?.extension_data?.plate_number }}
+            <div class="p-4">{{ row?.extension_data?.plate_number }}</div>
         </ng-template>
         <ng-template #status_template let-data="data">
             <span

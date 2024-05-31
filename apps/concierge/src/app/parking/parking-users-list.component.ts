@@ -7,37 +7,33 @@ import { BehaviorSubject } from 'rxjs';
     selector: 'parking-users-list',
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
-            <custom-table
-                class="block min-w-[76rem]"
-                [dataSource]="user_list"
+            <simple-table
+                class="min-w-[76rem] block text-sm"
+                [data]="user_list"
                 [columns]="[
-                    'name',
-                    'email',
-                    'car_colour',
-                    'plate_number',
-                    'phone',
-                    'notes',
-                    'deny',
-                    'actions'
+                    { key: 'name', name: 'Name' },
+                    { key: 'email', name: 'Email' },
+                    { key: 'car_colour', name: 'Car Colour' },
+                    { key: 'plate_number', name: 'Plate Number' },
+                    { key: 'phone', name: 'Phone' },
+                    { key: 'notes', name: 'Notes' },
+                    {
+                        key: 'deny',
+                        name: 'Deny',
+                        size: '4.5rem',
+                        content: denied_template
+                    },
+                    {
+                        key: 'actions',
+                        name: ' ',
+                        content: action_template,
+                        sortable: false,
+                        size: '7.5rem'
+                    }
                 ]"
-                [display_column]="['', '', '', '', '', '', '', ' ']"
-                [column_size]="[
-                    '10r',
-                    'flex',
-                    '10r',
-                    '10r',
-                    '10r',
-                    '10r',
-                    '3.5r',
-                    '6r'
-                ]"
-                [template]="{
-                    actions: action_template,
-                    deny: denied_template
-                }"
-                [filter]="(options | async).search"
-                [class.opacity-50]="(loading | async)?.includes('users')"
-            ></custom-table>
+                [filter]="(options | async)?.search"
+                [sortable]="true"
+            ></simple-table>
             <ng-template #denied_template let-data="data">
                 <div
                     *ngIf="data"
@@ -47,7 +43,9 @@ import { BehaviorSubject } from 'rxjs';
                 </div>
             </ng-template>
             <ng-template #action_template let-row="row">
-                <div class="w-full flex items-center justify-end space-x-2">
+                <div
+                    class="w-full flex items-center justify-end space-x-2 px-4"
+                >
                     <button
                         icon
                         matRipple

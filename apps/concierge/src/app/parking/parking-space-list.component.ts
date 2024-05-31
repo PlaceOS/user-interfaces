@@ -5,33 +5,32 @@ import { ParkingStateService } from './parking-state.service';
     selector: 'parking-space-list',
     template: `
         <div class="h-full w-full overflow-auto">
-            <custom-table
-                class="block min-w-[56rem]"
-                [dataSource]="spaces"
+            <simple-table
+                class="min-w-[76rem] block text-sm"
+                [data]="spaces"
                 [columns]="[
-                    'name',
-                    'map_id',
-                    'assigned_to',
-                    'notes',
-                    'actions'
+                    { key: 'name', name: 'Name' },
+                    { key: 'map_id', name: 'Bay Number', content: id_template },
+                    { key: 'assigned_to', name: 'Assigned' },
+                    { key: 'notes', name: 'Notes' },
+                    {
+                        key: 'actions',
+                        name: ' ',
+                        content: action_template,
+                        sortable: false,
+                        size: '7.5rem'
+                    }
                 ]"
-                [display_column]="[
-                    'Bay No.',
-                    'Map ID',
-                    'Assigned',
-                    'Notes',
-                    ' '
-                ]"
-                [column_size]="['8r', '10r', '14r', 'flex', '6r']"
-                [template]="{ actions: action_template }"
-                [filter]="(options | async).search"
-                [class.opacity-50]="(loading | async)?.includes('spaces')"
-            ></custom-table>
+                [filter]="(options | async)?.search"
+                [sortable]="true"
+            ></simple-table>
             <ng-template #id_template let-data="data">
-                <span class="font-mono text-sm">{{ data }}</span>
+                <span class="font-mono text-sm p-4">{{ data }}</span>
             </ng-template>
             <ng-template #action_template let-row="row">
-                <div class="w-full flex items-center justify-end space-x-2">
+                <div
+                    class="w-full flex items-center justify-end space-x-2 px-4"
+                >
                     <button
                         icon
                         matRipple
