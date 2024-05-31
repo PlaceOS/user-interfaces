@@ -10,7 +10,7 @@ import { ParkingStateService } from './parking-state.service';
 @Component({
     selector: 'parking-topbar',
     template: `
-        <div class="flex items-center w-full pt-4 px-8 space-x-2">
+        <div class="flex items-center w-full py-4 px-8 space-x-2">
             <h2 class="text-2xl font-medium">
                 {{
                     path === 'events'
@@ -55,8 +55,8 @@ import { ParkingStateService } from './parking-state.service';
                 <app-icon>add</app-icon>
             </button>
         </div>
-        <div class="flex items-center bg-base-100 px-8 h-20">
-            <mat-form-field appearance="outline" class="w-56">
+        <div class="flex items-center bg-base-100 px-8 mb-2 h-14">
+            <mat-form-field appearance="outline" class="w-56 no-subscript">
                 <mat-select
                     [(ngModel)]="zones"
                     (ngModelChange)="updateZones($event)"
@@ -168,14 +168,10 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'router.events',
             this._router.events.subscribe((e) => {
-                if (e instanceof NavigationEnd) {
-                    const url_parts = this._router.url?.split('/') || [''];
-                    this.path = url_parts[parts.length - 1].split('?')[0];
-                }
+                if (e instanceof NavigationEnd) this._updatePath();
             })
         );
-        const parts = this._router.url?.split('/') || [''];
-        this.path = parts[parts.length - 1].split('?')[0];
+        this._updatePath();
     }
 
     public newParkingSpace() {
@@ -186,5 +182,18 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         this._state.editUser();
     }
 
-    public newReservation() {}
+    public newReservation() {
+        this._state.editReservation();
+    }
+
+    private _updatePath() {
+        this.timeout(
+            'update_path',
+            () => {
+                const parts = this._router.url?.split('/') || [''];
+                this.path = parts[parts.length - 1].split('?')[0];
+            },
+            50
+        );
+    }
 }

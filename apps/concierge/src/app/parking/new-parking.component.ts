@@ -22,14 +22,26 @@ import { ParkingStateService } from './parking-state.service';
                         </a>
                         <a
                             mat-tab-link
-                            [routerLink]="['/book', 'parking', 'new', 'users']"
+                            [routerLink]="[
+                                '/book',
+                                'parking',
+                                'new',
+                                'manage',
+                                'users'
+                            ]"
                             [active]="path === 'users'"
                         >
                             Users
                         </a>
                         <a
                             mat-tab-link
-                            [routerLink]="['/book', 'parking', 'new', 'map']"
+                            [routerLink]="[
+                                '/book',
+                                'parking',
+                                'new',
+                                'manage',
+                                'map'
+                            ]"
                             [active]="path === 'map'"
                         >
                             Map
@@ -88,13 +100,20 @@ export class NewParkingComponent extends AsyncHandler {
         this.subscription(
             'router.events',
             this._router.events.subscribe((e) => {
-                if (e instanceof NavigationEnd) {
-                    const url_parts = this._router.url?.split('/') || [''];
-                    this.path = url_parts[parts.length - 1].split('?')[0];
-                }
+                if (e instanceof NavigationEnd) this._updatePath();
             })
         );
-        const parts = this._router.url?.split('/') || [''];
-        this.path = parts[parts.length - 1].split('?')[0];
+        this._updatePath();
+    }
+
+    private _updatePath() {
+        this.timeout(
+            'update_path',
+            () => {
+                const parts = this._router.url?.split('/') || [''];
+                this.path = parts[parts.length - 1].split('?')[0];
+            },
+            50
+        );
     }
 }

@@ -30,6 +30,7 @@ import {
 } from 'rxjs/operators';
 import { ParkingSpaceModalComponent } from './parking-space-modal.component';
 import { ParkingUserModalComponent } from './parking-user-modal.component';
+import { ParkingBookingModalComponent } from './parking-booking-modal.component';
 
 export interface ParkingOptions {
     date: number;
@@ -303,6 +304,12 @@ export class ParkingStateService extends AsyncHandler {
             description: 'List of available parking users',
         }).toPromise();
         state.close();
+    }
+
+    public async editReservation(reservation?: Booking) {
+        this._dialog.open(ParkingBookingModalComponent, {
+            data: reservation,
+        });
     }
 
     public async approveBooking(booking: Booking) {
