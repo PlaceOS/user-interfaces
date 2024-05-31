@@ -17,6 +17,7 @@ export interface TableColumn {
     filterable?: boolean;
     content?: string | TemplateRef<any> | Component;
     size?: string;
+    show?: boolean;
 }
 
 @Component({
@@ -48,7 +49,7 @@ export interface TableColumn {
             <button
                 header
                 matRipple
-                *ngFor="let column of columns; let i = index"
+                *ngFor="let column of active_columns; let i = index"
                 [id]="'column-' + column.key"
                 class="sticky top-0 flex items-center justify-between p-4 border-base-200 bg-base-300 min-h-full"
                 [style.gridArea]="gridSquare(1, 1 + i + (selectable ? 1 : 0))"
@@ -57,7 +58,7 @@ export interface TableColumn {
                 "
                 (click)="setSort(column.key)"
                 [class.active]="sort?.key === column.key"
-                [class.border-r]="i !== columns.length - 1"
+                [class.border-r]="i !== active_columns.length - 1"
                 [class.width]="column.size"
             >
                 <div class="font-medium">{{ column.name || column.key }}</div>
@@ -85,13 +86,13 @@ export interface TableColumn {
                     ></mat-checkbox>
                 </div>
                 <div
-                    *ngFor="let column of columns; let j = index"
+                    *ngFor="let column of active_columns; let j = index"
                     class="flex items-center justify-between border-base-200 min-h-full"
                     [style.gridArea]="
                         gridSquare(2 + i, 1 + j + (selectable ? 1 : 0))
                     "
                     [class.border-b]="i !== (data_view$ | async).length - 1"
-                    [class.border-r]="j !== columns.length - 1"
+                    [class.border-r]="j !== active_columns.length - 1"
                     [class.width]="column.size"
                     (mouseenter)="active_row = i"
                     (touchstart)="active_row = i"
@@ -129,7 +130,7 @@ export interface TableColumn {
             </ng-container>
             <div
                 *ngIf="!(data_view$ | async)?.length"
-                [style.gridColumnStart]="'span ' + columns.length"
+                [style.gridColumnStart]="'span ' + active_columns.length"
                 class="flex items-center justify-center p-8 opacity-30"
             >
                 {{ empty_message }}
@@ -173,6 +174,7 @@ export class SimpleTableComponent<T extends {} = any> {
 
     public page = 0;
     public active_row = -1;
+    public active_columns = [];
 
     private _data$ = new BehaviorSubject<T[]>([]);
     private _filter$ = new BehaviorSubject<string>('');
@@ -191,11 +193,13 @@ export class SimpleTableComponent<T extends {} = any> {
     }
 
     public get column_count() {
-        return this.columns.length + (this.selectable ? 1 : 0);
+        return this.active_columns.length + (this.selectable ? 1 : 0);
     }
 
     public get column_template() {
-        const template = this.columns.map((_) => _.size || 'auto').join(' ');
+        const template = this.active_columns
+            .map((_) => _.size || 'auto')
+            .join(' ');
         return this.selectable ? `3.5rem ${template}` : template;
     }
 
@@ -204,6 +208,9 @@ export class SimpleTableComponent<T extends {} = any> {
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.filter) {
             this._filter$.next(this.filter);
+        }
+        if (changes.columns) {
+            this.active_columns = this.columns.filter((_) => _.show !== false);
         }
         if (changes.data) {
             this.data_view$ = combineLatest([
