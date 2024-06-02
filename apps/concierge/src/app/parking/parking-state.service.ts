@@ -31,6 +31,7 @@ import {
 import { ParkingSpaceModalComponent } from './parking-space-modal.component';
 import { ParkingUserModalComponent } from './parking-user-modal.component';
 import { ParkingBookingModalComponent } from './parking-booking-modal.component';
+import { User } from '@placeos/users';
 
 export interface ParkingOptions {
     date: number;
@@ -306,9 +307,13 @@ export class ParkingStateService extends AsyncHandler {
         state.close();
     }
 
-    public async editReservation(reservation?: Booking) {
+    public async editReservation(
+        reservation?: Booking,
+        user: User = null,
+        link_id?: string
+    ) {
         this._dialog.open(ParkingBookingModalComponent, {
-            data: reservation,
+            data: { booking: reservation, user, link_id },
         });
     }
 

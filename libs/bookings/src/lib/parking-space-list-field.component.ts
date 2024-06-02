@@ -42,14 +42,22 @@ const EMPTY_FAVS: string[] = [];
                     </div>
                     <div class="flex items-center text-sm space-x-2">
                         <app-icon class="text-blue-500">place</app-icon>
-                        <p>{{ space.location }}</p>
+                        <p>
+                            {{
+                                space.location ||
+                                    space.level?.display_name ||
+                                    space.level?.name ||
+                                    space.zone?.display_name ||
+                                    space.zone?.name
+                            }}
+                        </p>
                     </div>
                     <div class="flex items-center text-sm space-x-2">
                         <app-icon class="text-blue-500">people</app-icon>
                         <p i18n>
-                            {{ space.capacity < 1 ? 2 : space.capacity }} {
-                            space.capacity, plural, =1 { Person } other { People
-                            } }
+                            {{ space.capacity < 1 ? 2 : space.capacity || 1 }} {
+                            (space.capacity < 1 ? 2 : space.capacity || 1),
+                            plural, =1 { Person } other { People } }
                         </p>
                     </div>
                     <div
@@ -63,8 +71,8 @@ const EMPTY_FAVS: string[] = [];
                             (click)="changeResources(space)"
                         >
                             <div class="flex items-center space-x-2" i18n>
-                                <app-icon>edit</app-icon>
-                                Change
+                                <app-icon class="text-2xl">edit</app-icon>
+                                <div>Change</div>
                             </div>
                         </button>
                         <button
@@ -75,8 +83,8 @@ const EMPTY_FAVS: string[] = [];
                             (click)="removeResource(space)"
                         >
                             <div class="flex items-center space-x-2" i18n>
-                                <app-icon>close</app-icon>
-                                Remove
+                                <app-icon class="text-2xl">close</app-icon>
+                                <div>Remove</div>
                             </div>
                         </button>
                     </div>
@@ -105,7 +113,7 @@ const EMPTY_FAVS: string[] = [];
             (click)="changeResources()"
         >
             <div class="flex items-center justify-center space-x-2">
-                <app-icon>search</app-icon>
+                <app-icon class="text-2xl">search</app-icon>
                 <span i18n>Add Parking Resource</span>
             </div>
         </button>

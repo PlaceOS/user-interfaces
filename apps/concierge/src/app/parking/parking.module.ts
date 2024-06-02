@@ -17,6 +17,7 @@ import { ParkingUsersListComponent } from './parking-users-list.component';
 import { ParkingUserModalComponent } from './parking-user-modal.component';
 import { ParkingMapComponent } from './parking-map.component';
 import { ParkingBookingModalComponent } from './parking-booking-modal.component';
+import { SharedBookingsModule } from '@placeos/bookings';
 
 const COMPONENTS = [
     NewParkingComponent,
@@ -66,6 +67,7 @@ const ROUTES: Route[] = [
         FormFieldsModule,
         MatTabsModule,
         MatProgressBarModule,
+        SharedBookingsModule,
         RouterModule.forChild(ROUTES),
     ],
 })
