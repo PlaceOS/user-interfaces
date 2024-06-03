@@ -115,7 +115,7 @@
         "jsonc-eslint-parser": "^2.1.0",
         "marked": "^4.3.0",
         "material-symbols": "^0.18.0",
-        "ng-mocks": "^14.12.2",
+        "ng-mocks": "^14.13.0",
         "nx": "19.1.0",
         "postcss": "^8.4.31",
         "postcss-preset-env": "7.5.0",
