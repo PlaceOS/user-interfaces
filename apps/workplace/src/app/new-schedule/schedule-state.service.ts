@@ -361,20 +361,22 @@ export class ScheduleStateService extends AsyncHandler {
                             booking.date,
                             auto_release.time_after || 0
                         );
+                        const wording =
+                            type === 'parking' ? 'reservation' : 'booking';
                         const result = await openConfirmModal(
                             {
-                                title: `Keep ${type} booking`,
+                                title: `Keep ${type} ${wording}`,
                                 content: `You have indicated you are not in the office. 
-                                Your booking "<i>${
-                                    booking.title
-                                }</i>" for ${format(
+                                Your  ${wording} for "<i>${
+                                    booking.asset_name || booking.title
+                                }</i>" at ${format(
                                     booking.date,
                                     this._settings.time_format
                                 )} will be cancelled at ${format(
                                     time,
                                     this._settings.time_format
                                 )}.<br/><br/>
-                                Do you wish to keep this booking?`,
+                                Do you wish to keep this ${wording}?`,
                                 icon: { content: 'event_busy' },
                                 confirm_text: 'Keep',
                                 cancel_text: 'Dismiss',
