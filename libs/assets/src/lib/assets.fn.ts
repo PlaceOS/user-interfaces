@@ -330,6 +330,9 @@ export function queryGroupAvailability(
         queryBookings(query),
     ]).pipe(
         map(([products, bookings]) => {
+            bookings = bookings.filter(
+                (_) => _.status !== 'declined' && _.status !== 'cancelled'
+            );
             return products.map((product) => ({
                 ...product,
                 assets: product.assets.filter(
