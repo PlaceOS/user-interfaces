@@ -2,17 +2,29 @@ import { Component } from '@angular/core';
 import { map } from 'rxjs/operators';
 
 import { ReportsStateService } from '../reports-state.service';
+import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: '[report-desks]',
     template: `
-        <reports-options></reports-options>
+        <reports-options (printing)="printing = $event"></reports-options>
         <div
             class="relative flex-1 h-1/2 w-full overflow-auto print:overflow-visible print:h-auto"
             printable
         >
             <ng-container *ngIf="!(loading | async); else load_state">
                 <ng-container *ngIf="total_count | async; else empty_state">
+                    <div class="w-full">
+                        <div
+                            class="flex items-center m-4 p-4 rounded bg-base-200 overflow-hidden"
+                        >
+                            <img [src]="logo.src" class="h-12" />
+                            <div class="flex-1"></div>
+                            <h2 class="text-2xl font-medium px-2">
+                                Desks Report
+                            </h2>
+                        </div>
+                    </div>
                     <div
                         class="m-4 p-4 rounded bg-base-100 shadow flex justify-center items-center space-x-2"
                     >
@@ -25,7 +37,9 @@ import { ReportsStateService } from '../reports-state.service';
                             <p>{{ (utilisation | async) || 0 }}%</p>
                         </div>
                     </div>
-                    <report-desks-charts></report-desks-charts>
+                    <report-desks-charts
+                        [print]="printing"
+                    ></report-desks-charts>
                     <report-desks-overall-list
                         [print]="printing"
                     ></report-desks-overall-list>
@@ -50,15 +64,6 @@ import { ReportsStateService } from '../reports-state.service';
                 </div>
             </ng-template>
         </div>
-        <button
-            icon
-            matRipple
-            class="absolute top-24 left-4 bg-secondary text-secondary-content border border-base-200 shadow z-20 print:hidden"
-            (click)="print()"
-            *ngIf="total_count | async"
-        >
-            <app-icon>print</app-icon>
-        </button>
     `,
     styles: [
         `
@@ -88,7 +93,14 @@ export class ReportDesksComponent {
     );
     public readonly loading = this._state.loading;
 
-    constructor(private _state: ReportsStateService) {}
+    public get logo() {
+        return this._settings.get('app.logo_light') || {};
+    }
+
+    constructor(
+        private _state: ReportsStateService,
+        private _settings: SettingsService
+    ) {}
 
     public print() {
         this.printing = true;

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first, map } from 'rxjs/operators';
 
@@ -68,6 +68,15 @@ import { combineLatest } from 'rxjs';
             >
                 <p>Download Data</p>
             </button>
+            <button
+                icon
+                matRipple
+                class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                *ngIf="(bookings | async)?.length"
+                (click)="print()"
+            >
+                <app-icon>print</app-icon>
+            </button>
         </div>
     `,
     styles: [
@@ -86,6 +95,7 @@ import { combineLatest } from 'rxjs';
     ],
 })
 export class ReportsOptionsComponent extends AsyncHandler {
+    @Output() public printing = new EventEmitter<boolean>();
     /** List of selected levels */
     public zones: string[] = [];
 
@@ -195,5 +205,13 @@ export class ReportsOptionsComponent extends AsyncHandler {
                     });
             })
         );
+    }
+
+    public print() {
+        this.printing.emit(true);
+        setTimeout(() => {
+            window.print();
+            this.printing.emit(false);
+        }, 300);
     }
 }

@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
+import { SettingsService } from '@placeos/common';
 
 @Component({
     selector: 'catering-report',
     template: `
-        <reports-options></reports-options>
+        <reports-options (printing)="printing = $event"></reports-options>
         <div
             class="relative flex-1 h-1/2 w-full overflow-auto print:overflow-visible print:h-auto"
             printable
@@ -16,6 +17,17 @@ import { ReportsStateService } from '../reports-state.service';
                     printable
                     *ngIf="total_count | async; else empty_state"
                 >
+                    <div class="w-full">
+                        <div
+                            class="flex items-center m-4 p-4 rounded bg-base-200 overflow-hidden"
+                        >
+                            <img [src]="logo.src" class="h-12" />
+                            <div class="flex-1"></div>
+                            <h2 class="text-2xl font-medium px-2">
+                                Rooms Report
+                            </h2>
+                        </div>
+                    </div>
                     <catering-report-overall></catering-report-overall>
                     <catering-report-orders></catering-report-orders>
                     <catering-report-items></catering-report-items>
@@ -49,12 +61,21 @@ import { ReportsStateService } from '../reports-state.service';
     ],
 })
 export class CateringReportComponent implements OnInit {
+    public printing = false;
+
     public readonly total_count = this._state.stats.pipe(
         map((i) => i.count || 0)
     );
     public readonly loading = this._state.loading;
 
-    constructor(private _state: ReportsStateService) {}
+    public get logo() {
+        return this._settings.get('app.logo_light') || {};
+    }
+
+    constructor(
+        private _state: ReportsStateService,
+        private _settings: SettingsService
+    ) {}
 
     public ngOnInit() {
         this._state.setOptions({ type: 'events' });

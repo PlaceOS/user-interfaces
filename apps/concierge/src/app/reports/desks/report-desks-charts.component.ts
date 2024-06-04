@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input, SimpleChanges } from '@angular/core';
 import { ReportsStateService } from '../reports-state.service';
 
 import { LineChart, PieChart } from 'chartist';
@@ -6,11 +6,15 @@ import { AsyncHandler } from '@placeos/common';
 import { format } from 'date-fns';
 import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 @Component({
     selector: 'report-desks-charts',
     template: `
-        <div class="flex items-center space-x-4 w-full px-4">
+        <div
+            class="flex items-center space-x-4 w-full px-4"
+            (window:resize)="updateCharts()"
+        >
             <div
                 class="bg-base-100 border border-base-200 rounded shadow flex-1"
             >
@@ -20,7 +24,8 @@ import { combineLatest } from 'rxjs';
                 <div
                     id="day-chart"
                     #util_chart
-                    class="ct-chart ct-octave !w-full h-56"
+                    class="ct-chart ct-octave max-w-full h-56"
+                    [style.width]="print ? '8cm' : 'auto'"
                 ></div>
             </div>
             <div
@@ -32,7 +37,8 @@ import { combineLatest } from 'rxjs';
                 <div
                     id="level-chart"
                     #level_chart
-                    class="ct-chart ct-octave !w-full h-56"
+                    class="ct-chart ct-octave max-w-full h-56"
+                    [style.width]="print ? '8cm' : 'auto'"
                 ></div>
             </div>
         </div>
@@ -46,6 +52,7 @@ import { combineLatest } from 'rxjs';
     ],
 })
 export class ReportDesksChartsComponent extends AsyncHandler {
+    @Input() public print: boolean = false;
     public readonly day_list = this._state.day_list;
     public readonly stats = combineLatest([
         this._state.options,
@@ -71,6 +78,19 @@ export class ReportDesksChartsComponent extends AsyncHandler {
             'stats',
             this.stats.subscribe(([o, c]) => this.updateLevelChart(o, c))
         );
+    }
+
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes.print) {
+            this.timeout('update_charts', () => this.updateCharts(), 50);
+        }
+    }
+
+    public async updateCharts() {
+        const day_list = await this.day_list.pipe(take(1)).toPromise();
+        this.updateDailyChart(day_list);
+        const stats = await this.stats.pipe(take(1)).toPromise();
+        this.updateLevelChart(stats[0], stats[1]);
     }
 
     public updateDailyChart(list) {

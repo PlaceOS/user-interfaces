@@ -6,7 +6,9 @@ import { SettingsService } from '@placeos/common';
 @Component({
     selector: 'app-contact-tracing-report',
     template: `
-        <contact-tracing-options></contact-tracing-options>
+        <contact-tracing-options
+            (printing)="printing = $event"
+        ></contact-tracing-options>
         <div
             class="relative flex-1 h-1/2 w-full overflow-auto print:overflow-visible print:h-auto"
             printable
@@ -17,6 +19,17 @@ import { SettingsService } from '@placeos/common';
                     printable
                     *ngIf="(options | async)?.user; else empty_state"
                 >
+                    <div class="w-full">
+                        <div
+                            class="flex items-center m-4 p-4 rounded bg-base-200 overflow-hidden"
+                        >
+                            <img [src]="logo.src" class="h-12" />
+                            <div class="flex-1"></div>
+                            <h2 class="text-2xl font-medium px-2">
+                                Contact Tracing Report
+                            </h2>
+                        </div>
+                    </div>
                     <div
                         class="border-b border-base-200 flex items-center justify-between px-4"
                     >
@@ -112,6 +125,8 @@ import { SettingsService } from '@placeos/common';
     ],
 })
 export class ContactTracingReportComponent {
+    public printing = false;
+
     public readonly loading = this._state.loading;
     public readonly options = this._state.options;
     public readonly tracing_events = this._state.events;
@@ -123,6 +138,10 @@ export class ContactTracingReportComponent {
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public get logo() {
+        return this._settings.get('app.logo_light') || {};
     }
 
     constructor(
