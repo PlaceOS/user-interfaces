@@ -79,7 +79,12 @@ export class RoleManagementModalComponent {
     ]).pipe(
         filter(([bld]) => !!bld),
         switchMap(([bld]) => showMetadata(bld.id, 'emergency_contacts')),
-        map(({ details }) => (details as any) || { roles: [], contacts: [] }),
+        map(({ details }) => {
+            const value = (details as any) || { roles: [], contacts: [] };
+            if (!value.roles) value.roles = [];
+            if (!value.contacts) value.contacts = [];
+            return value;
+        }),
         shareReplay(1)
     );
     public readonly roles = this.data.pipe(map((_) => _.roles));
