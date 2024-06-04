@@ -28,6 +28,7 @@ import { AsyncHandler } from '@placeos/common';
                     <a-user-search-field
                         name="organiser"
                         formControlName="organiser"
+                        class="mb-4"
                     ></a-user-search-field>
                 </div>
                 <div>

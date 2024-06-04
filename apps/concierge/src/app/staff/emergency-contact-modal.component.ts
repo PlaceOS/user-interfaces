@@ -25,6 +25,7 @@ import { CustomTooltipComponent } from '@placeos/components';
                     ngModel
                     (ngModelChange)="setUser($event)"
                     [ngModelOptions]="{ standalone: true }"
+                    class="mb-4"
                 ></a-user-search-field>
                 <div class="flex flex-col">
                     <label for="name">Name:</label>

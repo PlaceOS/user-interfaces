@@ -44,6 +44,7 @@ import { User } from 'libs/users/src/lib/user.class';
                     <label>Host</label>
                     <a-user-search-field
                         formControlName="user"
+                        class="mb-4"
                     ></a-user-search-field>
                 </div>
             </div>

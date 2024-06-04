@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CateringOption } from '@placeos/catering';
 import { OrganisationService } from '@placeos/organisation';
 import { CateringReportStateService } from './catering-report-state.service';
@@ -7,7 +7,7 @@ import { CateringReportStateService } from './catering-report-state.service';
     selector: 'catering-report-items',
     template: `
         <div
-            class="w-[64rem] max-w-[calc(100%-2rem)] rounded overflow-hidden bg-base-100 shadow mx-auto my-2"
+            class="w-[64rem] max-w-[calc(100%-2rem)] rounded overflow-hidden bg-base-100 border border-base-200 mx-auto my-2"
         >
             <div
                 class="border-b border-base-200 flex items-center justify-between px-4"
@@ -37,7 +37,7 @@ import { CateringReportStateService } from './catering-report-state.service';
                     unit_price: cost_state,
                     total_cost: cost_state
                 }"
-                [pagination]="true"
+                [pagination]="print ? false : true"
                 empty="No orders for selected period"
             ></custom-table>
             <ng-template #option_state let-data="data">
@@ -57,6 +57,7 @@ import { CateringReportStateService } from './catering-report-state.service';
     styles: [``],
 })
 export class CateringReportItemsComponent {
+    @Input() public print: boolean = false;
     public readonly items = this._report.catering_items;
 
     public get code() {

@@ -12,7 +12,7 @@ import { ReportsStateService } from '../reports-state.service';
     template: `
         <div class="px-4 pb-2 w-full">
             <div
-                class="rounded bg-base-100 border border-base-200 shadow overflow-hidden w-full"
+                class="rounded bg-base-100 border border-base-200 overflow-hidden w-full"
             >
                 <div class="border-b border-base-200 p-4 flex items-center">
                     <h3 class="font-bold text-xl flex-1">Level Utilisation</h3>

@@ -6,17 +6,27 @@ import { SettingsService } from '@placeos/common';
 @Component({
     selector: 'app-contact-tracing-report',
     template: `
-        <contact-tracing-options></contact-tracing-options>
+        <contact-tracing-options
+            (printing)="printing = $event"
+            (download)="downloadReport()"
+        ></contact-tracing-options>
         <div
             class="relative flex-1 h-1/2 w-full overflow-auto print:overflow-visible print:h-auto"
             printable
         >
-            <ng-container *ngIf="!(loading | async); else load_state">
+            <div class="w-full">
                 <div
-                    class="w-[64rem] max-w-[calc(100%-2rem)] rounded overflow-hidden bg-base-100 shadow mx-auto my-2"
-                    printable
-                    *ngIf="(options | async)?.user; else empty_state"
+                    class="flex items-center m-4 p-4 rounded bg-base-200 overflow-hidden"
                 >
+                    <img [src]="logo.src" class="h-12" />
+                    <div class="flex-1"></div>
+                    <h2 class="text-2xl font-medium px-2">
+                        Contact Tracing Report
+                    </h2>
+                </div>
+            </div>
+            <ng-container *ngIf="!(loading | async); else load_state">
+                <ng-container *ngIf="(options | async)?.user; else empty_state">
                     <div
                         class="border-b border-base-200 flex items-center justify-between px-4"
                     >
@@ -72,18 +82,9 @@ import { SettingsService } from '@placeos/common';
                     <ng-template #distance_state let-data="data">
                         {{ data }}m
                     </ng-template>
-                </div>
+                </ng-container>
             </ng-container>
         </div>
-        <button
-            icon
-            matRipple
-            class="bg-base-100 absolute bottom-2 left-2 shadow"
-            matTooltip="Download Report"
-            (click)="downloadReport()"
-        >
-            <app-icon>download</app-icon>
-        </button>
         <ng-template #load_state>
             <div
                 class="p-8 flex flex-col items-center justify-center space-y-2"
@@ -112,6 +113,8 @@ import { SettingsService } from '@placeos/common';
     ],
 })
 export class ContactTracingReportComponent {
+    public printing = false;
+
     public readonly loading = this._state.loading;
     public readonly options = this._state.options;
     public readonly tracing_events = this._state.events;
@@ -123,6 +126,10 @@ export class ContactTracingReportComponent {
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public get logo() {
+        return this._settings.get('app.logo_light') || {};
     }
 
     constructor(
