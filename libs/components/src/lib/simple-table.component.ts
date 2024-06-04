@@ -62,7 +62,10 @@ export interface TableColumn {
                 [class.width]="column.size"
             >
                 <div class="font-medium">{{ column.name || column.key }}</div>
-                <app-icon class="text-[1.25em]">
+                <app-icon
+                    class="text-[1.25em]"
+                    *ngIf="sortable && column.sortable !== false"
+                >
                     {{
                         sort?.key === column.key && sort?.reverse
                             ? 'arrow_upward'

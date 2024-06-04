@@ -151,10 +151,11 @@ export class ParkingStateService extends AsyncHandler {
     public bookings = combineLatest([
         this._org.active_building,
         this._options,
+        this.users,
         this._poll,
     ]).pipe(
         debounceTime(500),
-        switchMap(([bld, options]) => {
+        switchMap(([bld, options, users]) => {
             this._loading.next([...this._loading.getValue(), 'bookings']);
             return queryBookings({
                 period_start: getUnixTime(startOfDay(options.date)),
@@ -165,7 +166,24 @@ export class ParkingStateService extends AsyncHandler {
                     : (this._settings.get('app.use_region')
                           ? this._org.region?.id
                           : '') || bld?.id,
-            });
+            }).pipe(
+                map((list) => {
+                    for (const booking of list) {
+                        const user = users.find(
+                            (_) =>
+                                _.email.toLowerCase() ===
+                                booking.user_email.toLowerCase()
+                        );
+                        console.log('User:', user, users);
+                        if (user) {
+                            booking.extension_data.plate_number =
+                                booking.extension_data.plate_number ||
+                                user.plate_number;
+                        }
+                    }
+                    return list;
+                })
+            );
         }),
         tap(() =>
             this._loading.next(

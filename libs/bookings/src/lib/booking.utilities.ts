@@ -62,6 +62,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         user_id: new FormControl(booking.user_id),
         group: new FormControl(booking.group),
         user_email: new FormControl(booking.user_email),
+        user_name: new FormControl(booking.user_name),
         timezone: new FormControl(booking.timezone || ''),
         booked_by: new FormControl(currentUser()),
         booked_by_id: new FormControl(booking.booked_by_id),
@@ -78,6 +79,9 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         permission: new FormControl(booking.permission || 'PRIVATE'),
         images: new FormControl(booking.images || []),
         tags: new FormControl(booking.tags || []),
+        plate_number: new FormControl(
+            booking.extension_data.plate_number || ''
+        ),
     });
     form.valueChanges.subscribe((v) => {
         const user = v.user;
@@ -85,8 +89,10 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         booker || user
             ? form.patchValue(
                   {
+                      user: user || booker,
                       user_id: user?.id || booker?.id,
-                      user_email: user?.email || booker?.id,
+                      user_email: user?.email || booker?.email,
+                      name: user?.name || booker?.name,
                       booked_by_id: booker?.id,
                       booked_by_email: booker?.email,
                   },

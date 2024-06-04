@@ -13,8 +13,12 @@ import { BehaviorSubject } from 'rxjs';
                 [columns]="[
                     { key: 'name', name: 'Name' },
                     { key: 'email', name: 'Email' },
-                    { key: 'car_colour', name: 'Car Colour' },
-                    { key: 'plate_number', name: 'Plate Number' },
+                    { key: 'car_color', name: 'Car Colour' },
+                    {
+                        key: 'plate_number',
+                        name: 'Plate Number',
+                        content: plate_template
+                    },
                     { key: 'phone', name: 'Phone' },
                     { key: 'notes', name: 'Notes' },
                     {
@@ -40,6 +44,12 @@ import { BehaviorSubject } from 'rxjs';
                     class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-error text-error-content mx-auto"
                 >
                     <app-icon>close</app-icon>
+                </div>
+            </ng-template>
+            <ng-template #plate_template let-data="data">
+                <div class="p-4 font-mono text-sm">
+                    {{ data }}
+                    <span *ngIf="!data" class="opacity-30">N/A</span>
                 </div>
             </ng-template>
             <ng-template #action_template let-row="row">

@@ -27,15 +27,19 @@ import { tap } from 'rxjs/operators';
                         key: 'date',
                         name: 'Time',
                         content: date_template,
-                        size: '8rem'
+                        size: '6rem'
                     },
-                    { key: 'asset_name', name: 'Person' },
-                    { key: 'user_name', name: 'Host' },
+                    {
+                        key: 'asset_name',
+                        name: 'Visitor',
+                        content: person_template
+                    },
+                    { key: 'user_name', name: 'Host', content: host_template },
                     {
                         key: 'status',
                         name: 'State',
                         content: status_template,
-                        size: '9.25rem'
+                        size: '9.5rem'
                     },
                     {
                         key: 'induction',
@@ -84,15 +88,34 @@ import { tap } from 'rxjs/operators';
             </div>
             <div
                 *ngIf="row?.checked_in"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-error text-error-content mx-auto"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
                 matTooltip="Checked In"
                 matTooltipPosition="right"
             >
                 <app-icon>done</app-icon>
             </div>
         </ng-template>
+        <ng-template #person_template let-row="row">
+            <div class="px-4 py-2">
+                <div>{{ row.asset_name || row.asset_id }}</div>
+                <div
+                    *ngIf="row.asset_name && row.asset_id"
+                    class="opacity-30 text-xs"
+                >
+                    {{ row.asset_id }}
+                </div>
+            </div>
+        </ng-template>
         <ng-template #host_template let-row="row">
-            {{ row.extension_data?.host }}
+            <div class="px-4 py-2">
+                <div>{{ row.user_name || row.user_email }}</div>
+                <div
+                    *ngIf="row.user_name && row.user_email"
+                    class="opacity-30 text-xs"
+                >
+                    {{ row.user_email }}
+                </div>
+            </div>
         </ng-template>
         <ng-template #id_template let-row="row">
             <div customTooltip [content]="id_confirmation">
@@ -170,19 +193,19 @@ import { tap } from 'rxjs/operators';
             <div class="px-4">
                 <button
                     matRipple
-                    class="rounded-3xl bg-warning text-warning-content border-none"
+                    class="rounded-3xl bg-warning text-warning-content border-none w-[7.5rem] h-10"
                     [class.!text-success-content]="row?.status === 'approved'"
                     [class.!bg-success]="row?.status === 'approved'"
                     [class.!text-error-content]="row?.status === 'declined'"
                     [class.!bg-error]="row?.status === 'declined'"
                     [class.!text-neutral-content]="row?.status === 'ended'"
                     [class.!bg-neutral]="row?.status === 'ended'"
-                    [class.opacity-60]="row?.status === 'ended'"
+                    [class.opacity-30]="row?.status === 'ended'"
                     [matMenuTriggerFor]="menu"
                     [disabled]="row?.status === 'ended'"
                 >
-                    <div class="flex items-center pl-2">
-                        <div class="mx-2">
+                    <div class="flex items-center pl-4 pr-2 space-x-2">
+                        <div class="flex-1 text-left">
                             {{
                                 row?.status === 'ended'
                                     ? 'Ended'
@@ -361,9 +384,7 @@ import { tap } from 'rxjs/operators';
     styles: [``],
 })
 export class GuestListingComponent extends AsyncHandler {
-    public readonly guests = this._state.filtered_bookings.pipe(
-        tap((_: any) => console.log(_))
-    );
+    public readonly guests = this._state.filtered_bookings;
     public readonly search = this._state.search;
     public readonly filters = this._state.filters;
     public inductions_enabled = false;

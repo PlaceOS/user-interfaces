@@ -1,4 +1,4 @@
-import { Component, forwardRef } from '@angular/core';
+import { Component, Input, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -131,6 +131,7 @@ const EMPTY_FAVS: string[] = [];
     ],
 })
 export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
+    @Input() public disable_date = false;
     public room_size = 3;
     public spaces: BookingAsset[] = [];
     public disabled = false;
@@ -152,7 +153,10 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
         const ref = this._dialog.open(ParkingSpaceSelectModalComponent, {
             data: {
                 spaces: this.spaces,
-                options: { capacity: this.room_size },
+                options: {
+                    capacity: this.room_size,
+                    disable_date: this.disable_date,
+                },
             },
         });
         ref.afterClosed().subscribe((spaces?: BookingAsset[]) => {

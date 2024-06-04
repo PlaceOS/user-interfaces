@@ -1,6 +1,7 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Booking, BookingFormService } from '@placeos/bookings';
+import { AsyncHandler, currentUser } from '@placeos/common';
 import { User } from '@placeos/users';
 
 @Component({
@@ -33,8 +34,8 @@ import { User } from '@placeos/users';
                         (click)="
                             form.patchValue({
                                 user: null,
-                                email: null,
-                                name: null,
+                                user_email: null,
+                                user_name: null,
                                 phone: null,
                             })
                         "
@@ -44,33 +45,50 @@ import { User } from '@placeos/users';
                         </app-icon>
                     </button>
                 </div>
-                <label for="name">Name</label>
-                <mat-form-field appearance="outline">
-                    <input
-                        matInput
-                        name="name"
-                        [disabled]="user"
-                        formControlName="name"
-                        placeholder="Name"
-                    />
-                    <mat-error>A name is required</mat-error>
-                </mat-form-field>
-                <label for="email">Email</label>
-                <mat-form-field appearance="outline">
-                    <input
-                        matInput
-                        name="email"
-                        [disabled]="user"
-                        formControlName="email"
-                        placeholder="Email"
-                    />
-                    <mat-error>An email is required</mat-error>
-                </mat-form-field>
+                <div class="flex items-center space-x-2">
+                    <div class="flex-1">
+                        <label for="user-name">Name</label>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <input
+                                matInput
+                                name="user-name"
+                                formControlName="user_name"
+                                placeholder="Name"
+                            />
+                            <mat-error>A name is required</mat-error>
+                        </mat-form-field>
+                    </div>
+                    <div class="flex-1">
+                        <label for="email">Email</label>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <input
+                                matInput
+                                name="email"
+                                formControlName="user_email"
+                                placeholder="Email"
+                            />
+                            <mat-error>An email is required</mat-error>
+                        </mat-form-field>
+                    </div>
+                </div>
+                <label for="date">Date</label>
+                <a-date-field formControlName="date"></a-date-field>
                 <label for="parking-space">Parking Space</label>
                 <parking-space-list-field
                     name="parking-space"
                     formControlName="resources"
+                    class="mb-2"
                 ></parking-space-list-field>
+                <label for="plate-number">Plate Number</label>
+                <mat-form-field appearance="outline" class="w-full">
+                    <input
+                        matInput
+                        name="plate-number"
+                        formControlName="plate_number"
+                        placeholder="Plate Number"
+                    />
+                    <mat-error>A plate number is required</mat-error>
+                </mat-form-field>
             </main>
             <footer
                 *ngIf="!loading"
@@ -95,9 +113,10 @@ import { User } from '@placeos/users';
     `,
     styles: [``],
 })
-export class ParkingBookingModalComponent {
+export class ParkingBookingModalComponent extends AsyncHandler {
     public loading: boolean = false;
     public readonly user = this._data.user;
+    public readonly date = this._data.date;
 
     public form = this._booking_form.form;
 
@@ -107,32 +126,65 @@ export class ParkingBookingModalComponent {
 
     constructor(
         @Inject(MAT_DIALOG_DATA)
-        private _data: { booking: Booking; user?: User; link_id?: string },
-        private _booking_form: BookingFormService
-    ) {}
+        private _data: {
+            booking: Booking;
+            user?: User;
+            link_id?: string;
+            date?: number;
+        },
+        private _booking_form: BookingFormService,
+        private _dialog_ref: MatDialogRef<ParkingBookingModalComponent>
+    ) {
+        super();
+    }
 
     public ngOnInit() {
         this._booking_form.newForm(this._data.booking);
         this._booking_form.setOptions({ type: 'parking' });
+        this.subscription(
+            'user_changes',
+            this.form.controls.user.valueChanges.subscribe((user) => {
+                if (!user) return;
+                this.form.patchValue({
+                    user_name: user.name,
+                    user_email: user.email,
+                    user_id: user.id || user.email,
+                    attendees: [user],
+                });
+            })
+        );
+        this.form.patchValue({
+            all_day: true,
+            booking_type: 'parking',
+            user: currentUser(),
+        });
         if (this._data.user) {
             this.form.patchValue({
                 user_email: this._data.user.email,
                 user_id: this._data.user.email,
-                name: this._data.user.name,
+                user_name: this._data.user.name,
                 attendees: [this._data.user],
             });
+            this.form.controls.user_name.disable();
+            this.form.controls.user_email.disable();
         }
         if (this._data.link_id) {
             this.form.patchValue({ parent_id: this._data.link_id });
         }
+        if (this._data.date) {
+            this.form.patchValue({ date: this._data.date });
+            this.form.controls.date.disable();
+        }
     }
 
     public postForm() {
+        this.form.updateValueAndValidity();
         if (!this.form.valid) return;
         this.loading = true;
         this._booking_form.postForm().catch((e) => {
             this.loading = false;
             throw e;
         });
+        this._dialog_ref.close();
     }
 }

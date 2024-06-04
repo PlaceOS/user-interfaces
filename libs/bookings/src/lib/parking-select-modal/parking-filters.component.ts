@@ -138,7 +138,7 @@ import { BookingFormService } from '../booking-form.service';
                         Date and time must be in the future
                     </a-date-field>
                 </div>
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-2" *ngIf="false">
                     <div class="flex-1 w-1/3">
                         <label for="start-time" i18n
                             >Start Time<span>*</span></label
