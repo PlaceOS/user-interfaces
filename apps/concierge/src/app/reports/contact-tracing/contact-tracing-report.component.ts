@@ -9,6 +9,7 @@ import { SettingsService } from '@placeos/common';
         <contact-tracing-options
             (printing)="printing = $event"
             (download)="downloadReport()"
+            class="print:hidden"
         ></contact-tracing-options>
         <div
             class="relative flex-1 h-1/2 w-full overflow-auto print:overflow-visible print:h-auto"
