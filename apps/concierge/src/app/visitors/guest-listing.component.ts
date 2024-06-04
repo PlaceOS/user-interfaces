@@ -18,9 +18,9 @@ import { tap } from 'rxjs/operators';
                 [columns]="[
                     {
                         key: 'state',
-                        name: ' ',
+                        name: 'Checked In',
                         content: state_template,
-                        size: '3.5rem',
+                        size: '5.5rem',
                         sortable: false
                     },
                     {
@@ -35,7 +35,7 @@ import { tap } from 'rxjs/operators';
                         key: 'status',
                         name: 'State',
                         content: status_template,
-                        size: '8.5rem'
+                        size: '9.25rem'
                     },
                     {
                         key: 'induction',
@@ -64,25 +64,35 @@ import { tap } from 'rxjs/operators';
             ></simple-table>
         </div>
         <ng-template #state_template let-row="row">
-            <div class="px-2">
-                <i
-                    *ngIf="!row?.checked_in; else checkin_state"
-                    matTooltip="Not checked in"
-                    matTooltipPosition="right"
-                    class="flex items-center justify-center rounded-full material-icons border-2 border-dashed border-neutral text-xl h-9 w-9"
-                >
-                    close
-                </i>
-                <ng-template #checkin_state>
-                    <i
-                        class="flex items-center justify-center rounded-full material-icons bg-success border-2 border-neutral text-white text-xl h-9 w-9"
-                        matTooltip="Checked In"
-                        matTooltipPosition="right"
-                    >
-                        done
-                    </i>
-                </ng-template>
+            <div
+                *ngIf="!row?.checked_in && row.checked_out_at"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-base-content text-base-100 mx-auto"
+                [matTooltip]="
+                    'Checked out at ' + (row.checked_out_at | date: time_format)
+                "
+                matTooltipPosition="right"
+            >
+                <app-icon>done</app-icon>
             </div>
+            <div
+                *ngIf="!row?.checked_in && !row.checked_out_at"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-warning text-warning-content mx-auto"
+                matTooltip="Not checked in"
+                matTooltipPosition="right"
+            >
+                <app-icon>question_mark</app-icon>
+            </div>
+            <div
+                *ngIf="row?.checked_in"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-error text-error-content mx-auto"
+                matTooltip="Checked In"
+                matTooltipPosition="right"
+            >
+                <app-icon>done</app-icon>
+            </div>
+        </ng-template>
+        <ng-template #host_template let-row="row">
+            {{ row.extension_data?.host }}
         </ng-template>
         <ng-template #id_template let-row="row">
             <div customTooltip [content]="id_confirmation">
@@ -135,21 +145,25 @@ import { tap } from 'rxjs/operators';
             </div>
         </ng-template>
         <ng-template #boolean_template let-row="row">
-            <div class="px-4">
-                <div
-                    *ngIf="row.induction"
-                    class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
-                >
-                    <app-icon>done</app-icon>
-                </div>
-                <div
-                    *ngIf="
-                        !row.induction && row.process_state.includes('declined')
-                    "
-                    class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-error text-error-content mx-auto"
-                >
-                    <app-icon>close</app-icon>
-                </div>
+            <div
+                *ngIf="row.induction"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
+            >
+                <app-icon>done</app-icon>
+            </div>
+            <div
+                *ngIf="
+                    !row.induction && !row.process_state.includes('declined')
+                "
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-warning text-warning-content mx-auto"
+            >
+                <app-icon>question_mark</app-icon>
+            </div>
+            <div
+                *ngIf="!row.induction && row.process_state.includes('declined')"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-error text-error-content mx-auto"
+            >
+                <app-icon>close</app-icon>
             </div>
         </ng-template>
         <ng-template #status_template let-row="row">
@@ -167,7 +181,7 @@ import { tap } from 'rxjs/operators';
                     [matMenuTriggerFor]="menu"
                     [disabled]="row?.status === 'ended'"
                 >
-                    <div class="flex items-center">
+                    <div class="flex items-center pl-2">
                         <div class="mx-2">
                             {{
                                 row?.status === 'ended'
@@ -185,10 +199,16 @@ import { tap } from 'rxjs/operators';
             </div>
             <mat-menu #menu="matMenu">
                 <button mat-menu-item (click)="approveVisitor(row)">
-                    Approve Visitor
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-2xl">event_available</app-icon>
+                        <div class="pr-2">Approve Visitor</div>
+                    </div>
                 </button>
                 <button mat-menu-item (click)="declineVisitor(row)">
-                    Decline Visitor
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-2xl">event_busy</app-icon>
+                        <div class="pr-2">Decline Visitor</div>
+                    </div>
                 </button>
             </mat-menu>
         </ng-template>

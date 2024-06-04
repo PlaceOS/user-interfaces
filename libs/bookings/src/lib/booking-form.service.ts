@@ -722,7 +722,15 @@ export class BookingFormService extends AsyncHandler {
             email: user_email,
             limit: 1000,
         }).toPromise();
-        if (bookings.find((_) => _.asset_id === asset_id && id !== _.id)) {
+        let active_bookings = bookings.filter(
+            (_) =>
+                _.status !== 'declined' &&
+                _.status !== 'cancelled' &&
+                !_.rejected
+        );
+        if (
+            active_bookings.find((_) => _.asset_id === asset_id && id !== _.id)
+        ) {
             if (asset_id.includes('@')) {
                 throw `${asset_id} already has an invite for the selected time`;
             } else {
@@ -733,11 +741,10 @@ export class BookingFormService extends AsyncHandler {
             this._settings.get(`app.bookings.allowed_daily_${type}_count`) ?? 1;
         if (
             allowed_bookings > 0 &&
-            bookings.filter(
+            active_bookings.filter(
                 (_) =>
                     _.user_email.toLowerCase() ===
                         (user_email || currentUser()?.email).toLowerCase() &&
-                    _.status !== 'declined' &&
                     _.id !== id
             ).length >= allowed_bookings
         ) {
