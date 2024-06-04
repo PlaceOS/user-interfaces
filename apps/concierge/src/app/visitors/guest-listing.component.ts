@@ -56,7 +56,7 @@ import { tap } from 'rxjs/operators';
             </div>
             <div
                 *ngIf="row?.checked_in"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-error text-error-content mx-auto"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
                 matTooltip="Checked In"
                 matTooltipPosition="right"
             >
