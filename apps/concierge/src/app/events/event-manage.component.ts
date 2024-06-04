@@ -654,6 +654,7 @@ export class EventManageComponent extends AsyncHandler {
                 location: space.display_name || space.name,
             });
         }
+        this.form.patchValue({ asset_name: '' });
         if (!this.form.getRawValue().description)
             this.form.patchValue({ description: ' ' });
         const date = this.form.getRawValue().date;
