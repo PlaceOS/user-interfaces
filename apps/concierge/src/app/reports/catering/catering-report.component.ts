@@ -12,11 +12,7 @@ import { SettingsService } from '@placeos/common';
             printable
         >
             <ng-container *ngIf="!(loading | async); else load_state">
-                <div
-                    class="h-full w-full"
-                    printable
-                    *ngIf="total_count | async; else empty_state"
-                >
+                <ng-container *ngIf="total_count | async; else empty_state">
                     <div class="w-full">
                         <div
                             class="flex items-center m-4 p-4 rounded bg-base-200 overflow-hidden"
@@ -24,14 +20,18 @@ import { SettingsService } from '@placeos/common';
                             <img [src]="logo.src" class="h-12" />
                             <div class="flex-1"></div>
                             <h2 class="text-2xl font-medium px-2">
-                                Rooms Report
+                                Catering Report
                             </h2>
                         </div>
                     </div>
                     <catering-report-overall></catering-report-overall>
-                    <catering-report-orders></catering-report-orders>
-                    <catering-report-items></catering-report-items>
-                </div>
+                    <catering-report-orders
+                        [print]="printing"
+                    ></catering-report-orders>
+                    <catering-report-items
+                        [print]="printing"
+                    ></catering-report-items>
+                </ng-container>
             </ng-container>
             <ng-template #load_state>
                 <div class="h-full w-full flex flex-col items-center p-8">

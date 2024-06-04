@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { OrganisationService } from '@placeos/organisation';
 import { CateringReportStateService } from './catering-report-state.service';
 import { SettingsService } from '@placeos/common';
@@ -16,6 +16,7 @@ import { SettingsService } from '@placeos/common';
                 <button
                     matRipple-icon
                     (click)="download()"
+                    class="print:hidden"
                     matTooltip="Download list"
                 >
                     <app-icon>download</app-icon>
@@ -31,7 +32,7 @@ import { SettingsService } from '@placeos/common';
                     deliver_at: date_state,
                     total_cost: cost_state
                 }"
-                [pagination]="true"
+                [pagination]="print ? false : true"
                 empty="No orders for selected period"
             ></custom-table>
             <ng-template #date_state let-data="data">
@@ -45,6 +46,7 @@ import { SettingsService } from '@placeos/common';
     styles: [``],
 })
 export class CateringReportOrdersComponent {
+    @Input() public print: boolean = false;
     public readonly orders = this._report.catering_orders;
 
     public get code() {
