@@ -36,65 +36,35 @@ import { tap } from 'rxjs/operators';
             ></custom-table>
         </div>
         <ng-template #state_template let-row="row">
-            <i
-                *ngIf="!row?.checked_in; else checkin_state"
-                matTooltip="Not checked in"
-                class="flex items-center justify-center rounded-full material-icons border-2 border-dashed border-neutral text-xl h-9 w-9"
+            <div
+                *ngIf="!row?.checked_in && row.checked_out_at"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-base-content text-base-100 mx-auto"
+                [matTooltip]="
+                    'Checked out at ' + (row.checked_out_at | date: time_format)
+                "
+                matTooltipPosition="right"
             >
-                close
-            </i>
-            <ng-template #checkin_state>
-                <i
-                    class="flex items-center justify-center rounded-full material-icons bg-success border-2 border-neutral text-white text-xl h-9 w-9"
-                    matTooltip="Checked In"
-                >
-                    done
-                </i>
-            </ng-template>
+                <app-icon>done</app-icon>
+            </div>
+            <div
+                *ngIf="!row?.checked_in && !row.checked_out_at"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-warning text-warning-content mx-auto"
+                matTooltip="Not checked in"
+                matTooltipPosition="right"
+            >
+                <app-icon>question_mark</app-icon>
+            </div>
+            <div
+                *ngIf="row?.checked_in"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-error text-error-content mx-auto"
+                matTooltip="Checked In"
+                matTooltipPosition="right"
+            >
+                <app-icon>done</app-icon>
+            </div>
         </ng-template>
         <ng-template #host_template let-row="row">
             {{ row.extension_data?.host }}
-        </ng-template>
-        <ng-template #vaccinated_template let-row="row">
-            <div customTooltip [content]="vaccine_confirmation">
-                <button
-                    matRipple
-                    *ngIf="row.extension_data?.vaccination_proof?.url"
-                    class="bg-success rounded-3xl px-4 py-2 text-white"
-                >
-                    {{
-                        row.extension_data?.vaccination_confirmed
-                            ? 'Confirmed'
-                            : row.extension_data?.vaccination_confirmed ===
-                              false
-                            ? 'Rejected'
-                            : 'Submitted'
-                    }}
-                </button>
-            </div>
-            <ng-template #vaccine_confirmation>
-                <div
-                    class="bg-base-100 rounded p-2 flex flex-col space-y-2 my-2 w-[20rem]"
-                >
-                    <img
-                        [src]="row.extension_data?.vaccination_proof?.url"
-                        class="max-w-[20rem] max-h-[20rem] p-2 object-contain"
-                    />
-                    <button
-                        matRipple
-                        (click)="setExt(row, 'vaccination_confirmed', true)"
-                    >
-                        Confirm Vaccination Proof
-                    </button>
-                    <button
-                        matRipple
-                        class="inverse mt-2"
-                        (click)="setExt(row, 'vaccination_confirmed', false)"
-                    >
-                        Reject Vaccination Proof
-                    </button>
-                </div>
-            </ng-template>
         </ng-template>
         <ng-template #id_template let-row="row">
             <div customTooltip [content]="id_confirmation">
@@ -142,6 +112,14 @@ import { tap } from 'rxjs/operators';
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
             >
                 <app-icon>done</app-icon>
+            </div>
+            <div
+                *ngIf="
+                    !row.induction && !row.process_state.includes('declined')
+                "
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-warning text-warning-content mx-auto"
+            >
+                <app-icon>question_mark</app-icon>
             </div>
             <div
                 *ngIf="!row.induction && row.process_state.includes('declined')"
@@ -367,7 +345,7 @@ export class GuestListingComponent extends AsyncHandler {
 
     public get display_columns() {
         const fields = {
-            state: ' ',
+            state: 'Checked In',
             date: 'Time',
             asset_name: 'Person',
             user_name: 'Host',
@@ -382,7 +360,7 @@ export class GuestListingComponent extends AsyncHandler {
 
     public get column_sizes() {
         const fields = {
-            state: '3.5r',
+            state: '4.5r',
             date: '8r',
             asset_name: '12r',
             user_name: '12r',
