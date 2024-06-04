@@ -16,12 +16,21 @@ import { ParkingStateService } from './parking-state.service';
                     sortable: false
                 },
                 { key: 'description', name: 'Bay Number' },
-                { key: 'booked_by_name', name: 'Reserved By' },
-                { key: 'user_name', name: 'Reverved For' },
+                {
+                    key: 'user_name',
+                    name: 'Reverved For',
+                    content: person_template
+                },
+                {
+                    key: 'booked_by_name',
+                    name: 'Reserved By',
+                    content: host_template
+                },
                 {
                     key: 'plate_number',
                     name: 'Plate Number',
-                    content: plate_template
+                    content: plate_template,
+                    size: '10rem'
                 },
                 {
                     key: 'status',
@@ -33,6 +42,28 @@ import { ParkingStateService } from './parking-state.service';
             [filter]="(options | async)?.search"
             [sortable]="true"
         ></simple-table>
+        <ng-template #person_template let-row="row">
+            <div class="px-4 py-2">
+                <div>{{ row.user_name || row.user_email }}</div>
+                <div
+                    *ngIf="row.user_name && row.user_email"
+                    class="opacity-30 text-xs"
+                >
+                    {{ row.user_email }}
+                </div>
+            </div>
+        </ng-template>
+        <ng-template #host_template let-row="row">
+            <div class="px-4 py-2">
+                <div>{{ row.booked_by_name || row.booked_by_email }}</div>
+                <div
+                    *ngIf="row.booked_by_name && row.booked_by_email"
+                    class="opacity-30 text-xs"
+                >
+                    {{ row.booked_by_email }}
+                </div>
+            </div>
+        </ng-template>
         <ng-template #state_template let-row="row">
             <div
                 *ngIf="!row?.checked_in && row.checked_out_at"

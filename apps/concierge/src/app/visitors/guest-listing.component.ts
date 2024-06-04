@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { VisitorsStateService } from './visitors-state.service';
-import { Booking } from '@placeos/bookings';
+import { Booking, saveBooking } from '@placeos/bookings';
 import { showMetadata } from '@placeos/ts-client';
 import { OrganisationService } from '@placeos/organisation';
-import { tap } from 'rxjs/operators';
+import { ParkingStateService } from '../parking/parking-state.service';
+import { User } from '@placeos/users';
 
 @Component({
     selector: 'guest-listings',
@@ -158,13 +159,11 @@ import { tap } from 'rxjs/operators';
             </ng-template>
         </ng-template>
         <ng-template #parking_template let-row="row">
-            <div class="px-4">
-                <div
-                    *ngIf="row.extension_data.parking_booking_id"
-                    class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
-                >
-                    <app-icon>done</app-icon>
-                </div>
+            <div
+                *ngIf="row.extension_data.parking_booking_id"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
+            >
+                <app-icon>done</app-icon>
             </div>
         </ng-template>
         <ng-template #boolean_template let-row="row">
@@ -268,11 +267,11 @@ import { tap } from 'rxjs/operators';
                             has_parking &&
                             !row.extension_data.parking_booking_id
                         "
-                        [matMenuTriggerFor]="attachment_menu"
+                        (click)="reserveParking(row)"
                     >
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">directions_car</app-icon>
-                            <div>Assign Parking Space</div>
+                            <div>Reserve Parking Space</div>
                         </div>
                     </button>
                     <mat-menu #menu="matMenu">
@@ -423,6 +422,7 @@ export class GuestListingComponent extends AsyncHandler {
 
     constructor(
         private _state: VisitorsStateService,
+        private _parking: ParkingStateService,
         private _settings: SettingsService,
         private _org: OrganisationService
     ) {
@@ -446,5 +446,20 @@ export class GuestListingComponent extends AsyncHandler {
                     metadata.details?.induction_details;
             })
         );
+    }
+
+    public async reserveParking(item: Booking) {
+        const id = await this._parking.editReservation(
+            undefined,
+            new User({ email: item.asset_id, name: item.asset_name }),
+            item.id,
+            item.date
+        );
+        if (id) {
+            await saveBooking(
+                new Booking({ ...item, parking_booking_id: id } as any)
+            ).toPromise();
+            this._state.poll();
+        }
     }
 }

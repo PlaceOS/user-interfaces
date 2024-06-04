@@ -1,7 +1,9 @@
 import { Component, Inject } from '@angular/core';
+import { Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Booking, BookingFormService } from '@placeos/bookings';
 import { AsyncHandler, currentUser } from '@placeos/common';
+import { BuildingLevel } from '@placeos/organisation';
 import { User } from '@placeos/users';
 
 @Component({
@@ -79,7 +81,9 @@ import { User } from '@placeos/users';
                     formControlName="resources"
                     class="mb-2"
                 ></parking-space-list-field>
-                <label for="plate-number">Plate Number</label>
+                <label for="plate-number">
+                    Plate Number<span *ngIf="user">*</span>
+                </label>
                 <mat-form-field appearance="outline" class="w-full">
                     <input
                         matInput
@@ -131,6 +135,7 @@ export class ParkingBookingModalComponent extends AsyncHandler {
             user?: User;
             link_id?: string;
             date?: number;
+            level?: BuildingLevel;
         },
         private _booking_form: BookingFormService,
         private _dialog_ref: MatDialogRef<ParkingBookingModalComponent>
@@ -156,7 +161,7 @@ export class ParkingBookingModalComponent extends AsyncHandler {
         this.form.patchValue({
             all_day: true,
             booking_type: 'parking',
-            user: currentUser(),
+            user: (this._data.user as any) || currentUser(),
         });
         if (this._data.user) {
             this.form.patchValue({
@@ -165,26 +170,45 @@ export class ParkingBookingModalComponent extends AsyncHandler {
                 user_name: this._data.user.name,
                 attendees: [this._data.user],
             });
+            this.form.controls.plate_number.setValidators([
+                Validators.required,
+            ]);
             this.form.controls.user_name.disable();
             this.form.controls.user_email.disable();
+        }
+        if (this._data.level) {
+            this._booking_form.setOptions({ zone_id: this._data.level.id });
         }
         if (this._data.link_id) {
             this.form.patchValue({ parent_id: this._data.link_id });
         }
         if (this._data.date) {
             this.form.patchValue({ date: this._data.date });
-            this.form.controls.date.disable();
+            this.subscription(
+                'form_change',
+                this.form.valueChanges.subscribe((v) => {
+                    this.timeout(
+                        'disable_date',
+                        () =>
+                            this.form.get('date').disable({ emitEvent: false }),
+                        50
+                    );
+                })
+            );
+            this.form.get('date').disable();
         }
     }
 
-    public postForm() {
+    public async postForm() {
         this.form.updateValueAndValidity();
         if (!this.form.valid) return;
         this.loading = true;
-        this._booking_form.postForm().catch((e) => {
+        const result = await this._booking_form.postForm().catch((e) => {
             this.loading = false;
+            this.form.controls.plate_number.setValidators([]);
             throw e;
         });
-        this._dialog_ref.close();
+        this.form.controls.plate_number.setValidators([]);
+        this._dialog_ref.close(result.id);
     }
 }
