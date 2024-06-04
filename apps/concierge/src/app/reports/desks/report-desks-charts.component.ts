@@ -15,9 +15,7 @@ import { take } from 'rxjs/operators';
             class="flex items-center space-x-4 w-full px-4"
             (window:resize)="updateCharts()"
         >
-            <div
-                class="bg-base-100 border border-base-200 rounded shadow flex-1"
-            >
+            <div class="bg-base-100 border border-base-200 rounded flex-1">
                 <div class="border-b border-base-200 p-4 text-xl font-bold">
                     Daily Utilisation
                 </div>
@@ -28,9 +26,7 @@ import { take } from 'rxjs/operators';
                     [style.width]="print ? '8cm' : 'auto'"
                 ></div>
             </div>
-            <div
-                class="bg-base-100 border border-base-200 rounded shadow flex-1"
-            >
+            <div class="bg-base-100 border border-base-200 rounded flex-1">
                 <div class="border-b border-base-200 p-4 text-xl font-bold">
                     Level Utilisation
                 </div>

@@ -8,9 +8,9 @@ import { ReportsStateService } from '../reports-state.service';
 @Component({
     selector: 'report-spaces-overall-list',
     template: `
-        <div class="pb-2 w-full">
+        <div class="w-full">
             <div
-                class="m-4 rounded bg-base-100 border border-base-200 shadow overflow-hidden"
+                class="m-4 rounded bg-base-100 border border-base-200 overflow-hidden"
             >
                 <div class="border-b border-base-200 p-4 flex items-center">
                     <h3 class="font-bold text-xl flex-1">Daily Utilisation</h3>

@@ -7,7 +7,7 @@ import { SettingsService } from '@placeos/common';
     selector: 'catering-report-orders',
     template: `
         <div
-            class="w-[64rem] max-w-[calc(100%-2rem)] rounded overflow-hidden bg-base-100 shadow mx-auto my-2"
+            class="w-[64rem] max-w-[calc(100%-2rem)] rounded overflow-hidden bg-base-100  border border-base-200 mx-auto my-2"
         >
             <div
                 class="border-b border-base-200 flex items-center justify-between px-4"

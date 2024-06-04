@@ -11,7 +11,7 @@ import { combineLatest } from 'rxjs';
     selector: 'reports-options',
     template: `
         <div
-            class="bg-base-100 h-20 w-full flex items-center space-x-4 p-2 shadow z-20 border-b border-base-200 print:hidden"
+            class="bg-base-100 h-20 w-full flex items-center space-x-2 p-4 shadow z-20 border-b border-base-200 print:hidden"
         >
             <mat-form-field appearance="outline" class="w-60 no-subscript">
                 <mat-select
@@ -60,19 +60,23 @@ import { combineLatest } from 'rxjs';
                 ></mat-spinner>
                 <p *ngIf="!(loading | async)">Generate Report</p>
             </button>
+            <div class="flex-1"></div>
             <button
-                btn
+                icon
                 matRipple
+                class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 [disabled]="!(bookings | async)?.length"
+                matTooltip="Download Report Data"
                 (click)="downloadReport()"
             >
-                <p>Download Data</p>
+                <app-icon>download</app-icon>
             </button>
             <button
                 icon
                 matRipple
                 class="h-12 w-12 rounded bg-secondary text-secondary-content"
-                *ngIf="(bookings | async)?.length"
+                [disabled]="!(bookings | async)?.length"
+                matTooltip="Print Report"
                 (click)="print()"
             >
                 <app-icon>print</app-icon>
@@ -84,6 +88,10 @@ import { combineLatest } from 'rxjs';
             button {
                 min-width: 0;
                 padding: 0 0.85rem;
+            }
+
+            button[icon][disabled] {
+                background-color: var(--n) !important;
             }
 
             mat-slide-toggle div {
