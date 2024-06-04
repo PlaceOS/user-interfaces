@@ -22,8 +22,8 @@ import { take } from 'rxjs/operators';
                 <div
                     id="day-chart"
                     #util_chart
-                    class="ct-chart ct-octave max-w-full h-56"
-                    [style.width]="print ? '8cm' : 'auto'"
+                    class="ct-chart ct-octave max-w-full w-full h-56"
+                    [style.width]="print ? '8cm' : ''"
                 ></div>
             </div>
             <div class="bg-base-100 border border-base-200 rounded flex-1">
@@ -33,8 +33,8 @@ import { take } from 'rxjs/operators';
                 <div
                     id="level-chart"
                     #level_chart
-                    class="ct-chart ct-octave max-w-full h-56"
-                    [style.width]="print ? '8cm' : 'auto'"
+                    class="ct-chart ct-octave max-w-full w-full h-56"
+                    [style.width]="print ? '8cm' : ''"
                 ></div>
             </div>
         </div>
