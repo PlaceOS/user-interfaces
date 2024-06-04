@@ -73,7 +73,7 @@ const EMPTY = [];
                         </mat-form-field>
                         <label for="host">Organiser<span>*</span></label>
                         <a-user-search-field
-                            class="block"
+                            class="block mb-4"
                             name="host"
                             formControlName="user"
                         ></a-user-search-field>
