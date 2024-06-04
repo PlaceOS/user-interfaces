@@ -32,9 +32,8 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                 icon
                 matRipple
                 matTooltip="Download Report"
-                matTooltipPosition="left"
-                class="h-10 w-10 rounded bg-secondary text-secondary-content"
-                *ngIf="(options | async)?.user"
+                class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                [disabled]="!(options | async)?.user"
                 (click)="download.emit()"
             >
                 <app-icon>download</app-icon>
@@ -45,6 +44,10 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
         `
             mat-form-field {
                 height: 3.25rem;
+            }
+
+            button[icon][disabled] {
+                background-color: var(--n) !important;
             }
         `,
     ],
