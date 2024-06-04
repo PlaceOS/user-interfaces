@@ -38,6 +38,16 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
             >
                 <app-icon>download</app-icon>
             </button>
+            <button
+                icon
+                matRipple
+                class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                [disabled]="!(options | async)?.user"
+                matTooltip="Print Report"
+                (click)="print()"
+            >
+                <app-icon>print</app-icon>
+            </button>
         </div>
     `,
     styles: [
@@ -53,6 +63,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
     ],
 })
 export class ContactTracingOptionsComponent {
+    @Output() public printing = new EventEmitter<boolean>();
     @Output() public download = new EventEmitter<void>();
 
     public readonly options = this._state.options;
@@ -60,4 +71,12 @@ export class ContactTracingOptionsComponent {
     public readonly generate = () => this._state.generateReport();
 
     constructor(private _state: ContactTracingStateService) {}
+
+    public print() {
+        this.printing.emit(true);
+        setTimeout(() => {
+            window.print();
+            this.printing.emit(false);
+        }, 300);
+    }
 }

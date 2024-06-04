@@ -61,7 +61,7 @@ import { SettingsService } from '@placeos/common';
                                 contact_id: user_state,
                                 duration: duration_state
                             }"
-                            [pagination]="true"
+                            [pagination]="printing ? false : true"
                             [page_size]="30"
                             empty="No contact records for selected period"
                         ></custom-table>
