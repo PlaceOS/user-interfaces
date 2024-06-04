@@ -11,7 +11,7 @@ import { combineLatest } from 'rxjs';
     selector: 'reports-options',
     template: `
         <div
-            class="bg-base-100 h-20 w-full flex items-center space-x-4 p-2 shadow z-20 border-b border-base-200"
+            class="bg-base-100 h-20 w-full flex items-center space-x-4 p-2 shadow z-20 border-b border-base-200 print:hidden"
         >
             <mat-form-field appearance="outline" class="w-60 no-subscript">
                 <mat-select
