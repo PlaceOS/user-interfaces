@@ -9,31 +9,31 @@ import { CateringReportStateService } from './catering-report-state.service';
             <div count class="text-3xl">
                 {{ (stats | async)?.order_count || '0' }}
             </div>
-            <div class="">Orders</div>
+            <div class="print:text-sm">Orders</div>
         </div>
         <div item class="flex flex-col flex-1 items-center justify-center">
             <div unique class="text-3xl">
                 {{ (stats | async)?.unique_items || '0' }}
             </div>
-            <div class="">Unique Items</div>
+            <div class="print:text-sm">Unique Items</div>
         </div>
         <div item class="flex flex-col flex-1 items-center justify-center">
             <div items class="text-3xl">
                 {{ (stats | async)?.item_count || '0' }}
             </div>
-            <div class="">Ordered Items</div>
+            <div class="print:text-sm">Ordered Items</div>
         </div>
         <div item class="flex flex-col flex-1 items-center justify-center">
             <div total class="text-3xl">
                 {{ (stats | async)?.total_cost / 100 || 0 | currency: code }}
             </div>
-            <div class="">Total</div>
+            <div class="print:text-sm">Total</div>
         </div>
         <div item class="flex flex-col flex-1 items-center justify-center">
             <div average class="text-3xl">
                 {{ (stats | async)?.avg_cost / 100 || 0 | currency: code }}
             </div>
-            <div class="">Order Average</div>
+            <div class="print:text-sm">Order Average</div>
         </div>
     `,
     styles: [
@@ -55,7 +55,7 @@ import { CateringReportStateService } from './catering-report-state.service';
                 margin: 0.5rem;
                 height: 6rem;
                 width: 12rem;
-                min-width: 9rem;
+                min-width: 7rem;
             }
         `,
     ],
