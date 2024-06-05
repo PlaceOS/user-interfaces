@@ -166,6 +166,7 @@ export class ParkingStateService extends AsyncHandler {
                     : (this._settings.get('app.use_region')
                           ? this._org.region?.id
                           : '') || bld?.id,
+                include_checked_out: true,
             }).pipe(
                 map((list) => {
                     for (const booking of list) {
@@ -174,7 +175,6 @@ export class ParkingStateService extends AsyncHandler {
                                 _.email.toLowerCase() ===
                                 booking.user_email.toLowerCase()
                         );
-                        console.log('User:', user, users);
                         if (user) {
                             booking.extension_data.plate_number =
                                 booking.extension_data.plate_number ||
