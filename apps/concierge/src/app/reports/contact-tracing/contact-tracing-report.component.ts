@@ -104,14 +104,14 @@ import { SettingsService } from '@placeos/common';
                 class="p-8 flex flex-col items-center justify-center space-y-2"
             >
                 <map-spinner diameter="32"></map-spinner>
-                <p>{{ loading | async }}</p>
+                <p class="opacity-30">{{ loading | async }}</p>
             </div>
         </ng-template>
         <ng-template #empty_state>
             <div
                 class="p-8 flex flex-col items-center justify-center space-y-2 screen-only"
             >
-                <p class="opacity-60">Select a user from the topbar to begin</p>
+                <p class="opacity-30">Select a user from the topbar to begin</p>
             </div>
         </ng-template>
     `,

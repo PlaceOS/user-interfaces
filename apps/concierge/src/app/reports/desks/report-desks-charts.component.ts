@@ -95,6 +95,7 @@ export class ReportDesksChartsComponent extends AsyncHandler {
             series: [list.map((_) => _.utilisation)],
         };
         this._day_chart = new LineChart('#day-chart', data);
+        console.log('Day Chart:', this._day_chart, data);
     }
 
     public updateLevelChart(mapping, count) {
