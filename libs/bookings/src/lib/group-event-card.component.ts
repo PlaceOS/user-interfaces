@@ -16,13 +16,13 @@ import { OrganisationService } from '@placeos/organisation';
             class="border border-base-300 hover:border-info flex flex-col bg-base-100 rounded-xl shadow hover:shadow-2xl overflow-hidden w-60 h-[20rem]"
         >
             <div
-                class="relative flex items-center justify-between h-28 w-full bg-base-200 overflow-hidden"
+                class="relative flex items-center justify-between h-28 min-h-28 w-full bg-base-200 overflow-hidden border-b border-base-200"
             >
                 <img
                     *ngIf="event.images?.length"
                     auth
                     [source]="event.images[0]"
-                    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 object-cover min-h-full min-w-full"
+                    class="absolute top-0 left-0 h-full w-full object-center object-cover"
                 />
             </div>
             <div class="p-4 flex-1 h-1/2 w-full">
@@ -65,13 +65,13 @@ import { OrganisationService } from '@placeos/organisation';
                 class="border border-base-300 hover:border-info flex bg-base-100 rounded-xl shadow hover:shadow-2xl overflow-hidden w-[63rem] max-w-full h-56 mx-auto"
             >
                 <div
-                    class="relative flex items-center justify-between h-full w-1/2 max-w-[20rem] bg-base-200 overflow-hidden"
+                    class="relative flex items-center justify-between h-full min-w-56 w-1/2 max-w-[20rem] bg-base-200 overflow-hidden border-r border-base-200"
                 >
                     <img
                         *ngIf="event.images?.length"
                         auth
                         [source]="event.images[0]"
-                        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 object-cover min-h-full min-w-full"
+                        class="absolute top-0 left-0 h-full w-full object-center object-cover"
                     />
                 </div>
                 <div
