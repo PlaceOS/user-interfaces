@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
     currentUser,
@@ -7,6 +8,7 @@ import {
     notifySuccess,
     SettingsService,
 } from '@placeos/common';
+import { StaffUser } from '@placeos/users';
 import { showMetadata } from '@placeos/ts-client';
 import {
     addDays,
@@ -18,17 +20,16 @@ import {
     startOfMinute,
 } from 'date-fns';
 import { BehaviorSubject, combineLatest, forkJoin, Observable, of } from 'rxjs';
-import { map, shareReplay, switchMap } from 'rxjs/operators';
+import { map, shareReplay, switchMap, take } from 'rxjs/operators';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import { ExploreStateService } from './explore-state.service';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
-import { StaffUser } from '@placeos/users';
 import { SetDatetimeModalComponent } from './set-datetime-modal.component';
-import { MatDialog } from '@angular/material/dialog';
-import { ExploreDeskInfoComponent } from './explore-desk-info.component';
+import { ExploreParkingInfoComponent } from './explore-parking-info.component';
+import { ParkingService } from 'libs/bookings/src/lib/parking.service';
 
 export interface ParkingSpace {
     id: string;
@@ -183,6 +184,7 @@ export class ExploreParkingService extends AsyncHandler {
         private _state: ExploreStateService,
         private _settings: SettingsService,
         private _bookings: BookingFormService,
+        private _parking: ParkingService,
         private _dialog: MatDialog
     ) {
         super();
@@ -204,13 +206,21 @@ export class ExploreParkingService extends AsyncHandler {
         this._options.next({ ...this._options.getValue(), ...options });
     }
 
-    private _updateParkingSpaces(spaces, available) {
+    private async _updateParkingSpaces(spaces, available) {
         const styles = {};
         const features = [];
-        const labels = [];
         const actions = [];
         const colours = this._settings.get('app.explore.colors') || {};
         const options = this._options.getValue();
+        const assigned_space = await this._parking.assigned_space
+            .pipe(take(1))
+            .toPromise();
+        const deny_parking_access = await this._parking.deny_parking_access
+            .pipe(take(1))
+            .toPromise();
+        const booked_space = await this._parking.booked_space
+            .pipe(take(1))
+            .toPromise();
         for (const space of spaces) {
             const can_book = !!available.find((_) => _.id === space.id);
             const status = can_book ? 'free' : 'busy';
@@ -222,16 +232,33 @@ export class ExploreParkingService extends AsyncHandler {
                 opacity: 0.6,
             };
             features.push({
-                track_id: `parking:hover:${space.map_id}`,
                 location: `${space.map_id}`,
-                content: ExploreDeskInfoComponent,
-                full_size: true,
-                no_scale: true,
+                content: ExploreParkingInfoComponent,
                 z_index: 20,
+                hover: true,
                 data: { ...space, user: this._users[space.id], status },
             });
             if (!can_book) continue;
             const book_fn = async () => {
+                if (deny_parking_access) {
+                    return notifyError(
+                        `Your user account has been denied parking access to ${
+                            space.zone?.display_name || space.zone?.name
+                        }.`
+                    );
+                }
+                if (assigned_space) {
+                    return notifyError(
+                        `You are already assigned to parking space "${
+                            space.name || space.id
+                        }".`
+                    );
+                }
+                if (booked_space.find((_) => _.id === space.id)) {
+                    return notifyError(
+                        `You already have a parking space booked for the selected time.`
+                    );
+                }
                 if (status !== 'free') {
                     return notifyError(
                         `${
@@ -308,7 +335,7 @@ export class ExploreParkingService extends AsyncHandler {
             options.enable_booking ? actions : []
         );
         this._state.setStyles('parking', styles);
-        this._state.setLabels('parking', labels);
+        this._state.setFeatures('parking', features);
     }
 
     private async _setBookingTime(

@@ -7,8 +7,18 @@ import {
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, forkJoin } from 'rxjs';
-import { filter, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, forkJoin, of } from 'rxjs';
+import {
+    catchError,
+    filter,
+    map,
+    shareReplay,
+    switchMap,
+    tap,
+} from 'rxjs/operators';
+import { queryBookings } from './bookings.fn';
+import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { ca } from 'date-fns/locale';
 
 export interface ParkingSpace {
     id: string;
@@ -134,6 +144,32 @@ export class ParkingService extends AsyncHandler {
                         currentUser().email?.toLowerCase()
                 )?.deny
         )
+    );
+
+    public readonly booked_space = combineLatest([
+        this._org.active_building,
+        this.spaces,
+    ]).pipe(
+        map(([_, spaces]) =>
+            queryBookings({
+                period_start: getUnixTime(startOfDay(Date.now())),
+                period_end: getUnixTime(endOfDay(Date.now())),
+                type: 'parking',
+            }).pipe(
+                catchError(() => of([])),
+                map((booking_list) =>
+                    booking_list
+                        .map((booking) =>
+                            spaces.find(
+                                (space) => space.id === booking.asset_id
+                            )
+                        )
+                        .filter((space) => !!space)
+                )
+            )
+        ),
+        map((_) => _[0]),
+        shareReplay(1)
     );
 
     constructor(
