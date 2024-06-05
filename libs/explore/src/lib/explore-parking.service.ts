@@ -59,6 +59,7 @@ export class ExploreParkingService extends AsyncHandler {
     private _poll = new BehaviorSubject<number>(0);
 
     public readonly options = this._options.asObservable();
+    public on_book: (ParkingSpace) => void = null;
 
     /** List of available parking levels for the active building */
     public readonly levels = this._org.active_levels.pipe(
@@ -226,6 +227,7 @@ export class ExploreParkingService extends AsyncHandler {
             });
             if (!can_book) continue;
             const book_fn = async () => {
+                if (this.on_book) return this.on_book(space);
                 if (deny_parking_access) {
                     return notifyError(
                         `Your user account has been denied parking access to ${

@@ -327,10 +327,19 @@ export class ParkingStateService extends AsyncHandler {
 
     public editReservation(
         reservation?: Booking,
-        user: User = null,
-        link_id?: string,
-        date?: number
+        {
+            user,
+            link_id,
+            date,
+            space,
+        }: {
+            user?: User;
+            link_id?: string;
+            date?: number;
+            space?: ParkingSpace;
+        } = {}
     ) {
+        console.log('Reservation:', space);
         return new Promise<string>(async (resolve) => {
             const levels = await this.levels.pipe(take(1)).toPromise();
             const ref = this._dialog.open(ParkingBookingModalComponent, {
@@ -340,6 +349,7 @@ export class ParkingStateService extends AsyncHandler {
                     link_id,
                     date,
                     level: levels[0],
+                    space,
                 },
             });
             ref.afterClosed().subscribe((id) => resolve(id));

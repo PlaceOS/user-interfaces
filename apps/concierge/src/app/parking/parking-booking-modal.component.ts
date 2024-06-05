@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Booking, BookingFormService } from '@placeos/bookings';
+import { Booking, BookingFormService, ParkingSpace } from '@placeos/bookings';
 import { AsyncHandler, currentUser } from '@placeos/common';
 import { BuildingLevel } from '@placeos/organisation';
 import { User } from '@placeos/users';
@@ -137,6 +137,7 @@ export class ParkingBookingModalComponent extends AsyncHandler {
             link_id?: string;
             date?: number;
             level?: BuildingLevel;
+            space?: ParkingSpace;
         },
         private _booking_form: BookingFormService,
         private _dialog_ref: MatDialogRef<ParkingBookingModalComponent>
@@ -182,6 +183,9 @@ export class ParkingBookingModalComponent extends AsyncHandler {
         }
         if (this._data.link_id) {
             this.form.patchValue({ parent_id: this._data.link_id });
+        }
+        if (this._data.space) {
+            this.form.patchValue({ resources: [this._data.space] });
         }
         if (this._data.date) {
             this.form.patchValue({ date: this._data.date });
