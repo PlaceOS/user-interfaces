@@ -4,6 +4,10 @@ import { ParkingStateService } from './parking-state.service';
 @Component({
     selector: 'parking-bookings-list',
     template: `
+        <mat-progress-bar
+            [class.opacity-0]="!(loading | async)?.includes('bookings')"
+            class="w-full"
+        ></mat-progress-bar>
         <simple-table
             class="min-w-[76rem] block text-sm"
             [data]="events"
@@ -67,7 +71,7 @@ import { ParkingStateService } from './parking-state.service';
         <ng-template #state_template let-row="row">
             <div
                 *ngIf="!row?.checked_in && row.checked_out_at"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-base-content text-base-100 mx-auto"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-base-300 text-base-100 mx-auto"
                 [matTooltip]="
                     'Left at ' + (row.checked_out_at | date: time_format)
                 "
@@ -149,21 +153,9 @@ import { ParkingStateService } from './parking-state.service';
                 </button>
             </mat-menu>
         </ng-template>
-        <mat-progress-bar
-            *ngIf="(loading | async)?.includes('bookings')"
-            class="absolute bottom-0 inset-x-0"
-        ></mat-progress-bar>
+        <div class="w-full h-20"></div>
     `,
-    styles: [
-        `
-            :host {
-                display: block;
-                width: 100%;
-                height: 100%;
-                overflow: auto;
-            }
-        `,
-    ],
+    styles: [``],
 })
 export class ParkingBookingsListComponent {
     public readonly events = this._state.bookings;

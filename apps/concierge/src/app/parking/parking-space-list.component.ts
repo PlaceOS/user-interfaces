@@ -8,89 +8,86 @@ import { Booking } from '@placeos/bookings';
 @Component({
     selector: 'parking-space-list',
     template: `
-        <div class="h-full w-full overflow-auto">
-            <simple-table
-                class="min-w-[76rem] block text-sm"
-                [data]="spaces"
-                [columns]="[
-                    { key: 'name', name: 'Name' },
-                    { key: 'map_id', name: 'Bay Number', content: id_template },
-                    { key: 'assigned_to', name: 'Assigned' },
-                    { key: 'notes', name: 'Notes' },
-                    {
-                        key: 'status',
-                        name: 'Status Today',
-                        content: status_template,
-                        sortable: false,
-                        size: '4.5rem'
-                    },
-                    {
-                        key: 'actions',
-                        name: ' ',
-                        content: action_template,
-                        sortable: false,
-                        size: '7.5rem'
-                    }
-                ]"
-                [filter]="(options | async)?.search"
-                [sortable]="true"
-            ></simple-table>
-            <ng-template #status_template let-row="row">
-                <div
-                    class="flex items-center justify-center h-8 w-8 rounded bg-warning text-warning-content mx-auto"
-                    [class.!bg-success]="space_status[row.id]?.includes('free')"
-                    [class.!text-success-content]="
-                        space_status[row.id]?.includes('free')
-                    "
-                    [class.!bg-error]="space_status[row.id]?.includes('busy')"
-                    [class.!text-error-content]="
-                        space_status[row.id]?.includes('busy')
-                    "
-                    [matTooltip]="statusTooltip(space_status[row.id])"
-                    matTooltipPosition="left"
+        <mat-progress-bar
+            [class.opacity-0]="!(loading | async)?.includes('spaces')"
+            class="w-full"
+        ></mat-progress-bar>
+        <simple-table
+            class="min-w-[76rem] block text-sm"
+            [data]="spaces"
+            [columns]="[
+                { key: 'name', name: 'Name' },
+                { key: 'map_id', name: 'Bay Number', content: id_template },
+                { key: 'assigned_to', name: 'Assigned' },
+                { key: 'notes', name: 'Notes' },
+                {
+                    key: 'status',
+                    name: 'Status Today',
+                    content: status_template,
+                    sortable: false,
+                    size: '4.5rem'
+                },
+                {
+                    key: 'actions',
+                    name: ' ',
+                    content: action_template,
+                    sortable: false,
+                    size: '7.5rem'
+                }
+            ]"
+            [filter]="(options | async)?.search"
+            [sortable]="true"
+        ></simple-table>
+        <ng-template #status_template let-row="row">
+            <div
+                class="flex items-center justify-center h-8 w-8 rounded bg-warning text-warning-content mx-auto"
+                [class.!bg-success]="space_status[row.id]?.includes('free')"
+                [class.!text-success-content]="
+                    space_status[row.id]?.includes('free')
+                "
+                [class.!bg-error]="space_status[row.id]?.includes('busy')"
+                [class.!text-error-content]="
+                    space_status[row.id]?.includes('busy')
+                "
+                [matTooltip]="statusTooltip(space_status[row.id])"
+                matTooltipPosition="left"
+            >
+                <app-icon class="text-2xl">
+                    {{
+                        space_status[row.id]?.includes('assigned')
+                            ? 'person'
+                            : space_status[row.id]?.includes('reuse')
+                            ? 'alert'
+                            : 'question_mark'
+                    }}
+                </app-icon>
+            </div>
+        </ng-template>
+        <ng-template #id_template let-data="data">
+            <span class="font-mono text-sm p-4">{{ data }}</span>
+        </ng-template>
+        <ng-template #action_template let-row="row">
+            <div class="w-full flex items-center justify-end space-x-2 px-4">
+                <button
+                    icon
+                    matRipple
+                    (click)="editSpace(row)"
+                    matTooltip="Edit Parking Space"
                 >
-                    <app-icon class="text-2xl">
-                        {{
-                            space_status[row.id]?.includes('assigned')
-                                ? 'person'
-                                : space_status[row.id]?.includes('reuse')
-                                ? 'alert'
-                                : 'question_mark'
-                        }}
-                    </app-icon>
-                </div>
-            </ng-template>
-            <ng-template #id_template let-data="data">
-                <span class="font-mono text-sm p-4">{{ data }}</span>
-            </ng-template>
-            <ng-template #action_template let-row="row">
-                <div
-                    class="w-full flex items-center justify-end space-x-2 px-4"
+                    <app-icon>edit</app-icon>
+                </button>
+                <button
+                    icon
+                    matRipple
+                    class="text-error"
+                    matTooltip="Remove Parking Space"
+                    (click)="removeSpace(row)"
                 >
-                    <button
-                        icon
-                        matRipple
-                        (click)="editSpace(row)"
-                        matTooltip="Edit Parking Space"
-                    >
-                        <app-icon>edit</app-icon>
-                    </button>
-                    <button
-                        icon
-                        matRipple
-                        class="text-error"
-                        matTooltip="Remove Parking Space"
-                        (click)="removeSpace(row)"
-                    >
-                        <app-icon>delete</app-icon>
-                    </button>
-                </div>
-            </ng-template>
-            <mat-progress-bar
-                *ngIf="(loading | async)?.includes('spaces')"
-                class="absolute bottom-0 inset-x-0"
-            ></mat-progress-bar>
-        </div>
+                    <app-icon>delete</app-icon>
+                </button>
+            </div>
+        </ng-template>
+        <div class="w-full h-20"></div>
     `,
     styles: [],
 })

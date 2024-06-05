@@ -34,7 +34,7 @@ export interface TableColumn {
             <div
                 *ngIf="selectable"
                 id="column-selector"
-                class="sticky top-0 flex items-center justify-between px-2 border-r border-base-200 bg-base-300 min-h-full"
+                class="sticky top-0 flex items-center justify-between px-2 border-r border-base-200 bg-base-300 min-h-full z-10"
                 [style.gridArea]="gridSquare(1, 1)"
             >
                 <mat-checkbox
@@ -51,7 +51,7 @@ export interface TableColumn {
                 matRipple
                 *ngFor="let column of active_columns; let i = index"
                 [id]="'column-' + column.key"
-                class="sticky top-0 flex items-center justify-between p-4 border-base-200 bg-base-300 min-h-full"
+                class="sticky top-0 flex items-center justify-between p-4 border-base-200 bg-base-300 min-h-full z-10"
                 [style.gridArea]="gridSquare(1, 1 + i + (selectable ? 1 : 0))"
                 [class.pointer-events-none]="
                     !sortable || column.sortable === false
@@ -77,7 +77,7 @@ export interface TableColumn {
                 <div
                     *ngIf="selectable"
                     id="column-selector"
-                    class="flex items-center justify-between px-2 border-r border-base-200 min-h-full"
+                    class="flex items-center justify-between px-2 border-r border-base-200 min-h-full z-0"
                     [style.gridArea]="gridSquare(2 + i, 1)"
                     [class.border-b]="i !== (data_view$ | async).length - 1"
                     (mouseenter)="active_row = i"
@@ -90,7 +90,7 @@ export interface TableColumn {
                 </div>
                 <div
                     *ngFor="let column of active_columns; let j = index"
-                    class="flex items-center justify-between border-base-200 min-h-full"
+                    class="flex items-center justify-between border-base-200 min-h-full z-0"
                     [style.gridArea]="
                         gridSquare(2 + i, 1 + j + (selectable ? 1 : 0))
                     "

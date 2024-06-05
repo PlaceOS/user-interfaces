@@ -10,64 +10,60 @@ import { User } from '@placeos/users';
 @Component({
     selector: 'guest-listings',
     template: `
-        <div
-            class="w-full min-h-full flex flex-col flex-1 text-sm h-full overflow-auto pb-20"
-        >
-            <simple-table
-                class="min-w-[64rem] block text-sm"
-                [data]="guests"
-                [columns]="[
-                    {
-                        key: 'state',
-                        name: 'Checked In',
-                        content: state_template,
-                        size: '5.5rem',
-                        sortable: false
-                    },
-                    {
-                        key: 'date',
-                        name: 'Time',
-                        content: date_template,
-                        size: '6rem'
-                    },
-                    {
-                        key: 'asset_name',
-                        name: 'Visitor',
-                        content: person_template
-                    },
-                    { key: 'user_name', name: 'Host', content: host_template },
-                    {
-                        key: 'status',
-                        name: 'State',
-                        content: status_template,
-                        size: '9.5rem'
-                    },
-                    {
-                        key: 'induction',
-                        name: 'Inducted',
-                        content: boolean_template,
-                        show: !!inductions_enabled,
-                        size: '5.5rem'
-                    },
-                    {
-                        key: 'parking_space',
-                        name: 'Parking',
-                        content: parking_template,
-                        show: !!has_parking,
-                        size: '5.5rem'
-                    },
-                    {
-                        key: 'actions',
-                        name: ' ',
-                        content: action_template,
-                        size: '3.25rem',
-                        sortable: false
-                    }
-                ]"
-                [filter]="search | async"
-                [sortable]="true"
-            ></simple-table>
-        </div>
+        <simple-table
+            class="min-w-[64rem] block text-sm"
+            [data]="guests"
+            [columns]="[
+                {
+                    key: 'state',
+                    name: 'Checked In',
+                    content: state_template,
+                    size: '5.5rem',
+                    sortable: false
+                },
+                {
+                    key: 'date',
+                    name: 'Time',
+                    content: date_template,
+                    size: '6rem'
+                },
+                {
+                    key: 'asset_name',
+                    name: 'Visitor',
+                    content: person_template
+                },
+                { key: 'user_name', name: 'Host', content: host_template },
+                {
+                    key: 'status',
+                    name: 'State',
+                    content: status_template,
+                    size: '9.5rem'
+                },
+                {
+                    key: 'induction',
+                    name: 'Inducted',
+                    content: boolean_template,
+                    show: !!inductions_enabled,
+                    size: '5.5rem'
+                },
+                {
+                    key: 'parking_space',
+                    name: 'Parking',
+                    content: parking_template,
+                    show: !!has_parking,
+                    size: '5.5rem'
+                },
+                {
+                    key: 'actions',
+                    name: ' ',
+                    content: action_template,
+                    size: '3.25rem',
+                    sortable: false
+                }
+            ]"
+            [filter]="search | async"
+            [sortable]="true"
+        ></simple-table>
         <ng-template #state_template let-row="row">
             <div
                 *ngIf="!row?.checked_in && row.checked_out_at"
@@ -379,6 +375,7 @@ import { User } from '@placeos/users';
         >
             <app-icon>download</app-icon>
         </button>
+        <div class="w-full h-20"></div>
     `,
     styles: [``],
 })

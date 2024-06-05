@@ -50,7 +50,9 @@ import { ParkingStateService } from './parking-state.service';
                     <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
                 </div>
                 <div class="relative flex-1 h-1/2 w-full overflow-auto px-8">
-                    <router-outlet></router-outlet>
+                    <div class="w-full h-full overflow-auto">
+                        <router-outlet></router-outlet>
+                    </div>
                 </div>
                 <div
                     *ngIf="!(levels | async)?.length"
