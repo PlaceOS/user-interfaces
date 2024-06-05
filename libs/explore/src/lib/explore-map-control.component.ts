@@ -74,9 +74,7 @@ export class ExploreMapControlComponent extends AsyncHandler implements OnInit {
     /** Currently active building */
     public readonly building = this._org.active_building;
     /** List of availabel levels */
-    public readonly levels = this._org.active_levels.pipe(
-        map((_) => _.filter((lvl) => !lvl.tags?.includes('parking')))
-    );
+    public readonly levels = this._org.active_levels;
     /** Currently active level */
     public readonly level = this._state.level;
     /** Set the currently active level */

@@ -33,16 +33,16 @@ import { ParkingSpace } from './parking-state.service';
                     </mat-error>
                 </mat-form-field>
                 <label for="user">Assigned User</label>
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-2 mb-4">
                     <a-user-search-field
                         name="user"
                         formControlName="assigned_user"
-                        class="mb-4"
+                        class="flex-1"
                     ></a-user-search-field>
                     <button
                         icon
                         matRipple
-                        class="mb-5 h-12 w-12 min-w-12 rounded bg-secondary text-secondary-content"
+                        class="h-12 w-12 min-w-12 rounded bg-secondary text-secondary-content"
                         matTooltip="Clear Assigned User"
                         (click)="
                             form.patchValue({

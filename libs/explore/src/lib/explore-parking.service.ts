@@ -231,11 +231,6 @@ export class ExploreParkingService extends AsyncHandler {
                 data: { ...space, user: this._users[space.id], status },
             });
             if (!can_book) continue;
-            labels.push({
-                zoom_level: 1.1,
-                location: `${space.map_id}`,
-                content: `${space.name}\nFree`,
-            });
             const book_fn = async () => {
                 if (status !== 'free') {
                     return notifyError(
