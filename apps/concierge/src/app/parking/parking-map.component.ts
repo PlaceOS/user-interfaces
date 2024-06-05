@@ -50,5 +50,6 @@ export class ParkingMapComponent extends AsyncHandler {
                 this._explore.setLevel(_.zones[0]);
             })
         );
+        this.subscription('parking_poll', this._ex_parking.startPolling());
     }
 }

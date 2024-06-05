@@ -164,6 +164,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         this._state.reset();
         await this._spaces.initialised.pipe(first((_) => _)).toPromise();
         this.toggleZones(false);
+        this.subscription('parking_poll', this._parking.startPolling());
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe(async (params) => {
