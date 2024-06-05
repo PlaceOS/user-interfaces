@@ -304,6 +304,7 @@ export class MapRendererComponent
             }
             this.updateFeatureList();
             const tkn = token();
+            console.log('Map Token:', tkn);
             document.cookie = `${
                 tkn === 'x-api-key'
                     ? 'api-key=' + encodeURIComponent(apiKey())
