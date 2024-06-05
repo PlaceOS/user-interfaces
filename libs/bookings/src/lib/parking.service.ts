@@ -135,15 +135,18 @@ export class ParkingService extends AsyncHandler {
         )
     );
 
-    public readonly deny_parking_access = this.users.pipe(
-        map(
-            (list) =>
-                !!list.find(
-                    (_) =>
-                        _.email?.toLowerCase() ===
-                        currentUser().email?.toLowerCase()
-                )?.deny
+    public readonly user_details = this.users.pipe(
+        map((list) =>
+            list.find(
+                (_) =>
+                    _.email?.toLowerCase() ===
+                    currentUser().email?.toLowerCase()
+            )
         )
+    );
+
+    public readonly deny_parking_access = this.user_details.pipe(
+        map((details) => !!details?.deny)
     );
 
     public readonly booked_space = combineLatest([

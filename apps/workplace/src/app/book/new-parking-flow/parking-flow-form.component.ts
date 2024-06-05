@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
-import { BookingFormService } from '@placeos/bookings';
+import { BookingFormService, ParkingService } from '@placeos/bookings';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
@@ -10,6 +10,7 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { NewParkingFlowConfirmComponent } from './parking-flow-confirm.component';
+import { take } from 'rxjs/operators';
 
 @Component({
     selector: 'parking-flow-form',
@@ -136,13 +137,19 @@ export class ParkingFlowFormComponent extends AsyncHandler {
         private _state: BookingFormService,
         private _settings: SettingsService,
         private _router: Router,
-        private _bottom_sheet: MatBottomSheet
+        private _bottom_sheet: MatBottomSheet,
+        private _parking: ParkingService
     ) {
         super();
     }
 
-    public ngOnInit() {
+    public async ngOnInit() {
         this._state.setOptions({ type: 'parking' });
+        this.form.patchValue({ all_day: true });
+        const user = await this._parking.user_details.pipe(take(1)).toPromise();
+        if (user?.email) {
+            this.form.patchValue({ plate_number: user.plate_number });
+        }
     }
 
     public readonly viewConfirm = () => {

@@ -23,15 +23,16 @@ import { User } from '@placeos/users';
                 class="p-4 flex flex-col max-h-[65vh] overflow-auto"
                 [formGroup]="form"
             >
-                <div class="flex items-center space-x-2" *ngIf="!user">
+                <div class="flex items-center space-x-2 mb-4" *ngIf="!user">
                     <a-user-search-field
                         name="user"
                         formControlName="user"
+                        class="flex-1"
                     ></a-user-search-field>
                     <button
                         icon
                         matRipple
-                        class="mb-5 h-12 w-12 min-w-12 rounded bg-secondary text-secondary-content"
+                        class="h-12 w-12 min-w-12 rounded bg-secondary text-secondary-content"
                         matTooltip="Clear Selected User"
                         (click)="
                             form.patchValue({
