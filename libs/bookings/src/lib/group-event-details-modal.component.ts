@@ -50,8 +50,13 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 <app-icon class="text-base">star</app-icon>
                 <div class="uppercase">Featured</div>
             </div>
-            <button icon mat-dialog-close class="absolute top-1 right-1">
-                <app-icon>close</app-icon>
+            <button
+                icon
+                mat-dialog-close
+                class="absolute top-1 right-1 overflow-hidden"
+            >
+                <div class="absolute inset-0 bg-base-100 opacity-30 z-0"></div>
+                <app-icon class="z-10">close</app-icon>
             </button>
             <div
                 class="flex items-center justify-between py-4 px-8 border-b border-base-200"
@@ -243,76 +248,83 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                         </span>
                     </div>
                 </div>
-                <div class="flex w-[20rem]" *ngIf="level">
-                    <div class="border border-base-300 w-full">
-                        <button
-                            matRipple
-                            class="relative w-full h-40 bg-base-200"
-                            (click)="viewLocation()"
-                        >
-                            <interactive-map
-                                *ngIf="!showing_map"
-                                [src]="level?.map_id"
-                                [features]="features"
-                                [styles]="styles"
-                            ></interactive-map>
-                        </button>
-                        <div class=" p-4 space-y-2">
-                            <div>
-                                {{
-                                    (
-                                        booking.linked_event?.system_id
-                                        | space
-                                        | async
-                                    )?.display_name
-                                }}
-                                <span
-                                    *ngIf="
-                                        !(
+                <div>
+                    <div class="flex w-[20rem]" *ngIf="level">
+                        <div class="border border-base-300 w-full">
+                            <button
+                                matRipple
+                                class="relative w-full h-40 bg-base-200"
+                                (click)="viewLocation()"
+                            >
+                                <interactive-map
+                                    *ngIf="!showing_map"
+                                    [src]="level?.map_id"
+                                    [features]="features"
+                                    [styles]="styles"
+                                ></interactive-map>
+                            </button>
+                            <div class=" p-4 space-y-2">
+                                <div>
+                                    {{
+                                        (
                                             booking.linked_event?.system_id
                                             | space
                                             | async
                                         )?.display_name
-                                    "
-                                    class="opacity-30"
-                                >
-                                    Remote Event
-                                </span>
-                            </div>
-                            <div class="opacity-30 text-sm">
-                                <span *ngIf="building && level">
-                                    {{
-                                        building.display_name || building.name
-                                    }},
-                                    {{ level?.display_name || level?.name }}
-                                </span>
-                                <span
-                                    *ngIf="!building || !level"
-                                    class="opacity-30"
-                                >
-                                    No location set for this event
-                                </span>
-                            </div>
-                            <div class="flex items-center space-x-2 pt-4">
-                                <div
-                                    class="flex items-center justify-center h-10 w-10 rounded-full bg-base-200"
-                                    matTooltip="WiFi available"
-                                >
-                                    <app-icon class="text-2xl">wifi</app-icon>
-                                </div>
-                                <div
-                                    class="flex items-center justify-center h-10 w-10 rounded-full bg-base-200"
-                                    matTooltip="Cafe available"
-                                >
-                                    <app-icon class="text-2xl"
-                                        >local_cafe</app-icon
+                                    }}
+                                    <span
+                                        *ngIf="
+                                            !(
+                                                booking.linked_event?.system_id
+                                                | space
+                                                | async
+                                            )?.display_name
+                                        "
+                                        class="opacity-30"
                                     >
+                                        Remote Event
+                                    </span>
                                 </div>
-                                <div
-                                    class="flex items-center justify-center h-10 w-10 rounded-full bg-base-200"
-                                    matTooltip="Open spaces nearby"
-                                >
-                                    <app-icon class="text-2xl">chat</app-icon>
+                                <div class="opacity-30 text-sm">
+                                    <span *ngIf="building && level">
+                                        {{
+                                            building.display_name ||
+                                                building.name
+                                        }},
+                                        {{ level?.display_name || level?.name }}
+                                    </span>
+                                    <span
+                                        *ngIf="!building || !level"
+                                        class="opacity-30"
+                                    >
+                                        No location set for this event
+                                    </span>
+                                </div>
+                                <div class="flex items-center space-x-2 pt-4">
+                                    <div
+                                        class="flex items-center justify-center h-10 w-10 rounded-full bg-base-200"
+                                        matTooltip="WiFi available"
+                                    >
+                                        <app-icon class="text-2xl"
+                                            >wifi</app-icon
+                                        >
+                                    </div>
+                                    <div
+                                        class="flex items-center justify-center h-10 w-10 rounded-full bg-base-200"
+                                        matTooltip="Cafe available"
+                                    >
+                                        <app-icon class="text-2xl"
+                                            >local_cafe</app-icon
+                                        >
+                                    </div>
+                                    <div
+                                        class="flex items-center justify-center h-10 w-10 rounded-full bg-base-200"
+                                        matTooltip="Open spaces nearby"
+                                    >
+                                        <app-icon class="text-2xl"
+                                            >chat</app-icon
+                                        >
+                                    </div>
                                 </div>
                             </div>
                         </div>

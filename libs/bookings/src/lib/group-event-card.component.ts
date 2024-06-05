@@ -89,7 +89,7 @@ import { OrganisationService } from '@placeos/organisation';
                     </div>
                     <div class="flex flex-col space-y-2">
                         <h3 class="text-left">{{ event.title }}</h3>
-                        <div time class="text-sm opacity-30">
+                        <div time class="text-sm opacity-30 text-left">
                             {{ event.date | date: 'EEEE' }}
                             {{ event.date | date: time_format }} -
                             {{
@@ -98,7 +98,7 @@ import { OrganisationService } from '@placeos/organisation';
                             }}
                         </div>
                         <div class="h-20 overflow-hidden text-left">
-                            <p class="line-clamp-4">{{ raw_description }}</p>
+                            <p class="line-clamp-3">{{ raw_description }}</p>
                         </div>
                         <div class="flex items-center space-x-2 text-sm">
                             <app-icon class="text-info">place</app-icon>
