@@ -5,7 +5,7 @@ import {
     downloadFile,
     jsonToCsv,
     notifyError,
-    randomInt,
+    notifyWarn,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { getModule } from '@placeos/ts-client';
@@ -13,11 +13,11 @@ import { StaffUser } from '@placeos/users';
 import { getUnixTime, format, startOfDay, endOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
-    catchError,
     distinctUntilChanged,
     filter,
     map,
     shareReplay,
+    startWith,
     switchMap,
     take,
     tap,
@@ -66,6 +66,7 @@ export class ContactTracingStateService {
         switchMap(([{ start, end, user }]) => {
             if (!user) return of([]);
             this._loading.next('Loading contact events...');
+
             const mod = getModule(this.system_id, 'ContactTracing');
             user = user || currentUser();
             GetUserPipe.addUser(user);
@@ -98,11 +99,8 @@ export class ContactTracingStateService {
                     } as ContactEvent)
             );
         }),
-        catchError((err) => {
-            notifyError(`${err?.msg || JSON.stringify(err)}`);
-            return of([]);
-        }),
         tap((_) => this._loading.next('')),
+        startWith([]),
         shareReplay(1)
     );
 
@@ -154,6 +152,9 @@ export class ContactTracingStateService {
                 Distance: _.distance,
             }))
         );
+        if (!processed_events?.length) {
+            return notifyWarn('No events to download.');
+        }
         downloadFile(
             `report+contact-tracing+${format(start, 'yyyy-MM-dd')}+${format(
                 end,

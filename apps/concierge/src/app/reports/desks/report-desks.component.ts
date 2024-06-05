@@ -46,14 +46,14 @@ import { SettingsService } from '@placeos/common';
             <ng-template #load_state>
                 <div class="h-full w-full flex flex-col items-center p-8">
                     <mat-spinner [diameter]="32" class="mb-4"></mat-spinner>
-                    <p simple>Loading report data...</p>
+                    <p class="opacity-30">Loading report data...</p>
                 </div>
             </ng-template>
             <ng-template #empty_state>
                 <div
                     class="h-full w-full flex flex-col items-center p-8 screen-only"
                 >
-                    <p simple>
+                    <p class="opacity-30">
                         Select levels and time period to generate a report.
                     </p>
                 </div>
@@ -70,10 +70,6 @@ import { SettingsService } from '@placeos/common';
 
             h3 {
                 font-weight: 500;
-            }
-
-            p:not([simple]) {
-                font-size: 1.75rem;
             }
         `,
     ],
