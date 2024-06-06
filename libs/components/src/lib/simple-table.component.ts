@@ -102,7 +102,10 @@ export interface TableColumn {
                     <ng-container [ngSwitch]="columnType(column)">
                         <div class="p-4" *ngSwitchDefault>
                             {{ row[column.key] }}
-                            <span *ngIf="!row[column.key]" class="opacity-30">
+                            <span
+                                *ngIf="row[column.key] == null"
+                                class="opacity-30"
+                            >
                                 N/A
                             </span>
                         </div>
