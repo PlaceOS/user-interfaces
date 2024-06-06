@@ -17,7 +17,7 @@ import { OrganisationService } from '@placeos/organisation';
             class="relative bg-base-100 rounded shadow overflow-hidden flex flex-col items-center w-[32rem] p-4"
         >
             <p class="my-4">
-                Please read the induction information below before proceeding.
+                Please read the induction information below before proceeding
             </p>
             <div
                 class="rounded border border-base-300 w-full p-4 opacity-60 text-sm overflow-y-auto overflow-x-hidden max-h-[50vh] whitespace-pre-wrap"
@@ -96,7 +96,7 @@ export class CheckinInductionComponent {
             notifyError('Error declining induction', err);
             throw err;
         });
-        this._checkin.setError('You have declined the induction');
+        this._checkin.setError('You have declined the induction.');
         notifyInfo('Induction declined successfully');
         this._router.navigate(['/checkin', 'error']);
     }
