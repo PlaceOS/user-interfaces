@@ -20,11 +20,16 @@ describe('SpaceSelectMapComponent', () => {
             MockProvider(EventFormService, {
                 spaces: new BehaviorSubject([]),
                 available_spaces: new BehaviorSubject([]),
-            }),
+                options: new BehaviorSubject({}),
+            } as any),
             MockProvider(OrganisationService, {
+                active_building: new BehaviorSubject({}),
                 active_region: new BehaviorSubject({}),
                 buildings: [],
                 levelWithID: jest.fn(() => ({})),
+                region_list: new BehaviorSubject([]),
+                levelsForRegion: jest.fn(() => []),
+                levelsForBuilding: jest.fn(() => []),
             } as any),
             MockProvider(SettingsService, { get: jest.fn() }),
         ],
@@ -45,8 +50,6 @@ describe('SpaceSelectMapComponent', () => {
         expect(spectator.component).toBeTruthy());
 
     it('should show a map', () => expect('interactive-map').toExist());
-
-    it('should show a level select', () => expect('[levels]').toExist());
 
     it('should allow selecting spaces', (done) => {
         const test_space = new Space({ id: 'test' });

@@ -31,13 +31,17 @@ describe('DeskFiltersComponent', () => {
             MockProvider(MatBottomSheetRef, { dismiss: jest.fn() }),
             MockProvider(SettingsService, { get: jest.fn() }),
             MockProvider(OrganisationService, {
+                active_building: new BehaviorSubject(new Building({ id: '1' })),
                 active_buildings: of([new Building({ id: '1' })]),
                 active_region: new BehaviorSubject(new Region({ id: '1' })),
+                region_list: of([new Region({ id: '1' })]),
                 building: new Building({ id: '1' }),
                 buildings: [
                     new Building({ id: '1' }),
                     new Building({ id: '2' }),
                 ],
+                levelsForBuilding: jest.fn(() => []),
+                levelsForRegion: jest.fn(() => []),
             }),
             MockProvider(BookingFormService, {
                 features: new BehaviorSubject(['standing']),
@@ -46,6 +50,7 @@ describe('DeskFiltersComponent', () => {
                     duration: new FormControl(),
                     all_day: new FormControl(),
                 }),
+                options: new BehaviorSubject({}),
             } as any),
         ],
         declarations: [

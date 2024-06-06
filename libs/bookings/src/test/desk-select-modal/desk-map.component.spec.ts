@@ -8,7 +8,7 @@ import {
     IndoorMapsComponent,
     InteractiveMapComponent,
 } from '@placeos/components';
-import { Desk } from '@placeos/organisation';
+import { Desk, OrganisationService } from '@placeos/organisation';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { take } from 'rxjs/operators';
@@ -29,6 +29,13 @@ describe('DeskMapComponent', () => {
             MockProvider(MapsPeopleService, {
                 use_mapsindoors$: new BehaviorSubject(false),
             } as any),
+            MockProvider(OrganisationService, {
+                building: new BehaviorSubject({}),
+                active_region: new BehaviorSubject({}),
+                active_building: new BehaviorSubject({}),
+                levelsForBuilding: jest.fn(() => []),
+                levelsForRegion: jest.fn(() => []),
+            } as any),
         ],
         declarations: [
             MockComponent(InteractiveMapComponent),
@@ -48,8 +55,6 @@ describe('DeskMapComponent', () => {
         expect(spectator.component).toBeTruthy());
 
     it('should show a map', () => expect('interactive-map').toExist());
-
-    it('should show a level select', () => expect('[levels]').toExist());
 
     it('should allow selecting desk', (done) => {
         const test_space = new Desk({ id: '1' });

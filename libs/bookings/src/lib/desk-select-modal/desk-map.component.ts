@@ -21,6 +21,7 @@ import { OrganisationService } from '@placeos/organisation';
     template: `
         <div class="bg-base-100 p-2 border-b border-base-200 w-full">
             <mat-form-field
+                levels
                 appearance="outline"
                 class="w-full"
                 *ngIf="(levels | async)?.length"
