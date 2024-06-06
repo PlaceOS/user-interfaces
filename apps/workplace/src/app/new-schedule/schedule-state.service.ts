@@ -25,6 +25,7 @@ import { requestSpacesForZone } from '@placeos/spaces';
 import { getModule } from '@placeos/ts-client';
 import {
     addMinutes,
+    differenceInMilliseconds,
     differenceInMinutes,
     endOfDay,
     format,
@@ -361,6 +362,10 @@ export class ScheduleStateService extends AsyncHandler {
                             booking.date,
                             auto_release.time_after || 0
                         );
+                        const close_after = differenceInMilliseconds(
+                            time.getTime() + 60 * 1000,
+                            Date.now()
+                        );
                         const wording =
                             type === 'parking' ? 'reservation' : 'booking';
                         const result = await openConfirmModal(
@@ -380,6 +385,7 @@ export class ScheduleStateService extends AsyncHandler {
                                 icon: { content: 'event_busy' },
                                 confirm_text: 'Keep',
                                 cancel_text: 'Dismiss',
+                                close_delay: close_after,
                             },
                             this._dialog
                         );
