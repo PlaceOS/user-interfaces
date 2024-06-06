@@ -7,7 +7,7 @@ import { AsyncHandler } from '@placeos/common';
     selector: 'asset-listing',
     template: `
         <asset-manager-topbar [active]="active"></asset-manager-topbar>
-        <div class="flex flex-col flex-1 h-1/2 w-full px-4">
+        <div class="flex flex-col flex-1 h-1/2 w-full px-8">
             <nav mat-tab-nav-bar *ngIf="!is_new || active !== 'requests'">
                 <a
                     mat-tab-link

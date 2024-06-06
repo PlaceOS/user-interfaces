@@ -52,7 +52,7 @@ import { User } from '@placeos/users';
                     key: 'actions',
                     name: ' ',
                     content: actions_template,
-                    size: '3rem',
+                    size: '4rem',
                     sortable: false
                 }
             ]"
@@ -206,17 +206,15 @@ import { User } from '@placeos/users';
             </div>
         </ng-template>
         <ng-template #actions_template let-row="row">
-            <div class="w-full flex items-center justify-end space-x-2">
-                <button
-                    icon
-                    matRipple
-                    class="h-12 w-12 rounded-none"
-                    [matMenuTriggerFor]="menu"
-                    [disabled]="row.state === 'done'"
-                >
-                    <app-icon>more_vert</app-icon>
-                </button>
-            </div>
+            <button
+                icon
+                matRipple
+                class="h-12 w-12 rounded mx-2"
+                [matMenuTriggerFor]="menu"
+                [disabled]="row.state === 'done'"
+            >
+                <app-icon>more_vert</app-icon>
+            </button>
             <mat-menu #menu="matMenu">
                 <button mat-menu-item [disabled]="true">
                     <div class="flex items-center space-x-2">
