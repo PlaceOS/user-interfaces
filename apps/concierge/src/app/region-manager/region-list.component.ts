@@ -32,11 +32,13 @@ import { Clipboard } from '@angular/cdk/clipboard';
         </div>
         <ng-template #name_template let-row="row" let-data="data">
             <button
-                class="px-4 py-2 text-left"
+                class="px-4 py-2 text-left leading-tight"
                 (click)="copyToClipboard(row.id)"
             >
                 <div class="">{{ data }}</div>
-                <div class="text-xs opacity-30 select-all">{{ row.id }}</div>
+                <div class="text-[0.625rem] opacity-30 font-mono">
+                    {{ row.id }}
+                </div>
             </button>
         </ng-template>
         <ng-template #action_template let-row="row">
@@ -64,7 +66,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
                     </button>
                     <button mat-menu-item (click)="removeRegion(row)">
                         <div class="flex items-center space-x-2 text-red-500">
-                            <app-icon>delete</app-icon>
+                            <app-icon class="text-error">delete</app-icon>
                             <span>Delete Region</span>
                         </div>
                     </button>

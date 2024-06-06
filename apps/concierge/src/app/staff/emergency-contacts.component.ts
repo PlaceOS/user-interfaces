@@ -7,6 +7,7 @@ import { filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
 import { EmergencyContactModalComponent } from './emergency-contact-modal.component';
 import { notify, notifySuccess, openConfirmModal } from '@placeos/common';
 import { RoleManagementModalComponent } from './role-management-modal.component';
+import { Clipboard } from '@angular/cdk/clipboard';
 
 export interface EmergencyContact {
     id: string;
@@ -128,12 +129,15 @@ export interface EmergencyContactData {
                     ></simple-table>
                     <div class="w-full h-20"></div>
                     <ng-template #person_template let-row="row">
-                        <div class="px-4 py-2 text-left">
+                        <button
+                            class="px-4 py-2 text-left leading-tight"
+                            (click)="copyToClipboard(row.email)"
+                        >
                             <div class="">{{ row.name }}</div>
-                            <div class="text-xs opacity-30">
+                            <div class="text-[0.625rem] opacity-30 font-mono">
                                 {{ row.email }}
                             </div>
-                        </div>
+                        </button>
                     </ng-template>
                     <ng-template #roles_template let-data="data">
                         <div class="flex flex-wrap p-2">
@@ -214,9 +218,15 @@ export class EmergencyContactsComponent {
         )
     );
 
+    public readonly copyToClipboard = (id: string) => {
+        const success = this._clipboard.copy(id);
+        if (success) notifySuccess("User's email copied to clipboard.");
+    };
+
     constructor(
         private _org: OrganisationService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
+        private _clipboard: Clipboard
     ) {}
 
     public ngOnInit() {}
