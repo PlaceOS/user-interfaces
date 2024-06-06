@@ -146,20 +146,19 @@ export class CheckinResultsComponent implements OnInit {
                         : `Please wait in the lobby.`
                 );
             try {
+                const date =
+                    event.date ||
+                    (event as any).event_start * 1000 ||
+                    event.booking_start * 1000 ||
+                    startOfMinute(Date.now());
                 updated_template = updated_template
                     .replace(
                         /{{ date }}/g,
-                        this._date.transform(
-                            event.date || this.now,
-                            'mediumDate'
-                        )
+                        this._date.transform(date, 'mediumDate')
                     )
                     .replace(
                         /{{ time }}/g,
-                        this._date.transform(
-                            event.date || this.now,
-                            this.time_format
-                        )
+                        this._date.transform(date, this.time_format)
                     );
             } catch {}
             return updated_template;

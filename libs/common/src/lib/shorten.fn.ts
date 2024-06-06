@@ -55,6 +55,7 @@ export async function getShortUrlQRCode(
     const key = `${id}.${format}`;
     if (QR_STORE.has(key)) return QR_STORE.get(key);
     const tkn = token();
+    console.log('Token:', tkn);
     document.cookie = `${
         tkn === 'x-api-key'
             ? 'api-key=' + encodeURIComponent(apiKey())

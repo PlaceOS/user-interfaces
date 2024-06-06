@@ -67,7 +67,7 @@ import { User } from '@placeos/users';
         <ng-template #state_template let-row="row">
             <div
                 *ngIf="!row?.checked_in && row.checked_out_at"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-base-content text-base-100 mx-auto"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-base-400 text-neutral-content mx-auto"
                 [matTooltip]="
                     'Checked out at ' + (row.checked_out_at | date: time_format)
                 "
