@@ -25,7 +25,7 @@ import { SettingsService, ShortURL, getShortUrlQRCode } from '@placeos/common';
                 ]"
                 [sortable]="true"
             ></simple-table>
-            <div class="w-full h-20"></div>
+            <div class="w-full h-12"></div>
         </div>
         <ng-template #url_template let-data="data">
             <a link [href]="data" class="p-4 truncate max-w-[32rem]">
@@ -33,7 +33,7 @@ import { SettingsService, ShortURL, getShortUrlQRCode } from '@placeos/common';
             </a>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="w-full flex justify-end space-x-2 p-4">
+            <div class="w-full flex justify-end space-x-2 px-4 py-2 mx-auto">
                 <button
                     icon
                     matRipple
