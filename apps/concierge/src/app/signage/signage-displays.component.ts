@@ -6,51 +6,61 @@ import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'signage-displays',
-    template: ` <custom-table
-            class="block min-w-[52rem]"
-            [dataSource]="display_list"
+    template: `
+        <mat-progress-bar
+            class="w-full mt-4"
+            [class.opacity-0]="!(loading | async)"
+            mode="indeterminate"
+        ></mat-progress-bar>
+        <simple-table
+            class="block min-w-[52rem] text-sm"
+            [data]="display_list"
             [columns]="[
-                'name',
-                'description',
-                'playlists',
-                'orientation',
-                'duration',
-                'actions'
+                { key: 'name', name: 'Name' },
+                { key: 'description', name: 'Description' },
+                { key: 'playlists', name: 'Playlists', content: playlists_template, size: '10rem' },
+                { key: 'orientation', name: 'Orientation', size: '7rem' },
+                {
+                    key: 'duration',
+                    name: 'Duration',
+                    content: duration_template,
+                    size: '6rem',
+                },
+                {
+                    key: 'actions',
+                    name: ' ',
+                    content: actions_template,
+                    size: '6rem',
+                    sortable: false
+                }
             ]"
-            [display_column]="[
-                'Name',
-                'Description',
-                'Media',
-                'Orientation',
-                'Duration',
-                ' '
-            ]"
-            [column_size]="['8r', 'flex', '8r', '7r', '6r', '5r']"
-            [template]="{
-                playlists: playlists_template,
-                duration: duration_template,
-                actions: actions_template
-            }"
-        ></custom-table>
+            [sortable]="true"
+        ></simple-table>
+        <div class="w-full h-8"></div>
         <ng-template #playlists_template let-row="row">
-            {{ row.playlists.length }} Playlist(s)
+            <div class="p-4">{{ row.playlists.length }} Playlist(s)</div>
         </ng-template>
-        <ng-template #duration_template let-row="row">
-            <code>{{ row.duration | mediaDuration }}</code>
+        <ng-template #duration_template let-data="data">
+            <div class="p-4">
+                <code>{{ data | mediaDuration }}</code>
+            </div>
         </ng-template>
         <ng-template #actions_template let-row="row">
-            <button icon matRipple (click)="editItem(row)">
-                <app-icon>edit</app-icon>
-            </button>
-            <button icon matRipple class="text-error" (click)="deleteItem(row)">
-                <app-icon>delete</app-icon>
-            </button>
+            <div class="flex items-center space-x-2 p-2">
+                <button icon matRipple (click)="editItem(row)">
+                    <app-icon>edit</app-icon>
+                </button>
+                <button
+                    icon
+                    matRipple
+                    class="text-error"
+                    (click)="deleteItem(row)"
+                >
+                    <app-icon>delete</app-icon>
+                </button>
+            </div>
         </ng-template>
-        <mat-progress-bar
-            class="absolute inset-x-0 bottom-0"
-            *ngIf="loading | async"
-            mode="indeterminate"
-        ></mat-progress-bar>`,
+    `,
     styles: [``],
 })
 export class SignageDisplaysComponent {

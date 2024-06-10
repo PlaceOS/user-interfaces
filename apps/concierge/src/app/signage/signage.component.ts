@@ -25,19 +25,24 @@ import { AsyncHandler } from '@placeos/common';
                         Add {{ singular(active_link) }}
                     </button>
                 </div>
-                <nav mat-tab-nav-bar [tabPanel]="tabPanel">
-                    @for (link of links; track link) {
-                    <a
-                        mat-tab-link
-                        [routerLink]="'/signage/' + (link | lowercase)"
-                        (click)="active_link = link"
-                        [active]="active_link == link"
-                    >
-                        {{ link }}
-                    </a>
-                    }
-                </nav>
-                <mat-tab-nav-panel class="flex-1 h-1/2 overflow-auto" #tabPanel>
+                <div class="px-8">
+                    <nav mat-tab-nav-bar [tabPanel]="tabPanel">
+                        @for (link of links; track link) {
+                        <a
+                            mat-tab-link
+                            [routerLink]="'/signage/' + (link | lowercase)"
+                            (click)="active_link = link"
+                            [active]="active_link == link"
+                        >
+                            {{ link }}
+                        </a>
+                        }
+                    </nav>
+                </div>
+                <mat-tab-nav-panel
+                    class="flex-1 h-1/2 overflow-auto px-8"
+                    #tabPanel
+                >
                     <router-outlet></router-outlet>
                 </mat-tab-nav-panel>
             </main>
