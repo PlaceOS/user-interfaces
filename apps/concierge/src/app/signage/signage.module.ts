@@ -22,13 +22,13 @@ const ROUTES: Route[] = [
         path: '',
         component: SignageComponent,
         children: [
-            { path: '', redirectTo: 'playlists', pathMatch: 'full' },
-            { path: 'playlists', component: SignagePlaylistsComponent },
+            { path: '', redirectTo: 'media', pathMatch: 'full' },
             { path: 'media', component: SignageMediaComponent },
+            { path: 'playlists', component: SignagePlaylistsComponent },
             { path: 'displays', component: SignageDisplaysComponent },
             { path: 'zones', component: SignageZonesComponent },
             { path: 'triggers', component: SignageTriggersComponent },
-            { path: '*', redirectTo: 'playlists', pathMatch: 'full' },
+            { path: '*', redirectTo: 'media', pathMatch: 'full' },
         ],
     },
 ];

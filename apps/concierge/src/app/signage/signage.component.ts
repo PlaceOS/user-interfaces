@@ -13,7 +13,7 @@ import { AsyncHandler } from '@placeos/common';
             <main class="flex flex-col flex-1 w-1/2 h-full">
                 <div class="p-8 h-28 flex items-center justify-between">
                     <h2 class="text-2xl font-medium">
-                        Signage - {{ active_link }}
+                        Digital Signage Management
                     </h2>
                     <button
                         btn
@@ -62,7 +62,7 @@ import { AsyncHandler } from '@placeos/common';
 })
 export class SignageComponent extends AsyncHandler implements OnInit {
     public readonly loading = this._state.loading;
-    public links = ['Playlists', 'Media', 'Displays', 'Zones', 'Triggers'];
+    public links = ['Media', 'Playlists', 'Displays'];
     public active_link = this.links[0];
 
     public singular(name: string) {

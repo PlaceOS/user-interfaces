@@ -7,7 +7,7 @@ import { AsyncHandler, notifyError } from '@placeos/common';
     selector: 'signage-media',
     template: `
         <div
-            class="relative bg-base-200 min-h-full w-full"
+            class="relative bg-base-200 flex-1 h-[calc(100%-2rem)] w-full my-4 rounded-lg overflow-auto"
             (document:dragenter)="onEnter($event)"
             (document:drop)="hideOverlay($event)"
         >
@@ -19,7 +19,7 @@ import { AsyncHandler, notifyError } from '@placeos/common';
                         class="flex flex-wrap items-start justify-start w-full p-2"
                     >
                         <div
-                            class="m-2 p-2 bg-base-100 rounded-lg overflow-hidden h-[13rem] w-[17rem] border border-base-300 shadow"
+                            class="m-2 p-2 bg-base-100 rounded-lg overflow-hidden h-[13rem] w-[17rem] border border-base-300"
                             *ngFor="let item of media | async"
                         >
                             <button
