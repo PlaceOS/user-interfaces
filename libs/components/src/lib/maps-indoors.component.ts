@@ -87,7 +87,12 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         super();
         const data =
             sessionStorage.getItem('PLACEOS.mapsindoors.resources') || '{}';
-        (RESOURCE_MAP as any) = JSON.parse(data);
+        const value = JSON.parse(data);
+        for (const key in value) {
+            if (value.hasOwnProperty(key)) {
+                RESOURCE_MAP[key] = value[key];
+            }
+        }
     }
 
     public ngOnInit() {
