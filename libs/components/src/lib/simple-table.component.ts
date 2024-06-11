@@ -33,7 +33,7 @@ export interface TableColumn {
             <div
                 *ngIf="selectable"
                 id="column-selector"
-                class="sticky top-0 flex items-center justify-between px-2 border-r border-base-200 bg-base-300 min-h-full z-10"
+                class="sticky top-0 flex items-center justify-between px-2 border-r border-b border-base-200 bg-base-300 min-h-full z-10"
                 [style.gridArea]="gridSquare(1, 1)"
             >
                 <mat-checkbox
@@ -50,7 +50,7 @@ export interface TableColumn {
                 matRipple
                 *ngFor="let column of active_columns; let i = index"
                 [id]="'column-' + column.key"
-                class="sticky top-0 flex items-center justify-between p-4 border-base-200 bg-base-300 min-h-full z-10"
+                class="sticky top-0 flex items-center justify-between p-4 border-b border-base-200 bg-base-300 min-h-full z-10"
                 [style.gridArea]="gridSquare(1, 1 + i + (selectable ? 1 : 0))"
                 [class.pointer-events-none]="
                     !sortable || column.sortable === false
@@ -72,7 +72,16 @@ export interface TableColumn {
                     }}
                 </app-icon>
             </button>
-            <ng-container *ngFor="let row of data_view$ | async; let i = index">
+            <ng-container
+                *ngFor="
+                    let row of data_view$
+                        | async
+                        | slice
+                            : page * (page_size || 9999)
+                            : (page + 1) * (page_size || 9999);
+                    let i = index
+                "
+            >
                 <div
                     *ngIf="selectable"
                     id="column-selector"
@@ -142,6 +151,47 @@ export interface TableColumn {
             </div>
             <!-- TODO: Add pagination -->
         </div>
+        <div
+            *ngIf="page_size"
+            class="w-full flex items-center justify-end space-x-2 p-2 bg-base-200"
+        >
+            <div>
+                {{ page * (page_size || 9999) + 1 }} &ndash;
+                {{
+                    (page + 1) * (page_size || 9999) > total_count
+                        ? total_count
+                        : (page + 1) * (page_size || 9999)
+                }}
+                of {{ total_count }}
+            </div>
+            <button
+                icon
+                matRipple
+                [disabled]="page === 0"
+                (click)="page = page - 1"
+            >
+                <app-icon>chevron_left</app-icon>
+            </button>
+            <button
+                icon
+                matRipple
+                [disabled]="page === total_pages - 1"
+                (click)="page = page + 1"
+            >
+                <app-icon>chevron_right</app-icon>
+            </button>
+            <button icon matRipple [disabled]="page === 0" (click)="page = 0">
+                <app-icon>first_page</app-icon>
+            </button>
+            <button
+                icon
+                matRipple
+                [disabled]="page === total_pages - 1"
+                (click)="page = total_pages - 1"
+            >
+                <app-icon>last_page</app-icon>
+            </button>
+        </div>
     `,
     styles: [
         `
@@ -178,6 +228,8 @@ export class SimpleTableComponent<T extends {} = any> {
     @Output() public rowClicked = new EventEmitter<number>();
 
     public page = 0;
+    public total_count = 0;
+    public total_pages = 0;
     public active_row = -1;
     public active_columns = [];
 
@@ -252,6 +304,12 @@ export class SimpleTableComponent<T extends {} = any> {
                     }
                     this.selected = [];
                     this.page = 0;
+                    if (this.page_size) {
+                        this.total_count = data.length;
+                        this.total_pages = Math.ceil(
+                            this.total_count / this.page_size
+                        );
+                    }
                     return data;
                 })
             );
