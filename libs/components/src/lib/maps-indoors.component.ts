@@ -126,12 +126,14 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         }
     }
 
-    public setResource(id: string, resource: any) {
+    private _setResource(id: string, resource: any) {
         RESOURCE_MAP[id] = resource;
-        sessionStorage.setItem(
-            'PLACEOS.mapsindoors.resources',
-            JSON.stringify(RESOURCE_MAP)
-        );
+        this.timeout('set_resource', () => {
+            sessionStorage.setItem(
+                'PLACEOS.mapsindoors.resources',
+                JSON.stringify(RESOURCE_MAP)
+            );
+        });
     }
 
     private _initialiseServices() {
@@ -367,7 +369,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                             _.roomId === id ||
                             _.id === id
                     );
-                    if (resource) this.setResource(id, resource);
+                    if (resource) this._setResource(id, resource);
                 }
             }
             if (!resource) continue;
