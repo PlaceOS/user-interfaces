@@ -6,8 +6,9 @@ import {
     SimpleChanges,
     TemplateRef,
 } from '@angular/core';
+import { AsyncHandler } from '@placeos/common';
 import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { debounceTime, map, share, shareReplay, take } from 'rxjs/operators';
 
 export interface TableColumn {
     key: string;
@@ -169,7 +170,7 @@ export interface TableColumn {
                 icon
                 matRipple
                 [disabled]="page === 0"
-                (click)="page = page - 1"
+                (click)="setPage(page - 1)"
             >
                 <app-icon>chevron_left</app-icon>
             </button>
@@ -177,18 +178,18 @@ export interface TableColumn {
                 icon
                 matRipple
                 [disabled]="page === total_pages - 1"
-                (click)="page = page + 1"
+                (click)="setPage(page + 1)"
             >
                 <app-icon>chevron_right</app-icon>
             </button>
-            <button icon matRipple [disabled]="page === 0" (click)="page = 0">
+            <button icon matRipple [disabled]="page === 0" (click)="setPage(0)">
                 <app-icon>first_page</app-icon>
             </button>
             <button
                 icon
                 matRipple
                 [disabled]="page === total_pages - 1"
-                (click)="page = total_pages - 1"
+                (click)="setPage(total_pages - 1)"
             >
                 <app-icon>last_page</app-icon>
             </button>
@@ -216,7 +217,7 @@ export interface TableColumn {
         `,
     ],
 })
-export class SimpleTableComponent<T extends {} = any> {
+export class SimpleTableComponent<T extends {} = any> extends AsyncHandler {
     @Input() public data: T[] | Observable<T[]>;
     @Input() public columns: TableColumn[] = [];
     @Input() public selectable = false;
@@ -261,8 +262,6 @@ export class SimpleTableComponent<T extends {} = any> {
         return this.selectable ? `3.5rem ${template}` : template;
     }
 
-    public ngOnInit() {}
-
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.filter) {
             this._filter$.next(this.filter);
@@ -276,7 +275,9 @@ export class SimpleTableComponent<T extends {} = any> {
                 this._filter$,
                 this._sort$,
             ]).pipe(
+                debounceTime(300),
                 map(([data, filter, sort]) => {
+                    console.log('Data:', data, filter, sort);
                     data = [...data];
                     if (filter) {
                         data = data.filter((_) =>
@@ -312,7 +313,8 @@ export class SimpleTableComponent<T extends {} = any> {
                         );
                     }
                     return data;
-                })
+                }),
+                shareReplay(1)
             );
         }
     }
@@ -345,5 +347,9 @@ export class SimpleTableComponent<T extends {} = any> {
         } else {
             this._sort$.next(null);
         }
+    }
+
+    public setPage(page: number) {
+        this.timeout('set_page', () => (this.page = page), 100);
     }
 }
