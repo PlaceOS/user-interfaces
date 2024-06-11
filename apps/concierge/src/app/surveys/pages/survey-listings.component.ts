@@ -56,7 +56,7 @@ import { SurveyListingsService } from '../services/survey-listings.service';
                         name: 'Trigger',
                         content: trigger_template
                     },
-                    { key: 'id', name: 'Link' },
+                    { key: 'id', name: 'Link', show: false },
                     {
                         key: 'actions',
                         name: ' ',
@@ -76,7 +76,7 @@ import { SurveyListingsService } from '../services/survey-listings.service';
         </ng-template>
         <ng-template #trigger_template let-data="data">
             <div class="p-4">
-                {{ triggerMap[data] || data }}
+                {{ data }}
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
@@ -87,20 +87,22 @@ import { SurveyListingsService } from '../services/survey-listings.service';
                 <mat-menu #actionsMenu="matMenu">
                     <button mat-menu-item (click)="onViewStats(row.id)">
                         <div class="flex items-center space-x-2">
-                            <app-icon>analytics</app-icon>
-                            <span>Responses</span>
+                            <app-icon class="text-xl">analytics</app-icon>
+                            <span>Survey Responses</span>
                         </div>
                     </button>
                     <button mat-menu-item (click)="onEdit(row.id)">
                         <div class="flex items-center space-x-2">
-                            <app-icon>edit</app-icon>
-                            <span>Edit</span>
+                            <app-icon class="text-xl">edit</app-icon>
+                            <span>Edit Survey</span>
                         </div>
                     </button>
                     <button mat-menu-item (click)="onDelete(row.id)">
                         <div class="flex items-center space-x-2">
-                            <app-icon>delete</app-icon>
-                            <span>Delete</span>
+                            <app-icon class="text-error text-xl">
+                                delete
+                            </app-icon>
+                            <span>Delete Survey</span>
                         </div>
                     </button>
                 </mat-menu>

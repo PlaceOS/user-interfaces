@@ -120,6 +120,8 @@ export class SurveyListingsService {
                 finalize(() => (this.loading = ''))
             )
             .toPromise();
-        this.surveys = res;
+        this.surveys = res.sort((a, b) =>
+            `${a.zone_id}`.localeCompare(b.zone_id)
+        );
     }
 }
