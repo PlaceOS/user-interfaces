@@ -37,10 +37,10 @@ export interface TableColumn {
                 [style.gridArea]="gridSquare(1, 1)"
             >
                 <mat-checkbox
-                    [checked]="selected.length === (data_view$ | async).length"
+                    [checked]="selected.length === (data_view$ | async)?.length"
                     [indeterminate]="
                         selected.length > 0 &&
-                        selected.length < (data_view$ | async).length
+                        selected.length < (data_view$ | async)?.length
                     "
                     (change)="selectAll($event.checked)"
                 ></mat-checkbox>
@@ -87,7 +87,7 @@ export interface TableColumn {
                     id="column-selector"
                     class="flex items-center justify-between px-2 border-r border-base-200 min-h-full z-0"
                     [style.gridArea]="gridSquare(2 + i, 1)"
-                    [class.border-b]="i !== (data_view$ | async).length - 1"
+                    [class.border-b]="i !== (data_view$ | async)?.length - 1"
                     (mouseenter)="active_row = i"
                     (touchstart)="active_row = i"
                 >
@@ -102,7 +102,7 @@ export interface TableColumn {
                     [style.gridArea]="
                         gridSquare(2 + i, 1 + j + (selectable ? 1 : 0))
                     "
-                    [class.border-b]="i !== (data_view$ | async).length - 1"
+                    [class.border-b]="i !== (data_view$ | async)?.length - 1"
                     [class.border-r]="j !== active_columns.length - 1"
                     [class.width]="column.size"
                     (mouseenter)="active_row = i"
@@ -126,10 +126,11 @@ export interface TableColumn {
                                         first: i === 0,
                                         last:
                                             i ===
-                                                (data_view$ | async).length -
+                                                (data_view$ | async)?.length -
                                                     1 ||
                                             i ===
-                                                (data_view$ | async).length - 1,
+                                                (data_view$ | async)?.length -
+                                                    1,
                                         index: i,
                                         data: row[column.key],
                                         row: row,
@@ -153,9 +154,9 @@ export interface TableColumn {
         </div>
         <div
             *ngIf="page_size"
-            class="w-full flex items-center justify-end space-x-2 p-2 bg-base-200"
+            class="sticky bottom-0 w-full flex items-center justify-end space-x-2 p-2 bg-base-200"
         >
-            <div>
+            <div class="px-4 py-2">
                 {{ page * (page_size || 9999) + 1 }} &ndash;
                 {{
                     (page + 1) * (page_size || 9999) > total_count
