@@ -362,13 +362,14 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             if (!styles[id].fill) continue;
             let resource = RESOURCE_MAP[id];
             if (!resource) {
-                const list = await this._search(id);
+                const id_simple = id.replace(/#/, '');
+                const list = await this._search(id_simple);
                 if (list.length) {
                     resource = list.find(
                         (_) =>
-                            _.externalId === id ||
-                            _.roomId === id ||
-                            _.id === id
+                            _.externalId === id_simple ||
+                            _.roomId === id_simple ||
+                            _.id === id_simple
                     );
                     if (resource) this._setResource(id, resource);
                 }
