@@ -357,14 +357,12 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
     private async _updateMapStyling() {
         if (!this._services) return;
         const styles = this.metadata?.styles || {};
-        log('MapsIndoors', 'Updating map styling', [styles]);
         for (const id in styles) {
             if (!styles[id].fill) continue;
             let resource = RESOURCE_MAP[id];
             if (!resource) {
                 const id_simple = id.replace(/#/, '');
                 const list = await this._search(id_simple);
-                console.log('MapsIndoors', 'Search result', list, id_simple);
                 if (!list.length) continue;
                 resource = list.find(
                     (_) =>
@@ -372,15 +370,9 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                         _.properties?.roomId === id_simple ||
                         _.id === id_simple
                 );
-                console.log('MapsIndoors', 'Found resource', resource);
                 if (resource) this._setResource(id, resource);
             }
             if (!resource) continue;
-            log('MapsIndoors', 'Setting resource style', [
-                id,
-                resource,
-                styles[id],
-            ]);
             this._services.mapsindoors.setDisplayRule(resource.id, {
                 polygonVisible: true,
                 polygonFillOpacity: 0.6,
