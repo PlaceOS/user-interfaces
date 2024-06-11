@@ -52,6 +52,7 @@ import {
                 ></booking-rules-form>
                 <simple-table
                     class="w-full min-w-[32rem] block text-sm"
+                    *ngSwitchCase="'list'"
                     [data]="booking_rules"
                     [columns]="[
                         {
