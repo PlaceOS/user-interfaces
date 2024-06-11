@@ -365,15 +365,15 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                 const id_simple = id.replace(/#/, '');
                 const list = await this._search(id_simple);
                 console.log('MapsIndoors', 'Search result', list, id_simple);
-                if (list.length) {
-                    resource = list.find(
-                        (_) =>
-                            _.externalId === id_simple ||
-                            _.roomId === id_simple ||
-                            _.id === id_simple
-                    );
-                    if (resource) this._setResource(id, resource);
-                }
+                if (!list.length) continue;
+                resource = list.find(
+                    (_) =>
+                        _.externalId === id_simple ||
+                        _.roomId === id_simple ||
+                        _.id === id_simple
+                );
+                console.log('MapsIndoors', 'Found resource', resource);
+                if (resource) this._setResource(id, resource);
             }
             if (!resource) continue;
             log('MapsIndoors', 'Setting resource style', [
