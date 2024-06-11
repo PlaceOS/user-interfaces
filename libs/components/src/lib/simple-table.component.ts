@@ -224,7 +224,7 @@ export class SimpleTableComponent<T extends {} = any> extends AsyncHandler {
     @Input() public filter: string = '';
     @Input() public sortable = false;
     @Input() public selected: number[] = [];
-    @Input() public page_size = -1;
+    @Input() public page_size = 0;
     @Input() public empty_message = 'No data to list';
     @Output() public selectedChange = new EventEmitter<number[]>();
     @Output() public rowClicked = new EventEmitter<number>();
@@ -277,7 +277,6 @@ export class SimpleTableComponent<T extends {} = any> extends AsyncHandler {
             ]).pipe(
                 debounceTime(300),
                 map(([data, filter, sort]) => {
-                    console.log('Data:', data, filter, sort);
                     data = [...data];
                     if (filter) {
                         data = data.filter((_) =>
