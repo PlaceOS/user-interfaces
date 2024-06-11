@@ -357,6 +357,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
     private async _updateMapStyling() {
         if (!this._services) return;
         const styles = this.metadata?.styles || {};
+        log('MapsIndoors', 'Updating map styling', [styles]);
         for (const id in styles) {
             if (!styles[id].fill) continue;
             let resource = RESOURCE_MAP[id];
@@ -373,6 +374,11 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                 }
             }
             if (!resource) continue;
+            log('MapsIndoors', 'Setting resource style', [
+                id,
+                resource,
+                styles[id],
+            ]);
             this._services.mapsindoors.setDisplayRule(resource.id, {
                 polygonVisible: true,
                 polygonFillOpacity: 0.6,
