@@ -143,7 +143,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         }),
         map((_) => _.data.map((_) => new Space(_ as any))),
         tap((_) => (this.loading = '')),
-        shareReplay()
+        shareReplay(1)
     );
 
     constructor(

@@ -85,7 +85,7 @@ export class StaffStateService extends AsyncHandler {
             this._loading.next(false);
             return checkin_map;
         }),
-        shareReplay()
+        shareReplay(1)
     );
 
     constructor(private _org: OrganisationService) {
