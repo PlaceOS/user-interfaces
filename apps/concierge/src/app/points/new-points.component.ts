@@ -15,28 +15,39 @@ import { PointsStateService } from './points-state.service';
                         *ngIf="page === 'assets'"
                         btn
                         matRipple
+                        class="w-40"
                         (click)="newAsset()"
                     >
                         New Asset
                     </button>
                 </points-topbar>
-                <nav mat-tab-nav-bar>
-                    <a
-                        mat-tab-link
-                        [routerLink]="['/entertainment', 'points', 'overview']"
-                        [active]="page === 'overview'"
-                    >
-                        Overview
-                    </a>
-                    <a
-                        mat-tab-link
-                        [routerLink]="['/entertainment', 'points', 'assets']"
-                        [active]="page === 'assets'"
-                    >
-                        Assets
-                    </a>
-                </nav>
-                <div class="flex-1 w-full h-1/2 overflow-auto">
+                <div class="px-8 mb-4">
+                    <nav mat-tab-nav-bar>
+                        <a
+                            mat-tab-link
+                            [routerLink]="[
+                                '/points-management',
+                                'new',
+                                'overview'
+                            ]"
+                            [active]="page === 'overview'"
+                        >
+                            Overview
+                        </a>
+                        <a
+                            mat-tab-link
+                            [routerLink]="[
+                                '/points-management',
+                                'new',
+                                'assets'
+                            ]"
+                            [active]="page === 'assets'"
+                        >
+                            Assets
+                        </a>
+                    </nav>
+                </div>
+                <div class="flex-1 w-full h-1/2 overflow-auto px-8">
                     <router-outlet></router-outlet>
                 </div>
             </main>

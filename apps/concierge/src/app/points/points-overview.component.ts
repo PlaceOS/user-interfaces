@@ -3,12 +3,14 @@ import { Component, OnInit } from '@angular/core';
 @Component({
     selector: 'points-overview',
     template: `
-        <h2 class="p-2 bg-secondary text-white w-full  font-medium text-lg">
+        <h2
+            class="px-4 py-3 bg-secondary text-white w-full rounded font-medium text-lg shadow"
+        >
             Point Overview
         </h2>
         <section class="bg-base-100 w-full">
             <h2 class="p-2 underline font-medium text-lg">Point Value</h2>
-            <div class="flex items-center space-x-2 p-2 mb-4">
+            <div class="flex items-center space-x-2 p-4 mb-4">
                 <span>1 point =</span>
                 <a-counter
                     class="bg-base-100 rounded border border-base-200"
