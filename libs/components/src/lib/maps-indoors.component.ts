@@ -36,6 +36,8 @@ interface MapsIndoorServices {
     directions_renderer: any;
 }
 
+const RESOURCE_MAP: Record<string, any> = {};
+
 @Component({
     selector: 'maps-indoors',
     template: `
@@ -83,6 +85,9 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         private _org: OrganisationService
     ) {
         super();
+        const data =
+            sessionStorage.getItem('PLACEOS.mapsindoors.resources') || '{}';
+        (RESOURCE_MAP as any) = JSON.parse(data);
     }
 
     public ngOnInit() {
@@ -114,6 +119,14 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         if (changes.options) {
             this._addFloorSelector();
         }
+    }
+
+    public setResource(id: string, resource: any) {
+        RESOURCE_MAP[id] = resource;
+        sessionStorage.setItem(
+            'PLACEOS.mapsindoors.resources',
+            JSON.stringify(RESOURCE_MAP)
+        );
     }
 
     private _initialiseServices() {
@@ -334,12 +347,26 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         });
     }
 
-    private _updateMapStyling() {
+    private async _updateMapStyling() {
         if (!this._services) return;
         const styles = this.metadata?.styles || {};
         for (const id in styles) {
             if (!styles[id].fill) continue;
-            this._services.mapsindoors.setDisplayRule(id, {
+            let resource = RESOURCE_MAP[id];
+            if (!resource) {
+                const list = await this._search(id);
+                if (list.length) {
+                    resource = list.find(
+                        (_) =>
+                            _.externalId === id ||
+                            _.roomId === id ||
+                            _.id === id
+                    );
+                    if (resource) this.setResource(id, resource);
+                }
+            }
+            if (!resource) continue;
+            this._services.mapsindoors.setDisplayRule(resource.id, {
                 polygonVisible: true,
                 polygonFillOpacity: 0.6,
                 polygonZoomFrom: 16,
