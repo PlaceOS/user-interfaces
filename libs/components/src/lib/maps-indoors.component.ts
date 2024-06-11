@@ -368,8 +368,8 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                 if (!list.length) continue;
                 resource = list.find(
                     (_) =>
-                        _.externalId === id_simple ||
-                        _.roomId === id_simple ||
+                        _.properties?.externalId === id_simple ||
+                        _.properties?.roomId === id_simple ||
                         _.id === id_simple
                 );
                 console.log('MapsIndoors', 'Found resource', resource);
