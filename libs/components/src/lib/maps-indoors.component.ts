@@ -364,6 +364,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             if (!resource) {
                 const id_simple = id.replace(/#/, '');
                 const list = await this._search(id_simple);
+                console.log('MapsIndoors', 'Search result', list, id_simple);
                 if (list.length) {
                     resource = list.find(
                         (_) =>
