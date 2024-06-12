@@ -40,10 +40,21 @@ import { map, take } from 'rxjs/operators';
                     <button
                         btn
                         matRipple
+                        *ngIf="path !== 'manage'"
                         class="space-x-2 w-44"
                         (click)="newDeskBooking()"
                     >
                         <div class="pl-2">New Booking</div>
+                        <app-icon class="text-2xl">add</app-icon>
+                    </button>
+                    <button
+                        btn
+                        matRipple
+                        *ngIf="path === 'manage'"
+                        class="space-x-2 w-44"
+                        (click)="editDesk()"
+                    >
+                        <div class="pl-2">New Desk</div>
                         <app-icon class="text-2xl">add</app-icon>
                     </button>
                 </div>
@@ -140,16 +151,6 @@ import { map, take } from 'rxjs/operators';
                             icon
                             matRipple
                             class="bg-secondary text-secondary-content rounded h-12 w-12"
-                            (click)="newDesk()"
-                            matTooltip="New Desk"
-                        >
-                            <app-icon>add</app-icon>
-                        </button>
-                        <button
-                            btn
-                            icon
-                            matRipple
-                            class="bg-secondary text-secondary-content rounded h-12 w-12"
                             matTooltip="Upload Desks CSV"
                         >
                             <app-icon>cloud_upload</app-icon>
@@ -226,6 +227,7 @@ export class NewDesksComponent
     public readonly setDate = (date) => this._state.setFilters({ date });
     public readonly setFilters = (o) => this._state.setFilters(o);
     public readonly refresh = () => this._state.refresh();
+    public readonly editDesk = () => this._state.editDesk();
     /** Update active zones for desks */
     public readonly updateZones = (zones: string[]) => {
         this._router.navigate([], {
@@ -297,13 +299,6 @@ export class NewDesksComponent
         this._dialog.open(BookingRulesModalComponent, {
             data: { type: 'desk' },
         });
-    }
-
-    public newDesk() {
-        this._state.addDesks([new Desk({ id: `desk-${randomInt(999_999)}` })]);
-        notifyInfo('New desk added to local data.', undefined, () =>
-            notifyInfo('Make sure to save the new desk before using it.')
-        );
     }
 
     public downloadTemplate() {

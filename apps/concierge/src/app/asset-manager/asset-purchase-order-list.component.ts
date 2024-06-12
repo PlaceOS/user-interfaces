@@ -11,42 +11,51 @@ import { Router } from '@angular/router';
             class="relative -left-4 w-[calc(100%+2rem)] mt-4 h-[calc(100%-1rem)] flex flex-col"
         >
             <div class="w-full overflow-auto h-1/2 flex-1 p-4">
-                <custom-table
+                <simple-table
+                    class="min-w-[52rem] block text-sm"
                     purchase-orders
-                    class="block min-w-[52rem] text-sm"
-                    [dataSource]="purchase_orders"
+                    [data]="purchase_orders"
                     [columns]="[
-                        'purchase_order_number',
-                        'invoice_number',
-                        'purchase_date',
-                        'expected_service_start_date',
-                        'expected_service_end_date'
+                        {
+                            key: 'purchase_order_number',
+                            name: 'PO Number'
+                        },
+                        {
+                            key: 'invoice_number',
+                            name: 'Invoice Number'
+                        },
+                        {
+                            key: 'purchase_date',
+                            name: 'Purchase Date',
+                            content: date_template
+                        },
+                        {
+                            key: 'expected_service_start_date',
+                            name: 'Service Start',
+                            content: date_template
+                        },
+                        {
+                            key: 'expected_service_end_date',
+                            name: 'Service End',
+                            content: date_template
+                        }
                     ]"
-                    [display_column]="[
-                        'Order Number',
-                        'Invoice Number',
-                        'Purchase Date',
-                        'Depreciation Start',
-                        'Depreciation End'
-                    ]"
-                    [column_size]="['flex', '10r', '10r', '10r', '10r']"
-                    [template]="{
-                    purchase_date: date_template,
-                    expected_service_start_date: date_template,
-                    expected_service_end_date: date_template,
-                }"
-                    [empty]="
+                    [empty_message]="
                         (filters | async)?.search
                             ? 'No matching purchase orders found.'
                             : 'There are purchase orders for this building.'
                     "
+                    [filter]="(filters | async)?.search"
+                    [sortable]="true"
                     (row_clicked)="editOrder($event)"
-                ></custom-table>
+                ></simple-table>
             </div>
         </div>
         <ng-template #date_template let-data="data">
-            <span class="opacity-30" *ngIf="!data">No Date set</span>
-            {{ data ? (data * 1000 | date: 'mediumDate') : '' }}
+            <div class="p-4">
+                <span class="opacity-30" *ngIf="!data">No Date</span>
+                {{ data ? (data * 1000 | date: 'mediumDate') : '' }}
+            </div>
         </ng-template>
     `,
     styles: [

@@ -79,11 +79,13 @@ import { distinctUntilChanged, map, take } from 'rxjs/operators';
                     </mat-select>
                 </mat-form-field>
             </div>
-            <div
-                class="h-1/2 flex-1 w-full px-8 overflow-auto relative"
-                [class.mb-4]="view === 'list'"
-            >
-                <event-listing *ngIf="view === 'list'"></event-listing>
+            <div class="h-1/2 flex-1 w-full px-8 overflow-y-auto relative">
+                <div
+                    class="w-full min-h-full overflow-x-auto"
+                    *ngIf="view === 'list'"
+                >
+                    <event-listing class="block"></event-listing>
+                </div>
                 <event-calendar
                     *ngIf="view === 'calendar'"
                     [period]="period | async"

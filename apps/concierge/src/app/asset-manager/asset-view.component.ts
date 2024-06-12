@@ -160,7 +160,6 @@ import { combineLatest } from 'rxjs';
             <mat-tab-group class="flex-1 h-px">
                 <mat-tab label="Assets">
                     <div class="max-w-[768px] mx-auto p-4">
-                        <h3 class="p-2">Assets</h3>
                         <div class="flex w-full items-center space-x-2 mb-2">
                             <a
                                 btn
@@ -185,33 +184,33 @@ import { combineLatest } from 'rxjs';
                                 Bulk Add Asset
                             </a>
                         </div>
-                        <custom-table
-                            asset-view
-                            class="w-full block text-sm"
-                            [dataSource]="(asset_list | async) || []"
+                        <simple-table
+                            class="min-w-[40rem] block text-sm"
+                            [data]="asset_list"
                             [columns]="[
-                                'id',
-                                'identifier',
-                                'serial_number',
-                                'actions'
+                                { key: 'id', name: 'ID' },
+                                {
+                                    key: 'identifier',
+                                    name: 'Label/Friendly Name'
+                                },
+                                { key: 'serial_number', name: 'Serial Number' },
+                                {
+                                    key: 'actions',
+                                    name: ' ',
+                                    content: action_template,
+                                    size: '5.5rem',
+                                    sortable: false
+                                }
                             ]"
-                            [display_column]="[
-                                'ID',
-                                'Label/Friendly Name',
-                                'Serial Number',
-                                ' '
-                            ]"
-                            [column_size]="['10r', '14r', '8r', 'flex']"
-                            [template]="{
-                                actions: action_template,
-                            }"
-                            empty="No assets for this product"
-                        >
-                        </custom-table>
+                            empty_message="No assets for this product"
+                            [sortable]="true"
+                        ></simple-table>
+
                         <ng-template #action_template let-row="row">
-                            <div class="flex w-full items-center justify-end">
+                            <div
+                                class="flex w-full items-center justify-end p-2"
+                            >
                                 <a
-                                    btn
                                     icon
                                     matRipple
                                     [routerLink]="[
@@ -223,17 +222,18 @@ import { combineLatest } from 'rxjs';
                                         id: row.id,
                                         group_id: (item | async)?.id
                                     }"
-                                    class="clear"
+                                    matTooltip="Edit Asset"
                                 >
-                                    <app-icon class="text-lg">edit</app-icon>
+                                    <app-icon>edit</app-icon>
                                 </a>
                                 <button
-                                    btn
                                     icon
                                     matRipple
+                                    class="text-error"
                                     (click)="removeAsset(row)"
+                                    matTooltip="Remove Asset"
                                 >
-                                    <app-icon class="text-lg">delete</app-icon>
+                                    <app-icon>delete</app-icon>
                                 </button>
                             </div>
                         </ng-template>
@@ -257,7 +257,6 @@ import { combineLatest } from 'rxjs';
                 </mat-tab>
                 <mat-tab label="Purchase information">
                     <div class="max-w-[768px] mx-auto p-4">
-                        <h3 class="p-2">Purchase Orders</h3>
                         <a
                             btn
                             matRipple
@@ -271,38 +270,46 @@ import { combineLatest } from 'rxjs';
                         >
                             Add Purchase Order
                         </a>
-
-                        <custom-table
-                            asset-view
-                            class="w-full block text-sm"
-                            [dataSource]="(item | async)?.purchase_orders || []"
+                        <simple-table
+                            class="min-w-[40rem] block text-sm"
+                            asset-purchases
+                            [data]="(item | async)?.purchase_orders"
                             [columns]="[
-                                'purchase_order_number',
-                                'invoice_number',
-                                'expected_service_start_date',
-                                'expected_service_end_date',
-                                'actions'
+                                {
+                                    key: 'purchase_order_number',
+                                    name: 'PO Number'
+                                },
+                                {
+                                    key: 'invoice_number',
+                                    name: 'Invoice Number'
+                                },
+                                {
+                                    key: 'expected_service_start_date',
+                                    name: 'Service Start',
+                                    content: date_template
+                                },
+                                {
+                                    key: 'expected_service_end_date',
+                                    name: 'Service End',
+                                    content: date_template
+                                },
+                                {
+                                    key: 'actions',
+                                    name: ' ',
+                                    content: po_action_template,
+                                    size: '5.5rem',
+                                    sortable: false
+                                }
                             ]"
-                            [display_column]="[
-                                'Order Number',
-                                'Invoice Number',
-                                'Service Start',
-                                'Service End',
-                                ' '
-                            ]"
-                            [column_size]="['10r', '10r', '10r', '10r', 'flex']"
-                            [template]="{
-                                actions: po_action_template,
-                                expected_service_start_date: date_template,
-                                expected_service_end_date: date_template
-                            }"
-                            empty="No assets for this product"
-                        >
-                        </custom-table>
+                            empty_message="No purchase orders for this product"
+                            [sortable]="true"
+                        ></simple-table>
+
                         <ng-template #po_action_template let-row="row">
-                            <div class="flex w-full items-center justify-end">
+                            <div
+                                class="flex w-full items-center justify-end p-2"
+                            >
                                 <a
-                                    btn
                                     icon
                                     matRipple
                                     [routerLink]="[
@@ -314,14 +321,13 @@ import { combineLatest } from 'rxjs';
                                         id: row.id,
                                         group_id: row?.id
                                     }"
-                                    class="clear"
                                 >
                                     <app-icon class="text-lg">edit</app-icon>
                                 </a>
                                 <button
-                                    btn
                                     icon
                                     matRipple
+                                    class="text-error"
                                     (click)="removePurchaseOrder(row)"
                                 >
                                     <app-icon class="text-lg">delete</app-icon>
@@ -341,8 +347,10 @@ import { combineLatest } from 'rxjs';
             </div>
         </ng-template>
         <ng-template #date_template let-data="data">
-            {{ data * 1000 | date: 'mediumDate' }}
-            <span *ngIf="!data" class="opacity-30"> No Date </span>
+            <div class="p-4">
+                {{ data * 1000 | date: 'mediumDate' }}
+                <span *ngIf="!data" class="opacity-30"> No Date </span>
+            </div>
         </ng-template>
         <ng-template #delete_tooltip>
             <div

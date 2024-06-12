@@ -177,7 +177,6 @@ export class AssetManagerStateService extends AsyncHandler {
     ]).pipe(
         map(([list, options]) => {
             const search = (options.search || '').toLowerCase();
-            console.log('Requests:', list, search);
             return search
                 ? list.filter(
                       (i) =>

@@ -23,6 +23,7 @@ import { DeskBookModalComponent } from './desk-book-modal.component';
 import { SharedBookingsModule } from '@placeos/bookings';
 import { FormFieldsModule } from '@placeos/form-fields';
 import { NewDesksComponent } from './new-desks.component';
+import { DeskModalComponent } from './desk-modal.component';
 
 const ROUTES: Route[] = [
     {
@@ -57,6 +58,7 @@ const ROUTES: Route[] = [
         DesksManageComponent,
         NewDeskFormDetailsComponent,
         DeskBookModalComponent,
+        DeskModalComponent,
     ],
     imports: [
         CommonModule,

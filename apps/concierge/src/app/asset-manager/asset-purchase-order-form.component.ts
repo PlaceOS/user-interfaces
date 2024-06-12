@@ -103,30 +103,22 @@ import { OrganisationService } from '@placeos/organisation';
                             (asset_list | async)?.length || '0'
                         }})
                     </h3>
-                    <custom-table
-                        asset-view
+                    <simple-table
                         class="w-full block text-sm"
                         *ngIf="item?.id"
-                        [dataSource]="(asset_list | async) || []"
+                        [data]="(asset_list | async) || []"
                         [columns]="[
-                            'name',
-                            'identifier',
-                            'serial_number',
-                            'actions'
+                            { key: 'name', name: 'Name' },
+                            { key: 'identifier', name: 'Label/Friendly Name' },
+                            { key: 'serial_number', name: 'Serial Number' },
+                            {
+                                key: 'actions',
+                                name: ' ',
+                                content: action_template
+                            }
                         ]"
-                        [display_column]="[
-                            'Name',
-                            'Label/Friendly Name',
-                            'Serial Number',
-                            ' '
-                        ]"
-                        [column_size]="['10r', '11r', '8r', 'flex']"
-                        [template]="{
-                            actions: action_template,
-                        }"
-                        empty="No assets for this purchase order"
-                    >
-                    </custom-table>
+                        empty_message="No assets for this purchase order"
+                    ></simple-table>
                 </main>
                 <footer
                     class="flex justify-end space-x-2 p-2 border-t border-base-200"

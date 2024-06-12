@@ -27,171 +27,87 @@ import { SurveyListingsService } from '../services/survey-listings.service';
         `,
     ],
     template: `
-        <div
-            *ngIf="(loading$ | async).length"
-            class="flex absolute inset-0 opacity-60 bg-base-100 z-10"
-        >
-            <div class="flex flex-col m-auto items-center">
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <span>{{ loading$ | async }}</span>
+        <div class="flex items-center justify-between px-8 py-4 w-full">
+            <div class="flex">
+                <button icon matRipple (click)="back()">
+                    <app-icon class="flex mr-2">arrow_back</app-icon>
+                </button>
+                <div class="flex flex-col">
+                    <span class="text-2xl">Survey Listing </span>
+                    <span class="text-4xl">{{
+                        (building$ | async)?.display_name || building_name
+                    }}</span>
+                </div>
             </div>
+            <button btn matRipple class="space-x-2" (click)="newSurvey()">
+                <span class="ml-2">Add New Survey</span>
+                <app-icon>add</app-icon>
+            </button>
         </div>
-        <div class="flex flex-col bg-base-100 w-full max-w-[70rem] m-auto ">
-            <header class="flex items-center justify-between pt-8 mb-4 w-full">
-                <div class="flex items-start">
-                    <button icon matRipple (click)="back()">
-                        <app-icon class="flex mr-2">arrow_back</app-icon>
-                    </button>
-                    <ng-container
-                        *ngIf="
-                            building$ | async as building;
-                            else unknownBuilding
-                        "
-                    >
-                        <div class="flex flex-col">
-                            <span class="text-2xl">Survey Listing </span>
-                            <span class="text-4xl">{{
-                                building.display_name || building.name
-                            }}</span>
+        <div class="flex flex-1 h-1/2 w-full overflow-auto px-8">
+            <simple-table
+                class="min-w-[36rem] w-full block text-sm"
+                [data]="surveys$"
+                [columns]="[
+                    { key: 'title', name: 'Title' },
+                    { key: 'zone_id', name: 'Level', content: level_template },
+                    {
+                        key: 'trigger',
+                        name: 'Trigger',
+                        content: trigger_template
+                    },
+                    { key: 'id', name: 'Link', show: false },
+                    {
+                        key: 'actions',
+                        name: ' ',
+                        content: action_template,
+                        size: '3.5rem',
+                        sortable: false
+                    }
+                ]"
+                [sortable]="true"
+                empty_message="No surveys found. Click on <i>Add survey</i> to create new surveys for this building."
+            ></simple-table>
+        </div>
+        <ng-template #level_template let-data="data">
+            <div class="p-4">
+                {{ levelMap[data] || data }}
+            </div>
+        </ng-template>
+        <ng-template #trigger_template let-data="data">
+            <div class="p-4">
+                {{ data }}
+            </div>
+        </ng-template>
+        <ng-template #action_template let-row="row">
+            <div class="flex items-center space-x-2 mx-auto p-2">
+                <button icon matRipple [matMenuTriggerFor]="actionsMenu">
+                    <app-icon>more_vert</app-icon>
+                </button>
+                <mat-menu #actionsMenu="matMenu">
+                    <button mat-menu-item (click)="onViewStats(row.id)">
+                        <div class="flex items-center space-x-2">
+                            <app-icon class="text-xl">analytics</app-icon>
+                            <span>Survey Responses</span>
                         </div>
-                    </ng-container>
-                    <ng-template #unknownBuilding>
-                        <span class="text-2xl">Survey Listing</span>
-                    </ng-template>
-                </div>
-
-                <div class="flex items-center mr-2">
-                    <button
-                        btn
-                        matRipple
-                        class="space-x-2"
-                        (click)="newSurvey()"
-                    >
-                        <span class="ml-2">Add New Survey</span>
-                        <app-icon>add</app-icon>
                     </button>
-                </div>
-            </header>
-
-            <div class="flex flex-col w-full pl-6">
-                <table mat-table [dataSource]="surveys$ | async">
-                    <ng-container matColumnDef="title">
-                        <th mat-header-cell *matHeaderCellDef class="text-lg">
-                            Title
-                        </th>
-                        <td
-                            mat-cell
-                            *matCellDef="let element"
-                            class="text-base"
-                        >
-                            {{ element.title }}
-                        </td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="level">
-                        <th mat-header-cell *matHeaderCellDef class="text-lg">
-                            Level
-                        </th>
-                        <td
-                            mat-cell
-                            *matCellDef="let element"
-                            class="text-base"
-                        >
-                            {{ levelMap[element.zone_id] || element.zone_id }}
-                        </td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="trigger">
-                        <th mat-header-cell *matHeaderCellDef class="text-lg">
-                            Trigger
-                        </th>
-                        <td
-                            mat-cell
-                            *matCellDef="let element"
-                            class="text-base"
-                        >
-                            {{ triggerMap[element.trigger] }}
-                        </td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="link">
-                        <th mat-header-cell *matHeaderCellDef class="text-lg">
-                            Link
-                        </th>
-                        <td
-                            mat-cell
-                            *matCellDef="let element"
-                            class="text-base"
-                        >
-                            {{ element.id }}
-                        </td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="actions">
-                        <th mat-header-cell *matHeaderCellDef></th>
-                        <td mat-cell *matCellDef="let element">
-                            <button
-                                icon
-                                matRipple
-                                [matMenuTriggerFor]="actionsMenu"
-                            >
-                                <app-icon>more_vert</app-icon>
-                            </button>
-                            <mat-menu #actionsMenu="matMenu">
-                                <button
-                                    mat-menu-item
-                                    (click)="onViewStats(element.id)"
-                                >
-                                    <div class="flex items-center space-x-2">
-                                        <app-icon>analytics</app-icon>
-                                        <span>Responses</span>
-                                    </div>
-                                </button>
-                                <button
-                                    mat-menu-item
-                                    (click)="onEdit(element.id)"
-                                >
-                                    <div class="flex items-center space-x-2">
-                                        <app-icon>edit</app-icon>
-                                        <span>Edit</span>
-                                    </div>
-                                </button>
-                                <button
-                                    mat-menu-item
-                                    (click)="onDelete(element.id)"
-                                >
-                                    <div class="flex items-center space-x-2">
-                                        <app-icon>delete</app-icon>
-                                        <span>Delete</span>
-                                    </div>
-                                </button>
-                            </mat-menu>
-                        </td>
-                    </ng-container>
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                    <tr
-                        mat-row
-                        *matRowDef="let row; columns: displayedColumns"
-                    ></tr>
-                    <tr class="mat-row" *matNoDataRow>
-                        <td
-                            class="mat-cell"
-                            [attr.colspan]="displayedColumns.length"
-                        >
-                            <div
-                                class="flex w-full h-20 items-center justify-center"
-                            >
-                                <span class="text-base">
-                                    No surveys found. Click on
-                                    <i>Add survey</i> to create new surveys for
-                                    this building.
-                                </span>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
+                    <button mat-menu-item (click)="onEdit(row.id)">
+                        <div class="flex items-center space-x-2">
+                            <app-icon class="text-xl">edit</app-icon>
+                            <span>Edit Survey</span>
+                        </div>
+                    </button>
+                    <button mat-menu-item (click)="onDelete(row.id)">
+                        <div class="flex items-center space-x-2">
+                            <app-icon class="text-error text-xl">
+                                delete
+                            </app-icon>
+                            <span>Delete Survey</span>
+                        </div>
+                    </button>
+                </mat-menu>
             </div>
-        </div>
+        </ng-template>
     `,
     providers: [SurveyListingsService],
 })
