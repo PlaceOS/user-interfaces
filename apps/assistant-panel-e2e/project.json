@@ -1,0 +1,29 @@
+{
+    "name": "assistant-panel-e2e",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "application",
+    "sourceRoot": "apps/assistant-panel-e2e/src",
+    "tags": [],
+    "implicitDependencies": ["assistant-panel"],
+    "targets": {
+        "e2e": {
+            "executor": "@nx/cypress:cypress",
+            "options": {
+                "cypressConfig": "apps/assistant-panel-e2e/cypress.config.ts",
+                "testingType": "e2e",
+                "devServerTarget": "assistant-panel:serve:development"
+            },
+            "configurations": {
+                "production": {
+                    "devServerTarget": "assistant-panel:serve:production"
+                },
+                "ci": {
+                    "devServerTarget": "assistant-panel:serve-static"
+                }
+            }
+        },
+        "lint": {
+            "executor": "@nx/eslint:lint"
+        }
+    }
+}

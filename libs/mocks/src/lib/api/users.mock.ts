@@ -5,8 +5,8 @@ import { ACTIVE_USER, MOCK_GUESTS, MOCK_STAFF } from './users.data';
 import { MOCK_LEVELS } from './zone.data';
 import { MOCK_SPACES } from './spaces.data';
 
-import * as dayjs from 'dayjs';
 import { MOCK_EVENTS } from './events.data';
+import { getUnixTime, subMinutes } from 'date-fns';
 
 export const USER_MOCKS = registerMocks();
 
@@ -148,7 +148,7 @@ function registerMocks() {
                     building: level.parent_id,
                     level: level.id,
                     map_id: space.map_id,
-                    checked_in: dayjs().unix(),
+                    checked_in: getUnixTime(Date.now()),
                 };
                 break;
             case 'laptop':
@@ -158,18 +158,18 @@ function registerMocks() {
                     level: level.id,
                     x: +predictableRandomInt(10000),
                     y: +predictableRandomInt(5000),
-                    last_seen: dayjs()
-                        .subtract(predictableRandomInt(60), 'm')
-                        .unix(),
+                    last_seen: getUnixTime(
+                        subMinutes(Date.now(), predictableRandomInt(60))
+                    ),
                 };
                 break;
             case 'geo':
                 location.geo = {
                     lat: predictableRandomInt(180) - 90,
                     lon: predictableRandomInt(360) - 180,
-                    last_seen: dayjs()
-                        .subtract(predictableRandomInt(60), 'm')
-                        .unix(),
+                    last_seen: getUnixTime(
+                        subMinutes(Date.now(), predictableRandomInt(60))
+                    ),
                 };
                 break;
         }

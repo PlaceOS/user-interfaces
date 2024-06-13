@@ -39,6 +39,11 @@ import { SurveyService } from './services/survey.service';
 import { SurveyComponent } from './survey.component';
 import { NewSurveyComponent } from './new-survey.component';
 
+import { StylesManager } from 'survey-core';
+
+//SurveyJS styling
+StylesManager.applyTheme('modern');
+
 const children: Route[] = [
     { path: '', component: BuildingListComponent },
     { path: 'survey-list/:id', component: SurveyListingsComponent },
