@@ -165,6 +165,7 @@ const EMPTY = [];
                                     (ngModelChange)="
                                         form.patchValue({ date: $event })
                                     "
+                                    [disabled]="form.controls.date.disabled"
                                     [ngModelOptions]="{ standalone: true }"
                                     [use_24hr]="use_24hr"
                                 ></a-time-field>
