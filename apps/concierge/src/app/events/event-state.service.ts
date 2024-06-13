@@ -33,12 +33,14 @@ export class EventStateService extends AsyncHandler {
     private _options = new BehaviorSubject<GroupEventOptions>({
         period: 'week',
     });
+    private _poll = new BehaviorSubject(0);
     private _changed = new BehaviorSubject(0);
 
     public readonly event_list = combineLatest([
         this._org.active_building,
         this._options,
         this._changed,
+        this._poll,
     ]).pipe(
         filter(([bld]) => !!bld),
         switchMap(([bld, options]) =>
@@ -74,6 +76,19 @@ export class EventStateService extends AsyncHandler {
         private _router: Router
     ) {
         super();
+    }
+
+    public startPolling(delay = 60 * 1000) {
+        this.interval(
+            'poll',
+            () => (document.hasFocus() ? this._poll.next(Date.now()) : ''),
+            delay
+        );
+        return () => this.stopPolling();
+    }
+
+    public stopPolling() {
+        this.clearInterval('poll');
     }
 
     public setOptions(options: Partial<GroupEventOptions>) {

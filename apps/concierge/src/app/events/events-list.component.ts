@@ -122,6 +122,7 @@ export class EventsListComponent extends AsyncHandler {
     }
 
     public ngOnInit() {
+        this.subscription('poll_events', this._state.startPolling());
         this.subscription(
             'period',
             this.period.subscribe(() => {
