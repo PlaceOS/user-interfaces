@@ -40,7 +40,7 @@ import { User } from '@placeos/users';
                     key: 'status',
                     name: 'Status',
                     content: status_template,
-                    size: '8rem'
+                    size: '9rem'
                 },
                 {
                     key: 'permissions',

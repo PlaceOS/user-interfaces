@@ -9,6 +9,7 @@ import {
     startOfWeek,
     format,
     addWeeks,
+    subMonths,
 } from 'date-fns';
 import { ActivatedRoute, Router } from '@angular/router';
 import { distinctUntilChanged, map, take } from 'rxjs/operators';
@@ -210,8 +211,8 @@ export class EventsListComponent extends AsyncHandler {
         this.timeout('generate_periods', async () => {
             const periods = [];
             const period_type = await this.period.pipe(take(1)).toPromise();
-            let date = Date.now();
-            const end_date = addDays(date, 12 * 30).valueOf();
+            let date = subMonths(Date.now(), 6).valueOf();
+            const end_date = addMonths(Date.now(), 6).valueOf();
             const week_offset = this._settings.get('app.week_start') || 0;
             if (period_type === 'month') {
                 date = startOfMonth(date).valueOf();
@@ -253,8 +254,12 @@ export class EventsListComponent extends AsyncHandler {
             'update',
             () => {
                 if (this.period_list.length) {
-                    this.setPeriod(this.period_list[0].id);
-                    this.selected_range = this.period_list[0].id;
+                    let index = this.period_list.findIndex(
+                        (_) => _.start <= Date.now() && _.end >= Date.now()
+                    );
+                    if (index < 0) index = 0;
+                    this.setPeriod(this.period_list[index].id);
+                    this.selected_range = this.period_list[index].id;
                 }
             },
             350
