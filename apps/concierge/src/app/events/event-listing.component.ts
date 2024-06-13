@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { EventStateService } from './event-state.service';
 import { User } from '@placeos/users';
+import { tap } from 'rxjs/operators';
 
 @Component({
     selector: 'event-listing',
@@ -185,20 +186,29 @@ import { User } from '@placeos/users';
                 <div
                     class="px-4 py-1 rounded-full"
                     [class.bg-success]="
-                        item.state !== 'done' && item.state !== 'in_progress'
+                        item.state !== 'done' &&
+                        item.state !== 'in_progress' &&
+                        item.state !== 'started'
                     "
                     [class.text-success-content]="
-                        item.state !== 'done' && item.state !== 'in_progress'
+                        item.state !== 'done' &&
+                        item.state !== 'in_progress' &&
+                        item.state !== 'started'
                     "
-                    [class.bg-warning]="item.state === 'in_progress'"
-                    [class.text-warning-content]="item.state === 'in_progress'"
+                    [class.bg-warning]="
+                        item.state === 'in_progress' || item.state === 'started'
+                    "
+                    [class.text-warning-content]="
+                        item.state === 'in_progress' || item.state === 'started'
+                    "
                     [class.bg-base-200]="item.state === 'done'"
                     [class.text-base-content]="item.state === 'done'"
                 >
                     {{
                         item.state === 'done'
                             ? 'Done'
-                            : item.state === 'in_progress'
+                            : item.state === 'in_progress' ||
+                              item.state === 'started'
                             ? 'In Progress'
                             : 'Active'
                     }}
@@ -262,7 +272,9 @@ import { User } from '@placeos/users';
     styles: [``],
 })
 export class EventListingComponent {
-    public readonly event_list = this._state.event_list;
+    public readonly event_list = this._state.event_list.pipe(
+        tap((_) => console.log('Event List:', _))
+    );
 
     public readonly viewEvent = (event: any) => this._state.viewEvent(event);
     public readonly removeEvent = (event: any) =>
