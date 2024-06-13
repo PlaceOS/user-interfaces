@@ -229,10 +229,10 @@ export class EventsListComponent extends AsyncHandler {
                         id: date,
                         start: date,
                         end,
-                        display: `${format(
-                            Math.max(Date.now(), date),
-                            'EEE, do MMM'
-                        )} – ${format(end, 'do MMM')}`,
+                        display: `${format(date, 'EEE, do MMM')} – ${format(
+                            end,
+                            'do MMM'
+                        )}`,
                     });
                     date = addDays(date, 7).valueOf();
                 } else if (period_type === 'month') {
