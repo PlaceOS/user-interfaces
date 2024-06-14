@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1718334019724,
+  "timestamp": 1718335651056,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -248,7 +248,7 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./common.js": "7bba78b83b004b62ed7dee7872bf84eb93acd890",
-    "./default-libs_bookings_src_lib_group-event-details-modal_component_ts.js": "a5fdd8aacf2204ca9007c9d487047c112e0dff08",
+    "./default-libs_bookings_src_lib_group-event-details-modal_component_ts.js": "65db02b85ce10b8a22f5caba1e529cd9fb333b7b",
     "./default-libs_catering_src_index_ts.js": "bc017ebbbba8bb9dcfcd70e6579259e99a71710b",
     "./default-libs_explore_src_index_ts.js": "d7727db38b7fbea7a90e485b8faa3a1fbac12b4c",
     "./default-libs_users_src_lib_users_module_ts.js": "65845739558992ed6b9991f982642a466e1fd2cf",
@@ -256,7 +256,7 @@
     "./default-node_modules_angular_material_fesm2022_tabs_mjs.js": "947ea41da5f8c11f1fc85ba2f2d4336c2df97bc1",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "024a49b04c3c3734994ad6cd61ae2bd2ec716dbc",
-    "./main.js": "f834976dd87cd0d9639162153dac3fd88ffaf665",
+    "./main.js": "57b3ae6e84f92549d9ac9a0a1e0c09a3bf7b1627",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
