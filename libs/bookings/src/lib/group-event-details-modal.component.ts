@@ -210,8 +210,14 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                             <app-icon>place</app-icon>
                         </div>
                         <div class="flex flex-col text-sm">
-                            <div *ngIf="is_onsite">
+                            <div *ngIf="is_onsite && has_space">
                                 {{ (system_id | space | async)?.display_name }}
+                            </div>
+                            <div
+                                *ngIf="is_onsite && !has_space"
+                                class="opacity-30"
+                            >
+                                Room to be confirmed
                             </div>
                             <div *ngIf="is_online" class="opacity-30">
                                 {{
@@ -348,8 +354,13 @@ export class GroupEventDetailsModalComponent {
             this.booking.extension_data?.featured
         );
     }
+
     public get is_onsite() {
-        return this.booking.linked_event?.system_id;
+        return this.booking.extension_data.attendance_type !== 'ONLINE';
+    }
+
+    public get has_space() {
+        return !!this.booking.linked_event?.system_id;
     }
 
     public get is_online() {
