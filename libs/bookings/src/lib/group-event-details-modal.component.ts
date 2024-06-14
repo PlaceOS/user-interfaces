@@ -249,7 +249,10 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                         <span
                             [innerHTML]="booking.description | sanitize"
                         ></span>
-                        <span *ngIf="!booking.description" class="opacity-30">
+                        <span
+                            *ngIf="!booking.description.trim()"
+                            class="opacity-30"
+                        >
                             No description
                         </span>
                     </div>

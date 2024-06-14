@@ -40,6 +40,9 @@ import { OrganisationService } from '@placeos/organisation';
                     class="opacity-60 text-xs flex-1 overflow-hidden h-[4.5rem] mb-2 text-left"
                 >
                     <p class="line-clamp-4">{{ raw_description }}</p>
+                    <p *ngIf="!raw_description.trim()" class="opacity-30">
+                        No description
+                    </p>
                 </div>
                 <div class="flex items-center space-x-2 text-sm">
                     <app-icon class="text-info">place</app-icon>
@@ -102,6 +105,12 @@ import { OrganisationService } from '@placeos/organisation';
                         </div>
                         <div class="h-20 overflow-hidden text-left">
                             <p class="line-clamp-3">{{ raw_description }}</p>
+                            <p
+                                *ngIf="!raw_description.trim()"
+                                class="opacity-30"
+                            >
+                                No description
+                            </p>
                         </div>
                         <div class="flex items-center space-x-2 text-sm">
                             <app-icon class="text-info">place</app-icon>
