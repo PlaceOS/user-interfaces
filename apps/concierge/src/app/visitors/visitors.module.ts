@@ -11,6 +11,7 @@ import { GuestListingComponent } from './guest-listing.component';
 import { NewVisitorsComponent } from './new-visitors.component';
 import { InviteVisitorModalComponent } from './invite-visitor-modal.component';
 import { SharedBookingsModule } from '@placeos/bookings';
+import { VisitorInductionModalComponent } from './visitor-induction-modal.component';
 
 const ROUTES: Route[] = [
     { path: '', component: VisitorsComponent },
@@ -24,6 +25,7 @@ const ROUTES: Route[] = [
         VisitorsTopbarComponent,
         GuestListingComponent,
         InviteVisitorModalComponent,
+        VisitorInductionModalComponent,
     ],
     imports: [
         CommonModule,

@@ -193,9 +193,9 @@ import { tap } from 'rxjs/operators';
                 <mat-menu #checkin_menu="matMenu">
                     <button mat-menu-item (click)="checkinAllVisitors(row)">
                         <div class="flex items-center space-x-2">
-                            <app-icon class="text-2xl"
-                                >event_available</app-icon
-                            >
+                            <app-icon class="text-2xl">
+                                event_available
+                            </app-icon>
                             <div>Checkin All for Booking</div>
                         </div>
                     </button>
