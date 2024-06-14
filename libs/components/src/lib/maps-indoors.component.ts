@@ -188,6 +188,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                 mapsIndoors: maps_indoors,
             }),
         };
+        console.log('Resource:', this._services.mapsindoors);
         this._initialised.next(true);
         if (this.zone) this._centerOnZone();
         this._addFloorSelector();
@@ -373,7 +374,20 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                 if (resource) this._setResource(id, resource);
             }
             if (!resource) continue;
+            log('MapsPeople', 'Resource:', [
+                resource,
+                this._services.mapsindoors,
+                styles[id],
+            ]);
             this._services.mapsindoors.setDisplayRule(resource.id, {
+                polygonVisible: true,
+                polygonFillOpacity: 0.6,
+                polygonZoomFrom: 16,
+                polygonZoomTo: 22,
+                visible: true,
+                polygonFillColor: styles[id].fill,
+            });
+            this._services.mapsindoors.overrideDisplayRule(resource.id, {
                 polygonVisible: true,
                 polygonFillOpacity: 0.6,
                 polygonZoomFrom: 16,
