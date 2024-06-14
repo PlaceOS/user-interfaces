@@ -45,9 +45,7 @@ export class EventStateService extends AsyncHandler {
         filter(([bld]) => !!bld),
         switchMap(([bld, options]) =>
             queryBookings({
-                period_start: getUnixTime(
-                    startOfDay(Math.max(Date.now(), options.date))
-                ),
+                period_start: getUnixTime(startOfDay(options.date)),
                 period_end: getUnixTime(
                     endOfDay(options.end || options.date || Date.now())
                 ),
