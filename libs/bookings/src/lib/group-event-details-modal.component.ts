@@ -300,32 +300,6 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                                         No location set for this event
                                     </span>
                                 </div>
-                                <div class="flex items-center space-x-2 pt-4">
-                                    <div
-                                        class="flex items-center justify-center h-10 w-10 rounded-full bg-base-200"
-                                        matTooltip="WiFi available"
-                                    >
-                                        <app-icon class="text-2xl"
-                                            >wifi</app-icon
-                                        >
-                                    </div>
-                                    <div
-                                        class="flex items-center justify-center h-10 w-10 rounded-full bg-base-200"
-                                        matTooltip="Cafe available"
-                                    >
-                                        <app-icon class="text-2xl"
-                                            >local_cafe</app-icon
-                                        >
-                                    </div>
-                                    <div
-                                        class="flex items-center justify-center h-10 w-10 rounded-full bg-base-200"
-                                        matTooltip="Open spaces nearby"
-                                    >
-                                        <app-icon class="text-2xl"
-                                            >chat</app-icon
-                                        >
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
