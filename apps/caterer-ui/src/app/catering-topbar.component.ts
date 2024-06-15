@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { first } from 'rxjs/operators';
+import { first, map } from 'rxjs/operators';
 
 import { AsyncHandler } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -22,7 +22,7 @@ import { CateringOrdersService, CateringStateService } from '@placeos/catering';
                 <app-icon>arrow_back</app-icon>
                 <p class="underline">Back</p>
             </a>
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" class="w-64">
                 <mat-select
                     multiple
                     [(ngModel)]="zones"
@@ -71,7 +71,9 @@ export class CateringTopbarComponent extends AsyncHandler {
     public readonly setDate = (date) =>
         (this._orders.filters = { ...this._orders.filters, date });
     /** List of levels for the active building */
-    public readonly levels = this._org.active_levels;
+    public readonly levels = this._org.active_levels.pipe(
+        map((list) => list.filter((lvl) => !lvl.tags.includes('parking')))
+    );
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
         this._router.navigate([], {

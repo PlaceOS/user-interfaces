@@ -6,7 +6,6 @@ export * from './catering-menu-item.component';
 export * from './catering-menu.component';
 export * from './catering-option-modal.component';
 export * from './catering-order-item.component';
-export * from './catering-order.component';
 export * from './catering-order-list.component';
 export * from './catering-order.class';
 export * from './catering-orders.service';
