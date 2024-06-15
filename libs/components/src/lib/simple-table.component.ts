@@ -18,6 +18,7 @@ export interface TableColumn {
     content?: string | TemplateRef<any> | Component;
     size?: string;
     show?: boolean;
+    empty?: string;
 }
 
 @Component({
@@ -126,7 +127,7 @@ export interface TableColumn {
                                 *ngIf="row[column.key] == null"
                                 class="opacity-30"
                             >
-                                N/A
+                                {{ column.empty || 'N/A' }}
                             </span>
                         </div>
                         <ng-container *ngSwitchCase="'template'">

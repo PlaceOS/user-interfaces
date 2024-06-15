@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CateringOrder } from './catering-order.class';
 
 import { CateringOrdersService } from './catering-orders.service';
