@@ -28,21 +28,23 @@ import { AsyncHandler } from '@placeos/common';
                 ></catering-menu>
                 <div
                     *ngSwitchDefault
-                    class="flex flex-1 items-center justify-center h-1/2 w-full bg-base-200 rounded-2xl"
+                    class="flex flex-1 items-center justify-center h-1/2 w-full my-8 bg-base-200 rounded-2xl"
                 >
                     <a
                         matRipple
-                        class="rounded flex flex-col items-center bg-base-100 text-black overflow-hidden m-2 border border-base-300"
+                        class="w-[28rem] h-64 rounded flex flex-col items-center bg-base-100 text-base-content overflow-hidden m-2 border border-base-300"
                         [routerLink]="['/menu']"
                     >
                         <div
-                            name="img"
-                            class="w-full flex flex-1 items-center justify-center text-2xl text-white"
-                            [style.background]="
-                                'rgba(0,0,0, .45) url(assets/img/menus.jpg)'
-                            "
+                            class="relative w-full flex flex-1 items-center justify-center"
+                            [style.background]="'url(assets/img/menus.jpg)'"
                         >
-                            Menus and Pricing
+                            <div
+                                class="absolute inset-0 bg-base-content opacity-40 z-0"
+                            ></div>
+                            <div class="text-2xl text-base-100 z-10">
+                                Menus and Pricing
+                            </div>
                         </div>
                         <div
                             class="p-2 h-14 w-full text-sm text-center flex items-center justify-center"
@@ -52,17 +54,19 @@ import { AsyncHandler } from '@placeos/common';
                     </a>
                     <a
                         matRipple
-                        class="rounded flex flex-col items-center bg-base-100 text-black overflow-hidden m-2 border border-base-300"
+                        class="w-[28rem] h-64 rounded flex flex-col items-center bg-base-100 text-base-content overflow-hidden m-2 border border-base-300"
                         [routerLink]="['/orders']"
                     >
                         <div
-                            name="img"
-                            class="w-full flex flex-1 items-center justify-center text-2xl text-white"
-                            [style.background]="
-                                'rgba(0,0,0, .45) url(assets/img/orders.jpg)'
-                            "
+                            class="relative w-full flex flex-1 items-center justify-center"
+                            [style.background]="'url(assets/img/orders.jpg)'"
                         >
-                            Today's Orders
+                            <div
+                                class="absolute inset-0 bg-base-content opacity-40 z-0"
+                            ></div>
+                            <div class="text-2xl text-base-100 z-10">
+                                Today's Orders
+                            </div>
                         </div>
                         <div
                             class="p-2 h-14 w-full text-sm text-center flex items-center justify-center"
@@ -80,26 +84,6 @@ import { AsyncHandler } from '@placeos/common';
                 display: flex;
                 height: 100%;
                 width: 100%;
-            }
-
-            a {
-                width: 28rem;
-                height: 16rem;
-                margin-left: 0.5rem;
-                text-decoration: none;
-                transition: background 200ms;
-            }
-
-            a:hover {
-                background-color: #00000001 !important;
-            }
-
-            a:first-child {
-                margin: 0;
-            }
-
-            [name='img'] {
-                background: rgba(0, 0, 0, 0.45);
             }
         `,
     ],

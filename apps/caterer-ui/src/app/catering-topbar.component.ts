@@ -30,7 +30,7 @@ import { combineLatest } from 'rxjs';
                 Catering {{ page === 'menu' ? 'Menu' : 'Orders' }}
             </h2>
             <div class="flex-1 w-px"></div>
-            <mat-form-field appearance="outline" class="no-subscript w-60">
+            <mat-form-field appearance="outline" class="no-subscript w-64">
                 <input
                     matInput
                     placeholder="Search..."
@@ -206,6 +206,11 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
                     if (!level) return;
                     this._org.building = this._org.buildings.find(
                         (bld) => bld.id === level.parent_id
+                    );
+                }
+                if (params.has('building_id')) {
+                    this._org.building = this._org.buildings.find(
+                        (bld) => bld.id === params.get('building_id')
                     );
                 }
             })
