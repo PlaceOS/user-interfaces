@@ -54,8 +54,8 @@ import { map } from 'rxjs/operators';
                     *ngIf="!(messages | async)?.length"
                 >
                     <img
-                        class="h-48 w-48 object-contain"
-                        src="assets/icons/no-messages.svg"
+                        class="h-32 w-32 object-contain"
+                        src="assets/icons/no-pending.svg"
                     />
                     <p class="opacity-30">
                         {{ 'PANEL.NO_MESSAGES' | translate }}
