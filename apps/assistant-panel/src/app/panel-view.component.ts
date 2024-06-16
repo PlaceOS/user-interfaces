@@ -40,6 +40,11 @@ import { map } from 'rxjs/operators';
                         Speech Synthesis is not supported
                     </div>
                 </div>
+                <div
+                    class="absolute top-1/2 left-1/2 -translate-y-36 -translate-x-1/2 p-4 text-center opacity-30"
+                >
+                    Tap to speak
+                </div>
             </button>
             <div
                 class="relative flex flex-col items-center justify-end h-full bg-base-200 p-4 w-[24rem]"
