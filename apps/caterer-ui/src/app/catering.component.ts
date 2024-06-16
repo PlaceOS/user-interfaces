@@ -11,7 +11,13 @@ import { AsyncHandler } from '@placeos/common';
                 *ngIf="page"
                 class="relative z-10"
             ></catering-topbar>
-            <div class="px-8" [ngSwitch]="page">
+            <div
+                class="p-2 flex items-center justify-center bg-info text-white text-sm mb-4 mx-8 rounded"
+                *ngIf="page === 'menu'"
+            >
+                To edit the menu de-select all levels from the top left
+            </div>
+            <div class="flex flex-col flex-1 h-1/2 px-8" [ngSwitch]="page">
                 <catering-order-list
                     *ngSwitchCase="'orders'"
                     class="flex-1"
@@ -22,11 +28,11 @@ import { AsyncHandler } from '@placeos/common';
                 ></catering-menu>
                 <div
                     *ngSwitchDefault
-                    class="flex flex-1 items-center justify-center"
+                    class="flex flex-1 items-center justify-center h-1/2 w-full bg-base-200 rounded-2xl"
                 >
                     <a
                         matRipple
-                        class="rounded flex flex-col items-center bg-base-100 shadow text-black overflow-hidden"
+                        class="rounded flex flex-col items-center bg-base-100 text-black overflow-hidden m-2 border border-base-300"
                         [routerLink]="['/menu']"
                     >
                         <div
@@ -46,7 +52,7 @@ import { AsyncHandler } from '@placeos/common';
                     </a>
                     <a
                         matRipple
-                        class="rounded flex flex-col items-center bg-base-100 shadow text-black overflow-hidden"
+                        class="rounded flex flex-col items-center bg-base-100 text-black overflow-hidden m-2 border border-base-300"
                         [routerLink]="['/orders']"
                     >
                         <div
