@@ -15,7 +15,6 @@ import { FormFieldsModule } from '@placeos/form-fields';
 import { ComponentsModule } from 'libs/components/src/lib/components.module';
 
 import { CateringItemModalComponent } from './catering-item-modal.component';
-import { CateringMenuItemComponent } from './catering-menu-item.component';
 import { CateringMenuComponent } from './catering-menu.component';
 import { CateringItemOptionModalComponent } from './catering-option-modal.component';
 import { CateringOrderItemComponent } from './catering-order-item.component';
@@ -38,7 +37,6 @@ const COMPONENTS: Type<any>[] = [
     CateringOrderModalComponent,
     CateringItemModalComponent,
     CateringMenuComponent,
-    CateringMenuItemComponent,
     CateringItemOptionModalComponent,
     CateringOrderListComponent,
     CateringOrderItemComponent,

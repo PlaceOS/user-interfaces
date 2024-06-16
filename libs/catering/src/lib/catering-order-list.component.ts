@@ -8,7 +8,7 @@ import { CATERING_STATUSES } from './catering.vars';
 @Component({
     selector: 'catering-order-list',
     template: `
-        <div class="flex flex-col h-full w-full overflow-auto px-8 py-4">
+        <div class="flex flex-col h-full w-full overflow-auto">
             <!-- <mat-progress-bar
                 [class.opacity-0]="!(loading | async)"
                 class="w-full"

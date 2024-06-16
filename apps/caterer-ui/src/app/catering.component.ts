@@ -11,7 +11,7 @@ import { AsyncHandler } from '@placeos/common';
                 *ngIf="page"
                 class="relative z-10"
             ></catering-topbar>
-            <ng-container [ngSwitch]="page">
+            <div class="px-8" [ngSwitch]="page">
                 <catering-order-list
                     *ngSwitchCase="'orders'"
                     class="flex-1"
@@ -65,7 +65,7 @@ import { AsyncHandler } from '@placeos/common';
                         </div>
                     </a>
                 </div>
-            </ng-container>
+            </div>
         </main>
     `,
     styles: [
