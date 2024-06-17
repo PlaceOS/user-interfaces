@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, currentUser } from '@placeos/common';
 import { ChatService } from 'libs/components/src/lib/chat/chat.service';
 import { map } from 'rxjs/operators';
+
+import * as Vosk from 'vosklet';
 
 @Component({
     selector: 'app-panel-view',
@@ -40,11 +42,10 @@ import { map } from 'rxjs/operators';
                         Speech Synthesis is not supported
                     </div>
                 </div>
-                <div
-                    class="absolute top-1/2 left-1/2 -translate-y-36 -translate-x-1/2 p-4 text-center opacity-30"
-                >
-                    Tap to speak
-                </div>
+                <video
+                    #video
+                    class="absolute bottom-4 left-4 w-48 h-48 object-cover rounded-xl bg-base-200"
+                ></video>
             </button>
             <div
                 class="relative flex flex-col items-center justify-end h-full bg-base-200 p-4 w-[24rem]"
@@ -163,6 +164,8 @@ export class PanelViewComponent extends AsyncHandler {
     );
 
     private _recognition: any;
+    @ViewChild('video', { static: true })
+    private _video_el: ElementRef<HTMLVideoElement>;
 
     public get user() {
         return currentUser();
@@ -178,6 +181,7 @@ export class PanelViewComponent extends AsyncHandler {
 
     public ngOnInit() {
         this._setupVoiceRecognition();
+        this._setupWebcam();
         this._chat.startChat();
         this.subscription(
             'chat.messages',
@@ -196,70 +200,67 @@ export class PanelViewComponent extends AsyncHandler {
         );
     }
 
-    private _setupVoiceRecognition() {
-        console.log('Setup Speech Recognition');
-        if (
-            !(
-                'SpeechRecognition' in window ||
-                'webkitSpeechRecognition' in window
-            )
-        ) {
-            this.error.speech_recognition = true;
-            return;
+    private async _setupWebcam() {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: true,
+            });
+            this._video_el.nativeElement.srcObject = stream;
+            this._video_el.nativeElement.play();
+        } else {
+            console.error('getUserMedia is not supported');
         }
-        const SpeechRecognition =
-            (window as any).SpeechRecognition ||
-            (window as any).webkitSpeechRecognition;
+    }
 
-        const recognition = new SpeechRecognition();
-        recognition.interimResults = true;
-        recognition.lang = 'en-US';
-
-        recognition.onstart = () => {
-            console.log('Speech recognition started');
-            this.listening = true;
-            this.interval(
-                'scale',
-                () => {
-                    this.scale =
-                        (Math.sin(++this._time / 5 / Math.PI) + 1) / 2 + 1;
+    private async _setupVoiceRecognition() {
+        console.log('Setup Speech Recognition');
+        // Make sure sample rate matches that in the training data
+        let ctx = new AudioContext({ sampleRate: 16000 });
+        // Setup mic with correct sample rate
+        let mic_node = ctx.createMediaStreamSource(
+            await navigator.mediaDevices.getUserMedia({
+                video: false,
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    channelCount: 1,
+                    sampleRate: 16000,
                 },
-                16
-            );
-        };
-
-        recognition.onspeechend = () => {
-            console.log('Speech recognition ended');
-            this.listening = false;
-            recognition.stop();
-        };
-
-        recognition.onresult = (event) => {
-            if (!event.results) return;
-            const { transcript } = event.results[0][0];
-            // do something with transcript
-            if (transcript.length < this.current_text.length) return;
-            this.current_text = transcript;
-        };
-
-        recognition.onerror = function (event) {
-            console.error('Speech recognition error:', event.error);
-        };
-
-        recognition.onend = (event) => {
-            console.log('Result:', this.current_text);
-            this.last_text = this.current_text;
+            })
+        );
+        // Load Vosklet module, model and recognizer
+        let module = await Vosk();
+        let model = await module.createModel(
+            'https://github.com/msqr1/Vosklet/raw/main/examples/en-model.tgz',
+            'model',
+            'ID'
+        );
+        let recognizer = await module.createRecognizer(model, 16000);
+        // Listen for result and partial result
+        recognizer.addEventListener('result', (ev) => {
+            console.log('Result:', ev.detail);
+            this.last_text = ev.detail;
             this.current_text = '';
+            this.listening = false;
             this.clearInterval('scale');
             this.scale = 1;
             console.log('Last message:', this.last_text);
             if (this.last_text.length <= 3) return;
             console.log('Sending message:', this.last_text);
             this._chat.sendMessage(this.last_text);
+        });
+        recognizer.addEventListener('partialResult', (ev) => {
+            console.log('Partial result:', ev.detail);
+            this.current_text = ev.detail;
+        });
+        // Create a transferer node to get audio data on the main thread
+        let transferer = await module.createTransferer(ctx, 128 * 150);
+        // Recognize data on arrival
+        transferer.port.onmessage = (ev) => {
+            recognizer.acceptWaveform(ev.data);
         };
-
-        console.log('Set Speech Recognition');
-        this._recognition = recognition;
+        // Connect to microphone
+        mic_node.connect(transferer);
     }
 
     private _speakText(text: string) {
