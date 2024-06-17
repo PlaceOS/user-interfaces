@@ -7,7 +7,7 @@ import { SettingsService, ShortURL, getShortUrlQRCode } from '@placeos/common';
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
-                class="min-w-[76rem] block text-sm"
+                class="min-w-[64rem] block text-sm"
                 [data]="features"
                 empty_message="No Points of Interest found."
                 [columns]="[

@@ -30,7 +30,7 @@ const QR_CODES = {};
             (window:dragend)="handleDrag('end', $event)"
         >
             <simple-table
-                class="min-w-[64rem] block text-sm"
+                class="min-w-[60rem] w-full block text-sm"
                 [filter]="(filters | async)?.search"
                 [data]="desks"
                 [columns]="[

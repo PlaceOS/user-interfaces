@@ -92,7 +92,7 @@ export interface EmergencyContactData {
                 </section>
                 <section class="w-full h-1/2 flex-1 overflow-auto px-8">
                     <simple-table
-                        class="min-w-[56rem] block text-sm"
+                        class="min-w-[52rem] block text-sm"
                         [data]="filtered_contacts"
                         [filter]="search"
                         [empty_message]="
@@ -116,7 +116,7 @@ export interface EmergencyContactData {
                                 key: 'zone',
                                 name: 'Zone',
                                 content: zone_template,
-                                size: '10rem',
+                                size: '8rem',
                                 sortable: false
                             },
                             {
@@ -129,7 +129,7 @@ export interface EmergencyContactData {
                         ]"
                         [sortable]="true"
                     ></simple-table>
-                    <div class="w-full h-20"></div>
+                    <div class="w-full h-12"></div>
                     <ng-template #person_template let-row="row">
                         <button
                             class="px-4 py-2 text-left leading-tight"

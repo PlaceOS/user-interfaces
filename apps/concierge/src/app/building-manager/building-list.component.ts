@@ -8,7 +8,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
-                class="min-w-[72rem] block text-sm"
+                class="min-w-[62rem] w-full block text-sm"
                 [data]="buildings"
                 empty_message="No Buildings"
                 [columns]="[
@@ -25,13 +25,13 @@ import { Clipboard } from '@angular/cdk/clipboard';
                     {
                         key: 'timezone',
                         name: 'Timezone',
-                        size: '15rem',
+                        size: '14rem',
                         content: timezone_template
                     },
                     {
                         key: 'region',
                         name: 'Region',
-                        size: '12rem',
+                        size: '11rem',
                         sortable: false
                     },
                     { key: 'level_count', name: 'Levels', size: '6rem' },
