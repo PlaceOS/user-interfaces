@@ -13,7 +13,6 @@ import * as tf from '@tensorflow/tfjs';
         <div class="flex items-center justify-center h-full w-full">
             <button
                 class="relative flex items-center justify-center flex-1 h-full bg-base-100 p-8"
-                (click)="startListening()"
             >
                 <div
                     class="h-[18vmin] w-[18vmin] m-4 rounded-full bg-base-content"
@@ -174,15 +173,16 @@ export class PanelViewComponent extends AsyncHandler {
         return currentUser();
     }
 
-    public readonly startListening = () => {
-        this._recognition.start();
-    };
-
     constructor(private _route: ActivatedRoute, private _chat: ChatService) {
         super();
     }
 
     public ngOnInit() {
+        const start_voice = () => {
+            this._setupVoiceRecognition();
+            window.removeEventListener('click', start_voice);
+        };
+        window.addEventListener('click', start_voice);
         this._setupVoiceRecognition();
         this._setupWebcam();
         this._chat.startChat();
@@ -225,7 +225,6 @@ export class PanelViewComponent extends AsyncHandler {
         const predictions = await this._runModel(tensor);
         const endTime = performance.now();
         const inferenceTime = endTime - startTime;
-        console.log(`Inference Time: ${inferenceTime.toFixed(2)} ms`);
         const detections = this._processPredictions(predictions, {
             0: 'person',
         });
