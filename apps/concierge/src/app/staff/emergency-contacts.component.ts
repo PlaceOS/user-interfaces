@@ -102,20 +102,22 @@ export interface EmergencyContactData {
                         "
                         [columns]="[
                             {
-                                key: 'person',
+                                key: 'name',
                                 name: 'Person',
                                 content: person_template
                             },
                             {
                                 key: 'roles',
                                 name: 'Roles',
-                                content: roles_template
+                                content: roles_template,
+                                sortable: false
                             },
                             {
                                 key: 'zone',
                                 name: 'Zone',
                                 content: zone_template,
-                                size: '10rem'
+                                size: '10rem',
+                                sortable: false
                             },
                             {
                                 key: 'actions',

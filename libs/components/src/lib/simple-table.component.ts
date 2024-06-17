@@ -25,7 +25,7 @@ export interface TableColumn {
     template: `
         <div
             role="table"
-            class="grid border border-base-200"
+            class="grid border border-base-300"
             [style.gridTemplateColumns]="column_template"
             (click)="active_row >= 0 ? rowClicked.emit(active_row) : null"
             (touchend)="active_row = -1"
@@ -34,7 +34,7 @@ export interface TableColumn {
             <div
                 *ngIf="selectable"
                 id="column-selector"
-                class="sticky top-0 flex items-center justify-between px-2 border-r border-b border-base-200 bg-base-300 min-h-full z-10"
+                class="sticky top-0 flex items-center justify-between px-2 border-r border-b border-base-300 bg-base-400 min-h-full z-10"
                 [style.gridArea]="gridSquare(1, 1)"
             >
                 <mat-checkbox
@@ -51,7 +51,7 @@ export interface TableColumn {
                 matRipple
                 *ngFor="let column of active_columns; let i = index"
                 [id]="'column-' + column.key"
-                class="sticky top-0 flex items-center justify-between p-4 border-b border-base-200 bg-base-300 min-h-full z-10"
+                class="sticky top-0 flex items-center justify-between p-4 border-b border-base-300 bg-base-400 min-h-full z-10"
                 [style.gridArea]="gridSquare(1, 1 + i + (selectable ? 1 : 0))"
                 [class.pointer-events-none]="
                     !sortable || column.sortable === false
@@ -86,7 +86,7 @@ export interface TableColumn {
                 <div
                     *ngIf="selectable"
                     id="column-selector"
-                    class="flex items-center justify-between px-2 border-r border-base-200 min-h-full z-0"
+                    class="flex items-center justify-between px-2 border-r border-base-300 min-h-full z-0"
                     [style.gridArea]="gridSquare(2 + i, 1)"
                     [class.border-b]="i !== (data_view$ | async)?.length - 1"
                     (mouseenter)="active_row = i"
@@ -99,7 +99,7 @@ export interface TableColumn {
                 </div>
                 <div
                     *ngFor="let column of active_columns; let j = index"
-                    class="flex items-center justify-between border-base-200 min-h-full z-0"
+                    class="flex items-center justify-between border-base-300 min-h-full z-0 overflow-hidden"
                     [style.gridArea]="
                         gridSquare(2 + i, 1 + j + (selectable ? 1 : 0))
                     "
@@ -296,8 +296,12 @@ export class SimpleTableComponent<T extends {} = any> extends AsyncHandler {
                             });
                         } else {
                             data = data.sort((a, b) => {
-                                const a_value = JSON.stringify(a[sort.key]);
-                                const b_value = JSON.stringify(b[sort.key]);
+                                const a_value = JSON.stringify(
+                                    a[sort.key] || ''
+                                );
+                                const b_value = JSON.stringify(
+                                    b[sort.key] || ''
+                                );
                                 const result = a_value.localeCompare(b_value);
                                 return sort.reverse ? -result : result;
                             });

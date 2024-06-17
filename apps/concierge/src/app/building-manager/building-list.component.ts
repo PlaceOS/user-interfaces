@@ -31,7 +31,8 @@ import { Clipboard } from '@angular/cdk/clipboard';
                     {
                         key: 'region',
                         name: 'Region',
-                        size: '12rem'
+                        size: '12rem',
+                        sortable: false
                     },
                     { key: 'level_count', name: 'Levels', size: '6rem' },
                     {

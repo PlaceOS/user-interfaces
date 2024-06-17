@@ -17,7 +17,7 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                 [columns]="[
                     { key: 'name', name: 'Name' },
                     {
-                        key: 'level',
+                        key: 'level_id',
                         name: 'Level',
                         content: level_template,
                         size: '12rem'

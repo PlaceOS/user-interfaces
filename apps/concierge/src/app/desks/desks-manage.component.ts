@@ -64,6 +64,7 @@ const QR_CODES = {};
                         sortable: false
                     }
                 ]"
+                [sortable]="true"
                 [empty_message]="
                     (filters | async)?.search
                         ? 'No matching desks'
