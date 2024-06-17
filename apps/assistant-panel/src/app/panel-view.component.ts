@@ -233,27 +233,25 @@ export class PanelViewComponent extends AsyncHandler {
         );
     }
 
-    private async _runModel(tensor) {
-        if (!this._model) await this._loadModel();
-        return this._model.predict(tensor);
-    }
-
     private async _processWebcamFrame() {
-        const tensor = await this._webcamToTensor();
-        const predictions = await this._runModel(tensor);
-        const detections = this._processPredictions(predictions, {
-            0: 'person',
-        });
-        this.listening = false;
-        for (const { box, label } of detections) {
-            if (label === 'person') {
-                this.listening = true;
-                return;
+        if (!this._model) await this._loadModel();
+        tf.tidy(() => {
+            const tensor = this._webcamToTensor();
+            const predictions = this._model.predict(tensor);
+            const detections = this._processPredictions(predictions, {
+                0: 'person',
+            });
+            this.listening = false;
+            for (const { box, label } of detections) {
+                if (label === 'person') {
+                    this.listening = true;
+                    return;
+                }
             }
-        }
+        });
     }
 
-    private async _webcamToTensor() {
+    private _webcamToTensor() {
         const videoElement = this._video_el.nativeElement;
 
         this._context.drawImage(videoElement, 0, 0, 640, 640);
