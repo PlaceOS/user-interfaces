@@ -45,9 +45,16 @@ import * as tf from '@tensorflow/tfjs';
                     #video
                     autoplay
                     playsinline
+                    [class.opacity-0]="!debug"
                     class="absolute bottom-4 left-4 w-48 h-48 object-cover rounded-xl bg-base-200 border-2 border-base-200"
                     [class.!border-success]="listening"
                 ></video>
+                <canvas
+                    #canvas
+                    width="640"
+                    height="640"
+                    class="absolute opacity-0 pointer-events-none"
+                ></canvas>
             </button>
             <div
                 class="relative flex flex-col items-center justify-end h-full bg-base-200 p-4 w-[24rem]"
@@ -149,9 +156,11 @@ export class PanelViewComponent extends AsyncHandler {
     public current_text = '';
     public last_text = '';
     public listening = false;
+    public debug = false;
     public error: Record<string, boolean> = {};
     private _time = 0;
     private _last_message = '';
+    private _context: any;
 
     public readonly icons = {
         list_function_schemas: 'help',
@@ -168,6 +177,8 @@ export class PanelViewComponent extends AsyncHandler {
     private _recognition: any;
     @ViewChild('video', { static: true })
     private _video_el: ElementRef<HTMLVideoElement>;
+    @ViewChild('canvas', { static: true })
+    private _canvas_el: ElementRef<HTMLCanvasElement>;
 
     public get user() {
         return currentUser();
@@ -183,6 +194,9 @@ export class PanelViewComponent extends AsyncHandler {
             window.removeEventListener('click', start_voice);
         };
         window.addEventListener('click', start_voice);
+        this._context = this._canvas_el.nativeElement.getContext('2d', {
+            willReadFrequently: true,
+        });
         this._setupVoiceRecognition();
         this._setupWebcam();
         this._chat.startChat();
@@ -202,6 +216,12 @@ export class PanelViewComponent extends AsyncHandler {
             })
         );
         this.interval('process_frame', () => this._processWebcamFrame(), 200);
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((p) => {
+                if (p.has('debug')) this.debug = p.get('debug') === 'true';
+            })
+        );
     }
 
     private _model: tf.GraphModel;
@@ -220,11 +240,7 @@ export class PanelViewComponent extends AsyncHandler {
 
     private async _processWebcamFrame() {
         const tensor = await this._webcamToTensor();
-        // Measure inference time
-        const startTime = performance.now();
         const predictions = await this._runModel(tensor);
-        const endTime = performance.now();
-        const inferenceTime = endTime - startTime;
         const detections = this._processPredictions(predictions, {
             0: 'person',
         });
@@ -239,13 +255,9 @@ export class PanelViewComponent extends AsyncHandler {
 
     private async _webcamToTensor() {
         const videoElement = this._video_el.nativeElement;
-        const canvas = document.createElement('canvas');
-        canvas.width = 640;
-        canvas.height = 640;
-        const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-        ctx.drawImage(videoElement, 0, 0, 640, 640);
-        const imageData = ctx.getImageData(0, 0, 640, 640);
+        this._context.drawImage(videoElement, 0, 0, 640, 640);
+        const imageData = this._context.getImageData(0, 0, 640, 640);
         const tensor = tf.browser.fromPixels(imageData);
 
         return tf.cast(tensor, 'float32').div(tf.scalar(255)).expandDims(0);
