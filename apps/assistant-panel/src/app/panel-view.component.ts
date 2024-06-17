@@ -5,6 +5,7 @@ import { ChatService } from 'libs/components/src/lib/chat/chat.service';
 import { map } from 'rxjs/operators';
 
 import * as Vosk from 'vosklet';
+import * as tf from '@tensorflow/tfjs';
 
 @Component({
     selector: 'app-panel-view',
@@ -17,7 +18,6 @@ import * as Vosk from 'vosklet';
                 <div
                     class="h-[18vmin] w-[18vmin] m-4 rounded-full bg-base-content"
                     [style.transform]="'scale(' + scale + ')'"
-                    [class.!bg-error]="listening"
                 ></div>
 
                 <div class="absolute bottom-0 inset-x-0 p-8 text-center">
@@ -44,7 +44,10 @@ import * as Vosk from 'vosklet';
                 </div>
                 <video
                     #video
-                    class="absolute bottom-4 left-4 w-48 h-48 object-cover rounded-xl bg-base-200"
+                    autoplay
+                    playsinline
+                    class="absolute bottom-4 left-4 w-48 h-48 object-cover rounded-xl bg-base-200 border-2 border-base-200"
+                    [class.!border-success]="listening"
                 ></video>
             </button>
             <div
@@ -198,6 +201,95 @@ export class PanelViewComponent extends AsyncHandler {
                 this._speakText(msg_list[0].message);
             })
         );
+        this.interval('process_frame', () => this._processWebcamFrame(), 200);
+    }
+
+    private _model: tf.GraphModel;
+
+    private async _loadModel() {
+        tf.setBackend('webgl');
+        this._model = await tf.loadGraphModel(
+            `${location.origin}${location.pathname}assets/yolov8x_web_model/model.json`
+        );
+    }
+
+    private async _runModel(tensor) {
+        if (!this._model) await this._loadModel();
+        return this._model.predict(tensor);
+    }
+
+    private async _processWebcamFrame() {
+        const tensor = await this._webcamToTensor();
+        // Measure inference time
+        const startTime = performance.now();
+        const predictions = await this._runModel(tensor);
+        const endTime = performance.now();
+        const inferenceTime = endTime - startTime;
+        console.log(`Inference Time: ${inferenceTime.toFixed(2)} ms`);
+        const detections = this._processPredictions(predictions, {
+            0: 'person',
+        });
+        this.listening = false;
+        for (const { box, label } of detections) {
+            if (label === 'person') {
+                this.listening = true;
+                return;
+            }
+        }
+    }
+
+    private async _webcamToTensor() {
+        const videoElement = this._video_el.nativeElement;
+        const canvas = document.createElement('canvas');
+        canvas.width = 640;
+        canvas.height = 640;
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+        ctx.drawImage(videoElement, 0, 0, 640, 640);
+        const imageData = ctx.getImageData(0, 0, 640, 640);
+        const tensor = tf.browser.fromPixels(imageData);
+
+        return tf.cast(tensor, 'float32').div(tf.scalar(255)).expandDims(0);
+    }
+
+    private _processPredictions(predictions, classNames) {
+        return tf.tidy(() => {
+            const transRes = predictions.transpose([0, 2, 1]);
+            const boxes = this._calculateBoundingBoxes(transRes);
+            const rawScores = transRes
+                .slice([0, 0, 4], [-1, -1, Object.keys(classNames).length])
+                .squeeze(0);
+            const [scores, labels] = [rawScores.max(1), rawScores.argMax(1)];
+
+            const indices = tf.image
+                .nonMaxSuppression(
+                    boxes,
+                    scores,
+                    predictions.shape[2],
+                    0.45,
+                    0.2
+                )
+                .arraySync();
+            return indices.map((i) => {
+                // Extract predictions
+                const box = boxes.slice([i, 0], [1, -1]).squeeze().arraySync();
+                const label = labels.slice([i], [1]).arraySync()[0];
+                return { box, label: classNames[label] };
+            });
+        });
+    }
+
+    private _calculateBoundingBoxes(transRes) {
+        const [xCenter, yCenter, width, height] = [
+            transRes.slice([0, 0, 0], [-1, -1, 1]),
+            transRes.slice([0, 0, 1], [-1, -1, 1]),
+            transRes.slice([0, 0, 2], [-1, -1, 1]),
+            transRes.slice([0, 0, 3], [-1, -1, 1]),
+        ];
+
+        const topLeftX = tf.sub(xCenter, tf.div(width, 2));
+        const topLeftY = tf.sub(yCenter, tf.div(height, 2));
+        return tf.concat([topLeftX, topLeftY, width, height], 2).squeeze();
     }
 
     private async _setupWebcam() {
@@ -206,7 +298,6 @@ export class PanelViewComponent extends AsyncHandler {
                 video: true,
             });
             this._video_el.nativeElement.srcObject = stream;
-            this._video_el.nativeElement.play();
         } else {
             console.error('getUserMedia is not supported');
         }
