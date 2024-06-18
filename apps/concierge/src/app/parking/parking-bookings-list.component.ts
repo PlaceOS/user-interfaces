@@ -34,7 +34,8 @@ import { ParkingStateService } from './parking-state.service';
                     key: 'plate_number',
                     name: 'Plate Number',
                     content: plate_template,
-                    size: '10rem'
+                    size: '10rem',
+                    sortable: false
                 },
                 {
                     key: 'status',
