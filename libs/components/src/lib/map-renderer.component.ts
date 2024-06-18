@@ -309,7 +309,7 @@ export class MapRendererComponent
                 tkn === 'x-api-key'
                     ? 'api-key=' + encodeURIComponent(apiKey())
                     : 'bearer_token=' + encodeURIComponent(tkn)
-            };max-age=60;path=/api/;samesite=strict;${
+            };max-age=30;path=/api/;samesite=strict;${
                 location.protocol === 'https:' ? 'secure;' : ''
             }`;
             this.viewer = await createViewer({
