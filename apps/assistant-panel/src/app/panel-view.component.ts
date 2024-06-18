@@ -4,8 +4,9 @@ import { AsyncHandler, currentUser } from '@placeos/common';
 import { ChatService } from 'libs/components/src/lib/chat/chat.service';
 import { map } from 'rxjs/operators';
 
-import * as Vosk from 'vosklet';
 import * as tf from '@tensorflow/tfjs';
+
+declare let loadVosklet: any;
 
 @Component({
     selector: 'app-panel-view',
@@ -47,7 +48,7 @@ import * as tf from '@tensorflow/tfjs';
                     playsinline
                     [class.opacity-0]="!debug"
                     class="absolute bottom-4 left-4 w-48 h-48 object-cover rounded-xl bg-base-200 border-2 border-base-200"
-                    [class.!border-success]="listening"
+                    [class.!border-success]="person_in_view"
                 ></video>
                 <canvas
                     #canvas
@@ -148,14 +149,30 @@ import * as tf from '@tensorflow/tfjs';
                 </div>
             </div>
         </div>
+        <button
+            splash
+            matRipple
+            class="absolute inset-0 text-white flex flex-col items-center justify-center z-20"
+            *ngIf="!listening"
+        >
+            <h2 class="font-light text-4xl mb-4">Touch to Start</h2>
+        </button>
     `,
-    styles: [``],
+    styles: [
+        `
+            [splash] {
+                animation: crossfade 10s linear;
+                animation-iteration-count: infinite;
+            }
+        `,
+    ],
 })
 export class PanelViewComponent extends AsyncHandler {
     public scale = 1;
     public current_text = '';
     public last_text = '';
     public listening = false;
+    public person_in_view = false;
     public debug = false;
     public error: Record<string, boolean> = {};
     private _time = 0;
@@ -197,7 +214,6 @@ export class PanelViewComponent extends AsyncHandler {
         this._context = this._canvas_el.nativeElement.getContext('2d', {
             willReadFrequently: true,
         });
-        this._setupVoiceRecognition();
         this._setupWebcam();
         this._chat.startChat();
         this.subscription(
@@ -215,7 +231,7 @@ export class PanelViewComponent extends AsyncHandler {
                 this._speakText(msg_list[0].message);
             })
         );
-        this.interval('process_frame', () => this._processWebcamFrame(), 200);
+        this.interval('process_frame', () => this._processWebcamFrame(), 500);
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((p) => {
@@ -241,10 +257,10 @@ export class PanelViewComponent extends AsyncHandler {
             const detections = this._processPredictions(predictions, {
                 0: 'person',
             });
-            this.listening = false;
+            this.person_in_view = false;
             for (const { box, label } of detections) {
                 if (label === 'person') {
-                    this.listening = true;
+                    this.person_in_view = true;
                     return;
                 }
             }
@@ -313,6 +329,11 @@ export class PanelViewComponent extends AsyncHandler {
     }
 
     private async _setupVoiceRecognition() {
+        if (!loadVosklet) {
+            return this.timeout('loadVosklet', () =>
+                this._setupVoiceRecognition()
+            );
+        }
         console.log('Setup Speech Recognition');
         // Make sure sample rate matches that in the training data
         let ctx = new AudioContext({ sampleRate: 16000 });
@@ -329,7 +350,7 @@ export class PanelViewComponent extends AsyncHandler {
             })
         );
         // Load Vosklet module, model and recognizer
-        let module = await Vosk();
+        let module = await loadVosklet();
         let model = await module.createModel(
             `${location.origin}${location.pathname}assets/vosk-model-small-en-us-0.15.tar.gz`,
             'model',
@@ -338,20 +359,20 @@ export class PanelViewComponent extends AsyncHandler {
         let recognizer = await module.createRecognizer(model, 16000);
         // Listen for result and partial result
         recognizer.addEventListener('result', (ev) => {
-            console.log('Result:', ev.detail);
-            this.last_text = ev.detail;
+            const { text } = ev.detail || { text: '' };
+            // console.log('Result:', text);
+            this.last_text = text || '';
             this.current_text = '';
-            this.listening = false;
             this.clearInterval('scale');
             this.scale = 1;
-            console.log('Last message:', this.last_text);
+            // console.log('Last message:', this.last_text);
             if (this.last_text.length <= 3) return;
             console.log('Sending message:', this.last_text);
             this._chat.sendMessage(this.last_text);
         });
         recognizer.addEventListener('partialResult', (ev) => {
-            console.log('Partial result:', ev.detail);
-            this.current_text = ev.detail;
+            // console.log('Partial result:', ev.detail);
+            this.current_text = ev.detail?.partial || '';
         });
         // Create a transferer node to get audio data on the main thread
         let transferer = await module.createTransferer(ctx, 128 * 150);
@@ -361,6 +382,7 @@ export class PanelViewComponent extends AsyncHandler {
         };
         // Connect to microphone
         mic_node.connect(transferer);
+        this.listening = true;
     }
 
     private _speakText(text: string) {
