@@ -367,6 +367,7 @@ export class ParkingStateService extends AsyncHandler {
                       booking.user_name
                   } on ${format(booking.date, 'MMM Do')}.`
               );
+        if (success !== 'failed') this._change.next(Date.now());
     }
 
     public async rejectBooking(bookings: Booking) {
@@ -380,5 +381,6 @@ export class ParkingStateService extends AsyncHandler {
                       bookings.user_name
                   } on ${format(bookings.date, 'MMM Do')}.`
               );
+        if (success !== 'failed') this._change.next(Date.now());
     }
 }
