@@ -22,7 +22,7 @@ import { ParkingStateService } from './parking-state.service';
                 { key: 'description', name: 'Bay Number' },
                 {
                     key: 'user_name',
-                    name: 'Reverved For',
+                    name: 'Reserved For',
                     content: person_template
                 },
                 {

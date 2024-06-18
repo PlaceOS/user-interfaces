@@ -13,7 +13,7 @@ import { ParkingStateService } from './parking-state.service';
         <div class="flex items-center w-full py-4 px-8 space-x-2">
             <h2 class="text-2xl font-medium">
                 {{
-                    path === 'events'
+                    path !== 'events'
                         ? 'Parking Management'
                         : 'Parking Reservations'
                 }}
