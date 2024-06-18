@@ -331,7 +331,7 @@ export class PanelViewComponent extends AsyncHandler {
         // Load Vosklet module, model and recognizer
         let module = await Vosk();
         let model = await module.createModel(
-            'https://github.com/msqr1/Vosklet/raw/main/examples/en-model.tgz',
+            `${location.origin}${location.pathname}assets/vosk-model-small-en-us-0.15.tar.gz`,
             'model',
             'ID'
         );
