@@ -27,7 +27,7 @@ import { startOfDay } from 'date-fns';
                     [filter]="(filters | async)?.search"
                     [columns]="[
                         {
-                            key: 'user',
+                            key: 'user_name',
                             name: 'Requester',
                             content: user_template
                         },
@@ -40,17 +40,19 @@ import { startOfDay } from 'date-fns';
                         {
                             key: 'assets',
                             name: 'Asset',
-                            content: assets_template
+                            content: assets_template,
+                            sortable: false
                         },
                         {
                             key: 'zones',
                             name: 'Floor',
                             content: level_template,
-                            size: '9rem'
+                            size: '9rem',
+                            sortable: false
                         },
                         { key: 'description', name: 'Location' },
                         {
-                            key: 'approval',
+                            key: 'status',
                             name: 'Approval',
                             content: approval_template,
                             size: '11rem'
@@ -59,7 +61,8 @@ import { startOfDay } from 'date-fns';
                             key: 'tracking',
                             name: 'Tracking',
                             content: tracking_template,
-                            size: '12rem'
+                            size: '12rem',
+                            sortable: false
                         }
                     ]"
                     [empty_message]="
