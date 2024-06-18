@@ -359,19 +359,16 @@ export class PanelViewComponent extends AsyncHandler {
         let recognizer = await module.createRecognizer(model, 16000);
         // Listen for result and partial result
         recognizer.addEventListener('result', (ev) => {
-            const { text } = ev.detail || { text: '' };
-            // console.log('Result:', text);
+            const { text } = JSON.parse(ev.detail || '{ "text": "" }');
             this.last_text = text || '';
             this.current_text = '';
             this.clearInterval('scale');
             this.scale = 1;
-            // console.log('Last message:', this.last_text);
             if (this.last_text.length <= 3) return;
             console.log('Sending message:', this.last_text);
             this._chat.sendMessage(this.last_text);
         });
         recognizer.addEventListener('partialResult', (ev) => {
-            // console.log('Partial result:', ev.detail);
             this.current_text = ev.detail?.partial || '';
         });
         // Create a transferer node to get audio data on the main thread
