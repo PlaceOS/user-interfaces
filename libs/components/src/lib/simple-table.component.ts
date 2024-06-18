@@ -288,7 +288,7 @@ export class SimpleTableComponent<T extends {} = any> extends AsyncHandler {
                         );
                     }
                     if (sort && data.length) {
-                        const type = data[0][sort.key];
+                        const type = typeof data[0][sort.key];
                         if (type === 'number') {
                             data = data.sort((a, b) => {
                                 const result = a[sort.key] - b[sort.key];

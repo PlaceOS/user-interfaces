@@ -45,7 +45,7 @@ import { SettingsService } from '@placeos/common';
                         key: 'checked_in',
                         name: 'Checked In',
                         content: option_template,
-                        size: '5.5rem',
+                        size: '7rem',
                         sortable: false
                     }
                 ]"

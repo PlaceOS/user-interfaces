@@ -41,6 +41,7 @@ import { CateringReportStateService } from './catering-report-state.service';
                 ]"
                 [page_size]="print ? 0 : 10"
                 empty_message="No orders for selected period"
+                [sortable]="true"
             ></simple-table>
             <ng-template #option_template let-data="data">
                 <div class="p-4">

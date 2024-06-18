@@ -32,6 +32,7 @@ import { ReportsStateService } from '../reports-state.service';
                         }
                     ]"
                     [page_size]="print ? 0 : 10"
+                    [sortable]="true"
                 >
                 </simple-table>
                 <ng-template #date_template let-data="data">

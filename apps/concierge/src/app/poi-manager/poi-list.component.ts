@@ -20,7 +20,8 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                         key: 'level_id',
                         name: 'Level',
                         content: level_template,
-                        size: '12rem'
+                        size: '12rem',
+                        sortable: false
                     },
                     { key: 'location', name: 'Location', size: '10rem' },
                     {

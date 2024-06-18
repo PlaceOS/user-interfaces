@@ -17,28 +17,32 @@ import { tap } from 'rxjs/operators';
                     key: 'level',
                     name: 'Level',
                     content: level_template,
-                    size: '8rem'
+                    size: '8rem',
+                    sortable: false
                 },
                 {
                     key: 'room',
                     name: 'Room',
                     content: room_template,
-                    size: '12rem'
+                    size: '12rem',
+                    sortable: false
                 },
                 {
                     key: 'interested',
                     name: 'Interested',
                     content: interested_template,
-                    size: '6rem'
+                    size: '6rem',
+                    sortable: false
                 },
                 {
                     key: 'attending',
                     name: 'Attending',
                     content: attending_template,
-                    size: '6rem'
+                    size: '6rem',
+                    sortable: false
                 },
                 {
-                    key: 'status',
+                    key: 'state',
                     name: 'Status',
                     content: status_template,
                     size: '8.5rem'
@@ -47,7 +51,8 @@ import { tap } from 'rxjs/operators';
                     key: 'permissions',
                     name: 'Published',
                     content: published_template,
-                    size: '6rem'
+                    size: '6rem',
+                    sortable: false
                 },
                 {
                     key: 'actions',
