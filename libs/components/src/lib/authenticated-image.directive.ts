@@ -44,7 +44,7 @@ export class AuthenticatedImageDirective extends AsyncHandler {
             tkn === 'x-api-key'
                 ? 'api-key=' + encodeURIComponent(apiKey())
                 : 'bearer_token=' + encodeURIComponent(tkn)
-        };max-age=30;path=/api/;samesite=strict;${
+        };max-age=30;path=/api/engine/v2/uploads;samesite=strict;${
             location.protocol === 'https:' ? 'secure;' : ''
         }`;
         const response = await fetch(this.source);
