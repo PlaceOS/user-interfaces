@@ -210,8 +210,12 @@ export class VisitorsStateService extends AsyncHandler {
     }
 
     public async setCheckinState(item: Booking, state = true) {
+        if (item.rejected) throw 'You cannot check in a rejected meeting';
         if (state === true) {
             await this.requestInduction(item);
+        }
+        if (!item.approved && state === true) {
+            await approveBooking(item.id).toPromise();
         }
         const new_user = await checkinBooking(item.id, state)
             .toPromise()
