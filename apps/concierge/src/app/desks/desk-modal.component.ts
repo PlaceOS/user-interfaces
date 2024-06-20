@@ -50,11 +50,13 @@ import { Desk } from '@placeos/organisation';
                 <label for="notes">Groups</label>
                 <item-list-field
                     class="w-full"
+                    placeholder="Add user groups..."
                     formControlName="groups"
                 ></item-list-field>
                 <label for="notes">Features</label>
                 <item-list-field
                     class="w-full"
+                    placeholder="Add features..."
                     formControlName="features"
                 ></item-list-field>
                 <label for="notes">Notes</label>

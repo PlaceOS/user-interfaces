@@ -31,7 +31,7 @@ import { SettingsService } from '@placeos/common';
                         name: 'Person',
                         content: user_template
                     },
-                    { key: 'group', name: 'Group' },
+                    { key: 'group', name: 'Group', content: group_template },
                     { key: 'asset_name', name: 'Desk' },
                     { key: 'approver', name: 'Approver' },
                     {
@@ -45,7 +45,7 @@ import { SettingsService } from '@placeos/common';
                         key: 'checked_in',
                         name: 'Checked In',
                         content: option_template,
-                        size: '5.5rem',
+                        size: '7rem',
                         sortable: false
                     }
                 ]"
@@ -64,6 +64,17 @@ import { SettingsService } from '@placeos/common';
                     <div class="text-xl">{{ date | date: 'dd' }}</div>
                 </div>
             </ng-template>
+            <ng-template #group_template let-row="row">
+                <div class="p-4 text-[0.625rem] font-mono">
+                    {{ row.group || row.extension_data?.group }}
+                    <span
+                        class="opacity-30"
+                        *ngIf="!(row.group || row.extension_data?.group)"
+                    >
+                        No Group
+                    </span>
+                </div>
+            </ng-template>
             <ng-template #period_template let-row="row">
                 <div class="p-2">
                     <ng-container
@@ -76,7 +87,7 @@ import { SettingsService } from '@placeos/common';
                         <div class="p-2">
                             <ng-container *ngIf="!row.all_day">
                                 {{ row.date | date: time_format }} &ndash;
-                                {{ row.end | date: time_format }}
+                                {{ row.date_end | date: time_format }}
                             </ng-container>
                             <ng-container *ngIf="row.all_day"
                                 >All Day</ng-container
@@ -254,14 +265,7 @@ export class DeskBookingsComponent {
     public loading: string;
     public readonly filters = this._state.filters;
     public readonly has_more_pages = this._state.has_more_pages;
-    public readonly bookings = this._state.bookings.pipe(
-        map((i) =>
-            i.map((booking) => ({
-                ...booking,
-                end: booking.date + booking.duration * 60 * 1000,
-            }))
-        )
-    );
+    public readonly bookings = this._state.bookings;
 
     public readonly rejectAll = () => this._state.rejectAllDesks();
     public readonly loadMore = () => this._state.nextPage();

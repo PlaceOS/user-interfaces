@@ -556,6 +556,7 @@ export class BookingFormService extends AsyncHandler {
                     currentUser()?.id,
                 extension_data: {
                     ...((value as any).extension_data || {}),
+                    group: value.group,
                     phone: value.phone,
                     department:
                         value.user?.department || currentUser()?.department,

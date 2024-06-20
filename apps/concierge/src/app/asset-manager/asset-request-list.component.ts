@@ -7,10 +7,8 @@ import { startOfDay } from 'date-fns';
 @Component({
     selector: 'app-asset-request-list',
     template: `
-        <div
-            class="relative -left-4 w-[calc(100%+2rem)] h-[calc(100%-1rem)] flex flex-col"
-        >
-            <div class="px-8 flex items-center justify-between">
+        <div class="relative w-full h-[calc(100%-1rem)] flex flex-col">
+            <div class="flex items-center justify-between">
                 <div class="opacity-60 text-sm p-4">
                     {{ (requests | async)?.length }} asset request{{
                         (requests | async)?.length === '1' ? '' : 's'
@@ -21,7 +19,7 @@ import { startOfDay } from 'date-fns';
                     (dateChange)="setDate($event)"
                 ></date-options>
             </div>
-            <div class="w-full overflow-auto h-1/2 flex-1 px-8 py-4">
+            <div class="w-full overflow-auto h-1/2 flex-1 pt-2">
                 <simple-table
                     class="block min-w-[82rem] text-sm"
                     asset-requests
@@ -29,7 +27,7 @@ import { startOfDay } from 'date-fns';
                     [filter]="(filters | async)?.search"
                     [columns]="[
                         {
-                            key: 'user',
+                            key: 'user_name',
                             name: 'Requester',
                             content: user_template
                         },
@@ -42,17 +40,19 @@ import { startOfDay } from 'date-fns';
                         {
                             key: 'assets',
                             name: 'Asset',
-                            content: assets_template
+                            content: assets_template,
+                            sortable: false
                         },
                         {
                             key: 'zones',
                             name: 'Floor',
                             content: level_template,
-                            size: '9rem'
+                            size: '9rem',
+                            sortable: false
                         },
                         { key: 'description', name: 'Location' },
                         {
-                            key: 'approval',
+                            key: 'status',
                             name: 'Approval',
                             content: approval_template,
                             size: '11rem'
@@ -61,7 +61,8 @@ import { startOfDay } from 'date-fns';
                             key: 'tracking',
                             name: 'Tracking',
                             content: tracking_template,
-                            size: '12rem'
+                            size: '12rem',
+                            sortable: false
                         }
                     ]"
                     [empty_message]="
@@ -94,7 +95,10 @@ import { startOfDay } from 'date-fns';
                         let asset of row.extension_data?.request?.items || []
                     "
                 >
-                    {{ asset.quantity || 1 }}× {{ asset.name }}
+                    <span class="font-mono text-sm">
+                        {{ asset.quantity || 1 }}×
+                    </span>
+                    {{ asset.name }}
                 </div>
             </div>
         </ng-template>

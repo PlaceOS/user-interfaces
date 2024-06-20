@@ -33,26 +33,37 @@ export interface PointAsset {
                 },
                 {
                     key: 'accept_points',
-                    name: 'Accept Points',
-                    content: bool_template
+                    name: 'Points',
+                    content: bool_template,
+                    size: '5.5rem'
                 },
                 {
                     key: 'discount_cap',
                     name: 'Discount %',
-                    content: discount_template
+                    content: discount_template,
+                    size: '9rem'
                 },
-                { key: 'actions', name: ' ', content: action_template }
+                {
+                    key: 'actions',
+                    name: ' ',
+                    content: action_template,
+                    size: '6.5rem'
+                }
             ]"
-            empty_message="No priced assets"
             [sortable]="true"
+            empty_message="No priced assets"
         >
         </simple-table>
         <ng-template #type_template let-data="data">
-            <span class="bg-base-200 rounded capitalize p-4">{{ data }}</span>
+            <div class="p-2">
+                <span class="bg-base-200 rounded capitalize px-2 py-1 text-sm">
+                    {{ data }}
+                </span>
+            </div>
         </ng-template>
         <ng-template #price_template let-data="data">
-            <span class="text-xs p-4">
-                {{ data / 100 | currency: code }} per hour
+            <span class="text-xs p-4 font-mono">
+                {{ data / 100 | currency: code }} p/h
             </span>
         </ng-template>
         <ng-template #bool_template let-data="data">
@@ -68,7 +79,7 @@ export interface PointAsset {
             <div class="text-right p-4">{{ data }}%</div>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="flex items-center justify-end p-2">
+            <div class="flex items-center justify-end p-2 mx-auto">
                 <button icon matRipple (click)="edit(row)">
                     <app-icon>edit</app-icon>
                 </button>

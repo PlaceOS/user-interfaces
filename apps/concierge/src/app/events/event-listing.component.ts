@@ -8,7 +8,7 @@ import { tap } from 'rxjs/operators';
     selector: 'event-listing',
     template: `
         <simple-table
-            class="min-w-[80rem] block text-sm"
+            class="min-w-[72rem] w-full block text-sm"
             [data]="event_list"
             empty_message="No Regions"
             [columns]="[
@@ -17,37 +17,42 @@ import { tap } from 'rxjs/operators';
                     key: 'level',
                     name: 'Level',
                     content: level_template,
-                    size: '12rem'
+                    size: '8rem',
+                    sortable: false
                 },
                 {
                     key: 'room',
                     name: 'Room',
                     content: room_template,
-                    size: '12rem'
+                    size: '12rem',
+                    sortable: false
                 },
                 {
                     key: 'interested',
                     name: 'Interested',
                     content: interested_template,
-                    size: '6rem'
+                    size: '6rem',
+                    sortable: false
                 },
                 {
                     key: 'attending',
                     name: 'Attending',
                     content: attending_template,
-                    size: '6rem'
+                    size: '6rem',
+                    sortable: false
                 },
                 {
-                    key: 'status',
+                    key: 'state',
                     name: 'Status',
                     content: status_template,
-                    size: '9rem'
+                    size: '8.5rem'
                 },
                 {
                     key: 'permissions',
                     name: 'Published',
                     content: published_template,
-                    size: '6rem'
+                    size: '6rem',
+                    sortable: false
                 },
                 {
                     key: 'actions',

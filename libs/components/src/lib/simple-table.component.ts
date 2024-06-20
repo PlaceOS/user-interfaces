@@ -26,7 +26,7 @@ export interface TableColumn {
     template: `
         <div
             role="table"
-            class="grid border border-base-200"
+            class="grid border border-base-300"
             [style.gridTemplateColumns]="column_template"
             (click)="active_row >= 0 ? rowClicked.emit(active_row) : null"
             (touchend)="active_row = -1"
@@ -321,7 +321,7 @@ export class SimpleTableComponent<T extends {} = any> extends AsyncHandler {
                         );
                     }
                     if (sort && data.length) {
-                        const type = data[0][sort.key];
+                        const type = typeof data[0][sort.key];
                         if (type === 'number') {
                             data = data.sort((a, b) => {
                                 const result = a[sort.key] - b[sort.key];
@@ -329,8 +329,12 @@ export class SimpleTableComponent<T extends {} = any> extends AsyncHandler {
                             });
                         } else {
                             data = data.sort((a, b) => {
-                                const a_value = JSON.stringify(a[sort.key]);
-                                const b_value = JSON.stringify(b[sort.key]);
+                                const a_value = JSON.stringify(
+                                    a[sort.key] || ''
+                                );
+                                const b_value = JSON.stringify(
+                                    b[sort.key] || ''
+                                );
                                 const result = a_value.localeCompare(b_value);
                                 return sort.reverse ? -result : result;
                             });

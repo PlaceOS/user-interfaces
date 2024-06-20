@@ -161,6 +161,11 @@ export class CheckinQRScanComponent
                     throw err;
                 });
             const event = await this._checkin.event.pipe(take(1)).toPromise();
+            if (event.rejected) {
+                this.handleError('Your meeting has been rejected.');
+                this.checking_code = false;
+                return;
+            }
             if (this.is_induction_enabled && !event?.induction) {
                 this._router.navigate(['/checkin', 'induction']);
             } else {

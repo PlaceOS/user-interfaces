@@ -35,6 +35,7 @@ import { ReportsStateService } from '../reports-state.service';
                         }
                     ]"
                     [page_size]="print ? 0 : 10"
+                    [sortable]="true"
                 >
                 </simple-table>
                 <ng-template #percent_view let-data="data">
