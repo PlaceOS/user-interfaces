@@ -385,15 +385,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                 polygonZoomFrom: 16,
                 polygonZoomTo: 22,
                 visible: true,
-                polygonFillColor: styles[id].fill,
-            });
-            this._services.mapsindoors.overrideDisplayRule(resource.id, {
-                polygonVisible: true,
-                polygonFillOpacity: 0.6,
-                polygonZoomFrom: 16,
-                polygonZoomTo: 22,
-                visible: true,
-                polygonFillColor: styles[id].fill,
+                polygonFillColor: '#ff69b4',
             });
         }
     }
