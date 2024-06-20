@@ -18,7 +18,7 @@ import { User } from '@placeos/users';
                     key: 'state',
                     name: 'Checked In',
                     content: state_template,
-                    size: '5.5rem',
+                    size: '6.5rem',
                     sortable: false
                 },
                 {
