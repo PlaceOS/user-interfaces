@@ -14,7 +14,7 @@ import { Booking } from './booking.class';
 import { BookingDetailsModalComponent } from './booking-details-modal.component';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
+import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-event-details-modal.component';
 
 @Component({
     selector: 'booking-card',

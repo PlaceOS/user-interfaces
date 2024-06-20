@@ -5,12 +5,6 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import {
-    Booking,
-    bookingAddGuest,
-    bookingRemoveGuest,
-    checkinBookingGuest,
-} from '@placeos/bookings';
-import {
     SettingsService,
     currentUser,
     notifyInfo,
@@ -25,6 +19,12 @@ import {
 import { ViewerFeature } from '@placeos/svg-viewer';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { CalendarEvent } from './event.class';
+import {
+    addEventGuest,
+    checkinEventGuest,
+    removeEventGuest,
+} from './events.fn';
 
 @Component({
     selector: `group-event-details-modal`,
@@ -36,7 +36,7 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 class="relative flex items-center justify-between h-52 w-full bg-base-200 overflow-hidden"
             >
                 <img
-                    *ngIf="booking.images?.length"
+                    *ngIf="booking.extension_data?.images?.length"
                     auth
                     [source]="booking.images[0]"
                     class="absolute top-1/2 left-1/2 min-h-full min-w-full object-cover -translate-x-1/2 -translate-y-1/2"
@@ -182,7 +182,10 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                         >
                             <app-icon>person</app-icon>
                         </div>
-                        <div>Event by {{ booking.user_name }}</div>
+                        <div>
+                            Event by
+                            {{ booking.organiser?.name || booking.host }}
+                        </div>
                     </div>
                     <h3 class="font-medium pt-4">When and where</h3>
                     <div class="flex items-center space-x-4">
@@ -246,13 +249,8 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                     </button>
                     <h3 class="font-medium pt-4">About this event</h3>
                     <div class="text-sm pb-4">
-                        <span
-                            [innerHTML]="booking.description | sanitize"
-                        ></span>
-                        <span
-                            *ngIf="!booking.description.trim()"
-                            class="opacity-30"
-                        >
+                        <span [innerHTML]="booking.body | sanitize"></span>
+                        <span *ngIf="!booking.body.trim()" class="opacity-30">
                             No description
                         </span>
                     </div>
@@ -337,7 +335,7 @@ export class GroupEventDetailsModalComponent {
     @Output() public edit = new EventEmitter();
     @Output() public remove = new EventEmitter();
     public space: Space;
-    public booking: Booking = this._data.booking;
+    public booking: CalendarEvent = this._data.event;
     public concierge = this._data.concierge;
     public building: Building;
     public level: BuildingLevel;
@@ -363,7 +361,7 @@ export class GroupEventDetailsModalComponent {
     }
 
     public get has_space() {
-        return !!this.booking.linked_event?.system_id;
+        return !!this.booking.system?.id;
     }
 
     public get is_online() {
@@ -389,7 +387,7 @@ export class GroupEventDetailsModalComponent {
     }
 
     public get system_id() {
-        return this.booking.linked_event?.system_id;
+        return this.booking.system?.id;
     }
 
     public get guest_details() {
@@ -399,7 +397,7 @@ export class GroupEventDetailsModalComponent {
 
     constructor(
         @Inject(MAT_DIALOG_DATA)
-        private _data: { booking: Booking; concierge: boolean },
+        private _data: { event: CalendarEvent; concierge: boolean },
         private _org: OrganisationService,
         private _settings: SettingsService,
         private _dialog: MatDialog,
@@ -408,10 +406,9 @@ export class GroupEventDetailsModalComponent {
 
     public async ngOnInit() {
         const space_pipe = new SpacePipe(this._org);
-        this.space = await space_pipe.transform(
-            this.booking.linked_event?.system_id
-        );
-        const id = this.space?.map_id || this.booking.extension_data?.map_id;
+        this.space = await space_pipe.transform(this.booking.system?.id);
+        const map_id = (this.booking.extension_data as any)?.map_id;
+        const id = this.space?.map_id || map_id;
         if (id) {
             this.styles[`#${id}`] = { fill: 'green' };
             this.features = [
@@ -422,12 +419,12 @@ export class GroupEventDetailsModalComponent {
                 },
             ];
         }
-        this.level = this._org.levelWithID(this.booking.zones);
+        const zones = (this.booking.system?.zones as any) || [];
+        this.level = this._org.levelWithID(zones);
         this.building =
-            this._org.buildings.find((_) =>
-                this.booking.zones.includes(_.id)
-            ) || this._org.building;
-        this.locate = this.booking.extension_data?.map_id || '';
+            this._org.buildings.find((_) => zones.includes(_.id)) ||
+            this._org.building;
+        this.locate = map_id || '';
     }
 
     public viewLocation() {
@@ -449,7 +446,7 @@ export class GroupEventDetailsModalComponent {
         let user = this.guest_details;
         console.log('User:', user, this.is_interested);
         if (this.is_interested && user) {
-            await bookingRemoveGuest(
+            await removeEventGuest(
                 this.booking.id,
                 currentUser() as any
             ).toPromise();
@@ -457,7 +454,7 @@ export class GroupEventDetailsModalComponent {
                 this.booking.attendees || []
             ).filter((_: any) => _.email !== user.email);
         } else {
-            user = await bookingAddGuest(
+            user = await addEventGuest(
                 this.booking.id,
                 currentUser() as any
             ).toPromise();
@@ -471,7 +468,7 @@ export class GroupEventDetailsModalComponent {
     public async toggleAttendance() {
         let user = this.guest_details;
         if (!user) {
-            user = await bookingAddGuest(
+            user = await addEventGuest(
                 this.booking.id,
                 currentUser() as any
             ).toPromise();
@@ -482,7 +479,7 @@ export class GroupEventDetailsModalComponent {
         }
         user = { ...currentUser(), ...(user || {}) };
         if (!user.email) return;
-        await checkinBookingGuest(
+        await checkinEventGuest(
             this.booking.id,
             user.email,
             !this.is_going

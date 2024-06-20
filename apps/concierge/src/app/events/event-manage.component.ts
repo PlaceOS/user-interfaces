@@ -30,7 +30,12 @@ import {
     formatDuration,
     startOfDay,
 } from 'date-fns';
-import { CalendarEvent, EventFormService, removeEvent } from '@placeos/events';
+import {
+    CalendarEvent,
+    EventFormService,
+    removeEvent,
+    showEvent,
+} from '@placeos/events';
 import { StaffUser, User } from '@placeos/users';
 
 const EMPTY = [];
@@ -75,7 +80,7 @@ const EMPTY = [];
                         <a-user-search-field
                             class="block mb-4"
                             name="host"
-                            formControlName="user"
+                            formControlName="organiser"
                         ></a-user-search-field>
                         <label for="tags">Tags</label>
                         <mat-form-field
@@ -106,11 +111,11 @@ const EMPTY = [];
                                 Featured
                             </mat-checkbox>
                             <mat-checkbox
-                                [ngModel]="form.value.permission === 'OPEN'"
+                                [ngModel]="form.value.access === 'OPEN'"
                                 [ngModelOptions]="{ standalone: true }"
                                 (ngModelChange)="
                                     form.patchValue({
-                                        permission: $event ? 'OPEN' : 'PRIVATE'
+                                        access: $event ? 'OPEN' : 'PRIVATE'
                                     })
                                 "
                             >
@@ -287,13 +292,7 @@ const EMPTY = [];
                                 <mat-select
                                     [ngModel]="building_zone"
                                     [ngModelOptions]="{ standalone: true }"
-                                    (ngModelChange)="
-                                        form.controls.zones.setValue([
-                                            $event.parent_id,
-                                            $event.id
-                                        ]);
-                                        setBuilding($event)
-                                    "
+                                    (ngModelChange)="setBuilding($event)"
                                     placeholder="Select Building"
                                 >
                                     <mat-option
@@ -418,7 +417,7 @@ export class EventManageComponent extends AsyncHandler {
     public readonly separators: number[] = [ENTER, COMMA, SPACE];
     public readonly building_list = this._org.building_list;
     public readonly active_levels = this._org.active_levels;
-    public readonly available_spaces = this._event_form.available_spaces;
+    public readonly available_spaces = this._form_state.available_spaces;
 
     public get tag_list() {
         return this.form.getRawValue().tags || EMPTY;
@@ -433,13 +432,15 @@ export class EventManageComponent extends AsyncHandler {
     }
 
     public get building_zone() {
-        const zones = this.form.getRawValue().zones || [];
-        const building = this._org.buildings.find((b) => zones.includes(b.id));
+        const level = this.level_zone;
+        const building = this._org.buildings.find(
+            (b) => b.id === level?.parent_id
+        );
         return building || this._org.building;
     }
 
     public get level_zone() {
-        const zones = this.form.getRawValue().zones;
+        const zones = this._form_state.options_value.zone_ids || [];
         const level = this._org.levelWithID(zones);
         return level;
     }
@@ -456,8 +457,7 @@ export class EventManageComponent extends AsyncHandler {
     };
 
     constructor(
-        private _form_state: BookingFormService,
-        private _event_form: EventFormService,
+        private _form_state: EventFormService,
         private _state: EventStateService,
         private _route: ActivatedRoute,
         private _router: Router,
@@ -469,77 +469,36 @@ export class EventManageComponent extends AsyncHandler {
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
-        this._form_state.setOptions({ type: 'group-event' });
         this.form.patchValue({
-            booking_type: 'group-event',
-            asset_id: `${
-                currentUser()?.name || currentUser()?.email
-            } [${randomString(4)}]`,
-            permission: 'OPEN',
-            zones: unique([
-                this._org.organisation.id,
-                this._org.building.id,
-                this._org.building.parent_id,
-            ]),
             location:
                 this._org.building.address || this._org.building.display_name,
-            user: currentUser(),
+            organiser: currentUser(),
             attendance_type: 'ONSITE',
+            shared_event: true,
         });
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe(async (params) => {
                 if (params.has('id')) {
-                    const booking = await showBooking(
-                        params.get('id')
-                    ).toPromise();
+                    const booking = await showEvent(params.get('id'), {
+                        calendar: this._state.calendar,
+                    }).toPromise();
                     if (!booking)
                         return this._router.navigate([
                             '/entertainment',
                             'events',
                         ]);
                     this._form_state.newForm(booking);
-                    console.log('Booking:', booking.tags);
-                    if (booking.linked_event) {
-                        this._event_form.newForm(
-                            new CalendarEvent(booking.linked_event)
-                        );
-                        this.form.patchValue({
-                            secondary_resource: booking.linked_event.system_id,
-                        });
-                    }
+                    console.log('Event:', booking.extension_data?.tags);
                     this.form.patchValue({
-                        tags: booking.tags,
-                        user: new StaffUser({
-                            id: booking.user_id,
-                            email: booking.user_email,
-                            name: booking.user_name,
+                        tags: booking.extension_data?.tags || [],
+                        organiser: new StaffUser({
+                            id: booking.organiser?.id,
+                            email: booking.host,
+                            name: booking.organiser?.name,
                         }),
                     });
                 }
-            })
-        );
-        this.subscription(
-            'form_change',
-            this.form.valueChanges
-                .pipe(startWith(this.form.value))
-                .subscribe(() => {
-                    this._event_form.form.patchValue(this.form.value);
-                    this._event_form.setOptions({
-                        zone_ids: [
-                            this.level_zone?.id || this.building_zone?.id,
-                        ],
-                    });
-                })
-        );
-        this.subscription(
-            'organiser_change',
-            this.form.controls.user.valueChanges.subscribe((value) => {
-                const name = value?.name || value?.email;
-                const value_name =
-                    (name ? `${name} [${randomString(4)}]` : '') ||
-                    this.form.getRawValue().asset_id;
-                this.form.patchValue({ asset_id: value_name });
             })
         );
         this._updateTimezoneList();
@@ -560,7 +519,7 @@ export class EventManageComponent extends AsyncHandler {
             this._org.building.id,
             level.id,
         ]);
-        this.form.controls.zones.setValue(new_zones);
+        this._form_state.setOptions({ zone_ids: [level.id] });
     }
 
     /**
@@ -602,71 +561,10 @@ export class EventManageComponent extends AsyncHandler {
             );
         }
         this.loading = true;
-        const booking = this._form_state.booking;
-        // Remove Old Event if linked
-        if (
-            booking?.id &&
-            (booking.linked_event || this.form.getRawValue().secondary_resource)
-        ) {
-            if (booking.linked_event) {
-                await removeEvent(booking.linked_event.event_id, {
-                    system_id: booking.linked_event.system_id,
-                })
-                    .toPromise()
-                    .catch((e) => {
-                        notifyError(e);
-                        this.loading = false;
-                        throw e;
-                    });
-            }
-            await removeBooking(booking.id)
-                .toPromise()
-                .catch((e) => {
-                    notifyError(e);
-                    this.loading = false;
-                    throw e;
-                });
-            this._form_state.form.patchValue({ id: null });
-        }
-        // Create event if linked to a space
-        if (this.form.getRawValue().secondary_resource) {
-            const spaces = await this.available_spaces
-                .pipe(take(1))
-                .toPromise();
-            const space = spaces.find(
-                (s) => s.id === this.form.getRawValue().secondary_resource
-            );
-            const value = { ...this.form.getRawValue() };
-            delete value.id;
-            console.log('Event value:', value);
-            this._event_form.form.patchValue({
-                ...value,
-                id: null,
-                resources: [space],
-            });
-            const event = await this._event_form.postForm().catch((e) => {
-                notifyError(e);
-                this.loading = false;
-                throw e;
-            });
-            console.log('Event:', event);
-            if (!event) return;
-            this.form.patchValue({
-                ical_uid: event.ical_uid,
-                event_id: event.id,
-                location: space.display_name || space.name,
-            });
-        }
-        this.form.patchValue({ asset_name: '' });
-        if (!this.form.getRawValue().description)
-            this.form.patchValue({ description: ' ' });
         const date = this.form.getRawValue().date;
-        const res = await this._form_state.postForm().catch(async (e) => {
-            notifyError(e);
-            if (this.form.getRawValue().event_id) {
-                await removeEvent(this.form.getRawValue().event_id).toPromise();
-            }
-        });
+        const res = await this._form_state
+            .postForm()
+            .catch((e) => notifyError(e));
         this._state.changed();
         this.loading = false;
         if (res) {

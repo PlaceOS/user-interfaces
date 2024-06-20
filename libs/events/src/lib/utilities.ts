@@ -19,6 +19,7 @@ import {
     startOfDay,
 } from 'date-fns';
 import {
+    LOCAL_TIMEZONE,
     SettingsService,
     currentUser,
     timePeriodsIntersect,
@@ -30,6 +31,8 @@ import { endInFuture } from './validators';
 import { getNextFreeTimeSlot } from './helpers';
 import { User } from 'libs/users/src/lib/user.class';
 import { Booking } from 'libs/bookings/src/lib/booking.class';
+import { time } from 'console';
+import { share } from 'rxjs/operators';
 
 let BOOKING_DATE = add(setMinutes(setHours(new Date(), 6), 0), { days: -1 });
 
@@ -94,6 +97,14 @@ export function generateEventForm(
         tags: new FormControl(event.extension_data?.tags || []),
         update_master: new FormControl(false),
         system: new FormControl<any>(event.system),
+        attendance_type: new FormControl(
+            event.extension_data?.attendance_type || 'ONSITE'
+        ),
+        timezone: new FormControl(event.timezone || LOCAL_TIMEZONE),
+        shared_event: new FormControl(
+            event.extension_data?.shared_event || false
+        ),
+        access: new FormControl(event.extension_data?.access || 'PRIVATE'),
     });
     form.get('organiser').valueChanges.subscribe((o) =>
         form.controls.host.setValue(o?.email)

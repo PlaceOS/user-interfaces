@@ -39,10 +39,22 @@ export interface EventExtensionData {
     /** Name of the organisational department of the host */
     department: string;
     event_type?: string;
+    /** Event category */
     category?: string;
+    /** List of tags associated with the event */
     tags?: string[];
     system_id?: string;
     event_id?: string;
+    /** Whether event is featured */
+    featured?: boolean;
+    /** Whether the event is in-person, online or both */
+    attendance_type?: 'ONLINE' | 'ONSITE' | 'ANY';
+    /** List of image URLs associated with the event */
+    images?: string[];
+    /** Whether the event is a shared group event */
+    shared_event?: boolean;
+    /** Access level of the event */
+    access: 'PRIVATE' | 'OPEN' | 'PUBLIC';
 }
 
 export interface RecurrenceDetails {

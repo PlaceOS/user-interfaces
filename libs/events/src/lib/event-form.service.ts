@@ -111,6 +111,10 @@ export class EventFormService extends AsyncHandler {
     public readonly loading = this._loading.asObservable();
     public readonly options = this._options.asObservable();
 
+    public get options_value() {
+        return this._options.getValue();
+    }
+
     public get is_multiday() {
         return this._event.getValue()?.duration > 24 * 60;
     }

@@ -2,18 +2,18 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
-    Booking,
-    GroupEventDetailsModalComponent,
-    queryBookings,
-    removeBooking,
-} from '@placeos/bookings';
-import {
     AsyncHandler,
     SettingsService,
     notifyError,
     notifySuccess,
     openConfirmModal,
 } from '@placeos/common';
+import {
+    CalendarEvent,
+    GroupEventDetailsModalComponent,
+    queryEvents,
+    removeEvent,
+} from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
@@ -44,16 +44,20 @@ export class EventStateService extends AsyncHandler {
     ]).pipe(
         filter(([bld]) => !!bld),
         switchMap(([bld, options]) =>
-            queryBookings({
+            queryEvents({
                 period_start: getUnixTime(startOfDay(options.date)),
                 period_end: getUnixTime(
                     endOfDay(options.end || options.date || Date.now())
                 ),
-                type: 'group-event',
-                zones: options.zone_ids?.join(',') || bld.id,
+                zone_ids: options.zone_ids?.join(',') || bld.id,
+                calendars: this.calendar,
             })
         ),
-        map((list) => list.sort((a, b) => a.date - b.date)),
+        map((list) =>
+            list
+                .filter((_) => _.extension_data?.shared_event)
+                .sort((a, b) => a.date - b.date)
+        ),
         shareReplay(1)
     );
 
@@ -65,6 +69,10 @@ export class EventStateService extends AsyncHandler {
 
     public get period() {
         return this._options.getValue()?.period;
+    }
+
+    public get calendar() {
+        return this._settings.get('app.group_events_calendar');
     }
 
     constructor(
@@ -93,9 +101,9 @@ export class EventStateService extends AsyncHandler {
         this._options.next({ ...this._options.value, ...options });
     }
 
-    public viewEvent(event: Booking) {
+    public viewEvent(event: CalendarEvent) {
         const ref = this._dialog.open(GroupEventDetailsModalComponent, {
-            data: { booking: event, concierge: true },
+            data: { event, concierge: true },
         });
         this.subscription(
             `edit:${event.id}`,
@@ -117,7 +125,7 @@ export class EventStateService extends AsyncHandler {
         );
     }
 
-    public async removeEvent(event: Booking) {
+    public async removeEvent(event: CalendarEvent) {
         const result = await openConfirmModal(
             {
                 title: 'Delete Event',
@@ -129,7 +137,9 @@ export class EventStateService extends AsyncHandler {
         );
         if (result.reason !== 'done') return;
         result.loading('Deleting event...');
-        await removeBooking(event.id)
+        await removeEvent(event.id, {
+            calendar: this.calendar,
+        })
             .toPromise()
             .catch((e) => {
                 notifyError(e);

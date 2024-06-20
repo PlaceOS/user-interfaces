@@ -1,10 +1,12 @@
 import { Component, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
-import { GroupEventDetailsModalComponent } from '@placeos/bookings';
+
+import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { CalendarEvent } from './event.class';
 
 @Component({
     selector: 'group-event-card',
@@ -152,7 +154,7 @@ import { OrganisationService } from '@placeos/organisation';
     ],
 })
 export class GroupEventCardComponent {
-    @Input() public event: any;
+    @Input() public event: CalendarEvent;
     @Input() public featured: boolean;
     public space: Space;
     public raw_description = '';
@@ -166,7 +168,7 @@ export class GroupEventCardComponent {
     }
 
     public get has_space() {
-        return !!this.event?.linked_event?.system_id;
+        return !!this.event?.system?.id;
     }
 
     public get is_online() {
@@ -184,10 +186,8 @@ export class GroupEventCardComponent {
 
     public async ngOnInit() {
         const space_pipe = new SpacePipe(this._org);
-        this.space = await space_pipe.transform(
-            this.event.linked_event?.system_id
-        );
-        this.raw_description = this.removeHtmlTags(this.event.description);
+        this.space = await space_pipe.transform(this.event.system?.id);
+        this.raw_description = this.removeHtmlTags(this.event.body);
     }
 
     public removeHtmlTags(html: string) {

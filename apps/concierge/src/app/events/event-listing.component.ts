@@ -10,7 +10,7 @@ import { tap } from 'rxjs/operators';
         <simple-table
             class="min-w-[72rem] w-full block text-sm"
             [data]="event_list"
-            empty_message="No Regions"
+            empty_message="No group events for selected period"
             [columns]="[
                 { key: 'date', name: 'Event', content: event_template },
                 {
