@@ -30,6 +30,9 @@ import { SharedSpacesModule } from '@placeos/spaces';
 import { SharedExploreModule } from '@placeos/explore';
 import { HttpClient } from '@angular/common/http';
 
+import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.component';
+import { FormFieldsModule } from '@placeos/form-fields';
+
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/locale/', '.json');
@@ -41,6 +44,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         UnauthorisedComponent,
         CateringComponent,
         CateringTopbarComponent,
+        DateOptionsComponent,
     ],
     imports: [
         BrowserModule,
@@ -57,6 +61,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         ComponentsModule,
         SharedSpacesModule,
         SharedExploreModule,
+        FormFieldsModule,
         MatRippleModule,
         PaymentsModule,
         AssetsModule,
