@@ -98,9 +98,9 @@ export class DeskSettingsModalComponent {
     public async setDeskHeight() {
         const sys_id = this._org.binding('desks');
         if (!sys_id) return this._dialog_ref.close();
-        const module = getModule(sys_id, 'Desk');
+        const module = getModule(sys_id, 'DeskControl');
         await module
-            .execute('set_height', [this.desk_id, this.height])
+            .execute('set_desk_height', [this.desk_id, this.height])
             .catch((_) => {
                 notifyError('Error setting desk height.' + _);
                 throw _;
