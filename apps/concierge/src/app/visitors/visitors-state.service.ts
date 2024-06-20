@@ -30,6 +30,7 @@ import {
     queryBookings,
     rejectBooking,
     setBookingState,
+    updateBooking,
 } from '@placeos/bookings';
 import { OrganisationService } from '@placeos/organisation';
 import { SpacePipe } from '@placeos/spaces';
@@ -212,6 +213,7 @@ export class VisitorsStateService extends AsyncHandler {
             throw 'User declined';
         }
         await setBookingState(item.id, 'inducted').toPromise();
+        await updateBooking(item.id, { ...item, induction: true });
     }
 
     public async setCheckinState(item: Booking, state = true) {

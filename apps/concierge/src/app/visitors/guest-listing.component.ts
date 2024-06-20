@@ -147,21 +147,19 @@ import { OrganisationService } from '@placeos/organisation';
         </ng-template>
         <ng-template #boolean_template let-row="row">
             <div
-                *ngIf="row.induction"
+                *ngIf="inducted(row)"
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
             >
                 <app-icon>done</app-icon>
             </div>
             <div
-                *ngIf="
-                    !row.induction && !row.process_state.includes('declined')
-                "
+                *ngIf="inducted(row) === null"
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-warning text-warning-content mx-auto"
             >
                 <app-icon>question_mark</app-icon>
             </div>
             <div
-                *ngIf="!row.induction && row.process_state.includes('declined')"
+                *ngIf="inducted(row) === false"
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-error text-error-content mx-auto"
             >
                 <app-icon>close</app-icon>
@@ -396,6 +394,14 @@ export class GuestListingComponent extends AsyncHandler {
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public inducted(item: Booking) {
+        return item.process_state.includes('declined')
+            ? false
+            : item.process_state.includes('inducted') || item.induction
+            ? true
+            : null;
     }
 
     constructor(
