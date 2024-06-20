@@ -5,30 +5,37 @@ import { MatSelectModule } from '@angular/material/select';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { CateringOrdersService, CateringStateService } from '@placeos/catering';
 import { OrganisationService } from '@placeos/organisation';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 
 import { CateringTopbarComponent } from '../../app/catering/catering-topbar.component';
 import { DateOptionsComponent } from '../../app/ui/date-options.component';
+import { SearchbarComponent } from '../../app/ui/searchbar.component';
+import { SettingsService } from '@placeos/common';
 
 describe('CateringTopbarComponent', () => {
     let spectator: SpectatorRouting<CateringTopbarComponent>;
     const createComponent = createRoutingFactory({
         component: CateringTopbarComponent,
         providers: [
-            {
-                provide: OrganisationService,
-                useValue: {
-                    initialised: of(true),
-                    active_levels: new BehaviorSubject([]),
-                    levelWithID: jest.fn(),
-                },
-            },
-            { provide: CateringStateService, useValue: {} },
-            { provide: CateringOrdersService, useValue: {} },
-            { provide: MatDialog, useValue: { open: jest.fn() } },
+            MockProvider(OrganisationService, {
+                initialised: of(true),
+                active_levels: new BehaviorSubject([]),
+                levelWithID: jest.fn(),
+                active_building: new BehaviorSubject({}),
+                active_region: new BehaviorSubject({}),
+            } as any),
+            MockProvider(CateringStateService, {}),
+            MockProvider(CateringOrdersService, {
+                filters: new BehaviorSubject({}),
+            } as any),
+            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
-        declarations: [MockComponent(DateOptionsComponent)],
+        declarations: [
+            MockComponent(DateOptionsComponent),
+            MockComponent(SearchbarComponent),
+        ],
         imports: [MatFormFieldModule, MatSelectModule, FormsModule],
     });
 

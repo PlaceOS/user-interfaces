@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { downloadFile, jsonToCsv } from '@placeos/common';
 import { User } from '@placeos/users';
 import { formatDuration } from 'date-fns';
@@ -9,37 +9,36 @@ import { ReportsStateService } from '../reports-state.service';
 @Component({
     selector: 'report-spaces-user-listing',
     template: `
-        <div class="m-4 rounded bg-base-100 shadow overflow-hidden">
+        <div
+            class="m-4 rounded bg-base-100 border border-base-200 overflow-hidden"
+        >
             <div class="border-b border-base-200 px-4 py-2 flex items-center">
                 <h3 class="font-bold text-xl flex-1">Meeting Organisers</h3>
-                <button icon (click)="download()">
+                <button icon matRipple (click)="download()" *ngIf="!print">
                     <app-icon>download</app-icon>
                 </button>
             </div>
-            <custom-table
-                [dataSource]="user_list"
-                [pagination]="true"
+            <simple-table
+                class="w-full block text-sm"
+                [data]="user_list"
                 [columns]="[
-                    'name',
-                    'booking_count',
-                    'avg_attendees',
-                    'total_time',
-                    'no_shows'
+                    { key: 'name', name: 'Name' },
+                    { key: 'booking_count', name: 'Bookings' },
+                    { key: 'avg_attendees', name: 'Avg. Invitees per Booking' },
+                    { key: 'total_time', name: 'Total Booked Time' },
+                    { key: 'no_shows', name: 'No Shows' }
                 ]"
-                [display_column]="[
-                    'Name',
-                    'Bookings',
-                    'Avg. Invitees per Booking',
-                    'Total Booked Time',
-                    'No Shows'
-                ]"
-                [column_size]="['flex']"
-            ></custom-table>
+                [sortable]="true"
+                [page_size]="print ? 0 : 10"
+                empty_message="No events for selected period"
+            ></simple-table>
         </div>
     `,
     styles: [``],
 })
 export class ReportSpacesUserListingComponent {
+    @Input() public print: boolean = false;
+
     public readonly user_list = combineLatest([this._reports.stats]).pipe(
         debounceTime(300),
         map(([stats]) => {

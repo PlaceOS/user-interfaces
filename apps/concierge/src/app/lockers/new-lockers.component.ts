@@ -1,19 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import {
-    AsyncHandler,
-    csvToJson,
-    downloadFile,
-    jsonToCsv,
-    loadTextFileFromInputEvent,
-    notifyError,
-    notifySuccess,
-    randomInt,
-} from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { LockersStateService } from './locker-state.service';
 import { MatDialog } from '@angular/material/dialog';
-import { OrganisationService } from '@placeos/organisation';
-import { take } from 'rxjs/operators';
+
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 
 @Component({
@@ -42,22 +32,39 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                     </button> -->
                 </div>
                 <div class="w-full flex items-center px-8 space-x-2">
-                    <mat-form-field appearance="outline" class="h-[3.5rem]">
+                    <mat-form-field
+                        appearance="outline"
+                        class="no-subscript w-60"
+                    >
                         <mat-select
-                            multiple
                             [ngModel]="(filters | async)?.zones"
                             (ngModelChange)="updateZones($event)"
                             placeholder="All Levels"
+                            multiple
                         >
                             <mat-option
                                 *ngFor="let level of levels | async"
                                 [value]="level.id"
                             >
-                                {{ level.display_name || level.name }}
+                                <div class="flex flex-col-reverse">
+                                    <div
+                                        class="text-xs opacity-30"
+                                        *ngIf="use_region"
+                                    >
+                                        {{
+                                            (level.parent_id | building)
+                                                ?.display_name
+                                        }}
+                                        <span class="opacity-0"> - </span>
+                                    </div>
+                                    <div>
+                                        {{ level.display_name || level.name }}
+                                    </div>
+                                </div>
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                    <div class="border-l h-full !ml-8 !mr-4"></div>
+                    <!-- <div class="border-l h-full !ml-8 !mr-4"></div> -->
                     <div class="flex-1 w-px"></div>
                     <ng-container *ngIf="path === 'events'">
                         <date-options
@@ -154,7 +161,7 @@ export class NewLockersComponent
     /** List of levels for the active building */
     public readonly filters = this._state.filters;
     /** List of levels for the active building */
-    public readonly levels = this._org.active_levels;
+    public readonly levels = this._state.levels;
     public readonly setDate = (date) => this._state.setFilters({ date });
     public readonly setFilters = (o) => this._state.setFilters(o);
     public readonly refresh = () => this._state.refresh();
@@ -168,12 +175,16 @@ export class NewLockersComponent
         this._state.setFilters({ zones });
     };
 
+    public get use_region() {
+        return !!this._settings.get('app.use_region');
+    }
+
     constructor(
         private _state: LockersStateService,
         private _router: Router,
         private _route: ActivatedRoute,
         private _dialog: MatDialog,
-        private _org: OrganisationService
+        private _settings: SettingsService
     ) {
         super();
     }
@@ -187,22 +198,6 @@ export class NewLockersComponent
                     const url_parts = this._router.url?.split('/') || [''];
                     this.path = url_parts[parts.length - 1].split('?')[0];
                 }
-            })
-        );
-        this.subscription(
-            'levels',
-            this._org.active_levels.subscribe(async (levels) => {
-                const filters = await this.filters.pipe(take(1)).toPromise();
-                const zones =
-                    filters?.zones?.filter(
-                        (zone) =>
-                            levels.find((lvl) => lvl.id === zone) ||
-                            zone === 'All'
-                    ) || [];
-                if (!zones.length && levels.length) {
-                    zones.push(levels[0].id);
-                }
-                this.updateZones(zones);
             })
         );
         const parts = this._router.url?.split('/') || [''];

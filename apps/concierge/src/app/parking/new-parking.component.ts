@@ -11,7 +11,7 @@ import { ParkingStateService } from './parking-state.service';
             <app-sidebar></app-sidebar>
             <main class="flex flex-col flex-1 w-1/2 h-full relative">
                 <parking-topbar></parking-topbar>
-                <div class="flex-1 h-1/2 w-full relative overflow-auto px-2">
+                <div class="relative flex-1 h-1/2 w-full overflow-auto px-8">
                     <router-outlet></router-outlet>
                 </div>
                 <div

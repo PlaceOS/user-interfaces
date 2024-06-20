@@ -4,15 +4,15 @@ import { Router } from '@angular/router';
 @Component({
     selector: '[app-new-reports]',
     template: `
-        <app-topbar></app-topbar>
+        <app-topbar class="screen-only"></app-topbar>
         <div class="flex flex-1 h-px">
-            <app-sidebar></app-sidebar>
+            <app-sidebar class="screen-only"></app-sidebar>
             <main class="flex flex-col flex-1 w-1/2 h-full relative">
                 <router-outlet></router-outlet>
                 <div
                     reports-menu
                     *ngIf="path === 'reports'"
-                    class="absolute inset-0"
+                    class="absolute inset-0 screen-only"
                 ></div>
             </main>
         </div>

@@ -3,6 +3,7 @@ import { showMetadata } from '@placeos/ts-client';
 import { Booking, queryAllBookings } from '@placeos/bookings';
 import {
     downloadFile,
+    flatten,
     HashMap,
     jsonToCsv,
     notifyError,
@@ -22,7 +23,14 @@ import {
     setDay,
     startOfDay,
 } from 'date-fns';
-import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs';
+import {
+    BehaviorSubject,
+    combineLatest,
+    forkJoin,
+    Observable,
+    of,
+    Subject,
+} from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -35,6 +43,7 @@ import {
     generateReportForDeskBookings,
 } from './reports.utilities';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { requestSpacesForZone } from '@placeos/spaces';
 
 export interface ReportOptions {
     type?: 'desks' | 'events';
@@ -112,11 +121,17 @@ export class ReportsStateService {
                                   async (_: CalendarEvent) =>
                                       new CalendarEvent({
                                           ..._,
-                                          resources: await Promise.all(
-                                              _.resources.map((r) =>
-                                                  this._space_pipe.transform(
-                                                      r.id || r.email
+                                          resources: (
+                                              await Promise.all(
+                                                  _.resources.map((r) =>
+                                                      this._space_pipe.transform(
+                                                          r.id || r.email
+                                                      )
                                                   )
+                                              )
+                                          ).filter((s) =>
+                                              options.zones.find((z) =>
+                                                  s.zones.includes(z)
                                               )
                                           ),
                                       } as any)
@@ -160,28 +175,60 @@ export class ReportsStateService {
 
     public readonly bookings = this._active_bookings.asObservable();
 
+    public readonly spaces = this._options.pipe(
+        switchMap(({ zones }) => {
+            const use_region = this._settings.get('app.use_region');
+            if (!zones?.length) {
+                zones = [
+                    (use_region
+                        ? this._org.building?.parent_id
+                        : this._org.building?.id) || this._org.building?.id,
+                ];
+            }
+            return forkJoin(
+                zones.map((id) =>
+                    requestSpacesForZone(id).pipe(catchError(() => of([])))
+                )
+            );
+        }),
+        map((l) => flatten(l)),
+        shareReplay(1)
+    );
+
     public readonly counts = this._options.pipe(
         debounceTime(500),
         switchMap((filters) => {
             const zones = (filters.zones || []).filter(
                 (z: any) => z !== -1 && z !== 'All'
             );
+            if (filters.type === 'events') {
+                return this.spaces.pipe(
+                    map((_) =>
+                        zones.map((z) => [
+                            z,
+                            _.filter((s) => s.zones.includes(z)).length,
+                        ])
+                    )
+                );
+            }
             return Promise.all(
                 zones.map((z) =>
                     showMetadata(z, 'desks')
-                        .pipe(map((m) => [z, m.details.length]))
+                        .pipe(
+                            catchError(() => of({ details: [] })),
+                            map((m) => [z, m.details.length])
+                        )
                         .toPromise()
                 )
             );
         }),
-        catchError((_) => []),
         map((list: [string, number][]) => {
             const map: HashMap<number> = {};
             this._active_bookings.next([]);
             list.forEach(([id, count]) => (map[id] = count));
             return map;
         }),
-        shareReplay()
+        shareReplay(1)
     );
 
     public readonly stats: Observable<HashMap> = combineLatest([
@@ -192,7 +239,8 @@ export class ReportsStateService {
             if (list[0] instanceof CalendarEvent) {
                 return generateReportForBookings(
                     list as CalendarEvent[],
-                    this.duration * 8
+                    this.duration * 8,
+                    counts
                 );
             }
             return generateReportForDeskBookings(
@@ -228,13 +276,18 @@ export class ReportsStateService {
                         bkn.date + bkn.duration * 60 * 1000
                     )
                 );
+                const usage =
+                    options.type === 'desks'
+                        ? unique(events, 'system_id').length
+                        : unique(events, 'asset_id').length;
                 dates.push({
                     date: s,
                     total: stats.total,
-                    usage: unique(events, 'asset_id').length,
+                    usage,
                     free: stats.total - events.length,
                     approved: events.reduce(
-                        (c, e) => c + (e.approved ? 1 : 0),
+                        (c, e) =>
+                            c + (e.approved || e.status === 'approved' ? 1 : 0),
                         0
                     ),
                     count: events.length,

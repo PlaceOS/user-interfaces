@@ -1,10 +1,6 @@
 {
     "extends": "./tsconfig.json",
-    "include": [
-        "**/*.ts",
-        "../../libs/components/src/lib/user-controls.component.ts",
-        "../../libs/components/src/lib/accessibility-tooltip.component.ts"
-    ],
+    "include": ["**/*.ts"],
     "compilerOptions": {
         "types": ["jest", "node", "google.maps"]
     },

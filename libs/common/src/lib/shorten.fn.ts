@@ -55,11 +55,12 @@ export async function getShortUrlQRCode(
     const key = `${id}.${format}`;
     if (QR_STORE.has(key)) return QR_STORE.get(key);
     const tkn = token();
+    console.log('Token:', tkn);
     document.cookie = `${
         tkn === 'x-api-key'
             ? 'api-key=' + encodeURIComponent(apiKey())
             : 'bearer_token=' + encodeURIComponent(tkn)
-    };max-age=60;path=/api/;samesite=strict;${
+    };max-age=30;path=/api/engine/v2/short_url/;samesite=strict;${
         location.protocol === 'https:' ? 'secure;' : ''
     }`;
     const response = await fetch(`${ENDPOINT}/${id}/qr_code.${format}`);

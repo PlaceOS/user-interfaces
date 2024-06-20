@@ -39,9 +39,9 @@ import {
     replaceBookings,
 } from '@placeos/events';
 import { Space, requestSpacesForZone } from '@placeos/spaces';
-import { BookingModalComponent } from './booking-modal.component';
 import { OrganisationService } from '@placeos/organisation';
 import { getModule } from '@placeos/ts-client';
+
 import { EventBookModalComponent } from './event-book-modal.component';
 
 export type BookingType =
@@ -105,6 +105,10 @@ export class EventsStateService extends AsyncHandler {
 
     public readonly spaces: Observable<Space[]> = combineLatest([
         this._zones,
+        this._org.active_region.pipe(
+            filter((_) => !!_),
+            distinctUntilKeyChanged('id')
+        ),
         this._org.active_building.pipe(
             filter((_) => !!_),
             distinctUntilKeyChanged('id')
@@ -114,11 +118,20 @@ export class EventsStateService extends AsyncHandler {
         tap((_) => this.unsubWith('bind:')),
         switchMap(([zone_ids]) => {
             this._loading.next(true);
-            if (!zone_ids?.length) zone_ids = [this._org.building?.id];
+            if (!zone_ids?.length || zone_ids[0] === this._org.region.id) {
+                zone_ids = (this._settings.get('app.use_region')
+                    ? this._org
+                          .buildingsForRegion(this._org.region)
+                          .map((_) => _.id)
+                    : null) || [this._org.building?.id];
+            }
             return forkJoin(zone_ids.map((id) => requestSpacesForZone(id)));
         }),
         map((l) => flatten(l)),
-        tap((_) => this._loading.next(false)),
+        tap((_) => {
+            this._loading.next(false);
+            console.log('Spaces', _);
+        }),
         shareReplay(1)
     );
     /** Obsevable for filtered list of bookings */
@@ -182,6 +195,13 @@ export class EventsStateService extends AsyncHandler {
         debounceTime(300),
         switchMap(([period, zones, date]) => {
             if (!zones?.length) return of([]);
+            if (zones[0] === this._org.region.id) {
+                zones = (this._settings.get('app.use_region')
+                    ? this._org
+                          .buildingsForRegion(this._org.region)
+                          .map((_) => _.id)
+                    : null) || [this._org.building?.id];
+            }
             this._loading.next(true);
             const start_fn =
                 period === 'month'
@@ -220,7 +240,12 @@ export class EventsStateService extends AsyncHandler {
                             randomInt(timeout_base + 1000, timeout_base)
                         );
                     }
-                    return of([[], undefined, undefined, false]);
+                    return of([
+                        [] as CalendarEvent[],
+                        undefined,
+                        undefined,
+                        false,
+                    ]);
                 })
             );
         }),

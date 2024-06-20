@@ -47,7 +47,7 @@ import { SpaceFiltersComponent } from './space-filters.component';
         </section>
         <section
             filters
-            class="flex items-center flex-wrap p-2 sm:max-w-[50vw]"
+            class="flex items-center flex-wrap p-2 w-[35rem] max-w-full sm:max-w-[35rem]"
         >
             <button
                 btn

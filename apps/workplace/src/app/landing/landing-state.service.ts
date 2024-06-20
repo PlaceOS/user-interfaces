@@ -138,7 +138,8 @@ export class LandingStateService extends AsyncHandler {
     public loading_spaces = this._loading_spaces.asObservable();
     /** Function used to query for users */
     public search_fn = (q: string) =>
-        this._settings.get('app.basic_user_search')
+        this._settings.get('app.basic_user_search') ||
+        this._settings.get('app.colleagues_require_auth') !== false
             ? queryUsers({ q, authority_id: authority()?.id }).pipe(
                   map(({ data }) => data.map((_) => new StaffUser(_)))
               )
@@ -222,28 +223,23 @@ export class LandingStateService extends AsyncHandler {
         let users = [...this._contacts.getValue()];
         users.push(user);
         users = unique(users, 'email');
-        const metadata = await updateMetadata(currentUser().id, {
+        await updateMetadata(currentUser().id, {
             name: 'contacts',
             description: 'Contacts for the User',
             details: users,
         }).toPromise();
-        const list = metadata.details instanceof Array ? metadata.details : [];
-        const new_users = await Promise.all(
-            list.map((_) => showUser(_.email).toPromise())
-        );
-        this._contacts.next(new_users.map((i) => new StaffUser(i)));
+        this.updateContacts();
     }
 
     public async removeContact(user: User) {
         let users = [...this._contacts.getValue()];
         users = users.filter((u) => u.email !== user.email);
-        const metadata = await updateMetadata(currentUser().id, {
+        await updateMetadata(currentUser().id, {
             name: 'contacts',
             description: 'Contacts for the User',
             details: users,
         }).toPromise();
-        const list = metadata.details instanceof Array ? metadata.details : [];
-        this._contacts.next(list.map((i) => new User(i)));
+        this.updateContacts();
     }
 
     private async updateOccupancy(map: HashMap<{ recommendation: number }>) {

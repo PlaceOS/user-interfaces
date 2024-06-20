@@ -94,13 +94,15 @@ export class ScheduleStateService extends AsyncHandler {
                     : queryEvents({ ...query }),
                 queryBookings({ ...query, type: 'desk' }),
                 queryBookings({ ...query, type: 'parking' }),
+                queryBookings({ ...query, type: 'group-event' }),
             ]).pipe(catchError((_) => []));
         }),
-        map(([events, bookings]) => {
+        map(([events, bookings, parking, group_events]) => {
             const list = [
                 ...this._schedule.getValue(),
                 ...events,
                 ...bookings.filter((_) => _.status !== 'declined'),
+                ...group_events.filter((_) => _.status !== 'declined'),
             ].sort((a, b) => a.date - b.date);
             this._schedule.next(unique(list, 'id') as any);
             return list;

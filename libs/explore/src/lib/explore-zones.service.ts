@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { getModule, showMetadata } from '@placeos/ts-client';
-import { ViewerLabel, Point, ViewerFeature } from '@placeos/svg-viewer';
+import { Point, ViewerFeature } from '@placeos/svg-viewer';
 import { debounceTime, filter, first, map } from 'rxjs/operators';
 
 import { AsyncHandler, HashMap, SettingsService } from '@placeos/common';

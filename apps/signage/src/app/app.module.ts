@@ -18,7 +18,7 @@ import { AppComponent } from 'libs/components/src/lib/app.component';
 import { environment } from '../environments/environment';
 import { BootstrapComponent } from './bootstrap.component';
 
-import * as Sentry from '@sentry/angular-ivy';
+import * as Sentry from '@sentry/angular';
 import { HttpClient } from '@angular/common/http';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { SignagePanelComponent } from './signage.component';

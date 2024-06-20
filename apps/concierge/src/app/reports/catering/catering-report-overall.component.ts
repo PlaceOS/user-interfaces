@@ -5,45 +5,35 @@ import { CateringReportStateService } from './catering-report-state.service';
 @Component({
     selector: 'catering-report-overall',
     template: `
-        <div
-            class="bg-base-100 shadow rounded m-2 px-8 w-48 h-24 flex flex-col items-center justify-center"
-        >
+        <div item class="flex flex-col flex-1 items-center justify-center">
             <div count class="text-3xl">
                 {{ (stats | async)?.order_count || '0' }}
             </div>
-            <div class="">Orders</div>
+            <div class="print:text-sm">Orders</div>
         </div>
-        <div
-            class="bg-base-100 shadow rounded m-2 px-8 w-48 h-24 flex flex-col items-center justify-center"
-        >
+        <div item class="flex flex-col flex-1 items-center justify-center">
             <div unique class="text-3xl">
                 {{ (stats | async)?.unique_items || '0' }}
             </div>
-            <div class="">Unique Items</div>
+            <div class="print:text-sm">Unique Items</div>
         </div>
-        <div
-            class="bg-base-100 shadow rounded m-2 px-8 w-48 h-24 flex flex-col items-center justify-center"
-        >
+        <div item class="flex flex-col flex-1 items-center justify-center">
             <div items class="text-3xl">
                 {{ (stats | async)?.item_count || '0' }}
             </div>
-            <div class="">Ordered Items</div>
+            <div class="print:text-sm">Ordered Items</div>
         </div>
-        <div
-            class="bg-base-100 shadow rounded m-2 px-8 w-48 h-24 flex flex-col items-center justify-center"
-        >
+        <div item class="flex flex-col flex-1 items-center justify-center">
             <div total class="text-3xl">
                 {{ (stats | async)?.total_cost / 100 || 0 | currency: code }}
             </div>
-            <div class="">Total</div>
+            <div class="print:text-sm">Total</div>
         </div>
-        <div
-            class="bg-base-100 shadow rounded m-2 px-8 w-48 h-24 flex flex-col items-center justify-center"
-        >
+        <div item class="flex flex-col flex-1 items-center justify-center">
             <div average class="text-3xl">
                 {{ (stats | async)?.avg_cost / 100 || 0 | currency: code }}
             </div>
-            <div class="">Order Average</div>
+            <div class="print:text-sm">Order Average</div>
         </div>
     `,
     styles: [
@@ -54,6 +44,18 @@ import { CateringReportStateService } from './catering-report-state.service';
                 align-items: center;
                 justify-content: center;
                 padding: 0.5rem;
+                max-width: 64rem;
+                margin: 0 auto;
+            }
+
+            [item] {
+                border: 1px solid var(--b2);
+                border-radius: 0.5rem;
+                padding: 1rem;
+                margin: 0.5rem;
+                height: 6rem;
+                width: 12rem;
+                min-width: 7rem;
             }
         `,
     ],

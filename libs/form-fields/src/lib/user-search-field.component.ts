@@ -26,86 +26,76 @@ import { authority, queryUsers } from '@placeos/ts-client';
 @Component({
     selector: 'a-user-search-field',
     template: `
-        <div class="user-search-field" form-field>
-            <mat-form-field appearance="outline">
-                <input
-                    #input
-                    matInput
-                    keyboard
-                    name="user-search"
-                    [(ngModel)]="search_str"
-                    (ngModelChange)="search$.next($event || '')"
-                    [disabled]="disabled"
-                    [placeholder]="placeholder || 'Search for user...'"
-                    [matAutocomplete]="auto"
-                    (keyup.enter)="
-                        validate && validate(search_str)
-                            ? setValue(search_str)
-                            : ''
-                    "
-                    (blur)="resetSearchString()"
-                    (focus)="cancelReset()"
-                />
-                <app-icon matPrefix class="text-2xl relative">search</app-icon>
-                <mat-spinner
-                    *ngIf="loading"
-                    matSuffix
-                    diameter="16"
-                ></mat-spinner>
-            </mat-form-field>
-            <mat-autocomplete
-                #auto="matAutocomplete"
-                (optionSelected)="setValue($event.option.value)"
+        <mat-form-field appearance="outline" class="w-full no-subscript">
+            <input
+                #input
+                matInput
+                keyboard
+                name="user-search"
+                [(ngModel)]="search_str"
+                (ngModelChange)="search$.next($event || '')"
+                [disabled]="disabled"
+                [placeholder]="placeholder || 'Search for user...'"
+                [matAutocomplete]="auto"
+                (keyup.enter)="
+                    validate && validate(search_str) ? setValue(search_str) : ''
+                "
+                (blur)="resetSearchString()"
+                (focus)="cancelReset()"
+            />
+            <app-icon matPrefix class="text-2xl relative">search</app-icon>
+            <mat-spinner *ngIf="loading" matSuffix diameter="16"></mat-spinner>
+        </mat-form-field>
+        <mat-autocomplete
+            #auto="matAutocomplete"
+            (optionSelected)="setValue($event.option.value)"
+        >
+            <mat-option
+                *ngFor="let option of user_list"
+                (click)="setValue(option); blurInput()"
             >
-                <mat-option
-                    *ngFor="let option of user_list"
-                    (click)="setValue(option); blurInput()"
+                <div class="leading-tight">{{ option.name }}</div>
+                <div class="text-xs opacity-60">
+                    {{ option.email }}
+                </div>
+            </mat-option>
+            <mat-option
+                *ngIf="search_str && validate && validate(search_str)"
+                class="relative pointer-events-none"
+            >
+                <div
+                    class="absolute inset-0 px-4 pointer-events-auto"
+                    (mousedown)="
+                        $event.stopPropagation(); $event.preventDefault()
+                    "
+                    (touchstart)="
+                        $event.stopPropagation(); $event.preventDefault()
+                    "
+                    (click)="
+                        setValue(search_str);
+                        $event.stopPropagation();
+                        $event.preventDefault()
+                    "
                 >
-                    <div class="leading-tight">{{ option.name }}</div>
-                    <div class="text-xs opacity-60">
-                        {{ option.email }}
+                    <div class="pointer-events-none" i18n>
+                        Add external attendee "{{ search_str }}"
                     </div>
-                </mat-option>
-                <mat-option
-                    *ngIf="search_str && validate && validate(search_str)"
-                    class="relative pointer-events-none"
-                >
-                    <div
-                        class="absolute inset-0 px-4 pointer-events-auto"
-                        (mousedown)="
-                            $event.stopPropagation(); $event.preventDefault()
-                        "
-                        (touchstart)="
-                            $event.stopPropagation(); $event.preventDefault()
-                        "
-                        (click)="
-                            setValue(search_str);
-                            $event.stopPropagation();
-                            $event.preventDefault()
-                        "
-                    >
-                        <div class="pointer-events-none" i18n>
-                            Add external attendee "{{ search_str }}"
-                        </div>
-                    </div>
-                </mat-option>
-                <mat-option
-                    *ngIf="!user_list?.length && (search_str || error)"
-                    [disabled]="!empty_fn"
-                    (click)="empty_fn()"
-                >
-                    {{ search_str ? 'No users found.' : '' }} {{ error }}
-                </mat-option>
-            </mat-autocomplete>
-        </div>
+                </div>
+            </mat-option>
+            <mat-option
+                *ngIf="!user_list?.length && (search_str || error)"
+                [disabled]="!empty_fn"
+                (click)="empty_fn()"
+            >
+                {{ search_str ? 'No users found.' : '' }} {{ error }}
+            </mat-option>
+        </mat-autocomplete>
     `,
     styles: [
         `
-            :host,
-            mat-form-field {
-                width: 100%;
+            :host {
+                display: block;
             }
-
             app-icon {
                 top: 0.15em;
                 left: -0.15em;

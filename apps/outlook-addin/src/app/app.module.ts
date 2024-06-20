@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -36,27 +36,22 @@ export function HttpLoaderFactory(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/locale/', '.json');
 }
 
-@NgModule({
-    declarations: [
+@NgModule({ declarations: [
         AppComponent,
-
         DeskBookingComponent,
         DeskBookingFormComponent,
         DeskBookingSuccessComponent,
-
         MeetingBookingComponent,
         MeetingBookingFormComponent,
         MeetingBookingSuccessComponent,
         MeetingFlowConfirmComponent,
     ],
-    imports: [
-        BrowserModule,
+    bootstrap: [AppComponent], imports: [BrowserModule,
         BrowserAnimationsModule,
         AppRoutingModule,
         BookModule,
         SharedComponentModule,
         BrowserAnimationsModule,
-        HttpClientModule,
         FormsModule,
         MatNativeDateModule,
         MatSnackBarModule,
@@ -75,12 +70,7 @@ export function HttpLoaderFactory(http: HttpClient) {
                 deps: [HttpClient],
             },
         }),
-
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
-        }),
-    ],
-    providers: [SpacePipe],
-    bootstrap: [AppComponent],
-})
+        })], providers: [SpacePipe, provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule {}

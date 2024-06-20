@@ -29,6 +29,7 @@ describe('ExploreDesksService', () => {
         providers: [
             MockProvider(ExploreStateService, {
                 level: new BehaviorSubject(null),
+                options: new BehaviorSubject({ is_public: false }),
                 setFeatures: jest.fn(),
                 setStyles: jest.fn(),
                 setActions: jest.fn(),
@@ -76,7 +77,7 @@ describe('ExploreDesksService', () => {
         (state as any).level.next(
             new BuildingLevel({ id: 'lvl-1', parent_id: '1' })
         );
-        tick(300);
+        tick(350);
         expect(ts_client.getModule).toHaveBeenCalledWith(
             'sys-1',
             'AreaManagement'

@@ -18,6 +18,50 @@ import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'desk-map',
+    template: `
+        <div class="bg-base-100 p-2 border-b border-base-200 w-full">
+            <mat-form-field
+                appearance="outline"
+                class="w-full"
+                *ngIf="(levels | async)?.length"
+            >
+                <mat-select
+                    name="location"
+                    [(ngModel)]="level"
+                    (ngModelChange)="setOptions({ zone_ids: [$event.id] })"
+                    [ngModelOptions]="{ standalone: true }"
+                    placeholder="Any Level"
+                    i18n-placeholder
+                >
+                    <mat-option
+                        *ngFor="let lvl of levels | async"
+                        [value]="lvl"
+                    >
+                        <div class="flex flex-col-reverse">
+                            <div class="opacity-30 text-xs" *ngIf="use_region">
+                                {{ (lvl.parent_id | building)?.display_name }}
+                                <span class="opacity-0"> - </span>
+                            </div>
+                            <div>
+                                {{ lvl.display_name || lvl.name }}
+                            </div>
+                        </div>
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div class="relative flex-1 w-full">
+            <interactive-map
+                [src]="map_url"
+                [(zoom)]="zoom"
+                [(center)]="center"
+                [styles]="styles | async"
+                [features]="features | async"
+                [actions]="actions | async"
+                [options]="{ controls: true }"
+            ></interactive-map>
+        </div>
+    `,
     styles: [
         `
             :host {
@@ -32,81 +76,6 @@ import { OrganisationService } from '@placeos/organisation';
             }
         `,
     ],
-    template: `
-        <div class="bg-base-100 p-2 border-b border-base-200 w-full">
-            <mat-form-field
-                levels
-                appearance="outline"
-                class="w-full no-subscript"
-                *ngIf="!use_region; else region_level_view"
-            >
-                <mat-select
-                    [(ngModel)]="level"
-                    [ngModelOptions]="{ standalone: true }"
-                    (ngModelChange)="setLevel($event)"
-                >
-                    <mat-option
-                        *ngFor="let lvl of levels | async"
-                        [value]="lvl"
-                    >
-                        {{ lvl.display_name || lvl.name }}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-            <ng-template #region_level_view>
-                <mat-form-field
-                    appearance="outline"
-                    class="w-full no-subscript"
-                >
-                    <mat-select
-                        [(ngModel)]="level"
-                        (ngModelChange)="setLevel($event)"
-                        [ngModelOptions]="{ standalone: true }"
-                        placeholder="Any Level"
-                        i18n-placeholder
-                    >
-                        <mat-optgroup
-                            *ngFor="let bld of region_levels | async"
-                            [label]="bld.name"
-                        >
-                            <mat-option
-                                [value]="level"
-                                *ngFor="let level of bld.levels"
-                            >
-                                {{ level.display_name || level.name }}
-                            </mat-option>
-                        </mat-optgroup>
-                    </mat-select>
-                </mat-form-field>
-            </ng-template>
-        </div>
-        <div class="relative flex-1 w-full">
-            <interactive-map
-                [src]="map_url"
-                [(zoom)]="zoom"
-                [(center)]="center"
-                [styles]="styles | async"
-                [features]="features | async"
-                [actions]="actions | async"
-            ></interactive-map>
-        </div>
-        <div
-            zoom
-            class="absolute bottom-2 right-2 rounded-lg border border-base-200 bg-base-100 flex flex-col overflow-hidden"
-        >
-            <button zoom-in icon matRipple (click)="setZoom(zoom * 1.1)">
-                <app-icon>zoom_in</app-icon>
-            </button>
-            <div class="border-t border-base-200 w-full"></div>
-            <button zoom-out icon matRipple (click)="setZoom(zoom * (1 / 1.1))">
-                <app-icon>zoom_out</app-icon>
-            </button>
-            <div class="border-t border-base-200 w-full"></div>
-            <button reset icon matRipple (click)="resetMap()">
-                <app-icon>refresh</app-icon>
-            </button>
-        </div>
-    `,
 })
 export class DeskMapComponent extends AsyncHandler implements OnInit {
     @Input() public is_displayed: boolean = false;
@@ -123,23 +92,26 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
 
     private _change = new BehaviorSubject(0);
 
-    public readonly levels = this._org.active_levels;
-    public readonly setOptions = (o) => this._state.setOptions(o);
-    public readonly region_levels = this._org.active_region.pipe(
-        map((_) => {
-            const region_buildings = this._org.buildings.filter(
-                (b) => !_ || b.parent_id === _.id
+    public readonly levels = combineLatest([
+        this._org.active_region,
+        this._org.active_building,
+    ]).pipe(
+        map(([region, bld]) => {
+            const level_list = this.use_region
+                ? this._org.levelsForRegion(region)
+                : this._org.levelsForBuilding(bld);
+            const viewable_levels = level_list.filter(
+                (lvl) => !lvl.tags.includes('parking')
             );
-            const region_levels = region_buildings.map((b) => ({
-                id: b.id,
-                name: b.display_name || b.name,
-                levels: this._org.levels.filter(
-                    (l) => l.parent_id === b.id && !l.tags.includes('parking')
-                ),
-            }));
-            return region_levels;
+            return viewable_levels.sort(
+                (a, b) =>
+                    a.parent_id.localeCompare(b.parent_id) ||
+                    (a.display_name || '').localeCompare(b.display_name || '')
+            );
         })
     );
+
+    public readonly setOptions = (o) => this._state.setOptions(o);
 
     public get map_url() {
         return this.level?.map_id || '';
@@ -221,21 +193,10 @@ export class DeskMapComponent extends AsyncHandler implements OnInit {
 
     public ngOnInit(): void {
         this.subscription(
-            'options_change',
-            this._state.options.subscribe(({ zone_id }) => {
-                if (zone_id && zone_id !== this.level?.id) {
-                    this.level = this._org.levels.find((_) => _.id === zone_id);
-                }
-            })
-        );
-        this.subscription(
             'levels_update',
-            this.levels.subscribe((levels) => {
-                if (this.use_region) return;
-                if (!levels.find((_) => _.id === this.level?.id)) {
-                    this.level = levels[0];
-                    this.setLevel(this.level);
-                }
+            this._state.options.subscribe(({ zone_id }) => {
+                const level = this._org.levelWithID([zone_id]);
+                if (level) this.level = level;
             })
         );
     }

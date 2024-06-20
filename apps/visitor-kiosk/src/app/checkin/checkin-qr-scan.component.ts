@@ -6,41 +6,52 @@ import {
     ViewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { AsyncHandler, notifyError } from '@placeos/common';
+import { AsyncHandler, SettingsService, notifyError } from '@placeos/common';
 import QrScanner from 'qr-scanner';
 
 import { CheckinStateService } from './checkin-state.service';
+import { take } from 'rxjs/operators';
 
 @Component({
     selector: '[checkin-qr-scan]',
     template: `
         <div
-            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center"
+            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center w-[36rem] p-4"
             [class.hidden]="checking_code"
         >
-            <p class="mt-6 mb-4">
+            <p class="my-4">
                 Please enter your email address or scan your QR code
             </p>
-            <mat-form-field appearance="outline">
-                <input
-                    matInput
-                    [(ngModel)]="email"
-                    placeholder="Enter email..."
-                    type="email"
-                    autocomplete="off"
-                    (blur)="checkEmail(email)"
-                    (keyup.enter)="checkEmail(email)"
-                />
-                <mat-error>Invalid email format</mat-error>
-            </mat-form-field>
+            <div class="flex items-center space-x-2 w-full">
+                <mat-form-field
+                    appearance="outline"
+                    class="w-px flex-1 no-subscript"
+                >
+                    <input
+                        matInput
+                        [(ngModel)]="email"
+                        placeholder="Enter email..."
+                        type="email"
+                        autocomplete="off"
+                        (blur)="checkEmail(email)"
+                        (keyup.enter)="checkEmail(email)"
+                    />
+                    <mat-error>Invalid email format</mat-error>
+                </mat-form-field>
+                <button btn matRipple (click)="checkEmail(email)">
+                    Find Details
+                </button>
+            </div>
             <div
-                class="relative rounded m-4 bg-base-200 border border-base-200 overflow-hidden"
+                class="relative rounded mt-4 bg-base-200 border border-base-200 overflow-hidden"
             >
                 <div
                     class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-30 flex flex-col items-center space-y-2 z-0"
                 >
                     <app-icon class="text-6xl">videocam_off</app-icon>
-                    <p>Camera feed loading or is not available</p>
+                    <p class="text-center">
+                        Camera feed loading or is not available
+                    </p>
                 </div>
                 <video
                     #video
@@ -66,28 +77,14 @@ import { CheckinStateService } from './checkin-state.service';
             [class.hidden]="!checking_code"
         >
             <mat-spinner diameter="32"></mat-spinner>
-            <p class="mt-6 mb-4">Loading visitor information...</p>
+            <p class="my-4">Loading visitor information...</p>
         </div>
     `,
     styles: [
         `
-            :host {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                height: 100%;
-                width: 100%;
-                background-color: rgba(0, 0, 0, 0.5);
-            }
-
             video {
-                width: 36rem;
-                height: 27rem;
-            }
-
-            mat-form-field {
-                width: 36rem;
+                width: 34rem;
+                height: 24rem;
             }
 
             a {
@@ -109,9 +106,21 @@ export class CheckinQRScanComponent
     /** QR Reader */
     private _reader;
 
+    public get is_induction_enabled() {
+        return (
+            this._settings.get('app.induction_enabled') &&
+            this._settings.get('app.induction_details')
+        );
+    }
+
+    public get induction_after_details() {
+        return this._settings.get('app.induction_after_details');
+    }
+
     constructor(
         private _checkin: CheckinStateService,
-        private _router: Router
+        private _router: Router,
+        private _settings: SettingsService
     ) {
         super();
     }
@@ -151,7 +160,17 @@ export class CheckinQRScanComponent
                     this.checking_code = false;
                     throw err;
                 });
-            this._router.navigate(['/checkin', 'details']);
+            const event = await this._checkin.event.pipe(take(1)).toPromise();
+            if (event.rejected) {
+                this.handleError('Your meeting has been rejected.');
+                this.checking_code = false;
+                return;
+            }
+            if (this.is_induction_enabled && !event?.induction) {
+                this._router.navigate(['/checkin', 'induction']);
+            } else {
+                this._router.navigate(['/checkin', 'details']);
+            }
             this.checking_code = false;
         });
     }
@@ -164,7 +183,16 @@ export class CheckinQRScanComponent
             );
             throw err;
         });
-        this._router.navigate(['/checkin', 'details']);
+        const event = await this._checkin.event.pipe(take(1)).toPromise();
+        if (
+            !event?.induction &&
+            this.is_induction_enabled &&
+            !this.induction_after_details
+        ) {
+            this._router.navigate(['/checkin', 'induction']);
+        } else {
+            this._router.navigate(['/checkin', 'details']);
+        }
     }
 
     private setupQRReader() {

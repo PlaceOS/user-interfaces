@@ -1,6 +1,10 @@
 import { Component, Inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import {
     AsyncHandler,
     SettingsService,
@@ -14,6 +18,7 @@ import { OrganisationService, Building } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { PointOfInterest } from './poi-management.service';
 import { take } from 'rxjs/operators';
+import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
 
 @Component({
     selector: 'poi-modal',
@@ -104,8 +109,14 @@ import { take } from 'rxjs/operators';
                             >
                         </mat-select>
                     </mat-form-field>
-                    <ng-container *ngIf="location_type === 'map_id'">
-                        <mat-form-field appearance="outline">
+                    <div
+                        class="flex items-center space-x-2 pb-2"
+                        *ngIf="location_type === 'map_id'"
+                    >
+                        <mat-form-field
+                            class="no-subscript"
+                            appearance="outline"
+                        >
                             <input
                                 matInput
                                 name="location"
@@ -114,7 +125,15 @@ import { take } from 'rxjs/operators';
                                 formControlName="location"
                             />
                         </mat-form-field>
-                    </ng-container>
+                        <button
+                            icon
+                            matRipple
+                            class="rounded border border-base-300 h-12 w-12"
+                            (click)="selectPOIfromMap()"
+                        >
+                            <app-icon>place</app-icon>
+                        </button>
+                    </div>
                     <div
                         class="flex items-center space-x-2"
                         *ngIf="location_type === 'coordinates'"
@@ -200,7 +219,8 @@ export class POIModalComponent extends AsyncHandler {
         private _org: OrganisationService,
         @Inject(MAT_DIALOG_DATA) private _data: PointOfInterest | undefined,
         private _dialog_ref: MatDialogRef<POIModalComponent>,
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _dialog: MatDialog
     ) {
         super();
     }
@@ -210,6 +230,22 @@ export class POIModalComponent extends AsyncHandler {
             const levels = await this.level_list.pipe(take(1)).toPromise();
             if (levels.length) this.form.patchValue({ level_id: levels[0].id });
         }
+    }
+
+    public selectPOIfromMap() {
+        const ref = this._dialog.open(SelectPOIMapModalComponent, {
+            data: {
+                ...this._data,
+                ...this.form.getRawValue(),
+            },
+        });
+        ref.afterClosed().subscribe((d) => {
+            if (!d) return;
+            this.form.patchValue({
+                location: d,
+                level_id: ref.componentInstance.level?.id,
+            });
+        });
     }
 
     public async save() {
@@ -252,20 +288,28 @@ export class POIModalComponent extends AsyncHandler {
         }
         this.loading = true;
         const old_metadata = await showMetadata(
-            this._org.building.id,
-            'map_features',
+            this._org.organisation.id,
+            'points-of-interest',
             {}
         ).toPromise();
         const metadata = old_metadata.details || {};
         if (!metadata[data.level_id]) metadata[data.level_id] = [];
+        if (this._data?.id) {
+            for (const lvl in metadata) {
+                if (metadata[lvl])
+                    metadata[lvl] = metadata[lvl].filter(
+                        (_) => _.id !== data.id
+                    );
+            }
+        }
         metadata[data.level_id] = [
             ...metadata[data.level_id].filter((_) => _.id !== data.id),
             data,
         ].sort((a, b) => a.name.localeCompare(b.name));
-        const resp = await updateMetadata(this._org.building.id, {
-            name: 'map_features',
+        const resp = await updateMetadata(this._org.organisation.id, {
+            name: 'points-of-interest',
             details: metadata,
-            description: '',
+            description: 'Point of Interests for maps',
         })
             .toPromise()
             .catch((e) => notifyError(e));

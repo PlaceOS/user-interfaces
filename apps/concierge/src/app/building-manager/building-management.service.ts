@@ -8,6 +8,8 @@ import { map } from 'rxjs/operators';
 import { BuildingModalComponent } from './building-modal.component';
 import { AppSettingsModalComponent } from '../ui/app-settings-modal.component';
 import { AutoReleaseSettingsModalComponent } from './auto-release-settings-modal.component';
+import { InductionSettingsModalComponent } from './induction-settings-modal.component';
+import { ItemListModalComponent } from './item-list-modal.component';
 
 export interface BuildingListOptions {
     zone?: string;
@@ -84,6 +86,20 @@ export class BuildingManagementService {
     public setAutoRelease(building: PlaceZone) {
         if (!building?.id) return;
         this._dialog.open(AutoReleaseSettingsModalComponent, {
+            data: building.id,
+        });
+    }
+
+    public setInduction(building: PlaceZone) {
+        if (!building?.id) return;
+        this._dialog.open(InductionSettingsModalComponent, {
+            data: building.id,
+        });
+    }
+
+    public setSupportIssueTypes(building: PlaceZone) {
+        if (!building?.id) return;
+        this._dialog.open(ItemListModalComponent, {
             data: building.id,
         });
     }

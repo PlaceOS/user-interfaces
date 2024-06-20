@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input, SimpleChanges } from '@angular/core';
 import { ReportsStateService } from '../reports-state.service';
 
 import { LineChart, PieChart } from 'chartist';
@@ -6,29 +6,36 @@ import { AsyncHandler } from '@placeos/common';
 import { format } from 'date-fns';
 import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 @Component({
     selector: 'report-desks-charts',
     template: `
-        <div class="flex items-center space-x-4 w-full px-4">
-            <div class="bg-base-100 rounded shadow flex-1">
+        <div
+            class="flex items-center space-x-4 w-full px-4"
+            [class.is-print]="print"
+            (window:resize)="updateCharts()"
+        >
+            <div
+                class="bg-base-100 border border-base-200 rounded flex-1 h-[18rem]"
+            >
                 <div class="border-b border-base-200 p-4 text-xl font-bold">
                     Daily Utilisation
                 </div>
                 <div
-                    id="day-chart"
-                    #util_chart
-                    class="ct-chart ct-octave"
+                    id="daily-chart"
+                    class="ct-chart ct-octave max-w-full w-full h-56 mx-auto"
                 ></div>
             </div>
-            <div class="bg-base-100 rounded shadow flex-1">
+            <div
+                class="bg-base-100 border border-base-200 rounded flex-1 h-[18rem]"
+            >
                 <div class="border-b border-base-200 p-4 text-xl font-bold">
                     Level Utilisation
                 </div>
                 <div
                     id="level-chart"
-                    #level_chart
-                    class="ct-chart ct-octave"
+                    class="ct-chart ct-octave max-w-full w-[24rem] h-56 mx-auto"
                 ></div>
             </div>
         </div>
@@ -38,10 +45,15 @@ import { combineLatest } from 'rxjs';
             :host {
                 display: block;
             }
+
+            .is-print .ct-chart {
+                width: 8cm !important;
+            }
         `,
     ],
 })
 export class ReportDesksChartsComponent extends AsyncHandler {
+    @Input() public print: boolean = false;
     public readonly day_list = this._state.day_list;
     public readonly stats = combineLatest([
         this._state.options,
@@ -60,21 +72,48 @@ export class ReportDesksChartsComponent extends AsyncHandler {
 
     public ngOnInit() {
         this.subscription(
-            'day_list',
-            this.day_list.subscribe((l) => this.updateDailyChart(l))
+            'charts',
+            combineLatest([this.day_list, this.stats]).subscribe(() =>
+                this.updateCharts()
+            )
         );
-        this.subscription(
-            'stats',
-            this.stats.subscribe(([o, c]) => this.updateLevelChart(o, c))
+    }
+
+    public ngOnChanges(changes: SimpleChanges) {
+        if (
+            changes.print &&
+            changes.print.currentValue !== changes.print.previousValue
+        ) {
+            this.updateCharts();
+        }
+    }
+
+    public updateCharts() {
+        this.timeout(
+            'update_charts',
+            async () => {
+                const day_list = await this.day_list.pipe(take(1)).toPromise();
+                this.updateDailyChart(day_list);
+                const [mappings, counts] = await this.stats
+                    .pipe(take(1))
+                    .toPromise();
+                this.updateLevelChart(mappings, counts);
+                this.timeout(
+                    'update_charts',
+                    () => this.updateDailyChart(day_list),
+                    500
+                );
+            },
+            50
         );
     }
 
     public updateDailyChart(list) {
         const data = {
             labels: list.map((_) => format(_.date, 'dd MMM')),
-            series: [list.map((_) => _.utilisation)],
+            series: [list.map((_) => +_.utilisation)],
         };
-        this._day_chart = new LineChart('#day-chart', data);
+        this._day_chart = new LineChart('#daily-chart', data);
     }
 
     public updateLevelChart(mapping, count) {

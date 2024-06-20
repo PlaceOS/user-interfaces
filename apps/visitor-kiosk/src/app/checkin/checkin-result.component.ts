@@ -20,7 +20,7 @@ const DEFAULT_TEMPLATE = `
     selector: 'checkin-results',
     template: `
         <div
-            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center my-4 p-4 mx-auto space-y-4"
+            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center w-[36rem] p-4 space-y-4"
             *ngIf="event | async"
         >
             <h3 class="text-xl">You are checked in!</h3>
@@ -106,20 +106,7 @@ const DEFAULT_TEMPLATE = `
     `,
     styles: [
         `
-            :host {
-                position: absolute;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background-color: rgba(0, 0, 0, 0.5);
-            }
-
             :host > div {
-                width: 32rem;
                 max-width: calc(100vw - 2rem);
             }
         `,
@@ -159,20 +146,19 @@ export class CheckinResultsComponent implements OnInit {
                         : `Please wait in the lobby.`
                 );
             try {
+                const date =
+                    event.date ||
+                    (event as any).event_start * 1000 ||
+                    event.booking_start * 1000 ||
+                    startOfMinute(Date.now());
                 updated_template = updated_template
                     .replace(
                         /{{ date }}/g,
-                        this._date.transform(
-                            event.date || this.now,
-                            'mediumDate'
-                        )
+                        this._date.transform(date, 'mediumDate')
                     )
                     .replace(
                         /{{ time }}/g,
-                        this._date.transform(
-                            event.date || this.now,
-                            this.time_format
-                        )
+                        this._date.transform(date, this.time_format)
                     );
             } catch {}
             return updated_template;

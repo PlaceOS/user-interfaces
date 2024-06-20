@@ -5,67 +5,108 @@
 
 :root {
     /* Primary */
-    --p: hsl(336, 57%, 48%); /* #C52B67 */
-    --pf: hsl(336, 57%, 38%); /* Darker shade */
-    --pc: hsl(0, 0%, 100%); /* White content for contrast */
+    --p: hsl(336, 57%, 48%); /* Primary Colour */
+    --pf: hsl(336, 57%, 38%); /* Darker shade (Hover etc.) */
+    --pc: hsl(0, 0%, 100%); /* White content(text) for contrast */
 
     /* Secondary */
     --s: hsl(237, 37%, 20%); /* #292F5B */
-    --sf: hsl(237, 37%, 10%); /* Darker shade */
-    --sc: hsl(0, 0%, 100%); /* White content for contrast */
+    --sf: hsl(237, 37%, 10%); /* Darker shade (Hover etc.) */
+    --sc: hsl(0, 0%, 100%); /* White content(text) for contrast */
+
+    /* Tertiary */
+    --t: hsl(237, 37%, 20%); /* #292F5B */
+    --tf: hsl(237, 37%, 10%); /* Darker shade (Hover etc.) */
+    --tc: hsl(0, 0%, 100%); /* White content(text) for contrast */
+
+    /* Ternary */
+    --t: hsl(206, 23%, 85%); /* #E5E5EA */
+    --tf: hsl(206, 23%, 72%); /* Darker shade */
+    --tc: hsl(0, 0%, 0%); /* Black content for contrast */
 
     /* Accent (Complementary color to Primary) */
     --a: hsl(156, 57%, 48%); /* A contrasting greenish tone */
     --af: hsl(156, 57%, 38%); /* Darker shade of the a */
-    --ac: hsl(0, 0%, 0%); /* Black content for contrast */
+    --ac: hsl(0, 0%, 0%); /* Black content(text) for contrast */
 
     /* Neutral */
     --n: hsl(0, 0%, 50%); /* Grey */
     --nf: hsl(0, 0%, 40%); /* Darker Grey */
-    --nc: hsl(0, 0%, 100%); /* White content on grey background */
+    --nc: hsl(0, 0%, 100%); /* White content(text) */
 
     /* Base */
     --b1: hsl(0, 0%, 98%); /* Near White */
     --b2: hsl(0, 0%, 90%); /* Light Grey */
-    --b3: hsl(206, 23%, 85%); /* Mid Grey */
+    --b3: hsl(0, 0%, 82%); /* Mid-Light Grey */
+    --b4: hsl(0, 0%, 72%); /* Mid Grey */
     --bc: hsl(0, 0%, 0%); /* Black content on white background */
 
     /* Info */
-    --in: hsla(217, 91%, 60%, 1); /* Light Blue */
-    --inl: hsla(214, 100%, 97%, 1); /* Light Blue */
-    --inc: hsl(0, 0%, 100%); /* White content on light blue background */
+    --in: hsla(217, 91%, 60%, 1); /* Blue */
+    --inl: hsla(
+        214,
+        100%,
+        97%,
+        1
+    ); /* Light Blue for use with base content colour */
+    --inc: hsl(0, 0%, 100%); /* White content(text) on light blue background */
 
     /* Success */
-    --su: hsla(118, 50%, 43%, 1); /* Light Green */
-    --sul: hsla(152, 81%, 96%, 1); /* Light Green */
+    --su: hsla(118, 50%, 43%, 1); /* Green */
+    --sul: hsla(
+        152,
+        81%,
+        96%,
+        1
+    ); /* Light Green for use with base content colour */
     --suc: hsl(0, 0%, 100%); /* White content on light green background */
 
     /* Warning */
     --wa: hsla(45, 100%, 64%, 1); /* Yellow */
-    --wal: hsla(48, 100%, 96%, 1); /* Yellow */
+    --wal: hsla(
+        48,
+        100%,
+        96%,
+        1
+    ); /* Light Yellow for use with base content colour */
     --wac: hsl(0, 0%, 0%); /* Black content on yellow background */
 
     /* Error */
     --er: hsla(354, 75%, 53%, 1); /* Red */
-    --erl: hsla(356, 100%, 97%, 1); /* Red */
+    --erl: hsla(
+        356,
+        100%,
+        97%,
+        1
+    ); /* Light Red for use with base content colour */
     --erc: hsl(0, 0%, 100%); /* White content on red background */
 }
 
 .theme-dark {
     /* Primary */
     --p: hsl(237, 37%, 20%); /* #292F5B */
-    --pf: hsl(237, 37%, 10%); /* Darker shade */
-    --pc: hsl(0, 0%, 100%); /* White content for contrast */
+    --pf: hsl(237, 37%, 10%); /* Lighter shade (Hover etc.) */
+    --pc: hsl(0, 0%, 100%); /* White content(text) for contrast */
 
     /* Secondary */
     --s: hsla(233, 74%, 74%, 1); /* #C52B67 */
-    --sf: hsl(336, 57%, 38%); /* Darker shade */
-    --sc: hsl(0, 0%, 0%); /* White content for contrast */
+    --sf: hsl(336, 57%, 38%); /* Lighter shade (Hover etc.) */
+    --sc: hsl(0, 0%, 0%); /* Black content(text) for contrast */
+
+    /* Tertiary */
+    --t: hsl(237, 37%, 20%); /* #292F5B */
+    --tf: hsl(237, 37%, 10%); /* Lighter shade (Hover etc.) */
+    --tc: hsl(0, 0%, 100%); /* White content(text) for contrast */
+
+    /* Ternary */
+    --t: hsl(206, 23%, 30%); /* #E5E5EA */
+    --tf: hsl(206, 23%, 24%); /* Darker shade */
+    --tc: hsl(0, 0%, 80%); /* Black content for contrast */
 
     /* Accent */
     --a: hsl(156, 57%, 28%); /* Darker shade of complementary color */
     --af: hsl(158, 17%, 9%); /* Even darker shade */
-    --ac: hsl(0, 0%, 80%); /* Lighter text for contrast */
+    --ac: hsl(0, 0%, 80%); /* Lighter text(text) for contrast */
 
     /* Neutral */
     --n: hsl(0, 0%, 20%); /* Dark Grey */
@@ -76,26 +117,47 @@
     --b1: hsl(0, 0%, 10%); /* Near Black */
     --b2: hsl(0, 0%, 15%); /* Dark Grey */
     --b3: hsl(0, 0%, 20%); /* Mid-Dark Grey */
+    --b4: hsl(0, 0%, 25%); /* Mid Grey */
     --bc: hsl(0, 0%, 80%); /* Light grey text for contrast */
 
     /* Info */
-    --in: hsla(217, 91%, 60%, 1); /* Light Blue */
-    --inl: hsla(214, 100%, 97%, 1); /* Light Blue */
+    --in: hsla(217, 91%, 60%, 1); /* Blue */
+    --inl: hsla(
+        214,
+        100%,
+        97%,
+        1
+    ); /* Light Blue for use with base content colour */
     --inc: hsl(0, 0%, 100%); /* White content on light blue background */
 
     /* Success */
-    --su: hsla(118, 50%, 43%, 1); /* Light Green */
-    --sul: hsla(152, 81%, 96%, 1); /* Light Green */
+    --su: hsla(118, 50%, 43%, 1); /* Green */
+    --sul: hsla(
+        152,
+        81%,
+        96%,
+        1
+    ); /* Light Green for use with base content colour */
     --suc: hsl(0, 0%, 100%); /* White content on light green background */
 
     /* Warning */
     --wa: hsla(45, 100%, 64%, 1); /* Yellow */
-    --wal: hsla(48, 100%, 96%, 1); /* Yellow */
+    --wal: hsla(
+        48,
+        100%,
+        96%,
+        1
+    ); /* Light Yellow for use with base content colour */
     --wac: hsl(0, 0%, 0%); /* Black content on yellow background */
 
     /* Error */
     --er: hsla(354, 75%, 53%, 1); /* Red */
-    --erl: hsla(356, 100%, 97%, 1); /* Red */
+    --erl: hsla(
+        356,
+        100%,
+        97%,
+        1
+    ); /* Light Red for use with base content colour */
     --erc: hsl(0, 0%, 100%); /* White content on red background */
 }
 

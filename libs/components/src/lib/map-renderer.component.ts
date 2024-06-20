@@ -37,6 +37,7 @@ import { apiKey, authority, token } from '@placeos/ts-client';
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { MAP_FEATURE_DATA } from './interactive-map.component';
+import { get } from 'http';
 
 function isSamePoint(p1: Point, p2: Point): boolean {
     return p1.x === p2.x && p1.y === p2.y;
@@ -139,6 +140,8 @@ export class MapRendererComponent
     @Input() public labels: ViewerLabel[];
     /** List of available user actions for the SVG */
     @Input() public actions: ViewAction[];
+    /** Number of times to reset the map */
+    @Input() public reset = 0;
 
     @Input() public options: any;
 
@@ -147,6 +150,8 @@ export class MapRendererComponent
     @Output() public zoomChange = new EventEmitter<number>();
 
     @Output() public centerChange = new EventEmitter<Point>();
+
+    @Output() public mapInfo = new EventEmitter<any>();
 
     public loading: boolean;
 
@@ -231,6 +236,14 @@ export class MapRendererComponent
                 this.timeout('update_view', () => this.updateView());
             }
         }
+        if (
+            changes.reset &&
+            changes.reset.currentValue !== changes.reset.previousValue
+        ) {
+            this.zoom = 1;
+            this.center = { x: 0.5, y: 0.5 };
+            this.updateDisplay();
+        }
     }
 
     public ngAfterViewInit() {
@@ -275,7 +288,7 @@ export class MapRendererComponent
                 300
             );
         }
-        const simp_url = this.src.toLowerCase();
+        const simp_url = this.src?.toLowerCase() || '';
         if (!simp_url.includes('svg') && !simp_url.includes('upload')) return;
         if (this.src && this._outlet_el?.nativeElement && !this.loading) {
             this.loading = true;
@@ -291,11 +304,12 @@ export class MapRendererComponent
             }
             this.updateFeatureList();
             const tkn = token();
+            console.log('Map Token:', tkn);
             document.cookie = `${
                 tkn === 'x-api-key'
                     ? 'api-key=' + encodeURIComponent(apiKey())
                     : 'bearer_token=' + encodeURIComponent(tkn)
-            };max-age=60;path=/api/;samesite=strict;${
+            };max-age=30;path=/api/engine/v2/uploads;samesite=strict;${
                 location.protocol === 'https:' ? 'secure;' : ''
             }`;
             this.viewer = await createViewer({
@@ -321,6 +335,8 @@ export class MapRendererComponent
                     this.centerChange.emit(v.center);
                 })
             );
+            const viewer = getViewer(this.viewer);
+            this.mapInfo.emit(viewer.mappings);
             if (this.focus) this.focusOn(this.focus);
         } else if (
             (this.src && !this._outlet_el?.nativeElement) ||

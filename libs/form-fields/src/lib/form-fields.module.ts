@@ -35,11 +35,15 @@ import { SupportTicketModalComponent } from './support-ticket-modal.component';
 import { DateCalendarComponent } from './date-calendar.component';
 import { BookingRulesFormComponent } from './booking-rules-form.component';
 import { PlaceUserPipe } from './place-user.pipe';
+import { DateRangeFieldComponent } from './date-range-field.component';
+import { DateRangeCalendarComponent } from './date-range-calendar.component';
 
 const COMPONENTS: Type<any>[] = [
     ActionFieldComponent,
     CounterComponent,
     DateFieldComponent,
+    DateRangeFieldComponent,
+    DateRangeCalendarComponent,
     DurationFieldComponent,
     TimeFieldComponent,
     UserListFieldComponent,

@@ -1,7 +1,7 @@
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { SpacesService } from '@placeos/spaces';
-import { of, timer } from 'rxjs';
+import { BehaviorSubject, of, timer } from 'rxjs';
 import { take } from 'rxjs/operators';
 import {
     endOfDay,
@@ -18,13 +18,23 @@ jest.mock('@placeos/events');
 
 import * as events_mod from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
-import { SettingsService } from '@placeos/common';
+
+import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { Building } from 'libs/organisation/src/lib/building.class';
+import { Region } from 'libs/organisation/src/lib/region.class';
 
 describe('EventsStateService', () => {
     let spectator: SpectatorService<EventsStateService>;
     const createService = createServiceFactory({
         service: EventsStateService,
         providers: [
+            MockProvider(OrganisationService, {
+                building: new Building(),
+                region: new Region({}),
+                active_region: new BehaviorSubject({}),
+                active_building: new BehaviorSubject({}),
+            } as any),
             MockProvider(SettingsService, { get: jest.fn() }),
             MockProvider(SpacesService, { find: jest.fn() }),
             MockProvider(MatDialog, { open: jest.fn() }),

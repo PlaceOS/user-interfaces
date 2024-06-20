@@ -9,25 +9,40 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
 @Component({
     selector: 'poi-list',
     template: `
-        <div class="absolute inset-0 overflow-auto px-4">
-            <custom-table
-                class="block min-w-[32rem] w-full h-full"
-                [dataSource]="features"
-                [columns]="['name', 'level', 'location', 'actions']"
-                [display_column]="['Name', 'Level', 'Location', ' ']"
-                [column_size]="['flex', '10r', '10r', '9r']"
-                [template]="{
-                    level: level_template,
-                    actions: action_template
-                }"
-                empty="No Points of Interest found."
-            ></custom-table>
+        <div class="absolute inset-0 overflow-auto px-8">
+            <simple-table
+                class="min-w-[40rem] block text-sm"
+                [data]="features"
+                empty_message="No Points of Interest found."
+                [columns]="[
+                    { key: 'name', name: 'Name' },
+                    {
+                        key: 'level_id',
+                        name: 'Level',
+                        content: level_template,
+                        size: '12rem',
+                        sortable: false
+                    },
+                    { key: 'location', name: 'Location', size: '10rem' },
+                    {
+                        key: 'actions',
+                        name: ' ',
+                        content: action_template,
+                        size: '9.5rem',
+                        sortable: false
+                    }
+                ]"
+                [sortable]="true"
+            ></simple-table>
+            <div class="w-full h-12"></div>
         </div>
         <ng-template #level_template let-row="row">
-            {{ (row.level_id | level)?.display_name || 'Unknown' }}
+            <div class="p-4">
+                {{ (row.level_id | level)?.display_name || 'Unknown' }}
+            </div>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="w-full flex justify-end space-x-2">
+            <div class="w-full flex justify-end space-x-2 px-4 py-2 mx-auto">
                 <div matTooltip="Private QR Code">
                     <button
                         icon

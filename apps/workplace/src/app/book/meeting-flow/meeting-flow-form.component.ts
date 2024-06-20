@@ -21,8 +21,8 @@ import { OrganisationService } from '@placeos/organisation';
 import { Space } from '@placeos/spaces';
 import { FindAvailabilityModalComponent } from '@placeos/users';
 import { CateringOrderStateService } from 'libs/catering/src/lib/catering-order-modal/catering-order-state.service';
-import { BehaviorSubject, combineLatest, timer } from 'rxjs';
-import { first, map, startWith, take, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { debounceTime, first, map, switchMap, tap } from 'rxjs/operators';
 import { MeetingFlowConfirmModalComponent } from './meeting-flow-confirm-modal.component';
 import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
@@ -464,6 +464,117 @@ export class MeetingFlowFormComponent extends AsyncHandler {
         return count;
     }
 
+    private _space_list = new BehaviorSubject<Space[]>([]);
+
+    private _assets_available = this._space_list.pipe(
+        debounceTime(300),
+        switchMap((space_list) => {
+            if (!space_list?.length) return of(false);
+            const value = this.form.getRawValue();
+            this._assets.setOptions({
+                date: value.date,
+                duration: value.duration,
+                resources: space_list,
+                zone_id: this._org.levelWithID(space_list[0].zones)?.parent_id,
+                tags: [],
+                categories: [],
+            } as any);
+            return combineLatest([
+                this._assets.filtered_assets,
+                this._assets.disabled_rooms,
+            ]).pipe(
+                map(([items, disabled_rooms]) => {
+                    const assets_available = space_list.every(
+                        (s) =>
+                            items.filter(
+                                (_) =>
+                                    !(_ as any).hide_for_zones?.find((z) =>
+                                        s.zones.includes(z)
+                                    )
+                            ).length > 0
+                    );
+                    if (
+                        assets_available &&
+                        !disabled_rooms.find((_) =>
+                            space_list.find((i) => i.id === _)
+                        )
+                    )
+                        return true;
+                    const event = this._state.event;
+                    const { id, assets, date, date_end } =
+                        this.form.getRawValue();
+                    const time_changed =
+                        !id ||
+                        (assets?.length &&
+                            (date !== event.date ||
+                                date_end !== event.date_end));
+                    if (time_changed) {
+                        this.form.patchValue({ assets: [] });
+                        notifyWarn(
+                            `Assets are unavailable for some of the selected spaces.`
+                        );
+                    }
+                    return false;
+                })
+            );
+        })
+    );
+
+    private _catering_available = this._space_list.pipe(
+        debounceTime(300),
+        switchMap((space_list) => {
+            if (!space_list?.length) return of(false);
+            const value = this.form.getRawValue();
+            this._catering.setFilters({
+                search: '',
+                date: value.date,
+                duration: value.duration,
+                resources: space_list,
+                zone_id: this._org.levelWithID(space_list[0].zones)?.parent_id,
+                tags: [],
+                categories: [],
+            });
+            return combineLatest([
+                this._catering.filtered_menu,
+                this._catering.availability,
+            ]).pipe(
+                map(([menu, disabled_rooms]) => {
+                    const can_cater = space_list.every(
+                        (s) =>
+                            menu.filter(
+                                (_) =>
+                                    !_.hide_for_zones.find((z) =>
+                                        s.zones.includes(z)
+                                    )
+                            ).length > 0
+                    );
+                    if (
+                        can_cater &&
+                        !disabled_rooms.find((_) =>
+                            space_list.find((i) => i.id === _)
+                        )
+                    )
+                        return true;
+                    const event = this._state.event;
+                    const { id, catering, date, date_end } =
+                        this.form.getRawValue();
+                    const time_changed =
+                        !id ||
+                        (catering?.length &&
+                            (date !== event.date ||
+                                date_end !== event.date_end));
+                    if (time_changed) {
+                        this.form.patchValue({ catering: [] });
+                        notifyWarn(
+                            `Catering is unavailable for some of the selected spaces.`
+                        );
+                    }
+                    return false;
+                })
+            );
+        })
+    );
+
     public readonly clearForm = () => this._state.resetForm();
 
     public readonly viewConfirm = () => {
@@ -559,26 +670,32 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                 this._updateValidAssets()
             )
         );
-        this.subscription(
-            'space_changes',
-            this.form.controls.resources.valueChanges.subscribe((l) =>
-                this._checkSubResourceEligibility(l)
-            )
-        );
-        this.subscription(
-            'date_changes',
-            this.form.controls.date.valueChanges.subscribe((l) =>
-                this._checkSubResourceEligibility(this.form.value.resources)
-            )
-        );
-        this.subscription(
-            'duration_changes',
-            this.form.controls.duration.valueChanges.subscribe((l) =>
-                this._checkSubResourceEligibility(this.form.value.resources)
-            )
-        );
+        for (const key of ['resources', 'date', 'duration', 'date_end']) {
+            this.subscription(
+                `${key}_changes`,
+                this.form.controls[key].valueChanges.subscribe(() =>
+                    this.timeout('check_resources', () =>
+                        this._space_list.next(this.form.value.resources || [])
+                    )
+                )
+            );
+        }
         this._catering.setOptions({ zone: '' });
-        this._checkSubResourceEligibility(this.form.value.resources || []);
+        this._space_list.next(this.form.value.resources || []);
+        this.subscription(
+            'assets_available',
+            this._assets_available.subscribe((a) => {
+                if (!a) this.form.controls.assets.disable();
+                else this.form.controls.assets.enable();
+            })
+        );
+        this.subscription(
+            'catering_available',
+            this._catering_available.subscribe((a) => {
+                if (!a) this.form.controls.catering.disable();
+                else this.form.controls.catering.enable();
+            })
+        );
         this.subscription(
             'idle-listen',
             this._idle
@@ -636,102 +753,5 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                 duration: ref.componentInstance.duration,
             });
         });
-    }
-
-    private async _checkSubResourceEligibility(list: Space[]) {
-        return Promise.all([
-            this._checkAssetsEligibility(list),
-            this._checkCateringEligibility(list),
-        ]);
-    }
-
-    private async _checkAssetsEligibility(list: Space[]) {
-        if (this.form.value.id && this.form.value.assets?.length) {
-            this.form.controls.assets.enable();
-            return;
-        }
-        if (!list?.length) return this.form.controls.assets.disable();
-        await timer(100).toPromise();
-        const value = this.form.getRawValue();
-        this._assets.setOptions({
-            date: value.date,
-            duration: value.duration,
-            resources: list,
-            zone_id: this._org.levelWithID(list[0].zones)?.parent_id,
-            tags: [],
-            categories: [],
-        } as any);
-        await timer(500).toPromise();
-        const items = await this._assets.filtered_assets
-            .pipe(take(1))
-            .toPromise();
-        const disabled_rooms = await this._assets.disabled_rooms
-            .pipe(take(1))
-            .toPromise();
-        const can_cater = list.every(
-            (s) =>
-                items.filter(
-                    (_) =>
-                        !(_ as any).hide_for_zones?.find((z) =>
-                            s.zones.includes(z)
-                        )
-                ).length > 0
-        );
-        if (
-            !can_cater ||
-            disabled_rooms.find((_) => list.find((i) => i.id === _))
-        ) {
-            this.form.patchValue({ assets: [] });
-            this.form.controls.assets.disable();
-            notifyWarn(
-                `Assets are unavailable for some of the selected spaces.`
-            );
-        } else {
-            this.form.controls.assets.enable();
-        }
-    }
-
-    private async _checkCateringEligibility(list: Space[]) {
-        if (this.form.value.id && this.form.value.catering?.length) {
-            this.form.controls.catering.enable();
-            return;
-        }
-        if (!list?.length) return this.form.controls.catering.disable();
-        await timer(100).toPromise();
-        const value = this.form.getRawValue();
-        this._catering.setFilters({
-            search: '',
-            date: value.date,
-            duration: value.duration,
-            resources: list,
-            zone_id: this._org.levelWithID(list[0].zones)?.parent_id,
-            tags: [],
-            categories: [],
-        });
-        await timer(500).toPromise();
-        const menu = await this._catering.filtered_menu
-            .pipe(take(1))
-            .toPromise();
-        const disabled_rooms = await this._catering.availability
-            .pipe(take(1))
-            .toPromise();
-        const can_cater = list.every(
-            (s) =>
-                menu.filter(
-                    (_) => !_.hide_for_zones.find((z) => s.zones.includes(z))
-                ).length > 0
-        );
-        if (
-            !can_cater ||
-            disabled_rooms.find((_) => list.find((i) => i.id === _))
-        ) {
-            this.form.patchValue({ catering: [] });
-            this.form.controls.catering.disable();
-            notifyWarn(
-                `Catering is unavailable for some of the selected spaces.`
-            );
-        } else {
-            this.form.controls.catering.enable();
-        }
     }
 }

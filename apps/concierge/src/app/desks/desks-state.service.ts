@@ -1,15 +1,21 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { listChildMetadata, showMetadata } from '@placeos/ts-client';
+import {
+    listChildMetadata,
+    showMetadata,
+    updateMetadata,
+} from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs';
 import {
     catchError,
     debounceTime,
     distinctUntilChanged,
+    first,
     map,
     scan,
     shareReplay,
     switchMap,
+    take,
     tap,
 } from 'rxjs/operators';
 import { endOfDay, format, getUnixTime, startOfDay } from 'date-fns';
@@ -28,11 +34,14 @@ import {
     notifyInfo,
     notifySuccess,
     openConfirmModal,
+    randomInt,
+    SettingsService,
 } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
 
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
 import { QueryResponse } from '@placeos/ts-client/dist/esm/resources/functions';
+import { DeskModalComponent } from './desk-modal.component';
 
 function addQRCodeToBooking(booking: Booking): Booking {
     return new Booking({
@@ -60,23 +69,20 @@ export interface DeskFilters {
 })
 export class DesksStateService extends AsyncHandler {
     private _filters = new BehaviorSubject<DeskFilters>({});
-    private _new_desks = new BehaviorSubject<Desk[]>([]);
     private _desk_bookings: Booking[] = [];
     private _loading = new BehaviorSubject<boolean>(false);
-
-    public readonly new_desks = this._new_desks.asObservable();
-
-    public get new_desk_count() {
-        return this._new_desks.getValue()?.length || 0;
-    }
+    private _change = new BehaviorSubject(0);
 
     public readonly loading = this._loading.asObservable();
 
     public readonly filters = this._filters.asObservable();
 
-    public readonly desks: Observable<Desk[]> = this._filters.pipe(
+    public readonly desks: Observable<Desk[]> = combineLatest([
+        this._filters,
+        this._change,
+    ]).pipe(
         debounceTime(500),
-        switchMap((filters) => {
+        switchMap(([filters]) => {
             const zones = filters.zones || [];
             return zones && !zones.includes('All')
                 ? showMetadata(zones[0], 'desks').pipe(
@@ -116,7 +122,9 @@ export class DesksStateService extends AsyncHandler {
             const zones =
                 !filters.zones ||
                 filters.zones.some((z) => this._all_zones_keys.includes(z))
-                    ? [this._org.building.id]
+                    ? this._settings.get('app.use_region')
+                        ? this._org.buildingsForRegion().map((_) => _.id)
+                        : [this._org.building.id]
                     : filters.zones;
             this._next_page.next(() =>
                 queryPagedBookings({
@@ -185,7 +193,11 @@ export class DesksStateService extends AsyncHandler {
         this._call_next_page.next(`NEXT_${Date.now()}`);
     }
 
-    constructor(private _org: OrganisationService, private _dialog: MatDialog) {
+    constructor(
+        private _org: OrganisationService,
+        private _dialog: MatDialog,
+        private _settings: SettingsService
+    ) {
         super();
         this.setup_paging.subscribe();
     }
@@ -212,20 +224,47 @@ export class DesksStateService extends AsyncHandler {
         this.timeout('poll', () => this.setFilters(this._filters.getValue()));
     }
 
-    public addDesks(list: Desk[]) {
-        this._new_desks.next(this._new_desks.getValue().concat(list));
+    public async addDesks(list: Desk[]) {
+        const zone = this._filters.getValue().zones[0];
+        const desk_list = await this.desks.pipe(take(1)).toPromise();
+        for (const desk of list) {
+            const idx = desk_list.findIndex((_) => _.id === desk.id);
+            if (idx >= 0) desk_list[idx] = desk;
+            else desk_list.push(desk);
+        }
+        await updateMetadata(zone, {
+            name: 'desks',
+            details: desk_list,
+            description: 'List of available desks',
+        }).toPromise();
+        this._change.next(Date.now());
     }
 
-    public removeNewDesk(desk: Desk) {
-        this._filters.next(this._filters.getValue());
-        this._new_desks.next(
-            this._new_desks.getValue().filter((d) => d.id !== desk.id)
-        );
-    }
-
-    public clearNewDesks() {
-        this._filters.next(this._filters.getValue());
-        this._new_desks.next([]);
+    public async editDesk(desk?: Desk) {
+        const ref = this._dialog.open(DeskModalComponent, { data: { desk } });
+        const state = await Promise.race([
+            ref.afterClosed().toPromise(),
+            ref.componentInstance.event
+                .pipe(first((_) => _.reason === 'done'))
+                .toPromise(),
+        ]);
+        if (state?.reason !== 'done') return;
+        const zone = this._filters.getValue().zones[0];
+        const new_space = {
+            ...state.metadata,
+            id: state.metadata.id || `parking-${zone}.${randomInt(999_999)}`,
+        };
+        const desk_list = await this.desks.pipe(take(1)).toPromise();
+        const idx = desk_list.findIndex((_) => _.id === new_space.id);
+        if (idx >= 0) desk_list[idx] = new_space;
+        else desk_list.push(new_space);
+        await updateMetadata(zone, {
+            name: 'desks',
+            details: desk_list,
+            description: 'List of available desks',
+        }).toPromise();
+        this._change.next(Date.now());
+        ref.close();
     }
 
     public async checkinDesk(desk: Booking, state: boolean = true) {

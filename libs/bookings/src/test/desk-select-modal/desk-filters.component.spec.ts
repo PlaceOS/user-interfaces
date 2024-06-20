@@ -18,7 +18,7 @@ import {
     DurationFieldComponent,
     TimeFieldComponent,
 } from '@placeos/form-fields';
-import { Building, OrganisationService } from '@placeos/organisation';
+import { Building, OrganisationService, Region } from '@placeos/organisation';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 import { DeskFiltersComponent } from '../../lib/desk-select-modal/desk-filters.component';
@@ -32,7 +32,12 @@ describe('DeskFiltersComponent', () => {
             MockProvider(SettingsService, { get: jest.fn() }),
             MockProvider(OrganisationService, {
                 active_buildings: of([new Building({ id: '1' })]),
+                active_region: new BehaviorSubject(new Region({ id: '1' })),
                 building: new Building({ id: '1' }),
+                buildings: [
+                    new Building({ id: '1' }),
+                    new Building({ id: '2' }),
+                ],
             }),
             MockProvider(BookingFormService, {
                 features: new BehaviorSubject(['standing']),
@@ -63,9 +68,6 @@ describe('DeskFiltersComponent', () => {
 
     it('should create component', () =>
         expect(spectator.component).toBeTruthy());
-
-    it('should allow changing building', async () =>
-        expect('[name="building"]').toExist());
 
     it('should allow changing date', () =>
         expect('[formControlName="date"]').toExist());

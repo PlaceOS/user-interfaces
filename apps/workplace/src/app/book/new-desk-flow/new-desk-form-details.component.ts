@@ -70,6 +70,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                     <label for="title">Host<span>*</span></label>
                     <a-user-search-field
                         formControlName="user"
+                        class="mb-4"
                     ></a-user-search-field>
                 </div>
                 <div class="flex items-center flex-wrap sm:space-x-2">

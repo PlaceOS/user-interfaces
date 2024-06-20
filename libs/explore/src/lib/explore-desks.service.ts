@@ -98,7 +98,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     ]).pipe(
         debounceTime(300),
         filter(([_, { is_public }]) => !!_ && !is_public),
-        tap(([lvl]) => {
+        map(([lvl]) => {
             this._statuses = {};
             const system_id = this._org.binding('area_management');
             if (!system_id) return;

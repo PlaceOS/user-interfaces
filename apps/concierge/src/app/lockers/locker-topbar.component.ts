@@ -1,20 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { first, take } from 'rxjs/operators';
+import { first, map, take } from 'rxjs/operators';
 
-import {
-    AsyncHandler,
-    csvToJson,
-    downloadFile,
-    jsonToCsv,
-    loadTextFileFromInputEvent,
-    notifyError,
-    notifySuccess,
-} from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { LockersStateService } from './locker-state.service';
 import { showBooking } from '@placeos/bookings';
-import { randomInt } from '@placeos/common';
 import { MatDialog } from '@angular/material/dialog';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 
@@ -24,24 +15,24 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
         <div
             class="flex items-center bg-base-100 h-20 px-4 border-b border-base-200 space-x-2"
         >
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" class="w-60">
                 <mat-select
-                    [ngModel]="
-                        (filters | async).zones
-                            ? (filters | async).zones[0]
-                            : 'All'
-                    "
-                    (ngModelChange)="updateZones([$event])"
+                    [ngModel]="(filters | async)?.zones"
+                    (ngModelChange)="updateZones($event)"
                     placeholder="All Levels"
+                    multiple
                 >
-                    <mat-option value="All" *ngIf="!is_map"
-                        >All Levels</mat-option
-                    >
                     <mat-option
                         *ngFor="let level of levels | async"
                         [value]="level.id"
                     >
-                        {{ level.display_name || level.name }}
+                        <div class="flex flex-col-reverse">
+                            <div class="text-xs opacity-30" *ngIf="use_region">
+                                {{ (level.parent_id | building)?.display_name }}
+                                <span class="opacity-0"> - </span>
+                            </div>
+                            <div>{{ level.display_name || level.name }}</div>
+                        </div>
                     </mat-option>
                 </mat-select>
             </mat-form-field>
@@ -123,7 +114,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
 })
 export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     /** List of levels for the active building */
-    public readonly levels = this._org.active_levels;
+    public readonly levels = this._lockers.levels;
     /** List of levels for the active building */
     public readonly filters = this._lockers.filters;
 
@@ -133,21 +124,25 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     public readonly setDate = (date) => this._lockers.setFilters({ date });
     public readonly setFilters = (o) => this._lockers.setFilters(o);
     /** Update active zones for lockers */
-    public readonly updateZones = (zones: string[]) => {
+    public readonly updateZones = (z) => {
         this._router.navigate([], {
             relativeTo: this._route,
-            queryParams: { zone_ids: zones.join(',') },
-            queryParamsHandling: 'merge',
+            queryParams: { zone_ids: z.join(',') },
         });
-        this._lockers.setFilters({ zones });
+        this._lockers.setFilters({ zones: z });
     };
+
+    public get use_region() {
+        return this._settings.get('app.use_region');
+    }
 
     constructor(
         private _lockers: LockersStateService,
         private _org: OrganisationService,
         private _route: ActivatedRoute,
         private _router: Router,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
+        private _settings: SettingsService
     ) {
         super();
     }
@@ -185,22 +180,6 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
             this._router.events.subscribe(() => {
                 this.manage = this._router.url?.includes('manage');
                 this.is_map = this._router.url?.includes('map');
-            })
-        );
-        this.subscription(
-            'levels',
-            this._org.active_levels.subscribe(async (levels) => {
-                const filters = await this.filters.pipe(take(1)).toPromise();
-                const zones =
-                    filters?.zones?.filter(
-                        (zone) =>
-                            levels.find((lvl) => lvl.id === zone) ||
-                            zone === 'All'
-                    ) || [];
-                if (!zones.length && levels.length) {
-                    zones.push(levels[0].id);
-                }
-                this.updateZones(zones);
             })
         );
         this.manage = this._router.url?.includes('manage');

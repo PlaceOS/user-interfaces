@@ -25,10 +25,17 @@ const nextEventTime = (save = false): number => {
     return getUnixTime(next);
 };
 
-const TYPES = ['desk', 'parking', 'asset-request', 'visitor', 'locker'];
+const TYPES = [
+    'desk',
+    'parking',
+    'asset-request',
+    'visitor',
+    'locker',
+    'group-event',
+];
 const TRACKING = ['in_storage', 'in_transit', 'at_location'];
 
-export const MOCK_BOOKINGS = new Array(200).fill(0).map((_, index) => {
+export const MOCK_BOOKINGS = new Array(300).fill(0).map((_, index) => {
     const throw_away = predictableRandomInt(999999) % 3 === 0;
     const user =
         MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)] || ({} as any);
@@ -76,10 +83,12 @@ export const MOCK_BOOKINGS = new Array(200).fill(0).map((_, index) => {
         title: `${capitalizeFirstLetter(type)} Booking ${index}`,
         type,
         booking_type: type,
+        attendees: [],
         checked_in: predictableRandomInt(999999) % 3 === 0,
         access: predictableRandomInt(999999) % 3 === 0,
         approved: approved === 0,
         rejected: approved === 1,
+        permission: type === 'group-event' ? 'OPEN' : 'PRIVATE',
         approver_id: approved === 0 ? approver.id : '',
         approver_name: approved === 0 ? approver.name : '',
         approver_email: approved === 0 ? approver.email : '',

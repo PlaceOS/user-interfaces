@@ -1,25 +1,54 @@
 import { Component } from '@angular/core';
 import { RegionManagementService } from './region-management.service';
+import { notifySuccess } from '@placeos/common';
+import { Clipboard } from '@angular/cdk/clipboard';
 
 @Component({
     selector: 'region-list',
     template: `
-        <div class="absolute inset-0 overflow-auto px-4">
-            <custom-table
-                class="block min-w-[32rem] w-full h-full"
-                [dataSource]="regions"
-                [columns]="['display_name', 'building_count', 'actions']"
-                [display_column]="['Name', 'Buildings', ' ']"
-                [column_size]="['flex', '10r', '3.75r']"
-                [template]="{
-                    actions: action_template
-                }"
-                empty="No regions"
-            ></custom-table>
+        <div class="absolute inset-0 overflow-auto px-8">
+            <simple-table
+                class="min-w-[32rem] block text-sm"
+                [data]="regions"
+                empty_message="No Regions"
+                [columns]="[
+                    {
+                        key: 'display_name',
+                        name: 'Building Name',
+                        content: name_template
+                    },
+                    { key: 'building_count', name: 'Buildings', size: '8rem' },
+                    {
+                        key: 'actions',
+                        name: ' ',
+                        content: action_template,
+                        size: '3rem',
+                        sortable: false
+                    }
+                ]"
+                [sortable]="true"
+            ></simple-table>
+            <div class="w-full h-20"></div>
         </div>
+        <ng-template #name_template let-row="row" let-data="data">
+            <button
+                class="px-4 py-2 text-left leading-tight"
+                (click)="copyToClipboard(row.id)"
+            >
+                <div class="">{{ data }}</div>
+                <div class="text-[0.625rem] opacity-30 font-mono">
+                    {{ row.id }}
+                </div>
+            </button>
+        </ng-template>
         <ng-template #action_template let-row="row">
             <div class="w-full flex justify-end space-x-2">
-                <button btn icon matRipple [matMenuTriggerFor]="menu">
+                <button
+                    icon
+                    matRipple
+                    class="h-12 w-12 rounded"
+                    [matMenuTriggerFor]="menu"
+                >
                     <app-icon>more_vert</app-icon>
                 </button>
                 <mat-menu #menu="matMenu">
@@ -37,7 +66,7 @@ import { RegionManagementService } from './region-management.service';
                     </button>
                     <button mat-menu-item (click)="removeRegion(row)">
                         <div class="flex items-center space-x-2 text-red-500">
-                            <app-icon>delete</app-icon>
+                            <app-icon class="text-error">delete</app-icon>
                             <span>Delete Region</span>
                         </div>
                     </button>
@@ -56,5 +85,13 @@ export class RegionListComponent {
     public readonly editMetadata = (region) =>
         this._manager.editRegionMetadata(region);
 
-    constructor(private _manager: RegionManagementService) {}
+    public readonly copyToClipboard = (id: string) => {
+        const success = this._clipboard.copy(id);
+        if (success) notifySuccess('Region ID copied to clipboard.');
+    };
+
+    constructor(
+        private _manager: RegionManagementService,
+        private _clipboard: Clipboard
+    ) {}
 }

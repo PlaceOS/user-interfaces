@@ -55,6 +55,7 @@ export async function openBookingModal(
                     name="host"
                     [query_fn]="searchStaff"
                     formControlName="organiser"
+                    class="mb-2"
                 ></a-user-search-field>
             </div>
             <div class="flex space-x-2">

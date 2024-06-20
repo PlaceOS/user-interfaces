@@ -22,20 +22,22 @@ function getFolders(root) {
 
 function commands(target) {
     const release = ref.includes('release');
+    const apps = getFolders('apps');
+    const libs = getFolders('libs');
     if (release) {
-        const array =
-            target === 'build'
-                ? [...getFolders('apps')]
-                : [...getFolders('apps'), ...getFolders('libs')];
+        const array = target === 'build' ? [apps] : [apps, libs];
         return array;
     }
     const base = release ? '' : `--base=${baseSha}~1`;
-    const array = execSync(
-        `npx nx print-affected --target=${target} --select=tasks.target.project ${base}`
-    )
-        .toString()
-        .replace(/\n/g, '')
+    const raw_result = execSync(
+        `npx nx show projects --affected --target=${target} --select=tasks.target.project ${base}`
+    ).toString();
+    const array = raw_result
+        .replace(/\n/g, ', ')
         .split(', ')
-        .filter((_) => !!_);
+        .filter((_) => !!_ && !_.includes('-e2e'));
+    if (target === 'build') {
+        return array.filter((_) => !libs.includes(_));
+    }
     return array;
 }

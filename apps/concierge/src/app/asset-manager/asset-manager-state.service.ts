@@ -108,16 +108,23 @@ export class AssetManagerStateService extends AsyncHandler {
     public readonly requests = combineLatest([
         this._options,
         this._org.active_building,
+        this._org.active_region,
         this._poll,
         this._change,
         this._spaces.initialised,
     ]).pipe(
         debounceTime(200),
-        switchMap(([{ date }, bld]) => {
+        switchMap(([{ date }, bld, region]) => {
             const start = startOfDay(date || Date.now()).valueOf();
             const end = endOfDay(date || Date.now()).valueOf();
+            const zones = this._settings.get('app.use_region')
+                ? this._org
+                      .buildingsForRegion()
+                      .map((_) => _.id)
+                      .join(',')
+                : bld?.id;
             return queryBookings({
-                zones: bld?.id,
+                zones,
                 period_start: getUnixTime(start),
                 period_end: getUnixTime(end),
                 type: 'asset-request',
@@ -170,7 +177,6 @@ export class AssetManagerStateService extends AsyncHandler {
     ]).pipe(
         map(([list, options]) => {
             const search = (options.search || '').toLowerCase();
-            console.log('Requests:', list, search);
             return search
                 ? list.filter(
                       (i) =>
@@ -298,7 +304,8 @@ export class AssetManagerStateService extends AsyncHandler {
     constructor(
         private _spaces: SpacesService,
         private _org: OrganisationService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
+        private _settings: SettingsService
     ) {
         super();
     }

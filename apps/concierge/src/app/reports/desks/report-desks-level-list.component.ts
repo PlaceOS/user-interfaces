@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { downloadFile, jsonToCsv } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { differenceInDays } from 'date-fns';
@@ -10,45 +10,44 @@ import { ReportsStateService } from '../reports-state.service';
 @Component({
     selector: 'report-desks-levels-list',
     template: `
-        <div class="px-4 mb-4 w-full">
-            <div class="rounded bg-base-100 shadow overflow-hidden w-full">
+        <div class="px-4 pb-2 w-full">
+            <div
+                class="rounded bg-base-100 border border-base-200 overflow-hidden w-full"
+            >
                 <div class="border-b border-base-200 p-4 flex items-center">
                     <h3 class="font-bold text-xl flex-1">Level Utilisation</h3>
-                    <button icon (click)="download()">
+                    <button icon matRipple *ngIf="!print" (click)="download()">
                         <app-icon>download</app-icon>
                     </button>
                 </div>
-                <custom-table
-                    red-header
-                    [dataSource]="level_list"
-                    [pagination]="true"
+                <simple-table
+                    class="w-full block text-sm"
+                    [data]="level_list"
                     [columns]="[
-                        'name',
-                        'avg_usage',
-                        'approved',
-                        'count',
-                        'utilisation'
+                        { key: 'name', name: 'Level' },
+                        { key: 'avg_usage', name: 'Avg. Used Desks' },
+                        { key: 'approved', name: 'Approved Bookings' },
+                        { key: 'count', name: 'Total Requests' },
+                        {
+                            key: 'utilisation',
+                            name: 'Utilisation',
+                            content: percent_view
+                        }
                     ]"
-                    [display_column]="[
-                        'Level',
-                        'Avg. Used Desks',
-                        'Approved Bookings',
-                        'Total Requests',
-                        'Utilisation'
-                    ]"
-                    [column_size]="['flex']"
-                    [template]="{
-                        utilisation: percent_view
-                    }"
-                ></custom-table>
+                    [page_size]="print ? 0 : 10"
+                    [sortable]="true"
+                >
+                </simple-table>
                 <ng-template #percent_view let-data="data">
-                    {{ data || '0' }}%
+                    <div class="p-4">{{ data || '0' }}%</div>
                 </ng-template>
             </div>
         </div>
     `,
 })
 export class ReportDesksLevelListComponent {
+    @Input() public print: boolean = false;
+
     public readonly level_list = combineLatest([
         this._state.options,
         this._state.stats,

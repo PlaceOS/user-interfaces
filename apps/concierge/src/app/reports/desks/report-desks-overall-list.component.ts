@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { downloadFile, jsonToCsv } from '@placeos/common';
 import { format } from 'date-fns';
 import { take } from 'rxjs/operators';
@@ -8,41 +8,46 @@ import { ReportsStateService } from '../reports-state.service';
 @Component({
     selector: 'report-desks-overall-list',
     template: `
-        <div class="m-4 rounded bg-base-100 shadow overflow-hidden">
-            <div class="border-b border-base-200 p-4 flex items-center">
-                <h3 class="font-bold text-xl flex-1">Daily Utilisation</h3>
-                <button icon (click)="download()">
-                    <app-icon>download</app-icon>
-                </button>
+        <div class="pb-2 w-full">
+            <div
+                class="m-4 rounded bg-base-100 border border-base-200 overflow-hidden"
+            >
+                <div class="border-b border-base-200 p-4 flex items-center">
+                    <h3 class="font-bold text-xl flex-1">Daily Utilisation</h3>
+                    <button icon matRipple *ngIf="!print" (click)="download()">
+                        <app-icon>download</app-icon>
+                    </button>
+                </div>
+                <simple-table
+                    class="w-full block text-sm"
+                    [data]="day_list"
+                    [columns]="[
+                        { key: 'date', name: 'Date', content: date_template },
+                        { key: 'approved', name: 'Approved Bookings' },
+                        { key: 'count', name: 'Total Requests' },
+                        {
+                            key: 'utilisation',
+                            name: 'Utilisation',
+                            content: percent_template
+                        }
+                    ]"
+                    [page_size]="print ? 0 : 10"
+                    [sortable]="true"
+                >
+                </simple-table>
+                <ng-template #date_template let-data="data">
+                    <div class="p-4">{{ data | date: 'mediumDate' }}</div>
+                </ng-template>
+                <ng-template #percent_template let-data="data">
+                    <div class="p-4">{{ data || '0' }}%</div>
+                </ng-template>
             </div>
-            <custom-table
-                red-header
-                [dataSource]="day_list"
-                [pagination]="true"
-                [columns]="['date', 'approved', 'count', 'utilisation']"
-                [display_column]="[
-                    'Date',
-                    'Approved Bookings',
-                    'Total Requests',
-                    'Utilisation'
-                ]"
-                [column_size]="['flex']"
-                [template]="{
-                    date: date_view,
-                    usage: percent_view,
-                    utilisation: percent_view
-                }"
-            ></custom-table>
-            <ng-template #date_view let-data="data">
-                {{ data | date: 'mediumDate' }}
-            </ng-template>
-            <ng-template #percent_view let-data="data">
-                {{ data || '0' }}%
-            </ng-template>
         </div>
     `,
 })
 export class ReportDesksOverallListComponent {
+    @Input() public print: boolean = false;
+
     public readonly day_list = this._state.day_list;
 
     public readonly download = async () => {

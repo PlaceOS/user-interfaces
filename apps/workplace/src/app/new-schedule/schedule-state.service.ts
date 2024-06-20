@@ -6,7 +6,6 @@ import {
     LockersService,
     checkinBooking,
     queryBookings,
-    removeBooking,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -26,8 +25,10 @@ import { requestSpacesForZone } from '@placeos/spaces';
 import { getModule } from '@placeos/ts-client';
 import {
     addMinutes,
+    differenceInMilliseconds,
     differenceInMinutes,
     endOfDay,
+    format,
     getUnixTime,
     isSameDay,
     startOfDay,
@@ -55,7 +56,14 @@ export class ScheduleStateService extends AsyncHandler {
     private _poll_type = new BehaviorSubject<'api' | 'ws'>('api');
     private _loading = new BehaviorSubject(false);
     private _filters = new BehaviorSubject({
-        shown_types: ['event', 'desk', 'parking', 'visitor', 'locker'],
+        shown_types: [
+            'event',
+            'desk',
+            'parking',
+            'visitor',
+            'locker',
+            'group-event',
+        ],
     });
     private _date = new BehaviorSubject(Date.now());
     private _update = combineLatest([this._date, this._poll]).pipe(
@@ -128,7 +136,10 @@ export class ScheduleStateService extends AsyncHandler {
                             (a) =>
                                 a.email.toLowerCase() ===
                                 user.email.toLowerCase()
-                        ))
+                        )) &&
+                    !_.linked_bookings?.find(
+                        (b) => b.booking_type === 'group-event'
+                    )
             );
         })
     );
@@ -187,6 +198,18 @@ export class ScheduleStateService extends AsyncHandler {
                 period_start: getUnixTime(startOfDay(date)),
                 period_end: getUnixTime(endOfDay(date)),
                 type: 'parking',
+            }).pipe(catchError((_) => of([])))
+        ),
+        tap(() => this.timeout('end_loading', () => this._loading.next(false))),
+        shareReplay(1)
+    );
+    /** List of group event bookings for the selected date */
+    public readonly group_events: Observable<Booking[]> = this._update.pipe(
+        switchMap(([date]) =>
+            queryBookings({
+                period_start: getUnixTime(startOfDay(date)),
+                period_end: getUnixTime(endOfDay(date)),
+                type: 'group-event',
             }).pipe(catchError((_) => of([])))
         ),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
@@ -253,12 +276,15 @@ export class ScheduleStateService extends AsyncHandler {
         this.desks,
         this.parking,
         this.lockers,
+        this.group_events,
     ]).pipe(
-        map(([e, v, d, p, l]) => {
+        map(([e, v, d, p, l, ge]) => {
             const filtered_events = e.filter(
-                (ev) => !d.find((bkn) => `${ev.meeting_id}` === `${bkn.id}`)
+                (ev) =>
+                    !d.find((bkn) => `${ev.meeting_id}` === `${bkn.id}`) &&
+                    ev.linked_bookings[0]?.booking_type !== 'group-event'
             );
-            return [...filtered_events, ...v, ...d, ...p, ...l].sort(
+            return [...filtered_events, ...v, ...d, ...p, ...l, ...ge].sort(
                 (a, b) => a.date - b.date
             );
         })
@@ -312,12 +338,6 @@ export class ScheduleStateService extends AsyncHandler {
                         ),
                         type,
                     }).toPromise();
-                    console.log(
-                        'Check Bookings:',
-                        type,
-                        bookings,
-                        this._ignore_cancel
-                    );
                     const check_block =
                         (auto_release.time_after || 0) +
                         (auto_release.time_before || 0);
@@ -338,15 +358,34 @@ export class ScheduleStateService extends AsyncHandler {
                             Date.now()
                         );
                         if (diff > check_block || diff < 0) continue;
+                        const time = addMinutes(
+                            booking.date,
+                            auto_release.time_after || 0
+                        );
+                        const close_after = differenceInMilliseconds(
+                            time.getTime() + 60 * 1000,
+                            Date.now()
+                        );
+                        const wording =
+                            type === 'parking' ? 'reservation' : 'booking';
                         const result = await openConfirmModal(
                             {
-                                title: `Keep ${type} booking`,
+                                title: `Keep ${type} ${wording}`,
                                 content: `You have indicated you are not in the office. 
-                                Your booking will be cancelled in about ${diff} minutes. 
-                                Do you wish to keep this booking?`,
-                                icon: { content: 'cancel' },
+                                Your  ${wording} for "<i>${
+                                    booking.asset_name || booking.title
+                                }</i>" at ${format(
+                                    booking.date,
+                                    this._settings.time_format
+                                )} will be cancelled at ${format(
+                                    time,
+                                    this._settings.time_format
+                                )}.<br/><br/>
+                                Do you wish to keep this ${wording}?`,
+                                icon: { content: 'event_busy' },
                                 confirm_text: 'Keep',
                                 cancel_text: 'Dismiss',
+                                close_delay: close_after,
                             },
                             this._dialog
                         );

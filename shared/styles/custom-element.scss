@@ -519,7 +519,7 @@ a[btn] {
     border: 1px solid var(--color);
     color: var(--sc);
     font-size: 1rem;
-    min-height: 2.75em;
+    min-height: 3em;
     padding: 0 1em;
     display: flex;
     align-items: center;
@@ -611,6 +611,31 @@ a[icon] {
 
         [disabled='true'] {
             opacity: 0.6;
+        }
+    }
+
+    mat-button-toggle {
+        mat-pseudo-checkbox {
+            display: none;
+        }
+    }
+
+    .mat-form-field-disabled {
+        opacity: 0.3;
+    }
+
+    .mat-mdc-menu-panel {
+        background-color: var(--b1);
+    }
+
+    .mat-mdc-menu-item-text {
+        color: var(--bc);
+    }
+
+    .mat-mdc-menu-item {
+        color: var(--bc);
+        &:hover {
+            background-color: var(--b2);
         }
     }
 
@@ -953,6 +978,13 @@ a[icon] {
     .mat-mdc-select-value,
     .mat-mdc-select-arrow {
         color: var(--bc);
+    }
+
+    .inverse {
+        .mat-mdc-select-value,
+        .mat-mdc-select-arrow {
+            color: var(--b1);
+        }
     }
 
     .mdc-notched-outline__leading,

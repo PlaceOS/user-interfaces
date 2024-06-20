@@ -50,7 +50,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
                 btn
                 matRipple
                 *ngIf="!manage"
-                class="mx-2 w-36"
+                class="mx-2 w-40"
                 matTooltip="New Desk Booking"
                 (click)="newDeskBooking()"
             >

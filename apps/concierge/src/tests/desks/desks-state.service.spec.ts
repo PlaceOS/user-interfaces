@@ -4,27 +4,22 @@ import { OrganisationService } from '@placeos/organisation';
 import { of } from 'rxjs';
 
 import { DesksStateService } from '../../app/desks/desks-state.service';
+import { MockProvider } from 'ng-mocks';
+import { SettingsService } from '@placeos/common';
 
 describe('DesksStateService', () => {
     let spectator: SpectatorService<DesksStateService>;
     const createService = createServiceFactory({
         service: DesksStateService,
         providers: [
-            {
-                provide: MatDialog,
-                useValue: {
-                    open: jest.fn(),
-                },
-            },
-            {
-                provide: OrganisationService,
-                useValue: {
-                    active_levels: of([]),
-                    initialised: of(true),
-                    levelWithID: jest.fn(),
-                    buildings: [],
-                },
-            },
+            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(OrganisationService, {
+                active_levels: of([]),
+                initialised: of(true),
+                levelWithID: jest.fn(),
+                buildings: [],
+            }),
         ],
     });
 

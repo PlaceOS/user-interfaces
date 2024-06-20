@@ -9,57 +9,40 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
 import { SpaceLocationPinComponent } from './space-location-pin.component';
 import { Space } from '../space.class';
-import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 
 @Component({
     selector: `space-map`,
     template: `
         <div class="bg-base-100 p-2 border-b border-base-200 w-full">
             <mat-form-field
-                levels
                 appearance="outline"
-                class="w-full no-subscript"
-                *ngIf="!use_region; else region_level_view"
+                class="w-full"
+                *ngIf="(levels | async)?.length"
             >
                 <mat-select
+                    name="location"
                     [(ngModel)]="level"
+                    (ngModelChange)="setOptions({ zone_ids: [$event.id] })"
                     [ngModelOptions]="{ standalone: true }"
-                    (ngModelChange)="setLevel($event)"
+                    placeholder="Any Level"
+                    i18n-placeholder
                 >
                     <mat-option
                         *ngFor="let lvl of levels | async"
                         [value]="lvl"
                     >
-                        {{ lvl.display_name || lvl.name }}
+                        <div class="flex flex-col-reverse">
+                            <div class="opacity-30 text-xs" *ngIf="use_region">
+                                {{ (lvl.parent_id | building)?.display_name }}
+                                <span class="opacity-0"> - </span>
+                            </div>
+                            <div>
+                                {{ lvl.display_name || lvl.name }}
+                            </div>
+                        </div>
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-            <ng-template #region_level_view>
-                <mat-form-field
-                    appearance="outline"
-                    class="w-full no-subscript"
-                >
-                    <mat-select
-                        [(ngModel)]="level"
-                        (ngModelChange)="setLevel($event)"
-                        [ngModelOptions]="{ standalone: true }"
-                        placeholder="Any Level"
-                        i18n-placeholder
-                    >
-                        <mat-optgroup
-                            *ngFor="let bld of region_levels | async"
-                            [label]="bld.name"
-                        >
-                            <mat-option
-                                [value]="level"
-                                *ngFor="let level of bld.levels"
-                            >
-                                {{ level.display_name || level.name }}
-                            </mat-option>
-                        </mat-optgroup>
-                    </mat-select>
-                </mat-form-field>
-            </ng-template>
         </div>
         <div class="relative flex-1 w-full">
             <interactive-map
@@ -69,33 +52,8 @@ import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
                 [styles]="styles | async"
                 [features]="features | async"
                 [actions]="actions | async"
+                [options]="{ controls: true }"
             ></interactive-map>
-        </div>
-        <div
-            zoom
-            class="absolute bottom-2 right-2 rounded-lg border border-base-200 bg-base-100 flex flex-col overflow-hidden"
-        >
-            <button
-                icon
-                matRipple
-                name="space-map-zoom-in"
-                (click)="setZoom(zoom * 1.1)"
-            >
-                <app-icon>zoom_in</app-icon>
-            </button>
-            <div class="border-t border-base-200 w-full"></div>
-            <button
-                icon
-                matRipple
-                name="space-map-zoom-out"
-                (click)="setZoom(zoom * (1 / 1.1))"
-            >
-                <app-icon>zoom_out</app-icon>
-            </button>
-            <div class="border-t border-base-200 w-full"></div>
-            <button icon matRipple name="space-map-reset" (click)="resetMap()">
-                <app-icon>refresh</app-icon>
-            </button>
         </div>
     `,
     styles: [
@@ -134,28 +92,22 @@ export class SpaceSelectMapComponent extends AsyncHandler {
         return this.level?.map_id || '';
     }
 
-    public readonly levels = this._event_form.available_spaces.pipe(
-        map((_) =>
-            unique(
-                _.map(({ zones }) => this._org.levelWithID(zones)),
-                'id'
-            )
-        ),
-        tap((_) => (this.level = this.level ? this.level : _[0]))
-    );
-    public readonly region_levels = this._org.active_region.pipe(
-        map((_) => {
-            const region_buildings = this._org.buildings.filter(
-                (b) => !_ || b.parent_id === _.id
+    public readonly levels = combineLatest([
+        this._org.active_region,
+        this._org.active_building,
+    ]).pipe(
+        map(([region, bld]) => {
+            const level_list = this.use_region
+                ? this._org.levelsForRegion(region)
+                : this._org.levelsForBuilding(bld);
+            const viewable_levels = level_list.filter(
+                (lvl) => !lvl.tags.includes('parking')
             );
-            const region_levels = region_buildings.map((b) => ({
-                id: b.id,
-                name: b.display_name || b.name,
-                levels: this._org.levels.filter(
-                    (l) => l.parent_id === b.id && !l.tags.includes('parking')
-                ),
-            }));
-            return region_levels;
+            return viewable_levels.sort(
+                (a, b) =>
+                    a.parent_id.localeCompare(b.parent_id) ||
+                    (a.display_name || '').localeCompare(b.display_name || '')
+            );
         })
     );
 
@@ -225,15 +177,9 @@ export class SpaceSelectMapComponent extends AsyncHandler {
     public ngOnInit() {
         this.subscription(
             'levels_update',
-            this.levels.subscribe((levels) => {
-                if (this.use_region) return;
-                if (
-                    levels.length &&
-                    !levels.find((_) => _.id === this.level?.id)
-                ) {
-                    this.level = levels[0];
-                    this.setLevel(this.level);
-                }
+            this._event_form.options.subscribe(({ zone_ids }) => {
+                const level = this._org.levelWithID(zone_ids);
+                if (level) this.level = level;
             })
         );
     }

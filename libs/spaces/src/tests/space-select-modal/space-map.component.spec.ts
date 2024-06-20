@@ -10,6 +10,7 @@ import { BehaviorSubject } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { SpaceSelectMapComponent } from '../../lib/space-select-modal/space-map.component';
 import { Space } from '../../lib/spaces';
+import { OrganisationService } from '@placeos/organisation';
 
 describe('SpaceSelectMapComponent', () => {
     let spectator: Spectator<SpaceSelectMapComponent>;
@@ -17,8 +18,14 @@ describe('SpaceSelectMapComponent', () => {
         component: SpaceSelectMapComponent,
         providers: [
             MockProvider(EventFormService, {
+                spaces: new BehaviorSubject([]),
                 available_spaces: new BehaviorSubject([]),
             }),
+            MockProvider(OrganisationService, {
+                active_region: new BehaviorSubject({}),
+                buildings: [],
+                levelWithID: jest.fn(() => ({})),
+            } as any),
             MockProvider(SettingsService, { get: jest.fn() }),
         ],
         declarations: [
@@ -39,17 +46,7 @@ describe('SpaceSelectMapComponent', () => {
 
     it('should show a map', () => expect('interactive-map').toExist());
 
-    it('should show a zoom controls', () => expect('[zoom]').toExist());
-
     it('should show a level select', () => expect('[levels]').toExist());
-
-    it('should allow changing the zoom level', () => {
-        expect(spectator.component.zoom).toBe(1);
-        spectator.click('[name="space-map-zoom-in"]');
-        expect(spectator.component.zoom).toBe(1.1);
-        spectator.click('[name="space-map-zoom-out"]');
-        expect(spectator.component.zoom).toBe(1);
-    });
 
     it('should allow selecting spaces', (done) => {
         const test_space = new Space({ id: 'test' });

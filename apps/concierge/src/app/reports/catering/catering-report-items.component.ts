@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CateringOption } from '@placeos/catering';
 import { OrganisationService } from '@placeos/organisation';
 import { CateringReportStateService } from './catering-report-state.service';
@@ -7,56 +7,62 @@ import { CateringReportStateService } from './catering-report-state.service';
     selector: 'catering-report-items',
     template: `
         <div
-            class="w-[64rem] max-w-[calc(100%-2rem)] rounded overflow-hidden bg-base-100 shadow mx-auto my-2"
+            class="w-[64rem] max-w-[calc(100%-2rem)] rounded overflow-hidden bg-base-100 border border-base-200 mx-auto my-2"
         >
             <div
                 class="border-b border-base-200 flex items-center justify-between px-4"
             >
                 <h2 class="py-2 text-xl font-medium">Ordered Items</h2>
             </div>
-            <custom-table
-                class="w-full h-full"
-                [dataSource]="items"
+            <simple-table
+                class="w-full block text-sm"
+                [data]="items"
                 [columns]="[
-                    'name',
-                    'options',
-                    'quantity',
-                    'unit_price',
-                    'total_cost'
+                    { key: 'name', name: 'Name' },
+                    {
+                        key: 'options',
+                        name: 'Options',
+                        content: option_template
+                    },
+                    {
+                        key: 'quantity',
+                        name: 'Quantity'
+                    },
+                    {
+                        key: 'unit_price',
+                        name: 'Unit Price',
+                        content: cost_template
+                    },
+                    {
+                        key: 'total_cost',
+                        name: 'Total Cost',
+                        content: cost_template
+                    }
                 ]"
-                [display_column]="[
-                    'Name',
-                    'Options',
-                    'Quantity',
-                    'Unit Price',
-                    'Total Cost'
-                ]"
-                [column_size]="['flex']"
-                [template]="{
-                    options: option_state,
-                    unit_price: cost_state,
-                    total_cost: cost_state
-                }"
-                [pagination]="true"
-                empty="No orders for selected period"
-            ></custom-table>
-            <ng-template #option_state let-data="data">
-                <span
-                    class="text-xs px-2 py-1 rounded bg-base-200"
-                    *ngIf="data.length"
-                    [matTooltip]="options(data)"
-                >
-                    {{ data.length }} option(s)
-                </span>
+                [page_size]="print ? 0 : 10"
+                empty_message="No orders for selected period"
+                [sortable]="true"
+            ></simple-table>
+            <ng-template #option_template let-data="data">
+                <div class="p-4">
+                    <span
+                        class="text-xs px-2 py-1 rounded bg-base-200"
+                        *ngIf="data.length"
+                        [matTooltip]="options(data)"
+                    >
+                        {{ data.length }} option(s)
+                    </span>
+                </div>
             </ng-template>
-            <ng-template #cost_state let-data="data">
-                {{ (data || 0) / 100 | currency: code }}
+            <ng-template #cost_template let-data="data">
+                <div class="p-4">{{ (data || 0) / 100 | currency: code }}</div>
             </ng-template>
         </div>
     `,
     styles: [``],
 })
 export class CateringReportItemsComponent {
+    @Input() public print: boolean = false;
     public readonly items = this._report.catering_items;
 
     public get code() {

@@ -35,12 +35,12 @@ describe('ScheduleStateService', () => {
 
     it('should allow polling of events and bookings', () => {
         jest.runOnlyPendingTimers();
-        expect(booking_mod.queryBookings).toHaveBeenCalledTimes(2);
+        expect(booking_mod.queryBookings).toHaveBeenCalledTimes(3);
         expect(event_mod.queryEvents).toHaveBeenCalledTimes(1);
         spectator.service.startPolling();
         jest.runOnlyPendingTimers();
         jest.runOnlyPendingTimers();
-        expect(booking_mod.queryBookings).toHaveBeenCalledTimes(4);
+        expect(booking_mod.queryBookings).toHaveBeenCalledTimes(6);
         expect(event_mod.queryEvents).toHaveBeenCalledTimes(2);
         spectator.service.stopPolling();
     });

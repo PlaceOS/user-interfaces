@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
@@ -31,7 +31,7 @@ import { PanelTopbarComponent } from './panel/topbar.component';
 import { PanelDetailsComponent } from './panel/panel-details.component';
 import { PanelBookingListComponent } from './panel/panel-booking-list.component';
 
-import * as Sentry from '@sentry/angular-ivy';
+import * as Sentry from '@sentry/angular';
 import { PanelStatusComponent } from './panel/panel-status.component';
 import { MatRippleModule } from '@angular/material/core';
 import { PanelTimelineComponent } from './panel/timeline.component';
@@ -53,8 +53,7 @@ const MAT_MODULES: any[] = [
     MatAutocompleteModule,
 ];
 
-@NgModule({
-    declarations: [
+@NgModule({ declarations: [
         AppComponent,
         UnauthorisedComponent,
         BootstrapComponent,
@@ -68,11 +67,9 @@ const MAT_MODULES: any[] = [
         BookingPanelSelectComponent,
         EventPanelComponent,
     ],
-    imports: [
-        BrowserModule,
+    bootstrap: [AppComponent], imports: [BrowserModule,
         BrowserAnimationsModule,
         AppRoutingModule,
-        HttpClientModule,
         FormsModule,
         MatSnackBarModule,
         MatRippleModule,
@@ -94,9 +91,7 @@ const MAT_MODULES: any[] = [
         }),
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
-        }),
-    ],
-    providers: [
+        })], providers: [
         {
             provide: ErrorHandler,
             useValue: Sentry.createErrorHandler({
@@ -109,13 +104,12 @@ const MAT_MODULES: any[] = [
         },
         {
             provide: APP_INITIALIZER,
-            useFactory: () => () => {},
+            useFactory: () => () => { },
             deps: [Sentry.TraceService],
             multi: true,
         },
-    ],
-    bootstrap: [AppComponent],
-})
+        provideHttpClient(withInterceptorsFromDi()),
+    ] })
 export class AppModule {
     constructor() {
         console.log('Production:', !!environment.production);

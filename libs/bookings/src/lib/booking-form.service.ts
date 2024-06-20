@@ -160,7 +160,7 @@ export class BookingFormService extends AsyncHandler {
         map((building_rules) => {
             const mapping = {};
             for (const rules of building_rules) {
-                rules[rules.id] =
+                mapping[rules.id] =
                     rules.details instanceof Array ? rules.details : [];
             }
             return mapping;
@@ -220,9 +220,10 @@ export class BookingFormService extends AsyncHandler {
                                     resource: asset,
                                     host: user || currentUser(),
                                 },
-                                restrictions[
-                                    asset.zone?.id || this._org.building.id
-                                ] || []
+                                restrictions[asset.zone?.id] ||
+                                    restrictions[asset.zone?.parent_id] ||
+                                    restrictions[this._org.building.id] ||
+                                    []
                             ).hidden;
                             return (
                                 !is_restricted &&
@@ -541,6 +542,9 @@ export class BookingFormService extends AsyncHandler {
             value.date = startOfDay(value.date).valueOf();
             value.duration = 24 * 60 - 1;
         }
+        const { event_id, parent_id } = value;
+        delete value.event_id;
+        delete value.parent_id;
         const result = await saveBooking(
             new Booking({
                 ...this._options.getValue(),
@@ -552,13 +556,18 @@ export class BookingFormService extends AsyncHandler {
                     currentUser()?.id,
                 extension_data: {
                     ...((value as any).extension_data || {}),
+                    group: value.group,
                     phone: value.phone,
                     department:
                         value.user?.department || currentUser()?.department,
                 },
                 approved: !this._settings.get('app.bookings.no_approval'),
             }),
-            value.parent_id ? { booking_id: value.parent_id } : {}
+            event_id
+                ? { ical_uid: value.ical_uid, event_id: event_id }
+                : parent_id
+                ? { booking_id: parent_id }
+                : {}
         )
             .toPromise()
             .catch((e) => {
@@ -707,6 +716,7 @@ export class BookingFormService extends AsyncHandler {
         type: BookingType
     ) {
         if (!user_email) throw 'No user was selected to book for';
+        if (type === 'group-event') return true;
         const bookings = await queryBookings({
             period_start: getUnixTime(date),
             period_end: getUnixTime(date + duration * 60 * 1000),
@@ -714,7 +724,15 @@ export class BookingFormService extends AsyncHandler {
             email: user_email,
             limit: 1000,
         }).toPromise();
-        if (bookings.find((_) => _.asset_id === asset_id && id !== _.id)) {
+        let active_bookings = bookings.filter(
+            (_) =>
+                _.status !== 'declined' &&
+                _.status !== 'cancelled' &&
+                !_.rejected
+        );
+        if (
+            active_bookings.find((_) => _.asset_id === asset_id && id !== _.id)
+        ) {
             if (asset_id.includes('@')) {
                 throw `${asset_id} already has an invite for the selected time`;
             } else {
@@ -725,11 +743,10 @@ export class BookingFormService extends AsyncHandler {
             this._settings.get(`app.bookings.allowed_daily_${type}_count`) ?? 1;
         if (
             allowed_bookings > 0 &&
-            bookings.filter(
+            active_bookings.filter(
                 (_) =>
                     _.user_email.toLowerCase() ===
                         (user_email || currentUser()?.email).toLowerCase() &&
-                    _.status !== 'declined' &&
                     _.id !== id
             ).length >= allowed_bookings
         ) {

@@ -3,12 +3,15 @@ import { AssetManagerStateService } from './asset-manager-state.service';
 import { AvailableRoomsStateModalComponent } from '@placeos/components';
 import { MatDialog } from '@angular/material/dialog';
 import { take } from 'rxjs/operators';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'asset-manager-topbar',
     template: `
-        <div class="w-full px-4 py-2 bg-base-100 flex items-center space-x-4">
+        <div
+            class="w-full px-8 pt-4 pb-2 bg-base-100 flex items-center space-x-2"
+        >
             <a
                 btn
                 matRipple
@@ -32,18 +35,14 @@ import { AsyncHandler } from '@placeos/common';
                 (ngModelChange)="setOptions({ view: $event })"
                 *ngIf="active === 'items'"
             >
-                <mat-button-toggle value="grid">
-                    <div
-                        class="flex items-center justify-center h-10 w-6 text-xl"
-                    >
-                        <app-icon>view_module</app-icon>
+                <mat-button-toggle value="grid" matTooltip="View as Grid">
+                    <div class="flex items-center justify-center h-12 w-8">
+                        <app-icon class="text-2xl">view_module</app-icon>
                     </div>
                 </mat-button-toggle>
-                <mat-button-toggle value="list">
-                    <div
-                        class="flex items-center justify-center h-10 w-6 text-xl"
-                    >
-                        <app-icon>view_list</app-icon>
+                <mat-button-toggle value="list" matTooltip="View as List">
+                    <div class="flex items-center justify-center h-12 w-8">
+                        <app-icon class="text-2xl">view_list</app-icon>
                     </div>
                 </mat-button-toggle>
             </mat-button-toggle-group>
@@ -53,7 +52,7 @@ import { AsyncHandler } from '@placeos/common';
                 icon
                 matRipple
                 *ngIf="active === 'items'"
-                class="border border-base-200"
+                class="bg-secondary text-secondary-content rounded h-12 w-12"
                 matTooltip="Edit Config"
                 (click)="editConfig()"
             >
@@ -64,7 +63,7 @@ import { AsyncHandler } from '@placeos/common';
                 icon
                 matRipple
                 *ngIf="active === 'items'"
-                class="border border-base-200"
+                class="bg-secondary text-secondary-content rounded h-12 w-12"
                 matTooltip="Room Availability"
                 (click)="setRoomAvailability()"
             >
@@ -75,13 +74,13 @@ import { AsyncHandler } from '@placeos/common';
                 icon
                 matRipple
                 *ngIf="active === 'items'"
-                class="border border-base-200"
+                class="bg-secondary text-secondary-content rounded h-12 w-12"
                 matTooltip="Manage Categories"
                 (click)="manageCategories()"
             >
                 <app-icon>list_alt</app-icon>
             </button>
-            <mat-form-field appearance="outline" class="h-[3.25rem]">
+            <mat-form-field appearance="outline" class="no-subscript">
                 <app-icon matPrefix class="text-2xl relative top-1 -left-1">
                     search
                 </app-icon>
@@ -93,6 +92,25 @@ import { AsyncHandler } from '@placeos/common';
                 />
             </mat-form-field>
         </div>
+        <div
+            class="flex items-center space-x-2 px-4 pb-2"
+            *ngIf="use_region && (building | async)?.length"
+        >
+            <mat-form-field appearance="outline" class="no-subscript w-48">
+                <mat-select
+                    [ngModel]="(building | async)?.id"
+                    (ngModelChange)="setBuilding($event)"
+                    placeholder="All Buildings"
+                >
+                    <mat-option
+                        *ngFor="let bld of buildings | async"
+                        [value]="bld.id"
+                    >
+                        {{ bld.display_name || bld.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
     `,
     styles: [``],
 })
@@ -100,6 +118,9 @@ export class AssetManagerTopbarComponent extends AsyncHandler {
     @Input() public active = '';
 
     public readonly options = this._state.options;
+    public readonly region = this._org.active_region;
+    public readonly building = this._org.active_building;
+    public readonly buildings = this._org.active_buildings;
 
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly manageCategories = () => this._state.manageCategories();
@@ -109,8 +130,20 @@ export class AssetManagerTopbarComponent extends AsyncHandler {
         return this._state.base_route;
     }
 
+    public get use_region() {
+        return !!this._settings.get('app.use_region');
+    }
+
+    public setBuilding(id: string) {
+        const bld = this._org.buildings.find((_) => _.id === id);
+        if (!bld) return;
+        this._org.building = bld;
+    }
+
     constructor(
         private _state: AssetManagerStateService,
+        private _org: OrganisationService,
+        private _settings: SettingsService,
         private _dialog: MatDialog
     ) {
         super();

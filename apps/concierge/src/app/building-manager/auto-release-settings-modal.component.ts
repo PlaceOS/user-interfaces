@@ -25,12 +25,12 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
             </button>
         </header>
         <main class="px-2 w-[20rem]" *ngIf="!loading; else load_state">
-            <label>Before Event</label>
+            <label>Notify Before Event</label>
             <a-duration-field
                 [min]="0"
                 [(ngModel)]="settings.time_before"
             ></a-duration-field>
-            <label>After Event</label>
+            <label>Cancel Event After</label>
             <a-duration-field
                 [min]="0"
                 [(ngModel)]="settings.time_after"

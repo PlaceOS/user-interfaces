@@ -1,14 +1,8 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { Calendar } from '@placeos/calendar';
 
-import {
-    CateringItem,
-    CateringOrder,
-    CateringStateService,
-} from '@placeos/catering';
+import { CateringItem, CateringStateService } from '@placeos/catering';
 import { notifyError, notifySuccess } from '@placeos/common';
-import { CalendarEvent, updateEvent } from '@placeos/events';
 import { first, map } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
 
@@ -16,7 +10,7 @@ import { CheckinStateService } from './checkin-state.service';
     selector: 'checkin-preferences',
     template: `
         <div
-            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center my-4 p-4 mx-auto"
+            class="bg-base-100 rounded shadow overflow-hidden relative flex flex-col items-center w-[36rem] p-4"
         >
             <h3 class="text-xl mb-2 w-full">Would you like a drink?</h3>
             <div class="w-full">
@@ -50,7 +44,6 @@ import { CheckinStateService } from './checkin-state.service';
     styles: [
         `
             :host > div {
-                width: 32rem;
                 max-width: calc(100vw - 2rem);
             }
         `,

@@ -141,7 +141,7 @@ import { LandingStateService } from './landing-state.service';
                     <button
                         matRipple
                         name="add-colleague"
-                        class="flex items-center p-2 space-x-2 w-full text-left"
+                        class="flex items-center p-1 space-x-2 w-full text-left min-h-12"
                         *ngFor="let user of search_results | async"
                         (click)="addUser(user)"
                     >

@@ -1,6 +1,7 @@
 import { Component, Output, EventEmitter, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
+import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { ApplicationIcon, DialogEvent } from 'libs/common/src/lib/types';
 
 export interface ConfirmModalData {
@@ -14,6 +15,8 @@ export interface ConfirmModalData {
     cancel_text?: string;
     /** Icon to display on the modal */
     icon: ApplicationIcon;
+    /** Delay before closing the modal */
+    close_delay?: number;
 }
 
 export const CONFIRM_METADATA = {
@@ -70,7 +73,7 @@ export const CONFIRM_METADATA = {
     `,
     styles: [``],
 })
-export class ConfirmModalComponent {
+export class ConfirmModalComponent extends AsyncHandler {
     /** Loading state */
     public loading: string;
     /** Emitter for user action on the modal */
@@ -96,7 +99,19 @@ export class ConfirmModalComponent {
     constructor(
         private _dialog_ref: MatDialogRef<ConfirmModalComponent>,
         @Inject(MAT_DIALOG_DATA) private _data: ConfirmModalData
-    ) {}
+    ) {
+        super();
+    }
+
+    public ngOnInit() {
+        if (this._data.close_delay) {
+            this.timeout(
+                'close',
+                () => this._dialog_ref.close(),
+                this._data.close_delay
+            );
+        }
+    }
 
     /** User confirmation of the content of the modal */
     public onConfirm() {

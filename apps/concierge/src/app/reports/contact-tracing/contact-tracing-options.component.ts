@@ -1,52 +1,52 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { ContactTracingStateService } from './contact-tracing-state.service';
 
 @Component({
     selector: 'contact-tracing-options',
     template: `
-        <div class="flex items-center space-x-2 w-full p-2 bg-base-100 shadow">
-            <mat-form-field appearance="outline" class="w-[18rem]">
-                <mat-date-range-input [rangePicker]="picker">
-                    <input
-                        matStartDate
-                        [ngModel]="(options | async)?.start"
-                        (ngModelChange)="
-                            $event
-                                ? setOptions({ start: $event, user: null })
-                                : ''
-                        "
-                        placeholder="Start date"
-                    />
-                    <input
-                        matEndDate
-                        [ngModel]="(options | async)?.end"
-                        (ngModelChange)="
-                            $event
-                                ? setOptions({ end: $event, user: null })
-                                : ''
-                        "
-                        placeholder="End date"
-                    />
-                </mat-date-range-input>
-                <mat-datepicker-toggle
-                    matSuffix
-                    [for]="picker"
-                ></mat-datepicker-toggle>
-                <mat-date-range-picker #picker></mat-date-range-picker>
-            </mat-form-field>
+        <div class="flex items-center space-x-2 w-full p-4 bg-base-100 shadow">
+            <date-range-field>
+                <input
+                    #startDate
+                    [ngModel]="(options | async)?.start"
+                    (ngModelChange)="
+                        $event ? setOptions({ start: $event, user: null }) : ''
+                    "
+                />
+                <input
+                    #endDate
+                    [ngModel]="(options | async)?.end"
+                    (ngModelChange)="
+                        $event ? setOptions({ end: $event, user: null }) : ''
+                    "
+                />
+            </date-range-field>
             <a-user-search-field
-                class="w-64 h-12 mb-2 mt-1"
+                class="w-64"
                 placeholder="Search for user to trace..."
                 [ngModel]="(options | async)?.user"
                 (ngModelChange)="setOptions({ user: $event })"
             ></a-user-search-field>
+            <div class="flex-1"></div>
             <button
-                btn
+                icon
                 matRipple
+                matTooltip="Download Report"
+                class="h-12 w-12 rounded bg-secondary text-secondary-content"
                 [disabled]="!(options | async)?.user"
-                (click)="generate()"
+                (click)="download.emit()"
             >
-                Generate Report
+                <app-icon>download</app-icon>
+            </button>
+            <button
+                icon
+                matRipple
+                class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                [disabled]="!(options | async)?.user"
+                matTooltip="Print Report"
+                (click)="print()"
+            >
+                <app-icon>print</app-icon>
             </button>
         </div>
     `,
@@ -55,13 +55,28 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
             mat-form-field {
                 height: 3.25rem;
             }
+
+            button[icon][disabled] {
+                background-color: var(--n) !important;
+            }
         `,
     ],
 })
 export class ContactTracingOptionsComponent {
+    @Output() public printing = new EventEmitter<boolean>();
+    @Output() public download = new EventEmitter<void>();
+
     public readonly options = this._state.options;
     public readonly setOptions = (_) => this._state.setOptions(_);
     public readonly generate = () => this._state.generateReport();
 
     constructor(private _state: ContactTracingStateService) {}
+
+    public print() {
+        this.printing.emit(true);
+        setTimeout(() => {
+            window.print();
+            this.printing.emit(false);
+        }, 300);
+    }
 }

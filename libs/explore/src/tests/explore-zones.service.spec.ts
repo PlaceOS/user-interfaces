@@ -14,7 +14,6 @@ import { ExploreZonesService } from '../lib/explore-zones.service';
 jest.mock('@placeos/ts-client');
 
 import * as ts_client from '@placeos/ts-client';
-import { fakeAsync, tick } from '@angular/core/testing';
 import { MockProvider } from 'ng-mocks';
 
 describe('ExploreStateService', () => {
@@ -24,6 +23,7 @@ describe('ExploreStateService', () => {
         providers: [
             MockProvider(ExploreStateService, {
                 level: new BehaviorSubject({ id: 'lvl-1' } as any),
+                options: new BehaviorSubject({ is_public: false }),
                 setFeatures: jest.fn(),
                 setLabels: jest.fn(),
                 setStyles: jest.fn(),
@@ -42,7 +42,10 @@ describe('ExploreStateService', () => {
         ],
     });
 
-    beforeEach(() => (spectator = createService()));
+    beforeEach(() => {
+        (ts_client as any).showMetadata = jest.fn(() => of({}));
+        spectator = createService();
+    });
 
     it('should create service', () => {
         expect(spectator.service).toBeTruthy();

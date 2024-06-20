@@ -122,7 +122,7 @@ export class CustomTooltipComponent<T = any>
                 const default_x = 'end';
                 const default_y = 'top';
                 this._overlay_ref = this._overlay.create({
-                    hasBackdrop: !!this.backdrop,
+                    hasBackdrop: !!this.backdrop && !this.hover,
                     positionStrategy: this._overlay
                         .position()
                         .flexibleConnectedTo(this._element)

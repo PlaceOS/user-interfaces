@@ -1,6 +1,10 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
-import { InteractiveMapComponent } from '@placeos/components';
+import {
+    CustomTooltipComponent,
+    IconComponent,
+    InteractiveMapComponent,
+} from '@placeos/components';
 import {
     ExploreDesksService,
     ExploreParkingService,
@@ -21,6 +25,8 @@ import { SpacesService } from '@placeos/spaces';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FormsModule } from '@angular/forms';
+import { MatMenuModule } from '@angular/material/menu';
+import { AccessibilityControlsComponent } from '../app/accessibility-controls.component';
 
 describe('ExploreComponent', () => {
     let spectator: SpectatorRouting<ExploreComponent>;
@@ -31,12 +37,16 @@ describe('ExploreComponent', () => {
             MockComponent(ExploreZoomControlComponent),
             MockComponent(ExploreLevelSelectComponent),
             MockComponent(ExploreSearchComponent),
+            MockComponent(IconComponent),
+            MockComponent(CustomTooltipComponent),
+            MockComponent(AccessibilityControlsComponent),
         ],
         componentProviders: [
             MockProvider(ExploreSpacesService),
             MockProvider(ExploreDesksService, { setOptions: jest.fn() }),
             MockProvider(ExploreZonesService),
             MockProvider(ExploreParkingService),
+
             MockProvider(SpacePipe, { transform: jest.fn(() => ({})) } as any),
         ],
         providers: [
@@ -46,7 +56,7 @@ describe('ExploreComponent', () => {
                 level: of({}) as any,
                 setPositions: jest.fn(),
                 setFeatures: jest.fn(),
-            }),
+            } as any),
             MockProvider(SettingsService, {
                 get: jest.fn(),
                 initialised: of(true),
@@ -57,7 +67,7 @@ describe('ExploreComponent', () => {
             } as any),
             MockProvider(OrganisationService, { initialised: of(true) }),
         ],
-        imports: [MockModule(MatSlideToggleModule), FormsModule],
+        imports: [MockModule(MatSlideToggleModule), FormsModule, MatMenuModule],
     });
 
     beforeEach(() => (spectator = createComponent()));

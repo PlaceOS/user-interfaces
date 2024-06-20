@@ -1,7 +1,4 @@
 {
-    "affected": {
-        "defaultBase": "develop"
-    },
     "defaultProject": "workplace",
     "generators": {
         "@nx/angular:application": {
@@ -87,5 +84,6 @@
                 "targetName": "e2e"
             }
         }
-    ]
+    ],
+    "defaultBase": "develop"
 }

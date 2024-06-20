@@ -45,6 +45,7 @@ export interface ExploreBookingModalData {
                     <a-user-search-field
                         name="host"
                         formControlName="organiser"
+                        class="mb-4"
                     ></a-user-search-field>
                 </div>
                 <div class="flex flex-col">

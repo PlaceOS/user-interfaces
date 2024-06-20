@@ -1,9 +1,9 @@
 import { Component, Input, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { flatten, SettingsService, unique } from '@placeos/common';
-import { addDays, endOfDay, set, startOfDay } from 'date-fns';
+import { addDays, endOfDay, startOfDay } from 'date-fns';
 import { combineLatest } from 'rxjs';
-import { filter, map, take } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 
 import { EventFormService } from 'libs/events/src/lib/event-form.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
@@ -34,102 +34,89 @@ import { Region } from '@placeos/organisation';
             [formGroup]="form"
         >
             <section details>
-                <h2 class="text-lg font-medium" i18n>Details</h2>
+                <h2 class="text-lg font-medium mb-1" i18n>Details</h2>
                 <div class="flex-1 min-w-[8rem] flex flex-col">
                     <label for="location" i18n>Location</label>
-                    <ng-container *ngIf="!use_region">
-                        <mat-form-field
-                            appearance="outline"
-                            class="w-full"
-                            *ngIf="(buildings | async)?.length > 1"
+                    <mat-form-field
+                        appearance="outline"
+                        class="w-full"
+                        *ngIf="use_region && (regions | async)?.length"
+                    >
+                        <mat-select
+                            name="region"
+                            [ngModel]="region"
+                            (ngModelChange)="setRegion($event)"
+                            [ngModelOptions]="{ standalone: true }"
+                            placeholder="Any Region"
+                            i18n-placeholder
                         >
-                            <mat-select
-                                name="building"
-                                [ngModel]="building | async"
-                                (ngModelChange)="setBuilding($event)"
-                                [ngModelOptions]="{ standalone: true }"
-                                [placeholder]="
-                                    (building | async)?.display_name ||
-                                    (building | async)?.name
-                                "
+                            <mat-option
+                                *ngFor="let reg of regions | async"
+                                [value]="reg"
                             >
-                                <mat-option
-                                    *ngFor="let bld of buildings | async"
-                                    [value]="bld"
-                                >
-                                    {{ bld.display_name || bld.name }}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" class="w-full">
-                            <mat-select
-                                name="location"
-                                [ngModel]="(options | async)?.zone_ids"
-                                (ngModelChange)="
-                                    setOptions({ zone_ids: $event })
-                                "
-                                [ngModelOptions]="{ standalone: true }"
-                                placeholder="Any Level"
-                                i18n-placeholder
-                                [multiple]="true"
-                            >
-                                <mat-option
-                                    *ngFor="let lvl of levels | async"
-                                    [value]="lvl.id"
-                                >
-                                    {{ lvl.display_name || lvl.name }}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                    </ng-container>
-                    <ng-container *ngIf="use_region">
-                        <mat-form-field
-                            appearance="outline"
-                            class="w-full"
-                            *ngIf="(regions | async)?.length"
+                                {{ reg.display_name || reg.name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field
+                        appearance="outline"
+                        class="w-full"
+                        *ngIf="!use_region && (buildings | async)?.length > 1"
+                    >
+                        <mat-select
+                            name="building"
+                            [ngModel]="building | async"
+                            (ngModelChange)="setBuilding($event)"
+                            [ngModelOptions]="{ standalone: true }"
+                            [placeholder]="
+                                (building | async)?.display_name ||
+                                (building | async)?.name
+                            "
                         >
-                            <mat-select
-                                name="region"
-                                [ngModel]="region"
-                                (ngModelChange)="setRegion($event)"
-                                [ngModelOptions]="{ standalone: true }"
-                                placeholder="Any Region"
-                                i18n-placeholder
+                            <mat-option
+                                *ngFor="let bld of buildings | async"
+                                [value]="bld"
                             >
-                                <mat-option
-                                    *ngFor="let reg of regions | async"
-                                    [value]="reg"
-                                >
-                                    {{ reg.display_name || reg.name }}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" class="w-full">
-                            <mat-select
-                                name="location"
-                                [ngModel]="(options | async)?.zone_ids"
-                                (ngModelChange)="
-                                    setOptions({ zone_ids: $event })
-                                "
-                                [ngModelOptions]="{ standalone: true }"
-                                placeholder="Any Level"
-                                i18n-placeholder
-                                [multiple]="true"
+                                {{ bld.display_name || bld.name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field
+                        appearance="outline"
+                        class="w-full"
+                        *ngIf="!hide_levels"
+                    >
+                        <mat-select
+                            name="location"
+                            [ngModel]="(options | async)?.zone_ids"
+                            (ngModelChange)="setOptions({ zone_ids: $event })"
+                            [ngModelOptions]="{ standalone: true }"
+                            placeholder="Any Level"
+                            i18n-placeholder
+                            [multiple]="true"
+                        >
+                            <mat-option
+                                *ngFor="let lvl of levels | async"
+                                [value]="lvl.id"
                             >
-                                <mat-optgroup
-                                    *ngFor="let bld of region_levels | async"
-                                    [label]="bld.name"
-                                >
-                                    <mat-option
-                                        [value]="level.id"
-                                        *ngFor="let level of bld.levels"
+                                <div class="flex flex-col-reverse">
+                                    <div
+                                        class="opacity-30 text-xs"
+                                        *ngIf="use_region"
                                     >
-                                        {{ level.display_name || level.name }}
-                                    </mat-option>
-                                </mat-optgroup>
-                            </mat-select>
-                        </mat-form-field>
-                    </ng-container>
+                                        {{
+                                            (lvl.parent_id | building)
+                                                ?.display_name
+                                        }}
+                                        <span class="opacity-0"> - </span>
+                                    </div>
+                                    <div>
+                                        {{ lvl.display_name || lvl.name }}
+                                    </div>
+                                </div>
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
                 </div>
                 <div class="flex items-center flex-wrap sm:space-x-2">
                     <div class="flex-1 min-w-[8rem]">
@@ -288,28 +275,34 @@ import { Region } from '@placeos/organisation';
 })
 export class SpaceFiltersComponent {
     @Input() public multiday: boolean;
+    @Input() public hide_levels: boolean;
     public can_close = false;
     public readonly options = this._event_form.options;
 
     public readonly building = this._org.active_building;
     public readonly buildings = this._org.active_buildings;
-    public readonly levels = this._org.active_levels;
-    public readonly regions = this._org.region_list;
-    public readonly region_levels = this._org.active_region.pipe(
-        map((_) => {
-            const region_buildings = this._org.buildings.filter(
-                (b) => !_ || b.parent_id === _.id
+
+    public readonly levels = combineLatest([
+        this._org.active_region,
+        this._org.active_building,
+    ]).pipe(
+        map(([region, bld]) => {
+            const level_list = this.use_region
+                ? this._org.levelsForRegion(region)
+                : this._org.levelsForBuilding(bld);
+            const viewable_levels = level_list.filter(
+                (lvl) => !lvl.tags.includes('parking')
             );
-            const region_levels = region_buildings.map((b) => ({
-                id: b.id,
-                name: b.display_name || b.name,
-                levels: this._org.levels.filter(
-                    (l) => l.parent_id === b.id && !l.tags.includes('parking')
-                ),
-            }));
-            return region_levels;
+            return viewable_levels.sort(
+                (a, b) =>
+                    a.parent_id.localeCompare(b.parent_id) ||
+                    (a.display_name || '').localeCompare(b.display_name || '')
+            );
         })
     );
+
+    public readonly regions = this._org.region_list;
+
     public readonly features = combineLatest([
         this._spaces.features,
         this._event_form.available_spaces,

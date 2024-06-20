@@ -10,7 +10,7 @@ const routes: Routes = [
     },
     { path: '', component: CateringComponent },
     { path: ':view', component: CateringComponent },
-    { path: '**', redirectTo: 'unauthorised' },
+    { path: '**', redirectTo: '' },
 ];
 
 @NgModule({

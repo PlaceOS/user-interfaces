@@ -93,6 +93,7 @@ const app = {
         'booking-report',
         'contact-tracing-report',
         'signage',
+        'events',
     ],
     general,
     guests: { vaccine_check: true },

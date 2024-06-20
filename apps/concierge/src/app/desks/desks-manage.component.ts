@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
@@ -17,129 +17,120 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
 import { combineLatest } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { DesksStateService } from './desks-state.service';
+import { Clipboard } from '@angular/cdk/clipboard';
 
 const QR_CODES = {};
 
 @Component({
     selector: 'desks-manage',
     template: `
-        <div class="w-full h-4"></div>
         <div
-            class="w-full relative pl-8 pb-4"
-            [style.margin-bottom]="changed > 0 ? '4rem' : ''"
+            class="overflow-auto h-full w-full pb-4"
             (dragenter)="handleDrag('enter', $event)"
             (window:dragend)="handleDrag('end', $event)"
         >
-            <custom-table
-                class="min-w-[76rem] block"
-                [dataSource]="desks"
+            <simple-table
+                class="min-w-[60rem] w-full block text-sm"
                 [filter]="(filters | async)?.search"
+                [data]="desks"
                 [columns]="[
-                    'map_id',
-                    'bookable',
-                    'name',
-                    'groups',
-                    'features',
-                    'actions'
+                    {
+                        key: 'map_id',
+                        name: 'Desk',
+                        content: name_template,
+                        size: '12rem'
+                    },
+                    {
+                        key: 'groups',
+                        name: 'Groups',
+                        content: item_list_template
+                    },
+                    {
+                        key: 'features',
+                        name: 'Features',
+                        content: item_list_template
+                    },
+                    {
+                        key: 'bookable',
+                        name: 'Bookable',
+                        content: bool_template,
+                        size: '5.5rem'
+                    },
+                    {
+                        key: 'actions',
+                        name: ' ',
+                        content: action_template,
+                        size: '8.5rem',
+                        sortable: false
+                    }
                 ]"
-                [display_column]="[
-                    'ID',
-                    'Bookable',
-                    'Name',
-                    'Groups',
-                    'Features',
-                    ' '
-                ]"
-                [column_size]="['12r', '6r', '12r', 'flex', '16r', '10r']"
-                [template]="{
-                    map_id: text_edit_template,
-                    name: text_edit_template,
-                    bookable: bookable_edit_template,
-                    groups: list_edit_template,
-                    features: list_edit_template,
-                    actions: action_template
-                }"
-                [empty]="
+                [sortable]="true"
+                [empty_message]="
                     (filters | async)?.search
                         ? 'No matching desks'
                         : 'No desks for selected level'
                 "
-                [reset_page]="page_reset"
-                [pagination]="true"
-                [page_size]="20"
-            ></custom-table>
-            <ng-template
-                #list_edit_template
-                let-data="data"
-                let-row="row"
-                let-key="key"
-            >
-                <item-list-field
-                    class="w-full"
-                    hide-outline
-                    [placeholder]="
-                        key === 'groups' ? 'User Groups' : 'Features'
-                    "
-                    [name]="key"
-                    [ngModel]="
-                        (changes[row.id] ? changes[row.id][key] : null) || data
-                    "
-                    (ngModelChange)="setRowValue(row.id, key, $event)"
+            ></simple-table>
+            <ng-template #name_template let-row="row">
+                <button
+                    class="flex flex-col px-4 py-2 text-left leading-tight"
+                    (click)="copyToClipboard(row.map_id || row.id)"
                 >
-                </item-list-field>
+                    <div>{{ row.name || row.map_id || row.id }}</div>
+                    <div
+                        *ngIf="row.name"
+                        class="text-[0.625rem] opacity-30 font-mono"
+                    >
+                        {{ row.map_id || row.id }}
+                    </div>
+                </button>
             </ng-template>
-            <ng-template
-                #text_edit_template
-                let-data="data"
-                let-row="row"
-                let-key="key"
-            >
-                <div class="w-full h-12" hide-outline>
-                    <mat-form-field class="h-12 w-full" appearance="outline">
-                        <input
-                            matInput
-                            [placeholder]="key"
-                            [name]="key"
-                            [ngModel]="
-                                (changes[row.id]
-                                    ? changes[row.id][key]
-                                    : null) || data
-                            "
-                            (ngModelChange)="setRowValue(row.id, key, $event)"
-                        />
-                    </mat-form-field>
+            <ng-template #item_list_template let-data="data">
+                <div class="flex flex-wrap p-2">
+                    <span
+                        class="m-1 py-1 px-2 rounded-2xl text-xs font-mono bg-info text-info-content"
+                        *ngFor="let item of data"
+                    >
+                        {{ item }}
+                    </span>
                 </div>
             </ng-template>
-            <ng-template #bookable_edit_template let-data="data" let-row="row">
-                <div class="flex items-center justify-center pl-4">
-                    <mat-checkbox
-                        [ngModel]="changes[row.id]?.bookable ?? data"
-                        (ngModelChange)="
-                            setRowValue(row.id, 'bookable', $event)
-                        "
-                    ></mat-checkbox>
+            <ng-template #bool_template let-data="data">
+                <div
+                    [class.bg-error]="!data"
+                    [class.bg-success]="data"
+                    class="rounded h-8 w-8 flex items-center justify-center text-2xl text-white mx-auto"
+                >
+                    <app-icon>{{ data ? 'done' : 'close' }}</app-icon>
                 </div>
             </ng-template>
             <ng-template #action_template let-row="row">
-                <div class="flex items-center justify-end space-x-2">
-                    <div
-                        class="p-2 text-2xl text-warning"
-                        [class.opacity-0]="!changes[row.id]"
-                        matTooltip="Desk has unsaved changes"
-                    >
-                        <app-icon>warning</app-icon>
-                    </div>
-                    <button icon (click)="removeDesk(row)">
-                        <app-icon>delete</app-icon>
-                    </button>
+                <div class="flex items-center justify-end space-x-2 p-2">
                     <button
                         icon
                         matRipple
                         customTooltip
                         [content]="qr_menu"
+                        matTooltip="Print QR Code"
                         (click)="loadQrCode(row)"
                     >
                         <app-icon>qr_code</app-icon>
+                    </button>
+                    <button
+                        icon
+                        matRipple
+                        matTooltip="Edit Desk"
+                        (click)="editDesk(row)"
+                    >
+                        <app-icon>edit</app-icon>
+                    </button>
+                    <button
+                        icon
+                        matRipple
+                        matTooltip="Remove Desk"
+                        (click)="removeDesk(row)"
+                    >
+                        <app-icon class="text-error">delete</app-icon>
                     </button>
                     <ng-template #qr_menu>
                         <div class="bg-base-100 py-2 shadow rounded">
@@ -195,79 +186,34 @@ const QR_CODES = {};
                 />
             </div>
         </div>
-        <div
-            class="fixed bottom-0 left-64 right-0 p-2 bg-base-100 shadow border-t border-base-200 flex items-center justify-center space-x-4"
-            *ngIf="changed > 0"
-        >
-            <p class="flex-1 text-center pl-8">
-                {{ changed }} Desk(s) with unsaved changes
-            </p>
-            <div class="flex items-center justify-center space-x-2">
-                <button clear btn matRipple class="inverse" (click)="clear()">
-                    Clear Changes
-                </button>
-                <button save btn matRipple (click)="save()">
-                    Save Changes
-                </button>
-            </div>
-        </div>
     `,
     styles: [``],
 })
 export class DesksManageComponent extends AsyncHandler {
-    public changes: Record<string, Partial<Desk>> = {};
     public loading: string;
     public dragging = false;
-    public page_reset = 0;
     public readonly filters = this._state.filters;
-    public readonly desks = combineLatest([
-        this._state.new_desks,
-        this._state.desks,
-    ]).pipe(map(([d, n]) => d.concat(n)));
+    public readonly desks = this._state.desks;
 
-    public get changed() {
-        return Object.keys(this.changes).length || 0;
-    }
+    public readonly editDesk = (desk?: Desk) => this._state.editDesk(desk);
 
     constructor(
         private _state: DesksStateService,
         private _org: OrganisationService,
         private _dialog: MatDialog,
         private _settings: SettingsService,
-        private _element: ElementRef
+        private _element: ElementRef,
+        private _clipboard: Clipboard
     ) {
         super();
     }
 
-    public ngOnInit() {
-        this.subscription(
-            'new_desks',
-            this._state.new_desks.subscribe((desks) => {
-                this.page_reset = Date.now();
-                const el = this._element?.nativeElement?.parentElement;
-                if (el) el.scrollTop = 0;
-                for (const desk of desks) {
-                    this.changes[desk.id] = {};
-                }
-            })
-        );
-    }
-
-    public setRowValue<K extends keyof Desk>(
-        id: string,
-        key: K,
-        value: Desk[K]
-    ): void {
-        if (!this.changes[id]) this.changes[id] = {};
-        this.changes[id][key] = value;
-    }
+    public readonly copyToClipboard = (id: string) => {
+        const success = this._clipboard.copy(id);
+        if (success) notifySuccess('Desk ID copied to clipboard.');
+    };
 
     public async removeDesk(desk: Desk) {
-        const new_desks = await this._state.new_desks.pipe(take(1)).toPromise();
-        if (new_desks.find((_) => _.id === desk.id)) {
-            delete this.changes[desk.id];
-            return this._state.removeNewDesk(desk);
-        }
         const resp = await openConfirmModal(
             {
                 title: 'Remove desk',
@@ -294,47 +240,9 @@ export class DesksManageComponent extends AsyncHandler {
                 notifyError(`Error saving desk data. Error: ${e.message || e}`);
                 throw e;
             });
-        delete this.changes[desk.id];
         notifySuccess('Successfully updated desks');
         this._state.setFilters({});
         this.loading = '';
-    }
-
-    public async save() {
-        this.loading = 'Saving changes to desks...';
-        const desks = await this.desks.pipe(take(1)).toPromise();
-        const updated_desks = unique(
-            desks.map((_) =>
-                new Desk({ ..._, ...(this.changes[_.id] || {}) }).toJSON()
-            ),
-            'id'
-        );
-        const filters = await this.filters.pipe(take(1)).toPromise();
-        const level = this._org.levelWithID(filters.zones);
-        await updateMetadata(level.id, {
-            name: 'desks',
-            description: 'desks',
-            details: updated_desks,
-        })
-            .toPromise()
-            .catch((e) => {
-                this.loading = '';
-                const msg =
-                    e?.status === 403
-                        ? 'You do not have the required permissions to save desk changes.'
-                        : e.message || e;
-                notifyError(`Error saving desk data. Error: ${msg}`);
-                throw e;
-            });
-        notifySuccess('Successfully updated desks');
-        this._state.clearNewDesks();
-        this.loading = '';
-        this.changes = {};
-    }
-
-    public clear() {
-        this._state.clearNewDesks();
-        this.changes = {};
     }
 
     public get kiosk_url() {

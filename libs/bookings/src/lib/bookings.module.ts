@@ -13,6 +13,9 @@ import { MatRadioModule } from '@angular/material/radio';
 
 import { ComponentsModule } from 'libs/components/src/lib/components.module';
 import { FormFieldsModule } from 'libs/form-fields/src/lib/form-fields.module';
+import { SharedEventsModule } from 'libs/events/src/lib/events.module';
+import { SharedSpacesModule } from 'libs/spaces/src/lib/spaces.module';
+import { SharedUsersModule } from 'libs/users/src/lib/users.module';
 
 import { BookingCardComponent } from './booking-card.component';
 import { BookingDetailsModalComponent } from './booking-details-modal.component';
@@ -47,6 +50,8 @@ import { LockerFiltersDisplayComponent } from './locker-select-modal/locker-filt
 import { LockerBankListComponent } from './locker-select-modal/locker-bank-list.component';
 import { LockerMapComponent } from './locker-select-modal/locker-map.component';
 import { DeskSettingsModalComponent } from './desk-settings-modal.component';
+import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
+import { GroupEventCardComponent } from './group-event-card.component';
 
 const COMPONENTS = [
     DeskQuestionsModalComponent,
@@ -81,6 +86,9 @@ const COMPONENTS = [
     LockerFiltersDisplayComponent,
     LockerBankListComponent,
     LockerMapComponent,
+
+    GroupEventDetailsModalComponent,
+    GroupEventCardComponent,
 ];
 @NgModule({
     declarations: [...COMPONENTS],
@@ -101,6 +109,9 @@ const COMPONENTS = [
         ComponentsModule,
         MatRippleModule,
         MatTooltipModule,
+        SharedSpacesModule,
+        SharedEventsModule,
+        SharedUsersModule,
     ],
     providers: [ReactiveFormsModule],
     exports: [...COMPONENTS],

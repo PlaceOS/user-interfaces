@@ -32,6 +32,7 @@ export interface DeskConfirmModalData {
                     <label i18n>Host</label>
                     <a-user-search-field
                         [(ngModel)]="host"
+                        class="mb-4"
                     ></a-user-search-field>
                 </div>
                 <div date class="mb-4">

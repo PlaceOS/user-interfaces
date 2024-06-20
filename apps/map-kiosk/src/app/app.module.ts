@@ -16,7 +16,7 @@ import { SharedExploreModule } from '@placeos/explore';
 import { FormFieldsModule } from '@placeos/form-fields';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
-import * as Sentry from '@sentry/angular-ivy';
+import * as Sentry from '@sentry/angular';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { PaymentsModule } from '@placeos/payments';
 import { AssetsModule } from '@placeos/assets';

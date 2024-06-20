@@ -9,9 +9,11 @@ import { BuildingManagementService } from './building-management.service';
         <div class="flex flex-1 h-px">
             <app-sidebar></app-sidebar>
             <main class="flex flex-col flex-1 w-1/2 h-full">
-                <header class="flex items-center justify-between mb-2 p-8">
+                <header
+                    class="flex items-center justify-between mb-2 px-8 pt-4 pb-8"
+                >
                     <h2 class="text-2xl font-medium">Building Management</h2>
-                    <button btn matRipple (click)="newBuilding()">
+                    <button btn matRipple (click)="newBuilding()" class="w-40">
                         Add Building
                     </button>
                 </header>

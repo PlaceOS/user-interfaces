@@ -7,7 +7,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatNativeDateModule } from '@angular/material/core';
 
-import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
@@ -21,7 +21,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { environment } from '../environments/environment';
 import { SharedOverlaysModule } from './overlays/overlays.module';
 
-import * as Sentry from '@sentry/angular-ivy';
+import * as Sentry from '@sentry/angular';
 
 import { SharedComponentModule } from './components/shared.module';
 import { SharedBookingsModule } from '@placeos/bookings';
@@ -31,16 +31,13 @@ export function HttpLoaderFactory(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/locale/', '.json');
 }
 
-@NgModule({
-    declarations: [AppComponent, UnauthorisedComponent, MisconfiguredComponent],
-    imports: [
-        BrowserModule,
+@NgModule({ declarations: [AppComponent, UnauthorisedComponent, MisconfiguredComponent],
+    bootstrap: [AppComponent], imports: [BrowserModule,
         BrowserAnimationsModule,
         AppRoutingModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),
-        HttpClientModule,
         FormsModule,
         SharedOverlaysModule,
         SharedComponentModule,
@@ -54,9 +51,7 @@ export function HttpLoaderFactory(http: HttpClient) {
                 useFactory: HttpLoaderFactory,
                 deps: [HttpClient],
             },
-        }),
-    ],
-    providers: [
+        })], providers: [
         {
             provide: ErrorHandler,
             useValue: Sentry.createErrorHandler({
@@ -69,11 +64,10 @@ export function HttpLoaderFactory(http: HttpClient) {
         },
         {
             provide: APP_INITIALIZER,
-            useFactory: () => () => {},
+            useFactory: () => () => { },
             deps: [Sentry.TraceService],
             multi: true,
         },
-    ],
-    bootstrap: [AppComponent],
-})
+        provideHttpClient(withInterceptorsFromDi()),
+    ] })
 export class AppModule {}

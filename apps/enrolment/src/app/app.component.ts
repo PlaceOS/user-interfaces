@@ -26,7 +26,7 @@ import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 
 import { SpacesService } from 'libs/spaces/src/lib/spaces.service';
 
-import * as Sentry from '@sentry/angular-ivy';
+import * as Sentry from '@sentry/angular';
 import * as MOCKS from '@placeos/mocks';
 import { PlaceAuthority, token } from '@placeos/ts-client';
 

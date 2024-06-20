@@ -20,64 +20,71 @@ export interface PointAsset {
 @Component({
     selector: 'points-assets',
     template: `
-        <custom-table
-            class="w-full h-full"
-            [dataSource]="asset_list"
+        <simple-table
+            class="block min-w-[32rem] w-full"
+            [data]="asset_list"
             [columns]="[
-                'name',
-                'type',
-                'unit_price',
-                'accept_points',
-                'discount_cap',
-                'actions'
+                { key: 'name', name: 'Name' },
+                { key: 'type', name: 'Type', content: type_template },
+                {
+                    key: 'unit_price',
+                    name: 'Unit Price',
+                    content: price_template
+                },
+                {
+                    key: 'accept_points',
+                    name: 'Points',
+                    content: bool_template,
+                    size: '5.5rem'
+                },
+                {
+                    key: 'discount_cap',
+                    name: 'Discount %',
+                    content: discount_template,
+                    size: '9rem'
+                },
+                {
+                    key: 'actions',
+                    name: ' ',
+                    content: action_template,
+                    size: '6.5rem'
+                }
             ]"
-            [display_column]="[
-                'Name',
-                'Type',
-                'Unit Price',
-                'Accepts Points',
-                'Discount %',
-                ' '
-            ]"
-            [column_size]="['flex']"
-            [template]="{
-                type: type_template,
-                unit_price: price_template,
-                accept_points: accept_template,
-                discount_cap: discount_template,
-                actions: action_template
-            }"
-            empty="No priced assets"
-        ></custom-table>
+            [sortable]="true"
+            empty_message="No priced assets"
+        >
+        </simple-table>
         <ng-template #type_template let-data="data">
-            <span class="p-2 bg-base-200 rounded capitalize">{{ data }}</span>
+            <div class="p-2">
+                <span class="bg-base-200 rounded capitalize px-2 py-1 text-sm">
+                    {{ data }}
+                </span>
+            </div>
         </ng-template>
         <ng-template #price_template let-data="data">
-            <span class="text-xs">
-                {{ data / 100 | currency: code }} per hour
+            <span class="text-xs p-4 font-mono">
+                {{ data / 100 | currency: code }} p/h
             </span>
         </ng-template>
-        <ng-template #accept_template let-data="data">
-            <div class="flex justify-center h-px">
-                <app-icon
-                    class="text-2xl"
-                    [class.text-success]="data"
-                    [class.text-error]="!data"
-                >
-                    {{ data ? 'check_circle' : 'cancel' }}
-                </app-icon>
+        <ng-template #bool_template let-data="data">
+            <div
+                [class.bg-error]="!data"
+                [class.bg-success]="data"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl text-white mx-auto"
+            >
+                <app-icon>{{ data ? 'done' : 'close' }}</app-icon>
             </div>
         </ng-template>
         <ng-template #discount_template let-data="data">
-            <div class="text-right px-4">{{ data }}%</div>
+            <div class="text-right p-4">{{ data }}%</div>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="h-6 flex items-center justify-end">
-                <button icon (click)="edit(row)">
+            <div class="flex items-center justify-end p-2 mx-auto">
+                <button icon matRipple (click)="edit(row)">
                     <app-icon>edit</app-icon>
                 </button>
-                <button icon (click)="remove(row)">
-                    <app-icon>delete</app-icon>
+                <button icon matRipple (click)="remove(row)">
+                    <app-icon class="text-error">delete</app-icon>
                 </button>
             </div>
         </ng-template>

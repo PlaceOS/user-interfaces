@@ -5,6 +5,7 @@ import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
     flatten,
+    log,
     MapsPeopleService,
     notifyError,
     SettingsService,
@@ -37,15 +38,15 @@ import { first, map, take, tap } from 'rxjs/operators';
     template: `
         <div
             topbar
-            class="relative flex items-center justify-between p-4 border-b border-base-300 bg-base-100 text-base-content"
+            class="relative flex items-center justify-between px-4 py-2 border-b border-base-300 bg-base-100 text-base-content"
         >
-            <h2 class="text-2xl">Place<span class="text-primary">OS</span></h2>
+            <a matRipple routerLink="/" class="text-2xl rounded p-2">
+                Place<span class="text-primary">OS</span>
+            </a>
             <div
                 class="absolute top-1/2 -translate-y-1/2 right-2 flex items-center"
             >
-                <explore-search
-                    *ngIf="can_search && !(use_mapsindoors$ | async)"
-                ></explore-search>
+                <explore-search *ngIf="can_search"></explore-search>
                 <button
                     icon
                     matRipple
@@ -229,6 +230,7 @@ import { first, map, take, tap } from 'rxjs/operators';
                     [actions]="actions | async"
                     [labels]="labels | async"
                     [options]="{ controls: true }"
+                    [focus]="locate"
                 ></interactive-map>
             </div>
         </div>
@@ -388,7 +390,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         this._desks.setOptions({ custom: true });
         this.reset_delay =
             this._settings.get('app.inactivity_timeout_secs') || 180;
-        this.resetKiosk();
+        this.resetKiosk(false);
         VirtualKeyboardComponent.enabled =
             localStorage.getItem('OSK.enabled') === 'true';
         this.subscription(
@@ -403,12 +405,22 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
             'route.query',
             this._route.queryParamMap.subscribe(async (params) => {
                 if (params.has('level')) {
+                    log('Explore', 'Level changed to:', params.get('level'));
                     this._state.setLevel(params.get('level'));
+                    const level = this._org.levelWithID([params.get('level')]);
+                    if (!level) return;
+                    const bld = this._org.buildings.find(
+                        (_) => level.parent_id === _.id
+                    );
+                    if (!bld) return;
+                    this._org.building = bld;
                 }
                 this._state.setFeatures('_located', []);
                 if (params.has('space')) {
+                    log('Explore', 'Focusing on space:', params.get('space'));
                     this.locateSpace(params.get('space'));
                 } else if (params.has('user')) {
+                    log('Explore', 'Focusing on user:', params.get('user'));
                     let user = this._settings.value('last_search');
                     if (!user || params.get('user') !== user.email) {
                         user = null;
@@ -428,6 +440,11 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
                         });
                     });
                 } else if (params.has('feature')) {
+                    log(
+                        'Explore',
+                        'Focusing on feature:',
+                        params.get('feature')
+                    );
                     this.timeout('update_location', () => {
                         this._state.setFeatures('_located', [
                             {
@@ -438,7 +455,21 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
                         ]);
                     });
                 } else if (params.has('locate')) {
+                    log(
+                        'Explore',
+                        'Focusing on location:',
+                        params.get('locate')
+                    );
                     this.locate = params.get('locate');
+                    this.timeout('update_location', () => {
+                        this._state.setFeatures('_located', [
+                            {
+                                location: params.get('locate'),
+                                content: MapPinComponent,
+                                data: {},
+                            },
+                        ]);
+                    });
                 } else {
                     this.timeout('update_location', () => {
                         this._state.setFeatures('_located', []);
@@ -519,12 +550,13 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         });
     }
 
-    public resetKiosk() {
+    public resetKiosk(navigate = true) {
         if ((document.activeElement as any)?.blur)
             (document.activeElement as any)?.blur();
         const level = localStorage.getItem('KIOSK.level');
         this._state.setPositions(1, { x: 0.5, y: 0.5 });
         if (level) this._state.setLevel(level);
         this._dialog.closeAll();
+        if (navigate) this._router.navigate(['/']);
     }
 }

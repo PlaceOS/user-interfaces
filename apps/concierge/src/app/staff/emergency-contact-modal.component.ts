@@ -25,6 +25,7 @@ import { CustomTooltipComponent } from '@placeos/components';
                     ngModel
                     (ngModelChange)="setUser($event)"
                     [ngModelOptions]="{ standalone: true }"
+                    class="mb-4"
                 ></a-user-search-field>
                 <div class="flex flex-col">
                     <label for="name">Name:</label>
@@ -190,13 +191,15 @@ export class EmergencyContactModalComponent {
             name: 'emergency_contacts',
             description: 'Emergency Contacts',
             details: {
-                roles: [...data.roles, this.role_name].filter((_) => !!_),
+                roles: [...(data.roles || []), this.role_name].filter(
+                    (_) => !!_
+                ),
                 contacts: data.contacts,
             },
         }).toPromise();
         this._changes.next(0);
         this.form.patchValue({
-            roles: [...this.form.value.roles, this.role_name],
+            roles: [...(this.form.value.roles || []), this.role_name],
         });
         this.role_name = '';
         this.loading = false;
@@ -223,7 +226,7 @@ export class EmergencyContactModalComponent {
         await updateMetadata(this._org.building.id, {
             name: 'emergency_contacts',
             description: 'Emergency Contacts',
-            details: { roles: data.roles, contacts: new_contacts },
+            details: { roles: data.roles || [], contacts: new_contacts },
         }).toPromise();
         this._dialog_ref.disableClose = true;
         notifySuccess('Successfully updated emergency contacts.');

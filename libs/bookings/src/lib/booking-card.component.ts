@@ -1,4 +1,10 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    Output,
+    SimpleChanges,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { SettingsService, currentUser } from '@placeos/common';
@@ -8,6 +14,7 @@ import { Booking } from './booking.class';
 import { BookingDetailsModalComponent } from './booking-details-modal.component';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
 
 @Component({
     selector: 'booking-card',
@@ -35,12 +42,12 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
                 <div
                     class="flex flex-wrap flex-col sm:flex-row sm:divide-x divide-base-200-500 py-2 space-y-2 sm:space-y-0"
                 >
-                    <div class="flex items-center px-4">
+                    <div class="flex items-center px-4 max-w-[33%]">
                         <app-icon *ngIf="type !== 'desk'; else desk_icon">{{
                             type
                         }}</app-icon>
-                        <div class="mx-2 truncate">
-                            {{ booking?.description || booking?.asset_id }}
+                        <div class="mx-2 truncate flex-1 w-1/2">
+                            {{ raw_description || booking?.asset_id }}
                         </div>
                     </div>
                     <div class="flex items-center px-4" *ngIf="location">
@@ -55,9 +62,18 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
                 </app-icon>
                 <div
                     class="absolute top-2 right-2 bg-warning/50 rounded-xl px-2 py-1 text-xs"
-                    *ngIf="!for_current_user"
+                    *ngIf="
+                        !for_current_user &&
+                        booking?.booking_type !== 'group-event'
+                    "
                 >
                     Associate
+                </div>
+                <div
+                    class="absolute top-2 right-2 bg-warning/50 rounded-xl px-2 py-1 text-xs"
+                    *ngIf="booking?.booking_type === 'group-event'"
+                >
+                    Event
                 </div>
             </div>
         </a>
@@ -81,6 +97,8 @@ export class BookingCardComponent extends AsyncHandler {
     @Output() public edit = new EventEmitter();
     @Output() public remove = new EventEmitter();
     @Output() public end = new EventEmitter();
+
+    public raw_description = '';
 
     public get for_current_user() {
         return (
@@ -123,6 +141,14 @@ export class BookingCardComponent extends AsyncHandler {
         );
     }
 
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes.booking) {
+            this.raw_description = this.removeHtmlTags(
+                this.booking?.description
+            );
+        }
+    }
+
     public get type() {
         if (this.booking?.type === 'desk') return 'desk';
         if (this.booking?.type === 'parking') return 'drive_eta';
@@ -157,23 +183,36 @@ export class BookingCardComponent extends AsyncHandler {
         )} (${dur})`;
     }
 
+    public removeHtmlTags(html: string) {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        return doc.body.textContent || '';
+    }
+
     public viewDetails() {
         if (!this.booking) return;
         this.timeout('open', () => {
-            const ref = this._dialog.open(BookingDetailsModalComponent, {
-                data: this.booking,
-            });
+            const view_component: any =
+                this.booking.booking_type === 'group-event'
+                    ? GroupEventDetailsModalComponent
+                    : BookingDetailsModalComponent;
+            const data =
+                this.booking.booking_type === 'group-event'
+                    ? { booking: this.booking, concierge: false }
+                    : this.booking;
+            const ref: any = this._dialog.open(view_component, { data });
             this.subscription(
                 'edit',
-                ref.componentInstance.edit.subscribe(() => this.edit.emit())
+                ref.componentInstance.edit?.subscribe(() => this.edit.emit())
             );
             this.subscription(
                 'remove',
-                ref.componentInstance.remove.subscribe(() => this.remove.emit())
+                ref.componentInstance.remove?.subscribe(() =>
+                    this.remove.emit()
+                )
             );
             this.subscription(
                 'end',
-                ref.componentInstance.end.subscribe(() => this.end.emit())
+                ref.componentInstance.end?.subscribe(() => this.end.emit())
             );
         });
     }

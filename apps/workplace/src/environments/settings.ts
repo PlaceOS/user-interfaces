@@ -166,6 +166,7 @@ const app: any = {
         'wfh',
         'lockers',
         'visitor-invite',
+        'group-events',
     ],
     currency: '',
     default_route: '/landing',

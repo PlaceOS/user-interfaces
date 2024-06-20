@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { listChildMetadata, showMetadata } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, combineLatest, of, Subject } from 'rxjs';
 import {
-    catchError,
     debounceTime,
     distinctUntilChanged,
     map,
@@ -12,13 +10,12 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
-import { add, endOfDay, format, getUnixTime, startOfDay } from 'date-fns';
+import { endOfDay, format, getUnixTime, startOfDay } from 'date-fns';
 
 import {
     approveBooking,
     Booking,
     checkinBooking,
-    queryBookings,
     queryPagedBookings,
     rejectBooking,
     saveBooking,
@@ -29,28 +26,11 @@ import {
     notifyInfo,
     notifySuccess,
     openConfirmModal,
+    SettingsService,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
-import { generateQRCode } from 'libs/common/src/lib/qr-code';
-import {
-    next,
-    QueryResponse,
-} from '@placeos/ts-client/dist/esm/resources/functions';
-
-function addQRCodeToBooking(booking: Booking): Booking {
-    return new Booking({
-        ...booking,
-        extension_data: {
-            ...booking.extension_data,
-            checkin_qr_code: generateQRCode(
-                `/workplace/#/book/code?asset_id=${encodeURIComponent(
-                    booking.asset_id
-                )}`
-            ),
-        },
-    });
-}
+import { QueryResponse } from '@placeos/ts-client/dist/esm/resources/functions';
 
 export interface LockerFilters {
     date?: number;
@@ -67,6 +47,24 @@ export class LockersStateService extends AsyncHandler {
     // private _new_lockers = new BehaviorSubject<Locker[]>([]);
     private _locker_bookings: Booking[] = [];
     private _loading = new BehaviorSubject<boolean>(false);
+    /** List of available parking levels for the current building */
+    public levels = this._org.level_list.pipe(
+        map((_) => {
+            if (!this._settings.get('app.use_region')) {
+                const blds = this._org.buildingsForRegion();
+                const bld_ids = blds.map((bld) => bld.id);
+                const list = _.filter((lvl) => bld_ids.includes(lvl.parent_id));
+                list.map((lvl) => ({
+                    ...lvl,
+                    display_name: `${
+                        blds.find((_) => _.id === lvl.parent_id)?.display_name
+                    } - ${lvl.display_name}`,
+                }));
+                return list;
+            }
+            return _.filter((lvl) => lvl.parent_id === this._org.building.id);
+        })
+    );
 
     // public readonly new_lockers = this._new_lockers.asObservable();
 
@@ -117,7 +115,9 @@ export class LockersStateService extends AsyncHandler {
             const zones =
                 !filters.zones ||
                 filters.zones.some((z) => this._all_zones_keys.includes(z))
-                    ? [this._org.building.id]
+                    ? this._settings.get('app.use_region')
+                        ? [this._org.region.id]
+                        : [this._org.building.id]
                     : filters.zones;
             this._next_page.next(() =>
                 queryPagedBookings({
@@ -182,7 +182,11 @@ export class LockersStateService extends AsyncHandler {
         this._call_next_page.next(`NEXT_${Date.now()}`);
     }
 
-    constructor(private _org: OrganisationService, private _dialog: MatDialog) {
+    constructor(
+        private _org: OrganisationService,
+        private _dialog: MatDialog,
+        private _settings: SettingsService
+    ) {
         super();
         this.setup_paging.subscribe();
     }

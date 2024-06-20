@@ -52,7 +52,7 @@ import { startOfMinute } from 'date-fns';
             </div>
             <div class="flex-1 h-full w-1/2 sm:px-4 overflow-auto z-0">
                 <header
-                    class="sticky top-0 z-50 bg-base-300 px-4 sm:rounded-b flex items-center justify-between overflow-hidden"
+                    class="sticky top-0 z-50 bg-ternary px-4 sm:rounded-b flex items-center justify-between overflow-hidden"
                 >
                     <div class="">
                         <div class="sm:text-xl font-medium">

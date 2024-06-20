@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -15,7 +15,7 @@ import { BootstrapComponent } from './bootstrap.component';
 import { WelcomeComponent } from './welcome.component';
 import { environment } from '../environments/environment';
 
-import * as Sentry from '@sentry/angular-ivy';
+import * as Sentry from '@sentry/angular';
 import { ComponentsModule } from '@placeos/components';
 import { SharedSpacesModule } from '@placeos/spaces';
 import { PaymentsModule } from '@placeos/payments';
@@ -29,16 +29,13 @@ export function HttpLoaderFactory(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/locale/', '.json');
 }
 
-@NgModule({
-    declarations: [AppComponent, BootstrapComponent, WelcomeComponent],
-    imports: [
-        BrowserModule,
+@NgModule({ declarations: [AppComponent, BootstrapComponent, WelcomeComponent],
+    bootstrap: [AppComponent], imports: [BrowserModule,
         BrowserAnimationsModule,
         AppRoutingModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),
-        HttpClientModule,
         FormsModule,
         ComponentsModule,
         SharedSpacesModule,
@@ -53,9 +50,7 @@ export function HttpLoaderFactory(http: HttpClient) {
                 useFactory: HttpLoaderFactory,
                 deps: [HttpClient],
             },
-        }),
-    ],
-    providers: [
+        })], providers: [
         {
             provide: ErrorHandler,
             useValue: Sentry.createErrorHandler({
@@ -68,11 +63,10 @@ export function HttpLoaderFactory(http: HttpClient) {
         },
         {
             provide: APP_INITIALIZER,
-            useFactory: () => () => {},
+            useFactory: () => () => { },
             deps: [Sentry.TraceService],
             multi: true,
         },
-    ],
-    bootstrap: [AppComponent],
-})
+        provideHttpClient(withInterceptorsFromDi()),
+    ] })
 export class AppModule {}

@@ -42,6 +42,12 @@ function validateEmail(email) {
     return re.test(email);
 }
 
+const ACCEPTED_FILE_TYPES = ['text/csv', 'text/plain'];
+const DENIED_FILE_TYPES = [
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+];
+
 @Component({
     selector: 'a-user-list-field',
     template: `
@@ -365,9 +371,16 @@ export class UserListFieldComponent
     public addUsersFromFile(event) {
         /* istanbul ignore else */
         if (event.target) {
-            const file = event.target.files[0];
+            const file: File = event.target.files[0];
             /* istanbul ignore else */
             if (file) {
+                if (
+                    !ACCEPTED_FILE_TYPES.includes(file.type) ||
+                    DENIED_FILE_TYPES.includes(file.type)
+                ) {
+                    notifyError('Only CSV files are supported');
+                    return;
+                }
                 const reader = new FileReader();
                 reader.readAsText(file, 'UTF-8');
                 reader.addEventListener('load', (evt) => {

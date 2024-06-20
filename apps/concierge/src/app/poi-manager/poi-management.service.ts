@@ -1,17 +1,16 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { OrganisationService } from '@placeos/organisation';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map, shareReplay, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
 import { POIModalComponent } from './poi-modal.component';
 import {
-    SettingsService,
+    flatten,
     notifyError,
     notifySuccess,
     openConfirmModal,
 } from '@placeos/common';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
-import { generateQRCode } from 'libs/common/src/lib/qr-code';
 
 export interface POIListOptions {
     search?: string;
@@ -40,8 +39,17 @@ export class POIManagementService {
         this._org.active_building,
         this._change,
     ]).pipe(
-        switchMap(([bld]) => showMetadata(bld.id, 'map_features', {})),
-        map((_) => _.details || {}),
+        switchMap(() =>
+            showMetadata(this._org.organisation.id, 'points-of-interest').pipe(
+                catchError((_) => of({ details: {} }))
+            )
+        ),
+        map((_) => {
+            const mapping = _.details || {};
+            const levels = this._org.levelsForBuilding(this._org.building);
+            const list = flatten(levels.map((lvl) => mapping[lvl.id] || []));
+            return list as PointOfInterest[];
+        }),
         shareReplay(1)
     );
 
@@ -49,11 +57,7 @@ export class POIManagementService {
         this._features,
         this._options,
     ]).pipe(
-        map(([features, options]) => {
-            let list = Object.values(features).reduce(
-                (acc, _) => [...acc, ..._],
-                []
-            );
+        map(([list, options]) => {
             if (options.search) {
                 list = list.filter((_) =>
                     _.name.toLowerCase().includes(options.search.toLowerCase())
@@ -96,18 +100,17 @@ export class POIManagementService {
         if (ref.reason !== 'done') return ref.close();
         ref.loading('Removing point of interest...');
         const old_metadata = await showMetadata(
-            this._org.building.id,
-            'map_features',
-            {}
+            this._org.organisation.id,
+            'points-of-interest'
         ).toPromise();
         const metadata = old_metadata.details || {};
-        if (metadata[poi.level_id]) {
-            metadata[poi.level_id] = metadata[poi.level_id].filter(
-                (_) => _.id !== poi.id
-            );
+        console.log('Metadata:', old_metadata, metadata, poi);
+        for (const lvl in metadata) {
+            if (metadata[lvl])
+                metadata[lvl] = metadata[lvl].filter((_) => _.id !== poi.id);
         }
-        await updateMetadata(this._org.building.id, {
-            name: 'map_features',
+        await updateMetadata(this._org.organisation.id, {
+            name: 'points-of-interest',
             details: metadata,
             description: '',
         })

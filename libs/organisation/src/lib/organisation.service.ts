@@ -21,7 +21,7 @@ import { Building } from './building.class';
 import { BuildingLevel } from './level.class';
 import { Organisation } from './organisation.class';
 import { Region } from './region.class';
-import { flatten, log, unique } from '@placeos/common';
+import { log, unique } from '@placeos/common';
 
 import * as yaml from 'js-yaml';
 
@@ -68,7 +68,7 @@ export class OrganisationService {
         this._active_building,
     ]).pipe(
         map(([_, bld]) => (bld ? this.levelsForBuilding(bld) : [])),
-        shareReplay()
+        shareReplay(1)
     );
     /** Organisation data for the application */
     private _organisation: Organisation;
@@ -224,6 +224,19 @@ export class OrganisationService {
      */
     public buildingsForRegion(region: Region = this.region): Building[] {
         return this.buildings.filter((bld) => bld.parent_id === region?.id);
+    }
+
+    /**
+     * Get list of levels for the given region
+     * @param region Region to list levels for
+     */
+    public levelsForRegion(region: Region = this.region): BuildingLevel[] {
+        const bld_list = this.buildingsForRegion(region);
+        return this.levels.filter(
+            (lvl) =>
+                lvl.parent_id &&
+                bld_list.find((bld) => bld.id === lvl.parent_id)
+        );
     }
 
     public addZone(zone: PlaceZone) {

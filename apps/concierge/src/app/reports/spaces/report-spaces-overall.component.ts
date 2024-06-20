@@ -11,7 +11,7 @@ import { ReportsStateService } from '../reports-state.service';
 @Component({
     selector: 'report-spaces-overall',
     template: ` <div
-            class="m-4 p-4 rounded bg-base-100 shadow flex justify-center items-center space-x-2"
+            class="m-4 p-4 rounded bg-base-100 border border-base-200 flex justify-center items-center space-x-2"
         >
             <div class="flex flex-col items-center flex-1">
                 <h3>Business Days</h3>
@@ -27,7 +27,7 @@ import { ReportsStateService } from '../reports-state.service';
             </div>
         </div>
         <div
-            class="m-4 p-4 rounded bg-base-100 shadow flex justify-center items-center space-x-2"
+            class="m-4 p-4 rounded bg-base-100 flex justify-center items-center space-x-2"
             *ngIf="has_attendance | async"
         >
             <div class="flex-1 flex flex-col items-center justify-center">

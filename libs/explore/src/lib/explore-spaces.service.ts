@@ -46,6 +46,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
     private _bookings: HashMap<CalendarEvent[]> = {};
     private _statuses: HashMap<string> = {};
     private _panning = true;
+    private _last_action = '';
 
     public readonly booking_rules: Observable<BookingRuleset[]> =
         this._org.active_building.pipe(
@@ -109,7 +110,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
     }
 
     public async bookSpace(space: Space, force: boolean = false) {
-        if (this._panning) return;
+        if (this._panning && this._last_action === 'down') return;
         const booking_rules = await this.booking_rules
             .pipe(take(1))
             .toPromise();
@@ -171,9 +172,8 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
     }
 
     public handleStatusChange(spaces: Space[], space: Space, status: string) {
-        this._statuses[space.id] = space.bookable
-            ? status || 'free'
-            : 'not-bookable';
+        if (space.bookable) this._statuses[space.id] = status || 'free';
+        else delete this._statuses[space.id];
         this.timeout(
             'update_statuses',
             () => {
@@ -189,7 +189,8 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         const style_map = {};
         const colours = this._settings.get('app.explore.colors') || {};
         for (const space of spaces) {
-            const status = this._statuses[space.id] || 'not-bookable';
+            if (!this._statuses[space.id]) continue;
+            const status = this._statuses[space.id];
             style_map[`#${space.map_id}`] = {
                 fill:
                     colours[`space-${status}`] ||
@@ -214,7 +215,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
                 data: {
                     space: new Space(space),
                     events: this._bookings[space.id],
-                    status: this._statuses[space.id],
+                    status: this._statuses[space.id] || 'not-bookable',
                 },
             } as any);
         }
@@ -237,6 +238,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
                             () => (this._panning = true),
                             300
                         );
+                        this._last_action = 'down';
                     },
                 });
             }
@@ -245,7 +247,10 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
                     id: space.map_id,
                     action: action as any,
                     priority: 5,
-                    callback: () => this.bookSpace(space),
+                    callback: () => {
+                        this.bookSpace(space);
+                        this._last_action = 'up';
+                    },
                 });
             }
         }

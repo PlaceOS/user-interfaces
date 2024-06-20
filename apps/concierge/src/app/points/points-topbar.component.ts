@@ -6,14 +6,14 @@ import { first } from 'rxjs/operators';
 @Component({
     selector: 'points-topbar',
     template: `
-        <div
-            class="flex items-center bg-base-100 h-20 px-4 border-b border-base-200 space-x-2"
-        >
-            <div class="flex-1 w-2">
-                <ng-content></ng-content>
-            </div>
+        <div class="flex items-center bg-base-100 h-20 px-8 py-4 space-x-2">
+            <h2 class="text-2xl font-medium">Points Management</h2>
+            <div class="flex-1 w-px"></div>
             <!-- <searchbar class="mr-2"></searchbar> -->
             <date-options></date-options>
+            <div class="pl-2">
+                <ng-content></ng-content>
+            </div>
         </div>
     `,
     styles: [

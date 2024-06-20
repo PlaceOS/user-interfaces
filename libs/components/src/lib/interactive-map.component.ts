@@ -4,6 +4,7 @@ import {
     InjectionToken,
     Input,
     Output,
+    SimpleChanges,
 } from '@angular/core';
 import { AsyncHandler, MapsPeopleService, log } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -47,6 +48,7 @@ export interface MapMetadata {
                 [features]="features || metadata?.features"
                 [actions]="actions || metadata?.actions"
                 [labels]="labels || metadata?.labels"
+                (mapInfo)="mapInfo.next($event)"
             >
                 <ng-content></ng-content>
             </map-renderer>
@@ -60,10 +62,7 @@ export interface MapMetadata {
                 [options]="options"
                 [reset]="reset"
                 [focus]="focus"
-                [styles]="styles || metadata?.styles"
-                [features]="features || metadata?.features"
-                [actions]="actions || metadata?.actions"
-                [labels]="labels || metadata?.labels"
+                [metadata]="metadata"
             >
                 <ng-content></ng-content>
             </maps-indoors>
@@ -77,6 +76,7 @@ export interface MapMetadata {
                 icon
                 matRipple
                 matTooltip="Zoom In"
+                matTooltipPosition="left"
                 class="rounded-none"
                 (click)="zoom = zoom * 1.1"
             >
@@ -86,6 +86,7 @@ export interface MapMetadata {
                 icon
                 matRipple
                 matTooltip="Zoom Out"
+                matTooltipPosition="left"
                 class="rounded-none"
                 (click)="zoom = zoom * (10 / 11)"
             >
@@ -95,6 +96,7 @@ export interface MapMetadata {
                 icon
                 matRipple
                 matTooltip="Reset Zoom and Position"
+                matTooltipPosition="left"
                 class="rounded-none"
                 (click)="reset = reset + 1"
             >
@@ -109,7 +111,7 @@ export class InteractiveMapComponent extends AsyncHandler {
     @Input() public zoom = 1;
     @Input() public center: any = { x: 0.5, y: 0.5 };
     @Input() public reset = 0;
-    @Input() public metadata: MapMetadata;
+    @Input() public metadata: MapMetadata = {};
     @Input() public styles: any;
     @Input() public features: any[];
     @Input() public labels: any[];
@@ -118,6 +120,7 @@ export class InteractiveMapComponent extends AsyncHandler {
     @Input() public focus: string;
     @Output() public zoomChange = new EventEmitter<number>();
     @Output() public centerChange = new EventEmitter<any>();
+    @Output() public mapInfo = new EventEmitter<any>();
 
     public readonly use_mapsindoors$ = this._mapspeople.available$;
 
@@ -133,8 +136,28 @@ export class InteractiveMapComponent extends AsyncHandler {
         super();
     }
 
+    public ngOnChanges(changes: SimpleChanges) {
+        if (
+            changes.actions ||
+            changes.labels ||
+            changes.styles ||
+            changes.features
+        ) {
+            this.metadata = {
+                actions: this.actions || [],
+                labels: this.labels || [],
+                styles: this.styles || {},
+                features: this.features || [],
+            };
+        }
+    }
+
     public onLevelChange(zone: any) {
-        log('Map', 'Level Changed to:', zone);
+        log(
+            'Map',
+            'Level changed to:',
+            zone?.display_name || zone?.name || zone
+        );
         this._explore.setLevel(zone);
     }
 }

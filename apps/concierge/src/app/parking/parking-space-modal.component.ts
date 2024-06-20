@@ -37,6 +37,7 @@ import { ParkingSpace } from './parking-state.service';
                     <a-user-search-field
                         name="user"
                         formControlName="assigned_user"
+                        class="mb-4"
                     ></a-user-search-field>
                     <button
                         btn

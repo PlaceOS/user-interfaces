@@ -302,7 +302,7 @@ const explore = {
  * ROOT APPLICATION SETTINGS
  */
 const app = {
-    name: 'VisitorKiosk',
+    name: 'Visitor-Kiosk',
     title: 'Visitor Kiosk',
     description: 'Kiosk UI written with Angular Framework',
     short_name: 'KIOSK',

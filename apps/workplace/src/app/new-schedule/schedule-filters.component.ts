@@ -94,6 +94,24 @@ import { ScheduleStateService } from './schedule-state.service';
                         <app-icon>close</app-icon>
                     </button>
                 </div>
+                <div
+                    class="flex items-center rounded-3xl border border-base-200"
+                    *ngIf="
+                        (filters | async)?.shown_types?.includes(
+                            'group-evnet'
+                        ) && hasFeature('group-events')
+                    "
+                >
+                    <div class=" px-2">{{ 'WPA.GROUP_EVENT' | translate }}</div>
+                    <button
+                        icon
+                        matRipple
+                        name="schedule-remove-locker-filter"
+                        (click)="toggleType('group-event', true)"
+                    >
+                        <app-icon>close</app-icon>
+                    </button>
+                </div>
             </div>
         </div>
         <div class="sm:hidden flex items-center space-x-2">
@@ -182,6 +200,22 @@ import { ScheduleStateService } from './schedule-state.service';
                     icon
                     name="schedule-remove-locker-filter-mobile"
                     (click)="toggleType('locker', true)"
+                >
+                    <app-icon>close</app-icon>
+                </button>
+            </div>
+            <div
+                class="flex items-center rounded-3xl border border-base-200 bg-base-100 text-sm pl-2"
+                *ngIf="
+                    (filters | async)?.shown_types?.includes('group-event') &&
+                    hasFeature('group-events')
+                "
+            >
+                <div>{{ 'WPA.GROUP_EVENTS' | translate }}</div>
+                <button
+                    icon
+                    name="schedule-remove-locker-filter-mobile"
+                    (click)="toggleType('group-event', true)"
                 >
                     <app-icon>close</app-icon>
                 </button>

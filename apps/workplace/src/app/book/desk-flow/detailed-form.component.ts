@@ -131,6 +131,7 @@ import { addDays, endOfDay, format } from 'date-fns';
                 <label>Host</label>
                 <a-user-search-field
                     formControlName="user"
+                    class="mb-4"
                 ></a-user-search-field>
             </div>
             <div

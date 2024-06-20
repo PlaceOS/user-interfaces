@@ -5,37 +5,35 @@ import { SettingsService, ShortURL, getShortUrlQRCode } from '@placeos/common';
 @Component({
     selector: 'short-url-list',
     template: `
-        <div class="absolute inset-0 overflow-auto px-4">
-            <custom-table
-                class="block min-w-[32rem] w-full h-full"
-                [dataSource]="features"
+        <div class="absolute inset-0 overflow-auto px-8">
+            <simple-table
+                class="min-w-[64rem] block text-sm"
+                [data]="features"
+                empty_message="No Points of Interest found."
                 [columns]="[
-                    'name',
-                    'uri',
-                    'user_name',
-                    'description',
-                    'actions'
+                    { key: 'name', name: 'Name' },
+                    { key: 'uri', name: 'URI', content: url_template },
+                    { key: 'user_name', name: 'User Name' },
+                    { key: 'description', name: 'Description' },
+                    {
+                        key: 'actions',
+                        name: ' ',
+                        content: action_template,
+                        size: '7rem',
+                        sortable: false
+                    }
                 ]"
-                [display_column]="[
-                    'Name',
-                    'URI',
-                    'Creator',
-                    'Description',
-                    ' '
-                ]"
-                [column_size]="['flex', '14r', '10r', '10r', '6.5r']"
-                [template]="{
-                    uri: url_template,
-                    actions: action_template
-                }"
-                empty="No Points of Interest found."
-            ></custom-table>
+                [sortable]="true"
+            ></simple-table>
+            <div class="w-full h-12"></div>
         </div>
         <ng-template #url_template let-data="data">
-            <a link [href]="data">{{ data }}</a>
+            <a link [href]="data" class="p-4 truncate max-w-[32rem]">
+                {{ data }}
+            </a>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="w-full flex justify-end space-x-2">
+            <div class="w-full flex justify-end space-x-2 px-4 py-2 mx-auto">
                 <button
                     icon
                     matRipple

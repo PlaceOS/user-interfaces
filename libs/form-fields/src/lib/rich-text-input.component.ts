@@ -76,12 +76,14 @@ export class RichTextInputComponent
      * @param value The new value for the component
      */
     public writeValue(value: string) {
-        if (this._editor) {
-            const delta = this._editor.clipboard.convert(value);
-            this._editor.setContents(delta, 'silent');
-        } else {
-            this.timeout('write', () => this.writeValue(value));
-        }
+        this.timeout('write', () => {
+            if (this._editor) {
+                const delta = this._editor.clipboard.convert(value);
+                this._editor.setContents(delta, 'silent');
+            } else {
+                this.timeout('write', () => this.writeValue(value));
+            }
+        });
     }
 
     private _initialiseEditor() {

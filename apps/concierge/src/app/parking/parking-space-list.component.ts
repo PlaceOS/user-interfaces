@@ -4,7 +4,7 @@ import { ParkingStateService } from './parking-state.service';
 @Component({
     selector: 'parking-space-list',
     template: `
-        <div class="absolute inset-0 overflow-auto px-2">
+        <div class="h-full w-full overflow-auto">
             <custom-table
                 class="block min-w-[56rem]"
                 [dataSource]="spaces"
@@ -23,10 +23,13 @@ import { ParkingStateService } from './parking-state.service';
                     ' '
                 ]"
                 [column_size]="['8r', '10r', '14r', 'flex', '10r']"
-                [template]="{ actions: action_template }"
+                [template]="{ map_id: id_template, actions: action_template }"
                 [filter]="(options | async).search"
                 [class.opacity-50]="(loading | async)?.includes('spaces')"
             ></custom-table>
+            <ng-template #id_template let-data="data">
+                <span class="font-mono text-sm">{{ data }}</span>
+            </ng-template>
             <ng-template #action_template let-row="row">
                 <div class="w-full flex items-center justify-end">
                     <button icon (click)="editSpace(row)">

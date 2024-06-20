@@ -12,6 +12,8 @@ import { POIManagerComponent } from './poi-manager.component';
 import { MatChipsModule } from '@angular/material/chips';
 import { POIListComponent } from './poi-list.component';
 import { POIModalComponent } from './poi-modal.component';
+import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
+import { MapShowElementComponent } from './map-show-element.component';
 
 const ROUTES: Route[] = [
     { path: '', component: POIManagerComponent },
@@ -19,7 +21,13 @@ const ROUTES: Route[] = [
 ];
 
 @NgModule({
-    declarations: [POIManagerComponent, POIListComponent, POIModalComponent],
+    declarations: [
+        POIManagerComponent,
+        POIListComponent,
+        POIModalComponent,
+        SelectPOIMapModalComponent,
+        MapShowElementComponent,
+    ],
     imports: [
         CommonModule,
         FormsModule,

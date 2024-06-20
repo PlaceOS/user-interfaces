@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { downloadFile, jsonToCsv, unique } from '@placeos/common';
 import { Space } from '@placeos/spaces';
 import { differenceInDays } from 'date-fns';
@@ -9,25 +9,52 @@ import { ReportsStateService } from '../reports-state.service';
 @Component({
     selector: 'report-spaces-space-listing',
     template: `
-        <div class="m-4 rounded bg-base-100 shadow overflow-hidden">
+        <div
+            class="m-4 rounded bg-base-100 border border-base-200 overflow-hidden"
+        >
             <div class="border-b border-base-200 px-4 py-2 flex items-center">
                 <h3 class="font-bold text-xl flex-1">Room Utilisation</h3>
-                <button icon (click)="download()">
+                <button icon matRipple (click)="download()" *ngIf="!print">
                     <app-icon>download</app-icon>
                 </button>
             </div>
-            <custom-table
-                [dataSource]="space_list"
-                [pagination]="true"
-                [columns]="column_list | async"
-                [display_column]="column_name_list | async"
-                [column_size]="['flex']"
-            ></custom-table>
+            <simple-table
+                class="w-full block text-sm"
+                [data]="space_list"
+                [columns]="[
+                    { key: 'name', name: 'Name' },
+                    { key: 'capacity', name: 'Capacity' },
+                    { key: 'booking_count', name: 'Bookings' },
+                    { key: 'utilisation', name: 'Utilisation' },
+                    { key: 'avg_attendees', name: 'Avg. Invitees per Booking' },
+                    {
+                        key: 'no_shows',
+                        name: 'No Shows',
+                        show: has_attendance | async
+                    },
+                    {
+                        key: 'min_attendance',
+                        name: 'Min. In-Room Attendance',
+                        show: has_attendance | async
+                    },
+                    {
+                        key: 'max_attendance',
+                        name: 'Max. In-Room Attendance',
+                        show: has_attendance | async
+                    },
+                    { key: 'occupancy', name: 'Occupancy %' }
+                ]"
+                [sortable]="true"
+                [page_size]="print ? 0 : 10"
+                empty_message="No events for selected period"
+            ></simple-table>
         </div>
     `,
     styles: [``],
 })
 export class ReportSpacesSpaceListing {
+    @Input() public print: boolean = false;
+
     public readonly space_list = combineLatest([
         this._reports.stats,
         this._reports.options,
@@ -120,58 +147,6 @@ export class ReportSpacesSpaceListing {
 
     public readonly has_attendance = this.space_list.pipe(
         map((_) => !!_.find(({ attendance }) => attendance !== '?'))
-    );
-
-    public readonly column_list = this.has_attendance.pipe(
-        map((_) =>
-            !_
-                ? [
-                      'name',
-                      'capacity',
-                      'booking_count',
-                      'utilisation',
-                      'avg_attendees',
-                      'occupancy',
-                  ]
-                : [
-                      'name',
-                      'capacity',
-                      'booking_count',
-                      'utilisation',
-                      'avg_attendees',
-                      //   'attendance',
-                      //   'avg_attendance',
-                      'no_shows',
-                      'min_attendance',
-                      'max_attendance',
-                      'occupancy',
-                  ]
-        )
-    );
-    public readonly column_name_list = this.has_attendance.pipe(
-        map((_) =>
-            !_
-                ? [
-                      'Name',
-                      'Room Capacity',
-                      'Bookings',
-                      '% Time booked during office hrs',
-                      'Avg. invitees per booking',
-                  ]
-                : [
-                      'Name',
-                      'Room Capacity',
-                      'Bookings',
-                      '% Time booked during office hrs',
-                      'Avg. invitees per booking',
-                      //   'Total In-room Attendance',
-                      //   'Avg. In-room Attendance',
-                      'No Shows',
-                      'Min. In-room Attendance',
-                      'Max. In-room Attendance',
-                      'Occupancy %',
-                  ]
-        )
     );
 
     public readonly download = async () => {
