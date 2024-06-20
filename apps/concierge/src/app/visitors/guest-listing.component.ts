@@ -131,7 +131,7 @@ import { tap } from 'rxjs/operators';
         <ng-template #status_template let-row="row">
             <button
                 matRipple
-                class="rounded-3xl bg-warning text-warning-content border-none"
+                class="rounded-3xl bg-warning text-warning-content border-none h-8 w-28"
                 [class.!text-success-content]="row?.status === 'approved'"
                 [class.!bg-success]="row?.status === 'approved'"
                 [class.!text-error-content]="row?.status === 'declined'"
@@ -140,10 +140,13 @@ import { tap } from 'rxjs/operators';
                 [class.!bg-neutral]="row?.status === 'ended'"
                 [class.opacity-60]="row?.status === 'ended'"
                 [matMenuTriggerFor]="menu"
-                [disabled]="row?.status === 'ended'"
+                [disabled]="
+                    row?.status === 'ended' ||
+                    (row.checked_in && !row.checked_out_at)
+                "
             >
-                <div class="flex items-center">
-                    <div class="mx-2">
+                <div class="flex items-center px-2">
+                    <div class="mx-2 flex-1 text-left">
                         {{
                             row?.status === 'ended'
                                 ? 'Ended'
@@ -154,15 +157,40 @@ import { tap } from 'rxjs/operators';
                                 : 'Pending'
                         }}
                     </div>
-                    <app-icon class="text-2xl">arrow_drop_down</app-icon>
+                    <app-icon
+                        class="text-2xl"
+                        *ngIf="
+                            !(
+                                row?.status === 'ended' ||
+                                (row.checked_in && !row.checked_out_at)
+                            )
+                        "
+                        >arrow_drop_down</app-icon
+                    >
                 </div>
             </button>
             <mat-menu #menu="matMenu">
-                <button mat-menu-item (click)="approveVisitor(row)">
-                    Approve Visitor
+                <button
+                    mat-menu-item
+                    class="flex items-center"
+                    (click)="approveVisitor(row)"
+                >
+                    <div class="flex items-center space-x-2 pr-2">
+                        <app-icon class="text-2xl">event_available</app-icon>
+                        <div>Approve Visitor</div>
+                    </div>
                 </button>
-                <button mat-menu-item (click)="declineVisitor(row)">
-                    Decline Visitor
+                <button
+                    mat-menu-item
+                    class="flex items-center"
+                    (click)="declineVisitor(row)"
+                >
+                    <div class="flex items-center space-x-2 pr-2">
+                        <app-icon class="text-2xl text-error">
+                            event_busy
+                        </app-icon>
+                        <div>Decline Visitor</div>
+                    </div>
                 </button>
             </mat-menu>
         </ng-template>
