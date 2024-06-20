@@ -9,6 +9,7 @@ import {
     startOfWeek,
     format,
     addWeeks,
+    subMonths,
 } from 'date-fns';
 import { ActivatedRoute, Router } from '@angular/router';
 import { distinctUntilChanged, map, take } from 'rxjs/operators';
@@ -79,11 +80,13 @@ import { distinctUntilChanged, map, take } from 'rxjs/operators';
                     </mat-select>
                 </mat-form-field>
             </div>
-            <div
-                class="h-1/2 flex-1 w-full px-8 overflow-auto relative"
-                [class.mb-4]="view === 'list'"
-            >
-                <event-listing *ngIf="view === 'list'"></event-listing>
+            <div class="h-1/2 flex-1 w-full px-8 overflow-y-auto relative">
+                <div
+                    class="w-full min-h-full overflow-x-auto"
+                    *ngIf="view === 'list'"
+                >
+                    <event-listing class="block"></event-listing>
+                </div>
                 <event-calendar
                     *ngIf="view === 'calendar'"
                     [period]="period | async"
@@ -119,6 +122,7 @@ export class EventsListComponent extends AsyncHandler {
     }
 
     public ngOnInit() {
+        this.subscription('poll_events', this._state.startPolling());
         this.subscription(
             'period',
             this.period.subscribe(() => {
@@ -208,8 +212,8 @@ export class EventsListComponent extends AsyncHandler {
         this.timeout('generate_periods', async () => {
             const periods = [];
             const period_type = await this.period.pipe(take(1)).toPromise();
-            let date = Date.now();
-            const end_date = addDays(date, 12 * 30).valueOf();
+            let date = subMonths(Date.now(), 6).valueOf();
+            const end_date = addMonths(Date.now(), 6).valueOf();
             const week_offset = this._settings.get('app.week_start') || 0;
             if (period_type === 'month') {
                 date = startOfMonth(date).valueOf();
@@ -225,10 +229,10 @@ export class EventsListComponent extends AsyncHandler {
                         id: date,
                         start: date,
                         end,
-                        display: `${format(
-                            Math.max(Date.now(), date),
-                            'EEE, do MMM'
-                        )} – ${format(end, 'do MMM')}`,
+                        display: `${format(date, 'EEE, do MMM')} – ${format(
+                            end,
+                            'do MMM'
+                        )}`,
                     });
                     date = addDays(date, 7).valueOf();
                 } else if (period_type === 'month') {
@@ -251,8 +255,12 @@ export class EventsListComponent extends AsyncHandler {
             'update',
             () => {
                 if (this.period_list.length) {
-                    this.setPeriod(this.period_list[0].id);
-                    this.selected_range = this.period_list[0].id;
+                    let index = this.period_list.findIndex(
+                        (_) => _.start <= Date.now() && _.end >= Date.now()
+                    );
+                    if (index < 0) index = 0;
+                    this.setPeriod(this.period_list[index].id);
+                    this.selected_range = this.period_list[index].id;
                 }
             },
             350

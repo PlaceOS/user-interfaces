@@ -36,6 +36,8 @@ interface MapsIndoorServices {
     directions_renderer: any;
 }
 
+const RESOURCE_MAP: Record<string, any> = {};
+
 @Component({
     selector: 'maps-indoors',
     template: `
@@ -83,6 +85,14 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         private _org: OrganisationService
     ) {
         super();
+        const data =
+            sessionStorage.getItem('PLACEOS.mapsindoors.resources') || '{}';
+        const value = JSON.parse(data);
+        for (const key in value) {
+            if (value.hasOwnProperty(key)) {
+                RESOURCE_MAP[key] = value[key];
+            }
+        }
     }
 
     public ngOnInit() {
@@ -114,6 +124,16 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         if (changes.options) {
             this._addFloorSelector();
         }
+    }
+
+    private _setResource(id: string, resource: any) {
+        RESOURCE_MAP[id] = resource;
+        this.timeout('set_resource', () => {
+            sessionStorage.setItem(
+                'PLACEOS.mapsindoors.resources',
+                JSON.stringify(RESOURCE_MAP)
+            );
+        });
     }
 
     private _initialiseServices() {
@@ -168,6 +188,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                 mapsIndoors: maps_indoors,
             }),
         };
+        console.log('Resource:', this._services.mapsindoors);
         this._initialised.next(true);
         if (this.zone) this._centerOnZone();
         this._addFloorSelector();
@@ -334,18 +355,37 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         });
     }
 
-    private _updateMapStyling() {
+    private async _updateMapStyling() {
         if (!this._services) return;
         const styles = this.metadata?.styles || {};
         for (const id in styles) {
             if (!styles[id].fill) continue;
-            this._services.mapsindoors.setDisplayRule(id, {
+            let resource = RESOURCE_MAP[id];
+            if (!resource) {
+                const id_simple = id.replace(/#/, '');
+                const list = await this._search(id_simple);
+                if (!list.length) continue;
+                resource = list.find(
+                    (_) =>
+                        _.properties?.externalId === id_simple ||
+                        _.properties?.roomId === id_simple ||
+                        _.id === id_simple
+                );
+                if (resource) this._setResource(id, resource);
+            }
+            if (!resource) continue;
+            log('MapsPeople', 'Resource:', [
+                resource,
+                this._services.mapsindoors,
+                styles[id],
+            ]);
+            this._services.mapsindoors.setDisplayRule(resource.id, {
                 polygonVisible: true,
                 polygonFillOpacity: 0.6,
                 polygonZoomFrom: 16,
                 polygonZoomTo: 22,
                 visible: true,
-                polygonFillColor: styles[id].fill,
+                polygonFillColor: '#ff69b4',
             });
         }
     }

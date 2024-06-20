@@ -214,19 +214,21 @@ export class ReportsStateService {
             return Promise.all(
                 zones.map((z) =>
                     showMetadata(z, 'desks')
-                        .pipe(map((m) => [z, m.details.length]))
+                        .pipe(
+                            catchError(() => of({ details: [] })),
+                            map((m) => [z, m.details.length])
+                        )
                         .toPromise()
                 )
             );
         }),
-        catchError((_) => []),
         map((list: [string, number][]) => {
             const map: HashMap<number> = {};
             this._active_bookings.next([]);
             list.forEach(([id, count]) => (map[id] = count));
             return map;
         }),
-        shareReplay()
+        shareReplay(1)
     );
 
     public readonly stats: Observable<HashMap> = combineLatest([
@@ -259,7 +261,6 @@ export class ReportsStateService {
                 this._settings
                     .get('app.reports.ignore_days')
                     ?.map((_) => _.toLowerCase()) || [];
-            console.log('Stats:', stats);
             while (isBefore(date, end)) {
                 if (ignore_days.includes(DAYS_OF_WEEK_INDEX[date.getDay()])) {
                     date = addDays(date, 1);

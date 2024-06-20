@@ -189,7 +189,7 @@ export class ApplicationSidebarComponent extends AsyncHandler {
                 {
                     id: 'points',
                     name: 'Points',
-                    route: ['/facilities/points/new'],
+                    route: ['/points-management/new'],
                 },
                 {
                     id: 'emergency-contacts',

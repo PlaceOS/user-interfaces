@@ -18,29 +18,28 @@ import { ReportsStateService } from '../reports-state.service';
                         <app-icon>download</app-icon>
                     </button>
                 </div>
-                <custom-table
-                    red-header
-                    [dataSource]="day_list"
-                    [pagination]="print ? false : true"
-                    [columns]="['date', 'approved', 'count', 'utilisation']"
-                    [display_column]="[
-                        'Date',
-                        'Approved Bookings',
-                        'Total Requests',
-                        'Utilisation'
+                <simple-table
+                    class="w-full block text-sm"
+                    [data]="day_list"
+                    [columns]="[
+                        { key: 'date', name: 'Date', content: date_template },
+                        { key: 'approved', name: 'Approved Bookings' },
+                        { key: 'count', name: 'Total Requests' },
+                        {
+                            key: 'utilisation',
+                            name: 'Utilisation',
+                            content: percent_template
+                        }
                     ]"
-                    [column_size]="['flex']"
-                    [template]="{
-                        date: date_view,
-                        usage: percent_view,
-                        utilisation: percent_view
-                    }"
-                ></custom-table>
-                <ng-template #date_view let-data="data">
-                    {{ data | date: 'mediumDate' }}
+                    [page_size]="print ? 0 : 10"
+                    [sortable]="true"
+                >
+                </simple-table>
+                <ng-template #date_template let-data="data">
+                    <div class="p-4">{{ data | date: 'mediumDate' }}</div>
                 </ng-template>
-                <ng-template #percent_view let-data="data">
-                    {{ data || '0' }}%
+                <ng-template #percent_template let-data="data">
+                    <div class="p-4">{{ data || '0' }}%</div>
                 </ng-template>
             </div>
         </div>

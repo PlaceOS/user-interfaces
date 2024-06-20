@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService, notifyError } from '@placeos/common';
 import { VisitorsStateService } from './visitors-state.service';
 import { Booking, saveBooking } from '@placeos/bookings';
 import { showMetadata } from '@placeos/ts-client';
@@ -397,7 +397,10 @@ export class GuestListingComponent extends AsyncHandler {
     public readonly setExt = (u, f, v) => this._state.setExt(u, f, v);
 
     public readonly checkin = async (item: Booking) => {
-        await this._state.setCheckinState(item, true);
+        await this._state.setCheckinState(item, true).catch((e) => {
+            notifyError(e);
+            throw e;
+        });
         this._state.poll();
     };
 

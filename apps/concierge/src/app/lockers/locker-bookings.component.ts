@@ -9,57 +9,48 @@ import { SettingsService } from '@placeos/common';
     template: `
         <div class="w-full h-4"></div>
         <div class="overflow-auto h-full w-full px-4 pb-4">
-            <custom-table
-                class="min-w-[76rem] block"
-                [dataSource]="bookings"
-                [filter]="(filters | async)?.search"
+            <simple-table
+                class="min-w-[76rem] block text-sm w-full"
+                [data]="bookings"
                 [columns]="[
-                    'date',
-                    'period',
-                    'user_name',
-                    'group',
-                    'asset_name',
-                    'approver_name',
-                    'status',
-                    'checked_in'
+                    { key: 'date', name: 'Date', content: date_template },
+                    { key: 'period', name: 'Period', content: period_template },
+                    {
+                        key: 'user_name',
+                        name: 'Person',
+                        content: user_template
+                    },
+                    { key: 'group', name: 'Group' },
+                    {
+                        key: 'asset_name',
+                        name: 'Locker',
+                        content: locker_template
+                    },
+                    { key: 'approver_name', name: 'Approver' },
+                    {
+                        key: 'status',
+                        name: 'Status',
+                        content: status_template,
+                        size: '11rem'
+                    },
+                    {
+                        key: 'checked_in',
+                        name: 'Checked In',
+                        content: option_template,
+                        size: '5.5rem'
+                    }
                 ]"
-                [display_column]="[
-                    'Date',
-                    'Period',
-                    'Person',
-                    'Group',
-                    'Locker',
-                    'Approver',
-                    'Status',
-                    'Checked In'
-                ]"
-                [column_size]="[
-                    '4r',
-                    '10r',
-                    'flex',
-                    '10r',
-                    '10r',
-                    '10r',
-                    '8r',
-                    '7r'
-                ]"
-                [template]="{
-                    user_name: user_template,
-                    asset_name: locker_template,
-                    date: date_template,
-                    period: period_template,
-                    status: status_template,
-                    checked_in: option_template,
-                    access: option_template
-                }"
-                [empty]="
+                [sortable]="true"
+                [empty_message]="
                     (filters | async)?.search
                         ? 'No matching locker bookings'
                         : 'There are no locker booking for the currently selected date.'
                 "
-            ></custom-table>
+            ></simple-table>
             <ng-template #date_template let-date="data">
-                <div class="flex flex-col items-center justify-center w-full">
+                <div
+                    class="flex flex-col items-center justify-center w-full px-4 py-2"
+                >
                     <div class="opacity-60">{{ date | date: 'MMM' }}</div>
                     <div class="text-xl">{{ date | date: 'dd' }}</div>
                 </div>
@@ -81,10 +72,12 @@ import { SettingsService } from '@placeos/common';
                 </ng-container>
             </ng-template>
             <ng-template #locker_template let-row="row">
-                {{ row.asset_name || row.asset_id }}
+                <div class="p-4">
+                    {{ row.asset_name || row.asset_id }}
+                </div>
             </ng-template>
             <ng-template #user_template let-row="row">
-                <div class="flex flex-col justify-center">
+                <div class="flex flex-col justify-center px-4 py-2">
                     <div class="select-all">
                         {{
                             row.user_name ||

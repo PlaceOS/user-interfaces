@@ -29,9 +29,11 @@ import {
     checkinBooking,
     queryBookings,
     rejectBooking,
+    setBookingState,
 } from '@placeos/bookings';
 import { OrganisationService } from '@placeos/organisation';
 import { SpacePipe } from '@placeos/spaces';
+import { VisitorInductionModalComponent } from './visitor-induction-modal.component';
 
 export interface VisitorFilters {
     date?: number;
@@ -195,7 +197,26 @@ export class VisitorsStateService extends AsyncHandler {
         details.close();
     }
 
+    public async requestInduction(item: Booking) {
+        const ref = this._dialog.open(VisitorInductionModalComponent, {
+            data: { item },
+        });
+        const result = await ref.afterClosed().toPromise();
+        if (!result) {
+            await setBookingState(item.id, 'declined_induction').toPromise();
+            throw 'User declined';
+        }
+        await setBookingState(item.id, 'inducted').toPromise();
+    }
+
     public async setCheckinState(item: Booking, state = true) {
+        if (item.rejected) throw 'You cannot check in a rejected meeting';
+        if (state === true) {
+            await this.requestInduction(item);
+        }
+        if (!item.approved && state === true) {
+            await approveBooking(item.id).toPromise();
+        }
         const new_user = await checkinBooking(item.id, state)
             .toPromise()
             .catch((e) => {

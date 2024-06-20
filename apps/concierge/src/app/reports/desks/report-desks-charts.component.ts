@@ -13,28 +13,29 @@ import { take } from 'rxjs/operators';
     template: `
         <div
             class="flex items-center space-x-4 w-full px-4"
+            [class.is-print]="print"
             (window:resize)="updateCharts()"
         >
-            <div class="bg-base-100 border border-base-200 rounded flex-1">
+            <div
+                class="bg-base-100 border border-base-200 rounded flex-1 h-[18rem]"
+            >
                 <div class="border-b border-base-200 p-4 text-xl font-bold">
                     Daily Utilisation
                 </div>
                 <div
-                    id="day-chart"
-                    #util_chart
-                    class="ct-chart ct-octave max-w-full w-full h-56"
-                    [style.width]="print ? '8cm' : ''"
+                    id="daily-chart"
+                    class="ct-chart ct-octave max-w-full w-full h-56 mx-auto"
                 ></div>
             </div>
-            <div class="bg-base-100 border border-base-200 rounded flex-1">
+            <div
+                class="bg-base-100 border border-base-200 rounded flex-1 h-[18rem]"
+            >
                 <div class="border-b border-base-200 p-4 text-xl font-bold">
                     Level Utilisation
                 </div>
                 <div
                     id="level-chart"
-                    #level_chart
-                    class="ct-chart ct-octave max-w-full w-full h-56"
-                    [style.width]="print ? '8cm' : ''"
+                    class="ct-chart ct-octave max-w-full w-[24rem] h-56 mx-auto"
                 ></div>
             </div>
         </div>
@@ -43,6 +44,10 @@ import { take } from 'rxjs/operators';
         `
             :host {
                 display: block;
+            }
+
+            .is-print .ct-chart {
+                width: 8cm !important;
             }
         `,
     ],
@@ -67,34 +72,48 @@ export class ReportDesksChartsComponent extends AsyncHandler {
 
     public ngOnInit() {
         this.subscription(
-            'day_list',
-            this.day_list.subscribe((l) => this.updateDailyChart(l))
-        );
-        this.subscription(
-            'stats',
-            this.stats.subscribe(([o, c]) => this.updateLevelChart(o, c))
+            'charts',
+            combineLatest([this.day_list, this.stats]).subscribe(() =>
+                this.updateCharts()
+            )
         );
     }
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (changes.print) {
-            this.timeout('update_charts', () => this.updateCharts(), 50);
+        if (
+            changes.print &&
+            changes.print.currentValue !== changes.print.previousValue
+        ) {
+            this.updateCharts();
         }
     }
 
-    public async updateCharts() {
-        const day_list = await this.day_list.pipe(take(1)).toPromise();
-        this.updateDailyChart(day_list);
-        const stats = await this.stats.pipe(take(1)).toPromise();
-        this.updateLevelChart(stats[0], stats[1]);
+    public updateCharts() {
+        this.timeout(
+            'update_charts',
+            async () => {
+                const day_list = await this.day_list.pipe(take(1)).toPromise();
+                this.updateDailyChart(day_list);
+                const [mappings, counts] = await this.stats
+                    .pipe(take(1))
+                    .toPromise();
+                this.updateLevelChart(mappings, counts);
+                this.timeout(
+                    'update_charts',
+                    () => this.updateDailyChart(day_list),
+                    500
+                );
+            },
+            50
+        );
     }
 
     public updateDailyChart(list) {
         const data = {
             labels: list.map((_) => format(_.date, 'dd MMM')),
-            series: [list.map((_) => _.utilisation)],
+            series: [list.map((_) => +_.utilisation)],
         };
-        this._day_chart = new LineChart('#day-chart', data);
+        this._day_chart = new LineChart('#daily-chart', data);
     }
 
     public updateLevelChart(mapping, count) {

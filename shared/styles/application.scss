@@ -99,9 +99,9 @@
     --tc: hsl(0, 0%, 100%); /* White content(text) for contrast */
 
     /* Ternary */
-    --t: hsl(206, 23%, 85%); /* #E5E5EA */
-    --tf: hsl(206, 23%, 72%); /* Darker shade */
-    --tc: hsl(0, 0%, 0%); /* Black content for contrast */
+    --t: hsl(206, 23%, 30%); /* #E5E5EA */
+    --tf: hsl(206, 23%, 24%); /* Darker shade */
+    --tc: hsl(0, 0%, 80%); /* Black content for contrast */
 
     /* Accent */
     --a: hsl(156, 57%, 28%); /* Darker shade of complementary color */
@@ -116,8 +116,8 @@
     /* Base */
     --b1: hsl(0, 0%, 10%); /* Near Black */
     --b2: hsl(0, 0%, 15%); /* Dark Grey */
-    --b3: hsl(0, 0%, 24%); /* Mid-Dark Grey */
-    --b3: hsl(0, 0%, 32%); /* Mid Grey */
+    --b3: hsl(0, 0%, 20%); /* Mid-Dark Grey */
+    --b4: hsl(0, 0%, 25%); /* Mid Grey */
     --bc: hsl(0, 0%, 80%); /* Light grey text for contrast */
 
     /* Info */

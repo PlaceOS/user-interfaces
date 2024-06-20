@@ -181,14 +181,15 @@ import { DesksStateService } from '../desks/desks-state.service';
             </section>
         </main>
         <footer
-            class="flex items-center justify-center p-2 space-x-2 border-t border-base-200"
+            class="flex items-center justify-end p-2 space-x-2 border-t border-base-200"
         >
-            <button btn matRipple mat-dialog-close class="inverse flex-1">
+            <button btn matRipple mat-dialog-close class="inverse w-32">
                 Cancel
             </button>
             <button
+                btn
                 matRipple
-                class="flex-1"
+                class="w-32"
                 [disabled]="!form.value.name"
                 (click)="save()"
             >

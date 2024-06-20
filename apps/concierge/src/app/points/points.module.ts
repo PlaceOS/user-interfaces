@@ -14,8 +14,8 @@ import { NewPointsComponent } from './new-points.component';
 
 const ROUTES: Route[] = [
     {
-        path: '',
-        component: PointsComponent,
+        path: 'new',
+        component: NewPointsComponent,
         children: [
             { path: 'assets', component: PointsAssetsComponent },
             { path: 'overview', component: PointsOverviewComponent },
@@ -23,8 +23,8 @@ const ROUTES: Route[] = [
         ],
     },
     {
-        path: 'new',
-        component: NewPointsComponent,
+        path: '',
+        component: PointsComponent,
         children: [
             { path: 'assets', component: PointsAssetsComponent },
             { path: 'overview', component: PointsOverviewComponent },

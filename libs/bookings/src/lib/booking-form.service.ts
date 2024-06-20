@@ -162,7 +162,7 @@ export class BookingFormService extends AsyncHandler {
         map((building_rules) => {
             const mapping = {};
             for (const rules of building_rules) {
-                rules[rules.id] =
+                mapping[rules.id] =
                     rules.details instanceof Array ? rules.details : [];
             }
             return mapping;
@@ -222,9 +222,10 @@ export class BookingFormService extends AsyncHandler {
                                     resource: asset,
                                     host: user || currentUser(),
                                 },
-                                restrictions[
-                                    asset.zone?.id || this._org.building.id
-                                ] || []
+                                restrictions[asset.zone?.id] ||
+                                    restrictions[asset.zone?.parent_id] ||
+                                    restrictions[this._org.building.id] ||
+                                    []
                             ).hidden;
                             return (
                                 !is_restricted &&
@@ -557,6 +558,7 @@ export class BookingFormService extends AsyncHandler {
                     currentUser()?.id,
                 extension_data: {
                     ...((value as any).extension_data || {}),
+                    group: value.group,
                     phone: value.phone,
                     department:
                         value.user?.department || currentUser()?.department,

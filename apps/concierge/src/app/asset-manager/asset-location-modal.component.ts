@@ -29,27 +29,27 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                 <div
                     class="flex-1 h-[60vh] w-1/2 border border-base-200 bg-base-200 overflow-auto"
                 >
-                    <custom-table
-                        [dataSource]="requests"
+                    <simple-table
+                        class="block w-full"
+                        [data]="requests"
                         [columns]="[
-                            'zones',
-                            'description',
-                            'tracking',
-                            'user_name'
+                            {
+                                key: 'zone',
+                                name: 'Level',
+                                content: level_template
+                            },
+                            { key: 'description', name: 'Space' },
+                            {
+                                key: 'tracking',
+                                name: 'Tracking',
+                                content: tracking_template
+                            },
+                            { key: 'user_name', name: 'Requestee' }
                         ]"
-                        [display_column]="[
-                            'Level',
-                            'Space',
-                            'Tracking',
-                            'Requestee'
-                        ]"
-                        [column_size]="['4r', 'flex', '10r', '6r']"
-                        [template]="{
-                            tracking: tracking_template,
-                            zones: level_template,
-                        }"
+                        [sortable]="true"
+                        empty_message="No requested assets for this product"
                         (row_clicked)="selected = $event; updateFeatures()"
-                    ></custom-table>
+                    ></simple-table>
                 </div>
                 <div
                     class="flex-1 h-[60vh] w-1/2 border border-base-200 bg-base-200 relative flex items-center justify-center"
@@ -78,33 +78,46 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
             </p>
         </ng-template>
         <ng-template #level_template let-data="data">
-            {{ level(data)?.display_name || 'N/A' }}
+            <div class="p-4">
+                {{ level(data)?.display_name || 'N/A' }}
+            </div>
         </ng-template>
         <ng-template #tracking_template let-row="row">
-            <button
-                matRipple
-                class="bg-none w-full flex items-center px-2 py-1 text-left"
-                [matMenuTriggerFor]="tracking_menu"
-                (click)="$event.stopPropagation()"
-                [disabled]="loading[row.id]"
-            >
-                <div class="capitalize flex-1">
-                    {{
-                        (row.extension_data?.tracking | splitjoin) ||
-                            'In Storage'
-                    }}
-                </div>
-                <app-icon class="text-2xl">expand_more</app-icon>
-            </button>
-            <mat-menu #tracking_menu="matMenu" class="w-36">
+            <div class="px-4 py-2">
+                <button
+                    matRipple
+                    class="bg-none w-full flex items-center px-2 py-1 text-left rounded"
+                    [matMenuTriggerFor]="tracking_menu"
+                    (click)="$event.stopPropagation()"
+                    [disabled]="loading[row.id]"
+                >
+                    <div class="capitalize flex-1 min-w-32">
+                        {{
+                            (row.extension_data?.tracking | splitjoin) ||
+                                'In Storage'
+                        }}
+                    </div>
+                    <app-icon class="text-2xl">expand_more</app-icon>
+                </button>
+            </div>
+            <mat-menu #tracking_menu="matMenu">
                 <button mat-menu-item (click)="setTracking(row, 'in_storage')">
-                    In Storage
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-2xl">inventory</app-icon>
+                        <div class="pr-2">In Storage</div>
+                    </div>
                 </button>
                 <button mat-menu-item (click)="setTracking(row, 'in_transit')">
-                    In Transit
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-2xl">trolley</app-icon>
+                        <div class="pr-2">In Transit</div>
+                    </div>
                 </button>
                 <button mat-menu-item (click)="setTracking(row, 'at_location')">
-                    At Location
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-2xl">place</app-icon>
+                        <div class="pr-2">At Location</div>
+                    </div>
                 </button>
             </mat-menu>
         </ng-template>
@@ -114,6 +127,8 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 export class AssetLocationModalComponent {
     public readonly asset = this._state.active_product;
     public readonly requests = this._state.active_product_requests;
+
+    public readonly _space = new SpacePipe(this._org);
 
     public selected: Booking;
     public selected_feature;
@@ -148,8 +163,7 @@ export class AssetLocationModalComponent {
 
     constructor(
         private _state: AssetManagerStateService,
-        private _org: OrganisationService,
-        private _space: SpacePipe
+        private _org: OrganisationService
     ) {}
 
     public level(zones) {

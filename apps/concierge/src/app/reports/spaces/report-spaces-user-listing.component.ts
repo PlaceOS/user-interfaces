@@ -18,25 +18,20 @@ import { ReportsStateService } from '../reports-state.service';
                     <app-icon>download</app-icon>
                 </button>
             </div>
-            <custom-table
-                [dataSource]="user_list"
-                [pagination]="print ? false : true"
+            <simple-table
+                class="w-full block text-sm"
+                [data]="user_list"
                 [columns]="[
-                    'name',
-                    'booking_count',
-                    'avg_attendees',
-                    'total_time',
-                    'no_shows'
+                    { key: 'name', name: 'Name' },
+                    { key: 'booking_count', name: 'Bookings' },
+                    { key: 'avg_attendees', name: 'Avg. Invitees per Booking' },
+                    { key: 'total_time', name: 'Total Booked Time' },
+                    { key: 'no_shows', name: 'No Shows' }
                 ]"
-                [display_column]="[
-                    'Name',
-                    'Bookings',
-                    'Avg. Invitees per Booking',
-                    'Total Booked Time',
-                    'No Shows'
-                ]"
-                [column_size]="['flex']"
-            ></custom-table>
+                [sortable]="true"
+                [page_size]="print ? 0 : 10"
+                empty_message="No events for selected period"
+            ></simple-table>
         </div>
     `,
     styles: [``],
