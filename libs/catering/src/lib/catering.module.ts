@@ -15,14 +15,12 @@ import { FormFieldsModule } from '@placeos/form-fields';
 import { ComponentsModule } from 'libs/components/src/lib/components.module';
 
 import { CateringItemModalComponent } from './catering-item-modal.component';
-import { CateringMenuItemComponent } from './catering-menu-item.component';
 import { CateringMenuComponent } from './catering-menu.component';
 import { CateringItemOptionModalComponent } from './catering-option-modal.component';
 import { CateringOrderItemComponent } from './catering-order-item.component';
 import { CateringOrderListComponent } from './catering-order-list.component';
 import { CateringOrderModalComponent } from './catering-order-modal.component';
 import { CateringOrderOptionsModalComponent } from './catering-order-options-modal.component';
-import { CateringOrderComponent } from './catering-order.component';
 import { CateringImportMenuModalComponent } from './catering-import-menu-modal.component';
 
 import { NewCateringOrderModalComponent } from './catering-order-modal/new-catering-order-modal.component';
@@ -32,16 +30,15 @@ import { CateringItemFiltersComponent } from './catering-order-modal/catering-it
 import { CateringListFieldComponent } from './catering-list-field.component';
 import { ChargeCodeListModalComponent } from './charge-code-list-modal.component';
 import { CateringItemListItemComponent } from './catering-order-modal/catering-item-list-item.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 const COMPONENTS: Type<any>[] = [
     CateringOrderOptionsModalComponent,
     CateringOrderModalComponent,
     CateringItemModalComponent,
     CateringMenuComponent,
-    CateringMenuItemComponent,
     CateringItemOptionModalComponent,
     CateringOrderListComponent,
-    CateringOrderComponent,
     CateringOrderItemComponent,
     CateringImportMenuModalComponent,
 
@@ -71,6 +68,7 @@ const COMPONENTS: Type<any>[] = [
         ComponentsModule,
         MatFormFieldModule,
         FormFieldsModule,
+        MatProgressSpinnerModule,
     ],
     providers: [],
     exports: [...COMPONENTS],

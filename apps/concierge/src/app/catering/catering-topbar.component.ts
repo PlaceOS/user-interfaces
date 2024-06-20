@@ -17,20 +17,20 @@ import { combineLatest } from 'rxjs';
     selector: 'catering-topbar',
     template: `
         <div class="flex items-center w-full pt-4 pb-2 px-8 space-x-2">
-            <h2 class="text-2xl font-medium">Catering Orders</h2>
+            <h2 class="text-2xl font-medium">
+                Catering {{ page === 'menu' ? 'Menu' : 'Orders' }}
+            </h2>
             <div class="flex-1 w-px"></div>
             <searchbar
                 class="mr-2"
-                [model]="(filters | async)?.search"
+                [model]="filters?.search"
                 (modelChange)="setSearch($event)"
             ></searchbar>
         </div>
-        <div
-            class="flex items-center bg-base-100 h-20 px-8 border-b border-base-200 space-x-2"
-        >
+        <div class="flex items-center bg-base-100 h-20 px-8 space-x-2">
             <mat-form-field appearance="outline" class="no-subscript w-60">
                 <mat-select
-                    [ngModel]="(filters | async)?.zones"
+                    [ngModel]="filters?.zones"
                     (ngModelChange)="updateZones($event)"
                     placeholder="All Levels"
                     multiple
@@ -51,6 +51,7 @@ import { combineLatest } from 'rxjs';
                     </mat-option>
                 </mat-select>
             </mat-form-field>
+            <div *ngIf="page === 'menu'" class="flex-1 w-2"></div>
             <button
                 *ngIf="
                     page === 'menu' && (!zones[0] || zones[0] === building?.id)
@@ -103,9 +104,12 @@ import { combineLatest } from 'rxjs';
             >
                 <app-icon class="text-2xl">payments</app-icon>
             </button>
-            <div class="flex-1 w-2"></div>
+            <div *ngIf="page !== 'menu'" class="flex-1 w-2"></div>
             <!-- <searchbar class="mr-2"></searchbar> -->
-            <date-options (dateChange)="setDate($event)"></date-options>
+            <date-options
+                *ngIf="page !== 'menu'"
+                (dateChange)="setDate($event)"
+            ></date-options>
         </div>
     `,
     styles: [
@@ -146,7 +150,7 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
             queryParams: { zone_ids: z.join(',') },
         });
         this._orders.filters = { ...this._orders.filters, zones: [z] };
-        this._catering.zone = z[0] || this._catering.zone;
+        this._catering.zone = z[0];
     };
 
     public readonly addItem = () => this._catering.addItem();

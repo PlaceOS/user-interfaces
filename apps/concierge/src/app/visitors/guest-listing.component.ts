@@ -11,7 +11,7 @@ import { User } from '@placeos/users';
     selector: 'guest-listings',
     template: `
         <simple-table
-            class="min-w-[64rem] block text-sm"
+            class="min-w-[64rem] block text-sm z-0"
             [data]="guests"
             [columns]="[
                 {
@@ -197,7 +197,10 @@ import { User } from '@placeos/users';
                     [class.!bg-neutral]="row?.status === 'ended'"
                     [class.opacity-30]="row?.status === 'ended'"
                     [matMenuTriggerFor]="menu"
-                    [disabled]="row?.status === 'ended'"
+                    [disabled]="
+                        row?.status === 'ended' ||
+                        (row.checked_in && !row.checked_out_at)
+                    "
                 >
                     <div class="flex items-center pl-4 pr-2 space-x-2">
                         <div class="flex-1 text-left">
@@ -211,7 +214,17 @@ import { User } from '@placeos/users';
                                     : 'Pending'
                             }}
                         </div>
-                        <app-icon class="text-2xl">arrow_drop_down</app-icon>
+                        <app-icon
+                            class="text-2xl"
+                            *ngIf="
+                                !(
+                                    row?.status === 'ended' ||
+                                    (row.checked_in && !row.checked_out_at)
+                                )
+                            "
+                        >
+                            arrow_drop_down
+                        </app-icon>
                     </div>
                 </button>
             </div>
@@ -224,7 +237,9 @@ import { User } from '@placeos/users';
                 </button>
                 <button mat-menu-item (click)="declineVisitor(row)">
                     <div class="flex items-center space-x-2">
-                        <app-icon class="text-2xl">event_busy</app-icon>
+                        <app-icon class="text-2xl text-error">
+                            event_busy
+                        </app-icon>
                         <div class="pr-2">Decline Visitor</div>
                     </div>
                 </button>
@@ -365,7 +380,7 @@ import { User } from '@placeos/users';
             </div>
         </ng-template>
         <button
-            class="bg-secondary hover:shadow-lg shadow absolute bottom-4 right-4 text-white h-12 w-12"
+            class="bg-secondary hover:shadow-lg shadow absolute bottom-4 right-4 text-white h-12 w-12 z-10"
             matTooltip="Download Visitor List"
             matTooltipPosition="left"
             icon
@@ -375,7 +390,7 @@ import { User } from '@placeos/users';
         >
             <app-icon>download</app-icon>
         </button>
-        <div class="w-full h-20"></div>
+        <div class="w-full h-8"></div>
     `,
     styles: [``],
 })
