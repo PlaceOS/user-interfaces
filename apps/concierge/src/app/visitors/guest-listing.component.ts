@@ -381,7 +381,7 @@ export class GuestListingComponent extends AsyncHandler {
 
     public readonly checkin = async (item: Booking) => {
         await this._state.setCheckinState(item, true).catch((e) => {
-            notifyError(e);
+            if (e !== 'User declined') notifyError(e);
             throw e;
         });
         this._state.poll();
