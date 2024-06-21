@@ -210,6 +210,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             () => window.dispatchEvent(new Event('resize')),
             100
         );
+        (window as any).maps_indoors = this._services;
         this.timeout('focus', () => this._focusOnLocation());
         this.timeout('init_zoom', () => this._handleZoomChange(DEFAULT_ZOOM));
     }
@@ -379,14 +380,19 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                 this._services.mapsindoors,
                 styles[id],
             ]);
-            this._services.mapsindoors.setDisplayRule(resource.id, {
+            log('MapsPeople', 'setDisplayRule:', [
+                this._services.mapsindoors.setDisplayRule,
+            ]);
+            const value = {
                 polygonVisible: true,
                 polygonFillOpacity: 0.6,
                 polygonZoomFrom: 16,
                 polygonZoomTo: 22,
                 visible: true,
                 polygonFillColor: '#ff69b4',
-            });
+            };
+            log('MapsPeople', 'setDisplayRule:value', [value]);
+            this._services.mapsindoors.setDisplayRule(resource.id, value);
         }
     }
 
