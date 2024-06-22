@@ -190,7 +190,10 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         };
         console.log('Resource:', this._services.mapsindoors);
         this._initialised.next(true);
-        if (this.zone) this._centerOnZone();
+        if (this.zone) {
+            this._services.map.setZoom(DEFAULT_ZOOM);
+            this._centerOnZone();
+        }
         this._addFloorSelector();
         // Add Events listenders
         this._services.mapsindoors.addListener('building_changed', (e) =>
@@ -384,12 +387,11 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                 this._services.mapsindoors.setDisplayRule,
             ]);
             const value = {
+                extrusionHeight: 0,
+                extrusionVisible: false,
                 polygonVisible: true,
+                polygonFillColor: styles[id].fill,
                 polygonFillOpacity: 0.6,
-                polygonZoomFrom: 16,
-                polygonZoomTo: 22,
-                visible: true,
-                polygonFillColor: '#ff69b4',
             };
             log('MapsPeople', 'setDisplayRule:value', [value]);
             this._services.mapsindoors.setDisplayRule(resource.id, value);
@@ -421,7 +423,6 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             );
             if (!bld) return;
             const [lat, long] = bld?.location.split(',');
-            this._services.map.setZoom(DEFAULT_ZOOM);
             this._services.map.setCenter({
                 lat: parseFloat(lat),
                 lng: parseFloat(long),
