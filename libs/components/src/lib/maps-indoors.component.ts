@@ -378,22 +378,12 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                 if (resource) this._setResource(id, resource);
             }
             if (!resource) continue;
-            log('MapsPeople', 'Resource:', [
-                resource,
-                this._services.mapsindoors,
-                styles[id],
-            ]);
-            log('MapsPeople', 'setDisplayRule:', [
-                this._services.mapsindoors.setDisplayRule,
-            ]);
             const value = {
                 extrusionHeight: 0,
                 extrusionVisible: false,
                 polygonVisible: true,
                 polygonFillColor: styles[id].fill,
-                polygonFillOpacity: 0.6,
             };
-            log('MapsPeople', 'setDisplayRule:value', [value]);
             this._services.mapsindoors.setDisplayRule(resource.id, value);
         }
     }
