@@ -2,13 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { first } from 'rxjs/operators';
-import {
-    authority,
-    invalidateToken,
-    isMock,
-    setToken,
-    token,
-} from '@placeos/ts-client';
+import { invalidateToken, isMock, setToken, token } from '@placeos/ts-client';
 import {
     AsyncHandler,
     current_user,
@@ -19,14 +13,12 @@ import {
     setupCache,
     setupPlace,
     log,
-    notifyInfo,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 import { setDefaultCreator } from 'libs/events/src/lib/event.class';
 
 import * as MOCKS from '@placeos/mocks';
-import { loadAuthority } from '@placeos/ts-client/dist/esm/auth/functions';
 
 declare let Office: any;
 declare let OfficeRuntime: any;
