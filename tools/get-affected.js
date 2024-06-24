@@ -26,7 +26,7 @@ function commands(target) {
     const libs = getFolders('libs');
     if (release) {
         const array = target === 'build' ? [apps] : [apps, libs];
-        return array;
+        return array.flat();
     }
     const base = release ? '' : `--base=${baseSha}~1`;
     const raw_result = execSync(
@@ -39,5 +39,5 @@ function commands(target) {
     if (target === 'build') {
         return array.filter((_) => !libs.includes(_));
     }
-    return array;
+    return array.flat();
 }
