@@ -112,10 +112,12 @@ export class CheckinStateService {
         const event = this._booking.getValue() || guest.extension_data.event;
         if (!guest || !event) return;
         await setBookingState(event.id, 'inducted').toPromise();
-        await updateBooking(event.id, {
+        const details = {
             ...event,
             induction: true,
-        }).toPromise();
+        };
+        delete details.parent_id;
+        await updateBooking(event.id, details).toPromise();
     }
 
     public async declineInduction() {
