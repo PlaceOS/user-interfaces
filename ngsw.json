@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1719195939879,
+  "timestamp": 1719220164404,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -249,14 +249,14 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./common.js": "e55e9fcda0ff68a1ec4bc51606c50846c54a334d",
     "./default-libs_bookings_src_lib_group-event-details-modal_component_ts.js": "3ee56b3b6b46b19a933782e784995c10d0048b47",
-    "./default-libs_catering_src_index_ts.js": "14f15742c869e08c74e03cf7e2325d227eef533a",
+    "./default-libs_catering_src_index_ts.js": "07501a414e36cd17ae23547153e6a581d4bc433e",
     "./default-libs_explore_src_index_ts.js": "d445b73e335b33bf2d8442b488d90c205127bd6c",
     "./default-libs_users_src_lib_users_module_ts.js": "65845739558992ed6b9991f982642a466e1fd2cf",
     "./default-node_modules_angular_material_fesm2022_icon_mjs.js": "1a0826b3b711058b95d9b9a8a1d284e09666d020",
     "./default-node_modules_angular_material_fesm2022_tabs_mjs.js": "947ea41da5f8c11f1fc85ba2f2d4336c2df97bc1",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "024a49b04c3c3734994ad6cd61ae2bd2ec716dbc",
-    "./main.js": "517416bc7664eddba6c5d845f04c4fd50cf37225",
+    "./main.js": "5e1624897850a7e66520f8e6164ce6aad0006606",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
@@ -268,8 +268,8 @@
     "./material-symbols-sharp.woff2": "518c8895fddc0ea0951192d60e314be1d6824ba7",
     "./polyfills.js": "c01fa59e0fc886e163385e42dbfe6588b8e8f332",
     "./runtime.js": "7762812520bfe4e99340c0e5b14dbb3ddb41e299",
-    "./styles.css": "1dda18d537c204a35a27e5b0072d3bf40ff861cb",
-    "./vendor.js": "1f8d172038d3078d17d93d86e9ceb01d0c1c3468"
+    "./styles.css": "cf5da9dadf3cb65a68888f181fbf2ef7bba14714",
+    "./vendor.js": "c5617dc072a285169428c1e9678e291f1511a649"
   },
   "navigationUrls": [
     {
