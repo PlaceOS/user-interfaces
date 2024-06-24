@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1714449786245,
+  "timestamp": 1719194521803,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -13,11 +13,11 @@
       "urls": [
         "./favicon.ico",
         "./index.html",
-        "./main.4d7b74fc18cc4966.js",
+        "./main.73cb10966f13276a.js",
         "./manifest.webmanifest",
-        "./polyfills.561a2fa667acf9fd.js",
-        "./runtime.ff9097db73644f66.js",
-        "./styles.42de2a350fc2253e.css"
+        "./polyfills.37b6a69d0fb0e574.js",
+        "./runtime.c7c9356499c2516a.js",
+        "./styles.14cac342eb09e353.css"
       ],
       "patterns": []
     },
@@ -65,6 +65,7 @@
         "./assets/icons/no-contacts.svg",
         "./assets/icons/no-favourites.svg",
         "./assets/icons/no-pending.svg",
+        "./assets/icons/no-results.svg",
         "./assets/icons/not-found.svg",
         "./assets/icons/office.svg",
         "./assets/icons/outlook.svg",
@@ -110,9 +111,9 @@
         "./material-icons-sharp.3885863ee4746422.woff2",
         "./material-icons-two-tone.675bd578bd14533e.woff2",
         "./material-icons.59322316b3fd6063.woff2",
-        "./material-symbols-outlined.bb2683a3c71f6e97.woff2",
-        "./material-symbols-rounded.ce03b85d012749d0.woff2",
-        "./material-symbols-sharp.cbff3cfef7082994.woff2"
+        "./material-symbols-outlined.d7c942d6f7c7b6e2.woff2",
+        "./material-symbols-rounded.9a04bfc1a1aa7c11.woff2",
+        "./material-symbols-sharp.2bac22456edcc5ba.woff2"
       ],
       "patterns": []
     }
@@ -155,6 +156,7 @@
     "./assets/icons/no-contacts.svg": "5a562642efdcc8a9262f1dd6e3b1c92c841a3912",
     "./assets/icons/no-favourites.svg": "d3a2205b4ed430a4c31fa0e1fcd2dcf2595c6fa8",
     "./assets/icons/no-pending.svg": "682e19e8c784872bd1b3ff7109c505030499822c",
+    "./assets/icons/no-results.svg": "d551449f385ac95090bd5e9f63e6c4022c14260e",
     "./assets/icons/not-found.svg": "69124b6f4e1b95755c3577ab0410b7b370516a57",
     "./assets/icons/office.svg": "e33be3d77214153a8bb2d48360d1425eea944f90",
     "./assets/icons/outlook.svg": "af709f8c546089eb91c03c88af0860cb302eb28a",
@@ -171,7 +173,7 @@
     "./assets/locale/ar.json": "9d39f81ce08112ff2e2c8c9d392e763f1c48083b",
     "./assets/locale/en-GB.json": "74ffa5ff586701de9b95a574fc8b17bdb897eb37",
     "./assets/locale/en-US.json": "3841f63e329be78a64979b096660841f14ad2507",
-    "./assets/locale/en.json": "74ffa5ff586701de9b95a574fc8b17bdb897eb37",
+    "./assets/locale/en.json": "259496d0f45eaf63a5a07a4009d7081473701976",
     "./assets/locale/es.json": "12fcaef177f45954851f4dbfddb85122b91b0207",
     "./assets/locale/fr.json": "7beffd170a366f52b07f51eb5dc99984816391f7",
     "./assets/locale/pt.json": "0015e70d7d1cae1bfa3b79623656d0d33a6e26de",
@@ -196,20 +198,20 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
-    "./index.html": "36a64237396e5e6102bffc93a77a5c14a4c0c79b",
-    "./main.4d7b74fc18cc4966.js": "d44b3a196119956d43e295e2d0a9a071cd71087f",
+    "./index.html": "14166bd303a96832a47517a8c169f6df3b3d3b8d",
+    "./main.73cb10966f13276a.js": "5932d1aaf3a82149a99f5ae172545f19764f8978",
     "./manifest.webmanifest": "1403ffbb424e3924fdbd03de6cc312e4a7a0b0b6",
     "./material-icons-outlined.f86cb7b0aa53f0fe.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.b10ec9db5b7fbc74.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
     "./material-icons-sharp.3885863ee4746422.woff2": "cf1c7b4d066d18af44cf7bc664dd2e46652a3a30",
     "./material-icons-two-tone.675bd578bd14533e.woff2": "296ff0bff395a77c2e33e7e31fffe73980bd93cf",
     "./material-icons.59322316b3fd6063.woff2": "0bc0c675480d94ec7e8609dda6227f88c5d08d2c",
-    "./material-symbols-outlined.bb2683a3c71f6e97.woff2": "ad05cec71f57bf54dff527ef3bcfd6454dab1b48",
-    "./material-symbols-rounded.ce03b85d012749d0.woff2": "1eedd967ab52c2e1ac9607d814b17740ecd8fcc6",
-    "./material-symbols-sharp.cbff3cfef7082994.woff2": "d991d290442aeb0a63e5d3bc48143a088e517de3",
-    "./polyfills.561a2fa667acf9fd.js": "479f89a8a737f8653f8f386ca1eac7fc1590a37a",
-    "./runtime.ff9097db73644f66.js": "94e1159dd2ffda6fa3cf5b296265c3c9bc1a5223",
-    "./styles.42de2a350fc2253e.css": "1286f66d65f40819a66f2363e8a2df47c08c5259"
+    "./material-symbols-outlined.d7c942d6f7c7b6e2.woff2": "79fcf0a26343e138a9f29a4138f53dd5fa5b89ab",
+    "./material-symbols-rounded.9a04bfc1a1aa7c11.woff2": "d3440655edf947fdecdb36ecd0bf981a07a31d0c",
+    "./material-symbols-sharp.2bac22456edcc5ba.woff2": "518c8895fddc0ea0951192d60e314be1d6824ba7",
+    "./polyfills.37b6a69d0fb0e574.js": "37275779fd13d9ad6926ac924be29c4233fb839d",
+    "./runtime.c7c9356499c2516a.js": "566c599c23516dd4d3e3fbd00f5055fb8c95fcef",
+    "./styles.14cac342eb09e353.css": "0fa8038a876ee89b2378fffdf912b9e22add37c5"
   },
   "navigationUrls": [
     {
