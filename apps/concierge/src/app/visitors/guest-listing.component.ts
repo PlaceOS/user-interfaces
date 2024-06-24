@@ -9,7 +9,7 @@ import { OrganisationService } from '@placeos/organisation';
     selector: 'guest-listings',
     template: `
         <simple-table
-            class="min-w-[60rem] block text-sm"
+            class="min-w-[60rem] block text-sm z-0"
             [data]="guests"
             [columns]="[
                 {
@@ -308,6 +308,7 @@ import { OrganisationService } from '@placeos/organisation';
                     <button
                         mat-menu-item
                         (click)="row.checked_in ? checkout(row) : checkin(row)"
+                        *ngIf="!row.checked_out_at"
                     >
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">
@@ -348,7 +349,7 @@ import { OrganisationService } from '@placeos/organisation';
             </div>
         </ng-template>
         <button
-            class="bg-secondary hover:shadow-lg shadow absolute bottom-4 right-4 text-white h-12 w-12"
+            class="bg-secondary hover:shadow-lg shadow absolute bottom-4 right-4 text-white h-12 w-12 z-20"
             matTooltip="Download Visitor List"
             matTooltipPosition="left"
             icon
