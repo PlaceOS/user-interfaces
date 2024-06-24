@@ -37,6 +37,7 @@ import {
     showEvent,
 } from '@placeos/events';
 import { StaffUser, User } from '@placeos/users';
+import { Space } from '@placeos/spaces';
 
 const EMPTY = [];
 
@@ -497,6 +498,9 @@ export class EventManageComponent extends AsyncHandler {
                             email: booking.host,
                             name: booking.organiser?.name,
                         }),
+                        resources: booking.resources.filter(
+                            (_) => _.email !== this._state.calendar
+                        ),
                     });
                 }
             })
@@ -561,9 +565,16 @@ export class EventManageComponent extends AsyncHandler {
             );
         }
         this.loading = true;
+        let resources = this.form.getRawValue().resources;
+        resources.push(
+            new Space({ id: this._state.calendar, email: this._state.calendar })
+        );
+        console.log('Resources:', resources);
+        resources = unique(resources, 'email');
+        this.form.patchValue({ resources });
         const date = this.form.getRawValue().date;
         const res = await this._form_state
-            .postForm()
+            .postForm(false, [this._state.calendar])
             .catch((e) => notifyError(e));
         this._state.changed();
         this.loading = false;

@@ -540,7 +540,7 @@ export class EventFormService extends AsyncHandler {
         );
     }
 
-    public postForm(force: boolean = false) {
+    public postForm(force: boolean = false, ignore_space_check: string[] = []) {
         return new Promise<CalendarEvent>(async (resolve, reject) => {
             this._loading.next('Creating event...');
             const form = this._form;
@@ -566,7 +566,14 @@ export class EventFormService extends AsyncHandler {
                 assets,
                 recurrence,
             } = value;
-            const spaces = form.get('resources')?.value || [];
+            let spaces = form.get('resources')?.value || [];
+            if (ignore_space_check.length) {
+                spaces = spaces.filter(
+                    (_) =>
+                        !ignore_space_check.includes(_.email) &&
+                        !ignore_space_check.includes(_.id)
+                );
+            }
             let catering = form.get('catering')?.value || [];
             if (recurrence?._pattern && recurrence?._pattern !== 'none') {
                 this.form.patchValue({ recurring: true });
@@ -592,6 +599,7 @@ export class EventFormService extends AsyncHandler {
                     throw _;
                 });
             }
+            spaces = form.get('resources')?.value || [];
             const is_owner =
                 host === currentUser()?.email ||
                 creator === currentUser()?.email;

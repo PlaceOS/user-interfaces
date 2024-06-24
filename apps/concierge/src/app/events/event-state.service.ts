@@ -17,7 +17,13 @@ import {
 import { OrganisationService } from '@placeos/organisation';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
+import {
+    debounceTime,
+    filter,
+    map,
+    shareReplay,
+    switchMap,
+} from 'rxjs/operators';
 
 export interface GroupEventOptions {
     period: 'week' | 'month';
@@ -43,13 +49,13 @@ export class EventStateService extends AsyncHandler {
         this._poll,
     ]).pipe(
         filter(([bld]) => !!bld),
+        debounceTime(300),
         switchMap(([bld, options]) =>
             queryEvents({
                 period_start: getUnixTime(startOfDay(options.date)),
                 period_end: getUnixTime(
                     endOfDay(options.end || options.date || Date.now())
                 ),
-                zone_ids: options.zone_ids?.join(',') || bld.id,
                 calendars: this.calendar,
             })
         ),
