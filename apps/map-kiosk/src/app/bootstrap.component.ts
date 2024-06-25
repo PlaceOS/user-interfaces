@@ -17,12 +17,13 @@ import { first } from 'rxjs/operators';
         <div class="absolute inset-0 bg-base-200 z-0"></div>
         <div
             form
-            class="relative my-8 mx-auto bg-base-100 overflow-hidden shadow rounded-lg border border-base-300 w-[24rem] max-w-[calc(100%-2rem)] z-10"
+            class="relative my-8 mx-auto bg-base-100 overflow-hidden shadow rounded-lg border border-base-300 w-[28rem] max-w-[calc(100%-2rem)] z-10"
         >
             <header
-                class="px-4 py-3 bg-secondary text-secondary-content w-full text-xl font-medium"
+                class="px-4 py-3 bg-secondary text-secondary-content w-full text-xl font-medium flex items-center justify-between"
             >
-                Map Kiosk Setup
+                <div>Map Kiosk</div>
+                <div class="px-2 py-1 rounded text-sm font-mono">SETUP</div>
             </header>
             <div
                 class="px-4 flex flex-col space-y-2"
@@ -38,6 +39,21 @@ import { first } from 'rxjs/operators';
                             (ngModelChange)="setRegion($event)"
                             placeholder="Select region"
                         >
+                            <mat-select-trigger>
+                                <div class="flex items-center space-x-4">
+                                    <div class="flex-1 truncate">
+                                        {{
+                                            active_region?.display_name ||
+                                                active_region?.name
+                                        }}
+                                    </div>
+                                    <div
+                                        class="text-[0.625rem] font-mono !mr-4 bg-base-200 rounded px-1.5"
+                                    >
+                                        {{ active_region?.id }}
+                                    </div>
+                                </div>
+                            </mat-select-trigger>
                             <mat-option
                                 *ngFor="let option of regions | async"
                                 [value]="option"
@@ -68,6 +84,21 @@ import { first } from 'rxjs/operators';
                             (ngModelChange)="setBuilding($event)"
                             placeholder="Select building"
                         >
+                            <mat-select-trigger>
+                                <div class="flex items-center space-x-4">
+                                    <div class="flex-1 truncate">
+                                        {{
+                                            active_building?.display_name ||
+                                                active_building?.name
+                                        }}
+                                    </div>
+                                    <div
+                                        class="text-[0.625rem] font-mono !mr-4 bg-base-200 rounded px-1.5"
+                                    >
+                                        {{ active_building?.id }}
+                                    </div>
+                                </div>
+                            </mat-select-trigger>
                             <mat-option
                                 *ngFor="let option of buildings | async"
                                 [value]="option"
@@ -77,7 +108,7 @@ import { first } from 'rxjs/operators';
                                         {{ option.display_name || option.name }}
                                     </div>
                                     <div
-                                        class="text-[0.625rem] opacity-30 font-mono"
+                                        class="text-[0.625rem] opacity-60 font-mono"
                                     >
                                         <span class="hidden">&nbsp;[</span
                                         >{{ option.id
@@ -100,6 +131,21 @@ import { first } from 'rxjs/operators';
                             [(ngModel)]="active_level"
                             placeholder="Select level"
                         >
+                            <mat-select-trigger>
+                                <div class="flex items-center space-x-4">
+                                    <div class="flex-1 truncate">
+                                        {{
+                                            active_level?.display_name ||
+                                                active_level?.name
+                                        }}
+                                    </div>
+                                    <div
+                                        class="text-[0.625rem] font-mono !mr-4 bg-base-200 rounded px-1.5"
+                                    >
+                                        {{ active_level?.id }}
+                                    </div>
+                                </div>
+                            </mat-select-trigger>
                             <mat-option
                                 *ngFor="let option of levels | async"
                                 [value]="option"
@@ -184,7 +230,7 @@ import { first } from 'rxjs/operators';
                 </ng-container>
             </div>
             <div
-                class="w-full px-4 py-2 !mt-4 flex items-center justify-end border-t border-base-200"
+                class="w-full px-4 py-2 !mt-4 flex items-center justify-end border-t border-base-300"
                 *ngIf="!loading"
             >
                 <button
