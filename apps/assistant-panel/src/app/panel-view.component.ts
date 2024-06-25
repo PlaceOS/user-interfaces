@@ -2,7 +2,7 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, currentUser } from '@placeos/common';
 import { ChatService } from 'libs/components/src/lib/chat/chat.service';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 
 import * as tf from '@tensorflow/tfjs';
 
@@ -68,20 +68,22 @@ declare let loadVosklet: any;
                     class="absolute opacity-0 pointer-events-none"
                 ></canvas>
             </button>
-            <div class="w-[24rem] h-full overflow-auto bg-base-100">
-                <div class="relative flex flex-col justify-end h-full">
-                    <div
-                        class="absolute inset-0 flex flex-col items-center justify-center space-y-4"
-                        *ngIf="!(messages | async)?.length"
-                    >
-                        <img
-                            class="h-32 w-32 object-contain"
-                            src="assets/icons/no-pending.svg"
-                        />
-                        <p class="opacity-30">
-                            {{ 'PANEL.NO_MESSAGES' | translate }}
-                        </p>
-                    </div>
+            <div
+                class="relative w-[24rem] h-full overflow-auto bg-base-100 flex flex-col justify-end"
+            >
+                <div
+                    class="absolute inset-0 flex flex-col items-center justify-center space-y-4"
+                    *ngIf="!(messages | async)?.length"
+                >
+                    <img
+                        class="h-32 w-32 object-contain"
+                        src="assets/icons/no-pending.svg"
+                    />
+                    <p class="opacity-30">
+                        {{ 'PANEL.NO_MESSAGES' | translate }}
+                    </p>
+                </div>
+                <div class="max-h-full overflow-auto w-full" #message_element>
                     <div
                         class="my-2 p-2 flex space-x-4 hover:bg-base-200"
                         *ngFor="let message of messages | async"
@@ -210,7 +212,9 @@ export class PanelViewComponent extends AsyncHandler {
     };
 
     public readonly messages = this._chat.messages;
-    public readonly progress = this._chat.progress;
+    public readonly progress = this._chat.progress.pipe(
+        tap(() => this._scrollToBottom())
+    );
     public readonly waiting = this._chat.messages.pipe(
         map((_) => _.length !== 0 && _[_.length - 1]?.user_id === this.user?.id)
     );
@@ -220,6 +224,8 @@ export class PanelViewComponent extends AsyncHandler {
     private _video_el: ElementRef<HTMLVideoElement>;
     @ViewChild('canvas', { static: true })
     private _canvas_el: ElementRef<HTMLCanvasElement>;
+    @ViewChild('message_element', { static: true })
+    private _message_el: ElementRef<HTMLDivElement>;
 
     public get user() {
         return currentUser();
@@ -243,16 +249,18 @@ export class PanelViewComponent extends AsyncHandler {
         this.subscription(
             'chat.messages',
             this._chat.messages.subscribe((list) => {
+                this._scrollToBottom();
                 const msg_list = list.filter(
                     (_) => _.user_id !== this.user?.id
                 );
+                const last_message = msg_list[msg_list.length - 1];
                 if (
                     msg_list.length < 1 ||
-                    this._last_message === msg_list[0].id
+                    this._last_message === last_message.id
                 )
                     return;
-                this._last_message = msg_list[0].id;
-                this._speakText(msg_list[0].message);
+                this._last_message = last_message.id;
+                this._speakText(last_message.message);
             })
         );
         this.interval('process_frame', () => this._processWebcamFrame(), 500);
@@ -374,7 +382,6 @@ export class PanelViewComponent extends AsyncHandler {
                 this._setupVoiceRecognition()
             );
         }
-        console.log('Setup Speech Recognition');
         const SpeechRecognition =
             (window as any).SpeechRecognition ||
             (window as any).webkitSpeechRecognition;
@@ -387,12 +394,11 @@ export class PanelViewComponent extends AsyncHandler {
             const { transcript } = event.results[0][0];
             // do something with transcript
             this.current_text = transcript;
-            console.log('Speech Recognition:', transcript);
             this.timeout('on_end', () => this._handleEnd(), 3000);
         };
 
         recognition.onerror = (event) => {
-            console.log('Speech Recognition Error:', event);
+            console.warn('Speech Recognition Error:', event);
             if (event.error === 'no-speech') {
                 this.current_text = '';
                 this.listening = false;
@@ -414,12 +420,7 @@ export class PanelViewComponent extends AsyncHandler {
         this.interval('check_listening', () => this.startListening(), 500);
     }
 
-    public get speech() {
-        return window.speechSynthesis;
-    }
-
     private _speakText(text: string) {
-        console.log('Speak Text:', text);
         if (
             !(
                 'speechSynthesis' in window &&
@@ -430,20 +431,41 @@ export class PanelViewComponent extends AsyncHandler {
             return;
         }
 
-        const voices = this.speech.getVoices();
-        const preferredVoice = voices.find(
-            (voice) => voice.voiceURI === 'Karen'
-        );
+        // Cancel any ongoing speech
+        window.speechSynthesis.cancel();
 
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.rate = 1;
         utterance.pitch = 1;
 
-        if (preferredVoice) {
-            utterance.voice = preferredVoice;
-        }
+        // Use a promise to ensure voices are loaded
+        const setVoice = new Promise<void>((resolve) => {
+            const voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                const preferredVoice = voices.find(
+                    (voice) => voice.voiceURI === 'Karen'
+                );
+                if (preferredVoice) {
+                    utterance.voice = preferredVoice;
+                }
+                resolve();
+            } else {
+                window.speechSynthesis.onvoiceschanged = () => {
+                    const voices = window.speechSynthesis.getVoices();
+                    const preferredVoice = voices.find(
+                        (voice) => voice.voiceURI === 'Karen'
+                    );
+                    if (preferredVoice) {
+                        utterance.voice = preferredVoice;
+                    }
+                    resolve();
+                };
+            }
+        });
 
-        this.speech.speak(utterance);
+        setVoice.then(() => {
+            window.speechSynthesis.speak(utterance);
+        });
     }
 
     private _handleEnd() {
@@ -453,9 +475,19 @@ export class PanelViewComponent extends AsyncHandler {
         this.scale = 1;
         if (this.last_text.length <= 3) return;
         if (this.last_text === this._previous_message) return;
-        console.log('Sending message:', this.last_text);
         this._chat.sendMessage(this.last_text);
         this._previous_message = this.last_text;
         this.last_text = '';
+    }
+
+    private _scrollToBottom() {
+        this.timeout(
+            'scroll_to_bottom',
+            () => {
+                const el = this._message_el.nativeElement;
+                el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+            },
+            50
+        );
     }
 }
