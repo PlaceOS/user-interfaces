@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
-import { debounceTime, map, share, shareReplay, take } from 'rxjs/operators';
+import { debounceTime, map, shareReplay, take } from 'rxjs/operators';
 
 export interface TableColumn {
     key: string;
@@ -124,7 +124,10 @@ export interface TableColumn {
                         <div class="p-4" *ngSwitchDefault>
                             {{ row[column.key] }}
                             <span
-                                *ngIf="row[column.key] == null"
+                                *ngIf="
+                                    row[column.key] == null ||
+                                    row[column.key] === ''
+                                "
                                 class="opacity-30"
                             >
                                 {{ column.empty || 'N/A' }}

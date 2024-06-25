@@ -43,7 +43,11 @@ import { CATERING_STATUSES } from './catering.vars';
                         sortable: false
                     },
                     { key: 'charge_code', name: 'Charge Code' },
-                    { key: 'invoice_number', name: 'Invoice No.' },
+                    {
+                        key: 'invoice_number',
+                        name: 'Invoice No.',
+                        empty: 'No Invoice'
+                    },
                     {
                         key: 'status',
                         name: 'Status',
