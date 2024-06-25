@@ -18,13 +18,36 @@ import { ReportsStateService } from '../reports-state.service';
                     <app-icon>download</app-icon>
                 </button>
             </div>
-            <custom-table
-                [dataSource]="space_list"
-                [pagination]="print ? false : true"
-                [columns]="column_list | async"
-                [display_column]="column_name_list | async"
-                [column_size]="['flex']"
-            ></custom-table>
+            <simple-table
+                class="w-full block text-sm"
+                [data]="space_list"
+                [columns]="[
+                    { key: 'name', name: 'Name' },
+                    { key: 'capacity', name: 'Capacity' },
+                    { key: 'booking_count', name: 'Bookings' },
+                    { key: 'utilisation', name: 'Utilisation' },
+                    { key: 'avg_attendees', name: 'Avg. Invitees per Booking' },
+                    {
+                        key: 'no_shows',
+                        name: 'No Shows',
+                        show: has_attendance | async
+                    },
+                    {
+                        key: 'min_attendance',
+                        name: 'Min. In-Room Attendance',
+                        show: has_attendance | async
+                    },
+                    {
+                        key: 'max_attendance',
+                        name: 'Max. In-Room Attendance',
+                        show: has_attendance | async
+                    },
+                    { key: 'occupancy', name: 'Occupancy %' }
+                ]"
+                [sortable]="true"
+                [page_size]="print ? 0 : 10"
+                empty_message="No events for selected period"
+            ></simple-table>
         </div>
     `,
     styles: [``],
@@ -124,58 +147,6 @@ export class ReportSpacesSpaceListing {
 
     public readonly has_attendance = this.space_list.pipe(
         map((_) => !!_.find(({ attendance }) => attendance !== '?'))
-    );
-
-    public readonly column_list = this.has_attendance.pipe(
-        map((_) =>
-            !_
-                ? [
-                      'name',
-                      'capacity',
-                      'booking_count',
-                      'utilisation',
-                      'avg_attendees',
-                      'occupancy',
-                  ]
-                : [
-                      'name',
-                      'capacity',
-                      'booking_count',
-                      'utilisation',
-                      'avg_attendees',
-                      //   'attendance',
-                      //   'avg_attendance',
-                      'no_shows',
-                      'min_attendance',
-                      'max_attendance',
-                      'occupancy',
-                  ]
-        )
-    );
-    public readonly column_name_list = this.has_attendance.pipe(
-        map((_) =>
-            !_
-                ? [
-                      'Name',
-                      'Room Capacity',
-                      'Bookings',
-                      '% Time booked during office hrs',
-                      'Avg. invitees per booking',
-                  ]
-                : [
-                      'Name',
-                      'Room Capacity',
-                      'Bookings',
-                      '% Time booked during office hrs',
-                      'Avg. invitees per booking',
-                      //   'Total In-room Attendance',
-                      //   'Avg. In-room Attendance',
-                      'No Shows',
-                      'Min. In-room Attendance',
-                      'Max. In-room Attendance',
-                      'Occupancy %',
-                  ]
-        )
     );
 
     public readonly download = async () => {

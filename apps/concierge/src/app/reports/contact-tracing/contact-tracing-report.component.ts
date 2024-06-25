@@ -37,63 +37,61 @@ import { SettingsService } from '@placeos/common';
                                 Contact Events
                             </h2>
                         </div>
-                        <custom-table
-                            class="w-full h-full"
-                            [dataSource]="tracing_events"
+                        <simple-table
+                            class="w-full block text-sm"
+                            [data]="tracing_events"
                             [columns]="[
-                                'date',
-                                'user_id',
-                                'contact_id',
-                                'duration'
+                                {
+                                    key: 'date',
+                                    name: 'Time of Contact',
+                                    content: date_template
+                                },
+                                {
+                                    key: 'user_id',
+                                    name: 'Person',
+                                    content: user_template
+                                },
+                                {
+                                    key: 'contact_id',
+                                    name: 'Close Contact',
+                                    content: user_template
+                                },
+                                {
+                                    key: 'duration',
+                                    name: 'Duration',
+                                    content: duration_template
+                                }
                             ]"
-                            [display_column]="[
-                                'Time of Contact',
-                                'Person',
-                                'Close Contact',
-                                'Duration'
-                            ]"
-                            [column_size]="['12r', '14r', 'flex', '10r']"
-                            [template]="{
-                                options: option_state,
-                                date: date_state,
-                                distance: distance_state,
-                                user_id: user_state,
-                                contact_id: user_state,
-                                duration: duration_state
-                            }"
-                            [pagination]="printing ? false : true"
-                            [page_size]="30"
-                            empty="No contact records for selected period"
-                        ></custom-table>
-                        <ng-template #option_state let-data="data">
-                            <span
-                                class="text-xs px-2 py-1 rounded bg-base-200"
-                                *ngIf="data.length"
-                                [matTooltip]="options(data)"
-                            >
-                                {{ data.length }} option(s)
-                            </span>
-                        </ng-template>
+                            [sortable]="true"
+                            [page_size]="print ? 0 : 30"
+                            empty_message="No contact tracing events for selected period"
+                        ></simple-table>
                         <ng-template
-                            #user_state
+                            #user_template
                             let-data="data"
                             let-row="row"
-                            >{{
-                                (data | user | async)?.name || row.mac_address
-                            }}</ng-template
                         >
-                        <ng-template #date_state let-data="data">
-                            {{ data | date: 'mediumDate' }},
-                            {{ data | date: time_format }}
+                            <div class="p-4">
+                                {{
+                                    (data | user | async)?.name ||
+                                        row.mac_address
+                                }}
+                            </div>
                         </ng-template>
-                        <ng-template #duration_state let-data="data">
-                            {{
-                                formatDuration(data || 0) ||
-                                    'Less than a minute'
-                            }}
+
+                        <ng-template #date_template let-data="data">
+                            <div class="p-4">
+                                {{ data | date: 'mediumDate' }},
+                                {{ data | date: time_format }}
+                            </div>
                         </ng-template>
-                        <ng-template #distance_state let-data="data">
-                            {{ data }}m
+                        <ng-template #duration_template let-data="data">
+                            <div class="p-4">
+                                {{
+                                    formatDuration(data || 0) ||
+                                        'Less than a minute'
+                                }}
+                            </div>
                         </ng-template>
                     </div>
                 </ng-container>

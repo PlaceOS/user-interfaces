@@ -7,13 +7,9 @@ import { startOfDay } from 'date-fns';
 @Component({
     selector: 'app-asset-request-list',
     template: `
-        <div
-            class="relative -left-4 w-[calc(100%+2rem)] mt-4 h-[calc(100%-1rem)] flex flex-col"
-        >
-            <div
-                class="bg-base-100 px-4 border-t border-b border-base-200 flex items-center justify-between"
-            >
-                <div class="opacity-60 text-sm">
+        <div class="relative w-full h-[calc(100%-1rem)] flex flex-col">
+            <div class="flex items-center justify-between">
+                <div class="opacity-60 text-sm p-4">
                     {{ (requests | async)?.length }} asset request{{
                         (requests | async)?.length === '1' ? '' : 's'
                     }}
@@ -23,152 +19,189 @@ import { startOfDay } from 'date-fns';
                     (dateChange)="setDate($event)"
                 ></date-options>
             </div>
-            <div class="w-full overflow-auto h-1/2 flex-1 p-4">
-                <custom-table
-                    asset-requests
+            <div class="w-full overflow-auto h-1/2 flex-1 pt-2">
+                <simple-table
                     class="block min-w-[82rem] text-sm"
-                    [dataSource]="requests"
+                    asset-requests
+                    [data]="requests"
+                    [filter]="(filters | async)?.search"
                     [columns]="[
-                        'user',
-                        'assets',
-                        'date',
-                        'period',
-                        'zones',
-                        'description',
-                        'approval',
-                        'tracking'
+                        {
+                            key: 'user_name',
+                            name: 'Requester',
+                            content: user_template
+                        },
+                        {
+                            key: 'date',
+                            name: 'Deliver At',
+                            content: date_template,
+                            size: '8rem'
+                        },
+                        {
+                            key: 'assets',
+                            name: 'Asset',
+                            content: assets_template,
+                            sortable: false
+                        },
+                        {
+                            key: 'zones',
+                            name: 'Floor',
+                            content: level_template,
+                            size: '9rem',
+                            sortable: false
+                        },
+                        { key: 'description', name: 'Location' },
+                        {
+                            key: 'status',
+                            name: 'Approval',
+                            content: approval_template,
+                            size: '11rem'
+                        },
+                        {
+                            key: 'tracking',
+                            name: 'Tracking',
+                            content: tracking_template,
+                            size: '12rem',
+                            sortable: false
+                        }
                     ]"
-                    [display_column]="[
-                        'Requester',
-                        'Asset',
-                        'Deliver At',
-                        'Meeting Time',
-                        'Floor',
-                        'Location',
-                        'Approval',
-                        'Tracking'
-                    ]"
-                    [column_size]="[
-                        'flex',
-                        '12r',
-                        '',
-                        '8r',
-                        '6r',
-                        '12r',
-                        '10r',
-                        '10r'
-                    ]"
-                    [template]="{
-                        user: user_template,
-                        assets: assets_template,
-                        date: date_template,
-                        period: period_template,
-                        approval: approval_template,
-                        tracking: tracking_template,
-                        zones: level_template,
-                    }"
-                    [empty]="
+                    [empty_message]="
                         (filters | async)?.search
                             ? 'No matching asset requests'
                             : 'There are no asset requests for the currently selected date.'
                     "
+                    [sortable]="true"
                     (row_clicked)="request = $event"
-                ></custom-table>
+                ></simple-table>
+                <div class="w-full h-20"></div>
             </div>
         </div>
         <ng-template #user_template let-row="row">
-            <div class="flex items-center space-x-2">
-                <a-user-avatar [user]="{ name: row.user_name }"></a-user-avatar>
-                <div class="flex-1">{{ row.user_name }}</div>
+            <div class="flex flex-col px-4 py-2 text-left">
+                <div>{{ row.user_name }}</div>
+                <div class="text-xs opacity-30">
+                    {{ date(row) | date: 'MMM d, ' + time_format }} &ndash;
+                    {{
+                        date(row) + row.duration * 60 * 1000
+                            | date: 'MMM d, ' + time_format
+                    }}
+                </div>
             </div>
         </ng-template>
         <ng-template #assets_template let-row="row">
-            <div class="flex flex-col">
+            <div class="flex flex-col p-4">
                 <div
                     *ngFor="
                         let asset of row.extension_data?.request?.items || []
                     "
                 >
-                    {{ asset.quantity || 1 }}× {{ asset.name }}
+                    <span class="font-mono text-sm">
+                        {{ asset.quantity || 1 }}×
+                    </span>
+                    {{ asset.name }}
                 </div>
             </div>
         </ng-template>
         <ng-template #date_template let-row="row">
-            {{
-                row.extension_data?.request?.deliver_at
-                    | date: 'MMM d, ' + time_format
-            }}
+            <div class="p-4">
+                {{
+                    row.date +
+                        row.extension_data?.request?.deliver_offset *
+                            60 *
+                            1000 +
+                        row.extension_data?.request?.deliver_day_offset *
+                            24 *
+                            60 *
+                            60 *
+                            1000 | date: 'MMM d, ' + time_format
+                }}
+            </div>
         </ng-template>
         <ng-template #level_template let-data="data">
-            {{ level(data)?.display_name || 'N/A' }}
-        </ng-template>
-        <ng-template #period_template let-row="row">
-            {{ date(row) | date: 'MMM d, ' + time_format }} <br />
-            {{
-                date(row) + row.duration * 60 * 1000
-                    | date: 'MMM d, ' + time_format
-            }}
+            <div class="p-4">
+                {{ level(data)?.display_name }}
+                <span class="opacity-30" *ngIf="!level(data)">N/A</span>
+            </div>
         </ng-template>
         <ng-template #approval_template let-row="row">
-            <button
-                matRipple
-                class="rounded-3xl !bg-opacity-20 flex items-center px-2 py-1 w-full text-left space-x-2"
-                [class.bg-success]="row.status === 'approved'"
-                [class.bg-error]="row.status === 'declined'"
-                [class.bg-warning]="row.status === 'tentative'"
-                [class.text-success-content]="row.status === 'approved'"
-                [class.text-error-content]="row.status === 'declined'"
-                [class.text-warning-content]="row.status === 'tentative'"
-                [matMenuTriggerFor]="menu"
-                (click)="$event.stopPropagation()"
-                [disabled]="loading[row.id]"
-            >
-                <app-icon class="text-xl">
-                    {{
-                        row.status === 'approved'
-                            ? 'done'
-                            : row.status === 'declined'
-                            ? 'close'
-                            : 'warning'
-                    }}
-                </app-icon>
-                <div class="capitalize flex-1">{{ row.status }}</div>
-                <app-icon class="text-2xl">expand_more</app-icon>
-            </button>
-            <mat-menu #menu="matMenu" class="w-36">
+            <div class="px-4 py-2">
+                <button
+                    matRipple
+                    class="rounded-3xl !bg-opacity-20 flex items-center px-2 py-1 w-full text-left space-x-2"
+                    [class.bg-success]="row.status === 'approved'"
+                    [class.bg-error]="row.status === 'declined'"
+                    [class.bg-warning]="row.status === 'tentative'"
+                    [class.text-success-content]="row.status === 'approved'"
+                    [class.text-error-content]="row.status === 'declined'"
+                    [class.text-warning-content]="row.status === 'tentative'"
+                    [matMenuTriggerFor]="menu"
+                    (click)="$event.stopPropagation()"
+                    [disabled]="loading[row.id]"
+                >
+                    <app-icon class="text-xl">
+                        {{
+                            row.status === 'approved'
+                                ? 'done'
+                                : row.status === 'declined'
+                                ? 'close'
+                                : 'warning'
+                        }}
+                    </app-icon>
+                    <div class="capitalize flex-1">{{ row.status }}</div>
+                    <app-icon class="text-2xl">expand_more</app-icon>
+                </button>
+            </div>
+            <mat-menu #menu="matMenu">
                 <button mat-menu-item (click)="setStatus(row, 'approved')">
-                    Approve
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-2xl">event_available</app-icon>
+                        <div class="pr-2">Approve Asset Request</div>
+                    </div>
                 </button>
                 <button mat-menu-item (click)="setStatus(row, 'declined')">
-                    Decline
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-2xl">event_busy</app-icon>
+                        <div class="pr-2">Decline Asset Request</div>
+                    </div>
                 </button>
             </mat-menu>
         </ng-template>
         <ng-template #tracking_template let-row="row">
-            <button
-                matRipple
-                class="bg-none w-full flex items-center px-2 py-1 text-left"
-                [matMenuTriggerFor]="tracking_menu"
-                (click)="$event.stopPropagation()"
-                [disabled]="loading[row.id]"
-            >
-                <div class="capitalize flex-1">
-                    {{
-                        (row.extension_data?.tracking | splitjoin) ||
-                            'In Storage'
-                    }}
-                </div>
-                <app-icon class="text-2xl">expand_more</app-icon>
-            </button>
-            <mat-menu #tracking_menu="matMenu" class="w-36">
+            <div class="px-4 py-2">
+                <button
+                    matRipple
+                    class="bg-none w-full flex items-center px-2 py-1 text-left rounded"
+                    [matMenuTriggerFor]="tracking_menu"
+                    (click)="$event.stopPropagation()"
+                    [disabled]="loading[row.id]"
+                >
+                    <div class="capitalize flex-1 min-w-32">
+                        {{
+                            (row.extension_data?.tracking | splitjoin) ||
+                                'In Storage'
+                        }}
+                    </div>
+                    <app-icon class="text-2xl">expand_more</app-icon>
+                </button>
+            </div>
+            <mat-menu #tracking_menu="matMenu">
                 <button mat-menu-item (click)="setTracking(row, 'in_storage')">
-                    In Storage
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-2xl">inventory</app-icon>
+                        <div class="pr-2">In Storage</div>
+                    </div>
                 </button>
                 <button mat-menu-item (click)="setTracking(row, 'in_transit')">
-                    In Transit
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-2xl">trolley</app-icon>
+                        <div class="pr-2">In Transit</div>
+                    </div>
                 </button>
                 <button mat-menu-item (click)="setTracking(row, 'at_location')">
-                    At Location
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-2xl">place</app-icon>
+                        <div class="pr-2">At Location</div>
+                    </div>
                 </button>
             </mat-menu>
         </ng-template>

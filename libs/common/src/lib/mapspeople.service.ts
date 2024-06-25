@@ -89,7 +89,7 @@ export class MapsPeopleService extends AsyncHandler {
         if (!mapsindoors) return;
         if (mapsindoors && !this._injected.mapsindoors) {
             const script = document.createElement('script');
-            script.src = `https://app.mapsindoors.com/mapsindoors/js/sdk/4.31.0/mapsindoors-4.31.0.js.gz?apikey=${mapsindoors}`;
+            script.src = `https://app.mapsindoors.com/mapsindoors/js/sdk/4.35.0/mapsindoors-4.35.0.js.gz?apikey=${mapsindoors}`;
             document.body.appendChild(script);
             this._injected.mapsindoors = true;
         }

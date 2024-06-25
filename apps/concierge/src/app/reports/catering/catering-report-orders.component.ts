@@ -22,24 +22,36 @@ import { SettingsService } from '@placeos/common';
                     <app-icon>download</app-icon>
                 </button>
             </div>
-            <custom-table
-                class="w-full h-full"
-                [dataSource]="orders"
-                [columns]="['deliver_at', 'item_count', 'total_cost']"
-                [display_column]="['Date', 'Items', 'Total Cost']"
-                [column_size]="['flex']"
-                [template]="{
-                    deliver_at: date_state,
-                    total_cost: cost_state
-                }"
-                [pagination]="print ? false : true"
-                empty="No orders for selected period"
-            ></custom-table>
-            <ng-template #date_state let-data="data">
-                {{ data | date }} at {{ data | date: time_format }}
+            <simple-table
+                class="w-full block text-sm"
+                [data]="orders"
+                [columns]="[
+                    {
+                        key: 'deliver_at',
+                        name: 'Deliver At',
+                        content: date_template
+                    },
+                    { key: 'item_count', name: 'Items' },
+                    {
+                        key: 'total_cost',
+                        name: 'Total Cost',
+                        content: cost_template
+                    }
+                ]"
+                [sortable]="true"
+                [page_size]="print ? 0 : 10"
+                empty_message="No orders for selected period"
+            ></simple-table>
+
+            <ng-template #date_template let-data="data">
+                <div class="p-4">
+                    {{ data | date }} at {{ data | date: time_format }}
+                </div>
             </ng-template>
-            <ng-template #cost_state let-data="data">
-                {{ data / 100 | currency: code }}
+            <ng-template #cost_template let-data="data">
+                <div class="p-4">
+                    {{ data / 100 | currency: code }}
+                </div>
             </ng-template>
         </div>
     `,

@@ -20,31 +20,26 @@ import { ReportsStateService } from '../reports-state.service';
                         <app-icon>download</app-icon>
                     </button>
                 </div>
-                <custom-table
-                    red-header
-                    [dataSource]="level_list"
-                    [pagination]="print ? false : true"
+                <simple-table
+                    class="w-full block text-sm"
+                    [data]="level_list"
                     [columns]="[
-                        'name',
-                        'avg_usage',
-                        'approved',
-                        'count',
-                        'utilisation'
+                        { key: 'name', name: 'Level' },
+                        { key: 'avg_usage', name: 'Avg. Used Desks' },
+                        { key: 'approved', name: 'Approved Bookings' },
+                        { key: 'count', name: 'Total Requests' },
+                        {
+                            key: 'utilisation',
+                            name: 'Utilisation',
+                            content: percent_view
+                        }
                     ]"
-                    [display_column]="[
-                        'Level',
-                        'Avg. Used Desks',
-                        'Approved Bookings',
-                        'Total Requests',
-                        'Utilisation'
-                    ]"
-                    [column_size]="['flex']"
-                    [template]="{
-                        utilisation: percent_view
-                    }"
-                ></custom-table>
+                    [page_size]="print ? 0 : 10"
+                    [sortable]="true"
+                >
+                </simple-table>
                 <ng-template #percent_view let-data="data">
-                    {{ data || '0' }}%
+                    <div class="p-4">{{ data || '0' }}%</div>
                 </ng-template>
             </div>
         </div>

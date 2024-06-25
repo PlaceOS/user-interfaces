@@ -165,6 +165,7 @@ const EMPTY = [];
                                     (ngModelChange)="
                                         form.patchValue({ date: $event })
                                     "
+                                    [disabled]="form.controls.date.disabled"
                                     [ngModelOptions]="{ standalone: true }"
                                     [use_24hr]="use_24hr"
                                 ></a-time-field>
@@ -608,7 +609,9 @@ export class EventManageComponent extends AsyncHandler {
             (booking.linked_event || this.form.getRawValue().secondary_resource)
         ) {
             if (booking.linked_event) {
-                await removeEvent(booking.linked_event.event_id)
+                await removeEvent(booking.linked_event.event_id, {
+                    system_id: booking.linked_event.system_id,
+                })
                     .toPromise()
                     .catch((e) => {
                         notifyError(e);

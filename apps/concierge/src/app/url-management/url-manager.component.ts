@@ -9,7 +9,7 @@ import { UrlManagementService } from './url-management.service';
             <app-sidebar></app-sidebar>
             <main class="flex flex-col flex-1 w-1/2 h-full">
                 <header
-                    class="flex items-center justify-between mb-2 px-8 py-8"
+                    class="flex items-center justify-between mb-2 px-8 py-4"
                 >
                     <h2 class="text-2xl font-medium">Short URL Management</h2>
                     <button btn matRipple (click)="new()">Add Short URL</button>

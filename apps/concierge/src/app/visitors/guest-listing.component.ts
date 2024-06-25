@@ -1,40 +1,60 @@
 import { Component } from '@angular/core';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService, notifyError } from '@placeos/common';
 import { VisitorsStateService } from './visitors-state.service';
 import { Booking } from '@placeos/bookings';
 import { showMetadata } from '@placeos/ts-client';
 import { OrganisationService } from '@placeos/organisation';
-import { tap } from 'rxjs/operators';
 
 @Component({
     selector: 'guest-listings',
     template: `
-        <div
-            class="w-full flex flex-col flex-1 text-sm h-full overflow-auto pb-20"
-        >
-            <custom-table
-                class="min-w-[80rem]"
-                [dataSource]="guests"
-                [filter]="search | async"
-                [columns]="columns"
-                [display_column]="display_columns"
-                [column_size]="column_sizes"
-                [template]="{
-                    state: state_template,
-                    status: status_template,
-                    date: date_template,
-                    host: host_template,
-                    id_data: id_template,
-                    actions: action_template,
-                    induction: boolean_template
-                }"
-                [empty]="
-                    (search | async)
-                        ? 'No matching visitors'
-                        : 'There are visitors for the currently selected date.'
-                "
-            ></custom-table>
-        </div>
+        <simple-table
+            class="min-w-[60rem] block text-sm z-0"
+            [data]="guests"
+            [columns]="[
+                {
+                    key: 'state',
+                    name: 'Checked In',
+                    content: state_template,
+                    size: '6.5rem',
+                    sortable: false
+                },
+                {
+                    key: 'date',
+                    name: 'Time',
+                    content: date_template,
+                    size: '6rem'
+                },
+                {
+                    key: 'asset_name',
+                    name: 'Visitor',
+                    content: person_template
+                },
+                { key: 'user_name', name: 'Host', content: host_template },
+                {
+                    key: 'status',
+                    name: 'State',
+                    content: status_template,
+                    size: '9.5rem'
+                },
+                {
+                    key: 'induction',
+                    name: 'Inducted',
+                    content: boolean_template,
+                    show: !!inductions_enabled,
+                    size: '5.5rem'
+                },
+                {
+                    key: 'actions',
+                    name: ' ',
+                    content: action_template,
+                    size: '3.25rem',
+                    sortable: false
+                }
+            ]"
+            [filter]="search | async"
+            [sortable]="true"
+        ></simple-table>
         <ng-template #state_template let-row="row">
             <div
                 *ngIf="!row?.checked_in && row.checked_out_at"
@@ -63,8 +83,27 @@ import { tap } from 'rxjs/operators';
                 <app-icon>done</app-icon>
             </div>
         </ng-template>
+        <ng-template #person_template let-row="row">
+            <div class="px-4 py-2">
+                <div>{{ row.asset_name || row.asset_id }}</div>
+                <div
+                    *ngIf="row.asset_name && row.asset_id"
+                    class="opacity-30 text-xs"
+                >
+                    {{ row.asset_id }}
+                </div>
+            </div>
+        </ng-template>
         <ng-template #host_template let-row="row">
-            {{ row.extension_data?.host }}
+            <div class="px-4 py-2">
+                <div>{{ row.user_name || row.user_email }}</div>
+                <div
+                    *ngIf="row.user_name && row.user_email"
+                    class="opacity-30 text-xs"
+                >
+                    {{ row.user_email }}
+                </div>
+            </div>
         </ng-template>
         <ng-template #id_template let-row="row">
             <div customTooltip [content]="id_confirmation">
@@ -108,177 +147,209 @@ import { tap } from 'rxjs/operators';
         </ng-template>
         <ng-template #boolean_template let-row="row">
             <div
-                *ngIf="row.induction"
+                *ngIf="inducted(row)"
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
             >
                 <app-icon>done</app-icon>
             </div>
             <div
-                *ngIf="
-                    !row.induction && !row.process_state.includes('declined')
-                "
+                *ngIf="inducted(row) === null"
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-warning text-warning-content mx-auto"
             >
                 <app-icon>question_mark</app-icon>
             </div>
             <div
-                *ngIf="!row.induction && row.process_state.includes('declined')"
+                *ngIf="inducted(row) === false"
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-error text-error-content mx-auto"
             >
                 <app-icon>close</app-icon>
             </div>
         </ng-template>
         <ng-template #status_template let-row="row">
-            <button
-                matRipple
-                class="rounded-3xl bg-warning text-warning-content border-none"
-                [class.!text-success-content]="row?.status === 'approved'"
-                [class.!bg-success]="row?.status === 'approved'"
-                [class.!text-error-content]="row?.status === 'declined'"
-                [class.!bg-error]="row?.status === 'declined'"
-                [class.!text-neutral-content]="row?.status === 'ended'"
-                [class.!bg-neutral]="row?.status === 'ended'"
-                [class.opacity-60]="row?.status === 'ended'"
-                [matMenuTriggerFor]="menu"
-                [disabled]="row?.status === 'ended'"
-            >
-                <div class="flex items-center">
-                    <div class="mx-2">
-                        {{
-                            row?.status === 'ended'
-                                ? 'Ended'
-                                : row?.status === 'approved'
-                                ? 'Approved'
-                                : row?.status === 'declined'
-                                ? 'Declined'
-                                : 'Pending'
-                        }}
+            <div class="px-4">
+                <button
+                    matRipple
+                    class="rounded-3xl bg-warning text-warning-content border-none w-[7.5rem] h-10"
+                    [class.!text-success-content]="row?.status === 'approved'"
+                    [class.!bg-success]="row?.status === 'approved'"
+                    [class.!text-error-content]="row?.status === 'declined'"
+                    [class.!bg-error]="row?.status === 'declined'"
+                    [class.!text-neutral-content]="row?.status === 'ended'"
+                    [class.!bg-neutral]="row?.status === 'ended'"
+                    [class.opacity-30]="row?.status === 'ended'"
+                    [matMenuTriggerFor]="menu"
+                    [disabled]="
+                        row?.status === 'ended' ||
+                        (row.checked_in && !row.checked_out_at)
+                    "
+                >
+                    <div class="flex items-center pl-4 pr-2 space-x-2">
+                        <div class="flex-1 text-left">
+                            {{
+                                row?.status === 'ended'
+                                    ? 'Ended'
+                                    : row?.status === 'approved'
+                                    ? 'Approved'
+                                    : row?.status === 'declined'
+                                    ? 'Declined'
+                                    : 'Pending'
+                            }}
+                        </div>
+                        <app-icon
+                            class="text-2xl"
+                            *ngIf="
+                                !(
+                                    row?.status === 'ended' ||
+                                    (row.checked_in && !row.checked_out_at)
+                                )
+                            "
+                        >
+                            arrow_drop_down
+                        </app-icon>
                     </div>
-                    <app-icon class="text-2xl">arrow_drop_down</app-icon>
-                </div>
-            </button>
+                </button>
+            </div>
             <mat-menu #menu="matMenu">
                 <button mat-menu-item (click)="approveVisitor(row)">
-                    Approve Visitor
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-2xl">event_available</app-icon>
+                        <div class="pr-2">Approve Visitor</div>
+                    </div>
                 </button>
                 <button mat-menu-item (click)="declineVisitor(row)">
-                    Decline Visitor
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-2xl text-error">
+                            event_busy
+                        </app-icon>
+                        <div class="pr-2">Decline Visitor</div>
+                    </div>
                 </button>
             </mat-menu>
         </ng-template>
         <ng-template #date_template let-row="row">
-            {{
-                row.date
-                    | date
-                        : ((filters | async)?.period > 1
-                              ? 'MMM d, ' + time_format
-                              : time_format)
-            }}
+            <div class="px-4">
+                {{
+                    row.date
+                        | date
+                            : ((filters | async)?.period > 1
+                                  ? 'MMM d, ' + time_format
+                                  : time_format)
+                }}
+            </div>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="flex items-center justify-end">
-                <button
-                    icon
-                    matRipple
-                    [class.pointer-events-none]="!row.linked_event"
-                    [matMenuTriggerFor]="checkin_menu"
-                >
-                    <app-icon
-                        class="text-2xl"
-                        [class.opacity-0]="!row.linked_event"
-                    >
-                        event
-                    </app-icon>
+            <div class="flex items-center justify-end px-2">
+                <button icon matRipple [matMenuTriggerFor]="guest_menu">
+                    <app-icon>more_horiz</app-icon>
                 </button>
-                <mat-menu #checkin_menu="matMenu">
-                    <button mat-menu-item (click)="checkinAllVisitors(row)">
-                        <div class="flex items-center space-x-2">
-                            <app-icon class="text-2xl"
-                                >event_available</app-icon
-                            >
-                            <div>Checkin All for Booking</div>
-                        </div>
-                    </button>
-                    <button mat-menu-item (click)="checkoutAllVisitors(row)">
-                        <div class="flex items-center space-x-2">
-                            <app-icon class="text-2xl">event_busy</app-icon>
-                            <div>Checkout All for Booking</div>
-                        </div>
-                    </button>
-                </mat-menu>
-                <button
-                    icon
-                    matRipple
-                    [disabled]="!row.attachments?.length"
-                    title=""
-                    matTooltip="View Attachments"
-                    [matMenuTriggerFor]="menu"
-                >
-                    <app-icon>attachment</app-icon>
-                </button>
-                <mat-menu #menu="matMenu">
-                    <a
-                        *ngFor="let item of row.attachments"
-                        [href]="item.url"
+                <mat-menu #guest_menu="matMenu">
+                    <button
                         mat-menu-item
-                        >{{ item.name }}</a
+                        [disabled]="!row.attachment?.length"
+                        [matMenuTriggerFor]="attachment_menu"
                     >
+                        <div class="flex items-center space-x-2">
+                            <app-icon class="text-2xl">attachment</app-icon>
+                            <div>View Attachments</div>
+                        </div>
+                    </button>
+                    <mat-menu #menu="matMenu">
+                        <a
+                            *ngFor="let item of row.attachments"
+                            [href]="item.url"
+                            mat-menu-item
+                        >
+                            {{ item.name }}
+                        </a>
+                    </mat-menu>
+                    <button mat-menu-item (click)="setExt(row, 'remote', true)">
+                        <div class="flex items-center space-x-2">
+                            <app-icon class="text-2xl">
+                                {{
+                                    row.extension_data.remote
+                                        ? 'business'
+                                        : 'laptop'
+                                }}
+                            </app-icon>
+                            <div>
+                                Set as
+                                {{
+                                    row.extension_data.remote
+                                        ? 'Onsite'
+                                        : 'Remote'
+                                }}
+                                Visitor
+                            </div>
+                        </div>
+                    </button>
+                    <button
+                        mat-menu-item
+                        *ngIf="can_print"
+                        (click)="printQRCode()"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <app-icon class="text-2xl">print</app-icon>
+                            <div>Print QR Code</div>
+                        </div>
+                    </button>
+                    <a mat-menu-item [href]="'mailto:' + row?.asset_id">
+                        <div class="flex items-center space-x-2">
+                            <app-icon class="text-2xl">email</app-icon>
+                            <div>
+                                Email
+                                {{
+                                    row?.user_email === row?.asset_id
+                                        ? 'Host'
+                                        : 'Guest'
+                                }}
+                            </div>
+                        </div>
+                    </a>
+                    <button
+                        mat-menu-item
+                        (click)="row.checked_in ? checkout(row) : checkin(row)"
+                        *ngIf="!row.checked_out_at"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <app-icon class="text-2xl">
+                                {{
+                                    row.checked_in
+                                        ? 'event_busy'
+                                        : 'event_available'
+                                }}
+                            </app-icon>
+                            <div>
+                                {{ row.checked_in ? 'Checkout' : 'Checkin' }}
+                                Guest
+                            </div>
+                        </div>
+                    </button>
+                    <ng-container *ngIf="row.linked_event">
+                        <button mat-menu-item (click)="checkinAllVisitors(row)">
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-2xl">
+                                    event_available
+                                </app-icon>
+                                <div>Checkin all for Meeting</div>
+                            </div>
+                        </button>
+                        <button
+                            mat-menu-item
+                            (click)="checkoutAllVisitors(row)"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-2xl text-error">
+                                    event_busy
+                                </app-icon>
+                                <div>Checkout all for Meeting</div>
+                            </div>
+                        </button>
+                    </ng-container>
                 </mat-menu>
-                <action-icon
-                    remote
-                    [matTooltip]="
-                        row.extension_data.remote
-                            ? 'Set as In-Person Visitor'
-                            : 'Set as Remote Visitior'
-                    "
-                    [loading]="loading === 'remote'"
-                    [content]="
-                        row.extension_data.remote ? 'tap_and_play' : 'business'
-                    "
-                    (click)="setExt(row, 'remote', !row.extension_data.remote)"
-                >
-                </action-icon>
-                <action-icon
-                    checkin
-                    matTooltip="Checkin Guest"
-                    [loading]="loading === 'checkin'"
-                    [state]="row?.checked_in ? 'success' : ''"
-                    content="event_available"
-                    (click)="checkin(row)"
-                >
-                </action-icon>
-                <action-icon
-                    checkout
-                    matTooltip="Checkout Guest"
-                    [loading]="loading === 'checkout'"
-                    content="event_busy"
-                    (click)="checkout(row)"
-                >
-                </action-icon>
-                <a
-                    [href]="'mailto:' + row?.asset_id"
-                    icon
-                    matRipple
-                    [matTooltip]="
-                        row?.user_email === row?.asset_id
-                            ? 'Email Host'
-                            : 'Email Guest'
-                    "
-                >
-                    <app-icon>email</app-icon>
-                </a>
-                <action-icon
-                    matTooltip="Print QR Code"
-                    [loading]="loading === 'printing'"
-                    content="event_busy"
-                    (click)="printQRCode()"
-                    [class.invisible]="!can_print"
-                >
-                </action-icon>
             </div>
         </ng-template>
         <button
-            class="bg-secondary hover:shadow-lg shadow absolute bottom-4 right-4 text-white h-12 w-12"
+            class="bg-secondary hover:shadow-lg shadow absolute bottom-4 right-4 text-white h-12 w-12 z-20"
             matTooltip="Download Visitor List"
             matTooltipPosition="left"
             icon
@@ -288,16 +359,15 @@ import { tap } from 'rxjs/operators';
         >
             <app-icon>download</app-icon>
         </button>
+        <div class="w-full h-8"></div>
     `,
     styles: [``],
 })
 export class GuestListingComponent extends AsyncHandler {
-    public readonly guests = this._state.filtered_bookings.pipe(
-        tap((_: any) => console.log(_))
-    );
+    public readonly guests = this._state.filtered_bookings;
     public readonly search = this._state.search;
     public readonly filters = this._state.filters;
-    private _inductions_enabled = false;
+    public inductions_enabled = false;
 
     public readonly downloadVisitorList = () =>
         this._state.downloadVisitorsList();
@@ -311,7 +381,10 @@ export class GuestListingComponent extends AsyncHandler {
     public readonly setExt = (u, f, v) => this._state.setExt(u, f, v);
 
     public readonly checkin = async (item: Booking) => {
-        await this._state.setCheckinState(item, true);
+        await this._state.setCheckinState(item, true).catch((e) => {
+            if (e !== 'User declined') notifyError(e);
+            throw e;
+        });
         this._state.poll();
     };
 
@@ -320,61 +393,17 @@ export class GuestListingComponent extends AsyncHandler {
         this._state.poll();
     };
 
-    public get columns() {
-        return this._inductions_enabled
-            ? [
-                  'state',
-                  'date',
-                  'asset_name',
-                  'user_name',
-                  'asset_id',
-                  'status',
-                  'induction',
-                  'actions',
-              ]
-            : [
-                  'state',
-                  'date',
-                  'asset_name',
-                  'user_name',
-                  'asset_id',
-                  'status',
-                  'actions',
-              ];
-    }
-
-    public get display_columns() {
-        const fields = {
-            state: 'Checked In',
-            date: 'Time',
-            asset_name: 'Person',
-            user_name: 'Host',
-            asset_id: 'Email',
-            id_data: 'ID',
-            status: 'State',
-            induction: 'Inducted',
-            actions: ' ',
-        };
-        return this.columns.map((_) => fields[_] || _);
-    }
-
-    public get column_sizes() {
-        const fields = {
-            state: '4.5r',
-            date: '8r',
-            asset_name: '12r',
-            user_name: '12r',
-            asset_id: 'flex',
-            id_data: '8r',
-            status: '10r',
-            actions: '16r',
-            induction: '5r',
-        };
-        return this.columns.map((_) => fields[_] || _);
-    }
-
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public inducted(item: Booking) {
+        if (item.checked_in) return true;
+        return item.process_state.includes('declined')
+            ? false
+            : item.process_state.includes('inducted') || item.induction
+            ? true
+            : null;
     }
 
     constructor(
@@ -397,7 +426,7 @@ export class GuestListingComponent extends AsyncHandler {
                     bld.id,
                     visitor_kiosk_app
                 ).toPromise();
-                this._inductions_enabled =
+                this.inductions_enabled =
                     metadata.details?.induction_enabled &&
                     metadata.details?.induction_details;
             })

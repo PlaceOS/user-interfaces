@@ -9,7 +9,9 @@ import { OrganisationService } from '@placeos/organisation';
 @Component({
     selector: 'asset-manager-topbar',
     template: `
-        <div class="w-full px-4 py-2 bg-base-100 flex items-center space-x-2">
+        <div
+            class="w-full px-8 pt-4 pb-2 bg-base-100 flex items-center space-x-2"
+        >
             <a
                 btn
                 matRipple

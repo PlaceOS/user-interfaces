@@ -6,8 +6,9 @@ import {
     SimpleChanges,
     TemplateRef,
 } from '@angular/core';
+import { AsyncHandler } from '@placeos/common';
 import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { debounceTime, map, shareReplay, take } from 'rxjs/operators';
 
 export interface TableColumn {
     key: string;
@@ -17,6 +18,7 @@ export interface TableColumn {
     content?: string | TemplateRef<any> | Component;
     size?: string;
     show?: boolean;
+    empty?: string;
 }
 
 @Component({
@@ -24,7 +26,7 @@ export interface TableColumn {
     template: `
         <div
             role="table"
-            class="grid border border-base-200"
+            class="grid border border-base-300"
             [style.gridTemplateColumns]="column_template"
             (click)="active_row >= 0 ? rowClicked.emit(active_row) : null"
             (touchend)="active_row = -1"
@@ -33,14 +35,14 @@ export interface TableColumn {
             <div
                 *ngIf="selectable"
                 id="column-selector"
-                class="sticky top-0 flex items-center justify-between px-2 border-r border-base-200 bg-base-300 min-h-full z-10"
-                [style.gridArea]="gridSquare(1, 1)"
+                class="sticky top-0 flex items-center justify-between px-2 border-r border-b border-base-200 bg-base-300 min-h-full z-20"
+                [style.gridColumn]="'1 / 2'"
             >
                 <mat-checkbox
-                    [checked]="selected.length === (data_view$ | async).length"
+                    [checked]="selected.length === (data_view$ | async)?.length"
                     [indeterminate]="
                         selected.length > 0 &&
-                        selected.length < (data_view$ | async).length
+                        selected.length < (data_view$ | async)?.length
                     "
                     (change)="selectAll($event.checked)"
                 ></mat-checkbox>
@@ -50,8 +52,14 @@ export interface TableColumn {
                 matRipple
                 *ngFor="let column of active_columns; let i = index"
                 [id]="'column-' + column.key"
-                class="sticky top-0 flex items-center justify-between p-4 border-base-200 bg-base-300 min-h-full z-10"
-                [style.gridArea]="gridSquare(1, 1 + i + (selectable ? 1 : 0))"
+                class="sticky top-0 flex items-center justify-between p-4 border-b border-base-200 bg-base-300 min-h-full z-20"
+                [style.gridColumn]="
+                    1 +
+                    i +
+                    (selectable ? 1 : 0) +
+                    ' / ' +
+                    (2 + i + (selectable ? 1 : 0))
+                "
                 [class.pointer-events-none]="
                     !sortable || column.sortable === false
                 "
@@ -72,13 +80,22 @@ export interface TableColumn {
                     }}
                 </app-icon>
             </button>
-            <ng-container *ngFor="let row of data_view$ | async; let i = index">
+            <ng-container
+                *ngFor="
+                    let row of data_view$
+                        | async
+                        | slice
+                            : page * (page_size || 9999)
+                            : (page + 1) * (page_size || 9999);
+                    let i = index
+                "
+            >
                 <div
                     *ngIf="selectable"
                     id="column-selector"
-                    class="flex items-center justify-between px-2 border-r border-base-200 min-h-full z-0"
-                    [style.gridArea]="gridSquare(2 + i, 1)"
-                    [class.border-b]="i !== (data_view$ | async).length - 1"
+                    class="flex items-center justify-between px-2 border-r border-base-200 min-h-full z-10"
+                    [style.gridColumn]="'1 / 2'"
+                    [class.border-b]="i !== (data_view$ | async)?.length - 1"
                     (mouseenter)="active_row = i"
                     (touchstart)="active_row = i"
                 >
@@ -89,11 +106,15 @@ export interface TableColumn {
                 </div>
                 <div
                     *ngFor="let column of active_columns; let j = index"
-                    class="flex items-center justify-between border-base-200 min-h-full z-0"
-                    [style.gridArea]="
-                        gridSquare(2 + i, 1 + j + (selectable ? 1 : 0))
+                    class="flex items-center justify-between border-base-200 min-h-full z-10"
+                    [style.gridColumn]="
+                        1 +
+                        j +
+                        (selectable ? 1 : 0) +
+                        ' / ' +
+                        (2 + j + (selectable ? 1 : 0))
                     "
-                    [class.border-b]="i !== (data_view$ | async).length - 1"
+                    [class.border-b]="i !== (data_view$ | async)?.length - 1"
                     [class.border-r]="j !== active_columns.length - 1"
                     [class.width]="column.size"
                     (mouseenter)="active_row = i"
@@ -102,8 +123,14 @@ export interface TableColumn {
                     <ng-container [ngSwitch]="columnType(column)">
                         <div class="p-4" *ngSwitchDefault>
                             {{ row[column.key] }}
-                            <span *ngIf="!row[column.key]" class="opacity-30">
-                                N/A
+                            <span
+                                *ngIf="
+                                    row[column.key] == null ||
+                                    row[column.key] === ''
+                                "
+                                class="opacity-30"
+                            >
+                                {{ column.empty || 'N/A' }}
                             </span>
                         </div>
                         <ng-container *ngSwitchCase="'template'">
@@ -114,10 +141,11 @@ export interface TableColumn {
                                         first: i === 0,
                                         last:
                                             i ===
-                                                (data_view$ | async).length -
+                                                (data_view$ | async)?.length -
                                                     1 ||
                                             i ===
-                                                (data_view$ | async).length - 1,
+                                                (data_view$ | async)?.length -
+                                                    1,
                                         index: i,
                                         data: row[column.key],
                                         row: row,
@@ -129,6 +157,26 @@ export interface TableColumn {
                         </ng-container>
                     </ng-container>
                 </div>
+                <div
+                    child-node
+                    *ngIf="show_children[row.id] && child_template"
+                    [style.gridColumn]="'span ' + active_columns.length"
+                    class="border-b last:border-t last:border-b-0 border-base-200"
+                >
+                    <ng-container
+                        *ngTemplateOutlet="
+                            child_template;
+                            context: {
+                                first: i === 0,
+                                last:
+                                    i === (data_view$ | async)?.length - 1 ||
+                                    i === (data_view$ | async)?.length - 1,
+                                index: i,
+                                row: row,
+                            }
+                        "
+                    ></ng-container>
+                </div>
             </ng-container>
             <div
                 *ngIf="!(data_view$ | async)?.length"
@@ -138,6 +186,47 @@ export interface TableColumn {
                 {{ empty_message }}
             </div>
             <!-- TODO: Add pagination -->
+        </div>
+        <div
+            *ngIf="page_size"
+            class="sticky bottom-0 w-full flex items-center justify-end space-x-2 p-2 bg-base-200"
+        >
+            <div class="px-4 py-2">
+                {{ page * (page_size || 9999) + 1 }} &ndash;
+                {{
+                    (page + 1) * (page_size || 9999) > total_count
+                        ? total_count
+                        : (page + 1) * (page_size || 9999)
+                }}
+                of {{ total_count }}
+            </div>
+            <button
+                icon
+                matRipple
+                [disabled]="page === 0"
+                (click)="setPage(page - 1)"
+            >
+                <app-icon>chevron_left</app-icon>
+            </button>
+            <button
+                icon
+                matRipple
+                [disabled]="page === total_pages - 1"
+                (click)="setPage(page + 1)"
+            >
+                <app-icon>chevron_right</app-icon>
+            </button>
+            <button icon matRipple [disabled]="page === 0" (click)="setPage(0)">
+                <app-icon>first_page</app-icon>
+            </button>
+            <button
+                icon
+                matRipple
+                [disabled]="page === total_pages - 1"
+                (click)="setPage(total_pages - 1)"
+            >
+                <app-icon>last_page</app-icon>
+            </button>
         </div>
     `,
     styles: [
@@ -162,19 +251,23 @@ export interface TableColumn {
         `,
     ],
 })
-export class SimpleTableComponent<T extends {} = any> {
+export class SimpleTableComponent<T extends {} = any> extends AsyncHandler {
     @Input() public data: T[] | Observable<T[]>;
     @Input() public columns: TableColumn[] = [];
     @Input() public selectable = false;
     @Input() public filter: string = '';
     @Input() public sortable = false;
     @Input() public selected: number[] = [];
-    @Input() public page_size = -1;
+    @Input() public page_size = 0;
     @Input() public empty_message = 'No data to list';
+    @Input() public child_template: TemplateRef<any> = null;
+    @Input() public show_children: Record<string, boolean> = {};
     @Output() public selectedChange = new EventEmitter<number[]>();
     @Output() public rowClicked = new EventEmitter<number>();
 
     public page = 0;
+    public total_count = 0;
+    public total_pages = 0;
     public active_row = -1;
     public active_columns = [];
 
@@ -205,8 +298,6 @@ export class SimpleTableComponent<T extends {} = any> {
         return this.selectable ? `3.5rem ${template}` : template;
     }
 
-    public ngOnInit() {}
-
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.filter) {
             this._filter$.next(this.filter);
@@ -220,6 +311,7 @@ export class SimpleTableComponent<T extends {} = any> {
                 this._filter$,
                 this._sort$,
             ]).pipe(
+                debounceTime(300),
                 map(([data, filter, sort]) => {
                     data = [...data];
                     if (filter) {
@@ -232,7 +324,7 @@ export class SimpleTableComponent<T extends {} = any> {
                         );
                     }
                     if (sort && data.length) {
-                        const type = data[0][sort.key];
+                        const type = typeof data[0][sort.key];
                         if (type === 'number') {
                             data = data.sort((a, b) => {
                                 const result = a[sort.key] - b[sort.key];
@@ -240,8 +332,12 @@ export class SimpleTableComponent<T extends {} = any> {
                             });
                         } else {
                             data = data.sort((a, b) => {
-                                const a_value = JSON.stringify(a[sort.key]);
-                                const b_value = JSON.stringify(b[sort.key]);
+                                const a_value = JSON.stringify(
+                                    a[sort.key] || ''
+                                );
+                                const b_value = JSON.stringify(
+                                    b[sort.key] || ''
+                                );
                                 const result = a_value.localeCompare(b_value);
                                 return sort.reverse ? -result : result;
                             });
@@ -249,8 +345,15 @@ export class SimpleTableComponent<T extends {} = any> {
                     }
                     this.selected = [];
                     this.page = 0;
+                    if (this.page_size) {
+                        this.total_count = data.length;
+                        this.total_pages = Math.ceil(
+                            this.total_count / this.page_size
+                        );
+                    }
                     return data;
-                })
+                }),
+                shareReplay(1)
             );
         }
     }
@@ -283,5 +386,9 @@ export class SimpleTableComponent<T extends {} = any> {
         } else {
             this._sort$.next(null);
         }
+    }
+
+    public setPage(page: number) {
+        this.timeout('set_page', () => (this.page = page), 100);
     }
 }

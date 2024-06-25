@@ -40,13 +40,19 @@ import { OrganisationService } from '@placeos/organisation';
                     class="opacity-60 text-xs flex-1 overflow-hidden h-[4.5rem] mb-2 text-left"
                 >
                     <p class="line-clamp-4">{{ raw_description }}</p>
+                    <p *ngIf="!raw_description.trim()" class="opacity-30">
+                        No description
+                    </p>
                 </div>
                 <div class="flex items-center space-x-2 text-sm">
                     <app-icon class="text-info">place</app-icon>
-                    <div class="opacity-60" *ngIf="space?.id">
+                    <div *ngIf="is_onsite && has_space">
                         {{ space.display_name || space.name || '' }}
                     </div>
-                    <div class="opacity-30" *ngIf="!space?.id">
+                    <div *ngIf="is_onsite && !has_space" class="opacity-30">
+                        Room to be confirmed
+                    </div>
+                    <div class="opacity-30" *ngIf="!is_onsite">
                         Remote event
                     </div>
                 </div>
@@ -99,13 +105,25 @@ import { OrganisationService } from '@placeos/organisation';
                         </div>
                         <div class="h-20 overflow-hidden text-left">
                             <p class="line-clamp-3">{{ raw_description }}</p>
+                            <p
+                                *ngIf="!raw_description.trim()"
+                                class="opacity-30"
+                            >
+                                No description
+                            </p>
                         </div>
                         <div class="flex items-center space-x-2 text-sm">
                             <app-icon class="text-info">place</app-icon>
-                            <div class="opacity-60" *ngIf="space?.id">
+                            <div *ngIf="is_onsite && has_space">
                                 {{ space.display_name || space.name || '' }}
                             </div>
-                            <div class="opacity-30" *ngIf="!space?.id">
+                            <div
+                                *ngIf="is_onsite && !has_space"
+                                class="opacity-30"
+                            >
+                                Room to be confirmed
+                            </div>
+                            <div class="opacity-30" *ngIf="!is_onsite">
                                 Remote event
                             </div>
                         </div>
@@ -141,6 +159,21 @@ export class GroupEventCardComponent {
 
     public get time_format(): string {
         return this._settings.time_format;
+    }
+
+    public get is_onsite() {
+        return this.event?.extension_data.attendance_type !== 'ONLINE';
+    }
+
+    public get has_space() {
+        return !!this.event?.linked_event?.system_id;
+    }
+
+    public get is_online() {
+        return (
+            !this.is_onsite ||
+            this.event?.extension_data.attendance_type === 'ANY'
+        );
     }
 
     constructor(
