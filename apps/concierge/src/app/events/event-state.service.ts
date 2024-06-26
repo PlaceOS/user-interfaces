@@ -49,7 +49,7 @@ export class EventStateService extends AsyncHandler {
         this._poll,
     ]).pipe(
         filter(([bld]) => !!bld),
-        debounceTime(300),
+        debounceTime(310),
         switchMap(([bld, options]) =>
             queryEvents({
                 period_start: getUnixTime(startOfDay(options.date)),
@@ -70,7 +70,7 @@ export class EventStateService extends AsyncHandler {
     public readonly options = this._options.asObservable();
 
     public changed() {
-        this._changed.next(Date.now());
+        this.timeout('changed', () => this._changed.next(Date.now()), 100);
     }
 
     public get period() {

@@ -341,7 +341,10 @@ const EMPTY = [];
                                     <label for="level">Room</label>
                                     <mat-form-field appearance="outline">
                                         <mat-select
-                                            formControlName="secondary_resource"
+                                            [(ngModel)]="resource"
+                                            [ngModelOptions]="{
+                                                standalone: true
+                                            }"
                                             [disabled]="
                                                 (available_spaces | async)
                                                     ?.length === 0
@@ -354,7 +357,7 @@ const EMPTY = [];
                                                     let room of available_spaces
                                                         | async
                                                 "
-                                                [value]="room.id"
+                                                [value]="room"
                                             >
                                                 {{
                                                     room.display_name ||
@@ -412,6 +415,7 @@ const EMPTY = [];
 export class EventManageComponent extends AsyncHandler {
     public loading = false;
     public timezones: string[] = [];
+    public resource: Space;
     public filtered_timezones: string[] = [];
 
     public readonly form = this._form_state.form;
@@ -491,6 +495,9 @@ export class EventManageComponent extends AsyncHandler {
                         ]);
                     this._form_state.newForm(booking);
                     console.log('Event:', booking.extension_data?.tags);
+                    this.resource = booking.resources.find(
+                        (_) => _.email !== this._state.calendar
+                    );
                     this.form.patchValue({
                         tags: booking.extension_data?.tags || [],
                         organiser: new StaffUser({
@@ -569,12 +576,15 @@ export class EventManageComponent extends AsyncHandler {
         resources.push(
             new Space({ id: this._state.calendar, email: this._state.calendar })
         );
+        if (this.resource) {
+            resources.push(this.resource);
+        }
         console.log('Resources:', resources);
         resources = unique(resources, 'email');
         this.form.patchValue({ resources });
         const date = this.form.getRawValue().date;
         const res = await this._form_state
-            .postForm(false, [this._state.calendar])
+            .postForm(false, [this._state.calendar], true)
             .catch((e) => notifyError(e));
         this._state.changed();
         this.loading = false;
