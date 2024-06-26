@@ -36,6 +36,16 @@ export interface BookingComplete extends Booking {
     guests?: User[];
 }
 
+export enum RecurrenceDays {
+    SUNDAY = 1 << 0,
+    MONDAY = 1 << 1,
+    TUESDAY = 1 << 2,
+    WEDNESDAY = 1 << 3,
+    THURSDAY = 1 << 4,
+    FRIDAY = 1 << 5,
+    SATURDAY = 1 << 6,
+}
+
 export interface LinkedCalendarEvent {
     id?: string;
     date: number;
@@ -140,6 +150,18 @@ export class Booking {
     public readonly linked_bookings: LinkedBooking[];
 
     public readonly process_state: string;
+    /** Unix epoch for the start time of the reccurence instance in seconds */
+    public readonly instance?: number;
+    /** Type of recurrence instance */
+    public readonly recurrence_type: 'none' | 'daily' | 'weekly' | 'monthly';
+    /** Bit flags for the recurrence days of the week */
+    public readonly recurrence_days?: number;
+    /** Week of the month to recur on */
+    public readonly recurrence_week_of_month?: 1 | 2 | -1 | -2;
+    /** How often to recur */
+    public readonly recurrence_interval?: number;
+    /** Unix epoch for the end time of the recurrence in seconds */
+    public readonly recurrence_end?: number;
 
     public get group() {
         return this.extension_data.group || '';
@@ -278,6 +300,14 @@ export class Booking {
                 ? 'approved'
                 : 'tentative';
         this.process_state = data.process_state || 'pending';
+
+        this.recurrence_type = data.recurrence_type || 'none';
+        this.recurrence_days = data.recurrence_days;
+        this.recurrence_week_of_month = data.recurrence_week_of_month;
+        this.recurrence_interval = data.recurrence_interval;
+        this.recurrence_end = data.recurrence_end;
+        this.instance = data.instance;
+
         for (const key in data) {
             if (!(key in this) && !IGNORE_EXT_KEYS.includes(key) && data[key]) {
                 this.extension_data[key] =

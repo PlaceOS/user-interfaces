@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { ParkingStateService } from './parking-state.service';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, notifySuccess } from '@placeos/common';
 import { combineLatest } from 'rxjs';
 import { ParkingSpace } from '@placeos/explore';
 import { Booking } from '@placeos/bookings';
+import { Clipboard } from '@angular/cdk/clipboard';
 
 @Component({
     selector: 'parking-space-list',
@@ -13,16 +14,19 @@ import { Booking } from '@placeos/bookings';
             class="w-full"
         ></mat-progress-bar>
         <simple-table
-            class="min-w-[76rem] block text-sm"
+            class="min-w-[52rem] block text-sm"
             [data]="spaces"
             [columns]="[
-                { key: 'name', name: 'Name' },
-                { key: 'map_id', name: 'Bay Number', content: id_template },
-                { key: 'assigned_to', name: 'Assigned' },
+                { key: 'name', name: 'Parking Bay', content: name_template },
+                {
+                    key: 'assigned_to',
+                    name: 'Assigned',
+                    content: assigned_template
+                },
                 { key: 'notes', name: 'Notes' },
                 {
                     key: 'status',
-                    name: 'Status Today',
+                    name: 'Status',
                     content: status_template,
                     sortable: false,
                     size: '4.5rem'
@@ -32,7 +36,7 @@ import { Booking } from '@placeos/bookings';
                     name: ' ',
                     content: action_template,
                     sortable: false,
-                    size: '7.5rem'
+                    size: '6.5rem'
                 }
             ]"
             [filter]="(options | async)?.search"
@@ -63,11 +67,35 @@ import { Booking } from '@placeos/bookings';
                 </app-icon>
             </div>
         </ng-template>
-        <ng-template #id_template let-data="data">
-            <span class="font-mono text-sm p-4">{{ data }}</span>
+        <ng-template #name_template let-row="row" let-data="data">
+            <button
+                class="px-4 py-2 text-left leading-tight"
+                (click)="copyToClipboard(row.id)"
+            >
+                <div class="">{{ data }}</div>
+                <div class="text-[0.625rem] opacity-30 font-mono">
+                    {{ row.id }}
+                </div>
+            </button>
+        </ng-template>
+        <ng-template #assigned_template let-row="row" let-data="data">
+            <div *ngIf="!data" class="p-4 opacity-30">No Assigned User</div>
+            <button
+                *ngIf="data"
+                class="px-4 py-2 text-left leading-tight"
+                (click)="copyToClipboard(data, 'assigned')"
+            >
+                <div class="">{{ row.assigned_name || data }}</div>
+                <div
+                    *ngIf="row.assigned_name"
+                    class="text-[0.625rem] opacity-30 font-mono"
+                >
+                    {{ data }}
+                </div>
+            </button>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="w-full flex items-center justify-end space-x-2 px-4">
+            <div class="flex items-center space-x-2 mx-auto">
                 <button
                     icon
                     matRipple
@@ -102,7 +130,10 @@ export class ParkingSpaceListComponent extends AsyncHandler {
     public readonly editSpace = (s?) => this._state.editSpace(s);
     public readonly removeSpace = (s) => this._state.removeSpace(s);
 
-    constructor(private _state: ParkingStateService) {
+    constructor(
+        private _state: ParkingStateService,
+        private _clipboard: Clipboard
+    ) {
         super();
     }
 
@@ -113,6 +144,16 @@ export class ParkingSpaceListComponent extends AsyncHandler {
                 ([spaces, bookings]) => this._updateStatusList(spaces, bookings)
             )
         );
+    }
+
+    public copyToClipboard(id: string, type?: string) {
+        const success = this._clipboard.copy(id);
+        if (success)
+            notifySuccess(
+                type
+                    ? 'Assigned user email copied to clipboard.'
+                    : 'Parking Bay ID copied to clipboard.'
+            );
     }
 
     public statusTooltip(status: string) {
@@ -159,6 +200,5 @@ export class ParkingSpaceListComponent extends AsyncHandler {
                 this.space_status[space.id] = 'free';
             }
         }
-        console.log('Space Status:', this.space_status);
     }
 }

@@ -11,11 +11,10 @@ import { BehaviorSubject } from 'rxjs';
             class="w-full"
         ></mat-progress-bar>
         <simple-table
-            class="min-w-[76rem] block text-sm"
+            class="min-w-[68rem] block text-sm"
             [data]="user_list"
             [columns]="[
-                { key: 'name', name: 'Name' },
-                { key: 'email', name: 'Email' },
+                { key: 'name', name: 'User', content: name_template },
                 { key: 'car_color', name: 'Car Colour' },
                 {
                     key: 'plate_number',
@@ -35,12 +34,23 @@ import { BehaviorSubject } from 'rxjs';
                     name: ' ',
                     content: action_template,
                     sortable: false,
-                    size: '7.5rem'
+                    size: '6.5rem'
                 }
             ]"
             [filter]="(options | async)?.search"
             [sortable]="true"
         ></simple-table>
+        <ng-template #name_template let-row="row" let-data="data">
+            <button
+                class="px-4 py-2 text-left leading-tight"
+                (click)="copyToClipboard(row.id)"
+            >
+                <div class="">{{ data }}</div>
+                <div class="text-[0.625rem] opacity-30 font-mono">
+                    {{ row.email }}
+                </div>
+            </button>
+        </ng-template>
         <ng-template #denied_template let-data="data">
             <div
                 *ngIf="data"
@@ -56,7 +66,7 @@ import { BehaviorSubject } from 'rxjs';
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="w-full flex items-center justify-end space-x-2 px-4">
+            <div class="flex items-center space-x-2 mx-auto">
                 <button
                     icon
                     matRipple

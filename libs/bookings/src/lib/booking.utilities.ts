@@ -82,6 +82,13 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         plate_number: new FormControl(
             booking.extension_data.plate_number || ''
         ),
+        recurrence_type: new FormControl(booking.recurrence_type || 'none'),
+        recurrence_days: new FormControl(booking.recurrence_days),
+        recurrence_week_of_month: new FormControl(
+            booking.recurrence_week_of_month
+        ),
+        recurrence_interval: new FormControl(booking.recurrence_interval),
+        recurrence_end: new FormControl(booking.recurrence_end),
     });
     form.valueChanges.subscribe((v) => {
         const user = v.user;
