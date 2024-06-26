@@ -164,21 +164,19 @@ import { User } from '@placeos/users';
         </ng-template>
         <ng-template #boolean_template let-row="row">
             <div
-                *ngIf="row.induction"
+                *ngIf="inducted(row)"
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
             >
                 <app-icon>done</app-icon>
             </div>
             <div
-                *ngIf="
-                    !row.induction && !row.process_state.includes('declined')
-                "
+                *ngIf="inducted(row) === null"
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-warning text-warning-content mx-auto"
             >
                 <app-icon>question_mark</app-icon>
             </div>
             <div
-                *ngIf="!row.induction && row.process_state.includes('declined')"
+                *ngIf="inducted(row) === false"
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-error text-error-content mx-auto"
             >
                 <app-icon>close</app-icon>
@@ -340,6 +338,7 @@ import { User } from '@placeos/users';
                     <button
                         mat-menu-item
                         (click)="row.checked_in ? checkout(row) : checkin(row)"
+                        *ngIf="!row.checked_out_at"
                     >
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">
@@ -380,7 +379,7 @@ import { User } from '@placeos/users';
             </div>
         </ng-template>
         <button
-            class="bg-secondary hover:shadow-lg shadow absolute bottom-4 right-4 text-white h-12 w-12 z-10"
+            class="bg-secondary hover:shadow-lg shadow absolute bottom-4 right-4 text-white h-12 w-12 z-20"
             matTooltip="Download Visitor List"
             matTooltipPosition="left"
             icon
@@ -413,7 +412,7 @@ export class GuestListingComponent extends AsyncHandler {
 
     public readonly checkin = async (item: Booking) => {
         await this._state.setCheckinState(item, true).catch((e) => {
-            notifyError(e);
+            if (e !== 'User declined') notifyError(e);
             throw e;
         });
         this._state.poll();
@@ -433,6 +432,15 @@ export class GuestListingComponent extends AsyncHandler {
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public inducted(item: Booking) {
+        if (item.checked_in) return true;
+        return item.process_state.includes('declined')
+            ? false
+            : item.process_state.includes('inducted') || item.induction
+            ? true
+            : null;
     }
 
     constructor(

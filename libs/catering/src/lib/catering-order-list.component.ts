@@ -15,7 +15,7 @@ import { CATERING_STATUSES } from './catering.vars';
                 mode="indeterminate"
             ></mat-progress-bar> -->
             <simple-table
-                class="min-w-[80rem] w-full block text-sm"
+                class="min-w-[72rem] w-full block text-sm"
                 [data]="order_list"
                 [columns]="[
                     {
@@ -32,17 +32,22 @@ import { CATERING_STATUSES } from './catering.vars';
                     },
                     {
                         key: 'event',
-                        name: 'Meeting Time',
-                        content: event_time_template
+                        name: 'Location',
+                        content: location_template,
+                        sortable: false
                     },
                     {
                         key: 'event',
-                        name: 'Location',
-                        content: location_template
+                        name: 'Host',
+                        content: host_template,
+                        sortable: false
                     },
-                    { key: 'event', name: 'Host', content: host_template },
                     { key: 'charge_code', name: 'Charge Code' },
-                    { key: 'invoice_number', name: 'Invoice No.' },
+                    {
+                        key: 'invoice_number',
+                        name: 'Invoice No.',
+                        empty: 'No Invoice'
+                    },
                     {
                         key: 'status',
                         name: 'Status',
@@ -66,26 +71,26 @@ import { CATERING_STATUSES } from './catering.vars';
             <ng-template #state_template let-data="data">
                 <div class="p-2">
                     <div
-                        class="rounded-full bg-base-300 p-2 text-2xl text-base-content opacity-60 flex items-center justify-center"
+                        class="rounded-full bg-base-200 p-2 text-2xl flex items-center justify-center"
                     >
                         <app-icon>room_service</app-icon>
                     </div>
                 </div>
             </ng-template>
-            <ng-template #time_template let-data="data">
-                <div class="p-4">{{ data | date: time_format }}</div>
-            </ng-template>
-            <ng-template #event_time_template let-data="data">
-                <div class="px-4 py-2 text-sm">
-                    {{ data?.date | date: 'MMM d' }},
-                    {{ data?.date | date: time_format }}
-                    <br />
-                    {{ data?.date_end | date: 'MMM d' }},
-                    {{ data?.date_end | date: time_format }}
+            <ng-template #time_template let-data="data" let-row="row">
+                <div class="p-4">
+                    <div>Deliver at {{ data | date: time_format }}</div>
+                    <div class="text-xs opacity-30">
+                        {{ row?.event?.date | date: 'MMM d' }},
+                        {{ row?.event?.date | date: time_format }}
+                        -
+                        {{ row?.event?.date_end | date: 'MMM d' }},
+                        {{ row?.event?.date_end | date: time_format }}
+                    </div>
                 </div>
             </ng-template>
             <ng-template #location_template let-data="data">
-                <div class="p-4">
+                <div class="px-4 py-2">
                     {{ data?.space?.display_name || data?.space?.name || '' }}
                     <span
                         class="opacity-30"
@@ -98,14 +103,19 @@ import { CATERING_STATUSES } from './catering.vars';
                 </div>
             </ng-template>
             <ng-template #host_template let-data="data">
-                <div class="p-4">
-                    {{ data?.organiser?.name || data?.host || '' }}
-                    <span
-                        class="opacity-30"
-                        *ngIf="!(data?.organiser?.name || data?.host)"
-                    >
-                        Unknown Host
-                    </span>
+                <div class="px-4 py-2">
+                    <div>
+                        {{ data?.organiser?.name || data?.host || '' }}
+                        <span
+                            class="opacity-30"
+                            *ngIf="!(data?.organiser?.name || data?.host)"
+                        >
+                            Unknown Host
+                        </span>
+                    </div>
+                    <div class="text-xs opacity-30">
+                        {{ data?.organiser?.email || data?.host }}
+                    </div>
                 </div>
             </ng-template>
             <ng-template #status_template let-row="row" let-data="data">
@@ -142,9 +152,28 @@ import { CATERING_STATUSES } from './catering.vars';
             </ng-template>
             <ng-template #actions_template let-row="row">
                 <div class="flex items-center space-x-2 p-2 mx-auto">
-                    <button icon matRipple [matTooltip]="row.notes">
+                    <button
+                        icon
+                        matRipple
+                        customTooltip
+                        [hover]="true"
+                        xPosition="end"
+                        yPosition="top"
+                        [content]="notes_template"
+                        [disabled]="!row.notes"
+                    >
                         <app-icon>description</app-icon>
                     </button>
+                    <ng-template #notes_template>
+                        <div
+                            class="p-2 rounded-lg bg-base-100 text-base-content max-w-[32rem] min-w-[8rem] shadow border border-base-200"
+                        >
+                            <div class="mb-2">Notes</div>
+                            <p class="text-sm px-4 py-2 bg-base-200 rounded">
+                                {{ row.notes }}
+                            </p>
+                        </div>
+                    </ng-template>
                     <button
                         icon
                         matRipple

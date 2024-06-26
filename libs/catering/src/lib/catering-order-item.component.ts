@@ -33,9 +33,9 @@ const ACTIVE_ITEMS = new Set<string>();
             >
                 <div class="">
                     <div
-                        class="p-1 rounded-full bg-base-400 w-8 h-8 flex items-center justify-center"
+                        class="p-1 rounded-full bg-base-300 w-10 h-10 flex items-center justify-center font-mono text-sm"
                     >
-                        ⨯{{ item?.amount || item?.quantity || 1 }}
+                        {{ item?.amount || item?.quantity || 1 }}×
                     </div>
                 </div>
                 <div class="flex-1">{{ item?.name }}</div>
