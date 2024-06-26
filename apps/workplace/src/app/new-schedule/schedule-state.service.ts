@@ -199,6 +199,7 @@ export class ScheduleStateService extends AsyncHandler {
                 period_start: getUnixTime(startOfDay(date)),
                 period_end: getUnixTime(endOfDay(date)),
                 type: 'parking',
+                include_deleted: 'recurring',
             }).pipe(catchError((_) => of([])))
         ),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),

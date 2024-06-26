@@ -294,7 +294,7 @@ export class Booking {
         this.status =
             this.checked_out_at > 0
                 ? 'ended'
-                : this.rejected
+                : this.rejected || this.deleted
                 ? 'declined'
                 : this.approved
                 ? 'approved'

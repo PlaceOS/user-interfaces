@@ -24,6 +24,8 @@ export interface BookingsQueryParams {
     type: BookingType;
     /** Include checked out bookings in the response */
     include_checked_out?: boolean;
+    /** Include deleted bookings in the response (can be set to apply to only recurring bookings) */
+    include_deleted?: 'all' | 'recurring';
     /** Include deleted bookings in the response */
     deleted?: boolean;
     /**  */
