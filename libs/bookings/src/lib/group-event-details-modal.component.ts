@@ -210,8 +210,14 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                             <app-icon>place</app-icon>
                         </div>
                         <div class="flex flex-col text-sm">
-                            <div *ngIf="is_onsite">
+                            <div *ngIf="is_onsite && has_space">
                                 {{ (system_id | space | async)?.display_name }}
+                            </div>
+                            <div
+                                *ngIf="is_onsite && !has_space"
+                                class="opacity-30"
+                            >
+                                Room to be confirmed
                             </div>
                             <div *ngIf="is_online" class="opacity-30">
                                 {{
@@ -243,7 +249,10 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                         <span
                             [innerHTML]="booking.description | sanitize"
                         ></span>
-                        <span *ngIf="!booking.description" class="opacity-30">
+                        <span
+                            *ngIf="!booking.description.trim()"
+                            class="opacity-30"
+                        >
                             No description
                         </span>
                     </div>
@@ -300,32 +309,6 @@ import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
                                         No location set for this event
                                     </span>
                                 </div>
-                                <div class="flex items-center space-x-2 pt-4">
-                                    <div
-                                        class="flex items-center justify-center h-10 w-10 rounded-full bg-base-200"
-                                        matTooltip="WiFi available"
-                                    >
-                                        <app-icon class="text-2xl"
-                                            >wifi</app-icon
-                                        >
-                                    </div>
-                                    <div
-                                        class="flex items-center justify-center h-10 w-10 rounded-full bg-base-200"
-                                        matTooltip="Cafe available"
-                                    >
-                                        <app-icon class="text-2xl"
-                                            >local_cafe</app-icon
-                                        >
-                                    </div>
-                                    <div
-                                        class="flex items-center justify-center h-10 w-10 rounded-full bg-base-200"
-                                        matTooltip="Open spaces nearby"
-                                    >
-                                        <app-icon class="text-2xl"
-                                            >chat</app-icon
-                                        >
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -374,8 +357,13 @@ export class GroupEventDetailsModalComponent {
             this.booking.extension_data?.featured
         );
     }
+
     public get is_onsite() {
-        return this.booking.linked_event?.system_id;
+        return this.booking.extension_data.attendance_type !== 'ONLINE';
+    }
+
+    public get has_space() {
+        return !!this.booking.linked_event?.system_id;
     }
 
     public get is_online() {

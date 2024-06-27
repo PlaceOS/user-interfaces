@@ -50,54 +50,76 @@ import {
                     (rulesetChange)="save($event)"
                     *ngSwitchCase="'form'"
                 ></booking-rules-form>
-                <custom-table
-                    [dataSource]="booking_rules"
+                <simple-table
+                    class="w-full min-w-[32rem] block text-sm"
+                    *ngSwitchCase="'list'"
+                    [data]="booking_rules"
                     [columns]="[
-                        '_index',
-                        'zone',
-                        'name',
-                        'auto_approve',
-                        'hidden',
-                        'conditions',
-                        'actions'
+                        {
+                            key: '_index',
+                            name: ' ',
+                            size: '3.5rem',
+                            content: index_template
+                        },
+                        { key: 'zone', name: 'Zone', content: zone_template },
+                        { key: 'name', name: 'Name' },
+                        {
+                            key: 'auto_approve',
+                            name: 'Auto-Approve',
+                            content: bool_template,
+                            size: '5.5rem'
+                        },
+                        {
+                            key: 'hidden',
+                            name: 'Hide Matches',
+                            content: bool_template,
+                            size: '5.5rem'
+                        },
+                        {
+                            key: 'conditions',
+                            name: 'Conditions',
+                            content: conditions_template
+                        },
+                        {
+                            key: 'actions',
+                            name: 'Actions',
+                            size: '11.5rem',
+                            content: actions_template
+                        }
                     ]"
-                    [display_column]="[
-                        ' ',
-                        'Zone',
-                        'Name',
-                        'Auto-Approve',
-                        'Hide Matches',
-                        'Conditions',
-                        ' '
-                    ]"
-                    [column_size]="[
-                        '3r',
-                        '10r',
-                        'flex',
-                        '7r',
-                        '7r',
-                        '7r',
-                        '10r'
-                    ]"
-                    [template]="{
-                        auto_approve: auto_approve_template,
-                        hidden: hidden_template,
-                        conditions: conditions_template,
-                        actions: actions_template
-                    }"
-                    *ngSwitchDefault
-                ></custom-table>
-                <ng-template #auto_approve_template let-row="row">
-                    {{ row.rules.auto_approve ? 'Yes' : 'No' }}
-                </ng-template>
-                <ng-template #hidden_template let-row="row">
-                    {{ row.rules.hidden ? 'Yes' : 'No' }}
+                ></simple-table>
+                <ng-template #index_template let-index="index">
+                    <div class="p-4 m-auto font-medium">
+                        {{ (index || 0) + 1 }}
+                    </div>
                 </ng-template>
                 <ng-template #conditions_template let-data="data">
-                    {{ keyCount(data) }} Conditions
+                    <div class="p-4">{{ keyCount(data) }} Conditions</div>
                 </ng-template>
-                <ng-template #actions_template let-row="row" let-index="index">
-                    <div class="w-full flex items-center  justify-end">
+                <ng-template #zone_template let-data="data">
+                    <div class="px-4 py-2">
+                        <div>{{ (data | level)?.display_name || data }}</div>
+                        <div
+                            class="font-mono text-[0.625rem] opacity-30"
+                            *ngIf="(data | level)?.id"
+                        >
+                            {{ data }}
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template #bool_template let-data="data">
+                    <div
+                        [class.bg-error]="!data"
+                        [class.bg-success]="data"
+                        class="rounded h-8 w-8 flex items-center justify-center text-2xl text-white mx-auto"
+                    >
+                        <app-icon>{{ data ? 'done' : 'close' }}</app-icon>
+                    </div>
+                </ng-template>
+                <ng-template #actions_template let-row="row">
+                    <div
+                        class="w-full flex items-center mx-auto space-x-2 px-2"
+                    >
                         <button
                             icon
                             matRipple
@@ -128,7 +150,7 @@ import {
                             (click)="removeRuleset(row)"
                             matTooltip="Remove Ruleset"
                         >
-                            <app-icon>delete</app-icon>
+                            <app-icon class="text-error">delete</app-icon>
                         </button>
                     </div>
                 </ng-template>

@@ -6,12 +6,18 @@ import { AsyncHandler } from '@placeos/common';
 @Component({
     selector: 'app-catering',
     template: `
-        <main class="relative w-full flex flex-col bg-base-200">
+        <main class="relative w-full flex flex-col bg-base-100">
             <catering-topbar
                 *ngIf="page"
                 class="relative z-10"
             ></catering-topbar>
-            <ng-container [ngSwitch]="page">
+            <div
+                class="p-2 flex items-center justify-center bg-info text-white text-sm mb-4 mx-8 rounded"
+                *ngIf="page === 'menu'"
+            >
+                To edit the menu de-select all levels from the top left
+            </div>
+            <div class="flex flex-col flex-1 h-1/2 px-8" [ngSwitch]="page">
                 <catering-order-list
                     *ngSwitchCase="'orders'"
                     class="flex-1"
@@ -22,21 +28,23 @@ import { AsyncHandler } from '@placeos/common';
                 ></catering-menu>
                 <div
                     *ngSwitchDefault
-                    class="flex flex-1 items-center justify-center"
+                    class="flex flex-1 items-center justify-center h-1/2 w-full my-8 bg-base-200 rounded-2xl"
                 >
                     <a
                         matRipple
-                        class="rounded flex flex-col items-center bg-base-100 shadow text-black overflow-hidden"
+                        class="w-[28rem] h-64 rounded flex flex-col items-center bg-base-100 text-base-content overflow-hidden m-2 border border-base-300"
                         [routerLink]="['/menu']"
                     >
                         <div
-                            name="img"
-                            class="w-full flex flex-1 items-center justify-center text-2xl text-white"
-                            [style.background]="
-                                'rgba(0,0,0, .45) url(assets/img/menus.jpg)'
-                            "
+                            class="relative w-full flex flex-1 items-center justify-center"
+                            [style.background]="'url(assets/img/menus.jpg)'"
                         >
-                            Menus and Pricing
+                            <div
+                                class="absolute inset-0 bg-base-content opacity-40 z-0"
+                            ></div>
+                            <div class="text-2xl text-base-100 z-10">
+                                Menus and Pricing
+                            </div>
                         </div>
                         <div
                             class="p-2 h-14 w-full text-sm text-center flex items-center justify-center"
@@ -46,17 +54,19 @@ import { AsyncHandler } from '@placeos/common';
                     </a>
                     <a
                         matRipple
-                        class="rounded flex flex-col items-center bg-base-100 shadow text-black overflow-hidden"
+                        class="w-[28rem] h-64 rounded flex flex-col items-center bg-base-100 text-base-content overflow-hidden m-2 border border-base-300"
                         [routerLink]="['/orders']"
                     >
                         <div
-                            name="img"
-                            class="w-full flex flex-1 items-center justify-center text-2xl text-white"
-                            [style.background]="
-                                'rgba(0,0,0, .45) url(assets/img/orders.jpg)'
-                            "
+                            class="relative w-full flex flex-1 items-center justify-center"
+                            [style.background]="'url(assets/img/orders.jpg)'"
                         >
-                            Today's Orders
+                            <div
+                                class="absolute inset-0 bg-base-content opacity-40 z-0"
+                            ></div>
+                            <div class="text-2xl text-base-100 z-10">
+                                Today's Orders
+                            </div>
                         </div>
                         <div
                             class="p-2 h-14 w-full text-sm text-center flex items-center justify-center"
@@ -65,7 +75,7 @@ import { AsyncHandler } from '@placeos/common';
                         </div>
                     </a>
                 </div>
-            </ng-container>
+            </div>
         </main>
     `,
     styles: [
@@ -74,26 +84,6 @@ import { AsyncHandler } from '@placeos/common';
                 display: flex;
                 height: 100%;
                 width: 100%;
-            }
-
-            a {
-                width: 28rem;
-                height: 16rem;
-                margin-left: 0.5rem;
-                text-decoration: none;
-                transition: background 200ms;
-            }
-
-            a:hover {
-                background-color: #00000001 !important;
-            }
-
-            a:first-child {
-                margin: 0;
-            }
-
-            [name='img'] {
-                background: rgba(0, 0, 0, 0.45);
             }
         `,
     ],

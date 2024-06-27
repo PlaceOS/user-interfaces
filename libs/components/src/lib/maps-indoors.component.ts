@@ -36,6 +36,8 @@ interface MapsIndoorServices {
     directions_renderer: any;
 }
 
+const RESOURCE_MAP: Record<string, any> = {};
+
 @Component({
     selector: 'maps-indoors',
     template: `
@@ -83,6 +85,14 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         private _org: OrganisationService
     ) {
         super();
+        const data =
+            sessionStorage.getItem('PLACEOS.mapsindoors.resources') || '{}';
+        const value = JSON.parse(data);
+        for (const key in value) {
+            if (value.hasOwnProperty(key)) {
+                RESOURCE_MAP[key] = value[key];
+            }
+        }
     }
 
     public ngOnInit() {
@@ -114,6 +124,16 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         if (changes.options) {
             this._addFloorSelector();
         }
+    }
+
+    private _setResource(id: string, resource: any) {
+        RESOURCE_MAP[id] = resource;
+        this.timeout('set_resource', () => {
+            sessionStorage.setItem(
+                'PLACEOS.mapsindoors.resources',
+                JSON.stringify(RESOURCE_MAP)
+            );
+        });
     }
 
     private _initialiseServices() {
@@ -168,8 +188,12 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                 mapsIndoors: maps_indoors,
             }),
         };
+        console.log('Resource:', this._services.mapsindoors);
         this._initialised.next(true);
-        if (this.zone) this._centerOnZone();
+        if (this.zone) {
+            this._services.map.setZoom(DEFAULT_ZOOM);
+            this._centerOnZone();
+        }
         this._addFloorSelector();
         // Add Events listenders
         this._services.mapsindoors.addListener('building_changed', (e) =>
@@ -189,6 +213,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             () => window.dispatchEvent(new Event('resize')),
             100
         );
+        (window as any).maps_indoors = this._services;
         this.timeout('focus', () => this._focusOnLocation());
         this.timeout('init_zoom', () => this._handleZoomChange(DEFAULT_ZOOM));
     }
@@ -281,6 +306,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             index: key,
             ...floors[key],
         }));
+        log('MapsIndoors', 'Floor List:', this._floor_list);
         if (!this._services) return;
         const bld = this._org.buildings.find(
             (_) => _.id === id || _.map_id === id
@@ -315,6 +341,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             event.properties?.roomId ||
             event.id;
         const actions = this.metadata?.actions || [];
+        log('MapsIndoors', `Registered Actions`, actions);
         const ignore_actions = ['mousedown', 'touchstart', 'enter', 'leave'];
         for (const action of actions) {
             if (
@@ -334,19 +361,32 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         });
     }
 
-    private _updateMapStyling() {
+    private async _updateMapStyling() {
         if (!this._services) return;
         const styles = this.metadata?.styles || {};
         for (const id in styles) {
             if (!styles[id].fill) continue;
-            this._services.mapsindoors.setDisplayRule(id, {
+            let resource = RESOURCE_MAP[id];
+            if (!resource) {
+                const id_simple = id.replace(/#/, '');
+                const list = await this._search(id_simple);
+                if (!list.length) continue;
+                resource = list.find(
+                    (_) =>
+                        _.properties?.externalId === id_simple ||
+                        _.properties?.roomId === id_simple ||
+                        _.id === id_simple
+                );
+                if (resource) this._setResource(id, resource);
+            }
+            if (!resource) continue;
+            const value = {
+                extrusionHeight: 0,
+                extrusionVisible: false,
                 polygonVisible: true,
-                polygonFillOpacity: 0.6,
-                polygonZoomFrom: 16,
-                polygonZoomTo: 22,
-                visible: true,
                 polygonFillColor: styles[id].fill,
-            });
+            };
+            this._services.mapsindoors.setDisplayRule(resource.id, value);
         }
     }
 
@@ -375,7 +415,6 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             );
             if (!bld) return;
             const [lat, long] = bld?.location.split(',');
-            this._services.map.setZoom(DEFAULT_ZOOM);
             this._services.map.setCenter({
                 lat: parseFloat(lat),
                 lng: parseFloat(long),

@@ -158,6 +158,6 @@ export class InteractiveMapComponent extends AsyncHandler {
             'Level changed to:',
             zone?.display_name || zone?.name || zone
         );
-        this._explore.setLevel(zone);
+        this._explore.setLevel(zone.id);
     }
 }

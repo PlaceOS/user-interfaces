@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
-import { debounceTime, map, share, shareReplay, take } from 'rxjs/operators';
+import { debounceTime, map, shareReplay, take } from 'rxjs/operators';
 
 export interface TableColumn {
     key: string;
@@ -18,6 +18,7 @@ export interface TableColumn {
     content?: string | TemplateRef<any> | Component;
     size?: string;
     show?: boolean;
+    empty?: string;
 }
 
 @Component({
@@ -25,7 +26,7 @@ export interface TableColumn {
     template: `
         <div
             role="table"
-            class="grid border border-base-200"
+            class="grid border border-base-300"
             [style.gridTemplateColumns]="column_template"
             (click)="active_row >= 0 ? rowClicked.emit(active_row) : null"
             (touchend)="active_row = -1"
@@ -34,8 +35,8 @@ export interface TableColumn {
             <div
                 *ngIf="selectable"
                 id="column-selector"
-                class="sticky top-0 flex items-center justify-between px-2 border-r border-b border-base-200 bg-base-300 min-h-full z-10"
-                [style.gridArea]="gridSquare(1, 1)"
+                class="sticky top-0 flex items-center justify-between px-2 border-r border-b border-base-200 bg-base-300 min-h-full z-20"
+                [style.gridColumn]="'1 / 2'"
             >
                 <mat-checkbox
                     [checked]="selected.length === (data_view$ | async)?.length"
@@ -51,8 +52,14 @@ export interface TableColumn {
                 matRipple
                 *ngFor="let column of active_columns; let i = index"
                 [id]="'column-' + column.key"
-                class="sticky top-0 flex items-center justify-between p-4 border-b border-base-200 bg-base-300 min-h-full z-10"
-                [style.gridArea]="gridSquare(1, 1 + i + (selectable ? 1 : 0))"
+                class="sticky top-0 flex items-center justify-between p-4 border-b border-base-200 bg-base-300 min-h-full z-20"
+                [style.gridColumn]="
+                    1 +
+                    i +
+                    (selectable ? 1 : 0) +
+                    ' / ' +
+                    (2 + i + (selectable ? 1 : 0))
+                "
                 [class.pointer-events-none]="
                     !sortable || column.sortable === false
                 "
@@ -86,8 +93,8 @@ export interface TableColumn {
                 <div
                     *ngIf="selectable"
                     id="column-selector"
-                    class="flex items-center justify-between px-2 border-r border-base-200 min-h-full z-0"
-                    [style.gridArea]="gridSquare(2 + i, 1)"
+                    class="flex items-center justify-between px-2 border-r border-base-200 min-h-full z-10"
+                    [style.gridColumn]="'1 / 2'"
                     [class.border-b]="i !== (data_view$ | async)?.length - 1"
                     (mouseenter)="active_row = i"
                     (touchstart)="active_row = i"
@@ -99,9 +106,13 @@ export interface TableColumn {
                 </div>
                 <div
                     *ngFor="let column of active_columns; let j = index"
-                    class="flex items-center justify-between border-base-200 min-h-full z-0"
-                    [style.gridArea]="
-                        gridSquare(2 + i, 1 + j + (selectable ? 1 : 0))
+                    class="flex items-center justify-between border-base-200 min-h-full z-10"
+                    [style.gridColumn]="
+                        1 +
+                        j +
+                        (selectable ? 1 : 0) +
+                        ' / ' +
+                        (2 + j + (selectable ? 1 : 0))
                     "
                     [class.border-b]="i !== (data_view$ | async)?.length - 1"
                     [class.border-r]="j !== active_columns.length - 1"
@@ -113,10 +124,13 @@ export interface TableColumn {
                         <div class="p-4" *ngSwitchDefault>
                             {{ row[column.key] }}
                             <span
-                                *ngIf="row[column.key] == null"
+                                *ngIf="
+                                    row[column.key] == null ||
+                                    row[column.key] === ''
+                                "
                                 class="opacity-30"
                             >
-                                N/A
+                                {{ column.empty || 'N/A' }}
                             </span>
                         </div>
                         <ng-container *ngSwitchCase="'template'">
@@ -142,6 +156,26 @@ export interface TableColumn {
                             ></ng-container>
                         </ng-container>
                     </ng-container>
+                </div>
+                <div
+                    child-node
+                    *ngIf="show_children[row.id] && child_template"
+                    [style.gridColumn]="'span ' + active_columns.length"
+                    class="border-b last:border-t last:border-b-0 border-base-200"
+                >
+                    <ng-container
+                        *ngTemplateOutlet="
+                            child_template;
+                            context: {
+                                first: i === 0,
+                                last:
+                                    i === (data_view$ | async)?.length - 1 ||
+                                    i === (data_view$ | async)?.length - 1,
+                                index: i,
+                                row: row,
+                            }
+                        "
+                    ></ng-container>
                 </div>
             </ng-container>
             <div
@@ -226,6 +260,8 @@ export class SimpleTableComponent<T extends {} = any> extends AsyncHandler {
     @Input() public selected: number[] = [];
     @Input() public page_size = 0;
     @Input() public empty_message = 'No data to list';
+    @Input() public child_template: TemplateRef<any> = null;
+    @Input() public show_children: Record<string, boolean> = {};
     @Output() public selectedChange = new EventEmitter<number[]>();
     @Output() public rowClicked = new EventEmitter<number>();
 
@@ -288,7 +324,7 @@ export class SimpleTableComponent<T extends {} = any> extends AsyncHandler {
                         );
                     }
                     if (sort && data.length) {
-                        const type = data[0][sort.key];
+                        const type = typeof data[0][sort.key];
                         if (type === 'number') {
                             data = data.sort((a, b) => {
                                 const result = a[sort.key] - b[sort.key];
@@ -296,8 +332,12 @@ export class SimpleTableComponent<T extends {} = any> extends AsyncHandler {
                             });
                         } else {
                             data = data.sort((a, b) => {
-                                const a_value = JSON.stringify(a[sort.key]);
-                                const b_value = JSON.stringify(b[sort.key]);
+                                const a_value = JSON.stringify(
+                                    a[sort.key] || ''
+                                );
+                                const b_value = JSON.stringify(
+                                    b[sort.key] || ''
+                                );
                                 const result = a_value.localeCompare(b_value);
                                 return sort.reverse ? -result : result;
                             });

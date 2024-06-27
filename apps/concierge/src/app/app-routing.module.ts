@@ -93,7 +93,7 @@ const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
     },
     {
-        path: 'facilities/points',
+        path: 'points-management',
         loadChildren: () =>
             import('./points/points.module').then((m) => m.PointsModule),
         canActivate: [AuthorisedUserGuard],

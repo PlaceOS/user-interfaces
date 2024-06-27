@@ -62,8 +62,8 @@ import { SettingsService } from '@placeos/common';
                     <div class="flex-1 w-2"></div>
                     <date-options (dateChange)="setDate($event)"></date-options>
                 </div>
-                <div class="px-8">
-                    <guest-listings class="w-full flex-1 h-0"></guest-listings>
+                <div class="mx-8 flex-1 h-1/2 overflow-auto">
+                    <guest-listings></guest-listings>
                 </div>
                 <mat-progress-bar
                     class="w-full"

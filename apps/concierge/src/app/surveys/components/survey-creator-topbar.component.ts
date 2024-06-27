@@ -11,13 +11,17 @@ import { SurveyOptions, SurveyService } from '../services/survey.service';
     selector: 'survey-creator-topbar',
     styles: [],
     template: `
-        <div class="flex flex-row items-center bg-base-100 h-20 px-4 w-full">
-            <div class="flex space-x-2">
-                <div class="flex flex-col pt-2">
+        <div
+            class="flex flex-row items-center justify-between bg-base-100 px-4 w-full space-x-2"
+        >
+            <div
+                class="flex flex-1 space-x-2 pt-2 w-[calc(100%-18rem)] max-w-[44rem] overflow-hidden"
+            >
+                <div class="flex-1 w-1/4">
                     <label>Building</label>
                     <mat-form-field
                         appearance="outline"
-                        [subscriptSizing]="'dynamic'"
+                        class="w-full no-subscript"
                     >
                         <mat-select
                             [value]="(options$ | async).building_id"
@@ -32,11 +36,11 @@ import { SurveyOptions, SurveyService } from '../services/survey.service';
                     </mat-form-field>
                 </div>
 
-                <div class="flex flex-col pt-2">
+                <div class="flex-1 w-1/4">
                     <label>Level</label>
                     <mat-form-field
                         appearance="outline"
-                        [subscriptSizing]="'dynamic'"
+                        class="w-full no-subscript"
                     >
                         <mat-select
                             [value]="(options$ | async).zone_id"
@@ -57,11 +61,11 @@ import { SurveyOptions, SurveyService } from '../services/survey.service';
                     </mat-form-field>
                 </div>
 
-                <div class="flex flex-col pt-2">
+                <div class="flex-1 w-1/4">
                     <label>Trigger</label>
                     <mat-form-field
                         appearance="outline"
-                        [subscriptSizing]="'dynamic'"
+                        class="w-full no-subscript"
                     >
                         <mat-select
                             [value]="(options$ | async).trigger"
@@ -77,12 +81,13 @@ import { SurveyOptions, SurveyService } from '../services/survey.service';
                     </mat-form-field>
                 </div>
             </div>
-
-            <div class="flex items-center ml-auto space-x-4">
-                <button btn matRipple class="clear" (click)="onCancel()">
+            <div class="flex items-center ml-auto space-x-2 mt-8">
+                <button btn matRipple class="inverse w-32" (click)="onCancel()">
                     Cancel
                 </button>
-                <button btn matRipple (click)="onSave()">Save</button>
+                <button btn matRipple class="w-32" (click)="onSave()">
+                    Save
+                </button>
             </div>
         </div>
     `,

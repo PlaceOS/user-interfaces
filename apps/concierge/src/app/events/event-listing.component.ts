@@ -2,56 +2,71 @@ import { Component } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { EventStateService } from './event-state.service';
 import { User } from '@placeos/users';
+import { tap } from 'rxjs/operators';
 
 @Component({
     selector: 'event-listing',
     template: `
-        <custom-table
-            class="min-w-[72rem] block"
-            [dataSource]="event_list"
+        <simple-table
+            class="min-w-[72rem] w-full block text-sm"
+            [data]="event_list"
+            empty_message="No Regions"
             [columns]="[
-                'date',
-                'level',
-                'room',
-                'interested',
-                'attending',
-                'status',
-                'permissions',
-                'actions'
+                { key: 'date', name: 'Event', content: event_template },
+                {
+                    key: 'level',
+                    name: 'Level',
+                    content: level_template,
+                    size: '8rem',
+                    sortable: false
+                },
+                {
+                    key: 'room',
+                    name: 'Room',
+                    content: room_template,
+                    size: '12rem',
+                    sortable: false
+                },
+                {
+                    key: 'interested',
+                    name: 'Interested',
+                    content: interested_template,
+                    size: '6rem',
+                    sortable: false
+                },
+                {
+                    key: 'attending',
+                    name: 'Attending',
+                    content: attending_template,
+                    size: '6rem',
+                    sortable: false
+                },
+                {
+                    key: 'state',
+                    name: 'Status',
+                    content: status_template,
+                    size: '8.5rem'
+                },
+                {
+                    key: 'permissions',
+                    name: 'Published',
+                    content: published_template,
+                    size: '6rem',
+                    sortable: false
+                },
+                {
+                    key: 'actions',
+                    name: ' ',
+                    content: actions_template,
+                    size: '4rem',
+                    sortable: false
+                }
             ]"
-            [display_column]="[
-                'Event',
-                'Level',
-                'Room',
-                'Interested',
-                'Attending',
-                'Status',
-                'Published',
-                ' '
-            ]"
-            [column_size]="[
-                '24r',
-                'flex',
-                '10r',
-                '6r',
-                '6r',
-                '8r',
-                '5r',
-                '3.5r'
-            ]"
-            [template]="{
-                date: event_template,
-                level: level_template,
-                room: room_template,
-                interested: interested_template,
-                attending: attending_template,
-                status: status_template,
-                permissions: published_template,
-                actions: actions_template
-            }"
-        ></custom-table>
+            [sortable]="true"
+        ></simple-table>
+        <div class="w-full h-20"></div>
         <ng-template #event_template let-item="row">
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-2 px-3 py-2">
                 <div date class="flex flex-col items-center leading-tight w-8">
                     <div
                         month
@@ -64,13 +79,13 @@ import { User } from '@placeos/users';
                     </div>
                 </div>
                 <div
-                    class="flex items-center justify-center h-12 w-12 rounded overflow-hidden bg-base-200"
+                    class="flex items-center justify-center h-12 w-12 rounded overflow-hidden bg-base-200 border border-base-200"
                 >
                     <img
                         *ngIf="item.images?.length"
                         auth
                         [source]="item.images[0]"
-                        class="min-h-full min-w-full"
+                        class="min-h-full min-w-full object-cover"
                     />
                 </div>
                 <div details class="flex flex-col">
@@ -94,26 +109,35 @@ import { User } from '@placeos/users';
             </div>
         </ng-template>
         <ng-template #level_template let-item="row">
-            {{
-                ((item.linked_event?.system_id | space | async)?.zones | level)
-                    ?.display_name
-            }}
-            <span *ngIf="!item.linked_event?.system_id" class="opacity-30">
-                No Level
-            </span>
+            <div class="p-4">
+                {{
+                    (
+                        (item.linked_event?.system_id | space | async)?.zones
+                        | level
+                    )?.display_name
+                }}
+                <span *ngIf="!item.linked_event?.system_id" class="opacity-30">
+                    No Level
+                </span>
+            </div>
         </ng-template>
         <ng-template #room_template let-item="row">
-            {{ (item.linked_event?.system_id | space | async)?.display_name }}
-            <span *ngIf="!item.linked_event?.system_id" class="opacity-30">
-                No Room
-            </span>
+            <div class="p-4">
+                {{
+                    (item.linked_event?.system_id | space | async)?.display_name
+                }}
+                <span *ngIf="!item.linked_event?.system_id" class="opacity-30">
+                    No Room
+                </span>
+            </div>
         </ng-template>
         <ng-template #interested_template let-item="row">
             <button
+                icon
                 matRipple
                 customTooltip
                 [content]="view_attendees"
-                class="px-2 rounded h-full w-full flex items-center justify-center"
+                class="rounded h-12 w-12 mx-auto"
                 [disabled]="!item.attendees?.length"
             >
                 {{ item.attendees?.length || 0 }}
@@ -133,10 +157,11 @@ import { User } from '@placeos/users';
         </ng-template>
         <ng-template #attending_template let-item="row">
             <button
+                icon
                 matRipple
                 customTooltip
                 [content]="view_attendees"
-                class="px-2 rounded h-full w-full flex items-center justify-center"
+                class="rounded h-12 w-12 mx-auto"
                 [disabled]="!checkedInCount(item.attendees)"
             >
                 {{ checkedInCount(item.attendees) }}
@@ -162,39 +187,49 @@ import { User } from '@placeos/users';
             </div>
         </ng-template>
         <ng-template #status_template let-item="row">
-            <div
-                class="px-4 py-1 rounded-full"
-                [class.bg-success]="
-                    item.state !== 'done' && item.state !== 'in_progress'
-                "
-                [class.text-success-content]="
-                    item.state !== 'done' && item.state !== 'in_progress'
-                "
-                [class.bg-warning]="item.state === 'in_progress'"
-                [class.text-warning-content]="item.state === 'in_progress'"
-                [class.bg-base-200]="item.state === 'done'"
-                [class.text-base-content]="item.state === 'done'"
-            >
-                {{
-                    item.state === 'done'
-                        ? 'Done'
-                        : item.state === 'in_progress'
-                        ? 'In Progress'
-                        : 'Active'
-                }}
+            <div class="p-4">
+                <div
+                    class="px-4 py-1 rounded-full"
+                    [class.bg-success]="
+                        item.state !== 'done' &&
+                        item.state !== 'in_progress' &&
+                        item.state !== 'started'
+                    "
+                    [class.text-success-content]="
+                        item.state !== 'done' &&
+                        item.state !== 'in_progress' &&
+                        item.state !== 'started'
+                    "
+                    [class.bg-warning]="
+                        item.state === 'in_progress' || item.state === 'started'
+                    "
+                    [class.text-warning-content]="
+                        item.state === 'in_progress' || item.state === 'started'
+                    "
+                    [class.bg-base-200]="item.state === 'done'"
+                    [class.text-base-content]="item.state === 'done'"
+                >
+                    {{
+                        item.state === 'done'
+                            ? 'Done'
+                            : item.state === 'in_progress' ||
+                              item.state === 'started'
+                            ? 'In Progress'
+                            : 'Active'
+                    }}
+                </div>
             </div>
         </ng-template>
         <ng-template #actions_template let-row="row">
-            <div class="w-full flex items-center justify-end space-x-2">
-                <button
-                    icon
-                    matRipple
-                    [matMenuTriggerFor]="menu"
-                    [disabled]="row.state === 'done'"
-                >
-                    <app-icon>more_vert</app-icon>
-                </button>
-            </div>
+            <button
+                icon
+                matRipple
+                class="h-12 w-12 rounded mx-2"
+                [matMenuTriggerFor]="menu"
+                [disabled]="row.state === 'done'"
+            >
+                <app-icon>more_vert</app-icon>
+            </button>
             <mat-menu #menu="matMenu">
                 <button mat-menu-item [disabled]="true">
                     <div class="flex items-center space-x-2">
@@ -242,7 +277,9 @@ import { User } from '@placeos/users';
     styles: [``],
 })
 export class EventListingComponent {
-    public readonly event_list = this._state.event_list;
+    public readonly event_list = this._state.event_list.pipe(
+        tap((_) => console.log('Event List:', _))
+    );
 
     public readonly viewEvent = (event: any) => this._state.viewEvent(event);
     public readonly removeEvent = (event: any) =>

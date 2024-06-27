@@ -1,39 +1,66 @@
 import { Component } from '@angular/core';
 import { BuildingManagementService } from './building-management.service';
-import { SettingsService } from '@placeos/common';
+import { SettingsService, notifySuccess } from '@placeos/common';
+import { Clipboard } from '@angular/cdk/clipboard';
 
 @Component({
     selector: 'building-list',
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
-            <custom-table
-                class="block min-w-[60rem] w-full h-full"
-                [dataSource]="buildings"
+            <simple-table
+                class="min-w-[62rem] w-full block text-sm"
+                [data]="buildings"
+                empty_message="No Buildings"
                 [columns]="[
-                    'display_name',
-                    'address',
-                    'timezone',
-                    'region',
-                    'level_count',
-                    'actions'
+                    {
+                        key: 'display_name',
+                        name: 'Building Name',
+                        content: name_template
+                    },
+                    {
+                        key: 'location',
+                        name: 'Location',
+                        size: '16rem'
+                    },
+                    {
+                        key: 'timezone',
+                        name: 'Timezone',
+                        size: '14rem',
+                        content: timezone_template
+                    },
+                    {
+                        key: 'region',
+                        name: 'Region',
+                        size: '11rem',
+                        sortable: false
+                    },
+                    { key: 'level_count', name: 'Levels', size: '6rem' },
+                    {
+                        key: 'actions',
+                        name: ' ',
+                        content: action_template,
+                        size: '3rem',
+                        sortable: false
+                    }
                 ]"
-                [display_column]="[
-                    'Name',
-                    'Location',
-                    'Timezone',
-                    'Region',
-                    'Levels',
-                    ' '
-                ]"
-                [column_size]="['12r', 'flex', '12r', '10r', '6r', '3.75r']"
-                [template]="{
-                    images: image_template,
-                    zones: level_template,
-                    actions: action_template
-                }"
-                empty="No buildings"
-            ></custom-table>
+                [sortable]="true"
+            ></simple-table>
+            <div class="w-full h-20"></div>
         </div>
+        <ng-template #name_template let-row="row" let-data="data">
+            <button
+                class="px-4 py-2 text-left leading-tight"
+                (click)="copyToClipboard(row.id)"
+            >
+                <div class="">{{ data }}</div>
+                <div class="text-[0.625rem] opacity-30 font-mono">
+                    {{ row.id }}
+                </div>
+            </button>
+        </ng-template>
+        <ng-template #timezone_template let-data="data">
+            <div class="p-4 font-mono text-sm">{{ data }}</div>
+        </ng-template>
         <ng-template #level_template let-data="data">
             {{ (data | level)?.display_name || (data | level)?.name }}
         </ng-template>
@@ -48,7 +75,12 @@ import { SettingsService } from '@placeos/common';
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="w-full flex justify-end space-x-2">
-                <button btn icon matRipple [matMenuTriggerFor]="menu">
+                <button
+                    icon
+                    matRipple
+                    class="h-12 w-12 rounded"
+                    [matMenuTriggerFor]="menu"
+                >
                     <app-icon>more_vert</app-icon>
                 </button>
                 <mat-menu #menu="matMenu">
@@ -133,8 +165,14 @@ export class BuildingListComponent {
     public readonly setSupportIssueTypes = (building) =>
         this._manager.setSupportIssueTypes(building);
 
+    public readonly copyToClipboard = (id: string) => {
+        const success = this._clipboard.copy(id);
+        if (success) notifySuccess('Building ID copied to clipboard.');
+    };
+
     constructor(
         private _manager: BuildingManagementService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _clipboard: Clipboard
     ) {}
 }

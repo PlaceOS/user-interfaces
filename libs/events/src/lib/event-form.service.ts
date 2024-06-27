@@ -128,7 +128,7 @@ export class EventFormService extends AsyncHandler {
         map((building_rules) => {
             const mapping = {};
             for (const rules of building_rules) {
-                rules[rules.id] =
+                mapping[rules.id] =
                     rules.details instanceof Array ? rules.details : [];
             }
             return mapping;

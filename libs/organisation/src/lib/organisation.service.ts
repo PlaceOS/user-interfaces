@@ -68,7 +68,7 @@ export class OrganisationService {
         this._active_building,
     ]).pipe(
         map(([_, bld]) => (bld ? this.levelsForBuilding(bld) : [])),
-        shareReplay()
+        shareReplay(1)
     );
     /** Organisation data for the application */
     private _organisation: Organisation;
