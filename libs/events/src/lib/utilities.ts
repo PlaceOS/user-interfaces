@@ -105,6 +105,8 @@ export function generateEventForm(
             event.extension_data?.shared_event || false
         ),
         access: new FormControl(event.extension_data?.access || 'PRIVATE'),
+        images: new FormControl(event.extension_data?.images || []),
+        featured: new FormControl(event.extension_data?.featured || false),
     });
     form.get('organiser').valueChanges.subscribe((o) =>
         form.controls.host.setValue(o?.email)

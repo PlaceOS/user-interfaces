@@ -37,7 +37,7 @@ import {
     showEvent,
 } from '@placeos/events';
 import { StaffUser, User } from '@placeos/users';
-import { Space } from '@placeos/spaces';
+import { Space, SpacePipe } from '@placeos/spaces';
 
 const EMPTY = [];
 
@@ -357,7 +357,7 @@ const EMPTY = [];
                                                     let room of available_spaces
                                                         | async
                                                 "
-                                                [value]="room"
+                                                [value]="room.email"
                                             >
                                                 {{
                                                     room.display_name ||
@@ -376,7 +376,7 @@ const EMPTY = [];
                     <ng-container>
                         <label for="title">Event Description</label>
                         <rich-text-input
-                            formControlName="description"
+                            formControlName="body"
                         ></rich-text-input>
                         <label for="tags">Images</label>
                         <image-list-field
@@ -415,7 +415,7 @@ const EMPTY = [];
 export class EventManageComponent extends AsyncHandler {
     public loading = false;
     public timezones: string[] = [];
-    public resource: Space;
+    public resource: string;
     public filtered_timezones: string[] = [];
 
     public readonly form = this._form_state.form;
@@ -497,7 +497,8 @@ export class EventManageComponent extends AsyncHandler {
                     console.log('Event:', booking.extension_data?.tags);
                     this.resource = booking.resources.find(
                         (_) => _.email !== this._state.calendar
-                    );
+                    )?.email;
+                    console.log('Resource:', this.resource);
                     this.form.patchValue({
                         tags: booking.extension_data?.tags || [],
                         organiser: new StaffUser({
@@ -573,11 +574,17 @@ export class EventManageComponent extends AsyncHandler {
         }
         this.loading = true;
         let resources = this.form.getRawValue().resources;
+        const space = await new SpacePipe().transform(this._state.calendar);
         resources.push(
-            new Space({ id: this._state.calendar, email: this._state.calendar })
+            space ||
+                new Space({
+                    id: this._state.calendar,
+                    email: this._state.calendar,
+                })
         );
         if (this.resource) {
-            resources.push(this.resource);
+            const resource = await new SpacePipe().transform(this.resource);
+            resources.push(resource);
         }
         console.log('Resources:', resources);
         resources = unique(resources, 'email');

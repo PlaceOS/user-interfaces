@@ -23,6 +23,7 @@ import {
     map,
     shareReplay,
     switchMap,
+    tap,
 } from 'rxjs/operators';
 
 export interface GroupEventOptions {
@@ -39,6 +40,7 @@ export class EventStateService extends AsyncHandler {
     private _options = new BehaviorSubject<GroupEventOptions>({
         period: 'week',
     });
+    private _loading = new BehaviorSubject<string>('');
     private _poll = new BehaviorSubject(0);
     private _changed = new BehaviorSubject(0);
 
@@ -50,24 +52,27 @@ export class EventStateService extends AsyncHandler {
     ]).pipe(
         filter(([bld]) => !!bld),
         debounceTime(310),
-        switchMap(([bld, options]) =>
-            queryEvents({
+        switchMap(([_, options]) => {
+            this._loading.next('Loading event list...');
+            return queryEvents({
                 period_start: getUnixTime(startOfDay(options.date)),
                 period_end: getUnixTime(
                     endOfDay(options.end || options.date || Date.now())
                 ),
                 calendars: this.calendar,
-            })
-        ),
+            });
+        }),
         map((list) =>
             list
                 .filter((_) => _.extension_data?.shared_event)
                 .sort((a, b) => a.date - b.date)
         ),
+        tap(() => this._loading.next('')),
         shareReplay(1)
     );
 
     public readonly options = this._options.asObservable();
+    public readonly loading = this._loading.asObservable();
 
     public changed() {
         this.timeout('changed', () => this._changed.next(Date.now()), 100);

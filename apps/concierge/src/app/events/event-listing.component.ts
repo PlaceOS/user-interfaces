@@ -8,6 +8,11 @@ import { CalendarEvent } from '@placeos/events';
 @Component({
     selector: 'event-listing',
     template: `
+        <mat-progress-bar
+            class="w-full"
+            [class.opacity-0]="!(loading | async)"
+            mode="indeterminate"
+        ></mat-progress-bar>
         <simple-table
             class="min-w-[72rem] w-full block text-sm"
             [data]="event_list"
@@ -274,6 +279,7 @@ import { CalendarEvent } from '@placeos/events';
     styles: [``],
 })
 export class EventListingComponent {
+    public readonly loading = this._state.loading;
     public readonly event_list = this._state.event_list.pipe(
         tap((_) => console.log('Event List:', _))
     );
