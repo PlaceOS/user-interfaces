@@ -306,6 +306,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             index: key,
             ...floors[key],
         }));
+        log('MapsIndoors', 'Floor List:', this._floor_list);
         if (!this._services) return;
         const bld = this._org.buildings.find(
             (_) => _.id === id || _.map_id === id
@@ -323,7 +324,6 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
     private async _handleLevelChange(index: any) {
         log('MapsIndoors', `Level switched to "${index}"`);
         const floor = this._floor_list.find((_) => _.index === index);
-        console.log('Floor List:', this._floor_list);
         const id = floor?.externalId || floor?.id;
         if (!this._services) return;
         const levels = await this._org.active_levels.pipe(take(1)).toPromise();
