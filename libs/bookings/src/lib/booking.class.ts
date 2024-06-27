@@ -37,13 +37,13 @@ export interface BookingComplete extends Booking {
 }
 
 export enum RecurrenceDays {
-    SUNDAY = 1 << 0,
-    MONDAY = 1 << 1,
-    TUESDAY = 1 << 2,
+    SUNDAY = 1 << 6,
+    MONDAY = 1 << 5,
+    TUESDAY = 1 << 4,
     WEDNESDAY = 1 << 3,
-    THURSDAY = 1 << 4,
-    FRIDAY = 1 << 5,
-    SATURDAY = 1 << 6,
+    THURSDAY = 1 << 2,
+    FRIDAY = 1 << 1,
+    SATURDAY = 1 << 0,
 }
 
 export interface LinkedCalendarEvent {
