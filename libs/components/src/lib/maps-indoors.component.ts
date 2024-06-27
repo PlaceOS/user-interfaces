@@ -340,6 +340,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             event.properties?.roomId ||
             event.id;
         const actions = this.metadata?.actions || [];
+        log('MapsIndoors', `Registered Actions`, actions);
         const ignore_actions = ['mousedown', 'touchstart', 'enter', 'leave'];
         for (const action of actions) {
             if (
