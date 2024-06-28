@@ -112,11 +112,11 @@ const EMPTY = [];
                                 Featured
                             </mat-checkbox>
                             <mat-checkbox
-                                [ngModel]="form.value.access === 'OPEN'"
+                                [ngModel]="form.value.view_access === 'OPEN'"
                                 [ngModelOptions]="{ standalone: true }"
                                 (ngModelChange)="
                                     form.patchValue({
-                                        access: $event ? 'OPEN' : 'PRIVATE'
+                                        view_access: $event ? 'OPEN' : 'PRIVATE'
                                     })
                                 "
                             >

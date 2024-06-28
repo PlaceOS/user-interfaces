@@ -36,9 +36,9 @@ import {
                 class="relative flex items-center justify-between h-52 w-full bg-base-200 overflow-hidden"
             >
                 <img
-                    *ngIf="booking.extension_data?.images?.length"
+                    *ngIf="event.extension_data?.images?.length"
                     auth
-                    [source]="booking.images[0]"
+                    [source]="event.extension_data?.images[0]"
                     class="absolute top-1/2 left-1/2 min-h-full min-w-full object-cover -translate-x-1/2 -translate-y-1/2"
                 />
             </div>
@@ -62,7 +62,7 @@ import {
                 class="flex items-center justify-between py-4 px-8 border-b border-base-200"
             >
                 <h3 class="text-left text-xl">
-                    {{ booking.title }}
+                    {{ event.title }}
                 </h3>
                 <div class="flex items-center space-x-2">
                     <ng-container *ngIf="!concierge">
@@ -101,7 +101,7 @@ import {
                         btn
                         matRipple
                         class="clear bg-base-200 text-base-content w-[2.75rem]"
-                        [disabled]="booking.state === 'done'"
+                        [disabled]="event.state === 'done'"
                         [matMenuTriggerFor]="concierge ? concierge_menu : menu"
                     >
                         <app-icon class="text-2xl">more_horiz</app-icon>
@@ -184,7 +184,7 @@ import {
                         </div>
                         <div>
                             Event by
-                            {{ booking.organiser?.name || booking.host }}
+                            {{ event.organiser?.name || event.host }}
                         </div>
                     </div>
                     <h3 class="font-medium pt-4">When and where</h3>
@@ -197,10 +197,10 @@ import {
                         <div class="flex flex-col">
                             <div class="text-sm">Date and Time</div>
                             <div class="text-sm opacity-30">
-                                {{ booking.date | date: 'EEEE, d MMMM, yyyy' }}
-                                . {{ booking.date | date: time_format }} -
+                                {{ event.date | date: 'EEEE, d MMMM, yyyy' }}
+                                . {{ event.date | date: time_format }} -
                                 {{
-                                    booking.date + booking.duration * 60 * 1000
+                                    event.date + event.duration * 60 * 1000
                                         | date: time_format
                                 }}
                             </div>
@@ -243,14 +243,14 @@ import {
                         </div>
                         <div>
                             {{ attendance }} going,
-                            {{ booking.attendees?.length }}
+                            {{ event.attendees?.length }}
                             interested
                         </div>
                     </button>
                     <h3 class="font-medium pt-4">About this event</h3>
                     <div class="text-sm pb-4">
-                        <span [innerHTML]="booking.body | sanitize"></span>
-                        <span *ngIf="!booking.body.trim()" class="opacity-30">
+                        <span [innerHTML]="event.body | sanitize"></span>
+                        <span *ngIf="!event.body.trim()" class="opacity-30">
                             No description
                         </span>
                     </div>
@@ -274,7 +274,7 @@ import {
                                 <div>
                                     {{
                                         (
-                                            booking.linked_event?.system_id
+                                            event.linked_event?.system_id
                                             | space
                                             | async
                                         )?.display_name
@@ -282,7 +282,7 @@ import {
                                     <span
                                         *ngIf="
                                             !(
-                                                booking.linked_event?.system_id
+                                                event.linked_event?.system_id
                                                 | space
                                                 | async
                                             )?.display_name
@@ -322,8 +322,8 @@ import {
                 class="absolute left-1/2 -translate-x-1/2 w-[24rem] inset-y-8 rounded shadow overflow-hidden"
             >
                 <attendee-list
-                    [list]="booking.attendees"
-                    [host]="booking.user_email"
+                    [list]="event.attendees"
+                    [host]="event.user_email"
                     (click)="show_attendees = false"
                 ></attendee-list>
             </div>
@@ -335,7 +335,7 @@ export class GroupEventDetailsModalComponent {
     @Output() public edit = new EventEmitter();
     @Output() public remove = new EventEmitter();
     public space: Space;
-    public booking: CalendarEvent = this._data.event;
+    public event: CalendarEvent = this._data.event;
     public concierge = this._data.concierge;
     public building: Building;
     public level: BuildingLevel;
@@ -351,30 +351,28 @@ export class GroupEventDetailsModalComponent {
 
     public get featured() {
         return (
-            (this.booking as any).featured ||
-            this.booking.extension_data?.featured
+            (this.event as any).featured || this.event.extension_data?.featured
         );
     }
 
     public get is_onsite() {
-        return this.booking.extension_data.attendance_type !== 'ONLINE';
+        return this.event.extension_data.attendance_type !== 'ONLINE';
     }
 
     public get has_space() {
-        return !!this.booking.system?.id;
+        return !!this.event.system?.id;
     }
 
     public get is_online() {
         return (
             !this.is_onsite ||
-            this.booking.extension_data.attendance_type === 'ANY'
+            this.event.extension_data.attendance_type === 'ANY'
         );
     }
 
     public get attendance() {
         return (
-            this.booking.attendees?.filter((_: any) => _.checked_in)?.length ||
-            0
+            this.event.attendees?.filter((_: any) => _.checked_in)?.length || 0
         );
     }
 
@@ -387,12 +385,12 @@ export class GroupEventDetailsModalComponent {
     }
 
     public get system_id() {
-        return this.booking.system?.id;
+        return this.event.system?.id;
     }
 
     public get guest_details() {
         const user = currentUser();
-        return this.booking.attendees?.find((_) => _.email === user.email);
+        return this.event.attendees?.find((_) => _.email === user.email);
     }
 
     constructor(
@@ -406,8 +404,8 @@ export class GroupEventDetailsModalComponent {
 
     public async ngOnInit() {
         const space_pipe = new SpacePipe(this._org);
-        this.space = await space_pipe.transform(this.booking.system?.id);
-        const map_id = (this.booking.extension_data as any)?.map_id;
+        this.space = await space_pipe.transform(this.event.system?.id);
+        const map_id = (this.event.extension_data as any)?.map_id;
         const id = this.space?.map_id || map_id;
         if (id) {
             this.styles[`#${id}`] = { fill: 'green' };
@@ -419,7 +417,7 @@ export class GroupEventDetailsModalComponent {
                 },
             ];
         }
-        const zones = (this.booking.system?.zones as any) || [];
+        const zones = (this.event.system?.zones as any) || [];
         this.level = this._org.levelWithID(zones);
         this.building =
             this._org.buildings.find((_) => zones.includes(_.id)) ||
@@ -447,19 +445,19 @@ export class GroupEventDetailsModalComponent {
         console.log('User:', user, this.is_interested);
         if (this.is_interested && user) {
             await removeEventGuest(
-                this.booking.id,
+                this.event.id,
                 currentUser() as any
             ).toPromise();
-            (this.booking as any).attendees = (
-                this.booking.attendees || []
-            ).filter((_: any) => _.email !== user.email);
+            (this.event as any).attendees = (this.event.attendees || []).filter(
+                (_: any) => _.email !== user.email
+            );
         } else {
             user = await addEventGuest(
-                this.booking.id,
+                this.event.id,
                 currentUser() as any
             ).toPromise();
-            (this.booking as any).attendees = unique(
-                [...(this.booking.attendees || []), user],
+            (this.event as any).attendees = unique(
+                [...(this.event.attendees || []), user],
                 'email'
             );
         }
@@ -469,24 +467,22 @@ export class GroupEventDetailsModalComponent {
         let user = this.guest_details;
         if (!user) {
             user = await addEventGuest(
-                this.booking.id,
+                this.event.id,
                 currentUser() as any
             ).toPromise();
-            (this.booking as any).attendees = unique(
-                [...(this.booking.attendees || []), user],
+            (this.event as any).attendees = unique(
+                [...(this.event.attendees || []), user],
                 'email'
             );
         }
         user = { ...currentUser(), ...(user || {}) };
         if (!user.email) return;
         await checkinEventGuest(
-            this.booking.id,
+            this.event.id,
             user.email,
             !this.is_going
         ).toPromise();
-        const guest = this.booking.attendees.find(
-            (_) => _.email === user.email
-        );
+        const guest = this.event.attendees.find((_) => _.email === user.email);
         if (!guest) return;
         (guest as any).checked_in = !this.is_going;
     }

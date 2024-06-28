@@ -132,8 +132,8 @@ export class CalendarEvent {
         return this.all_day || this.duration >= 12 * 60;
     }
 
-    public get access() {
-        return this.extension_data.access || 'PRIVATE';
+    public get view_access() {
+        return this.extension_data.view_access || 'PRIVATE';
     }
 
     /** Get field from extension data */

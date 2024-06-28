@@ -54,7 +54,7 @@ export interface EventExtensionData {
     /** Whether the event is a shared group event */
     shared_event?: boolean;
     /** Access level of the event */
-    access: 'PRIVATE' | 'OPEN' | 'PUBLIC';
+    view_access: 'PRIVATE' | 'OPEN' | 'PUBLIC';
 }
 
 export interface RecurrenceDetails {
