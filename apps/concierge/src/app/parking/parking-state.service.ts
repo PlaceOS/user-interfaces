@@ -74,15 +74,15 @@ export class ParkingStateService extends AsyncHandler {
         this._org.active_region,
         this._org.active_building,
     ]).pipe(
-        map(([region, bld]) => {
-            const levels = this._org.levels;
+        map(([_, bld]) => {
+            const levels = this._org.levels.filter((_) =>
+                _.tags.includes('parking')
+            );
             if (this._settings.get('app.use_region')) {
                 const blds = this._org.buildingsForRegion();
                 const bld_ids = blds.map((bld) => bld.id);
-                const list = levels.filter(
-                    (lvl) =>
-                        bld_ids.includes(lvl.parent_id) &&
-                        lvl.tags.includes('parking')
+                const list = levels.filter((lvl) =>
+                    bld_ids.includes(lvl.parent_id)
                 );
                 list.map((lvl) => ({
                     ...lvl,
@@ -92,11 +92,7 @@ export class ParkingStateService extends AsyncHandler {
                 }));
                 return list;
             }
-            return levels.filter(
-                (lvl) =>
-                    lvl.parent_id === this._org.building.id &&
-                    lvl.tags.includes('parking')
-            );
+            return levels.filter((lvl) => lvl.parent_id === bld.id);
         })
     );
     /** List of parking spaces for the current building/level */
