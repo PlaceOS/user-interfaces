@@ -13,6 +13,7 @@ import { MatRadioModule } from '@angular/material/radio';
 
 import { FormFieldsModule } from 'libs/form-fields/src/lib/form-fields.module';
 import { ComponentsModule } from 'libs/components/src/lib/components.module';
+import { SharedSpacesModule } from 'libs/spaces/src/lib/spaces.module';
 
 import { AttendeeListComponent } from './attendee-list.component';
 import { EventCardComponent } from './event-card.component';
@@ -48,6 +49,7 @@ const COMPONENTS = [
         FormFieldsModule,
         ComponentsModule,
         MatRippleModule,
+        SharedSpacesModule,
     ],
     providers: [ReactiveFormsModule],
     exports: [...COMPONENTS],
