@@ -17,7 +17,7 @@ import { OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { randomInt } from '@placeos/common';
 import { endOfDay, format, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     debounceTime,
     filter,
@@ -70,15 +70,19 @@ export class ParkingStateService extends AsyncHandler {
     });
     private _loading = new BehaviorSubject<string[]>([]);
     /** List of available parking levels for the current building */
-    public levels = this._org.level_list.pipe(
-        map((_) => {
-            if (!this._settings.get('app.use_region')) {
+    public levels = combineLatest([
+        this._org.active_region,
+        this._org.active_building,
+    ]).pipe(
+        map(([_, bld]) => {
+            const levels = this._org.levels.filter((_) =>
+                _.tags.includes('parking')
+            );
+            if (this._settings.get('app.use_region')) {
                 const blds = this._org.buildingsForRegion();
                 const bld_ids = blds.map((bld) => bld.id);
-                const list = _.filter(
-                    (lvl) =>
-                        bld_ids.includes(lvl.parent_id) &&
-                        lvl.tags.includes('parking')
+                const list = levels.filter((lvl) =>
+                    bld_ids.includes(lvl.parent_id)
                 );
                 list.map((lvl) => ({
                     ...lvl,
@@ -88,11 +92,7 @@ export class ParkingStateService extends AsyncHandler {
                 }));
                 return list;
             }
-            return _.filter(
-                (lvl) =>
-                    lvl.parent_id === this._org.building.id &&
-                    lvl.tags.includes('parking')
-            );
+            return levels.filter((lvl) => lvl.parent_id === bld.id);
         })
     );
     /** List of parking spaces for the current building/level */
@@ -101,8 +101,10 @@ export class ParkingStateService extends AsyncHandler {
         this._options,
         this._change,
     ]).pipe(
-        filter(([lvls, options]) => !!(options.zones[0] || lvls[0]?.id)),
         switchMap(([levels, options]) => {
+            if (!(options.zones[0] || levels[0]?.id)) {
+                return of({ details: [] });
+            }
             this._loading.next([...this._loading.getValue(), 'spaces']);
             return showMetadata(
                 options.zones[0] || levels[0]?.id,

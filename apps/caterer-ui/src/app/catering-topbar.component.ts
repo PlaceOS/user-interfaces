@@ -1,56 +1,129 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { first } from 'rxjs/operators';
+import { first, map, take } from 'rxjs/operators';
 
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { CateringOrdersService, CateringStateService } from '@placeos/catering';
+import {
+    CateringOrdersService,
+    CateringStateService,
+    ChargeCodeListModalComponent,
+} from '@placeos/catering';
+import { MatDialog } from '@angular/material/dialog';
+import { AvailableRoomsStateModalComponent } from '@placeos/components';
+import { combineLatest } from 'rxjs';
 
 @Component({
     selector: 'catering-topbar',
     template: `
-        <div
-            class="flex items-center bg-base-100 h-20 px-4 border-b border-base-200 space-x-2"
-        >
+        <div class="flex items-center w-full pt-4 pb-2 px-8 space-x-2">
             <a
-                btn
+                icon
                 matRipple
-                *ngIf="page"
-                class="clear flex items-center space-x-2 pl-4 py-2 pr-8 rounded"
+                class="h-12 w-12"
+                matTooltip="Back to Home"
                 [routerLink]="['/']"
             >
-                <app-icon>arrow_back</app-icon>
-                <p class="underline">Back</p>
+                <app-icon class="text-2xl">arrow_back</app-icon>
             </a>
-            <mat-form-field appearance="outline">
+            <h2 class="text-2xl font-medium">
+                Catering {{ page === 'menu' ? 'Menu' : 'Orders' }}
+            </h2>
+            <div class="flex-1 w-px"></div>
+            <mat-form-field appearance="outline" class="no-subscript w-64">
+                <input
+                    matInput
+                    placeholder="Search..."
+                    [ngModel]="filters?.search"
+                    (ngModelChange)="setSearch($event)"
+                />
+                <app-icon class="text-xl" matSuffix>search</app-icon>
+            </mat-form-field>
+        </div>
+        <div class="flex items-center bg-base-100 px-8 pt-2 pb-4 space-x-2">
+            <div class="w-12"></div>
+            <mat-form-field appearance="outline" class="no-subscript w-60">
                 <mat-select
-                    multiple
-                    [(ngModel)]="zones"
+                    [ngModel]="filters?.zones"
                     (ngModelChange)="updateZones($event)"
                     placeholder="All Levels"
+                    multiple
                 >
                     <mat-option
                         *ngFor="let level of levels | async"
                         [value]="level.id"
                     >
-                        {{ level.display_name || level.name }}
+                        <div class="flex flex-col-reverse">
+                            <div class="text-xs opacity-30" *ngIf="use_region">
+                                {{ (level.parent_id | building)?.display_name }}
+                                <span class="opacity-0"> - </span>
+                            </div>
+                            <div>
+                                {{ level.display_name || level.name }}
+                            </div>
+                        </div>
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-            <button *ngIf="page === 'menu'" btn matRipple (click)="addItem()">
-                Add Item
+            <div *ngIf="page === 'menu'" class="flex-1 w-2"></div>
+            <button
+                *ngIf="
+                    page === 'menu' && (!zones[0] || zones[0] === building?.id)
+                "
+                icon
+                matRipple
+                matTooltip="Add Item"
+                class="bg-secondary text-secondary-content rounded h-12 w-12"
+                (click)="addItem()"
+            >
+                <app-icon class="text-2xl">add</app-icon>
             </button>
             <button
                 *ngIf="page === 'menu'"
-                btn
+                icon
                 matRipple
+                matTooltip="Edit Config"
+                class="bg-secondary text-secondary-content rounded h-12 w-12"
                 (click)="editConfig()"
             >
-                Edit Config
+                <app-icon class="text-2xl">menu_book</app-icon>
             </button>
-            <div class="flex-1 w-2"></div>
+            <button
+                *ngIf="page === 'menu'"
+                icon
+                matRipple
+                matTooltip="Import Menu"
+                class="bg-secondary text-secondary-content rounded h-12 w-12"
+                (click)="importMenu()"
+            >
+                <app-icon class="text-2xl">cloud_upload</app-icon>
+            </button>
+            <button
+                *ngIf="page === 'menu'"
+                icon
+                matRipple
+                matTooltip="Room Availability"
+                class="bg-secondary text-secondary-content rounded h-12 w-12"
+                (click)="setRoomAvailability()"
+            >
+                <app-icon class="text-2xl">event_available</app-icon>
+            </button>
+            <button
+                *ngIf="page === 'menu'"
+                icon
+                matRipple
+                matTooltip="Charge Codes"
+                class="bg-secondary text-secondary-content rounded h-12 w-12"
+                (click)="setChargeCodes()"
+            >
+                <app-icon class="text-2xl">payments</app-icon>
+            </button>
+            <div *ngIf="page !== 'menu'" class="flex-1 w-2"></div>
             <!-- <searchbar class="mr-2"></searchbar> -->
-            <!-- <date-options (dateChange)="setDate($event)"></date-options> -->
+            <date-options
+                *ngIf="page !== 'menu'"
+                (dateChange)="setDate($event)"
+            ></date-options>
         </div>
     `,
     styles: [
@@ -62,16 +135,28 @@ import { CateringOrdersService, CateringStateService } from '@placeos/catering';
         `,
     ],
 })
-export class CateringTopbarComponent extends AsyncHandler {
+export class CateringTopbarComponent extends AsyncHandler implements OnInit {
     /** List of selected levels */
     public zones: string[] = [];
     /** Currently active page */
     public page: string;
+    public readonly filters = this._orders.filters;
+    /** List of levels for the active building */
+    public readonly levels = combineLatest([
+        this._org.active_building,
+        this._org.active_region,
+    ]).pipe(
+        map(([bld, region]) =>
+            this._settings.get('app.use_region')
+                ? this._org.levelsForRegion(region)
+                : this._org.levelsForBuilding(bld)
+        )
+    );
     /** Set filtered date */
     public readonly setDate = (date) =>
         (this._orders.filters = { ...this._orders.filters, date });
-    /** List of levels for the active building */
-    public readonly levels = this._org.active_levels;
+    public readonly setSearch = (str) =>
+        (this._orders.filters = { ...this._orders.filters, search: str });
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
         this._router.navigate([], {
@@ -79,38 +164,54 @@ export class CateringTopbarComponent extends AsyncHandler {
             queryParams: { zone_ids: z.join(',') },
         });
         this._orders.filters = { ...this._orders.filters, zones: [z] };
+        this._catering.zone = z[0];
     };
 
     public readonly addItem = () => this._catering.addItem();
     public readonly editConfig = () => this._catering.editConfig();
+    public readonly importMenu = () => this._catering.importMenu();
+
+    public get building() {
+        return this._org.building;
+    }
+
+    public get use_region() {
+        return !!this._settings.get('app.use_region');
+    }
 
     constructor(
         private _orders: CateringOrdersService,
         private _catering: CateringStateService,
         private _org: OrganisationService,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
+        private _dialog: MatDialog,
+        private _settings: SettingsService
     ) {
         super();
     }
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
+        this._catering.zone =
+            (this._orders.filters?.zones || [])[0] || this._org.building?.id;
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
                 if (params.has('zone_ids')) {
                     const zones = params.get('zone_ids').split(',');
-                    if (zones.length) {
-                        const level = this._org.levelWithID(zones);
-                        if (!level) {
-                            return;
-                        }
-                        this._org.building = this._org.buildings.find(
-                            (bld) => bld.id === level.parent_id
-                        );
-                        this.zones = zones;
-                    }
+                    if (!zones.length) return;
+                    const level = this._org.levelWithID(zones);
+                    this.zones = zones;
+                    if (!level) return;
+                    this._org.building = this._org.buildings.find(
+                        (bld) => bld.id === level.parent_id
+                    );
+                }
+                if (params.has('building_id')) {
+                    this._org.building = this._org.buildings.find(
+                        (bld) => bld.id === params.get('building_id')
+                    );
                 }
             })
         );
@@ -121,17 +222,29 @@ export class CateringTopbarComponent extends AsyncHandler {
                     (this.page = params.has('view') ? params.get('view') : '')
             )
         );
+    }
+
+    public async setRoomAvailability() {
+        const ref = this._dialog.open(AvailableRoomsStateModalComponent, {
+            data: {
+                type: 'Catering',
+                disabled_rooms: await this._catering.availability
+                    .pipe(take(1))
+                    .toPromise(),
+            },
+        });
         this.subscription(
-            'levels',
-            this._org.active_levels.subscribe((levels) => {
-                this.zones = this.zones.filter((zone) =>
-                    levels.find((lvl) => lvl.id === zone)
-                );
-                if (!this.zones.length && levels.length) {
-                    this.zones.push(levels[0].id);
-                }
-                this.updateZones(this.zones);
+            'room-availability',
+            ref.componentInstance.change.subscribe(async (list) => {
+                await this._catering
+                    .saveSettings({ disabled_rooms: list })
+                    .catch();
+                ref.componentInstance.loading = false;
             })
         );
+    }
+
+    public setChargeCodes() {
+        this._dialog.open(ChargeCodeListModalComponent);
     }
 }

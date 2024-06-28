@@ -1,6 +1,11 @@
 import { Component, Input, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import { flatten, SettingsService, unique } from '@placeos/common';
+import {
+    flatten,
+    MapsPeopleService,
+    SettingsService,
+    unique,
+} from '@placeos/common';
 import { addDays, endOfDay, startOfDay } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map, take } from 'rxjs/operators';
@@ -203,7 +208,11 @@ import { Region } from '@placeos/organisation';
                     </div>
                 </div>
             </section>
-            <section favs class="space-y-2 pb-4">
+            <section
+                favs
+                class="space-y-2 pb-4"
+                *ngIf="!viewing_map || !(using_mapspeople | async)"
+            >
                 <h2 class="text-lg font-medium" i18n>
                     {{ 'COMMON.FAVOURITES' | translate }}
                 </h2>
@@ -223,7 +232,10 @@ import { Region } from '@placeos/organisation';
             <section
                 features
                 class="space-y-2"
-                *ngIf="(features | async)?.length"
+                *ngIf="
+                    (features | async)?.length &&
+                    (!viewing_map || !(using_mapspeople | async))
+                "
             >
                 <h2 class="text-lg font-medium" i18n>Facilities</h2>
                 <ng-container *ngFor="let feat of features | async">
@@ -276,6 +288,7 @@ import { Region } from '@placeos/organisation';
 export class SpaceFiltersComponent {
     @Input() public multiday: boolean;
     @Input() public hide_levels: boolean;
+    @Input() public viewing_map: boolean;
     public can_close = false;
     public readonly options = this._event_form.options;
 
@@ -302,6 +315,8 @@ export class SpaceFiltersComponent {
     );
 
     public readonly regions = this._org.region_list;
+
+    public readonly using_mapspeople = this._mapspeople.available$;
 
     public readonly features = combineLatest([
         this._spaces.features,
@@ -370,7 +385,8 @@ export class SpaceFiltersComponent {
         private _settings: SettingsService,
         private _event_form: EventFormService,
         private _org: OrganisationService,
-        private _spaces: SpacesService
+        private _spaces: SpacesService,
+        private _mapspeople: MapsPeopleService
     ) {
         this.can_close = !!this._bsheet_ref;
     }
