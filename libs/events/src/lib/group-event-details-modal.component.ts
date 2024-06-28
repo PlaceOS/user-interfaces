@@ -250,7 +250,10 @@ import {
                     <h3 class="font-medium pt-4">About this event</h3>
                     <div class="text-sm pb-4">
                         <span [innerHTML]="event.body | sanitize"></span>
-                        <span *ngIf="!event.body.trim()" class="opacity-30">
+                        <span
+                            *ngIf="!raw_description.trim()"
+                            class="opacity-30"
+                        >
                             No description
                         </span>
                     </div>
@@ -273,19 +276,13 @@ import {
                             <div class=" p-4 space-y-2">
                                 <div>
                                     {{
-                                        (
-                                            event.linked_event?.system_id
-                                            | space
-                                            | async
-                                        )?.display_name
+                                        (system_id | space | async)
+                                            ?.display_name
                                     }}
                                     <span
                                         *ngIf="
-                                            !(
-                                                event.linked_event?.system_id
-                                                | space
-                                                | async
-                                            )?.display_name
+                                            !(system_id | space | async)
+                                                ?.display_name
                                         "
                                         class="opacity-30"
                                     >
@@ -344,6 +341,7 @@ export class GroupEventDetailsModalComponent {
     public showing_map = false;
     public show_attendees: boolean = false;
     public styles = {};
+    public raw_description = '';
 
     public get time_format() {
         return this._settings.time_format;
@@ -360,7 +358,7 @@ export class GroupEventDetailsModalComponent {
     }
 
     public get has_space() {
-        return !!this.event.system?.id;
+        return !!this.space?.id;
     }
 
     public get is_online() {
@@ -385,12 +383,16 @@ export class GroupEventDetailsModalComponent {
     }
 
     public get system_id() {
-        return this.event.system?.id;
+        return this.space?.id;
     }
 
     public get guest_details() {
         const user = currentUser();
         return this.event.attendees?.find((_) => _.email === user.email);
+    }
+
+    public get group_event_calendar() {
+        return this._settings.get('app.group_events_calendar');
     }
 
     constructor(
@@ -404,7 +406,12 @@ export class GroupEventDetailsModalComponent {
 
     public async ngOnInit() {
         const space_pipe = new SpacePipe(this._org);
-        this.space = await space_pipe.transform(this.event.system?.id);
+        const resource = this.event.resources.find(
+            (_) => _.email !== this.group_event_calendar
+        );
+        this.space = await space_pipe.transform(
+            resource?.id || resource?.email
+        );
         const map_id = (this.event.extension_data as any)?.map_id;
         const id = this.space?.map_id || map_id;
         if (id) {
@@ -417,14 +424,19 @@ export class GroupEventDetailsModalComponent {
                 },
             ];
         }
-        const zones = (this.event.system?.zones as any) || [];
+        const zones = (this.space?.zones as any) || [];
         this.level = this._org.levelWithID(zones);
         this.building =
             this._org.buildings.find((_) => zones.includes(_.id)) ||
             this._org.building;
         this.locate = map_id || '';
+        this.raw_description = this.removeHtmlTags(this.event.body);
     }
 
+    public removeHtmlTags(html: string) {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        return doc.body.textContent || '';
+    }
     public viewLocation() {
         if (!this.space?.map_id) {
             return notifyInfo('Unable to locate space on map.');

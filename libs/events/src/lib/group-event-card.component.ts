@@ -168,7 +168,7 @@ export class GroupEventCardComponent {
     }
 
     public get has_space() {
-        return !!this.event?.system?.id;
+        return !!this.space?.id;
     }
 
     public get is_online() {
@@ -176,6 +176,10 @@ export class GroupEventCardComponent {
             !this.is_onsite ||
             this.event?.extension_data.attendance_type === 'ANY'
         );
+    }
+
+    public get group_event_calendar() {
+        return this._settings.get('app.group_events_calendar');
     }
 
     constructor(
@@ -186,7 +190,12 @@ export class GroupEventCardComponent {
 
     public async ngOnInit() {
         const space_pipe = new SpacePipe(this._org);
-        this.space = await space_pipe.transform(this.event.system?.id);
+        const resource = this.event.resources.find(
+            (_) => _.email !== this.group_event_calendar
+        );
+        this.space = await space_pipe.transform(
+            resource?.id || resource?.email
+        );
         this.raw_description = this.removeHtmlTags(this.event.body);
     }
 
