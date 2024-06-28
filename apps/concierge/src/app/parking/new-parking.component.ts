@@ -56,9 +56,14 @@ import { ParkingStateService } from './parking-state.service';
                 </div>
                 <div
                     *ngIf="!(levels | async)?.length"
-                    class="absolute inset-0 bg-base-100/80/20 flex flex-col items-center justify-center z-50"
+                    class="absolute inset-0 flex flex-col items-center justify-center z-50"
                 >
-                    <p>No parking floors for the currently selected building</p>
+                    <div
+                        class="absolute inset-0 bg-base-100 opacity-80 z-0"
+                    ></div>
+                    <p class="z-10 opacity-60">
+                        No parking floors for the currently selected building
+                    </p>
                 </div>
             </main>
         </div>

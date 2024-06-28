@@ -306,6 +306,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             index: key,
             ...floors[key],
         }));
+        log('MapsIndoors', 'Floor List:', this._floor_list);
         if (!this._services) return;
         const bld = this._org.buildings.find(
             (_) => _.id === id || _.map_id === id
@@ -340,6 +341,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             event.properties?.roomId ||
             event.id;
         const actions = this.metadata?.actions || [];
+        log('MapsIndoors', `Registered Actions`, actions);
         const ignore_actions = ['mousedown', 'touchstart', 'enter', 'leave'];
         for (const action of actions) {
             if (
