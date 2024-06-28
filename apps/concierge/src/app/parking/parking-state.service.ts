@@ -77,7 +77,7 @@ export class ParkingStateService extends AsyncHandler {
     /** List of available parking levels for the current building */
     public levels = this._org.level_list.pipe(
         map((_) => {
-            if (!this._settings.get('app.use_region')) {
+            if (this._settings.get('app.use_region')) {
                 const blds = this._org.buildingsForRegion();
                 const bld_ids = blds.map((bld) => bld.id);
                 const list = _.filter(
