@@ -65,7 +65,7 @@ export function generateSystemsFormFields(system?: PlaceSystem) {
     return new FormGroup(fields);
 }
 
-export function requestSpacesForZone(id: string) {
+export function requestSpacesForZone(id: string): Observable<Space[]> {
     if (!id) return of([]);
     if (SPACE_LIST_REQUESTS[id]) return SPACE_LIST_REQUESTS[id];
     SPACE_LIST_REQUESTS[id] = querySystems({ zone_id: id, limit: 500 }).pipe(
