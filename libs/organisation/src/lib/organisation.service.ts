@@ -448,6 +448,7 @@ export class OrganisationService extends AsyncHandler {
                     .toPromise(),
                 querySettings({ parent_id: bld.id })
                     .pipe(
+                        catchError(() => of({ data: {} as any })),
                         map((_) => {
                             try {
                                 return yaml.load(
