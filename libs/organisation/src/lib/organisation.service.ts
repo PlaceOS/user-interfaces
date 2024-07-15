@@ -11,7 +11,14 @@ import {
     showMetadata,
 } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { catchError, filter, first, map, shareReplay } from 'rxjs/operators';
+import {
+    catchError,
+    debounceTime,
+    filter,
+    first,
+    map,
+    shareReplay,
+} from 'rxjs/operators';
 
 import { notifyError } from 'libs/common/src/lib/notifications';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
@@ -21,14 +28,14 @@ import { Building } from './building.class';
 import { BuildingLevel } from './level.class';
 import { Organisation } from './organisation.class';
 import { Region } from './region.class';
-import { log, unique } from '@placeos/common';
+import { AsyncHandler, log, unique } from '@placeos/common';
 
 import * as yaml from 'js-yaml';
 
 @Injectable({
     providedIn: 'root',
 })
-export class OrganisationService {
+export class OrganisationService extends AsyncHandler {
     /** Subject which stores the initialised state of the object */
     protected readonly _initialised = new BehaviorSubject<boolean>(false);
     /** Observable of the initialised state of the object */
@@ -192,11 +199,15 @@ export class OrganisationService {
     }
 
     constructor(private _service: SettingsService, private _router: Router) {
+        super();
         onlineState()
             .pipe(first((_) => _))
             .subscribe(() => setTimeout(() => this.init(), 1000));
         combineLatest([this.active_region, this.active_building])
-            .pipe(filter(([region, bld]) => !!bld))
+            .pipe(
+                filter(([_, bld]) => !!bld),
+                debounceTime(300)
+            )
             .subscribe(() => this._updateSettingOverrides());
     }
 
@@ -451,6 +462,7 @@ export class OrganisationService {
         (bld as any).bindings = bindings;
         (bld as any).booking_rules = booking_rules;
         this._loaded_data[bld.id] = true;
+        this._updateSettingOverrides();
     }
 
     /**
@@ -611,10 +623,14 @@ export class OrganisationService {
     }
 
     private _updateSettingOverrides() {
-        this._service.overrides = [
-            this.buildingSettings(this.building?.id),
-            this.regionSettings(this.region?.id),
-            ...this._settings,
-        ];
+        this.timeout(
+            'update_settings_overrides',
+            () =>
+                (this._service.overrides = [
+                    this.buildingSettings(this.building?.id),
+                    this.regionSettings(this.region?.id),
+                    ...this._settings,
+                ])
+        );
     }
 }
