@@ -111,7 +111,7 @@ export class OrganisationService extends AsyncHandler {
     /** Mapping building settings overrides */
     public buildingSettings(bld_id: string = ''): Record<string, any> {
         if (!bld_id && this.building) {
-            bld_id = this.building?.id;
+            bld_id = this.building?.id || this.buildings[0]?.id;
         }
         return this._building_settings
             ? this._building_settings[bld_id] || {}
@@ -455,6 +455,12 @@ export class OrganisationService extends AsyncHandler {
                     )
                     .toPromise(),
             ]);
+        console.log(
+            'Building Settings:',
+            bld.display_name || bld.name,
+            bld.id,
+            settings
+        );
         this._building_settings[bld.id] = {
             ...(driver_settings || {}),
             ...(settings || {}),
