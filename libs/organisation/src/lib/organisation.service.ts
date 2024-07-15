@@ -429,13 +429,22 @@ export class OrganisationService extends AsyncHandler {
         const [settings, bindings, booking_rules, driver_settings]: any =
             await Promise.all([
                 showMetadata(bld.id, this.app_key)
-                    .pipe(map((_) => _?.details))
+                    .pipe(
+                        map((_) => _?.details),
+                        catchError(() => of({}))
+                    )
                     .toPromise(),
                 showMetadata(bld.id, 'bindings')
-                    .pipe(map((_) => _?.details))
+                    .pipe(
+                        map((_) => _?.details),
+                        catchError(() => of({}))
+                    )
                     .toPromise(),
                 showMetadata(bld.id, 'booking_rules')
-                    .pipe(map((_) => _?.details))
+                    .pipe(
+                        map((_) => _?.details),
+                        catchError(() => of({}))
+                    )
                     .toPromise(),
                 querySettings({ parent_id: bld.id })
                     .pipe(
