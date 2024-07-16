@@ -35,7 +35,7 @@ import * as yaml from 'js-yaml';
 @Injectable({
     providedIn: 'root',
 })
-export class OrganisationService extends AsyncHandler {
+export class OrganisationService {
     /** Subject which stores the initialised state of the object */
     protected readonly _initialised = new BehaviorSubject<boolean>(false);
     /** Observable of the initialised state of the object */
@@ -199,7 +199,6 @@ export class OrganisationService extends AsyncHandler {
     }
 
     constructor(private _service: SettingsService, private _router: Router) {
-        super();
         onlineState()
             .pipe(first((_) => _))
             .subscribe(() => setTimeout(() => this.init(), 1000));
@@ -639,14 +638,14 @@ export class OrganisationService extends AsyncHandler {
     }
 
     private _updateSettingOverrides() {
-        this.timeout(
-            'update_settings_overrides',
+        setTimeout(
             () =>
                 (this._service.overrides = [
                     this.buildingSettings(this.building?.id),
                     this.regionSettings(this.region?.id),
                     ...this._settings,
-                ])
+                ]),
+            300
         );
     }
 }
