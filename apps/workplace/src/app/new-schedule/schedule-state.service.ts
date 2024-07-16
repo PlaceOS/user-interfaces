@@ -326,21 +326,20 @@ export class ScheduleStateService extends AsyncHandler {
                 (auto_release.time_after || auto_release.time_before) &&
                 auto_release.resources?.length
             ) {
+                const time_before = Math.min(60, auto_release.time_before || 0);
                 for (const type of auto_release.resources) {
                     const bookings = await queryBookings({
                         period_start: getUnixTime(startOfMinute(Date.now())),
                         period_end: getUnixTime(
                             addMinutes(
                                 Date.now(),
-                                (auto_release.time_after || 5) +
-                                    (auto_release.time_before || 0)
+                                (auto_release.time_after || 5) + time_before
                             )
                         ),
                         type,
                     }).toPromise();
                     const check_block =
-                        (auto_release.time_after || 0) +
-                        (auto_release.time_before || 0);
+                        (auto_release.time_after || 0) + time_before;
                     for (const booking of bookings) {
                         if (
                             this._ignore_cancel.includes(booking.id) ||
