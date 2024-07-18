@@ -6,7 +6,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
     template: `
         <div
             counter
-            class="flex items-center text-base"
+            class="flex items-center text-base space-x-2 p-2"
             (window:keydown.shift)="shift_key = true"
             (window:keydown.control)="ctrl_key = true"
             (window:keydown.meta)="ctrl_key = true"
@@ -15,23 +15,38 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
             (window:keyup.meta)="ctrl_key = false"
         >
             <button
+                decrease
                 icon
                 matRipple
-                name="remove"
                 type="button"
+                class="border border-error text-error rounded h-10 w-10"
                 [disabled]="!value || value === min"
                 (click)="remove()"
             >
                 <app-icon>remove</app-icon>
             </button>
-            <div value class="p-1 text-center">
-                {{ (render_fn ? render_fn(value) : value) || '0' }}
+            <div
+                value
+                class="relative p-1 flex items-center justify-center w-16 h-10 rounded border border-base-300"
+            >
+                <span *ngIf="!focused">
+                    {{ (render_fn ? render_fn(value) : value) || '0' }}
+                </span>
+                <input
+                    type="text"
+                    class="absolute inset-0 opacity-0 focus:opacity-100 p-2"
+                    [(ngModel)]="value"
+                    (focus)="focused = true"
+                    (blur)="setValue(+value); focused = false"
+                    limitInput
+                />
             </div>
             <button
+                increase
                 icon
                 matRipple
-                name="add"
                 type="button"
+                class="border border-success text-success rounded h-10 w-10"
                 [disabled]="value === max"
                 (click)="add()"
             >
@@ -39,13 +54,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
             </button>
         </div>
     `,
-    styles: [
-        `
-            [value] {
-                min-width: 3em;
-            }
-        `,
-    ],
+    styles: [``],
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -59,7 +68,7 @@ export class CounterComponent implements ControlValueAccessor {
     /** Size of a single step */
     @Input() public step = 1;
     /** Maximum amount for the counter */
-    @Input() public max = 10;
+    @Input() public max = 999;
     /** Minimum amount for the counter */
     @Input() public min = 0;
     /** Custom function for rendering the counter value */
@@ -70,6 +79,7 @@ export class CounterComponent implements ControlValueAccessor {
     public shift_key: boolean;
     /** Whether control key is being held by the user */
     public ctrl_key: boolean;
+    public focused = false;
 
     /** Form control on change handler */
     private _onChange: (_: number) => void;
@@ -117,6 +127,12 @@ export class CounterComponent implements ControlValueAccessor {
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: number): void {
+        if (new_value < this.min) new_value = this.min;
+        if (new_value > this.max) new_value = this.max;
+        if ((new_value / this.step) % 1 !== 0) {
+            new_value =
+                Math.round(new_value * (1 / this.step)) / (1 / this.step);
+        }
         this.value = new_value;
         /* istanbul ignore else */
         if (this._onChange) {

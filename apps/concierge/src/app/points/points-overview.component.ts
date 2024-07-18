@@ -13,7 +13,6 @@ import { Component, OnInit } from '@angular/core';
             <div class="flex items-center space-x-2 p-4 mb-4">
                 <span>1 point =</span>
                 <a-counter
-                    class="bg-base-100 rounded border border-base-200"
                     [step]="0.1"
                     [(ngModel)]="points.value"
                     (ngModelChange)="storePoints()"
@@ -31,7 +30,6 @@ import { Component, OnInit } from '@angular/core';
                     class="flex items-center space-x-2 p-2 border-b border-base-200"
                 >
                     <a-counter
-                        class="bg-base-100 rounded border border-base-200"
                         [(ngModel)]="points.desk_checkin"
                         (ngModelChange)="storePoints()"
                     ></a-counter>
@@ -41,7 +39,6 @@ import { Component, OnInit } from '@angular/core';
                     class="flex items-center space-x-2 p-2 border-b border-base-200"
                 >
                     <a-counter
-                        class="bg-base-100 rounded border border-base-200"
                         [(ngModel)]="points.room_checkin"
                         (ngModelChange)="storePoints()"
                     ></a-counter>
@@ -51,7 +48,6 @@ import { Component, OnInit } from '@angular/core';
                     class="flex items-center space-x-2 p-2 border-b border-base-200"
                 >
                     <a-counter
-                        class="bg-base-100 rounded border border-base-200"
                         [(ngModel)]="points.booking_cancel"
                         (ngModelChange)="storePoints()"
                     ></a-counter>
@@ -62,7 +58,6 @@ import { Component, OnInit } from '@angular/core';
                 </div>
                 <div class="flex items-center space-x-2 p-2 ">
                     <a-counter
-                        class="bg-base-100 rounded border border-base-200"
                         [(ngModel)]="points.wellness_card"
                         (ngModelChange)="storePoints()"
                     ></a-counter>

@@ -11,7 +11,14 @@ import {
     showMetadata,
 } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { catchError, filter, first, map, shareReplay } from 'rxjs/operators';
+import {
+    catchError,
+    debounceTime,
+    filter,
+    first,
+    map,
+    shareReplay,
+} from 'rxjs/operators';
 
 import { notifyError } from 'libs/common/src/lib/notifications';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
@@ -21,7 +28,7 @@ import { Building } from './building.class';
 import { BuildingLevel } from './level.class';
 import { Organisation } from './organisation.class';
 import { Region } from './region.class';
-import { log, unique } from '@placeos/common';
+import { AsyncHandler, log, unique } from '@placeos/common';
 
 import * as yaml from 'js-yaml';
 
@@ -104,7 +111,7 @@ export class OrganisationService {
     /** Mapping building settings overrides */
     public buildingSettings(bld_id: string = ''): Record<string, any> {
         if (!bld_id && this.building) {
-            bld_id = this.building?.id;
+            bld_id = this.building?.id || this.buildings[0]?.id;
         }
         return this._building_settings
             ? this._building_settings[bld_id] || {}
@@ -196,7 +203,10 @@ export class OrganisationService {
             .pipe(first((_) => _))
             .subscribe(() => setTimeout(() => this.init(), 1000));
         combineLatest([this.active_region, this.active_building])
-            .pipe(filter(([region, bld]) => !!bld))
+            .pipe(
+                filter(([_, bld]) => !!bld),
+                debounceTime(300)
+            )
             .subscribe(() => this._updateSettingOverrides());
     }
 
@@ -418,16 +428,26 @@ export class OrganisationService {
         const [settings, bindings, booking_rules, driver_settings]: any =
             await Promise.all([
                 showMetadata(bld.id, this.app_key)
-                    .pipe(map((_) => _?.details))
+                    .pipe(
+                        map((_) => _?.details),
+                        catchError(() => of({}))
+                    )
                     .toPromise(),
                 showMetadata(bld.id, 'bindings')
-                    .pipe(map((_) => _?.details))
+                    .pipe(
+                        map((_) => _?.details),
+                        catchError(() => of({}))
+                    )
                     .toPromise(),
                 showMetadata(bld.id, 'booking_rules')
-                    .pipe(map((_) => _?.details))
+                    .pipe(
+                        map((_) => _?.details),
+                        catchError(() => of({}))
+                    )
                     .toPromise(),
                 querySettings({ parent_id: bld.id })
                     .pipe(
+                        catchError(() => of({ data: {} as any })),
                         map((_) => {
                             try {
                                 return yaml.load(
@@ -444,6 +464,12 @@ export class OrganisationService {
                     )
                     .toPromise(),
             ]);
+        console.log(
+            'Building Settings:',
+            bld.display_name || bld.name,
+            bld.id,
+            settings
+        );
         this._building_settings[bld.id] = {
             ...(driver_settings || {}),
             ...(settings || {}),
@@ -451,6 +477,7 @@ export class OrganisationService {
         (bld as any).bindings = bindings;
         (bld as any).booking_rules = booking_rules;
         this._loaded_data[bld.id] = true;
+        this._updateSettingOverrides();
     }
 
     /**
@@ -611,10 +638,14 @@ export class OrganisationService {
     }
 
     private _updateSettingOverrides() {
-        this._service.overrides = [
-            this.buildingSettings(this.building?.id),
-            this.regionSettings(this.region?.id),
-            ...this._settings,
-        ];
+        setTimeout(
+            () =>
+                (this._service.overrides = [
+                    this.buildingSettings(this.building?.id),
+                    this.regionSettings(this.region?.id),
+                    ...this._settings,
+                ]),
+            300
+        );
     }
 }

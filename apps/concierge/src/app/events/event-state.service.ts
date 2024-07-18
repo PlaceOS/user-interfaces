@@ -2,22 +2,29 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
-    Booking,
-    GroupEventDetailsModalComponent,
-    queryBookings,
-    removeBooking,
-} from '@placeos/bookings';
-import {
     AsyncHandler,
     SettingsService,
     notifyError,
     notifySuccess,
     openConfirmModal,
 } from '@placeos/common';
+import {
+    CalendarEvent,
+    GroupEventDetailsModalComponent,
+    queryEvents,
+    removeEvent,
+} from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
+import {
+    debounceTime,
+    filter,
+    map,
+    shareReplay,
+    switchMap,
+    tap,
+} from 'rxjs/operators';
 
 export interface GroupEventOptions {
     period: 'week' | 'month';
@@ -33,6 +40,7 @@ export class EventStateService extends AsyncHandler {
     private _options = new BehaviorSubject<GroupEventOptions>({
         period: 'week',
     });
+    private _loading = new BehaviorSubject<string>('');
     private _poll = new BehaviorSubject(0);
     private _changed = new BehaviorSubject(0);
 
@@ -43,28 +51,39 @@ export class EventStateService extends AsyncHandler {
         this._poll,
     ]).pipe(
         filter(([bld]) => !!bld),
-        switchMap(([bld, options]) =>
-            queryBookings({
+        debounceTime(310),
+        switchMap(([_, options]) => {
+            this._loading.next('Loading event list...');
+            return queryEvents({
                 period_start: getUnixTime(startOfDay(options.date)),
                 period_end: getUnixTime(
                     endOfDay(options.end || options.date || Date.now())
                 ),
-                type: 'group-event',
-                zones: options.zone_ids?.join(',') || bld.id,
-            })
+                calendars: this.calendar,
+            });
+        }),
+        map((list) =>
+            list
+                .filter((_) => _.extension_data?.shared_event)
+                .sort((a, b) => a.date - b.date)
         ),
-        map((list) => list.sort((a, b) => a.date - b.date)),
+        tap(() => this._loading.next('')),
         shareReplay(1)
     );
 
     public readonly options = this._options.asObservable();
+    public readonly loading = this._loading.asObservable();
 
     public changed() {
-        this._changed.next(Date.now());
+        this.timeout('changed', () => this._changed.next(Date.now()), 100);
     }
 
     public get period() {
         return this._options.getValue()?.period;
+    }
+
+    public get calendar() {
+        return this._settings.get('app.group_events_calendar');
     }
 
     constructor(
@@ -93,9 +112,9 @@ export class EventStateService extends AsyncHandler {
         this._options.next({ ...this._options.value, ...options });
     }
 
-    public viewEvent(event: Booking) {
+    public viewEvent(event: CalendarEvent) {
         const ref = this._dialog.open(GroupEventDetailsModalComponent, {
-            data: { booking: event, concierge: true },
+            data: { event, concierge: true },
         });
         this.subscription(
             `edit:${event.id}`,
@@ -117,7 +136,7 @@ export class EventStateService extends AsyncHandler {
         );
     }
 
-    public async removeEvent(event: Booking) {
+    public async removeEvent(event: CalendarEvent) {
         const result = await openConfirmModal(
             {
                 title: 'Delete Event',
@@ -129,7 +148,9 @@ export class EventStateService extends AsyncHandler {
         );
         if (result.reason !== 'done') return;
         result.loading('Deleting event...');
-        await removeBooking(event.id)
+        await removeEvent(event.id, {
+            calendar: this.calendar,
+        })
             .toPromise()
             .catch((e) => {
                 notifyError(e);

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
 import { AsyncHandler, SettingsService } from '@placeos/common';
@@ -10,9 +10,13 @@ import { ParkingStateService } from './parking-state.service';
 @Component({
     selector: 'parking-topbar',
     template: `
-        <div class="flex items-center w-full pt-4 pb-2 px-8 space-x-2">
+        <div class="flex items-center w-full py-4 px-8 space-x-2">
             <h2 class="text-2xl font-medium">
-                {{ manage ? 'Manage Parking' : 'Parking' }}
+                {{
+                    path !== 'events'
+                        ? 'Parking Management'
+                        : 'Parking Reservations'
+                }}
             </h2>
             <div class="flex-1 w-px"></div>
             <searchbar
@@ -20,19 +24,39 @@ import { ParkingStateService } from './parking-state.service';
                 [model]="(options | async)?.search"
                 (modelChange)="setSearch($event)"
             ></searchbar>
-            <!-- <button
+            <button
                 btn
                 matRipple
-                *ngIf="!manage"
-                class="space-x-2"
+                *ngIf="path === 'manage'"
+                class="space-x-2 w-40"
+                (click)="newParkingSpace()"
+            >
+                <div class="pl-2">New Space</div>
+                <app-icon>add</app-icon>
+            </button>
+            <button
+                btn
+                matRipple
+                *ngIf="path === 'users'"
+                class="space-x-2 w-40"
+                (click)="newParkingUser()"
+            >
+                <div class="pl-2">New User</div>
+                <app-icon>add</app-icon>
+            </button>
+            <button
+                btn
+                matRipple
+                *ngIf="path === 'events'"
+                class="space-x-2 w-48"
                 (click)="newReservation()"
             >
-                <div>New Reservation</div>
+                <div class="pl-2">New Reservation</div>
                 <app-icon>add</app-icon>
-            </button> -->
+            </button>
         </div>
-        <div class="flex items-center bg-base-100 px-8 h-20">
-            <mat-form-field appearance="outline" class="w-60">
+        <div class="flex items-center bg-base-100 px-8 mb-2 h-14">
+            <mat-form-field appearance="outline" class="w-56 no-subscript">
                 <mat-select
                     [(ngModel)]="zones"
                     (ngModelChange)="updateZones($event)"
@@ -55,7 +79,7 @@ import { ParkingStateService } from './parking-state.service';
             </mat-form-field>
             <div class="flex-1 w-0"></div>
             <date-options
-                *ngIf="!manage"
+                *ngIf="path === 'events' || path === 'map'"
                 (dateChange)="setDate($event)"
             ></date-options>
         </div>
@@ -75,7 +99,7 @@ import { ParkingStateService } from './parking-state.service';
     ],
 })
 export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
-    public manage = false;
+    public path = '';
     /** List of selected levels */
     public zones: string[] = [];
     /** List of levels for the active building */
@@ -141,8 +165,35 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
                 this.updateZones(this.zones);
             })
         );
-        this.manage = !this._router.url.includes('events');
+        this.subscription(
+            'router.events',
+            this._router.events.subscribe((e) => {
+                if (e instanceof NavigationEnd) this._updatePath();
+            })
+        );
+        this._updatePath();
     }
 
-    public newReservation() {}
+    public newParkingSpace() {
+        this._state.editSpace();
+    }
+
+    public newParkingUser() {
+        this._state.editUser();
+    }
+
+    public newReservation() {
+        this._state.editReservation();
+    }
+
+    private _updatePath() {
+        this.timeout(
+            'update_path',
+            () => {
+                const parts = this._router.url?.split('/') || [''];
+                this.path = parts[parts.length - 1].split('?')[0];
+            },
+            50
+        );
+    }
 }

@@ -647,6 +647,16 @@ a[icon] {
         padding: 0 1rem;
     }
 
+    .mdc-slider__value-indicator {
+        background-color: var(--b3);
+        color: var(--bc);
+        opacity: 1;
+
+        &::before {
+            border-top-color: var(--b3);
+        }
+    }
+
     .mat-mdc-tab-list {
         border-bottom: 1px solid var(--b2);
     }

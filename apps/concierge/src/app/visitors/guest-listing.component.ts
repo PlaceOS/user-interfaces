@@ -1,15 +1,17 @@
 import { Component } from '@angular/core';
 import { AsyncHandler, SettingsService, notifyError } from '@placeos/common';
 import { VisitorsStateService } from './visitors-state.service';
-import { Booking } from '@placeos/bookings';
+import { Booking, saveBooking } from '@placeos/bookings';
 import { showMetadata } from '@placeos/ts-client';
 import { OrganisationService } from '@placeos/organisation';
+import { ParkingStateService } from '../parking/parking-state.service';
+import { User } from '@placeos/users';
 
 @Component({
     selector: 'guest-listings',
     template: `
         <simple-table
-            class="min-w-[60rem] block text-sm z-0"
+            class="min-w-[64rem] block text-sm z-0"
             [data]="guests"
             [columns]="[
                 {
@@ -42,6 +44,13 @@ import { OrganisationService } from '@placeos/organisation';
                     name: 'Inducted',
                     content: boolean_template,
                     show: !!inductions_enabled,
+                    size: '5.5rem'
+                },
+                {
+                    key: 'parking_space',
+                    name: 'Parking',
+                    content: parking_template,
+                    show: !!has_parking,
                     size: '5.5rem'
                 },
                 {
@@ -144,6 +153,14 @@ import { OrganisationService } from '@placeos/organisation';
                     </button>
                 </div>
             </ng-template>
+        </ng-template>
+        <ng-template #parking_template let-row="row">
+            <div
+                *ngIf="row.extension_data.parking_booking_id"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
+            >
+                <app-icon>done</app-icon>
+            </div>
         </ng-template>
         <ng-template #boolean_template let-row="row">
             <div
@@ -251,6 +268,19 @@ import { OrganisationService } from '@placeos/organisation';
                         <div class="flex items-center space-x-2">
                             <app-icon class="text-2xl">attachment</app-icon>
                             <div>View Attachments</div>
+                        </div>
+                    </button>
+                    <button
+                        mat-menu-item
+                        *ngIf="
+                            has_parking &&
+                            !row.extension_data.parking_booking_id
+                        "
+                        (click)="reserveParking(row)"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <app-icon class="text-2xl">directions_car</app-icon>
+                            <div>Reserve Parking Space</div>
                         </div>
                     </button>
                     <mat-menu #menu="matMenu">
@@ -393,6 +423,13 @@ export class GuestListingComponent extends AsyncHandler {
         this._state.poll();
     };
 
+    public get has_parking() {
+        return (
+            this._settings.get('app.features')?.includes('parking') &&
+            this._settings.get('app.visitors.has_parking')
+        );
+    }
+
     public get time_format() {
         return this._settings.time_format;
     }
@@ -408,6 +445,7 @@ export class GuestListingComponent extends AsyncHandler {
 
     constructor(
         private _state: VisitorsStateService,
+        private _parking: ParkingStateService,
         private _settings: SettingsService,
         private _org: OrganisationService
     ) {
@@ -431,5 +469,19 @@ export class GuestListingComponent extends AsyncHandler {
                     metadata.details?.induction_details;
             })
         );
+    }
+
+    public async reserveParking(item: Booking) {
+        const id = await this._parking.editReservation(undefined, {
+            user: new User({ email: item.asset_id, name: item.asset_name }),
+            link_id: item.id,
+            date: item.date,
+        });
+        if (id) {
+            await saveBooking(
+                new Booking({ ...item, parking_booking_id: id } as any)
+            ).toPromise();
+            this._state.poll();
+        }
     }
 }

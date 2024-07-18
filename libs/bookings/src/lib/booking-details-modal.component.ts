@@ -1,11 +1,6 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import {
-    notifyError,
-    notifySuccess,
-    SettingsService,
-    MapsPeopleService,
-} from '@placeos/common';
+import { notifyError, notifySuccess, SettingsService } from '@placeos/common';
 import { addMinutes, format, formatDuration } from 'date-fns';
 
 import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-modal.component';
@@ -13,6 +8,8 @@ import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Booking } from './booking.class';
 import { checkinBooking } from './bookings.fn';
+
+import { DeskSettingsModalComponent } from './desk-settings-modal.component';
 
 @Component({
     selector: 'booking-details-modal',
@@ -284,6 +281,18 @@ import { checkinBooking } from './bookings.fn';
             </button>
             <button
                 mat-menu-item
+                *ngIf="is_checked_in && desk_height_enabled"
+                (click)="setDeskHeight()"
+            >
+                <div class="flex items-center space-x-2 text-base">
+                    <app-icon className="material-symbols-rounded">
+                        height
+                    </app-icon>
+                    <div i18n>Set Desk Height</div>
+                </div>
+            </button>
+            <button
+                mat-menu-item
                 *ngIf="!is_in_progress"
                 (click)="remove.emit()"
             >
@@ -337,6 +346,17 @@ export class BookingDetailsModalComponent {
     public get auto_checkin() {
         return this._settings.get(
             `app.${this.booking?.type || 'bookings'}.auto_checkin`
+        );
+    }
+
+    public get is_checked_in() {
+        return this.booking.checked_in;
+    }
+
+    public get desk_height_enabled() {
+        return (
+            this.booking?.type === 'desk' &&
+            this._settings.get('app.desks.height_enabled')
         );
     }
 
@@ -434,5 +454,11 @@ export class BookingDetailsModalComponent {
             },
         });
         ref.afterClosed().subscribe(() => (this.hide_map = false));
+    }
+
+    public setDeskHeight() {
+        this._dialog.open(DeskSettingsModalComponent, {
+            data: { id: this.booking.asset_ids[0] || this.booking.asset_id },
+        });
     }
 }

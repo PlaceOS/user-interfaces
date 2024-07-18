@@ -11,14 +11,59 @@ import { ParkingStateService } from './parking-state.service';
             <app-sidebar></app-sidebar>
             <main class="flex flex-col flex-1 w-1/2 h-full relative">
                 <parking-topbar></parking-topbar>
+                <div class="px-8 pb-2" *ngIf="path !== 'events'">
+                    <nav mat-tab-nav-bar [tabPanel]="tabPanel">
+                        <a
+                            mat-tab-link
+                            [routerLink]="['/book', 'parking', 'new', 'manage']"
+                            [active]="path === 'manage'"
+                        >
+                            Spaces
+                        </a>
+                        <a
+                            mat-tab-link
+                            [routerLink]="[
+                                '/book',
+                                'parking',
+                                'new',
+                                'manage',
+                                'users'
+                            ]"
+                            [active]="path === 'users'"
+                        >
+                            Users
+                        </a>
+                        <a
+                            mat-tab-link
+                            [routerLink]="[
+                                '/book',
+                                'parking',
+                                'new',
+                                'manage',
+                                'map'
+                            ]"
+                            [active]="path === 'map'"
+                        >
+                            Map
+                        </a>
+                    </nav>
+                    <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
+                </div>
                 <div class="relative flex-1 h-1/2 w-full overflow-auto px-8">
-                    <router-outlet></router-outlet>
+                    <div class="w-full h-full overflow-auto">
+                        <router-outlet></router-outlet>
+                    </div>
                 </div>
                 <div
                     *ngIf="!(levels | async)?.length"
-                    class="absolute inset-0 bg-base-100/80/20 flex flex-col items-center justify-center z-50"
+                    class="absolute inset-0 flex flex-col items-center justify-center z-50"
                 >
-                    <p>No parking floors for the currently selected building</p>
+                    <div
+                        class="absolute inset-0 bg-base-100 opacity-80 z-0"
+                    ></div>
+                    <p class="z-10 opacity-60">
+                        No parking floors for the currently selected building
+                    </p>
                 </div>
             </main>
         </div>
@@ -62,13 +107,20 @@ export class NewParkingComponent extends AsyncHandler {
         this.subscription(
             'router.events',
             this._router.events.subscribe((e) => {
-                if (e instanceof NavigationEnd) {
-                    const url_parts = this._router.url?.split('/') || [''];
-                    this.path = url_parts[parts.length - 1].split('?')[0];
-                }
+                if (e instanceof NavigationEnd) this._updatePath();
             })
         );
-        const parts = this._router.url?.split('/') || [''];
-        this.path = parts[parts.length - 1].split('?')[0];
+        this._updatePath();
+    }
+
+    private _updatePath() {
+        this.timeout(
+            'update_path',
+            () => {
+                const parts = this._router.url?.split('/') || [''];
+                this.path = parts[parts.length - 1].split('?')[0];
+            },
+            50
+        );
     }
 }

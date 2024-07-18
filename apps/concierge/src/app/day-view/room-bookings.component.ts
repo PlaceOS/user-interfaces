@@ -3,7 +3,8 @@ import { OrganisationService } from '@placeos/organisation';
 import { EventsStateService } from './events-state.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
-import { take } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
+import { combineLatest } from 'rxjs';
 
 const EMPTY = [];
 @Component({
@@ -18,18 +19,26 @@ const EMPTY = [];
                 </button>
             </div>
             <div class="w-full flex items-center">
-                <mat-form-field appearance="outline" class="h-[3.5rem]" *ngIf="!use_region">
+                <mat-form-field appearance="outline" class="no-subscript w-52">
                     <mat-select
-                        multiple
-                        [ngModel]="zones | async"
-                        (ngModelChange)="updateZones($event)"
+                            [ngModel]="zones | async"
+                            (ngModelChange)="updateZones($event)"
                         placeholder="All Levels"
+                        multiple
                     >
                         <mat-option
                             *ngFor="let level of levels | async"
                             [value]="level.id"
                         >
-                            {{ level.display_name || level.name }}
+                            <div class="flex flex-col-reverse">
+                                <div class="text-xs opacity-30" *ngIf="use_region">
+                                    {{ (level.parent_id | building)?.display_name }}
+                                    <span class="opacity-0"> - </span>
+                                </div>
+                                <div>
+                                    {{ level.display_name || level.name }}
+                                </div>
+                            </div>
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -44,7 +53,7 @@ const EMPTY = [];
                     </mat-slide-toggle>
                 </ng-container>
                 <div class="border-l h-full ml-8 mr-4"></div>
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-2 max-w-[calc(100%-16rem)] flex-1">
                     <button btn matRipple class="inverse" [matMenuTriggerFor]="menu">
                         <app-icon>filter_list</app-icon>
                         <div class="mx-2">Filters</div>
@@ -60,7 +69,8 @@ const EMPTY = [];
                             </mat-checkbox>
                         </div>
                     </mat-menu>
-                    <ng-container *ngFor="let type of types">
+                    <div class="flex items-center overflow-x-auto flex-1 w-px space-x-2 px-2">
+                        @for (type of types; track type.id) {
                         <div class="flex items-center border border-base-200 rounded-3xl" *ngIf="!type_list.includes(type.id)">
                             <div class="h-4 w-4 m-2 rounded-full" [style.background-color]="type.color"></div>
                             <div>{{ type.name }}</div>
@@ -68,7 +78,8 @@ const EMPTY = [];
                                 <app-icon>close</app-icon>
                             </button>
                         </div>
-                    </ng-container>
+                        }
+                    </div>
                 </div>
             </div>
             <div class="flex w-full flex-1 h-px border-t mt-4 border-base-200">
@@ -82,8 +93,16 @@ const EMPTY = [];
 export class RoomBookingsComponent extends AsyncHandler {
     public readonly zones = this._state.zones;
     public readonly ui_options = this._state.options;
-    /** List of levels for the active building */
-    public readonly levels = this._org.active_levels;
+    public readonly levels = combineLatest([
+        this._org.active_building,
+        this._org.active_region,
+    ]).pipe(
+        map(([bld, region]) =>
+            this.use_region
+                ? this._org.levelsForRegion(region)
+                : this._org.levelsForBuilding(bld)
+        )
+    );
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
         this._router.navigate([], {

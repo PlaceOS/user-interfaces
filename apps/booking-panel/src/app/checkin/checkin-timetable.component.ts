@@ -135,7 +135,7 @@ export class CheckinTimetableComponent extends AsyncHandler {
         const start = roundToNearestMinutes(
             subMinutes(subHours(Date.now(), 1), this.step / 2),
             {
-                nearestTo: this.step,
+                nearestTo: this.step as any,
             }
         );
         let date = start;

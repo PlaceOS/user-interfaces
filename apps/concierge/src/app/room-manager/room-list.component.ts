@@ -70,7 +70,7 @@ import { notifySuccess } from '@placeos/common';
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="w-full flex justify-end space-x-2 p-2">
+            <div class="flex items-center space-x-2 p-2 mx-auto">
                 <button
                     btn
                     icon

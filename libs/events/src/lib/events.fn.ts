@@ -240,6 +240,31 @@ export function checkinEventGuest(
 }
 
 /**
+ * Add a guest to a booking
+ * @param id ID of the booking
+ * @param guest Guest to add to the booking
+ */
+export function addEventGuest(id: string, guest: GuestUser) {
+    return post(
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/attendee`,
+        guest
+    ).pipe(map((item) => new GuestUser(item)));
+}
+
+/**
+ * Remove an attendee from a booking
+ * @param id ID of the booking
+ * @param guest Guest to remove from the booking
+ */
+export function removeEventGuest(id: string, guest: GuestUser) {
+    return del(
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(
+            id
+        )}/attendee/${encodeURIComponent(guest.email)}`
+    ).pipe(map((item) => new GuestUser(item)));
+}
+
+/**
  * Get the extension data for an event
  * @param id ID of the event
  * @param system_id  ID of the system associated with the event

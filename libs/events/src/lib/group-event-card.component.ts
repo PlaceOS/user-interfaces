@@ -1,10 +1,12 @@
 import { Component, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SettingsService } from '@placeos/common';
-import { GroupEventDetailsModalComponent } from '@placeos/bookings';
+
+import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
-import { OrganisationService } from '@placeos/organisation';
+import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { CalendarEvent } from './event.class';
 
 @Component({
     selector: 'group-event-card',
@@ -152,7 +154,7 @@ import { OrganisationService } from '@placeos/organisation';
     ],
 })
 export class GroupEventCardComponent {
-    @Input() public event: any;
+    @Input() public event: CalendarEvent;
     @Input() public featured: boolean;
     public space: Space;
     public raw_description = '';
@@ -166,7 +168,7 @@ export class GroupEventCardComponent {
     }
 
     public get has_space() {
-        return !!this.event?.linked_event?.system_id;
+        return !!this.space?.id;
     }
 
     public get is_online() {
@@ -174,6 +176,10 @@ export class GroupEventCardComponent {
             !this.is_onsite ||
             this.event?.extension_data.attendance_type === 'ANY'
         );
+    }
+
+    public get group_event_calendar() {
+        return this._settings.get('app.group_events_calendar');
     }
 
     constructor(
@@ -184,10 +190,13 @@ export class GroupEventCardComponent {
 
     public async ngOnInit() {
         const space_pipe = new SpacePipe(this._org);
-        this.space = await space_pipe.transform(
-            this.event.linked_event?.system_id
+        const resource = this.event.resources.find(
+            (_) => _.email !== this.group_event_calendar
         );
-        this.raw_description = this.removeHtmlTags(this.event.description);
+        this.space = await space_pipe.transform(
+            resource?.id || resource?.email
+        );
+        this.raw_description = this.removeHtmlTags(this.event.body);
     }
 
     public removeHtmlTags(html: string) {
@@ -197,7 +206,7 @@ export class GroupEventCardComponent {
 
     public viewDetails(): void {
         this._dialog.open(GroupEventDetailsModalComponent, {
-            data: { booking: this.event, concierge: false },
+            data: { event: this.event, concierge: false },
         });
     }
 }
