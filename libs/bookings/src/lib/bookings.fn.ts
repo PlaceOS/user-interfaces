@@ -51,6 +51,20 @@ export function queryBookings(q: BookingsQueryParams): Observable<Booking[]> {
 }
 
 /**
+ * List resources that are booked within the given parameters
+ * @param q Parameters to pass to the API request
+ */
+export function bookedResourceList(
+    q: BookingsQueryParams
+): Observable<string[]> {
+    const query = toQueryString(q);
+    return get(`${BOOKINGS_ENDPOINT}/booked${query ? '?' + query : ''}`).pipe(
+        map((list) => list as string[]),
+        catchError((_) => of([]))
+    );
+}
+
+/**
  * List bookings with link to next page of bookings
  * @param q Parameters to pass to the API request
  */

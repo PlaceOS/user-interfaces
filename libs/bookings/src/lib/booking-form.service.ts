@@ -47,7 +47,7 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
 import { User } from 'libs/users/src/lib/user.class';
 import { Booking, BookingType } from './booking.class';
 import { generateBookingForm } from './booking.utilities';
-import { queryBookings, saveBooking } from './bookings.fn';
+import { bookedResourceList, queryBookings, saveBooking } from './bookings.fn';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
 import { findNearbyFeature } from './booking.utilities';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
@@ -190,7 +190,7 @@ export class BookingFormService extends AsyncHandler {
                 date = startOfDay(date).valueOf();
                 duration = 24 * 60 - 1;
             }
-            return queryBookings({
+            return bookedResourceList({
                 period_start: getUnixTime(date),
                 period_end: getUnixTime(addMinutes(date, duration)),
                 type: options.type,
@@ -198,20 +198,19 @@ export class BookingFormService extends AsyncHandler {
                     options.zone_id ||
                     this._org.building?.id ||
                     this._org.organisation.id,
-                limit: 1000,
             }).pipe(
                 map(
-                    (bookings) => {
+                    (booked_ids) => {
                         const start = this.form.getRawValue().date;
                         const end = addMinutes(
                             start,
                             this.form.getRawValue().duration
                         ).valueOf();
                         this._resource_use = {};
-                        bookings.forEach(
-                            (_) =>
-                                (this._resource_use[_.asset_id] = _.user_name)
-                        );
+                        for (const id of booked_ids) {
+                            this._resource_use[id] = ' ';
+                        }
+                        console.log('Booked:', booked_ids);
                         const available = resources.filter((asset) => {
                             const is_restricted = rulesForResource(
                                 {
@@ -225,6 +224,11 @@ export class BookingFormService extends AsyncHandler {
                                     restrictions[this._org.building.id] ||
                                     []
                             ).hidden;
+                            console.log(
+                                'Booked:',
+                                asset.id,
+                                booked_ids.includes(asset.id)
+                            );
                             return (
                                 !is_restricted &&
                                 (!asset.groups?.length ||
@@ -240,11 +244,7 @@ export class BookingFormService extends AsyncHandler {
                                     options.zone_id === asset.zone?.id ||
                                     options.zone_id ===
                                         asset.zone?.parent_id) &&
-                                !bookings.find(
-                                    (bkn) =>
-                                        bkn.asset_id === asset.id &&
-                                        bkn.status !== 'declined'
-                                ) &&
+                                !booked_ids.includes(asset.id) &&
                                 !asset.assigned_to
                             );
                         });
