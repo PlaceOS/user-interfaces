@@ -88,6 +88,17 @@ export class ReportsStateService {
         end: new Date(),
     });
 
+    private get _ignore_days() {
+        const day_list = this._settings.get('app.reports.ignore_days') || [];
+        return day_list
+            ?.map((_) =>
+                typeof _ === 'string'
+                    ? _?.toLowerCase()
+                    : format(setDay(new Date(), _), 'eeee')?.toLowerCase()
+            )
+            .filter((_) => !!_);
+    }
+
     private _bookings_list = this._generate.pipe(
         debounceTime(500),
         switchMap((_) => {
@@ -146,20 +157,9 @@ export class ReportsStateService {
             if (!list?.length) {
                 notifyError('No bookings for the selected levels and period');
             }
-            const ignore_days =
-                this._settings
-                    .get('app.reports.ignore_days')
-                    ?.map((_) =>
-                        typeof _ === 'string'
-                            ? _.toLowerCase()
-                            : format(
-                                  setDay(new Date(), _),
-                                  'eeee'
-                              ).toLowerCase()
-                    ) || [];
             list = list.filter(
                 (bkn) =>
-                    !ignore_days.includes(
+                    !this._ignore_days.includes(
                         DAYS_OF_WEEK_INDEX[new Date(bkn.date).getDay()]
                     )
             );
@@ -257,12 +257,12 @@ export class ReportsStateService {
             let date = startOfDay(start);
             const end = endOfDay(options.end || date);
             const dates = [];
-            const ignore_days =
-                this._settings
-                    .get('app.reports.ignore_days')
-                    ?.map((_) => _.toLowerCase()) || [];
             while (isBefore(date, end)) {
-                if (ignore_days.includes(DAYS_OF_WEEK_INDEX[date.getDay()])) {
+                if (
+                    this._ignore_days.includes(
+                        DAYS_OF_WEEK_INDEX[date.getDay()]
+                    )
+                ) {
                     date = addDays(date, 1);
                     continue;
                 }
@@ -304,19 +304,13 @@ export class ReportsStateService {
 
     public get duration() {
         const opts = this._options.getValue();
-        const ignore_days =
-            this._settings
-                .get('app.reports.ignore_days')
-                ?.map((_) =>
-                    typeof _ === 'string'
-                        ? _.toLowerCase()
-                        : format(setDay(new Date(), _), 'eeee').toLowerCase()
-                ) || [];
         let start = startOfDay(opts.start);
         const end = addMinutes(endOfDay(opts.end), 1);
         let count = 0;
         while (start.valueOf() < end.valueOf()) {
-            if (!ignore_days.includes(DAYS_OF_WEEK_INDEX[start.getDay()])) {
+            if (
+                !this._ignore_days.includes(DAYS_OF_WEEK_INDEX[start.getDay()])
+            ) {
                 count++;
             }
             start = addDays(start, 1);

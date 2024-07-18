@@ -69,7 +69,9 @@ export class PanelTimelineComponent {
         map(([bookings]) => {
             const blocks = [];
             let start = addMinutes(
-                roundToNearestMinutes(new Date(), { nearestTo: this.step }),
+                roundToNearestMinutes(new Date(), {
+                    nearestTo: this.step as any,
+                }),
                 -120
             ).valueOf();
             const end = addMinutes(start, 12 * 60).valueOf();

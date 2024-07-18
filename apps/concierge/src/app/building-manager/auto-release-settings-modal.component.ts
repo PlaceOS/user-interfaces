@@ -28,6 +28,8 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
             <label>Notify Before Event</label>
             <a-duration-field
                 [min]="0"
+                [max]="60"
+                [step]="5"
                 [(ngModel)]="settings.time_before"
             ></a-duration-field>
             <label>Cancel Event After</label>

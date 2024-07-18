@@ -11,7 +11,17 @@ const STAFF_ENDPOINT = '/api/staff/v1/people';
  * @param q Search string for filtering staff
  */
 export function searchStaff(q: string): Observable<StaffUser[]> {
-    const query = toQueryString({ q });
+    const query = toQueryString({
+        q,
+        fields: [
+            'id',
+            'name',
+            'email',
+            'username',
+            'organisation',
+            'department',
+        ].join(','),
+    });
     return get(`${STAFF_ENDPOINT}${q ? '?' + query : ''}`).pipe(
         map((list) =>
             list.map((item: Record<string, any>) => new StaffUser(item))

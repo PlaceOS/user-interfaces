@@ -281,7 +281,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
             </button>
             <button
                 mat-menu-item
-                *ngIf="(is_checked_in || true) && desk_height_enabled"
+                *ngIf="is_checked_in && desk_height_enabled"
                 (click)="setDeskHeight()"
             >
                 <div class="flex items-center space-x-2 text-base">
