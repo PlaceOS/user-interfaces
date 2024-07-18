@@ -38,6 +38,7 @@ export class RoomManagementService {
                 zone_id:
                     (this._settings.get('use_region') ? region.id : '') ||
                     bld.id,
+                limit: 2500,
             }).pipe(
                 map(({ data }) => data),
                 catchError(() => of([]))
