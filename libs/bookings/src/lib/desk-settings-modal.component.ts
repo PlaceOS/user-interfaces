@@ -118,6 +118,7 @@ export class DeskSettingsModalComponent {
 
     public async setDeskHeight() {
         const sys_id = this._org.binding('desks');
+        localStorage.setItem('PLACEOS.last_desk_height', `${this.height}`);
         if (!sys_id) return this._dialog_ref.close();
         const module = getModule(sys_id, 'DeskControl');
         await module
@@ -126,7 +127,6 @@ export class DeskSettingsModalComponent {
                 notifyError('Error setting desk height.' + _);
                 throw _;
             });
-        localStorage.setItem('PLACEOS.last_desk_height', `${this.height}`);
         notifySuccess('Successfully set desk height');
         this._dialog_ref.close();
     }
