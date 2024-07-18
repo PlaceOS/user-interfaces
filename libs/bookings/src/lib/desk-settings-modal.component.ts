@@ -76,7 +76,11 @@ export class DeskSettingsModalComponent {
     public ngOnInit() {
         const sitting_height = this._settings.get('desk_sitting_height');
         const standing_height = this._settings.get('desk_standing_height');
-        this.height = sitting_height || 71;
+        const last_height = parseInt(
+            localStorage.getItem('PLACEOS.last_desk_height'),
+            10
+        );
+        this.height = last_height || sitting_height || 71;
         if (this.height === sitting_height) {
             this.preset = 'sitting';
         } else if (this.height === standing_height) {
@@ -122,6 +126,7 @@ export class DeskSettingsModalComponent {
                 notifyError('Error setting desk height.' + _);
                 throw _;
             });
+        localStorage.setItem('PLACEOS.last_desk_height', `${this.height}`);
         notifySuccess('Successfully set desk height');
         this._dialog_ref.close();
     }
