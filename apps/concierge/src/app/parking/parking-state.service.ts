@@ -48,6 +48,7 @@ export interface ParkingSpace {
     name: string;
     notes: string;
     assigned_to: string;
+    zone_id?: string;
 }
 
 export interface ParkingUser {
@@ -108,20 +109,25 @@ export class ParkingStateService extends AsyncHandler {
     ]).pipe(
         switchMap(([levels, options]) => {
             if (!(options.zones[0] || levels[0]?.id)) {
-                return of({ details: [] });
+                return of([] as ParkingSpace[]);
             }
             this._loading.next([...this._loading.getValue(), 'spaces']);
             return showMetadata(
                 options.zones[0] || levels[0]?.id,
                 'parking-spaces'
+            ).pipe(
+                map(
+                    ({ details }) =>
+                        (details instanceof Array ? details : []).map(
+                            (space) =>
+                                ({
+                                    ...space,
+                                    zone_id: options.zones[0] || levels[0]?.id,
+                                } as ParkingSpace)
+                        ) as ParkingSpace[]
+                )
             );
         }),
-        map(
-            (metadata) =>
-                (metadata.details instanceof Array
-                    ? metadata.details
-                    : []) as ParkingSpace[]
-        ),
         tap(() =>
             this._loading.next(
                 this._loading.getValue().filter((_) => _ !== 'spaces')
@@ -235,7 +241,7 @@ export class ParkingStateService extends AsyncHandler {
                 .toPromise(),
         ]);
         if (state?.reason !== 'done') return;
-        const zone = this._options.getValue().zones[0];
+        const zone = this._options.getValue().zones[0] || space.zone_id;
         const new_space = {
             ...state.metadata,
             id: state.metadata.id || `parking-${zone}.${randomInt(999_999)}`,

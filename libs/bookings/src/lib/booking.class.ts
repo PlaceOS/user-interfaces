@@ -157,7 +157,17 @@ export class Booking {
     /** Bit flags for the recurrence days of the week */
     public readonly recurrence_days?: number;
     /** Week of the month to recur on */
-    public readonly recurrence_week_of_month?: 1 | 2 | -1 | -2;
+    public readonly recurrence_nth_of_month?:
+        | 1
+        | 2
+        | 3
+        | 4
+        | 5
+        | -1
+        | -2
+        | -3
+        | -4
+        | -5;
     /** How often to recur */
     public readonly recurrence_interval?: number;
     /** Unix epoch for the end time of the recurrence in seconds */
@@ -303,7 +313,7 @@ export class Booking {
 
         this.recurrence_type = data.recurrence_type || 'none';
         this.recurrence_days = data.recurrence_days;
-        this.recurrence_week_of_month = data.recurrence_week_of_month;
+        this.recurrence_nth_of_month = data.recurrence_nth_of_month;
         this.recurrence_interval = data.recurrence_interval;
         this.recurrence_end = data.recurrence_end;
         this.instance = data.instance;

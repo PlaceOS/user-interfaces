@@ -84,8 +84,8 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         ),
         recurrence_type: new FormControl(booking.recurrence_type || 'none'),
         recurrence_days: new FormControl(booking.recurrence_days),
-        recurrence_week_of_month: new FormControl(
-            booking.recurrence_week_of_month
+        recurrence_nth_of_month: new FormControl(
+            booking.recurrence_nth_of_month
         ),
         recurrence_interval: new FormControl(booking.recurrence_interval),
         recurrence_end: new FormControl(booking.recurrence_end),
