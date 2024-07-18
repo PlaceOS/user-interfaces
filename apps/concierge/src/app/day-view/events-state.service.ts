@@ -127,7 +127,7 @@ export class EventsStateService extends AsyncHandler {
             }
             return forkJoin(zone_ids.map((id) => requestSpacesForZone(id)));
         }),
-        map((l) => flatten(l)),
+        map((l) => flatten<Space>(l).filter((_) => _.bookable)),
         tap((_) => {
             this._loading.next(false);
             console.log('Spaces', _);

@@ -50,8 +50,6 @@ import { LockerFiltersDisplayComponent } from './locker-select-modal/locker-filt
 import { LockerBankListComponent } from './locker-select-modal/locker-bank-list.component';
 import { LockerMapComponent } from './locker-select-modal/locker-map.component';
 import { DeskSettingsModalComponent } from './desk-settings-modal.component';
-import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
-import { GroupEventCardComponent } from './group-event-card.component';
 
 const COMPONENTS = [
     DeskQuestionsModalComponent,
@@ -86,9 +84,6 @@ const COMPONENTS = [
     LockerFiltersDisplayComponent,
     LockerBankListComponent,
     LockerMapComponent,
-
-    GroupEventDetailsModalComponent,
-    GroupEventCardComponent,
 ];
 @NgModule({
     declarations: [...COMPONENTS],

@@ -9,14 +9,14 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { SettingsService, currentUser } from '@placeos/common';
 import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
+import { map } from 'rxjs/operators';
 
 import { Booking } from './booking.class';
 import { BookingDetailsModalComponent } from './booking-details-modal.component';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
-import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
 import { ParkingService } from './parking.service';
-import { map } from 'rxjs/operators';
+import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-event-details-modal.component';
 
 @Component({
     selector: 'booking-card',
