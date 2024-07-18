@@ -3,14 +3,20 @@ import { SettingsService } from '@placeos/common';
 import { EventStateService } from './event-state.service';
 import { User } from '@placeos/users';
 import { tap } from 'rxjs/operators';
+import { CalendarEvent } from '@placeos/events';
 
 @Component({
     selector: 'event-listing',
     template: `
+        <mat-progress-bar
+            class="w-full"
+            [class.opacity-0]="!(loading | async)"
+            mode="indeterminate"
+        ></mat-progress-bar>
         <simple-table
             class="min-w-[72rem] w-full block text-sm"
             [data]="event_list"
-            empty_message="No Regions"
+            empty_message="No group events for selected period"
             [columns]="[
                 { key: 'date', name: 'Event', content: event_template },
                 {
@@ -48,7 +54,7 @@ import { tap } from 'rxjs/operators';
                     size: '8.5rem'
                 },
                 {
-                    key: 'permissions',
+                    key: 'access',
                     name: 'Published',
                     content: published_template,
                     size: '6rem',
@@ -111,22 +117,18 @@ import { tap } from 'rxjs/operators';
         <ng-template #level_template let-item="row">
             <div class="p-4">
                 {{
-                    (
-                        (item.linked_event?.system_id | space | async)?.zones
-                        | level
-                    )?.display_name
+                    ((room(item)?.email | space | async)?.zones | level)
+                        ?.display_name
                 }}
-                <span *ngIf="!item.linked_event?.system_id" class="opacity-30">
+                <span *ngIf="!room(item)?.email" class="opacity-30">
                     No Level
                 </span>
             </div>
         </ng-template>
         <ng-template #room_template let-item="row">
             <div class="p-4">
-                {{
-                    (item.linked_event?.system_id | space | async)?.display_name
-                }}
-                <span *ngIf="!item.linked_event?.system_id" class="opacity-30">
+                {{ (room(item)?.email | space | async)?.display_name }}
+                <span *ngIf="!room(item)?.email" class="opacity-30">
                     No Room
                 </span>
             </div>
@@ -178,9 +180,9 @@ import { tap } from 'rxjs/operators';
                 </div>
             </ng-template>
         </ng-template>
-        <ng-template #published_template let-row="row">
+        <ng-template #published_template let-data="data">
             <div
-                *ngIf="row.permission === 'OPEN' || row.permission === 'open'"
+                *ngIf="data === 'OPEN' || data === 'open'"
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
             >
                 <app-icon>done</app-icon>
@@ -277,6 +279,7 @@ import { tap } from 'rxjs/operators';
     styles: [``],
 })
 export class EventListingComponent {
+    public readonly loading = this._state.loading;
     public readonly event_list = this._state.event_list.pipe(
         tap((_) => console.log('Event List:', _))
     );
@@ -284,6 +287,10 @@ export class EventListingComponent {
     public readonly viewEvent = (event: any) => this._state.viewEvent(event);
     public readonly removeEvent = (event: any) =>
         this._state.removeEvent(event);
+
+    public room(item: CalendarEvent) {
+        return item.resources.find((_) => _.email !== this._state.calendar);
+    }
 
     public get time_format() {
         return this._settings.time_format;

@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
-import { AsyncHandler } from '@placeos/common';
-import { EventStateService } from './event-state.service';
+import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 import { addDays, format, startOfMinute } from 'date-fns';
 import { map, shareReplay, startWith } from 'rxjs/operators';
-import { Booking, GroupEventDetailsModalComponent } from '@placeos/bookings';
-import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
+
+import { AsyncHandler } from '@placeos/common';
+
+import { EventStateService } from './event-state.service';
 
 @Component({
     selector: 'event-week-view',

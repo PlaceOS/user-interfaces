@@ -317,8 +317,8 @@ export class ImageListFieldComponent extends AsyncHandler {
      * Update local value when form control value is changed
      * @param value The new value for the component
      */
-    public writeValue(value: string[]) {
-        this.list = value;
+    public writeValue(value?: string[]) {
+        this.list = value || [];
     }
 
     public readonly registerOnChange = (fn: (_: string[]) => void) =>
