@@ -35,7 +35,11 @@ import { getModule } from '@placeos/ts-client';
                         class="flex-1"
                         [displayWith]="formatLabel"
                     >
-                        <input matSliderThumb [(ngModel)]="height" />
+                        <input
+                            matSliderThumb
+                            [(ngModel)]="height"
+                            (ngModelChange)="updatePreset(height)"
+                        />
                     </mat-slider>
                     <div class="text-sm w-12 text-right">
                         {{ height.toFixed(1) }}cm
@@ -77,6 +81,19 @@ export class DeskSettingsModalComponent {
             this.preset = 'sitting';
         } else if (this.height === standing_height) {
             this.preset = 'standing';
+        }
+    }
+
+    public updatePreset(new_height: number) {
+        const sitting_height = this._settings.get('desk_sitting_height') || 71;
+        const standing_height =
+            this._settings.get('desk_standing_height') || 102;
+        if (new_height === sitting_height) {
+            this.preset = 'sitting';
+        } else if (new_height === standing_height) {
+            this.preset = 'standing';
+        } else {
+            this.preset = null;
         }
     }
 
