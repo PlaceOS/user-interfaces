@@ -318,8 +318,8 @@ export class SimpleTableComponent<T extends {} = any> extends AsyncHandler {
                         data = data.filter((_) =>
                             Object.values(_).some((i) =>
                                 JSON.stringify(i)
-                                    .toLowerCase()
-                                    .includes(filter.toLowerCase())
+                                    ?.toLowerCase()
+                                    .includes((filter || '').toLowerCase())
                             )
                         );
                     }
