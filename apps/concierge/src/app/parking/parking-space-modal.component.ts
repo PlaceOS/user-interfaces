@@ -33,16 +33,17 @@ import { ParkingSpace } from './parking-state.service';
                     </mat-error>
                 </mat-form-field>
                 <label for="user">Assigned User</label>
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-2 mb-4">
                     <a-user-search-field
                         name="user"
                         formControlName="assigned_user"
-                        class="mb-4"
+                        class="flex-1"
                     ></a-user-search-field>
                     <button
-                        btn
+                        icon
                         matRipple
-                        class="mb-5"
+                        class="h-12 w-12 min-w-12 rounded bg-secondary text-secondary-content"
+                        matTooltip="Clear Assigned User"
                         (click)="
                             form.patchValue({
                                 assigned_user: null,
@@ -51,7 +52,9 @@ import { ParkingSpace } from './parking-state.service';
                             })
                         "
                     >
-                        Clear
+                        <app-icon className="material-symbols-outlined">
+                            person_cancel
+                        </app-icon>
                     </button>
                 </div>
                 <label for="notes">Notes</label>
@@ -62,14 +65,14 @@ import { ParkingSpace } from './parking-state.service';
                         formControlName="notes"
                     ></textarea>
                 </mat-form-field>
-                <label for="map-rotation">Map Rotation</label>
+                <!-- <label for="map-rotation">Map Rotation</label>
                 <mat-form-field appearance="outline">
                     <textarea
                         matInput
                         name="map-rotation"
                         formControlName="map_rotation"
                     ></textarea>
-                </mat-form-field>
+                </mat-form-field> -->
                 <div class="flex items-center justify-center space-x-2">
                     <button btn matRipple class="w-32 inverse" mat-dialog-close>
                         Cancel
@@ -120,10 +123,11 @@ export class ParkingSpaceModalComponent {
     public postForm() {
         if (!this.form.valid) return;
         this.loading = true;
-        const value = this.form.value;
+        const value = { ...this.form.getRawValue() };
         if (value.assigned_user) {
             value.assigned_to = value.assigned_user.email;
             value.assigned_name = value.assigned_user.name;
+            delete value.assigned_user;
         }
         this._dialog_ref.disableClose = true;
         this.event.emit({ reason: 'done', metadata: value });

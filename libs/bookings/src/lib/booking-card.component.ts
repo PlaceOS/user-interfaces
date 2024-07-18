@@ -9,11 +9,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { SettingsService, currentUser } from '@placeos/common';
 import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
+import { map } from 'rxjs/operators';
 
 import { Booking } from './booking.class';
 import { BookingDetailsModalComponent } from './booking-details-modal.component';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
+import { ParkingService } from './parking.service';
 import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-event-details-modal.component';
 
 @Component({
@@ -75,6 +77,14 @@ import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-e
                 >
                     Event
                 </div>
+                <div
+                    class="absolute top-2 right-2 bg-warning/50 rounded-xl px-2 py-1 text-xs"
+                    *ngIf="is_reserved_parking_space | async"
+                >
+                    {{
+                        booking.status !== 'cancelled' ? 'RESERVED' : 'RELEASED'
+                    }}
+                </div>
             </div>
         </a>
         <ng-template #desk_icon>
@@ -100,6 +110,16 @@ export class BookingCardComponent extends AsyncHandler {
 
     public raw_description = '';
 
+    public readonly is_reserved_parking_space =
+        this._parking.assigned_space.pipe(
+            map(
+                (space) =>
+                    this.booking.booking_type === 'parking' &&
+                    space &&
+                    this.booking.asset_id === space.id
+            )
+        );
+
     public get for_current_user() {
         return (
             this.booking?.user_email.toLowerCase() ===
@@ -124,7 +144,8 @@ export class BookingCardComponent extends AsyncHandler {
         private _dialog: MatDialog,
         private _route: ActivatedRoute,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _parking: ParkingService
     ) {
         super();
     }

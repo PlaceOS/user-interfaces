@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { BookingAsset } from '@placeos/bookings';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
@@ -48,7 +47,7 @@ import { OrganisationService } from '@placeos/organisation';
                     </a-date-field>
                 </div>
             </div>
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-2" *ngIf="false">
                 <div class="flex-1 w-1/3">
                     <label for="start-time" i18n
                         >Start Time<span>*</span></label
@@ -80,6 +79,18 @@ import { OrganisationService } from '@placeos/organisation';
                         All Day
                     </mat-checkbox>
                 </div>
+            </div>
+            <div class="flex flex-col">
+                <label for="plate-number" i18n>Plate Number</label>
+                <mat-form-field appearance="outline" class="w-full">
+                    <input
+                        matInput
+                        name="plate-number"
+                        formControlName="plate_number"
+                        placeholder="e.g. ABC123"
+                    />
+                    <mat-error i18n>A plate number is required</mat-error>
+                </mat-form-field>
             </div>
         </div>
     `,

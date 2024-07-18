@@ -9,3 +9,5 @@ export * from './lib/lockers.service';
 export * from './lib/booking-details-modal.component';
 export * from './lib/booking-card.component';
 export * from './lib/parking-select-modal/parking-select-modal.component';
+
+export * from './lib/parking.service';

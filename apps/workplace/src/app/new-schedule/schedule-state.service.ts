@@ -4,6 +4,7 @@ import {
     Booking,
     Locker,
     LockersService,
+    ParkingService,
     checkinBooking,
     queryBookings,
 } from '@placeos/bookings';
@@ -198,6 +199,7 @@ export class ScheduleStateService extends AsyncHandler {
                 period_start: getUnixTime(startOfDay(date)),
                 period_end: getUnixTime(endOfDay(date)),
                 type: 'parking',
+                include_deleted: 'recurring',
             }).pipe(catchError((_) => of([])))
         ),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
@@ -278,16 +280,32 @@ export class ScheduleStateService extends AsyncHandler {
         this.lockers,
         this.group_events,
     ]).pipe(
-        map(([e, v, d, p, l, ge]) => {
-            const filtered_events = e.filter(
-                (ev) =>
-                    !d.find((bkn) => `${ev.meeting_id}` === `${bkn.id}`) &&
-                    ev.linked_bookings[0]?.booking_type !== 'group-event'
-            );
-            return [...filtered_events, ...v, ...d, ...p, ...l, ...ge].sort(
-                (a, b) => a.date - b.date
-            );
-        })
+        map(
+            ([
+                events,
+                visitors,
+                desks,
+                parking,
+                lockers,
+                group_events,
+            ]: any) => {
+                const filtered_events = events.filter(
+                    (ev) =>
+                        !desks.find(
+                            (bkn) => `${ev.meeting_id}` === `${bkn.id}`
+                        ) &&
+                        ev.linked_bookings[0]?.booking_type !== 'group-event'
+                );
+                return [
+                    ...filtered_events,
+                    ...visitors,
+                    ...desks,
+                    ...parking,
+                    ...lockers,
+                    ...group_events,
+                ].sort((a, b) => a.date - b.date);
+            }
+        )
     );
     /** Filtered list of events and bookings for the selected date */
     public readonly filtered_bookings = combineLatest([
@@ -405,7 +423,8 @@ export class ScheduleStateService extends AsyncHandler {
         private _settings: SettingsService,
         private _org: OrganisationService,
         private _lockers: LockersService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
+        private _parking: ParkingService
     ) {
         super();
         this.subscription(

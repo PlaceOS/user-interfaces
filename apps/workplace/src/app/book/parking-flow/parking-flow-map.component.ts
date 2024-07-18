@@ -197,11 +197,9 @@ export class ParkingFlowMapComponent extends AsyncHandler {
 
     public readonly available = this._parking.available_spaces;
 
-    public readonly counts = this._parking.week_availablility;
+    // public readonly counts = this._parking.week_availablility;
 
     public readonly options = this._parking.options;
-
-    public readonly existing = this._parking.existing_event;
 
     public readonly loading = this._booking.loading;
 
@@ -234,12 +232,12 @@ export class ParkingFlowMapComponent extends AsyncHandler {
 
     public readonly setLevel = (l) => this._state.setLevel(l);
     public readonly reserveSpace = async () => {
-        const events = await this._parking.existing_event
-            .pipe(take(1))
-            .toPromise();
-        if (events.length) this._booking.form.patchValue({ id: events[0].id }); // Prevent booking duplicate parking spaces
-        await this._booking.postForm();
-        this._router.navigate(['book', 'parking', 'success']);
+        // const events = await this._parking.user_events
+        //     .pipe(take(1))
+        //     .toPromise();
+        // if (events.length) this._booking.form.patchValue({ id: events[0].id }); // Prevent booking duplicate parking spaces
+        // await this._booking.postForm();
+        // this._router.navigate(['book', 'parking', 'success']);
     };
 
     constructor(

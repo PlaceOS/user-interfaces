@@ -10,6 +10,7 @@ import { Booking } from '../lib/booking.class';
 import { BookingCardComponent } from '../lib/booking-card.component';
 import { SettingsService } from '@placeos/common';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
+import { BehaviorSubject } from 'rxjs';
 
 describe('BookingCardComponent', () => {
     let spectator: SpectatorRouting<BookingCardComponent>;
@@ -20,7 +21,11 @@ describe('BookingCardComponent', () => {
             MockComponent(StatusPillComponent),
         ],
         providers: [
-            MockProvider(OrganisationService, { levelWithID: jest.fn() }),
+            MockProvider(OrganisationService, {
+                levelWithID: jest.fn(),
+                level_list: new BehaviorSubject([]),
+                buildingsForRegion: jest.fn(() => []),
+            }),
             MockProvider(MatDialog, { open: jest.fn() }),
             MockProvider(SettingsService, { time_format: 'h:mm a' }),
         ],

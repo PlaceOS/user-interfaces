@@ -76,6 +76,8 @@ export interface BookingFlowOptions {
     members?: User[];
     /** Whether to only show favourite rooms */
     show_fav?: boolean;
+    /** Whether to group bookings */
+    disable_date?: boolean;
 }
 
 export interface BookingAsset {
