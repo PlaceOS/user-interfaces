@@ -84,6 +84,7 @@ import { MapsIndoorsComponent } from './maps-indoors.component';
 import { MapCanvasComponent } from './map-canvas.component';
 import { ImageViewerComponent } from './image-viewer.component';
 import { SimpleTableComponent } from './simple-table.component';
+import { LimitInputDirective } from './limit-input.directive';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -166,7 +167,11 @@ const COMPONENTS: Type<any>[] = [
     AvailableRoomsStateModalComponent,
 ];
 
-const DIRECTIVES: Type<any>[] = [BindingDirective, AuthenticatedImageDirective];
+const DIRECTIVES: Type<any>[] = [
+    BindingDirective,
+    AuthenticatedImageDirective,
+    LimitInputDirective,
+];
 
 @NgModule({
     declarations: [...COMPONENTS, ...DIRECTIVES],

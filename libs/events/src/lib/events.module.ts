@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
 
+import { MatButtonModule } from '@angular/material/button';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,13 +13,15 @@ import { MatRadioModule } from '@angular/material/radio';
 
 import { FormFieldsModule } from 'libs/form-fields/src/lib/form-fields.module';
 import { ComponentsModule } from 'libs/components/src/lib/components.module';
+import { SharedSpacesModule } from 'libs/spaces/src/lib/spaces.module';
 
 import { AttendeeListComponent } from './attendee-list.component';
 import { EventCardComponent } from './event-card.component';
 import { EventDetailsModalComponent } from './event-details-modal.component';
 import { EventLinkModalComponent } from './event-link-modal.component';
-import { MatRippleModule } from '@angular/material/core';
 import { SetupBreakdownModalComponent } from './setup-breakdown-modal.component';
+import { GroupEventCardComponent } from './group-event-card.component';
+import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
 
 const COMPONENTS = [
     EventDetailsModalComponent,
@@ -26,6 +29,8 @@ const COMPONENTS = [
     EventCardComponent,
     EventLinkModalComponent,
     SetupBreakdownModalComponent,
+    GroupEventDetailsModalComponent,
+    GroupEventCardComponent,
 ];
 
 @NgModule({
@@ -44,6 +49,7 @@ const COMPONENTS = [
         FormFieldsModule,
         ComponentsModule,
         MatRippleModule,
+        SharedSpacesModule,
     ],
     providers: [ReactiveFormsModule],
     exports: [...COMPONENTS],

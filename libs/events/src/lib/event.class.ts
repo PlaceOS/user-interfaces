@@ -132,6 +132,10 @@ export class CalendarEvent {
         return this.all_day || this.duration >= 12 * 60;
     }
 
+    public get view_access() {
+        return this.extension_data.view_access || 'PRIVATE';
+    }
+
     /** Get field from extension data */
     public ext<K extends keyof EventExtensionData>(key: K) {
         return this.extension_data[key];
@@ -381,11 +385,19 @@ export class CalendarEvent {
             (i) => new AssetRequest({ ...i, event: null })
         );
         obj.system_id = this.system?.id;
-        delete obj.catering;
-        delete obj.date;
-        delete obj.duration;
-        delete obj.status;
-        delete obj.linked_bookings;
+        for (const key of [
+            'catering',
+            'date',
+            'date_end',
+            'duration',
+            'status',
+            'linked_bookings',
+            '_valid_asset_cache',
+            '_valid_cache_expiry',
+            'type',
+        ]) {
+            if (key in obj) delete obj[key];
+        }
         if (!obj.update_master) delete obj.recurring_event_id;
         removeEmptyFields(obj);
         return obj;

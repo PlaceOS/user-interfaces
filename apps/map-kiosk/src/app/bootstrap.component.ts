@@ -7,64 +7,171 @@ import {
     Building,
     BuildingLevel,
     OrganisationService,
+    Region,
 } from '@placeos/organisation';
 import { first } from 'rxjs/operators';
 
 @Component({
     selector: '[bootstrap]',
     template: `
+        <div class="absolute inset-0 bg-base-200 z-0"></div>
         <div
             form
-            class="absolute top-2 left-1/2 transform -translate-x-1/2 bg-base-100 overflow-hidden flex flex-col items-center shadow rounded"
+            class="relative my-8 mx-auto bg-base-100 overflow-hidden shadow rounded-lg border border-base-300 w-[28rem] max-w-[calc(100%-2rem)] z-10"
         >
             <header
-                class="px-4 py-2 bg-primary text-white w-full text-lg font-medium mb-2"
+                class="px-4 py-3 bg-secondary text-secondary-content w-full text-xl font-medium flex items-center justify-between"
             >
-                Map Kiosk Setup
+                <div>Map Kiosk</div>
+                <div class="px-2 py-1 rounded text-sm font-mono">SETUP</div>
             </header>
-            <ng-container *ngIf="!loading; else load_state">
-                <div *ngIf="buildings && buildings.length">
+            <div
+                class="px-4 flex flex-col space-y-2"
+                *ngIf="!loading; else load_state"
+            >
+                <ng-container *ngIf="(regions | async)?.length > 1">
+                    <label>Select a region from the dropdown below</label>
+                    <mat-form-field appearance="outline" class="no-subscript">
+                        <mat-select
+                            #select
+                            building
+                            [(ngModel)]="active_region"
+                            (ngModelChange)="setRegion($event)"
+                            placeholder="Select region"
+                        >
+                            <mat-select-trigger>
+                                <div class="flex items-center space-x-4">
+                                    <div class="flex-1 truncate">
+                                        {{
+                                            active_region?.display_name ||
+                                                active_region?.name
+                                        }}
+                                    </div>
+                                    <div
+                                        class="text-[0.625rem] font-mono !mr-4 bg-base-200 rounded px-1.5"
+                                    >
+                                        {{ active_region?.id }}
+                                    </div>
+                                </div>
+                            </mat-select-trigger>
+                            <mat-option
+                                *ngFor="let option of regions | async"
+                                [value]="option"
+                            >
+                                <div class="leading-tight">
+                                    <div>
+                                        {{ option.display_name || option.name }}
+                                    </div>
+                                    <div
+                                        class="text-[0.625rem] opacity-30 font-mono"
+                                    >
+                                        <span class="hidden">&nbsp;[</span
+                                        >{{ option.id
+                                        }}<span class="hidden">]</span>
+                                    </div>
+                                </div>
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </ng-container>
+                <ng-container *ngIf="(buildings | async)?.length">
                     <label>Select a building from the dropdown below</label>
-                    <mat-form-field appearance="outline">
+                    <mat-form-field appearance="outline" class="no-subscript">
                         <mat-select
                             #select
                             building
                             [(ngModel)]="active_building"
-                            (ngModelChange)="updateRotations()"
+                            (ngModelChange)="setBuilding($event)"
                             placeholder="Select building"
                         >
+                            <mat-select-trigger>
+                                <div class="flex items-center space-x-4">
+                                    <div class="flex-1 truncate">
+                                        {{
+                                            active_building?.display_name ||
+                                                active_building?.name
+                                        }}
+                                    </div>
+                                    <div
+                                        class="text-[0.625rem] font-mono !mr-4 bg-base-200 rounded px-1.5"
+                                    >
+                                        {{ active_building?.id }}
+                                    </div>
+                                </div>
+                            </mat-select-trigger>
                             <mat-option
-                                *ngFor="let option of buildings"
+                                *ngFor="let option of buildings | async"
                                 [value]="option"
                             >
-                                {{ option.name }}
+                                <div class="leading-tight">
+                                    <div>
+                                        {{ option.display_name || option.name }}
+                                    </div>
+                                    <div
+                                        class="text-[0.625rem] opacity-60 font-mono"
+                                    >
+                                        <span class="hidden">&nbsp;[</span
+                                        >{{ option.id
+                                        }}<span class="hidden">]</span>
+                                    </div>
+                                </div>
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                </div>
-                <div *ngIf="levels && levels.length">
+                </ng-container>
+                <ng-container
+                    *ngIf="(levels | async)?.length && active_building"
+                >
+                    <div></div>
                     <label>Select a level from the dropdown below</label>
-                    <mat-form-field appearance="outline">
+                    <mat-form-field appearance="outline" class="no-subscript">
                         <mat-select
                             #select
                             level
                             [(ngModel)]="active_level"
                             placeholder="Select level"
                         >
+                            <mat-select-trigger>
+                                <div class="flex items-center space-x-4">
+                                    <div class="flex-1 truncate">
+                                        {{
+                                            active_level?.display_name ||
+                                                active_level?.name
+                                        }}
+                                    </div>
+                                    <div
+                                        class="text-[0.625rem] font-mono !mr-4 bg-base-200 rounded px-1.5"
+                                    >
+                                        {{ active_level?.id }}
+                                    </div>
+                                </div>
+                            </mat-select-trigger>
                             <mat-option
-                                *ngFor="let option of levels"
+                                *ngFor="let option of levels | async"
                                 [value]="option"
                             >
-                                {{ option.name }}
+                                <div class="leading-tight">
+                                    <div>
+                                        {{ option.display_name || option.name }}
+                                    </div>
+                                    <div
+                                        class="text-[0.625rem] opacity-30 font-mono"
+                                    >
+                                        <span class="hidden">&nbsp;[</span
+                                        >{{ option.id
+                                        }}<span class="hidden">]</span>
+                                    </div>
+                                </div>
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                </div>
-                <div *ngIf="rotations && rotations.length">
+                </ng-container>
+                <ng-container *ngIf="rotations && rotations.length">
+                    <div></div>
                     <label>
                         Please select an orientation from the dropdown below
                     </label>
-                    <mat-form-field appearance="outline">
+                    <mat-form-field appearance="outline" class="no-subscript">
                         <mat-select
                             #select
                             [(value)]="active_rotation"
@@ -74,16 +181,28 @@ import { first } from 'rxjs/operators';
                                 *ngFor="let option of rotations"
                                 [value]="option"
                             >
-                                {{ option.name }}
+                                <div class="leading-tight">
+                                    <div>
+                                        {{ option.display_name || option.name }}
+                                    </div>
+                                    <div
+                                        class="text-[0.625rem] opacity-30 font-mono"
+                                    >
+                                        <span class="hidden">&nbsp;[</span
+                                        >{{ option.id
+                                        }}<span class="hidden">]</span>
+                                    </div>
+                                </div>
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                </div>
-                <div *ngIf="locations && locations.length">
+                </ng-container>
+                <ng-container *ngIf="locations && locations.length">
+                    <div></div>
                     <label>
                         Please select an fixed location from the dropdown below
                     </label>
-                    <mat-form-field appearance="outline">
+                    <mat-form-field appearance="outline" class="no-subscript">
                         <mat-select
                             #select
                             [(value)]="active_location"
@@ -93,21 +212,37 @@ import { first } from 'rxjs/operators';
                                 *ngFor="let option of locations"
                                 [value]="option"
                             >
-                                {{ option.name }}
+                                <div class="leading-tight">
+                                    <div>
+                                        {{ option.display_name || option.name }}
+                                    </div>
+                                    <div
+                                        class="text-[0.625rem] opacity-30 font-mono"
+                                    >
+                                        <span class="hidden">&nbsp;[</span
+                                        >{{ option.id
+                                        }}<span class="hidden">]</span>
+                                    </div>
+                                </div>
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                </div>
+                </ng-container>
+            </div>
+            <div
+                class="w-full px-4 py-2 !mt-4 flex items-center justify-end border-t border-base-300"
+                *ngIf="!loading"
+            >
                 <button
                     btn
                     matRipple
-                    class="mb-2"
+                    class="w-32"
                     [disabled]="!active_building && !active_level"
                     (click)="bootstrapKiosk()"
                 >
                     Finish Setup
                 </button>
-            </ng-container>
+            </div>
         </div>
         <ng-template #load_state>
             <div class="flex flex-col items-center p-8 m-auto">
@@ -118,17 +253,12 @@ import { first } from 'rxjs/operators';
     `,
     styles: [
         `
-            :host > div {
-                width: 24rem;
-                max-width: calc(100vw - 2rem);
-            }
-
             mat-form-field {
                 width: 100%;
             }
 
-            [form] > div {
-                padding: 0 1em;
+            label {
+                padding-top: 1rem;
             }
         `,
     ],
@@ -136,6 +266,8 @@ import { first } from 'rxjs/operators';
 export class BootstrapComponent extends AsyncHandler implements OnInit {
     /** Loading state of the bootstrap */
     public loading: string;
+    /** Actively selected building */
+    public active_region: Region;
     /** Actively selected building */
     public active_building: Building;
     /** Actively selected level */
@@ -147,17 +279,21 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
 
     public rotations: Identity[] = [];
 
-    /** List of available buildings */
-    public get buildings(): Building[] {
-        return this._org.buildings;
+    public readonly regions = this._org.region_list;
+    public readonly buildings = this._org.active_buildings;
+    public readonly levels = this._org.active_levels;
+
+    public setRegion(region: Region) {
+        this._org.region = region;
+        this.active_building = undefined;
+        this.active_level = undefined;
+        this.updateRotations();
     }
 
-    /** List of available levels */
-    public get levels(): readonly BuildingLevel[] {
-        if (!this.active_building) {
-            return [];
-        }
-        return this._org.levelsForBuilding(this.active_building) || [];
+    public setBuilding(building: Building) {
+        this._org.building = building;
+        this.active_level = undefined;
+        this.updateRotations();
     }
 
     /** List of available locations */
@@ -178,6 +314,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
+        this.active_region = this._org.region;
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
@@ -203,6 +340,8 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     }
 
     public updateRotations() {
+        this.rotations = [];
+        if (!this.active_building) return;
         const orientations = this.active_building.orientations;
         const rotations: Identity[] = [];
         for (const key in orientations) {

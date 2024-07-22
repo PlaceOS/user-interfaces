@@ -24,6 +24,8 @@ export interface BookingsQueryParams {
     type: BookingType;
     /** Include checked out bookings in the response */
     include_checked_out?: boolean;
+    /** Include deleted bookings in the response (can be set to apply to only recurring bookings) */
+    include_deleted?: 'all' | 'recurring';
     /** Include deleted bookings in the response */
     deleted?: boolean;
     /**  */
@@ -46,6 +48,20 @@ export function queryBookings(q: BookingsQueryParams): Observable<Booking[]> {
     const query = toQueryString(q);
     return get(`${BOOKINGS_ENDPOINT}${query ? '?' + query : ''}`).pipe(
         map((list) => list.map((item) => new Booking(item))),
+        catchError((_) => of([]))
+    );
+}
+
+/**
+ * List resources that are booked within the given parameters
+ * @param q Parameters to pass to the API request
+ */
+export function bookedResourceList(
+    q: BookingsQueryParams
+): Observable<string[]> {
+    const query = toQueryString(q);
+    return get(`${BOOKINGS_ENDPOINT}/booked${query ? '?' + query : ''}`).pipe(
+        map((list) => list as string[]),
         catchError((_) => of([]))
     );
 }

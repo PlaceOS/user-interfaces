@@ -93,6 +93,15 @@ import { distinctUntilChanged, map, take } from 'rxjs/operators';
                 ></event-calendar>
             </div>
         </div>
+        <div
+            *ngIf="!has_calendar"
+            class="absolute inset-0 flex items-center justify-center z-50"
+        >
+            <div class="absolute inset-0 bg-base-100 opacity-80"></div>
+            <p class="opacity-60 text-lg max-w-[32rem]">
+                A shared calendar is required to view and manage group events.
+            </p>
+        </div>
     `,
     styles: [
         `
@@ -111,6 +120,10 @@ export class EventsListComponent extends AsyncHandler {
     public view: 'list' | 'calendar' = 'list';
     public period_list = [];
     public selected_range: number;
+
+    public get has_calendar() {
+        return this._settings.get('app.group_events_calendar');
+    }
 
     constructor(
         private _settings: SettingsService,

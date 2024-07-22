@@ -111,6 +111,10 @@ export class EventFormService extends AsyncHandler {
     public readonly loading = this._loading.asObservable();
     public readonly options = this._options.asObservable();
 
+    public get options_value() {
+        return this._options.getValue();
+    }
+
     public get is_multiday() {
         return this._event.getValue()?.duration > 24 * 60;
     }
@@ -536,7 +540,11 @@ export class EventFormService extends AsyncHandler {
         );
     }
 
-    public postForm(force: boolean = false) {
+    public postForm(
+        force: boolean = false,
+        ignore_space_check: string[] = [],
+        ignore_owner: boolean = false
+    ) {
         return new Promise<CalendarEvent>(async (resolve, reject) => {
             this._loading.next('Creating event...');
             const form = this._form;
@@ -562,7 +570,14 @@ export class EventFormService extends AsyncHandler {
                 assets,
                 recurrence,
             } = value;
-            const spaces = form.get('resources')?.value || [];
+            let spaces = form.get('resources')?.value || [];
+            if (ignore_space_check.length) {
+                spaces = spaces.filter(
+                    (_) =>
+                        !ignore_space_check.includes(_.email) &&
+                        !ignore_space_check.includes(_.id)
+                );
+            }
             let catering = form.get('catering')?.value || [];
             if (recurrence?._pattern && recurrence?._pattern !== 'none') {
                 this.form.patchValue({ recurring: true });
@@ -588,6 +603,7 @@ export class EventFormService extends AsyncHandler {
                     throw _;
                 });
             }
+            spaces = form.get('resources')?.value || [];
             const is_owner =
                 host === currentUser()?.email ||
                 creator === currentUser()?.email;
@@ -620,7 +636,7 @@ export class EventFormService extends AsyncHandler {
                           space_id,
                   }
                 : {};
-            if (is_owner) query.calendar = host || creator;
+            if (is_owner && !ignore_owner) query.calendar = host || creator;
             if (this._payments.payment_module && spaces.length) {
                 const receipt = await this._payments.makePayment({
                     type: 'space',

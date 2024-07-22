@@ -4,88 +4,159 @@ import { ParkingStateService } from './parking-state.service';
 @Component({
     selector: 'parking-bookings-list',
     template: `
-        <custom-table
-            class="block min-w-[60rem]"
-            [dataSource]="events"
+        <mat-progress-bar
+            [class.opacity-0]="!(loading | async)?.includes('bookings')"
+            class="w-full"
+        ></mat-progress-bar>
+        <simple-table
+            class="min-w-[76rem] block text-sm"
+            [data]="events"
             [columns]="[
-                'asset_name',
-                'booked_by_name',
-                'user_name',
-                'plate_number',
-                'status',
-                'actions'
+                {
+                    key: 'state',
+                    name: 'In Use',
+                    content: state_template,
+                    size: '4.75rem',
+                    sortable: false
+                },
+                { key: 'description', name: 'Bay Number' },
+                {
+                    key: 'user_name',
+                    name: 'Reserved For',
+                    content: person_template
+                },
+                {
+                    key: 'booked_by_name',
+                    name: 'Reserved By',
+                    content: host_template
+                },
+                {
+                    key: 'plate_number',
+                    name: 'Plate Number',
+                    content: plate_template,
+                    size: '10rem',
+                    sortable: false
+                },
+                {
+                    key: 'status',
+                    name: 'Status',
+                    content: status_template,
+                    size: '9.5rem'
+                }
             ]"
-            [display_column]="[
-                'Bay No.',
-                'Reserved By',
-                'Reserved For',
-                'Car Plate #',
-                'Status',
-                ' '
-            ]"
-            [filter]="(options | async).search"
-            [column_size]="['6r', 'flex', '14r', '8r', '6r', '6r']"
-            [template]="{
-                plate_number: plate_template,
-                actions: action_template,
-                status: status_template
-            }"
-            [class.opacity-50]="(loading | async)?.includes('bookings')"
-        ></custom-table>
-        <ng-template #plate_template let-row="row">
-            {{ row?.extension_data?.plate_number }}
-        </ng-template>
-        <ng-template #status_template let-data="data">
-            <span
-                class="capitalize px-2 py-1 rounded border border-base-200"
-                [class.bg-success]="data === 'approved'"
-                [class.bg-warning]="data === 'tentative'"
-                [class.bg-error]="data === 'cancelled' || data === 'declined'"
-                [class.text-success-content]="data === 'approved'"
-                [class.text-warning-content]="data === 'tentative'"
-                [class.text-error-content]="
-                    data === 'cancelled' || data === 'declined'
-                "
-            >
-                {{ data }}
-            </span>
-        </ng-template>
-        <ng-template #action_template let-row="row">
-            <div class="w-full flex items-center justify-end">
-                <!-- <button icon matTooltip="Reallocate Parking Reservation">
-                    <app-icon>published_with_changes</app-icon>
-                </button> -->
-                <button
-                    icon
-                    matTooltip="Reject Parking Reservation"
-                    (click)="reject(row)"
+            [filter]="(options | async)?.search"
+            [sortable]="true"
+        ></simple-table>
+        <ng-template #person_template let-row="row">
+            <div class="px-4 py-2">
+                <div>{{ row.user_name || row.user_email }}</div>
+                <div
+                    *ngIf="row.user_name && row.user_email"
+                    class="opacity-30 text-xs"
                 >
-                    <app-icon>event_busy</app-icon>
-                </button>
-                <button
-                    icon
-                    matTooltip="Approve Parking Reservation"
-                    (click)="approve(row)"
-                >
-                    <app-icon>event_available</app-icon>
-                </button>
+                    {{ row.user_email }}
+                </div>
             </div>
         </ng-template>
-        <mat-progress-bar
-            *ngIf="(loading | async)?.includes('bookings')"
-            class="absolute bottom-0 inset-x-0"
-        ></mat-progress-bar>
+        <ng-template #host_template let-row="row">
+            <div class="px-4 py-2">
+                <div>{{ row.booked_by_name || row.booked_by_email }}</div>
+                <div
+                    *ngIf="row.booked_by_name && row.booked_by_email"
+                    class="opacity-30 text-xs"
+                >
+                    {{ row.booked_by_email }}
+                </div>
+            </div>
+        </ng-template>
+        <ng-template #state_template let-row="row">
+            <div
+                *ngIf="!row?.checked_in && row.checked_out_at"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-base-300 text-base-100 mx-auto"
+                [matTooltip]="
+                    'Left at ' + (row.checked_out_at | date: time_format)
+                "
+                matTooltipPosition="right"
+            >
+                <app-icon>done</app-icon>
+            </div>
+            <div
+                *ngIf="!row?.checked_in && !row.checked_out_at"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-warning text-warning-content mx-auto"
+                matTooltip="Has not arrived at space"
+                matTooltipPosition="right"
+            >
+                <app-icon>question_mark</app-icon>
+            </div>
+            <div
+                *ngIf="row?.checked_in"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-error text-error-content mx-auto"
+                matTooltip="Arrived at space"
+                matTooltipPosition="right"
+            >
+                <app-icon>done</app-icon>
+            </div>
+        </ng-template>
+        <ng-template #plate_template let-row="row">
+            <div class="p-4 font-mono text-sm">
+                {{ row?.extension_data?.plate_number }}
+                <span
+                    *ngIf="!row?.extension_data?.plate_number"
+                    class="opacity-30"
+                >
+                    N/A
+                </span>
+            </div>
+        </ng-template>
+        <ng-template #status_template let-row="row">
+            <div class="px-4">
+                <button
+                    matRipple
+                    class="rounded-3xl bg-warning text-warning-content border-none w-[7.5rem] h-10"
+                    [class.!text-success-content]="row?.status === 'approved'"
+                    [class.!bg-success]="row?.status === 'approved'"
+                    [class.!text-error-content]="row?.status === 'declined'"
+                    [class.!bg-error]="row?.status === 'declined'"
+                    [class.!text-neutral-content]="row?.status === 'ended'"
+                    [class.!bg-neutral]="row?.status === 'ended'"
+                    [class.opacity-30]="row?.status === 'ended'"
+                    [matMenuTriggerFor]="menu"
+                    [disabled]="row?.status === 'ended'"
+                >
+                    <div class="flex items-center pl-4 pr-2 space-x-2">
+                        <div class="flex-1 text-left">
+                            {{
+                                row?.status === 'ended'
+                                    ? 'Ended'
+                                    : row?.status === 'approved'
+                                    ? 'Approved'
+                                    : row?.status === 'declined'
+                                    ? 'Declined'
+                                    : 'Pending'
+                            }}
+                        </div>
+                        <app-icon class="text-2xl">arrow_drop_down</app-icon>
+                    </div>
+                </button>
+            </div>
+            <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="approve(row)">
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-2xl">event_available</app-icon>
+                        <div class="pr-2">Approve Reservation</div>
+                    </div>
+                </button>
+                <button mat-menu-item (click)="reject(row)">
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-2xl">event_busy</app-icon>
+                        <div class="pr-2">Decline Reservation</div>
+                    </div>
+                </button>
+            </mat-menu>
+        </ng-template>
+        <div class="w-full h-20"></div>
     `,
-    styles: [
-        `
-            :host {
-                display: block;
-                width: 100%;
-                height: 100%;
-                overflow: auto;
-            }
-        `,
-    ],
+    styles: [``],
 })
 export class ParkingBookingsListComponent {
     public readonly events = this._state.bookings;

@@ -212,6 +212,10 @@ body {
 .material-symbols-outlined {
     font-size: 1em;
 }
+.material-symbols-rounded {
+    font-size: 1em;
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
 
 span.highlight {
     color: var(--p);
