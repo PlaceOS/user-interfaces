@@ -12,16 +12,30 @@ import { OrganisationService } from '@placeos/organisation';
     selector: 'email-template-manage',
     template: `
         <div class="absolute inset-0 bg-base-100 overflow-auto p-8">
-            <div class="max-w-full w-[48rem] mx-auto min-h-full">
+            <form
+                class="max-w-full w-[48rem] mx-auto min-h-full"
+                [formGroup]="form"
+            >
                 <div class="flex items-center space-x-2 mb-8">
-                    <a icon matRipple [routerLink]="['/email-templates']">
+                    <a
+                        icon
+                        matRipple
+                        [routerLink]="['/email-templates']"
+                        class="-ml-8"
+                    >
                         <app-icon>arrow_back</app-icon>
                     </a>
                     <h2 class="text-2xl font-medium">
                         {{ template?.id ? 'Edit' : 'New' }} Email Template
                     </h2>
                     <div class="flex-1"></div>
-                    <button btn matRipple (click)="save()">
+                    <button
+                        btn
+                        matRipple
+                        type="button"
+                        class="w-48"
+                        (click)="save()"
+                    >
                         Save Template
                     </button>
                 </div>
@@ -96,7 +110,7 @@ import { OrganisationService } from '@placeos/organisation';
                     [images_allowed]="true"
                     class="min-h-[calc(100vh-20rem)] block"
                 ></rich-text-input>
-            </div>
+            </form>
         </div>
         <ng-template #load_state>
             <div class="absolute inset-0 bg-base-100">

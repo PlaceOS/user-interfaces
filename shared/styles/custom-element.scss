@@ -1011,18 +1011,6 @@ a[icon] {
         background-color: var(--bc);
     }
 
-    .ql-toolbar {
-        .ql-stroke {
-            stroke: var(--n);
-        }
-        .ql-picker-label::before {
-            color: var(--bc);
-        }
-    }
-    .ql-blank::before {
-        color: var(--n);
-    }
-
     .mdc-menu-panel,
     .mdc-select-panel {
         @apply bg-neutral;
