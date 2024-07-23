@@ -60,7 +60,7 @@ import {
                 >
                     <div
                         class="flex absolute inset-y-0"
-                        [style.left]="-offset_x + 'px'"
+                        [style.left]="-x + 'rem'"
                     >
                         <div
                             class="flex flex-col items-center justify-center h-full w-56"
@@ -76,10 +76,7 @@ import {
                     times
                     class="relative w-16 h-full overflow-y-hidden overflow-x-visible border-r border-base-200"
                 >
-                    <div
-                        class="absolute inset-x-0"
-                        [style.top]="-offset_y + 'px'"
-                    >
+                    <div class="absolute inset-x-0" [style.top]="-y + 'rem'">
                         <div
                             class="relative block h-12"
                             *ngFor="let value of hours"
@@ -95,7 +92,7 @@ import {
                         </div>
                         <div
                             class="absolute bg-secondary right-0 translate-x-1/2 -translate-y-1/2 h-2 w-2 rounded-full z-30"
-                            [style.top]="timeToOffset(now) + 'px'"
+                            [style.top]="timeToOffset(now) + 'rem'"
                             *ngIf="is_today | async"
                         ></div>
                     </div>
@@ -103,7 +100,7 @@ import {
                 <div spaces class="relative flex-1 h-full overflow-hidden w-px">
                     <div
                         class="absolute top-0 flex h-full pointer-events-none"
-                        [style.left]="-(offset_x % 224) + 'px'"
+                        [style.left]="-(x % 14) + 'rem'"
                     >
                         <div
                             *ngFor="let _ of w_slots"
@@ -112,7 +109,7 @@ import {
                     </div>
                     <div
                         class="absolute left-0 w-full pointer-events-none"
-                        [style.top]="-(offset_y % 48) + 'px'"
+                        [style.top]="-(y % 3) + 'rem'"
                     >
                         <div
                             *ngFor="let _ of h_slots"
@@ -123,10 +120,10 @@ import {
                             class="absolute inset-x-0 -translate-y-px h-0.5 bg-secondary z-30"
                             [style.top]="
                                 timeToOffset(now) -
-                                offset_y -
-                                (48 - (offset_y % 48)) +
-                                48 +
-                                'px'
+                                y -
+                                (3 - (y % 3)) +
+                                3 +
+                                'rem'
                             "
                         >
                             <div
@@ -168,10 +165,10 @@ import {
                                         class="absolute w-[13.625rem] hover:opacity-90"
                                         [style.left]="i * 14 + 0.125 + 'rem'"
                                         [style.top]="
-                                            timeToOffset(event.date) + 'px'
+                                            timeToOffset(event.date) + 'rem'
                                         "
                                         [style.height]="
-                                            endToOffset(event.duration) + 'px'
+                                            endToOffset(event.duration) + 'rem'
                                         "
                                         [class.pointer-events-none]="
                                             event.is_system_event
@@ -263,6 +260,8 @@ import {
 export class RoomBookingsTimelineComponent extends AsyncHandler {
     public offset_x = 0;
     public offset_y = 0;
+    public x = 0;
+    public y = 0;
     public w_slots = [];
     public h_slots = [];
     public hours = Array.from({ length: 24 }, (_, i) => i);
@@ -294,6 +293,10 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         }),
         shareReplay(1)
     );
+
+    public get size() {
+        return this._settings.get('font_size') || 16;
+    }
 
     public get now() {
         return startOfMinute(Date.now()).valueOf();
@@ -327,22 +330,26 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
     public ngOnInit() {
         this.subscription('poll', this._state.startPolling());
         this.interval('scroll', () => this.onScroll(), 1000);
+        this.subscription(
+            'font_size',
+            this._settings.listen('font_size').subscribe(() => this.onScroll())
+        );
         const date = Date.now();
         this.onResize();
     }
 
     public timeToOffset(date: number) {
         const diff = differenceInMinutes(date, startOfDay(date));
-        return Math.max(0, diff / 60) * 48;
+        return Math.max(0, diff / 60) * 3;
     }
 
     public endToOffset(duration: number) {
-        return Math.min(24, duration / 60) * 48;
+        return Math.min(24, duration / 60) * 3;
     }
 
     public onResize() {
-        const w_slots = Math.floor(window.innerWidth / 224) + 1;
-        const h_slots = Math.floor(window.innerHeight / 48);
+        const w_slots = Math.floor((window.innerWidth / 14) * this.size) + 1;
+        const h_slots = Math.floor((window.innerHeight / 3) * this.size);
         this.w_slots = Array.from({ length: w_slots }, (_, i) => i);
         this.h_slots = Array.from({ length: h_slots }, (_, i) => i);
         this.onScroll();
@@ -352,6 +359,8 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
     public onScroll() {
         this.offset_x = this._scroll_container.nativeElement.scrollLeft;
         this.offset_y = this._scroll_container.nativeElement.scrollTop;
+        this.x = this.offset_x / this.size;
+        this.y = this.offset_y / this.size;
     }
 
     public viewEvent(event: CalendarEvent, space_id: string) {
