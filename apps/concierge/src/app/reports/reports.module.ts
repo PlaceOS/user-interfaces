@@ -29,6 +29,7 @@ import { ContactTracingOptionsComponent } from './contact-tracing/contact-tracin
 import { CustomReportComponent } from './custom-report.component';
 import { NewReportsComponent } from './new-reports.component';
 import { ReportSpacesOverallListComponent } from './spaces/report-spaces-overall-list.component';
+import { AssetsReportComponent } from './assets/assets-report.component';
 
 const children: Route[] = [
     { path: '', component: ReportsOptionsComponent },
@@ -39,6 +40,7 @@ const children: Route[] = [
         path: 'contact-tracing',
         component: ContactTracingReportComponent,
     },
+    { path: 'assets', component: AssetsReportComponent },
     { path: ':id', component: CustomReportComponent },
     { path: '**', redirectTo: 'desks', pathMatch: 'full' },
 ];
@@ -70,6 +72,8 @@ const ROUTES: Route[] = [
         CateringReportOverallComponent,
         CateringReportOrdersComponent,
         CateringReportItemsComponent,
+
+        AssetsReportComponent,
 
         ContactTracingReportComponent,
         ContactTracingOptionsComponent,
