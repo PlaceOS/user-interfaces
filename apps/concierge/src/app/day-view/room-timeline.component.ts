@@ -345,6 +345,8 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         const h_slots = Math.floor(window.innerHeight / 48);
         this.w_slots = Array.from({ length: w_slots }, (_, i) => i);
         this.h_slots = Array.from({ length: h_slots }, (_, i) => i);
+        this.onScroll();
+        this.interval('scroll', () => this.onScroll(), 1000);
     }
 
     public onScroll() {
