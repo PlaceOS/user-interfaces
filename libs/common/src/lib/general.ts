@@ -487,3 +487,14 @@ export function shiftColorTowards(
     const resultRgb = interpolateColors(rgb1, rgb2, fraction);
     return rgbToHex(resultRgb[0], resultRgb[1], resultRgb[2]);
 }
+
+export function extractTextFromHTML(html_string: string) {
+    // Create a temporary DOM element
+    const temp_element = document.createElement('div');
+
+    // Set the innerHTML to our HTML string
+    temp_element.innerHTML = html_string;
+
+    // Extract and return the text content
+    return temp_element.textContent || temp_element.innerText || '';
+}

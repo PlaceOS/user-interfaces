@@ -19,11 +19,12 @@ import {
 
 export interface EmailTemplate {
     id: string;
-    title: string;
+    subject: string;
     zone_id: string;
     category: 'internal' | 'external';
     trigger: string;
-    body: string;
+    html: string;
+    text: string;
     preview_url: string;
     created_at: number;
     updated_at: number;
@@ -47,7 +48,7 @@ export class EmailTemplatesStateService {
     private _filters = new BehaviorSubject<EmailTemplatesFilters>({});
     private _change = new BehaviorSubject(0);
 
-    public readonly available_template_definitions = combineLatest([
+    public readonly template_definitions = combineLatest([
         this._org.active_building,
         this._org.active_region,
         this._change,

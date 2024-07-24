@@ -5,7 +5,11 @@ import {
 } from './email-templates-state.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, notifySuccess } from '@placeos/common';
+import {
+    AsyncHandler,
+    extractTextFromHTML,
+    notifySuccess,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 @Component({
@@ -41,9 +45,10 @@ import { OrganisationService } from '@placeos/organisation';
                 </div>
                 <div class="flex items-center space-x-4">
                     <div class="flex-1 space-y-2">
-                        <label for="title">Building</label>
+                        <label for="zone">Building</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
+                                name="zone"
                                 placeholder="Select Building"
                                 formControlName="zone_id"
                             >
@@ -58,9 +63,10 @@ import { OrganisationService } from '@placeos/organisation';
                         </mat-form-field>
                     </div>
                     <div class="flex-1 space-y-2">
-                        <label for="title">Category</label>
+                        <label for="category">Category</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
+                                name="category"
                                 placeholder="Select Category"
                                 formControlName="category"
                             >
@@ -75,19 +81,20 @@ import { OrganisationService } from '@placeos/organisation';
                         </mat-form-field>
                     </div>
                     <div class="flex-1 space-y-2">
-                        <label for="title">Trigger</label>
+                        <label for="trigger">Trigger</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
+                                name="trigger"
                                 placeholder="Select Trigger"
                                 formControlName="trigger"
                             >
                                 <mat-option value="none">None</mat-option>
-                                <mat-option value="checkout">
-                                    Checkout
+                                <mat-option
+                                    *ngFor="let template of definitions | async"
+                                    [value]="template.id"
+                                >
+                                    {{ template.name }}
                                 </mat-option>
-                                <mat-option value="checkin">Checkin</mat-option>
-                                <mat-option value="booking">Booking</mat-option>
-                                <mat-option value="event">Event</mat-option>
                             </mat-select>
                             <mat-error>A trigger is required</mat-error>
                         </mat-form-field>
@@ -105,7 +112,7 @@ import { OrganisationService } from '@placeos/organisation';
                     <mat-error>A title for the template is required</mat-error>
                 </mat-form-field>
                 <rich-text-input
-                    formControlName="body"
+                    formControlName="html"
                     placeholder="Body of the email template"
                     [images_allowed]="true"
                     class="min-h-[calc(100vh-20rem)] block"
@@ -128,13 +135,14 @@ import { OrganisationService } from '@placeos/organisation';
 export class EmailTemplateManageComponent extends AsyncHandler {
     public loading = '';
     public template: EmailTemplate;
+    public readonly definitions = this._state.template_definitions;
     public readonly buildings = this._org.building_list;
     public readonly form = new FormGroup({
         id: new FormControl(''),
-        title: new FormControl('', [Validators.required]),
+        subject: new FormControl('', [Validators.required]),
         category: new FormControl('internal'),
         trigger: new FormControl(''),
-        body: new FormControl('', [Validators.required]),
+        html: new FormControl('', [Validators.required]),
         zone_id: new FormControl(''),
     });
 
@@ -172,6 +180,7 @@ export class EmailTemplateManageComponent extends AsyncHandler {
         await this._state.saveTemplate({
             ...(this.template || {}),
             ...this.form.getRawValue(),
+            text: extractTextFromHTML(this.form.getRawValue().html || ''),
         } as any);
         this.loading = '';
         notifySuccess('Successfully saved email template');
