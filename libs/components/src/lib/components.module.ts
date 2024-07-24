@@ -85,6 +85,7 @@ import { MapCanvasComponent } from './map-canvas.component';
 import { ImageViewerComponent } from './image-viewer.component';
 import { SimpleTableComponent } from './simple-table.component';
 import { LimitInputDirective } from './limit-input.directive';
+import { DeskHeightPresetsComponent } from './desk-height-presets.component';
 
 const MAT_MODULES: any[] = [
     MatAutocompleteModule,
@@ -165,6 +166,7 @@ const COMPONENTS: Type<any>[] = [
     ChatComponent,
     AttachedResourceConfigModalComponent,
     AvailableRoomsStateModalComponent,
+    DeskHeightPresetsComponent,
 ];
 
 const DIRECTIVES: Type<any>[] = [

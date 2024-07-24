@@ -7,24 +7,40 @@ import { getModule } from '@placeos/ts-client';
 @Component({
     selector: 'desk-settings-modal',
     template: `
-        <div class="relative p-4 bg-base-100 rounded shadow w-[20rem]">
+        <div
+            class="relative p-4 bg-base-100 rounded shadow w-[20rem]"
+            *ngIf="!edit_presets; else desk_height_tooltip"
+        >
             <div class="text-lg" i18n>Desk Height</div>
             <div class="text-xs opacity-60 mb-4" i18n>
                 Set your desk height for the best experience
             </div>
             <div class="flex flex-col mt-2 mb-4">
                 <label>Presets</label>
-                <mat-form-field appearance="outline">
-                    <mat-select
-                        placeholder="No selected preset"
-                        [(ngModel)]="preset"
-                        (ngModelChange)="setPreset($event)"
+                <div class="flex items-center space-x-2 pb-4">
+                    <mat-form-field
+                        appearance="outline"
+                        class="no-subscript flex-1 w-1/2"
                     >
-                        <mat-option value="">None</mat-option>
-                        <mat-option value="standing">Standing</mat-option>
-                        <mat-option value="sitting">Seated</mat-option>
-                    </mat-select>
-                </mat-form-field>
+                        <mat-select
+                            placeholder="No selected preset"
+                            [(ngModel)]="preset"
+                            (ngModelChange)="setPreset($event)"
+                        >
+                            <mat-option value="">None</mat-option>
+                            <mat-option value="standing">Standing</mat-option>
+                            <mat-option value="sitting">Seated</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <button
+                        icon
+                        matRipple
+                        (click)="edit_presets = true"
+                        class="rounded h-12 w-12 bg-secondary text-secondary-content"
+                    >
+                        <app-icon>edit</app-icon>
+                    </button>
+                </div>
                 <label>Current Height</label>
                 <div class="flex items-center space-x-2">
                     <mat-slider
@@ -58,11 +74,18 @@ import { getModule } from '@placeos/ts-client';
                 <app-icon>close</app-icon>
             </button>
         </div>
+        <ng-template #desk_height_tooltip>
+            <desk-height-presets
+                [show_close]="true"
+                (close)="edit_presets = false"
+            ></desk-height-presets>
+        </ng-template>
     `,
     styles: [],
 })
 export class DeskSettingsModalComponent {
     public readonly desk_id = this._data.id;
+    public edit_presets = false;
     public preset: string;
     public height = 71;
 
@@ -76,6 +99,9 @@ export class DeskSettingsModalComponent {
     public ngOnInit() {
         const sitting_height = this._settings.get('desk_sitting_height');
         const standing_height = this._settings.get('desk_standing_height');
+        if (!sitting_height && !standing_height) {
+            this.edit_presets = true;
+        }
         const last_height = parseInt(
             localStorage.getItem('PLACEOS.last_desk_height'),
             10
