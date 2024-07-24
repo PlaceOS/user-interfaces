@@ -334,6 +334,12 @@ export class BookingDetailsModalComponent {
     }
 
     public get building() {
+        if (this._settings.get('app.use_region')) {
+            const region = this._org.regions.find((region) =>
+                (this.booking?.zones || []).includes(region.id)
+            );
+            if (region) return region;
+        }
         return this._org.buildings.find((bld) =>
             (this.booking?.zones || []).includes(bld.id)
         );

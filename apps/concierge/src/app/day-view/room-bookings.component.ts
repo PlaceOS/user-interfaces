@@ -83,7 +83,7 @@ const EMPTY = [];
                 </div>
             </div>
             <div class="flex w-full flex-1 h-px border-t mt-4 border-base-200">
-                <room-bookings-timeline class="flex-1"/>
+                <room-bookings-timeline class="flex-1 w-1/2"/>
                 <room-bookings-approvals *ngIf="has_approvals"/>
             </div>
         </div>
