@@ -53,11 +53,8 @@ export class EmailTemplatesStateService {
         this._change,
     ]).pipe(
         filter(([bld]) => !!bld),
-        switchMap(([bld, region]) =>
-            showMetadata(
-                this._settings.get('app.use_region') ? region.id : bld.id,
-                'email_template_fields'
-            )
+        switchMap(() =>
+            showMetadata(this._org.organisation.id, 'email_template_fields')
                 .pipe(
                     map((_) => {
                         const definitions =
