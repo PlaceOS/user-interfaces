@@ -1,4 +1,4 @@
-import { Component, OnInit, Optional, Renderer2 } from '@angular/core';
+import { Component, OnInit, Optional } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Clipboard } from '@angular/cdk/clipboard';
@@ -37,8 +37,6 @@ import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 
-import { setDefaultCreator } from 'libs/events/src/lib/event.class';
-
 import * as Sentry from '@sentry/angular';
 import { MOCKS } from '@placeos/mocks';
 import {
@@ -51,10 +49,6 @@ import {
 import { setCustomHeaders } from '@placeos/svg-viewer';
 import { TranslateService } from '@ngx-translate/core';
 
-import { StylesManager } from 'survey-core';
-
-//SurveyJS styling
-StylesManager.applyTheme('modern');
 const START_QUERY = location.search;
 
 export function initSentry(dsn: string, sample_rate = 0.1) {
@@ -196,7 +190,6 @@ export class AppComponent extends AsyncHandler implements OnInit {
         }
         await current_user.pipe(first((_) => !!_)).toPromise();
         this.clearTimeout('wait_for_user');
-        setDefaultCreator(currentUser());
         this._initLocale();
         setInternalUserDomain(
             this._settings.get('app.general.internal_user_domain') ||

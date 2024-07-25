@@ -23,6 +23,10 @@ import { SetupBreakdownModalComponent } from './setup-breakdown-modal.component'
 import { GroupEventCardComponent } from './group-event-card.component';
 import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
 
+import { setDefaultCreator } from './event.class';
+import { currentUser, current_user } from 'libs/common/src/lib/user-state';
+import { first } from 'rxjs/operators';
+
 const COMPONENTS = [
     EventDetailsModalComponent,
     AttendeeListComponent,
@@ -54,4 +58,9 @@ const COMPONENTS = [
     providers: [ReactiveFormsModule],
     exports: [...COMPONENTS],
 })
-export class SharedEventsModule {}
+export class SharedEventsModule {
+    public async ngOnInit() {
+        await current_user.pipe(first((_) => !!_)).toPromise();
+        setDefaultCreator(currentUser());
+    }
+}
