@@ -1,12 +1,12 @@
-import { Pipe } from "@angular/core";
+import { Pipe } from '@angular/core';
 
 import { marked } from 'marked';
 
 @Pipe({
-    name: 'markdown'
+    name: 'markdown',
 })
 export class MarkdownPipe {
     public transform(value: string): string {
-        return value ? marked(value) : '';
+        return value ? (marked(value, { async: false }) as any) : '';
     }
 }
