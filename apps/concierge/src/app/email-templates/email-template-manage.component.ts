@@ -11,6 +11,8 @@ import {
     notifySuccess,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { take } from 'rxjs/operators';
+import { Clipboard } from '@angular/cdk/clipboard';
 
 @Component({
     selector: 'email-template-manage',
@@ -44,7 +46,7 @@ import { OrganisationService } from '@placeos/organisation';
                     </button>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <div class="flex-1 space-y-2">
+                    <div class="flex-1 space-y-2 w-1/4">
                         <label for="zone">Building</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
@@ -62,7 +64,7 @@ import { OrganisationService } from '@placeos/organisation';
                             <mat-error>A building is required</mat-error>
                         </mat-form-field>
                     </div>
-                    <div class="flex-1 space-y-2">
+                    <div class="flex-1 space-y-2 w-1/4">
                         <label for="category">Category</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
@@ -80,7 +82,7 @@ import { OrganisationService } from '@placeos/organisation';
                             <mat-error>A category is required</mat-error>
                         </mat-form-field>
                     </div>
-                    <div class="flex-1 space-y-2">
+                    <div class="flex-1 space-y-2 w-1/4">
                         <label for="trigger">Trigger</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
@@ -88,7 +90,7 @@ import { OrganisationService } from '@placeos/organisation';
                                 placeholder="Select Trigger"
                                 formControlName="trigger"
                             >
-                                <mat-option value="none">None</mat-option>
+                                <mat-option value="">None</mat-option>
                                 <mat-option
                                     *ngFor="let template of definitions | async"
                                     [value]="template.id"
@@ -99,6 +101,29 @@ import { OrganisationService } from '@placeos/organisation';
                             <mat-error>A trigger is required</mat-error>
                         </mat-form-field>
                     </div>
+                    <button
+                        btn
+                        matRipple
+                        class="flex-1 mt-2"
+                        matTooltip="Values that get replaced in the email template when sent"
+                        [disabled]="!form.value.trigger"
+                    >
+                        Placeholders
+                    </button>
+                    <mat-menu #tracking_menu="matMenu">
+                        <button
+                            mat-menu-item
+                            *ngFor="let field of active_trigger?.fields || []"
+                            (click)="copyField(field.name)"
+                        >
+                            <div class="flex flex-col leading-tight">
+                                <div>{{ field.name }}</div>
+                                <div class="text-xs opacity-30">
+                                    {{ field.description }}
+                                </div>
+                            </div>
+                        </button>
+                    </mat-menu>
                 </div>
                 <mat-form-field appearance="outline" class="w-full">
                     <app-icon matPrefix class="text-2xl relative -left-1">
@@ -106,8 +131,8 @@ import { OrganisationService } from '@placeos/organisation';
                     </app-icon>
                     <input
                         matInput
-                        placeholder="Template Title"
-                        formControlName="title"
+                        placeholder="Template Subject"
+                        formControlName="subject"
                     />
                     <mat-error>A title for the template is required</mat-error>
                 </mat-form-field>
@@ -145,12 +170,14 @@ export class EmailTemplateManageComponent extends AsyncHandler {
         html: new FormControl('', [Validators.required]),
         zone_id: new FormControl(''),
     });
+    public active_trigger = null;
 
     constructor(
         private _org: OrganisationService,
         private _state: EmailTemplatesStateService,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
+        private _clipboard: Clipboard
     ) {
         super();
     }
@@ -173,6 +200,24 @@ export class EmailTemplateManageComponent extends AsyncHandler {
                 }
             })
         );
+        this.subscription(
+            'trigger',
+            this.form.valueChanges.subscribe(async (value) => {
+                if (value.trigger) {
+                    const trigger_list = await this.definitions
+                        .pipe(take(1))
+                        .toPromise();
+                    this.active_trigger = trigger_list.find(
+                        (_) => _.id === value.trigger
+                    );
+                }
+            })
+        );
+    }
+
+    public copyField(field: string) {
+        this._clipboard.copy(field);
+        notifySuccess(`Copied field "${field}" to clipboard.`);
     }
 
     public async save() {
