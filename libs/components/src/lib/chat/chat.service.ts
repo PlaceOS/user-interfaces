@@ -32,7 +32,7 @@ export class ChatService extends AsyncHandler {
     private _progress_message = new BehaviorSubject<ChatMessage | null>(null);
     private _chat_system = this._org.active_building.pipe(
         filter((b) => !!b),
-        map((_) => this._org.binding('chat_room'))
+        map((_) => this._org.binding('chat_room')),
     );
     private _chat_id = '';
 
@@ -44,7 +44,7 @@ export class ChatService extends AsyncHandler {
             this.subscription(`binding:LLM:user_hint`, binding.bind());
             return binding.listen();
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
     private _change = new BehaviorSubject(0);
     private _socket?: WebSocketSubject<any>;
@@ -56,7 +56,7 @@ export class ChatService extends AsyncHandler {
                     : `x-api-key=${apiKey()}`;
             const url = `ws${location.origin.replace(
                 'http',
-                ''
+                '',
             )}/api/engine/v2/chatgpt/chat/${encodeURIComponent(id)}?${auth}${
                 this._chat_id
                     ? '&resume=' + encodeURIComponent(this._chat_id)
@@ -82,12 +82,12 @@ export class ChatService extends AsyncHandler {
                 this._socket.subscribe(
                     (_) => this._onMessage(_),
                     (e) => this._cleanup(),
-                    () => this._cleanup()
-                )
+                    () => this._cleanup(),
+                ),
             );
             return this._socket;
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly messages = this._chat_messages.asObservable();
@@ -99,7 +99,7 @@ export class ChatService extends AsyncHandler {
 
     constructor(
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -143,7 +143,7 @@ export class ChatService extends AsyncHandler {
                 }
                 this.endChat();
             },
-            delay
+            delay,
         );
     }
 
@@ -159,7 +159,7 @@ export class ChatService extends AsyncHandler {
                 id: `msg-${randomString(6)}`,
                 chat_id: msg.chat_id,
                 message: msg.message,
-                content: marked.parse(msg.message),
+                content: marked.parse(msg.message, { async: false }) as any,
                 user_id: msg.user_id || 'assistant',
                 function: msg.function,
                 timestamp: Date.now(),
@@ -174,7 +174,7 @@ export class ChatService extends AsyncHandler {
                     id: `msg-${randomString(6)}`,
                     chat_id: msg.chat_id,
                     message: msg.message,
-                    content: marked.parse(msg.message),
+                    content: marked.parse(msg.message, { async: false }) as any,
                     user_id: msg.user_id || 'assistant',
                     timestamp: Date.now(),
                 },
