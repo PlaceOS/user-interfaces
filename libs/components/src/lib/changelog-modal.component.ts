@@ -38,6 +38,6 @@ export class ChangelogModalComponent {
 
     /** HTML string for rendering the change log */
     public get changelog(): string {
-        return marked(this._data.changelog || '');
+        return marked(this._data.changelog || '', { async: false }) as any;
     }
 }

@@ -34,7 +34,7 @@ import {
             </button>
         </header>
         <main
-            class="w-[48rem] max-w-[80vw] max-h-[65vh] h-[65vh] overflow-auto"
+            class="w-[56rem] max-w-[80vw] max-h-[65vh] h-[65vh] overflow-auto"
             *ngIf="!loading; else load_state"
         >
             <div
@@ -97,14 +97,17 @@ import {
                     <div class="p-4">{{ keyCount(data) }} Conditions</div>
                 </ng-template>
                 <ng-template #zone_template let-data="data">
-                    <div class="px-4 py-2">
+                    <div class="px-4 py-2" *ngIf="(data | level)?.id">
                         <div>{{ (data | level)?.display_name || data }}</div>
-                        <div
-                            class="font-mono text-[0.625rem] opacity-30"
-                            *ngIf="(data | level)?.id"
-                        >
+                        <div class="font-mono text-[0.625rem] opacity-30">
                             {{ data }}
                         </div>
+                    </div>
+                    <div
+                        class="px-4 py-2 font-mono italic"
+                        *ngIf="!(data | level)?.id"
+                    >
+                        {{ data === '*' ? 'All Zones' : data }}
                     </div>
                 </ng-template>
                 <ng-template #bool_template let-data="data">

@@ -36,7 +36,7 @@ export class RoomManagementService {
         switchMap(([bld, region]) =>
             querySystems({
                 zone_id:
-                    (this._settings.get('use_region') ? region.id : '') ||
+                    (this._settings.get('app.use_region') ? region.id : '') ||
                     bld.id,
                 limit: 2500,
             }).pipe(

@@ -43,211 +43,148 @@ import {
                 Today
             </div>
         </div>
-        <div
-            class="flex flex-col w-full flex-1 overflow-hidden"
-            (window:resize)="onResize()"
-        >
-            <div header class="flex items-center w-full h-16">
-                <div
-                    times
-                    class="w-16 h-full flex flex-col items-center justify-end text-xs pb-2 opacity-60"
-                >
+        <div timeline class="grid overflow-auto w-full h-1/2 flex-1">
+            <div
+                timezone
+                class="sticky top-0 left-0 z-30 bg-base-100 flex items-center justify-center"
+            >
+                <div class="text-xs opacity-30">
                     {{ date | async | date: 'z' }}
                 </div>
                 <div
-                    spaces
-                    class="relative flex-1 h-full overflow-hidden border-r border-base-200"
+                    class="absolute h-2 w-px right-0 bottom-0 bg-base-300"
+                ></div>
+                <div
+                    class="absolute w-2 h-px right-0 bottom-0 bg-base-300"
+                ></div>
+            </div>
+            <div
+                space-headers
+                class="sticky top-0 z-20 border-b border-base-300 flex items-center bg-base-100"
+                [style.width]="(spaces | async)?.length * 14 + 'rem'"
+            >
+                <div
+                    *ngFor="let space of spaces | async"
+                    class="relative h-full w-56 flex items-center justify-center"
                 >
-                    <div
-                        class="flex absolute inset-y-0"
-                        [style.left]="-offset_x + 'px'"
-                    >
-                        <div
-                            class="flex flex-col items-center justify-center h-full w-56"
-                            *ngFor="let space of spaces | async"
-                        >
-                            {{ space.display_name || space.name }}
-                        </div>
+                    <div class="truncate">
+                        {{ space.display_name || space.name }}
                     </div>
+                    <div
+                        class="absolute h-2 w-px -left-px bottom-0 bg-base-300"
+                    ></div>
                 </div>
             </div>
-            <div content class="flex w-full flex-1 h-px">
+            <div
+                hour-blocks
+                class="sticky left-0 z-10 border-r border-base-300 bg-base-100"
+                [style.height]="24 * 3 + 'rem'"
+            >
                 <div
-                    times
-                    class="relative w-16 h-full overflow-y-hidden overflow-x-visible border-r border-base-200"
+                    *ngFor="let hour of hours; let i = index"
+                    class="relative h-12 w-full"
                 >
                     <div
-                        class="absolute inset-x-0"
-                        [style.top]="-offset_y + 'px'"
+                        class="absolute -top-px right-0 w-2 h-px bg-base-300"
+                    ></div>
+                    <div
+                        class="absolute -top-px right-3 -translate-y-1/2 text-xs opacity-60"
+                        *ngIf="i !== 0"
                     >
-                        <div
-                            class="relative block h-12"
-                            *ngFor="let value of hours"
-                        >
-                            <div
-                                class="absolute top-0 right-0 w-2 h-px bg-base-200"
-                            ></div>
-                            <div
-                                class="absolute top-0 right-3 -translate-y-1/2 text-xs opacity-60"
-                            >
-                                {{ formatHour(value) }}
-                            </div>
-                        </div>
-                        <div
-                            class="absolute bg-secondary right-0 translate-x-1/2 -translate-y-1/2 h-2 w-2 rounded-full z-30"
-                            [style.top]="timeToOffset(now) + 'px'"
-                            *ngIf="is_today | async"
-                        ></div>
+                        {{ formatHour(hour) }}
                     </div>
                 </div>
-                <div spaces class="relative flex-1 h-full overflow-hidden w-px">
-                    <div
-                        class="absolute top-0 flex h-full pointer-events-none"
-                        [style.left]="-(offset_x % 224) + 'px'"
+                <div
+                    class="absolute bg-secondary right-0 translate-x-1/2 -translate-y-1/2 h-2 w-2 rounded-full"
+                    *ngIf="is_today | async"
+                    [style.top]="'calc(' + timeToOffset(now) + '% + 1px)'"
+                ></div>
+            </div>
+            <div space-blocks class="relative overflow-hidden">
+                <div
+                    *ngFor="let hour of hours; let i = index"
+                    class="relative h-12 w-full border-b border-base-200"
+                ></div>
+                <div
+                    *ngFor="let space of spaces | async; let i = index"
+                    class="absolute w-px h-full bg-base-200 top-0"
+                    [style.left]="'calc(' + i * 14 + 'rem - 1px)'"
+                ></div>
+
+                <ng-container
+                    *ngFor="let space of spaces | async; let i = index"
+                >
+                    <ng-container
+                        *ngFor="let event of (events | async)[space.id] || []"
                     >
-                        <div
-                            *ngFor="let _ of w_slots"
-                            class="w-56 h-full border-r border-base-200"
-                        ></div>
-                    </div>
-                    <div
-                        class="absolute left-0 w-full pointer-events-none"
-                        [style.top]="-(offset_y % 48) + 'px'"
-                    >
-                        <div
-                            *ngFor="let _ of h_slots"
-                            class="h-12 w-full border-t border-base-200"
-                        ></div>
-                        <div
-                            *ngIf="is_today | async"
-                            class="absolute inset-x-0 -translate-y-px h-0.5 bg-secondary z-30"
-                            [style.top]="
-                                timeToOffset(now) -
-                                offset_y -
-                                (48 - (offset_y % 48)) +
-                                48 +
-                                'px'
-                            "
+                        <button
+                            event
+                            matRipple
+                            class="absolute w-52 hover:opacity-90 text-left"
+                            [style.left]="i * 14 + 0.25 + 'rem'"
+                            [style.top]="timeToOffset(event.date) + '%'"
+                            [style.height]="endToOffset(event.duration) + '%'"
+                            [class.pointer-events-none]="event.state === 'done'"
+                            (click)="viewEvent(event, space.id)"
                         >
                             <div
-                                class="absolute bg-secondary top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 h-2 w-2 rounded-full"
-                            ></div>
-                        </div>
-                    </div>
-                    <div
-                        #scroll_container
-                        class="relative w-full h-full overflow-auto z-10"
-                        (scroll)="onScroll()"
-                    >
-                        <div
-                            class="overflow-hidden relative"
-                            [style.height]="24 * 3 + 'rem'"
-                            [style.width]="
-                                (spaces | async)?.length * 14 + 'rem'
-                            "
-                        >
-                            <ng-container
-                                *ngFor="
-                                    let space of spaces | async;
-                                    let i = index
+                                class="relative w-full h-full shadow bg-base-100 border border-base-200 hover:bg-base-200 rounded-lg overflow-hidden px-3 py-1 text-xs"
+                                [class.opacity-60]="event.state === 'done'"
+                                [class.!rounded-none]="event.is_system_event"
+                                [class.!border-secondary]="
+                                    event.is_system_event
                                 "
                             >
-                                <ng-container
-                                    *ngFor="
-                                        let event of (events | async)[
-                                            space.id
-                                        ] || []
-                                    "
-                                >
+                                <ng-container *ngIf="event.is_system_event">
                                     <div
-                                        event
-                                        *ngIf="
-                                            !event.is_system_event ||
-                                            (ui_options | async)?.show_overflow
-                                        "
-                                        class="absolute w-[13.625rem] hover:opacity-90"
-                                        [style.left]="i * 14 + 0.125 + 'rem'"
-                                        [style.top]="
-                                            timeToOffset(event.date) + 'px'
-                                        "
-                                        [style.height]="
-                                            endToOffset(event.duration) + 'px'
-                                        "
-                                        [class.pointer-events-none]="
-                                            event.is_system_event
-                                        "
-                                        (click)="viewEvent(event, space.id)"
-                                    >
-                                        <div
-                                            class="relative w-full h-full shadow bg-base-100 border border-base-200 hover:bg-base-200 rounded-lg overflow-hidden px-3 py-1 text-xs"
-                                            [class.opacity-60]="
-                                                event.state === 'done'
-                                            "
-                                            [class.!rounded-none]="
-                                                event.is_system_event
-                                            "
-                                            [class.!border-secondary]="
-                                                event.is_system_event
-                                            "
-                                        >
-                                            <ng-container
-                                                *ngIf="event.is_system_event"
-                                            >
-                                                <div
-                                                    class="absolute inset-0 bg-secondary opacity-50"
-                                                ></div>
-                                            </ng-container>
-                                            <ng-container
-                                                *ngIf="!event.is_system_event"
-                                            >
-                                                <div
-                                                    class="absolute left-0 inset-y-0 w-1 "
-                                                    [class.bg-secondary]="
-                                                        event.status !==
-                                                        'cancelled'
-                                                    "
-                                                    [class.bg-error]="
-                                                        event.status ===
-                                                        'cancelled'
-                                                    "
-                                                ></div>
-                                                <p
-                                                    class="truncate"
-                                                    [class.opacity-60]="
-                                                        event.status ===
-                                                        'cancelled'
-                                                    "
-                                                >
-                                                    {{
-                                                        event.all_day
-                                                            ? 'All Day'
-                                                            : (event.date
-                                                              | date
-                                                                  : time_format)
-                                                    }}
-                                                    &ndash;
-                                                    {{
-                                                        event.organiser?.name ||
-                                                            event.hjost
-                                                    }}
-                                                </p>
-                                                <p
-                                                    class="truncate"
-                                                    [class.opacity-60]="
-                                                        event.status ===
-                                                        'cancelled'
-                                                    "
-                                                >
-                                                    {{ event.title }}
-                                                </p>
-                                            </ng-container>
-                                        </div>
-                                    </div>
+                                        class="absolute inset-0 bg-secondary opacity-50"
+                                    ></div>
                                 </ng-container>
-                            </ng-container>
-                        </div>
-                    </div>
-                </div>
+                                <ng-container *ngIf="!event.is_system_event">
+                                    <div
+                                        class="absolute left-0 inset-y-0 w-1 "
+                                        [class.bg-secondary]="
+                                            event.status !== 'cancelled'
+                                        "
+                                        [class.bg-error]="
+                                            event.status === 'cancelled'
+                                        "
+                                    ></div>
+                                    <p
+                                        class="truncate"
+                                        [class.opacity-60]="
+                                            event.status === 'cancelled'
+                                        "
+                                    >
+                                        {{
+                                            event.all_day
+                                                ? 'All Day'
+                                                : (event.date
+                                                  | date: time_format)
+                                        }}
+                                        &ndash;
+                                        {{
+                                            event.organiser?.name || event.hjost
+                                        }}
+                                    </p>
+                                    <p
+                                        class="truncate"
+                                        [class.opacity-60]="
+                                            event.status === 'cancelled'
+                                        "
+                                    >
+                                        {{ event.title }}
+                                    </p>
+                                </ng-container>
+                            </div>
+                        </button>
+                    </ng-container>
+                </ng-container>
+                <div
+                    *ngIf="is_today | async"
+                    class="absolute inset-x-0 h-[2px] bg-secondary"
+                    [style.top]="timeToOffset(now) + '%'"
+                ></div>
             </div>
         </div>
     `,
@@ -256,15 +193,17 @@ import {
             :host {
                 display: flex;
                 flex-direction: column;
+                max-width: 100%;
+            }
+
+            [timeline] {
+                grid-template-columns: 4rem auto;
+                grid-template-rows: 4rem auto;
             }
         `,
     ],
 })
 export class RoomBookingsTimelineComponent extends AsyncHandler {
-    public offset_x = 0;
-    public offset_y = 0;
-    public w_slots = [];
-    public h_slots = [];
     public hours = Array.from({ length: 24 }, (_, i) => i);
     public readonly ui_options = this._state.options;
     public readonly spaces = this._state.spaces;
@@ -302,9 +241,6 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
     public readonly edit = (e) => this._state.newBooking(e);
     public readonly setDate = (d) => this._state.setDate(d);
 
-    @ViewChild('scroll_container', { static: true })
-    private _scroll_container: ElementRef<HTMLDivElement>;
-
     public get time_format() {
         return this._settings.time_format;
     }
@@ -326,30 +262,15 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
 
     public ngOnInit() {
         this.subscription('poll', this._state.startPolling());
-        this.interval('scroll', () => this.onScroll(), 1000);
-        const date = Date.now();
-        this.onResize();
     }
 
     public timeToOffset(date: number) {
         const diff = differenceInMinutes(date, startOfDay(date));
-        return Math.max(0, diff / 60) * 48;
+        return (Math.max(0, diff / 60) / 24) * 100;
     }
 
     public endToOffset(duration: number) {
-        return Math.min(24, duration / 60) * 48;
-    }
-
-    public onResize() {
-        const w_slots = Math.floor(window.innerWidth / 224) + 1;
-        const h_slots = Math.floor(window.innerHeight / 48);
-        this.w_slots = Array.from({ length: w_slots }, (_, i) => i);
-        this.h_slots = Array.from({ length: h_slots }, (_, i) => i);
-    }
-
-    public onScroll() {
-        this.offset_x = this._scroll_container.nativeElement.scrollLeft;
-        this.offset_y = this._scroll_container.nativeElement.scrollTop;
+        return (Math.min(24, duration / 60) / 24) * 100;
     }
 
     public viewEvent(event: CalendarEvent, space_id: string) {

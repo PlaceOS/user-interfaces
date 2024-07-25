@@ -428,7 +428,7 @@ export class ParkingStateService extends AsyncHandler {
             : notifySuccess(
                   `Rejected parking reservation for ${
                       bookings.user_name
-                  } on ${format(bookings.date, 'MMM Do')}.`
+                  } on ${format(bookings.date, 'MMM dd')}.`
               );
         if (success !== 'failed') this._change.next(Date.now());
     }
