@@ -105,7 +105,6 @@ export class BootstrapComponent extends AsyncHandler {
     ]).pipe(
         debounceTime(300),
         switchMap(([search]) => {
-            this.loading = 'search';
             return search.length < 2
                 ? of({ data: [] })
                 : querySystems({
@@ -115,7 +114,6 @@ export class BootstrapComponent extends AsyncHandler {
                   });
         }),
         map((_) => _.data.map((_) => new Space(_ as any))),
-        tap((_) => (this.loading = '')),
         shareReplay(1)
     );
 

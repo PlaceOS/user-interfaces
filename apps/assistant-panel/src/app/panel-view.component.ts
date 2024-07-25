@@ -11,21 +11,8 @@ declare let loadVosklet: any;
 @Component({
     selector: 'app-panel-view',
     template: `
-        <div class="flex items-center justify-center h-full w-full">
-            <button
-                class="relative flex items-center justify-center flex-1 h-full bg-base-300 p-8"
-                (click)="startListening()"
-            >
-                <div
-                    class="h-[18vmin] w-[18vmin] m-4 rounded-full bg-base-content"
-                    [style.transform]="'scale(' + scale + ')'"
-                ></div>
-
-                <div class="absolute bottom-0 inset-x-0 p-8 text-center">
-                    <div class="text-sm">{{ current_text || last_text }}</div>
-                </div>
-
-                <div class="absolute bottom-0 inset-x-0 p-4 text-center"></div>
+        <div class="relative flex items-center justify-center h-full w-full bg-base-200"
+                (click)="startListening()">
                 <div
                     class="absolute top-2 left-1/2 -translate-x-1/2 px-4 py-2 text-center rounded-3xl bg-error text-error-content text-xs"
                     *ngIf="error.speech_recognition || error.speech_synthesis"
@@ -48,7 +35,7 @@ declare let loadVosklet: any;
                     autoplay
                     playsinline
                     [class.opacity-0]="!debug"
-                    class="absolute bottom-4 left-4 w-48 h-48 object-cover rounded-xl bg-base-200 border-2 border-base-200"
+                    class="absolute top-4 right-4 w-40 h-40 object-cover rounded-xl bg-base-200 border-2 border-base-200 z-10"
                     [class.!border-success]="person_in_view"
                 ></video>
                 <div
@@ -56,20 +43,20 @@ declare let loadVosklet: any;
                     [class.!bg-success]="person_in_view"
                 ></div>
                 <div
-                    class="absolute bottom-4 right-4 bg-success text-success-content h-12 w-12 rounded-full flex items-center justify-center"
+                    class="absolute top-4 right-4 bg-success text-success-content h-8 w-8 rounded-full flex items-center justify-center z-20"
                     *ngIf="listening"
                 >
-                    <app-icon class="text-2xl">mic</app-icon>
+                    <app-icon class="text-xl">mic</app-icon>
                 </div>
                 <canvas
                     #canvas
                     width="640"
                     height="640"
-                    class="absolute opacity-0 pointer-events-none"
+                    class="absolute opacity-0 pointer-events-none z-10"
                 ></canvas>
-            </button>
             <div
-                class="relative w-[24rem] h-full overflow-auto bg-base-100 flex flex-col justify-end"
+                chat
+                class="relative w-[48rem] mx-auto max-w-full h-full overflow-auto bg-base-100 flex flex-col justify-end"
             >
                 <div
                     class="absolute inset-0 flex flex-col items-center justify-center space-y-4"
@@ -85,7 +72,7 @@ declare let loadVosklet: any;
                 </div>
                 <div class="max-h-full overflow-auto w-full" #message_element>
                     <div
-                        class="my-2 p-2 flex space-x-4 hover:bg-base-200"
+                        class="my-2 p-2 flex space-x-4 hover:bg-info-light"
                         *ngFor="let message of messages | async"
                         (click)="show_time[message.id] = !show_time[message.id]"
                         [class.waiting-margin]="waiting | async"
@@ -170,6 +157,16 @@ declare let loadVosklet: any;
                         ></div>
                         <span class="sr-only">Waiting for reply...</span>
                     </div>
+                </div>
+                <div class="p-4 w-full">
+                    <mat-form-field appearance="outline" class="w-full no-subscript">
+                        <textarea
+                            matInput
+                            [(ngModel)]="current_text"
+                            placeholder="Type your message here..."
+                            (keydown.enter)="handleEnd()"
+                        ></textarea>
+                    </mat-form-field>
                 </div>
             </div>
         </div>
@@ -275,7 +272,7 @@ export class PanelViewComponent extends AsyncHandler {
     public startListening() {
         if (this.listening || !this.person_in_view) return;
         this._recognition.start();
-        this.listening = true;
+        this.timeout('stop_listening', () => this.listening = true, 500);
     }
 
     private _model: tf.GraphModel;
@@ -306,10 +303,10 @@ export class PanelViewComponent extends AsyncHandler {
             if (old_state !== this.person_in_view && this._recognition) {
                 if (this.person_in_view) {
                     this._recognition.start();
-                    this.listening = true;
+                    this.timeout('stop_listening', () => this.listening = true, 500);
                 } else {
                     this._recognition.stop();
-                    this.listening = false;
+                    this.timeout('stop_listening', () => this.listening = false, 500);
                 }
             }
         });
@@ -394,14 +391,14 @@ export class PanelViewComponent extends AsyncHandler {
             const { transcript } = event.results[0][0];
             // do something with transcript
             this.current_text = transcript;
-            this.timeout('on_end', () => this._handleEnd(), 3000);
+            this.timeout('on_end', () => this.handleEnd(), 3000);
         };
 
         recognition.onerror = (event) => {
             console.warn('Speech Recognition Error:', event);
             if (event.error === 'no-speech') {
                 this.current_text = '';
-                this.listening = false;
+                this.timeout('stop_listening', () => this.listening = false, 500);
                 return;
             }
             this.error.speech_recognition = true;
@@ -410,13 +407,13 @@ export class PanelViewComponent extends AsyncHandler {
         recognition.onend = (event) => {
             // const { transcript } = event.results[0][0];
             // do something with transcript
-            this._handleEnd();
-            this.listening = false;
+            this.handleEnd();
+            this.timeout('stop_listening', () => this.listening = false, 500);
         };
         this._recognition = recognition;
         recognition.start();
         this.setup = true;
-        this.listening = true;
+        this.timeout('stop_listening', () => this.listening = true, 500);
         this.interval('check_listening', () => this.startListening(), 500);
     }
 
@@ -468,7 +465,7 @@ export class PanelViewComponent extends AsyncHandler {
         });
     }
 
-    private _handleEnd() {
+    public handleEnd() {
         this.last_text = this.current_text;
         this.current_text = '';
         this.clearInterval('scale');
