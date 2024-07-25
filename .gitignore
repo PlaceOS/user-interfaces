@@ -54,5 +54,6 @@ shared/assets/maps/l16.svg
 locales.tsv
 
 .nx/cache
+.nx/workspace-data
 # Sentry Config File
 .sentryclirc
