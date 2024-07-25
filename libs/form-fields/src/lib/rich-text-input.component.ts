@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AsyncHandler, uploadFile } from '@placeos/common';
+import { link } from 'fs';
 import Quill from 'quill';
 
 @Component({
@@ -111,7 +112,7 @@ export class RichTextInputComponent
             ['clean'], // remove formatting button
         ];
         if (this.images_allowed) {
-            toolbarOptions.push(['image']);
+            toolbarOptions.push(['image', 'link']);
         }
         if (this._editor) {
             this.unsub('changes');
@@ -126,6 +127,7 @@ export class RichTextInputComponent
                     container: toolbarOptions,
                     handlers: {
                         image: () => this._embedImage(),
+                        link: () => this._embedAttachment(),
                     },
                 },
             },
@@ -154,6 +156,26 @@ export class RichTextInputComponent
             uploadFile(file, true).subscribe(({ link, progress }) => {
                 if (!link || progress !== 100) return;
                 this._editor.insertEmbed(index, 'image', link);
+            });
+        };
+    }
+
+    private _embedAttachment() {
+        if (!this._editor) return;
+        const range = this._editor.getSelection();
+        if (!range) return;
+        const { index } = range;
+        // Create a File input element
+        var file_input = document.createElement('input');
+        file_input.setAttribute('type', 'file');
+        file_input.click();
+
+        file_input.onchange = () => {
+            var file = file_input.files[0];
+            uploadFile(file, true).subscribe(({ link, progress }) => {
+                if (!link || progress !== 100) return;
+                this._editor.insertText(range.index, file.name, 'link', link);
+                this._editor.setSelection(range.index + file.name.length);
             });
         };
     }
