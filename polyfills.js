@@ -1,12 +1,12 @@
 "use strict";(self.webpackChunksignage=self.webpackChunksignage||[]).push([["polyfills"],{4817:(ve,Ze,Me)=>{
 /**
-         * @license Angular v18.0.0
+         * @license Angular v18.1.2
          * (c) 2010-2024 Google LLC. https://angular.io/
          * License: MIT
          */
 const Ne=":";Error;const qe=function(r,...s){if(qe.translate){const h=qe.translate(r,s);r=h[0],s=h[1]}let u=st(r[0],r.raw[0]);for(let h=1;h<r.length;h++)u+=s[h-1]+st(r[h],r.raw[h]);return u},ot=":";function st(r,s){return s.charAt(0)===ot?r.substring(function Ge(r,s){for(let u=1,h=1;u<r.length;u++,h++)if("\\"===s[h])h++;else if(r[u]===Ne)return u;throw new Error(`Unterminated $localize metadata block in "${s}".`)}(r,s)+1):r}
 /**
-         * @license Angular v18.0.0
+         * @license Angular v18.1.2
          * (c) 2010-2024 Google LLC. https://angular.io/
          * License: MIT
          */globalThis.$localize=qe,Me(4124)},4124:()=>{
