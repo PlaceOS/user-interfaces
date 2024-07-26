@@ -5,15 +5,20 @@ import { SettingsService } from '@placeos/common';
     selector: 'desk-height-presets',
     template: `
         <div class="relative p-4 bg-base-100 rounded shadow w-[20rem]">
-            <div class="text-lg" i18n>Desk Height Presets</div>
+            <div class="text-lg mb-2" i18n>Desk Height Presets</div>
+            <div class="text-xs opacity-60 mb-4" i18n>
+                Desk height presets allow you to store and recall your preferred
+                desk height when checking into a booked desk that supports
+                height adjustment.
+            </div>
             <div
-                class="text-xs my-2 -mx-2 p-2 rounded bg-warning text-warning-content"
+                class="text-xs mb-4 -mx-2 p-2 rounded bg-warning text-warning-content"
                 *ngIf="not_set && show_close"
             >
                 Before you can set a desk height, presets must be set
             </div>
             <div class="text-xs opacity-60 mb-4" i18n>
-                Set your desk height for the best experience
+                Set your desk height for the best experience.
             </div>
             <div class="flex flex-col mt-2">
                 <label>Sitting Height</label>
