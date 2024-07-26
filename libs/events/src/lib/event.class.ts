@@ -128,6 +128,10 @@ export class CalendarEvent {
 
     public readonly is_system_event: boolean;
 
+    public get images() {
+        return this.extension_data.images || [];
+    }
+
     public get is_all_day() {
         return this.all_day || this.duration >= 12 * 60;
     }
@@ -149,12 +153,12 @@ export class CalendarEvent {
                 data.date ||
                     roundToNearestMinutes(addMinutes(new Date(), 3), {
                         nearestTo: 5,
-                    })
+                    }),
             );
         this.event_end =
             data.event_end ||
             getUnixTime(
-                addMinutes(this.event_start * 1000, data.duration || 30)
+                addMinutes(this.event_start * 1000, data.duration || 30),
             );
         this.calendar = data.calendar || '';
         this.creator =
@@ -175,7 +179,7 @@ export class CalendarEvent {
                     attendees
                         .filter((user) => (user as any).resource)
                         .map((s) => new Space(s as any)),
-                'email'
+                'email',
             ) || [];
         this.title = data.title;
         this.body = data.body || '';
@@ -188,7 +192,7 @@ export class CalendarEvent {
             (this as any).date = startOfDay(this.date).getTime();
             (this as any).duration = Math.max(24 * 60 - 1, this.duration - 1);
             (this as any).date_end = endOfDay(
-                addMinutes(this.date, this.duration).valueOf() - 1
+                addMinutes(this.date, this.duration).valueOf() - 1,
             ).getTime();
         }
         const matches = this.body.match(/\[ID\|([^\]]+)\]/);
@@ -203,7 +207,7 @@ export class CalendarEvent {
         this.recurring = !!data.recurring;
         this.recurring_event_id = data.recurring_event_id || '';
         this.organiser = this.attendees.find(
-            (user) => user.email === this.host
+            (user) => user.email === this.host,
         );
         this.from_bookings = data.from_bookings ?? false;
         this.master = data.master ? new CalendarEvent(data.master) : null;
@@ -216,19 +220,19 @@ export class CalendarEvent {
                 start:
                     this.event_start * 1000 ||
                     new Date(
-                        (data.recurrence as any).range_start * 1000
+                        (data.recurrence as any).range_start * 1000,
                     ).valueOf(),
                 end:
                     data.recurrence.end ||
                     new Date(
-                        (data.recurrence as any).range_end * 1000
+                        (data.recurrence as any).range_end * 1000,
                     ).valueOf(),
                 interval: data.recurrence.interval,
                 pattern: data.recurrence.pattern,
                 occurrences: data.recurrence.occurrences,
                 days_of_week:
                     data.recurrence.days_of_week?.map((_) =>
-                        typeof _ === 'number' ? _ : DAYS_OF_WEEK.indexOf(_)
+                        typeof _ === 'number' ? _ : DAYS_OF_WEEK.indexOf(_),
                     ) || [],
             };
         } else {
@@ -258,8 +262,8 @@ export class CalendarEvent {
             this.status === 'declined'
                 ? 'cancelled'
                 : this.attendees.find((_) => _.is_external)
-                ? 'external'
-                : 'internal';
+                  ? 'external'
+                  : 'internal';
         for (const key in data) {
             if (!(key in this)) {
                 this.extension_data[key] =
@@ -275,7 +279,7 @@ export class CalendarEvent {
             organiser: this.organiser,
         };
         this.extension_data.catering = (this.extension_data.catering || []).map(
-            (i) => new CateringOrder({ ...i, event: simple_event } as any)
+            (i) => new CateringOrder({ ...i, event: simple_event } as any),
         );
         const linked_assets = this.linked_bookings
             .filter((_) => _.booking_type === 'asset-request')
@@ -286,7 +290,7 @@ export class CalendarEvent {
                 ? linked_assets
                 : this.extension_data.assets) || [];
         this.extension_data.assets = asset_requests.map(
-            (i) => new AssetRequest({ ...i, event: simple_event } as any)
+            (i) => new AssetRequest({ ...i, event: simple_event } as any),
         );
     }
 
@@ -304,7 +308,7 @@ export class CalendarEvent {
 
     public get valid_catering() {
         return (this.ext('catering') || []).filter(
-            (order) => order.deliver_at < this.date_end
+            (order) => order.deliver_at < this.date_end,
         );
     }
 
@@ -324,14 +328,14 @@ export class CalendarEvent {
             .filter((request) => request.deliver_at < this.date_end)
             .map((request) => {
                 const booking = list.find(
-                    (_: any) => _.extension_data.request_id === request.id
+                    (_: any) => _.extension_data.request_id === request.id,
                 );
                 if (booking) {
                     (request as any).state = booking.approved
                         ? 'approved'
                         : booking.rejected
-                        ? 'rejected'
-                        : 'pending';
+                          ? 'rejected'
+                          : 'pending';
                 }
                 return request;
             });
@@ -371,7 +375,7 @@ export class CalendarEvent {
                 ...attendees,
                 ...this.resources.map((_) => ({ ..._, resource: true })),
             ],
-            'email'
+            'email',
         );
         if (this.all_day) {
             obj.setup_time = 0;
@@ -379,10 +383,10 @@ export class CalendarEvent {
             obj.extension_data.all_day_date = format(date, 'yyyy-MM-dd');
         }
         obj.extension_data.catering = obj.extension_data.catering.map(
-            (i) => new CateringOrder({ ...i, event: null })
+            (i) => new CateringOrder({ ...i, event: null }),
         );
         obj.extension_data.assets = obj.extension_data.assets.map(
-            (i) => new AssetRequest({ ...i, event: null })
+            (i) => new AssetRequest({ ...i, event: null }),
         );
         obj.system_id = this.system?.id;
         for (const key of [

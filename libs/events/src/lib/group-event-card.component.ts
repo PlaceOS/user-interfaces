@@ -148,7 +148,9 @@ import { CalendarEvent } from './event.class';
     styles: [
         `
             button {
-                transition: box-shadow 300ms, border 200ms;
+                transition:
+                    box-shadow 300ms,
+                    border 200ms;
             }
         `,
     ],
@@ -185,16 +187,16 @@ export class GroupEventCardComponent {
     constructor(
         private _settings: SettingsService,
         private _dialog: MatDialog,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {}
 
     public async ngOnInit() {
         const space_pipe = new SpacePipe(this._org);
         const resource = this.event.resources.find(
-            (_) => _.email !== this.group_event_calendar
+            (_) => _.email !== this.group_event_calendar,
         );
         this.space = await space_pipe.transform(
-            resource?.id || resource?.email
+            resource?.id || resource?.email,
         );
         this.raw_description = this.removeHtmlTags(this.event.body);
     }
