@@ -314,14 +314,16 @@ export class ScheduleStateService extends AsyncHandler {
                 if (
                     _.extension_data?.shared_event &&
                     !filters?.shown_types?.includes('group-event')
-                )
+                ) {
                     return false;
+                }
                 if (
                     _ instanceof CalendarEvent &&
+                    !_.extension_data?.shared_event &&
                     !filters?.shown_types?.includes('event')
-                )
+                ) {
                     return false;
-                else if (_ instanceof CalendarEvent) return true;
+                } else if (_ instanceof CalendarEvent) return true;
                 return filters?.shown_types?.includes((_ as any).booking_type);
             }),
         ),
