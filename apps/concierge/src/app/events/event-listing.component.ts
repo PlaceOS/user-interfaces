@@ -24,49 +24,49 @@ import { CalendarEvent } from '@placeos/events';
                     name: 'Level',
                     content: level_template,
                     size: '8rem',
-                    sortable: false
+                    sortable: false,
                 },
                 {
                     key: 'room',
                     name: 'Room',
                     content: room_template,
                     size: '12rem',
-                    sortable: false
+                    sortable: false,
                 },
                 {
                     key: 'interested',
                     name: 'Interested',
                     content: interested_template,
                     size: '6rem',
-                    sortable: false
+                    sortable: false,
                 },
                 {
                     key: 'attending',
                     name: 'Attending',
                     content: attending_template,
                     size: '6rem',
-                    sortable: false
+                    sortable: false,
                 },
                 {
                     key: 'state',
                     name: 'Status',
                     content: status_template,
-                    size: '8.5rem'
+                    size: '8.5rem',
                 },
                 {
                     key: 'access',
                     name: 'Published',
                     content: published_template,
                     size: '6rem',
-                    sortable: false
+                    sortable: false,
                 },
                 {
                     key: 'actions',
                     name: ' ',
                     content: actions_template,
                     size: '4rem',
-                    sortable: false
-                }
+                    sortable: false,
+                },
             ]"
             [sortable]="true"
         ></simple-table>
@@ -150,7 +150,7 @@ import { CalendarEvent } from '@placeos/events';
                 >
                     <attendee-list
                         [list]="item.attendees"
-                        [host]="item.user_email"
+                        [host]="item.user_email || item.host"
                         [hide_close]="true"
                         [custom_title]="'Interested'"
                     ></attendee-list>
@@ -174,7 +174,7 @@ import { CalendarEvent } from '@placeos/events';
                 >
                     <attendee-list
                         [list]="checkedInList(item.attendees)"
-                        [host]="item.user_email"
+                        [host]="item.user_email || item.host"
                         [hide_close]="true"
                     ></attendee-list>
                 </div>
@@ -215,9 +215,9 @@ import { CalendarEvent } from '@placeos/events';
                         item.state === 'done'
                             ? 'Done'
                             : item.state === 'in_progress' ||
-                              item.state === 'started'
-                            ? 'In Progress'
-                            : 'Active'
+                                item.state === 'started'
+                              ? 'In Progress'
+                              : 'Active'
                     }}
                 </div>
             </div>
@@ -253,7 +253,7 @@ import { CalendarEvent } from '@placeos/events';
                         '/entertainment',
                         'events',
                         'manage',
-                        row?.id
+                        row?.id,
                     ]"
                 >
                     <div class="flex items-center space-x-2">
@@ -281,7 +281,7 @@ import { CalendarEvent } from '@placeos/events';
 export class EventListingComponent {
     public readonly loading = this._state.loading;
     public readonly event_list = this._state.event_list.pipe(
-        tap((_) => console.log('Event List:', _))
+        tap((_) => console.log('Event List:', _)),
     );
 
     public readonly viewEvent = (event: any) => this._state.viewEvent(event);
@@ -298,7 +298,7 @@ export class EventListingComponent {
 
     constructor(
         private _settings: SettingsService,
-        private _state: EventStateService
+        private _state: EventStateService,
     ) {}
 
     public checkedInCount(attendees: User[]) {
