@@ -212,6 +212,7 @@ export class EmailTemplateManageComponent extends AsyncHandler {
                         params.get('id'),
                     );
                     this.loading = '';
+                    console.log('Template:', this.template);
                     if (!this.template) {
                         this._router.navigate(['/email-templates', 'manage']);
                     } else {
