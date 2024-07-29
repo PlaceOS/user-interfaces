@@ -6,3 +6,5 @@ vanillaqr.min.*
 
 /.nx/cache
 .angular
+
+/.nx/workspace-data

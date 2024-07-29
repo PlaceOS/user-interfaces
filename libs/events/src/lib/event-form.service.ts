@@ -125,7 +125,7 @@ export class EventFormService extends AsyncHandler {
         switchMap((list) =>
             Promise.all(
                 list.map((bld) =>
-                    showMetadata(bld.id, 'booking_rules').toPromise()
+                    showMetadata(bld.id, 'room_booking_rules').toPromise()
                 )
             )
         ),

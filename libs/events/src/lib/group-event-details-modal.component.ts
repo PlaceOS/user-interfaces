@@ -275,19 +275,25 @@ import {
                             </button>
                             <div class=" p-4 space-y-2">
                                 <div>
-                                    {{
-                                        (system_id | space | async)
-                                            ?.display_name
-                                    }}
-                                    <span
-                                        *ngIf="
-                                            !(system_id | space | async)
+                                    <div *ngIf="is_onsite && has_space">
+                                        {{
+                                            (system_id | space | async)
                                                 ?.display_name
-                                        "
+                                        }}
+                                    </div>
+                                    <div
+                                        *ngIf="is_onsite && !has_space"
                                         class="opacity-30"
                                     >
-                                        Remote Event
-                                    </span>
+                                        Room to be confirmed
+                                    </div>
+                                    <div *ngIf="is_online" class="opacity-30">
+                                        {{
+                                            is_onsite
+                                                ? 'Can be attended online'
+                                                : 'Remote Event'
+                                        }}
+                                    </div>
                                 </div>
                                 <div class="opacity-30 text-sm">
                                     <span *ngIf="building && level">
@@ -401,16 +407,16 @@ export class GroupEventDetailsModalComponent {
         private _org: OrganisationService,
         private _settings: SettingsService,
         private _dialog: MatDialog,
-        private _dialog_ref: MatDialogRef<GroupEventDetailsModalComponent>
+        private _dialog_ref: MatDialogRef<GroupEventDetailsModalComponent>,
     ) {}
 
     public async ngOnInit() {
         const space_pipe = new SpacePipe(this._org);
         const resource = this.event.resources.find(
-            (_) => _.email !== this.group_event_calendar
+            (_) => _.email !== this.group_event_calendar,
         );
         this.space = await space_pipe.transform(
-            resource?.id || resource?.email
+            resource?.id || resource?.email,
         );
         const map_id = (this.event.extension_data as any)?.map_id;
         const id = this.space?.map_id || map_id;
@@ -458,19 +464,19 @@ export class GroupEventDetailsModalComponent {
         if (this.is_interested && user) {
             await removeEventGuest(
                 this.event.id,
-                currentUser() as any
+                currentUser() as any,
             ).toPromise();
             (this.event as any).attendees = (this.event.attendees || []).filter(
-                (_: any) => _.email !== user.email
+                (_: any) => _.email !== user.email,
             );
         } else {
             user = await addEventGuest(
                 this.event.id,
-                currentUser() as any
+                currentUser() as any,
             ).toPromise();
             (this.event as any).attendees = unique(
                 [...(this.event.attendees || []), user],
-                'email'
+                'email',
             );
         }
     }
@@ -480,11 +486,11 @@ export class GroupEventDetailsModalComponent {
         if (!user) {
             user = await addEventGuest(
                 this.event.id,
-                currentUser() as any
+                currentUser() as any,
             ).toPromise();
             (this.event as any).attendees = unique(
                 [...(this.event.attendees || []), user],
-                'email'
+                'email',
             );
         }
         user = { ...currentUser(), ...(user || {}) };
@@ -492,7 +498,7 @@ export class GroupEventDetailsModalComponent {
         await checkinEventGuest(
             this.event.id,
             user.email,
-            !this.is_going
+            !this.is_going,
         ).toPromise();
         const guest = this.event.attendees.find((_) => _.email === user.email);
         if (!guest) return;
