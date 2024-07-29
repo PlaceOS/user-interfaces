@@ -4,7 +4,7 @@ import { map, take } from 'rxjs/operators';
 import { AssetsReportService } from './assets-report.service';
 
 @Component({
-    selector: 'asset-report-daily-usage',
+    selector: 'asset-report-users',
     template: `
         <div
             class="m-4 rounded bg-base-100 border border-base-200 overflow-hidden"
@@ -35,16 +35,23 @@ import { AssetsReportService } from './assets-report.service';
 export class AssetReportUsersComponent {
     @Input() public print: boolean = false;
     public readonly users = this._state.stats$.pipe(
-        map(({ events, bookings, products }) =>
-            unique(events, 'host').map((e) => {
+        map(({ events, bookings, products }) => {
+            const data = unique(events, 'host').map((e) => {
                 const host_bookings = bookings.filter(
-                    (b) => b.user_email === e.host,
+                    (b) => b.linked_event?.event_id === e.id,
                 );
                 const booked_assets = host_bookings
                     .map((_) => _.asset_ids)
                     .flat();
+                console.log(
+                    'Event:',
+                    e,
+                    booked_assets,
+                    host_bookings,
+                    bookings,
+                );
                 return {
-                    name: e.host,
+                    name: e.organiser?.name || e.organiser?.email || e.host,
                     booking_count: events.filter((e) => e.host === e.host)
                         .length,
                     asset_count: booked_assets.length,
@@ -55,8 +62,10 @@ export class AssetReportUsersComponent {
                             ),
                         )?.length || 0,
                 };
-            }),
-        ),
+            });
+            console.log('Users:', data);
+            return data;
+        }),
     );
 
     public readonly download = async () => {

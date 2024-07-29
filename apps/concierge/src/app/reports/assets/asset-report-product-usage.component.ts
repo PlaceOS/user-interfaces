@@ -21,7 +21,7 @@ import { AssetsReportService } from './assets-report.service';
                 [columns]="[
                     { key: 'name', name: 'Name' },
                     { key: 'booking_count', name: 'Assets Booked' },
-                    { key: 'asset_count', name: 'Assets' },
+                    { key: 'asset_count', name: 'Assets Available' },
                 ]"
                 [sortable]="true"
                 [page_size]="print ? 0 : 10"
@@ -37,9 +37,13 @@ export class AssetReportProductUsageComponent {
         map(({ events, bookings, products }) =>
             products
                 .map((p) => ({
-                    name: p.host,
+                    name: p.name,
                     booking_count: bookings.filter((b) =>
-                        p.assets.find((_) => _.id === b.asset_id),
+                        p.assets.find(
+                            (_) =>
+                                _.id === b.asset_id ||
+                                b.asset_ids?.includes(_.id),
+                        ),
                     ).length,
                     asset_count: p.assets.length,
                 }))

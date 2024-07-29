@@ -44,11 +44,15 @@ export class AssetReportDailyUsageComponent {
             let list = [];
             for (const date in days) {
                 const { events, bookings, products } = days[date];
-                const products_list = products.map((p) => ({
+                const products_list = (products || []).map((p) => ({
                     date,
                     name: p.host,
                     booking_count: bookings.filter((b) =>
-                        p.assets.find((_) => _.id === b.asset_id),
+                        p.assets.find(
+                            (_) =>
+                                _.id === b.asset_id ||
+                                b.asset_ids?.includes(_.id),
+                        ),
                     ).length,
                     asset_count: p.assets.length,
                 }));

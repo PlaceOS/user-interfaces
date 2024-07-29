@@ -29,9 +29,13 @@ import { ActivatedRoute } from '@angular/router';
             <ng-container *ngIf="!(loading | async); else load_state">
                 <ng-container *ngIf="total_count | async; else empty_state">
                     <asset-report-overall></asset-report-overall>
-                    <asset-report-daily-usage></asset-report-daily-usage>
-                    <asset-report-product-usage></asset-report-product-usage>
-                    <asset-report-users></asset-report-users>
+                    <asset-report-daily-usage
+                        [print]="printing"
+                    ></asset-report-daily-usage>
+                    <asset-report-product-usage
+                        [print]="printing"
+                    ></asset-report-product-usage>
+                    <asset-report-users [print]="printing"></asset-report-users>
                 </ng-container>
             </ng-container>
         </div>
@@ -64,7 +68,7 @@ import { ActivatedRoute } from '@angular/router';
 export class AssetsReportComponent extends AsyncHandler {
     public printing = false;
     public readonly total_count = this._state.stats$.pipe(
-        map((i) => i.count || 0),
+        map((i) => i.total_booked_items || 0),
     );
     public readonly loading = this._state.loading$;
 

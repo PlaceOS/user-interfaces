@@ -8,6 +8,7 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
+import { CalendarEvent } from '@placeos/events';
 import { OrganisationService } from '@placeos/organisation';
 import {
     addDays,
@@ -49,8 +50,9 @@ export class AssetsReportService {
     public readonly loading$ = this._loading.asObservable();
     public readonly options$ = this._options.asObservable();
 
-    public readonly products$ = this._options.pipe(
-        debounceTime(500),
+    public readonly products$ = this._generate.pipe(
+        filter((gen) => gen > 0),
+        switchMap(() => this._options),
         switchMap((options) => {
             this._loading.next(true);
             return queryAssetGroupsExtended({
@@ -69,12 +71,13 @@ export class AssetsReportService {
         switchMap(() => this._options),
         switchMap((options) => {
             this._loading.next(true);
+            const { start, end, zones } = options;
             return queryBookings({
-                period_start: getUnixTime(startOfDay(options.start)),
-                period_end: getUnixTime(endOfDay(options.end || options.start)),
+                period_start: getUnixTime(startOfDay(start || Date.now())),
+                period_end: getUnixTime(endOfDay(end || start || Date.now())),
                 type: 'asset-request',
                 zones:
-                    (options.zones || [])?.join(',') ||
+                    (zones || [])?.join(',') ||
                     (this._settings.get('app.use_region')
                         ? this._org.region?.id
                         : '') ||
@@ -89,9 +92,12 @@ export class AssetsReportService {
         this.products$,
         this.bookings$,
     ]).pipe(
-        map(([products, bookings]) =>
-            this._processBookingStats(bookings, products),
-        ),
+        map(([products, bookings]) => {
+            const data = this._processBookingStats(bookings, products);
+            console.log('Stats:', data);
+            return data;
+        }),
+        shareReplay(1),
     );
 
     public readonly daily_stats$ = combineLatest([
@@ -114,17 +120,20 @@ export class AssetsReportService {
                 count++;
             }
         }),
+        shareReplay(1),
     );
 
     private _processBookingStats(
         booking_list: Booking[],
         products: AssetGroup[],
     ) {
-        const booked_assets = flatten(booking_list.map((_) => _.asset_ids));
+        const booked_assets = booking_list
+            .map((_) => _.asset_ids?.length || [_.asset_id])
+            .flat();
         const unique_events = unique(
             booking_list.map((_) => _.linked_event),
             'id',
-        );
+        ).map((i) => new CalendarEvent(i));
         return {
             events: unique_events,
             bookings: booking_list,
@@ -136,16 +145,18 @@ export class AssetsReportService {
                 0,
             ),
             unique_items: products.filter((p) =>
-                p.assets.find((_) => booked_assets.includes(_)),
+                p.assets.find((_) => booked_assets.includes(_.id)),
             ).length,
             products_booked: products
-                .filter((p) => p.assets.find((_) => booked_assets.includes(_)))
+                .filter((p) =>
+                    p.assets.find((_) => booked_assets.includes(_.id)),
+                )
                 .map((p) => ({
                     name: p.name,
-                    count: p.assets.filter((_) => booked_assets.includes(_))
+                    count: p.assets.filter((_) => booked_assets.includes(_.id))
                         .length,
                 })),
-        } as any;
+        };
     }
 
     constructor(
