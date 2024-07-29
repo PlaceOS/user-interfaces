@@ -130,7 +130,7 @@ export class ShortUrlModalComponent extends AsyncHandler {
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: ShortURL | undefined,
-        private _dialog_ref: MatDialogRef<ShortUrlModalComponent>
+        private _dialog_ref: MatDialogRef<ShortUrlModalComponent>,
     ) {
         super();
     }
@@ -141,8 +141,8 @@ export class ShortUrlModalComponent extends AsyncHandler {
         if (!this.form.valid) {
             return notifyError(
                 `Some form fields are invalid. [${getInvalidFields(
-                    this.form
-                ).join(', ')}]`
+                    this.form,
+                ).join(', ')}]`,
             );
         }
         const data: any = this.form.getRawValue();

@@ -116,7 +116,9 @@ const EMPTY = [];
                                 [ngModelOptions]="{ standalone: true }"
                                 (ngModelChange)="
                                     form.patchValue({
-                                        view_access: $event ? 'OPEN' : 'PRIVATE'
+                                        view_access: $event
+                                            ? 'OPEN'
+                                            : 'PRIVATE',
                                     })
                                 "
                             >
@@ -247,7 +249,7 @@ const EMPTY = [];
                                 "
                                 (click)="
                                     form.patchValue({
-                                        attendance_type: 'ONSITE'
+                                        attendance_type: 'ONSITE',
                                     })
                                 "
                             >
@@ -263,7 +265,7 @@ const EMPTY = [];
                                 "
                                 (click)="
                                     form.patchValue({
-                                        attendance_type: 'ONLINE'
+                                        attendance_type: 'ONLINE',
                                     })
                                 "
                             >
@@ -317,7 +319,7 @@ const EMPTY = [];
                                         <mat-select
                                             [ngModel]="level_zone"
                                             [ngModelOptions]="{
-                                                standalone: true
+                                                standalone: true,
                                             }"
                                             (ngModelChange)="setLevel($event)"
                                             placeholder="Select Level"
@@ -343,7 +345,7 @@ const EMPTY = [];
                                         <mat-select
                                             [(ngModel)]="resource"
                                             [ngModelOptions]="{
-                                                standalone: true
+                                                standalone: true,
                                             }"
                                             [disabled]="
                                                 (available_spaces | async)
@@ -439,7 +441,7 @@ export class EventManageComponent extends AsyncHandler {
     public get building_zone() {
         const level = this.level_zone;
         const building = this._org.buildings.find(
-            (b) => b.id === level?.parent_id
+            (b) => b.id === level?.parent_id,
         );
         return building || this._org.building;
     }
@@ -467,7 +469,7 @@ export class EventManageComponent extends AsyncHandler {
         private _route: ActivatedRoute,
         private _router: Router,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -496,7 +498,7 @@ export class EventManageComponent extends AsyncHandler {
                     this._form_state.newForm(booking);
                     console.log('Event:', booking.extension_data?.tags);
                     this.resource = booking.resources.find(
-                        (_) => _.email !== this._state.calendar
+                        (_) => _.email !== this._state.calendar,
                     )?.email;
                     console.log('Resource:', this.resource);
                     this.form.patchValue({
@@ -507,16 +509,16 @@ export class EventManageComponent extends AsyncHandler {
                             name: booking.organiser?.name,
                         }),
                         resources: booking.resources.filter(
-                            (_) => _.email !== this._state.calendar
+                            (_) => _.email !== this._state.calendar,
                         ),
                     });
                 }
-            })
+            }),
         );
         this._updateTimezoneList();
         this.subscription(
             'tz-change',
-            this.form.valueChanges.subscribe(() => this._updateTimezoneList())
+            this.form.valueChanges.subscribe(() => this._updateTimezoneList()),
         );
     }
 
@@ -569,7 +571,7 @@ export class EventManageComponent extends AsyncHandler {
         this.form.markAllAsTouched();
         if (!this.form.valid) {
             return notifyError(
-                `Some form fields are invalid. [${getInvalidFields(this.form)}]`
+                `Some form fields are invalid. [${getInvalidFields(this.form)}]`,
             );
         }
         this.loading = true;
@@ -580,7 +582,7 @@ export class EventManageComponent extends AsyncHandler {
                 new Space({
                     id: this._state.calendar,
                     email: this._state.calendar,
-                })
+                }),
         );
         if (this.resource) {
             const resource = await new SpacePipe().transform(this.resource);
@@ -606,7 +608,7 @@ export class EventManageComponent extends AsyncHandler {
         const timezone = this.form?.value?.timezone || '';
         this.timezones = TIMEZONES_IANA;
         this.filtered_timezones = this.timezones.filter((_) =>
-            _.toLowerCase().includes(timezone.toLowerCase())
+            _.toLowerCase().includes(timezone.toLowerCase()),
         );
     }
 }

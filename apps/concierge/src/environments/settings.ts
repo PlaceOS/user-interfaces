@@ -94,6 +94,7 @@ const app = {
         'contact-tracing-report',
         'signage',
         'events',
+        'email-templates',
     ],
     general,
     guests: { vaccine_check: true },

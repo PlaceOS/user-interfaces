@@ -222,7 +222,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                         [options]="{
                             date: form.value.date,
                             duration: form.value.duration,
-                            zone_id: form.value.resources[0]?.level?.parent_id
+                            zone_id: form.value.resources[0]?.level?.parent_id,
                         }"
                     ></catering-list-field>
                 </div>
@@ -343,7 +343,7 @@ export class MeetingBookingFormComponent extends AsyncHandler {
         private _service: EventFormService,
         private _settings: SettingsService,
         private _dialog: MatDialog,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }

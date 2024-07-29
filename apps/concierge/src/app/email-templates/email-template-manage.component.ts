@@ -125,6 +125,24 @@ import { Clipboard } from '@angular/cdk/clipboard';
                         </button>
                     </mat-menu>
                 </div>
+                <div class="flex items-center space-x-2">
+                    <mat-form-field appearance="outline" class="flex-1">
+                        <input
+                            matInput
+                            placeholder="Reply to address"
+                            formControlName="reply_to"
+                        />
+                        <mat-error>A reply address is required</mat-error>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="flex-1">
+                        <input
+                            matInput
+                            placeholder="From address"
+                            formControlName="from"
+                        />
+                        <mat-error>A from address is required</mat-error>
+                    </mat-form-field>
+                </div>
                 <mat-form-field appearance="outline" class="w-full">
                     <app-icon matPrefix class="text-2xl relative -left-1">
                         description
@@ -140,7 +158,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
                     formControlName="html"
                     placeholder="Body of the email template"
                     [images_allowed]="true"
-                    class="min-h-[calc(100vh-20rem)] block"
+                    class="min-h-[calc(100vh-28rem)] block"
                 ></rich-text-input>
             </form>
         </div>
@@ -164,6 +182,8 @@ export class EmailTemplateManageComponent extends AsyncHandler {
     public readonly buildings = this._org.building_list;
     public readonly form = new FormGroup({
         id: new FormControl(''),
+        reply_to: new FormControl(''),
+        from: new FormControl(''),
         subject: new FormControl('', [Validators.required]),
         category: new FormControl('internal'),
         trigger: new FormControl(''),
@@ -177,7 +197,7 @@ export class EmailTemplateManageComponent extends AsyncHandler {
         private _state: EmailTemplatesStateService,
         private _route: ActivatedRoute,
         private _router: Router,
-        private _clipboard: Clipboard
+        private _clipboard: Clipboard,
     ) {
         super();
     }
@@ -189,7 +209,7 @@ export class EmailTemplateManageComponent extends AsyncHandler {
                 if (params.has('id')) {
                     this.loading = 'Loading email template...';
                     this.template = await this._state.loadTemplate(
-                        params.get('id')
+                        params.get('id'),
                     );
                     this.loading = '';
                     if (!this.template) {
@@ -198,7 +218,7 @@ export class EmailTemplateManageComponent extends AsyncHandler {
                         this.form.patchValue(this.template);
                     }
                 }
-            })
+            }),
         );
         this.subscription(
             'trigger',
@@ -208,10 +228,10 @@ export class EmailTemplateManageComponent extends AsyncHandler {
                         .pipe(take(1))
                         .toPromise();
                     this.active_trigger = trigger_list.find(
-                        (_) => _.id === value.trigger
+                        (_) => _.id === value.trigger,
                     );
                 }
-            })
+            }),
         );
     }
 

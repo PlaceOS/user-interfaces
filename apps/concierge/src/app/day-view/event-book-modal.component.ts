@@ -179,7 +179,7 @@ import { map, tap } from 'rxjs/operators';
                             all_day: form.value.all_day,
                             zone_id: form.value?.resources?.length
                                 ? form.value?.resources[0]?.level?.parent_id
-                                : ''
+                                : '',
                         }"
                     ></catering-list-field>
                     <mat-form-field
@@ -264,7 +264,7 @@ import { map, tap } from 'rxjs/operators';
                             all_day: form.value.all_day,
                             zone_id: form.value?.resources?.length
                                 ? form.value?.resources[0]?.level?.parent_id
-                                : ''
+                                : '',
                         }"
                         formControlName="assets"
                     ></asset-list-field>
@@ -325,7 +325,7 @@ export class EventBookModalComponent {
     public code_filter = new BehaviorSubject('');
 
     public readonly has_catering = this._catering.available_menu.pipe(
-        map((l) => l.length > 0)
+        map((l) => l.length > 0),
     );
 
     public readonly has_codes = this._catering.charge_codes.pipe(
@@ -335,7 +335,7 @@ export class EventBookModalComponent {
                 this.form.get('catering_charge_code').setValidators([]);
                 this.form.updateValueAndValidity();
             }
-        })
+        }),
     );
 
     public readonly filtered_codes = combineLatest([
@@ -343,8 +343,8 @@ export class EventBookModalComponent {
         this._catering.charge_codes,
     ]).pipe(
         map(([s, l]) =>
-            l.filter((_) => _.toLowerCase().includes(s.toLowerCase()))
-        )
+            l.filter((_) => _.toLowerCase().includes(s.toLowerCase())),
+        ),
     );
 
     public get form() {
@@ -389,7 +389,7 @@ export class EventBookModalComponent {
         let count = this.form.value.attendees?.length || 0;
         if (
             !this.form.value.attendees.find(
-                (_) => _.email.toLowerCase() === user.email.toLowerCase()
+                (_) => _.email.toLowerCase() === user.email.toLowerCase(),
             )
         ) {
             count += 1;
@@ -402,7 +402,7 @@ export class EventBookModalComponent {
         private _event_form: EventFormService,
         private _settings: SettingsService,
         private _catering: CateringOrderStateService,
-        private _dialog_ref: MatDialogRef<EventBookModalComponent>
+        private _dialog_ref: MatDialogRef<EventBookModalComponent>,
     ) {}
 
     public async ngOnInit() {

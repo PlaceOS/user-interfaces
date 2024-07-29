@@ -22,6 +22,8 @@ export interface EmailTemplate {
     subject: string;
     zone_id: string;
     category: 'internal' | 'external';
+    reply_to?: string;
+    from?: string;
     trigger: string;
     html: string;
     text: string;
@@ -73,21 +75,21 @@ export class EmailTemplatesStateService {
                                             name: field.name,
                                             description:
                                                 field.description || '',
-                                        })
+                                        }),
                                     ),
-                                } as EmailTemplateDefinition)
+                                }) as EmailTemplateDefinition,
                         );
-                    })
+                    }),
                 )
-                .pipe(catchError(() => of([] as EmailTemplateDefinition[])))
+                .pipe(catchError(() => of([] as EmailTemplateDefinition[]))),
         ),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     private _processTemplates(metadata: PlaceMetadata, zone_id: string) {
         const data = metadata.details;
         return ((data instanceof Array ? data : '') || []).map(
-            (template) => ({ ...template, zone_id } as EmailTemplate)
+            (template) => ({ ...template, zone_id }) as EmailTemplate,
         );
     }
 
@@ -101,24 +103,26 @@ export class EmailTemplatesStateService {
             forkJoin([
                 showMetadata(this._org.organisation.id, 'email_templates').pipe(
                     map((_) =>
-                        this._processTemplates(_, this._org.organisation.id)
+                        this._processTemplates(_, this._org.organisation.id),
                     ),
-                    catchError(() => of([] as EmailTemplate[]))
+                    catchError(() => of([] as EmailTemplate[])),
                 ),
                 showMetadata(bld.id, 'email_templates').pipe(
                     map((_) => this._processTemplates(_, bld.id)),
-                    catchError(() => of([] as EmailTemplate[]))
+                    catchError(() => of([] as EmailTemplate[])),
                 ),
-                showMetadata(region.id, 'email_templates').pipe(
-                    map((_) => this._processTemplates(_, region.id)),
-                    catchError(() => of([] as EmailTemplate[]))
-                ),
-            ])
+                region
+                    ? showMetadata(region.id, 'email_templates').pipe(
+                          map((_) => this._processTemplates(_, region.id)),
+                          catchError(() => of([] as EmailTemplate[])),
+                      )
+                    : of([] as EmailTemplate[]),
+            ]),
         ),
         map(([org_templates, bld_templates, region_templates]) =>
-            org_templates.concat(bld_templates).concat(region_templates)
+            org_templates.concat(bld_templates).concat(region_templates),
         ),
-        shareReplay(1)
+        shareReplay(1),
     );
     public readonly filters = this._filters.asObservable();
 
@@ -129,14 +133,14 @@ export class EmailTemplatesStateService {
         map(([templates, filters]) => {
             const category = filters.category || '';
             return templates.filter(
-                (_) => _.category === category || category === ''
+                (_) => _.category === category || category === '',
             );
-        })
+        }),
     );
 
     constructor(
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public async loadTemplate(id: string) {
@@ -153,7 +157,7 @@ export class EmailTemplatesStateService {
         }
         template.updated_at = getUnixTime(Date.now());
         const zone_templates = template_list.filter(
-            (_) => _.zone_id === template.zone_id
+            (_) => _.zone_id === template.zone_id,
         );
         const template_value = { ...template };
         delete template_value.zone_id;
@@ -173,10 +177,10 @@ export class EmailTemplatesStateService {
     public async removeTemplate(template: EmailTemplate) {
         const template_list = await this.templates.pipe(take(1)).toPromise();
         const zone_templates = template_list.filter(
-            (_) => _.zone_id === template.zone_id
+            (_) => _.zone_id === template.zone_id,
         );
         const new_template_list = zone_templates.filter(
-            (_) => _.id !== template.id
+            (_) => _.id !== template.id,
         );
         await updateMetadata(template.zone_id, {
             name: `email_templates`,

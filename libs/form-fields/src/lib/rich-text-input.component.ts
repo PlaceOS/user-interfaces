@@ -10,17 +10,25 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AsyncHandler, uploadFile } from '@placeos/common';
-import { link } from 'fs';
 import Quill from 'quill';
 
 @Component({
     selector: 'rich-text-input',
     template: `
-        <div #container class="h-full">
+        <div #container class="absolute inset-0">
             <div #editor class="h-full"></div>
         </div>
     `,
-    styles: [``],
+    styles: [
+        `
+            :host {
+                display: block;
+                position: relative;
+                min-height: 8rem;
+                margin-bottom: 4rem;
+            }
+        `,
+    ],
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -45,10 +53,10 @@ export class RichTextInputComponent
     private _updateFn = () => this.setValue(this._editor.root.innerHTML);
 
     private _onChange: (
-        _: string
+        _: string,
     ) => void; /** Form control on change handler */
     private _onTouch: (
-        _: string
+        _: string,
     ) => void; /** Form control on touched handler */
 
     public readonly registerOnChange = (fn: (_: string) => void) =>
@@ -103,13 +111,9 @@ export class RichTextInputComponent
             [{ font: [] }],
             [{ header: [1, 2, 3, 4, 5, 6, false] }],
             ['bold', 'italic', 'underline'], // toggled buttons
-            ['blockquote', 'code-block'],
 
             [{ list: 'ordered' }, { list: 'bullet' }, { list: 'check' }],
-            [{ indent: '-1' }, { indent: '+1' }], // outdent/indent
             [{ align: [] }],
-
-            ['clean'], // remove formatting button
         ];
         if (this.images_allowed) {
             toolbarOptions.push(['image', 'link']);
@@ -136,7 +140,7 @@ export class RichTextInputComponent
         });
         this._editor.on('text-change', this._updateFn);
         this.subscription('changes', () =>
-            this._editor.off('text-change', this._updateFn)
+            this._editor.off('text-change', this._updateFn),
         );
     }
 
