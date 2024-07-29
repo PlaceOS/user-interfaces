@@ -30,6 +30,10 @@ import { CustomReportComponent } from './custom-report.component';
 import { NewReportsComponent } from './new-reports.component';
 import { ReportSpacesOverallListComponent } from './spaces/report-spaces-overall-list.component';
 import { AssetsReportComponent } from './assets/assets-report.component';
+import { AssetReportOverallComponent } from './assets/asset-report-overall.component';
+import { AssetReportDailyUsageComponent } from './assets/asset-report-daily-usage.component';
+import { AssetReportProductUsageComponent } from './assets/asset-report-product-usage.component';
+import { AssetReportUsersComponent } from './assets/asset-report-users.component';
 
 const children: Route[] = [
     { path: '', component: ReportsOptionsComponent },
@@ -74,6 +78,10 @@ const ROUTES: Route[] = [
         CateringReportItemsComponent,
 
         AssetsReportComponent,
+        AssetReportOverallComponent,
+        AssetReportDailyUsageComponent,
+        AssetReportProductUsageComponent,
+        AssetReportUsersComponent,
 
         ContactTracingReportComponent,
         ContactTracingOptionsComponent,

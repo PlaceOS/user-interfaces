@@ -1,9 +1,23 @@
 import { Injectable } from '@angular/core';
-import { queryAssetGroupsExtended } from '@placeos/assets';
-import { queryBookings } from '@placeos/bookings';
-import { downloadFile, jsonToCsv, SettingsService } from '@placeos/common';
+import { AssetGroup, queryAssetGroupsExtended } from '@placeos/assets';
+import { Booking, queryBookings } from '@placeos/bookings';
+import {
+    downloadFile,
+    flatten,
+    jsonToCsv,
+    SettingsService,
+    unique,
+} from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
-import { endOfDay, format, getUnixTime, isSameDay, startOfDay } from 'date-fns';
+import {
+    addDays,
+    endOfDay,
+    format,
+    getUnixTime,
+    isBefore,
+    isSameDay,
+    startOfDay,
+} from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import {
     debounceTime,
@@ -47,7 +61,7 @@ export class AssetsReportService {
             });
         }),
         tap(() => this._loading.next(false)),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly bookings$ = this._generate.pipe(
@@ -57,7 +71,7 @@ export class AssetsReportService {
             this._loading.next(true);
             return queryBookings({
                 period_start: getUnixTime(startOfDay(options.start)),
-                period_end: getUnixTime(endOfDay(options.end)),
+                period_end: getUnixTime(endOfDay(options.end || options.start)),
                 type: 'asset-request',
                 zones:
                     (options.zones || [])?.join(',') ||
@@ -68,21 +82,75 @@ export class AssetsReportService {
             });
         }),
         tap(() => this._loading.next(false)),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly stats$ = combineLatest([
         this.products$,
         this.bookings$,
     ]).pipe(
-        map(([products, bookings]) => {
-            return {} as any;
-        })
+        map(([products, bookings]) =>
+            this._processBookingStats(bookings, products),
+        ),
     );
+
+    public readonly daily_stats$ = combineLatest([
+        this._options,
+        this.products$,
+        this.bookings$,
+    ]).pipe(
+        map(([options, products, bookings]) => {
+            const stats = {};
+            let count = 0;
+            let start = startOfDay(options.start);
+            const end = endOfDay(options.end);
+            while (isBefore(start, end) && count < 365) {
+                const date = format(start, 'yyyy-MM-dd');
+                stats[date] = this._processBookingStats(
+                    bookings.filter((_) => isSameDay(_.date, start)),
+                    products,
+                );
+                start = addDays(start, 1);
+                count++;
+            }
+        }),
+    );
+
+    private _processBookingStats(
+        booking_list: Booking[],
+        products: AssetGroup[],
+    ) {
+        const booked_assets = flatten(booking_list.map((_) => _.asset_ids));
+        const unique_events = unique(
+            booking_list.map((_) => _.linked_event),
+            'id',
+        );
+        return {
+            events: unique_events,
+            bookings: booking_list,
+            products,
+            booking_count: booking_list.length,
+            event_count: unique_events.length,
+            total_booked_items: booking_list.reduce(
+                (c, i) => c + i.asset_ids.length,
+                0,
+            ),
+            unique_items: products.filter((p) =>
+                p.assets.find((_) => booked_assets.includes(_)),
+            ).length,
+            products_booked: products
+                .filter((p) => p.assets.find((_) => booked_assets.includes(_)))
+                .map((p) => ({
+                    name: p.name,
+                    count: p.assets.filter((_) => booked_assets.includes(_))
+                        .length,
+                })),
+        } as any;
+    }
 
     constructor(
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public generateReport() {
@@ -98,7 +166,7 @@ export class AssetsReportService {
             ? format(options.start, 'yyyy-MM-dd')
             : `${format(options.start, 'yyyy-MM-dd')}-${format(
                   options.end,
-                  'yyyy-MM-dd'
+                  'yyyy-MM-dd',
               )}`;
         downloadFile(
             `report+assets+${date}.tsv`,
@@ -110,8 +178,8 @@ export class AssetsReportService {
                     delete details.extension_data;
                     return details;
                 }),
-                '\t'
-            )
+                '\t',
+            ),
         );
     }
 

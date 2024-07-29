@@ -28,6 +28,10 @@ import { ActivatedRoute } from '@angular/router';
             </div>
             <ng-container *ngIf="!(loading | async); else load_state">
                 <ng-container *ngIf="total_count | async; else empty_state">
+                    <asset-report-overall></asset-report-overall>
+                    <asset-report-daily-usage></asset-report-daily-usage>
+                    <asset-report-product-usage></asset-report-product-usage>
+                    <asset-report-users></asset-report-users>
                 </ng-container>
             </ng-container>
         </div>
@@ -60,7 +64,7 @@ import { ActivatedRoute } from '@angular/router';
 export class AssetsReportComponent extends AsyncHandler {
     public printing = false;
     public readonly total_count = this._state.stats$.pipe(
-        map((i) => i.count || 0)
+        map((i) => i.count || 0),
     );
     public readonly loading = this._state.loading$;
 
@@ -74,7 +78,7 @@ export class AssetsReportComponent extends AsyncHandler {
     constructor(
         private _state: AssetsReportService,
         private _settings: SettingsService,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
     ) {
         super();
     }
@@ -93,7 +97,7 @@ export class AssetsReportComponent extends AsyncHandler {
                     const zones = params.get('zones').split(',');
                     if (zones.length) this._state.setOptions({ zones });
                 }
-            })
+            }),
         );
     }
 }

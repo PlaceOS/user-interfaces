@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { AssetsReportService } from './assets-report.service';
+import { map } from 'rxjs/operators';
+import { differenceInBusinessDays, endOfDay, startOfDay } from 'date-fns';
 
 @Component({
     selector: 'asset-report-overall',
@@ -24,5 +26,22 @@ import { AssetsReportService } from './assets-report.service';
     styles: [``],
 })
 export class AssetReportOverallComponent {
+    public readonly total_count = this._state.stats$.pipe(map((i) => i.count));
+    public readonly business_days = this._state.options$.pipe(
+        map(
+            ({ start, end }) =>
+                differenceInBusinessDays(
+                    startOfDay(end || Date.now()),
+                    endOfDay(start || Date.now()),
+                ) || 1,
+        ),
+    );
+    public readonly avg_length = this._state.stats$.pipe(
+        map(
+            ({ events }) =>
+                events.reduce((c, i) => c + i.duration, 0) / events.length,
+        ),
+    );
+
     constructor(private _state: AssetsReportService) {}
 }
