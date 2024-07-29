@@ -197,14 +197,14 @@ export class Booking {
             .filter((request) => request.deliver_at < this.date_end)
             .map((request) => {
                 const booking = list.find(
-                    (_: any) => _.extension_data.request_id === request.id
+                    (_: any) => _.extension_data.request_id === request.id,
                 );
                 if (booking) {
                     (request as any).state = booking.approved
                         ? 'approved'
                         : booking.rejected
-                        ? 'rejected'
-                        : 'pending';
+                          ? 'rejected'
+                          : 'pending';
                 }
                 return request;
             });
@@ -220,7 +220,6 @@ export class Booking {
         this.asset_name =
             data.asset_name ||
             data.extension_data?.asset_name ||
-            data.extension_data?.name ||
             data.description ||
             data.asset_id ||
             '';
@@ -231,13 +230,13 @@ export class Booking {
             getUnixTime(
                 roundToNearestMinutes(addMinutes(Date.now(), 5), {
                     nearestTo: 5,
-                })
+                }),
             );
         this.booking_end =
             Math.floor(data.date / 1000) + data.duration * 60 ||
             data.booking_end ||
             getUnixTime(
-                addMinutes(this.booking_start * 1000, data.duration || 60)
+                addMinutes(this.booking_start * 1000, data.duration || 60),
             );
         this.booking_type = data.booking_type || ' ';
         this.type = data.type || data.booking_type || 'booking';
@@ -247,8 +246,8 @@ export class Booking {
             Math.abs(
                 differenceInMinutes(
                     this.booking_start * 1000,
-                    this.booking_end * 1000
-                )
+                    this.booking_end * 1000,
+                ),
             ) ||
             60;
         this.date_end =
@@ -291,10 +290,10 @@ export class Booking {
             (this as any).date = startOfDay(this.date).getTime();
             (this as any).duration = Math.max(
                 24 * 60 - 1,
-                this.duration - ((this.duration % 24) * 60 === 0 ? 1 : 0)
+                this.duration - ((this.duration % 24) * 60 === 0 ? 1 : 0),
             );
             (this as any).date_end = endOfDay(
-                addMinutes(this.date, this.duration - 1).valueOf()
+                addMinutes(this.date, this.duration - 1).valueOf(),
             ).getTime();
         }
         this.checked_out_at = data.checked_out_at;
@@ -305,10 +304,10 @@ export class Booking {
             this.checked_out_at > 0
                 ? 'ended'
                 : this.rejected || this.deleted
-                ? 'declined'
-                : this.approved
-                ? 'approved'
-                : 'tentative';
+                  ? 'declined'
+                  : this.approved
+                    ? 'approved'
+                    : 'tentative';
         this.process_state = data.process_state || 'pending';
 
         this.recurrence_type = data.recurrence_type || 'none';
@@ -326,7 +325,7 @@ export class Booking {
         }
         this.extension_data.assets = (this.extension_data.assets || []).map(
             (i) =>
-                new AssetRequest({ ...i, event: this, date: this.date } as any)
+                new AssetRequest({ ...i, event: this, date: this.date } as any),
         );
         this.extension_data.tags = data.tags || [];
         if (this.extension_data.request) {
@@ -342,7 +341,7 @@ export class Booking {
         const data = { ...this };
         if (!this.id) delete data.id;
         data.extension_data.assets = data.extension_data.assets.map(
-            (i) => new AssetRequest({ ...i, event: null })
+            (i) => new AssetRequest({ ...i, event: null }),
         );
         if (data.extension_data.request) {
             data.extension_data.request = new AssetRequest({
