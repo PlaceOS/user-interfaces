@@ -251,7 +251,7 @@ import {
                     <div class="text-sm pb-4">
                         <span
                             event-details
-                            [innerHTML]="event.body | sanitize"
+                            [innerHTML]="body | sanitize"
                         ></span>
                         <span
                             *ngIf="!raw_description.trim()"
@@ -382,6 +382,24 @@ export class GroupEventDetailsModalComponent {
             !this.is_onsite ||
             this.event.extension_data.attendance_type === 'ANY'
         );
+    }
+
+    public get body() {
+        if (this.is_online) return this.event.body;
+        let body = this.event.body;
+        const remove_blocks = [
+            `<div style="margin-bottom:24px; overflow:hidden; white-space:nowrap">________________________________________________________________________________</div>`,
+            `<p>________________________________________________________________________________</p>`,
+        ];
+        for (const block of remove_blocks) {
+            const first = body.indexOf(block);
+            const last = body.lastIndexOf(block);
+            body = body.substring(0, first) + body.substring(last);
+        }
+        for (const block of remove_blocks) {
+            body = body.replace(block, '');
+        }
+        return body;
     }
 
     public get attendance() {
