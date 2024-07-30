@@ -469,18 +469,16 @@ export class GroupEventDetailsModalComponent {
         let user = this.guest_details;
         console.log('User:', user, this.is_interested);
         if (this.is_interested && user) {
-            await removeEventGuest(
-                this.event.id,
-                currentUser() as any,
-            ).toPromise();
+            await removeEventGuest(this.event.id, currentUser() as any, {
+                system_id: this.event.system?.id,
+            }).toPromise();
             (this.event as any).attendees = (this.event.attendees || []).filter(
                 (_: any) => _.email !== user.email,
             );
         } else {
-            user = await addEventGuest(
-                this.event.id,
-                currentUser() as any,
-            ).toPromise();
+            user = await addEventGuest(this.event.id, currentUser() as any, {
+                system_id: this.event.system?.id,
+            }).toPromise();
             (this.event as any).attendees = unique(
                 [...(this.event.attendees || []), user],
                 'email',
@@ -491,10 +489,9 @@ export class GroupEventDetailsModalComponent {
     public async toggleAttendance() {
         let user = this.guest_details;
         if (!user) {
-            user = await addEventGuest(
-                this.event.id,
-                currentUser() as any,
-            ).toPromise();
+            user = await addEventGuest(this.event.id, currentUser() as any, {
+                system_id: this.event.system?.id,
+            }).toPromise();
             (this.event as any).attendees = unique(
                 [...(this.event.attendees || []), user],
                 'email',
@@ -502,11 +499,9 @@ export class GroupEventDetailsModalComponent {
         }
         user = { ...currentUser(), ...(user || {}) };
         if (!user.email) return;
-        await checkinEventGuest(
-            this.event.id,
-            user.email,
-            !this.is_going,
-        ).toPromise();
+        await checkinEventGuest(this.event.id, user.email, !this.is_going, {
+            system_id: this.event.system?.id,
+        }).toPromise();
         const guest = this.event.attendees.find((_) => _.email === user.email);
         if (!guest) return;
         (guest as any).checked_in = !this.is_going;
