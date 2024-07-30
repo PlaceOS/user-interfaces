@@ -249,7 +249,10 @@ import {
                     </button>
                     <h3 class="font-medium pt-4">About this event</h3>
                     <div class="text-sm pb-4">
-                        <span [innerHTML]="event.body | sanitize"></span>
+                        <span
+                            event-details
+                            [innerHTML]="event.body | sanitize"
+                        ></span>
                         <span
                             *ngIf="!raw_description.trim()"
                             class="opacity-30"
