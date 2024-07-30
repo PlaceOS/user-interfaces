@@ -289,6 +289,8 @@ export class CalendarEvent {
             (linked_assets.length
                 ? linked_assets
                 : this.extension_data.assets) || [];
+        this.extension_data.images =
+            this.extension_data.images || data.images || [];
         this.extension_data.assets = asset_requests.map(
             (i) => new AssetRequest({ ...i, event: simple_event } as any),
         );
