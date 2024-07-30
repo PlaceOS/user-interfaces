@@ -287,13 +287,20 @@ import {
                                     >
                                         Room to be confirmed
                                     </div>
-                                    <div *ngIf="is_online" class="opacity-30">
+                                    <a
+                                        *ngIf="is_online"
+                                        class="opacity-30"
+                                        [class.underline]="event.meeting_url"
+                                        [href]="event.meeting_url"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
                                         {{
                                             is_onsite
                                                 ? 'Can be attended online'
                                                 : 'Remote Event'
                                         }}
-                                    </div>
+                                    </a>
                                 </div>
                                 <div class="opacity-30 text-sm">
                                     <span *ngIf="building && level">
