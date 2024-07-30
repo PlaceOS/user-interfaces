@@ -9,13 +9,11 @@ import {
     notifySuccess,
     openConfirmModal,
     randomInt,
-    unique,
 } from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { updateMetadata } from '@placeos/ts-client';
 import { generateQRCode } from 'libs/common/src/lib/qr-code';
-import { combineLatest } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { take } from 'rxjs/operators';
 import { DesksStateService } from './desks-state.service';
 import { Clipboard } from '@angular/cdk/clipboard';
 
@@ -30,39 +28,40 @@ const QR_CODES = {};
             (window:dragend)="handleDrag('end', $event)"
         >
             <simple-table
-                class="min-w-[60rem] w-full block text-sm"
+                class="min-w-[72rem] w-full block text-sm"
                 [filter]="(filters | async)?.search"
                 [data]="desks"
                 [columns]="[
                     {
-                        key: 'map_id',
-                        name: 'Desk',
+                        key: 'id',
+                        name: 'Desk ID',
                         content: name_template,
-                        size: '12rem'
+                        size: '10rem',
                     },
+                    { key: 'name', name: 'Desk Name' },
                     {
                         key: 'groups',
                         name: 'Groups',
-                        content: item_list_template
+                        content: item_list_template,
                     },
                     {
                         key: 'features',
                         name: 'Features',
-                        content: item_list_template
+                        content: item_list_template,
                     },
                     {
                         key: 'bookable',
                         name: 'Bookable',
                         content: bool_template,
-                        size: '5.5rem'
+                        size: '5.5rem',
                     },
                     {
                         key: 'actions',
                         name: ' ',
                         content: action_template,
                         size: '8.5rem',
-                        sortable: false
-                    }
+                        sortable: false,
+                    },
                 ]"
                 [sortable]="true"
                 [empty_message]="
@@ -76,12 +75,12 @@ const QR_CODES = {};
                     class="flex flex-col px-4 py-2 text-left leading-tight"
                     (click)="copyToClipboard(row.map_id || row.id)"
                 >
-                    <div>{{ row.name || row.map_id || row.id }}</div>
+                    <div>{{ row.id || row.map_id }}</div>
                     <div
-                        *ngIf="row.name"
+                        *ngIf="row.id && row.map_id !== row.id"
                         class="text-[0.625rem] opacity-30 font-mono"
                     >
-                        {{ row.map_id || row.id }}
+                        {{ row.map_id }}
                     </div>
                 </button>
             </ng-template>
@@ -203,7 +202,7 @@ export class DesksManageComponent extends AsyncHandler {
         private _dialog: MatDialog,
         private _settings: SettingsService,
         private _element: ElementRef,
-        private _clipboard: Clipboard
+        private _clipboard: Clipboard,
     ) {
         super();
     }
@@ -220,7 +219,7 @@ export class DesksManageComponent extends AsyncHandler {
                 content: `Remove desk ${desk.name}?`,
                 icon: { content: 'delete' },
             },
-            this._dialog
+            this._dialog,
         );
         if (resp.reason !== 'done') return;
         resp.close();
@@ -278,8 +277,8 @@ export class DesksManageComponent extends AsyncHandler {
                         new Desk({
                             ..._,
                             id: _.id || `desk-${randomInt(999_999)}`,
-                        })
-                )
+                        }),
+                ),
             );
         } catch (e) {
             console.error(e);
