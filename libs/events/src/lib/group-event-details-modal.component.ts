@@ -276,36 +276,20 @@ import {
                                     [styles]="styles"
                                 ></interactive-map>
                             </button>
-                            <div class=" p-4 space-y-2">
-                                <div>
-                                    <div *ngIf="is_onsite && has_space">
-                                        {{
-                                            (system_id | space | async)
-                                                ?.display_name
-                                        }}
-                                    </div>
-                                    <div
-                                        *ngIf="is_onsite && !has_space"
-                                        class="opacity-30"
-                                    >
-                                        Room to be confirmed
-                                    </div>
-                                    <a
-                                        *ngIf="is_online"
-                                        class="opacity-30"
-                                        [class.underline]="event.meeting_url"
-                                        [href]="event.meeting_url"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        {{
-                                            is_onsite
-                                                ? 'Can be attended online'
-                                                : 'Remote Event'
-                                        }}
-                                    </a>
+                            <div class="p-4 space-y-2">
+                                <div *ngIf="is_onsite && has_space">
+                                    {{
+                                        (system_id | space | async)
+                                            ?.display_name
+                                    }}
                                 </div>
-                                <div class="opacity-30 text-sm">
+                                <div
+                                    *ngIf="is_onsite && !has_space"
+                                    class="opacity-30"
+                                >
+                                    Room to be confirmed
+                                </div>
+                                <div class="opacity-30 text-sm !mt-0">
                                     <span *ngIf="building && level">
                                         {{
                                             building.display_name ||
@@ -320,6 +304,20 @@ import {
                                         No location set for this event
                                     </span>
                                 </div>
+                                <a
+                                    *ngIf="is_online"
+                                    class="opacity-30 mt-4"
+                                    [class.underline]="event.meeting_url"
+                                    [href]="event.meeting_url"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    {{
+                                        is_onsite
+                                            ? 'Can be attended online'
+                                            : 'Remote Event'
+                                    }}
+                                </a>
                             </div>
                         </div>
                     </div>
