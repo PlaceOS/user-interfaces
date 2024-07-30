@@ -333,6 +333,7 @@ import {
                 class="absolute left-1/2 -translate-x-1/2 w-[24rem] inset-y-8 rounded shadow overflow-hidden"
             >
                 <attendee-list
+                    [show_host]="false"
                     [list]="event.attendees"
                     [host]="event.user_email"
                     (click)="show_attendees = false"
