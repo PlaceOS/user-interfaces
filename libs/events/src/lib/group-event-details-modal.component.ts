@@ -468,7 +468,7 @@ export class GroupEventDetailsModalComponent {
 
     public removeHtmlTags(html: string) {
         const doc = new DOMParser().parseFromString(html, 'text/html');
-        return doc.body.textContent || '';
+        return (doc.body.textContent || '').trim();
     }
     public viewLocation() {
         if (!this.space?.map_id) {
