@@ -61,10 +61,10 @@ export class ExploreZonesService extends AsyncHandler {
             let system_id: any = this._org.binding('area_management');
             if (!system_id) return;
             const bind_areas = getModule(system_id, 'AreaManagement').binding(
-                `${lvl.id}:areas`
+                `${lvl.id}:areas`,
             );
             const bind_zone = getModule(system_id, 'AreaManagement').binding(
-                `${lvl.id}`
+                `${lvl.id}`,
             );
             const zones = combineLatest([
                 bind_areas.listen(),
@@ -74,21 +74,21 @@ export class ExploreZonesService extends AsyncHandler {
                 map(([a, z]) => [
                     ...(a?.value || []),
                     ...(z?.value || []).filter((_) => _.location === 'area'),
-                ])
+                ]),
             );
             this.subscription(
                 `zones-status`,
-                zones.subscribe((l) => this.parseData(l))
+                zones.subscribe((l) => this.parseData(l)),
             );
             this.subscription('binding', bind_areas.bind());
             this.subscription('zone-binding', bind_zone.bind());
-        })
+        }),
     );
 
     constructor(
         private _state: ExploreStateService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
         this.init();
@@ -98,8 +98,8 @@ export class ExploreZonesService extends AsyncHandler {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         const zone_metadata = await Promise.all(
             this._org.levels.map((bld) =>
-                showMetadata(bld.id, 'map_regions').toPromise()
-            )
+                showMetadata(bld.id, 'map_regions').toPromise(),
+            ),
         );
         this._area_list = [];
         for (const zone of zone_metadata) {
@@ -147,6 +147,7 @@ export class ExploreZonesService extends AsyncHandler {
     }
 
     public parseData(value: ZoneData[] = []) {
+        console.log('Zones:', value);
         const labels = [];
         const features = [];
 
@@ -164,10 +165,10 @@ export class ExploreZonesService extends AsyncHandler {
             this._statuses[id] = zone.at_location
                 ? 'busy'
                 : filled < 0.4
-                ? 'free'
-                : filled < 0.75
-                ? 'pending'
-                : 'busy';
+                  ? 'free'
+                  : filled < 0.75
+                    ? 'pending'
+                    : 'busy';
             if (!this._location[id]) continue;
             let content = '';
             if (zone.count) {
@@ -258,7 +259,7 @@ function getCenterPoint(points: [number, number][]) {
             x_max: -100,
             y_min: 100,
             y_max: -100,
-        }
+        },
     );
     return {
         x: diff.x_min + (diff.x_max - diff.x_min) / 2,

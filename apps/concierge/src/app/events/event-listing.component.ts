@@ -151,6 +151,7 @@ import { CalendarEvent } from '@placeos/events';
                     <attendee-list
                         [list]="item.attendees"
                         [host]="item.user_email || item.host"
+                        [show_host]="false"
                         [hide_close]="true"
                         [custom_title]="'Interested'"
                     ></attendee-list>
@@ -173,6 +174,7 @@ import { CalendarEvent } from '@placeos/events';
                     class="relative w-[20rem] h-[28rem] overflow-auto bg-white rounded shadow"
                 >
                     <attendee-list
+                        [show_host]="false"
                         [list]="checkedInList(item.attendees)"
                         [host]="item.user_email || item.host"
                         [hide_close]="true"

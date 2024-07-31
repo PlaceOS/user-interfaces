@@ -249,7 +249,10 @@ import {
                     </button>
                     <h3 class="font-medium pt-4">About this event</h3>
                     <div class="text-sm pb-4">
-                        <span [innerHTML]="event.body | sanitize"></span>
+                        <span
+                            event-details
+                            [innerHTML]="body | sanitize"
+                        ></span>
                         <span
                             *ngIf="!raw_description.trim()"
                             class="opacity-30"
@@ -273,29 +276,20 @@ import {
                                     [styles]="styles"
                                 ></interactive-map>
                             </button>
-                            <div class=" p-4 space-y-2">
-                                <div>
-                                    <div *ngIf="is_onsite && has_space">
-                                        {{
-                                            (system_id | space | async)
-                                                ?.display_name
-                                        }}
-                                    </div>
-                                    <div
-                                        *ngIf="is_onsite && !has_space"
-                                        class="opacity-30"
-                                    >
-                                        Room to be confirmed
-                                    </div>
-                                    <div *ngIf="is_online" class="opacity-30">
-                                        {{
-                                            is_onsite
-                                                ? 'Can be attended online'
-                                                : 'Remote Event'
-                                        }}
-                                    </div>
+                            <div class="p-4 space-y-2">
+                                <div *ngIf="is_onsite && has_space">
+                                    {{
+                                        (system_id | space | async)
+                                            ?.display_name
+                                    }}
                                 </div>
-                                <div class="opacity-30 text-sm">
+                                <div
+                                    *ngIf="is_onsite && !has_space"
+                                    class="opacity-30"
+                                >
+                                    Room to be confirmed
+                                </div>
+                                <div class="opacity-30 text-sm !mt-0">
                                     <span *ngIf="building && level">
                                         {{
                                             building.display_name ||
@@ -310,6 +304,20 @@ import {
                                         No location set for this event
                                     </span>
                                 </div>
+                                <a
+                                    *ngIf="is_online"
+                                    class="opacity-30 mt-4"
+                                    [class.underline]="event.meeting_url"
+                                    [href]="event.meeting_url"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    {{
+                                        is_onsite
+                                            ? 'Can be attended online'
+                                            : 'Remote Event'
+                                    }}
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -325,6 +333,7 @@ import {
                 class="absolute left-1/2 -translate-x-1/2 w-[24rem] inset-y-8 rounded shadow overflow-hidden"
             >
                 <attendee-list
+                    [show_host]="false"
                     [list]="event.attendees"
                     [host]="event.user_email"
                     (click)="show_attendees = false"
@@ -372,6 +381,24 @@ export class GroupEventDetailsModalComponent {
             !this.is_onsite ||
             this.event.extension_data.attendance_type === 'ANY'
         );
+    }
+
+    public get body() {
+        if (this.is_online) return this.event.body;
+        let body = this.event.body;
+        const remove_blocks = [
+            `<div style="margin-bottom:24px; overflow:hidden; white-space:nowrap">________________________________________________________________________________</div>`,
+            `<p>________________________________________________________________________________</p>`,
+        ];
+        for (const block of remove_blocks) {
+            const first = body.indexOf(block);
+            const last = body.lastIndexOf(block);
+            body = body.substring(0, first) + body.substring(last);
+        }
+        for (const block of remove_blocks) {
+            body = body.replace(block, '');
+        }
+        return body;
     }
 
     public get attendance() {
@@ -441,7 +468,7 @@ export class GroupEventDetailsModalComponent {
 
     public removeHtmlTags(html: string) {
         const doc = new DOMParser().parseFromString(html, 'text/html');
-        return doc.body.textContent || '';
+        return (doc.body.textContent || '').trim();
     }
     public viewLocation() {
         if (!this.space?.map_id) {
@@ -462,18 +489,16 @@ export class GroupEventDetailsModalComponent {
         let user = this.guest_details;
         console.log('User:', user, this.is_interested);
         if (this.is_interested && user) {
-            await removeEventGuest(
-                this.event.id,
-                currentUser() as any,
-            ).toPromise();
+            await removeEventGuest(this.event.id, currentUser() as any, {
+                system_id: this.event.system?.id,
+            }).toPromise();
             (this.event as any).attendees = (this.event.attendees || []).filter(
                 (_: any) => _.email !== user.email,
             );
         } else {
-            user = await addEventGuest(
-                this.event.id,
-                currentUser() as any,
-            ).toPromise();
+            user = await addEventGuest(this.event.id, currentUser() as any, {
+                system_id: this.event.system?.id,
+            }).toPromise();
             (this.event as any).attendees = unique(
                 [...(this.event.attendees || []), user],
                 'email',
@@ -484,10 +509,9 @@ export class GroupEventDetailsModalComponent {
     public async toggleAttendance() {
         let user = this.guest_details;
         if (!user) {
-            user = await addEventGuest(
-                this.event.id,
-                currentUser() as any,
-            ).toPromise();
+            user = await addEventGuest(this.event.id, currentUser() as any, {
+                system_id: this.event.system?.id,
+            }).toPromise();
             (this.event as any).attendees = unique(
                 [...(this.event.attendees || []), user],
                 'email',
@@ -495,11 +519,9 @@ export class GroupEventDetailsModalComponent {
         }
         user = { ...currentUser(), ...(user || {}) };
         if (!user.email) return;
-        await checkinEventGuest(
-            this.event.id,
-            user.email,
-            !this.is_going,
-        ).toPromise();
+        await checkinEventGuest(this.event.id, user.email, !this.is_going, {
+            system_id: this.event.system?.id,
+        }).toPromise();
         const guest = this.event.attendees.find((_) => _.email === user.email);
         if (!guest) return;
         (guest as any).checked_in = !this.is_going;
