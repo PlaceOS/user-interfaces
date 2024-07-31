@@ -63,7 +63,7 @@ export class ExploreParkingService extends AsyncHandler {
 
     /** List of available parking levels for the active building */
     public readonly levels = this._org.active_levels.pipe(
-        map((l) => l.filter((_) => _.tags.includes('parking')))
+        map((l) => l.filter((_) => _.tags.includes('parking'))),
     );
 
     /** List of current bookings for the current building */
@@ -78,16 +78,16 @@ export class ExploreParkingService extends AsyncHandler {
                 ? of([])
                 : queryBookings({
                       period_start: getUnixTime(
-                          startOfMinute(_.date || Date.now())
+                          startOfMinute(_.date || Date.now()),
                       ),
                       period_end: getUnixTime(
-                          endOfMinute(_.date || Date.now())
+                          endOfMinute(_.date || Date.now()),
                       ),
                       type: 'parking',
                       zones: bld?.id,
-                  })
+                  }),
         ),
-        shareReplay(1)
+        shareReplay(1),
     );
     /** Any event that the selected user has for the current date */
     public readonly user_events = combineLatest([this._options]).pipe(
@@ -97,9 +97,9 @@ export class ExploreParkingService extends AsyncHandler {
                 period_end: getUnixTime(endOfDay(_.date || Date.now())),
                 type: 'parking',
                 email: _?.user || currentUser()?.email,
-            })
+            }),
         ),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     /** List of parking spaces for the active building */
@@ -110,22 +110,22 @@ export class ExploreParkingService extends AsyncHandler {
                     showMetadata(l.id, 'parking-spaces').pipe(
                         map((d) =>
                             (d.details instanceof Array ? d.details : []).map(
-                                (s) => ({ ...s, zone_id: l.id })
-                            )
-                        )
-                    )
-                )
-            )
+                                (s) => ({ ...s, zone_id: l.id }),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
         ),
         map((_) => flatten(_)),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly active_spaces = combineLatest([
         this.spaces,
         this._state.level,
     ]).pipe(
-        map(([spaces, level]) => spaces.filter((_) => _.zone_id === level.id))
+        map(([spaces, level]) => spaces.filter((_) => _.zone_id === level.id)),
     );
 
     private _users: Record<string, string> = {};
@@ -144,15 +144,19 @@ export class ExploreParkingService extends AsyncHandler {
                     event?.user_email || _.assigned_to || ''
                 }`.toLowerCase();
                 const user = users.find(
-                    (u) => u.email.toLowerCase() === assigned.toLowerCase()
+                    (u) => u.email.toLowerCase() === assigned.toLowerCase(),
                 );
                 this._users[_.id] = assigned;
-                this._plate_numbers[_.id] = user?.plate_number || undefined;
+                this._plate_numbers[_.id] =
+                    user?.plate_number ||
+                    event?.extension_data?.plate_number ||
+                    undefined;
                 return !assigned;
             });
+            console.log('Users:', this._users, this._plate_numbers, events);
             this._updateParkingSpaces(spaces, available);
             return available;
-        })
+        }),
     );
 
     constructor(
@@ -161,7 +165,7 @@ export class ExploreParkingService extends AsyncHandler {
         private _settings: SettingsService,
         private _bookings: BookingFormService,
         private _parking: ParkingService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {
         super();
         this.subscription('spaces', this.available_spaces.subscribe());
@@ -187,7 +191,7 @@ export class ExploreParkingService extends AsyncHandler {
 
     private async _updateParkingSpaces(
         spaces: ParkingSpace[],
-        available: ParkingSpace[]
+        available: ParkingSpace[],
     ) {
         const styles = {};
         const features = [];
@@ -232,26 +236,26 @@ export class ExploreParkingService extends AsyncHandler {
                     return notifyError(
                         `Your user account has been denied parking access to ${
                             space.zone?.display_name || space.zone?.name
-                        }.`
+                        }.`,
                     );
                 }
                 if (assigned_space) {
                     return notifyError(
                         `You are already assigned to parking space "${
                             space.name || space.id
-                        }".`
+                        }".`,
                     );
                 }
                 if (booked_space?.find((_) => _.id === space.id)) {
                     return notifyError(
-                        `You already have a parking space booked for the selected time.`
+                        `You already have a parking space booked for the selected time.`,
                     );
                 }
                 if (status !== 'free') {
                     return notifyError(
                         `${
                             space.name || 'Parking Space'
-                        } is unavailable at this time.`
+                        } is unavailable at this time.`,
                     );
                 }
                 if (
@@ -259,7 +263,7 @@ export class ExploreParkingService extends AsyncHandler {
                     !space.groups.find((_) => currentUser().groups.includes(_))
                 ) {
                     return notifyError(
-                        `You are not allowed to book ${space.name}.`
+                        `You are not allowed to book ${space.name}.`,
                     );
                 }
                 this._bookings.newForm();
@@ -276,7 +280,7 @@ export class ExploreParkingService extends AsyncHandler {
                     this._bookings.form.value.date,
                     this._bookings.form.value.duration,
                     this._options.getValue()?.custom ?? false,
-                    space as any
+                    space as any,
                 );
                 user = user || options.host || currentUser();
                 const user_email = user?.email;
@@ -301,14 +305,14 @@ export class ExploreParkingService extends AsyncHandler {
                     notifyError(
                         `Failed to book parking space ${
                             space.name || space.id
-                        }. ${e.message || e.error || e}`
+                        }. ${e.message || e.error || e}`,
                     );
                     throw e;
                 });
                 notifySuccess(
                     `Successfully booked parking space ${
                         space.name || space.id
-                    }`
+                    }`,
                 );
             };
             actions.push({
@@ -320,7 +324,7 @@ export class ExploreParkingService extends AsyncHandler {
         }
         this._state.setActions(
             'parking',
-            options.enable_booking ? actions : []
+            options.enable_booking ? actions : [],
         );
         this._state.setStyles('parking', styles);
         this._state.setFeatures('parking', features);
@@ -330,15 +334,15 @@ export class ExploreParkingService extends AsyncHandler {
         date: number,
         duration: number,
         host: boolean = false,
-        resource: any = null
+        resource: any = null,
     ) {
         let user = null;
         if (!!this._settings.get('app.parking.allow_time_changes')) {
             const until = endOfDay(
                 addDays(
                     Date.now(),
-                    this._settings.get('app.parking.available_period') || 90
-                )
+                    this._settings.get('app.parking.available_period') || 90,
+                ),
             );
             const ref = this._dialog.open(SetDatetimeModalComponent, {
                 data: { date, duration, until, host, resource },
