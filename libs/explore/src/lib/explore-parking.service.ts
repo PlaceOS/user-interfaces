@@ -208,7 +208,12 @@ export class ExploreParkingService extends AsyncHandler {
             .toPromise();
         for (const space of spaces) {
             const can_book = !!available.find((_) => _.id === space.id);
-            const status = can_book ? 'free' : 'busy';
+            const assigned_space = !!space.assigned_to;
+            const status = can_book
+                ? 'free'
+                : assigned_space
+                  ? 'pending'
+                  : 'busy';
             styles[`#${space.map_id}`] = {
                 fill:
                     colours[`parking-${status}`] ||
@@ -225,7 +230,7 @@ export class ExploreParkingService extends AsyncHandler {
                     ...space,
                     user: this._users[space.id],
                     plate_number: this._plate_numbers[space.id],
-                    status,
+                    status: assigned_space ? 'reserved' : status,
                 },
             });
             if (!can_book) continue;
