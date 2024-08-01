@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Booking, BookingFormService } from '@placeos/bookings';
+import { Booking, BookingFormService, updateBooking } from '@placeos/bookings';
 import { notifyError, notifySuccess } from '@placeos/common';
 
 @Component({
@@ -21,7 +21,6 @@ import { notifyError, notifySuccess } from '@placeos/common';
         </header>
         <main
             class="p-4 w-[36rem] max-h-[65vh] h-[65vh] overflow-auto"
-            [formGroup]="form"
             *ngIf="!loading; else loading_template"
         >
             <mat-form-field
@@ -30,7 +29,7 @@ import { notifyError, notifySuccess } from '@placeos/common';
             >
                 <textarea
                     matInput
-                    formControlName="notes"
+                    [(ngModel)]="notes"
                     class="resize-none"
                     placeholder="Notes for visitor"
                 ></textarea>
@@ -56,27 +55,33 @@ import { notifyError, notifySuccess } from '@placeos/common';
 })
 export class VisitorNotesModalComponent {
     public item: Booking = this._data.item;
-    public readonly form = this._booking.form;
+    public notes = this.item.extension_data?.notes || '';
     public loading = '';
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: { item: Booking },
-        private _booking: BookingFormService,
         private _dialog_ref: MatDialogRef<VisitorNotesModalComponent>,
     ) {
         this.item = _data.item;
-        this._booking.newForm(this.item);
     }
 
     public async save() {
         this.loading = 'Saving...';
         this._dialog_ref.disableClose = true;
-        await this._booking.postForm().catch((_) => {
-            notifyError('Error saving visitor notes');
-            this.loading = '';
-            this._dialog_ref.disableClose = false;
-            throw _;
-        });
+        await updateBooking(this.item.id, {
+            ...this.item.toJSON(),
+            extension_data: {
+                ...this.item.extension_data,
+                notes: this.notes,
+            },
+        })
+            .toPromise()
+            .catch((_) => {
+                notifyError('Error saving visitor notes');
+                this._dialog_ref.disableClose = false;
+                this.loading = '';
+                throw _;
+            });
         this.loading = '';
         notifySuccess('Successfully saved visitor notes');
         this._dialog_ref.close();
