@@ -153,7 +153,6 @@ export class ExploreParkingService extends AsyncHandler {
                     undefined;
                 return !assigned;
             });
-            console.log('Users:', this._users, this._plate_numbers, events);
             this._updateParkingSpaces(spaces, available);
             return available;
         }),

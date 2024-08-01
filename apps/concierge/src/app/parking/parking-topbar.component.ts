@@ -157,6 +157,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
                         this._org.building = this._org.buildings.find(
                             (bld) => bld.id === level.parent_id,
                         );
+                        this._state.setOptions({ zones: zones });
                     }
                 }
             }),
