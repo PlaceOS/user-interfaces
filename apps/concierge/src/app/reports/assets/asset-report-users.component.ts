@@ -10,7 +10,7 @@ import { AssetsReportService } from './assets-report.service';
             class="m-4 rounded bg-base-100 border border-base-200 overflow-hidden"
         >
             <div class="border-b border-base-200 px-4 py-2 flex items-center">
-                <h3 class="font-bold text-xl flex-1">Users booking assets</h3>
+                <h3 class="font-bold text-xl flex-1">Asset Requestees</h3>
                 <button icon matRipple (click)="download()" *ngIf="!print">
                     <app-icon>download</app-icon>
                 </button>
@@ -38,17 +38,10 @@ export class AssetReportUsersComponent {
         map(({ events, bookings, products }) => {
             const data = unique(events, 'host').map((e) => {
                 const host_bookings = bookings.filter(
-                    (b) => b.linked_event?.event_id === e.id,
+                    (b) => b.booked_by_email === e.host,
                 );
-                const booked_assets = host_bookings
-                    .map((_) => _.asset_ids)
-                    .flat();
-                console.log(
-                    'Event:',
-                    e,
-                    booked_assets,
-                    host_bookings,
-                    bookings,
+                const booked_assets = unique(
+                    host_bookings.map((_) => _.asset_ids).flat(),
                 );
                 return {
                     name: e.organiser?.name || e.organiser?.email || e.host,
@@ -63,7 +56,6 @@ export class AssetReportUsersComponent {
                         )?.length || 0,
                 };
             });
-            console.log('Users:', data);
             return data;
         }),
     );

@@ -20,7 +20,8 @@ import { AssetsReportService } from './assets-report.service';
                 [data]="products"
                 [columns]="[
                     { key: 'name', name: 'Name' },
-                    { key: 'booking_count', name: 'Assets Booked' },
+                    { key: 'booking_count', name: 'Bookings Count' },
+                    { key: 'booked_count', name: 'Number Booked' },
                     { key: 'asset_count', name: 'Assets Available' },
                 ]"
                 [sortable]="true"
@@ -36,17 +37,24 @@ export class AssetReportProductUsageComponent {
     public readonly products = this._state.stats$.pipe(
         map(({ events, bookings, products }) =>
             products
-                .map((p) => ({
-                    name: p.name,
-                    booking_count: bookings.filter((b) =>
-                        p.assets.find(
-                            (_) =>
-                                _.id === b.asset_id ||
-                                b.asset_ids?.includes(_.id),
+                .map((p) => {
+                    const product_bookings = bookings.filter((b) =>
+                        p.assets.find(({ id }) => b.asset_ids.includes(id)),
+                    );
+                    return {
+                        name: p.name,
+                        booking_count: product_bookings.length,
+                        booked_count: product_bookings.reduce(
+                            (acc, b) =>
+                                acc +
+                                b.asset_ids.filter((asset_id) =>
+                                    p.assets.find(({ id }) => asset_id === id),
+                                ).length,
+                            0,
                         ),
-                    ).length,
-                    asset_count: p.assets.length,
-                }))
+                        asset_count: p.assets.length,
+                    };
+                })
                 .filter((p) => p.booking_count > 0),
         ),
     );

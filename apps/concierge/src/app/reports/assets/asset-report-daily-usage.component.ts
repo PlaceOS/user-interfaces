@@ -21,8 +21,9 @@ import { AssetsReportService } from './assets-report.service';
                 [columns]="[
                     { key: 'name', name: 'Name' },
                     { key: 'date', name: 'Date', content: date_template },
-                    { key: 'booking_count', name: 'Assets Booked' },
-                    { key: 'asset_count', name: 'Assets' },
+                    { key: 'booking_count', name: 'Bookings Count' },
+                    { key: 'booked_count', name: 'Number Booked' },
+                    { key: 'asset_count', name: 'Assets Available' },
                 ]"
                 [sortable]="true"
                 [page_size]="print ? 0 : 10"
@@ -39,23 +40,30 @@ import { AssetsReportService } from './assets-report.service';
 })
 export class AssetReportDailyUsageComponent {
     @Input() public print: boolean = false;
-    public readonly daily_products = this._state.stats$.pipe(
+    public readonly daily_products = this._state.daily_stats$.pipe(
         map((days) => {
             let list = [];
             for (const date in days) {
                 const { events, bookings, products } = days[date];
-                const products_list = (products || []).map((p) => ({
-                    date,
-                    name: p.host,
-                    booking_count: bookings.filter((b) =>
-                        p.assets.find(
-                            (_) =>
-                                _.id === b.asset_id ||
-                                b.asset_ids?.includes(_.id),
+                const products_list = (products || []).map((p) => {
+                    const product_bookings = bookings.filter((b) =>
+                        p.assets.find(({ id }) => b.asset_ids.includes(id)),
+                    );
+                    return {
+                        name: p.name,
+                        date,
+                        booking_count: product_bookings.length,
+                        booked_count: product_bookings.reduce(
+                            (acc, b) =>
+                                acc +
+                                b.asset_ids.filter((asset_id) =>
+                                    p.assets.find(({ id }) => asset_id === id),
+                                ).length,
+                            0,
                         ),
-                    ).length,
-                    asset_count: p.assets.length,
-                }));
+                        asset_count: p.assets.length,
+                    };
+                });
                 list = list.concat(
                     products_list.filter((p) => p.booking_count > 0),
                 );

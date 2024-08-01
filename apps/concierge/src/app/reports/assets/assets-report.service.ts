@@ -119,6 +119,7 @@ export class AssetsReportService {
                 start = addDays(start, 1);
                 count++;
             }
+            return stats;
         }),
         shareReplay(1),
     );
