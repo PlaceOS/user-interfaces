@@ -219,7 +219,7 @@ export class ParkingStateService extends AsyncHandler {
         this._options.next({ ...this._options.getValue(), ...options });
     }
 
-    public startPolling(delay = 5000) {
+    public startPolling(delay = 2 * 60 * 1000) {
         this._poll.next(Date.now());
         this.interval('poll', () => this._poll.next(Date.now()), delay);
         return () => this.stopPolling();
