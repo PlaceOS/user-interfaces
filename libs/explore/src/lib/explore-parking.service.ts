@@ -148,8 +148,8 @@ export class ExploreParkingService extends AsyncHandler {
                 );
                 this._users[_.id] = assigned;
                 this._plate_numbers[_.id] =
-                    user?.plate_number ||
                     event?.extension_data?.plate_number ||
+                    user?.plate_number ||
                     undefined;
                 return !assigned;
             });
