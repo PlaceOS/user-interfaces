@@ -230,7 +230,10 @@ export class ExploreParkingService extends AsyncHandler {
                     ...space,
                     user: this._users[space.id],
                     plate_number: this._plate_numbers[space.id],
-                    status: assigned_space ? 'reserved' : status,
+                    status:
+                        status === 'pending' && assigned_space
+                            ? 'reserved'
+                            : status,
                 },
             });
             if (!can_book) continue;
