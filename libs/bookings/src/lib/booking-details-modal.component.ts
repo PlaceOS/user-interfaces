@@ -349,7 +349,10 @@ export class BookingDetailsModalComponent {
     }
 
     public get can_edit() {
-        return this.booking.booking_type !== 'visitor';
+        return (
+            this.booking.booking_type !== 'visitor' &&
+            this.booking.booking_type !== 'parking'
+        );
     }
 
     public get auto_checkin() {
