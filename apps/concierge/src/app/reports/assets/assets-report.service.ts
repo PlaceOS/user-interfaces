@@ -1,9 +1,12 @@
 import { Injectable } from '@angular/core';
-import { AssetGroup, queryAssetGroupsExtended } from '@placeos/assets';
+import {
+    AssetGroup,
+    queryAssetGroupsExtended,
+    queryAssetPurchaseOrders,
+} from '@placeos/assets';
 import { Booking, queryBookings } from '@placeos/bookings';
 import {
     downloadFile,
-    flatten,
     jsonToCsv,
     SettingsService,
     unique,
@@ -20,15 +23,7 @@ import {
     startOfDay,
 } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import {
-    debounceTime,
-    filter,
-    map,
-    shareReplay,
-    switchMap,
-    take,
-    tap,
-} from 'rxjs/operators';
+import { filter, map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
 
 export interface AssetsReportOptions {
     /** Zones to check available space for */
@@ -121,6 +116,21 @@ export class AssetsReportService {
             }
             return stats;
         }),
+        shareReplay(1),
+    );
+
+    public readonly expired_items$ = this._generate.pipe(
+        switchMap(() => {
+            this._loading.next(true);
+            return combineLatest([queryAssetPurchaseOrders({}), this._options]);
+        }),
+        map(([purchase_orders, options]) => {
+            return purchase_orders.filter((order) => {
+                order.expected_service_end_date <
+                    getUnixTime(options.start || Date.now());
+            });
+        }),
+        tap(() => this._loading.next(false)),
         shareReplay(1),
     );
 

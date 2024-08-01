@@ -36,6 +36,9 @@ import { ActivatedRoute } from '@angular/router';
                         [print]="printing"
                     ></asset-report-product-usage>
                     <asset-report-users [print]="printing"></asset-report-users>
+                    <asset-report-expired-items
+                        [print]="printing"
+                    ></asset-report-expired-items>
                 </ng-container>
             </ng-container>
         </div>
