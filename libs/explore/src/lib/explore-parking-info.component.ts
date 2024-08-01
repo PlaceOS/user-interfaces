@@ -61,7 +61,7 @@ interface ParkingSpaceExtended extends ParkingSpace {
 })
 export class ExploreParkingInfoComponent {
     public readonly status =
-        this._data.assigned_to === this._data.user
+        this._data.assigned_to === this._data.user && this._data.user
             ? 'reserved'
             : this._data.status;
     public readonly user = this._data.user;
@@ -76,6 +76,6 @@ export class ExploreParkingInfoComponent {
     constructor(
         @Inject(MAP_FEATURE_DATA) private _data: ParkingSpaceExtended,
         private _element: ElementRef<HTMLDivElement>,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 }
