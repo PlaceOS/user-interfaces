@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first, map } from 'rxjs/operators';
 
@@ -6,6 +6,7 @@ import { AsyncHandler, Identity, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { ReportsStateService } from './reports-state.service';
 import { combineLatest } from 'rxjs';
+import { endOfDay, startOfDay } from 'date-fns';
 
 @Component({
     selector: 'reports-options',
@@ -37,37 +38,32 @@ import { combineLatest } from 'rxjs';
             <date-range-field>
                 <input
                     #startDate
-                    [ngModel]="(options | async)?.start"
+                    [ngModel]="start"
                     (ngModelChange)="$event ? setStartDate($event) : ''"
                 />
                 <input
                     #endDate
-                    [ngModel]="(options | async)?.end"
+                    [ngModel]="end"
                     (ngModelChange)="$event ? setEndDate($event) : ''"
                 />
             </date-range-field>
             <button
                 btn
                 matRipple
-                [disabled]="
-                    !!(loading | async) || !(options | async)?.zones?.length
-                "
-                (click)="generateReport()"
+                [disabled]="!!loading || !zones?.length"
+                (click)="generate.emit()"
             >
-                <mat-spinner
-                    *ngIf="loading | async"
-                    [diameter]="32"
-                ></mat-spinner>
-                <p *ngIf="!(loading | async)">Generate Report</p>
+                <mat-spinner *ngIf="loading" [diameter]="32"></mat-spinner>
+                <p *ngIf="!loading">Generate Report</p>
             </button>
             <div class="flex-1"></div>
             <button
                 icon
                 matRipple
                 class="h-12 w-12 rounded bg-secondary text-secondary-content"
-                [disabled]="!(bookings | async)?.length"
+                [disabled]="!has_data"
                 matTooltip="Download Report Data"
-                (click)="downloadReport()"
+                (click)="download.emit()"
             >
                 <app-icon>download</app-icon>
             </button>
@@ -75,7 +71,7 @@ import { combineLatest } from 'rxjs';
                 icon
                 matRipple
                 class="h-12 w-12 rounded bg-secondary text-secondary-content"
-                [disabled]="!(bookings | async)?.length"
+                [disabled]="!has_data"
                 matTooltip="Print Report"
                 (click)="print()"
             >
@@ -103,9 +99,16 @@ import { combineLatest } from 'rxjs';
     ],
 })
 export class ReportsOptionsComponent extends AsyncHandler {
+    @Input() public loading: boolean = false;
+    @Input() public has_data: boolean = false;
+
     @Output() public printing = new EventEmitter<boolean>();
+    @Output() public generate = new EventEmitter<void>();
+    @Output() public download = new EventEmitter<void>();
     /** List of selected levels */
     public zones: string[] = [];
+    public start: number = startOfDay(Date.now()).getTime();
+    public end: number = endOfDay(Date.now()).getTime();
 
     public readonly types: Identity[] = [
         { id: 'internal', name: 'Internal' },
@@ -125,17 +128,7 @@ export class ReportsOptionsComponent extends AsyncHandler {
         )
     );
 
-    public readonly loading = this._state.loading;
-
-    public readonly bookings = this._state.bookings;
-
-    public readonly options = this._state.options;
-
     public page = '';
-
-    public readonly generateReport = () => this._state.generateReport();
-
-    public readonly downloadReport = () => this._state.downloadReport();
 
     public readonly setStartDate = (date) => {
         if (date instanceof Date) date = date.valueOf();
@@ -156,7 +149,6 @@ export class ReportsOptionsComponent extends AsyncHandler {
     };
 
     public readonly setZones = (zones) => {
-        this._state.setOptions({ zones });
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: zones.join(',') },
@@ -169,7 +161,6 @@ export class ReportsOptionsComponent extends AsyncHandler {
     }
 
     constructor(
-        private _state: ReportsStateService,
         private _org: OrganisationService,
         private _settings: SettingsService,
         private _route: ActivatedRoute,
@@ -200,17 +191,11 @@ export class ReportsOptionsComponent extends AsyncHandler {
                         this._org.building = this._org.buildings.find(
                             (bld) => bld.id === level.parent_id
                         );
-                        this.setZones(zones);
+                        this.zones = zones;
                     }
                 }
-                if (params.has('start'))
-                    this._state.setOptions({
-                        start: new Date(+params.get('start')),
-                    });
-                if (params.has('end'))
-                    this._state.setOptions({
-                        end: new Date(+params.get('end')),
-                    });
+                if (params.has('start')) this.start = +params.get('start');
+                if (params.has('end')) this.end = +params.get('end');
             })
         );
     }

@@ -166,6 +166,7 @@ export class CalendarEvent {
         this.host = (
             data.host ||
             this.creator ||
+            (data as any).host_email ||
             _default_user.email ||
             ''
         ).toLowerCase();

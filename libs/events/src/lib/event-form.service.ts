@@ -106,7 +106,7 @@ export class EventFormService extends AsyncHandler {
     private _space_pipe: SpacePipe;
 
     public last_success: CalendarEvent = new CalendarEvent(
-        JSON.parse(sessionStorage.getItem('PLACEOS.last_booked_event') || '{}')
+        JSON.parse(sessionStorage.getItem('PLACEOS.last_booked_event') || '{}'),
     );
     public readonly loading = this._loading.asObservable();
     public readonly options = this._options.asObservable();
@@ -125,9 +125,9 @@ export class EventFormService extends AsyncHandler {
         switchMap((list) =>
             Promise.all(
                 list.map((bld) =>
-                    showMetadata(bld.id, 'room_booking_rules').toPromise()
-                )
-            )
+                    showMetadata(bld.id, 'room_booking_rules').toPromise(),
+                ),
+            ),
         ),
         map((building_rules) => {
             const mapping = {};
@@ -137,14 +137,14 @@ export class EventFormService extends AsyncHandler {
             }
             return mapping;
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly spaces: Observable<Space[]> = combineLatest([
         this._options.pipe(distinctUntilKeyChanged('zone_ids')),
         this._org.active_building.pipe(
             filter((_) => !!_),
-            distinctUntilKeyChanged('id')
+            distinctUntilKeyChanged('id'),
         ),
     ]).pipe(
         debounceTime(300),
@@ -161,17 +161,17 @@ export class EventFormService extends AsyncHandler {
             }
             return forkJoin(
                 zone_ids.map((id) =>
-                    requestSpacesForZone(id).pipe(catchError(() => of([])))
-                )
+                    requestSpacesForZone(id).pipe(catchError(() => of([]))),
+                ),
             );
         }),
         map((l) => flatten(l)),
         tap((_) => this._loading.next('')),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly features = this.spaces.pipe(
-        map((l) => unique(flatten(l.map((_) => _.features))))
+        map((l) => unique(flatten(l.map((_) => _.features)))),
     );
 
     public readonly filtered_spaces = combineLatest([
@@ -183,13 +183,13 @@ export class EventFormService extends AsyncHandler {
                 .filter((s: Space) => {
                     const domain = (currentUser()?.email || '@').split('@')[1];
                     const zone = (this._settings.get(
-                        'app.events.restrict_spaces'
+                        'app.events.restrict_spaces',
                     ) || {})[domain];
                     const limit_map =
                         this._settings.get('app.events.limit_spaces') || {};
                     const limited_zones = Object.keys(limit_map);
                     const zone_limit = s.zones.find((_) =>
-                        limited_zones.includes(_)
+                        limited_zones.includes(_),
                     );
                     return (
                         s.bookable &&
@@ -200,9 +200,9 @@ export class EventFormService extends AsyncHandler {
                         s.capacity >= Math.max(0, capacity || 0)
                     );
                 })
-                .slice(0, Math.min(100, spaces.length))
+                .slice(0, Math.min(100, spaces.length)),
         ),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     private _space_bookings = combineLatest([
@@ -214,23 +214,23 @@ export class EventFormService extends AsyncHandler {
             return combineLatest(
                 (list || []).map((_) => {
                     const binding = getModule(_.id, 'Bookings').binding(
-                        'bookings'
+                        'bookings',
                     );
                     const obs = binding
                         .listen()
                         .pipe(
                             map((_) =>
-                                (_ || []).map((i) => new CalendarEvent(i))
-                            )
+                                (_ || []).map((i) => new CalendarEvent(i)),
+                            ),
                         );
                     if (!this.hasSubscription(`bind:${_.id}`)) {
                         this.subscription(`bind:${_.id}`, binding.bind());
                     }
                     return obs;
-                })
+                }),
             );
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly current_available_spaces = combineLatest([
@@ -248,7 +248,7 @@ export class EventFormService extends AsyncHandler {
             list = filterResourcesFromRules(
                 list,
                 { date, duration, resource: null, host: currentUser() },
-                booking_rules[this._org.building?.id] || []
+                booking_rules[this._org.building?.id] || [],
             ) as any;
             return (list || [])
                 .filter((_, idx) => {
@@ -264,13 +264,13 @@ export class EventFormService extends AsyncHandler {
                     return periodInFreeTimeSlot(
                         start,
                         end,
-                        booking_list.filter((_) => _.ical_uid !== ical_uid)
+                        booking_list.filter((_) => _.ical_uid !== ical_uid),
                     );
                 })
                 .sort((a, b) => a.capacity - b.capacity);
         }),
         tap((_) => this._loading.next('')),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly future_available_spaces: Observable<Space[]> =
@@ -291,7 +291,7 @@ export class EventFormService extends AsyncHandler {
                 spaces = filterResourcesFromRules(
                     spaces,
                     { date, duration, resource: null, host: currentUser() },
-                    booking_rules[this._org.building?.id] || []
+                    booking_rules[this._org.building?.id] || [],
                 ) as any;
                 return availability_method(
                     spaces.map(({ id }) => id),
@@ -302,7 +302,7 @@ export class EventFormService extends AsyncHandler {
                         this.event?.id ||
                         undefined,
                     undefined,
-                    [this.event?.date, this.event?.duration]
+                    [this.event?.date, this.event?.duration],
                 ).pipe(
                     map((availability) => {
                         var list = spaces.filter((_, i) => availability[i]);
@@ -314,15 +314,15 @@ export class EventFormService extends AsyncHandler {
                                 resource: null,
                                 host: currentUser(),
                             },
-                            booking_rules[this._org.building?.id] || []
+                            booking_rules[this._org.building?.id] || [],
                         ) as any;
                         return list;
                     }),
-                    catchError((_) => [])
+                    catchError((_) => []),
                 );
             }),
             tap((_) => this._loading.next('')),
-            shareReplay(1)
+            shareReplay(1),
         );
 
     public readonly available_spaces = this._date.pipe(
@@ -334,7 +334,7 @@ export class EventFormService extends AsyncHandler {
                 ? this.current_available_spaces
                 : this.future_available_spaces;
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public get view() {
@@ -361,7 +361,7 @@ export class EventFormService extends AsyncHandler {
         private _payments: PaymentsService,
         private _settings: SettingsService,
         private _assets: AssetStateService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {
         super();
         this._space_pipe = new SpacePipe(this._org);
@@ -374,7 +374,7 @@ export class EventFormService extends AsyncHandler {
                 ) {
                     this.clearForm();
                 }
-            })
+            }),
         );
         const previous = {};
         this.subscription(
@@ -395,7 +395,7 @@ export class EventFormService extends AsyncHandler {
                     this._date.next(date);
                 }
                 this.storeForm();
-            })
+            }),
         );
     }
 
@@ -414,7 +414,7 @@ export class EventFormService extends AsyncHandler {
     public async newForm(
         event: CalendarEvent = new CalendarEvent({
             all_day: this._settings.get('app.events.all_day_default'),
-        })
+        }),
     ) {
         this._event.next(event);
         if (event.recurring_event_id) {
@@ -431,14 +431,14 @@ export class EventFormService extends AsyncHandler {
         this._assets.setOptions({
             ignore: flatten(
                 event.linked_bookings?.map(
-                    (_) => _.asset_ids || [_.asset_id]
-                ) || []
+                    (_) => _.asset_ids || [_.asset_id],
+                ) || [],
             ),
         });
         for (const idx in event.resources) {
             const space = event.resources[idx];
             event.resources[idx] = await this._space_pipe.transform(
-                space.id || space.email
+                space.id || space.email,
             );
         }
         this._date.next(event.date);
@@ -449,7 +449,7 @@ export class EventFormService extends AsyncHandler {
                     date: event.date || this._form.value.date,
                 });
             },
-            1000
+            1000,
         );
         this.resetForm();
     }
@@ -463,8 +463,8 @@ export class EventFormService extends AsyncHandler {
         this._assets.setOptions({
             ignore: flatten(
                 event.linked_bookings?.map(
-                    (_) => _.asset_ids || [_.asset_id]
-                ) || []
+                    (_) => _.asset_ids || [_.asset_id],
+                ) || [],
             ),
         });
         const has_catering = !!event.extension_data.catering[0];
@@ -480,7 +480,7 @@ export class EventFormService extends AsyncHandler {
                 event.extension_data.catering[0]?.charge_code ||
                 (event.id && has_catering ? ' ' : ''),
             assets: (event.extension_data.assets || []).map(
-                (_) => new AssetRequest({ ..._, event })
+                (_) => new AssetRequest({ ..._, event }),
             ),
         });
         this._form.patchValue({
@@ -501,7 +501,7 @@ export class EventFormService extends AsyncHandler {
     public storeForm() {
         sessionStorage.setItem(
             'PLACEOS.event_form',
-            JSON.stringify(this._form.getRawValue() || {})
+            JSON.stringify(this._form.getRawValue() || {}),
         );
     }
 
@@ -510,7 +510,7 @@ export class EventFormService extends AsyncHandler {
             return this.newForm();
         }
         const form_data = JSON.parse(
-            sessionStorage.getItem('PLACEOS.event_form') || '{}'
+            sessionStorage.getItem('PLACEOS.event_form') || '{}',
         );
         if (form_data.id && form_data.id !== this._event.getValue()?.id) {
             showEvent(form_data.id).subscribe((event) => {
@@ -518,8 +518,8 @@ export class EventFormService extends AsyncHandler {
                 this._assets.setOptions({
                     ignore: flatten(
                         event.linked_bookings?.map(
-                            (_) => _.asset_ids || [_.asset_id]
-                        ) || []
+                            (_) => _.asset_ids || [_.asset_id],
+                        ) || [],
                     ),
                 });
             });
@@ -536,14 +536,14 @@ export class EventFormService extends AsyncHandler {
         const event = new CalendarEvent({ ...form.getRawValue(), assets: [] });
         const ref = this._dialog.open(EventLinkModalComponent, { data: event });
         ref.afterClosed().subscribe((d) =>
-            d ? this._router.navigate(['/']) : ''
+            d ? this._router.navigate(['/']) : '',
         );
     }
 
     public postForm(
         force: boolean = false,
         ignore_space_check: string[] = [],
-        ignore_owner: boolean = false
+        ignore_owner: boolean = false,
     ) {
         return new Promise<CalendarEvent>(async (resolve, reject) => {
             this._loading.next('Creating event...');
@@ -554,8 +554,8 @@ export class EventFormService extends AsyncHandler {
                 this._loading.next('');
                 return reject(
                     `Some form fields are invalid. [${getInvalidFields(
-                        form
-                    ).join(', ')}]`
+                        form,
+                    ).join(', ')}]`,
                 );
             }
             const ical_uid = this.event?.ical_uid;
@@ -575,7 +575,7 @@ export class EventFormService extends AsyncHandler {
                 spaces = spaces.filter(
                     (_) =>
                         !ignore_space_check.includes(_.email) &&
-                        !ignore_space_check.includes(_.id)
+                        !ignore_space_check.includes(_.id),
                 );
             }
             let catering = form.get('catering')?.value || [];
@@ -585,7 +585,7 @@ export class EventFormService extends AsyncHandler {
             }
             let changed_times = false;
             let changed_spaces = spaces.some(
-                (s) => !event.resources?.find((_) => _.id === s.id)
+                (s) => !event.resources?.find((_) => _.id === s.id),
             );
             if (
                 (!id || date !== event.date || duration !== event.duration) &&
@@ -596,7 +596,7 @@ export class EventFormService extends AsyncHandler {
                     spaces,
                     all_day ? startOfDay(date).valueOf() : date,
                     all_day ? Math.max(24 * 60, duration) : duration,
-                    ical_uid || id || ''
+                    ical_uid || id || '',
                 ).catch((_) => {
                     this._loading.next('');
                     reject(_);
@@ -612,13 +612,13 @@ export class EventFormService extends AsyncHandler {
                 this._settings.get('app.events.no_space_resource')
             ) {
                 const space = await this._space_pipe.transform(
-                    this._settings.get('app.events.no_space_resource')
+                    this._settings.get('app.events.no_space_resource'),
                 );
                 spaces.push(space);
             }
             const attendees = unique(
                 [...value.attendees, value.organiser || currentUser()],
-                'email'
+                'email',
             );
             if (!spaces.length && attendees.find((_) => _.is_external)) {
                 this._loading.next('');
@@ -660,7 +660,7 @@ export class EventFormService extends AsyncHandler {
                 let [setup, breakdown] = [0, 0];
                 for (const space of spaces) {
                     const overflow = this._settings.get(
-                        `app.events.overflow.${space.id}`
+                        `app.events.overflow.${space.id}`,
                     );
                     if (overflow?.setup) setup = overflow.setup;
                     if (overflow?.breakdown) breakdown = overflow.breakdown;
@@ -669,7 +669,7 @@ export class EventFormService extends AsyncHandler {
                 (value as any).breakdown = value.breakdown_time || breakdown;
             }
             const processed_assets = (assets || []).map((_) =>
-                new AssetRequest(_).toJSON()
+                new AssetRequest(_).toJSON(),
             );
             const result = await this._makeBooking(
                 new CalendarEvent({
@@ -705,7 +705,7 @@ export class EventFormService extends AsyncHandler {
                                       currentUser()?.department,
                               },
                 }),
-                query
+                query,
             ).catch((e) => {
                 reject(e);
                 this._loading.next('');
@@ -717,7 +717,7 @@ export class EventFormService extends AsyncHandler {
                     user.is_external &&
                     user.email !== event.host &&
                     !user.email.includes(domain) &&
-                    user.visit_expected
+                    user.visit_expected,
             );
             let creating_assets = false;
             const on_error = async (e) => {
@@ -731,17 +731,17 @@ export class EventFormService extends AsyncHandler {
                                       currentUser()?.email,
                                   system_id: spaces[0].id,
                               }
-                            : {}
+                            : {},
                     ).toPromise();
                     console.warn("Couldn't update asset requests", e);
                     if (e?.status === 409) {
                         notifyError(
-                            'Some assets are already booked for the selected time'
+                            'Some assets are already booked for the selected time',
                         );
                     } else notifyError('Unable to book the selected assets.');
                 } else if (creating_assets) {
                     notifyError(
-                        `Unable to update all asset requests for event.\n${e}`
+                        `Unable to update all asset requests for event.\n${e}`,
                     );
                     return;
                 }
@@ -752,7 +752,7 @@ export class EventFormService extends AsyncHandler {
                 await createBookingsForEvent(
                     result,
                     'visitor',
-                    visitors as any
+                    visitors as any,
                 ).catch(on_error);
             }
 
@@ -769,12 +769,17 @@ export class EventFormService extends AsyncHandler {
                             spaces[0]?.display_name || spaces[0]?.name || '',
                         location_id: spaces[0]?.id || '',
                         zones: spaces[0]?.level?.parent_id
-                            ? [spaces[0]?.level?.parent_id]
+                            ? unique([
+                                  this._org.organisation.id,
+                                  this._org.region?.id,
+                                  spaces[0]?.level?.parent_id,
+                                  spaces[0]?.level?.id,
+                              ]).filter((_) => !!_)
                             : [this._org.building?.id],
                         reset_state: changed_times,
                     },
                     assets,
-                    changed_spaces || changed_times
+                    changed_spaces || changed_times,
                 ).catch(on_error);
                 if (!requests) throw 'Unable to validate asset requests';
                 await requests();
@@ -784,7 +789,7 @@ export class EventFormService extends AsyncHandler {
             this.last_success = result;
             sessionStorage.setItem(
                 'PLACEOS.last_booked_event',
-                JSON.stringify(result)
+                JSON.stringify(result),
             );
             this.setView('success');
             this.timeout('post_finshed', () => this._changed.next(Date.now()));
@@ -795,7 +800,7 @@ export class EventFormService extends AsyncHandler {
 
     private async _makeBooking(
         event: CalendarEvent,
-        query: Record<string, any>
+        query: Record<string, any>,
     ) {
         this._updateVisitorList(event.attendees);
         return (
@@ -806,7 +811,7 @@ export class EventFormService extends AsyncHandler {
                           status: this._settings.get('app.bookings.no_approval')
                               ? 'approved'
                               : 'tentative',
-                      } as any)
+                      } as any),
                   ).pipe(map((_) => newCalendarEventFromBooking(_)))
                 : saveEvent(event, query)
         ).toPromise();
@@ -816,7 +821,7 @@ export class EventFormService extends AsyncHandler {
         spaces: Space[],
         date: number,
         duration: number,
-        ignore?: string
+        ignore?: string,
     ) {
         if (!spaces?.length) return true;
         if (this.has_calendar) {
@@ -829,7 +834,7 @@ export class EventFormService extends AsyncHandler {
                     this.event?.id ||
                     undefined,
                 undefined,
-                [this.event?.date, this.event?.duration]
+                [this.event?.date, this.event?.duration],
             ).toPromise();
             if (!response.every((_) => _)) {
                 throw `${
@@ -843,7 +848,7 @@ export class EventFormService extends AsyncHandler {
                 spaces.map((_) => _.id),
                 date,
                 duration,
-                ignore
+                ignore,
             ).toPromise();
             if (!availability.every((_) => _))
                 throw `${
@@ -864,9 +869,9 @@ export class EventFormService extends AsyncHandler {
             unique([
                 ...old_visitors.filter((_) => !_.includes(_.email)),
                 ...visitors.map(
-                    (_) => `${_.email}|${_.name}|${_.organisation}`
+                    (_) => `${_.email}|${_.name}|${_.organisation}`,
                 ),
-            ])
+            ]),
         );
     }
 }
