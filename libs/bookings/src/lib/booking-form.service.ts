@@ -541,6 +541,15 @@ export class BookingFormService extends AsyncHandler {
         const { event_id, parent_id } = value;
         delete value.event_id;
         delete value.parent_id;
+
+        const zones = value.resources[0]?.zone
+            ? unique([
+                  this._org.organisation.id,
+                  this._org.region?.id,
+                  value.resources[0]?.zone?.parent_id,
+                  value.resources[0]?.zone?.id,
+              ])
+            : [this._org.organisation.id, this._org.region?.id];
         const result = await saveBooking(
             new Booking({
                 ...this._options.getValue(),
@@ -558,6 +567,7 @@ export class BookingFormService extends AsyncHandler {
                         value.user?.department || currentUser()?.department,
                 },
                 approved: !this._settings.get('app.bookings.no_approval'),
+                zones: unique([...zones, ...(value.zones || [])]),
             }),
             event_id
                 ? { ical_uid: value.ical_uid, event_id: event_id }
@@ -672,10 +682,11 @@ export class BookingFormService extends AsyncHandler {
                 zones: asset.zone
                     ? unique([
                           this._org.organisation.id,
-                          asset.zone?.parent_id,
-                          asset.zone?.id,
+                          this._org.region?.id,
+                          asset?.zone?.parent_id,
+                          asset?.zone?.id,
                       ])
-                    : [this._org.organisation.id],
+                    : [this._org.organisation.id, this._org.region?.id],
             });
             const bkn = await this.postForm(true);
             if (bkn.id && !id) id = bkn.id;
