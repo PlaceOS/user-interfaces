@@ -116,9 +116,12 @@ export class DeskModalComponent {
         private _dialog_ref: MatDialogRef<DeskModalComponent>,
     ) {
         if (_data?.desk) this.form.patchValue(_data.desk);
+        console.log('Form Value:', this.form.value, this.form.valid);
     }
 
     public postForm() {
+        this.form.markAllAsTouched();
+        this.form.updateValueAndValidity();
         if (!this.form.valid) return;
         this.loading = true;
         const value = this.form.value;
