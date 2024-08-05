@@ -11,6 +11,8 @@ export class Region {
     public readonly images: string[];
     /** PlaceOS bindings for applications */
     public readonly bindings: Record<string, string>;
+    /** Address of the region */
+    public readonly address: string;
 
     constructor(_data: Partial<Region>) {
         this.id = _data.id || '';
@@ -19,5 +21,6 @@ export class Region {
         this.timezone = _data.timezone || '';
         this.images = _data.images || [];
         this.bindings = _data.bindings || {};
+        this.address = _data.address || '';
     }
 }

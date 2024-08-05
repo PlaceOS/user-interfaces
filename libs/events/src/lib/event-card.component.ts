@@ -14,6 +14,7 @@ import { CalendarEvent } from './event.class';
 import { EventDetailsModalComponent } from './event-details-modal.component';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
+import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
 
 @Component({
     selector: 'event-card',
@@ -141,7 +142,7 @@ export class EventCardComponent extends AsyncHandler {
         private _route: ActivatedRoute,
         private _org: OrganisationService,
         private _space_pipe: SpacePipe,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -152,8 +153,8 @@ export class EventCardComponent extends AsyncHandler {
             this._route.queryParamMap.subscribe((params) =>
                 params.has('event') && this.event?.id === params.get('event')
                     ? this.viewDetails()
-                    : ''
-            )
+                    : '',
+            ),
         );
         this.location = await this.getLocationString();
     }
@@ -177,7 +178,7 @@ export class EventCardComponent extends AsyncHandler {
             this.event?.space ||
             ({} as any);
         const space = await this._space_pipe.transform(
-            system.id || system.email
+            system.id || system.email,
         );
         const zone_list = space?.zones || [];
         const zone =
@@ -202,28 +203,34 @@ export class EventCardComponent extends AsyncHandler {
             .replace(' minute', 'min');
         return `${format(
             start,
-            (is_multiday ? `MMM d, ` : '') + this.time_format
+            (is_multiday ? `MMM d, ` : '') + this.time_format,
         )} - ${format(
             end,
-            (is_multiday ? `MMM d, ` : '') + this.time_format
+            (is_multiday ? `MMM d, ` : '') + this.time_format,
         )} ${duration < 24 * 60 ? '(' + dur + ')' : ''}`;
     }
 
     public viewDetails() {
         if (!this.event) return;
         this.timeout('open', () => {
+            if (this.event.extension_data?.shared_event) {
+                this._dialog.open(GroupEventDetailsModalComponent, {
+                    data: { event: this.event, concierge: false },
+                });
+                return;
+            }
             const ref = this._dialog.open(EventDetailsModalComponent, {
                 data: this.event,
             });
             this.subscription(
                 'edit',
-                ref.componentInstance.edit.subscribe(() => this.edit.emit())
+                ref.componentInstance.edit.subscribe(() => this.edit.emit()),
             );
             this.subscription(
                 'remove',
                 ref.componentInstance.remove.subscribe((_) =>
-                    this.remove.emit(_)
-                )
+                    this.remove.emit(_),
+                ),
             );
         });
     }

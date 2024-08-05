@@ -46,17 +46,17 @@ const EVENTS_ENDPOINT = `/api/staff/v1/events`;
  * @param q Parameters to pass to the API request
  */
 export function queryEvents(
-    q: CalendarEventQueryParams
+    q: CalendarEventQueryParams,
 ): Observable<CalendarEvent[]> {
     const query = toQueryString(q);
     return get(`${EVENTS_ENDPOINT}${query ? '?' + query : ''}`).pipe(
         map((list) => list.map((e) => new CalendarEvent(e))),
-        catchError((_) => of([]))
+        catchError((_) => of([])),
     );
 }
 
 export function queryAllEvents(
-    q: CalendarEventQueryParams
+    q: CalendarEventQueryParams,
 ): Observable<CalendarEvent[]> {
     return query<CalendarEvent>({
         query_params: q,
@@ -74,7 +74,7 @@ export function queryAllEvents(
             }
             return list;
         }),
-        catchError((_) => of([]))
+        catchError((_) => of([])),
     );
 }
 
@@ -88,7 +88,7 @@ export function showEvent(id: string, q: CalendarEventShowParams = {}) {
     return get(
         `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${
             query ? '?' + query : ''
-        }`
+        }`,
     ).pipe(map((item) => new CalendarEvent(item)));
 }
 
@@ -98,7 +98,7 @@ export function showEvent(id: string, q: CalendarEventShowParams = {}) {
  */
 export function createEvent(data: Partial<CalendarEvent>) {
     return post(`${EVENTS_ENDPOINT}`, new CalendarEvent(data).toJSON()).pipe(
-        map((item) => new CalendarEvent(item))
+        map((item) => new CalendarEvent(item)),
     );
 }
 
@@ -113,14 +113,14 @@ export function updateEvent(
     id: string,
     data: Partial<CalendarEvent>,
     q: CalendarEventShowParams = {},
-    method: 'put' | 'patch' = 'patch'
+    method: 'put' | 'patch' = 'patch',
 ) {
     const query = toQueryString(q);
     return (method === 'patch' ? patch : put)(
         `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${
             query ? '?' + query : ''
         }`,
-        new CalendarEvent(data).toJSON()
+        new CalendarEvent(data).toJSON(),
     ).pipe(map((item) => new CalendarEvent(item)));
 }
 
@@ -131,7 +131,7 @@ export function updateEvent(
  */
 export const saveEvent = (
     data: Partial<CalendarEvent>,
-    q?: CalendarEventShowParams
+    q?: CalendarEventShowParams,
 ) => {
     const id = data.update_master
         ? data.recurring_event_id || data.id
@@ -153,7 +153,7 @@ export function removeEvent(id: string, q: CalendarEventShowParams = {}) {
         }`,
         {
             response_type: 'void',
-        }
+        },
     );
 }
 
@@ -165,9 +165,9 @@ export function removeEvent(id: string, q: CalendarEventShowParams = {}) {
 export function approveEvent(id: string, system_id: string) {
     return post(
         `${EVENTS_ENDPOINT}/${encodeURIComponent(
-            id
+            id,
         )}/approve?system_id=${encodeURIComponent(system_id)}`,
-        ''
+        '',
     ).pipe(map((item) => new CalendarEvent(item)));
 }
 
@@ -179,9 +179,9 @@ export function approveEvent(id: string, system_id: string) {
 export function rejectEvent(id: string, system_id: string) {
     return post(
         `${EVENTS_ENDPOINT}/${encodeURIComponent(
-            id
+            id,
         )}/reject?system_id=${encodeURIComponent(system_id)}`,
-        ''
+        '',
     ).pipe(map((item) => new CalendarEvent(item)));
 }
 
@@ -196,7 +196,7 @@ export function declineEvent(id: string, query: CalendarEventShowParams = {}) {
         `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/decline${
             q ? '?' + q : ''
         }`,
-        ''
+        '',
     ).pipe(map((item) => new CalendarEvent(item)));
 }
 
@@ -207,13 +207,13 @@ export function declineEvent(id: string, query: CalendarEventShowParams = {}) {
  */
 export function queryEventGuests(
     id: string,
-    q: CalendarEventShowParams = {}
+    q: CalendarEventShowParams = {},
 ): Observable<GuestUser[]> {
     const query = toQueryString(q);
     return get(
         `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/guests${
             query ? '?' + query : ''
-        }`
+        }`,
     ).pipe(map((list) => list.map((item) => new GuestUser(item))));
 }
 
@@ -228,14 +228,14 @@ export function checkinEventGuest(
     id: string,
     guest_id: string,
     state: boolean,
-    q: CalendarEventShowParams = {}
+    q: CalendarEventShowParams = {},
 ) {
     const query = toQueryString({ ...q, state });
     return post(
         `${EVENTS_ENDPOINT}/${encodeURIComponent(
-            id
+            id,
         )}/guests/${guest_id}/checkin${query ? '?' + query : ''}`,
-        ''
+        '',
     ).pipe(map((item) => new GuestUser(item)));
 }
 
@@ -244,10 +244,15 @@ export function checkinEventGuest(
  * @param id ID of the booking
  * @param guest Guest to add to the booking
  */
-export function addEventGuest(id: string, guest: GuestUser) {
+export function addEventGuest(
+    id: string,
+    guest: GuestUser,
+    q: CalendarEventShowParams = {},
+) {
+    const query = toQueryString(q);
     return post(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/attendee`,
-        guest
+        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/attendee${query ? '?' + query : ''}`,
+        guest,
     ).pipe(map((item) => new GuestUser(item)));
 }
 
@@ -256,11 +261,16 @@ export function addEventGuest(id: string, guest: GuestUser) {
  * @param id ID of the booking
  * @param guest Guest to remove from the booking
  */
-export function removeEventGuest(id: string, guest: GuestUser) {
+export function removeEventGuest(
+    id: string,
+    guest: GuestUser,
+    q: CalendarEventShowParams = {},
+) {
+    const query = toQueryString(q);
     return del(
         `${EVENTS_ENDPOINT}/${encodeURIComponent(
-            id
-        )}/attendee/${encodeURIComponent(guest.email)}`
+            id,
+        )}/attendee/${encodeURIComponent(guest.email)}${query ? '?' + query : ''}`,
     ).pipe(map((item) => new GuestUser(item)));
 }
 
@@ -273,13 +283,13 @@ export function removeEventGuest(id: string, guest: GuestUser) {
 export function getEventMetadata(
     id: string,
     system_id: string,
-    query: { ical_uid?: string } = {}
+    query: { ical_uid?: string } = {},
 ) {
     const q = toQueryString({ ...query });
     return get(
         `${EVENTS_ENDPOINT}/${encodeURIComponent(
-            id
-        )}/metadata/${encodeURIComponent(system_id)}${q ? '?' + q : ''}`
+            id,
+        )}/metadata/${encodeURIComponent(system_id)}${q ? '?' + q : ''}`,
     ).pipe(map((item) => item as EventExtensionData));
 }
 
@@ -294,14 +304,14 @@ export function updateEventMetadata(
     id: string,
     system_id: string,
     metadata: Partial<EventExtensionData>,
-    query: { ical_uid?: string } = {}
+    query: { ical_uid?: string } = {},
 ) {
     const q = toQueryString({ ...query });
     return patch(
         `${EVENTS_ENDPOINT}/${encodeURIComponent(
-            id
+            id,
         )}/metadata/${encodeURIComponent(system_id)}${q ? '?' + q : ''}`,
-        metadata
+        metadata,
     ).pipe(map((item) => item as EventExtensionData));
 }
 
@@ -316,7 +326,7 @@ export function isSpaceAvailable(
     id: string,
     start: number,
     duration: number,
-    ignore?: string
+    ignore?: string,
 ) {
     return queryEvents({
         system_ids: id,
@@ -338,7 +348,7 @@ export function querySpaceAvailability(
     duration: number,
     ignore?: string,
     type?: any,
-    ignore_period: [number, number] = [0, 0]
+    ignore_period: [number, number] = [0, 0],
 ) {
     const end = addMinutes(start, duration).valueOf();
     return combineLatest([
@@ -359,8 +369,8 @@ export function querySpaceAvailability(
             const short_list = id_list.map(
                 (id) =>
                     !!spaces.find(
-                        (s) => s.id === id || (s as any).resource?.id === id
-                    )
+                        (s) => s.id === id || (s as any).resource?.id === id,
+                    ),
             );
             if (
                 ignore_check.length &&
@@ -368,12 +378,12 @@ export function querySpaceAvailability(
                 id_list.includes(ignore) &&
                 ignore_check[0].inUseAt(
                     ignore_period[0] || start,
-                    ignore_period[1] || duration
+                    ignore_period[1] || duration,
                 )
             ) {
                 short_list[id_list.indexOf(ignore)] = true;
             }
             return short_list;
-        })
+        }),
     );
 }

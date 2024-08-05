@@ -19,23 +19,22 @@ import { BehaviorSubject } from 'rxjs';
                 {
                     key: 'plate_number',
                     name: 'Plate Number',
-                    content: plate_template
+                    content: plate_template,
                 },
-                { key: 'phone', name: 'Phone' },
                 { key: 'notes', name: 'Notes' },
                 {
                     key: 'deny',
                     name: 'Deny',
                     size: '4.5rem',
-                    content: denied_template
+                    content: denied_template,
                 },
                 {
                     key: 'actions',
                     name: ' ',
                     content: action_template,
                     sortable: false,
-                    size: '6.5rem'
-                }
+                    size: '6.5rem',
+                },
             ]"
             [filter]="(options | async)?.search"
             [sortable]="true"

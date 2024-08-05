@@ -322,7 +322,7 @@ const EMPTY_ACTIONS = [];
                             [features]="features"
                             [options]="{
                                 disable_pan: true,
-                                disable_zoom: true
+                                disable_zoom: true,
                             }"
                         ></interactive-map>
                     </ng-container>
@@ -410,9 +410,9 @@ const EMPTY_ACTIONS = [];
                                                 request.state === 'approved'
                                                     ? 'done'
                                                     : request.state ===
-                                                      'rejected'
-                                                    ? 'close'
-                                                    : 'schedule'
+                                                        'rejected'
+                                                      ? 'close'
+                                                      : 'schedule'
                                             }}
                                         </app-icon>
                                     </div>
@@ -542,7 +542,7 @@ export class EventDetailsModalComponent {
 
     public readonly has_catering = this.event?.ext('catering')?.length > 0;
     public readonly has_assets = !!this.event?.linked_bookings?.find(
-        (_) => _.booking_type === 'asset-request'
+        (_) => _.booking_type === 'asset-request',
     );
 
     public get can_edit() {
@@ -559,11 +559,11 @@ export class EventDetailsModalComponent {
 
     public accept_count = this._event.attendees.reduce(
         (count, user) => (count += user.response_status === 'accepted' ? 1 : 0),
-        0
+        0,
     );
     public declined_count = this._event.attendees.reduce(
         (count, user) => (count += user.response_status === 'declined' ? 1 : 0),
-        0
+        0,
     );
     public pending_count = this._event.attendees.reduce(
         (count, user) =>
@@ -572,7 +572,7 @@ export class EventDetailsModalComponent {
                 user.response_status === 'needsAction'
                     ? 1
                     : 0),
-        0
+        0,
     );
 
     public get body() {
@@ -604,7 +604,7 @@ export class EventDetailsModalComponent {
         private _org: OrganisationService,
         private _space_pipe: SpacePipe,
         private _settings: SettingsService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {
         this._load().then();
     }
@@ -623,10 +623,10 @@ export class EventDetailsModalComponent {
             .replace(' minute', 'min');
         return `${format(
             start,
-            (is_multiday ? `MMM d, ` : '') + this.time_format
+            (is_multiday ? `MMM d, ` : '') + this.time_format,
         )} - ${format(
             end,
-            (is_multiday ? `MMM d, ` : '') + this.time_format
+            (is_multiday ? `MMM d, ` : '') + this.time_format,
         )} ${duration < 24 * 60 ? '(' + dur + ')' : ''}`;
     }
 
@@ -645,11 +645,11 @@ export class EventDetailsModalComponent {
 
     private async _load() {
         this.space = await this._space_pipe.transform(
-            this._event.system?.id || this._event.system?.email
+            this._event.system?.id || this._event.system?.email,
         );
         this.level = this._org.levelWithID(this.space.zones);
         this.building = this._org.buildings.find((bld) =>
-            this.space.zones.includes(bld.id)
+            this.space.zones.includes(bld.id),
         );
         this.features = [
             {
@@ -665,7 +665,7 @@ export class EventDetailsModalComponent {
         }
         const metadata = await getEventMetadata(
             this._event.id,
-            this.space.id
+            this.space.id,
         ).toPromise();
         if (metadata) {
             this._event = new CalendarEvent({
@@ -680,15 +680,15 @@ export class EventDetailsModalComponent {
 
     public status(id: string): string {
         const booking = this.event.linked_bookings.find(
-            (_) => _.asset_id === id
+            (_) => _.asset_id === id,
         );
         if (booking.status) return booking.status;
         return booking
             ? booking.approved
                 ? 'approved'
                 : booking.rejected
-                ? 'rejected'
-                : 'pending'
+                  ? 'rejected'
+                  : 'pending'
             : 'pending';
     }
 

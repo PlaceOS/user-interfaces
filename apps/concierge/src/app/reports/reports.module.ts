@@ -29,6 +29,12 @@ import { ContactTracingOptionsComponent } from './contact-tracing/contact-tracin
 import { CustomReportComponent } from './custom-report.component';
 import { NewReportsComponent } from './new-reports.component';
 import { ReportSpacesOverallListComponent } from './spaces/report-spaces-overall-list.component';
+import { AssetsReportComponent } from './assets/assets-report.component';
+import { AssetReportOverallComponent } from './assets/asset-report-overall.component';
+import { AssetReportDailyUsageComponent } from './assets/asset-report-daily-usage.component';
+import { AssetReportProductUsageComponent } from './assets/asset-report-product-usage.component';
+import { AssetReportUsersComponent } from './assets/asset-report-users.component';
+import { AssetReportExpiredItemsComponent } from './assets/asset-report-expired-items.component';
 
 const children: Route[] = [
     { path: '', component: ReportsOptionsComponent },
@@ -39,6 +45,7 @@ const children: Route[] = [
         path: 'contact-tracing',
         component: ContactTracingReportComponent,
     },
+    { path: 'assets', component: AssetsReportComponent },
     { path: ':id', component: CustomReportComponent },
     { path: '**', redirectTo: 'desks', pathMatch: 'full' },
 ];
@@ -70,6 +77,13 @@ const ROUTES: Route[] = [
         CateringReportOverallComponent,
         CateringReportOrdersComponent,
         CateringReportItemsComponent,
+
+        AssetsReportComponent,
+        AssetReportOverallComponent,
+        AssetReportDailyUsageComponent,
+        AssetReportProductUsageComponent,
+        AssetReportUsersComponent,
+        AssetReportExpiredItemsComponent,
 
         ContactTracingReportComponent,
         ContactTracingOptionsComponent,

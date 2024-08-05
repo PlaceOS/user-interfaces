@@ -24,16 +24,25 @@ import { ParkingStateService } from './parking-state.service';
                 [model]="(options | async)?.search"
                 (modelChange)="setSearch($event)"
             ></searchbar>
-            <button
-                btn
-                matRipple
-                *ngIf="path === 'manage'"
-                class="space-x-2 w-40"
-                (click)="newParkingSpace()"
+            <div
+                [matTooltip]="
+                    (options | async)?.zones?.length
+                        ? ''
+                        : 'Select a level to add a space'
+                "
             >
-                <div class="pl-2">New Space</div>
-                <app-icon>add</app-icon>
-            </button>
+                <button
+                    btn
+                    matRipple
+                    *ngIf="path === 'manage'"
+                    class="space-x-2 w-40"
+                    (click)="newParkingSpace()"
+                    [disabled]="!(options | async)?.zones?.length"
+                >
+                    <div class="pl-2">New Space</div>
+                    <app-icon>add</app-icon>
+                </button>
+            </div>
             <button
                 btn
                 matRipple
@@ -129,7 +138,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         private _org: OrganisationService,
         private _route: ActivatedRoute,
         private _router: Router,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -146,30 +155,31 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
                         this.zones = zones;
                         if (!level) return;
                         this._org.building = this._org.buildings.find(
-                            (bld) => bld.id === level.parent_id
+                            (bld) => bld.id === level.parent_id,
                         );
+                        this._state.setOptions({ zones: zones });
                     }
                 }
-            })
+            }),
         );
         this.subscription(
             'levels',
             this._state.levels.subscribe((levels) => {
                 if (this.use_region) return;
                 this.zones = this.zones.filter((zone) =>
-                    levels.find((lvl) => lvl.id === zone)
+                    levels.find((lvl) => lvl.id === zone),
                 );
                 if (!this.zones.length && levels.length) {
                     this.zones.push(levels[0].id);
                 }
                 this.updateZones(this.zones);
-            })
+            }),
         );
         this.subscription(
             'router.events',
             this._router.events.subscribe((e) => {
                 if (e instanceof NavigationEnd) this._updatePath();
-            })
+            }),
         );
         this._updatePath();
     }
@@ -193,7 +203,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
                 const parts = this._router.url?.split('/') || [''];
                 this.path = parts[parts.length - 1].split('?')[0];
             },
-            50
+            50,
         );
     }
 }

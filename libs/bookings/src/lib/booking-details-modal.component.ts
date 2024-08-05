@@ -194,9 +194,9 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                                 request.state === 'approved'
                                                     ? 'done'
                                                     : request.state ===
-                                                      'rejected'
-                                                    ? 'close'
-                                                    : 'schedule'
+                                                        'rejected'
+                                                      ? 'close'
+                                                      : 'schedule'
                                             }}
                                         </app-icon>
                                     </div>
@@ -252,7 +252,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                             [features]="features"
                             [options]="{
                                 disable_pan: true,
-                                disable_zoom: true
+                                disable_zoom: true,
                             }"
                         ></interactive-map>
                     </ng-container>
@@ -326,7 +326,7 @@ export class BookingDetailsModalComponent {
         },
     ];
     public readonly has_assets = !!this.booking?.linked_bookings?.find(
-        (_) => _.booking_type === 'asset-request'
+        (_) => _.booking_type === 'asset-request',
     );
 
     public get level() {
@@ -334,18 +334,30 @@ export class BookingDetailsModalComponent {
     }
 
     public get building() {
-        return this._org.buildings.find((bld) =>
-            (this.booking?.zones || []).includes(bld.id)
+        const building = this._org.buildings.find((bld) =>
+            (this.booking?.zones || []).includes(bld.id),
         );
+        if (this._settings.get('app.use_region')) {
+            const region = this._org.regions.find(
+                (region) =>
+                    (this.booking?.zones || []).includes(region.id) ||
+                    region.id === building?.parent_id,
+            );
+            if (region) return region;
+        }
+        return building;
     }
 
     public get can_edit() {
-        return this.booking.booking_type !== 'visitor';
+        return (
+            this.booking.booking_type !== 'visitor' &&
+            this.booking.booking_type !== 'parking'
+        );
     }
 
     public get auto_checkin() {
         return this._settings.get(
-            `app.${this.booking?.type || 'bookings'}.auto_checkin`
+            `app.${this.booking?.type || 'bookings'}.auto_checkin`,
         );
     }
 
@@ -384,8 +396,14 @@ export class BookingDetailsModalComponent {
         @Inject(MAT_DIALOG_DATA) private _booking: Booking,
         private _settings: SettingsService,
         private _org: OrganisationService,
-        private _dialog: MatDialog
-    ) {}
+        private _dialog: MatDialog,
+    ) {
+        console.log(
+            'Building',
+            this.building,
+            this._settings.get('app.use_region'),
+        );
+    }
 
     public get period() {
         if (this.booking?.is_all_day) return 'All Day';
@@ -400,7 +418,7 @@ export class BookingDetailsModalComponent {
             .replace(' minute', 'min');
         return `${format(start, this.time_format)} - ${format(
             end,
-            this.time_format
+            this.time_format,
         )} (${dur})`;
     }
 
@@ -418,22 +436,22 @@ export class BookingDetailsModalComponent {
         notifySuccess(
             `Successfully ${
                 this.booking.checked_in ? 'checked in' : 'ended booking'
-            }`
+            }`,
         );
         this.checking_in = false;
     }
 
     public status(id: string): string {
         const booking = this.booking.linked_bookings.find(
-            (_) => _.asset_id === id
+            (_) => _.asset_id === id,
         );
         if (booking.status) return booking.status;
         return booking
             ? booking.approved
                 ? 'approved'
                 : booking.rejected
-                ? 'rejected'
-                : 'pending'
+                  ? 'rejected'
+                  : 'pending'
             : 'pending';
     }
 

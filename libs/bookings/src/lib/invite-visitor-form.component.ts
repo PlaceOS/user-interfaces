@@ -309,7 +309,9 @@ export class InviteVisitorFormComponent extends AsyncHandler {
     }
 
     public get building() {
-        return this._org.building;
+        return this._settings.get('app.use_region')
+            ? this._org.region
+            : this._org.building;
     }
 
     public get form() {

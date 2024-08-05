@@ -29,24 +29,6 @@ import { User } from '@placeos/users';
                         formControlName="user"
                         class="flex-1"
                     ></a-user-search-field>
-                    <button
-                        icon
-                        matRipple
-                        class="h-12 w-12 min-w-12 rounded bg-secondary text-secondary-content"
-                        matTooltip="Clear Selected User"
-                        (click)="
-                            form.patchValue({
-                                user: null,
-                                user_email: null,
-                                user_name: null,
-                                phone: null,
-                            })
-                        "
-                    >
-                        <app-icon className="material-symbols-outlined">
-                            person_cancel
-                        </app-icon>
-                    </button>
                 </div>
                 <div class="flex items-center space-x-2">
                     <div class="flex-1">
@@ -140,7 +122,7 @@ export class ParkingBookingModalComponent extends AsyncHandler {
             space?: ParkingSpace;
         },
         private _booking_form: BookingFormService,
-        private _dialog_ref: MatDialogRef<ParkingBookingModalComponent>
+        private _dialog_ref: MatDialogRef<ParkingBookingModalComponent>,
     ) {
         super();
     }
@@ -158,7 +140,7 @@ export class ParkingBookingModalComponent extends AsyncHandler {
                     user_id: user.id || user.email,
                     attendees: [user],
                 });
-            })
+            }),
         );
         this.form.patchValue({
             all_day: true,
@@ -196,9 +178,9 @@ export class ParkingBookingModalComponent extends AsyncHandler {
                         'disable_date',
                         () =>
                             this.form.get('date').disable({ emitEvent: false }),
-                        50
+                        50,
                     );
-                })
+                }),
             );
             this.form.get('date').disable();
         }

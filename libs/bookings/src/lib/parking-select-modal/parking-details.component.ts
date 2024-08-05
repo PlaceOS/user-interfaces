@@ -82,21 +82,6 @@ import { BookingAsset } from '../booking-form.service';
                     </div>
                 </section>
                 <hr />
-                <section facilities class="space-y-2">
-                    <h2 class="text-xl font-medium" i18n>Room Facilities</h2>
-                    <div class="flex items-center space-x-2">
-                        <app-icon>people</app-icon>
-                        <p i18n>WiFi Available</p>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <app-icon>restaurant</app-icon>
-                        <p i18n>Catering Available</p>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <app-icon>edit</app-icon>
-                        <p i18n>Whiteboard</p>
-                    </div>
-                </section>
                 <section
                     map
                     class="w-full mx-auto h-64 sm:h-48 relative border border-base-200 overflow-hidden rounded"

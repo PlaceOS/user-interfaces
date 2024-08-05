@@ -23,41 +23,45 @@ import { User } from 'libs/users/src/lib/user.class';
                         custom_title
                             ? custom_title
                             : list.length === 1
-                            ? 'Attendee'
-                            : 'Attendees'
+                              ? 'Attendee'
+                              : 'Attendees'
                     }}
                 </div>
                 <div class="w-12" *ngIf="!hide_close"></div>
             </div>
             <div class="flex-1 w-full overflow-auto">
-                <div
-                    attendee
-                    class="flex items-center p-2 space-x-2 hover:bg-base-200"
-                    *ngFor="let user of list"
-                >
-                    <a-user-avatar [user]="user"></a-user-avatar>
-                    <div class="flex-1 w-1/2">
-                        <div class="truncate">{{ user.name }}</div>
-                        <div
-                            class="opacity-60 text-sm"
-                            *ngIf="host === user.email"
-                        >
-                            Host
+                <ng-container *ngFor="let user of list">
+                    <div
+                        attendee
+                        class="flex items-center p-2 space-x-2 hover:bg-base-200"
+                        *ngIf="
+                            !user.resource && (host !== user.email || show_host)
+                        "
+                    >
+                        <a-user-avatar [user]="user"></a-user-avatar>
+                        <div class="flex-1 w-1/2">
+                            <div class="truncate">{{ user.name }}</div>
+                            <div
+                                class="opacity-60 text-sm"
+                                *ngIf="host === user.email"
+                            >
+                                Host
+                            </div>
+                        </div>
+                        <div class="p-2">
+                            <div
+                                class="h-3 w-3 rounded-full"
+                                [class.bg-success]="user.checked_in"
+                                [class.bg-pending]="!user.checked_in"
+                                [matTooltip]="
+                                    user.checked_in
+                                        ? 'Checked in'
+                                        : 'Not checked in'
+                                "
+                            ></div>
                         </div>
                     </div>
-                    <div class="p-2">
-                        <div
-                            class="h-3 w-3 rounded-full"
-                            [class.bg-success]="user.checked_in"
-                            [class.bg-pending]="!user.checked_in"
-                            [matTooltip]="
-                                user.checked_in
-                                    ? 'Checked in'
-                                    : 'Not checked in'
-                            "
-                        ></div>
-                    </div>
-                </div>
+                </ng-container>
             </div>
         </div>
     `,
@@ -65,6 +69,7 @@ import { User } from 'libs/users/src/lib/user.class';
 })
 export class AttendeeListComponent {
     @Input() public host: string = '';
+    @Input() public show_host = true;
     @Input() public list: User[] = [];
     @Input() public hide_close = false;
     @Input() public custom_title = '';
