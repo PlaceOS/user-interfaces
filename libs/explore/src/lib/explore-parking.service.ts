@@ -84,7 +84,9 @@ export class ExploreParkingService extends AsyncHandler {
                           endOfMinute(_.date || Date.now()),
                       ),
                       type: 'parking',
-                      zones: bld?.id,
+                      zones: this._settings.get('app.use_region')
+                          ? bld?.parent_id
+                          : bld?.id,
                   }),
         ),
         shareReplay(1),
