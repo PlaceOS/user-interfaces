@@ -56,6 +56,12 @@ export class ParkingMapComponent extends AsyncHandler {
             }),
         );
         this.subscription('parking_poll', this._ex_parking.startPolling());
+        this.subscription(
+            'parking_options',
+            this._parking.options.subscribe((_) => {
+                this._ex_parking.setOptions(_);
+            }),
+        );
         this._ex_parking.on_book = (space) =>
             this._parking.editReservation(undefined, { space });
     }
