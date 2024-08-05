@@ -1,7 +1,7 @@
 import { Component, Input, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { SettingsService } from '@placeos/common';
-import { OrganisationService } from '@placeos/organisation';
+import { Building, OrganisationService } from '@placeos/organisation';
 import { map, take } from 'rxjs/operators';
 import { BookingFormService } from '../booking-form.service';
 
@@ -231,34 +231,38 @@ export class ParkingSpaceFiltersComponent {
         map((l) => {
             for (const lvl of l) {
                 const bld = this._org.buildings.find(
-                    (_) => _.id === lvl.parent_id
+                    (_) => _.id === lvl.parent_id,
                 );
                 (lvl as any).bld = bld?.display_name || bld?.name || '';
             }
             return l.filter((_) => _.tags.includes('parking'));
-        })
+        }),
     );
     public readonly buildings = this._org.active_buildings;
     public readonly regions = this._org.region_list;
     public readonly region_levels = this._org.active_region.pipe(
         map((_) => {
             const region_buildings = this._org.buildings.filter(
-                (b) => !_ || b.parent_id === _.id
+                (b) => !_ || b.parent_id === _.id,
             );
             const region_levels = region_buildings.map((b) => ({
                 id: b.id,
                 name: b.display_name || b.name,
                 levels: this._org.levels.filter(
-                    (l) => l.parent_id === b.id && l.tags.includes('parking')
+                    (l) => l.parent_id === b.id && l.tags.includes('parking'),
                 ),
             }));
             return region_levels.filter((_) => _.levels.length);
-        })
+        }),
     );
     public readonly features = this._form.features;
 
     public readonly close = () => this._bsheet_ref.dismiss();
     public readonly setOptions = (o) => this._form.setOptions(o);
+
+    public setBuilding(bld: Building) {
+        this._org.building = bld;
+    }
 
     public get bld() {
         return this._org.building;
@@ -285,7 +289,7 @@ export class ParkingSpaceFiltersComponent {
         private _bsheet_ref: MatBottomSheetRef<ParkingSpaceFiltersComponent>,
         private _settings: SettingsService,
         private _form: BookingFormService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         this.can_close = !!this._bsheet_ref;
     }
