@@ -321,6 +321,7 @@ export class ExploreParkingService extends AsyncHandler {
                         space.name || space.id
                     }`,
                 );
+                this._poll.next(Date.now());
             };
             actions.push({
                 id: space?.map_id || space?.id,
