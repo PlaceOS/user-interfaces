@@ -39,7 +39,7 @@ interface ParkingSpaceExtended extends ParkingSpace {
                     >
                         Plate Number
                     </div>
-                    <div class="font-mono pb-1 w-full text-center">
+                    <div class="font-mono pb-1 w-full text-center uppercase">
                         {{ plate_number || 'ABC3' }}
                     </div>
                 </div>
