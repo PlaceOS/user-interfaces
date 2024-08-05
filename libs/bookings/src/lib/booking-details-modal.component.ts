@@ -341,7 +341,7 @@ export class BookingDetailsModalComponent {
             const region = this._org.regions.find(
                 (region) =>
                     (this.booking?.zones || []).includes(region.id) ||
-                    region.id === building.parent_id,
+                    region.id === building?.parent_id,
             );
             if (region) return region;
         }

@@ -15,6 +15,7 @@ import {
     notifySuccess,
     openConfirmModal,
     SettingsService,
+    unique,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
@@ -286,6 +287,12 @@ export class ParkingStateService extends AsyncHandler {
                         RecurrenceDays.WEDNESDAY |
                         RecurrenceDays.THURSDAY |
                         RecurrenceDays.FRIDAY,
+                    zones: unique([
+                        this._org.organisation.id,
+                        this._org.region?.id,
+                        this._org.building?.id,
+                        space.zone_id,
+                    ]),
                 }),
             ).toPromise();
         }
