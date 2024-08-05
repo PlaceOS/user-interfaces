@@ -122,11 +122,15 @@ export interface TableColumn {
                 >
                     <ng-container [ngSwitch]="columnType(column)">
                         <div class="p-4" *ngSwitchDefault>
-                            {{ row[column.key] }}
+                            {{
+                                row[column.key] ||
+                                    (column.key === '_index' ? i + 1 : '')
+                            }}
                             <span
                                 *ngIf="
-                                    row[column.key] == null ||
-                                    row[column.key] === ''
+                                    (row[column.key] == null ||
+                                        row[column.key] === '') &&
+                                    column.key !== '_index'
                                 "
                                 class="opacity-30"
                             >
@@ -150,7 +154,7 @@ export interface TableColumn {
                                         data: row[column.key],
                                         row: row,
                                         key: column.key,
-                                        name: column.name || column.key
+                                        name: column.name || column.key,
                                     }
                                 "
                             ></ng-container>
@@ -274,7 +278,7 @@ export class SimpleTableComponent<T extends {} = any> extends AsyncHandler {
     private _data$ = new BehaviorSubject<T[]>([]);
     private _filter$ = new BehaviorSubject<string>('');
     private _sort$ = new BehaviorSubject<{ key: string; reverse: boolean }>(
-        null
+        null,
     );
 
     public data_view$?: Observable<T[]> = null;
@@ -319,8 +323,8 @@ export class SimpleTableComponent<T extends {} = any> extends AsyncHandler {
                             Object.values(_).some((i) =>
                                 JSON.stringify(i)
                                     ?.toLowerCase()
-                                    .includes((filter || '').toLowerCase())
-                            )
+                                    .includes((filter || '').toLowerCase()),
+                            ),
                         );
                     }
                     if (sort && data.length) {
@@ -333,10 +337,10 @@ export class SimpleTableComponent<T extends {} = any> extends AsyncHandler {
                         } else {
                             data = data.sort((a, b) => {
                                 const a_value = JSON.stringify(
-                                    a[sort.key] || ''
+                                    a[sort.key] || '',
                                 );
                                 const b_value = JSON.stringify(
-                                    b[sort.key] || ''
+                                    b[sort.key] || '',
                                 );
                                 const result = a_value.localeCompare(b_value);
                                 return sort.reverse ? -result : result;
@@ -348,12 +352,12 @@ export class SimpleTableComponent<T extends {} = any> extends AsyncHandler {
                     if (this.page_size) {
                         this.total_count = data.length;
                         this.total_pages = Math.ceil(
-                            this.total_count / this.page_size
+                            this.total_count / this.page_size,
                         );
                     }
                     return data;
                 }),
-                shareReplay(1)
+                shareReplay(1),
             );
         }
     }

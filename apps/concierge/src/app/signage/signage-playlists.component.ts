@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
 
 import { SignageStateService } from './signage-state.service';
-import { SignagePlaylist } from './signage.classes';
-import { map, take, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
 
 @Component({
@@ -19,7 +18,12 @@ import { combineLatest } from 'rxjs';
             [columns]="[
                 { key: 'name', name: 'Name' },
                 { key: 'description', name: 'Description' },
-                { key: 'media', name: 'Media', content: media_template, size: '10rem' },
+                {
+                    key: 'media',
+                    name: 'Media',
+                    content: media_template,
+                    size: '10rem',
+                },
                 {
                     key: 'duration',
                     name: 'Duration',
@@ -31,8 +35,8 @@ import { combineLatest } from 'rxjs';
                     name: ' ',
                     content: actions_template,
                     size: '6rem',
-                    sortable: false
-                }
+                    sortable: false,
+                },
             ]"
             [sortable]="true"
         ></simple-table>
@@ -84,10 +88,10 @@ export class SignagePlaylistsComponent {
                         (playlist.media_durations[item] ||
                             media.find((m) => m.id === item)?.duration ||
                             15),
-                    0
+                    0,
                 ),
-            }))
-        )
+            })),
+        ),
     );
 
     constructor(private _state: SignageStateService) {}

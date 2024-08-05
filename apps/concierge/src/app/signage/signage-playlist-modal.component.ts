@@ -49,7 +49,28 @@ import { th } from 'date-fns/locale';
                 ></textarea>
             </mat-form-field>
             <label for="media">Media</label>
-            <custom-table
+            <simple-table
+                class="block w-full mb-2"
+                [data]="media_list"
+                [columns]="[
+                    { key: '_index', name: ' ' },
+                    { key: 'name', name: 'Name' },
+                    { key: 'type', name: 'Type' },
+                    {
+                        key: 'duration',
+                        name: 'Duration',
+                        size: '6rem',
+                        content: duration_template,
+                    },
+                    {
+                        key: 'actions',
+                        name: ' ',
+                        size: '10.5rem',
+                        content: actions_template,
+                    },
+                ]"
+            ></simple-table>
+            <!-- <custom-table
                 class="block w-full mb-2"
                 [dataSource]="media_list"
                 [columns]="['_index', 'name', 'type', 'duration', 'actions']"
@@ -60,7 +81,7 @@ import { th } from 'date-fns/locale';
                     actions: actions_template
                 }"
             >
-            </custom-table>
+            </custom-table> -->
             <button
                 btn
                 matRipple
@@ -89,7 +110,7 @@ import { th } from 'date-fns/locale';
                 </mat-form-field>
                 <button
                     mat-menu-item
-                    *ngFor="let item of new_media | async | slice: 0:8"
+                    *ngFor="let item of new_media | async | slice: 0 : 8"
                     (click)="addMedia(item)"
                 >
                     <div class="flex items-center w-full">
@@ -111,23 +132,25 @@ import { th } from 'date-fns/locale';
             </button>
         </footer>
         <ng-template #duration_template let-row="row">
-            <button
-                matTooltip="Set Custom Duration"
-                [matMenuTriggerFor]="duration_menu"
-                [class.pointer-events-none]="row.type !== 'image'"
-            >
-                <code
-                    [class.bg-warning]="form.value.media_durations[row.id]"
-                    [class.text-warning-content]="
-                        form.value.media_durations[row.id]
-                    "
+            <div class="p-4">
+                <button
+                    matTooltip="Set Custom Duration"
+                    [matMenuTriggerFor]="duration_menu"
+                    [class.pointer-events-none]="row.type !== 'image'"
                 >
-                    {{
-                        form.value.media_durations[row.id] || row.duration
-                            | mediaDuration
-                    }}
-                </code>
-            </button>
+                    <code
+                        [class.bg-warning]="form.value.media_durations[row.id]"
+                        [class.text-warning-content]="
+                            form.value.media_durations[row.id]
+                        "
+                    >
+                        {{
+                            form.value.media_durations[row.id] || row.duration
+                                | mediaDuration
+                        }}
+                    </code>
+                </button>
+            </div>
             <mat-menu #duration_menu="matMenu" class="w-[20rem] max-w-[80vw]">
                 <mat-form-field
                     appearance="outline"
@@ -139,52 +162,23 @@ import { th } from 'date-fns/locale';
                         [ngModelOptions]="{ standalone: true }"
                     >
                         <mat-option [value]="0">Use Media Default</mat-option>
-                        <mat-option [value]="5">5 seconds</mat-option>
-                        <mat-option [value]="10">10 seconds</mat-option>
-                        <mat-option [value]="15">15 seconds</mat-option>
-                        <mat-option [value]="30">30 seconds</mat-option>
-                        <mat-option [value]="45">45 seconds</mat-option>
-                        <mat-option [value]="60">1 minute</mat-option>
-                        <mat-option [value]="75"
-                            >1 minute 15 seconds</mat-option
+                        <mat-option
+                            *ngFor="let duration of duration_list"
+                            [value]="duration"
                         >
-                        <mat-option [value]="90"
-                            >1 minute 30 seconds</mat-option
-                        >
-                        <mat-option [value]="105"
-                            >1 minute 45 seconds</mat-option
-                        >
-                        <mat-option [value]="120">2 minute</mat-option>
-                        <mat-option [value]="135"
-                            >2 minute 15 seconds</mat-option
-                        >
-                        <mat-option [value]="150"
-                            >2 minute 30 seconds</mat-option
-                        >
-                        <mat-option [value]="165"
-                            >2 minute 45 seconds</mat-option
-                        >
-                        <mat-option [value]="180">3 minute</mat-option>
-                        <mat-option [value]="195"
-                            >3 minute 15 seconds</mat-option
-                        >
-                        <mat-option [value]="210"
-                            >3 minute 30 seconds</mat-option
-                        >
-                        <mat-option [value]="225"
-                            >3 minute 45 seconds</mat-option
-                        >
-                        <mat-option [value]="240">4 minute</mat-option>
-                        <mat-option [value]="255"
-                            >4 minute 15 seconds</mat-option
-                        >
-                        <mat-option [value]="270"
-                            >4 minute 30 seconds</mat-option
-                        >
-                        <mat-option [value]="285"
-                            >4 minute 45 seconds</mat-option
-                        >
-                        <mat-option [value]="300">5 minute</mat-option>
+                            {{
+                                duration / 60 < 1
+                                    ? ''
+                                    : (duration / 60 | toFixed: 0) +
+                                      ' minute' +
+                                      (duration / 60 > 1 ? 's' : '')
+                            }}
+                            {{
+                                duration % 60 === 0
+                                    ? ''
+                                    : (duration % 60) + ' seconds'
+                            }}
+                        </mat-option>
                     </mat-select>
                 </mat-form-field>
             </mat-menu>
@@ -195,7 +189,7 @@ import { th } from 'date-fns/locale';
             let-first="first"
             let-last="last"
         >
-            <div class="w-full flex items-center justify-end">
+            <div class="flex items-center mx-auto">
                 <button
                     icon
                     matRipple
@@ -247,6 +241,11 @@ export class SignagePlaylistModalComponent {
     public readonly playlist = this._data;
     public readonly media = this._state.media;
 
+    public duration_list = [
+        5, 10, 15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195, 210,
+        225, 240, 255, 270, 285, 300,
+    ];
+
     public readonly search = new BehaviorSubject('');
 
     public readonly form = new FormGroup({
@@ -265,9 +264,9 @@ export class SignagePlaylistModalComponent {
             (this.form.getRawValue().media || []).map(
                 (id) =>
                     media_list.find((_) => _.id === id) ||
-                    new SignageMedia({ id })
-            )
-        )
+                    new SignageMedia({ id }),
+            ),
+        ),
     );
 
     public readonly new_media = combineLatest([
@@ -279,9 +278,9 @@ export class SignagePlaylistModalComponent {
             all_media
                 .filter((_) => !this.form.getRawValue().media.includes(_.id))
                 .filter((_) =>
-                    _.name.toLowerCase().includes(search.toLowerCase())
-                )
-        )
+                    _.name.toLowerCase().includes(search.toLowerCase()),
+                ),
+        ),
     );
 
     @ViewChild('search_input')
@@ -291,7 +290,7 @@ export class SignagePlaylistModalComponent {
         @Inject(MAT_DIALOG_DATA) private _data: SignagePlaylist = {} as any,
         private _state: SignageStateService,
         private _dialog: MatDialog,
-        private _dialog_ref: MatDialogRef<SignagePlaylistModalComponent>
+        private _dialog_ref: MatDialogRef<SignagePlaylistModalComponent>,
     ) {}
 
     public indexOf(id: string) {

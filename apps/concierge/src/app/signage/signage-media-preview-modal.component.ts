@@ -1,7 +1,5 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { uploadFile } from '@placeos/common';
-import { takeWhile } from 'rxjs/operators';
 
 @Component({
     selector: 'signage-media-preview-modal',
@@ -68,6 +66,6 @@ export class SignageMediaPreviewModalComponent {
             save: boolean;
             name: string;
             file?: File;
-        }
+        },
     ) {}
 }

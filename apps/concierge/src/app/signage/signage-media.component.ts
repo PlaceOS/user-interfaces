@@ -7,8 +7,9 @@ import { AsyncHandler, notifyError } from '@placeos/common';
     selector: 'signage-media',
     template: `
         <div
-            class="relative bg-base-200 flex-1 h-[calc(100%-2rem)] w-full my-4 rounded-lg overflow-auto"
+            class="relative bg-base-200 flex-1 h-full w-full rounded-lg overflow-auto"
             (document:dragenter)="onEnter($event)"
+            (document:dragleave)="hideOverlay($event)"
             (document:drop)="hideOverlay($event)"
         >
             <ng-container *ngIf="!(loading | async); else load_template">
@@ -19,7 +20,7 @@ import { AsyncHandler, notifyError } from '@placeos/common';
                         class="flex flex-wrap items-start justify-start w-full p-2"
                     >
                         <div
-                            class="m-2 p-2 bg-base-100 rounded-lg overflow-hidden h-[13rem] w-[17rem] border border-base-300"
+                            class="m-2 p-2 bg-base-100 rounded-lg overflow-hidden h-[13rem] w-[17rem] border border-base-300 z-0"
                             *ngFor="let item of media | async"
                         >
                             <button
@@ -142,6 +143,8 @@ export class SignageMediaComponent extends AsyncHandler {
     public show_dropzone = false;
 
     public readonly previewMedia = (item) => this._state.previewMedia(item);
+    public readonly previewFile = (event) =>
+        this._state.previewFileFromInput(event);
 
     public onEnter(e) {
         this.show_dropzone = e?.dataTransfer?.types.includes('Files');
@@ -156,21 +159,5 @@ export class SignageMediaComponent extends AsyncHandler {
 
     constructor(private _state: SignageStateService) {
         super();
-    }
-
-    public previewFile(event) {
-        const element: HTMLInputElement = event.target as any;
-        /* istanbul ignore else */
-        if (!element?.files?.length) return;
-        const files: FileList = element.files;
-        const file = files[0];
-        if (
-            file &&
-            (file.type.includes('image') || file.type.includes('video'))
-        ) {
-            this._state.previewFileMedia(file);
-        } else {
-            notifyError('Invalid file type.');
-        }
     }
 }

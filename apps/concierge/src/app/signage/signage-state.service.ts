@@ -31,7 +31,6 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { SignageMediaPreviewModalComponent } from './signage-media-preview-modal.component';
 import { SignagePlaylistModalComponent } from './signage-playlist-modal.component';
-import { SignageDisplayModalComponent } from './signage-display-modal.component';
 
 @Injectable({
     providedIn: 'root',
@@ -50,11 +49,11 @@ export class SignageStateService {
         filter(([_]) => !!_?.id),
         switchMap(([bld]) =>
             showMetadata(bld.id, 'signage-media').pipe(
-                catchError(() => of({} as PlaceMetadata))
-            )
+                catchError(() => of({} as PlaceMetadata)),
+            ),
         ),
         map((_) => (_.details instanceof Array ? _.details : null) || []),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly playlists: Observable<SignagePlaylist[]> = combineLatest([
@@ -64,10 +63,10 @@ export class SignageStateService {
         filter(([_]) => !!_?.id),
         switchMap(([bld]) =>
             showMetadata(bld.id, 'signage-playlists').pipe(
-                catchError(() => of({} as PlaceMetadata))
-            )
+                catchError(() => of({} as PlaceMetadata)),
+            ),
         ),
-        map((_) => (_.details instanceof Array ? _.details : []))
+        map((_) => (_.details instanceof Array ? _.details : [])),
     );
 
     public readonly displays: Observable<SignageDisplay[]> = combineLatest([
@@ -77,10 +76,10 @@ export class SignageStateService {
         filter(([_]) => !!_?.id),
         switchMap(([bld]) =>
             showMetadata(bld.id, 'signage-displays').pipe(
-                catchError(() => of({} as PlaceMetadata))
-            )
+                catchError(() => of({} as PlaceMetadata)),
+            ),
         ),
-        map((_) => (_.details instanceof Array ? _.details : []))
+        map((_) => (_.details instanceof Array ? _.details : [])),
     );
 
     public readonly zones = combineLatest([
@@ -90,15 +89,15 @@ export class SignageStateService {
         filter(([_]) => !!_?.id),
         switchMap(([bld]) =>
             queryZones({ parent_id: bld.id, tags: 'signage', limit: 100 }).pipe(
-                catchError(() => of({ data: [] }))
-            )
+                catchError(() => of({ data: [] })),
+            ),
         ),
-        map((_) => _.data || [])
+        map((_) => _.data || []),
     );
 
     constructor(
         private _org: OrganisationService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
 
     public editPlaylist(playlist: SignagePlaylist = new SignagePlaylist()) {
@@ -129,13 +128,6 @@ export class SignageStateService {
         await this.savePlaylist(playlist, true);
     }
 
-    public editDisplay(display: SignageDisplay = new SignageDisplay()) {
-        const ref = this._dialog.open(SignageDisplayModalComponent, {
-            data: display,
-        });
-        ref.afterClosed().subscribe(() => this._change.next(Date.now()));
-    }
-
     public async saveDisplay(display: SignageDisplay, remove = false) {
         const bld = this._org.building.id;
         const display_list = await this.displays.pipe(take(1)).toPromise();
@@ -162,6 +154,22 @@ export class SignageStateService {
             data: { url, type, name, save: false },
         });
         ref.afterClosed().subscribe(() => URL.revokeObjectURL(url));
+    }
+
+    public previewFileFromInput(event) {
+        const element: HTMLInputElement = event.target as any;
+        /* istanbul ignore else */
+        if (!element?.files?.length) return;
+        const files: FileList = element.files;
+        const file = files[0];
+        if (
+            file &&
+            (file.type.includes('image') || file.type.includes('video'))
+        ) {
+            this.previewFileMedia(file);
+        } else {
+            notifyError('Invalid file type.');
+        }
     }
 
     public previewFileMedia(media: File) {
@@ -196,7 +204,7 @@ export class SignageStateService {
                         }
                     },
                     reject,
-                    () => (!resolved ? resolve(state) : null)
+                    () => (!resolved ? resolve(state) : null),
                 );
             });
         const media = await upload();
