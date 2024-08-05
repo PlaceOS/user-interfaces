@@ -74,7 +74,7 @@ import { ParkingStateService } from './parking-state.service';
                 *ngIf="!row?.checked_in && row.checked_out_at"
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-base-300 text-base-100 mx-auto"
                 [matTooltip]="
-                    'Left at ' + (row.checked_out_at | date: time_format)
+                    'Left at ' + (row.checked_out_at * 1000 | date: time_format)
                 "
                 matTooltipPosition="right"
             >
