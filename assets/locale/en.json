@@ -104,7 +104,8 @@
         "FREE_FOR_HOURS_AND_MINUTES": "Free for {{ hour }} hours and {{ minute }} minutes",
         "FREE_FOR_MINUTES": "Free for {{ minute }} minutes",
         "FREE_FOR_LESS_THAN_MINUTE": "Free for less than a minute",
-        "EARLY_CHECKIN": "Meeting has been checked in early"
+        "EARLY_CHECKIN": "Meeting has been checked in early",
+        "NO_MESSAGES": "No messages"
     },
     "FORM": {
         "ALL_DAY": "All Day",
