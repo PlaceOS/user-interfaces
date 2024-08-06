@@ -312,7 +312,9 @@ export class PanelStateService extends AsyncHandler {
             {
                 ...this._settings.getValue(),
                 space,
-                date: future ? date : Date.now(),
+                date: future
+                    ? date
+                    : startOfMinute(Date.now()).getTime() + 1000,
                 future,
                 max_duration,
             },
