@@ -124,8 +124,8 @@ export class ReportsOptionsComponent extends AsyncHandler {
         map(([bld, region]) =>
             this._settings.get('app.use_region')
                 ? this._org.levelsForRegion(region)
-                : this._org.levelsForBuilding(bld)
-        )
+                : this._org.levelsForBuilding(bld),
+        ),
     );
 
     public page = '';
@@ -143,7 +143,7 @@ export class ReportsOptionsComponent extends AsyncHandler {
         if (date instanceof Date) date = date.valueOf();
         this._router.navigate([], {
             relativeTo: this._route,
-            queryParams: { end: date },
+            queryParams: { end: endOfDay(date).valueOf() },
             queryParamsHandling: 'merge',
         });
     };
@@ -164,7 +164,7 @@ export class ReportsOptionsComponent extends AsyncHandler {
         private _org: OrganisationService,
         private _settings: SettingsService,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
     ) {
         super();
     }
@@ -176,7 +176,7 @@ export class ReportsOptionsComponent extends AsyncHandler {
             'routing',
             this._router.events.subscribe(() => {
                 this.page = this._router.url;
-            })
+            }),
         );
         this.subscription(
             'route.query',
@@ -189,14 +189,14 @@ export class ReportsOptionsComponent extends AsyncHandler {
                             return;
                         }
                         this._org.building = this._org.buildings.find(
-                            (bld) => bld.id === level.parent_id
+                            (bld) => bld.id === level.parent_id,
                         );
                         this.zones = zones;
                     }
                 }
                 if (params.has('start')) this.start = +params.get('start');
                 if (params.has('end')) this.end = +params.get('end');
-            })
+            }),
         );
     }
 

@@ -772,10 +772,14 @@ export class EventFormService extends AsyncHandler {
                             ? unique([
                                   this._org.organisation.id,
                                   this._org.region?.id,
-                                  spaces[0]?.level?.parent_id,
+                                  this._org.building?.id,
                                   spaces[0]?.level?.id,
                               ]).filter((_) => !!_)
-                            : [this._org.building?.id],
+                            : unique([
+                                  this._org.organisation.id,
+                                  this._org.region?.id,
+                                  this._org.building?.id,
+                              ]),
                         reset_state: changed_times,
                     },
                     assets,
