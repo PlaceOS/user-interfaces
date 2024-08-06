@@ -943,9 +943,6 @@ Apache-2.0
  
 
 
-survey-core
-MIT
-
 ts-md5
 MIT
 MIT License
