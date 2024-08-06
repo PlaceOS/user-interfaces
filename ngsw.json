@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1722910144254,
+  "timestamp": 1722913687969,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -153,7 +153,7 @@
     "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "dca2de232a65d6eb619dd8bdc83e9eec7e01a771",
     "./apps_concierge_src_app_building-manager_building-manager_module_ts.js": "80104cf9d7a0d190cf3889e1fdcbf672abcc74b8",
     "./apps_concierge_src_app_catering_catering_module_ts.js": "3ec78048de4005cf14f806f7cfa2de4b3a02fb4c",
-    "./apps_concierge_src_app_day-view_day-view_module_ts.js": "7b3b97309f2037115a283717aa053843da1bdbee",
+    "./apps_concierge_src_app_day-view_day-view_module_ts.js": "329c378b08eac9e8c4cd236f918f6fd814507c02",
     "./apps_concierge_src_app_desks_desks_module_ts.js": "4f877ee0dc3e1290ea191d79a448b982583cf61e",
     "./apps_concierge_src_app_events_events_module_ts.js": "d071a1bf7a9a754e105249ba296ab06834286212",
     "./apps_concierge_src_app_facilities_facilities_module_ts.js": "bef1bf16efa427b7a229a9c37f59300f21bd84dc",
@@ -250,7 +250,7 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./default-apps_concierge_src_app_desks_desks-state_service_ts.js": "9a253fa0adee6343a12c7420ba54e5572da292a6",
     "./default-apps_concierge_src_app_parking_parking-state_service_ts.js": "7a271394e8e09e58c1455291d070c57e7bfe7a01",
-    "./default-libs_bookings_src_lib_bookings_module_ts.js": "b55bdfc94033d2937cd3b28ca8f985b8cbfa4b5f",
+    "./default-libs_bookings_src_lib_bookings_module_ts.js": "b50eee9272c68a66cd45fc9aa3dfda1b015e5ce4",
     "./default-libs_catering_src_index_ts.js": "d0f1da47a3da35331280493085c2bdbc76df94c8",
     "./default-libs_explore_src_index_ts.js": "72218a93e0a09b9ae15934a3c9d2370ae6e13d08",
     "./default-libs_users_src_lib_users_module_ts.js": "c1334fb280220510bd7490264932d5eeb1ca6d7a",
@@ -258,7 +258,7 @@
     "./default-node_modules_angular_material_fesm2022_tabs_mjs.js": "9d7818b86cddffd7dad6fdba547ab6d29f38ed17",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "4ecebe3aa37574e6a97b35e04fd997b7c80f5812",
-    "./main.js": "49298392e971d8698da4c3e036863e4039025956",
+    "./main.js": "058e42cd5df0ff3e69b9f27e23a440ebc917af23",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
