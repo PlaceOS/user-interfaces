@@ -20,17 +20,14 @@ import { notifyError, notifySuccess } from '@placeos/common';
             </button>
         </header>
         <main
-            class="p-4 w-[36rem] max-h-[65vh] h-[65vh] overflow-auto"
+            class="p-4 w-[36rem] max-h-[65vh] overflow-auto"
             *ngIf="!loading; else loading_template"
         >
-            <mat-form-field
-                appearance="outline"
-                class="w-full h-full no-subscript"
-            >
+            <mat-form-field appearance="outline" class="w-full no-subscript">
                 <textarea
                     matInput
                     [(ngModel)]="notes"
-                    class="resize-none"
+                    class="resize-none h-[60vh] max-h-[64rem]"
                     placeholder="Notes for visitor"
                 ></textarea>
             </mat-form-field>

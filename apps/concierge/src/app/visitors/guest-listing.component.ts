@@ -11,7 +11,7 @@ import { User } from '@placeos/users';
     selector: 'guest-listings',
     template: `
         <simple-table
-            class="min-w-[64rem] block text-sm z-0"
+            class="min-w-[72rem] block text-sm z-0"
             [data]="guests"
             [columns]="[
                 {

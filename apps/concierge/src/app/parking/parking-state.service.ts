@@ -401,6 +401,10 @@ export class ParkingStateService extends AsyncHandler {
         console.log('Reservation:', space);
         return new Promise<string>(async (resolve) => {
             const levels = await this.levels.pipe(take(1)).toPromise();
+            const spaces = await this.spaces.pipe(take(1)).toPromise();
+            if (!space && reservation?.asset_id) {
+                space = spaces.find((_) => _.id === reservation.asset_id);
+            }
             const ref = this._dialog.open(ParkingBookingModalComponent, {
                 data: {
                     booking: reservation,

@@ -2,7 +2,12 @@ import { Component, Inject } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Booking, BookingFormService, ParkingSpace } from '@placeos/bookings';
-import { AsyncHandler, currentUser } from '@placeos/common';
+import {
+    AsyncHandler,
+    currentUser,
+    notify,
+    notifyError,
+} from '@placeos/common';
 import { BuildingLevel } from '@placeos/organisation';
 import { User } from '@placeos/users';
 
@@ -170,7 +175,14 @@ export class ParkingBookingModalComponent extends AsyncHandler {
             this.form.patchValue({ resources: [this._data.space] });
         }
         if (this._data.date) {
-            this.form.patchValue({ date: this._data.date });
+            this.timeout(
+                'init_date',
+                () => {
+                    this.form.patchValue({ date: this._data.date });
+                    this.form.get('date').disable();
+                },
+                300,
+            );
             this.subscription(
                 'form_change',
                 this.form.valueChanges.subscribe((v) => {
@@ -182,7 +194,6 @@ export class ParkingBookingModalComponent extends AsyncHandler {
                     );
                 }),
             );
-            this.form.get('date').disable();
         }
     }
 
@@ -193,6 +204,7 @@ export class ParkingBookingModalComponent extends AsyncHandler {
         const result = await this._booking_form.postForm().catch((e) => {
             this.loading = false;
             this.form.controls.plate_number.setValidators([]);
+            notifyError(e);
             throw e;
         });
         this.form.controls.plate_number.setValidators([]);

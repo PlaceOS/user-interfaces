@@ -100,8 +100,10 @@ export class AssetsReportComponent extends AsyncHandler {
                 if (params.has('end')) {
                     this._state.setOptions({ end: +params.get('end') });
                 }
-                if (params.has('zones')) {
-                    const zones = params.get('zones').split(',');
+                if (params.has('zones') || params.has('zone_ids')) {
+                    const zones = (
+                        params.get('zones') || params.get('zone_ids')
+                    ).split(',');
                     if (zones.length) this._state.setOptions({ zones });
                 }
             }),

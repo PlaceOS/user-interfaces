@@ -20,7 +20,13 @@ import {
     startOfMinute,
 } from 'date-fns';
 import { BehaviorSubject, combineLatest, forkJoin, Observable, of } from 'rxjs';
-import { map, shareReplay, switchMap, take } from 'rxjs/operators';
+import {
+    debounceTime,
+    map,
+    shareReplay,
+    switchMap,
+    take,
+} from 'rxjs/operators';
 
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
@@ -59,7 +65,7 @@ export class ExploreParkingService extends AsyncHandler {
     private _poll = new BehaviorSubject<number>(0);
 
     public readonly options = this._options.asObservable();
-    public on_book: (ParkingSpace) => void = null;
+    public on_book: (ParkingSpace) => Promise<void> = null;
 
     /** List of available parking levels for the active building */
     public readonly levels = this._org.active_levels.pipe(
@@ -73,6 +79,7 @@ export class ExploreParkingService extends AsyncHandler {
         this._poll,
         this._state.options,
     ]).pipe(
+        debounceTime(300),
         switchMap(([bld, _, __, { is_public }]) =>
             is_public
                 ? of([])
@@ -198,7 +205,7 @@ export class ExploreParkingService extends AsyncHandler {
         const features = [];
         const actions = [];
         const colours = this._settings.get('app.explore.colors') || {};
-        const options = this._options.getValue();
+        let options = this._options.getValue();
         const assigned_space = await this._parking.assigned_space
             .pipe(take(1))
             .toPromise();
@@ -240,7 +247,11 @@ export class ExploreParkingService extends AsyncHandler {
             });
             if (!can_book) continue;
             const book_fn = async () => {
-                if (this.on_book) return this.on_book(space);
+                if (this.on_book) {
+                    await this.on_book(space);
+                    this._poll.next(Date.now());
+                    return;
+                }
                 if (deny_parking_access) {
                     return notifyError(
                         `Your user account has been denied parking access to ${
@@ -277,6 +288,7 @@ export class ExploreParkingService extends AsyncHandler {
                 }
                 this._bookings.newForm();
                 this._bookings.setOptions({ type: 'parking' });
+                options = this._options.getValue();
                 if (options.date) {
                     this._bookings.form.patchValue({
                         date: options.date,

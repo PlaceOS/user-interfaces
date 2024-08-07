@@ -43,6 +43,13 @@ import { ParkingStateService } from './parking-state.service';
                     content: status_template,
                     size: '9.5rem',
                 },
+                {
+                    key: 'actions',
+                    name: ' ',
+                    content: action_template,
+                    size: '3.5rem',
+                    sortable: false,
+                },
             ]"
             [filter]="(options | async)?.search"
             [sortable]="true"
@@ -98,7 +105,7 @@ import { ParkingStateService } from './parking-state.service';
             </div>
         </ng-template>
         <ng-template #plate_template let-row="row">
-            <div class="p-4 font-mono text-sm">
+            <div class="p-4 font-mono text-sm uppercase">
                 {{ row?.extension_data?.plate_number }}
                 <span
                     *ngIf="!row?.extension_data?.plate_number"
@@ -156,6 +163,19 @@ import { ParkingStateService } from './parking-state.service';
                 </button>
             </mat-menu>
         </ng-template>
+        <ng-template #action_template let-row="row">
+            <div class="flex items-center justify-end space-x-2 mx-auto">
+                <button
+                    icon
+                    matRipple
+                    [matMenuTriggerFor]="menu"
+                    [disabled]="row.checked_in || row.status === 'ended'"
+                    (click)="editReservation(row)"
+                >
+                    <app-icon class="text-2xl">edit</app-icon>
+                </button>
+            </div>
+        </ng-template>
         <div class="w-full h-20"></div>
     `,
     styles: [``],
@@ -167,6 +187,7 @@ export class ParkingBookingsListComponent {
 
     public readonly reject = (e) => this._state.rejectBooking(e);
     public readonly approve = (e) => this._state.approveBooking(e);
+    public readonly editReservation = (e) => this._state.editReservation(e);
 
     constructor(private _state: ParkingStateService) {}
 }

@@ -23,7 +23,15 @@ import {
     startOfDay,
 } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { filter, map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
+import {
+    debounceTime,
+    filter,
+    map,
+    shareReplay,
+    switchMap,
+    take,
+    tap,
+} from 'rxjs/operators';
 
 export interface AssetsReportOptions {
     /** Zones to check available space for */
@@ -47,7 +55,8 @@ export class AssetsReportService {
 
     public readonly products$ = this._generate.pipe(
         filter((gen) => gen > 0),
-        switchMap(() => this._options),
+        switchMap(() => this._options.pipe(take(1))),
+        debounceTime(300),
         switchMap((options) => {
             this._loading.next(true);
             return queryAssetGroupsExtended({
@@ -63,10 +72,12 @@ export class AssetsReportService {
 
     public readonly bookings$ = this._generate.pipe(
         filter((gen) => gen > 0),
-        switchMap(() => this._options),
+        switchMap(() => this._options.pipe(take(1))),
+        debounceTime(300),
         switchMap((options) => {
             this._loading.next(true);
             const { start, end, zones } = options;
+            console.log('Options:', options);
             return queryBookings({
                 period_start: getUnixTime(startOfDay(start || Date.now())),
                 period_end: getUnixTime(endOfDay(end || start || Date.now())),

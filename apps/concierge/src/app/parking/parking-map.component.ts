@@ -3,7 +3,7 @@ import { AsyncHandler } from '@placeos/common';
 import { ExploreParkingService, ExploreStateService } from '@placeos/explore';
 import { ParkingStateService } from './parking-state.service';
 import { OrganisationService } from '@placeos/organisation';
-import { first } from 'rxjs/operators';
+import { first, take } from 'rxjs/operators';
 
 @Component({
     selector: 'parking-map',
@@ -62,7 +62,14 @@ export class ParkingMapComponent extends AsyncHandler {
                 this._ex_parking.setOptions(_);
             }),
         );
-        this._ex_parking.on_book = (space) =>
-            this._parking.editReservation(undefined, { space });
+        this._ex_parking.on_book = async (space) => {
+            const options = await this._parking.options
+                .pipe(take(1))
+                .toPromise();
+            await this._parking.editReservation(undefined, {
+                space,
+                date: options.date,
+            });
+        };
     }
 }
