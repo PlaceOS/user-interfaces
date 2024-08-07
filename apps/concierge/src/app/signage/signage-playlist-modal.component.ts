@@ -26,7 +26,7 @@ import { th } from 'date-fns/locale';
         </header>
         <main
             [formGroup]="form"
-            class="p-2 flex flex-col"
+            class="p-2 flex flex-col w-[24rem]"
             *ngIf="!loading; else load_state"
         >
             <label for="name">Name<span required>*</span></label>
@@ -46,51 +46,9 @@ import { th } from 'date-fns/locale';
                     name="description"
                     placeholder="Description"
                     formControlName="description"
+                    class="min-h-32"
                 ></textarea>
             </mat-form-field>
-            <label for="media">Media</label>
-            <simple-table
-                class="block w-full mb-2"
-                [data]="media_list"
-                [columns]="[
-                    { key: '_index', name: ' ' },
-                    { key: 'name', name: 'Name' },
-                    { key: 'type', name: 'Type' },
-                    {
-                        key: 'duration',
-                        name: 'Duration',
-                        size: '6rem',
-                        content: duration_template,
-                    },
-                    {
-                        key: 'actions',
-                        name: ' ',
-                        size: '10.5rem',
-                        content: actions_template,
-                    },
-                ]"
-            ></simple-table>
-            <!-- <custom-table
-                class="block w-full mb-2"
-                [dataSource]="media_list"
-                [columns]="['_index', 'name', 'type', 'duration', 'actions']"
-                [display_column]="[' ', 'Name', 'Type', 'Duration', ' ']"
-                [column_size]="['3r', 'flex', '10r', '6r', '10r']"
-                [template]="{
-                    duration: duration_template,
-                    actions: actions_template
-                }"
-            >
-            </custom-table> -->
-            <button
-                btn
-                matRipple
-                class="w-full"
-                [matMenuTriggerFor]="media_menu"
-                (click)="focusSearchInput()"
-            >
-                Add Media
-            </button>
             <mat-menu #media_menu="matMenu" class="w-[32rem] max-w-[80vw]">
                 <mat-form-field
                     appearance="outline"
@@ -131,102 +89,6 @@ import { th } from 'date-fns/locale';
                 Save Playlist
             </button>
         </footer>
-        <ng-template #duration_template let-row="row">
-            <div class="p-4">
-                <button
-                    matTooltip="Set Custom Duration"
-                    [matMenuTriggerFor]="duration_menu"
-                    [class.pointer-events-none]="row.type !== 'image'"
-                >
-                    <code
-                        [class.bg-warning]="form.value.media_durations[row.id]"
-                        [class.text-warning-content]="
-                            form.value.media_durations[row.id]
-                        "
-                    >
-                        {{
-                            form.value.media_durations[row.id] || row.duration
-                                | mediaDuration
-                        }}
-                    </code>
-                </button>
-            </div>
-            <mat-menu #duration_menu="matMenu" class="w-[20rem] max-w-[80vw]">
-                <mat-form-field
-                    appearance="outline"
-                    class="w-[calc(100%-1rem)] mx-2 no-subscript"
-                >
-                    <mat-select
-                        [ngModel]="form.value.media_durations[row.id] || 0"
-                        (ngModelChange)="setDuration(row.id, $event)"
-                        [ngModelOptions]="{ standalone: true }"
-                    >
-                        <mat-option [value]="0">Use Media Default</mat-option>
-                        <mat-option
-                            *ngFor="let duration of duration_list"
-                            [value]="duration"
-                        >
-                            {{
-                                duration / 60 < 1
-                                    ? ''
-                                    : (duration / 60 | toFixed: 0) +
-                                      ' minute' +
-                                      (duration / 60 > 1 ? 's' : '')
-                            }}
-                            {{
-                                duration % 60 === 0
-                                    ? ''
-                                    : (duration % 60) + ' seconds'
-                            }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </mat-menu>
-        </ng-template>
-        <ng-template
-            #actions_template
-            let-row="row"
-            let-first="first"
-            let-last="last"
-        >
-            <div class="flex items-center mx-auto">
-                <button
-                    icon
-                    matRipple
-                    matTooltip="Move Media to previous item"
-                    [disabled]="first"
-                    (click)="changeOrder(row, -1)"
-                >
-                    <app-icon>arrow_upward</app-icon>
-                </button>
-                <button
-                    icon
-                    matRipple
-                    matTooltip="Move Media to next item"
-                    [disabled]="last"
-                    (click)="changeOrder(row, 1)"
-                >
-                    <app-icon>arrow_downward</app-icon>
-                </button>
-                <button
-                    icon
-                    matRipple
-                    matTooltip="Preview Media"
-                    (click)="previewMedia(row)"
-                >
-                    <app-icon>visibility</app-icon>
-                </button>
-                <button
-                    icon
-                    matRipple
-                    matTooltip="Remove Media from Playlist"
-                    class="text-error"
-                    (click)="removeMedia(row)"
-                >
-                    <app-icon>delete</app-icon>
-                </button>
-            </div>
-        </ng-template>
         <ng-template #load_state>
             <main class="flex flex-col items-center justify-center p-8">
                 <mat-spinner [diameter]="32"></mat-spinner>
@@ -256,33 +118,6 @@ export class SignagePlaylistModalComponent {
         media_durations: new FormControl(this.playlist.media_durations || {}),
     });
 
-    public readonly media_list = combineLatest([
-        this.media,
-        this.form.valueChanges.pipe(startWith(this.form.getRawValue())),
-    ]).pipe(
-        map(([media_list, { media }]) =>
-            (this.form.getRawValue().media || []).map(
-                (id) =>
-                    media_list.find((_) => _.id === id) ||
-                    new SignageMedia({ id }),
-            ),
-        ),
-    );
-
-    public readonly new_media = combineLatest([
-        this.media,
-        this.search,
-        this.form.valueChanges.pipe(startWith(this.form.getRawValue())),
-    ]).pipe(
-        map(([all_media, search, _]) =>
-            all_media
-                .filter((_) => !this.form.getRawValue().media.includes(_.id))
-                .filter((_) =>
-                    _.name.toLowerCase().includes(search.toLowerCase()),
-                ),
-        ),
-    );
-
     @ViewChild('search_input')
     public search_input: ElementRef<HTMLInputElement>;
 
@@ -306,57 +141,13 @@ export class SignagePlaylistModalComponent {
         this.form.updateValueAndValidity();
         if (this.form.invalid) return;
         this.loading = true;
-        await this._state.savePlaylist(this.form.getRawValue()).catch((_) => {
-            notifyError('Error saving playlist');
-            this.loading = false;
-            throw _;
-        });
-        this._dialog_ref.close();
-    }
-
-    public setDuration(id: string, duration: number) {
-        const { media_durations } = this.form.getRawValue();
-        const new_media_durations = { ...media_durations };
-        new_media_durations[id] = duration;
-        this.form.patchValue({ media_durations: new_media_durations });
-    }
-
-    public addMedia(item: SignageMedia) {
-        const { id } = item;
-        const { media } = this.form.getRawValue();
-        this.form.patchValue({
-            media: [...media, id],
-        });
-    }
-
-    public removeMedia(item: SignageMedia) {
-        const { media, media_durations } = this.form.getRawValue();
-        const index = media.indexOf(item.id);
-        const new_media = [...media];
-        delete media_durations[item.id];
-        new_media.splice(index, 1);
-        this.form.patchValue({
-            media: new_media,
-            media_durations: { ...media_durations },
-        });
-    }
-
-    public changeOrder(item: SignageMedia, direction: number) {
-        const { media } = this.form.getRawValue();
-        const index = media.indexOf(item.id);
-        const new_media = [...media];
-        new_media.splice(index, 1);
-        new_media.splice(index + direction, 0, item.id);
-        this.form.patchValue({
-            media: new_media,
-        });
-    }
-
-    public previewMedia(item: SignageMedia) {
-        const { url, type, name } = item;
-        const ref = this._dialog.open(SignageMediaPreviewModalComponent, {
-            data: { url, type, name, save: false },
-        });
-        ref.afterClosed().subscribe(() => URL.revokeObjectURL(url));
+        const result = await this._state
+            .savePlaylist(this.form.getRawValue())
+            .catch((_) => {
+                notifyError('Error saving playlist');
+                this.loading = false;
+                throw _;
+            });
+        this._dialog_ref.close(result);
     }
 }

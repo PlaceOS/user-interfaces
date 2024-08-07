@@ -2,32 +2,37 @@ import { Injectable } from '@angular/core';
 import {
     notifyError,
     notifySuccess,
-    randomString,
+    SettingsService,
     uploadFile,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import {
-    PlaceMetadata,
+    addSignageMedia,
+    addSignagePlaylist,
+    PlaceSystem,
+    querySignageMedia,
+    querySignagePlaylists,
+    querySystems,
     queryZones,
-    showMetadata,
-    updateMetadata,
+    removeSignageMedia,
+    removeSignagePlaylist,
+    SignageMedia,
+    SignagePlaylist,
+    updateSignageMedia,
+    updateSignagePlaylist,
+    updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
 import { Attachment } from '@placeos/users';
 import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import {
     catchError,
+    debounceTime,
     filter,
     map,
     shareReplay,
     switchMap,
-    take,
 } from 'rxjs/operators';
 
-import {
-    SignageDisplay,
-    SignageMedia,
-    SignagePlaylist,
-} from './signage.classes';
 import { MatDialog } from '@angular/material/dialog';
 import { SignageMediaPreviewModalComponent } from './signage-media-preview-modal.component';
 import { SignagePlaylistModalComponent } from './signage-playlist-modal.component';
@@ -47,12 +52,10 @@ export class SignageStateService {
         this._change,
     ]).pipe(
         filter(([_]) => !!_?.id),
+        debounceTime(300),
         switchMap(([bld]) =>
-            showMetadata(bld.id, 'signage-media').pipe(
-                catchError(() => of({} as PlaceMetadata)),
-            ),
+            querySignageMedia({ limit: 500 } as any).pipe(map((_) => _.data)),
         ),
-        map((_) => (_.details instanceof Array ? _.details : null) || []),
         shareReplay(1),
     );
 
@@ -61,25 +64,31 @@ export class SignageStateService {
         this._change,
     ]).pipe(
         filter(([_]) => !!_?.id),
-        switchMap(([bld]) =>
-            showMetadata(bld.id, 'signage-playlists').pipe(
-                catchError(() => of({} as PlaceMetadata)),
+        debounceTime(300),
+        switchMap(() =>
+            querySignagePlaylists({ limit: 500 } as any).pipe(
+                map((_) => _.data),
             ),
         ),
-        map((_) => (_.details instanceof Array ? _.details : [])),
+        shareReplay(1),
     );
 
-    public readonly displays: Observable<SignageDisplay[]> = combineLatest([
+    public readonly displays: Observable<PlaceSystem[]> = combineLatest([
+        this._org.active_region,
         this._org.active_building,
         this._change,
     ]).pipe(
-        filter(([_]) => !!_?.id),
-        switchMap(([bld]) =>
-            showMetadata(bld.id, 'signage-displays').pipe(
-                catchError(() => of({} as PlaceMetadata)),
-            ),
+        filter(([region, bld]) => !!bld?.id),
+        switchMap(([region, bld]) =>
+            querySystems({
+                zone_id:
+                    (this._settings.get('app.use_region') ? region?.id : '') ||
+                    bld?.id,
+                limit: 500,
+                signage: true,
+            }).pipe(map((_) => _.data)),
         ),
-        map((_) => (_.details instanceof Array ? _.details : [])),
+        shareReplay(1),
     );
 
     public readonly zones = combineLatest([
@@ -98,62 +107,46 @@ export class SignageStateService {
     constructor(
         private _org: OrganisationService,
         private _dialog: MatDialog,
+        private _settings: SettingsService,
     ) {}
 
-    public editPlaylist(playlist: SignagePlaylist = new SignagePlaylist()) {
-        const ref = this._dialog.open(SignagePlaylistModalComponent, {
-            data: playlist,
+    public editPlaylist(playlist: SignagePlaylist = new SignagePlaylist({})) {
+        return new Promise<SignagePlaylist | null>((resolve) => {
+            const ref = this._dialog.open(SignagePlaylistModalComponent, {
+                data: playlist,
+            });
+            ref.afterClosed().subscribe((result) => {
+                this._change.next(Date.now());
+                resolve(result);
+            });
         });
-        ref.afterClosed().subscribe(() => this._change.next(Date.now()));
     }
 
-    public async savePlaylist(playlist: SignagePlaylist, remove = false) {
-        const bld = this._org.building.id;
-        const playlist_list =
-            (await this.playlists.pipe(take(1)).toPromise()) || [];
-        const idx = playlist_list.findIndex((_) => _.id === playlist.id);
-        if (idx >= 0) playlist_list.splice(idx, 1);
-        if (!playlist.id) (playlist as any).id = `playlist-${randomString(8)}`;
-        if (!remove) playlist_list.push(playlist);
-        await updateMetadata(bld, {
-            name: 'signage-playlists',
-            details: playlist_list,
-            description: 'Playlists for signage displays',
-        }).toPromise();
-        notifySuccess(`Successfully ${remove ? 'removed' : 'saved'} playlist.`);
+    public async savePlaylist(playlist: Partial<SignagePlaylist>) {
+        const call = playlist.id
+            ? updateSignagePlaylist(playlist.id, playlist)
+            : addSignagePlaylist(playlist);
+        const new_playlist = await call.toPromise();
+        notifySuccess(`Successfully saved playlist.`);
         this._change.next(Date.now());
     }
 
     public async removePlaylist(playlist: SignagePlaylist) {
-        await this.savePlaylist(playlist, true);
+        if (!playlist?.id) return;
+        await removeSignagePlaylist(playlist.id).toPromise();
+        notifySuccess(`Successfully removed playlist.`);
     }
 
-    public async saveDisplay(display: SignageDisplay, remove = false) {
-        const bld = this._org.building.id;
-        const display_list = await this.displays.pipe(take(1)).toPromise();
-        const idx = display_list.findIndex((_) => _.id === display.id);
-        if (idx >= 0) display_list.splice(idx, 1);
-        if (!display.id) (display as any).id = `display-${randomString(8)}`;
-        if (!remove) display_list.push(display);
-        await updateMetadata(bld, {
-            name: 'signage-displays',
-            details: display_list,
-            description: 'Displays for signage displays',
-        }).toPromise();
-        notifySuccess(`Successfully ${remove ? 'removed' : 'saved'} display.`);
-        this._change.next(Date.now());
-    }
-
-    public async removeDisplay(display: SignageDisplay) {
-        await this.saveDisplay(display, true);
+    public async updatePlaylistMedia(playlist_id: string, list: string[]) {
+        await updateSignagePlaylistMedia(playlist_id, list).toPromise();
+        notifySuccess(`Successfully updated playlist media.`);
     }
 
     public previewMedia(item: SignageMedia) {
-        const { url, type, name } = item;
+        const { media_uri, media_type, name } = item;
         const ref = this._dialog.open(SignageMediaPreviewModalComponent, {
-            data: { url, type, name, save: false },
+            data: { url: media_uri, type: media_type, name, save: false },
         });
-        ref.afterClosed().subscribe(() => URL.revokeObjectURL(url));
     }
 
     public previewFileFromInput(event) {
@@ -191,7 +184,7 @@ export class SignageStateService {
     }
 
     public async addMedia(file: File) {
-        const upload = () =>
+        const upload = (file) =>
             new Promise<string>((resolve, reject) => {
                 let state = null;
                 let resolved = false;
@@ -207,9 +200,41 @@ export class SignageStateService {
                     () => (!resolved ? resolve(state) : null),
                 );
             });
-        const media = await upload();
-        const media_list = await this.media.pipe(take(1)).toPromise();
-        const video_metadata = new Promise<[boolean, number]>((resolve) => {
+        const media = await upload(file);
+        const [is_landscape, _] = await this._getVideoMetadata(file);
+        const thumbnail = await this._generateThumbnail(file, 1280, 720).catch(
+            (_) => null,
+        );
+        let thumbnail_url = null;
+        if (thumbnail) {
+            thumbnail_url = await upload(thumbnail);
+        }
+        await addSignageMedia(
+            new SignageMedia({
+                name: file.name,
+                description: '',
+                media_uri: media,
+                media_type: file.type.includes('image') ? 'image' : 'video',
+                orientation: is_landscape ? 'landscape' : 'portrait',
+                thumbnail_id: thumbnail_url,
+            }),
+        );
+        this._active_upload.next(null);
+        this._change.next(Date.now());
+    }
+
+    public async updateMedia(item: SignageMedia) {
+        if (!item?.id) return;
+        await updateSignageMedia(item.id, item).toPromise();
+    }
+
+    public async removeMedia(item: SignageMedia) {
+        if (!item?.id) return;
+        await removeSignageMedia(item.id).toPromise();
+    }
+
+    private _getVideoMetadata(file: File) {
+        return new Promise<[boolean, number]>((resolve) => {
             const url = URL.createObjectURL(file);
             // file is loaded
             if (file.type.includes('video')) {
@@ -217,7 +242,7 @@ export class SignageStateService {
                 video.src = url.toString();
                 video.addEventListener('loadedmetadata', () => {
                     const { videoWidth, videoHeight } = video;
-                    resolve([videoWidth > videoHeight, duration]);
+                    resolve([videoWidth > videoHeight, video.duration]);
                 });
                 video.load();
             } else {
@@ -226,23 +251,106 @@ export class SignageStateService {
                 img.src = url.toString(); // is the data URL because called with readAsDataURL
             }
         });
-        const [is_landscape, duration] = await video_metadata;
-        media_list.push({
-            id: `media-${randomString(8)}`,
-            name: file.name,
-            description: '',
-            url: media,
-            type: file.type.includes('image') ? 'image' : 'video',
-            orientation: is_landscape ? 'landscape' : 'portrait',
-            duration: duration || 15,
+    }
+
+    private async _generateThumbnail(
+        file: File,
+        max_width: number,
+        max_height: number,
+    ) {
+        if (file.type.includes('video')) {
+            return this._generateVideoThumbnail(file, max_width, max_height);
+        } else {
+            return this._generateImageThumbnail(file, max_width, max_height);
+        }
+    }
+
+    private _generateImageThumbnail(file, max_width, max_height) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.src = URL.createObjectURL(file);
+
+            img.onload = () => {
+                const image = this._generateThumbnailFromResource(
+                    img,
+                    img.width,
+                    img.height,
+                    max_width,
+                    max_height,
+                );
+                URL.revokeObjectURL(img.src);
+                resolve(image);
+            };
+
+            img.onerror = reject;
         });
-        const bld = this._org.building.id;
-        await updateMetadata(bld, {
-            name: 'signage-media',
-            details: media_list,
-            description: 'Media for signage displays',
-        }).toPromise();
-        this._active_upload.next(null);
-        this._change.next(Date.now());
+    }
+
+    private _generateVideoThumbnail(
+        file: File,
+        max_width: number,
+        max_height: number,
+    ) {
+        return new Promise((resolve, reject) => {
+            // Create video element
+            const video = document.createElement('video');
+            video.autoplay = true;
+            video.muted = true;
+            video.src = URL.createObjectURL(file);
+
+            video.onloadeddata = () => {
+                const image = this._generateThumbnailFromResource(
+                    video,
+                    video.videoWidth,
+                    video.videoHeight,
+                    max_width,
+                    max_height,
+                );
+
+                // Clean up
+                URL.revokeObjectURL(video.src);
+                resolve(image);
+            };
+
+            video.onerror = reject;
+        });
+    }
+
+    private _generateThumbnailFromResource(
+        data,
+        source_width,
+        source_height,
+        max_width: number,
+        max_height: number,
+    ) {
+        // Create canvas element
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Calculate thumbnail dimensions
+        let thumbnailWidth = source_width;
+        let thumbnailHeight = source_height;
+        const aspectRatio = thumbnailWidth / thumbnailHeight;
+
+        if (thumbnailWidth > max_width) {
+            thumbnailWidth = max_height;
+            thumbnailHeight = thumbnailWidth / aspectRatio;
+        }
+
+        if (thumbnailHeight > max_height) {
+            thumbnailHeight = max_width;
+            thumbnailWidth = thumbnailHeight * aspectRatio;
+        }
+
+        canvas.width = thumbnailWidth;
+        canvas.height = thumbnailHeight;
+
+        // Draw video frame on canvas
+        ctx.drawImage(data, 0, 0, thumbnailWidth, thumbnailHeight);
+
+        // Convert canvas to data URL
+        const dataURL = canvas.toDataURL('image/jpeg');
+
+        return dataURL;
     }
 }

@@ -18,23 +18,8 @@ import { AsyncHandler } from '@placeos/common';
                     <button
                         btn
                         matRipple
-                        class="w-40 relative"
-                        *ngIf="active_link === 'Media'"
-                        (change)="previewFile($event)"
-                    >
-                        <input
-                            type="file"
-                            accept="image/*,video/*"
-                            class="absolute inset-0 opacity-0"
-                        />
-                        Add Media
-                    </button>
-                    <button
-                        btn
-                        matRipple
                         class="w-40"
                         (click)="newItem(active_link)"
-                        *ngIf="active_link !== 'Media'"
                     >
                         Add {{ singular(active_link) }}
                     </button>
@@ -76,20 +61,30 @@ import { AsyncHandler } from '@placeos/common';
 })
 export class SignageComponent extends AsyncHandler implements OnInit {
     public readonly loading = this._state.loading;
-    public links = ['Media', 'Playlists'];
+    public links = ['Media', 'Displays'];
     public active_link = this.links[0];
 
     public readonly previewFile = (event) =>
         this._state.previewFileFromInput(event);
 
     public singular(name: string) {
-        return name.replace(/s$/, '');
+        if (name === 'Displays') return 'Display';
+        if (name === 'Media') return 'Playlist';
+        if (name === 'Playlists') return 'Playlist';
+        return '';
     }
 
-    public newItem(name: string) {
+    public async newItem(name: string) {
         switch (name) {
+            case 'Media':
             case 'Playlists':
-                this._state.editPlaylist();
+                const result = await this._state.editPlaylist();
+                if (result) {
+                    this._router.navigate([
+                        '/signage/media',
+                        { query: { playlist: result.id } },
+                    ]);
+                }
                 break;
         }
     }
