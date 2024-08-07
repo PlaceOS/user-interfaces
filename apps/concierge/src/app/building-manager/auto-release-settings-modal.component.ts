@@ -36,6 +36,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
             <a-duration-field
                 [min]="0"
                 [max]="60"
+                [step]="5"
                 [(ngModel)]="settings.time_after"
             ></a-duration-field>
             <label>Event Types</label>
