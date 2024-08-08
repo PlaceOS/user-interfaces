@@ -49,7 +49,11 @@ import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-e
                             type
                         }}</app-icon>
                         <div class="mx-2 truncate flex-1 w-1/2">
-                            {{ raw_description || booking?.asset_id }}
+                            {{
+                                raw_description ||
+                                    booking?.asset_name ||
+                                    booking?.asset_id
+                            }}
                         </div>
                     </div>
                     <div class="flex items-center px-4" *ngIf="location">
@@ -82,7 +86,7 @@ import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-e
                     *ngIf="is_reserved_parking_space | async"
                 >
                     {{
-                        booking.status !== 'cancelled' ? 'RESERVED' : 'RELEASED'
+                        booking.status !== 'declined' ? 'RESERVED' : 'RELEASED'
                     }}
                 </div>
             </div>
@@ -116,8 +120,8 @@ export class BookingCardComponent extends AsyncHandler {
                 (space) =>
                     this.booking.booking_type === 'parking' &&
                     space &&
-                    this.booking.asset_id === space.id
-            )
+                    this.booking.asset_id === space.id,
+            ),
         );
 
     public get for_current_user() {
@@ -145,7 +149,7 @@ export class BookingCardComponent extends AsyncHandler {
         private _route: ActivatedRoute,
         private _org: OrganisationService,
         private _settings: SettingsService,
-        private _parking: ParkingService
+        private _parking: ParkingService,
     ) {
         super();
     }
@@ -157,15 +161,15 @@ export class BookingCardComponent extends AsyncHandler {
                 params.has('booking') &&
                 this.booking?.id === params.get('event')
                     ? this.viewDetails()
-                    : ''
-            )
+                    : '',
+            ),
         );
     }
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.booking) {
             this.raw_description = this.removeHtmlTags(
-                this.booking?.description
+                this.booking?.description,
             );
         }
     }
@@ -200,7 +204,7 @@ export class BookingCardComponent extends AsyncHandler {
             .replace(' minute', 'min');
         return `${format(start, this.time_format)} - ${format(
             end,
-            this.time_format
+            this.time_format,
         )} (${dur})`;
     }
 
@@ -223,17 +227,17 @@ export class BookingCardComponent extends AsyncHandler {
             const ref: any = this._dialog.open(view_component, { data });
             this.subscription(
                 'edit',
-                ref.componentInstance.edit?.subscribe(() => this.edit.emit())
+                ref.componentInstance.edit?.subscribe(() => this.edit.emit()),
             );
             this.subscription(
                 'remove',
                 ref.componentInstance.remove?.subscribe(() =>
-                    this.remove.emit()
-                )
+                    this.remove.emit(),
+                ),
             );
             this.subscription(
                 'end',
-                ref.componentInstance.end?.subscribe(() => this.end.emit())
+                ref.componentInstance.end?.subscribe(() => this.end.emit()),
             );
         });
     }

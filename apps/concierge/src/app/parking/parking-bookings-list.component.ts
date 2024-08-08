@@ -97,7 +97,7 @@ import { ParkingStateService } from './parking-state.service';
             </div>
             <div
                 *ngIf="row?.checked_in"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-error text-error-content mx-auto"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
                 matTooltip="Arrived at space"
                 matTooltipPosition="right"
             >

@@ -21,7 +21,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
                 {
                     key: 'assigned_to',
                     name: 'Assigned',
-                    content: assigned_template
+                    content: assigned_template,
                 },
                 { key: 'notes', name: 'Notes' },
                 {
@@ -29,28 +29,36 @@ import { Clipboard } from '@angular/cdk/clipboard';
                     name: 'Status',
                     content: status_template,
                     sortable: false,
-                    size: '4.5rem'
+                    size: '4.5rem',
                 },
                 {
                     key: 'actions',
                     name: ' ',
                     content: action_template,
                     sortable: false,
-                    size: '6.5rem'
-                }
+                    size: '6.5rem',
+                },
             ]"
             [filter]="(options | async)?.search"
             [sortable]="true"
         ></simple-table>
         <ng-template #status_template let-row="row">
             <div
-                class="flex items-center justify-center h-8 w-8 rounded bg-warning text-warning-content mx-auto"
-                [class.!bg-success]="space_status[row.id]?.includes('free')"
-                [class.!text-success-content]="
+                class="flex items-center justify-center h-8 w-8 rounded  mx-auto"
+                [class.bg-warning]="
+                    !space_status[row.id]?.includes('free') &&
+                    !space_status[row.id]?.includes('busy')
+                "
+                [class.text-warning-content]="
+                    !space_status[row.id]?.includes('free') &&
+                    !space_status[row.id]?.includes('busy')
+                "
+                [class.bg-success]="space_status[row.id]?.includes('free')"
+                [class.text-success-content]="
                     space_status[row.id]?.includes('free')
                 "
-                [class.!bg-error]="space_status[row.id]?.includes('busy')"
-                [class.!text-error-content]="
+                [class.bg-error]="space_status[row.id]?.includes('busy')"
+                [class.text-error-content]="
                     space_status[row.id]?.includes('busy')
                 "
                 [matTooltip]="statusTooltip(space_status[row.id])"
@@ -61,8 +69,8 @@ import { Clipboard } from '@angular/cdk/clipboard';
                         space_status[row.id]?.includes('assigned')
                             ? 'person'
                             : space_status[row.id]?.includes('reuse')
-                            ? 'alert'
-                            : 'question_mark'
+                              ? 'event_available'
+                              : 'question_mark'
                     }}
                 </app-icon>
             </div>
@@ -132,7 +140,7 @@ export class ParkingSpaceListComponent extends AsyncHandler {
 
     constructor(
         private _state: ParkingStateService,
-        private _clipboard: Clipboard
+        private _clipboard: Clipboard,
     ) {
         super();
     }
@@ -141,8 +149,9 @@ export class ParkingSpaceListComponent extends AsyncHandler {
         this.subscription(
             'bookings',
             combineLatest([this.spaces, this.bookings]).subscribe(
-                ([spaces, bookings]) => this._updateStatusList(spaces, bookings)
-            )
+                ([spaces, bookings]) =>
+                    this._updateStatusList(spaces, bookings),
+            ),
         );
     }
 
@@ -152,7 +161,7 @@ export class ParkingSpaceListComponent extends AsyncHandler {
             notifySuccess(
                 type
                     ? 'Assigned user email copied to clipboard.'
-                    : 'Parking Bay ID copied to clipboard.'
+                    : 'Parking Bay ID copied to clipboard.',
             );
     }
 
@@ -178,7 +187,7 @@ export class ParkingSpaceListComponent extends AsyncHandler {
                 (_) =>
                     _.asset_id === space.id &&
                     _.status !== 'declined' &&
-                    _.status !== 'cancelled'
+                    _.status !== 'cancelled',
             );
             if (space.assigned_to && !booking) {
                 this.space_status[space.id] = 'assigned_free';

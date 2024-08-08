@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { first } from 'rxjs/operators';
+import { first, take } from 'rxjs/operators';
 
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
@@ -192,8 +192,12 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         this._state.editUser();
     }
 
-    public newReservation() {
-        this._state.editReservation();
+    public async newReservation() {
+        const { date } = await this.options.pipe(take(1)).toPromise();
+        this._state.editReservation(undefined, {
+            date: date || Date.now(),
+            allow_time_changes: true,
+        });
     }
 
     private _updatePath() {

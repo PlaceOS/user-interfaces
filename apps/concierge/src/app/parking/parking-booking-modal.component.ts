@@ -125,6 +125,7 @@ export class ParkingBookingModalComponent extends AsyncHandler {
             date?: number;
             level?: BuildingLevel;
             space?: ParkingSpace;
+            allow_time_changes?: boolean;
         },
         private _booking_form: BookingFormService,
         private _dialog_ref: MatDialogRef<ParkingBookingModalComponent>,
@@ -179,21 +180,27 @@ export class ParkingBookingModalComponent extends AsyncHandler {
                 'init_date',
                 () => {
                     this.form.patchValue({ date: this._data.date });
-                    this.form.get('date').disable();
+                    if (!this._data.allow_time_changes) {
+                        this.form.get('date').disable();
+                    }
                 },
                 300,
             );
-            this.subscription(
-                'form_change',
-                this.form.valueChanges.subscribe((v) => {
-                    this.timeout(
-                        'disable_date',
-                        () =>
-                            this.form.get('date').disable({ emitEvent: false }),
-                        50,
-                    );
-                }),
-            );
+            if (!this._data.allow_time_changes) {
+                this.subscription(
+                    'form_change',
+                    this.form.valueChanges.subscribe((v) => {
+                        this.timeout(
+                            'disable_date',
+                            () =>
+                                this.form
+                                    .get('date')
+                                    .disable({ emitEvent: false }),
+                            50,
+                        );
+                    }),
+                );
+            }
         }
     }
 
