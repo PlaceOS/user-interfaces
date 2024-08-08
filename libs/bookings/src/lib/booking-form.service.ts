@@ -550,6 +550,15 @@ export class BookingFormService extends AsyncHandler {
                   resources[0]?.zone?.id,
               ])
             : [this._org.organisation.id, this._org.region?.id];
+        const q: any = event_id
+            ? { ical_uid: value.ical_uid, event_id: event_id }
+            : parent_id
+              ? { booking_id: parent_id }
+              : {};
+        if (booking.instance && !value.update_master) {
+            q.instance = true;
+            q.start_time = booking.booking_start;
+        }
         const result = await saveBooking(
             new Booking({
                 ...this._options.getValue(),
@@ -569,11 +578,7 @@ export class BookingFormService extends AsyncHandler {
                 approved: !this._settings.get('app.bookings.no_approval'),
                 zones: unique([...zones, ...(value.zones || [])]),
             }),
-            event_id
-                ? { ical_uid: value.ical_uid, event_id: event_id }
-                : parent_id
-                  ? { booking_id: parent_id }
-                  : {},
+            q,
         )
             .toPromise()
             .catch((e) => {

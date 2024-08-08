@@ -90,6 +90,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         recurrence_interval: new FormControl(booking.recurrence_interval),
         recurrence_end: new FormControl(booking.recurrence_end),
         notes: new FormControl(booking.extension_data.notes || ''),
+        update_master: new FormControl(false),
     });
     form.valueChanges.subscribe((v) => {
         const user = v.user;
