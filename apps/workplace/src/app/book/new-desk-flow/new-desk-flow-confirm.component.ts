@@ -91,6 +91,7 @@ import { map, take } from 'rxjs/operators';
         <section
             assets
             class="flex space-x-1 py-4 px-2 border-t max-h-[50vh] overflow-auto"
+            *ngIf="assets.length"
         >
             <app-icon class="text-success">done</app-icon>
             <div details class="flex-1 leading-6 w-1/2 pr-2">
@@ -195,7 +196,7 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
             notifyError(
                 typeof e === 'string'
                     ? e
-                    : `Desk unavailable at the selected time`
+                    : `Desk unavailable at the selected time`,
             );
         }
     };
@@ -204,7 +205,7 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
     public get end_time() {
         const end = addMinutes(
             this.booking.date,
-            this.booking.duration
+            this.booking.duration,
         ).valueOf();
         return this.booking.all_day ? endOfDay(end).valueOf() : end;
     }
@@ -237,10 +238,10 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
 
     public get location() {
         const building = this._org.buildings.find(
-            (b) => b.id === this.booking_asset?.zone?.parent_id
+            (b) => b.id === this.booking_asset?.zone?.parent_id,
         );
         const level = this._org.levels.find(
-            (l) => l.id === this.booking_asset?.zone?.id
+            (l) => l.id === this.booking_asset?.zone?.id,
         );
         return `${level?.display_name || level?.name}${building ? ',' : ''} ${
             building?.address || building?.display_name || building?.name || ''
@@ -251,7 +252,7 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
         private _state: BookingFormService,
         private _org: OrganisationService,
         @Optional() private _sheet_ref: MatBottomSheetRef,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }

@@ -15,23 +15,23 @@ import { Clipboard } from '@angular/cdk/clipboard';
                     {
                         key: 'display_name',
                         name: 'Level Name',
-                        content: name_template
+                        content: name_template,
                     },
-                    { key: 'building', name: 'Buildings', size: '16rem' },
+                    { key: 'building', name: 'Building', size: '16rem' },
                     {
                         key: 'parking',
                         name: 'Parking',
                         content: parking_template,
                         size: '5rem',
-                        sortable: false
+                        sortable: false,
                     },
                     {
                         key: 'actions',
                         name: ' ',
                         content: action_template,
                         size: '6rem',
-                        sortable: false
-                    }
+                        sortable: false,
+                    },
                 ]"
                 [sortable]="true"
             ></simple-table>
@@ -93,6 +93,6 @@ export class LevelListComponent {
 
     constructor(
         private _manager: LevelManagementService,
-        private _clipboard: Clipboard
+        private _clipboard: Clipboard,
     ) {}
 }

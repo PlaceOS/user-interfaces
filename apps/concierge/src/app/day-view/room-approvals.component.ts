@@ -19,6 +19,8 @@ import { CalendarEvent } from '@placeos/events';
                     icon
                     matRipple
                     class="bg-base-200"
+                    matTooltip="Hide Pending Approvals"
+                    matTooltipPosition="left"
                     (click)="show = !show"
                 >
                     <app-icon>chevron_right</app-icon>
@@ -137,6 +139,8 @@ import { CalendarEvent } from '@placeos/events';
             class="bg-warning absolute top-2 -left-8 shadow text-warning-content"
             *ngIf="!show"
             (click)="show = !show"
+            matTooltip="Show Pending Approvals"
+            matTooltipPosition="left"
         >
             <app-icon>chevron_left</app-icon>
         </button>
