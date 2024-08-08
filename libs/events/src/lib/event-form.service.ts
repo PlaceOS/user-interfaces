@@ -142,6 +142,10 @@ export class EventFormService extends AsyncHandler {
 
     public readonly spaces: Observable<Space[]> = combineLatest([
         this._options.pipe(distinctUntilKeyChanged('zone_ids')),
+        this._org.active_region.pipe(
+            filter((_) => !!_),
+            distinctUntilKeyChanged('id'),
+        ),
         this._org.active_building.pipe(
             filter((_) => !!_),
             distinctUntilKeyChanged('id'),
@@ -155,7 +159,7 @@ export class EventFormService extends AsyncHandler {
             if (!zone_ids?.length) {
                 zone_ids = [
                     (use_region
-                        ? this._org.building?.parent_id
+                        ? this._org.region?.id
                         : this._org.building?.id) || this._org.building?.id,
                 ];
             }
@@ -662,11 +666,18 @@ export class EventFormService extends AsyncHandler {
                     const overflow = this._settings.get(
                         `app.events.overflow.${space.id}`,
                     );
-                    if (overflow?.setup) setup = overflow.setup;
-                    if (overflow?.breakdown) breakdown = overflow.breakdown;
+                    if (overflow?.setup) {
+                        setup = Math.max(setup, overflow.setup);
+                    }
+                    if (overflow?.breakdown) {
+                        breakdown = Math.max(breakdown, overflow.breakdown);
+                    }
                 }
                 (value as any).setup = value.setup_time || setup;
                 (value as any).breakdown = value.breakdown_time || breakdown;
+                (value as any).setup_time = value.setup_time || setup;
+                (value as any).breakdown_time =
+                    value.breakdown_time || breakdown;
             }
             const processed_assets = (assets || []).map((_) =>
                 new AssetRequest(_).toJSON(),
