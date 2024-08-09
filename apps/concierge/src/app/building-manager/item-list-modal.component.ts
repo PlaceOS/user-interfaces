@@ -65,7 +65,7 @@ export class ItemListModalComponent {
     constructor(
         @Inject(MAT_DIALOG_DATA) private _bld_id: string,
         private _settings: SettingsService,
-        private _dialog_ref: MatDialogRef<ItemListModalComponent>
+        private _dialog_ref: MatDialogRef<ItemListModalComponent>,
     ) {}
 
     public async ngOnInit() {
@@ -73,7 +73,7 @@ export class ItemListModalComponent {
             this._settings.get('app.workplace_metadata_key') || 'workplace_app';
         const metadata: any = await showMetadata(
             this._bld_id,
-            metadata_key
+            metadata_key,
         ).toPromise();
         const items = metadata?.details?.support_issue_types || [];
         this.item_list = items;
@@ -82,15 +82,30 @@ export class ItemListModalComponent {
     public async save() {
         const metadata_key =
             this._settings.get('app.workplace_metadata_key') || 'workplace_app';
+        const concierge_key =
+            this._settings.get('app.concierge_metadata_key') || 'concierge_app';
         this.loading = true;
         const items = this.item_list.filter((_) => _);
         const metadata: any = await showMetadata(
             this._bld_id,
-            metadata_key
+            metadata_key,
         ).toPromise();
         metadata.details.support_issue_types = items;
-        const resp = await updateMetadata(this._bld_id, {
+        let resp = await updateMetadata(this._bld_id, {
             name: metadata_key,
+            details: metadata.details,
+            description: metadata.description || '',
+        })
+            .toPromise()
+            .catch((_) => {
+                notifyError(`Failed to save issue types. ${_}`);
+            });
+        if (!resp) {
+            this.loading = false;
+            return;
+        }
+        resp = await updateMetadata(this._bld_id, {
+            name: concierge_key,
             details: metadata.details,
             description: metadata.description || '',
         })
