@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { currentUser } from '@placeos/common';
 import { addDays, format, set, startOfMinute, startOfWeek } from 'date-fns';
-import { WorktimePreference } from './user.class';
+import { WorktimeBlock, WorktimePreference } from './user.class';
 import { showUser, updateUser } from '@placeos/ts-client';
 
 @Component({
@@ -58,16 +58,35 @@ import { showUser, updateUser } from '@placeos/ts-client';
                                     <a-time-field
                                         [ngModel]="timeFrom(block.start_time)"
                                         (ngModelChange)="
-                                            block.start_time = fromTime($event)
+                                            setStartTime(
+                                                block,
+                                                day.getDay(),
+                                                $event
+                                            )
+                                        "
+                                        [from]="
+                                            timeFrom(
+                                                (i > 0
+                                                    ? settings[day.getDay()]
+                                                          .blocks[i - 1]
+                                                          ?.end_time
+                                                    : 0) || 0
+                                            )
                                         "
                                         class="flex-1 w-1/4 h-[3.25rem]"
                                     ></a-time-field>
                                     <a-time-field
                                         [ngModel]="timeFrom(block.end_time)"
                                         (ngModelChange)="
-                                            block.end_time = fromTime($event)
+                                            setEndTime(
+                                                block,
+                                                day.getDay(),
+                                                $event
+                                            )
                                         "
-                                        [from]="timeFrom(block.start_time)"
+                                        [from]="
+                                            timeFrom(block.start_time + 0.25)
+                                        "
                                         class="flex-1 w-1/4 h-[3.25rem]"
                                     ></a-time-field>
                                     <mat-form-field
@@ -177,7 +196,14 @@ export class WFHSettingsModalComponent implements OnInit {
         return this.options.find((_) => _.id === this.option)?.name || '';
     }
 
-    constructor(private _dialog_ref: MatDialogRef<WFHSettingsModalComponent>) {}
+    public get now() {
+        return startOfMinute(Date.now()).getTime();
+    }
+
+    constructor(
+        private _dialog_ref: MatDialogRef<WFHSettingsModalComponent>,
+        private _cdr: ChangeDetectorRef,
+    ) {}
 
     public ngOnInit() {
         const user = currentUser();
@@ -218,10 +244,40 @@ export class WFHSettingsModalComponent implements OnInit {
             end_time: 17,
             location: 'wfo',
         });
+        this.cleanupBlocks(pref);
     }
 
     public removeBlock(pref: WorktimePreference, index: number) {
         pref.blocks.splice(index, 1);
+    }
+
+    public setEndTime(block: WorktimeBlock, day: number, time: number) {
+        setTimeout(() => {
+            block.end_time = this.fromTime(time);
+            this.cleanupBlocks(this.settings[day]);
+        }, 50);
+    }
+
+    public setStartTime(block: WorktimeBlock, day: number, time: number) {
+        setTimeout(() => {
+            block.start_time = this.fromTime(time);
+            this.cleanupBlocks(this.settings[day]);
+        }, 50);
+    }
+
+    public cleanupBlocks(pref: WorktimePreference) {
+        if (!pref?.blocks?.length) return;
+        for (let i = 0; i < pref.blocks.length; i++) {
+            const block = pref.blocks[i];
+            if (i > 0) {
+                if (block.start_time < pref.blocks[i - 1].end_time) {
+                    block.start_time = pref.blocks[i - 1].end_time;
+                }
+            }
+            if (block.end_time <= block.start_time) {
+                block.end_time = block.start_time + 1;
+            }
+        }
     }
 
     public async saveChanges(close = true) {
