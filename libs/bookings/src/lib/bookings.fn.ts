@@ -184,7 +184,7 @@ export const saveBooking = (
     const id = data.id;
     delete (data as any).id;
     const instance = q?.instance;
-    delete (q as any).instance;
+    if (q) delete (q as any).instance;
     return id
         ? instance
             ? updateBookingInstance(id, data.booking_start, data)
