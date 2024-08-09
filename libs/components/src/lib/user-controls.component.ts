@@ -17,6 +17,7 @@ import { LanguageSelectComponent } from './language-tooltip.component';
 import { RegionSelectComponent } from './region-select.component';
 import { SupportTicketModalComponent } from 'libs/form-fields/src/lib/support-ticket-modal.component';
 import { first } from 'rxjs/operators';
+import { WorkLocationTooltipComponent } from './work-location-tooltip.component';
 
 export interface AppLocale {
     id: string;
@@ -108,20 +109,19 @@ export interface AppLocale {
                     </div>
                 </button>
             </div>
-            <div *ngIf="features.includes('wfh')">
-                <button
-                    btn
-                    matRipple
-                    class="clear w-full text-left h-[3.5rem]"
-                    (click)="openWfhModal()"
-                >
+            <div
+                *ngIf="features.includes('wfh')"
+                customTooltip
+                [content]="work_location_tooltip"
+            >
+                <button btn matRipple class="clear w-full text-left h-[3.5rem]">
                     <div class="w-full flex items-center space-x-2">
                         <div
                             class="flex items-center justify-center rounded-full w-8 h-8 bg-base-200"
                         >
                             <app-icon>share_location</app-icon>
                         </div>
-                        <div class="flex-1" i18n>Work Location Settings</div>
+                        <div class="flex-1" i18n>Work Location</div>
                         <app-icon class="opacity-60 text-2xl"
                             >chevron_right</app-icon
                         >
@@ -257,6 +257,7 @@ export class UserControlsComponent {
     public readonly help_tooltip = HelpTooltipComponent;
     public readonly accessibility_tooltip = AccessibilityTooltipComponent;
     public readonly language_tooltip = LanguageSelectComponent;
+    public readonly work_location_tooltip = WorkLocationTooltipComponent;
 
     public get user() {
         return currentUser();
@@ -297,7 +298,7 @@ export class UserControlsComponent {
     constructor(
         private _settings: SettingsService,
         private _org: OrganisationService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
 
     public logout() {
@@ -312,7 +313,7 @@ export class UserControlsComponent {
         if (this._settings.get('app.external_support_url')) {
             window.open(
                 this._settings.get('app.external_support_url'),
-                '_blank'
+                '_blank',
             );
         } else {
             this._dialog.open(SupportTicketModalComponent);
@@ -326,7 +327,7 @@ export class UserControlsComponent {
     public async viewChangelog() {
         const changelog = await (
             await fetch(
-                'https://raw.githubusercontent.com/PlaceOS/user-interfaces/develop/CHANGELOG.md'
+                'https://raw.githubusercontent.com/PlaceOS/user-interfaces/develop/CHANGELOG.md',
             )
         ).text();
         this._dialog.open(ChangelogModalComponent, { data: { changelog } });
