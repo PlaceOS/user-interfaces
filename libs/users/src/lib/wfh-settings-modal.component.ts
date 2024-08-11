@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { currentUser } from '@placeos/common';
+import { currentUser, reloadUserData } from '@placeos/common';
 import { addDays, format, set, startOfMinute, startOfWeek } from 'date-fns';
 import { WorktimeBlock, WorktimePreference } from './user.class';
 import { showUser, updateUser } from '@placeos/ts-client';
@@ -301,7 +301,7 @@ export class WFHSettingsModalComponent implements OnInit {
         this.loading = false;
         this._dialog_ref.disableClose = false;
         if (close) {
-            location.reload();
+            reloadUserData();
             this._dialog_ref.close();
         }
     }
