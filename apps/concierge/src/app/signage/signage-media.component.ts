@@ -25,7 +25,7 @@ import { map } from 'rxjs/operators';
                 </mat-form-field>
                 <a
                     matRipple
-                    class="w-full px-8 rounded-3xl h-12 flex items-center hover:bg-base-200"
+                    class="w-full px-6 rounded-3xl h-12 flex items-center hover:bg-base-200"
                     [class.!bg-secondary]="!selected_playlist"
                     [class.text-secondary-content]="!selected_playlist"
                     [routerLink]="[]"
@@ -38,7 +38,7 @@ import { map } from 'rxjs/operators';
                     @for (playlist of playlists | async; track playlist.id) {
                         <a
                             matRipple
-                            class="w-full px-8 rounded-3xl h-12 flex items-center hover:bg-base-200"
+                            class="w-full px-6 rounded-3xl h-12 flex items-center hover:bg-base-200"
                             [class.!bg-secondary]="
                                 selected_playlist === playlist.id
                             "

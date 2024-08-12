@@ -24,12 +24,11 @@ import { SignagePlaylist, updateSystem } from '@placeos/ts-client';
                         (ngModelChange)="search.next($event)"
                     />
                 </mat-form-field>
-                <hr class="w-full" />
                 @if ((displays | async)?.length > 0) {
                     @for (display of displays | async; track display.id) {
                         <a
                             matRipple
-                            class="w-full px-8 rounded-3xl h-12 flex items-center hover:bg-base-200"
+                            class="w-full px-6 rounded-3xl h-12 flex items-center hover:bg-base-200"
                             [class.!bg-secondary]="
                                 selected.getValue() === display.id
                             "
