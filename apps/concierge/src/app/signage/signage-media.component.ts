@@ -9,8 +9,8 @@ import { map } from 'rxjs/operators';
 @Component({
     selector: 'signage-media',
     template: `
-        <div class="relative h-full w-full overflow-hidden flex space-x-4">
-            <div sidebar class="w-64 h-full flex flex-col space-y-4">
+        <div class="relative h-full w-full overflow-visible flex space-x-4">
+            <div sidebar class="w-64 h-full flex flex-col space-y-4 py-4">
                 <h3 class="text-xl font-medium text-center">Playlists</h3>
                 <mat-form-field
                     appearance="outline"
@@ -23,19 +23,20 @@ import { map } from 'rxjs/operators';
                         (ngModelChange)="search.next($event)"
                     />
                 </mat-form-field>
-                <button
+                <a
                     matRipple
                     class="w-full px-8 rounded-3xl h-12 flex items-center hover:bg-base-200"
                     [class.!bg-secondary]="!selected_playlist"
                     [class.text-secondary-content]="!selected_playlist"
-                    (click)="selectPlaylist('')"
+                    [routerLink]="[]"
+                    [queryParams]="{ playlist: '' }"
                 >
                     All Media
-                </button>
+                </a>
                 <hr class="w-full" />
                 @if ((playlists | async)?.length > 0) {
                     @for (playlist of playlists | async; track playlist.id) {
-                        <button
+                        <a
                             matRipple
                             class="w-full px-8 rounded-3xl h-12 flex items-center hover:bg-base-200"
                             [class.!bg-secondary]="
@@ -44,10 +45,11 @@ import { map } from 'rxjs/operators';
                             [class.text-secondary-content]="
                                 selected_playlist === playlist.id
                             "
-                            (click)="selectPlaylist(playlist.id)"
+                            [routerLink]="[]"
+                            [queryParams]="{ playlist: playlist.id }"
                         >
                             {{ playlist.name }}
-                        </button>
+                        </a>
                     }
                 } @else {
                     <div
@@ -77,7 +79,10 @@ import { map } from 'rxjs/operators';
                 }
             </div>
             <div
-                class="flex-1 w-1/2 h-full overflow-auto rounded-lg bg-base-200"
+                class="relative flex-1 w-1/2 h-full overflow-auto rounded-lg border border-base-300 shadow"
+                (dragover)="onEnter($event)"
+                (dragenter)="onEnter($event)"
+                (window:drop)="hideOverlay($event)"
             >
                 <signage-media-list
                     *ngIf="!selected_playlist"
@@ -86,6 +91,27 @@ import { map } from 'rxjs/operators';
                     *ngIf="selected_playlist"
                     [playlist]="selected_playlist"
                 ></signage-playlist-media-list>
+                <div
+                    class="absolute inset-0"
+                    *ngIf="show_dropzone"
+                    (dragleave)="hideOverlay($event)"
+                    (drop)="previewFile($event)"
+                >
+                    <div
+                        class="absolute inset-0 bg-base-content opacity-60"
+                    ></div>
+                    <div
+                        class="absolute inset-4 border-4 border-dashed border-base-300 flex flex-col items-center justify-center rounded-2xl text-base-100 space-y-4"
+                    >
+                        <app-icon class="text-6xl">cloud_upload</app-icon>
+                        <p>Drop Media to upload</p>
+                    </div>
+                    <input
+                        type="file"
+                        (change)="previewFile($event)"
+                        class="absolute inset-0 opacity-0"
+                    />
+                </div>
             </div>
         </div>
     `,
@@ -124,15 +150,10 @@ export class SignageMediaComponent extends AsyncHandler {
     };
     public readonly previewMedia = (item) => this._state.previewMedia(item);
     public readonly previewFile = (event) =>
-        this._state.previewFileFromInput(event);
-
-    public readonly selectPlaylist = (playlist) =>
-        this._router.navigate(['/signage/media'], {
-            queryParams: { playlist },
-            queryParamsHandling: 'merge',
-        });
+        this._state.previewFileFromInput(event, this.selected_playlist);
 
     public onEnter(e) {
+        this.clearTimeout('hide_overlay');
         this.show_dropzone = e?.dataTransfer?.types.includes('Files');
     }
 

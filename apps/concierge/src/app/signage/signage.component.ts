@@ -19,6 +19,7 @@ import { AsyncHandler } from '@placeos/common';
                         btn
                         matRipple
                         class="w-40"
+                        *ngIf="active_link === 'Media'"
                         (click)="newItem(active_link)"
                     >
                         Add {{ singular(active_link) }}

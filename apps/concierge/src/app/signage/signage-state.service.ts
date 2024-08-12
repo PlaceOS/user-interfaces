@@ -9,6 +9,7 @@ import { OrganisationService } from '@placeos/organisation';
 import {
     addSignageMedia,
     addSignagePlaylist,
+    listSignagePlaylistMedia,
     PlaceSystem,
     querySignageMedia,
     querySignagePlaylists,
@@ -36,6 +37,44 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { SignageMediaPreviewModalComponent } from './signage-media-preview-modal.component';
 import { SignagePlaylistModalComponent } from './signage-playlist-modal.component';
+
+function dataURLtoBlob(dataURL) {
+    // Split the data URL to get the mime type and the data
+    const [prefix, data] = dataURL.split(',');
+    const mimeType = prefix.split(':')[1].split(';')[0];
+
+    // Convert base64 to raw binary data
+    const byteString = atob(data);
+
+    // Create an ArrayBuffer and fill it with the binary data
+    const arrayBuffer = new ArrayBuffer(byteString.length);
+    const uint8Array = new Uint8Array(arrayBuffer);
+    for (let i = 0; i < byteString.length; i++) {
+        uint8Array[i] = byteString.charCodeAt(i);
+    }
+
+    // Create and return the Blob
+    return new Blob([arrayBuffer], { type: mimeType });
+}
+
+function dataURLtoFile(dataURL, filename) {
+    // Split the data URL to get the mime type and the data
+    const [prefix, data] = dataURL.split(',');
+    const mimeType = prefix.split(':')[1].split(';')[0];
+
+    // Convert base64 to raw binary data
+    const byteString = atob(data);
+
+    // Create an ArrayBuffer and fill it with the binary data
+    const arrayBuffer = new ArrayBuffer(byteString.length);
+    const uint8Array = new Uint8Array(arrayBuffer);
+    for (let i = 0; i < byteString.length; i++) {
+        uint8Array[i] = byteString.charCodeAt(i);
+    }
+
+    // Create and return the File
+    return new File([uint8Array], filename, { type: mimeType });
+}
 
 @Injectable({
     providedIn: 'root',
@@ -104,6 +143,10 @@ export class SignageStateService {
         map((_) => _.data || []),
     );
 
+    public changed() {
+        this._change.next(Date.now());
+    }
+
     constructor(
         private _org: OrganisationService,
         private _dialog: MatDialog,
@@ -149,7 +192,7 @@ export class SignageStateService {
         });
     }
 
-    public previewFileFromInput(event) {
+    public previewFileFromInput(event, playlist_id: string = '') {
         const element: HTMLInputElement = event.target as any;
         /* istanbul ignore else */
         if (!element?.files?.length) return;
@@ -159,13 +202,13 @@ export class SignageStateService {
             file &&
             (file.type.includes('image') || file.type.includes('video'))
         ) {
-            this.previewFileMedia(file);
+            this.previewFileMedia(file, playlist_id);
         } else {
             notifyError('Invalid file type.');
         }
     }
 
-    public previewFileMedia(media: File) {
+    public previewFileMedia(media: File, playlist_id: string = '') {
         const url = URL.createObjectURL(media);
         const type = media.type.includes('image') ? 'image' : 'video';
         const ref = this._dialog.open(SignageMediaPreviewModalComponent, {
@@ -174,11 +217,20 @@ export class SignageStateService {
         ref.afterClosed().subscribe(() => URL.revokeObjectURL(url));
         ref.componentInstance.save.subscribe(async () => {
             ref.componentInstance.loading = 'Saving...';
-            await this.addMedia(media).catch((e) => {
+            const new_media = await this.addMedia(media).catch((e) => {
                 notifyError('Error saving media.');
                 ref.componentInstance.loading = '';
                 throw e;
             });
+            if (playlist_id && new_media.id) {
+                const media_list =
+                    await listSignagePlaylistMedia(playlist_id).toPromise();
+                const new_media_list = [...media_list.items, new_media.id];
+                await updateSignagePlaylistMedia(
+                    playlist_id,
+                    new_media_list,
+                ).toPromise();
+            }
             ref.close();
         });
     }
@@ -200,27 +252,32 @@ export class SignageStateService {
                     () => (!resolved ? resolve(state) : null),
                 );
             });
-        const media = await upload(file);
         const [is_landscape, _] = await this._getVideoMetadata(file);
         const thumbnail = await this._generateThumbnail(file, 1280, 720).catch(
             (_) => null,
         );
+        const media = await upload(file);
         let thumbnail_url = null;
         if (thumbnail) {
-            thumbnail_url = await upload(thumbnail);
+            thumbnail_url = await upload(
+                dataURLtoFile(thumbnail, `thumb+${file.name}`),
+            );
         }
-        await addSignageMedia(
-            new SignageMedia({
-                name: file.name,
-                description: '',
-                media_uri: media,
-                media_type: file.type.includes('image') ? 'image' : 'video',
-                orientation: is_landscape ? 'landscape' : 'portrait',
-                thumbnail_id: thumbnail_url,
-            }),
-        );
+        const data = new SignageMedia({
+            name: file.name,
+            description: '',
+            media_uri: media,
+            media_type: file.type.includes('image') ? 'image' : 'video',
+            orientation: is_landscape ? 'landscape' : 'portrait',
+            thumbnail_id: thumbnail_url,
+        });
+        for (const key in data) {
+            if (!data[key]) delete data[key];
+        }
+        const result = await addSignageMedia(data).toPromise();
         this._active_upload.next(null);
         this._change.next(Date.now());
+        return result;
     }
 
     public async updateMedia(item: SignageMedia) {
@@ -258,6 +315,7 @@ export class SignageStateService {
         max_width: number,
         max_height: number,
     ) {
+        console.log('File:', file, max_width, max_height);
         if (file.type.includes('video')) {
             return this._generateVideoThumbnail(file, max_width, max_height);
         } else {
@@ -265,10 +323,15 @@ export class SignageStateService {
         }
     }
 
-    private _generateImageThumbnail(file, max_width, max_height) {
+    private _generateImageThumbnail(
+        file: File,
+        max_width: number,
+        max_height: number,
+    ) {
         return new Promise((resolve, reject) => {
             const img = new Image();
             img.src = URL.createObjectURL(file);
+            console.log('Image:', img.src);
 
             img.onload = () => {
                 const image = this._generateThumbnailFromResource(

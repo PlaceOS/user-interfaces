@@ -1,11 +1,11 @@
 import { Component, Input, SimpleChanges } from '@angular/core';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { SignageStateService } from './signage-state.service';
 import {
+    catchError,
     debounceTime,
     filter,
     map,
-    share,
     shareReplay,
     startWith,
     switchMap,
@@ -31,8 +31,8 @@ import { Router } from '@angular/router';
             >
                 <app-icon>edit</app-icon>
             </button>
-            <div details class=""></div>
-            @if ((media | async)?.length > 0) {
+            <div details></div>
+            @if ((media | async).length > 0) {
                 <div
                     cdkDropList
                     class="flex-1 h-1/2 overflow-auto flex flex-col space-y-2"
@@ -108,7 +108,7 @@ import { Router } from '@angular/router';
                 </div>
             } @else {
                 <div
-                    class="flex flex-col items-center justify-center p-8 space-y-2 opacity-30 mx-auto"
+                    class="flex flex-col items-center justify-center p-8 space-y-2 opacity-30 mx-auto flex-1"
                 >
                     <app-icon class="text-6xl">hide_image</app-icon>
                     <p>No media in playlist.</p>
@@ -116,7 +116,13 @@ import { Router } from '@angular/router';
             }
         </div>
     `,
-    styles: [``],
+    styles: [
+        `
+            :host {
+                height: 100%;
+            }
+        `,
+    ],
 })
 export class SignagePlaylistMediaListComponent {
     @Input() public playlist = '';
@@ -155,9 +161,13 @@ export class SignagePlaylistMediaListComponent {
     );
 
     private _playlist_media = this._playlist.pipe(
-        filter(([playlist]) => !!playlist),
+        filter((playlist) => !!playlist),
         debounceTime(300),
-        switchMap(([playlist]) => listSignagePlaylistMedia(playlist)),
+        switchMap((playlist) =>
+            listSignagePlaylistMedia(playlist).pipe(
+                catchError(() => of({ id: '', items: [] })),
+            ),
+        ),
         shareReplay(1),
     );
 
@@ -184,7 +194,7 @@ export class SignagePlaylistMediaListComponent {
 
     public async drop(event: CdkDragDrop<SignageMedia[]>) {
         const playlist = await this._playlist_media.pipe(take(1)).toPromise();
-        if (!playlist) return;
+        if (!playlist?.id) return;
         const list = [...playlist.items];
         moveItemInArray(
             playlist.items,

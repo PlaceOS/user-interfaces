@@ -218,7 +218,7 @@ export class WFHSettingsModalComponent implements OnInit {
             ...user,
             work_preferences: this.settings,
             work_overrides: overrides,
-        }).toPromise();
+        } as any).toPromise();
         this.loading = false;
         this._dialog_ref.disableClose = false;
         if (close) {
@@ -230,7 +230,7 @@ export class WFHSettingsModalComponent implements OnInit {
     private _initWeekdays() {
         let day = new Date();
         this.weekdays = this.available_weekdays.map((_) =>
-            setDay(day, _).valueOf()
+            setDay(day, _).valueOf(),
         );
     }
 }

@@ -7,8 +7,8 @@ import { SignageMedia } from '@placeos/ts-client';
 @Component({
     selector: 'signage-media-list',
     template: `
-        <div class="px-4 pb-4 pt-2">
-            <h3 class="text-xl font-medium text-center mb-2">Media</h3>
+        <div class="p-4">
+            <h3 class="text-xl font-medium text-center mb-4">Media</h3>
             <mat-form-field appearance="outline" class="w-full no-subscript">
                 <input
                     matInput
@@ -87,14 +87,22 @@ import { SignageMedia } from '@placeos/ts-client';
             </div>
         } @else {
             <div
-                class="flex flex-col items-center justify-center p-8 space-y-2 opacity-30 mx-auto"
+                class="flex flex-col items-center justify-center p-8 space-y-2 opacity-30 mx-auto flex-1"
             >
                 <app-icon class="text-6xl">hide_image</app-icon>
                 <p>No media found.</p>
             </div>
         }
     `,
-    styles: [``],
+    styles: [
+        `
+            :host {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            }
+        `,
+    ],
 })
 export class SignageMediaListComponent {
     public readonly search = new BehaviorSubject<string>('');

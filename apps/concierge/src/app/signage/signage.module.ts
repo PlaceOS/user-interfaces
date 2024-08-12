@@ -14,6 +14,7 @@ import { ComponentsModule } from '@placeos/components';
 import { SignagePlaylistModalComponent } from './signage-playlist-modal.component';
 import { SignagePlaylistMediaListComponent } from './signage-playlist-media-list.component';
 import { SignageMediaListComponent } from './signage-media-list.component';
+import { SignageDisplaysComponent } from './signage-displays.component';
 
 const ROUTES: Route[] = [
     {
@@ -22,6 +23,7 @@ const ROUTES: Route[] = [
         children: [
             { path: '', redirectTo: 'media', pathMatch: 'full' },
             { path: 'media', component: SignageMediaComponent },
+            { path: 'displays', component: SignageDisplaysComponent },
             { path: '*', redirectTo: 'media', pathMatch: 'full' },
         ],
     },
@@ -35,6 +37,8 @@ export const COMPONENTS: Type<any>[] = [
     SignagePlaylistModalComponent,
     SignageMediaListComponent,
     SignagePlaylistMediaListComponent,
+
+    SignageDisplaysComponent,
 ];
 
 @NgModule({
