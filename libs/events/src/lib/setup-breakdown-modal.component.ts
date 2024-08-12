@@ -64,7 +64,7 @@ export class SetupBreakdownModalComponent {
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _event: CalendarEvent,
-        private _dialog_ref: MatDialogRef<SetupBreakdownModalComponent>
+        private _dialog_ref: MatDialogRef<SetupBreakdownModalComponent>,
     ) {}
 
     public async save() {
@@ -73,6 +73,7 @@ export class SetupBreakdownModalComponent {
         const { host, creator } = this._event;
         const query: any = {
             system_id: this._event?.resources[0]?.id || this._event?.system?.id,
+            ical_uid: this._event?.ical_uid,
         };
         let event = await saveEvent(
             new CalendarEvent({
@@ -80,7 +81,7 @@ export class SetupBreakdownModalComponent {
                 setup_time: this.form.value.setup,
                 breakdown_time: this.form.value.breakdown,
             }).toJSON(),
-            query
+            query,
         )
             .toPromise()
             .catch((_) => null);

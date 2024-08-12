@@ -19,7 +19,7 @@ import { ParkingStateService } from './parking-state.service';
                     size: '4.75rem',
                     sortable: false,
                 },
-                { key: 'description', name: 'Bay Number' },
+                { key: 'asset_name', name: 'Bay Number' },
                 {
                     key: 'user_name',
                     name: 'Reserved For',
@@ -97,7 +97,7 @@ import { ParkingStateService } from './parking-state.service';
             </div>
             <div
                 *ngIf="row?.checked_in"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-error text-error-content mx-auto"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
                 matTooltip="Arrived at space"
                 matTooltipPosition="right"
             >

@@ -106,7 +106,7 @@ const EMPTY_ACTIONS = [];
                             icon
                             matRipple
                             [matMenuTriggerFor]="menu"
-                            class="bg-secondary rounded text-white h-10 w-10"
+                            class="bg-secondary rounded text-white h-12 w-12"
                             *ngIf="allow_edit"
                         >
                             <app-icon>more_horiz</app-icon>
@@ -481,14 +481,14 @@ const EMPTY_ACTIONS = [];
                     [disabled]="!can_edit"
                     *ngIf="!hide_edit"
                 >
-                    <div class="flex items-center space-x-2 text-base">
-                        <app-icon>edit</app-icon>
+                    <div class="flex items-center space-x-2 text-base pr-2">
+                        <app-icon class="text-2xl">edit</app-icon>
                         <div i18n>Edit event</div>
                     </div>
                 </button>
                 <button mat-menu-item (click)="remove.emit()">
-                    <div class="flex items-center space-x-2 text-base">
-                        <app-icon>delete</app-icon>
+                    <div class="flex items-center space-x-2 text-base pr-2">
+                        <app-icon class="text-2xl text-error">delete</app-icon>
                         <div i18n>Delete event</div>
                     </div>
                 </button>
@@ -497,8 +497,8 @@ const EMPTY_ACTIONS = [];
                     *ngIf="event.recurring_event_id"
                     (click)="remove.emit(true)"
                 >
-                    <div class="flex items-center space-x-2 text-base">
-                        <app-icon>delete</app-icon>
+                    <div class="flex items-center space-x-2 text-base pr-2">
+                        <app-icon class="text-2xl text-error">delete</app-icon>
                         <div i18n>Delete Series</div>
                     </div>
                 </button>
@@ -507,8 +507,8 @@ const EMPTY_ACTIONS = [];
                     *ngFor="let act of custom_actions"
                     (click)="action.emit(act.id)"
                 >
-                    <div class="flex items-center space-x-2 text-base">
-                        <app-icon>{{ act.icon }}</app-icon>
+                    <div class="flex items-center space-x-2 text-base pr-2">
+                        <app-icon class="text-2xl">{{ act.icon }}</app-icon>
                         <div i18n>{{ act.name }}</div>
                     </div>
                 </button>

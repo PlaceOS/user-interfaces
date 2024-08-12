@@ -107,11 +107,11 @@ export class EventsStateService extends AsyncHandler {
         this._zones,
         this._org.active_region.pipe(
             filter((_) => !!_),
-            distinctUntilKeyChanged('id')
+            distinctUntilKeyChanged('id'),
         ),
         this._org.active_building.pipe(
             filter((_) => !!_),
-            distinctUntilKeyChanged('id')
+            distinctUntilKeyChanged('id'),
         ),
     ]).pipe(
         debounceTime(300),
@@ -132,7 +132,7 @@ export class EventsStateService extends AsyncHandler {
             this._loading.next(false);
             console.log('Spaces', _);
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
     /** Obsevable for filtered list of bookings */
     public readonly filtered = combineLatest([
@@ -147,19 +147,19 @@ export class EventsStateService extends AsyncHandler {
                 period === 'month'
                     ? startOfMonth
                     : period === 'week'
-                    ? startOfWeek
-                    : startOfDay;
+                      ? startOfWeek
+                      : startOfDay;
             const end_fn =
                 period === 'month'
                     ? endOfMonth
                     : period === 'week'
-                    ? endOfWeek
-                    : endOfDay;
+                      ? endOfWeek
+                      : endOfDay;
             const start = start_fn(date);
             const end = end_fn(date);
             return this.filterEvents(events, start, end, filters, zones);
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly pending: Observable<CalendarEvent[]> = of(1).pipe(
@@ -176,12 +176,12 @@ export class EventsStateService extends AsyncHandler {
                 .pipe(
                     map((_) =>
                         flatten(Object.values(_ || {}))?.map(
-                            (i) => new CalendarEvent(i)
-                        )
-                    )
+                            (i) => new CalendarEvent(i),
+                        ),
+                    ),
                 );
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
     private _retries = 0;
     /** Observable for list of bookings */
@@ -207,14 +207,14 @@ export class EventsStateService extends AsyncHandler {
                 period === 'month'
                     ? startOfMonth
                     : period === 'week'
-                    ? startOfWeek
-                    : startOfDay;
+                      ? startOfWeek
+                      : startOfDay;
             const end_fn =
                 period === 'month'
                     ? endOfMonth
                     : period === 'week'
-                    ? endOfWeek
-                    : endOfDay;
+                      ? endOfWeek
+                      : endOfDay;
             const start = start_fn(date);
             const end = end_fn(date);
             return queryEvents({
@@ -232,12 +232,12 @@ export class EventsStateService extends AsyncHandler {
                         this._retries += 1;
                         const timeout_base = Math.min(
                             8000,
-                            1000 * this._retries
+                            1000 * this._retries,
                         );
                         this.timeout(
                             'retry',
                             () => this._poll.next(Date.now()),
-                            randomInt(timeout_base + 1000, timeout_base)
+                            randomInt(timeout_base + 1000, timeout_base),
                         );
                     }
                     return of([
@@ -246,7 +246,7 @@ export class EventsStateService extends AsyncHandler {
                         undefined,
                         false,
                     ]);
-                })
+                }),
             );
         }),
         tap(([events, start, end, clear]) => {
@@ -256,12 +256,12 @@ export class EventsStateService extends AsyncHandler {
             this.processBookings(
                 events || [],
                 start?.valueOf(),
-                end?.valueOf()
+                end?.valueOf(),
             );
             this._loading.next(false);
         }),
         map(([events]) => events),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     /** Active filters */
@@ -276,7 +276,7 @@ export class EventsStateService extends AsyncHandler {
     constructor(
         private _org: OrganisationService,
         private _dialog: MatDialog,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
         this.events.subscribe();
@@ -329,7 +329,7 @@ export class EventsStateService extends AsyncHandler {
      */
     public startPolling(
         period: 'day' | 'week' | 'month' = 'day',
-        delay: number = 30 * 1000
+        delay: number = 30 * 1000,
     ) {
         this._poll.next(Date.now());
         this._period.next(period);
@@ -365,11 +365,11 @@ export class EventsStateService extends AsyncHandler {
                 title: 'Delete meeting?',
                 content: `Are you sure you want to delete the meeting at ${format(
                     new Date(event.date),
-                    'dd MMM yyyy, ' + this.time_format
+                    'dd MMM yyyy, ' + this.time_format,
                 )}<br> in ${event.location}?`,
                 icon: { class: 'material-icons', content: 'delete' },
             },
-            this._dialog
+            this._dialog,
         );
         if (details.reason !== 'done') return false;
         details.loading('Deleting booking...');
@@ -406,24 +406,24 @@ export class EventsStateService extends AsyncHandler {
     private processBookings(
         events: CalendarEvent[],
         start: number = startOfDay(Date.now()).valueOf(),
-        end: number = endOfDay(Date.now()).valueOf()
+        end: number = endOfDay(Date.now()).valueOf(),
     ) {
         let bookings = this._bookings.getValue() || [];
         const space_list = unique(
             flatten(events.map((event) => event.resources)),
-            'email'
+            'email',
         );
         space_list.forEach((space) => {
             bookings = replaceBookings(
                 bookings,
                 events.filter((bkn) =>
-                    bkn.resources.find((s) => s.email === space.email)
+                    bkn.resources.find((s) => s.email === space.email),
                 ),
                 {
                     space: space.email,
                     from: start.valueOf(),
                     to: end.valueOf(),
-                }
+                },
             );
         });
         this._bookings.next(bookings);
@@ -434,34 +434,34 @@ export class EventsStateService extends AsyncHandler {
         start: Date,
         end: Date,
         filters: BookingFilters,
-        zones: string[] = []
+        zones: string[] = [],
     ) {
         return events.filter((bkn) => {
             const intersects = timePeriodsIntersect(
                 start.valueOf(),
                 end.valueOf(),
                 bkn.date,
-                bkn.date + bkn.duration * 60 * 1000
+                bkn.date + bkn.duration * 60 * 1000,
             );
             const has_space =
                 !filters.space_emails?.length ||
                 !!bkn.resources.find((space) =>
-                    filters.space_emails.includes(space.email)
+                    filters.space_emails.includes(space.email),
                 );
             const in_zones =
                 !filters.zone_ids?.length ||
                 !!bkn.resources.find((space) =>
-                    space.zones.find((zone) => filters.zone_ids.includes(zone))
+                    space.zones.find((zone) => filters.zone_ids.includes(zone)),
                 );
-            const type = bkn.guests.length
+            const type = bkn.guests?.length
                 ? 'external'
                 : bkn.status === 'declined'
-                ? 'cancelled'
-                : 'internal';
+                  ? 'cancelled'
+                  : 'internal';
             const show =
                 !filters.hide_type?.length ||
                 !(filters.hide_type as any).find(
-                    (item) => item.id === type || item === type
+                    (item) => item.id === type || item === type,
                 );
             return intersects && has_space && in_zones && show;
         });

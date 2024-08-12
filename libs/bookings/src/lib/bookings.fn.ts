@@ -48,7 +48,7 @@ export function queryBookings(q: BookingsQueryParams): Observable<Booking[]> {
     const query = toQueryString(q);
     return get(`${BOOKINGS_ENDPOINT}${query ? '?' + query : ''}`).pipe(
         map((list) => list.map((item) => new Booking(item))),
-        catchError((_) => of([]))
+        catchError((_) => of([])),
     );
 }
 
@@ -57,12 +57,12 @@ export function queryBookings(q: BookingsQueryParams): Observable<Booking[]> {
  * @param q Parameters to pass to the API request
  */
 export function bookedResourceList(
-    q: BookingsQueryParams
+    q: BookingsQueryParams,
 ): Observable<string[]> {
     const query = toQueryString(q);
     return get(`${BOOKINGS_ENDPOINT}/booked${query ? '?' + query : ''}`).pipe(
         map((list) => list as string[]),
-        catchError((_) => of([]))
+        catchError((_) => of([])),
     );
 }
 
@@ -84,7 +84,7 @@ export function queryPagedBookings(q: BookingsQueryParams) {
  * @param q Parameters to pass to the API request
  */
 export function queryAllBookings(
-    q: BookingsQueryParams
+    q: BookingsQueryParams,
 ): Observable<Booking[]> {
     return query<Booking>({
         query_params: q,
@@ -102,7 +102,7 @@ export function queryAllBookings(
             }
             return list;
         }),
-        catchError((_) => of([]))
+        catchError((_) => of([])),
     );
 }
 
@@ -113,7 +113,7 @@ export function queryAllBookings(
  */
 export function showBooking(id: string) {
     return get(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`).pipe(
-        map((item) => new Booking(item))
+        map((item) => new Booking(item)),
     );
 }
 
@@ -123,11 +123,11 @@ export function showBooking(id: string) {
  */
 export function createBooking(
     data: Partial<Booking>,
-    q?: { event_id?: string; ical_uid?: string }
+    q?: { event_id?: string; ical_uid?: string },
 ) {
     const query = toQueryString(q);
     return post(`${BOOKINGS_ENDPOINT}${query ? '?' + query : ''}`, data).pipe(
-        map((item) => new Booking(item))
+        map((item) => new Booking(item)),
     );
 }
 
@@ -140,11 +140,30 @@ export function createBooking(
 export function updateBooking(
     id: string,
     data: Partial<Booking>,
-    method: 'put' | 'patch' = 'patch'
+    method: 'put' | 'patch' = 'patch',
 ) {
     return (method === 'patch' ? patch : put)(
         `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`,
-        data
+        data,
+    ).pipe(map((item) => new Booking(item)));
+}
+
+/**
+ * Update instance of an existing booking series
+ * @param id ID of the booking to update
+ * @param start_time Unix seconds of the start time of the booking
+ * @param data New values for booking fields
+ * @param method HTTP verb to use with API request
+ */
+export function updateBookingInstance(
+    id: string,
+    start_time: number,
+    data: Partial<Booking>,
+    method: 'put' | 'patch' = 'patch',
+) {
+    return (method === 'patch' ? patch : put)(
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`,
+        data,
     ).pipe(map((item) => new Booking(item)));
 }
 
@@ -155,22 +174,49 @@ export function updateBooking(
  */
 export const saveBooking = (
     data: Partial<Booking>,
-    q?: { booking_id?: string; event_id?: string; ical_uid?: string }
+    q?: {
+        booking_id?: string;
+        event_id?: string;
+        ical_uid?: string;
+        instance?: boolean;
+    },
 ) => {
     const id = data.id;
     delete (data as any).id;
-    return id ? updateBooking(id, data) : createBooking(data, q);
+    const instance = q?.instance;
+    if (q) delete (q as any).instance;
+    return id
+        ? instance
+            ? updateBookingInstance(id, data.booking_start, data)
+            : updateBooking(id, data)
+        : createBooking(data, q);
 };
 
 /**
  * Remove booking from the database
  * @param id ID of the booking to remove
- * @param q Parameters to pass to the API request
  */
-export function removeBooking(id: string) {
+export function removeBooking(id: string, q: any = {}) {
+    if (q.instance) {
+        return removeBookingInstance(id, q.start_time);
+    }
     return del(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, {
         response_type: 'void',
     });
+}
+
+/**
+ * Remove instance of an existing booking series
+ * @param id ID of the booking to update
+ * @param start_time Unix seconds of the start time of the booking
+ */
+export function removeBookingInstance(id: string, start_time: number) {
+    return del(
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`,
+        {
+            response_type: 'void',
+        },
+    );
 }
 
 /**
@@ -181,7 +227,7 @@ export function removeBooking(id: string) {
 export function approveBooking(id: string) {
     return post(
         `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/approve`,
-        ''
+        '',
     ).pipe(map((item) => new Booking(item)));
 }
 
@@ -193,21 +239,21 @@ export function approveBooking(id: string) {
 export function rejectBooking(id: string) {
     return post(
         `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/reject`,
-        ''
+        '',
     ).pipe(map((item) => new Booking(item)));
 }
 
 export function setBookingState(
     id: string,
     state: string,
-    utm_source?: string
+    utm_source?: string,
 ) {
     const query = toQueryString({ state, utm_source });
     return post(
         `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/update_state${
             query ? '?' + query : ''
         }`,
-        {}
+        {},
     ).pipe(map((item) => new Booking(item)));
 }
 
@@ -218,7 +264,7 @@ export function setBookingState(
 export function queryBookingGuests(id: string) {
     return post(
         `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/guests`,
-        ''
+        '',
     ).pipe(map((item) => new GuestUser(item)));
 }
 
@@ -230,13 +276,13 @@ export function queryBookingGuests(id: string) {
 export function checkinBookingGuest(
     id: string,
     guest_id: string,
-    state: boolean = true
+    state: boolean = true,
 ) {
     return post(
         `${BOOKINGS_ENDPOINT}/${encodeURIComponent(
-            id
+            id,
         )}/guests/${encodeURIComponent(guest_id)}/check_in?state=${state}`,
-        ''
+        '',
     ).pipe(map((item) => new GuestUser(item)));
 }
 
@@ -248,7 +294,7 @@ export function checkinBookingGuest(
 export function bookingAddGuest(id: string, guest: GuestUser) {
     return post(
         `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/attendee`,
-        guest
+        guest,
     ).pipe(map((item) => new GuestUser(item)));
 }
 
@@ -260,8 +306,8 @@ export function bookingAddGuest(id: string, guest: GuestUser) {
 export function bookingRemoveGuest(id: string, guest: GuestUser) {
     return del(
         `${BOOKINGS_ENDPOINT}/${encodeURIComponent(
-            id
-        )}/attendee/${encodeURIComponent(guest.email)}`
+            id,
+        )}/attendee/${encodeURIComponent(guest.email)}`,
     ).pipe(map((item) => new GuestUser(item)));
 }
 
@@ -274,13 +320,13 @@ export function checkinBooking(id: string, state: boolean) {
     const query = toQueryString({ state });
     return post(
         `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in?${query}`,
-        ''
+        '',
     ).pipe(
         map((item) => new Booking(item)),
         catchError(async (e) => {
             const body = await e.json();
             throw body.error || body.message || body;
-        })
+        }),
     );
 }
 
@@ -292,14 +338,14 @@ export function checkinBooking(id: string, state: boolean) {
 export function checkinBookingAttendee(
     id: string,
     email: string,
-    state: boolean
+    state: boolean,
 ) {
     const query = toQueryString({ state });
     return post(
         `${BOOKINGS_ENDPOINT}/${encodeURIComponent(
-            id
+            id,
         )}/guests/${encodeURIComponent(email)}/check_in?${query}`,
-        ''
+        '',
     ).pipe(map((item) => new GuestUser(item)));
 }
 
@@ -314,7 +360,7 @@ export function queryResourceAvailability(
     duration: number,
     ignore?: string,
     type: BookingType = 'room',
-    ignore_period: [number, number] = [0, 0]
+    ignore_period: [number, number] = [0, 0],
 ): Observable<boolean[]> {
     return queryBookings({
         type,
@@ -325,10 +371,11 @@ export function queryResourceAvailability(
             id_list.map(
                 (id) =>
                     !_.find(
-                        (b) => b.asset_id === id && (!ignore || ignore !== b.id)
-                    )
-            )
-        )
+                        (b) =>
+                            b.asset_id === id && (!ignore || ignore !== b.id),
+                    ),
+            ),
+        ),
     );
 }
 
@@ -337,7 +384,7 @@ export function isResourceAvailable(
     start: number,
     duration: number,
     ignore?: string,
-    type: BookingType = 'room'
+    type: BookingType = 'room',
 ) {
     return queryBookings({
         type,
@@ -347,8 +394,8 @@ export function isResourceAvailable(
         map(
             (_) =>
                 _.filter((_) => _.asset_id === id && _.id !== ignore).length ===
-                0
-        )
+                0,
+        ),
     );
 }
 
@@ -361,7 +408,7 @@ export function isResourceAvailable(
 export async function createBookingsForEvent(
     event: CalendarEvent,
     type: BookingType,
-    resources: BookableResource
+    resources: BookableResource,
 ) {
     const bookings = await queryBookings({
         type,
@@ -374,7 +421,7 @@ export async function createBookingsForEvent(
     await Promise.all(
         event.linked_bookings
             .filter((_) => _.booking_type === type)
-            .map((_) => removeBooking(_.id).toPromise())
+            .map((_) => removeBooking(_.id).toPromise()),
     );
     const zones =
         (event.system?.zones as any) ||
@@ -384,8 +431,8 @@ export async function createBookingsForEvent(
         resources.map((item) => {
             const booking = bookings.find((_) =>
                 _.asset_ids.find((id) =>
-                    item.items?.find((i) => i.item_ids.includes(id))
-                )
+                    item.items?.find((i) => i.item_ids.includes(id)),
+                ),
             );
             return createBooking(
                 new Booking({
@@ -408,8 +455,8 @@ export async function createBookingsForEvent(
                     },
                     zones,
                 }),
-                { ical_uid: event.ical_uid, event_id: event.id }
+                { ical_uid: event.ical_uid, event_id: event.id },
             ).toPromise();
-        })
+        }),
     );
 }

@@ -46,7 +46,7 @@ const validateCateringField =
 
 export function generateEventForm(
     event: CalendarEvent = new CalendarEvent(),
-    settings?: SettingsService
+    settings?: SettingsService,
 ) {
     if (!event) event = new CalendarEvent();
     const form = new FormGroup({
@@ -54,10 +54,10 @@ export function generateEventForm(
         ical_uid: new FormControl(event.ical_uid),
         host: new FormControl(
             event.host || event.organiser?.email || currentUser()?.email || '',
-            [Validators.required]
+            [Validators.required],
         ),
         organiser: new FormControl(
-            event.organiser || new User({ email: event.host || '' })
+            event.organiser || new User({ email: event.host || '' }),
         ),
         creator: new FormControl(event.creator || currentUser()?.email),
         calendar: new FormControl(event.calendar),
@@ -77,10 +77,10 @@ export function generateEventForm(
         attachments: new FormControl(event.attachments),
         catering: new FormControl(event.extension_data?.catering as any),
         catering_notes: new FormControl(
-            event.extension_data?.catering[0]?.notes || ''
+            event.extension_data?.catering[0]?.notes || '',
         ),
         catering_charge_code: new FormControl(
-            event.extension_data?.catering[0]?.charge_code || ''
+            event.extension_data?.catering[0]?.charge_code || '',
         ),
         setup_time: new FormControl(event.setup_time || 0),
         breakdown_time: new FormControl(event.breakdown_time || 0),
@@ -90,7 +90,7 @@ export function generateEventForm(
         location: new FormControl(event.location),
         needs_space: new FormControl(true),
         needs_parking: new FormControl(
-            event.extension_data?.needs_parking || false
+            event.extension_data?.needs_parking || false,
         ),
         event_type: new FormControl(event.extension_data?.event_type || ''),
         category: new FormControl(event.extension_data?.category || ''),
@@ -98,20 +98,20 @@ export function generateEventForm(
         update_master: new FormControl(false),
         system: new FormControl<any>(event.system),
         attendance_type: new FormControl(
-            event.extension_data?.attendance_type || 'ONSITE'
+            event.extension_data?.attendance_type || 'ONSITE',
         ),
         timezone: new FormControl(event.timezone || LOCAL_TIMEZONE),
         shared_event: new FormControl(
-            event.extension_data?.shared_event || false
+            event.extension_data?.shared_event || false,
         ),
         view_access: new FormControl(
-            event.extension_data?.view_access || 'PRIVATE'
+            event.extension_data?.view_access || 'PRIVATE',
         ),
         images: new FormControl(event.extension_data?.images || []),
         featured: new FormControl(event.extension_data?.featured || false),
     });
     form.get('organiser').valueChanges.subscribe((o) =>
-        form.controls.host.setValue(o?.email)
+        form.controls.host.setValue(o?.email),
     );
     form.get('resources').valueChanges.subscribe((l) => {
         form.controls.system.setValue(l?.length ? (l[0] as any) : null);
@@ -133,7 +133,7 @@ export function generateEventForm(
                     },
                 })),
             },
-            { emitEvent: false }
+            { emitEvent: false },
         );
     };
     form.valueChanges.subscribe((v) => {
@@ -149,10 +149,10 @@ export function generateEventForm(
             {
                 date_end: roundToNearestMinutes(
                     addMinutes(form.getRawValue().date, duration),
-                    { nearestTo: 5, roundingMethod: 'ceil' }
+                    { nearestTo: 5, roundingMethod: 'ceil' },
                 ).valueOf(),
             },
-            { emitEvent: false }
+            { emitEvent: false },
         );
         setCateringTime();
     });
@@ -162,21 +162,21 @@ export function generateEventForm(
                 {
                     date_end: roundToNearestMinutes(
                         addMinutes(form.getRawValue().date, 30),
-                        { nearestTo: 5, roundingMethod: 'ceil' }
+                        { nearestTo: 5, roundingMethod: 'ceil' },
                     ).valueOf(),
                     duration: 30,
                 },
-                { emitEvent: false }
+                { emitEvent: false },
             );
         } else {
             form.patchValue(
                 {
                     duration: differenceInMinutes(
                         date,
-                        form.getRawValue().date
+                        form.getRawValue().date,
                     ),
                 },
-                { emitEvent: false }
+                { emitEvent: false },
             );
         }
         setCateringTime();
@@ -186,10 +186,10 @@ export function generateEventForm(
             {
                 date_end: roundToNearestMinutes(
                     addMinutes(date, form.value.duration),
-                    { nearestTo: 5, roundingMethod: 'ceil' }
+                    { nearestTo: 5, roundingMethod: 'ceil' },
                 ).valueOf(),
             },
-            { emitEvent: false }
+            { emitEvent: false },
         );
         if (date < Date.now() && !form.value.id) {
             form.patchValue(
@@ -199,7 +199,7 @@ export function generateEventForm(
                         roundingMethod: 'ceil',
                     }).valueOf(),
                 },
-                { emitEvent: false }
+                { emitEvent: false },
             );
         }
         if (
@@ -259,7 +259,7 @@ export function statusFromBookings(
     bookings: CalendarEvent[],
     bookable: boolean,
     requestable: boolean,
-    date: number = getTime(new Date())
+    date: number = getTime(new Date()),
 ) {
     const now = new Date(date);
     const next_free_slot = getNextFreeTimeSlot(bookings, date, 5);
@@ -269,7 +269,7 @@ export function statusFromBookings(
         date,
         date,
         next_free_slot.start,
-        next_free_slot.end
+        next_free_slot.end,
     );
     const time_until_next_block = formatDuration({
         minutes: currently_free
@@ -282,24 +282,24 @@ export function statusFromBookings(
         status: !bookable
             ? 'Not Bookable'
             : currently_free
-            ? requestable
-                ? 'Available by Request'
-                : 'Available'
-            : 'Meeting in Progress',
+              ? requestable
+                  ? 'Available by Request'
+                  : 'Available'
+              : 'Meeting in Progress',
         available_until: free_today
             ? 'No meetings today'
             : currently_free
-            ? `Free until ${format(end, 'h:mm B')}(${time_until_next_block})`
-            : free_tomorrow
-            ? 'Unavailable today'
-            : `Free at ${format(start, 'h:mm B')}(${time_until_next_block})`,
+              ? `Free until ${format(end, 'h:mm B')}(${time_until_next_block})`
+              : free_tomorrow
+                ? 'Unavailable today'
+                : `Free at ${format(start, 'h:mm B')}(${time_until_next_block})`,
     };
 }
 
 export function replaceBookings(
     list: CalendarEvent[],
     new_bookings: CalendarEvent[],
-    filter_options: { space: string; from: number; to: number }
+    filter_options: { space: string; from: number; to: number },
 ) {
     const from = filter_options.from;
     const to = filter_options.to;
@@ -307,8 +307,8 @@ export function replaceBookings(
         const start = new Date(booking.date);
         const end = addMinutes(start, booking.duration);
         return (
-            !booking.resources.find(
-                (space) => space.email === filter_options.space
+            !booking.resources?.find(
+                (space) => space.email === filter_options.space,
             ) || !timePeriodsIntersect(from, to, start.valueOf(), end.valueOf())
         );
     });
@@ -332,7 +332,7 @@ export function newCalendarEventFromBooking(booking: Booking) {
                 name: booking.asset_name || booking.description,
                 email: booking.asset_id,
                 checked_in: booking.checked_in,
-            })
+            }),
         );
     }
     attendees = attendees.concat(booking.attendees);

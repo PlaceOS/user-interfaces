@@ -56,13 +56,15 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                             matRipple
                             class="flex-1 h-10 border-none"
                             [class.bg-success]="booking.checked_in"
+                            [class.text-success-content]="booking.checked_in"
                             [disabled]="checking_in"
                             *ngIf="
                                 !booking.checked_out_at &&
                                 !checked_out &&
                                 !auto_checkin &&
                                 (booking.state === 'upcoming' ||
-                                    booking.state === 'in_progress')
+                                    booking.state === 'in_progress') &&
+                                booking.status !== 'declined'
                             "
                             (click)="toggleCheckedIn()"
                         >
@@ -92,7 +94,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                             icon
                             matRipple
                             [matMenuTriggerFor]="menu"
-                            class="bg-secondary rounded text-white h-10 w-10"
+                            class="bg-secondary rounded text-white h-12 w-12"
                         >
                             <app-icon>more_horiz</app-icon>
                         </button>
@@ -397,13 +399,7 @@ export class BookingDetailsModalComponent {
         private _settings: SettingsService,
         private _org: OrganisationService,
         private _dialog: MatDialog,
-    ) {
-        console.log(
-            'Building',
-            this.building,
-            this._settings.get('app.use_region'),
-        );
-    }
+    ) {}
 
     public get period() {
         if (this.booking?.is_all_day) return 'All Day';

@@ -165,6 +165,7 @@ export class ParkingStateService extends AsyncHandler {
         this._options,
         this.users,
         this._poll,
+        this._change,
     ]).pipe(
         debounceTime(500),
         switchMap(([bld, options, users]) => {
@@ -293,6 +294,9 @@ export class ParkingStateService extends AsyncHandler {
                         this._org.building?.id,
                         space.zone_id,
                     ]),
+                    extension_data: {
+                        asset_name: new_space.name,
+                    },
                 }),
             ).toPromise();
         }
@@ -391,11 +395,13 @@ export class ParkingStateService extends AsyncHandler {
             link_id,
             date,
             space,
+            allow_time_changes,
         }: {
             user?: User;
             link_id?: string;
             date?: number;
             space?: ParkingSpace;
+            allow_time_changes?: boolean;
         } = {},
     ) {
         console.log('Reservation:', space);
@@ -413,6 +419,7 @@ export class ParkingStateService extends AsyncHandler {
                     date,
                     level: levels[0],
                     space,
+                    allow_time_changes,
                 },
             });
             ref.afterClosed().subscribe((id) => resolve(id));
