@@ -399,13 +399,7 @@ export class BookingDetailsModalComponent {
         private _settings: SettingsService,
         private _org: OrganisationService,
         private _dialog: MatDialog,
-    ) {
-        console.log(
-            'Building',
-            this.building,
-            this._settings.get('app.use_region'),
-        );
-    }
+    ) {}
 
     public get period() {
         if (this.booking?.is_all_day) return 'All Day';
