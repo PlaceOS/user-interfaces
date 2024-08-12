@@ -22,7 +22,7 @@ import { SignageMedia } from '@placeos/ts-client';
             <div class="grid w-full gap-4 md:grid-cols-2 lg:grid-cols-3 p-4">
                 @for (media of media | async; track media.id) {
                     <div
-                        class="bg-base-100 rounded-lg shadow flex flex-col items-center justify-center p-3 hover:opacity-80"
+                        class="bg-base-100 rounded-lg flex flex-col items-center justify-center p-3 hover:opacity-80 border border-base-300"
                     >
                         <div
                             preview
@@ -30,8 +30,8 @@ import { SignageMedia } from '@placeos/ts-client';
                         >
                             <img
                                 auth
-                                [source]="media.thumbnail_id"
-                                *ngIf="media.thumbnail_id"
+                                [source]="media.thumbnail_url"
+                                *ngIf="media.thumbnail_url"
                                 class="w-full h-full object-contain"
                             />
                             <div

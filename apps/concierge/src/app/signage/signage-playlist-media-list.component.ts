@@ -41,7 +41,7 @@ import { Router } from '@angular/router';
                     @for (item of media | async; track item.id) {
                         <div
                             cdkDrag
-                            class="w-full bg-base-100 shadow h-20 rounded-lg flex items-center p-2 space-x-2"
+                            class="w-full bg-base-100 h-20 rounded-lg flex items-center p-2 space-x-2 border border-base-300"
                         >
                             <div
                                 class="h-20 w-full border-4 border-dashed border-base-400 bg-base-300 rounded-xl"

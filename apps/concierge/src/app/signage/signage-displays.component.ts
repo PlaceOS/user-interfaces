@@ -3,7 +3,7 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
 import { SignageStateService } from './signage-state.service';
 import { map, startWith, take } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler, notifySuccess } from '@placeos/common';
+import { AsyncHandler, notifySuccess, unique } from '@placeos/common';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { SignagePlaylist, updateSystem } from '@placeos/ts-client';
 
@@ -58,7 +58,7 @@ import { SignagePlaylist, updateSystem } from '@placeos/ts-client';
                 }
             </div>
             <div
-                class="relative flex flex-col flex-1 w-1/2 h-full overflow-auto rounded-lg border border-base-300 p-4 shadow"
+                class="relative flex flex-col flex-1 w-1/2 h-full overflow-auto rounded-lg border border-base-300 p-4 shadow space-y-4"
             >
                 @if (active_display | async) {
                     <div class="flex items-center justify-center space-x-2">
@@ -84,7 +84,7 @@ import { SignagePlaylist, updateSystem } from '@placeos/ts-client';
                             ) {
                                 <div
                                     cdkDrag
-                                    class="w-full bg-base-100 shadow h-20 rounded-lg flex items-center p-2 space-x-2"
+                                    class="w-full bg-base-100 h-20 rounded-lg flex items-center p-2 space-x-2 border border-base-300"
                                 >
                                     <div
                                         class="h-20 w-full border-4 border-dashed border-base-400 bg-base-300 rounded-xl"
@@ -156,12 +156,27 @@ import { SignagePlaylist, updateSystem } from '@placeos/ts-client';
                                 </div>
                             }
                         </div>
+                        <button btn matRipple (click)="adding = true">
+                            Add Playlist
+                        </button>
                     } @else {
                         <div
-                            class="flex flex-col items-center justify-center p-8 space-y-2 opacity-30 mx-auto flex-1"
+                            class="flex flex-col items-center justify-center p-8 space-y-2 mx-auto flex-1"
                         >
-                            <app-icon class="text-6xl">hide_image</app-icon>
-                            <p>No playlists in system.</p>
+                            <div
+                                class="flex flex-col items-center justify-center opacity-30"
+                            >
+                                <app-icon class="text-6xl">hide_image</app-icon>
+                                <p>No playlists in system.</p>
+                            </div>
+                            <button
+                                btn
+                                matRipple
+                                (click)="adding = true"
+                                class="w-40"
+                            >
+                                Add Playlist
+                            </button>
                         </div>
                     }
                 } @else {
@@ -172,12 +187,19 @@ import { SignagePlaylist, updateSystem } from '@placeos/ts-client';
                         <p>Select a display from the left to view playlists</p>
                     </div>
                 }
+                <search-overlay
+                    *ngIf="adding"
+                    [item_list]="playlists | async"
+                    (selected)="addPlaylist($event)"
+                    (close)="adding = false"
+                ></search-overlay>
             </div>
         </div>
     `,
     styles: [``],
 })
 export class SignageDisplaysComponent extends AsyncHandler {
+    public adding = false;
     public readonly search = new BehaviorSubject<string>('');
     public readonly loading = this._state.loading;
     public readonly displays = combineLatest([
@@ -195,6 +217,17 @@ export class SignageDisplaysComponent extends AsyncHandler {
         this.displays,
         this.selected,
     ]).pipe(map(([displays, id]) => displays.find((item) => item.id === id)));
+
+    public readonly playlists = combineLatest([
+        this.active_display,
+        this._state.playlists,
+    ]).pipe(
+        map(([display, playlists]) =>
+            playlists.filter(
+                (_) => !display?.playlists.find((id) => _.id === id),
+            ),
+        ),
+    );
 
     public readonly active_playlists = combineLatest([
         this.active_display,
@@ -228,19 +261,41 @@ export class SignageDisplaysComponent extends AsyncHandler {
         );
     }
 
+    public async addPlaylist(playlist: SignagePlaylist) {
+        console.log('Add Playlist:', playlist);
+        const system = await this.active_display.pipe(take(1)).toPromise();
+        const playlists = unique([...system.playlists, playlist.id]);
+        await updateSystem(
+            system.id,
+            { playlists, version: system.version },
+            'patch',
+        ).toPromise();
+        notifySuccess('Successfully added playlist to the display');
+        this._state.changed();
+    }
+
     public async removePlaylist(playlist: SignagePlaylist) {
         const system = await this.active_display.pipe(take(1)).toPromise();
         const playlists = system.playlists.filter((id) => playlist.id !== id);
-        await updateSystem(system.id, { playlists }, 'patch').toPromise();
+        await updateSystem(
+            system.id,
+            { playlists, version: system.version },
+            'patch',
+        ).toPromise();
         notifySuccess('Successfully removed playlist from display');
         this._state.changed();
+        this.adding = false;
     }
 
     public async drop(event: CdkDragDrop<SignagePlaylist[]>) {
         const system = await this.active_display.pipe(take(1)).toPromise();
         const playlists = [...system.playlists];
         moveItemInArray(playlists, event.previousIndex, event.currentIndex);
-        await updateSystem(system.id, { playlists }, 'patch').toPromise();
+        await updateSystem(
+            system.id,
+            { playlists, version: system.version },
+            'patch',
+        ).toPromise();
         notifySuccess('Successfully re-ordered playlists on display');
         this._state.changed();
     }

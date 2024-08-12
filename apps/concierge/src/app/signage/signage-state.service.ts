@@ -186,9 +186,9 @@ export class SignageStateService {
     }
 
     public previewMedia(item: SignageMedia) {
-        const { media_uri, media_type, name } = item;
+        const { media_type, name } = item;
         const ref = this._dialog.open(SignageMediaPreviewModalComponent, {
-            data: { url: media_uri, type: media_type, name, save: false },
+            data: { url: item.media_url, type: media_type, name, save: false },
         });
     }
 
@@ -237,7 +237,7 @@ export class SignageStateService {
 
     public async addMedia(file: File) {
         const upload = (file) =>
-            new Promise<string>((resolve, reject) => {
+            new Promise<{ id: string; link: string }>((resolve, reject) => {
                 let state = null;
                 let resolved = false;
                 uploadFile(file).subscribe(
@@ -245,7 +245,7 @@ export class SignageStateService {
                         state = s;
                         if (s.link) {
                             resolved = true;
-                            resolve(s.link);
+                            resolve({ id: s.upload.id, link: s.link });
                         }
                     },
                     reject,
@@ -253,24 +253,29 @@ export class SignageStateService {
                 );
             });
         const [is_landscape, _] = await this._getVideoMetadata(file);
-        const thumbnail = await this._generateThumbnail(file, 1280, 720).catch(
-            (_) => null,
-        );
+        const thumbnail_image = await this._generateThumbnail(
+            file,
+            1280,
+            720,
+        ).catch((_) => null);
         const media = await upload(file);
-        let thumbnail_url = null;
-        if (thumbnail) {
-            thumbnail_url = await upload(
-                dataURLtoFile(thumbnail, `thumb+${file.name}`),
+        let thumbnail = null;
+        if (thumbnail_image) {
+            thumbnail = await upload(
+                dataURLtoFile(thumbnail_image, `thumb+${file.name}`),
             );
         }
-        const data = new SignageMedia({
-            name: file.name,
-            description: '',
-            media_uri: media,
-            media_type: file.type.includes('image') ? 'image' : 'video',
-            orientation: is_landscape ? 'landscape' : 'portrait',
-            thumbnail_id: thumbnail_url,
-        });
+        const data = {
+            ...new SignageMedia({
+                name: file.name,
+                description: '',
+                media_id: media.id,
+                media_uri: media.link,
+                media_type: file.type.includes('image') ? 'image' : 'video',
+                orientation: is_landscape ? 'landscape' : 'portrait',
+                thumbnail_id: thumbnail.id,
+            }),
+        };
         for (const key in data) {
             if (!data[key]) delete data[key];
         }
