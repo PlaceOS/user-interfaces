@@ -137,7 +137,7 @@ import { SignagePlaylist, updateSystem } from '@placeos/ts-client';
                                         </a>
                                         <button
                                             mat-menu-item
-                                            (click)="removePlaylist(row)"
+                                            (click)="removePlaylist(item)"
                                         >
                                             <div
                                                 class="flex items-center space-x-2"
