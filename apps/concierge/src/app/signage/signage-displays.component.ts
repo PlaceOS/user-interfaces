@@ -72,6 +72,30 @@ import { SignagePlaylist, updateSystem } from '@placeos/ts-client';
                             {{ (active_display | async)?.orientation }}
                         </div>
                     </div>
+                    <div class="flex flex-wrap items-center overflow-auto">
+                        @for (
+                            zone of (active_display | async)?.zones;
+                            track zone
+                        ) {
+                            <a
+                                class="px-2 py-1 font-mono text-xs bg-base-200 rounded whitespace-nowrap m-1"
+                                matRipple
+                                [routerLink]="['/signage', 'zones']"
+                                [queryParams]="{ zone: zone }"
+                            >
+                                {{
+                                    (zone | zone | async)?.display_name ||
+                                        (zone | zone | async)?.name
+                                }}
+                            </a>
+                        }
+                        <button
+                            class="underline font-mono text-xs px-2 py-1 rounded m-1"
+                            matRipple
+                        >
+                            Add Zone
+                        </button>
+                    </div>
 
                     @if ((active_playlists | async).length > 0) {
                         <div
