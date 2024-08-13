@@ -77,7 +77,6 @@ export class AssetsReportService {
         switchMap((options) => {
             this._loading.next(true);
             const { start, end, zones } = options;
-            console.log('Options:', options);
             return queryBookings({
                 period_start: getUnixTime(startOfDay(start || Date.now())),
                 period_end: getUnixTime(endOfDay(end || start || Date.now())),
@@ -100,7 +99,6 @@ export class AssetsReportService {
     ]).pipe(
         map(([products, bookings]) => {
             const data = this._processBookingStats(bookings, products);
-            console.log('Stats:', data);
             return data;
         }),
         shareReplay(1),

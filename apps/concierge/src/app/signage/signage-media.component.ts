@@ -1,10 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 
 import { SignageStateService } from './signage-state.service';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, unique } from '@placeos/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { SignageMediaListComponent } from './signage-media-list.component';
+import { listSignagePlaylistMedia, SignagePlaylist } from '@placeos/ts-client';
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
 
 @Component({
     selector: 'signage-media',
@@ -47,8 +50,14 @@ import { map } from 'rxjs/operators';
                             "
                             [routerLink]="[]"
                             [queryParams]="{ playlist: playlist.id }"
+                            cdkDropList
+                            [id]="'playlist-' + $index"
+                            [cdkDropListConnectedTo]="['media-list']"
+                            (cdkDropListDropped)="drop(playlist, $event)"
                         >
-                            {{ playlist.name }}
+                            <div class="flex-1">
+                                {{ playlist.name }}
+                            </div>
                         </a>
                     }
                 } @else {
@@ -86,6 +95,7 @@ import { map } from 'rxjs/operators';
             >
                 <signage-media-list
                     *ngIf="!selected_playlist"
+                    [playlist_count]="(playlists | async)?.length"
                 ></signage-media-list>
                 <signage-playlist-media-list
                     *ngIf="selected_playlist"
@@ -158,6 +168,8 @@ export class SignageMediaComponent extends AsyncHandler {
     }
 
     public hideOverlay(e) {
+        if (!this.show_dropzone) return;
+        console.log('Hide Overlay:', e);
         if (!(e.target instanceof HTMLInputElement)) {
             e.preventDefault();
         }
@@ -181,5 +193,18 @@ export class SignageMediaComponent extends AsyncHandler {
                 }
             }),
         );
+    }
+
+    public async drop(
+        playlist: SignagePlaylist,
+        event: CdkDragDrop<SignagePlaylist[]>,
+    ) {
+        const media = event.previousContainer.data[event.previousIndex];
+        if (!media.id || !playlist.id) console.log('Drop Event:', event);
+        const media_list = await listSignagePlaylistMedia(
+            playlist.id,
+        ).toPromise();
+        const new_media_list = unique([...media_list.items, media.id]);
+        await this._state.updatePlaylistMedia(playlist.id, new_media_list);
     }
 }

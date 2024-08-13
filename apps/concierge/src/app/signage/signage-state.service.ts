@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {
     notifyError,
     notifySuccess,
+    openConfirmModal,
     SettingsService,
     uploadFile,
 } from '@placeos/common';
@@ -186,9 +187,13 @@ export class SignageStateService {
     }
 
     public previewMedia(item: SignageMedia) {
-        const { media_type, name } = item;
         const ref = this._dialog.open(SignageMediaPreviewModalComponent, {
-            data: { url: item.media_url, type: media_type, name, save: false },
+            data: {
+                url: item.media_url,
+                type: item.media_type,
+                name: item.name,
+                save: false,
+            },
         });
     }
 
@@ -292,7 +297,22 @@ export class SignageStateService {
 
     public async removeMedia(item: SignageMedia) {
         if (!item?.id) return;
+        const result = await openConfirmModal(
+            {
+                title: `Remove Media item`,
+                content: `
+                Are you sure you wish to remove the media item "<strong>${item.name}</strong>"?<br/><br/>
+                <i class="text-sm">The item will be removed from all playlists and the files deleted from storage.</i>
+                `,
+                icon: { content: 'delete' },
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return;
+        result.loading('Removing media...');
         await removeSignageMedia(item.id).toPromise();
+        this._change.next(Date.now());
+        result.close();
     }
 
     private _getVideoMetadata(file: File) {

@@ -1,8 +1,9 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, SimpleChanges, ViewChild } from '@angular/core';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { SignageStateService } from './signage-state.service';
 import { SignageMedia } from '@placeos/ts-client';
+import { CdkDropList } from '@angular/cdk/drag-drop';
 
 @Component({
     selector: 'signage-media-list',
@@ -19,11 +20,27 @@ import { SignageMedia } from '@placeos/ts-client';
             </mat-form-field>
         </div>
         @if ((media | async)?.length > 0) {
-            <div class="grid w-full gap-4 md:grid-cols-2 lg:grid-cols-3 p-4">
+            <div
+                class="grid w-full gap-4 md:grid-cols-2 lg:grid-cols-3 p-4"
+                id="media-list"
+                cdkDropList
+                [cdkDropListData]="media | async"
+                [cdkDropListConnectedTo]="playlist_ids"
+                (cdkDropListDropped)="drop($event)"
+            >
                 @for (media of media | async; track media.id) {
                     <div
                         class="bg-base-100 rounded-lg flex flex-col items-center justify-center p-3 hover:opacity-80 border border-base-300"
+                        cdkDrag
                     >
+                        <div
+                            class="min-h-10 min-w-10 border-4 rounded-2xl border-base-400 bg-base-300 border-dashed flex items-center justify-center"
+                            *cdkDragPlaceholder
+                        >
+                            <app-icon class="text-2xl text-base-100">
+                                add
+                            </app-icon>
+                        </div>
                         <div
                             preview
                             class="relative w-full h-36 bg-base-200 rounded-lg overflow-hidden"
@@ -32,12 +49,12 @@ import { SignageMedia } from '@placeos/ts-client';
                                 auth
                                 [source]="media.thumbnail_url"
                                 *ngIf="media.thumbnail_url"
-                                class="w-full h-full object-contain"
+                                class="w-full h-full object-contain rounded-lg"
                             />
                             <div
                                 class="absolute top-1 left-1 px-2 py-1 text-xs rounded-lg bg-neutral text-neutral-content capitalize font-mono"
                             >
-                                {{ media.type }}
+                                {{ media.media_type }}
                             </div>
                         </div>
                         <div
@@ -45,6 +62,7 @@ import { SignageMedia } from '@placeos/ts-client';
                         >
                             <div
                                 class="text-base-content truncate flex-1 w-1/2"
+                                [matTooltip]="media.name"
                             >
                                 {{ media.name }}
                             </div>
@@ -59,7 +77,7 @@ import { SignageMedia } from '@placeos/ts-client';
                             <mat-menu #menu="matMenu">
                                 <button
                                     mat-menu-item
-                                    (click)="previewItem(item)"
+                                    (click)="previewItem(media)"
                                 >
                                     <div class="flex items-center space-x-2">
                                         <app-icon class="text-2xl"
@@ -70,7 +88,10 @@ import { SignageMedia } from '@placeos/ts-client';
                                         </div>
                                     </div>
                                 </button>
-                                <button mat-menu-item (click)="removeItem(row)">
+                                <button
+                                    mat-menu-item
+                                    (click)="removeItem(media)"
+                                >
                                     <div class="flex items-center space-x-2">
                                         <app-icon class="text-2xl text-error">
                                             delete
@@ -105,6 +126,7 @@ import { SignageMedia } from '@placeos/ts-client';
     ],
 })
 export class SignageMediaListComponent {
+    @Input() public playlist_count = 0;
     public readonly search = new BehaviorSubject<string>('');
     public readonly media = combineLatest([
         this.search,
@@ -117,6 +139,8 @@ export class SignageMediaListComponent {
         ),
     );
 
+    public playlist_ids: string[] = [];
+
     public readonly previewItem = (item: SignageMedia) =>
         this._state.previewMedia(item);
 
@@ -124,4 +148,14 @@ export class SignageMediaListComponent {
         this._state.removeMedia(item);
 
     constructor(private _state: SignageStateService) {}
+
+    public ngOnChanges(changes: SimpleChanges) {
+        if (changes.playlist_count) {
+            this.playlist_ids = new Array(this.playlist_count)
+                .fill(0)
+                .map((_, idx) => `playlist-${idx}`);
+        }
+    }
+
+    public drop(event) {}
 }
