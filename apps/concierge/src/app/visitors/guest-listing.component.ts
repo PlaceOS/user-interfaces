@@ -42,7 +42,7 @@ import { User } from '@placeos/users';
                 {
                     key: 'induction',
                     name: 'Inducted',
-                    content: boolean_template,
+                    content: induction_template,
                     show: !!inductions_enabled,
                     size: '5.5rem',
                 },
@@ -169,24 +169,25 @@ import { User } from '@placeos/users';
                 <app-icon>done</app-icon>
             </div>
         </ng-template>
-        <ng-template #boolean_template let-row="row">
+        <ng-template #induction_template let-data="data">
             <div
-                *ngIf="inducted(row)"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl mx-auto"
+                [class.bg-success]="data === 'accepted'"
+                [class.text-success-content]="data === 'accepted'"
+                [class.bg-warning]="data === 'tentative'"
+                [class.text-warning-content]="data === 'tentative'"
+                [class.bg-error]="data === 'declined'"
+                [class.text-error-content]="data === 'declined'"
             >
-                <app-icon>done</app-icon>
-            </div>
-            <div
-                *ngIf="inducted(row) === null"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-warning text-warning-content mx-auto"
-            >
-                <app-icon>question_mark</app-icon>
-            </div>
-            <div
-                *ngIf="inducted(row) === false"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-error text-error-content mx-auto"
-            >
-                <app-icon>close</app-icon>
+                <app-icon>
+                    {{
+                        data === 'accepted'
+                            ? 'done'
+                            : data === 'declined'
+                              ? 'close'
+                              : 'question_mark'
+                    }}
+                </app-icon>
             </div>
         </ng-template>
         <ng-template #status_template let-row="row">

@@ -206,15 +206,11 @@ export class VisitorsStateService extends AsyncHandler {
         const result = await ref.afterClosed().toPromise();
         if (!result) {
             if (result === false) {
-                await setBookingState(
-                    item.id,
-                    'declined_induction',
-                ).toPromise();
+                await updateBooking(item.id, { induction: 'declined' });
             }
             throw 'User declined';
         }
-        await setBookingState(item.id, 'inducted').toPromise();
-        await updateBooking(item.id, { ...item, induction: true });
+        await updateBooking(item.id, { induction: 'accepted' });
     }
 
     public async setCheckinState(item: Booking, state = true) {

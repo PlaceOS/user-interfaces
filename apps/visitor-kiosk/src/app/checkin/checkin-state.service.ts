@@ -27,7 +27,7 @@ export class CheckinStateService {
             date: startOfHour(Date.now()).valueOf(),
             duration: 60,
             zones: ['zone-Do2HJ00hTG'],
-        })
+        }),
     );
     /** Current guest being checked in */
     private _guest = new BehaviorSubject<GuestUser>(null);
@@ -80,11 +80,11 @@ export class CheckinStateService {
             period_end: getUnixTime(addMinutes(Date.now(), 120)),
         }).toPromise();
         upcoming = upcoming.filter(
-            (_) => _.user_email === email || _.asset_id === email
+            (_) => _.user_email === email || _.asset_id === email,
         );
         const today = new Date();
         const todays_events = upcoming.filter((event) =>
-            isSameDay(new Date(event.date), today)
+            isSameDay(new Date(event.date), today),
         );
         todays_events.sort((a, b) => a.date - b.date);
         if (todays_events.length <= 0) {
@@ -111,20 +111,14 @@ export class CheckinStateService {
         const guest = this._guest.getValue();
         const event = this._booking.getValue() || guest.extension_data.event;
         if (!guest || !event) return;
-        await setBookingState(event.id, 'inducted').toPromise();
-        const details = {
-            ...event,
-            induction: true,
-        };
-        delete details.parent_id;
-        await updateBooking(event.id, details).toPromise();
+        await updateBooking(event.id, { induction: 'accepted' }).toPromise();
     }
 
     public async declineInduction() {
         const guest = this._guest.getValue();
         const event = this._booking.getValue() || guest.extension_data.event;
         if (!guest || !event) return;
-        await setBookingState(event.id, 'declined_induction').toPromise();
+        await updateBooking(event.id, { induction: 'declined' }).toPromise();
     }
 
     public async checkinGuest() {
@@ -137,14 +131,14 @@ export class CheckinStateService {
                 e ||
                     `Error checking in ${guest.name} for ${
                         event.user_name || event.user_email
-                    }'s meeting.`
+                    }'s meeting.`,
             );
             throw e;
         });
         notifySuccess(
             `Successfully checked in ${guest.name} for ${
                 event.user_name || event.user_email
-            }'s meeting`
+            }'s meeting`,
         );
     }
 
