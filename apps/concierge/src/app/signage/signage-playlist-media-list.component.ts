@@ -193,15 +193,16 @@ export class SignagePlaylistMediaListComponent {
     }
 
     public async drop(event: CdkDragDrop<SignageMedia[]>) {
+        const id = await this._playlist.pipe(take(1)).toPromise();
         const playlist = await this._playlist_media.pipe(take(1)).toPromise();
-        if (!playlist?.id) return;
+        if (!id && playlist) return;
         const list = [...playlist.items];
         moveItemInArray(
             playlist.items,
             event.previousIndex,
             event.currentIndex,
         );
-        await this._state.updatePlaylistMedia(playlist.id, list);
+        await this._state.updatePlaylistMedia(id, list);
         this._playlist.next(this.playlist);
     }
 }
