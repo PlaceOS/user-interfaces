@@ -82,7 +82,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
 
     constructor(
         private _maps_people: MapsPeopleService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
         const data =
@@ -131,7 +131,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         this.timeout('set_resource', () => {
             sessionStorage.setItem(
                 'PLACEOS.mapsindoors.resources',
-                JSON.stringify(RESOURCE_MAP)
+                JSON.stringify(RESOURCE_MAP),
             );
         });
     }
@@ -155,14 +155,14 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             case MapService.GoogleMaps:
                 log('MapsIndoors', 'Using Google Maps API');
                 view_instance = new mapsindoors.mapView.GoogleMapsView(
-                    view_options
+                    view_options,
                 );
                 break;
             case MapService.Mapbox:
                 view_options.accessToken = this._maps_people.map_token;
                 log('MapsIndoors', 'Using Mapbox API');
                 view_instance = new mapsindoors.mapView.MapboxView(
-                    view_options
+                    view_options,
                 );
                 break;
         }
@@ -174,7 +174,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             this._maps_people.map_service === MapService.GoogleMaps
                 ? new mapsindoors.directions.GoogleMapsProvider()
                 : new mapsindoors.directions.MapboxProvider(
-                      this._maps_people.map_token
+                      this._maps_people.map_token,
                   );
         const maps_indoors = new mapsindoors.MapsIndoors({
             mapView: view_instance,
@@ -197,21 +197,21 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         this._addFloorSelector();
         // Add Events listenders
         this._services.mapsindoors.addListener('building_changed', (e) =>
-            this._handleBuildingChange(e)
+            this._handleBuildingChange(e),
         );
         this._services.mapsindoors.addListener('floor_changed', (e) =>
-            this._handleLevelChange(e)
+            this._handleLevelChange(e),
         );
         this._services.mapsindoors.addListener('zoom_changed', (e) =>
-            this._handleZoomChange(e)
+            this._handleZoomChange(e),
         );
         this._services.mapsindoors.addListener('click', (e) =>
-            this._handleUserClick(e)
+            this._handleUserClick(e),
         );
         this.timeout(
             'resize',
             () => window.dispatchEvent(new Event('resize')),
-            100
+            100,
         );
         (window as any).maps_indoors = this._services;
         this.timeout('focus', () => this._focusOnLocation());
@@ -228,12 +228,16 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         if (!this.focus) return;
         const items = await this._search(this.focus);
         if (!items?.length) {
-            notifyError('Failed to find location.');
+            notifyError(`Unable to find location "${this.focus}".`);
             return;
         }
         this.loading_directions = true;
         const item = items[0];
-        const [d_lng, d_lat] = item.properties?.anchor?.coordinates || [0, 0];
+        const bld = this._org.buildings.find(
+            (bld) => bld.id === this.zone.parent_id,
+        );
+        const [d_lng, d_lat] = item.properties?.anchor?.coordinates ||
+            bld?.location.split(',') || [37.8136, 144.9631];
         const options = { timeout: 10000, enableHighAccuracy: true };
         navigator.geolocation.getCurrentPosition(
             async (position: GeolocationPosition) => {
@@ -241,7 +245,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                     d_lat,
                     d_lng,
                     position.coords.latitude,
-                    position.coords.longitude
+                    position.coords.longitude,
                 );
                 const routeParameters = {
                     origin: {
@@ -259,7 +263,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                             'MapsIndoors',
                             'Error fetching route: ',
                             e.message || e,
-                            'warn'
+                            'warn',
                         );
                         const origin_error =
                             e instanceof TypeError &&
@@ -267,7 +271,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                         this.loading_directions = false;
                         if (!origin_error) return;
                         notifyError(
-                            'Error: Origin location is outside of map area.'
+                            'Error: Origin location is outside of map area.',
                         );
                     });
                 if (!result) return;
@@ -277,7 +281,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                 this.loading_directions = false;
             },
             () => notifyError('Failed to get your current location.'),
-            options
+            options,
         );
     }
 
@@ -291,10 +295,10 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                 this.timeout(
                     'reset_ignore_zoom',
                     () => (this.ignore_zoom = false),
-                    50
+                    50,
                 );
             },
-            100
+            100,
         );
     }
 
@@ -309,7 +313,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         log('MapsIndoors', 'Floor List:', this._floor_list);
         if (!this._services) return;
         const bld = this._org.buildings.find(
-            (_) => _.id === id || _.map_id === id
+            (_) => _.id === id || _.map_id === id,
         );
         this.timeout('set_floor', () => {
             const has_set_floor = this._setFloorFromZone();
@@ -375,7 +379,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                     (_) =>
                         _.properties?.externalId === id_simple ||
                         _.properties?.roomId === id_simple ||
-                        _.id === id_simple
+                        _.id === id_simple,
                 );
                 if (resource) this._setResource(id, resource);
             }
@@ -394,13 +398,17 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         if (!this.focus) return;
         const items = await this._search(this.focus);
         if (!items?.length) {
-            notifyError('Failed to find location.');
+            notifyError(`Unable to find location ${this.focus}.`);
             return;
         }
         const item =
             items.find((_) => _.properties?.externalId === this.focus) ||
             items[0];
-        const [lng, lat] = item.properties?.anchor?.coordinates || [0, 0];
+        const bld = this._org.buildings.find(
+            (bld) => bld.id === this.zone.parent_id,
+        );
+        const [lng, lat] = item.properties?.anchor?.coordinates ||
+            bld?.location.split(',') || [37.8136, 144.9631];
         this._services.map.setZoom(DEFAULT_ZOOM);
         this._services.map.setCenter({ lat, lng });
         this._services.mapsindoors.setFloor(item.properties?.floor);
@@ -411,7 +419,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         if (!this._services || !this.zone) return;
         this.timeout('set_center', () => {
             const bld = this._org.buildings.find(
-                (bld) => bld.id === this.zone.parent_id
+                (bld) => bld.id === this.zone.parent_id,
             );
             if (!bld) return;
             const [lat, long] = bld?.location.split(',');
@@ -428,7 +436,9 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         const map_id = this.zone.map_id;
         const floor = this._floor_list.find(
             (_) =>
-                _.index === map_id || _.externalId === map_id || _.id === map_id
+                _.index === map_id ||
+                _.externalId === map_id ||
+                _.id === map_id,
         );
         if (!floor) return false;
         this._services.mapsindoors.setFloor(floor.index);
