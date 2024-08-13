@@ -106,11 +106,8 @@ export class SignageStateService {
     ]).pipe(
         filter(([_]) => !!_?.id),
         debounceTime(300),
-        switchMap(() =>
-            querySignagePlaylists({ limit: 500 } as any).pipe(
-                map((_) => _.data),
-            ),
-        ),
+        switchMap(() => querySignagePlaylists({ limit: 500 } as any)),
+        map((_) => (_.data || []).sort((a, b) => a.name.localeCompare(b.name))),
         shareReplay(1),
     );
 
@@ -127,7 +124,15 @@ export class SignageStateService {
                     bld?.id,
                 limit: 500,
                 signage: true,
-            }).pipe(map((_) => _.data)),
+            }).pipe(
+                map((_) =>
+                    (_.data || []).sort((a, b) =>
+                        (a.display_name || a.name).localeCompare(
+                            b.display_name || b.name,
+                        ),
+                    ),
+                ),
+            ),
         ),
         shareReplay(1),
     );
@@ -138,13 +143,16 @@ export class SignageStateService {
     ]).pipe(
         switchMap(([bld]) =>
             queryZones({
-                tags: ['org', 'level', 'building', 'region', 'signage'].join(
-                    ',',
-                ),
                 limit: 250,
             } as any).pipe(catchError(() => of({ data: [] }))),
         ),
-        map((_) => _.data || []),
+        map((_) =>
+            (_.data || []).sort((a, b) =>
+                (a.display_name || a.name).localeCompare(
+                    b.display_name || b.name,
+                ),
+            ),
+        ),
     );
 
     public changed() {

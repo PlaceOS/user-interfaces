@@ -5,7 +5,7 @@ import { map, startWith, take } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, notifySuccess, unique } from '@placeos/common';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { SignagePlaylist, updateSystem, updateZone } from '@placeos/ts-client';
+import { SignagePlaylist, updateZone } from '@placeos/ts-client';
 
 @Component({
     selector: 'signage-zones',
@@ -25,22 +25,24 @@ import { SignagePlaylist, updateSystem, updateZone } from '@placeos/ts-client';
                     />
                 </mat-form-field>
                 @if ((zones | async)?.length > 0) {
-                    @for (zone of zones | async; track zone.id) {
-                        <a
-                            matRipple
-                            class="w-full px-6 rounded-3xl h-12 flex items-center hover:bg-base-200"
-                            [class.!bg-secondary]="
-                                selected.getValue() === zone.id
-                            "
-                            [class.text-secondary-content]="
-                                selected.getValue() === zone.id
-                            "
-                            [routerLink]="[]"
-                            [queryParams]="{ zone: zone.id }"
-                        >
-                            {{ zone.zone_name || zone.name }}
-                        </a>
-                    }
+                    <div class="h-1/2 flex-1 w-full overflow-auto space-y-2">
+                        @for (zone of zones | async; track zone.id) {
+                            <a
+                                matRipple
+                                class="w-full px-6 rounded-3xl min-h-12 flex items-center hover:bg-base-200 truncate"
+                                [class.!bg-secondary]="
+                                    selected.getValue() === zone.id
+                                "
+                                [class.text-secondary-content]="
+                                    selected.getValue() === zone.id
+                                "
+                                [routerLink]="[]"
+                                [queryParams]="{ zone: zone.id }"
+                            >
+                                {{ zone.display_name || zone.name }}
+                            </a>
+                        }
+                    </div>
                 } @else {
                     <div
                         class="flex flex-col items-center justify-center p-8 space-y-2 opacity-30"
@@ -62,13 +64,11 @@ import { SignagePlaylist, updateSystem, updateZone } from '@placeos/ts-client';
                 @if (active_zone | async) {
                     <div class="flex items-center justify-center space-x-2">
                         <h3 class="text-xl font-medium">
-                            {{ (active_zone | async)?.zone_name }}
+                            {{
+                                (active_zone | async)?.display_name ||
+                                    (active_zone | async)?.name
+                            }}
                         </h3>
-                        <div
-                            class="text-xs font-mono px-2 py-1 rounded bg-base-300 capitalize"
-                        >
-                            {{ (active_zone | async)?.orientation }}
-                        </div>
                     </div>
 
                     @if ((active_playlists | async).length > 0) {

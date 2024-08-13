@@ -25,22 +25,24 @@ import { SignagePlaylist, updateSystem } from '@placeos/ts-client';
                     />
                 </mat-form-field>
                 @if ((displays | async)?.length > 0) {
-                    @for (display of displays | async; track display.id) {
-                        <a
-                            matRipple
-                            class="w-full px-6 rounded-3xl h-12 flex items-center hover:bg-base-200"
-                            [class.!bg-secondary]="
-                                selected.getValue() === display.id
-                            "
-                            [class.text-secondary-content]="
-                                selected.getValue() === display.id
-                            "
-                            [routerLink]="[]"
-                            [queryParams]="{ display: display.id }"
-                        >
-                            {{ display.display_name || display.name }}
-                        </a>
-                    }
+                    <div class="h-1/2 flex-1 w-full overflow-auto space-y-2">
+                        @for (display of displays | async; track display.id) {
+                            <a
+                                matRipple
+                                class="w-full px-6 rounded-3xl min-h-12 flex items-center hover:bg-base-200 truncate"
+                                [class.!bg-secondary]="
+                                    selected.getValue() === display.id
+                                "
+                                [class.text-secondary-content]="
+                                    selected.getValue() === display.id
+                                "
+                                [routerLink]="[]"
+                                [queryParams]="{ display: display.id }"
+                            >
+                                {{ display.display_name || display.name }}
+                            </a>
+                        }
+                    </div>
                 } @else {
                     <div
                         class="flex flex-col items-center justify-center p-8 space-y-2 opacity-30"
