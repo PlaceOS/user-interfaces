@@ -16,6 +16,7 @@ import { SignagePlaylistMediaListComponent } from './signage-playlist-media-list
 import { SignageMediaListComponent } from './signage-media-list.component';
 import { SignageDisplaysComponent } from './signage-displays.component';
 import { SearchOverlayComponent } from './search-overlay.component';
+import { SignageZonesComponent } from './signage-zones.component';
 
 const ROUTES: Route[] = [
     {
@@ -25,6 +26,7 @@ const ROUTES: Route[] = [
             { path: '', redirectTo: 'media', pathMatch: 'full' },
             { path: 'media', component: SignageMediaComponent },
             { path: 'displays', component: SignageDisplaysComponent },
+            { path: 'zones', component: SignageZonesComponent },
             { path: '*', redirectTo: 'media', pathMatch: 'full' },
         ],
     },
@@ -40,6 +42,7 @@ export const COMPONENTS: Type<any>[] = [
     SignagePlaylistMediaListComponent,
 
     SignageDisplaysComponent,
+    SignageZonesComponent,
     SearchOverlayComponent,
 ];
 

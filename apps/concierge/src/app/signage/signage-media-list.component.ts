@@ -22,8 +22,8 @@ import { CdkDropList } from '@angular/cdk/drag-drop';
         @if ((media | async)?.length > 0) {
             <div
                 class="grid w-full gap-4 md:grid-cols-2 lg:grid-cols-3 p-4"
-                id="media-list"
                 cdkDropList
+                id="media-list"
                 [cdkDropListData]="media | async"
                 [cdkDropListConnectedTo]="playlist_ids"
                 (cdkDropListDropped)="drop($event)"

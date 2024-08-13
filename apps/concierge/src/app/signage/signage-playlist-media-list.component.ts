@@ -36,6 +36,9 @@ import { Router } from '@angular/router';
                 <div
                     cdkDropList
                     class="flex-1 h-1/2 overflow-auto flex flex-col space-y-2"
+                    id="playlist-list"
+                    [cdkDropListData]="media | async"
+                    [cdkDropListConnectedTo]="playlist_ids"
                     (cdkDropListDropped)="drop($event)"
                 >
                     @for (item of media | async; track item.id) {
@@ -44,9 +47,13 @@ import { Router } from '@angular/router';
                             class="w-full bg-base-100 h-20 rounded-lg flex items-center p-2 space-x-2 border border-base-300"
                         >
                             <div
-                                class="h-20 w-full border-4 border-dashed border-base-400 bg-base-300 rounded-xl"
+                                class="min-h-10 min-w-10 border-4 rounded-2xl border-base-400 bg-base-300 border-dashed flex items-center justify-center"
                                 *cdkDragPlaceholder
-                            ></div>
+                            >
+                                <app-icon class="text-2xl text-base-100">
+                                    add
+                                </app-icon>
+                            </div>
                             <button
                                 matRipple
                                 cdkDragHandle
@@ -126,6 +133,9 @@ import { Router } from '@angular/router';
 })
 export class SignagePlaylistMediaListComponent {
     @Input() public playlist = '';
+    @Input() public playlist_count = 0;
+
+    public playlist_ids: string[] = [];
 
     private _playlist = new BehaviorSubject<string>('');
 
@@ -190,9 +200,15 @@ export class SignagePlaylistMediaListComponent {
         if (changes.playlist) {
             this._playlist.next(this.playlist);
         }
+        if (changes.playlist_count) {
+            this.playlist_ids = new Array(this.playlist_count)
+                .fill(0)
+                .map((_, idx) => `playlist-${idx}`);
+        }
     }
 
     public async drop(event: CdkDragDrop<SignageMedia[]>) {
+        if (event.previousIndex === event.currentIndex) return;
         const id = await this._playlist.pipe(take(1)).toPromise();
         const playlist = await this._playlist_media.pipe(take(1)).toPromise();
         if (!id && playlist) return;

@@ -10,6 +10,7 @@ import { OrganisationService } from '@placeos/organisation';
 import {
     addSignageMedia,
     addSignagePlaylist,
+    authority,
     listSignagePlaylistMedia,
     PlaceSystem,
     querySignageMedia,
@@ -135,11 +136,13 @@ export class SignageStateService {
         this._org.active_building,
         this._change,
     ]).pipe(
-        filter(([_]) => !!_?.id),
         switchMap(([bld]) =>
-            queryZones({ parent_id: bld.id, tags: 'signage', limit: 100 }).pipe(
-                catchError(() => of({ data: [] })),
-            ),
+            queryZones({
+                tags: ['org', 'level', 'building', 'region', 'signage'].join(
+                    ',',
+                ),
+                limit: 250,
+            } as any).pipe(catchError(() => of({ data: [] }))),
         ),
         map((_) => _.data || []),
     );

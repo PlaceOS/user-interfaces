@@ -52,8 +52,15 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
                             [queryParams]="{ playlist: playlist.id }"
                             cdkDropList
                             [id]="'playlist-' + $index"
-                            [cdkDropListConnectedTo]="['media-list']"
-                            (cdkDropListDropped)="drop(playlist, $event)"
+                            [cdkDropListConnectedTo]="[
+                                'media-list',
+                                'playlist-list',
+                            ]"
+                            (cdkDropListDropped)="
+                                selected_playlist === playlist.id
+                                    ? ''
+                                    : drop(playlist, $event)
+                            "
                         >
                             <div class="flex-1">
                                 {{ playlist.name }}
@@ -100,6 +107,7 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
                 <signage-playlist-media-list
                     *ngIf="selected_playlist"
                     [playlist]="selected_playlist"
+                    [playlist_count]="(playlists | async)?.length"
                 ></signage-playlist-media-list>
                 <div
                     class="absolute inset-0"

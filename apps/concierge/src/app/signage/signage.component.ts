@@ -62,14 +62,13 @@ import { AsyncHandler } from '@placeos/common';
 })
 export class SignageComponent extends AsyncHandler implements OnInit {
     public readonly loading = this._state.loading;
-    public links = ['Media', 'Displays'];
+    public links = ['Media', 'Displays', 'Zones'];
     public active_link = this.links[0];
 
     public readonly previewFile = (event) =>
         this._state.previewFileFromInput(event);
 
     public singular(name: string) {
-        if (name === 'Displays') return 'Display';
         if (name === 'Media') return 'Playlist';
         if (name === 'Playlists') return 'Playlist';
         return '';
