@@ -396,12 +396,14 @@ export class ParkingStateService extends AsyncHandler {
             date,
             space,
             allow_time_changes,
+            external_user,
         }: {
             user?: User;
             link_id?: string;
             date?: number;
             space?: ParkingSpace;
             allow_time_changes?: boolean;
+            external_user?: boolean;
         } = {},
     ) {
         console.log('Reservation:', space);
@@ -420,6 +422,7 @@ export class ParkingStateService extends AsyncHandler {
                     level: levels[0],
                     space,
                     allow_time_changes,
+                    external_user,
                 },
             });
             ref.afterClosed().subscribe((id) => resolve(id));

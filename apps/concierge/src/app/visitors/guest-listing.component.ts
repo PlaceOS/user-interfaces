@@ -510,6 +510,7 @@ export class GuestListingComponent extends AsyncHandler {
             user: new User({ email: item.asset_id, name: item.asset_name }),
             link_id: item.id,
             date: item.date,
+            external_user: true,
         });
         if (id) {
             await saveBooking(

@@ -564,10 +564,8 @@ export class BookingFormService extends AsyncHandler {
                 ...this._options.getValue(),
                 ...value,
                 description: value.asset_name || value.description,
-                user_name: value.user?.name,
-                user_id:
-                    (!value.user?.id?.includes('@') ? value?.user?.id : '') ||
-                    currentUser()?.id,
+                user_name: value.user?.name || value.user_name,
+                user_email: value.user?.email || value.user_email,
                 extension_data: {
                     ...((value as any).extension_data || {}),
                     group: value.group,
