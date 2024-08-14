@@ -17,6 +17,7 @@ import { SignageMediaListComponent } from './signage-media-list.component';
 import { SignageDisplaysComponent } from './signage-displays.component';
 import { SearchOverlayComponent } from './search-overlay.component';
 import { SignageZonesComponent } from './signage-zones.component';
+import { SignageItemPlaylistsComponent } from './signage-item-playlists.component';
 
 const ROUTES: Route[] = [
     {
@@ -44,6 +45,7 @@ export const COMPONENTS: Type<any>[] = [
     SignageDisplaysComponent,
     SignageZonesComponent,
     SearchOverlayComponent,
+    SignageItemPlaylistsComponent,
 ];
 
 @NgModule({

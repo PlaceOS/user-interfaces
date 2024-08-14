@@ -1,11 +1,23 @@
 import { Component } from '@angular/core';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { SignageStateService } from './signage-state.service';
-import { map, startWith, take } from 'rxjs/operators';
+import {
+    map,
+    shareReplay,
+    startWith,
+    switchMap,
+    take,
+    tap,
+} from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, notifySuccess, unique } from '@placeos/common';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { SignagePlaylist, updateZone } from '@placeos/ts-client';
+import {
+    listZoneTriggers,
+    SignagePlaylist,
+    updateTrigger,
+    updateZone,
+} from '@placeos/ts-client';
 
 @Component({
     selector: 'signage-zones',
@@ -29,7 +41,7 @@ import { SignagePlaylist, updateZone } from '@placeos/ts-client';
                         @for (zone of zones | async; track zone.id) {
                             <a
                                 matRipple
-                                class="w-full px-6 rounded-3xl min-h-12 flex items-center hover:bg-base-200 truncate"
+                                class="w-full px-6 rounded-3xl min-h-12 flex items-center hover:bg-base-200 truncate z-10"
                                 [class.!bg-secondary]="
                                     selected.getValue() === zone.id
                                 "
@@ -41,6 +53,48 @@ import { SignagePlaylist, updateZone } from '@placeos/ts-client';
                             >
                                 {{ zone.display_name || zone.name }}
                             </a>
+                            @if (
+                                (active_zone | async)?.id === zone.id &&
+                                !switching
+                            ) {
+                                @for (
+                                    trigger of triggers | async;
+                                    track trigger.id
+                                ) {
+                                    <div
+                                        class="relative flex items-center space-x-2 z-0"
+                                    >
+                                        <div class="w-6">
+                                            <div
+                                                class="absolute h-16 w-4 border-b-2 border-l-2 border-base-300 top-1/2 left-6 -translate-y-full"
+                                            ></div>
+                                        </div>
+                                        <a
+                                            matRipple
+                                            class="w-full px-6 rounded-3xl min-h-12 flex items-center hover:bg-base-200 truncate"
+                                            [class.!bg-secondary]="
+                                                selected_trigger.getValue() ===
+                                                trigger?.id
+                                            "
+                                            [class.text-secondary-content]="
+                                                selected_trigger.getValue() ===
+                                                trigger?.id
+                                            "
+                                            [routerLink]="[]"
+                                            [queryParams]="{
+                                                zone: zone.id,
+                                                trigger: trigger?.id,
+                                            }"
+                                        >
+                                            {{
+                                                trigger?.display_name ||
+                                                    trigger?.name ||
+                                                    'Trigger'
+                                            }}
+                                        </a>
+                                    </div>
+                                }
+                            }
                         }
                     </div>
                 } @else {
@@ -62,122 +116,15 @@ import { SignagePlaylist, updateZone } from '@placeos/ts-client';
                 class="relative flex flex-col flex-1 w-1/2 h-full overflow-auto rounded-lg border border-base-300 p-4 shadow space-y-4"
             >
                 @if (active_zone | async) {
-                    <div class="flex items-center justify-center space-x-2">
-                        <h3 class="text-xl font-medium">
-                            {{
-                                (active_zone | async)?.display_name ||
-                                    (active_zone | async)?.name
-                            }}
-                        </h3>
-                    </div>
-
-                    @if ((active_playlists | async).length > 0) {
-                        <div
-                            cdkDropList
-                            class="flex-1 h-1/2 overflow-auto flex flex-col space-y-2"
-                            (cdkDropListDropped)="drop($event)"
-                        >
-                            @for (
-                                item of active_playlists | async;
-                                track item.id
-                            ) {
-                                <div
-                                    cdkDrag
-                                    class="w-full bg-base-100 h-20 rounded-lg flex items-center p-2 space-x-2 border border-base-300"
-                                >
-                                    <div
-                                        class="h-20 w-full border-4 border-dashed border-base-400 bg-base-300 rounded-xl"
-                                        *cdkDragPlaceholder
-                                    ></div>
-                                    <button
-                                        matRipple
-                                        cdkDragHandle
-                                        class="flex items-center justify-center w-6 h-full rounded hover:bg-base-200"
-                                        matTooltip="Drag to reorder"
-                                    >
-                                        <app-icon>drag_handle</app-icon>
-                                    </button>
-                                    <div class="text-base-content flex-1 w-1/2">
-                                        <div class="truncate">
-                                            {{ item.name }}
-                                        </div>
-                                        <div
-                                            class="truncate text-sm opacity-30"
-                                        >
-                                            {{ item.media_count || 0 }} Media
-                                            items
-                                        </div>
-                                    </div>
-                                    <button
-                                        icon
-                                        matRipple
-                                        aria-label="Media Actions"
-                                        [matMenuTriggerFor]="menu"
-                                    >
-                                        <app-icon>more_vert</app-icon>
-                                    </button>
-                                    <mat-menu #menu="matMenu">
-                                        <a
-                                            mat-menu-item
-                                            [routerLink]="['/signage', 'media']"
-                                            [queryParams]="{
-                                                playlist: item.id,
-                                            }"
-                                        >
-                                            <div
-                                                class="flex items-center space-x-2"
-                                            >
-                                                <app-icon class="text-2xl"
-                                                    >visibility</app-icon
-                                                >
-                                                <div class="pr-2">
-                                                    View Playlist
-                                                </div>
-                                            </div>
-                                        </a>
-                                        <button
-                                            mat-menu-item
-                                            (click)="removePlaylist(item)"
-                                        >
-                                            <div
-                                                class="flex items-center space-x-2"
-                                            >
-                                                <app-icon
-                                                    class="text-2xl text-error"
-                                                    >delete</app-icon
-                                                >
-                                                <div class="pr-2">
-                                                    Remove Playlist
-                                                </div>
-                                            </div>
-                                        </button>
-                                    </mat-menu>
-                                </div>
-                            }
-                        </div>
-                        <button btn matRipple (click)="adding = true">
-                            Add Playlist
-                        </button>
-                    } @else {
-                        <div
-                            class="flex flex-col items-center justify-center p-8 space-y-2 mx-auto flex-1"
-                        >
-                            <div
-                                class="flex flex-col items-center justify-center opacity-30"
-                            >
-                                <app-icon class="text-6xl">hide_image</app-icon>
-                                <p>No playlists in zone.</p>
-                            </div>
-                            <button
-                                btn
-                                matRipple
-                                (click)="adding = true"
-                                class="w-40"
-                            >
-                                Add Playlist
-                            </button>
-                        </div>
-                    }
+                    <signage-item-playlists
+                        class="flex flex-col flex-1"
+                        [item]="
+                            (active_trigger | async) || (active_zone | async)
+                        "
+                        [name]="(active_trigger | async) ? 'trigger' : 'zone'"
+                        (add)="this.adding = true"
+                        (remove)="removePlaylist($event)"
+                    ></signage-item-playlists>
                 } @else {
                     <div
                         class="absolute inset-0 flex flex-col items-center justify-center space-y-2 opacity-30"
@@ -199,6 +146,7 @@ import { SignagePlaylist, updateZone } from '@placeos/ts-client';
 })
 export class SignageZonesComponent extends AsyncHandler {
     public adding = false;
+    public switching = false;
     public readonly search = new BehaviorSubject<string>('');
     public readonly loading = this._state.loading;
     public readonly zones = combineLatest([
@@ -212,19 +160,23 @@ export class SignageZonesComponent extends AsyncHandler {
         ),
     );
     public readonly selected = new BehaviorSubject('');
+    public readonly selected_trigger = new BehaviorSubject('');
     public readonly active_zone = combineLatest([
         this.zones,
         this.selected,
     ]).pipe(map(([zones, id]) => zones.find((item) => item.id === id)));
 
-    public readonly playlists = combineLatest([
-        this.active_zone,
-        this._state.playlists,
-    ]).pipe(
-        map(([zone, playlists]) =>
-            playlists.filter((_) => !zone?.playlists.find((id) => _.id === id)),
-        ),
+    public readonly triggers = this.selected.pipe(
+        switchMap((id) => listZoneTriggers(id)),
+        map((_) => _.data),
+        tap((_) => setTimeout(() => (this.switching = false), 100)),
+        shareReplay(1),
     );
+
+    public readonly active_trigger = combineLatest([
+        this.triggers,
+        this.selected_trigger,
+    ]).pipe(map(([list, id]) => list.find((item) => item.id === id)));
 
     public readonly active_playlists = combineLatest([
         this.active_zone,
@@ -251,9 +203,10 @@ export class SignageZonesComponent extends AsyncHandler {
         this.subscription(
             'route.params',
             this._route.queryParamMap.subscribe((params) => {
-                if (params.has('zone')) {
-                    this.selected.next(params.get('zone'));
-                }
+                this.switching =
+                    params.get('zone') !== this.selected.getValue();
+                this.selected.next(params.get('zone') || '');
+                this.selected_trigger.next(params.get('trigger') || '');
             }),
         );
     }
@@ -261,39 +214,55 @@ export class SignageZonesComponent extends AsyncHandler {
     public async addPlaylist(playlist: SignagePlaylist) {
         console.log('Add Playlist:', playlist);
         const zone = await this.active_zone.pipe(take(1)).toPromise();
-        const playlists = unique([...zone.playlists, playlist.id]);
-        await updateZone(
-            zone.id,
+        const trigger = await this.active_trigger.pipe(take(1)).toPromise();
+        const item = trigger || zone;
+        const playlists = unique([...item.playlists, playlist.id]);
+        const method: any = trigger ? updateTrigger : updateZone;
+        await method(
+            item.id,
             { playlists, version: zone.version },
             'patch',
         ).toPromise();
-        notifySuccess('Successfully added playlist to the zone');
+        notifySuccess(
+            `Successfully added playlist to the ${trigger ? 'trigger' : 'zone'}`,
+        );
         this._state.changed();
+        this.adding = false;
     }
 
     public async removePlaylist(playlist: SignagePlaylist) {
         const zone = await this.active_zone.pipe(take(1)).toPromise();
-        const playlists = zone.playlists.filter((id) => playlist.id !== id);
-        await updateZone(
-            zone.id,
+        const trigger = await this.active_trigger.pipe(take(1)).toPromise();
+        const item = trigger || zone;
+        const playlists = item.filter((id) => playlist.id !== id);
+        const method: any = trigger ? updateTrigger : updateZone;
+        await method(
+            item.id,
             { playlists, version: zone.version },
             'patch',
         ).toPromise();
-        notifySuccess('Successfully removed playlist from zone');
+        notifySuccess(
+            `Successfully removed playlist from ${trigger ? 'trigger' : 'zone'}`,
+        );
         this._state.changed();
         this.adding = false;
     }
 
     public async drop(event: CdkDragDrop<SignagePlaylist[]>) {
         const zone = await this.active_zone.pipe(take(1)).toPromise();
-        const playlists = [...zone.playlists];
+        const trigger = await this.active_trigger.pipe(take(1)).toPromise();
+        const item = trigger || zone;
+        const playlists = [...item.playlists];
         moveItemInArray(playlists, event.previousIndex, event.currentIndex);
-        await updateZone(
-            zone.id,
+        const method: any = trigger ? updateTrigger : updateZone;
+        await method(
+            item.id,
             { playlists, version: zone.version },
             'patch',
         ).toPromise();
-        notifySuccess('Successfully re-ordered playlists on zone');
+        notifySuccess(
+            `Successfully re-ordered playlists on ${trigger ? 'trigger' : 'zone'}`,
+        );
         this._state.changed();
     }
 }
