@@ -574,7 +574,9 @@ export class BookingFormService extends AsyncHandler {
                         value.user?.department || currentUser()?.department,
                 },
                 approved: !this._settings.get('app.bookings.no_approval'),
-                zones: unique([...zones, ...(value.zones || [])]),
+                zones: unique([...zones, ...(value.zones || [])]).filter(
+                    (_) => _,
+                ),
             }),
             q,
         )
@@ -682,14 +684,15 @@ export class BookingFormService extends AsyncHandler {
                 description: asset.name,
                 map_id: asset?.map_id || asset?.id,
                 group: group_name,
-                zones: asset.zone
+                zones: (asset.zone
                     ? unique([
                           this._org.organisation.id,
                           this._org.region?.id,
                           asset?.zone?.parent_id,
                           asset?.zone?.id,
                       ])
-                    : [this._org.organisation.id, this._org.region?.id],
+                    : [this._org.organisation.id, this._org.region?.id]
+                ).filter((_) => _),
             });
             const bkn = await this.postForm(true);
             if (bkn.id && !id) id = bkn.id;
