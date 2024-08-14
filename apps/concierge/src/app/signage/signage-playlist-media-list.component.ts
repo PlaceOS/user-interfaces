@@ -41,7 +41,7 @@ import { Router } from '@angular/router';
                     [cdkDropListConnectedTo]="playlist_ids"
                     (cdkDropListDropped)="drop($event)"
                 >
-                    @for (item of media | async; track item?.id) {
+                    <ng-container *ngFor="let item of media | async">
                         <div
                             cdkDrag
                             class="w-full bg-base-100 h-20 rounded-lg flex items-center p-2 space-x-2 border border-base-300"
@@ -111,7 +111,7 @@ import { Router } from '@angular/router';
                                 </button>
                             </mat-menu>
                         </div>
-                    }
+                    </ng-container>
                 </div>
             } @else {
                 <div
@@ -215,11 +215,7 @@ export class SignagePlaylistMediaListComponent {
         const playlist = await this._playlist_media.pipe(take(1)).toPromise();
         if (!id && playlist) return;
         const list = [...playlist.items];
-        moveItemInArray(
-            playlist.items,
-            event.previousIndex,
-            event.currentIndex,
-        );
+        moveItemInArray(list, event.previousIndex, event.currentIndex);
         await this._state.updatePlaylistMedia(id, list);
         this._playlist.next(this.playlist);
     }
