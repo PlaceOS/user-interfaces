@@ -198,7 +198,9 @@ export class BookingFormService extends AsyncHandler {
                 type: options.type,
                 zones:
                     options.zone_id ||
-                    this._org.building?.id ||
+                    (this._settings.get('app.use_region')
+                        ? this._org.region?.id
+                        : this._org.building?.id) ||
                     this._org.organisation.id,
             }).pipe(
                 map(
