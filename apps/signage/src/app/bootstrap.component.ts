@@ -4,7 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { AsyncHandler, Identity } from '@placeos/common';
 import { VirtualKeyboardComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
-import { showMetadata } from '@placeos/ts-client';
+import { PlaceSystem, querySystems, showMetadata } from '@placeos/ts-client';
 import { of } from 'rxjs';
 import {
     catchError,
@@ -59,7 +59,22 @@ import {
                                 *ngFor="let option of displays | async"
                                 [value]="option.id"
                             >
-                                {{ option.name }}
+                                <div class="flex flex-col leading-tight">
+                                    <div>{{ option.name }}</div>
+                                    <div class="text-xs opacity-30">
+                                        {{
+                                            building(option)?.display_name ||
+                                                building(option)?.name ||
+                                                'Unknown Building'
+                                        }}
+                                        -
+                                        {{
+                                            level(option)?.display_name ||
+                                                level(option)?.name ||
+                                                'Unknown Level'
+                                        }}
+                                    </div>
+                                </div>
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -109,18 +124,34 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     public readonly displays = this.active_building.pipe(
         filter((_) => !!_),
         switchMap((_) =>
-            showMetadata(_.id, 'signage-displays').pipe(
-                catchError(() => of({ details: [] } as any))
-            )
+            querySystems({
+                zone_id: this._org.organisation?.id,
+                limit: 500,
+                signage: true,
+            }).pipe(catchError(() => of({ data: [] }))),
         ),
-        map(({ details }) => (details instanceof Array ? details : [])),
-        shareReplay(1)
+        map((r) =>
+            r.data.sort((a, b) =>
+                (a.display_name || a.name).localeCompare(
+                    b.display_name || b.name,
+                ),
+            ),
+        ),
+        shareReplay(1),
     );
+
+    public level(system: PlaceSystem) {
+        return this._org.levelWithID(system.zones as any);
+    }
+
+    public building(system: PlaceSystem) {
+        return this._org.buildings.find(({ id }) => system.zones.includes(id));
+    }
 
     constructor(
         private _org: OrganisationService,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
     ) {
         super();
     }
@@ -141,7 +172,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                     this.active_display = params.get('display');
                     this.bootstrapKiosk();
                 }
-            })
+            }),
         );
         this.timeout('check', () => this.checkBootstrap(), 1000);
     }
