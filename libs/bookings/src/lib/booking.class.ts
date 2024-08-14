@@ -346,6 +346,7 @@ export class Booking {
             });
         }
         if (!data.parent_id) delete data.parent_id;
+        data.zones = data.zones.filter((_) => _);
         delete data.date;
         delete data.duration;
         removeEmptyFields(data);
