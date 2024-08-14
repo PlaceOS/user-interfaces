@@ -3,7 +3,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 
 import { ExploreSearchService, SearchResult } from './explore-search.service';
-import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'explore-search',
@@ -62,7 +61,7 @@ import { OrganisationService } from '@placeos/organisation';
                     No matches found
                 </mat-option>
                 <mat-option
-                    *ngFor="let option of results | async | slice: 0:5"
+                    *ngFor="let option of results | async | slice: 0 : 5"
                     [value]="option"
                 >
                     <div
@@ -136,7 +135,7 @@ export class ExploreSearchComponent extends AsyncHandler {
         private _el: ElementRef<HTMLElement>,
         private _search: ExploreSearchService,
         private _router: Router,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
     ) {
         super();
     }
@@ -150,7 +149,7 @@ export class ExploreSearchComponent extends AsyncHandler {
             this.timeout(
                 'focus',
                 () => this._input_el.nativeElement.focus(),
-                300
+                300,
             );
         }
     }
@@ -177,9 +176,13 @@ export class ExploreSearchComponent extends AsyncHandler {
             item.type === 'space'
                 ? 'space'
                 : item.type === 'feature'
-                ? 'feature'
-                : 'user';
+                  ? 'locate'
+                  : 'user';
         query[type] = item.id;
+        if (type === 'locate') {
+            query.name = item.name;
+            query.zone = item.zone;
+        }
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: query,

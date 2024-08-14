@@ -104,10 +104,15 @@ export class ItemListModalComponent {
             this.loading = false;
             return;
         }
+        const concierge_metadata: any = await showMetadata(
+            this._bld_id,
+            metadata_key,
+        ).toPromise();
+        concierge_metadata.details.support_issue_types = items;
         resp = await updateMetadata(this._bld_id, {
             name: concierge_key,
-            details: metadata.details,
-            description: metadata.description || '',
+            details: concierge_metadata.details,
+            description: concierge_metadata.description || '',
         })
             .toPromise()
             .catch((_) => {

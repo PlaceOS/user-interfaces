@@ -5,6 +5,7 @@ import { Booking, BookingFormService, ParkingSpace } from '@placeos/bookings';
 import {
     AsyncHandler,
     currentUser,
+    getInvalidFields,
     notify,
     notifyError,
 } from '@placeos/common';
@@ -126,6 +127,7 @@ export class ParkingBookingModalComponent extends AsyncHandler {
             level?: BuildingLevel;
             space?: ParkingSpace;
             allow_time_changes?: boolean;
+            external_user?: boolean;
         },
         private _booking_form: BookingFormService,
         private _dialog_ref: MatDialogRef<ParkingBookingModalComponent>,
@@ -208,6 +210,9 @@ export class ParkingBookingModalComponent extends AsyncHandler {
         this.form.updateValueAndValidity();
         if (!this.form.valid) return;
         this.loading = true;
+        if (this._data.external_user) {
+            this.form.patchValue({ user_id: undefined });
+        }
         const result = await this._booking_form.postForm().catch((e) => {
             this.loading = false;
             this.form.controls.plate_number.setValidators([]);
