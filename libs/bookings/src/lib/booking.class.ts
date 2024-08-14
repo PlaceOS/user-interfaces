@@ -130,7 +130,7 @@ export class Booking {
     /** Default type */
     public readonly access: boolean;
     /** Whether asset has been inducted */
-    public readonly induction: 'tentative' | 'accepted' | 'declined';
+    public readonly induction?: 'tentative' | 'accepted' | 'declined';
     /** Status of the booking */
     public readonly status:
         | 'declined'
@@ -281,7 +281,7 @@ export class Booking {
         this.tags = data.tags || data.extension_data?.tags || [];
         this.images = data.images || [];
         this.all_day = data.all_day || this.duration >= 24 * 60;
-        this.induction = data.induction || 'tentative';
+        this.induction = data.induction || undefined;
         if (this.all_day) {
             (this as any).date = startOfDay(this.date).getTime();
             (this as any).duration = Math.max(
