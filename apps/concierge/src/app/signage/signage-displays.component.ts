@@ -133,6 +133,7 @@ import {
                         "
                         (add)="this.adding = true"
                         (remove)="removePlaylist($event)"
+                        (ondrop)="drop($event)"
                     >
                         <div
                             class="flex flex-wrap items-center overflow-auto mt-4"
@@ -224,27 +225,16 @@ export class SignageDisplaysComponent extends AsyncHandler {
 
     public readonly playlists = combineLatest([
         this.active_display,
+        this.active_trigger,
         this._state.playlists,
+        this._state.has_changed,
     ]).pipe(
-        map(([display, playlists]) =>
+        map(([display, trigger, playlists]) =>
             playlists.filter(
-                (_) => !display?.playlists.find((id) => _.id === id),
+                (_) =>
+                    !(trigger || display)?.playlists.find((id) => _.id === id),
             ),
         ),
-    );
-
-    public readonly active_playlists = combineLatest([
-        this.active_display,
-        this._state.playlists,
-    ]).pipe(
-        map(([display, playlists]) =>
-            !display
-                ? []
-                : display.playlists.map((id) =>
-                      playlists.find((_) => _.id === id),
-                  ),
-        ),
-        startWith([]),
     );
 
     constructor(
@@ -270,7 +260,7 @@ export class SignageDisplaysComponent extends AsyncHandler {
         const display = await this.active_display.pipe(take(1)).toPromise();
         const trigger = await this.active_trigger.pipe(take(1)).toPromise();
         const item = trigger || display;
-        const playlists = unique([...item.playlists, playlist.id]);
+        const playlists = [...item.playlists, playlist.id];
         const method: any = trigger ? updateTrigger : updateSystem;
         await method(
             item.id,
@@ -306,14 +296,19 @@ export class SignageDisplaysComponent extends AsyncHandler {
         const display = await this.active_display.pipe(take(1)).toPromise();
         const trigger = await this.active_trigger.pipe(take(1)).toPromise();
         const item = trigger || display;
-        const playlists = [...item.playlists];
+        const old_playlist = item.playlists;
+        const playlists = [...old_playlist];
         moveItemInArray(playlists, event.previousIndex, event.currentIndex);
+        (item as any).playlists = playlists;
+        this._state.changed();
         const method: any = trigger ? updateTrigger : updateSystem;
-        await method(
-            item.id,
-            { playlists, version: display.version },
-            'patch',
-        ).toPromise();
+        await method(item.id, { playlists, version: display.version }, 'patch')
+            .toPromise()
+            .catch((e) => {
+                (item as any).playlists = old_playlist;
+                this._state.changed();
+                throw e;
+            });
         notifySuccess(
             `Successfully re-ordered playlists on ${trigger ? 'trigger' : 'display'}`,
         );

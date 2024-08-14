@@ -95,20 +95,22 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
                 }
             </div>
             <div
-                class="relative flex-1 w-1/2 h-full overflow-auto rounded-lg border border-base-300 shadow"
+                class="relative flex-1 w-1/2 h-full overflow-hidden rounded-lg border border-base-300 shadow"
                 (dragover)="onEnter($event)"
                 (dragenter)="onEnter($event)"
                 (window:drop)="hideOverlay($event)"
             >
-                <signage-media-list
-                    *ngIf="!selected_playlist"
-                    [playlist_count]="(playlists | async)?.length"
-                ></signage-media-list>
-                <signage-playlist-media-list
-                    *ngIf="selected_playlist"
-                    [playlist]="selected_playlist"
-                    [playlist_count]="(playlists | async)?.length"
-                ></signage-playlist-media-list>
+                <div class="h-full w-full overflow-auto">
+                    <signage-media-list
+                        *ngIf="!selected_playlist"
+                        [playlist_count]="(playlists | async)?.length"
+                    ></signage-media-list>
+                    <signage-playlist-media-list
+                        *ngIf="selected_playlist"
+                        [playlist]="selected_playlist"
+                        [playlist_count]="(playlists | async)?.length"
+                    ></signage-playlist-media-list>
+                </div>
                 <div
                     class="absolute inset-0"
                     *ngIf="show_dropzone"
@@ -212,7 +214,7 @@ export class SignageMediaComponent extends AsyncHandler {
         const media_list = await listSignagePlaylistMedia(
             playlist.id,
         ).toPromise();
-        const new_media_list = unique([...media_list.items, media.id]);
+        const new_media_list = [...media_list.items, media.id];
         await this._state.updatePlaylistMedia(playlist.id, new_media_list);
     }
 }

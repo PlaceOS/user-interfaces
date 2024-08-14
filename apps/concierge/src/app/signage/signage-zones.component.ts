@@ -124,6 +124,7 @@ import {
                         [name]="(active_trigger | async) ? 'trigger' : 'zone'"
                         (add)="this.adding = true"
                         (remove)="removePlaylist($event)"
+                        (ondrop)="drop($event)"
                     ></signage-item-playlists>
                 } @else {
                     <div
@@ -178,18 +179,17 @@ export class SignageZonesComponent extends AsyncHandler {
         this.selected_trigger,
     ]).pipe(map(([list, id]) => list.find((item) => item.id === id)));
 
-    public readonly active_playlists = combineLatest([
+    public readonly playlists = combineLatest([
         this.active_zone,
+        this.active_trigger,
         this._state.playlists,
+        this._state.has_changed,
     ]).pipe(
-        map(([zone, playlists]) =>
-            !zone
-                ? []
-                : zone.playlists.map((id) =>
-                      playlists.find((_) => _.id === id),
-                  ),
+        map(([zone, trigger, playlists]) =>
+            playlists.filter(
+                (_) => !(trigger || zone)?.playlists.find((id) => _.id === id),
+            ),
         ),
-        startWith([]),
     );
 
     constructor(
@@ -216,7 +216,7 @@ export class SignageZonesComponent extends AsyncHandler {
         const zone = await this.active_zone.pipe(take(1)).toPromise();
         const trigger = await this.active_trigger.pipe(take(1)).toPromise();
         const item = trigger || zone;
-        const playlists = unique([...item.playlists, playlist.id]);
+        const playlists = [...item.playlists, playlist.id];
         const method: any = trigger ? updateTrigger : updateZone;
         await method(
             item.id,
@@ -252,14 +252,19 @@ export class SignageZonesComponent extends AsyncHandler {
         const zone = await this.active_zone.pipe(take(1)).toPromise();
         const trigger = await this.active_trigger.pipe(take(1)).toPromise();
         const item = trigger || zone;
-        const playlists = [...item.playlists];
+        const old_playlist = item.playlists;
+        const playlists = [...old_playlist];
         moveItemInArray(playlists, event.previousIndex, event.currentIndex);
+        (item as any).playlists = playlists;
+        this._state.changed();
         const method: any = trigger ? updateTrigger : updateZone;
-        await method(
-            item.id,
-            { playlists, version: zone.version },
-            'patch',
-        ).toPromise();
+        await method(item.id, { playlists, version: zone.version }, 'patch')
+            .toPromise()
+            .catch((e) => {
+                (item as any).playlists = old_playlist;
+                this._state.changed();
+                throw e;
+            });
         notifySuccess(
             `Successfully re-ordered playlists on ${trigger ? 'trigger' : 'zone'}`,
         );

@@ -87,6 +87,7 @@ export class SignageStateService {
     private _active_upload = new BehaviorSubject<Attachment>(null);
 
     public readonly loading = this._loading.asObservable();
+    public readonly has_changed = this._change.asObservable();
 
     public readonly media: Observable<SignageMedia[]> = combineLatest([
         this._org.active_building,

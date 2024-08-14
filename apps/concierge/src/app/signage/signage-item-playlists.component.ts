@@ -29,7 +29,7 @@ import { SignagePlaylist } from '@placeos/ts-client';
             <div
                 cdkDropList
                 class="flex-1 h-1/2 overflow-auto flex flex-col space-y-2 mt-4"
-                (cdkDropListDropped)="drop($event)"
+                (cdkDropListDropped)="ondrop.next($event)"
             >
                 @for (item of active_playlists | async; track item.id) {
                     <div
@@ -123,14 +123,18 @@ export class SignageItemPlaylistsComponent {
     @Input() public extra: string = '';
     @Output() public readonly add = new EventEmitter();
     @Output() public readonly remove = new EventEmitter<SignagePlaylist>();
+    @Output() public readonly ondrop = new EventEmitter<any>();
 
     private _playlist_ids = new BehaviorSubject<string[]>([]);
 
     public readonly active_playlists = combineLatest([
         this._state.playlists,
         this._playlist_ids,
+        this._state.has_changed,
     ]).pipe(
-        map(([playlists, ids]) => playlists.filter((_) => ids.includes(_.id))),
+        map(([playlists, ids]) =>
+            ids.map((id) => playlists.find((_) => _.id === id)),
+        ),
         startWith([]),
     );
 

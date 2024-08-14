@@ -16,7 +16,7 @@ import { BehaviorSubject } from 'rxjs';
             (click)="close.next()"
             (window:keydown.esc)="close.next()"
         >
-            <div class="absolute inset-0 bg-base-content opacity-80 z-0"></div>
+            <div class="absolute inset-0 bg-base-content opacity-70 z-0"></div>
             <div
                 class="relative mb-4 w-[32rem] max-w-[calc(100%-2rem)] mx-auto z-10"
                 (click)="$event.stopPropagation()"
@@ -51,7 +51,9 @@ import { BehaviorSubject } from 'rxjs';
                                 "
                             ></ng-container>
                         } @else {
-                            <div class="p-4 w-full bg-base-100 border">
+                            <div
+                                class="p-4 w-full bg-base-100 hover:bg-base-200 border border-base-300"
+                            >
                                 {{ item.name || item }}
                             </div>
                         }

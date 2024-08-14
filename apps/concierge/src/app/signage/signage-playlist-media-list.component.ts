@@ -41,7 +41,7 @@ import { Router } from '@angular/router';
                     [cdkDropListConnectedTo]="playlist_ids"
                     (cdkDropListDropped)="drop($event)"
                 >
-                    @for (item of media | async; track item.id) {
+                    @for (item of media | async; track item?.id) {
                         <div
                             cdkDrag
                             class="w-full bg-base-100 h-20 rounded-lg flex items-center p-2 space-x-2 border border-base-300"
@@ -68,7 +68,7 @@ import { Router } from '@angular/router';
                             >
                                 <img
                                     auth
-                                    [source]="item.thumbnail_id"
+                                    [source]="item.thumbnail_url"
                                     class="w-full h-full object-contain"
                                 />
                             </div>
@@ -186,7 +186,9 @@ export class SignagePlaylistMediaListComponent {
         this._state.media,
     ]).pipe(
         map(([playlist, media]) =>
-            playlist.items.map((_) => media.find((m) => m.id === _)),
+            playlist.items
+                .map((_) => media.find((m) => m.id === _))
+                .filter((_) => _),
         ),
         startWith([]),
     );
