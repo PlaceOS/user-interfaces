@@ -10,7 +10,6 @@ import { OrganisationService } from '@placeos/organisation';
 import {
     addSignageMedia,
     addSignagePlaylist,
-    authority,
     listSignagePlaylistMedia,
     PlaceSystem,
     querySignageMedia,
@@ -39,6 +38,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { SignageMediaPreviewModalComponent } from './signage-media-preview-modal.component';
 import { SignagePlaylistModalComponent } from './signage-playlist-modal.component';
+import { SignageMediaModalComponent } from './signage-media-modal.component';
 
 function dataURLtoBlob(dataURL) {
     // Split the data URL to get the mime type and the data
@@ -178,6 +178,31 @@ export class SignageStateService {
         });
     }
 
+    public editMedia(
+        media: SignageMedia = new SignageMedia({}),
+        file?: File,
+        playlist_id: string = '',
+    ) {
+        return new Promise<SignagePlaylist | null>((resolve) => {
+            const ref = this._dialog.open(SignageMediaModalComponent, {
+                data: {
+                    media,
+                    file,
+                    file_metadata: file
+                        ? this._getMediaMetadata(file)
+                        : [media.orientation === 'landscape', 0],
+                    playlist_id,
+                    onAdd: (f, m) => this.addMedia(f, m),
+                    preview: (item) => this.previewMedia(item),
+                },
+            });
+            ref.afterClosed().subscribe((result) => {
+                this._change.next(Date.now());
+                resolve(result);
+            });
+        });
+    }
+
     public async savePlaylist(playlist: Partial<SignagePlaylist>) {
         const call = playlist.id
             ? updateSignagePlaylist(playlist.id, playlist)
@@ -219,7 +244,7 @@ export class SignageStateService {
             file &&
             (file.type.includes('image') || file.type.includes('video'))
         ) {
-            this.previewFileMedia(file, playlist_id);
+            this.editMedia(undefined, file, playlist_id);
         } else {
             notifyError('Invalid file type.');
         }
@@ -252,7 +277,10 @@ export class SignageStateService {
         });
     }
 
-    public async addMedia(file: File) {
+    public async addMedia(
+        file: File,
+        media_item: SignageMedia = new SignageMedia({}),
+    ) {
         const upload = (file) =>
             new Promise<{ id: string; link: string }>((resolve, reject) => {
                 let state = null;
@@ -269,7 +297,7 @@ export class SignageStateService {
                     () => (!resolved ? resolve(state) : null),
                 );
             });
-        const [is_landscape, _] = await this._getVideoMetadata(file);
+        const [is_landscape, _] = await this._getMediaMetadata(file);
         const thumbnail_image = await this._generateThumbnail(
             file,
             1280,
@@ -284,8 +312,8 @@ export class SignageStateService {
         }
         const data = {
             ...new SignageMedia({
-                name: file.name,
-                description: '',
+                ...media_item,
+                name: media_item.name || file.name,
                 media_id: media.id,
                 media_uri: media.link,
                 media_type: file.type.includes('image') ? 'image' : 'video',
@@ -327,7 +355,7 @@ export class SignageStateService {
         result.close();
     }
 
-    private _getVideoMetadata(file: File) {
+    private _getMediaMetadata(file: File) {
         return new Promise<[boolean, number]>((resolve) => {
             const url = URL.createObjectURL(file);
             // file is loaded

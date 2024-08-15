@@ -86,14 +86,22 @@ import { Router } from '@angular/router';
                                 <app-icon>more_vert</app-icon>
                             </button>
                             <mat-menu #menu="matMenu">
+                                <button mat-menu-item (click)="editItem(item)">
+                                    <div class="flex items-center space-x-2">
+                                        <app-icon class="text-2xl">
+                                            edit
+                                        </app-icon>
+                                        <div class="pr-2">Edit Media Item</div>
+                                    </div>
+                                </button>
                                 <button
                                     mat-menu-item
                                     (click)="previewItem(item)"
                                 >
                                     <div class="flex items-center space-x-2">
-                                        <app-icon class="text-2xl"
-                                            >visibility</app-icon
-                                        >
+                                        <app-icon class="text-2xl">
+                                            visibility
+                                        </app-icon>
                                         <div class="pr-2">
                                             Preview Media Item
                                         </div>
@@ -155,9 +163,11 @@ export class SignagePlaylistMediaListComponent {
         this._playlist.next(this.playlist);
     };
 
-    public readonly previewItem = (item: SignageMedia) => {
+    public readonly previewItem = (item: SignageMedia) =>
         this._state.previewMedia(item);
-    };
+
+    public readonly editItem = (item: SignageMedia) =>
+        this._state.editMedia(item);
 
     public readonly selected_playlist = combineLatest([
         this._playlist,
