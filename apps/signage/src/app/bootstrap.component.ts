@@ -197,7 +197,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         }
         localStorage.setItem('SIGNAGE.building', bld.id);
         localStorage.setItem('SIGNAGE.display', this.active_display);
-        this._router.navigate(['/signage']);
+        this._router.navigate(['/signage', this.active_display]);
         this.loading = '';
     }
 
@@ -209,7 +209,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         const bld_id = localStorage?.getItem('SIGNAGE.building');
         const display_id = localStorage?.getItem('SIGNAGE.display');
         if (bld_id && display_id) {
-            this._router.navigate(['/signage']);
+            this._router.navigate(['/signage', display_id]);
         }
         VirtualKeyboardComponent.enabled =
             localStorage.getItem('OSK.enabled') === 'true';

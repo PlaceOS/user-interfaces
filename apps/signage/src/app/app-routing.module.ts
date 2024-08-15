@@ -11,6 +11,7 @@ const routes: Routes = [
     },
     { path: 'bootstrap', component: BootstrapComponent },
     { path: 'signage', component: SignagePanelComponent },
+    { path: 'signage/:system_id', component: SignagePanelComponent },
     { path: '**', redirectTo: 'bootstrap' },
 ];
 

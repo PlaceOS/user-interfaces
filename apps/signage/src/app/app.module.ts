@@ -25,6 +25,7 @@ import { SignagePanelComponent } from './signage.component';
 import { PaymentsModule } from 'libs/payments/src/lib/payments.module';
 import { SharedSpacesModule } from '@placeos/spaces';
 import { SharedExploreModule } from '@placeos/explore';
+import { MediaPlayerComponent } from './media-player.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -37,6 +38,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         UnauthorisedComponent,
         BootstrapComponent,
         SignagePanelComponent,
+        MediaPlayerComponent,
     ],
     imports: [
         BrowserModule,
