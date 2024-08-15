@@ -145,7 +145,7 @@ export class MediaCacheService extends AsyncHandler {
     }
 
     public getFile(url: string) {
-        return new Promise((resolve, reject) => {
+        return new Promise<File>((resolve, reject) => {
             const cache_item = this._cache_index.find((_) => _.url === url);
             if (!cache_item) return reject('Unable to find file with URL');
             const transaction = this._cache_db.transaction(
@@ -167,7 +167,10 @@ export class MediaCacheService extends AsyncHandler {
 
             request.onsuccess = (event: any) => {
                 if (request.result) {
-                    console.log('File retrieved successfully');
+                    log('MediaCache', `Retrieved resource.`, [
+                        cache_item.id,
+                        url,
+                    ]);
                     resolve(request.result.file);
                 } else {
                     log(
@@ -235,7 +238,7 @@ export class MediaCacheService extends AsyncHandler {
             };
 
             request.onsuccess = (event: any) => {
-                console.log('File removed successfully');
+                log('MediaCache', `Removed resource.`, [cache_item.id, url]);
                 resolve();
             };
         });

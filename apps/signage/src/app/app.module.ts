@@ -8,6 +8,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatRippleModule } from '@angular/material/core';
 
 import { ComponentsModule, UnauthorisedComponent } from '@placeos/components';
@@ -47,6 +48,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         ReactiveFormsModule,
         AppRoutingModule,
         MatProgressSpinnerModule,
+        MatProgressBarModule,
         MatRippleModule,
         MatFormFieldModule,
         MatSelectModule,

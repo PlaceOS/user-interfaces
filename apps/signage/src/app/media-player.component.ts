@@ -14,7 +14,7 @@ export interface MediaPlayerItem {
     type: 'image' | 'video';
     start_time: number;
     duration: number;
-    getURL: () => URL;
+    getURL: () => Promise<URL>;
 }
 
 export type MediaPlayerState = 'PAUSED' | 'PLAYING';
@@ -22,20 +22,33 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
 @Component({
     selector: 'media-player',
     template: `
-        <img #img_el class="absolute inset-0 object-contain object-center" />
+        <img
+            #img_el
+            class="absolute top-0 left-0 h-full w-full object-contain object-center"
+        />
         <video
             #video_el
-            class="absolute inset-0 object-contain object-center"
+            class="absolute top-0 left-0 h-full w-full object-contain object-center"
         ></video>
         @if (controls) {
             <div
-                class="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full p-2 flex items-center space-x-2 text-lg overflow-hidden border border-neutral"
+                class="absolute bottom-[4.5rem] left-1/2 -translate-x-1/2 w-56 rounded-full overflow-hidden p-1 border border-base-300 bg-base-100"
+                [matTooltip]="duration | mediaDuration"
+                matTooltipPosition="above"
             >
-                <div class="absolute inset-0 bg-base-content opacity-30"></div>
+                <mat-progress-bar
+                    class="rounded-full overflow-hidde-"
+                    mode="determinate"
+                    [value]="progress"
+                ></mat-progress-bar>
+            </div>
+            <div
+                class="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full p-2 flex items-center space-x-2 text-lg overflow-hidden border border-base-300 bg-base-100"
+            >
                 <button
                     icon
                     matRipple
-                    class="text-base-100"
+                    class="hover:bg-base-200"
                     (click)="previousItem()"
                     matTooltip="Previous Media"
                 >
@@ -44,7 +57,7 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                 <button
                     icon
                     matRipple
-                    class="text-base-100"
+                    class="hover:bg-base-200"
                     (click)="togglePause()"
                     [matTooltip]="state === 'PLAYING' ? 'Playing' : 'Paused'"
                 >
@@ -55,7 +68,7 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                 <button
                     icon
                     matRipple
-                    class="text-base-100"
+                    class="hover:bg-base-200"
                     (click)="nextItem()"
                     matTooltip="Next Media"
                 >
@@ -64,14 +77,14 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                 <button
                     icon
                     matRipple
-                    class="text-base-100"
+                    class="hover:bg-base-200"
                     (click)="toggleLoop()"
                     [matTooltip]="
                         loop === 'ALL'
-                            ? 'Loop'
+                            ? 'Loop [All]'
                             : loop === 'ONE'
-                              ? 'Loop One'
-                              : 'No Loop'
+                              ? 'Loop [One]'
+                              : 'Loop [Off]'
                     "
                 >
                     <app-icon [class.opacity-30]="loop === 'NONE'">
@@ -87,9 +100,9 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                 <button
                     icon
                     matRipple
-                    class="text-base-100"
+                    class="hover:bg-base-200"
                     (click)="toggleShuffle()"
-                    [matTooltip]="shuffle ? 'Shuffle On' : 'Shuffle Off'"
+                    [matTooltip]="shuffle ? 'Shuffle [On]' : 'Shuffle [Off]'"
                 >
                     <app-icon [class.opacity-30]="!shuffle"> shuffle </app-icon>
                 </button>
@@ -114,9 +127,12 @@ export class MediaPlayerComponent extends AsyncHandler {
     @Input() public loop: 'NONE' | 'ONE' | 'ALL' = 'ALL';
     @Input() public shuffle: boolean = false;
     @Input() public index: number = -1;
-    @Input() public state: MediaPlayerState = 'PAUSED';
+    @Input() public state: MediaPlayerState = 'PLAYING';
     @Output() public stateChange = new EventEmitter<MediaPlayerState>();
     @Output() public indexChange = new EventEmitter<number>();
+
+    public duration = 0;
+    public progress = 0;
 
     private _item_playlist: MediaPlayerItem[] = [];
 
@@ -140,6 +156,7 @@ export class MediaPlayerComponent extends AsyncHandler {
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.playlist) {
             this._item_playlist = this.playlist || [];
+            console.log('Playlist:', this._item_playlist);
             this._updateItem();
         }
     }
@@ -168,11 +185,24 @@ export class MediaPlayerComponent extends AsyncHandler {
             if (this.active_item?.type === 'video') {
                 this._video_element.nativeElement.play();
             }
+            if (this.index === -1) this._updateItem();
         }
     }
 
     public nextItem() {
-        const new_index = (this.index + 1) % this._item_playlist.length;
+        let next_index = this.index + 1;
+        if (this.loop === 'ONE') next_index = this.index;
+        else if (
+            this.loop === 'NONE' &&
+            next_index === this._item_playlist.length
+        ) {
+            this.index = -1;
+            this.state = 'PAUSED';
+            this._item_start = 0;
+            this._item_progress = 0;
+            return;
+        }
+        const new_index = next_index % this._item_playlist.length;
         this._setPlaylistItem(new_index);
     }
 
@@ -187,14 +217,20 @@ export class MediaPlayerComponent extends AsyncHandler {
     }
 
     private _updateItem() {
-        this._processURLs();
         if (this.state === 'PAUSED') return;
+        const duration = Date.now() - this._item_start;
+        this.progress = Math.floor(
+            (duration / (this.active_item?.duration || 15 * 1000)) * 100,
+        );
+        this.duration = Math.floor(duration / 1000);
+
         if (!this._item_playlist?.length) return;
+        this._processURLs();
         if (this.index === -1) {
             this._setPlaylistItem(0);
         }
         const item = this.active_item;
-        if (Date.now() > this._item_start + item.duration * 1000) {
+        if (Date.now() > this._item_start + item.duration) {
             this.nextItem();
         }
     }
@@ -206,31 +242,58 @@ export class MediaPlayerComponent extends AsyncHandler {
         if (!item) return;
         this._item_start = Date.now();
         this._item_progress = 0;
+        this.progress = 0;
+        this.duration = 0;
+        const url = this.url(item.id);
+        if (!url) {
+            this.timeout('wait-for-url', () => this._setPlaylistItem(index));
+            return;
+        }
         if (item.type === 'video') {
             this._image_element.nativeElement.classList.add('hidden');
-            this._video_element.nativeElement.src = this.url(
-                item.id,
-            ).toString();
+            this._video_element.nativeElement.src = url.toString();
             this._video_element.nativeElement.classList.remove('hidden');
+            this._video_element.nativeElement.play();
         } else {
             this._video_element.nativeElement.classList.add('hidden');
-            this._image_element.nativeElement.src = this.url(
-                item.id,
-            ).toString();
+            this._image_element.nativeElement.src = url.toString();
             this._image_element.nativeElement.classList.remove('hidden');
+            this._video_element.nativeElement.pause();
         }
     }
 
-    private _processURLs() {
-        if (!this._item_playlist?.length) return;
+    private async _processURLs() {
+        const current_index = Math.max(this.index, 0);
+        const item_count = this._item_playlist.length;
         // Get current
-        const current_item = this._item_playlist[Math.max(this.index, 0)];
+        const current_item = this._item_playlist[current_index];
         // Get previous 2 items
-
+        const prev_item =
+            this._item_playlist[(current_index - 1 + item_count) % item_count];
+        const prev_prev_item =
+            this._item_playlist[(current_index - 2 + item_count) % item_count];
         // Get next 2 items
-
+        const next_item = this._item_playlist[(current_index + 1) % item_count];
+        const next_next_item =
+            this._item_playlist[(current_index + 2) % item_count];
+        const item_list = [
+            current_item,
+            next_item,
+            prev_item,
+            next_next_item,
+            prev_prev_item,
+        ];
         // Request new URLs
-
+        for (const item of item_list) {
+            if (this._item_urls[item.id]) continue;
+            this._item_urls[item.id] = await item.getURL();
+        }
         // Revoke old URLs
+        for (const key in this._item_urls) {
+            if (item_list.find((_) => _.id === key)) continue;
+            const url = this._item_urls[key];
+            URL.revokeObjectURL(url.toString());
+            delete this._item_urls[key];
+        }
     }
 }

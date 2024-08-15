@@ -4,7 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { AsyncHandler, Identity } from '@placeos/common';
 import { VirtualKeyboardComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
-import { PlaceSystem, querySystems, showMetadata } from '@placeos/ts-client';
+import { PlaceSystem, querySystems } from '@placeos/ts-client';
 import { of } from 'rxjs';
 import {
     catchError,
@@ -15,21 +15,25 @@ import {
     switchMap,
 } from 'rxjs/operators';
 
+const STORE_PREFIX = 'PlaceOS.SIGNAGE';
+const STORE_DISPLAY_KEY = `${STORE_PREFIX}.display`;
+const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
+
 @Component({
     selector: '[bootstrap]',
     template: `
-        <div class="absolute inset-0 bg-base-200">
+        <div class="absolute inset-0 bg-base-300">
             <div
                 form
                 class="absolute top-2 left-1/2 transform -translate-x-1/2 bg-base-100 overflow-hidden flex flex-col items-center shadow rounded w-[30rem] max-w-[calc(100vw-2rem)]"
             >
                 <header
-                    class="px-4 py-3 bg-info text-info-content w-full text-lg font-medium mb-2"
+                    class="px-4 py-3 bg-secondary text-secondary-content w-full text-lg font-medium mb-2"
                 >
                     Signage Kiosk Setup
                 </header>
                 <main *ngIf="!loading; else load_state" class="px-4 py-2">
-                    <label>Select a Building from the dropdown below</label>
+                    <!-- <label>Select a Building from the dropdown below</label>
                     <mat-form-field appearance="outline">
                         <mat-select
                             #select
@@ -45,7 +49,7 @@ import {
                                 {{ option.name }}
                             </mat-option>
                         </mat-select>
-                    </mat-form-field>
+                    </mat-form-field> -->
                     <label>Select a display from the dropdown below</label>
                     <mat-form-field appearance="outline">
                         <mat-select
@@ -162,8 +166,8 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
                 if (params.has('clear') && params.get('clear') === 'true') {
-                    localStorage.removeItem('SIGNAGE.building');
-                    localStorage.removeItem('SIGNAGE.display');
+                    localStorage.removeItem(STORE_DISPLAY_KEY);
+                    localStorage.removeItem(STORE_BUILDING_KEY);
                 }
                 if (params.has('building')) {
                     this.setBuilding(params.get('building'));
@@ -195,8 +199,8 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
             this.loading = '';
             return;
         }
-        localStorage.setItem('SIGNAGE.building', bld.id);
-        localStorage.setItem('SIGNAGE.display', this.active_display);
+        localStorage.setItem(STORE_BUILDING_KEY, bld.id);
+        localStorage.setItem(STORE_DISPLAY_KEY, this.active_display);
         this._router.navigate(['/signage', this.active_display]);
         this.loading = '';
     }
@@ -206,8 +210,8 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
      */
     private checkBootstrap() {
         this.loading = 'Checking for existing parameters...';
-        const bld_id = localStorage?.getItem('SIGNAGE.building');
-        const display_id = localStorage?.getItem('SIGNAGE.display');
+        const bld_id = localStorage?.getItem(STORE_BUILDING_KEY);
+        const display_id = localStorage?.getItem(STORE_DISPLAY_KEY);
         if (bld_id && display_id) {
             this._router.navigate(['/signage', display_id]);
         }

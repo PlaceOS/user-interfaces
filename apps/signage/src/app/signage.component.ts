@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
     selector: 'signage-panel',
-    template: ` <media-player></media-player> `,
+    template: ` <media-player [playlist]="playlist | async"></media-player> `,
     styles: `
         :host {
             display: block;
@@ -15,6 +15,8 @@ import { ActivatedRoute, Router } from '@angular/router';
     `,
 })
 export class SignagePanelComponent extends AsyncHandler {
+    public readonly playlist = this._signage.playlist;
+
     constructor(
         private _router: Router,
         private _route: ActivatedRoute,
