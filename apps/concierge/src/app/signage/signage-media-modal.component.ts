@@ -20,112 +20,126 @@ import { addYears, endOfDay, startOfDay } from 'date-fns';
             </button>
         </header>
         <main
-            class="flex flex-col p-4 max-w-[calc(100vw-2rem)] w-[32rem]"
+            class="p-4 max-w-[calc(100vw-2rem)] w-[32rem] max-h-[65vh] overflow-auto"
             [formGroup]="form"
             *ngIf="!loading; else load_state"
         >
-            <button
-                matRipple
-                class="relative w-full h-48 mx-auto bg-base-300 rounded-xl overflow-hidden mb-4"
-                (click)="preview()"
-            >
-                <img
-                    class="h-full w-full object-contain object-center"
-                    [src]="url"
-                />
-                <div
-                    class="absolute top-2 left-2 px-2 py-1 rounded text-xs bg-base-400 capitalize"
+            <div class="flex flex-col">
+                <button
+                    matRipple
+                    class="relative w-full h-48 mx-auto bg-base-300 rounded-xl overflow-hidden mb-4"
+                    (click)="preview()"
                 >
-                    {{ media_type }}
-                </div>
-            </button>
-            <label for="name">Name</label>
-            <mat-form-field appearance="outline">
-                <input
-                    matInput
-                    name="name"
-                    formControlName="name"
-                    placeholder="Media Name"
-                />
-                <mat-error>A name is required</mat-error>
-            </mat-form-field>
-            @if (media_type === 'video') {
+                    <img
+                        class="h-full w-full object-contain object-center"
+                        [src]="url"
+                    />
+                    <div
+                        class="absolute top-2 left-2 px-2 py-1 rounded text-xs bg-base-400 capitalize"
+                    >
+                        {{ media_type }}
+                    </div>
+                </button>
+                <label for="name">Name</label>
+                <mat-form-field appearance="outline">
+                    <input
+                        matInput
+                        name="name"
+                        formControlName="name"
+                        placeholder="Media Name"
+                    />
+                    <mat-error>A name is required</mat-error>
+                </mat-form-field>
+                @if (media_type === 'video') {
+                    <div class="flex items-center space-x-4">
+                        <label for="start-time" class="w-auto min-w-0 m-0"
+                            >Start Time</label
+                        >
+                        <div class="text-xs font-mono">
+                            {{
+                                form.value.start_time / 1000
+                                    | mediaDuration: true
+                            }}
+                        </div>
+                    </div>
+                    <mat-slider min="0" max="3600000" step="100">
+                        <input
+                            name="start-time"
+                            matSliderThumb
+                            formControlName="start_time"
+                        />
+                    </mat-slider>
+                }
                 <div class="flex items-center space-x-4">
-                    <label for="start-time" class="w-auto min-w-0 m-0"
-                        >Start Time</label
+                    <label for="play-time" class="w-auto min-w-0 m-0">
+                        Play Time</label
                     >
                     <div class="text-xs font-mono">
-                        {{ form.value.start_time / 1000 | mediaDuration: true }}
+                        @if (form.value.play_time) {
+                            {{
+                                form.value.play_time / 1000
+                                    | mediaDuration: true
+                            }}
+                        } @else {
+                            <span class="opacity-30">Default</span>
+                        }
                     </div>
                 </div>
-                <mat-slider min="0" max="3600000" step="100">
+                <mat-slider
+                    [min]="form.value.start_time"
+                    max="3600000"
+                    step="100"
+                >
                     <input
-                        name="start-time"
+                        name="play-time"
                         matSliderThumb
-                        formControlName="start_time"
+                        formControlName="play_time"
                     />
                 </mat-slider>
-            }
-            <div class="flex items-center space-x-4">
-                <label for="play-time" class="w-auto min-w-0 m-0">
-                    Play Time</label
-                >
-                <div class="text-xs font-mono">
-                    @if (form.value.play_time) {
-                        {{ form.value.play_time / 1000 | mediaDuration: true }}
-                    } @else {
-                        <span class="opacity-30">Default</span>
-                    }
-                </div>
-            </div>
-            <mat-slider [min]="form.value.start_time" max="3600000" step="100">
-                <input
-                    name="play-time"
-                    matSliderThumb
-                    formControlName="play_time"
-                />
-            </mat-slider>
-            <label for="animation">Animation</label>
-            <mat-form-field appearance="outline">
-                <mat-select
-                    name="animation"
-                    formControlName="animation"
-                    placeholder="Playlist Default"
-                >
-                    <mat-option [value]="null">Playlist Default</mat-option>
-                    <mat-option value="cut">Cut</mat-option>
-                    <mat-option value="crossfade">Cross Fade</mat-option>
-                    <mat-option value="slidetop">Slide Top</mat-option>
-                    <mat-option value="slideleft">Slide Left</mat-option>
-                    <mat-option value="slideright">Slide Right</mat-option>
-                    <mat-option value="slidebottom">Slide Bottom</mat-option>
-                </mat-select>
-            </mat-form-field>
-            <label for="description">Description</label>
-            <mat-form-field appearance="outline" class="w-full">
-                <textarea
-                    matInput
-                    name="description"
-                    placeholder="Description"
-                    formControlName="description"
-                    class="min-h-32"
-                ></textarea>
-            </mat-form-field>
-            <div class="flex space-x-4">
-                <div class="flex-1">
-                    <label for="valid-from">Valid From</label>
-                    <a-date-field
-                        name="valid-from"
-                        formControlName="valid_from"
-                    ></a-date-field>
-                </div>
-                <div class="flex-1">
-                    <label for="valid-until">Valid Until</label>
-                    <a-date-field
-                        name="valid-until"
-                        [from]="form.value.valid_from"
-                        formControlName="valid_until"
-                    ></a-date-field>
+                <label for="animation">Animation</label>
+                <mat-form-field appearance="outline">
+                    <mat-select
+                        name="animation"
+                        formControlName="animation"
+                        placeholder="Playlist Default"
+                    >
+                        <mat-option [value]="null">Playlist Default</mat-option>
+                        <mat-option value="cut">Cut</mat-option>
+                        <mat-option value="crossfade">Cross Fade</mat-option>
+                        <mat-option value="slidetop">Slide Top</mat-option>
+                        <mat-option value="slideleft">Slide Left</mat-option>
+                        <mat-option value="slideright">Slide Right</mat-option>
+                        <mat-option value="slidebottom"
+                            >Slide Bottom</mat-option
+                        >
+                    </mat-select>
+                </mat-form-field>
+                <label for="description">Description</label>
+                <mat-form-field appearance="outline" class="w-full">
+                    <textarea
+                        matInput
+                        name="description"
+                        placeholder="Description"
+                        formControlName="description"
+                        class="min-h-32"
+                    ></textarea>
+                </mat-form-field>
+                <div class="flex space-x-4">
+                    <div class="flex-1">
+                        <label for="valid-from">Valid From</label>
+                        <a-date-field
+                            name="valid-from"
+                            formControlName="valid_from"
+                        ></a-date-field>
+                    </div>
+                    <div class="flex-1">
+                        <label for="valid-until">Valid Until</label>
+                        <a-date-field
+                            name="valid-until"
+                            [from]="form.value.valid_from"
+                            formControlName="valid_until"
+                        ></a-date-field>
+                    </div>
                 </div>
             </div>
         </main>

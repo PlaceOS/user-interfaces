@@ -56,13 +56,16 @@ import { Router } from '@angular/router';
                     Shuffle ON
                 </div>
                 <div
-                    class="ml-2 text-xs px-2 py-1 m-1 "
+                    class="text-xs px-2 py-1 m-1 "
                     matTooltip="Default Transition Animation"
                 >
                     Animation:
-                    <span class="uppercase bg-base-200 px-2 py-1 rounded">{{
-                        (selected_playlist | async)?.default_animation
-                    }}</span>
+                    <span
+                        class="ml-1 uppercase bg-base-200 px-2 py-1 rounded"
+                        >{{
+                            (selected_playlist | async)?.default_animation
+                        }}</span
+                    >
                 </div>
                 <div
                     class="text-xs px-2 py-1 m-1"
@@ -70,7 +73,7 @@ import { Router } from '@angular/router';
                 >
                     Duration:
                     <span
-                        class="ml-2 font-mono bg-base-200 px-2 py-1 rounded"
+                        class="ml-1 font-mono bg-base-200 px-2 py-1 rounded"
                         >{{
                             (selected_playlist | async)?.default_duration / 1000
                                 | mediaDuration
@@ -83,7 +86,7 @@ import { Router } from '@angular/router';
                 >
                     Orientation:
                     <span
-                        class="ml-2 uppercase bg-base-200 px-2 py-1 rounded"
+                        class="ml-1 uppercase bg-base-200 px-2 py-1 rounded"
                         >{{ (selected_playlist | async)?.orientation }}</span
                     >
                 </div>
