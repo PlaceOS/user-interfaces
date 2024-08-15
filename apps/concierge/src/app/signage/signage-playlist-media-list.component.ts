@@ -31,7 +31,63 @@ import { Router } from '@angular/router';
             >
                 <app-icon>edit</app-icon>
             </button>
-            <div details></div>
+            <div details class="flex items-center flex-wrap">
+                <div
+                    class="ml-2 text-xs px-2 py-1 m-1 rounded"
+                    [class.bg-success]="(selected_playlist | async)?.enabled"
+                    [class.text-success-content]="
+                        (selected_playlist | async)?.enabled
+                    "
+                    [class.bg-error]="!(selected_playlist | async)?.enabled"
+                    [class.text-error-content]="
+                        !(selected_playlist | async)?.enabled
+                    "
+                >
+                    {{
+                        (selected_playlist | async)?.enabled
+                            ? 'Enabled'
+                            : 'Disabled'
+                    }}
+                </div>
+                <div
+                    class="ml-2 text-xs px-2 py-1 m-1 rounded bg-secondary text-secondary-content"
+                    *ngIf="(selected_playlist | async)?.random"
+                >
+                    Shuffle ON
+                </div>
+                <div
+                    class="ml-2 text-xs px-2 py-1 m-1 "
+                    matTooltip="Default Transition Animation"
+                >
+                    Animation:
+                    <span class="uppercase bg-base-200 px-2 py-1 rounded">{{
+                        (selected_playlist | async)?.default_animation
+                    }}</span>
+                </div>
+                <div
+                    class="text-xs px-2 py-1 m-1"
+                    matTooltip="Default Playback Duration"
+                >
+                    Duration:
+                    <span
+                        class="ml-2 font-mono bg-base-200 px-2 py-1 rounded"
+                        >{{
+                            (selected_playlist | async)?.default_duration / 1000
+                                | mediaDuration
+                        }}</span
+                    >
+                </div>
+                <div
+                    class="text-xs px-2 py-1 m-1"
+                    matTooltip="Prefered Orientation"
+                >
+                    Orientation:
+                    <span
+                        class="ml-2 uppercase bg-base-200 px-2 py-1 rounded"
+                        >{{ (selected_playlist | async)?.orientation }}</span
+                    >
+                </div>
+            </div>
             @if ((media | async).length > 0) {
                 <div
                     cdkDropList
