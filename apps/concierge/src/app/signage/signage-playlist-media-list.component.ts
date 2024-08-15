@@ -99,11 +99,14 @@ import { Router } from '@angular/router';
                                         </div>
                                     </div>
                                 </button>
-                                <button mat-menu-item (click)="removeItem(row)">
+                                <button
+                                    mat-menu-item
+                                    (click)="removeItem(item)"
+                                >
                                     <div class="flex items-center space-x-2">
-                                        <app-icon class="text-2xl text-error"
-                                            >delete</app-icon
-                                        >
+                                        <app-icon class="text-2xl text-error">
+                                            delete
+                                        </app-icon>
                                         <div class="pr-2">
                                             Remove Media Item
                                         </div>
@@ -146,12 +149,9 @@ export class SignagePlaylistMediaListComponent {
 
     public readonly removeItem = async (item: SignageMedia) => {
         const playlist = await this._playlist_media.pipe(take(1)).toPromise();
-        const list = [...playlist.items];
-        list.splice(
-            list.findIndex((_) => _ === item.id),
-            1,
-        );
-        await this._state.updatePlaylistMedia(playlist.id, list);
+        const list = playlist.items.filter((_) => _ !== item.id);
+        console.log('Remove Item:', playlist, item, list);
+        await this._state.updatePlaylistMedia(this.playlist, list);
         this._playlist.next(this.playlist);
     };
 
