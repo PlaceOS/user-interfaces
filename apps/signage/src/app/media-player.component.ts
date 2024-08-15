@@ -8,9 +8,13 @@ import {
     ViewChild,
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
+import { MediaAnimation } from '@placeos/ts-client/dist/esm/signage/media.class';
 
 export interface MediaPlayerItem {
     id: string;
+    name: string;
+    playlist_name: string;
+    animation: MediaAnimation;
     type: 'image' | 'video';
     start_time: number;
     duration: number;
@@ -107,6 +111,72 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                     <app-icon [class.opacity-30]="!shuffle"> shuffle </app-icon>
                 </button>
             </div>
+            <div
+                class="absolute inset-y-4 right-4 bg-base-100 border border-gray-300 overflow-auto rounded-xl p-2"
+                *ngIf="show_playlist"
+            >
+                <div class="flex items-center space-x-2 p-2">
+                    <h2>Media to play</h2>
+                    <div class="text-sm opacity-30">
+                        ({{ playlist_items?.length || 0 }} items)
+                    </div>
+                </div>
+                @for (item of playlist_items; track item) {
+                    <button
+                        matRipple
+                        class="flex items-center p-2 space-x-2 w-[20rem] text-left hover:bg-base-200 rounded-lg"
+                        [class.overflow-visible]="$index === index"
+                        [class.pointer-events-none]="$index === index"
+                        (click)="setPlaylistItem($index)"
+                    >
+                        <div
+                            class="h-10 w-10 rounded-full flex items-center justify-center"
+                            [class.bg-info]="$index === index"
+                            [class.text-info-content]="$index === index"
+                            [class.bg-base-300]="$index !== index"
+                        >
+                            <div
+                                class="h-7 w-7 relative flex items-center justify-center"
+                            >
+                                <span
+                                    *ngIf="$index === index"
+                                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-info opacity-75 z-0"
+                                ></span>
+                                <app-icon
+                                    class="text-2xl relative z-10"
+                                    [class.opacity-30]="$index !== index"
+                                    >{{
+                                        $index === index
+                                            ? 'play_arrow'
+                                            : 'not_started'
+                                    }}</app-icon
+                                >
+                            </div>
+                        </div>
+                        <div class="flex flex-col flex-1 w-1/2">
+                            <div class="truncate">{{ item.name }}</div>
+                            <div class="text-xs opacity-30">
+                                {{ item.playlist_name }}
+                            </div>
+                        </div>
+                        <div
+                            class="px-2 py-1 rounded bg-info text-info-content font-mono text-xs"
+                        >
+                            {{ item.duration / 1000 | mediaDuration }}
+                        </div>
+                    </button>
+                }
+            </div>
+            <button
+                icon
+                matRipple
+                class="absolute top-6 right-6 bg-base-100 border border-base-200 shadow"
+                (click)="show_playlist = !show_playlist"
+            >
+                <app-icon>{{
+                    show_playlist ? 'close' : 'queue_music'
+                }}</app-icon>
+            </button>
         }
     `,
     styles: [
@@ -123,7 +193,7 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
 })
 export class MediaPlayerComponent extends AsyncHandler {
     @Input() public playlist: MediaPlayerItem[] = [];
-    @Input() public controls: boolean = true;
+    @Input() public controls: boolean = false;
     @Input() public loop: 'NONE' | 'ONE' | 'ALL' = 'ALL';
     @Input() public shuffle: boolean = false;
     @Input() public index: number = -1;
@@ -133,12 +203,17 @@ export class MediaPlayerComponent extends AsyncHandler {
 
     public duration = 0;
     public progress = 0;
+    public show_playlist = false;
 
     private _item_playlist: MediaPlayerItem[] = [];
 
     private _item_urls: Record<string, URL> = {};
     private _item_start: number = 0;
     private _item_progress: number = 0;
+
+    public get playlist_items() {
+        return this._item_playlist;
+    }
 
     public get active_item() {
         return this._item_playlist[this.index];
@@ -167,7 +242,7 @@ export class MediaPlayerComponent extends AsyncHandler {
 
     public previousItem() {
         const new_index = (this.index - 1) % this._item_playlist.length;
-        this._setPlaylistItem(new_index);
+        this.setPlaylistItem(new_index);
     }
 
     public togglePause() {
@@ -203,7 +278,7 @@ export class MediaPlayerComponent extends AsyncHandler {
             return;
         }
         const new_index = next_index % this._item_playlist.length;
-        this._setPlaylistItem(new_index);
+        this.setPlaylistItem(new_index);
     }
 
     public toggleLoop() {
@@ -227,7 +302,7 @@ export class MediaPlayerComponent extends AsyncHandler {
         if (!this._item_playlist?.length) return;
         this._processURLs();
         if (this.index === -1) {
-            this._setPlaylistItem(0);
+            this.setPlaylistItem(0);
         }
         const item = this.active_item;
         if (Date.now() > this._item_start + item.duration) {
@@ -235,7 +310,7 @@ export class MediaPlayerComponent extends AsyncHandler {
         }
     }
 
-    private _setPlaylistItem(index: number) {
+    private setPlaylistItem(index: number) {
         this.index = index;
         this.indexChange.emit(index);
         const item = this.active_item;
@@ -246,7 +321,7 @@ export class MediaPlayerComponent extends AsyncHandler {
         this.duration = 0;
         const url = this.url(item.id);
         if (!url) {
-            this.timeout('wait-for-url', () => this._setPlaylistItem(index));
+            this.timeout('wait-for-url', () => this.setPlaylistItem(index));
             return;
         }
         if (item.type === 'video') {

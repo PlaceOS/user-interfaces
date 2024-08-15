@@ -68,13 +68,7 @@ export class MediaCacheService extends AsyncHandler {
     public async requestFilesToCache(url_list: string[]) {
         for (const url of url_list) {
             const existing = this._cache_index.find((_) => _.url === url);
-            if (existing?.status === 'cached') {
-                log('MediaCache', `Exisiting cached resource.`, [
-                    existing.id,
-                    url,
-                ]);
-                continue;
-            }
+            if (existing?.status === 'cached') continue;
             const cache_item: CacheItem = {
                 id: randomString(16, '0123456789ABCDEF'),
                 url,
@@ -167,10 +161,6 @@ export class MediaCacheService extends AsyncHandler {
 
             request.onsuccess = (event: any) => {
                 if (request.result) {
-                    log('MediaCache', `Retrieved resource.`, [
-                        cache_item.id,
-                        url,
-                    ]);
                     resolve(request.result.file);
                 } else {
                     log(
@@ -215,7 +205,7 @@ export class MediaCacheService extends AsyncHandler {
         });
     }
 
-    public invalidateFile(url) {
+    public invalidateFile(url: string) {
         return new Promise<void>((resolve, reject) => {
             const cache_item = this._cache_index.find((_) => _.url === url);
             if (cache_item.status !== 'cached')
@@ -239,6 +229,9 @@ export class MediaCacheService extends AsyncHandler {
 
             request.onsuccess = (event: any) => {
                 log('MediaCache', `Removed resource.`, [cache_item.id, url]);
+                this._file_cache_index.next(
+                    this._cache_index.filter((_) => _.id !== cache_item.id),
+                );
                 resolve();
             };
         });

@@ -5,7 +5,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
     selector: 'signage-panel',
-    template: ` <media-player [playlist]="playlist | async"></media-player> `,
+    template: `
+        <media-player
+            [playlist]="playlist | async"
+            [controls]="debug"
+        ></media-player>
+    `,
     styles: `
         :host {
             display: block;
@@ -16,6 +21,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class SignagePanelComponent extends AsyncHandler {
     public readonly playlist = this._signage.playlist;
+    public debug = false;
 
     constructor(
         private _router: Router,
@@ -37,6 +43,14 @@ export class SignagePanelComponent extends AsyncHandler {
                 if (params.has('system_id')) {
                     this._signage.setDisplay(params.get('system_id'));
                     this.clearTimeout('not-bootstrapped');
+                }
+            }),
+        );
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((params) => {
+                if (params.has('debug')) {
+                    this.debug = true;
                 }
             }),
         );

@@ -4,6 +4,7 @@ import { showSignage, SignageMedia, SignagePlaylist } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, interval } from 'rxjs';
 import { filter, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { MediaCacheService } from './media-cache.service';
+import { animation } from '@angular/animations';
 
 @Injectable({
     providedIn: 'root',
@@ -53,6 +54,9 @@ export class SignageService extends AsyncHandler {
                     return {
                         id,
                         url: media_ref.media_url,
+                        name: media_ref.name,
+                        animation: media_ref.animation,
+                        playlist_name: playlist?.name || '',
                         type: media_ref.media_type,
                         start_time: media_ref.start_time || 0,
                         duration:
