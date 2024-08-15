@@ -140,6 +140,48 @@ export class MediaCacheService extends AsyncHandler {
         });
     }
 
+    public availableFiles() {
+        return this._cache_index.map((_) => _.url);
+    }
+
+    public getFile(url: string) {
+        return new Promise((resolve, reject) => {
+            const cache_item = this._cache_index.find((_) => _.url === url);
+            if (!cache_item) return reject('Unable to find file with URL');
+            const transaction = this._cache_db.transaction(
+                ['files'],
+                'readonly',
+            );
+            const objectStore = transaction.objectStore('files');
+            const request = objectStore.get(cache_item.id);
+
+            request.onerror = (event: any) => {
+                log(
+                    'MediaCache',
+                    `Error retrieving cached resource. ${event.target.error}`,
+                    [url],
+                    'error',
+                );
+                reject(event.target.error);
+            };
+
+            request.onsuccess = (event: any) => {
+                if (request.result) {
+                    console.log('File retrieved successfully');
+                    resolve(request.result.file);
+                } else {
+                    log(
+                        'MediaCache',
+                        `Unable to find cached resource. ${event.target.error}`,
+                        [url],
+                        'error',
+                    );
+                    resolve(null);
+                }
+            };
+        });
+    }
+
     public invalidateStore() {
         return new Promise<void>((resolve, reject) => {
             const transaction = this._cache_db.transaction(
@@ -195,44 +237,6 @@ export class MediaCacheService extends AsyncHandler {
             request.onsuccess = (event: any) => {
                 console.log('File removed successfully');
                 resolve();
-            };
-        });
-    }
-
-    public getFile(url: string) {
-        return new Promise((resolve, reject) => {
-            const cache_item = this._cache_index.find((_) => _.url === url);
-            if (!cache_item) return reject('Unable to find file with URL');
-            const transaction = this._cache_db.transaction(
-                ['files'],
-                'readonly',
-            );
-            const objectStore = transaction.objectStore('files');
-            const request = objectStore.get(cache_item.id);
-
-            request.onerror = (event: any) => {
-                log(
-                    'MediaCache',
-                    `Error retrieving cached resource. ${event.target.error}`,
-                    [url],
-                    'error',
-                );
-                reject(event.target.error);
-            };
-
-            request.onsuccess = (event: any) => {
-                if (request.result) {
-                    console.log('File retrieved successfully');
-                    resolve(request.result.file);
-                } else {
-                    log(
-                        'MediaCache',
-                        `Unable to find cached resource. ${event.target.error}`,
-                        [url],
-                        'error',
-                    );
-                    resolve(null);
-                }
             };
         });
     }
