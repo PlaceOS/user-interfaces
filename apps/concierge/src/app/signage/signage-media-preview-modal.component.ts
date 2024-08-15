@@ -19,12 +19,14 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
                 <img
                     *ngIf="type === 'image'"
                     class="max-w-full max-h-full"
-                    [src]="resource.toString()"
+                    auth
+                    [source]="resource.toString()"
                 />
                 <video
                     *ngIf="type === 'video'"
                     class="max-w-full max-h-full"
-                    [src]="resource.toString()"
+                    auth
+                    [source]="resource.toString()"
                     autoplay
                     controls
                 ></video>
