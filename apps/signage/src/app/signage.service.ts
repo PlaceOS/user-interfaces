@@ -60,6 +60,7 @@ export class SignageService extends AsyncHandler {
                         start_time: media_ref.start_time || 0,
                         duration:
                             media_ref.play_time ||
+                            media_ref.video_length ||
                             playlist?.default_duration ||
                             15 * 1000,
                         getURL: async () =>

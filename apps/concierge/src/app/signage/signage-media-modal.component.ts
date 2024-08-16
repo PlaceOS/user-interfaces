@@ -32,7 +32,8 @@ import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
                 >
                     <img
                         class="h-full w-full object-contain object-center"
-                        [src]="thumbnail || url"
+                        auth
+                        [source]="thumbnail || url"
                     />
                     <div
                         class="absolute top-2 left-2 px-2 py-1 rounded text-xs bg-base-400 capitalize"
@@ -177,7 +178,8 @@ export class SignageMediaModalComponent {
     public loading = false;
     public readonly item = this._data.media;
     public readonly file = this._data.file;
-    public readonly thumbnail = this._data.file_thumbnail;
+    public readonly thumbnail =
+        this._data.file_thumbnail || this._data.media.thumbnail_url;
 
     public readonly form = new FormGroup({
         name: new FormControl('', [Validators.required]),
