@@ -81,7 +81,13 @@ import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
                                     | mediaDuration: true
                             }}
                         } @else {
-                            <span class="opacity-30">Default</span>
+                            <span class="opacity-30">
+                                Default ({{
+                                    item.video_length
+                                        ? (item.video_length | mediaDuration)
+                                        : ''
+                                }})
+                            </span>
                         }
                     </div>
                 </div>
@@ -173,7 +179,7 @@ export class SignageMediaModalComponent {
         description: new FormControl(''),
         animation: new FormControl<MediaAnimation | null>(null),
         start_time: new FormControl(0),
-        play_time: new FormControl(0),
+        play_time: new FormControl<number | null>(null),
         valid_from: new FormControl(startOfDay(Date.now()).valueOf()),
         valid_until: new FormControl(
             addYears(endOfDay(Date.now()), 10).valueOf(),
@@ -228,7 +234,6 @@ export class SignageMediaModalComponent {
         if (this._data.file) {
             this.form.patchValue({
                 name: this._data.file.name,
-                play_time: this._data.file_metadata[1] * 1000 || 0,
             });
         }
         if (this._data.file_metadata) {
