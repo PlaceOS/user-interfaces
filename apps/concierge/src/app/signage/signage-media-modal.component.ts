@@ -230,8 +230,9 @@ export class SignageMediaModalComponent {
             });
         }
         if (this._data.file_metadata) {
-            (this.item as any).video_length =
-                this._data.file_metadata[1] * 1000;
+            (this.item as any).video_length = Math.floor(
+                this._data.file_metadata[1] * 1000,
+            );
         }
     }
 
