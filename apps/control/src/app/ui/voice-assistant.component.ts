@@ -4,6 +4,8 @@ import { ChatService } from 'libs/components/src/lib/chat/chat.service';
 
 import Artyom from 'artyom.js/build/artyom.js';
 
+const VOICE = new Artyom();
+
 @Component({
     selector: 'voice-assistant',
     template: `
@@ -20,7 +22,7 @@ import Artyom from 'artyom.js/build/artyom.js';
                 class="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"
             ></span>
             <app-icon class="text-2xl">{{
-                active ? 'mic' : 'mic_off'
+                error.speech_recognition ? 'mic_off' : 'mic'
             }}</app-icon>
         </button>
     `,
@@ -44,7 +46,7 @@ export class VoiceAssistantComponent extends AsyncHandler {
 
     private _setup = false;
     private _listening = false;
-    private _voice = new Artyom();
+    private _voice = VOICE;
     private _last_message: string;
 
     constructor(private _chat_service: ChatService) {
@@ -79,20 +81,36 @@ export class VoiceAssistantComponent extends AsyncHandler {
         }
     }
 
+    public ngOnDestroy(): void {
+        super.ngOnDestroy();
+        this._voice.fatality();
+    }
+
     public activate() {
         if (this.error.speech_recognition) return;
         this.active = true;
         this.timeout('deactivate', () => (this.active = false), 5000);
     }
 
-    private async _setupVoiceRecognition() {
+    private _setupVoiceRecognition() {
         var commands = {
-            indexes: [`hey place *`, `hey please *`, `a place *`],
+            indexes: [
+                `hey place *`,
+                `hey please *`,
+                `hey plays *`,
+                `a place *`,
+                `who place *`,
+                `who plays *`,
+                `who please *`,
+                `he plays *`,
+                `hit plays *`,
+            ],
             smart: true,
             action: (i, i2) => {
                 this.active = true;
                 console.log('Value:', i, i2);
-                this._chat_service.sendMessage(`${i} ${i2}`);
+                this._chat_service.sendMessage(`Hey PlaceOS, ${i2}`);
+                this._speakText('One second...');
             },
         };
 
@@ -102,6 +120,7 @@ export class VoiceAssistantComponent extends AsyncHandler {
             lang: navigator.language || (navigator as any).userLanguage,
             listen: true,
         });
+        console.log('Initialised Voice Assistant');
     }
 
     public handleEnd() {}
