@@ -62,7 +62,11 @@ import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
                             }}
                         </div>
                     </div>
-                    <mat-slider min="0" max="3600000" step="100">
+                    <mat-slider
+                        min="0"
+                        [max]="(item.video_length || 300000) - 1000"
+                        step="100"
+                    >
                         <input
                             name="start-time"
                             matSliderThumb
@@ -84,7 +88,8 @@ import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
                             <span class="opacity-30">
                                 Default ({{
                                     item.video_length
-                                        ? (item.video_length | mediaDuration)
+                                        ? (item.video_length / 1000
+                                          | mediaDuration)
                                         : ''
                                 }})
                             </span>
