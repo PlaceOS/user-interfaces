@@ -14,6 +14,7 @@ import {
 import { listSignagePlaylistMedia, SignageMedia } from '@placeos/ts-client';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Router } from '@angular/router';
+import { getUnixTime, startOfMinute } from 'date-fns';
 
 @Component({
     selector: 'signage-playlist-media-list',
@@ -103,8 +104,19 @@ import { Router } from '@angular/router';
                     <ng-container *ngFor="let item of media | async">
                         <div
                             cdkDrag
-                            class="w-full bg-base-100 h-20 rounded-lg flex items-center p-2 space-x-2 border border-base-300"
+                            class="relative w-full bg-base-100 h-20 rounded-lg flex items-center p-2 space-x-2 border border-base-300"
                         >
+                            @if (item.valid_from && now < item.valid_from) {
+                                <div
+                                    class="absolute inset-0 z-0 bg-warning opacity-10 rounded-lg"
+                                ></div>
+                            } @else if (
+                                item.valid_until && now > item.valid_until
+                            ) {
+                                <div
+                                    class="absolute inset-0 z-0 bg-error opacity-10 rounded-lg"
+                                ></div>
+                            }
                             <div
                                 class="min-h-10 min-w-10 border-4 rounded-2xl border-base-400 bg-base-300 border-dashed flex items-center justify-center"
                                 *cdkDragPlaceholder
@@ -261,6 +273,10 @@ export class SignagePlaylistMediaListComponent {
         ),
         startWith([]),
     );
+
+    public get now() {
+        return getUnixTime(startOfMinute(Date.now()));
+    }
 
     constructor(
         private _state: SignageStateService,

@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 import { SignageStateService } from './signage-state.service';
 import { SignageMedia } from '@placeos/ts-client';
 import { CdkDropList } from '@angular/cdk/drag-drop';
+import { getUnixTime, startOfMinute } from 'date-fns';
 
 @Component({
     selector: 'signage-media-list',
@@ -30,9 +31,20 @@ import { CdkDropList } from '@angular/cdk/drag-drop';
             >
                 @for (media of media | async; track media.id) {
                     <div
-                        class="bg-base-100 rounded-lg flex flex-col items-center justify-center p-3 hover:opacity-80 border border-base-300"
+                        class="relative bg-base-100 rounded-lg flex flex-col items-center justify-center p-3 hover:opacity-80 border border-base-300"
                         cdkDrag
                     >
+                        @if (media.valid_from && now < media.valid_from) {
+                            <div
+                                class="absolute inset-0 z-0 bg-warning opacity-10 rounded-lg"
+                            ></div>
+                        } @else if (
+                            media.valid_until && now > media.valid_until
+                        ) {
+                            <div
+                                class="absolute inset-0 z-0 bg-error opacity-10 rounded-lg"
+                            ></div>
+                        }
                         <div
                             class="min-h-10 min-w-10 border-4 rounded-2xl border-base-400 bg-base-300 border-dashed flex items-center justify-center"
                             *cdkDragPlaceholder
@@ -52,9 +64,25 @@ import { CdkDropList } from '@angular/cdk/drag-drop';
                                 class="w-full h-full object-contain rounded-lg"
                             />
                             <div
-                                class="absolute top-1 left-1 px-2 py-1 text-xs rounded-lg bg-neutral text-neutral-content capitalize font-mono"
+                                class="absolute top-1 left-1 px-2 py-1 text-xs rounded-lg capitalize font-mono"
+                                [class.bg-info]="media.media_type === 'video'"
+                                [class.text-info-content]="
+                                    media.media_type === 'video'
+                                "
+                                [class.bg-warning]="
+                                    media.media_type === 'image'
+                                "
+                                [class.text-warning-content]="
+                                    media.media_type === 'image'
+                                "
                             >
                                 {{ media.media_type }}
+                            </div>
+                            <div
+                                class="absolute bottom-1 right-1 px-2 py-1 text-xs rounded-lg bg-info text-info-content capitalize font-mono"
+                                *ngIf="media.play_time"
+                            >
+                                {{ media.play_time / 1000 | mediaDuration }}
                             </div>
                         </div>
                         <div
@@ -148,6 +176,10 @@ export class SignageMediaListComponent {
     );
 
     public playlist_ids: string[] = [];
+
+    public get now() {
+        return getUnixTime(startOfMinute(Date.now()));
+    }
 
     public readonly previewItem = (item: SignageMedia) =>
         this._state.previewMedia(item);
