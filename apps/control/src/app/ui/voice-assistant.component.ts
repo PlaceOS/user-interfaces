@@ -2,6 +2,8 @@ import { Component, Input, SimpleChanges } from '@angular/core';
 import { AsyncHandler, currentUser } from '@placeos/common';
 import { ChatService } from 'libs/components/src/lib/chat/chat.service';
 
+import Artyom from 'artyom.js/build/artyom.js';
+
 @Component({
     selector: 'voice-assistant',
     template: `
@@ -42,7 +44,7 @@ export class VoiceAssistantComponent extends AsyncHandler {
 
     private _setup = false;
     private _listening = false;
-    private _recognition: any;
+    private _voice = new Artyom();
     private _last_message: string;
 
     constructor(private _chat_service: ChatService) {
@@ -83,121 +85,28 @@ export class VoiceAssistantComponent extends AsyncHandler {
         this.timeout('deactivate', () => (this.active = false), 5000);
     }
 
-    public startListening() {
-        if (this._listening) return;
-        try {
-            this._recognition.start();
-        } catch {}
-        this.timeout('stop_listening', () => (this._listening = true), 500);
-    }
-
     private async _setupVoiceRecognition() {
-        const SpeechRecognition =
-            (window as any).SpeechRecognition ||
-            (window as any).webkitSpeechRecognition;
-
-        const recognition = new SpeechRecognition();
-        recognition.interimResults = true;
-        recognition.lang = 'en-US';
-
-        recognition.onresult = (event) => {
-            const { transcript } = event.results[0][0];
-            // do something with transcript
-            this.current_text = transcript;
-            this.timeout('on_end', () => this.handleEnd(), 3000);
+        var commands = {
+            indexes: [`hey place *`, `hey please *`, `a place *`],
+            smart: true,
+            action: (i, i2) => {
+                this.active = true;
+                console.log('Value:', i, i2);
+                this._chat_service.sendMessage(`${i} ${i2}`);
+            },
         };
 
-        recognition.onerror = (event) => {
-            // console.warn('Speech Recognition Error:', event);
-            if (event.error === 'no-speech') {
-                this.current_text = '';
-                this.timeout(
-                    'stop_listening',
-                    () => (this._listening = false),
-                    500,
-                );
-                return;
-            }
-            this.error.speech_recognition = true;
-        };
-
-        recognition.onend = (event) => {
-            // const { transcript } = event.results[0][0];
-            // do something with transcript
-            this.handleEnd();
-            this.timeout(
-                'stop_listening',
-                () => (this._listening = false),
-                500,
-            );
-        };
-        this._recognition = recognition;
-        recognition.start();
-        this._setup = true;
-        this.timeout('stop_listening', () => (this._listening = true), 500);
-        this.interval('check_listening', () => this.startListening(), 500);
+        this._voice.addCommands(commands);
+        this._voice.initialize({
+            continuous: true,
+            lang: 'en-US',
+            listen: true,
+        });
     }
 
-    public handleEnd() {
-        const text = this.current_text;
-        this.current_text = '';
-        const phrase_index = text.toLowerCase().indexOf(this.activation_phrase);
-        if (!this.active && (phrase_index >= 3 || phrase_index === -1)) return;
-        this.clearTimeout('deactivate');
-        const subtext = text.substring(
-            phrase_index,
-            phrase_index + this.activation_phrase.length,
-        );
-        if (subtext.length < 3) return;
-        this.active = true;
-        this._chat_service.sendMessage(subtext);
-    }
+    public handleEnd() {}
 
     private _speakText(text: string) {
-        if (
-            !(
-                'speechSynthesis' in window &&
-                'SpeechSynthesisUtterance' in window
-            )
-        ) {
-            this.error.speech_synthesis = true;
-            return;
-        }
-
-        // Cancel any ongoing speech
-        window.speechSynthesis.cancel();
-
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 1;
-        utterance.pitch = 1;
-
-        // Use a promise to ensure voices are loaded
-        const setVoice = new Promise<void>((resolve) => {
-            const voices = window.speechSynthesis.getVoices();
-            if (voices.length > 0) {
-                const preferredVoice = voices.find(
-                    (voice) => voice.voiceURI === 'Karen',
-                );
-                if (preferredVoice) {
-                    utterance.voice = preferredVoice;
-                }
-                resolve();
-            } else {
-                window.speechSynthesis.onvoiceschanged = () => {
-                    const voices = window.speechSynthesis.getVoices();
-                    const preferredVoice = voices.find(
-                        (voice) => voice.voiceURI === 'Karen',
-                    );
-                    if (preferredVoice) {
-                        utterance.voice = preferredVoice;
-                    }
-                    resolve();
-                };
-            }
-        });
-
-        setVoice.then(() => {
-            window.speechSynthesis.speak(utterance);
-        });
+        this._voice.say(text);
     }
 }
