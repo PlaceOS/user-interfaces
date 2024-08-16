@@ -4,7 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { notifySuccess } from '@placeos/common';
 import { SignageMedia, updateSignageMedia } from '@placeos/ts-client';
 import { MediaAnimation } from '@placeos/ts-client/dist/esm/signage/media.class';
-import { addYears, endOfDay, startOfDay } from 'date-fns';
+import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
 @Component({
     selector: 'signage-media-modal',
@@ -87,7 +87,7 @@ import { addYears, endOfDay, startOfDay } from 'date-fns';
                 </div>
                 <mat-slider
                     [min]="form.value.start_time"
-                    max="3600000"
+                    [max]="item.video_length || 300000"
                     step="100"
                 >
                     <input
@@ -217,21 +217,21 @@ export class SignageMediaModalComponent {
         },
         private _dialog_ref: MatDialogRef<SignageMediaModalComponent>,
     ) {
+        console.log('File:', this._data.file, this._data.file_metadata);
         this.form.patchValue({
             ...this._data.media,
-            valid_from: new Date(
-                this._data.media.valid_from || startOfDay(Date.now()),
-            ).valueOf(),
-            valid_until: new Date(
-                this._data.media.valid_until ||
-                    addYears(endOfDay(Date.now()), 10),
-            ).valueOf(),
+            valid_from: this._data.media.valid_from * 1000,
+            valid_until: this._data.media.valid_until * 1000,
         });
         if (this._data.file) {
             this.form.patchValue({
                 name: this._data.file.name,
                 play_time: this._data.file_metadata[1] * 1000 || 0,
             });
+        }
+        if (this._data.file_metadata) {
+            (this.item as any).video_length =
+                this._data.file_metadata[1] * 1000;
         }
     }
 
@@ -249,8 +249,8 @@ export class SignageMediaModalComponent {
         const new_media = {
             ...this.item,
             ...form_value,
-            valid_from: new Date(form_value.valid_from).toISOString(),
-            valid_until: new Date(form_value.valid_until).toISOString(),
+            valid_from: getUnixTime(new Date(form_value.valid_from)),
+            valid_until: getUnixTime(form_value.valid_until),
         };
         const onError = (e) => {
             this._dialog_ref.disableClose = false;

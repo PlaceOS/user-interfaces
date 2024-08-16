@@ -28,7 +28,11 @@ import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
             matRipple
         >
             <p class="px-4 py-2 flex-1 truncate w-1/2 text-left font-normal">
-                {{ date | date: (short ? 'MMM d, yyyy' : 'MMMM d, yyyy') }}
+                @if (date) {
+                    {{ date | date: (short ? 'MMM d, yyyy' : 'MMMM d, yyyy') }}
+                } @else {
+                    <span class="opacity-30">No Date Selected</span>
+                }
             </p>
             <div class="h-10 w-10 flex items-center justify-center text-2xl">
                 <app-icon>today</app-icon>
@@ -40,7 +44,7 @@ import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
         <ng-template #calendar_picker>
             <div class="relative w-[18rem] rounded bg-base-100 px-2 py-4">
                 <date-calendar
-                    [ngModel]="date"
+                    [ngModel]="date || now"
                     [from]="from"
                     [to]="until"
                     [offset_weekday]="week_start"
@@ -72,7 +76,9 @@ export class DateFieldComponent
     @Input() public disabled: boolean;
     @Input() public short = false;
     /** Currently selected date */
-    public date: number = Date.now();
+    public date: number;
+
+    public readonly now = Date.now();
 
     /** Form control on change handler */
     private _onChange: (_: number) => void;
@@ -132,7 +138,7 @@ export class DateFieldComponent
      * @param value The new value for the component
      */
     public writeValue(value: number) {
-        this.date = value || Date.now();
+        this.date = value;
         this._tooltip?.close();
     }
 

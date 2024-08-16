@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import {
+    AsyncHandler,
     notifyError,
     notifySuccess,
     openConfirmModal,
@@ -81,7 +82,7 @@ function dataURLtoFile(dataURL, filename) {
 @Injectable({
     providedIn: 'root',
 })
-export class SignageStateService {
+export class SignageStateService extends AsyncHandler {
     private _loading = new BehaviorSubject(false);
     private _change = new BehaviorSubject(0);
     private _active_upload = new BehaviorSubject<Attachment>(null);
@@ -164,7 +165,9 @@ export class SignageStateService {
         private _org: OrganisationService,
         private _dialog: MatDialog,
         private _settings: SettingsService,
-    ) {}
+    ) {
+        super();
+    }
 
     public editPlaylist(playlist: SignagePlaylist = new SignagePlaylist({})) {
         return new Promise<SignagePlaylist | null>((resolve) => {
@@ -172,7 +175,7 @@ export class SignageStateService {
                 data: playlist,
             });
             ref.afterClosed().subscribe((result) => {
-                this._change.next(Date.now());
+                this.timeout('changed', () => this._change.next(Date.now()));
                 resolve(result);
             });
         });
@@ -183,13 +186,13 @@ export class SignageStateService {
         file?: File,
         playlist_id: string = '',
     ) {
-        return new Promise<SignagePlaylist | null>((resolve) => {
+        return new Promise<SignagePlaylist | null>(async (resolve) => {
             const ref = this._dialog.open(SignageMediaModalComponent, {
                 data: {
                     media,
                     file,
                     file_metadata: file
-                        ? this._getMediaMetadata(file)
+                        ? await this._getMediaMetadata(file)
                         : [media.orientation === 'landscape', 0],
                     playlist_id,
                     onAdd: (f, m) => this.addMedia(f, m),
@@ -197,7 +200,7 @@ export class SignageStateService {
                 },
             });
             ref.afterClosed().subscribe((result) => {
-                this._change.next(Date.now());
+                this.timeout('changed', () => this._change.next(Date.now()));
                 resolve(result);
             });
         });

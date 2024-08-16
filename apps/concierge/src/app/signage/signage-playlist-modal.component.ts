@@ -10,7 +10,7 @@ import { BehaviorSubject } from 'rxjs';
 import { notifyError } from '@placeos/common';
 import { MediaAnimation } from '@placeos/ts-client/dist/esm/signage/media.class';
 import { SignagePlaylist } from '@placeos/ts-client';
-import { addYears, endOfDay, startOfDay } from 'date-fns';
+import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
 @Component({
     selector: 'signage-playlist-modal',
@@ -129,6 +129,7 @@ import { addYears, endOfDay, startOfDay } from 'date-fns';
                         name="valid-until"
                         [from]="form.value.valid_from"
                         formControlName="valid_until"
+                        [disabled]="!form.value.valid_from"
                     ></a-date-field>
                 </div>
             </div>
@@ -172,16 +173,8 @@ export class SignagePlaylistModalComponent {
         default_duration: new FormControl(
             this.playlist.default_duration || 15 * 1000,
         ),
-        valid_from: new FormControl(
-            new Date(
-                this.playlist.valid_from || startOfDay(Date.now()),
-            ).valueOf(),
-        ),
-        valid_until: new FormControl(
-            new Date(
-                this.playlist.valid_until || addYears(endOfDay(Date.now()), 10),
-            ).valueOf(),
-        ),
+        valid_from: new FormControl(this.playlist.valid_from * 1000),
+        valid_until: new FormControl(this.playlist.valid_until * 1000),
     });
 
     @ViewChild('search_input')
@@ -203,8 +196,8 @@ export class SignagePlaylistModalComponent {
         const result = await this._state
             .savePlaylist({
                 ...form_value,
-                valid_from: new Date(form_value.valid_from).toISOString(),
-                valid_until: new Date(form_value.valid_until).toISOString(),
+                valid_from: getUnixTime(form_value.valid_from),
+                valid_until: getUnixTime(form_value.valid_until),
             })
             .catch((_) => {
                 notifyError('Error saving playlist');
