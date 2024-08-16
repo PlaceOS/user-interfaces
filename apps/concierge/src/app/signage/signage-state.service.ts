@@ -193,6 +193,9 @@ export class SignageStateService extends AsyncHandler {
                     file_metadata: file
                         ? await this._getMediaMetadata(file)
                         : [media.orientation === 'landscape', 0],
+                    file_thumbnail: file
+                        ? await this._generateThumbnail(file, 1024, 720)
+                        : '',
                     playlist_id,
                     onAdd: (f, m) => this.addMedia(f, m),
                     preview: (item) => this.previewMedia(item),
@@ -395,7 +398,7 @@ export class SignageStateService extends AsyncHandler {
         max_width: number,
         max_height: number,
     ) {
-        return new Promise((resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
             const img = new Image();
             img.src = URL.createObjectURL(file);
             console.log('Image:', img.src);
@@ -421,7 +424,7 @@ export class SignageStateService extends AsyncHandler {
         max_width: number,
         max_height: number,
     ) {
-        return new Promise((resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
             // Create video element
             const video = document.createElement('video');
             video.autoplay = true;
