@@ -17,11 +17,11 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
             [(model)]="join_code"
         ></i>
         <div
-            class="h-full w-full flex flex-col items-center overflow-auto px-2 py-2"
+            class="h-full w-full flex flex-col items-center overflow-auto px-2 py-2 space-y-2"
         >
             <div
-                class="flex items-center w-full px-1 pt-2 overflow-hidden relative"
-                [class.pr-24]="join_code"
+                class="flex items-center w-full px-1 !pt-2 -mb-2 overflow-hidden relative"
+                [style.padding-right]="(join_code ? 6 : 0) + 'rem'"
             >
                 <a
                     matRipple
@@ -34,15 +34,20 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                     <app-icon class="text-5xl">{{ tab.icon }}</app-icon>
                     <p>{{ tab.name }}</p>
                 </a>
-                <div
-                    class="absolute top-0 bottom-2 right-0 w-20 p-2 flex flex-col bg-base-100 rounded shadow"
-                    *ngIf="join_code"
-                >
-                    <img
-                        class="w-16 min-h-[4rem] rounded overflow-hidden border border-[hsl(217,62%,38%)]"
-                        src="assets/loop.png"
-                    />
-                    <p class="text-base-content text-center">{{ join_code }}</p>
+                <div class="absolute top-0 bottom-2 right-0 flex space-x-2">
+                    <voice-assistant [system_id]="id"></voice-assistant>
+                    <div
+                        class="w-20 p-2 flex flex-col bg-base-100 rounded shadow"
+                        *ngIf="join_code"
+                    >
+                        <img
+                            class="w-16 min-h-[4rem] rounded overflow-hidden border border-[hsl(217,62%,38%)]"
+                            src="assets/loop.png"
+                        />
+                        <p class="text-base-content text-center">
+                            {{ join_code }}
+                        </p>
+                    </div>
                 </div>
             </div>
             <div
@@ -174,9 +179,9 @@ export class TabOutletComponent extends AsyncHandler {
             return inputs.filter(
                 (_) =>
                     (!tab.inputs && (!tab.type || _.type === tab.type)) ||
-                    (tab.inputs && tab.inputs.includes(_.id))
+                    (tab.inputs && tab.inputs.includes(_.id)),
             );
-        })
+        }),
     );
 
     public readonly help = combineLatest([
@@ -198,7 +203,7 @@ export class TabOutletComponent extends AsyncHandler {
         private _service: ControlStateService,
         private _vc_state: VideoCallStateService,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
     ) {
         super();
     }
@@ -208,9 +213,9 @@ export class TabOutletComponent extends AsyncHandler {
             'route.params',
             this._route.paramMap.subscribe((params) =>
                 this.active_tab.next(
-                    params.get('tab') || this.active_tab.getValue()
-                )
-            )
+                    params.get('tab') || this.active_tab.getValue(),
+                ),
+            ),
         );
         this.subscription(
             'tab',
@@ -222,13 +227,13 @@ export class TabOutletComponent extends AsyncHandler {
                             this.active_tab.next(_.selected_tab);
                             this._router.navigate(
                                 ['/tabbed', this.id, _.selected_tab],
-                                { queryParamsHandling: 'merge' }
+                                { queryParamsHandling: 'merge' },
                             );
                         }
                     },
-                    500
+                    500,
                 );
-            })
+            }),
         );
         this.subscription(
             'inputs',
@@ -238,7 +243,7 @@ export class TabOutletComponent extends AsyncHandler {
                     if (_.find((i) => (i.id || i.name) === selected_input))
                         return;
                     _.length ? this._service.setSelectedInput(_[0].id) : '';
-                })
+                }),
         );
     }
 }

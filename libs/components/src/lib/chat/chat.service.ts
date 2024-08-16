@@ -28,11 +28,15 @@ export interface ChatMessage {
     providedIn: 'root',
 })
 export class ChatService extends AsyncHandler {
+    private _binding = new BehaviorSubject('');
     private _chat_messages = new BehaviorSubject<ChatMessage[]>([]);
     private _progress_message = new BehaviorSubject<ChatMessage | null>(null);
-    private _chat_system = this._org.active_building.pipe(
-        filter((b) => !!b),
-        map((_) => this._org.binding('chat_room')),
+    private _chat_system = combineLatest([
+        this._org.active_building,
+        this._binding,
+    ]).pipe(
+        filter(([b]) => !!b),
+        map(([_, biniding]) => biniding || this._org.binding('chat_room')),
     );
     private _chat_id = '';
 
@@ -102,6 +106,10 @@ export class ChatService extends AsyncHandler {
         private _settings: SettingsService,
     ) {
         super();
+    }
+
+    public setBinding(system_id: string) {
+        this._binding.next(system_id);
     }
 
     public startChat() {
