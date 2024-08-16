@@ -97,7 +97,7 @@ export class SignageStateService extends AsyncHandler {
         filter(([_]) => !!_?.id),
         debounceTime(300),
         switchMap(([bld]) => querySignageMedia({ limit: 2500 } as any)),
-        map((_) => _.data.sort((a, b) => a.name.localeCompare(b.name))),
+        map((_) => _.data.sort((a, b) => b.created_at - a.created_at)),
         shareReplay(1),
     );
 

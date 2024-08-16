@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { showSignage, SignageMedia, SignagePlaylist } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, interval } from 'rxjs';
-import { filter, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
 import { MediaCacheService } from './media-cache.service';
-import { animation } from '@angular/animations';
 
 @Injectable({
     providedIn: 'root',

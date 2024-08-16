@@ -12,7 +12,12 @@ import {
     tap,
 } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler, notifySuccess, unique } from '@placeos/common';
+import {
+    AsyncHandler,
+    notifySuccess,
+    SettingsService,
+    unique,
+} from '@placeos/common';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import {
     listSystemTriggers,
@@ -131,6 +136,11 @@ import {
                                 ? ''
                                 : (active_display | async)?.orientation
                         "
+                        [link]="
+                            (active_trigger | async)
+                                ? ''
+                                : signage_path + '/#/signage/'
+                        "
                         (add)="this.adding = true"
                         (remove)="removePlaylist($event)"
                         (ondrop)="drop($event)"
@@ -237,9 +247,14 @@ export class SignageDisplaysComponent extends AsyncHandler {
         ),
     );
 
+    public get signage_path() {
+        return this._settings.get('app.signage_path') || '/signage';
+    }
+
     constructor(
         private _state: SignageStateService,
         private _route: ActivatedRoute,
+        private _settings: SettingsService,
     ) {
         super();
     }
