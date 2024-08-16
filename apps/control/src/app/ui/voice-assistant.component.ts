@@ -99,7 +99,7 @@ export class VoiceAssistantComponent extends AsyncHandler {
         this._voice.addCommands(commands);
         this._voice.initialize({
             continuous: true,
-            lang: 'en-US',
+            lang: navigator.language || (navigator as any).userLanguage,
             listen: true,
         });
     }
