@@ -1,10 +1,11 @@
 import { Component, Input, SimpleChanges } from '@angular/core';
-import { AsyncHandler, currentUser } from '@placeos/common';
+import { AsyncHandler, currentUser, randomInt } from '@placeos/common';
 import { ChatService } from 'libs/components/src/lib/chat/chat.service';
 
 import Artyom from 'artyom.js/build/artyom.js';
 
 const VOICE = new Artyom();
+const WAITING_PHRASES = ['One second...', 'One moment...', 'Working on it...'];
 
 @Component({
     selector: 'voice-assistant',
@@ -110,7 +111,9 @@ export class VoiceAssistantComponent extends AsyncHandler {
                 this.active = true;
                 console.log('Value:', i, i2);
                 this._chat_service.sendMessage(`Hey PlaceOS, ${i2}`);
-                this._speakText('One second...');
+                this._speakText(
+                    WAITING_PHRASES[randomInt(WAITING_PHRASES.length)],
+                );
             },
         };
 
