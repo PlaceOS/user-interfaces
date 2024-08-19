@@ -87,12 +87,12 @@ import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
                             formControlName="default_animation"
                             placeholder="Playlist Default"
                         >
-                            <mat-option [value]="0">Cut</mat-option>
-                            <mat-option [value]="1">Cross Fade</mat-option>
-                            <mat-option [value]="2">Slide Top</mat-option>
-                            <mat-option [value]="3">Slide Left</mat-option>
-                            <mat-option [value]="4">Slide Right</mat-option>
-                            <mat-option [value]="5">Slide Bottom</mat-option>
+                            <mat-option [value]="1">Cut</mat-option>
+                            <mat-option [value]="2">Cross Fade</mat-option>
+                            <mat-option [value]="3">Slide Top</mat-option>
+                            <mat-option [value]="4">Slide Left</mat-option>
+                            <mat-option [value]="5">Slide Right</mat-option>
+                            <mat-option [value]="6">Slide Bottom</mat-option>
                         </mat-select>
                     </mat-form-field>
                 </div>
@@ -154,8 +154,8 @@ export class SignagePlaylistModalComponent {
         id: new FormControl(this.playlist.id || ''),
         name: new FormControl(this.playlist.name || '', [Validators.required]),
         description: new FormControl(this.playlist.description || ''),
-        default_animation: new FormControl<MediaAnimation | null>(
-            this.playlist.default_animation,
+        default_animation: new FormControl<MediaAnimation>(
+            this.playlist.default_animation || MediaAnimation.Cut,
         ),
         orientation: new FormControl(
             this.playlist.orientation || 'unspecified',

@@ -11,7 +11,11 @@ import {
     switchMap,
     take,
 } from 'rxjs/operators';
-import { listSignagePlaylistMedia, SignageMedia } from '@placeos/ts-client';
+import {
+    listSignagePlaylistMedia,
+    MediaAnimation,
+    SignageMedia,
+} from '@placeos/ts-client';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Router } from '@angular/router';
 import { getUnixTime, startOfMinute } from 'date-fns';
@@ -64,7 +68,9 @@ import { getUnixTime, startOfMinute } from 'date-fns';
                     <span
                         class="ml-1 uppercase bg-base-200 px-2 py-1 rounded"
                         >{{
-                            (selected_playlist | async)?.default_animation
+                            animation_name(
+                                (selected_playlist | async)?.default_animation
+                            )
                         }}</span
                     >
                 </div>
@@ -292,6 +298,24 @@ export class SignagePlaylistMediaListComponent {
                 .fill(0)
                 .map((_, idx) => `playlist-${idx}`);
         }
+    }
+
+    public animation_name(value: MediaAnimation) {
+        switch (value) {
+            case MediaAnimation.Cut:
+                return 'Cut';
+            case MediaAnimation.CrossFade:
+                return 'Cross Fade';
+            case MediaAnimation.SlideBottom:
+                return 'Slide Bottom';
+            case MediaAnimation.SlideLeft:
+                return 'Slide Left';
+            case MediaAnimation.SlideRight:
+                return 'Slide Right';
+            case MediaAnimation.SlideTop:
+                return 'Slide Top';
+        }
+        return 'Default';
     }
 
     public async drop(event: CdkDragDrop<SignageMedia[]>) {

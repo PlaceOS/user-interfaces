@@ -115,13 +115,13 @@ import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
                         formControlName="animation"
                         placeholder="Playlist Default"
                     >
-                        <mat-option [value]="null">Playlist Default</mat-option>
-                        <mat-option [value]="0">Cut</mat-option>
-                        <mat-option [value]="1">Cross Fade</mat-option>
-                        <mat-option [value]="2">Slide Top</mat-option>
-                        <mat-option [value]="3">Slide Left</mat-option>
-                        <mat-option [value]="4">Slide Right</mat-option>
-                        <mat-option [value]="5">Slide Bottom</mat-option>
+                        <mat-option [value]="0">Playlist Default</mat-option>
+                        <mat-option [value]="1">Cut</mat-option>
+                        <mat-option [value]="2">Cross Fade</mat-option>
+                        <mat-option [value]="3">Slide Top</mat-option>
+                        <mat-option [value]="4">Slide Left</mat-option>
+                        <mat-option [value]="5">Slide Right</mat-option>
+                        <mat-option [value]="6">Slide Bottom</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <label for="description">Description</label>
@@ -182,7 +182,7 @@ export class SignageMediaModalComponent {
     public readonly form = new FormGroup({
         name: new FormControl('', [Validators.required]),
         description: new FormControl(''),
-        animation: new FormControl<MediaAnimation | null>(null),
+        animation: new FormControl<MediaAnimation>(MediaAnimation.Default),
         start_time: new FormControl(0),
         play_time: new FormControl<number | null>(null),
         valid_from: new FormControl(startOfDay(Date.now()).valueOf()),
