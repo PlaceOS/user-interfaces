@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { SignageService } from './signage.service';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
@@ -9,6 +9,7 @@ import { ActivatedRoute, Router } from '@angular/router';
         <media-player
             [playlist]="playlist | async"
             [controls]="debug"
+            [animation_time]="animation_time"
         ></media-player>
     `,
     styles: `
@@ -23,10 +24,15 @@ export class SignagePanelComponent extends AsyncHandler {
     public readonly playlist = this._signage.playlist;
     public debug = false;
 
+    public get animation_time() {
+        return this._settings.get('app.default_animation_time');
+    }
+
     constructor(
         private _router: Router,
         private _route: ActivatedRoute,
         private _signage: SignageService,
+        private _settings: SettingsService,
     ) {
         super();
     }
