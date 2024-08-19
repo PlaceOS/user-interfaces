@@ -328,7 +328,11 @@ export class MediaPlayerComponent extends AsyncHandler {
             this._image_element.nativeElement.classList.add('hidden');
             this._video_element.nativeElement.src = url.toString();
             this._video_element.nativeElement.classList.remove('hidden');
-            this._video_element.nativeElement.play();
+            try {
+                this._video_element.nativeElement.play();
+            } catch (e) {
+                this.nextItem();
+            }
         } else {
             this._video_element.nativeElement.classList.add('hidden');
             this._image_element.nativeElement.src = url.toString();
@@ -361,7 +365,7 @@ export class MediaPlayerComponent extends AsyncHandler {
         // Request new URLs
         for (const item of item_list) {
             if (this._item_urls[item.id]) continue;
-            this._item_urls[item.id] = await item.getURL();
+            this._item_urls[item.id] = await item.getURL().catch((_) => null);
         }
         // Revoke old URLs
         for (const key in this._item_urls) {

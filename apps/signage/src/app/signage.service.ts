@@ -1,9 +1,17 @@
 import { Injectable } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { showSignage, SignageMedia, SignagePlaylist } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import {
+    catchError,
+    filter,
+    map,
+    shareReplay,
+    switchMap,
+} from 'rxjs/operators';
 import { MediaCacheService } from './media-cache.service';
+
+const DISPLAY_KEY = 'PlaceOS.SIGNAGE.display_details';
 
 @Injectable({
     providedIn: 'root',
@@ -14,11 +22,23 @@ export class SignageService extends AsyncHandler {
 
     public readonly display = combineLatest([this._display, this._poll]).pipe(
         filter(([_]) => !!_),
-        switchMap(([id]) => showSignage(id)),
+        switchMap(([id]) =>
+            showSignage(id).pipe(
+                catchError((_) => of(null)),
+                map((d) => {
+                    if (!d) {
+                        d = JSON.parse(
+                            localStorage.getItem(DISPLAY_KEY) || '{}',
+                        );
+                    }
+                    localStorage.setItem(DISPLAY_KEY, JSON.stringify(d));
+                    return d;
+                }),
+            ),
+        ),
         map((value: any) => {
-            value.playlist_media = value.playlist_media?.map(
-                (_) => new SignageMedia(_),
-            );
+            value.playlist_media =
+                value.playlist_media?.map((_) => new SignageMedia(_)) || [];
             return value;
         }),
         shareReplay(1),
@@ -64,11 +84,13 @@ export class SignageService extends AsyncHandler {
                             playlist?.default_duration ||
                             15 * 1000,
                         getURL: async () =>
-                            URL.createObjectURL(
-                                await this._media_cache.getFile(
-                                    media_ref.media_url,
-                                ),
-                            ),
+                            media_ref
+                                ? URL.createObjectURL(
+                                      await this._media_cache.getFile(
+                                          media_ref.media_url,
+                                      ),
+                                  )
+                                : null,
                     };
                 })
                 .filter((_) => !!_);
