@@ -1,9 +1,15 @@
 import { Injectable } from '@angular/core';
-import { AsyncHandler } from '@placeos/common';
-import { showSignage, SignageMedia, SignagePlaylist } from '@placeos/ts-client';
+import { AsyncHandler, log } from '@placeos/common';
+import {
+    showSignage,
+    SignageMedia,
+    SignagePlaylist,
+    responseHeaders,
+} from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     catchError,
+    distinctUntilKeyChanged,
     filter,
     map,
     shareReplay,
@@ -19,24 +25,45 @@ const DISPLAY_KEY = 'PlaceOS.SIGNAGE.display_details';
 export class SignageService extends AsyncHandler {
     private _display = new BehaviorSubject<string>('');
     private _poll = new BehaviorSubject(0);
+    private _last_modified = 0;
 
     public readonly display = combineLatest([this._display, this._poll]).pipe(
         filter(([_]) => !!_),
         switchMap(([id]) =>
-            showSignage(id).pipe(
+            showSignage(
+                id,
+                {},
+                {
+                    headers: {
+                        'If-Modified-Since': new Date(
+                            this._last_modified,
+                        ).toUTCString(),
+                    },
+                },
+            ).pipe(
                 catchError((_) => of(null)),
                 map((d) => {
                     if (!d) {
                         d = JSON.parse(
                             localStorage.getItem(DISPLAY_KEY) || '{}',
                         );
+                        if (d.id !== id) d = {};
                     }
                     localStorage.setItem(DISPLAY_KEY, JSON.stringify(d));
-                    return d;
+                    const path = `/api/engine/v2/signage/${id}`;
+                    const headers = responseHeaders(
+                        `${location.origin}${path}`,
+                    );
+                    this._last_modified =
+                        new Date(headers['last-modified']).valueOf() ||
+                        Date.now();
+                    return [d, this._last_modified];
                 }),
             ),
         ),
-        map((value: any) => {
+        distinctUntilKeyChanged(1),
+        map(([value]) => {
+            log('Signage', 'Display updated.');
             value.playlist_media =
                 value.playlist_media?.map((_) => new SignageMedia(_)) || [];
             return value;
