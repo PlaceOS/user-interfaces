@@ -20,7 +20,7 @@ import {
 import { MediaCacheService } from './media-cache.service';
 
 const DISPLAY_KEY = 'PlaceOS.SIGNAGE.display_details';
-const EMPTY_URL = '/assets/icons/not-found.svg';
+const EMPTY_URL = 'assets/icons/not-found.svg';
 
 @Injectable({
     providedIn: 'root',
