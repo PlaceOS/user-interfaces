@@ -116,14 +116,12 @@ import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
                         placeholder="Playlist Default"
                     >
                         <mat-option [value]="null">Playlist Default</mat-option>
-                        <mat-option value="cut">Cut</mat-option>
-                        <mat-option value="crossfade">Cross Fade</mat-option>
-                        <mat-option value="slidetop">Slide Top</mat-option>
-                        <mat-option value="slideleft">Slide Left</mat-option>
-                        <mat-option value="slideright">Slide Right</mat-option>
-                        <mat-option value="slidebottom"
-                            >Slide Bottom</mat-option
-                        >
+                        <mat-option [value]="0">Cut</mat-option>
+                        <mat-option [value]="1">Cross Fade</mat-option>
+                        <mat-option [value]="2">Slide Top</mat-option>
+                        <mat-option [value]="3">Slide Left</mat-option>
+                        <mat-option [value]="4">Slide Right</mat-option>
+                        <mat-option [value]="5">Slide Bottom</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <label for="description">Description</label>
