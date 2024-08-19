@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AsyncHandler, log } from '@placeos/common';
+import { AsyncHandler, log, shuffleArray } from '@placeos/common';
 import {
     showSignage,
     SignageMedia,
@@ -20,7 +20,7 @@ import {
 import { MediaCacheService } from './media-cache.service';
 
 const DISPLAY_KEY = 'PlaceOS.SIGNAGE.display_details';
-const EMPTY_FILE = new File([], 'empty.png');
+const EMPTY_URL = '/assets/icons/not-found.svg';
 
 @Injectable({
     providedIn: 'root',
@@ -87,11 +87,15 @@ export class SignageService extends AsyncHandler {
             // Map playlists to media
             let playlist_media = playlists
                 .map((id) => {
-                    const [_, media_list] = item.playlist_config[id];
-                    return media_list.map((media_id) => ({
+                    const [_, media_list] = item.playlist_config[id] as [
+                        SignagePlaylist,
+                        string[],
+                    ];
+                    const media = media_list.map((media_id) => ({
                         id: media_id,
                         playlist_id: id,
                     }));
+                    return _.random ? shuffleArray(media) : media;
                 })
                 .flat();
             return playlist_media
@@ -119,9 +123,7 @@ export class SignageService extends AsyncHandler {
                                 ? await this._media_cache
                                       .getFile(media_ref.media_url)
                                       .then((_) => URL.createObjectURL(_))
-                                      .catch(
-                                          (_) => '/assets/icons/not-found.svg',
-                                      )
+                                      .catch((_) => EMPTY_URL)
                                 : null,
                     };
                 })

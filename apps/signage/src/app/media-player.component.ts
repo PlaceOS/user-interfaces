@@ -7,7 +7,7 @@ import {
     SimpleChanges,
     ViewChild,
 } from '@angular/core';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, shuffleArrayWithFirstItem } from '@placeos/common';
 import { MediaAnimation } from '@placeos/ts-client/dist/esm/signage/media.class';
 
 export interface MediaPlayerItem {
@@ -242,7 +242,7 @@ export class MediaPlayerComponent extends AsyncHandler {
         if (changes.playlist) {
             if (this.state === 'PLAYING') this.togglePause();
             const current_item = this.active_item;
-            this._item_playlist = this.playlist || [];
+            this._item_playlist = [...(this.playlist || [])];
             const current_exists = this._item_playlist.find(
                 (_) => _.id === current_item?.id,
             );
@@ -318,6 +318,24 @@ export class MediaPlayerComponent extends AsyncHandler {
 
     public toggleShuffle() {
         this.shuffle = !this.shuffle;
+        const current_item = this.active_item;
+        if (this.hold_over_item) {
+            this._item_playlist.shift();
+            this.hold_over_item = false;
+        }
+        if (this.shuffle) {
+            shuffleArrayWithFirstItem(this._item_playlist, this.index);
+            this.setPlaylistItem(0);
+        } else {
+            this._item_playlist = [...this.playlist];
+            this.setPlaylistItem(
+                current_item
+                    ? this._item_playlist.findIndex(
+                          (_) => _.id === current_item.id,
+                      )
+                    : 0,
+            );
+        }
     }
 
     private _updateItem() {
