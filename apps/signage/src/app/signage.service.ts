@@ -109,7 +109,8 @@ export class SignageService extends AsyncHandler {
                         id,
                         url: media_ref.media_url,
                         name: media_ref.name,
-                        animation: media_ref.animation,
+                        animation:
+                            media_ref.animation || playlist.default_animation,
                         playlist_name: playlist?.name || '',
                         type: media_ref.media_type,
                         start_time: media_ref.start_time || 0,
