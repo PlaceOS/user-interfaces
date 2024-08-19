@@ -98,6 +98,17 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                     icon
                     matRipple
                     class="hover:bg-base-200"
+                    (click)="toggleMuted()"
+                    [matTooltip]="'Volume [' + (muted ? 'Off' : 'On') + ']'"
+                >
+                    <app-icon>{{
+                        muted ? 'volume_off' : 'volume_up'
+                    }}</app-icon>
+                </button>
+                <button
+                    icon
+                    matRipple
+                    class="hover:bg-base-200"
                     (click)="toggleLoop()"
                     [matTooltip]="
                         loop === 'ALL'
@@ -223,9 +234,11 @@ export class MediaPlayerComponent extends AsyncHandler {
     @Input() public shuffle: boolean = false;
     @Input() public index: number = -1;
     @Input() public animation_time = 1000;
+    @Input() public muted = false;
     @Input() public state: MediaPlayerState = 'PLAYING';
     @Output() public stateChange = new EventEmitter<MediaPlayerState>();
     @Output() public indexChange = new EventEmitter<number>();
+    @Output() public mutedChange = new EventEmitter<boolean>();
 
     public duration = 0;
     public progress = 0;
@@ -290,6 +303,9 @@ export class MediaPlayerComponent extends AsyncHandler {
                 `${this.animation_time || 3000}ms`,
             );
         }
+        if (changes.muted) {
+            this._video_element.nativeElement.muted = !!this.muted;
+        }
     }
 
     public url(id: string) {
@@ -299,6 +315,12 @@ export class MediaPlayerComponent extends AsyncHandler {
     public previousItem() {
         const new_index = (this.index - 1) % this._item_playlist.length;
         this.setPlaylistItem(new_index);
+    }
+
+    public toggleMuted() {
+        this.muted = !this.muted;
+        this.mutedChange.emit(this.muted);
+        this._video_element.nativeElement.muted = this.muted;
     }
 
     public togglePause() {
