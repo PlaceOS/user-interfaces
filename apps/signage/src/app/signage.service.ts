@@ -14,6 +14,7 @@ import {
     filter,
     map,
     shareReplay,
+    startWith,
     switchMap,
 } from 'rxjs/operators';
 import { MediaCacheService } from './media-cache.service';
@@ -137,7 +138,7 @@ export class SignageService extends AsyncHandler {
         super();
         combineLatest([
             this.display,
-            this._retry.pipe(debounceTime(5 * 1000)),
+            this._retry.pipe(debounceTime(15 * 1000), startWith(0)),
         ]).subscribe(([_]) => {
             const available_media = this._media_cache.availableFiles();
             const media = _.playlist_media.map((_) => _.media_url);
