@@ -45,7 +45,6 @@ export class VoiceAssistantService extends AsyncHandler {
                 )
                 .subscribe((id) => {
                     this._chat_service.setBinding(id);
-                    this._chat_service.startChat();
                 }),
         );
         this._setupVoiceRecognition();
@@ -94,12 +93,21 @@ export class VoiceAssistantService extends AsyncHandler {
                 `hit plays *`,
             ],
             smart: true,
-            action: (i, i2) => {
+            action: (i, contents) => {
                 this._active.next(true);
-                console.log('Value:', i, i2);
-                this._chat_service.sendMessage(`Hey PlaceOS, ${i2}`);
+                if (contents.length <= 3) {
+                    this.activate();
+                    return;
+                }
+                this._chat_service.startChat();
+                this._chat_service.sendMessage(`Hey PlaceOS, ${contents}`);
                 this._speakText(
                     WAITING_PHRASES[randomInt(WAITING_PHRASES.length)],
+                );
+                this.timeout(
+                    'deactivate',
+                    () => this._active.next(false),
+                    60 * 1000,
                 );
             },
         };
