@@ -7,8 +7,8 @@ import {
     SimpleChanges,
     ViewChild,
 } from '@angular/core';
-import { AsyncHandler, shuffleArrayWithFirstItem } from '@placeos/common';
-import { MediaAnimation } from '@placeos/ts-client/dist/esm/signage/media.class';
+import { AsyncHandler, log, shuffleArrayWithFirstItem } from '@placeos/common';
+import { MediaAnimation } from '@placeos/ts-client';
 
 export interface MediaPlayerItem {
     id: string;
@@ -26,14 +26,26 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
 @Component({
     selector: 'media-player',
     template: `
-        <img
-            #img_el
-            class="absolute top-0 left-0 h-full w-full object-contain object-center"
-        />
-        <video
-            #video_el
-            class="absolute top-0 left-0 h-full w-full object-contain object-center"
-        ></video>
+        <div #previous_container class="absolute top-0 left-0 h-full w-full">
+            <img
+                #previous_image_el
+                class="absolute top-0 left-0 h-full w-full object-contain object-center hidden"
+            />
+            <video
+                #previous_video_el
+                class="absolute top-0 left-0 h-full w-full object-contain object-center hidden"
+            ></video>
+        </div>
+        <div #media_container class="absolute top-0 left-0 h-full w-full">
+            <img
+                #img_el
+                class="absolute top-0 left-0 h-full w-full object-contain object-center"
+            />
+            <video
+                #video_el
+                class="absolute top-0 left-0 h-full w-full object-contain object-center"
+            ></video>
+        </div>
         @if (controls) {
             <div
                 class="absolute bottom-[4.5rem] left-1/2 -translate-x-1/2 w-56 rounded-full overflow-hidden p-1 border border-base-300 bg-base-100"
@@ -41,10 +53,14 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                 matTooltipPosition="above"
             >
                 <mat-progress-bar
-                    class="rounded-full overflow-hidde-"
+                    class="rounded-full overflow-hidden"
                     mode="determinate"
                     [value]="progress"
                 ></mat-progress-bar>
+                <div
+                    *ngIf="in_animation"
+                    class="absolute inset-1 rounded-full bg-success"
+                ></div>
             </div>
             <div
                 class="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full p-2 flex items-center space-x-2 text-lg overflow-hidden border border-base-300 bg-base-100"
@@ -206,6 +222,7 @@ export class MediaPlayerComponent extends AsyncHandler {
     @Input() public loop: 'NONE' | 'ONE' | 'ALL' = 'ALL';
     @Input() public shuffle: boolean = false;
     @Input() public index: number = -1;
+    @Input() public animation_time = 1000;
     @Input() public state: MediaPlayerState = 'PLAYING';
     @Output() public stateChange = new EventEmitter<MediaPlayerState>();
     @Output() public indexChange = new EventEmitter<number>();
@@ -214,6 +231,7 @@ export class MediaPlayerComponent extends AsyncHandler {
     public progress = 0;
     public show_playlist = false;
     public hold_over_item = true;
+    public in_animation = false;
 
     private _item_playlist: MediaPlayerItem[] = [];
 
@@ -229,6 +247,15 @@ export class MediaPlayerComponent extends AsyncHandler {
         return this._item_playlist[this.index];
     }
 
+    @ViewChild('previous_container', { static: true })
+    private _previous_container: ElementRef<HTMLDivElement>;
+    @ViewChild('previous_image_el', { static: true })
+    private _previous_img_element: ElementRef<HTMLImageElement>;
+    @ViewChild('previous_video_el', { static: true })
+    private _previous_video_element: ElementRef<HTMLVideoElement>;
+
+    @ViewChild('media_container', { static: true })
+    private _container: ElementRef<HTMLDivElement>;
     @ViewChild('img_el', { static: true })
     private _image_element: ElementRef<HTMLImageElement>;
     @ViewChild('video_el', { static: true })
@@ -257,6 +284,12 @@ export class MediaPlayerComponent extends AsyncHandler {
             console.log('Playlist:', this._item_playlist);
             this._updateItem();
         }
+        if (changes.animation_time) {
+            document.documentElement.style.setProperty(
+                '--transition-duration',
+                `${this.animation_time || 3000}ms`,
+            );
+        }
     }
 
     public url(id: string) {
@@ -269,6 +302,7 @@ export class MediaPlayerComponent extends AsyncHandler {
     }
 
     public togglePause() {
+        this.clearTimeout('re-start');
         if (this.state === 'PLAYING') {
             this.state = 'PAUSED';
             this._item_progress = Date.now() - this._item_start;
@@ -386,6 +420,7 @@ export class MediaPlayerComponent extends AsyncHandler {
             this._image_element.nativeElement.classList.remove('hidden');
             this._video_element.nativeElement.pause();
         }
+        this._transition();
     }
 
     private async _processURLs() {
@@ -422,5 +457,83 @@ export class MediaPlayerComponent extends AsyncHandler {
             URL.revokeObjectURL(url.toString());
             delete this._item_urls[key];
         }
+    }
+
+    private _transition() {
+        if (!this.active_item) return;
+        if (this.state === 'PLAYING') this.togglePause();
+        this.in_animation = true;
+        if (this.active_item.animation === MediaAnimation.Cut) {
+            this.timeout('re-start', () => this._onTransitionEnd(), 500);
+            return;
+        }
+        if (this.index > 0) {
+            const img_el = this._previous_img_element.nativeElement;
+            const video_el = this._previous_video_element.nativeElement;
+            const index = this.index - 1;
+            const item = this._item_playlist[index];
+            const url = this.url(item.id);
+            if (url) {
+                if (item.type === 'video') {
+                    img_el.classList.add('hidden');
+                    video_el.src = url.toString();
+                    video_el.classList.remove('hidden');
+                } else {
+                    video_el.classList.add('hidden');
+                    img_el.src = url.toString();
+                    img_el.classList.remove('hidden');
+                }
+            }
+        }
+        const item = this.active_item;
+        const prev_container_el = this._previous_container.nativeElement;
+        const container_el = this._container.nativeElement;
+        requestAnimationFrame(() => {
+            switch (item.animation) {
+                case MediaAnimation.SlideTop:
+                    container_el.style.transform = 'translate(0, -100%)';
+                    break;
+                case MediaAnimation.SlideLeft:
+                    container_el.style.transform = 'translate(-100%, 0)';
+                    break;
+                case MediaAnimation.SlideRight:
+                    container_el.style.transform = 'translate(100%, 0)';
+                    break;
+                case MediaAnimation.SlideBottom:
+                    container_el.style.transform = 'translate(0, 100%)';
+                    break;
+                case MediaAnimation.CrossFade:
+                    prev_container_el.classList.remove('opacity-0');
+                    container_el.classList.add('opacity-0');
+                    break;
+            }
+            requestAnimationFrame(() => {
+                prev_container_el.classList.add('player-animate');
+                container_el.classList.add('player-animate');
+
+                requestAnimationFrame(() => {
+                    container_el.style.transform = 'translate(0, 0)';
+                    prev_container_el.classList.add('opacity-0');
+                    container_el.classList.remove('opacity-0');
+                });
+            });
+            this.timeout(
+                're-start',
+                () => this._onTransitionEnd(),
+                this.animation_time || 3000,
+            );
+        });
+    }
+
+    private _onTransitionEnd() {
+        const prev_container_el = this._previous_container.nativeElement;
+        const container_el = this._container.nativeElement;
+        prev_container_el.classList.remove('opacity-0');
+        this._previous_video_element.nativeElement.classList.add('hidden');
+        this._previous_img_element.nativeElement.classList.add('hidden');
+        prev_container_el.classList.remove('player-animate');
+        container_el.classList.remove('player-animate');
+        this.in_animation = false;
+        this.togglePause();
     }
 }
