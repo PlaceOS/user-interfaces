@@ -489,10 +489,11 @@ export class MediaPlayerComponent extends AsyncHandler {
             this.timeout('re-start', () => this._onTransitionEnd(), 500);
             return;
         }
-        if (this.index > 0) {
+        if (this.index !== -1) {
             const img_el = this._previous_img_element.nativeElement;
             const video_el = this._previous_video_element.nativeElement;
-            const index = this.index - 1;
+            let index = this.index - 1;
+            if (index < 0) index = this._item_playlist.length - 1;
             const item = this._item_playlist[index];
             const url = this.url(item.id);
             if (url) {
