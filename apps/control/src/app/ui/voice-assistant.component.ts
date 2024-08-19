@@ -1,31 +1,28 @@
 import { Component, Input, SimpleChanges } from '@angular/core';
-import { AsyncHandler, currentUser, randomInt } from '@placeos/common';
-import { ChatService } from 'libs/components/src/lib/chat/chat.service';
-
-import Artyom from 'artyom.js/build/artyom.js';
-
-const VOICE = new Artyom();
-const WAITING_PHRASES = ['One second...', 'One moment...', 'Working on it...'];
+import { VoiceAssistantService } from './voice-assistant.service';
 
 @Component({
     selector: 'voice-assistant',
     template: `
-        <button
-            matRipple
-            class="h-12 w-12 rounded-full m-4 flex items-center justify-center"
+        <div
+            class="h-12 w-12 rounded-full m-4 flex items-center justify-center overflow-visible"
             [class.bg-base-400]="!active"
             [class.bg-success]="active"
             [class.bg-error]="error.speech_recognition"
-            (click)="activate()"
         >
             <span
                 *ngIf="active"
-                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"
+                class="animate-ping absolute inline-flex h-10 w-10 rounded-full bg-success opacity-75"
             ></span>
             <app-icon class="text-2xl">{{
                 error.speech_recognition ? 'mic_off' : 'mic'
             }}</app-icon>
-        </button>
+            <button
+                matRipple
+                class="absolute inset-0 opacity-0"
+                (click)="activate()"
+            ></button>
+        </div>
     `,
     styles: [
         `
@@ -38,97 +35,23 @@ const WAITING_PHRASES = ['One second...', 'One moment...', 'Working on it...'];
         `,
     ],
 })
-export class VoiceAssistantComponent extends AsyncHandler {
+export class VoiceAssistantComponent {
     @Input() public system_id: string;
-    @Input() public activation_phrase: string = 'hey please';
-    public current_text: string = '';
-    public active: boolean = false;
-    public error: Record<string, string | boolean> = {};
+    public readonly activate = () => this._service.activate();
 
-    private _setup = false;
-    private _listening = false;
-    private _voice = VOICE;
-    private _last_message: string;
-
-    constructor(private _chat_service: ChatService) {
-        super();
+    public get active() {
+        return this._service.active;
     }
 
-    public ngOnInit() {
-        this._setupVoiceRecognition();
-        const user = currentUser();
-        this.subscription(
-            'chat.messages',
-            this._chat_service.messages.subscribe((list) => {
-                // this._scrollToBottom();
-                const msg_list = list.filter((_) => _.user_id !== user?.id);
-                const last_message = msg_list[msg_list.length - 1];
-                if (
-                    msg_list.length < 1 ||
-                    this._last_message === last_message.id
-                )
-                    return;
-                this._last_message = last_message.id;
-                this._speakText(last_message.message);
-                this.active = false;
-            }),
-        );
+    public get error() {
+        return this._service.error;
     }
+
+    constructor(private _service: VoiceAssistantService) {}
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.system_id && this.system_id) {
-            this._chat_service.setBinding(this.system_id);
-            this._chat_service.startChat();
+            this._service.setBinding(this.system_id);
         }
-    }
-
-    public ngOnDestroy(): void {
-        super.ngOnDestroy();
-        this._voice.fatality();
-    }
-
-    public activate() {
-        if (this.error.speech_recognition) return;
-        this.active = true;
-        this.timeout('deactivate', () => (this.active = false), 5000);
-    }
-
-    private _setupVoiceRecognition() {
-        var commands = {
-            indexes: [
-                `hey place *`,
-                `hey please *`,
-                `hey plays *`,
-                `a place *`,
-                `who place *`,
-                `who plays *`,
-                `who please *`,
-                `he plays *`,
-                `hit plays *`,
-            ],
-            smart: true,
-            action: (i, i2) => {
-                this.active = true;
-                console.log('Value:', i, i2);
-                this._chat_service.sendMessage(`Hey PlaceOS, ${i2}`);
-                this._speakText(
-                    WAITING_PHRASES[randomInt(WAITING_PHRASES.length)],
-                );
-            },
-        };
-
-        this._voice.addCommands(commands);
-        this._voice.initialize({
-            continuous: true,
-            lang: navigator.language || (navigator as any).userLanguage,
-            listen: true,
-        });
-        console.log('Initialised Voice Assistant');
-    }
-
-    public handleEnd() {}
-
-    private _speakText(text: string) {
-        this._voice.say(text);
     }
 }
