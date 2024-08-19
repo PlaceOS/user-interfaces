@@ -9,6 +9,7 @@ import {
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     catchError,
+    debounceTime,
     distinctUntilKeyChanged,
     filter,
     map,
@@ -25,6 +26,7 @@ const DISPLAY_KEY = 'PlaceOS.SIGNAGE.display_details';
 export class SignageService extends AsyncHandler {
     private _display = new BehaviorSubject<string>('');
     private _poll = new BehaviorSubject(0);
+    private _retry = new BehaviorSubject(0);
     private _last_modified = 0;
 
     public readonly display = combineLatest([this._display, this._poll]).pipe(
@@ -131,17 +133,21 @@ export class SignageService extends AsyncHandler {
 
     constructor(private _media_cache: MediaCacheService) {
         super();
-        this.display.subscribe((_) => {
+        combineLatest([
+            this.display,
+            this._retry.pipe(debounceTime(5 * 1000)),
+        ]).subscribe(([_]) => {
             const available_media = this._media_cache.availableFiles();
             const media = _.playlist_media.map((_) => _.media_url);
             const extra_media = available_media.filter(
                 (url) => !media.includes(url),
             );
-            this._media_cache.requestFilesToCache(media);
+            const has_failures = this._media_cache.requestFilesToCache(media);
             // Remove unneeded media items
             for (const item of extra_media) {
                 this._media_cache.invalidateFile(item);
             }
+            if (has_failures) this._retry.next(Date.now());
         });
         this.interval('poll', () => this._poll.next(Date.now()), 60 * 1000);
     }

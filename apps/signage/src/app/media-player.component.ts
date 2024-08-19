@@ -204,6 +204,7 @@ export class MediaPlayerComponent extends AsyncHandler {
     public duration = 0;
     public progress = 0;
     public show_playlist = false;
+    public hold_over_item = true;
 
     private _item_playlist: MediaPlayerItem[] = [];
 
@@ -230,7 +231,20 @@ export class MediaPlayerComponent extends AsyncHandler {
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.playlist) {
+            if (this.state === 'PLAYING') this.togglePause();
+            const current_item = this.active_item;
             this._item_playlist = this.playlist || [];
+            const current_exists = this._item_playlist.find(
+                (_) => _.id === current_item?.id,
+            );
+            if (this.index >= 0 && current_exists) {
+                this._item_playlist = [current_item, ...this._item_playlist];
+                this.hold_over_item = true;
+                this.index = 0;
+            } else {
+                this.hold_over_item = false;
+            }
+            this.togglePause();
             console.log('Playlist:', this._item_playlist);
             this._updateItem();
         }
@@ -265,6 +279,12 @@ export class MediaPlayerComponent extends AsyncHandler {
     }
 
     public nextItem() {
+        if (this.hold_over_item) {
+            this._item_playlist.unshift();
+            this.setPlaylistItem(0);
+            this.hold_over_item = false;
+            return;
+        }
         let next_index = this.index + 1;
         if (this.loop === 'ONE') next_index = this.index;
         else if (
@@ -364,13 +384,14 @@ export class MediaPlayerComponent extends AsyncHandler {
         ];
         // Request new URLs
         for (const item of item_list) {
-            if (this._item_urls[item.id]) continue;
+            if (!item?.id || this._item_urls[item.id]) continue;
             this._item_urls[item.id] = await item.getURL().catch((_) => null);
         }
         // Revoke old URLs
         for (const key in this._item_urls) {
             if (item_list.find((_) => _.id === key)) continue;
             const url = this._item_urls[key];
+            if (!url) continue;
             URL.revokeObjectURL(url.toString());
             delete this._item_urls[key];
         }

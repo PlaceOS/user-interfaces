@@ -65,7 +65,8 @@ export class MediaCacheService extends AsyncHandler {
         this._file_cache_index.subscribe(() => this._saveCacheMetadata());
     }
 
-    public async requestFilesToCache(url_list: string[]) {
+    public async requestFilesToCache(url_list: string[]): Promise<boolean> {
+        let failures = false;
         for (const url of url_list) {
             const existing = this._cache_index.find((_) => _.url === url);
             if (existing?.status === 'cached') continue;
@@ -79,9 +80,12 @@ export class MediaCacheService extends AsyncHandler {
                 ...this._cache_index.filter((_) => _.id !== existing?.id),
                 cache_item,
             ]);
-            await this.requestAndCacheFile(url, cache_item).catch((_) => _);
+            await this.requestAndCacheFile(url, cache_item).catch((_) => {
+                failures = true;
+            });
         }
         this._file_cache_index.next(this._cache_index);
+        return failures;
     }
 
     public async requestAndCacheFile(url: string, cache_item: CacheItem) {
