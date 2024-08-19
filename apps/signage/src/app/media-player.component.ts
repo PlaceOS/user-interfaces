@@ -112,60 +112,69 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                 </button>
             </div>
             <div
-                class="absolute top-4 bottom-24 right-4 bg-base-100 border border-base-300 overflow-auto rounded-xl p-2"
+                class="absolute flex flex-col top-4 bottom-24 right-4 bg-base-100 border border-base-300 overflow-auto rounded-xl p-2 space-y-2"
                 *ngIf="show_playlist"
             >
-                <div class="flex items-center space-x-2 p-2">
+                <div class="flex items-center space-x-4 p-2">
                     <h2>Media to play</h2>
-                    <div class="text-sm opacity-30">
+                    <div class="text-xs opacity-30">
                         ({{ playlist_items?.length || 0 }} items)
                     </div>
                 </div>
-                @for (item of playlist_items; track item) {
-                    <button
-                        matRipple
-                        class="flex items-center p-2 space-x-2 w-[20rem] text-left hover:bg-base-200 rounded-lg"
-                        [class.overflow-visible]="$index === index"
-                        [class.pointer-events-none]="$index === index"
-                        (click)="setPlaylistItem($index)"
-                    >
-                        <div
-                            class="h-10 w-10 rounded-full flex items-center justify-center"
-                            [class.bg-info]="$index === index"
-                            [class.text-info-content]="$index === index"
-                            [class.bg-base-300]="$index !== index"
+                <div>
+                    @for (item of playlist_items; track item) {
+                        <button
+                            matRipple
+                            class="flex items-center p-2 space-x-2 w-[20rem] text-left hover:bg-base-200 rounded-lg"
+                            [class.overflow-visible]="$index === index"
+                            [class.pointer-events-none]="$index === index"
+                            (click)="setPlaylistItem($index)"
                         >
                             <div
-                                class="h-7 w-7 relative flex items-center justify-center"
+                                class="h-10 w-10 rounded-full flex items-center justify-center"
+                                [class.bg-info]="$index === index"
+                                [class.text-info-content]="$index === index"
+                                [class.bg-base-300]="$index !== index"
                             >
-                                <span
-                                    *ngIf="$index === index"
-                                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-info opacity-75 z-0"
-                                ></span>
-                                <app-icon
-                                    class="text-2xl relative z-10"
-                                    [class.opacity-30]="$index !== index"
-                                    >{{
-                                        $index === index
-                                            ? 'play_arrow'
-                                            : 'not_started'
-                                    }}</app-icon
+                                <div
+                                    class="h-7 w-7 relative flex items-center justify-center"
                                 >
+                                    <span
+                                        *ngIf="$index === index"
+                                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-info opacity-75 z-0"
+                                    ></span>
+                                    <app-icon
+                                        class="text-2xl relative z-10"
+                                        [class.opacity-30]="$index !== index"
+                                        >{{
+                                            $index === index
+                                                ? 'play_arrow'
+                                                : 'not_started'
+                                        }}</app-icon
+                                    >
+                                </div>
                             </div>
-                        </div>
-                        <div class="flex flex-col flex-1 w-1/2">
-                            <div class="truncate">{{ item.name }}</div>
-                            <div class="text-xs opacity-30">
-                                {{ item.playlist_name }}
+                            <div class="flex flex-col flex-1 w-1/2">
+                                <div class="truncate">{{ item.name }}</div>
+                                <div class="text-xs opacity-30">
+                                    {{ item.playlist_name }}
+                                </div>
                             </div>
-                        </div>
-                        <div
-                            class="px-2 py-1 rounded bg-info text-info-content font-mono text-xs"
-                        >
-                            {{ item.duration / 1000 | mediaDuration }}
-                        </div>
-                    </button>
-                }
+                            <div
+                                class="px-2 py-1 rounded bg-info text-info-content font-mono text-xs"
+                            >
+                                {{ item.duration / 1000 | mediaDuration }}
+                            </div>
+                        </button>
+                    }
+                </div>
+                <div class="flex flex-col justify-end">
+                    <div
+                        class="p-2 opacity-30 bg-base-300 text-xs rounded-lg text-center"
+                    >
+                        End of Player Media
+                    </div>
+                </div>
             </div>
             <button
                 icon
@@ -280,7 +289,7 @@ export class MediaPlayerComponent extends AsyncHandler {
 
     public nextItem() {
         if (this.hold_over_item) {
-            this._item_playlist.unshift();
+            this._item_playlist.shift();
             this.setPlaylistItem(0);
             this.hold_over_item = false;
             return;
