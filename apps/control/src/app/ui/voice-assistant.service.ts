@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AsyncHandler, currentUser, randomInt } from '@placeos/common';
 import { BehaviorSubject } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { distinctUntilChanged, filter, map, shareReplay } from 'rxjs/operators';
 
 import { ChatService } from 'libs/components/src/lib/chat/chat.service';
 
@@ -16,10 +16,21 @@ let _last_message: string;
 })
 export class VoiceAssistantService extends AsyncHandler {
     private _system_id = new BehaviorSubject('');
+    private _active = new BehaviorSubject(false);
 
     public current_text: string = '';
-    public active: boolean = false;
     public error: Record<string, string | boolean> = {};
+
+    public readonly active = this._active.asObservable();
+    public readonly progress = this._chat_service.progress;
+    public readonly waiting = this._chat_service.messages.pipe(
+        map(
+            (_) =>
+                _.length !== 0 &&
+                _[_.length - 1]?.user_id === currentUser()?.id,
+        ),
+        shareReplay(1),
+    );
 
     private _voice = VOICE;
 
@@ -27,10 +38,15 @@ export class VoiceAssistantService extends AsyncHandler {
         super();
         this.subscription(
             'system',
-            this._system_id.pipe(filter((_) => !!_)).subscribe((id) => {
-                this._chat_service.setBinding(id);
-                this._chat_service.startChat();
-            }),
+            this._system_id
+                .pipe(
+                    filter((_) => !!_),
+                    distinctUntilChanged(),
+                )
+                .subscribe((id) => {
+                    this._chat_service.setBinding(id);
+                    this._chat_service.startChat();
+                }),
         );
         this._setupVoiceRecognition();
         const user = currentUser();
@@ -44,7 +60,7 @@ export class VoiceAssistantService extends AsyncHandler {
                     return;
                 _last_message = last_message.id;
                 this._speakText(last_message.message);
-                this.active = false;
+                this._active.next(false);
             }),
         );
     }
@@ -60,8 +76,8 @@ export class VoiceAssistantService extends AsyncHandler {
 
     public activate() {
         if (this.error.speech_recognition) return;
-        this.active = true;
-        this.timeout('deactivate', () => (this.active = false), 5000);
+        this._active.next(true);
+        this.timeout('deactivate', () => this._active.next(false), 5000);
     }
 
     private _setupVoiceRecognition() {
@@ -79,7 +95,7 @@ export class VoiceAssistantService extends AsyncHandler {
             ],
             smart: true,
             action: (i, i2) => {
-                this.active = true;
+                this._active.next(true);
                 console.log('Value:', i, i2);
                 this._chat_service.sendMessage(`Hey PlaceOS, ${i2}`);
                 this._speakText(

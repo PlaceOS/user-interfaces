@@ -59,9 +59,9 @@ import { ControlStateService } from '../control-state.service';
                         {{ version.time | date: 'longDate' }}
                         ({{ version.time | date: 'shortTime' }})
                     </div>
-                    <div class="absolute right-0 bottom-0">
-                        <voice-assistant [system_id]="id"></voice-assistant>
-                    </div>
+                </div>
+                <div class="absolute bottom-4 right-4">
+                    <voice-assistant [system_id]="id"></voice-assistant>
                 </div>
             </div>
         </ng-template>
