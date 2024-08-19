@@ -142,13 +142,14 @@ export class SignageService extends AsyncHandler {
         combineLatest([
             this.display,
             this._retry.pipe(debounceTime(15 * 1000), startWith(0)),
-        ]).subscribe(([_]) => {
+        ]).subscribe(async ([_]) => {
             const available_media = this._media_cache.availableFiles();
             const media = _.playlist_media.map((_) => _.media_url);
             const extra_media = available_media.filter(
                 (url) => !media.includes(url),
             );
-            const has_failures = this._media_cache.requestFilesToCache(media);
+            const has_failures =
+                await this._media_cache.requestFilesToCache(media);
             // Remove unneeded media items
             for (const item of extra_media) {
                 this._media_cache.invalidateFile(item);
