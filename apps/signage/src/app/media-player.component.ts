@@ -112,7 +112,7 @@ export type MediaPlayerState = 'PAUSED' | 'PLAYING';
                 </button>
             </div>
             <div
-                class="absolute inset-y-4 right-4 bg-base-100 border border-gray-300 overflow-auto rounded-xl p-2"
+                class="absolute top-4 bottom-24 right-4 bg-base-100 border border-base-300 overflow-auto rounded-xl p-2"
                 *ngIf="show_playlist"
             >
                 <div class="flex items-center space-x-2 p-2">

@@ -19,6 +19,7 @@ import {
 import { MediaCacheService } from './media-cache.service';
 
 const DISPLAY_KEY = 'PlaceOS.SIGNAGE.display_details';
+const EMPTY_FILE = new File([], 'empty.png');
 
 @Injectable({
     providedIn: 'root',
@@ -114,11 +115,12 @@ export class SignageService extends AsyncHandler {
                             15 * 1000,
                         getURL: async () =>
                             media_ref
-                                ? URL.createObjectURL(
-                                      await this._media_cache.getFile(
-                                          media_ref.media_url,
-                                      ),
-                                  )
+                                ? await this._media_cache
+                                      .getFile(media_ref.media_url)
+                                      .then((_) => URL.createObjectURL(_))
+                                      .catch(
+                                          (_) => '/assets/icons/not-found.svg',
+                                      )
                                 : null,
                     };
                 })
