@@ -2,10 +2,14 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     approveBooking,
+    approveBookingInstance,
     Booking,
+    checkinBooking,
+    checkinBookingInstance,
     queryBookings,
     RecurrenceDays,
     rejectBooking,
+    rejectBookingInstance,
     removeBooking,
     saveBooking,
 } from '@placeos/bookings';
@@ -432,12 +436,39 @@ export class ParkingStateService extends AsyncHandler {
         });
     }
 
-    public async approveBooking(booking: Booking) {
-        const success = await approveBooking(booking.id)
+    public async setBookingCheckinState(
+        booking: Booking,
+        state: boolean = true,
+    ) {
+        const promise = (
+            booking.instance
+                ? checkinBookingInstance(booking.id, booking.instance, state)
+                : checkinBooking(booking.id, state)
+        )
             .toPromise()
             .catch((_) => 'failed');
+        const success = await promise;
         success === 'failed'
-            ? notifyError('Error approving in desk booking')
+            ? notifyError('Error setting checkin state of parking booking')
+            : notifySuccess(
+                  `${state ? 'Checked in to' : 'Checked out of'} parking reservation for ${
+                      booking.user_name
+                  } on ${format(booking.date, 'MMM Do')}.`,
+              );
+        if (success !== 'failed') this._change.next(Date.now());
+    }
+
+    public async approveBooking(booking: Booking) {
+        const promise = (
+            booking.instance
+                ? approveBookingInstance(booking.id, booking.instance)
+                : approveBooking(booking.id)
+        )
+            .toPromise()
+            .catch((_) => 'failed');
+        const success = await promise;
+        success === 'failed'
+            ? notifyError('Error approving in parking booking')
             : notifySuccess(
                   `Approved parking reservation for ${
                       booking.user_name
@@ -446,16 +477,21 @@ export class ParkingStateService extends AsyncHandler {
         if (success !== 'failed') this._change.next(Date.now());
     }
 
-    public async rejectBooking(bookings: Booking) {
-        const success = await rejectBooking(bookings.id)
+    public async rejectBooking(booking: Booking) {
+        const promise = (
+            booking.instance
+                ? rejectBookingInstance(booking.id, booking.instance)
+                : rejectBooking(booking.id)
+        )
             .toPromise()
             .catch((_) => 'failed');
+        const success = await promise;
         success === 'failed'
-            ? notifyError('Error rejecting in desk booking')
+            ? notifyError('Error rejecting in parking booking')
             : notifySuccess(
                   `Rejected parking reservation for ${
-                      bookings.user_name
-                  } on ${format(bookings.date, 'MMM dd')}.`,
+                      booking.user_name
+                  } on ${format(booking.date, 'MMM dd')}.`,
               );
         if (success !== 'failed') this._change.next(Date.now());
     }

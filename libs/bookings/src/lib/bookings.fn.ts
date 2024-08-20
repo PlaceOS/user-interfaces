@@ -193,7 +193,7 @@ export const saveBooking = (
         booking_id?: string;
         event_id?: string;
         ical_uid?: string;
-        instance?: boolean;
+        instance?: number;
     },
 ) => {
     const id = data.id;
@@ -202,7 +202,7 @@ export const saveBooking = (
     if (q) delete (q as any).instance;
     return id
         ? instance
-            ? updateBookingInstance(id, data.booking_start, data)
+            ? updateBookingInstance(id, data.instance, data)
             : updateBooking(id, data)
         : createBooking(data, q);
 };
@@ -235,7 +235,7 @@ export function removeBookingInstance(id: string, start_time: number) {
 }
 
 /**
- * Set the approval state of the booking to approved
+ * Set the approval state of the booking to `approved`
  * @param id ID of the booking to approve
  * @param system_id Associated system to approve
  */
@@ -247,11 +247,35 @@ export function approveBooking(id: string) {
 }
 
 /**
- * Set the approval state of the booking to rejected
+ * Set the approval state of the booking instance to `approved`
+ * @param id ID of the booking to reject
+ * @param start_time Start time of the booking instance
+ */
+export function approveBookingInstance(id: string, start_time: number) {
+    return post(
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/approve`,
+        '',
+    ).pipe(map((item) => new Booking(item)));
+}
+
+/**
+ * Set the approval state of the booking to `rejected`
  * @param id ID of the booking to reject
  * @param system_id Associated system to reject
  */
 export function rejectBooking(id: string) {
+    return post(
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/reject`,
+        '',
+    ).pipe(map((item) => new Booking(item)));
+}
+
+/**
+ * Set the approval state of the booking instance to `rejected`
+ * @param id ID of the booking to reject
+ * @param start_time Start time of the booking instance
+ */
+export function rejectBookingInstance(id: string, start_time: number) {
     return post(
         `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/reject`,
         '',
@@ -335,6 +359,30 @@ export function checkinBooking(id: string, state: boolean) {
     const query = toQueryString({ state });
     return post(
         `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in?${query}`,
+        '',
+    ).pipe(
+        map((item) => new Booking(item)),
+        catchError(async (e) => {
+            const body = await e.json();
+            throw body.error || body.message || body;
+        }),
+    );
+}
+
+/**
+ * Set the checkin state of a booking instance
+ * @param id ID of the booking to grab
+ * @param start_time Start time of the booking instance
+ * @param state New checkin state of the booking instance
+ */
+export function checkinBookingInstance(
+    id: string,
+    start_time: number,
+    state: boolean,
+) {
+    const query = toQueryString({ state });
+    return post(
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in/${start_time}?${query}`,
         '',
     ).pipe(
         map((item) => new Booking(item)),

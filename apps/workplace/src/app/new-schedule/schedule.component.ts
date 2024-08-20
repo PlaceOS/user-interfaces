@@ -5,6 +5,7 @@ import {
     Booking,
     BookingFormService,
     checkinBooking,
+    checkinBookingInstance,
     queryBookings,
     removeBooking,
 } from '@placeos/bookings';
@@ -212,7 +213,7 @@ export class ScheduleComponent extends AsyncHandler {
                 system_id: (item as any).system?.id,
                 instance: !!(item as any).instance || undefined,
                 start_time: !!(item as any).instance
-                    ? (item as any).booking_start
+                    ? (item as any).instance
                     : undefined,
             } as any,
         )
@@ -238,13 +239,18 @@ export class ScheduleComponent extends AsyncHandler {
 
         if (resp.reason !== 'done') return;
         resp.loading('Ending booking...');
-        await checkinBooking(item.id, false)
+        const promise = (
+            item.instance
+                ? checkinBookingInstance(item.id, item.instance, false)
+                : checkinBooking(item.id, false)
+        )
             .toPromise()
             .catch((e) => {
                 notifyError(`Unable to end booking. ${e}`);
                 resp.close();
                 throw e;
             });
+        await promise;
         notifySuccess('Successfully ended booking.');
         this._state.removeItem(item);
         this._dialog.closeAll();
