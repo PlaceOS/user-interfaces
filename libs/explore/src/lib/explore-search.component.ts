@@ -36,10 +36,11 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
                 keyboard
                 class="flex-1 text-base border-none outline-none"
                 [(ngModel)]="search_str"
-                (ngModelChange)="setItem($event)"
+                (ngModelChange)="setFilter($event)"
                 placeholder="Search for..."
                 i18n-placeholder
-                (blur)="show = !!search_str"
+                (focus)="cancelClear()"
+                (blur)="clear()"
                 [matAutocomplete]="auto"
                 [matAutocompleteConnectedTo]="origin"
             />
@@ -62,7 +63,8 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
                 </mat-option>
                 <mat-option
                     *ngFor="let option of results | async | slice: 0 : 5"
-                    [value]="option"
+                    [value]="option.name"
+                    (click)="select(option)"
                 >
                     <div
                         class="flex items-center leading-tight w-[22rem] max-w-[calc(100vw-2rem)]"
@@ -113,23 +115,10 @@ export class ExploreSearchComponent extends AsyncHandler {
     public readonly results = this._search.search_results;
     public readonly loading = this._search.loading;
     public readonly setFilter = (s) => this._search.setFilter(s);
-    public readonly setItem = (i) =>
-        i instanceof Object ? this.select(i) : this.setFilter(i);
 
     @ViewChild('input') private _input_el: ElementRef<HTMLInputElement>;
     @ViewChild('button', { static: true })
     private _button_el: ElementRef<HTMLButtonElement>;
-
-    @HostListener('document:click', ['$event'])
-    public checkClick(event) {
-        if (!this._el?.nativeElement?.contains(event.target)) {
-            this.show = false;
-            this._input_el?.nativeElement?.blur();
-        }
-    }
-
-    @HostListener('document:touchstart', ['$event']) public onTouch = (e) =>
-        this.checkClick(e);
 
     constructor(
         private _el: ElementRef<HTMLElement>,
@@ -142,6 +131,18 @@ export class ExploreSearchComponent extends AsyncHandler {
 
     public ngOnInit() {
         this.checkButtonPosition();
+    }
+
+    public clear() {
+        this.timeout('clear', () => {
+            this.show = false;
+            this.search_str = '';
+            this.setFilter('');
+        });
+    }
+
+    public cancelClear() {
+        this.clearTimeout('clear');
     }
 
     public focusInput() {
@@ -170,6 +171,7 @@ export class ExploreSearchComponent extends AsyncHandler {
     }
 
     public select(item: SearchResult) {
+        console.log('Selected Item:', item);
         this.search_str = item.name;
         const query: any = {};
         const type =
@@ -187,6 +189,7 @@ export class ExploreSearchComponent extends AsyncHandler {
             relativeTo: this._route,
             queryParams: query,
         });
+        this.focusInput();
     }
 
     public checkButtonPosition() {

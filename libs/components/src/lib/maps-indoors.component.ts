@@ -76,6 +76,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
 
     private _services: MapsIndoorServices;
     private _floor_list: any[] = [];
+    private _last_building: string;
 
     @ViewChild('map_container', { static: true })
     private _container: ElementRef<HTMLDivElement>;
@@ -218,11 +219,15 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         this.timeout('init_zoom', () => this._handleZoomChange(DEFAULT_ZOOM));
     }
 
+    public clearDirections() {
+        this._services.directions_renderer.setRoute(null);
+        this.viewing_directions = false;
+    }
+
     public async toggleDirections() {
         if (this.viewing_directions) {
-            this._services.directions_renderer.setRoute(null);
+            this.clearDirections();
             this._focusOnLocation();
-            this.viewing_directions = false;
             return;
         }
         if (!this.focus) return;
@@ -323,6 +328,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         });
         if (!bld) return;
         this._org.building = bld;
+        this._last_building = bld.id;
     }
 
     private async _handleLevelChange(index: any) {
@@ -397,6 +403,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
     private async _focusOnLocation() {
         if (!this.focus) return;
         const items = await this._search(this.focus);
+        this.clearDirections();
         if (!items?.length) {
             notifyError(`Unable to find location ${this.focus}.`);
             return;
@@ -416,18 +423,27 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
     }
 
     private _centerOnZone() {
-        if (!this._services || !this.zone) return;
+        if (
+            !this._services ||
+            !this.zone ||
+            this.zone.parent_id === this._last_building ||
+            this.zone.id === this._last_building
+        )
+            return;
         this.timeout('set_center', () => {
             const bld = this._org.buildings.find(
                 (bld) => bld.id === this.zone.parent_id,
             );
             if (!bld) return;
             const [lat, long] = bld?.location.split(',');
-            this._services.map.setCenter({
-                lat: parseFloat(lat),
-                lng: parseFloat(long),
-            });
+            if (!this.focus) {
+                this._services.map.setCenter({
+                    lat: parseFloat(lat),
+                    lng: parseFloat(long),
+                });
+            }
             this._setFloorFromZone();
+            this._last_building = this.zone.id;
         });
     }
 
