@@ -149,6 +149,21 @@ export function updateBooking(
 }
 
 /**
+ * Update the induction status of an existing booking
+ * @param id ID of the booking to update
+ * @param status New induction status of the booking
+ */
+export function updateBookingInductionStatus(
+    id: string,
+    status: 'tentative' | 'accepted' | 'declined',
+) {
+    return post(
+        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/update_induction?induction=${encodeURIComponent(status)}`,
+        {},
+    ).pipe(map((item) => new Booking(item)));
+}
+
+/**
  * Update instance of an existing booking series
  * @param id ID of the booking to update
  * @param start_time Unix seconds of the start time of the booking

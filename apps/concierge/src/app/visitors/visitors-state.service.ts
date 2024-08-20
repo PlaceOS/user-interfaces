@@ -31,6 +31,7 @@ import {
     rejectBooking,
     setBookingState,
     updateBooking,
+    updateBookingInductionStatus,
 } from '@placeos/bookings';
 import { OrganisationService } from '@placeos/organisation';
 import { SpacePipe } from '@placeos/spaces';
@@ -206,11 +207,14 @@ export class VisitorsStateService extends AsyncHandler {
         const result = await ref.afterClosed().toPromise();
         if (!result) {
             if (result === false) {
-                await updateBooking(item.id, { induction: 'declined' });
+                await updateBookingInductionStatus(
+                    item.id,
+                    'declined',
+                ).toPromise();
             }
             throw 'User declined';
         }
-        await updateBooking(item.id, { induction: 'accepted' });
+        await updateBookingInductionStatus(item.id, 'accepted').toPromise();
     }
 
     public async setCheckinState(item: Booking, state = true) {
