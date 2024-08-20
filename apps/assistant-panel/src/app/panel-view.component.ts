@@ -564,9 +564,14 @@ export class PanelViewComponent extends AsyncHandler {
         this._frame_id = requestAnimationFrame(() => this._processWaveform());
     }
 
+    private _frame_count = 0;
+
     private _processWaveform() {
-        this._analyser.getByteTimeDomainData(this._audio_bytes);
-        this._drawWaveform();
+        if (this._frame_count % 2 === 0) {
+            this._analyser.getByteTimeDomainData(this._audio_bytes);
+            this._drawWaveform();
+        }
+        this._frame_count += 1;
         this._frame_id = requestAnimationFrame(() => this._processWaveform());
     }
 
