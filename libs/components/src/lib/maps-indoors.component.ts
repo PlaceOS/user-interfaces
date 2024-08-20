@@ -219,11 +219,15 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         this.timeout('init_zoom', () => this._handleZoomChange(DEFAULT_ZOOM));
     }
 
+    public clearDirections() {
+        this._services.directions_renderer.setRoute(null);
+        this.viewing_directions = false;
+    }
+
     public async toggleDirections() {
         if (this.viewing_directions) {
-            this._services.directions_renderer.setRoute(null);
+            this.clearDirections();
             this._focusOnLocation();
-            this.viewing_directions = false;
             return;
         }
         if (!this.focus) return;
@@ -403,6 +407,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             notifyError(`Unable to find location ${this.focus}.`);
             return;
         }
+        this.clearDirections();
         const item =
             items.find((_) => _.properties?.externalId === this.focus) ||
             items[0];
