@@ -95,8 +95,8 @@ declare let loadVosklet: any;
                                 name: message.user_name || '',
                                 photo:
                                     message.user_id !== user.id
-                                        ? '/assets/icons/ai-avatar.jpg'
-                                        : '/assets/icons/user-avatar.jpg',
+                                        ? 'assets/icons/ai-avatar.jpg'
+                                        : 'assets/icons/user-avatar.jpg',
                             }"
                             class="text-xl"
                         ></a-user-avatar>
@@ -174,10 +174,20 @@ declare let loadVosklet: any;
             </div>
         </div>
         <button
+            icon
+            matRipple
+            class="absolute top-2 left-2 bg-error text-error-content shadow h-12 w-12"
+            *ngIf="setup"
+            (click)="endService()"
+        >
+            <app-icon class="text-2xl">call_end</app-icon>
+        </button>
+        <button
             splash
             matRipple
             class="absolute inset-0 text-white flex flex-col items-center justify-center z-20"
             *ngIf="!setup"
+            (click)="setup = true"
         >
             <h2 class="font-light text-4xl mb-4">Touch to Start</h2>
         </button>
@@ -288,6 +298,15 @@ export class PanelViewComponent extends AsyncHandler {
         this.listening = true;
     }
 
+    public endService() {
+        this.setup = false;
+        this._recognition.stop();
+        this.listening = false;
+        this._last_text = '';
+        this._spoken = false;
+        this._chat.close();
+    }
+
     private _model: tf.GraphModel;
 
     private async _loadModel() {
@@ -300,6 +319,7 @@ export class PanelViewComponent extends AsyncHandler {
     private _spoken = false;
 
     private async _processWebcamFrame() {
+        if (!this.setup) return;
         if (!this._model) await this._loadModel();
         tf.tidy(() => {
             const tensor = this._webcamToTensor();
@@ -497,6 +517,7 @@ export class PanelViewComponent extends AsyncHandler {
     }
 
     private _handleEnd() {
+        if (!this.setup) return;
         this.last_text = this.current_text;
         this.current_text = '';
         this.clearInterval('scale');
@@ -550,6 +571,7 @@ export class PanelViewComponent extends AsyncHandler {
     }
 
     private _drawWaveform() {
+        if (!this.setup) return;
         const canvas = this._waveform_canvas_el.nativeElement;
         const height = canvas.height;
         const width = canvas.width;
