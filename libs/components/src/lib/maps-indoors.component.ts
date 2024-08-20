@@ -430,17 +430,18 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             this.zone.id === this._last_building
         )
             return;
-        console.warn('Center:', this.zone.display_name);
         this.timeout('set_center', () => {
             const bld = this._org.buildings.find(
                 (bld) => bld.id === this.zone.parent_id,
             );
             if (!bld) return;
             const [lat, long] = bld?.location.split(',');
-            this._services.map.setCenter({
-                lat: parseFloat(lat),
-                lng: parseFloat(long),
-            });
+            if (!this.focus) {
+                this._services.map.setCenter({
+                    lat: parseFloat(lat),
+                    lng: parseFloat(long),
+                });
+            }
             this._setFloorFromZone();
             this._last_building = this.zone.id;
         });
