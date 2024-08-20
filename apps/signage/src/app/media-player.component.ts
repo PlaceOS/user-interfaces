@@ -23,8 +23,6 @@ export interface MediaPlayerItem {
 
 export type MediaPlayerState = 'PAUSED' | 'PLAYING';
 
-const EMPTY_URL = 'assets/icons/not-found.svg';
-
 @Component({
     selector: 'media-player',
     template: `
@@ -311,7 +309,7 @@ export class MediaPlayerComponent extends AsyncHandler {
     }
 
     public url(id: string) {
-        return this._item_urls[id] || EMPTY_URL;
+        return this._item_urls[id] || '';
     }
 
     public previousItem() {
