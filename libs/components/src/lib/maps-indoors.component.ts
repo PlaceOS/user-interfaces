@@ -403,11 +403,11 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
     private async _focusOnLocation() {
         if (!this.focus) return;
         const items = await this._search(this.focus);
+        this.clearDirections();
         if (!items?.length) {
             notifyError(`Unable to find location ${this.focus}.`);
             return;
         }
-        this.clearDirections();
         const item =
             items.find((_) => _.properties?.externalId === this.focus) ||
             items[0];
