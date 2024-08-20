@@ -426,6 +426,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         if (
             !this._services ||
             !this.zone ||
+            this.zone.parent_id === this._last_building ||
             this.zone.id === this._last_building
         )
             return;
