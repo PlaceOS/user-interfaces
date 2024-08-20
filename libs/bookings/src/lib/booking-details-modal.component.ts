@@ -7,7 +7,7 @@ import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-moda
 import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Booking } from './booking.class';
-import { checkinBooking } from './bookings.fn';
+import { checkinBooking, checkinBookingInstance } from './bookings.fn';
 
 import { DeskSettingsModalComponent } from './desk-settings-modal.component';
 
@@ -420,13 +420,23 @@ export class BookingDetailsModalComponent {
 
     public async toggleCheckedIn() {
         this.checking_in = true;
-        await checkinBooking(this.booking.id, !this.booking.checked_in)
+        const bkn = this.booking;
+        const promise = (
+            bkn.instance
+                ? checkinBookingInstance(
+                      bkn.id,
+                      bkn.instance,
+                      !this.booking.checked_in,
+                  )
+                : checkinBooking(this.booking.id, !this.booking.checked_in)
+        )
             .toPromise()
             .catch((_) => {
                 notifyError('Error checking in booking');
                 this.checking_in = false;
                 throw _;
             });
+        await promise;
         (this.booking as any).checked_in = !this.booking.checked_in;
         this.checked_out = !this.booking.checked_in;
         notifySuccess(
