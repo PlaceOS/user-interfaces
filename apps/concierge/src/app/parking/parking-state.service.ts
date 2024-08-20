@@ -293,7 +293,9 @@ export class ParkingStateService extends AsyncHandler {
                         this._org.organisation.id,
                         this._org.region?.id,
                         this._org.building?.id,
-                        new_space.zone_id,
+                        new_space.zone_id ||
+                            new_space.zone?.id ||
+                            new_space.zone,
                     ]),
                     extension_data: {
                         asset_name: new_space.name,
