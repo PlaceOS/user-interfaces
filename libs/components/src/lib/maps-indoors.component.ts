@@ -76,6 +76,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
 
     private _services: MapsIndoorServices;
     private _floor_list: any[] = [];
+    private _last_building: string;
 
     @ViewChild('map_container', { static: true })
     private _container: ElementRef<HTMLDivElement>;
@@ -323,6 +324,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         });
         if (!bld) return;
         this._org.building = bld;
+        this._last_building = bld.id;
     }
 
     private async _handleLevelChange(index: any) {
@@ -416,7 +418,13 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
     }
 
     private _centerOnZone() {
-        if (!this._services || !this.zone) return;
+        if (
+            !this._services ||
+            !this.zone ||
+            this.zone.id === this._last_building
+        )
+            return;
+        console.warn('Center:', this.zone.display_name);
         this.timeout('set_center', () => {
             const bld = this._org.buildings.find(
                 (bld) => bld.id === this.zone.parent_id,
@@ -428,6 +436,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                 lng: parseFloat(long),
             });
             this._setFloorFromZone();
+            this._last_building = this.zone.id;
         });
     }
 
