@@ -85,7 +85,10 @@ export class ChatService extends AsyncHandler {
                 'chat-ws',
                 this._socket.subscribe(
                     (_) => this._onMessage(_),
-                    (e) => this._cleanup(),
+                    (e) => {
+                        log('CHAT', 'Connection error:', [e], 'error');
+                        this._cleanup();
+                    },
                     () => this._cleanup(),
                 ),
             );
