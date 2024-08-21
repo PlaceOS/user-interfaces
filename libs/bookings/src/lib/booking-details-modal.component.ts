@@ -323,7 +323,8 @@ export class BookingDetailsModalComponent {
     public checking_in = false;
     public readonly features = [
         {
-            location: this.booking?.asset_id,
+            location:
+                this.booking?.extension_data?.map_id || this.booking?.asset_id,
             content: MapPinComponent,
         },
     ];
