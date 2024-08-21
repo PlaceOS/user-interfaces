@@ -224,6 +224,8 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         this.viewing_directions = false;
     }
 
+    private _last_position: GeolocationPosition;
+
     public async toggleDirections() {
         if (this.viewing_directions) {
             this.clearDirections();
@@ -246,48 +248,64 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
         const options = { timeout: 10000, enableHighAccuracy: true };
         navigator.geolocation.getCurrentPosition(
             async (position: GeolocationPosition) => {
-                const distance = calculateDistance(
-                    d_lat,
-                    d_lng,
-                    position.coords.latitude,
-                    position.coords.longitude,
-                );
-                const routeParameters = {
-                    origin: {
+                this._last_position = position;
+                this.setDirectionsFromLocation(
+                    {
                         lat: position.coords.latitude,
                         lng: position.coords.longitude,
                     },
-                    destination: { lat: d_lat, lng: d_lng },
-                    travelMode: distance < 2 ? 'WALKING' : 'DRIVING',
-                };
-                console.log('Route Parameters:', routeParameters, distance);
-                const result = await this._services.directions
-                    .getRoute(routeParameters)
-                    .catch((e) => {
-                        log(
-                            'MapsIndoors',
-                            'Error fetching route: ',
-                            e.message || e,
-                            'warn',
-                        );
-                        const origin_error =
-                            e instanceof TypeError &&
-                            e.message?.includes('origin');
-                        this.loading_directions = false;
-                        if (!origin_error) return;
-                        notifyError(
-                            'Error: Origin location is outside of map area.',
-                        );
-                    });
-                if (!result) return;
-                console.log('Route:', result);
-                this._services.directions_renderer.setRoute(result);
-                this.viewing_directions = true;
-                this.loading_directions = false;
+                    { lat: d_lat, lng: d_lng },
+                );
             },
-            () => notifyError('Failed to get your current location.'),
+            () => {
+                if (this._last_position) {
+                    this.setDirectionsFromLocation(
+                        {
+                            lat: this._last_position.coords.latitude,
+                            lng: this._last_position.coords.longitude,
+                        },
+                        { lat: d_lat, lng: d_lng },
+                    );
+                } else notifyError('Failed to get your current location.');
+            },
             options,
         );
+    }
+
+    public async setDirectionsFromLocation(
+        from: { lat: number; lng: number },
+        to: { lat: number; lng: number },
+    ) {
+        const distance = calculateDistance(to.lat, to.lng, from.lat, from.lng);
+        const routeParameters = {
+            origin: {
+                lat: from.lat,
+                lng: from.lng,
+            },
+            destination: { lat: to.lat, lng: to.lng },
+            travelMode: distance < 2 ? 'WALKING' : 'DRIVING',
+        };
+        console.log('Route Parameters:', routeParameters, distance);
+        const result = await this._services.directions
+            .getRoute(routeParameters)
+            .catch((e) => {
+                log(
+                    'MapsIndoors',
+                    'Error fetching route: ',
+                    e.message || e,
+                    'warn',
+                );
+                const origin_error =
+                    e instanceof TypeError && e.message?.includes('origin');
+                this.loading_directions = false;
+                if (!origin_error) return;
+                notifyError('Error: Origin location is outside of map area.');
+            });
+        if (!result) return;
+        console.log('Route:', result);
+        this._services.directions_renderer.setRoute(result);
+        this.viewing_directions = true;
+        this.loading_directions = false;
     }
 
     private _handleZoomChange(level: number) {
