@@ -134,6 +134,7 @@ export class ChatService extends AsyncHandler {
 
     public sendMessage(message: string) {
         if (!message) return;
+
         this._onMessage({ chat_id: '', message, user_id: currentUser().id });
         this._socket?.next(message);
     }

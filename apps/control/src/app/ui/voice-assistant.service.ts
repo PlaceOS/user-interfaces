@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AsyncHandler, currentUser, randomInt } from '@placeos/common';
+import { AsyncHandler, currentUser, log, randomInt } from '@placeos/common';
 import { BehaviorSubject } from 'rxjs';
 import { distinctUntilChanged, filter, map, shareReplay } from 'rxjs/operators';
 
@@ -43,9 +43,7 @@ export class VoiceAssistantService extends AsyncHandler {
                     filter((_) => !!_),
                     distinctUntilChanged(),
                 )
-                .subscribe((id) => {
-                    this._chat_service.setBinding(id);
-                }),
+                .subscribe((id) => this._chat_service.setBinding(id)),
         );
         this._setupVoiceRecognition();
         const user = currentUser();
@@ -93,22 +91,13 @@ export class VoiceAssistantService extends AsyncHandler {
                 `hit plays *`,
             ],
             smart: true,
-            action: (i, contents) => {
+            action: (_, contents) => {
                 this._active.next(true);
                 if (contents.length <= 3) {
                     this.activate();
                     return;
                 }
-                this._chat_service.startChat();
-                this._chat_service.sendMessage(`Hey PlaceOS, ${contents}`);
-                this._speakText(
-                    WAITING_PHRASES[randomInt(WAITING_PHRASES.length)],
-                );
-                this.timeout(
-                    'deactivate',
-                    () => this._active.next(false),
-                    60 * 1000,
-                );
+                this._onMessage(contents);
             },
         };
 
@@ -121,7 +110,19 @@ export class VoiceAssistantService extends AsyncHandler {
         console.log('Initialised Voice Assistant');
     }
 
+    private _onMessage(message: string) {
+        this._chat_service.startChat();
+        if (!this._chat_service.connected) {
+            return this.timeout('on_message', () => this._onMessage(message));
+        }
+        log('VOICE', `Command: ${message}`);
+        this._chat_service.sendMessage(`Hey PlaceOS, ${message}`);
+        this._speakText(WAITING_PHRASES[randomInt(WAITING_PHRASES.length)]);
+        this.timeout('deactivate', () => this._active.next(false), 60 * 1000);
+    }
+
     private _speakText(text: string) {
+        log('VOICE', `Response: "${text}"`);
         this._voice.say(text);
     }
 }
