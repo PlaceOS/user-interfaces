@@ -41,8 +41,8 @@ export class POIManagementService {
     ]).pipe(
         switchMap(() =>
             showMetadata(this._org.organisation.id, 'points-of-interest').pipe(
-                catchError((_) => of({ details: {} }))
-            )
+                catchError((_) => of({ details: {} })),
+            ),
         ),
         map((_) => {
             const mapping = _.details || {};
@@ -50,7 +50,7 @@ export class POIManagementService {
             const list = flatten(levels.map((lvl) => mapping[lvl.id] || []));
             return list as PointOfInterest[];
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly filtered_features = combineLatest([
@@ -60,16 +60,16 @@ export class POIManagementService {
         map(([list, options]) => {
             if (options.search) {
                 list = list.filter((_) =>
-                    _.name.toLowerCase().includes(options.search.toLowerCase())
+                    _.name.toLowerCase().includes(options.search.toLowerCase()),
                 );
             }
             return list;
-        })
+        }),
     );
 
     constructor(
         private _org: OrganisationService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
 
     public setFilters(options: Partial<POIListOptions>) {
@@ -95,16 +95,15 @@ export class POIManagementService {
                 icon: { content: 'delete_forever' },
                 confirm_text: 'Remove',
             },
-            this._dialog
+            this._dialog,
         );
         if (ref.reason !== 'done') return ref.close();
         ref.loading('Removing point of interest...');
         const old_metadata = await showMetadata(
             this._org.organisation.id,
-            'points-of-interest'
+            'points-of-interest',
         ).toPromise();
         const metadata = old_metadata.details || {};
-        console.log('Metadata:', old_metadata, metadata, poi);
         for (const lvl in metadata) {
             if (metadata[lvl])
                 metadata[lvl] = metadata[lvl].filter((_) => _.id !== poi.id);

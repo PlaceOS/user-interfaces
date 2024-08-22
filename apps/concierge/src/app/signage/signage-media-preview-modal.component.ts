@@ -1,7 +1,5 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { uploadFile } from '@placeos/common';
-import { takeWhile } from 'rxjs/operators';
 
 @Component({
     selector: 'signage-media-preview-modal',
@@ -20,13 +18,15 @@ import { takeWhile } from 'rxjs/operators';
             >
                 <img
                     *ngIf="type === 'image'"
-                    class="max-w-full max-h-full"
-                    [src]="resource.toString()"
+                    class="w-full h-full object-contain object-center"
+                    auth
+                    [source]="resource.toString()"
                 />
                 <video
                     *ngIf="type === 'video'"
-                    class="max-w-full max-h-full"
-                    [src]="resource.toString()"
+                    class="w-full h-full object-contain object-center"
+                    auth
+                    [source]="resource.toString()"
                     autoplay
                     controls
                 ></video>
@@ -68,6 +68,6 @@ export class SignageMediaPreviewModalComponent {
             save: boolean;
             name: string;
             file?: File;
-        }
+        },
     ) {}
 }

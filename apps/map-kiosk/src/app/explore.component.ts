@@ -289,13 +289,12 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
                                   this._org.levelsForBuilding(bld).map((_) => ({
                                       ..._,
                                       display_name: `${bld.display_name} - ${_.display_name}`,
-                                  }))
-                              )
+                                  })),
+                              ),
                       )
                     : this._org.levelsForBuilding(building)) || []
             );
         }),
-        tap((l) => console.log('Levels:', l))
     );
     public readonly level = this._state.level;
 
@@ -374,7 +373,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         private _route: ActivatedRoute,
         private _router: Router,
         private _space_pipe: SpacePipe,
-        private _maps: MapsPeopleService
+        private _maps: MapsPeopleService,
     ) {
         super();
     }
@@ -398,8 +397,8 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
             this._state.level.subscribe(() =>
                 this.timeout('update_location', () => {
                     this._state.setFeatures('_located', []);
-                })
-            )
+                }),
+            ),
         );
         this.subscription(
             'route.query',
@@ -410,7 +409,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
                     const level = this._org.levelWithID([params.get('level')]);
                     if (!level) return;
                     const bld = this._org.buildings.find(
-                        (_) => level.parent_id === _.id
+                        (_) => level.parent_id === _.id,
                     );
                     if (!bld) return;
                     this._org.building = bld;
@@ -428,10 +427,10 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
                     }
                     if (!user)
                         return notifyError(
-                            `Unable to user details for ${params.get('user')}`
+                            `Unable to user details for ${params.get('user')}`,
                         );
                     this.locateUser(
-                        user instanceof Array ? user[0] : user
+                        user instanceof Array ? user[0] : user,
                     ).catch((_) => {
                         notifyError(`Unable to locate ${params.get('user')}`);
                         this._router.navigate([], {
@@ -443,7 +442,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
                     log(
                         'Explore',
                         'Focusing on feature:',
-                        params.get('feature')
+                        params.get('feature'),
                     );
                     this.timeout('update_location', () => {
                         this._state.setFeatures('_located', [
@@ -458,7 +457,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
                     log(
                         'Explore',
                         'Focusing on location:',
-                        params.get('locate')
+                        params.get('locate'),
                     );
                     this.locate = params.get('locate');
                     this.timeout('update_location', () => {
@@ -475,7 +474,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
                         this._state.setFeatures('_located', []);
                     });
                 }
-            })
+            }),
         );
     }
 
@@ -491,7 +490,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
             },
         };
         this.timeout('update_location', () =>
-            this._state.setFeatures('_located', [feature])
+            this._state.setFeatures('_located', [feature]),
         );
     }
 
@@ -514,7 +513,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         locations.sort(
             (a, b) =>
                 locate_details.priority.indexOf(a.type) -
-                locate_details.priority.indexOf(b.type)
+                locate_details.priority.indexOf(b.type),
         );
         if (!locations?.length) {
             throw 'No locations for the given user';

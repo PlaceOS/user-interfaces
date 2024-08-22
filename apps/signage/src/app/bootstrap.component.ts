@@ -4,7 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { AsyncHandler, Identity } from '@placeos/common';
 import { VirtualKeyboardComponent } from '@placeos/components';
 import { OrganisationService } from '@placeos/organisation';
-import { showMetadata } from '@placeos/ts-client';
+import { PlaceSystem, querySystems } from '@placeos/ts-client';
 import { of } from 'rxjs';
 import {
     catchError,
@@ -15,21 +15,25 @@ import {
     switchMap,
 } from 'rxjs/operators';
 
+const STORE_PREFIX = 'PlaceOS.SIGNAGE';
+const STORE_DISPLAY_KEY = `${STORE_PREFIX}.display`;
+const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
+
 @Component({
     selector: '[bootstrap]',
     template: `
-        <div class="absolute inset-0 bg-base-200">
+        <div class="absolute inset-0 bg-base-300">
             <div
                 form
                 class="absolute top-2 left-1/2 transform -translate-x-1/2 bg-base-100 overflow-hidden flex flex-col items-center shadow rounded w-[30rem] max-w-[calc(100vw-2rem)]"
             >
                 <header
-                    class="px-4 py-3 bg-info text-info-content w-full text-lg font-medium mb-2"
+                    class="px-4 py-3 bg-secondary text-secondary-content w-full text-lg font-medium mb-2"
                 >
                     Signage Kiosk Setup
                 </header>
                 <main *ngIf="!loading; else load_state" class="px-4 py-2">
-                    <label>Select a Building from the dropdown below</label>
+                    <!-- <label>Select a Building from the dropdown below</label>
                     <mat-form-field appearance="outline">
                         <mat-select
                             #select
@@ -45,7 +49,7 @@ import {
                                 {{ option.name }}
                             </mat-option>
                         </mat-select>
-                    </mat-form-field>
+                    </mat-form-field> -->
                     <label>Select a display from the dropdown below</label>
                     <mat-form-field appearance="outline">
                         <mat-select
@@ -59,7 +63,22 @@ import {
                                 *ngFor="let option of displays | async"
                                 [value]="option.id"
                             >
-                                {{ option.name }}
+                                <div class="flex flex-col leading-tight">
+                                    <div>{{ option.name }}</div>
+                                    <div class="text-xs opacity-30">
+                                        {{
+                                            building(option)?.display_name ||
+                                                building(option)?.name ||
+                                                'Unknown Building'
+                                        }}
+                                        -
+                                        {{
+                                            level(option)?.display_name ||
+                                                level(option)?.name ||
+                                                'Unknown Level'
+                                        }}
+                                    </div>
+                                </div>
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -109,18 +128,34 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     public readonly displays = this.active_building.pipe(
         filter((_) => !!_),
         switchMap((_) =>
-            showMetadata(_.id, 'signage-displays').pipe(
-                catchError(() => of({ details: [] } as any))
-            )
+            querySystems({
+                zone_id: this._org.organisation?.id,
+                limit: 500,
+                signage: true,
+            }).pipe(catchError(() => of({ data: [] }))),
         ),
-        map(({ details }) => (details instanceof Array ? details : [])),
-        shareReplay(1)
+        map((r) =>
+            r.data.sort((a, b) =>
+                (a.display_name || a.name).localeCompare(
+                    b.display_name || b.name,
+                ),
+            ),
+        ),
+        shareReplay(1),
     );
+
+    public level(system: PlaceSystem) {
+        return this._org.levelWithID(system.zones as any);
+    }
+
+    public building(system: PlaceSystem) {
+        return this._org.buildings.find(({ id }) => system.zones.includes(id));
+    }
 
     constructor(
         private _org: OrganisationService,
         private _route: ActivatedRoute,
-        private _router: Router
+        private _router: Router,
     ) {
         super();
     }
@@ -131,8 +166,8 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
                 if (params.has('clear') && params.get('clear') === 'true') {
-                    localStorage.removeItem('SIGNAGE.building');
-                    localStorage.removeItem('SIGNAGE.display');
+                    localStorage.removeItem(STORE_DISPLAY_KEY);
+                    localStorage.removeItem(STORE_BUILDING_KEY);
                 }
                 if (params.has('building')) {
                     this.setBuilding(params.get('building'));
@@ -141,7 +176,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                     this.active_display = params.get('display');
                     this.bootstrapKiosk();
                 }
-            })
+            }),
         );
         this.timeout('check', () => this.checkBootstrap(), 1000);
     }
@@ -164,9 +199,9 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
             this.loading = '';
             return;
         }
-        localStorage.setItem('SIGNAGE.building', bld.id);
-        localStorage.setItem('SIGNAGE.display', this.active_display);
-        this._router.navigate(['/signage']);
+        localStorage.setItem(STORE_BUILDING_KEY, bld.id);
+        localStorage.setItem(STORE_DISPLAY_KEY, this.active_display);
+        this._router.navigate(['/signage', this.active_display]);
         this.loading = '';
     }
 
@@ -175,10 +210,10 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
      */
     private checkBootstrap() {
         this.loading = 'Checking for existing parameters...';
-        const bld_id = localStorage?.getItem('SIGNAGE.building');
-        const display_id = localStorage?.getItem('SIGNAGE.display');
+        const bld_id = localStorage?.getItem(STORE_BUILDING_KEY);
+        const display_id = localStorage?.getItem(STORE_DISPLAY_KEY);
         if (bld_id && display_id) {
-            this._router.navigate(['/signage']);
+            this._router.navigate(['/signage', display_id]);
         }
         VirtualKeyboardComponent.enabled =
             localStorage.getItem('OSK.enabled') === 'true';

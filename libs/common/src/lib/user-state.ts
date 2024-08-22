@@ -20,7 +20,7 @@ setTimeout(() => {
         .pipe(
             delay(1000),
             retry(10),
-            map((i) => new StaffUser(i))
+            map((i) => new StaffUser(i as any)),
         )
         .subscribe((user) => _current_user.next(user));
 }, 300);

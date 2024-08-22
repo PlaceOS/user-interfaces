@@ -487,7 +487,6 @@ export class GroupEventDetailsModalComponent {
 
     public async toggleInterest() {
         let user = this.guest_details;
-        console.log('User:', user, this.is_interested);
         if (this.is_interested && user) {
             await removeEventGuest(this.event.id, currentUser() as any, {
                 system_id: this.event.system?.id,
