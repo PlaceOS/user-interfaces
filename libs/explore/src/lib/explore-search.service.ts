@@ -149,7 +149,11 @@ export class ExploreSearchService {
                 for (const item of data) {
                     const metadata = item.metadata.maps_features;
                     if (!metadata) continue;
-                    for (const poi of metadata.details as any[]) {
+                    const poi_list =
+                        metadata.details instanceof Array
+                            ? metadata.details
+                            : [];
+                    for (const poi of poi_list) {
                         list.push({
                             id: poi.id,
                             type: 'feature',
