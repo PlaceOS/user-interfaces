@@ -41,6 +41,12 @@ export interface SearchResult {
     zone?: string;
 }
 
+const TYPES = ['space', 'contact', 'feature', 'user'];
+
+function typeIndex(item: SearchResult): number {
+    return TYPES.indexOf(item.is_role ? 'contact' : item.type);
+}
+
 declare let mapsindoors: any;
 
 @Injectable({
@@ -221,6 +227,15 @@ export class ExploreSearchService {
                             _.description.toLowerCase().includes(search) ||
                             _.type.toLowerCase().includes(search),
                     ),
+                    ...features
+                        .filter((_) => _.name.toLowerCase().includes(search))
+                        .map((s) => ({
+                            id: s.id,
+                            type: 'feature',
+                            name: s.name,
+                            description: '',
+                            zone: (s as any).zone?.id,
+                        })),
                     ...contacts
                         .map(
                             (u) =>
@@ -244,17 +259,12 @@ export class ExploreSearchService {
                         name: u.name,
                         description: u.email,
                     })),
-                    ...features
-                        .filter((_) => _.name.toLowerCase().includes(search))
-                        .map((s) => ({
-                            id: s.id,
-                            type: 'feature',
-                            name: s.name,
-                            description: '',
-                            zone: (s as any).zone?.id,
-                        })),
                 ];
-                results.sort((a, b) => a.name.localeCompare(b.name));
+                results.sort(
+                    (a, b) =>
+                        typeIndex(a) - typeIndex(b) ||
+                        a.name.localeCompare(b.name),
+                );
                 return results;
             },
         ),
