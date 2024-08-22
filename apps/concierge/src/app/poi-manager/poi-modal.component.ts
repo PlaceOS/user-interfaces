@@ -147,8 +147,8 @@ import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
                                     form.patchValue({
                                         location: [
                                             $event,
-                                            form.value.location[1]
-                                        ]
+                                            form.value.location[1],
+                                        ],
                                     })
                                 "
                                 [ngModelOptions]="{ standalone: true }"
@@ -163,13 +163,18 @@ import { SelectPOIMapModalComponent } from './select-poi-map-modal.component';
                                     form.patchValue({
                                         location: [
                                             form.value.location[0],
-                                            $event
-                                        ]
+                                            $event,
+                                        ],
                                     })
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                             />
                         </mat-form-field>
+                    </div>
+                    <div class="pt-2">
+                        <mat-checkbox formControlName="can_search">
+                            Is Searchable?
+                        </mat-checkbox>
                     </div>
                 </div>
             </form>
@@ -213,6 +218,7 @@ export class POIModalComponent extends AsyncHandler {
         location: new FormControl(this._data?.location || '', [
             Validators.required,
         ]),
+        can_search: new FormControl(this._data.can_search ?? false),
     });
 
     constructor(
@@ -220,7 +226,7 @@ export class POIModalComponent extends AsyncHandler {
         @Inject(MAT_DIALOG_DATA) private _data: PointOfInterest | undefined,
         private _dialog_ref: MatDialogRef<POIModalComponent>,
         private _settings: SettingsService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {
         super();
     }
@@ -252,8 +258,8 @@ export class POIModalComponent extends AsyncHandler {
         if (!this.form.valid) {
             return notifyError(
                 `Some form fields are invalid. [${getInvalidFields(
-                    this.form
-                ).join(', ')}]`
+                    this.form,
+                ).join(', ')}]`,
             );
         }
         const data: any = this.form.getRawValue();
@@ -290,7 +296,7 @@ export class POIModalComponent extends AsyncHandler {
         const old_metadata = await showMetadata(
             this._org.organisation.id,
             'points-of-interest',
-            {}
+            {},
         ).toPromise();
         const metadata = old_metadata.details || {};
         if (!metadata[data.level_id]) metadata[data.level_id] = [];
@@ -298,7 +304,7 @@ export class POIModalComponent extends AsyncHandler {
             for (const lvl in metadata) {
                 if (metadata[lvl])
                     metadata[lvl] = metadata[lvl].filter(
-                        (_) => _.id !== data.id
+                        (_) => _.id !== data.id,
                     );
             }
         }

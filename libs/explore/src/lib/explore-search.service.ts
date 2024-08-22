@@ -26,6 +26,17 @@ import { searchStaff } from 'libs/users/src/lib/staff.fn';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { moduleFromMetadata } from '@placeos/organisation';
 
+export interface PointOfInterest {
+    id: string;
+    name: string;
+    level_id: string;
+    location: string | [number, number];
+    short_link_id: string;
+    qr_code?: string;
+    qr_link?: string;
+    can_search?: boolean;
+}
+
 export interface SearchResult {
     /** Unique ID of the result item */
     id: string;
@@ -155,22 +166,62 @@ export class ExploreSearchService {
                 for (const item of data) {
                     const metadata = item.metadata.map_features;
                     if (!metadata) continue;
-                    const poi_list =
+                    const feature_list =
                         metadata.details instanceof Array
                             ? metadata.details
                             : [];
-                    for (const poi of poi_list) {
+                    for (const feature of feature_list) {
                         list.push({
-                            id: poi.id,
+                            id: feature.id,
                             type: 'feature',
-                            name: poi.name,
+                            name: feature.name,
                             description: '',
                             zone: item.zone,
                         });
                     }
                 }
-                console.log('Points Of Interest', list, data);
                 return list;
+            }),
+        );
+
+    private _poi_metadata = this._org.initialised.pipe(
+        filter((_) => _),
+        switchMap(() =>
+            showMetadata(this._org.organisation.id, 'points-of-interest').pipe(
+                catchError((_) => of({ details: {} })),
+            ),
+        ),
+        shareReplay(1),
+    );
+
+    private _poi_list = combineLatest([
+        this._org.active_building,
+        this._poi_metadata,
+    ]).pipe(
+        filter(([bld]) => !!bld.id),
+        map(([bld, metadata]) => {
+            const mapping = metadata.details || {};
+            const levels = this._org.levelsForBuilding(bld);
+            const list: PointOfInterest[] = flatten(
+                levels.map((lvl) => mapping[lvl.id] || []),
+            );
+            return list.filter((_) => _.can_search);
+        }),
+    );
+
+    private _points_of_interest: Observable<SearchResult[]> =
+        this._poi_list.pipe(
+            map((poi_list) => {
+                return poi_list.map(
+                    (item) =>
+                        ({
+                            id: item.id || item.location,
+                            type: 'feature',
+                            name: item.name,
+                            description: '',
+                            zone: item.level_id,
+                        }) as SearchResult,
+                );
             }),
         );
 
@@ -182,6 +233,7 @@ export class ExploreSearchService {
         this._role_assigned_contacts,
         this._map_features,
         this._maps_people_search,
+        this._points_of_interest,
     ]).pipe(
         map(
             ([
@@ -192,6 +244,7 @@ export class ExploreSearchService {
                 roled_contacts,
                 features,
                 mapspeople_items,
+                points_of_interest,
             ]) => {
                 const search = filter.toLowerCase();
                 const results = [
@@ -237,6 +290,9 @@ export class ExploreSearchService {
                             description: '',
                             zone: (s as any).zone?.id,
                         })),
+                    ...points_of_interest.filter((_) =>
+                        _.name.toLowerCase().includes(search),
+                    ),
                     ...contacts
                         .map(
                             (u) =>
