@@ -218,7 +218,7 @@ export class POIModalComponent extends AsyncHandler {
         location: new FormControl(this._data?.location || '', [
             Validators.required,
         ]),
-        can_search: new FormControl(this._data.can_search ?? false),
+        can_search: new FormControl(this._data?.can_search ?? false),
     });
 
     constructor(
