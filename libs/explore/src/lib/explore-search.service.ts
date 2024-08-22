@@ -147,7 +147,7 @@ export class ExploreSearchService {
             map((data: PlaceZoneMetadata[]) => {
                 const list = [];
                 for (const item of data) {
-                    const metadata = item.metadata.points_of_interest;
+                    const metadata = item.metadata.maps_features;
                     if (!metadata) continue;
                     for (const poi of metadata.details as any[]) {
                         list.push({
