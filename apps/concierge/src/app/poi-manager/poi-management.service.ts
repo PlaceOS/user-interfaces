@@ -24,6 +24,7 @@ export interface PointOfInterest {
     short_link_id: string;
     qr_code?: string;
     qr_link?: string;
+    can_search?: boolean;
 }
 
 @Injectable({
