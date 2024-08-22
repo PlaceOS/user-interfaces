@@ -121,11 +121,11 @@ export class ControlStateService extends AsyncHandler {
     /** List of available input sources */
     public readonly input_list = this._input_data.pipe(
         map((l) => l.filter((_) => !_.hidden)),
-        shareReplay(1)
+        shareReplay(1),
     );
     public readonly presentables$ = this._input_data.pipe(
         map((l) => l.filter((_) => _.presentable !== false)),
-        shareReplay(1)
+        shareReplay(1),
     );
     /** List of available output sources */
     public readonly output_list = combineLatest([
@@ -133,9 +133,9 @@ export class ControlStateService extends AsyncHandler {
         this._outputs,
     ]).pipe(
         map(([l, a]) =>
-            l.filter((_) => !_.hidden && (!_.id || (a || []).includes(_.id)))
+            l.filter((_) => !_.hidden && (!_.id || (a || []).includes(_.id))),
         ),
-        shareReplay(1)
+        shareReplay(1),
     );
     public readonly system_id = this._id.asObservable();
     public readonly calendar = this._calendar.asObservable();
@@ -151,59 +151,59 @@ export class ControlStateService extends AsyncHandler {
     public readonly capture_list = this._output_data.pipe(
         map((list) =>
             list?.filter(
-                (_) => _.type === 'recording' || _.mod?.includes('Capture')
-            )
-        )
+                (_) => _.type === 'recording' || _.mod?.includes('Capture'),
+            ),
+        ),
     );
     /** List of available microphone input sources */
     public readonly mic_list = this._input_data.pipe(
         map((list) =>
             list?.filter(
-                (_) => _.type === 'mic' || _.mod?.includes('Microphone')
-            )
-        )
+                (_) => _.type === 'mic' || _.mod?.includes('Microphone'),
+            ),
+        ),
     );
     /** List of available camera input sources */
     public readonly camera_list = this._input_data.pipe(
         map((list) =>
-            list?.filter((_) => _.type === 'cam' || _.mod?.includes('Camera'))
-        )
+            list?.filter((_) => _.type === 'cam' || _.mod?.includes('Camera')),
+        ),
     );
     public readonly selected_camera = this.system_id.pipe(
         switchMap((id) => this._listenToSystemBinding(id, 'selected_camera')),
-        shareReplay(1)
+        shareReplay(1),
     );
     public readonly microphones: Observable<string[]> = this.system_id.pipe(
         switchMap((id) => this._listenToSystemBinding(id, 'microphones')),
-        shareReplay(1)
+        shareReplay(1),
     );
     public readonly join_modes: Observable<
         HashMap<{ name: string; room_ids: string[] }>
     > = this.system_id.pipe(
         switchMap((id) => this._listenToSystemBinding(id, 'join_modes')),
-        shareReplay(1)
+        shareReplay(1),
     );
     public readonly joined_id: Observable<string> = this.system_id.pipe(
         switchMap((id) => this._listenToSystemBinding(id, 'joined')),
-        shareReplay(1)
+        shareReplay(1),
     );
     public readonly lighting_scenes: Observable<LightScene[]> =
         this.system_id.pipe(
             switchMap((id) =>
-                this._listenToSystemBinding(id, 'lighting_scenes')
+                this._listenToSystemBinding(id, 'lighting_scenes'),
             ),
-            shareReplay(1)
+            shareReplay(1),
         );
     public readonly lighting_scene: Observable<string> = this.system_id.pipe(
         switchMap((id) => this._listenToSystemBinding(id, 'lighting_scene')),
-        shareReplay(1)
+        shareReplay(1),
     );
     public readonly room_accessories: Observable<RoomAccessory[]> =
         this.system_id.pipe(
             switchMap((id) =>
-                this._listenToSystemBinding(id, 'room_accessories')
+                this._listenToSystemBinding(id, 'room_accessories'),
             ),
-            shareReplay(1)
+            shareReplay(1),
         );
     public readonly joined = combineLatest([
         this.join_modes,
@@ -213,24 +213,24 @@ export class ControlStateService extends AsyncHandler {
     public readonly help_items = this.system_id.pipe(
         switchMap((id) => this._listenToSystemBinding(id, 'help')),
         map((_) =>
-            !_ ? null : Object.keys(_).map((key) => ({ id: key, ..._[key] }))
+            !_ ? null : Object.keys(_).map((key) => ({ id: key, ..._[key] })),
         ),
-        shareReplay(1)
+        shareReplay(1),
     );
     public readonly preview_outputs = this.system_id.pipe(
         switchMap((id) => this._listenToSystemBinding(id, 'preview_outputs')),
         map((_) => _?.length > 0),
-        shareReplay(1)
+        shareReplay(1),
     );
     public readonly tabs: Observable<TabDetails[]> = this.system_id.pipe(
         switchMap((id) => this._listenToSystemBinding(id, 'tabs')),
         map((_) => _ || []),
-        shareReplay(1)
+        shareReplay(1),
     );
     public readonly hide_join_button: Observable<boolean> = this.system_id.pipe(
         switchMap((id) => this._listenToSystemBinding(id, 'join_hide_button')),
         map((_) => !!_),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly join_status: Observable<[boolean, boolean]> =
@@ -239,9 +239,9 @@ export class ControlStateService extends AsyncHandler {
                 combineLatest([
                     this._listenToSystemBinding(id, 'join_master'),
                     this._listenToSystemBinding(id, 'join_lockout_secondary'),
-                ])
+                ]),
             ),
-            shareReplay(1)
+            shareReplay(1),
         );
 
     public readonly calendars = this._cal.calendar_list;
@@ -259,7 +259,7 @@ export class ControlStateService extends AsyncHandler {
             const url = this._url.getValue();
             return list.filter((_) => _.meeting_url.startsWith(url));
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public get id() {
@@ -269,7 +269,7 @@ export class ControlStateService extends AsyncHandler {
     constructor(
         private _dialog: MatDialog,
         private _cal: CalendarService,
-        private _spaces: SpacesService
+        private _spaces: SpacesService,
     ) {
         super();
         this._id.pipe(distinct()).subscribe((id) => this.bindToState(id));
@@ -328,7 +328,7 @@ export class ControlStateService extends AsyncHandler {
     public async setOutputSource(input: string, clear = true) {
         const output = this._active_output.getValue();
         const data = (this._output_data.getValue() || []).find(
-            (_) => _.id === output
+            (_) => _.id === output,
         );
         this.setSelectedInput(input);
         if (!output || data?.source === input) return;
@@ -338,10 +338,11 @@ export class ControlStateService extends AsyncHandler {
 
     public setSelectedInput(input: string) {
         if (this._system.getValue().selected_input === input) return;
+        console.warn('Select:', input);
         return this.timeout(
             `selected`,
             () => this._execute('selected_input', [input]),
-            50
+            50,
         );
     }
 
@@ -357,7 +358,7 @@ export class ControlStateService extends AsyncHandler {
                 event.event_start,
                 event.event_end,
             ],
-            'MeetingPush'
+            'MeetingPush',
         );
     }
 
@@ -400,9 +401,9 @@ export class ControlStateService extends AsyncHandler {
             `set-volume`,
             () =>
                 (this._ignore_changes = this._ignore_changes.filter(
-                    (_) => _ !== 'volume'
+                    (_) => _ !== 'volume',
                 )),
-            500
+            500,
         );
     }
 
@@ -410,7 +411,7 @@ export class ControlStateService extends AsyncHandler {
     private _execute(
         name: string,
         params: any[] = [],
-        mod_name: string = 'System'
+        mod_name: string = 'System',
     ) {
         const mod = getModule(this._id.getValue(), mod_name);
         if (!mod) return;
@@ -440,7 +441,7 @@ export class ControlStateService extends AsyncHandler {
                 items: await this.help_items
                     .pipe(
                         filter((_) => !!_),
-                        take(1)
+                        take(1),
                     )
                     .toPromise(),
                 active_id: id,
@@ -465,21 +466,21 @@ export class ControlStateService extends AsyncHandler {
         this.bindTo(id, 'volume');
         this.bindTo(id, 'inputs', undefined, (l) => this._inputs.next(l));
         this.bindTo(id, 'available_outputs', undefined, (l) =>
-            this._outputs.next(l)
+            this._outputs.next(l),
         );
         this.bindTo(id, 'lights', undefined, (l) => this._lights.next(l));
         this.bindTo(id, 'blinds', undefined, (l) => this._blinds.next(l));
         this.bindTo(id, 'screen', undefined, (l) => this._screens.next(l));
         this.bindTo(id, 'qsc_dial_number', undefined, (v) =>
-            this.updateProperty('phone', v)
+            this.updateProperty('phone', v),
         );
         this.bindTo(id, 'qsc_dial_bindings', undefined, (v) => {
             if (v) {
                 this.bindTo(id, v.offhook_id, 'Mixer', (l) =>
-                    this.updateProperty('offhook', l)
+                    this.updateProperty('offhook', l),
                 );
                 this.bindTo(id, v.ringing_id, 'Mixer', (l) =>
-                    this.updateProperty('ringing', l)
+                    this.updateProperty('ringing', l),
                 );
             }
             this.updateProperty('dial_bindings', v);
@@ -492,7 +493,7 @@ export class ControlStateService extends AsyncHandler {
         if (!id) return;
         for (const alias of alias_list) {
             this.bindTo(id, `${type}/${alias}`, undefined, (d) =>
-                this.updateSourceData(type, alias, d)
+                this.updateSourceData(type, alias, d),
             );
         }
     }
@@ -501,7 +502,7 @@ export class ControlStateService extends AsyncHandler {
     private updateSourceData(
         type: 'input' | 'output',
         id: string,
-        data: HashMap
+        data: HashMap,
     ) {
         const list_observer =
             type === 'input' ? this._input_data : this._output_data;
@@ -524,12 +525,12 @@ export class ControlStateService extends AsyncHandler {
         id: string,
         name: string,
         mod: string = 'System',
-        on_change: (v: any) => void = (v) => this.updateProperty(name, v)
+        on_change: (v: any) => void = (v) => this.updateProperty(name, v),
     ) {
         const module = getModule(id, mod).binding(name);
         this.subscription(
             `listen:${name}`,
-            module.listen().subscribe(on_change)
+            module.listen().subscribe(on_change),
         );
         const unbind = module.bind();
         // setTimeout(() => this.subscription(`bind:${name}`, unbind), 300);
