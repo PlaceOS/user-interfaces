@@ -169,6 +169,7 @@ export class ExploreSearchService {
                         });
                     }
                 }
+                console.log('Points Of Interest', list, data);
                 return list;
             }),
         );
