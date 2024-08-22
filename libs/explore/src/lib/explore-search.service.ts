@@ -142,18 +142,18 @@ export class ExploreSearchService {
         shareReplay(1),
     );
 
-    private _points_of_interest: Observable<SearchResult[]> =
+    private _map_features: Observable<SearchResult[]> =
         this._org.active_building.pipe(
             filter((bld) => !!bld),
             switchMap(() =>
                 listChildMetadata(this._org.building.id, {
-                    name: 'maps_features',
+                    name: 'map_features',
                 }).pipe(catchError(() => of({ details: [] }))),
             ),
             map((data: PlaceZoneMetadata[]) => {
                 const list = [];
                 for (const item of data) {
-                    const metadata = item.metadata.maps_features;
+                    const metadata = item.metadata.map_features;
                     if (!metadata) continue;
                     const poi_list =
                         metadata.details instanceof Array
@@ -180,7 +180,7 @@ export class ExploreSearchService {
         this._user_search,
         this._emergency_contacts,
         this._role_assigned_contacts,
-        this._points_of_interest,
+        this._map_features,
         this._maps_people_search,
     ]).pipe(
         map(
