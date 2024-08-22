@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1724306477193,
+  "timestamp": 1724308026904,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -161,7 +161,7 @@
     "./apps_concierge_src_app_level-manager_level-manager_module_ts.js": "32825786c8c8242cbed1003530a07f7ba8d0ee0e",
     "./apps_concierge_src_app_lockers_lockers_module_ts.js": "ab6b52bfd32057842b0404cc28472e6cfeca1d52",
     "./apps_concierge_src_app_parking_parking_module_ts.js": "21f292debf010170d60d9441f5e7b9f46697d804",
-    "./apps_concierge_src_app_poi-manager_poi-manager_module_ts.js": "c15916b6eb189009e658f1a475e9366a4ffed354",
+    "./apps_concierge_src_app_poi-manager_poi-manager_module_ts.js": "d3cad90e3f2ef1f4630e92a01197f4f7ccfcb431",
     "./apps_concierge_src_app_points_points_module_ts.js": "0b55cacb95c2f679852132876ab865926d83478d",
     "./apps_concierge_src_app_region-manager_region-manager_module_ts.js": "5d74a421561b966a9945e08bf9d4c121b42b5891",
     "./apps_concierge_src_app_reports_reports_module_ts.js": "c5f33a05b4f049bef7fb9aadebb7453b389e16d9",
@@ -253,14 +253,14 @@
     "./default-apps_concierge_src_app_parking_parking-state_service_ts.js": "f7d5941982e434bb07e4bb31a2774cad74828445",
     "./default-libs_bookings_src_lib_bookings_module_ts.js": "12200b65e44663074faa7e4d48b476580d50ec96",
     "./default-libs_catering_src_index_ts.js": "3ed50741b6198439265088e2f0fe53c3b32a54c2",
-    "./default-libs_explore_src_index_ts.js": "28ba636b7264407656069686dbb57a9220959289",
+    "./default-libs_explore_src_index_ts.js": "b6a788764f68ed0d22b93bf67c1d8bf3580e2a49",
     "./default-libs_users_src_lib_users_module_ts.js": "d5b5fde4acc69b83518d8d0198f712787bf23e5a",
     "./default-node_modules_angular_cdk_fesm2022_drag-drop_mjs.js": "8c7ef9ea4e29dfb3e42ad99b9cc8e1bfce0e6524",
     "./default-node_modules_angular_material_fesm2022_icon_mjs.js": "d1355a0ecbe90bf24f52be4101ca958b85aee1f1",
     "./default-node_modules_angular_material_fesm2022_tabs_mjs.js": "9d7818b86cddffd7dad6fdba547ab6d29f38ed17",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "4ecebe3aa37574e6a97b35e04fd997b7c80f5812",
-    "./main.js": "72cb90d561b13e764fceef91671618430ceeabbb",
+    "./main.js": "e9145bbac9480b364848c1cafb5baf5e8b05c501",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
