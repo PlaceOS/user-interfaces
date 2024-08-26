@@ -783,7 +783,7 @@ export class EventFormService extends AsyncHandler {
                             this._org.organisation.id,
                             this._org.region?.id,
                             this._org.building?.id,
-                            spaces[0]?.level?.id,
+                            ...spaces[0]?.zones,
                         ]).filter((_) => !!_),
                         reset_state: changed_times,
                     },
