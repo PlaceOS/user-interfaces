@@ -274,10 +274,28 @@ export class ApplicationSidebarComponent extends AsyncHandler {
 
     public filtered_links = [];
 
+    public get feature_list() {
+        return this._settings.get('app.features') || [];
+    }
+
+    public get feature_groups() {
+        return this._settings.get('app.feature_groups') || {};
+    }
+
+    public get is_admin() {
+        const groups = currentUser().groups;
+        const admin_group = this._settings.get('app.admin_group') || 'admin';
+        return (
+            !groups.includes(admin_group) &&
+            !groups.includes('placeos_admin') &&
+            !groups.includes('placeos_support')
+        );
+    }
+
     constructor(
         private _settings: SettingsService,
         private _org: OrganisationService,
-        private _element_ref: ElementRef<HTMLElement>
+        private _element_ref: ElementRef<HTMLElement>,
     ) {
         super();
     }
@@ -287,16 +305,30 @@ export class ApplicationSidebarComponent extends AsyncHandler {
         this.subscription(
             'building',
             this._org.active_building.subscribe(() =>
-                this.updateFilteredLinks()
-            )
+                this.updateFilteredLinks(),
+            ),
         );
         this.timeout('update_inview', () => this._moveActiveLinkIntoView(), 50);
     }
 
+    private _isFeatureAvailable(name: string): boolean {
+        if (name.startsWith('*')) return true;
+        const has_feature = this.feature_list.includes(name);
+        const feature_groups = this.feature_groups[name] || [];
+        const groups = currentUser().groups;
+        if (
+            has_feature &&
+            (this.is_admin ||
+                !feature_groups.length ||
+                groups.find((grp) => feature_groups.includes(grp)))
+        ) {
+            return true;
+        }
+        return false;
+    }
+
     public updateFilteredLinks() {
-        const features = this._settings.get('app.features') || [];
         const custom_reports = this._settings.get('app.custom_reports') || [];
-        const admin_group = this._settings.get('app.admin_group') || 'admin';
         if (
             custom_reports.length &&
             this.links.find((_) => _._id === 'reports')
@@ -308,38 +340,35 @@ export class ApplicationSidebarComponent extends AsyncHandler {
                         ..._,
                         id: `*${_.id}`,
                         route: ['/reports/new', _.id],
-                    }))
+                    })),
                 ),
-                'id'
+                'id',
             );
         }
         this.filtered_links = this.links
             .map((link) => ({
                 ...link,
                 children: link.children
-                    ? link.children.filter(
-                          (_) => features.includes(_.id) || _.id.startsWith('*')
+                    ? link.children.filter((_) =>
+                          this._isFeatureAvailable(_.id),
                       )
                     : null,
             }))
             .filter(
                 (_) =>
-                    ((!_.id || _.id === 'home' || features.includes(_.id)) &&
+                    ((!_.id ||
+                        _.id === 'home' ||
+                        this._isFeatureAvailable(_.id)) &&
                         _.route) ||
-                    _.children?.length
+                    _.children?.length,
             );
         if (this.filtered_links.find((_) => _.id === 'home')) {
             const link = this.filtered_links.find((_) => _.id === 'home');
             link.route = this._settings.get('app.default_route') || ['/'];
         }
-        const groups = currentUser().groups;
-        if (
-            !groups.includes(admin_group) &&
-            !groups.includes('placeos_admin') &&
-            !groups.includes('placeos_support')
-        ) {
+        if (this.is_admin) {
             this.filtered_links = this.filtered_links.filter(
-                (_) => _.id !== 'facilities'
+                (_) => _.id !== 'facilities',
             );
         }
     }
