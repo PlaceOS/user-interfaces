@@ -456,6 +456,7 @@ export class ControlStateService extends AsyncHandler {
             this._url.next(u);
         });
         this.bindTo(id, 'name');
+        this.bindTo(id, 'voice_control');
         this.bindTo(id, 'active');
         this.bindTo(id, 'connected');
         this.bindTo(id, 'recording');

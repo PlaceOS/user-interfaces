@@ -27,10 +27,12 @@ export class VoiceAssistantService extends AsyncHandler {
     private _system_id = new BehaviorSubject('');
     private _active = new BehaviorSubject(false);
     private _current_text = new BehaviorSubject('');
-
-    public error: Record<string, string | boolean> = {};
+    private _enabled = new BehaviorSubject(false);
+    private _error = new BehaviorSubject<Record<string, string | boolean>>({});
 
     public readonly current_text = this._current_text.asObservable();
+    public readonly enabled = this._enabled.asObservable();
+    public readonly error = this._error.asObservable();
     public readonly active = this._active.asObservable();
     public readonly progress = this._chat_service.progress;
     public readonly waiting = this._chat_service.messages.pipe(
@@ -56,7 +58,6 @@ export class VoiceAssistantService extends AsyncHandler {
                 )
                 .subscribe((id) => this._chat_service.setBinding(id)),
         );
-        this._setupVoiceRecognition();
         const user = currentUser();
         this.subscription(
             'chat.messages',
@@ -71,11 +72,22 @@ export class VoiceAssistantService extends AsyncHandler {
                 this._active.next(false);
             }),
         );
+        this.subscription(
+            'enabled',
+            this._enabled.subscribe((enabled) => {
+                if (enabled) this._setupVoiceRecognition();
+                else if (this._user_speech) {
+                    const speech = this._user_speech;
+                    speech.onend = () => null;
+                    speech.stop();
+                    delete this._user_speech;
+                }
+            }),
+        );
     }
 
-    public ngOnDestroy(): void {
-        super.ngOnDestroy();
-        this._user_speech.fatality();
+    public setEnabled(is_enabled: boolean) {
+        this._enabled.next(is_enabled);
     }
 
     public setBinding(system_id: string) {
@@ -83,7 +95,7 @@ export class VoiceAssistantService extends AsyncHandler {
     }
 
     public activate() {
-        if (this.error.speech_recognition) return;
+        if (this._error.getValue().speech_recognition) return;
         this._active.next(true);
         this.timeout(
             'deactivate',
@@ -137,12 +149,15 @@ export class VoiceAssistantService extends AsyncHandler {
                 return;
             }
             log('VOICE', 'Speech Recognition Error:', event.error, 'warn');
-            this.error.speech_recognition = true;
+            this._error.next({
+                ...this._error.getValue(),
+                speech_recognition: true,
+            });
         };
 
         this._user_speech.onend = () => {
-            if (this.error.speech_recognition) return;
-            this._user_speech.start();
+            if (this._error.getValue().speech_recognition) return;
+            this._user_speech?.start();
         };
         this._user_speech.start();
         log('VOICE', 'Listening for commands.');
@@ -167,7 +182,10 @@ export class VoiceAssistantService extends AsyncHandler {
         const text_to_speech = window.speechSynthesis;
         if (!has_speech_synth) {
             log('VOICE', `Speech Synthesis is unavailable.`, undefined, 'warn');
-            this.error.speech_synthesis = true;
+            this._error.next({
+                ...this._error.getValue(),
+                speech_synthesis: true,
+            });
             return;
         }
         log('VOICE', `Response: "${text}"`);

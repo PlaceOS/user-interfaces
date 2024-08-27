@@ -35,7 +35,10 @@ import { VideoCallStateService } from '../video-call/video-call-state.service';
                     <p>{{ tab.name }}</p>
                 </a>
                 <div class="absolute top-0 bottom-2 right-0 flex space-x-2">
-                    <voice-assistant [system_id]="id"></voice-assistant>
+                    <voice-assistant
+                        [system_id]="id"
+                        [enabled]="(system$ | async)?.voice_control"
+                    ></voice-assistant>
                     <div
                         class="w-20 p-2 flex flex-col bg-base-100 rounded shadow"
                         *ngIf="join_code"

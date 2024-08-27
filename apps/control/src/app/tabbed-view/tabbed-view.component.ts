@@ -61,7 +61,10 @@ import { ControlStateService } from '../control-state.service';
                     </div>
                 </div>
                 <div class="absolute bottom-4 right-4">
-                    <voice-assistant [system_id]="id"></voice-assistant>
+                    <voice-assistant
+                        [system_id]="id"
+                        [enabled]="(system | async)?.voice_control"
+                    ></voice-assistant>
                 </div>
             </div>
         </ng-template>
@@ -72,7 +75,7 @@ import { ControlStateService } from '../control-state.service';
             >
                 <mat-spinner class="mb-4" [diameter]="64"></mat-spinner>
                 <div class="text-2xl my-4">
-                    Connecting to system(<em>{{ id }}</em
+                    Connecting to system (<em>{{ id }}</em
                     >)...
                 </div>
                 <div class="text-base"></div>
