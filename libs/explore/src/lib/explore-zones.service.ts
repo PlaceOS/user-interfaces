@@ -147,7 +147,6 @@ export class ExploreZonesService extends AsyncHandler {
     }
 
     public parseData(value: ZoneData[] = []) {
-        console.log('Zones:', value);
         const labels = [];
         const features = [];
 

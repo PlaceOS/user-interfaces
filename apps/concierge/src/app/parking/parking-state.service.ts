@@ -343,7 +343,6 @@ export class ParkingStateService extends AsyncHandler {
 
     /** Add or update a space in the available list */
     public async editUser(user?: ParkingUser) {
-        console.log('Edit User', user);
         const ref = this._dialog.open(ParkingUserModalComponent, {
             data: user,
         });
@@ -413,7 +412,6 @@ export class ParkingStateService extends AsyncHandler {
             external_user?: boolean;
         } = {},
     ) {
-        console.log('Reservation:', space);
         return new Promise<string>(async (resolve) => {
             const levels = await this.levels.pipe(take(1)).toPromise();
             const spaces = await this.spaces.pipe(take(1)).toPromise();

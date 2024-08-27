@@ -82,11 +82,11 @@ import { map } from 'rxjs/operators';
                                           : (event.date_end
                                             | date: ', ' + time_format))
                                     : event.all_day
-                                    ? 'All Day'
-                                    : (event.date | date: time_format) +
-                                      ' - ' +
-                                      (event.date + event.duration * 60 * 1000
-                                          | date: time_format + ' (z)')
+                                      ? 'All Day'
+                                      : (event.date | date: time_format) +
+                                        ' - ' +
+                                        (event.date + event.duration * 60 * 1000
+                                            | date: time_format + ' (z)')
                             }}
                         </div>
                     </div>
@@ -126,8 +126,11 @@ import { map } from 'rxjs/operators';
                     <app-icon>done</app-icon>
                 </div>
                 <h3 class="text-xl !mt-0" i18n>
-                    {{ event.attendees.length }} { event.attendees.length,
-                    plural, =1 { Attendee } other { Attendees } }
+                    {{ event.attendees.length }}
+                    {event.attendees.length, plural,
+                        =1 {Attendee }
+                        other {Attendees }
+                    }
                 </h3>
                 <div attendee-list>
                     <mat-chip-list #chipList aria-label="User selection">
@@ -385,7 +388,7 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
                         'You are creating a booking without a room, are you sure?',
                     icon: { content: 'event_available' },
                 },
-                this._dialog
+                this._dialog,
             );
             if (result.reason !== 'done') return;
             result.close();
@@ -429,7 +432,7 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
 
     public get location() {
         const building = this._org.buildings.find((_) =>
-            this.space.zones.includes(_.id)
+            this.space.zones.includes(_.id),
         );
         return building?.address || building?.display_name || building?.name;
     }
@@ -452,7 +455,7 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
         @Optional()
         private _dialog_ref: MatDialogRef<MeetingFlowConfirmModalComponent>,
         private _dialog: MatDialog,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -470,17 +473,17 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
                         date: date,
                         date_end: addMinutes(
                             date,
-                            this.event.duration
+                            this.event.duration,
                         ).valueOf(),
                     },
-                })
+                }),
         );
         (this as any).assets = this.event.assets?.map(
-            (_) => new AssetRequest({ ..._, event: this.event })
+            (_) => new AssetRequest({ ..._, event: this.event }),
         );
         this._space =
             (await this._space_pipe.transform(
-                this.event.resources[0]?.email
+                this.event.resources[0]?.email,
             )) || this._space;
         const changed_spaces =
             !this._event_form.event ||
@@ -490,7 +493,6 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
             this.event.date !== this._event_form.event.date ||
             this.event.date_end !== this._event_form.event.date_end;
         const event = this._event_form.form.value;
-        console.log('Changes:', changed_spaces, changed_times);
         this._loading.next(true);
         await validateAssetRequestsForResource(
             this._event_form.event || {},
@@ -508,19 +510,18 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
                 reset_state: changed_times,
             },
             event.assets,
-            changed_spaces || changed_times
+            changed_spaces || changed_times,
         ).catch((e) => notifyError(e));
         this.timeout(
             'update_assets',
             () => {
                 (this as any).assets = event.assets?.map(
-                    (_) => new AssetRequest({ ..._, event })
+                    (_) => new AssetRequest({ ..._, event }),
                 );
                 this._event_form.form.patchValue({ assets: event.assets });
             },
-            100
+            100,
         );
-        this.timeout('assets', () => console.log('Assets', event.assets));
         this._loading.next(false);
     }
 

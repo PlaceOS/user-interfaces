@@ -496,11 +496,9 @@ export class EventManageComponent extends AsyncHandler {
                             'events',
                         ]);
                     this._form_state.newForm(booking);
-                    console.log('Event:', booking.extension_data?.tags);
                     this.resource = booking.resources.find(
                         (_) => _.email !== this._state.calendar,
                     )?.email;
-                    console.log('Resource:', this.resource);
                     this.form.patchValue({
                         tags: booking.extension_data?.tags || [],
                         organiser: new StaffUser({
@@ -588,7 +586,6 @@ export class EventManageComponent extends AsyncHandler {
             const resource = await new SpacePipe().transform(this.resource);
             resources.push(resource);
         }
-        console.log('Resources:', resources);
         resources = unique(resources, 'email');
         this.form.patchValue({ resources, host: this._state.calendar });
         const date = this.form.getRawValue().date;

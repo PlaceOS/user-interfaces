@@ -174,8 +174,10 @@ import { User } from '@placeos/users';
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl mx-auto"
                 [class.bg-success]="data === 'accepted'"
                 [class.text-success-content]="data === 'accepted'"
-                [class.bg-warning]="data === 'tentative'"
-                [class.text-warning-content]="data === 'tentative'"
+                [class.bg-warning]="data !== 'accepted' && data !== 'declined'"
+                [class.text-warning-content]="
+                    data !== 'accepted' && data !== 'declined'
+                "
                 [class.bg-error]="data === 'declined'"
                 [class.text-error-content]="data === 'declined'"
             >
@@ -194,13 +196,23 @@ import { User } from '@placeos/users';
             <div class="px-4">
                 <button
                     matRipple
-                    class="rounded-3xl bg-warning text-warning-content border-none w-[7.5rem] h-10"
-                    [class.!text-success-content]="row?.status === 'approved'"
-                    [class.!bg-success]="row?.status === 'approved'"
-                    [class.!text-error-content]="row?.status === 'declined'"
-                    [class.!bg-error]="row?.status === 'declined'"
-                    [class.!text-neutral-content]="row?.status === 'ended'"
-                    [class.!bg-neutral]="row?.status === 'ended'"
+                    class="rounded-3xl border-none w-[7.5rem] h-10"
+                    [class.text-success-content]="row?.status === 'approved'"
+                    [class.bg-success]="row?.status === 'approved'"
+                    [class.text-error-content]="row?.status === 'declined'"
+                    [class.bg-error]="row?.status === 'declined'"
+                    [class.text-neutral-content]="row?.status === 'ended'"
+                    [class.bg-neutral]="row?.status === 'ended'"
+                    [class.text-warning-content]="
+                        row?.status !== 'ended' &&
+                        row?.status !== 'approved' &&
+                        row?.status !== 'declined'
+                    "
+                    [class.bg-warning]="
+                        row?.status !== 'ended' &&
+                        row?.status !== 'approved' &&
+                        row?.status !== 'declined'
+                    "
                     [class.opacity-30]="row?.status === 'ended'"
                     [matMenuTriggerFor]="menu"
                     [disabled]="

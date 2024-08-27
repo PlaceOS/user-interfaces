@@ -43,17 +43,20 @@ export class AssetReportUsersComponent {
                 const booked_assets = unique(
                     host_bookings.map((_) => _.asset_ids).flat(),
                 );
+                const booked_products = unique(
+                    booked_assets.map(
+                        (i) =>
+                            products.find((p) =>
+                                p.assets.find((_) => _.id === i),
+                            )?.name,
+                    ),
+                );
                 return {
                     name: e.organiser?.name || e.organiser?.email || e.host,
                     booking_count: events.filter((e) => e.host === e.host)
                         .length,
                     asset_count: booked_assets.length,
-                    asset_types:
-                        unique(
-                            booked_assets.map(
-                                (i) => products.find((p) => p.id === i)?.name,
-                            ),
-                        )?.length || 0,
+                    asset_types: booked_products.length || 0,
                 };
             });
             return data;

@@ -595,7 +595,9 @@ export class BookingFormService extends AsyncHandler {
                     duration: value.duration,
                     all_day: value.all_day,
                     host: value.booked_by_email,
-                    zones: [this._org.building?.id],
+                    zones: unique([...zones, ...(value.zones || [])]).filter(
+                        (_) => _,
+                    ),
                 },
                 value.assets,
             ).catch((e) => {

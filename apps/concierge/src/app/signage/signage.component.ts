@@ -13,31 +13,36 @@ import { AsyncHandler } from '@placeos/common';
             <main class="flex flex-col flex-1 w-1/2 h-full">
                 <div class="p-8 h-28 flex items-center justify-between">
                     <h2 class="text-2xl font-medium">
-                        Signage - {{ active_link }}
+                        Digital Signage Management
                     </h2>
                     <button
                         btn
                         matRipple
-                        class="w-32"
+                        class="w-40"
+                        *ngIf="active_link === 'Media'"
                         (click)="newItem(active_link)"
-                        *ngIf="active_link !== 'Media'"
                     >
                         Add {{ singular(active_link) }}
                     </button>
                 </div>
-                <nav mat-tab-nav-bar [tabPanel]="tabPanel">
-                    @for (link of links; track link) {
-                    <a
-                        mat-tab-link
-                        [routerLink]="'/signage/' + (link | lowercase)"
-                        (click)="active_link = link"
-                        [active]="active_link == link"
-                    >
-                        {{ link }}
-                    </a>
-                    }
-                </nav>
-                <mat-tab-nav-panel class="flex-1 h-1/2 overflow-auto" #tabPanel>
+                <div class="px-8">
+                    <nav mat-tab-nav-bar [tabPanel]="tabPanel">
+                        @for (link of links; track link) {
+                            <a
+                                mat-tab-link
+                                [routerLink]="'/signage/' + (link | lowercase)"
+                                (click)="active_link = link"
+                                [active]="active_link == link"
+                            >
+                                {{ link }}
+                            </a>
+                        }
+                    </nav>
+                </div>
+                <mat-tab-nav-panel
+                    class="flex-1 h-1/2 overflow-auto px-8 py-4"
+                    #tabPanel
+                >
                     <router-outlet></router-outlet>
                 </mat-tab-nav-panel>
             </main>
@@ -57,31 +62,37 @@ import { AsyncHandler } from '@placeos/common';
 })
 export class SignageComponent extends AsyncHandler implements OnInit {
     public readonly loading = this._state.loading;
-    public links = ['Playlists', 'Media', 'Displays', 'Zones', 'Triggers'];
+    public links = ['Media', 'Displays', 'Zones'];
     public active_link = this.links[0];
 
+    public readonly previewFile = (event) =>
+        this._state.previewFileFromInput(event);
+
     public singular(name: string) {
-        return name.replace(/s$/, '');
+        if (name === 'Media') return 'Playlist';
+        if (name === 'Playlists') return 'Playlist';
+        return '';
     }
 
-    public newItem(name: string) {
+    public async newItem(name: string) {
         switch (name) {
+            case 'Media':
             case 'Playlists':
-                this._state.editPlaylist();
-                break;
-            case 'Displays':
-                this._state.editDisplay();
-                break;
-            case 'Zones':
-                // this._state.editZone();
-                break;
-            case 'Triggers':
-                // this._state.editTrigger();
+                const result = await this._state.editPlaylist();
+                if (result) {
+                    this._router.navigate([
+                        '/signage/media',
+                        { query: { playlist: result.id } },
+                    ]);
+                }
                 break;
         }
     }
 
-    constructor(private _state: SignageStateService, private _router: Router) {
+    constructor(
+        private _state: SignageStateService,
+        private _router: Router,
+    ) {
         super();
     }
 
@@ -91,13 +102,13 @@ export class SignageComponent extends AsyncHandler implements OnInit {
             this._router.events.subscribe((event) => {
                 if (event instanceof NavigationEnd) {
                     this.active_link = this.links.find((_) =>
-                        this._router.url.includes(_.toLowerCase())
+                        this._router.url.includes(_.toLowerCase()),
                     );
                 }
-            })
+            }),
         );
         this.active_link = this.links.find((_) =>
-            this._router.url.includes(_.toLowerCase())
+            this._router.url.includes(_.toLowerCase()),
         );
     }
 }

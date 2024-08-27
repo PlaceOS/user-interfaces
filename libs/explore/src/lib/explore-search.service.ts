@@ -26,6 +26,17 @@ import { searchStaff } from 'libs/users/src/lib/staff.fn';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { moduleFromMetadata } from '@placeos/organisation';
 
+export interface PointOfInterest {
+    id: string;
+    name: string;
+    level_id: string;
+    location: string | [number, number];
+    short_link_id: string;
+    qr_code?: string;
+    qr_link?: string;
+    can_search?: boolean;
+}
+
 export interface SearchResult {
     /** Unique ID of the result item */
     id: string;
@@ -39,6 +50,12 @@ export interface SearchResult {
     is_role?: boolean;
     /** ID of the zone that the item is located */
     zone?: string;
+}
+
+const TYPES = ['space', 'contact', 'feature', 'user'];
+
+function typeIndex(item: SearchResult): number {
+    return TYPES.indexOf(item.is_role ? 'contact' : item.type);
 }
 
 declare let mapsindoors: any;
@@ -136,24 +153,28 @@ export class ExploreSearchService {
         shareReplay(1),
     );
 
-    private _points_of_interest: Observable<SearchResult[]> =
+    private _map_features: Observable<SearchResult[]> =
         this._org.active_building.pipe(
             filter((bld) => !!bld),
             switchMap(() =>
                 listChildMetadata(this._org.building.id, {
-                    name: 'maps_features',
+                    name: 'map_features',
                 }).pipe(catchError(() => of({ details: [] }))),
             ),
             map((data: PlaceZoneMetadata[]) => {
                 const list = [];
                 for (const item of data) {
-                    const metadata = item.metadata.points_of_interest;
+                    const metadata = item.metadata.map_features;
                     if (!metadata) continue;
-                    for (const poi of metadata.details as any[]) {
+                    const feature_list =
+                        metadata.details instanceof Array
+                            ? metadata.details
+                            : [];
+                    for (const feature of feature_list) {
                         list.push({
-                            id: poi.id,
+                            id: feature.id,
                             type: 'feature',
-                            name: poi.name,
+                            name: feature.name,
                             description: '',
                             zone: item.zone,
                         });
@@ -163,14 +184,56 @@ export class ExploreSearchService {
             }),
         );
 
+    private _poi_metadata = this._org.initialised.pipe(
+        filter((_) => _),
+        switchMap(() =>
+            showMetadata(this._org.organisation.id, 'points-of-interest').pipe(
+                catchError((_) => of({ details: {} })),
+            ),
+        ),
+        shareReplay(1),
+    );
+
+    private _poi_list = combineLatest([
+        this._org.active_building,
+        this._poi_metadata,
+    ]).pipe(
+        filter(([bld]) => !!bld.id),
+        map(([bld, metadata]) => {
+            const mapping = metadata.details || {};
+            const levels = this._org.levelsForBuilding(bld);
+            const list: PointOfInterest[] = flatten(
+                levels.map((lvl) => mapping[lvl.id] || []),
+            );
+            return list.filter((_) => _.can_search);
+        }),
+    );
+
+    private _points_of_interest: Observable<SearchResult[]> =
+        this._poi_list.pipe(
+            map((poi_list) => {
+                return poi_list.map(
+                    (item) =>
+                        ({
+                            id: item.id || item.location,
+                            type: 'feature',
+                            name: item.name,
+                            description: '',
+                            zone: item.level_id,
+                        }) as SearchResult,
+                );
+            }),
+        );
+
     public readonly search_results: Observable<SearchResult[]> = combineLatest([
         this._filter,
         this._space_search,
         this._user_search,
         this._emergency_contacts,
         this._role_assigned_contacts,
-        this._points_of_interest,
+        this._map_features,
         this._maps_people_search,
+        this._points_of_interest,
     ]).pipe(
         map(
             ([
@@ -181,6 +244,7 @@ export class ExploreSearchService {
                 roled_contacts,
                 features,
                 mapspeople_items,
+                points_of_interest,
             ]) => {
                 const search = filter.toLowerCase();
                 const results = [
@@ -217,6 +281,18 @@ export class ExploreSearchService {
                             _.description.toLowerCase().includes(search) ||
                             _.type.toLowerCase().includes(search),
                     ),
+                    ...features
+                        .filter((_) => _.name.toLowerCase().includes(search))
+                        .map((s) => ({
+                            id: s.id,
+                            type: 'feature',
+                            name: s.name,
+                            description: '',
+                            zone: (s as any).zone?.id,
+                        })),
+                    ...points_of_interest.filter((_) =>
+                        _.name.toLowerCase().includes(search),
+                    ),
                     ...contacts
                         .map(
                             (u) =>
@@ -240,17 +316,12 @@ export class ExploreSearchService {
                         name: u.name,
                         description: u.email,
                     })),
-                    ...features
-                        .filter((_) => _.name.toLowerCase().includes(search))
-                        .map((s) => ({
-                            id: s.id,
-                            type: 'feature',
-                            name: s.name,
-                            description: '',
-                            zone: (s as any).zone?.id,
-                        })),
                 ];
-                results.sort((a, b) => a.name.localeCompare(b.name));
+                results.sort(
+                    (a, b) =>
+                        typeIndex(a) - typeIndex(b) ||
+                        a.name.localeCompare(b.name),
+                );
                 return results;
             },
         ),

@@ -12,6 +12,7 @@ const app = {
         src: 'assets/logo-dark.svg',
     },
     diagnostics: true,
+    default_animation_time: 1000,
 };
 
 /**
@@ -21,7 +22,7 @@ export const DEFAULT_SETTINGS = {
     debug: true,
     composer: {
         domain: '',
-        route: '/kiosk',
+        route: '/signage',
         protocol: '',
         port: '',
         use_domain: false,

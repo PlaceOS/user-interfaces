@@ -24,7 +24,7 @@ import { ExploreSearchService } from '@placeos/explore';
                     'w-px': !show,
                     'opacity-100': show,
                     'opacity-0': !show,
-                    'pointer-events-none': !show
+                    'pointer-events-none': !show,
                 }"
                 (click)="showInput()"
             >
@@ -44,14 +44,15 @@ import { ExploreSearchService } from '@placeos/explore';
             </div>
             <div
                 search
-                class="flex flex-col items-center absolute bottom-0 right-2 translate-y-[calc(100%-1rem)] max-w-[calc(100vw-4rem)] bg-base-100 shadow rounded-b pt-4 overflow-hidden border border-base-200"
+                class="flex flex-col items-center absolute bottom-0 right-2 translate-y-[calc(100%-1rem)] max-w-[calc(100vw-4rem)] max-h-[40vh] bg-base-100 shadow rounded-b pt-4 overflow-auto border border-base-200"
                 [ngClass]="{
                     'w-[32rem]': show,
                     'w-px': !show,
                     'opacity-100': show,
                     'opacity-0': !show,
-                    'pointer-events-none': !show
+                    'pointer-events-none': !show,
                 }"
+                *ngIf="filter_str"
             >
                 <div
                     empty
@@ -67,20 +68,20 @@ import { ExploreSearchService } from '@placeos/explore';
                 <ng-container *ngIf="!(loading | async) && filter_str">
                     <a
                         matRipple
-                        *ngFor="let option of results | async | slice: 0:5"
+                        *ngFor="let option of results | async | slice: 0 : 20"
                         [routerLink]="['/explore']"
                         [queryParams]="
                             option.type === 'space'
                                 ? { space: option.id }
                                 : option.type === 'user' || option.is_role
-                                ? { user: option.id }
-                                : {
-                                      locate: option.id,
-                                      name: option.name,
-                                      zone: option.zone
-                                  }
+                                  ? { user: option.id }
+                                  : {
+                                        locate: option.id,
+                                        name: option.name,
+                                        zone: option.zone,
+                                    }
                         "
-                        class="w-full h-full flex items-center leading-tight p-4 hover:bg-neutral:bg-base-100/5"
+                        class="w-full h-14 min-h-14 flex items-center leading-tight px-4 py-2 hover:bg-base-200"
                     >
                         <div class="flex-1 overflow-hidden">
                             <div class="truncate w-full">
@@ -113,7 +114,9 @@ import { ExploreSearchService } from '@placeos/explore';
     styles: [
         `
             [search] {
-                transition: width 200ms, opacity 200ms;
+                transition:
+                    width 200ms,
+                    opacity 200ms;
             }
         `,
     ],

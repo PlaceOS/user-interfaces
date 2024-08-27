@@ -381,29 +381,39 @@ export class ControlStateService extends AsyncHandler {
     }
 
     public setVolume(value: number = 0, source: string = '') {
-        const outputs = this._output_data.getValue();
-        if (!source) {
-            this._volume.next(value);
-            source = outputs[0]?.id || '';
-        }
-        if (source) {
-            const data = outputs.find((_) => _.id === source);
-            if (data) {
-                this.updateSourceData('output', data.id, {
-                    ...data,
-                    volume: value,
-                });
-            }
-        }
-        this._execute('volume', source ? [value, source] : [value]).then();
-        this._ignore_changes.push('volume');
         this.timeout(
-            `set-volume`,
-            () =>
-                (this._ignore_changes = this._ignore_changes.filter(
-                    (_) => _ !== 'volume',
-                )),
-            500,
+            `set:volume:${source}`,
+            () => {
+                value = Math.floor(value);
+                const outputs = this._output_data.getValue();
+                if (!source) {
+                    this._volume.next(value);
+                    source = outputs[0]?.id || '';
+                }
+                if (source) {
+                    const data = outputs.find((_) => _.id === source);
+                    if (data) {
+                        this.updateSourceData('output', data.id, {
+                            ...data,
+                            volume: value,
+                        });
+                    }
+                }
+                this._execute(
+                    'volume',
+                    source ? [value, source] : [value],
+                ).then();
+                this._ignore_changes.push('volume');
+                this.timeout(
+                    `set-volume`,
+                    () =>
+                        (this._ignore_changes = this._ignore_changes.filter(
+                            (_) => _ !== 'volume',
+                        )),
+                    500,
+                );
+            },
+            100,
         );
     }
 

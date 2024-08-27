@@ -20,7 +20,7 @@ import { AssetsReportService } from './assets-report.service';
                 [data]="products"
                 [columns]="[
                     { key: 'name', name: 'Name' },
-                    { key: 'booking_count', name: 'Bookings Count' },
+                    { key: 'booking_count', name: 'Bookings with Product' },
                     { key: 'booked_count', name: 'Number Booked' },
                     { key: 'asset_count', name: 'Assets Available' },
                 ]"

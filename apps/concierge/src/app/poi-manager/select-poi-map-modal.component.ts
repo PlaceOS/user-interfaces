@@ -106,7 +106,7 @@ declare let mapsindoors: any;
                             *ngFor="
                                 let poi of search_results
                                     | async
-                                    | slice: page * 100:page * 100 + 100
+                                    | slice: page * 100 : page * 100 + 100
                             "
                             class="clear flex items-center text-left w-full hover:bg-base-200 rounded"
                             [class.!bg-primary]="poi.id === selected.value"
@@ -251,9 +251,9 @@ export class SelectPOIMapModalComponent extends AsyncHandler {
                         no_scale: true,
                     },
                 ].filter((_) => _.location),
-                'location'
-            )
-        )
+                'location',
+            ),
+        ),
     );
 
     public poiItemFromMapsIndoorsItem(item: any) {
@@ -276,20 +276,19 @@ export class SelectPOIMapModalComponent extends AsyncHandler {
     ]).pipe(
         debounceTime(300),
         switchMap(([q, available]) => {
-            console.log('Search:', q, available);
             return available
                 ? q.length > 2
                     ? mapsindoors?.services.LocationsService.getLocations({
                           q,
                       }).then((l) => {
                           const list = l.map((i) =>
-                              this.poiItemFromMapsIndoorsItem(i)
+                              this.poiItemFromMapsIndoorsItem(i),
                           );
                           if (this.selected_item) {
                               list.unshift(
                                   this.poiItemFromMapsIndoorsItem(
-                                      this.selected_item
-                                  )
+                                      this.selected_item,
+                                  ),
                               );
                           }
                           return list;
@@ -298,10 +297,10 @@ export class SelectPOIMapModalComponent extends AsyncHandler {
                           this.selected_item
                               ? [
                                     this.poiItemFromMapsIndoorsItem(
-                                        this.selected_item
+                                        this.selected_item,
                                     ),
                                 ]
-                              : []
+                              : [],
                       )
                 : of(
                       Object.entries(this.map_info)
@@ -312,16 +311,16 @@ export class SelectPOIMapModalComponent extends AsyncHandler {
                           .filter(
                               ({ id, area }) =>
                                   id.toLowerCase().includes(q.toLowerCase()) &&
-                                  area < 0.5
+                                  area < 0.5,
                           )
-                          .sort((a, b) => b.area - a.area)
+                          .sort((a, b) => b.area - a.area),
                   );
         }),
         tap((l: any[]) => {
             this.page = 0;
             this.last_page = Math.floor(l.length / 100);
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly setMapInfo = (info: BoundsMap) => (this.map_info = info);
@@ -329,13 +328,12 @@ export class SelectPOIMapModalComponent extends AsyncHandler {
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: PointOfInterest,
         private _org: OrganisationService,
-        private _maps_people: MapsPeopleService
+        private _maps_people: MapsPeopleService,
     ) {
         super();
     }
 
     public async ngOnInit() {
-        console.log('Data:', this._data);
         if (this._data?.location && typeof this._data.location === 'string') {
             this.selected.next(this._data.location as string);
         }
@@ -375,14 +373,11 @@ export class SelectPOIMapModalComponent extends AsyncHandler {
                 short_list.sort((a, b) => a[1] - b[1]);
                 short_list.filter(([_, a]) => a <= 0.5);
                 if (short_list.length) {
-                    console.log('Selected ID:', short_list[0][0]);
                     this.selected.next(short_list[0][0]);
                 }
             } else {
-                console.log('Item:', e);
                 const id =
                     e.properties?.externalId || e.properties?.roomId || e.id;
-                console.log('Selected ID:', id);
                 this.selected_item = e;
                 if (id) this.selected.next(id);
                 this.changed.next(Date.now());

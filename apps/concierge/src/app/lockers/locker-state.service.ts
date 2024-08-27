@@ -63,7 +63,7 @@ export class LockersStateService extends AsyncHandler {
                 return list;
             }
             return _.filter((lvl) => lvl.parent_id === this._org.building.id);
-        })
+        }),
     );
 
     // public readonly new_lockers = this._new_lockers.asObservable();
@@ -126,10 +126,10 @@ export class LockersStateService extends AsyncHandler {
                     type: 'locker',
                     zones: zones.join(','),
                     include_checked_out: true,
-                })
+                }),
             );
             this._call_next_page.next(`RESET_${Date.now()}`);
-        })
+        }),
     );
 
     public readonly paged_bookings = combineLatest([
@@ -150,11 +150,11 @@ export class LockersStateService extends AsyncHandler {
             // If reset is true, start over
             if (action.includes('RESET')) {
                 return next_page().pipe(
-                    map((data: any) => ({ ...data, reset: true }))
+                    map((data: any) => ({ ...data, reset: true })),
                 );
             }
             return next_page().pipe(
-                map((data: any) => ({ ...data, reset: false }))
+                map((data: any) => ({ ...data, reset: false })),
             );
         }),
         scan(
@@ -167,14 +167,14 @@ export class LockersStateService extends AsyncHandler {
                     total,
                 };
             },
-            { list: [], total: 0 }
+            { list: [], total: 0 },
         ),
         tap((_) => this._loading.next(false)),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly has_more_pages = this.paged_bookings.pipe(
-        map((_) => _.list.length < _.total)
+        map((_) => _.list.length < _.total),
     );
     public readonly bookings = this.paged_bookings.pipe(map((i) => i.list));
 
@@ -185,7 +185,7 @@ export class LockersStateService extends AsyncHandler {
     constructor(
         private _org: OrganisationService,
         private _dialog: MatDialog,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
         this.setup_paging.subscribe();
@@ -223,7 +223,6 @@ export class LockersStateService extends AsyncHandler {
     // }
 
     public async checkinLocker(locker: Booking, state: boolean = true) {
-        console.log('Check-in:', locker);
         const status: any = await checkinBooking(locker.id, state ?? true)
             .toPromise()
             .catch((_) => ({ failed: true, error: _ }));
@@ -231,7 +230,7 @@ export class LockersStateService extends AsyncHandler {
             notifyError(
                 status.error
                     ? `Error: ${status.error}`
-                    : `Error checking ${state ? 'in' : 'out'} locker booking`
+                    : `Error checking ${state ? 'in' : 'out'} locker booking`,
             );
             throw status.error;
         }
@@ -248,8 +247,8 @@ export class LockersStateService extends AsyncHandler {
         notifySuccess(
             `Approved locker booking for ${locker.user_name} on ${format(
                 locker.date,
-                'MMM do'
-            )}.`
+                'MMM do',
+            )}.`,
         );
         (locker as any).approved = true;
         (locker as any).rejected = false;
@@ -265,8 +264,8 @@ export class LockersStateService extends AsyncHandler {
         notifySuccess(
             `Rejected locker booking for ${locker.user_name} on ${format(
                 locker.date,
-                'MMM do'
-            )}.`
+                'MMM do',
+            )}.`,
         );
         (locker as any).approved = false;
         (locker as any).rejected = true;
@@ -274,14 +273,14 @@ export class LockersStateService extends AsyncHandler {
 
     public async giveAccess(locker: Booking) {
         const success = await saveBooking(
-            new Booking({ ...locker, access: true })
+            new Booking({ ...locker, access: true }),
         )
             .toPromise()
             .catch((_) => 'failed');
         if (success === 'failed')
             return notifyError('Error giving building access booking host');
         notifySuccess(
-            `Successfully gave building access to ${locker.user_name} for locker booking.`
+            `Successfully gave building access to ${locker.user_name} for locker booking.`,
         );
         this._locker_bookings = [...this._locker_bookings, success] as any;
     }
@@ -301,15 +300,15 @@ export class LockersStateService extends AsyncHandler {
                     content: 'delete',
                 },
             },
-            this._dialog
+            this._dialog,
         );
         if (resp.reason !== 'done') return;
         resp.loading('Rejecting all lockers for selected date...');
         await Promise.all(
-            list.map((locker) => rejectBooking(locker.id).toPromise())
+            list.map((locker) => rejectBooking(locker.id).toPromise()),
         );
         notifySuccess(
-            'Successfully rejected all locker bookings for selected date.'
+            'Successfully rejected all locker bookings for selected date.',
         );
         resp.close();
     }

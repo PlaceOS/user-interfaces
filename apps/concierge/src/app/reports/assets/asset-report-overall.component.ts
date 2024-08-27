@@ -33,8 +33,8 @@ export class AssetReportOverallComponent {
         map(
             ({ start, end }) =>
                 differenceInBusinessDays(
-                    startOfDay(end || Date.now()),
-                    endOfDay(start || Date.now()),
+                    endOfDay(end || Date.now()).valueOf() + 1,
+                    startOfDay(start || Date.now()),
                 ) || 1,
         ),
     );

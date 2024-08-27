@@ -75,7 +75,7 @@ import { ControlStateService } from '../control-state.service';
             >
                 <mat-spinner class="mb-4" [diameter]="64"></mat-spinner>
                 <div class="text-2xl my-4">
-                    Connecting to system (<em>{{ id }}</em
+                    Connecting to system(<em>{{ id }}</em
                     >)...
                 </div>
                 <div class="text-base"></div>
