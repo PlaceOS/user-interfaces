@@ -11,8 +11,18 @@ const EMPTY = [];
     selector: 'room-bookings',
     template: `
         <div class="absolute inset-0 flex flex-col overflow-hidden pl-8">
-            <div class="flex items-center justify-between w-full py-4 pr-8">
+            <div class="flex items-center w-full py-4 pr-8 space-x-4">
                 <h2 class="text-2xl font-medium">Room Bookings</h2>
+                <div class="flex-1 w-px"></div>
+                <mat-form-field appearance="outline" class="no-subscript w-32">
+                    <mat-select
+                        [ngModel]="period | async"
+                        (ngModelChange)="setPeriod($event)"
+                    >
+                        <mat-option value="day">Day</mat-option>
+                        <mat-option value="week">Week</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <button btn matRipple class="space-x-2" (click)="newBooking()">
                     <div>New Booking</div>
                     <app-icon>add</app-icon>
@@ -115,7 +125,14 @@ const EMPTY = [];
                 </div>
             </div>
             <div class="flex w-full flex-1 h-px border-t mt-4 border-base-200">
-                <room-bookings-timeline class="flex-1 w-1/2" />
+                <room-bookings-timeline
+                    *ngIf="(period | async) === 'day'"
+                    class="flex-1 w-1/2"
+                />
+                <room-week-bookings-timeline
+                    *ngIf="(period | async) === 'week'"
+                    class="flex-1 w-1/2"
+                />
                 <room-bookings-approvals *ngIf="has_approvals" />
             </div>
         </div>
@@ -124,6 +141,7 @@ const EMPTY = [];
 })
 export class RoomBookingsComponent extends AsyncHandler {
     public readonly zones = this._state.zones;
+    public readonly period = this._state.period;
     public readonly ui_options = this._state.options;
     public readonly levels = combineLatest([
         this._org.active_building,
@@ -144,6 +162,7 @@ export class RoomBookingsComponent extends AsyncHandler {
         this._state.setZones(z);
     };
     public readonly updateUIOptions = (o) => this._state.setUIOptions(o);
+    public readonly setPeriod = (p) => this._state.setPeriod(p);
     /**  */
     public readonly newBooking = (d?) => this._state.newBooking(d);
 

@@ -22,6 +22,7 @@ import { RoomBookingsApprovalsComponent } from './room-approvals.component';
 import { NewDayViewComponent } from './new-dayview.component';
 import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-form-details.component';
 import { EventBookModalComponent } from './event-book-modal.component';
+import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.component';
 
 const ROUTES: Route[] = [
     { path: '', component: DayViewComponent },
@@ -45,6 +46,7 @@ const ROUTES: Route[] = [
         RoomBookingsApprovalsComponent,
         EventBookModalComponent,
         MeetingFormDetailsComponent,
+        RoomWeekBookingsTimelineComponent,
     ],
     imports: [
         CommonModule,
