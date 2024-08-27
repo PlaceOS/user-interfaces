@@ -1,6 +1,6 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, currentUser, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 @Component({
@@ -169,8 +169,29 @@ export class TopMenuComponent extends AsyncHandler {
         },
     ];
 
-    public get features(): string[] {
+    public get feature_list(): string[] {
         return this._settings.get('app.features') || [];
+    }
+
+    public get features(): string[] {
+        const feature_list = this.feature_list;
+        const feature_groups: Record<string, string[]> =
+            this._settings.get('app.feature_groups') || {};
+        const groups = currentUser().groups;
+        return feature_list.filter(
+            (name) =>
+                // this.is_admin ||
+                !feature_groups[name]?.length ||
+                feature_groups[name].find((_) => groups.includes(_)),
+        );
+    }
+
+    public get is_admin() {
+        const groups = currentUser().groups;
+        return (
+            groups.includes('placeos_admin') ||
+            groups.includes('placeos_support')
+        );
     }
 
     public get default_page(): string {
@@ -183,7 +204,7 @@ export class TopMenuComponent extends AsyncHandler {
 
     public get type() {
         const url = this._router.url;
-        if (url.includes('dashboard')) return 'home';
+        if (url.includes(this.default_page)) return 'home';
         if (url.includes('book/spaces')) return 'spaces';
         if (url.includes('book/desks')) return 'desks';
         if (url.includes('book/locker')) return 'lockers';
@@ -199,17 +220,34 @@ export class TopMenuComponent extends AsyncHandler {
         private _element: ElementRef,
         private _settings: SettingsService,
         private _org: OrganisationService,
-        private _router: Router
+        private _router: Router,
     ) {
         super();
     }
 
     public ngOnInit() {
         this.checking = true;
+        this.subscription(
+            'building',
+            this._org.active_building.subscribe(() =>
+                this.timeout('check_route', () => this._checkRoute()),
+            ),
+        );
     }
 
     public ngAfterViewInit() {
         this.timeout('check_menu', () => this.checkMenu());
+    }
+
+    private _checkRoute() {
+        const type = this.type;
+        if (
+            this.type &&
+            this.type !== 'home' &&
+            !this.features.includes(this.type)
+        ) {
+            this._router.navigate(['/']);
+        }
     }
 
     public checkMenu() {
