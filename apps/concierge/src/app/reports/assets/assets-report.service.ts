@@ -8,6 +8,7 @@ import { Booking, queryBookings } from '@placeos/bookings';
 import {
     downloadFile,
     jsonToCsv,
+    notifyError,
     SettingsService,
     unique,
 } from '@placeos/common';
@@ -89,7 +90,12 @@ export class AssetsReportService {
                     this._org.building?.id,
             });
         }),
-        tap(() => this._loading.next(false)),
+        tap((_) => {
+            if (!_.length) {
+                notifyError('No bookings for the selected levels and period');
+            }
+            this._loading.next(false);
+        }),
         shareReplay(1),
     );
 
