@@ -61,11 +61,11 @@ import {
             <div
                 day-headers
                 class="sticky top-0 z-20 border-b border-base-300 flex items-center bg-base-100"
-                [style.width]="(days | async)?.length * 14 + 'rem'"
+                [style.width]="(days | async)?.length * 12 + 'rem'"
             >
                 <div
                     *ngFor="let date of days | async"
-                    class="relative h-full w-56 flex items-center justify-center"
+                    class="relative h-full w-48 flex items-center justify-center"
                 >
                     <div class="truncate">
                         {{ date | date: 'EEE, MMM d' }}
@@ -77,18 +77,28 @@ import {
             </div>
             <div
                 empty-block
-                class="sticky left-0 z-10 border-r border-base-300 bg-base-100"
+                class="sticky left-0 z-10 border-r border-base-300 bg-base-100 min-h-full"
+                [style.height]="
+                    (event_max_count | async)
+                        ? (event_max_count | async) * 5.375 + 'rem'
+                        : ''
+                "
             ></div>
             <div date-blocks class="relative overflow-hidden">
                 <div
                     *ngFor="let date of days | async; let i = index"
-                    class="absolute w-px h-full bg-base-200 top-0"
-                    [style.left]="'calc(' + i * 14 + 'rem - 1px)'"
+                    class="absolute w-px h-full min-h-full bg-base-200 top-0"
+                    [style.left]="'calc(' + i * 12 + 'rem - 1px)'"
+                    [style.height]="
+                        (event_max_count | async)
+                            ? (event_max_count | async) * 5.375 + 'rem'
+                            : ''
+                    "
                 ></div>
                 <div
-                    class="absolute top-0 w-56 overflow-hidden p-2"
+                    class="absolute top-0 w-48 overflow-hidden p-2"
                     *ngFor="let date of days | async; let i = index"
-                    [style.left]="i * 14 + 'rem'"
+                    [style.left]="i * 12 + 'rem'"
                 >
                     <button
                         matRipple
@@ -107,16 +117,16 @@ import {
                             >
                                 {{ event.title }}
                             </div>
-                            <div class="text-xs truncate opacity-60">
+                            <div class="text-xs opacity-60 flex-1">
                                 {{ event.date | date: time_format }}
                                 &ndash;
                                 {{ event.date_end | date: time_format }}
                             </div>
                             <div class="text-xs truncate opacity-30">
-                                {{ (event.host | user)?.name || event.host }}
+                                {{ event.system?.display_name }}
                             </div>
                             <div class="text-xs truncate opacity-30">
-                                {{ event.system?.display_name }}
+                                {{ (event.host | user)?.name || event.host }}
                             </div>
                         </div>
                     </button>
@@ -168,7 +178,7 @@ export class RoomWeekBookingsTimelineComponent extends AsyncHandler {
         map(([day_list, events]) => {
             const map: Record<string, CalendarEvent[]> = {};
             for (const date of day_list) {
-                map[date] = events.filter(
+                map[date] = [...events, ...events, ...events, ...events].filter(
                     (event) =>
                         isSameDay(date, event.date) && !event.is_system_event,
                 );
@@ -176,6 +186,16 @@ export class RoomWeekBookingsTimelineComponent extends AsyncHandler {
             return map;
         }),
         shareReplay(1),
+    );
+
+    public readonly event_max_count = this.events.pipe(
+        map((e) => {
+            let length = 0;
+            for (const date in e) {
+                if (e[date].length > length) length = e[date].length;
+            }
+            return length;
+        }),
     );
 
     public get now() {
