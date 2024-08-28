@@ -107,7 +107,7 @@ import {
                         (click)="viewEvent(event)"
                     >
                         <div
-                            class="h-2 w-2 rounded-full my-1"
+                            class="h-2 w-2 rounded-full my-1.5"
                             [style.background-color]="typeColor(event.type)"
                         ></div>
                         <div class="flex-1 w-1/2">
