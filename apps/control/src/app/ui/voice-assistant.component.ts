@@ -59,7 +59,7 @@ import { ControlStateService } from '../control-state.service';
 })
 export class VoiceAssistantComponent {
     @Input() public system_id: string;
-    @Input() public enabled: boolean = false;
+    @Input() public enabled: boolean;
     public readonly activate = () => this._service.activate();
     public readonly active = this._service.active;
     public readonly progress = this._service.progress;
@@ -76,11 +76,12 @@ export class VoiceAssistantComponent {
     };
 
     constructor(private _service: VoiceAssistantService) {}
+
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.system_id && this.system_id) {
             this._service.setBinding(this.system_id);
         }
-        if (changes.enabled) {
+        if (changes.enabled && typeof this.enabled === 'boolean') {
             this._service.setEnabled(this.enabled);
         }
     }

@@ -87,7 +87,7 @@ export class VoiceAssistantService extends AsyncHandler {
     }
 
     public setEnabled(is_enabled: boolean) {
-        this._enabled.next(is_enabled);
+        this.timeout('set_enabled', () => this._enabled.next(is_enabled));
     }
 
     public setBinding(system_id: string) {
@@ -149,6 +149,7 @@ export class VoiceAssistantService extends AsyncHandler {
                 return;
             }
             log('VOICE', 'Speech Recognition Error:', event.error, 'warn');
+            if (event.error === 'aborted') return;
             this._error.next({
                 ...this._error.getValue(),
                 speech_recognition: true,
@@ -157,7 +158,9 @@ export class VoiceAssistantService extends AsyncHandler {
 
         this._user_speech.onend = () => {
             if (this._error.getValue().speech_recognition) return;
-            this._user_speech?.start();
+            try {
+                this._user_speech?.start();
+            } catch {}
         };
         this._user_speech.start();
         log('VOICE', 'Listening for commands.');
