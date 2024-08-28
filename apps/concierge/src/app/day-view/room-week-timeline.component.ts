@@ -178,7 +178,7 @@ export class RoomWeekBookingsTimelineComponent extends AsyncHandler {
         map(([day_list, events]) => {
             const map: Record<string, CalendarEvent[]> = {};
             for (const date of day_list) {
-                map[date] = [...events, ...events, ...events, ...events].filter(
+                map[date] = events.filter(
                     (event) =>
                         isSameDay(date, event.date) && !event.is_system_event,
                 );
