@@ -60,6 +60,12 @@ import { ControlStateService } from '../control-state.service';
                         ({{ version.time | date: 'shortTime' }})
                     </div>
                 </div>
+                <div class="absolute bottom-4 right-4">
+                    <voice-assistant
+                        [system_id]="id"
+                        [enabled]="(system | async)?.voice_control"
+                    ></voice-assistant>
+                </div>
             </div>
         </ng-template>
         <ng-template #load_state>
@@ -109,7 +115,7 @@ export class ControlTabbedViewComponent extends AsyncHandler implements OnInit {
     public async viewChangelog() {
         const changelog = await (
             await fetch(
-                'https://raw.githubusercontent.com/PlaceOS/user-interfaces/develop/CHANGELOG.md'
+                'https://raw.githubusercontent.com/PlaceOS/user-interfaces/develop/CHANGELOG.md',
             )
         ).text();
         this._dialog.open(ChangelogModalComponent, { data: { changelog } });
@@ -127,7 +133,7 @@ export class ControlTabbedViewComponent extends AsyncHandler implements OnInit {
         private _router: Router,
         private _state: ControlStateService,
         private _dialog: MatDialog,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -138,17 +144,19 @@ export class ControlTabbedViewComponent extends AsyncHandler implements OnInit {
             this._route.paramMap.subscribe((params) =>
                 params.has('system')
                     ? this._state.setID(params.get('system'))
-                    : ''
-            )
+                    : '',
+            ),
         );
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) =>
-                params.get('join') === 'true' ? this._state.selectMeeting() : ''
-            )
+                params.get('join') === 'true'
+                    ? this._state.selectMeeting()
+                    : '',
+            ),
         );
         this.timeout('init', () =>
-            !this._state.id ? this._router.navigate(['/bootstrap']) : ''
+            !this._state.id ? this._router.navigate(['/bootstrap']) : '',
         );
         this.interval('update', () => null, 1000);
     }
