@@ -98,17 +98,18 @@ export class TimeFieldComponent
         this._time_options = this.generateAvailableTimes(
             this.date,
             !this.no_past_times,
-            this.step
+            this.step,
         );
         this.timeout('hide', () => (this.show_select = false));
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
-        if (changes.no_past_times || changes.step) {
+        console.log('TimeFieldComponent:', changes);
+        if (changes.no_past_times || changes.step || changes.from) {
             this._time_options = this.generateAvailableTimes(
                 this.date,
                 !this.no_past_times,
-                this.step
+                this.step,
             );
         }
     }
@@ -120,7 +121,7 @@ export class TimeFieldComponent
         if (
             date.getMinutes() % 15 !== 0 &&
             !this._time_options.find(
-                (time) => time.id === format(date, 'HH:mm')
+                (time) => time.id === format(date, 'HH:mm'),
             )
         ) {
             this._time_options.push({
@@ -128,7 +129,7 @@ export class TimeFieldComponent
                 id: format(date, 'HH:mm'),
             });
             this._time_options.sort((a, b) =>
-                `${a.id}`.localeCompare(`${b.id}`)
+                `${a.id}`.localeCompare(`${b.id}`),
             );
         }
         return this._time_options;
@@ -143,7 +144,7 @@ export class TimeFieldComponent
         if (this._onChange) {
             const time = (this.time || '00:00').split(':');
             const date = startOfMinute(
-                set(this.date, { hours: +time[0], minutes: +time[1] })
+                set(this.date, { hours: +time[0], minutes: +time[1] }),
             );
             this._onChange(date.valueOf());
         }
@@ -161,7 +162,7 @@ export class TimeFieldComponent
         this._time_options = this.generateAvailableTimes(
             this.date,
             !this.no_past_times,
-            this.step
+            this.step,
         );
     }
 
@@ -170,7 +171,7 @@ export class TimeFieldComponent
         this._time_options = this.generateAvailableTimes(
             this.date,
             !this.no_past_times || disabled,
-            this.step
+            this.step,
         );
     }
 
@@ -205,7 +206,7 @@ export class TimeFieldComponent
                         if (!state) {
                             this.show_select = false;
                         }
-                    })
+                    }),
                 );
             }
         });
@@ -219,7 +220,7 @@ export class TimeFieldComponent
     private generateAvailableTimes(
         datestamp: number,
         show_past: boolean,
-        step: number = 15
+        step: number = 15,
     ): Identity[] {
         const now = new Date(Math.max(this.from, Date.now()));
         let date = new Date(datestamp);

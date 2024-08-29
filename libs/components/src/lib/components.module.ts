@@ -86,6 +86,7 @@ import { ImageViewerComponent } from './image-viewer.component';
 import { SimpleTableComponent } from './simple-table.component';
 import { LimitInputDirective } from './limit-input.directive';
 import { DeskHeightPresetsComponent } from './desk-height-presets.component';
+import { WorkLocationTooltipComponent } from './work-location-tooltip.component';
 import { ZonePipe } from './zone.pipe';
 
 const MAT_MODULES: any[] = [
@@ -145,6 +146,7 @@ const COMPONENTS: Type<any>[] = [
     StatusPillComponent,
     ImageViewerComponent,
     SimpleTableComponent,
+    WorkLocationTooltipComponent,
 
     FixedPipe,
     SafePipe,
