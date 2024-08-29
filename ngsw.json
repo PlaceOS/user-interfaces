@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1724908316326,
+  "timestamp": 1724908350414,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -164,7 +164,7 @@
     "./apps_concierge_src_app_poi-manager_poi-manager_module_ts.js": "8418f111e205ab34a883661ae91b21dc558f7cc0",
     "./apps_concierge_src_app_points_points_module_ts.js": "2b13f36db101b0577e02481946d8506a1f047ec5",
     "./apps_concierge_src_app_region-manager_region-manager_module_ts.js": "92799c63296eb6a28d6902a6c99112fccd300979",
-    "./apps_concierge_src_app_reports_reports_module_ts.js": "623b2662a476a640a55f438ee1977be5dfa54d54",
+    "./apps_concierge_src_app_reports_reports_module_ts.js": "3745aed3473f8d22fe087b3a3bb310dfd160a282",
     "./apps_concierge_src_app_room-manager_room-manager_module_ts.js": "7eca54f3db08f130749e2050343ba6345a8b18e3",
     "./apps_concierge_src_app_signage_signage_module_ts.js": "ce0c3292348ca47901773baa2fa214efdc50e712",
     "./apps_concierge_src_app_staff_staff_module_ts.js": "5e503c5875ecfd20012fa9e0226ab04ae560937f",
@@ -254,13 +254,13 @@
     "./default-libs_bookings_src_lib_bookings_module_ts.js": "ff68f9ce78274a9bb9d8cb33ae8878c3d38955a4",
     "./default-libs_catering_src_index_ts.js": "c8f55609af2feb72bf0741b83c902a38f0a63582",
     "./default-libs_explore_src_index_ts.js": "d12dd1cc13cbc4d244a93147741ec0bd2e39adb7",
-    "./default-libs_users_src_lib_users_module_ts.js": "431e97fc067bfe232540d4ed31da7aea31fca22b",
+    "./default-libs_users_src_lib_users_module_ts.js": "2113457ebfb2ff1abe7ee8bd27fbf74e4b972909",
     "./default-node_modules_angular_cdk_fesm2022_drag-drop_mjs.js": "a400c79d5878110f26319522051c87a6c49e99fb",
     "./default-node_modules_angular_material_fesm2022_icon_mjs.js": "3d85d54ef5f7641c4ebcec4aebac1a926e1457ba",
     "./default-node_modules_angular_material_fesm2022_tabs_mjs.js": "457ac0fe2ea853e29d6eb8e213a0845722a7ee66",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "4ecebe3aa37574e6a97b35e04fd997b7c80f5812",
-    "./main.js": "33613becc2a9f88fe73d52a07e64d2d0b06591f8",
+    "./main.js": "aeab49ecccf411884977deb53bfe1e71732770fa",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
@@ -272,8 +272,8 @@
     "./material-symbols-sharp.woff2": "74cd86ecbc1c9d6df763b17ee61194b2dc81e2ef",
     "./polyfills.js": "6c760d27471345c48df5ed6acc41d3e064f290e9",
     "./runtime.js": "7762812520bfe4e99340c0e5b14dbb3ddb41e299",
-    "./styles.css": "10d18c34ec03c5374b0b59bc340336ecdb6684df",
-    "./vendor.js": "326d649b978e1e95da87781f5282288c72fbcb62"
+    "./styles.css": "cf1b9883a8dd5e3ddb0d539f10e8eead694efe49",
+    "./vendor.js": "a948986063390a6b2e04e4971535721417895e9f"
   },
   "navigationUrls": [
     {
