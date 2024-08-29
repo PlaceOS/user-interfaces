@@ -35,12 +35,14 @@ import { CalendarEvent } from '@placeos/events';
                 search
             </app-icon>
             <div
-                class="absolute top-full translate-y-2 w-[18rem] right-4 rounded border border-base-300 bg-base-100 max-h-[65vh] overflow-auto p-2 space-y-2 shadow"
+                class="absolute top-full translate-y-2 w-[18rem] right-4 rounded border border-base-300 bg-base-100 max-h-[65vh] overflow-auto shadow"
                 *ngIf="show"
             >
-                <div class="opacity-60 text-xs sticky top-0 px-2 pt-2">
-                    {{ (filtered | async)?.length }} of
-                    {{ (events | async)?.length }} Event(s)
+                <div class="sticky top-0 p-4 bg-base-100 rounded z-10">
+                    <div class="opacity-60 text-xs">
+                        {{ (filtered | async)?.length }} of
+                        {{ (events | async)?.length }} Event(s)
+                    </div>
                 </div>
                 <div
                     *ngIf="!(filtered | async).length"
@@ -52,48 +54,52 @@ import { CalendarEvent } from '@placeos/events';
                             : 'No events for the currently selected date and zone'
                     }}
                 </div>
-                <button
-                    matRipple
-                    *ngFor="let event of filtered | async"
-                    class="flex items-center p-2 hover:bg-base-200 rounded w-full text-left space-x-2"
-                    (click)="selected.next(event)"
-                >
-                    <div
-                        class="h-10 w-1 rounded-full"
-                        [style.background-color]="typeColor(event)"
-                    ></div>
-                    <div date class="leading-tight">
-                        <div class="text-2xl mx-auto">
-                            {{ event.date | date: 'dd' }}
-                        </div>
+                <div class="px-2 pb-2 -mt-2">
+                    <button
+                        matRipple
+                        *ngFor="let event of filtered | async"
+                        class="relative flex items-center p-2 hover:bg-base-200 rounded w-full text-left space-x-2 z-0"
+                        (click)="selected.next(event)"
+                    >
                         <div
-                            class="font-medium text-sm uppercase mx-auto -mt-1"
-                        >
-                            {{ event.date | date: 'MMM' }}
-                        </div>
-                    </div>
-                    <div class="flex-1 w-1/2">
-                        <div class="flex items-center space-x-2 w-full">
+                            class="h-10 w-1 rounded-full"
+                            [style.background-color]="typeColor(event)"
+                        ></div>
+                        <div date class="leading-tight">
+                            <div class="text-2xl mx-auto">
+                                {{ event.date | date: 'dd' }}
+                            </div>
                             <div
-                                class="text-sm flex-1 truncate"
-                                [class.line-through]="event.state === 'done'"
+                                class="font-medium text-sm uppercase mx-auto -mt-1"
                             >
-                                {{ event.title }}
-                            </div>
-                            <div class="opacity-60 text-xs">
-                                {{ event.date | date: time_format }}
-                                &ndash;
-                                {{ event.date_end | date: time_format }}
+                                {{ event.date | date: 'MMM' }}
                             </div>
                         </div>
-                        <div class="text-xs opacity-30 truncate">
-                            {{ event.system?.display_name }}
+                        <div class="flex-1 w-1/2">
+                            <div class="flex items-center space-x-2 w-full">
+                                <div
+                                    class="text-sm flex-1 truncate"
+                                    [class.line-through]="
+                                        event.state === 'done'
+                                    "
+                                >
+                                    {{ event.title }}
+                                </div>
+                                <div class="opacity-60 text-xs">
+                                    {{ event.date | date: time_format }}
+                                    &ndash;
+                                    {{ event.date_end | date: time_format }}
+                                </div>
+                            </div>
+                            <div class="text-xs opacity-30 truncate">
+                                {{ event.system?.display_name }}
+                            </div>
+                            <div class="text-xs opacity-30 truncate">
+                                {{ (event.host | user)?.name || event.host }}
+                            </div>
                         </div>
-                        <div class="text-xs opacity-30 truncate">
-                            {{ (event.host | user)?.name || event.host }}
-                        </div>
-                    </div>
-                </button>
+                    </button>
+                </div>
             </div>
         </div>
     `,

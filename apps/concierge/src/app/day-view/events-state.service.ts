@@ -102,6 +102,8 @@ export class EventsStateService extends AsyncHandler {
     public readonly loading = this._loading.asObservable();
     /** Observable for viewed event */
     public readonly event = this._event.asObservable();
+    /** Period of time to show events for */
+    public readonly period = this._period.asObservable();
 
     public readonly spaces: Observable<Space[]> = combineLatest([
         this._zones,
@@ -293,6 +295,10 @@ export class EventsStateService extends AsyncHandler {
      */
     public setDate(date: number) {
         this._date.next(date);
+    }
+
+    public setPeriod(period: 'day' | 'week' | 'month'): void {
+        this._period.next(period);
     }
 
     /**

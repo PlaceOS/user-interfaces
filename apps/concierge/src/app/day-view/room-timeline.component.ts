@@ -207,7 +207,7 @@ import {
 
             [timeline] {
                 grid-template-columns: 4rem auto;
-                grid-template-rows: 4rem auto;
+                grid-template-rows: 3.5rem auto;
             }
         `,
     ],
