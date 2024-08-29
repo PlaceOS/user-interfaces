@@ -158,11 +158,19 @@ export class RoomBookingsComponent extends AsyncHandler {
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: z.join(',') },
+            queryParamsHandling: 'merge',
         });
         this._state.setZones(z);
     };
     public readonly updateUIOptions = (o) => this._state.setUIOptions(o);
-    public readonly setPeriod = (p) => this._state.setPeriod(p);
+    public readonly setPeriod = (p) => {
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { period: p },
+            queryParamsHandling: 'merge',
+        });
+        this._state.setPeriod(p);
+    };
     /**  */
     public readonly newBooking = (d?) => this._state.newBooking(d);
 
@@ -202,6 +210,11 @@ export class RoomBookingsComponent extends AsyncHandler {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
+                if (params.has('period')) {
+                    this._state.setPeriod(
+                        params.get('period') === 'day' ? 'day' : 'week',
+                    );
+                }
                 if (this.use_region) return;
                 if (params.has('zone_ids')) {
                     const zones = params.get('zone_ids').split(',');

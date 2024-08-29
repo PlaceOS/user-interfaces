@@ -38,7 +38,7 @@ import {
             ></date-options>
             <div
                 class="absolute top-1/2 -translate-y-1/2 left-4 text-info text-sm"
-                *ngIf="is_today | async"
+                *ngIf="this_week | async"
             >
                 This Week
             </div>
@@ -65,10 +65,13 @@ import {
             >
                 <div
                     *ngFor="let date of days | async"
-                    class="relative h-full w-48 flex items-center justify-center"
+                    class="relative h-full w-48 flex flex-col items-center justify-center leading-tight"
                 >
                     <div class="truncate">
                         {{ date | date: 'EEE, MMM d' }}
+                    </div>
+                    <div class="text-info text-xs" *ngIf="isToday(date)">
+                        Today
                     </div>
                     <div
                         class="absolute h-2 w-px -left-px bottom-0 bg-base-300"
@@ -167,7 +170,7 @@ export class RoomWeekBookingsTimelineComponent extends AsyncHandler {
                 .map((_, idx) => addDays(startOfWeek(d), idx).valueOf()),
         ),
     );
-    public readonly is_today = this.date.pipe(
+    public readonly this_week = this.date.pipe(
         map((d) => isSameWeek(d, Date.now())),
     );
 
@@ -200,6 +203,10 @@ export class RoomWeekBookingsTimelineComponent extends AsyncHandler {
 
     public get now() {
         return startOfMinute(Date.now()).valueOf();
+    }
+
+    public isToday(date: number) {
+        return isSameDay(date, Date.now());
     }
 
     public readonly edit = (e) => this._state.newBooking(e);
