@@ -338,6 +338,7 @@ export class ControlStateService extends AsyncHandler {
 
     public setSelectedInput(input: string) {
         if (this._system.getValue().selected_input === input) return;
+        console.warn('Select:', input);
         return this.timeout(
             `selected`,
             () => this._execute('selected_input', [input]),
@@ -465,6 +466,7 @@ export class ControlStateService extends AsyncHandler {
             this._url.next(u);
         });
         this.bindTo(id, 'name');
+        this.bindTo(id, 'voice_control');
         this.bindTo(id, 'active');
         this.bindTo(id, 'connected');
         this.bindTo(id, 'recording');

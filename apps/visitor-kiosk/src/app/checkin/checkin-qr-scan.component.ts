@@ -166,7 +166,7 @@ export class CheckinQRScanComponent
                 this.checking_code = false;
                 return;
             }
-            if (this.is_induction_enabled && !event?.induction) {
+            if (this.is_induction_enabled && event?.induction !== 'accepted') {
                 this._router.navigate(['/checkin', 'induction']);
             } else {
                 this._router.navigate(['/checkin', 'details']);

@@ -88,8 +88,8 @@ import { ControlStateService } from './control-state.service';
                         rec_status === 'playing'
                             ? 'Recording'
                             : rec_status === 'paused'
-                            ? 'Paused'
-                            : 'Idle'
+                              ? 'Paused'
+                              : 'Idle'
                     }}
                 </div>
             </div>
@@ -104,18 +104,18 @@ import { ControlStateService } from './control-state.service';
         </div>
         <div class="flex-1"></div>
         <div
-            class="flex items-center space-x-2 w-[32rem] max-w-[50%] py-2 px-4"
+            class="flex items-center space-x-2 w-[32rem] max-w-[50%] py-2 px-4 text-base-content"
         >
             <button icon matRipple (click)="toggleMute()">
                 <app-icon>{{
                     (system | async).mute
                         ? 'volume_off'
                         : (system | async).volume > 0
-                        ? 'volume_up'
-                        : 'volume_mute'
+                          ? 'volume_up'
+                          : 'volume_mute'
                 }}</app-icon>
             </button>
-            <mat-slider white class="flex-1">
+            <mat-slider class="flex-1">
                 <input
                     matSliderThumb
                     [ngModel]="(system | async).volume || 0"
@@ -129,7 +129,7 @@ import { ControlStateService } from './control-state.service';
             :host {
                 display: flex;
                 align-items: center;
-                height: 3rem;
+                height: 3.5rem;
                 overflow: hidden;
             }
         `,
@@ -140,7 +140,7 @@ export class ControlStatusBarComponent extends AsyncHandler {
     public readonly system = this._state.system;
 
     public readonly capture_mod = this._state.capture_list.pipe(
-        map((_) => _[0])
+        map((_) => _[0]),
     );
 
     public mute: boolean;
