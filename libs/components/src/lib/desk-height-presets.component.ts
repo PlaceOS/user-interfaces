@@ -109,7 +109,6 @@ export class DeskHeightPresetsComponent {
     }
 
     public saveSetting(name: string, value: any) {
-        console.log('Save setting', name, value);
         this._settings.saveUserSetting(name, value);
     }
 }

@@ -21,7 +21,7 @@ export interface ConfirmModalData {
 
 export const CONFIRM_METADATA = {
     height: 'auto',
-    width: '24em',
+    width: '28em',
     maxHeight: 'calc(100vh - 2em)',
     maxWidth: 'calc(100vw - 2em)',
 };
@@ -29,32 +29,28 @@ export const CONFIRM_METADATA = {
 @Component({
     selector: 'confirm-modal',
     template: `
-        <header>
-            <h3>{{ title }}</h3>
+        <header class="px-4 py-3">
+            <h3 class="font-medium text-xl">{{ title }}</h3>
         </header>
         <main
             *ngIf="!loading; else load_state"
-            class="flex flex-col items-center space-y-2 p-4"
+            class="flex flex-col items-center space-y-4 p-4 max-w-[80vw]"
         >
             <app-icon [icon]="icon" class="text-5xl"></app-icon>
-            <p
-                content
-                class="text-center text-sm w-[22rem]"
-                [innerHTML]="content"
-            ></p>
+            <p content class="text-center" [innerHTML]="content"></p>
         </main>
         <footer
-            class="flex items-center justify-center p-2 space-x-2"
+            class="flex items-center justify-center p-4 space-x-4"
             *ngIf="!loading"
         >
-            <button btn matRipple class="inverse w-32" mat-dialog-close>
+            <button btn matRipple class="inverse flex-1" mat-dialog-close>
                 {{ cancel_text }}
             </button>
             <button
                 btn
                 matRipple
                 name="accept"
-                class="w-32"
+                class="flex-1"
                 (click)="onConfirm()"
             >
                 {{ confirm_text }}
@@ -63,7 +59,7 @@ export const CONFIRM_METADATA = {
         <ng-template #load_state>
             <main loading>
                 <div
-                    class="w-full h-48 flex flex-col items-center justify-center space-y-2"
+                    class="w-full h-48 flex flex-col items-center justify-center space-y-4"
                 >
                     <mat-spinner diameter="32"></mat-spinner>
                     <p>{{ loading }}</p>
@@ -98,7 +94,7 @@ export class ConfirmModalComponent extends AsyncHandler {
 
     constructor(
         private _dialog_ref: MatDialogRef<ConfirmModalComponent>,
-        @Inject(MAT_DIALOG_DATA) private _data: ConfirmModalData
+        @Inject(MAT_DIALOG_DATA) private _data: ConfirmModalData,
     ) {
         super();
     }
@@ -108,7 +104,7 @@ export class ConfirmModalComponent extends AsyncHandler {
             this.timeout(
                 'close',
                 () => this._dialog_ref.close(),
-                this._data.close_delay
+                this._data.close_delay,
             );
         }
     }

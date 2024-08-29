@@ -102,6 +102,8 @@ export class EventsStateService extends AsyncHandler {
     public readonly loading = this._loading.asObservable();
     /** Observable for viewed event */
     public readonly event = this._event.asObservable();
+    /** Period of time to show events for */
+    public readonly period = this._period.asObservable();
 
     public readonly spaces: Observable<Space[]> = combineLatest([
         this._zones,
@@ -128,10 +130,7 @@ export class EventsStateService extends AsyncHandler {
             return forkJoin(zone_ids.map((id) => requestSpacesForZone(id)));
         }),
         map((l) => flatten<Space>(l).filter((_) => _.bookable)),
-        tap((_) => {
-            this._loading.next(false);
-            console.log('Spaces', _);
-        }),
+        tap((_) => this._loading.next(false)),
         shareReplay(1),
     );
     /** Obsevable for filtered list of bookings */
@@ -296,6 +295,10 @@ export class EventsStateService extends AsyncHandler {
      */
     public setDate(date: number) {
         this._date.next(date);
+    }
+
+    public setPeriod(period: 'day' | 'week' | 'month'): void {
+        this._period.next(period);
     }
 
     /**

@@ -19,7 +19,7 @@ import { ParkingStateService } from './parking-state.service';
                     size: '4.75rem',
                     sortable: false,
                 },
-                { key: 'description', name: 'Bay Number' },
+                { key: 'asset_name', name: 'Bay Number' },
                 {
                     key: 'user_name',
                     name: 'Reserved For',

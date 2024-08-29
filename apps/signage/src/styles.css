@@ -5,3 +5,12 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+:root {
+    --bg: #212121;
+    --transition-delay: 1000ms;
+}
+
+.player-animate {
+    transition: transform var(--transition-delay) ease-out, opacity var(--transition-delay) ease-out;
+}

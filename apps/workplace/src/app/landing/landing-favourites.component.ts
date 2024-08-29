@@ -24,8 +24,8 @@ const EMPTY = [];
             class="flex items-center justify-between py-2 mx-2 border-b border-base-200"
         >
             <h2 class="mx-2" i18n>
-                {{ spaces?.length || 0 }} { spaces?.length, plural, =1 {
-                Resource } other { Resources } }
+                {{ spaces?.length || 0 }}
+                {spaces?.length, plural, =1 {Resource } other {Resources }}
             </h2>
             <!-- <div class="flex items-center space-x-2 text-primary">
                 <button icon
@@ -50,13 +50,13 @@ const EMPTY = [];
                 "
             >
                 <div
-                    class="flex flex-col items-center mx-2 pt-4 space-y-2 relative"
+                    class="flex flex-col items-center mx-2 pt-2 space-y-2 relative"
                     item
                     *ngFor="let item of spaces"
                 >
                     <div class="flex w-full items-center space-x-2 relative">
                         <div
-                            class="w-20 h-20 overflow-hidden rounded relative flex items-center justify-center bg-neutral"
+                            class="w-16 h-16 overflow-hidden rounded relative flex items-center justify-center bg-base-300"
                         >
                             <img
                                 auth
@@ -74,18 +74,20 @@ const EMPTY = [];
                                 />
                             </ng-template>
                         </div>
-                        <div class="h-20 flex-1 w-1/2">
-                            <div class="truncate mb-4 w-full pr-12">
+                        <div
+                            class="h-16 flex-1 w-1/2 flex flex-col justify-center space-y-1"
+                        >
+                            <div class="truncate w-full pr-12">
                                 {{
                                     (item | space | async)?.display_name ||
                                         (item | space | async)?.name
                                 }}
                             </div>
                             <div
-                                class="flex items-center text-xs opacity-60 truncate space-x-2 mb-2"
+                                class="flex items-center text-xs opacity-60 space-x-1"
                             >
                                 <app-icon class="text-blue-500">place</app-icon>
-                                <div>
+                                <div class="flex-1 w-1/2 truncate">
                                     {{
                                         level(item | space | async)
                                             ?.display_name
@@ -100,8 +102,10 @@ const EMPTY = [];
                                 >
                                 <div i18n>
                                     {{ (item | space | async)?.capacity || 2 }}
-                                    { (item | space | async)?.capacity || 2,
-                                    plural, =1 { Person } other { People } }
+                                    {(item | space | async)?.capacity || 2, plural,
+                                        =1 {Person }
+                                        other {People }
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -119,7 +123,7 @@ const EMPTY = [];
                         icon
                         name="favourite-more"
                         [matMenuTriggerFor]="menu"
-                        class="absolute top-2 right-0 bg-base-200 !rounded !m-0"
+                        class="absolute top-2 right-0 bg-base-200 !rounded !m-0 h-12 w-12"
                     >
                         <app-icon>more_horiz</app-icon>
                     </button>
@@ -143,13 +147,13 @@ const EMPTY = [];
                     </mat-menu>
                 </div>
                 <div
-                    class="flex flex-col items-center mx-2 pt-4 space-y-2 relative"
+                    class="flex flex-col items-center mx-2 pt-2 space-y-2 relative"
                     item
                     *ngFor="let item of assets | async"
                 >
                     <div class="flex w-full items-center space-x-2 relative">
                         <div
-                            class="w-20 h-20 overflow-hidden rounded relative flex items-center justify-center bg-neutral"
+                            class="w-16 h-16 overflow-hidden rounded relative flex items-center justify-center bg-base-300"
                         >
                             <img
                                 auth
@@ -173,15 +177,17 @@ const EMPTY = [];
                                 />
                             </ng-template>
                         </div>
-                        <div class="h-20">
-                            <div class="truncate mb-4">
+                        <div
+                            class="h-16 flex-1 w-1/2 flex flex-col justify-center space-y-1"
+                        >
+                            <div class="truncate">
                                 {{ item?.display_name || item?.name }}
                             </div>
                             <div
-                                class="flex items-center text-xs opacity-60 truncate space-x-2 mb-2"
+                                class="flex items-center text-xs opacity-60 space-x-1"
                             >
                                 <app-icon class="text-blue-500">place</app-icon>
-                                <div>
+                                <div class="flex-1 w-1/2 truncate">
                                     {{ item?.zone?.display_name }}
                                 </div>
                             </div>
@@ -201,7 +207,7 @@ const EMPTY = [];
                         icon
                         name="favourite-more"
                         [matMenuTriggerFor]="menu"
-                        class="absolute top-2 right-0 bg-base-200 !rounded !m-0"
+                        class="absolute top-22 right-0 bg-base-200 !rounded !m-0"
                     >
                         <app-icon>more_horiz</app-icon>
                     </button>
@@ -210,17 +216,24 @@ const EMPTY = [];
                             mat-menu-item
                             class="flex items-center space-x-2"
                         >
-                            <app-icon class="text-2xl">info</app-icon>
-                            <div>{{ 'WPA.VIEW_DETAILS' | translate }}</div>
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-2xl">info</app-icon>
+                                <div>{{ 'WPA.VIEW_DETAILS' | translate }}</div>
+                            </div>
                         </button> -->
                         <button
                             name="landing-remove-favourite"
                             mat-menu-item
                             (click)="toggleFavourite(item.type, item.id)"
-                            class="flex items-center space-x-2"
                         >
-                            <app-icon class="text-2xl">cancel</app-icon>
-                            <div>{{ 'WPA.FAVOURITES_REMOVE' | translate }}</div>
+                            <div class="flex items-center space-x-2">
+                                <app-icon class="text-2xl text-error">
+                                    cancel
+                                </app-icon>
+                                <div class="pr-4">
+                                    {{ 'WPA.FAVOURITES_REMOVE' | translate }}
+                                </div>
+                            </div>
                         </button>
                     </mat-menu>
                 </div>
@@ -268,7 +281,7 @@ export class LandingFavouritesComponent extends AsyncHandler {
                     .map((_) => ({ ..._, type: 'parking' })),
             ];
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public get spaces() {
@@ -293,7 +306,7 @@ export class LandingFavouritesComponent extends AsyncHandler {
         private _space_pipe: SpacePipe,
         private _event_form: EventFormService,
         private _booking_form: BookingFormService,
-        private _router: Router
+        private _router: Router,
     ) {
         super();
     }
@@ -319,7 +332,7 @@ export class LandingFavouritesComponent extends AsyncHandler {
         } else {
             this._settings.saveUserSetting(
                 key,
-                fav_list.filter((_) => _ !== id)
+                fav_list.filter((_) => _ !== id),
             );
         }
     }

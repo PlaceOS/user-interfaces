@@ -74,14 +74,14 @@ export class CheckinInductionComponent {
         private _checkin: CheckinStateService,
         private _router: Router,
         private _settings: SettingsService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {}
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         const event = await this.event.pipe(first()).toPromise();
         if (!event) this._router.navigate(['/checkin']);
-        if (!this.is_enabled || event.induction) {
+        if (!this.is_enabled || event.induction === 'accepted') {
             if (this.induction_after_details) {
                 this._router.navigate(['/checkin', 'results']);
             } else {

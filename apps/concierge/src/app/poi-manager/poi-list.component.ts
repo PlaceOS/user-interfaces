@@ -11,7 +11,7 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
-                class="min-w-[40rem] block text-sm"
+                class="min-w-[48rem] block text-sm"
                 [data]="features"
                 empty_message="No Points of Interest found."
                 [columns]="[
@@ -21,16 +21,22 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                         name: 'Level',
                         content: level_template,
                         size: '12rem',
-                        sortable: false
+                        sortable: false,
                     },
                     { key: 'location', name: 'Location', size: '10rem' },
+                    {
+                        key: 'can_search',
+                        name: 'Searchable',
+                        size: '7rem',
+                        content: bool_template,
+                    },
                     {
                         key: 'actions',
                         name: ' ',
                         content: action_template,
                         size: '9.5rem',
-                        sortable: false
-                    }
+                        sortable: false,
+                    },
                 ]"
                 [sortable]="true"
             ></simple-table>
@@ -39,6 +45,14 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
         <ng-template #level_template let-row="row">
             <div class="p-4">
                 {{ (row.level_id | level)?.display_name || 'Unknown' }}
+            </div>
+        </ng-template>
+        <ng-template #bool_template let-data="data">
+            <div
+                *ngIf="data"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
+            >
+                <app-icon>done</app-icon>
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
@@ -130,7 +144,7 @@ export class POIListComponent {
 
     constructor(
         private _manager: POIManagementService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public loadQrCode(item: PointOfInterest) {
@@ -139,7 +153,7 @@ export class POIListComponent {
                 ? item.location
                 : item.location.join(',');
         const link = `${this.kiosk_url}/#/explore?level=${encodeURIComponent(
-            item.level_id
+            item.level_id,
         )}&locate=${encodeURIComponent(location)}`;
         item.qr_link = link;
         item.qr_code = generateQRCode(link);

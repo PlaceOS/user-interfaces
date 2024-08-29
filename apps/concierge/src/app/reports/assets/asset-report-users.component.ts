@@ -36,24 +36,31 @@ export class AssetReportUsersComponent {
     @Input() public print: boolean = false;
     public readonly users = this._state.stats$.pipe(
         map(({ events, bookings, products }) => {
-            const data = unique(events, 'host').map((e) => {
+            const data = unique(events, 'host').map((user_event) => {
                 const host_bookings = bookings.filter(
-                    (b) => b.booked_by_email === e.host,
+                    (b) => b.booked_by_email === user_event.host,
                 );
                 const booked_assets = unique(
                     host_bookings.map((_) => _.asset_ids).flat(),
                 );
+                const booked_products = unique(
+                    booked_assets.map(
+                        (i) =>
+                            products.find((p) =>
+                                p.assets.find((_) => _.id === i),
+                            )?.name,
+                    ),
+                );
                 return {
-                    name: e.organiser?.name || e.organiser?.email || e.host,
-                    booking_count: events.filter((e) => e.host === e.host)
-                        .length,
+                    name:
+                        user_event.organiser?.name ||
+                        user_event.organiser?.email ||
+                        user_event.host,
+                    booking_count: events.filter(
+                        (event) => event.host === user_event.host,
+                    ).length,
                     asset_count: booked_assets.length,
-                    asset_types:
-                        unique(
-                            booked_assets.map(
-                                (i) => products.find((p) => p.id === i)?.name,
-                            ),
-                        )?.length || 0,
+                    asset_types: booked_products.length || 0,
                 };
             });
             return data;

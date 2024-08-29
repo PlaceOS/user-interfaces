@@ -33,6 +33,7 @@ import { CameraControlsComponent } from './camera-controls.component';
 import { PhoneDiallingTooltipComponent } from './phone-dialling-tooltip.component';
 import { JoinRoomTooltipComponent } from './join-room-tooltip.component';
 import { LightingSceneTooltipComponent } from './lighting-scene-tooltip.component';
+import { VoiceAssistantComponent } from './voice-assistant.component';
 
 const COMPONENTS: Type<any>[] = [
     LightingTooltipComponent,
@@ -54,6 +55,7 @@ const COMPONENTS: Type<any>[] = [
     PhoneDiallingTooltipComponent,
     JoinRoomTooltipComponent,
     LightingSceneTooltipComponent,
+    VoiceAssistantComponent,
 
     DurationPipe,
     MarkdownPipe,

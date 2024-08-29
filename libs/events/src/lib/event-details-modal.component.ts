@@ -88,12 +88,12 @@ const EMPTY_ACTIONS = [];
                             <div
                                 class="flex items-center space-x-2 justify-center"
                             >
-                                <app-icon>{{
+                                <app-icon class="text-2xl">{{
                                     room_status === 'pending'
                                         ? 'arrow_back'
                                         : 'done'
                                 }}</app-icon>
-                                <div class="mr-4" i18n>
+                                <div class="pr-4" i18n>
                                     {{
                                         room_status === 'pending'
                                             ? 'Check in'

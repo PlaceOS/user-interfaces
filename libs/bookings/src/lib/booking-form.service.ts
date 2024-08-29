@@ -198,7 +198,9 @@ export class BookingFormService extends AsyncHandler {
                 type: options.type,
                 zones:
                     options.zone_id ||
-                    this._org.building?.id ||
+                    (this._settings.get('app.use_region')
+                        ? this._org.region?.id
+                        : this._org.building?.id) ||
                     this._org.organisation.id,
             }).pipe(
                 map(
@@ -564,10 +566,8 @@ export class BookingFormService extends AsyncHandler {
                 ...this._options.getValue(),
                 ...value,
                 description: value.asset_name || value.description,
-                user_name: value.user?.name,
-                user_id:
-                    (!value.user?.id?.includes('@') ? value?.user?.id : '') ||
-                    currentUser()?.id,
+                user_name: value.user?.name || value.user_name,
+                user_email: value.user?.email || value.user_email,
                 extension_data: {
                     ...((value as any).extension_data || {}),
                     group: value.group,
@@ -576,7 +576,9 @@ export class BookingFormService extends AsyncHandler {
                         value.user?.department || currentUser()?.department,
                 },
                 approved: !this._settings.get('app.bookings.no_approval'),
-                zones: unique([...zones, ...(value.zones || [])]),
+                zones: unique([...zones, ...(value.zones || [])]).filter(
+                    (_) => _,
+                ),
             }),
             q,
         )
@@ -593,7 +595,9 @@ export class BookingFormService extends AsyncHandler {
                     duration: value.duration,
                     all_day: value.all_day,
                     host: value.booked_by_email,
-                    zones: [this._org.building?.id],
+                    zones: unique([...zones, ...(value.zones || [])]).filter(
+                        (_) => _,
+                    ),
                 },
                 value.assets,
             ).catch((e) => {
@@ -684,14 +688,15 @@ export class BookingFormService extends AsyncHandler {
                 description: asset.name,
                 map_id: asset?.map_id || asset?.id,
                 group: group_name,
-                zones: asset.zone
+                zones: (asset.zone
                     ? unique([
                           this._org.organisation.id,
                           this._org.region?.id,
                           asset?.zone?.parent_id,
                           asset?.zone?.id,
                       ])
-                    : [this._org.organisation.id, this._org.region?.id],
+                    : [this._org.organisation.id, this._org.region?.id]
+                ).filter((_) => _),
             });
             const bkn = await this.postForm(true);
             if (bkn.id && !id) id = bkn.id;

@@ -324,7 +324,7 @@ export class PanelStateService extends AsyncHandler {
         this._events.newForm();
         this._events.form.patchValue({
             ...details.metadata,
-            host: details.organiser?.email,
+            host: details.metadata.organiser?.email,
             resources: [space],
             system: space,
         });

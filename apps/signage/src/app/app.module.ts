@@ -8,6 +8,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatRippleModule } from '@angular/material/core';
 
 import { ComponentsModule, UnauthorisedComponent } from '@placeos/components';
@@ -25,6 +26,7 @@ import { SignagePanelComponent } from './signage.component';
 import { PaymentsModule } from 'libs/payments/src/lib/payments.module';
 import { SharedSpacesModule } from '@placeos/spaces';
 import { SharedExploreModule } from '@placeos/explore';
+import { MediaPlayerComponent } from './media-player.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -37,6 +39,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         UnauthorisedComponent,
         BootstrapComponent,
         SignagePanelComponent,
+        MediaPlayerComponent,
     ],
     imports: [
         BrowserModule,
@@ -45,6 +48,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         ReactiveFormsModule,
         AppRoutingModule,
         MatProgressSpinnerModule,
+        MatProgressBarModule,
         MatRippleModule,
         MatFormFieldModule,
         MatSelectModule,

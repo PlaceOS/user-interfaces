@@ -130,7 +130,7 @@ export class Booking {
     /** Default type */
     public readonly access: boolean;
     /** Whether asset has been inducted */
-    public readonly induction: boolean;
+    public readonly induction?: 'tentative' | 'accepted' | 'declined';
     /** Status of the booking */
     public readonly status:
         | 'declined'
@@ -281,11 +281,7 @@ export class Booking {
         this.tags = data.tags || data.extension_data?.tags || [];
         this.images = data.images || [];
         this.all_day = data.all_day || this.duration >= 24 * 60;
-        this.induction =
-            (data.induction ||
-                data.extension_data?.induction ||
-                data.process_state === 'inducted') ??
-            false;
+        this.induction = data.induction || undefined;
         if (this.all_day) {
             (this as any).date = startOfDay(this.date).getTime();
             (this as any).duration = Math.max(
@@ -350,6 +346,7 @@ export class Booking {
             });
         }
         if (!data.parent_id) delete data.parent_id;
+        data.zones = data.zones.filter((_) => _);
         delete data.date;
         delete data.duration;
         removeEmptyFields(data);

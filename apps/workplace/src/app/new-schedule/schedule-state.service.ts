@@ -310,7 +310,12 @@ export class ScheduleStateService extends AsyncHandler {
     ]).pipe(
         map(([bkns, filters]) =>
             bkns.filter((_) => {
-                if (this._deleted.includes(_.id)) return false;
+                if (
+                    this._deleted.includes(
+                        _.instance ? `${_.id}|${_.instance}` : _.id,
+                    )
+                )
+                    return false;
                 if (
                     _.extension_data?.shared_event &&
                     !filters?.shown_types?.includes('group-event')
@@ -473,7 +478,9 @@ export class ScheduleStateService extends AsyncHandler {
     }
 
     public removeItem(item) {
-        this.setAsDeleted(item.id);
+        this.setAsDeleted(
+            item.instance ? `${item.id}|${item.instance}` : item.id,
+        );
         this._poll.next(Date.now());
     }
 

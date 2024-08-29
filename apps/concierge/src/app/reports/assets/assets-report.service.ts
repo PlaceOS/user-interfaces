@@ -8,6 +8,7 @@ import { Booking, queryBookings } from '@placeos/bookings';
 import {
     downloadFile,
     jsonToCsv,
+    notifyError,
     SettingsService,
     unique,
 } from '@placeos/common';
@@ -77,7 +78,6 @@ export class AssetsReportService {
         switchMap((options) => {
             this._loading.next(true);
             const { start, end, zones } = options;
-            console.log('Options:', options);
             return queryBookings({
                 period_start: getUnixTime(startOfDay(start || Date.now())),
                 period_end: getUnixTime(endOfDay(end || start || Date.now())),
@@ -90,7 +90,12 @@ export class AssetsReportService {
                     this._org.building?.id,
             });
         }),
-        tap(() => this._loading.next(false)),
+        tap((_) => {
+            if (!_.length) {
+                notifyError('No bookings for the selected levels and period');
+            }
+            this._loading.next(false);
+        }),
         shareReplay(1),
     );
 
@@ -100,7 +105,6 @@ export class AssetsReportService {
     ]).pipe(
         map(([products, bookings]) => {
             const data = this._processBookingStats(bookings, products);
-            console.log('Stats:', data);
             return data;
         }),
         shareReplay(1),
@@ -153,9 +157,11 @@ export class AssetsReportService {
             .map((_) => _.asset_ids?.length || [_.asset_id])
             .flat();
         const unique_events = unique(
-            booking_list.map((_) => _.linked_event),
+            booking_list
+                .map((_) => _.linked_event || _.linked_bookings[0])
+                .filter((_) => _),
             'id',
-        ).map((i) => new CalendarEvent(i));
+        ).map((i) => new CalendarEvent(i as any));
         return {
             events: unique_events,
             bookings: booking_list,

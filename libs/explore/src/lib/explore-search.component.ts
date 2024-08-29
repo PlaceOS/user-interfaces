@@ -3,7 +3,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 
 import { ExploreSearchService, SearchResult } from './explore-search.service';
-import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'explore-search',
@@ -37,10 +36,11 @@ import { OrganisationService } from '@placeos/organisation';
                 keyboard
                 class="flex-1 text-base border-none outline-none"
                 [(ngModel)]="search_str"
-                (ngModelChange)="setItem($event)"
+                (ngModelChange)="setFilter($event)"
                 placeholder="Search for..."
                 i18n-placeholder
-                (blur)="show = !!search_str"
+                (focus)="cancelClear()"
+                (blur)="clear()"
                 [matAutocomplete]="auto"
                 [matAutocompleteConnectedTo]="origin"
             />
@@ -62,8 +62,9 @@ import { OrganisationService } from '@placeos/organisation';
                     No matches found
                 </mat-option>
                 <mat-option
-                    *ngFor="let option of results | async | slice: 0:5"
-                    [value]="option"
+                    *ngFor="let option of results | async | slice: 0 : 5"
+                    [value]="option.name"
+                    (click)="select(option)"
                 >
                     <div
                         class="flex items-center leading-tight w-[22rem] max-w-[calc(100vw-2rem)]"
@@ -114,29 +115,16 @@ export class ExploreSearchComponent extends AsyncHandler {
     public readonly results = this._search.search_results;
     public readonly loading = this._search.loading;
     public readonly setFilter = (s) => this._search.setFilter(s);
-    public readonly setItem = (i) =>
-        i instanceof Object ? this.select(i) : this.setFilter(i);
 
     @ViewChild('input') private _input_el: ElementRef<HTMLInputElement>;
     @ViewChild('button', { static: true })
     private _button_el: ElementRef<HTMLButtonElement>;
 
-    @HostListener('document:click', ['$event'])
-    public checkClick(event) {
-        if (!this._el?.nativeElement?.contains(event.target)) {
-            this.show = false;
-            this._input_el?.nativeElement?.blur();
-        }
-    }
-
-    @HostListener('document:touchstart', ['$event']) public onTouch = (e) =>
-        this.checkClick(e);
-
     constructor(
         private _el: ElementRef<HTMLElement>,
         private _search: ExploreSearchService,
         private _router: Router,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
     ) {
         super();
     }
@@ -145,12 +133,24 @@ export class ExploreSearchComponent extends AsyncHandler {
         this.checkButtonPosition();
     }
 
+    public clear() {
+        this.timeout('clear', () => {
+            this.show = false;
+            this.search_str = '';
+            this.setFilter('');
+        });
+    }
+
+    public cancelClear() {
+        this.clearTimeout('clear');
+    }
+
     public focusInput() {
         if (this._input_el?.nativeElement) {
             this.timeout(
                 'focus',
                 () => this._input_el.nativeElement.focus(),
-                300
+                300,
             );
         }
     }
@@ -171,19 +171,25 @@ export class ExploreSearchComponent extends AsyncHandler {
     }
 
     public select(item: SearchResult) {
+        console.log('Selected Item:', item);
         this.search_str = item.name;
         const query: any = {};
         const type =
             item.type === 'space'
                 ? 'space'
                 : item.type === 'feature'
-                ? 'feature'
-                : 'user';
+                  ? 'locate'
+                  : 'user';
         query[type] = item.id;
+        if (type === 'locate') {
+            query.name = item.name;
+            query.zone = item.zone;
+        }
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: query,
         });
+        this.focusInput();
     }
 
     public checkButtonPosition() {

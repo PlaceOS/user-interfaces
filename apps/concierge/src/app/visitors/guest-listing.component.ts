@@ -42,7 +42,7 @@ import { User } from '@placeos/users';
                 {
                     key: 'induction',
                     name: 'Inducted',
-                    content: boolean_template,
+                    content: induction_template,
                     show: !!inductions_enabled,
                     size: '5.5rem',
                 },
@@ -169,37 +169,50 @@ import { User } from '@placeos/users';
                 <app-icon>done</app-icon>
             </div>
         </ng-template>
-        <ng-template #boolean_template let-row="row">
+        <ng-template #induction_template let-data="data">
             <div
-                *ngIf="inducted(row)"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl mx-auto"
+                [class.bg-success]="data === 'accepted'"
+                [class.text-success-content]="data === 'accepted'"
+                [class.bg-warning]="data !== 'accepted' && data !== 'declined'"
+                [class.text-warning-content]="
+                    data !== 'accepted' && data !== 'declined'
+                "
+                [class.bg-error]="data === 'declined'"
+                [class.text-error-content]="data === 'declined'"
             >
-                <app-icon>done</app-icon>
-            </div>
-            <div
-                *ngIf="inducted(row) === null"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-warning text-warning-content mx-auto"
-            >
-                <app-icon>question_mark</app-icon>
-            </div>
-            <div
-                *ngIf="inducted(row) === false"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-error text-error-content mx-auto"
-            >
-                <app-icon>close</app-icon>
+                <app-icon>
+                    {{
+                        data === 'accepted'
+                            ? 'done'
+                            : data === 'declined'
+                              ? 'close'
+                              : 'question_mark'
+                    }}
+                </app-icon>
             </div>
         </ng-template>
         <ng-template #status_template let-row="row">
             <div class="px-4">
                 <button
                     matRipple
-                    class="rounded-3xl bg-warning text-warning-content border-none w-[7.5rem] h-10"
-                    [class.!text-success-content]="row?.status === 'approved'"
-                    [class.!bg-success]="row?.status === 'approved'"
-                    [class.!text-error-content]="row?.status === 'declined'"
-                    [class.!bg-error]="row?.status === 'declined'"
-                    [class.!text-neutral-content]="row?.status === 'ended'"
-                    [class.!bg-neutral]="row?.status === 'ended'"
+                    class="rounded-3xl border-none w-[7.5rem] h-10"
+                    [class.text-success-content]="row?.status === 'approved'"
+                    [class.bg-success]="row?.status === 'approved'"
+                    [class.text-error-content]="row?.status === 'declined'"
+                    [class.bg-error]="row?.status === 'declined'"
+                    [class.text-neutral-content]="row?.status === 'ended'"
+                    [class.bg-neutral]="row?.status === 'ended'"
+                    [class.text-warning-content]="
+                        row?.status !== 'ended' &&
+                        row?.status !== 'approved' &&
+                        row?.status !== 'declined'
+                    "
+                    [class.bg-warning]="
+                        row?.status !== 'ended' &&
+                        row?.status !== 'approved' &&
+                        row?.status !== 'declined'
+                    "
                     [class.opacity-30]="row?.status === 'ended'"
                     [matMenuTriggerFor]="menu"
                     [disabled]="
@@ -509,6 +522,7 @@ export class GuestListingComponent extends AsyncHandler {
             user: new User({ email: item.asset_id, name: item.asset_name }),
             link_id: item.id,
             date: item.date,
+            external_user: true,
         });
         if (id) {
             await saveBooking(

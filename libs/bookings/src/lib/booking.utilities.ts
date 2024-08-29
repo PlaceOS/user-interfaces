@@ -1,5 +1,5 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { currentUser } from '@placeos/common';
+import { current_user, currentUser } from '@placeos/common';
 import { CalendarEvent } from 'libs/events/src/lib/event.class';
 import { endInFuture } from 'libs/events/src/lib/validators';
 import {
@@ -93,26 +93,35 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         update_master: new FormControl(false),
     });
     form.valueChanges.subscribe((v) => {
-        const user = v.user;
-        const booker = v.booked_by || currentUser();
-        booker || user
-            ? form.patchValue(
-                  {
-                      user: user || booker,
-                      user_id: user?.id || booker?.id,
-                      user_email: user?.email || booker?.email,
-                      name: user?.name || booker?.name,
-                      booked_by_id: booker?.id,
-                      booked_by_email: booker?.email,
-                  },
-                  { emitEvent: false },
-              )
-            : '';
         if (form.getRawValue().date < Date.now() && form.value.id) {
             form.get('date')?.disable({ emitEvent: false });
         } else {
             form.get('date')?.enable({ emitEvent: false });
         }
+    });
+    form.controls.user.valueChanges.subscribe((user) => {
+        if (!user) return;
+        form.patchValue(
+            {
+                user: user,
+                user_id: user?.id,
+                user_email: user?.email,
+                user_name: user?.name,
+            },
+            { emitEvent: false },
+        );
+    });
+    current_user.subscribe((user) => {
+        if (!user) return;
+        form.patchValue(
+            {
+                booked_by: user,
+                booked_by_id: user?.id,
+                booked_by_email: user?.email,
+                name: user?.name,
+            },
+            { emitEvent: false },
+        );
     });
     form.controls.resources.valueChanges.subscribe((resources) =>
         setBookingAsset(form, (resources || [])[0]),

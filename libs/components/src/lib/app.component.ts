@@ -32,6 +32,7 @@ import {
     GoogleAnalyticsService,
     isMobileSafari,
     hasNewVersion,
+    requestScreenWakeLock,
 } from '@placeos/common';
 import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
@@ -122,7 +123,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         private _route: ActivatedRoute,
         private _router: Router,
         private _maps: MapsPeopleService,
-        @Optional() private _translate: TranslateService
+        @Optional() private _translate: TranslateService,
     ) {
         super();
     }
@@ -132,14 +133,14 @@ export class AppComponent extends AsyncHandler implements OnInit {
         this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyM'], () => {
             localStorage.setItem(
                 'mock',
-                `${localStorage.getItem('mock') !== 'true'}`
+                `${localStorage.getItem('mock') !== 'true'}`,
             );
             location.reload();
         });
         this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyD'], () => {
             this._settings.saveUserSetting(
                 'dark_mode',
-                !this._settings.get('dark_mode')
+                !this._settings.get('dark_mode'),
             );
             notifySuccess('Toggled dark mode.');
         });
@@ -193,7 +194,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         this._initLocale();
         setInternalUserDomain(
             this._settings.get('app.general.internal_user_domain') ||
-                `@${currentUser()?.email?.split('@')[1]}`
+                `@${currentUser()?.email?.split('@')[1]}`,
         );
         this._initAnalytics();
         initSentry(this._settings.get('app.sentry_dsn'));
@@ -203,7 +204,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
                 setCustomHeaders(
                     tkn === 'x-api-key'
                         ? { 'x-api-key': apiKey() }
-                        : { Authorization: `Bearer ${tkn}` }
+                        : { Authorization: `Bearer ${tkn}` },
                 );
             }
             if (this._settings.get('app.has_uploads')) {
@@ -221,8 +222,9 @@ export class AppComponent extends AsyncHandler implements OnInit {
                 this.interval(
                     'auto-update-version',
                     () => this._checkReload(),
-                    15 * 1000
+                    15 * 1000,
                 );
+                await requestScreenWakeLock();
             }
         } catch {}
     }
@@ -271,7 +273,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         localStorage.setItem(`${id}_refresh_token`, `${parts[1]}`);
         localStorage.setItem(
             `${id}_expires_at`,
-            `${addHours(new Date(), 6).valueOf()}`
+            `${addHours(new Date(), 6).valueOf()}`,
         );
 
         notifySuccess('Successfully pasted token.');
@@ -284,7 +286,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
 
         this.timeout(
             'reload',
-            () => (location.href = `${location.origin}${location.pathname}`)
+            () => (location.href = `${location.origin}${location.pathname}`),
         );
     }
 }

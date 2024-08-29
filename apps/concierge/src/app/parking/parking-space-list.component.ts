@@ -187,7 +187,8 @@ export class ParkingSpaceListComponent extends AsyncHandler {
                 (_) =>
                     _.asset_id === space.id &&
                     _.status !== 'declined' &&
-                    _.status !== 'cancelled',
+                    _.status !== 'cancelled' &&
+                    _.status !== 'ended',
             );
             if (space.assigned_to && !booking) {
                 this.space_status[space.id] = 'assigned_free';

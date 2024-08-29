@@ -329,7 +329,7 @@ export class InviteVisitorFormComponent extends AsyncHandler {
     constructor(
         private _service: BookingFormService,
         private _settings: SettingsService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -351,13 +351,13 @@ export class InviteVisitorFormComponent extends AsyncHandler {
             'email',
             this.form
                 .get('asset_id')
-                .valueChanges.subscribe((_) => this.filterVisitors(_))
+                .valueChanges.subscribe((_) => this.filterVisitors(_)),
         );
         this.subscription(
             'name',
             this.form
                 .get('asset_name')
-                .valueChanges.subscribe((_) => this.filterVisitors(_))
+                .valueChanges.subscribe((_) => this.filterVisitors(_)),
         );
         if (this.multiple)
             this.form.patchValue({ asset_id: 'multiple@place.tech' });
@@ -378,7 +378,7 @@ export class InviteVisitorFormComponent extends AsyncHandler {
             ({ email, name, company }) =>
                 email.toLowerCase().includes(s) ||
                 name.toLowerCase().includes(s) ||
-                company.toLowerCase().includes(s)
+                company.toLowerCase().includes(s),
         );
     }
 
@@ -396,9 +396,10 @@ export class InviteVisitorFormComponent extends AsyncHandler {
             return notifyError(
                 `Some fields are invalid. [${
                     getInvalidFields(this.form).join(', ') || 'visitors'
-                }]`
+                }]`,
             );
         }
+        this.form.patchValue({ user: currentUser() });
         const { asset_id, asset_name, company, assets } = this.form.value;
         const visitor_details = `${asset_id}|${asset_name}|${company}`;
         const old_visitors = this._settings.get('visitor-invitees') || [];
