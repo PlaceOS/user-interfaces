@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { currentUser, reloadUserData } from '@placeos/common';
+import { currentUser, notifyError, reloadUserData } from '@placeos/common';
 import { addDays, format, set, startOfMinute, startOfWeek } from 'date-fns';
 import { WorktimeBlock, WorktimePreference } from './user.class';
 import { showUser, updateUser } from '@placeos/ts-client';
@@ -161,7 +161,7 @@ import { showUser, updateUser } from '@placeos/ts-client';
                 loading
                 class="relative bg-base-100 flex flex-col justify-center items-center rounded overflow-hidden w-[24rem] h-[18rem] text-center space-y-2"
             >
-                <mat-progress-spinner [diameter]="32"></mat-progress-spinner>
+                <mat-spinner [diameter]="32"></mat-spinner>
                 <p class="opacity-30">
                     Saving changes to work location settings...
                 </p>
@@ -297,7 +297,14 @@ export class WFHSettingsModalComponent implements OnInit {
         await updateUser(user.id, {
             ...user,
             work_preferences: new_settings,
-        } as any).toPromise();
+        } as any)
+            .toPromise()
+            .catch((e) => {
+                this.loading = false;
+                this._dialog_ref.disableClose = false;
+                notifyError('Unable to save user work preferences.');
+                throw e;
+            });
         this.loading = false;
         this._dialog_ref.disableClose = false;
         if (close) {
