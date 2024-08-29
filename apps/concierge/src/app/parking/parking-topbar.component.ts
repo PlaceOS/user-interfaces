@@ -6,6 +6,8 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 import { ParkingStateService } from './parking-state.service';
+import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
     selector: 'parking-topbar',
@@ -87,6 +89,15 @@ import { ParkingStateService } from './parking-state.service';
                 </mat-select>
             </mat-form-field>
             <div class="flex-1 w-0"></div>
+            <button
+                icon
+                matRipple
+                class="bg-secondary text-secondary-content rounded h-12 w-12"
+                (click)="manageRestrictions()"
+                matTooltip="Parking Restrictions"
+            >
+                <app-icon>lock_open</app-icon>
+            </button>
             <date-options
                 *ngIf="path === 'events' || path === 'map'"
                 (dateChange)="setDate($event)"
@@ -133,12 +144,19 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         return !!this._settings.get('app.use_region');
     }
 
+    public manageRestrictions() {
+        this._dialog.open(BookingRulesModalComponent, {
+            data: { type: 'parking' },
+        });
+    }
+
     constructor(
         private _state: ParkingStateService,
         private _org: OrganisationService,
         private _route: ActivatedRoute,
         private _router: Router,
         private _settings: SettingsService,
+        private _dialog: MatDialog,
     ) {
         super();
     }
