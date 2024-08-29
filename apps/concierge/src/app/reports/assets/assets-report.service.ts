@@ -157,7 +157,7 @@ export class AssetsReportService {
             .map((_) => _.asset_ids?.length || [_.asset_id])
             .flat();
         const unique_events = unique(
-            booking_list.map((_) => _.linked_event),
+            booking_list.map((_) => _.linked_event).filter((_) => _),
             'id',
         ).map((i) => new CalendarEvent(i));
         return {
