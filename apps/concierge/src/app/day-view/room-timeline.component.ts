@@ -29,7 +29,7 @@ import {
     selector: 'room-bookings-timeline',
     template: `
         <div
-            class="relative flex items-center justify-center p-2 space-x-2 border-b border-base-200"
+            class="relative flex items-center justify-center p-2 space-x-2 border-b border-base-200 z-20"
         >
             <date-options
                 [date]="date | async"
@@ -42,8 +42,13 @@ import {
             >
                 Today
             </div>
+            <div class="absolute top-1/2 -translate-y-1/2 right-8">
+                <room-booking-search
+                    (selected)="viewEvent($event, $event.system?.id, true)"
+                ></room-booking-search>
+            </div>
         </div>
-        <div timeline class="grid overflow-auto w-full h-1/2 flex-1">
+        <div timeline class="grid overflow-auto w-full h-1/2 flex-1 z-0">
             <div
                 timezone
                 class="sticky top-0 left-0 z-30 bg-base-100 flex items-center justify-center"
@@ -277,7 +282,11 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         return (Math.min(24, duration / 60) / 24) * 100;
     }
 
-    public viewEvent(event: CalendarEvent, space_id: string) {
+    public viewEvent(
+        event: CalendarEvent,
+        space_id: string,
+        scroll_to: boolean = false,
+    ) {
         if (event.is_system_event) return;
         const ref = this._dialog.open(EventDetailsModalComponent, {
             data: event,
