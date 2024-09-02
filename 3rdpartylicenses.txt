@@ -72,6 +72,9 @@ MIT
 @ngx-translate/core
 MIT
 
+@ngx-translate/http-loader
+MIT
+
 @placeos/cloud-uploads
 ISC
 
