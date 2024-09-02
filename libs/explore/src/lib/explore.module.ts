@@ -24,6 +24,7 @@ import { ExploreSensorInfoComponent } from './explore-sensor-info.component';
 import { ExploreLockerBankInfoComponent } from './explore-locker-bank-info.component';
 import { ExploreLockerBankModalComponent } from './explore-locker-bank-modal.component';
 import { ExploreParkingInfoComponent } from './explore-parking-info.component';
+import { ExploreIconComponent } from './explore-icon.component';
 
 const COMPONENTS: Type<any>[] = [
     ExploreMapControlComponent,
@@ -40,6 +41,7 @@ const COMPONENTS: Type<any>[] = [
     ExploreLockerBankInfoComponent,
     ExploreLockerBankModalComponent,
     ExploreParkingInfoComponent,
+    ExploreIconComponent,
 ];
 
 @NgModule({
