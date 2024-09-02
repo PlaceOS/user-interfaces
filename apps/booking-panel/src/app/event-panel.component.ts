@@ -103,7 +103,10 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                     (modelChange)="next = asCalendarEvent($event)"
                 ></i>
             </div>
-            <div class="absolute top-1/2 -right-[2px] -translate-y-1/2">
+            <div
+                class="absolute top-1/2 -right-[2px] -translate-y-1/2"
+                *ngIf="!hide_qr"
+            >
                 <button
                     book-tag
                     matRipple
@@ -145,6 +148,7 @@ export class EventPanelComponent extends AsyncHandler {
     public current: CalendarEvent | null = null;
     public next: CalendarEvent | null = null;
     public qr_code: any;
+    public hide_qr = false;
     public readonly space_name = this._state.space.pipe(
         map((_) => _?.display_name || _?.name || ''),
     );
@@ -196,6 +200,12 @@ export class EventPanelComponent extends AsyncHandler {
             this._route.paramMap.subscribe((params) => {
                 this.system_id = params.get('system_id') || '';
                 this._state.system = this.system_id;
+            }),
+        );
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((params) => {
+                this.hide_qr = !!params.get('hide_qr_code');
             }),
         );
         this.timeout(
