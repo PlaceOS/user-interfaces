@@ -94,6 +94,7 @@ export class ExploreParkingService extends AsyncHandler {
                       zones: this._settings.get('app.use_region')
                           ? bld?.parent_id
                           : bld?.id,
+                      rejected: false,
                   }),
         ),
         shareReplay(1),

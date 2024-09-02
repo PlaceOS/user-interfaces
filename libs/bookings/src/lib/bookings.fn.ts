@@ -36,6 +36,8 @@ export interface BookingsQueryParams {
     ical_uid?: string;
     /** Set the size of the page */
     limit?: number;
+    /** Whether to also query rejected bookings */
+    rejected?: boolean;
 }
 
 const BOOKINGS_ENDPOINT = `/api/staff/v1/bookings`;
