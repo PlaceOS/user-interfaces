@@ -4,6 +4,7 @@ import {
     EncryptionLevel,
     PlaceZone,
     authority,
+    isFixedDevice,
     isMock,
     onlineState,
     querySettings,
@@ -345,7 +346,6 @@ export class OrganisationService {
         await this.loadSettings();
         if (!this._buildings.getValue()?.length) {
             log('ORG', 'Unable to find any building zones');
-            this._router.navigate(['/misconfigured']);
         }
         await this.loadLevels();
         this._updateSettingOverrides();
