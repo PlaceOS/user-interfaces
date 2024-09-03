@@ -228,6 +228,10 @@ export class RoomWeekBookingsTimelineComponent extends AsyncHandler {
         super();
     }
 
+    public ngOnInit() {
+        this.subscription('poll', this._state.poll());
+    }
+
     public typeColor(type: string) {
         return this.types.find((_) => _.id === type)?.color || '#EEE';
     }
