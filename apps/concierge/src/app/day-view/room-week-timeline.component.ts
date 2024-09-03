@@ -175,8 +175,14 @@ export class RoomWeekBookingsTimelineComponent extends AsyncHandler {
     public readonly events = combineLatest([
         this.days,
         this._state.filtered,
+        this._state.zones,
     ]).pipe(
-        map(([day_list, events]) => {
+        map(([day_list, events, zones]) => {
+            if (zones.length) {
+                events = events.filter((_) =>
+                    _.system?.zones.find((_) => zones.includes(_)),
+                );
+            }
             const map: Record<string, CalendarEvent[]> = {};
             for (const date of day_list) {
                 map[date] = events.filter(
