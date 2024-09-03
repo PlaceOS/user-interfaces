@@ -105,7 +105,7 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
             </div>
             <div
                 class="absolute top-1/2 -right-[2px] -translate-y-1/2"
-                *ngIf="!hide_qr"
+                *ngIf="!hide_qr && checkin"
             >
                 <button
                     book-tag
@@ -121,7 +121,7 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                     [class.w-0]="!show_qr"
                     [class.w-56]="show_qr"
                 >
-                    <div qr-checkin *ngIf="checkin" class="w-56 z-50 p-3">
+                    <div qr-checkin class="w-56 z-50 p-3">
                         <img class="w-full" [src]="qr_code" />
                     </div>
                 </div>
