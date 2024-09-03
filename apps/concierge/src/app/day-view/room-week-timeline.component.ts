@@ -65,12 +65,12 @@ import {
             </div>
             <div
                 day-headers
-                class="sticky top-0 z-20 border-b border-base-300 flex items-center bg-base-100"
+                class="sticky top-0 z-20 border-b border-base-300 flex items-center bg-base-100 min-w-[calc(100%-3rem)]"
                 [style.width]="(days | async)?.length * 12 + 'rem'"
             >
                 <div
                     *ngFor="let date of days | async"
-                    class="relative h-full w-48 flex flex-col items-center justify-center leading-tight"
+                    class="relative flex-1 h-full min-w-48 flex flex-col items-center justify-center leading-tight"
                 >
                     <div class="truncate">
                         {{ date | date: 'EEE, MMM d' }}
@@ -92,21 +92,14 @@ import {
                         : ''
                 "
             ></div>
-            <div date-blocks class="relative overflow-hidden">
+            <div
+                date-blocks
+                class="relative overflow-hidden min-w-[calc(100%-3rem)] flex"
+                [style.width]="(days | async)?.length * 12 + 'rem'"
+            >
                 <div
+                    class="flex-1 min-w-48 overflow-hidden p-2 border-r border-base-200"
                     *ngFor="let date of days | async; let i = index"
-                    class="absolute w-px h-full min-h-full bg-base-200 top-0"
-                    [style.left]="'calc(' + i * 12 + 'rem - 1px)'"
-                    [style.height]="
-                        (event_max_count | async)
-                            ? (event_max_count | async) * 5.375 + 'rem'
-                            : ''
-                    "
-                ></div>
-                <div
-                    class="absolute top-0 w-48 overflow-hidden p-2"
-                    *ngFor="let date of days | async; let i = index"
-                    [style.left]="i * 12 + 'rem'"
                 >
                     <button
                         matRipple
