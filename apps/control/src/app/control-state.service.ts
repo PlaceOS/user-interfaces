@@ -13,7 +13,7 @@ import {
 } from 'rxjs/operators';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 
-import { AsyncHandler, currentUser, HashMap } from '@placeos/common';
+import { AsyncHandler, currentUser, HashMap, log } from '@placeos/common';
 import { Calendar, CalendarService } from '@placeos/calendar';
 import { SourceSelectModalComponent } from './ui/source-select-modal.component';
 import { CalendarEvent, queryEvents } from '@placeos/events';
@@ -122,7 +122,13 @@ export class ControlStateService extends AsyncHandler {
         debounceTime(1000),
         switchMap((id) =>
             showSystem(id).pipe(
-                catchError(({ status }) => {
+                catchError(({ status, message }) => {
+                    log(
+                        'Control',
+                        'Error loading system details:',
+                        [status, message],
+                        'error',
+                    );
                     status === 404 ? this._router.navigate(['/bootstrap']) : '';
                     return of(new PlaceSystem());
                 }),

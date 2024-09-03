@@ -28,6 +28,7 @@ import { Space, SpacesService } from '@placeos/spaces';
 import {
     AsyncHandler,
     currentUser,
+    log,
     notifyError,
     notifySuccess,
     notifyWarn,
@@ -141,7 +142,13 @@ export class PanelStateService extends AsyncHandler {
         debounceTime(1000),
         switchMap((id) =>
             showSystem(id).pipe(
-                catchError(({ status }) => {
+                catchError(({ status, message }) => {
+                    log(
+                        'Panel',
+                        'Error loading system details:',
+                        [status, message],
+                        'error',
+                    );
                     status === 404 ? this._router.navigate(['/bootstrap']) : '';
                     return of(new PlaceSystem());
                 }),
