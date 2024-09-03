@@ -110,7 +110,7 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                 <button
                     book-tag
                     matRipple
-                    (click)="show_qr = !show_qr"
+                    (click)="toggleQRShow()"
                     class="absolute top-1/2 left-px -translate-y-1/2 -translate-x-full bg-base-100 border-l border-y border-base-300 px-1 py-4 rounded-l-lg z-20 uppercase"
                 >
                     Book
@@ -231,6 +231,11 @@ export class EventPanelComponent extends AsyncHandler {
                 );
             }
         });
+    }
+
+    public toggleQRShow() {
+        this.show_qr = !this.show_qr;
+        this.timeout('close', () => (this.show_qr = false), 60 * 1000);
     }
 
     public asCalendarEvent(data: any) {
