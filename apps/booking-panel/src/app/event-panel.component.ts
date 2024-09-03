@@ -211,7 +211,11 @@ export class EventPanelComponent extends AsyncHandler {
         this.timeout(
             'size',
             () =>
-                this._settings.overrideCssVariable('font-size', '4vmin', true),
+                this._settings.overrideCssVariable(
+                    'font-size',
+                    '3.5vmin',
+                    true,
+                ),
             1000,
         );
         this._state.current.subscribe();
