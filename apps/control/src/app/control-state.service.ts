@@ -10,6 +10,7 @@ import {
     shareReplay,
     switchMap,
     take,
+    tap,
 } from 'rxjs/operators';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 
@@ -120,6 +121,7 @@ export class ControlStateService extends AsyncHandler {
 
     public readonly space = this._id.pipe(
         debounceTime(1000),
+        tap((id) => log('Panel', `Loading system "${id}"...`)),
         switchMap((id) =>
             showSystem(id).pipe(
                 catchError(({ status, message }) => {

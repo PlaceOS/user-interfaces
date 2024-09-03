@@ -140,6 +140,7 @@ export class PanelStateService extends AsyncHandler {
     /** List of current bookings for active system */
     public readonly space = this._system.pipe(
         debounceTime(1000),
+        tap((id) => log('Panel', `Loading system "${id}"...`)),
         switchMap((id) =>
             showSystem(id).pipe(
                 catchError(({ status, message }) => {

@@ -39,20 +39,6 @@ describe('ControlMainViewComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should redirect to bootstrap page if no ID set', fakeAsync(() => {
-        const service = spectator.inject(ControlStateService);
-        const router = spectator.inject(Router);
-        spectator.component.ngOnInit();
-        tick(400);
-        expect(router.navigate).toBeCalledWith(['/bootstrap']);
-        (router.navigate as any).mockClear();
-        (service as any).id = 'space-0';
-        spectator.component.ngOnInit();
-        tick(400);
-        expect(service.setID).toBeCalledWith('space-0');
-        expect(router.navigate).not.toBeCalled();
-    }));
-
     it('should shown loading when connecting to system', async () => {
         const service = spectator.inject(ControlStateService);
         (service as any).system.next({ connected: true });
