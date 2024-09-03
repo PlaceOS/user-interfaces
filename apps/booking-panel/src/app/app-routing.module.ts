@@ -17,7 +17,7 @@ const routes: Routes = [
     { path: 'events/:system_id', component: EventPanelComponent },
     { path: 'panel-array', component: BookingPanelArrayComponent },
     { path: 'panel-select', component: BookingPanelSelectComponent },
-    { path: '**', redirectTo: 'bootstrap' },
+    // { path: '**', redirectTo: 'bootstrap' },
 ];
 
 @NgModule({
