@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1725239414533,
+  "timestamp": 1725336817998,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -195,7 +195,7 @@
     "./assets/yolov8x_web_model/model.json": "51607c6c0f465d41cdca4d65a17cfbf9c9f99c62",
     "./favicon.ico": "4e23d0f9b6ddaf3c9ddef90dbaed2342941297b5",
     "./index.html": "13bd4bb66ad02205e089501e59e4282aefbf2310",
-    "./main.js": "99ebd338372b07814f1cb39c0d513f1cc948e308",
+    "./main.js": "a12f724f077313c376330d560951cca445dea238",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
     "./material-icons-sharp.woff2": "cf1c7b4d066d18af44cf7bc664dd2e46652a3a30",
@@ -206,7 +206,7 @@
     "./material-symbols-sharp.woff2": "74cd86ecbc1c9d6df763b17ee61194b2dc81e2ef",
     "./polyfills.js": "1cd4f008cc22ae043e84c650fbbe8c8fc3fdcbfa",
     "./runtime.js": "db6ac17ef18c13a8a1f306a4219df0f6018bf41e",
-    "./styles.css": "783606d542a6160332f0554b03de796ff81a39de",
+    "./styles.css": "147041fa82bd77095a709e63d35a27efe8bd13fa",
     "./vendor.js": "760c2530bc1340948ab7af6d821ec988704d0158"
   },
   "navigationUrls": [
