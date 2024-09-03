@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
 import { AsyncHandler, VERSION } from '@placeos/common';
 import { ChangelogModalComponent } from '@placeos/components';
@@ -92,7 +92,7 @@ export class ControlMainViewComponent extends AsyncHandler implements OnInit {
     public async viewChangelog() {
         const changelog = await (
             await fetch(
-                'https://raw.githubusercontent.com/PlaceOS/user-interfaces/develop/CHANGELOG.md'
+                'https://raw.githubusercontent.com/PlaceOS/user-interfaces/develop/CHANGELOG.md',
             )
         ).text();
         this._dialog.open(ChangelogModalComponent, { data: { changelog } });
@@ -100,9 +100,8 @@ export class ControlMainViewComponent extends AsyncHandler implements OnInit {
 
     constructor(
         private _route: ActivatedRoute,
-        private _router: Router,
         private _state: ControlStateService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {
         super();
     }
@@ -113,17 +112,16 @@ export class ControlMainViewComponent extends AsyncHandler implements OnInit {
             this._route.paramMap.subscribe((params) =>
                 params.has('system')
                     ? this._state.setID(params.get('system'))
-                    : ''
-            )
+                    : '',
+            ),
         );
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) =>
-                params.get('join') === 'true' ? this._state.selectMeeting() : ''
-            )
-        );
-        this.timeout('init', () =>
-            !this._state.id ? this._router.navigate(['/bootstrap']) : ''
+                params.get('join') === 'true'
+                    ? this._state.selectMeeting()
+                    : '',
+            ),
         );
     }
 }

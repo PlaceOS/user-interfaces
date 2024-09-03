@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
 import { AsyncHandler, SettingsService, VERSION } from '@placeos/common';
 import { ChangelogModalComponent } from '@placeos/components';
@@ -130,7 +130,6 @@ export class ControlTabbedViewComponent extends AsyncHandler implements OnInit {
 
     constructor(
         private _route: ActivatedRoute,
-        private _router: Router,
         private _state: ControlStateService,
         private _dialog: MatDialog,
         private _settings: SettingsService,
@@ -154,9 +153,6 @@ export class ControlTabbedViewComponent extends AsyncHandler implements OnInit {
                     ? this._state.selectMeeting()
                     : '',
             ),
-        );
-        this.timeout('init', () =>
-            !this._state.id ? this._router.navigate(['/bootstrap']) : '',
         );
         this.interval('update', () => null, 1000);
     }

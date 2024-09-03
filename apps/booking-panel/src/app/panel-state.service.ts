@@ -12,6 +12,7 @@ import { OrganisationService } from '@placeos/organisation';
 import { BehaviorSubject, combineLatest, interval, Observable, of } from 'rxjs';
 import {
     catchError,
+    debounceTime,
     filter,
     first,
     map,
@@ -137,6 +138,7 @@ export class PanelStateService extends AsyncHandler {
     public readonly settings = this._settings.asObservable();
     /** List of current bookings for active system */
     public readonly space = this._system.pipe(
+        debounceTime(1000),
         switchMap((id) =>
             showSystem(id).pipe(
                 catchError(({ status }) => {
