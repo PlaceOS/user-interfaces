@@ -242,8 +242,7 @@ export class BookingFormService extends AsyncHandler {
                                     options.zone_id === asset.zone?.id ||
                                     options.zone_id ===
                                         asset.zone?.parent_id) &&
-                                !booked_ids.includes(asset.id) &&
-                                !asset.assigned_to
+                                !booked_ids.includes(asset.id)
                             );
                         });
                         return available;
