@@ -92,14 +92,14 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                     binding
                     [sys]="system_id"
                     mod="Bookings"
-                    bind="current"
+                    bind="current_booking"
                     (modelChange)="current = asCalendarEvent($event)"
                 ></i>
                 <i
                     binding
                     [sys]="system_id"
                     mod="Bookings"
-                    bind="next"
+                    bind="next_booking"
                     (modelChange)="next = asCalendarEvent($event)"
                 ></i>
             </div>
