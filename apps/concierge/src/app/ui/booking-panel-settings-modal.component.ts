@@ -53,20 +53,6 @@ import { validateURL } from '@placeos/spaces';
                         >
                     </mat-form-field>
                 </div>
-                <div class="flex-1">
-                    <label for="catering-ui">Catering Interface URL</label>
-                    <mat-form-field appearance="outline" class="w-full">
-                        <input
-                            matInput
-                            name="catering-ui"
-                            placeholder="/caterer-ui/#/orders/"
-                            formControlName="catering_ui"
-                        />
-                        <mat-error>
-                            Catering Interface must be a valid URL
-                        </mat-error>
-                    </mat-form-field>
-                </div>
             </div>
             <div class="mb-4">
                 <mat-checkbox formControlName="show_qr_code">
@@ -106,7 +92,7 @@ import { validateURL } from '@placeos/spaces';
             <div class="flex items-center">
                 <div class="flex-1">
                     <mat-checkbox formControlName="disable_end_meeting">
-                        Disable ending of current booking
+                        Disable auto-ending of current booking
                     </mat-checkbox>
                 </div>
                 <div class="flex-1">
@@ -280,24 +266,6 @@ export class BookingPanelSettingsModalComponent {
         room_image: new FormControl('', validateURL),
         offline_image: new FormControl('', validateURL),
     });
-    // 'custom_qr_url',
-    // 'custom_qr_color',
-    // 'disable_book_now',
-    // 'hide_meeting_details',
-    // 'hide_meeting_title',
-    // 'disable_book_now_host',
-    // 'disable_end_meeting',
-    // 'enable_end_meeting_button',
-    // 'min_duration',
-    // 'max_duration',
-    // 'control_ui',
-    // 'catering_ui',
-    // 'pending_period',
-    // 'pending_before',
-    // 'room_image',
-    // 'offline_image',
-    // 'show_qr_code',
-    // 'room_capacity',
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: { zone: PlaceZone },
