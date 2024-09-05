@@ -38,23 +38,80 @@ import { validateURL } from '@placeos/spaces';
             *ngIf="!loading; else load_state"
             [formGroup]="form"
         >
-            <div class="flex space-x-4">
-                <div class="flex-1">
-                    <label for="control-ui">Control Interface URL</label>
-                    <mat-form-field appearance="outline" class="w-full">
-                        <input
-                            matInput
-                            name="control-ui"
-                            placeholder="/control/#/tabbed/sys-123456"
-                            formControlName="control_ui"
-                        />
-                        <mat-error
-                            >Control Interface must be a valid URL</mat-error
+            <div
+                class="relative flex flex-col p-2 border border-base-300 rounded mb-4"
+            >
+                <h4
+                    class="absolute top-0 left-8 -translate-y-1/2 bg-base-100 text-sm p-2"
+                >
+                    Booking Settings
+                </h4>
+                <div class="flex items-center space-x-4">
+                    <div class="flex-1">
+                        <mat-checkbox formControlName="disable_book_now">
+                            Disable booking
+                        </mat-checkbox>
+                    </div>
+                    <div class="flex-1">
+                        <mat-checkbox formControlName="disable_book_now_host">
+                            Disallow selecting a booking host
+                        </mat-checkbox>
+                    </div>
+                </div>
+                <div class="flex space-x-4">
+                    <div class="flex-1 h-20">
+                        <label for="min-duration"
+                            >Minimum Booking Duration</label
                         >
-                    </mat-form-field>
+                        <a-duration-field
+                            name="min-duration"
+                            formControlName="min_duration"
+                            [min]="0"
+                            [step]="5"
+                            [max]="form.value.max_duration"
+                        ></a-duration-field>
+                    </div>
+                    <div class="flex-1 h-20">
+                        <label for="max-duration"
+                            >Maximum Booking Duration</label
+                        >
+                        <a-duration-field
+                            name="max-duration"
+                            formControlName="max_duration"
+                            [min]="form.value.min_duration"
+                            [step]="5"
+                            [max]="480"
+                        ></a-duration-field>
+                    </div>
                 </div>
             </div>
-            <div class="mb-4">
+            <div class="flex space-x-4">
+                <div class="flex-1">
+                    <label for="pending_before"
+                        >Allow check-in before meeting</label
+                    >
+                    <a-duration-field
+                        name="pending_before"
+                        formControlName="pending_before"
+                        [min]="0"
+                        [step]="5"
+                        [max]="60"
+                    ></a-duration-field>
+                </div>
+                <div class="flex-1">
+                    <label for="pending_after"
+                        >Cancel meetings when not checked-in after</label
+                    >
+                    <a-duration-field
+                        name="pending_after"
+                        formControlName="pending_after"
+                        [min]="0"
+                        [step]="5"
+                        [max]="60"
+                    ></a-duration-field>
+                </div>
+            </div>
+            <div class="">
                 <mat-checkbox formControlName="show_qr_code">
                     Show Booking QR Code
                 </mat-checkbox>
@@ -77,22 +134,18 @@ import { validateURL } from '@placeos/spaces';
                     </mat-hint>
                 </mat-form-field>
             </div>
-            <div class="flex items-center">
-                <div class="flex-1">
-                    <mat-checkbox formControlName="disable_book_now">
-                        Disable booking
-                    </mat-checkbox>
-                </div>
-                <div class="flex-1">
-                    <mat-checkbox formControlName="disable_book_now_host">
-                        Disallow selecting a booking host
-                    </mat-checkbox>
-                </div>
-            </div>
-            <div class="flex items-center">
+            <div class="flex items-center space-x-4">
                 <div class="flex-1">
                     <mat-checkbox formControlName="disable_end_meeting">
-                        Disable auto-ending of current booking
+                        <div class="flex item-center">
+                            <div>Disable auto-ending of current booking</div>
+                            <app-icon
+                                matTooltip="Disable ending the of the current booking early when sensors
+don't detect presence in room after a period of time"
+                            >
+                                info
+                            </app-icon>
+                        </div>
                     </mat-checkbox>
                 </div>
                 <div class="flex-1">
@@ -101,62 +154,30 @@ import { validateURL } from '@placeos/spaces';
                     </mat-checkbox>
                 </div>
             </div>
-            <div class="flex items-center mb-4">
+            <div class="flex items-center space-x-4 mb-4">
                 <div class="flex-1">
                     <mat-checkbox formControlName="hide_meeting_details">
-                        Hide Meeting Details
+                        <div class="flex item-center">
+                            <div>Hide Meeting Details</div>
+                            <app-icon
+                                matTooltip="When enabled only shows the time of the current meeting"
+                            >
+                                info
+                            </app-icon>
+                        </div>
                     </mat-checkbox>
                 </div>
                 <div class="flex-1">
                     <mat-checkbox formControlName="hide_meeting_title">
-                        Hide Meeting Title
+                        <div class="flex item-center">
+                            <div>Hide Meeting Title</div>
+                            <app-icon
+                                matTooltip="When enabled only shows the time and host of the current meeting"
+                            >
+                                info
+                            </app-icon>
+                        </div>
                     </mat-checkbox>
-                </div>
-            </div>
-            <div class="flex space-x-4">
-                <div class="flex-1">
-                    <label for="min-duration">Minimum Booking Duration</label>
-                    <a-duration-field
-                        name="min-duration"
-                        formControlName="min_duration"
-                        [min]="0"
-                        [step]="5"
-                        [max]="form.value.max_duration"
-                    ></a-duration-field>
-                </div>
-                <div class="flex-1">
-                    <label for="max-duration">Maximum Booking Duration</label>
-                    <a-duration-field
-                        name="max-duration"
-                        formControlName="max_duration"
-                        [min]="form.value.min_duration"
-                        [step]="5"
-                        [max]="480"
-                    ></a-duration-field>
-                </div>
-            </div>
-            <div class="flex space-x-4">
-                <div class="flex-1">
-                    <label for="pending_before"
-                        >Allow Checkin Before Meeting</label
-                    >
-                    <a-duration-field
-                        name="pending_before"
-                        formControlName="pending_before"
-                        [min]="0"
-                        [step]="5"
-                        [max]="60"
-                    ></a-duration-field>
-                </div>
-                <div class="flex-1">
-                    <label for="pending_after">Cancel Meeting After</label>
-                    <a-duration-field
-                        name="pending_after"
-                        formControlName="pending_after"
-                        [min]="0"
-                        [step]="5"
-                        [max]="60"
-                    ></a-duration-field>
                 </div>
             </div>
             <div class="flex space-x-4">
@@ -225,6 +246,22 @@ import { validateURL } from '@placeos/spaces';
                     </div>
                 </div>
             </div>
+            <div class="flex space-x-4">
+                <div class="flex-1">
+                    <label for="control-ui">Control Interface URL</label>
+                    <mat-form-field appearance="outline" class="w-full">
+                        <input
+                            matInput
+                            name="control-ui"
+                            placeholder="/control/#/tabbed/sys-123456"
+                            formControlName="control_ui"
+                        />
+                        <mat-error
+                            >Control Interface must be a valid URL</mat-error
+                        >
+                    </mat-form-field>
+                </div>
+            </div>
         </main>
         <footer
             *ngIf="!loading"
@@ -254,7 +291,7 @@ export class BookingPanelSettingsModalComponent {
         custom_qr_color: new FormControl(''),
         show_qr_code: new FormControl(true),
         disable_book_now: new FormControl(false),
-        disable_book_now_host: new FormControl(false),
+        disable_book_now_host: new FormControl(true),
         disable_end_meeting: new FormControl(false),
         enable_end_meeting_button: new FormControl(false),
         hide_meeting_details: new FormControl(false),
@@ -266,6 +303,8 @@ export class BookingPanelSettingsModalComponent {
         room_image: new FormControl('', validateURL),
         offline_image: new FormControl('', validateURL),
     });
+
+    private _defaults: Record<string, any> = {};
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: { zone: PlaceZone },
@@ -279,6 +318,7 @@ export class BookingPanelSettingsModalComponent {
             );
             return;
         }
+        this._defaults = { ...this.form.getRawValue() };
         this.loading = 'Loading existing panel settings...';
         const settings = await querySettings({ parent_id: this.zone.id })
             .pipe(
@@ -333,6 +373,13 @@ export class BookingPanelSettingsModalComponent {
                 `Some form fields are invalid. [${getInvalidFields(this.form)}]`,
             );
         }
+        const form_value = this.form.getRawValue();
+        // Remove default values from settings
+        for (const key in this._defaults) {
+            if (this._defaults[key] === form_value[key]) {
+                delete form_value[key];
+            }
+        }
         this._dialog_ref.disableClose = true;
         this.loading = 'Loading existing booking panel settings...';
         const settings = await querySettings({ parent_id: this.zone.id })
@@ -354,7 +401,7 @@ export class BookingPanelSettingsModalComponent {
             ...unencrypted_settings,
             settings_string: yaml.dump({
                 ...setting_value,
-                ...this.form.getRawValue(),
+                ...form_value,
             }),
         };
         this.loading = 'Saving changes to booking panel settings...';
