@@ -95,6 +95,7 @@ import { MatDialog } from '@angular/material/dialog';
                 class="bg-secondary text-secondary-content rounded h-12 w-12"
                 (click)="manageRestrictions()"
                 matTooltip="Parking Restrictions"
+                *ngIf="path !== 'events' && path !== 'map'"
             >
                 <app-icon>lock_open</app-icon>
             </button>
