@@ -5,6 +5,7 @@ import { BookingFormService, ParkingService } from '@placeos/bookings';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
+    currentUser,
     getInvalidFields,
     notifyError,
     SettingsService,
@@ -145,7 +146,7 @@ export class ParkingFlowFormComponent extends AsyncHandler {
 
     public async ngOnInit() {
         this._state.setOptions({ type: 'parking' });
-        this.form.patchValue({ all_day: true });
+        this.form.patchValue({ all_day: true, user: currentUser() });
         const user = await this._parking.user_details.pipe(take(1)).toPromise();
         if (user?.email) {
             this.form.patchValue({ plate_number: user.plate_number });
