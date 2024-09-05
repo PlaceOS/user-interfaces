@@ -264,6 +264,7 @@ export class ParkingStateService extends AsyncHandler {
                 period_end: getUnixTime(endOfDay(Date.now())),
                 type: 'parking',
                 email: new_space.assigned_to,
+                include_checked_out: true,
             }).toPromise();
             const filtered = booking_list.filter(
                 (_) => _.asset_id === space.id,
