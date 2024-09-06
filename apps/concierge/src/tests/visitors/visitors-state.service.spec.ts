@@ -1,6 +1,6 @@
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { MatDialog } from '@angular/material/dialog';
-import { of } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { MockProvider } from 'ng-mocks';
 
@@ -22,7 +22,11 @@ describe('VisitorStateService', () => {
     const createService = createServiceFactory({
         service: VisitorsStateService,
         providers: [
-            MockProvider(MatDialog, { open: jest.fn() }),
+            MockProvider(MatDialog, {
+                open: jest.fn(() => ({
+                    afterClosed: jest.fn(() => of(true)),
+                })),
+            } as any),
             MockProvider(OrganisationService, {
                 active_building: of({ id: 'bld-1' }),
             } as any),
@@ -38,10 +42,10 @@ describe('VisitorStateService', () => {
 
     it('should list visitor events', async () => {
         (event_mod as any).queryEvents = jest.fn(() =>
-            of([{ guests: [{}], attendees: [{}, {}] }])
+            of([{ guests: [{}], attendees: [{}, {}] }]),
         );
         (booking_mod as any).queryBookings = jest.fn(() =>
-            of([{ extension_data: {} }])
+            of([{ extension_data: {} }]),
         );
         expect(booking_mod.queryBookings).not.toBeCalled();
         const events = await spectator.service.bookings
@@ -53,7 +57,7 @@ describe('VisitorStateService', () => {
 
     it('should allow filtering of visitor events', async () => {
         (booking_mod as any).queryBookings = jest.fn(() =>
-            of([{ asset_name: 'true', extension_data: {} }])
+            of([{ asset_name: 'true', extension_data: {} }]),
         );
         expect(booking_mod.queryBookings).not.toBeCalled();
         let events = await spectator.service.filtered_bookings
@@ -83,11 +87,16 @@ describe('VisitorStateService', () => {
     });
 
     it('should allow checking in visitors', async () => {
+        (booking_mod as any).approveBooking = jest.fn(() => of({}));
         (booking_mod as any).checkinBooking = jest.fn(() => of({}));
+        (booking_mod as any).updateBookingInductionStatus = jest.fn(() =>
+            of({}),
+        );
         (common_mod as any).notifySuccess = jest.fn(() => null);
         (common_mod as any).unique = jest.fn(() => []);
         expect(booking_mod.checkinBooking).not.toBeCalled();
         await spectator.service.setCheckinState({ id: '1' } as any);
+
         expect(booking_mod.checkinBooking).toBeCalledWith('1', true);
     });
 
@@ -102,7 +111,7 @@ describe('VisitorStateService', () => {
 
     it('should allow checking in all visitors', async () => {
         (booking_mod as any).queryBookings = jest.fn(() =>
-            of([{ parent_id: '1', extension_data: {} }])
+            of([{ parent_id: '1', extension_data: {} }]),
         );
         (booking_mod as any).checkinBooking = jest.fn(() => of({}));
         (common_mod as any).notifySuccess = jest.fn(() => null);
@@ -114,7 +123,7 @@ describe('VisitorStateService', () => {
 
     it('should allow checking out all visitors', async () => {
         (booking_mod as any).queryBookings = jest.fn(() =>
-            of([{ parent_id: '1', extension_data: {} }])
+            of([{ parent_id: '1', extension_data: {} }]),
         );
         (booking_mod as any).checkinBooking = jest.fn(() => of({}));
         (common_mod as any).notifySuccess = jest.fn(() => null);

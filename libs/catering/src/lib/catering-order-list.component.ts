@@ -9,11 +9,11 @@ import { CATERING_STATUSES } from './catering.vars';
     selector: 'catering-order-list',
     template: `
         <div class="flex flex-col h-full w-full overflow-auto">
-            <!-- <mat-progress-bar
+            <mat-progress-bar
                 [class.opacity-0]="!(loading | async)"
-                class="w-full"
+                class="sticky top-0 left-0 w-full"
                 mode="indeterminate"
-            ></mat-progress-bar> -->
+            ></mat-progress-bar>
             <simple-table
                 class="min-w-[72rem] w-full block text-sm"
                 [data]="order_list"
@@ -23,44 +23,44 @@ import { CATERING_STATUSES } from './catering.vars';
                         name: ' ',
                         size: '4rem',
                         sortable: false,
-                        content: state_template
+                        content: state_template,
                     },
                     {
                         key: 'deliver_at',
                         name: 'Time',
-                        content: time_template
+                        content: time_template,
                     },
                     {
                         key: 'event',
                         name: 'Location',
                         content: location_template,
-                        sortable: false
+                        sortable: false,
                     },
                     {
                         key: 'event',
                         name: 'Host',
                         content: host_template,
-                        sortable: false
+                        sortable: false,
                     },
                     { key: 'charge_code', name: 'Charge Code' },
                     {
                         key: 'invoice_number',
                         name: 'Invoice No.',
-                        empty: 'No Invoice'
+                        empty: 'No Invoice',
                     },
                     {
                         key: 'status',
                         name: 'Status',
                         content: status_template,
-                        size: '11rem'
+                        size: '11rem',
                     },
                     {
                         key: 'actions',
                         name: ' ',
                         size: '6.5rem',
                         content: actions_template,
-                        sortable: false
-                    }
+                        sortable: false,
+                    },
                 ]"
                 [sortable]="true"
                 [show_children]="show_children"
@@ -240,7 +240,7 @@ export class CateringOrderListComponent extends AsyncHandler {
 
     constructor(
         private _orders: CateringOrdersService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }

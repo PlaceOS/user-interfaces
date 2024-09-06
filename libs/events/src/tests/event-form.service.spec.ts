@@ -32,6 +32,7 @@ describe('EventFormService', () => {
                 building: { id: 'bld-1' },
                 building_list: new BehaviorSubject([]),
                 active_building: new BehaviorSubject({}),
+                active_region: new BehaviorSubject({}),
             } as any),
             MockProvider(Router, {
                 navigate: jest.fn(),
@@ -158,7 +159,7 @@ describe('EventFormService', () => {
     it('should reject posting invalid form', async () => {
         spectator.service.newForm();
         await expect(spectator.service.postForm()).rejects.toBe(
-            'Some form fields are invalid. [host, assets]'
+            'Some form fields are invalid. [host, assets]',
         );
     });
 
@@ -195,11 +196,11 @@ describe('EventFormService', () => {
         expect(spectator.service.clearForm).not.toBeCalled();
         const router = spectator.inject(Router);
         (router.events as any).next(
-            new NavigationEnd(1, '/book/spaces/form', '/book/spaces/form')
+            new NavigationEnd(1, '/book/spaces/form', '/book/spaces/form'),
         );
         expect(spectator.service.clearForm).not.toBeCalled();
         (router.events as any).next(
-            new NavigationEnd(1, '/schedule', '/schedule')
+            new NavigationEnd(1, '/schedule', '/schedule'),
         );
         expect(spectator.service.clearForm).toBeCalled();
         spy.mockRestore();

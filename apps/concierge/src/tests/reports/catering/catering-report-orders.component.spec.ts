@@ -7,6 +7,7 @@ import { CateringReportOrdersComponent } from 'apps/concierge/src/app/reports/ca
 import { CateringReportStateService } from 'apps/concierge/src/app/reports/catering/catering-report-state.service';
 import { Router } from '@angular/router';
 import { SettingsService } from '@placeos/common';
+import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
 
 describe('CateringReportOrdersComponent', () => {
     let spectator: Spectator<CateringReportOrdersComponent>;
@@ -15,6 +16,7 @@ describe('CateringReportOrdersComponent', () => {
         declarations: [
             MockComponent(CustomTableComponent),
             MockComponent(IconComponent),
+            MockComponent(SimpleTableComponent),
         ],
         providers: [
             MockProvider(CateringReportStateService, {

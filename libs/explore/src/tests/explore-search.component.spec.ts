@@ -9,6 +9,7 @@ import { BehaviorSubject } from 'rxjs';
 
 import { ExploreSearchComponent } from '../lib/explore-search.component';
 import { ExploreSearchService } from '../lib/explore-search.service';
+import { fakeAsync } from '@angular/core/testing';
 
 describe('ExploreSearchComponent', () => {
     let spectator: Spectator<ExploreSearchComponent>;
@@ -67,10 +68,7 @@ describe('ExploreSearchComponent', () => {
         spectator.detectChanges();
         expect('mat-option').toExist();
         const spy = jest.spyOn(spectator.component, 'select');
-        spectator.triggerEventHandler('input', 'ngModelChange', {
-            id: '1',
-            name: 'First',
-        });
+        spectator.click('mat-option');
         spectator.detectChanges();
         expect(spy).toHaveBeenCalledWith({ id: '1', name: 'First' });
         expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([], {
