@@ -212,7 +212,6 @@ export class SignageZonesComponent extends AsyncHandler {
     }
 
     public async addPlaylist(playlist: SignagePlaylist) {
-        console.log('Add Playlist:', playlist);
         const zone = await this.active_zone.pipe(take(1)).toPromise();
         const trigger = await this.active_trigger.pipe(take(1)).toPromise();
         const item = trigger || zone;

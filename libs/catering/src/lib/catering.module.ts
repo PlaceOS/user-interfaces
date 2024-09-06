@@ -9,6 +9,8 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { FormFieldsModule } from '@placeos/form-fields';
 
@@ -30,7 +32,6 @@ import { CateringItemFiltersComponent } from './catering-order-modal/catering-it
 import { CateringListFieldComponent } from './catering-list-field.component';
 import { ChargeCodeListModalComponent } from './charge-code-list-modal.component';
 import { CateringItemListItemComponent } from './catering-order-modal/catering-item-list-item.component';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 const COMPONENTS: Type<any>[] = [
     CateringOrderOptionsModalComponent,
@@ -69,6 +70,7 @@ const COMPONENTS: Type<any>[] = [
         MatFormFieldModule,
         FormFieldsModule,
         MatProgressSpinnerModule,
+        MatProgressBarModule,
     ],
     providers: [],
     exports: [...COMPONENTS],

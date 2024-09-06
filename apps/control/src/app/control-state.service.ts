@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { getModule } from '@placeos/ts-client';
+import { getModule, PlaceSystem, showSystem } from '@placeos/ts-client';
 import {
+    catchError,
+    debounceTime,
     distinct,
     filter,
     map,
@@ -12,14 +14,15 @@ import {
 } from 'rxjs/operators';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 
-import { AsyncHandler, currentUser, HashMap } from '@placeos/common';
+import { AsyncHandler, currentUser, HashMap, log } from '@placeos/common';
 import { Calendar, CalendarService } from '@placeos/calendar';
 import { SourceSelectModalComponent } from './ui/source-select-modal.component';
 import { CalendarEvent, queryEvents } from '@placeos/events';
 import { endOfDay, getUnixTime } from 'date-fns';
 import { SelectMeetingModalComponent } from './ui/select-meeting-modal.component';
 import { HelpModalComponent } from './ui/help-modal.component';
-import { SpacesService } from '@placeos/spaces';
+import { Space, SpacesService } from '@placeos/spaces';
+import { Router } from '@angular/router';
 
 export interface EnvironmentSource {
     name: string;
@@ -115,6 +118,27 @@ export class ControlStateService extends AsyncHandler {
     private _active_output = new BehaviorSubject<string>('');
     private _calendar = new BehaviorSubject<Calendar>(null);
     private _ignore_changes: string[] = [];
+
+    public readonly space = this._id.pipe(
+        debounceTime(1000),
+        tap((id) => log('Panel', `Loading system "${id}"...`)),
+        switchMap((id) =>
+            showSystem(id).pipe(
+                catchError(({ status, message }) => {
+                    log(
+                        'Control',
+                        'Error loading system details:',
+                        [status, message],
+                        'error',
+                    );
+                    status === 404 ? this._router.navigate(['/bootstrap']) : '';
+                    return of(new PlaceSystem());
+                }),
+            ),
+        ),
+        map((_) => new Space(_ as any)),
+        shareReplay(1),
+    );
 
     /** General data associated with the active system */
     public readonly system = this._system.asObservable();
@@ -270,11 +294,13 @@ export class ControlStateService extends AsyncHandler {
         private _dialog: MatDialog,
         private _cal: CalendarService,
         private _spaces: SpacesService,
+        private _router: Router,
     ) {
         super();
         this._id.pipe(distinct()).subscribe((id) => this.bindToState(id));
         this._inputs.subscribe((_) => this.bindSources('input', _ || []));
         this._outputs.subscribe((_) => this.bindSources('output', _ || []));
+        this.space.subscribe();
     }
 
     public setID(id: string) {

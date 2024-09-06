@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { LevelManagementService } from './level-management.service';
 import { notifySuccess } from '@placeos/common';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { MatDialog } from '@angular/material/dialog';
+import { BookingPanelSettingsModalComponent } from '../ui/booking-panel-settings-modal.component';
 
 @Component({
     selector: 'level-list',
@@ -66,6 +68,17 @@ import { Clipboard } from '@angular/cdk/clipboard';
                 >
                     <app-icon>edit</app-icon>
                 </button>
+                <button mat-menu-item (click)="editBookingPanelSettings(row)">
+                    <div class="flex items-center space-x-2">
+                        <app-icon
+                            className="material-symbols-rounded"
+                            class="text-xl"
+                        >
+                            top_panel_open
+                        </app-icon>
+                        <span>Edit Booking Panel Settings</span>
+                    </div>
+                </button>
                 <button
                     icon
                     matRipple
@@ -94,5 +107,12 @@ export class LevelListComponent {
     constructor(
         private _manager: LevelManagementService,
         private _clipboard: Clipboard,
+        private _dialog: MatDialog,
     ) {}
+
+    public editBookingPanelSettings(level) {
+        this._dialog.open(BookingPanelSettingsModalComponent, {
+            data: { zone: level },
+        });
+    }
 }

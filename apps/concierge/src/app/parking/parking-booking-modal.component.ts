@@ -207,6 +207,7 @@ export class ParkingBookingModalComponent extends AsyncHandler {
     }
 
     public async postForm() {
+        this.form.markAllAsTouched();
         this.form.updateValueAndValidity();
         if (!this.form.valid) return;
         this.loading = true;

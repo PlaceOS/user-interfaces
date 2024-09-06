@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
 import { AsyncHandler } from '@placeos/common';
 
@@ -80,8 +80,7 @@ export class ControlVideoCallViewComponent
 
     constructor(
         private _route: ActivatedRoute,
-        private _router: Router,
-        private _state: ControlStateService
+        private _state: ControlStateService,
     ) {
         super();
     }
@@ -92,17 +91,16 @@ export class ControlVideoCallViewComponent
             this._route.paramMap.subscribe((params) =>
                 params.has('system')
                     ? this._state.setID(params.get('system'))
-                    : ''
-            )
+                    : '',
+            ),
         );
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) =>
-                params.get('join') === 'true' ? this._state.selectMeeting() : ''
-            )
-        );
-        this.timeout('init', () =>
-            !this._state.id ? this._router.navigate(['/bootstrap']) : ''
+                params.get('join') === 'true'
+                    ? this._state.selectMeeting()
+                    : '',
+            ),
         );
     }
 }

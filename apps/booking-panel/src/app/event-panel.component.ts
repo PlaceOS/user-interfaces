@@ -92,25 +92,25 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                     binding
                     [sys]="system_id"
                     mod="Bookings"
-                    bind="current"
+                    bind="current_booking"
                     (modelChange)="current = asCalendarEvent($event)"
                 ></i>
                 <i
                     binding
                     [sys]="system_id"
                     mod="Bookings"
-                    bind="next"
+                    bind="next_booking"
                     (modelChange)="next = asCalendarEvent($event)"
                 ></i>
             </div>
             <div
                 class="absolute top-1/2 -right-[2px] -translate-y-1/2"
-                *ngIf="!hide_qr"
+                *ngIf="!hide_qr && checkin"
             >
                 <button
                     book-tag
                     matRipple
-                    (click)="show_qr = !show_qr"
+                    (click)="toggleQRShow()"
                     class="absolute top-1/2 left-px -translate-y-1/2 -translate-x-full bg-base-100 border-l border-y border-base-300 px-1 py-4 rounded-l-lg z-20 uppercase"
                 >
                     Book
@@ -121,7 +121,7 @@ import { generateQRCode } from 'libs/common/src/lib/qr-code';
                     [class.w-0]="!show_qr"
                     [class.w-56]="show_qr"
                 >
-                    <div qr-checkin *ngIf="checkin" class="w-56 z-50 p-3">
+                    <div qr-checkin class="w-56 z-50 p-3">
                         <img class="w-full" [src]="qr_code" />
                     </div>
                 </div>
@@ -211,7 +211,11 @@ export class EventPanelComponent extends AsyncHandler {
         this.timeout(
             'size',
             () =>
-                this._settings.overrideCssVariable('font-size', '4vmin', true),
+                this._settings.overrideCssVariable(
+                    'font-size',
+                    '3.5vmin',
+                    true,
+                ),
             1000,
         );
         this._state.current.subscribe();
@@ -231,6 +235,11 @@ export class EventPanelComponent extends AsyncHandler {
                 );
             }
         });
+    }
+
+    public toggleQRShow() {
+        this.show_qr = !this.show_qr;
+        this.timeout('close', () => (this.show_qr = false), 60 * 1000);
     }
 
     public asCalendarEvent(data: any) {

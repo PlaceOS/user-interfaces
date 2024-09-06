@@ -294,7 +294,6 @@ export class MediaPlayerComponent extends AsyncHandler {
                 this.hold_over_item = false;
             }
             this.togglePause();
-            console.log('Playlist:', this._item_playlist);
             this._updateItem();
         }
         if (changes.animation_time) {

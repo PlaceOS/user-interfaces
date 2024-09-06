@@ -334,8 +334,12 @@ export class EventsStateService extends AsyncHandler {
         period: 'day' | 'week' | 'month' = 'day',
         delay: number = 30 * 1000,
     ) {
-        this._poll.next(Date.now());
         this._period.next(period);
+        return this.poll(delay);
+    }
+
+    public poll(delay: number = 30 * 1000) {
+        this._poll.next(Date.now());
         this.interval('polling', () => this._poll.next(Date.now()), delay);
         return () => this.stopPolling();
     }

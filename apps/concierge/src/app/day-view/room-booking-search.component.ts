@@ -122,10 +122,17 @@ export class RoomBookingSearchComponent extends AsyncHandler {
             search = search.toLowerCase();
             return event_list.filter((e) => {
                 return (
-                    e.title.toLowerCase().includes(search) ||
-                    e.organiser?.name.includes(search) ||
-                    e.host.includes(search) ||
-                    e.system?.display_name.includes(search)
+                    !e.is_system_event &&
+                    (e.title.toLowerCase().includes(search) ||
+                        e.organiser?.name.toLowerCase().includes(search) ||
+                        e.host.toLowerCase().includes(search) ||
+                        e.system?.display_name.toLowerCase().includes(search) ||
+                        e.system?.name.toLowerCase().includes(search) ||
+                        e.resources[0]?.display_name
+                            .toLowerCase()
+                            ?.includes(search) ||
+                        e.resources[0]?.name.toLowerCase()?.includes(search) ||
+                        e.resources[0]?.email.toLowerCase()?.includes(search))
                 );
             });
         }),

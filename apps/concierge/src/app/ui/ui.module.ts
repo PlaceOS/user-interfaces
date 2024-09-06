@@ -33,6 +33,7 @@ import { ApplicationTopbarComponent } from './app-topbar.component';
 import { ApplicationSidebarComponent } from './app-sidebar.component';
 import { AppSettingsModalComponent } from './app-settings-modal.component';
 import { BookingRulesModalComponent } from './booking-rules-modal.component';
+import { BookingPanelSettingsModalComponent } from './booking-panel-settings-modal.component';
 
 const COMPONENTS: Type<any>[] = [
     AppSettingsModalComponent,
@@ -43,6 +44,7 @@ const COMPONENTS: Type<any>[] = [
     ApplicationTopbarComponent,
     ApplicationSidebarComponent,
     BookingRulesModalComponent,
+    BookingPanelSettingsModalComponent,
 ];
 
 const MAT_MODULES: any[] = [

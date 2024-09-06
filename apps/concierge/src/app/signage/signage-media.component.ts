@@ -179,7 +179,6 @@ export class SignageMediaComponent extends AsyncHandler {
 
     public hideOverlay(e) {
         if (!this.show_dropzone) return;
-        console.log('Hide Overlay:', e);
         if (!(e.target instanceof HTMLInputElement)) {
             e.preventDefault();
         }
@@ -210,7 +209,6 @@ export class SignageMediaComponent extends AsyncHandler {
         event: CdkDragDrop<SignagePlaylist[]>,
     ) {
         const media = event.previousContainer.data[event.previousIndex];
-        if (!media.id || !playlist.id) console.log('Drop Event:', event);
         const media_list = await listSignagePlaylistMedia(
             playlist.id,
         ).toPromise();

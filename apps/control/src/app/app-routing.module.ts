@@ -27,7 +27,7 @@ const routes: Routes = [
         path: 'panel/:system/call',
         component: ControlVideoCallViewComponent,
     },
-    { path: '**', redirectTo: 'bootstrap' }
+    { path: '**', redirectTo: 'bootstrap' },
 ];
 
 @NgModule({

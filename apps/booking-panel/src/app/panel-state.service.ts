@@ -12,6 +12,7 @@ import { OrganisationService } from '@placeos/organisation';
 import { BehaviorSubject, combineLatest, interval, Observable, of } from 'rxjs';
 import {
     catchError,
+    debounceTime,
     filter,
     first,
     map,
@@ -27,6 +28,7 @@ import { Space, SpacesService } from '@placeos/spaces';
 import {
     AsyncHandler,
     currentUser,
+    log,
     notifyError,
     notifySuccess,
     notifyWarn,
@@ -137,9 +139,17 @@ export class PanelStateService extends AsyncHandler {
     public readonly settings = this._settings.asObservable();
     /** List of current bookings for active system */
     public readonly space = this._system.pipe(
+        debounceTime(1000),
+        tap((id) => log('Panel', `Loading system "${id}"...`)),
         switchMap((id) =>
             showSystem(id).pipe(
-                catchError(({ status }) => {
+                catchError(({ status, message }) => {
+                    log(
+                        'Panel',
+                        'Error loading system details:',
+                        [status, message],
+                        'error',
+                    );
                     status === 404 ? this._router.navigate(['/bootstrap']) : '';
                     return of(new PlaceSystem());
                 }),

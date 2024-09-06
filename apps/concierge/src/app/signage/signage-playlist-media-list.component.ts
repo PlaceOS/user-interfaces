@@ -235,7 +235,6 @@ export class SignagePlaylistMediaListComponent {
     public readonly removeItem = async (item: SignageMedia) => {
         const playlist = await this._playlist_media.pipe(take(1)).toPromise();
         const list = playlist.items.filter((_) => _ !== item.id);
-        console.log('Remove Item:', playlist, item, list);
         await this._state.updatePlaylistMedia(this.playlist, list);
         this._playlist.next(this.playlist);
     };

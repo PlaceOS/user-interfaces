@@ -28,7 +28,9 @@ describe('[Staff API]', () => {
             const spy = jest.spyOn(ts_client, 'get');
             spy.mockImplementation(() => of([{ name: 'Jim' }]) as any);
             await searchStaff('Jim').toPromise();
-            expect(spy).toHaveBeenCalledWith('/api/staff/v1/people?q=Jim');
+            expect(spy).toHaveBeenCalledWith(
+                '/api/staff/v1/people?q=Jim&fields=id%2Cname%2Cemail%2Cusername%2Corganisation%2Cdepartment',
+            );
         });
     });
 

@@ -14,9 +14,9 @@ import {
     ExploreZonesService,
     ExploreZoomControlComponent,
 } from '@placeos/explore';
-import { OrganisationService } from '@placeos/organisation';
+import { Building, OrganisationService, Region } from '@placeos/organisation';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 
 import { ExploreComponent } from '../app/explore.component';
 import { ExploreLevelSelectComponent } from '../app/explore-level-select.component';
@@ -65,7 +65,11 @@ describe('ExploreComponent', () => {
                 initialised: of(true),
                 get: jest.fn(),
             } as any),
-            MockProvider(OrganisationService, { initialised: of(true) }),
+            MockProvider(OrganisationService, {
+                initialised: of(true),
+                active_region: new BehaviorSubject(new Region({})),
+                active_building: new BehaviorSubject(new Building({ id: '1' })),
+            }),
         ],
         imports: [MockModule(MatSlideToggleModule), FormsModule, MatMenuModule],
     });

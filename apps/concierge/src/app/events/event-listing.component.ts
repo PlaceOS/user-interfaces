@@ -282,9 +282,7 @@ import { CalendarEvent } from '@placeos/events';
 })
 export class EventListingComponent {
     public readonly loading = this._state.loading;
-    public readonly event_list = this._state.event_list.pipe(
-        tap((_) => console.log('Event List:', _)),
-    );
+    public readonly event_list = this._state.event_list;
 
     public readonly viewEvent = (event: any) => this._state.viewEvent(event);
     public readonly removeEvent = (event: any) =>

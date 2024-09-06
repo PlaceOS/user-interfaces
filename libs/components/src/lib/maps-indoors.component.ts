@@ -189,7 +189,6 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                 mapsIndoors: maps_indoors,
             }),
         };
-        console.log('Resource:', this._services.mapsindoors);
         this._initialised.next(true);
         if (this.zone) {
             this._services.map.setZoom(DEFAULT_ZOOM);
@@ -285,7 +284,6 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             destination: { lat: to.lat, lng: to.lng },
             travelMode: distance < 2 ? 'WALKING' : 'DRIVING',
         };
-        console.log('Route Parameters:', routeParameters, distance);
         const result = await this._services.directions
             .getRoute(routeParameters)
             .catch((e) => {
@@ -302,7 +300,6 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                 notifyError('Error: Origin location is outside of map area.');
             });
         if (!result) return;
-        console.log('Route:', result);
         this._services.directions_renderer.setRoute(result);
         this.viewing_directions = true;
         this.loading_directions = false;
