@@ -171,7 +171,6 @@ export class ExploreSearchComponent extends AsyncHandler {
     }
 
     public select(item: SearchResult) {
-        console.log('Selected Item:', item);
         this.search_str = item.name;
         const query: any = {};
         const type =

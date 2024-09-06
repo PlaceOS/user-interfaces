@@ -230,7 +230,6 @@ export class SignageMediaModalComponent {
         },
         private _dialog_ref: MatDialogRef<SignageMediaModalComponent>,
     ) {
-        console.log('File:', this._data.file, this._data.file_metadata);
         this.form.patchValue({
             ...this._data.media,
             valid_from: this._data.media.valid_from * 1000,

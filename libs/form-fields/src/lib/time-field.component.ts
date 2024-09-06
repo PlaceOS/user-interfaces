@@ -104,7 +104,6 @@ export class TimeFieldComponent
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
-        console.log('TimeFieldComponent:', changes);
         if (changes.no_past_times || changes.step || changes.from) {
             this._time_options = this.generateAvailableTimes(
                 this.date,
