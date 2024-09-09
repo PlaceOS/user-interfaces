@@ -24,6 +24,7 @@ import {
     SetupBreakdownModalComponent,
     declineEvent,
 } from '@placeos/events';
+import { DatePipe } from '@angular/common';
 
 @Component({
     selector: 'room-bookings-timeline',
@@ -133,20 +134,7 @@ import {
                             [style.height]="endToOffset(event.duration) + '%'"
                             [class.pointer-events-none]="event.state === 'done'"
                             (click)="viewEvent(event, space.id)"
-                            [matTooltip]="
-                                'Start:  ' +
-                                    (event.all_day
-                                        ? 'All Day'
-                                        : (event.date | date: time_format)) +
-                                    '
-' +
-                                    'Title:  ' +
-                                    event.title +
-                                    '
-' +
-                                    'Host:  ' +
-                                    event.organiser?.name || event.host
-                            "
+                            [matTooltip]="eventTooltip(event)"
                             *ngIf="
                                 !event.is_system_event ||
                                 (ui_options | async).show_overflow
@@ -288,6 +276,15 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         return this._settings.get('app.use_24_hour_time')
             ? format(date, 'HH:00')
             : format(date, 'h a');
+    }
+
+    private _date_pipe = new DatePipe('en');
+
+    public eventTooltip(event: CalendarEvent) {
+        const tooltip = `Start: ${event.all_day ? 'All Day' : this._date_pipe.transform(event.date, this.time_format)}
+Title:  ${event.title}
+Host:  ${event.organiser?.name || event.host}`;
+        return tooltip;
     }
 
     public ngOnInit() {
