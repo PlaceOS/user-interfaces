@@ -1,132 +1,139 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 
 import { SignageStateService } from './signage-state.service';
-import { AsyncHandler, notifyError } from '@placeos/common';
+import { AsyncHandler, unique } from '@placeos/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { SignageMediaListComponent } from './signage-media-list.component';
+import { listSignagePlaylistMedia, SignagePlaylist } from '@placeos/ts-client';
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
 
 @Component({
     selector: 'signage-media',
     template: `
-        <div
-            class="relative bg-base-200 min-h-full w-full"
-            (document:dragenter)="onEnter($event)"
-            (document:drop)="hideOverlay($event)"
-        >
-            <ng-container *ngIf="!(loading | async); else load_template">
-                <ng-container
-                    *ngIf="(media | async)?.length; else empty_template"
+        <div class="relative h-full w-full overflow-visible flex space-x-4">
+            <div sidebar class="w-64 h-full flex flex-col space-y-4 py-4">
+                <h3 class="text-xl font-medium text-center">Playlists</h3>
+                <mat-form-field
+                    appearance="outline"
+                    class="w-full no-subscript"
+                >
+                    <input
+                        matInput
+                        placeholder="Search..."
+                        [ngModel]="search.getValue()"
+                        (ngModelChange)="search.next($event)"
+                    />
+                </mat-form-field>
+                <a
+                    matRipple
+                    class="w-full px-6 rounded-3xl h-12 flex items-center hover:bg-base-200"
+                    [class.!bg-secondary]="!selected_playlist"
+                    [class.text-secondary-content]="!selected_playlist"
+                    [routerLink]="[]"
+                    [queryParams]="{ playlist: '' }"
+                >
+                    All Media
+                </a>
+                <hr class="w-full" />
+                @if ((playlists | async)?.length > 0) {
+                    @for (playlist of playlists | async; track playlist.id) {
+                        <a
+                            matRipple
+                            class="w-full px-6 rounded-3xl h-12 flex items-center hover:bg-base-200"
+                            [class.!bg-secondary]="
+                                selected_playlist === playlist.id
+                            "
+                            [class.text-secondary-content]="
+                                selected_playlist === playlist.id
+                            "
+                            [routerLink]="[]"
+                            [queryParams]="{ playlist: playlist.id }"
+                            cdkDropList
+                            [id]="'playlist-' + $index"
+                            [cdkDropListConnectedTo]="[
+                                'media-list',
+                                'playlist-list',
+                            ]"
+                            (cdkDropListDropped)="
+                                selected_playlist === playlist.id
+                                    ? ''
+                                    : drop(playlist, $event)
+                            "
+                        >
+                            <div class="flex-1">
+                                {{ playlist.name }}
+                            </div>
+                        </a>
+                    }
+                } @else {
+                    <div
+                        class="flex flex-col items-center justify-center p-8 space-y-2 opacity-30"
+                    >
+                        <app-icon class="text-6xl">hide_image</app-icon>
+                        <p class="text-center">
+                            {{
+                                search.getValue()
+                                    ? 'No matching playlists found'
+                                    : 'No playlists'
+                            }}
+                        </p>
+                    </div>
+                    <button
+                        *ngIf="!search.getValue()"
+                        btn
+                        matRipple
+                        class="inverse"
+                        (click)="addPlaylist()"
+                    >
+                        <div class="flex items-center justify-center w-full">
+                            <app-icon class="text-2xl">add</app-icon>
+                            <span class="ml-2 mr-4">Add Playlist</span>
+                        </div>
+                    </button>
+                }
+            </div>
+            <div
+                class="relative flex-1 w-1/2 h-full overflow-hidden rounded-lg border border-base-300 shadow"
+                (dragover)="onEnter($event)"
+                (dragenter)="onEnter($event)"
+                (window:drop)="hideOverlay($event)"
+            >
+                <div class="h-full w-full overflow-auto">
+                    <signage-media-list
+                        *ngIf="!selected_playlist"
+                        [playlist_count]="(playlists | async)?.length"
+                    ></signage-media-list>
+                    <signage-playlist-media-list
+                        *ngIf="selected_playlist"
+                        [playlist]="selected_playlist"
+                        [playlist_count]="(playlists | async)?.length"
+                    ></signage-playlist-media-list>
+                </div>
+                <div
+                    class="absolute inset-0"
+                    *ngIf="show_dropzone"
+                    (dragleave)="hideOverlay($event)"
+                    (drop)="previewFile($event)"
                 >
                     <div
-                        class="flex flex-wrap items-start justify-start w-full p-2"
+                        class="absolute inset-0 bg-base-content opacity-60"
+                    ></div>
+                    <div
+                        class="absolute inset-4 border-4 border-dashed border-base-300 flex flex-col items-center justify-center rounded-2xl text-base-100 space-y-4"
                     >
-                        <div
-                            class="m-2 p-2 bg-base-100 rounded-lg overflow-hidden h-[13rem] w-[17rem] border border-base-300 shadow"
-                            *ngFor="let item of media | async"
-                        >
-                            <button
-                                class="w-64 h-36 overflow-hidden bg-base-200 rounded m-0 p-0 relative"
-                                (click)="previewMedia(item)"
-                            >
-                                <img
-                                    *ngIf="
-                                        item.type === 'video'
-                                            ? (item.url | thumbnail)
-                                            : item.url
-                                    "
-                                    [src]="
-                                        item.type === 'video'
-                                            ? (item.url | thumbnail)
-                                            : item.url
-                                    "
-                                    class="object-contain w-full h-full"
-                                />
-                                <div
-                                    class="absolute top-2 left-2 flex items-center justify-center rounded overflow-hidden"
-                                >
-                                    <div
-                                        class="absolute inset-0 bg-base-content opacity-60 z-0"
-                                    ></div>
-                                    <div
-                                        class="relative text-base-100 z-10 px-2 py-1 text-xs"
-                                    >
-                                        {{
-                                            item.type === 'image'
-                                                ? 'Image'
-                                                : 'Video'
-                                        }}
-                                    </div>
-                                </div>
-                                <div
-                                    class="absolute top-2 right-2 flex items-center justify-center rounded overflow-hidden"
-                                >
-                                    <div
-                                        class="absolute inset-0 bg-base-content opacity-60 z-0"
-                                    ></div>
-                                    <div
-                                        class="relative text-base-100 z-10 px-2 py-1 text-xs"
-                                    >
-                                        {{ count || 0 }} Playlist(s)
-                                    </div>
-                                </div>
-                                <div
-                                    class="absolute bottom-2 right-2 flex items-center justify-center rounded overflow-hidden"
-                                    *ngIf="item.duration"
-                                >
-                                    <div
-                                        class="absolute inset-0 bg-base-content opacity-60 z-0"
-                                    ></div>
-                                    <div
-                                        class="relative text-base-100 z-10 px-2 py-1 text-xs"
-                                    >
-                                        {{ item.duration | mediaDuration }}
-                                    </div>
-                                </div>
-                            </button>
-                            <div
-                                class="flex items-center justify-between space-x-2"
-                            >
-                                <div class="truncate flex-1 w-1/2 px-2">
-                                    {{ item.name }}
-                                </div>
-                                <button icon matRipple>
-                                    <app-icon>more_vert</app-icon>
-                                </button>
-                            </div>
-                        </div>
+                        <app-icon class="text-6xl">cloud_upload</app-icon>
+                        <p>Drop Media to upload</p>
                     </div>
-                </ng-container>
-            </ng-container>
-            <div class="absolute inset-0" *ngIf="show_dropzone">
-                <div class="absolute inset-0 bg-base-200"></div>
-                <div class="absolute inset-0 bg-base-content opacity-70"></div>
-                <div
-                    class="absolute inset-4 border-4 border-dashed border-neutral text-base-100 rounded-xl flex flex-col items-center justify-center"
-                >
-                    <app-icon class="text-8xl">upload</app-icon>
-                    <p>Drop file to upload file</p>
+                    <input
+                        type="file"
+                        (change)="previewFile($event)"
+                        class="absolute inset-0 opacity-0"
+                    />
                 </div>
-                <input
-                    type="file"
-                    class="absolute inset-0 w-full opacity-0"
-                    (change)="previewFile($event)"
-                />
             </div>
         </div>
-        <ng-template #empty_template>
-            <div
-                class="absolute inset-0 flex flex-col items-center justify-center space-y-2 opacity-30"
-            >
-                <app-icon class="text-8xl">hide_image</app-icon>
-                <p>No media found.</p>
-            </div>
-        </ng-template>
-        <ng-template #load_template>
-            <div
-                class="absolute inset-0 flex flex-col items-center justify-center space-y-2"
-            >
-                <mat-spinner diameter="32"></mat-spinner>
-                <p>Loading...</p>
-            </div>
-        </ng-template>
     `,
     styles: [
         `
@@ -137,40 +144,75 @@ import { AsyncHandler, notifyError } from '@placeos/common';
     ],
 })
 export class SignageMediaComponent extends AsyncHandler {
+    public readonly search = new BehaviorSubject<string>('');
     public readonly loading = this._state.loading;
-    public readonly media = this._state.media;
+    public readonly playlists = combineLatest([
+        this.search,
+        this._state.playlists,
+    ]).pipe(
+        map(([search, list]) =>
+            list.filter((_) =>
+                _.name.toLowerCase().includes(search.toLowerCase()),
+            ),
+        ),
+    );
+    public selected_playlist = '';
     public show_dropzone = false;
 
+    public readonly addPlaylist = async () => {
+        const result = await this._state.editPlaylist();
+        if (result) {
+            this._router.navigate([
+                '/signage/media',
+                { query: { playlist: result.id } },
+            ]);
+        }
+    };
     public readonly previewMedia = (item) => this._state.previewMedia(item);
+    public readonly previewFile = (event) =>
+        this._state.previewFileFromInput(event, this.selected_playlist);
 
     public onEnter(e) {
+        this.clearTimeout('hide_overlay');
         this.show_dropzone = e?.dataTransfer?.types.includes('Files');
     }
 
     public hideOverlay(e) {
+        if (!this.show_dropzone) return;
         if (!(e.target instanceof HTMLInputElement)) {
             e.preventDefault();
         }
         this.timeout('hide_overlay', () => (this.show_dropzone = false));
     }
 
-    constructor(private _state: SignageStateService) {
+    constructor(
+        private _state: SignageStateService,
+        private _router: Router,
+        private _route: ActivatedRoute,
+    ) {
         super();
     }
 
-    public previewFile(event) {
-        const element: HTMLInputElement = event.target as any;
-        /* istanbul ignore else */
-        if (!element?.files?.length) return;
-        const files: FileList = element.files;
-        const file = files[0];
-        if (
-            file &&
-            (file.type.includes('image') || file.type.includes('video'))
-        ) {
-            this._state.previewFileMedia(file);
-        } else {
-            notifyError('Invalid file type.');
-        }
+    public ngOnInit() {
+        this.subscription(
+            'route.params',
+            this._route.queryParamMap.subscribe((params) => {
+                if (params.has('playlist')) {
+                    this.selected_playlist = params.get('playlist');
+                }
+            }),
+        );
+    }
+
+    public async drop(
+        playlist: SignagePlaylist,
+        event: CdkDragDrop<SignagePlaylist[]>,
+    ) {
+        const media = event.previousContainer.data[event.previousIndex];
+        const media_list = await listSignagePlaylistMedia(
+            playlist.id,
+        ).toPromise();
+        const new_media_list = [...media_list.items, media.id];
+        await this._state.updatePlaylistMedia(playlist.id, new_media_list);
     }
 }

@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { first } from 'rxjs/operators';
+import { first, take } from 'rxjs/operators';
 
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 
 import { ParkingStateService } from './parking-state.service';
+import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
     selector: 'parking-topbar',
@@ -24,16 +26,25 @@ import { ParkingStateService } from './parking-state.service';
                 [model]="(options | async)?.search"
                 (modelChange)="setSearch($event)"
             ></searchbar>
-            <button
-                btn
-                matRipple
-                *ngIf="path === 'manage'"
-                class="space-x-2 w-40"
-                (click)="newParkingSpace()"
+            <div
+                [matTooltip]="
+                    (options | async)?.zones?.length
+                        ? ''
+                        : 'Select a level to add a space'
+                "
             >
-                <div class="pl-2">New Space</div>
-                <app-icon>add</app-icon>
-            </button>
+                <button
+                    btn
+                    matRipple
+                    *ngIf="path === 'manage'"
+                    class="space-x-2 w-40"
+                    (click)="newParkingSpace()"
+                    [disabled]="!(options | async)?.zones?.length"
+                >
+                    <div class="pl-2">New Space</div>
+                    <app-icon>add</app-icon>
+                </button>
+            </div>
             <button
                 btn
                 matRipple
@@ -78,6 +89,16 @@ import { ParkingStateService } from './parking-state.service';
                 </mat-select>
             </mat-form-field>
             <div class="flex-1 w-0"></div>
+            <button
+                icon
+                matRipple
+                class="bg-secondary text-secondary-content rounded h-12 w-12"
+                (click)="manageRestrictions()"
+                matTooltip="Parking Restrictions"
+                *ngIf="path !== 'events' && path !== 'map'"
+            >
+                <app-icon>lock_open</app-icon>
+            </button>
             <date-options
                 *ngIf="path === 'events' || path === 'map'"
                 (dateChange)="setDate($event)"
@@ -124,12 +145,19 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         return !!this._settings.get('app.use_region');
     }
 
+    public manageRestrictions() {
+        this._dialog.open(BookingRulesModalComponent, {
+            data: { type: 'parking' },
+        });
+    }
+
     constructor(
         private _state: ParkingStateService,
         private _org: OrganisationService,
         private _route: ActivatedRoute,
         private _router: Router,
-        private _settings: SettingsService
+        private _settings: SettingsService,
+        private _dialog: MatDialog,
     ) {
         super();
     }
@@ -146,30 +174,31 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
                         this.zones = zones;
                         if (!level) return;
                         this._org.building = this._org.buildings.find(
-                            (bld) => bld.id === level.parent_id
+                            (bld) => bld.id === level.parent_id,
                         );
+                        this._state.setOptions({ zones: zones });
                     }
                 }
-            })
+            }),
         );
         this.subscription(
             'levels',
             this._state.levels.subscribe((levels) => {
                 if (this.use_region) return;
                 this.zones = this.zones.filter((zone) =>
-                    levels.find((lvl) => lvl.id === zone)
+                    levels.find((lvl) => lvl.id === zone),
                 );
                 if (!this.zones.length && levels.length) {
                     this.zones.push(levels[0].id);
                 }
                 this.updateZones(this.zones);
-            })
+            }),
         );
         this.subscription(
             'router.events',
             this._router.events.subscribe((e) => {
                 if (e instanceof NavigationEnd) this._updatePath();
-            })
+            }),
         );
         this._updatePath();
     }
@@ -182,8 +211,12 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         this._state.editUser();
     }
 
-    public newReservation() {
-        this._state.editReservation();
+    public async newReservation() {
+        const { date } = await this.options.pipe(take(1)).toPromise();
+        this._state.editReservation(undefined, {
+            date: date || Date.now(),
+            allow_time_changes: true,
+        });
     }
 
     private _updatePath() {
@@ -193,7 +226,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
                 const parts = this._router.url?.split('/') || [''];
                 this.path = parts[parts.length - 1].split('?')[0];
             },
-            50
+            50,
         );
     }
 }

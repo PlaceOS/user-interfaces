@@ -19,6 +19,8 @@ import { CalendarEvent } from '@placeos/events';
                     icon
                     matRipple
                     class="bg-base-200"
+                    matTooltip="Hide Pending Approvals"
+                    matTooltipPosition="left"
                     (click)="show = !show"
                 >
                     <app-icon>chevron_right</app-icon>
@@ -137,6 +139,8 @@ import { CalendarEvent } from '@placeos/events';
             class="bg-warning absolute top-2 -left-8 shadow text-warning-content"
             *ngIf="!show"
             (click)="show = !show"
+            matTooltip="Show Pending Approvals"
+            matTooltipPosition="left"
         >
             <app-icon>chevron_left</app-icon>
         </button>
@@ -152,15 +156,33 @@ import { CalendarEvent } from '@placeos/events';
     ],
 })
 export class RoomBookingsApprovalsComponent {
-    public show = true;
+    private _show = true;
     public loading = false;
     public status: Record<string, 'accept' | 'decline' | undefined> = {};
     public readonly pending = this._state.pending;
 
+    public set show(value: boolean) {
+        this._show = value;
+        sessionStorage.setItem(
+            'PlaceOS.Concierge.show_room_approvals',
+            `${value}`,
+        );
+    }
+
+    public get show() {
+        return this._show;
+    }
+
     constructor(
         private _state: EventsStateService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {}
+
+    public ngOnInit() {
+        this._show =
+            sessionStorage.getItem('PlaceOS.Concierge.show_room_approvals') !==
+            'false';
+    }
 
     public async approve(event: CalendarEvent) {
         const system_id = this._org.binding('approvals');

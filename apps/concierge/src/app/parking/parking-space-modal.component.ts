@@ -2,8 +2,9 @@ import { Component, EventEmitter, Inject, Input, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DialogEvent } from '@placeos/common';
-import { User } from '@placeos/users';
+import { showStaff, User } from '@placeos/users';
 import { ParkingSpace } from './parking-state.service';
+import { showUser } from '@placeos/ts-client';
 
 @Component({
     selector: 'parking-space-modal',
@@ -48,7 +49,7 @@ import { ParkingSpace } from './parking-state.service';
                             form.patchValue({
                                 assigned_user: null,
                                 assigned_to: null,
-                                assigned_name: null
+                                assigned_name: null,
                             })
                         "
                     >
@@ -115,9 +116,22 @@ export class ParkingSpaceModalComponent {
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: ParkingSpace,
-        private _dialog_ref: MatDialogRef<ParkingSpaceModalComponent>
+        private _dialog_ref: MatDialogRef<ParkingSpaceModalComponent>,
     ) {
         if (_data) this.form.patchValue(_data);
+    }
+
+    public async ngOnInit() {
+        if (this._data.assigned_to) {
+            const user = await showStaff(this._data.assigned_to).toPromise();
+            if (user) {
+                this.form.patchValue({
+                    assigned_user: user,
+                    assigned_to: user.email,
+                    assigned_name: user.name,
+                });
+            }
+        }
     }
 
     public postForm() {

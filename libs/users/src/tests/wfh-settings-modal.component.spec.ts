@@ -55,27 +55,6 @@ describe('WFHSettingsModalComponent', () => {
     it('should create component', () =>
         expect(spectator.component).toBeTruthy());
 
-    it('should allow changing the selected location for today', () => {
-        expect('[today-location]').toExist();
-        expect(spectator.component.option).toBe('wfo');
-        spectator.click('[today-location]');
-        expect('[mat-menu-item][id="wfh"]').toExist();
-        spectator.click('[mat-menu-item][id="wfh"]');
-        expect(spectator.component.option).toBe('wfh');
-    });
-
-    it('should allow selected saving changes to options', () => {
-        expect('button[save]').toHaveAttribute('disabled');
-        spectator.component.changed = true;
-        spectator.detectChanges();
-        expect('button[save]').not.toHaveAttribute('disabled');
-        spectator.click('button[save]');
-        expect(bkn_fn.saveBooking).not.toBeCalled();
-        // spectator.component.option = 'other-option';
-        // spectator.click('button[save]');
-        // expect(bkn_fn.saveBooking).toBeCalled();
-    });
-
     it('should show loading state', () => {
         expect('[loading]').not.toExist();
         spectator.component.loading = true;

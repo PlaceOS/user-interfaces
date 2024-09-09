@@ -31,10 +31,12 @@ import {
     rejectBooking,
     setBookingState,
     updateBooking,
+    updateBookingInductionStatus,
 } from '@placeos/bookings';
 import { OrganisationService } from '@placeos/organisation';
 import { SpacePipe } from '@placeos/spaces';
 import { VisitorInductionModalComponent } from './visitor-induction-modal.component';
+import { VisitorNotesModalComponent } from './visitor-notes-modal.component';
 
 export interface VisitorFilters {
     date?: number;
@@ -81,7 +83,7 @@ export class VisitorsStateService extends AsyncHandler {
             }).pipe(catchError((_) => of([] as Booking[])));
         }),
         tap(() => this._loading.next(false)),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly filtered_bookings = combineLatest([
@@ -96,11 +98,11 @@ export class VisitorsStateService extends AsyncHandler {
                         _.asset_name?.toLowerCase().includes(filter) ||
                         _.user_name?.toLowerCase().includes(filter) ||
                         _.user_email?.toLowerCase().includes(filter) ||
-                        _.asset_id?.toLowerCase().includes(filter)
+                        _.asset_id?.toLowerCase().includes(filter),
                 )
                 .sort((a, b) => a.date - b.date);
             return out;
-        })
+        }),
     );
 
     public get search() {
@@ -114,7 +116,7 @@ export class VisitorsStateService extends AsyncHandler {
     constructor(
         private _dialog: MatDialog,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -155,13 +157,13 @@ export class VisitorsStateService extends AsyncHandler {
                 } to their meeting?`,
                 icon: { content: 'event_available' },
             },
-            this._dialog
+            this._dialog,
         );
         if (details.reason !== 'done') return details.close();
         details.loading('Updating guest details');
         await (approveBooking(item.id) as any).toPromise().catch((e) => {
             notifyError(
-                `Error approving visitor: ${e.message || e.error || e}`
+                `Error approving visitor: ${e.message || e.error || e}`,
             );
             details.close();
             throw e;
@@ -180,7 +182,7 @@ export class VisitorsStateService extends AsyncHandler {
                 } to their meeting?`,
                 icon: { content: 'event_available' },
             },
-            this._dialog
+            this._dialog,
         );
         if (details.reason !== 'done') return details.close();
         details.loading('Updating guest details');
@@ -188,7 +190,7 @@ export class VisitorsStateService extends AsyncHandler {
             .toPromise()
             .catch((e) => {
                 notifyError(
-                    `Error declining visitor: ${e.message || e.error || e}`
+                    `Error declining visitor: ${e.message || e.error || e}`,
                 );
                 details.close();
                 throw e;
@@ -203,24 +205,16 @@ export class VisitorsStateService extends AsyncHandler {
             data: { item },
         });
         const result = await ref.afterClosed().toPromise();
-        if (!result) {
-            if (result === false) {
-                await setBookingState(
-                    item.id,
-                    'declined_induction'
-                ).toPromise();
-            }
-            throw 'User declined';
+        if (result === false) {
+            await updateBookingInductionStatus(item.id, 'declined').toPromise();
         }
-        await setBookingState(item.id, 'inducted').toPromise();
-        await updateBooking(item.id, { ...item, induction: true });
+        if (!result) throw 'User declined';
+        await updateBookingInductionStatus(item.id, 'accepted').toPromise();
     }
 
     public async setCheckinState(item: Booking, state = true) {
-        if (item.rejected) throw 'You cannot check in a rejected meeting';
-        if (state === true) {
-            await this.requestInduction(item);
-        }
+        if (item.rejected) throw 'You cannot check-in a rejected meeting';
+        if (state === true) await this.requestInduction(item);
         if (!item.approved && state === true) {
             await approveBooking(item.id).toPromise();
         }
@@ -230,14 +224,14 @@ export class VisitorsStateService extends AsyncHandler {
                 notifyError(
                     `Error checking ${state ? 'in' : 'out'} ${
                         item.asset_name || item.asset_id
-                    } for ${item.user_name}'s meeting`
+                    } for ${item.user_name}'s meeting`,
                 );
                 throw e;
             });
         notifySuccess(
             `Successfully checked ${state ? 'in' : 'out'} ${
                 item.asset_name || item.asset_id
-            } from ${item.user_name}'s meeting`
+            } from ${item.user_name}'s meeting`,
         );
     }
 
@@ -249,7 +243,7 @@ export class VisitorsStateService extends AsyncHandler {
                 _.parent_id === event_id ||
                 _.extension_data.parent_id === event_id ||
                 _.linked_event?.id === event_id ||
-                _.linked_event?.event_id === event_id
+                _.linked_event?.event_id === event_id,
         );
         if (!event_bookings.length) return;
         await Promise.all(
@@ -260,16 +254,16 @@ export class VisitorsStateService extends AsyncHandler {
                         notifyError(
                             `Error checking ${state ? 'in' : 'out'} ${
                                 _.asset_name || _.asset_id
-                            } for ${_.user_name}'s meeting`
+                            } for ${_.user_name}'s meeting`,
                         );
                         throw e;
-                    })
-            )
+                    }),
+            ),
         );
         notifySuccess(
             `Successfully checked ${state ? 'in' : 'out'} all visitors from ${
                 event_bookings[0].user_name
-            }'s meeting`
+            }'s meeting`,
         );
         this._poll.next(Date.now());
     }
@@ -289,7 +283,14 @@ export class VisitorsStateService extends AsyncHandler {
         const data = jsonToCsv(list);
         downloadFile(
             `visitor-list-${format(date || Date.now(), 'MMM-dd')}.csv`,
-            data
+            data,
         );
+    }
+
+    public editVisitorNotes(item: Booking) {
+        const ref = this._dialog.open(VisitorNotesModalComponent, {
+            data: { item },
+        });
+        ref.afterClosed().subscribe(() => this.poll());
     }
 }

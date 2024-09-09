@@ -60,13 +60,18 @@ import { Desk } from '@placeos/organisation';
                     formControlName="features"
                 ></item-list-field>
                 <label for="notes">Notes</label>
-                <mat-form-field appearance="outline">
+                <mat-form-field appearance="outline" class="no-subscript">
                     <textarea
                         matInput
                         name="notes"
                         formControlName="notes"
                     ></textarea>
                 </mat-form-field>
+                <div class="flex py-4">
+                    <mat-checkbox formControlName="bookable">
+                        Bookable
+                    </mat-checkbox>
+                </div>
                 <div class="flex items-center justify-end space-x-2">
                     <button btn matRipple class="w-32 inverse" mat-dialog-close>
                         Cancel
@@ -102,17 +107,20 @@ export class DeskModalComponent {
         map_id: new FormControl('', [Validators.required]),
         groups: new FormControl<string[]>([]),
         features: new FormControl<string[]>([]),
+        bookable: new FormControl(false),
         notes: new FormControl(''),
     });
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: { desk?: Desk },
-        private _dialog_ref: MatDialogRef<DeskModalComponent>
+        private _dialog_ref: MatDialogRef<DeskModalComponent>,
     ) {
         if (_data?.desk) this.form.patchValue(_data.desk);
     }
 
     public postForm() {
+        this.form.markAllAsTouched();
+        this.form.updateValueAndValidity();
         if (!this.form.valid) return;
         this.loading = true;
         const value = this.form.value;

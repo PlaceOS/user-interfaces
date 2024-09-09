@@ -2,10 +2,14 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     approveBooking,
+    approveBookingInstance,
     Booking,
+    checkinBooking,
+    checkinBookingInstance,
     queryBookings,
     RecurrenceDays,
     rejectBooking,
+    rejectBookingInstance,
     removeBooking,
     saveBooking,
 } from '@placeos/bookings';
@@ -15,6 +19,7 @@ import {
     notifySuccess,
     openConfirmModal,
     SettingsService,
+    unique,
 } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
@@ -82,13 +87,13 @@ export class ParkingStateService extends AsyncHandler {
     ]).pipe(
         map(([_, bld]) => {
             const levels = this._org.levels.filter((_) =>
-                _.tags.includes('parking')
+                _.tags.includes('parking'),
             );
             if (this._settings.get('app.use_region')) {
                 const blds = this._org.buildingsForRegion();
                 const bld_ids = blds.map((bld) => bld.id);
                 const list = levels.filter((lvl) =>
-                    bld_ids.includes(lvl.parent_id)
+                    bld_ids.includes(lvl.parent_id),
                 );
                 list.map((lvl) => ({
                     ...lvl,
@@ -99,7 +104,7 @@ export class ParkingStateService extends AsyncHandler {
                 return list;
             }
             return levels.filter((lvl) => lvl.parent_id === bld.id);
-        })
+        }),
     );
     /** List of parking spaces for the current building/level */
     public spaces = combineLatest([
@@ -114,7 +119,7 @@ export class ParkingStateService extends AsyncHandler {
             this._loading.next([...this._loading.getValue(), 'spaces']);
             return showMetadata(
                 options.zones[0] || levels[0]?.id,
-                'parking-spaces'
+                'parking-spaces',
             ).pipe(
                 map(
                     ({ details }) =>
@@ -123,17 +128,17 @@ export class ParkingStateService extends AsyncHandler {
                                 ({
                                     ...space,
                                     zone_id: options.zones[0] || levels[0]?.id,
-                                } as ParkingSpace)
-                        ) as ParkingSpace[]
-                )
+                                }) as ParkingSpace,
+                        ) as ParkingSpace[],
+                ),
             );
         }),
         tap(() =>
             this._loading.next(
-                this._loading.getValue().filter((_) => _ !== 'spaces')
-            )
+                this._loading.getValue().filter((_) => _ !== 'spaces'),
+            ),
         ),
-        shareReplay(1)
+        shareReplay(1),
     );
     /** List of parking spaces for the current building/level */
     public users = combineLatest([
@@ -149,14 +154,14 @@ export class ParkingStateService extends AsyncHandler {
             (metadata) =>
                 (metadata.details instanceof Array
                     ? metadata.details
-                    : []) as ParkingUser[]
+                    : []) as ParkingUser[],
         ),
         tap(() =>
             this._loading.next(
-                this._loading.getValue().filter((_) => _ !== 'users')
-            )
+                this._loading.getValue().filter((_) => _ !== 'users'),
+            ),
         ),
-        shareReplay(1)
+        shareReplay(1),
     );
     /** List of parking bookings for the current building/level */
     public bookings = combineLatest([
@@ -164,6 +169,7 @@ export class ParkingStateService extends AsyncHandler {
         this._options,
         this.users,
         this._poll,
+        this._change,
     ]).pipe(
         debounceTime(500),
         switchMap(([bld, options, users]) => {
@@ -184,7 +190,7 @@ export class ParkingStateService extends AsyncHandler {
                         const user = users.find(
                             (_) =>
                                 _.email.toLowerCase() ===
-                                booking.user_email.toLowerCase()
+                                booking.user_email.toLowerCase(),
                         );
                         if (user) {
                             booking.extension_data.plate_number =
@@ -193,15 +199,15 @@ export class ParkingStateService extends AsyncHandler {
                         }
                     }
                     return list;
-                })
+                }),
             );
         }),
         tap(() =>
             this._loading.next(
-                this._loading.getValue().filter((_) => _ !== 'bookings')
-            )
+                this._loading.getValue().filter((_) => _ !== 'bookings'),
+            ),
         ),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly options = this._options.asObservable();
@@ -210,7 +216,7 @@ export class ParkingStateService extends AsyncHandler {
     constructor(
         private _org: OrganisationService,
         private _dialog: MatDialog,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -219,7 +225,7 @@ export class ParkingStateService extends AsyncHandler {
         this._options.next({ ...this._options.getValue(), ...options });
     }
 
-    public startPolling(delay = 5000) {
+    public startPolling(delay = 2 * 60 * 1000) {
         this._poll.next(Date.now());
         this.interval('poll', () => this._poll.next(Date.now()), delay);
         return () => this.stopPolling();
@@ -230,7 +236,7 @@ export class ParkingStateService extends AsyncHandler {
     }
 
     /** Add or update a space in the available list */
-    public async editSpace(space?: ParkingSpace) {
+    public async editSpace(space: ParkingSpace = {} as any) {
         const ref = this._dialog.open(ParkingSpaceModalComponent, {
             data: space,
         });
@@ -241,9 +247,13 @@ export class ParkingStateService extends AsyncHandler {
                 .toPromise(),
         ]);
         if (state?.reason !== 'done') return;
-        const zone = this._options.getValue().zones[0] || space.zone_id;
+        const zone =
+            this._options.getValue().zones[0] ||
+            space.zone_id ||
+            this._org.levelsForBuilding()[0]?.id;
         const new_space = {
             ...state.metadata,
+            zone,
             id: state.metadata.id || `parking-${zone}.${randomInt(999_999)}`,
         };
         const spaces = await this.spaces.pipe(take(1)).toPromise();
@@ -254,12 +264,13 @@ export class ParkingStateService extends AsyncHandler {
                 period_end: getUnixTime(endOfDay(Date.now())),
                 type: 'parking',
                 email: new_space.assigned_to,
+                include_checked_out: true,
             }).toPromise();
             const filtered = booking_list.filter(
-                (_) => _.asset_id === space.id
+                (_) => _.asset_id === space.id,
             );
             await Promise.all(
-                filtered.map((_) => removeBooking(_.id).toPromise())
+                filtered.map((_) => removeBooking(_.id).toPromise()),
             );
         }
         if (
@@ -283,7 +294,18 @@ export class ParkingStateService extends AsyncHandler {
                         RecurrenceDays.WEDNESDAY |
                         RecurrenceDays.THURSDAY |
                         RecurrenceDays.FRIDAY,
-                })
+                    zones: unique([
+                        this._org.organisation.id,
+                        this._org.region?.id,
+                        this._org.building?.id,
+                        new_space.zone_id ||
+                            new_space.zone?.id ||
+                            new_space.zone,
+                    ]),
+                    extension_data: {
+                        asset_name: new_space.name,
+                    },
+                }),
             ).toPromise();
         }
         if (idx >= 0) spaces[idx] = new_space;
@@ -306,7 +328,7 @@ export class ParkingStateService extends AsyncHandler {
                 content: `Are you sure you wish to remove the parking space "${space.name}"?`,
                 icon: { content: 'delete' },
             },
-            this._dialog
+            this._dialog,
         );
         if (state?.reason !== 'done') return;
         state.loading('Removing parking space...');
@@ -322,7 +344,6 @@ export class ParkingStateService extends AsyncHandler {
 
     /** Add or update a space in the available list */
     public async editUser(user?: ParkingUser) {
-        console.log('Edit User', user);
         const ref = this._dialog.open(ParkingUserModalComponent, {
             data: user,
         });
@@ -360,7 +381,7 @@ export class ParkingStateService extends AsyncHandler {
                 content: `Are you sure you wish to remove the parking user "${user.name}"?`,
                 icon: { content: 'delete' },
             },
-            this._dialog
+            this._dialog,
         );
         if (state?.reason !== 'done') return;
         state.loading('Removing parking user...');
@@ -381,16 +402,23 @@ export class ParkingStateService extends AsyncHandler {
             link_id,
             date,
             space,
+            allow_time_changes,
+            external_user,
         }: {
             user?: User;
             link_id?: string;
             date?: number;
             space?: ParkingSpace;
-        } = {}
+            allow_time_changes?: boolean;
+            external_user?: boolean;
+        } = {},
     ) {
-        console.log('Reservation:', space);
         return new Promise<string>(async (resolve) => {
             const levels = await this.levels.pipe(take(1)).toPromise();
+            const spaces = await this.spaces.pipe(take(1)).toPromise();
+            if (!space && reservation?.asset_id) {
+                space = spaces.find((_) => _.id === reservation.asset_id);
+            }
             const ref = this._dialog.open(ParkingBookingModalComponent, {
                 data: {
                     booking: reservation,
@@ -399,36 +427,70 @@ export class ParkingStateService extends AsyncHandler {
                     date,
                     level: levels[0],
                     space,
+                    allow_time_changes,
+                    external_user,
                 },
             });
             ref.afterClosed().subscribe((id) => resolve(id));
         });
     }
 
-    public async approveBooking(booking: Booking) {
-        const success = await approveBooking(booking.id)
+    public async setBookingCheckinState(
+        booking: Booking,
+        state: boolean = true,
+    ) {
+        const promise = (
+            booking.instance
+                ? checkinBookingInstance(booking.id, booking.instance, state)
+                : checkinBooking(booking.id, state)
+        )
             .toPromise()
             .catch((_) => 'failed');
+        const success = await promise;
         success === 'failed'
-            ? notifyError('Error approving in desk booking')
+            ? notifyError('Error setting checkin state of parking booking')
             : notifySuccess(
-                  `Approved parking reservation for ${
+                  `${state ? 'Checked in to' : 'Checked out of'} parking reservation for ${
                       booking.user_name
-                  } on ${format(booking.date, 'MMM Do')}.`
+                  } on ${format(booking.date, 'MMM Do')}.`,
               );
         if (success !== 'failed') this._change.next(Date.now());
     }
 
-    public async rejectBooking(bookings: Booking) {
-        const success = await rejectBooking(bookings.id)
+    public async approveBooking(booking: Booking) {
+        const promise = (
+            booking.instance
+                ? approveBookingInstance(booking.id, booking.instance)
+                : approveBooking(booking.id)
+        )
             .toPromise()
             .catch((_) => 'failed');
+        const success = await promise;
         success === 'failed'
-            ? notifyError('Error rejecting in desk booking')
+            ? notifyError('Error approving in parking booking')
+            : notifySuccess(
+                  `Approved parking reservation for ${
+                      booking.user_name
+                  } on ${format(booking.date, 'MMM Do')}.`,
+              );
+        if (success !== 'failed') this._change.next(Date.now());
+    }
+
+    public async rejectBooking(booking: Booking) {
+        const promise = (
+            booking.instance
+                ? rejectBookingInstance(booking.id, booking.instance)
+                : rejectBooking(booking.id)
+        )
+            .toPromise()
+            .catch((_) => 'failed');
+        const success = await promise;
+        success === 'failed'
+            ? notifyError('Error rejecting in parking booking')
             : notifySuccess(
                   `Rejected parking reservation for ${
-                      bookings.user_name
-                  } on ${format(bookings.date, 'MMM dd')}.`
+                      booking.user_name
+                  } on ${format(booking.date, 'MMM dd')}.`,
               );
         if (success !== 'failed') this._change.next(Date.now());
     }

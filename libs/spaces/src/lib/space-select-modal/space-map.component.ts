@@ -101,14 +101,14 @@ export class SpaceSelectMapComponent extends AsyncHandler {
                 ? this._org.levelsForRegion(region)
                 : this._org.levelsForBuilding(bld);
             const viewable_levels = level_list.filter(
-                (lvl) => !lvl.tags.includes('parking')
+                (lvl) => !lvl.tags.includes('parking'),
             );
             return viewable_levels.sort(
                 (a, b) =>
                     a.parent_id.localeCompare(b.parent_id) ||
-                    (a.display_name || '').localeCompare(b.display_name || '')
+                    (a.display_name || '').localeCompare(b.display_name || ''),
             );
-        })
+        }),
     );
 
     public readonly setOptions = (o) => this._event_form.setOptions(o);
@@ -127,8 +127,8 @@ export class SpaceSelectMapComponent extends AsyncHandler {
                     active: this.active === space.id,
                     selected: this.selected.includes(space.id),
                 },
-            }))
-        )
+            })),
+        ),
     );
 
     public readonly actions = this._event_form.available_spaces.pipe(
@@ -137,8 +137,8 @@ export class SpaceSelectMapComponent extends AsyncHandler {
                 id: space.map_id,
                 action: ['touchend', 'mouseup'],
                 callback: this._seletedSpace(space),
-            }))
-        )
+            })),
+        ),
     );
 
     public readonly styles = combineLatest([
@@ -158,8 +158,8 @@ export class SpaceSelectMapComponent extends AsyncHandler {
                         DEFAULT_COLOURS[`${status}`],
                 };
                 return styles;
-            }, {})
-        )
+            }, {}),
+        ),
     );
 
     public get use_region() {
@@ -169,7 +169,7 @@ export class SpaceSelectMapComponent extends AsyncHandler {
     constructor(
         private _event_form: EventFormService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -180,12 +180,11 @@ export class SpaceSelectMapComponent extends AsyncHandler {
             this._event_form.options.subscribe(({ zone_ids }) => {
                 const level = this._org.levelWithID(zone_ids);
                 if (level) this.level = level;
-            })
+            }),
         );
     }
 
     public setLevel(level: BuildingLevel) {
-        console.log('Set Level', level);
         this.setOptions({ zone_ids: [level?.id] });
         const bld = this._org.buildings.find((_) => _.id === level?.parent_id);
         if (bld) {

@@ -38,7 +38,7 @@ export function log(
     args?: any,
     stream: ConsoleStream = 'debug',
     force: boolean = false,
-    app_name: string = _app_name
+    app_name: string = _app_name,
 ) {
     if (window.jest) return;
     if (window.debug || force) {
@@ -51,7 +51,7 @@ export function log(
             console[stream](
                 `%c[${app_name}]%c[${type}] %c${msg}`,
                 ...colors,
-                args
+                args,
             );
         } else {
             console[stream](`%c[${app_name}]%c[${type}] %c${msg}`, ...colors);
@@ -116,7 +116,7 @@ export function padString(str: string | number, length: number = 5) {
  */
 export function randomString(
     length: number,
-    chars: string = 'abcdefghijklmnopqrstwvxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    chars: string = 'abcdefghijklmnopqrstwvxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
 ) {
     let str = '';
     for (let i = 0; i < length; i++) {
@@ -133,14 +133,14 @@ export interface ConfirmRepsonse {
 
 export async function openConfirmModal(
     data: ConfirmModalData,
-    dialog: MatDialog
+    dialog: MatDialog,
 ): Promise<ConfirmRepsonse> {
     const ref = dialog.open<ConfirmModalComponent, ConfirmModalData>(
         ConfirmModalComponent,
         {
             ...CONFIRM_METADATA,
             data,
-        }
+        },
     );
     return {
         ...(await Promise.race([
@@ -161,7 +161,7 @@ export async function openConfirmModal(
 export function csvToJson(csv: string, delimiter: string = ','): HashMap[] {
     const objPattern = new RegExp(
         '(\\,|\\r?\\n|\\r|^)(?:"([^"]*(?:""[^"]*)*)"|([^\\,\\r\\n]*))',
-        'gi'
+        'gi',
     );
     let arrMatches = null;
     const arrData = [[]];
@@ -170,7 +170,7 @@ export function csvToJson(csv: string, delimiter: string = ','): HashMap[] {
         arrData[arrData.length - 1].push(
             arrMatches[2]
                 ? arrMatches[2]?.replace(new RegExp('""', 'g'), '"')
-                : arrMatches[3]
+                : arrMatches[3],
         );
     }
     const headers: string[] = arrData.splice(0, 1)[0];
@@ -226,9 +226,9 @@ export function jsonToCsv(json: HashMap[], seperator = ',') {
             .map((item) =>
                 valid_keys
                     .map((key) =>
-                        (JSON.stringify(item[key]) || '')?.replace(',', '|')
+                        (JSON.stringify(item[key]) || '')?.replace(',', '|'),
                     )
-                    .join(seperator)
+                    .join(seperator),
             )
             .join('\n')}`;
     }
@@ -244,7 +244,7 @@ export function downloadFile(filename: string, contents: string) {
     const element = document.createElement('a');
     element.setAttribute(
         'href',
-        'data:text/plain;charset=utf-8,' + encodeURIComponent(contents)
+        'data:text/plain;charset=utf-8,' + encodeURIComponent(contents),
     );
     element.setAttribute('download', filename);
 
@@ -265,7 +265,7 @@ export function parseJWT(token: string) {
             .map((c) => {
                 return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
             })
-            .join('')
+            .join(''),
     );
     return JSON.parse(jsonPayload);
 }
@@ -303,7 +303,7 @@ export function timePeriodsIntersect(
     s1: number,
     e1: number,
     s2: number,
-    e2: number
+    e2: number,
 ) {
     return (
         (s1 >= s2 && s1 < e2) ||
@@ -361,7 +361,7 @@ export function is24HourTime(): boolean {
     const localeString = date
         .toLocaleTimeString(
             document.querySelector('html').getAttribute('lang') ||
-                navigator.language
+                navigator.language,
         )
         .toLowerCase();
     return localeString.indexOf('am') < 0 && localeString.indexOf('pm') < 0;
@@ -396,7 +396,7 @@ export function capitalizeFirstLetter(word: string): string {
 
 export function cleanArray(
     array: any[],
-    removal_items: any[] = [undefined, null, '']
+    removal_items: any[] = [undefined, null, ''],
 ) {
     return array.filter((_) => !removal_items.includes(_));
 }
@@ -425,7 +425,7 @@ export function calculateDistance(
     lat1: number,
     lon1: number,
     lat2: number,
-    lon2: number
+    lon2: number,
 ): number {
     const radius = 6371; // Earth's radius in kilometers
 
@@ -480,7 +480,7 @@ export function rgbToHex(r: number, g: number, b: number): string {
 export function shiftColorTowards(
     hex1: string,
     hex2: string,
-    fraction: number
+    fraction: number,
 ) {
     const rgb1 = hexToRgb(hex1);
     const rgb2 = hexToRgb(hex2);
@@ -497,4 +497,35 @@ export function extractTextFromHTML(html_string: string) {
 
     // Extract and return the text content
     return temp_element.textContent || temp_element.innerText || '';
+}
+
+/**
+ * Shuffle the items in array into random order
+ * @param array List of items to shuffle
+ */
+export function shuffleArray(array: any[]) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+/**
+ * Shuffle the items in array into random order with a specific item as the first
+ * @param array List of items to shuffle
+ * @param first_index Index of the item in the list to set as first
+ */
+export function shuffleArrayWithFirstItem(array: any[], first_index: number) {
+    // Move the specified item to the beginning
+    const firstItem = array.splice(first_index, 1)[0];
+    array.unshift(firstItem);
+
+    // Shuffle the rest of the array (starting from index 1)
+    for (let i = array.length - 1; i > 1; i--) {
+        const j = Math.floor(Math.random() * (i - 1)) + 1;
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+
+    return array;
 }

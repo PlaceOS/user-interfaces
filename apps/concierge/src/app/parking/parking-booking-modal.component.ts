@@ -2,7 +2,13 @@ import { Component, Inject } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Booking, BookingFormService, ParkingSpace } from '@placeos/bookings';
-import { AsyncHandler, currentUser } from '@placeos/common';
+import {
+    AsyncHandler,
+    currentUser,
+    getInvalidFields,
+    notify,
+    notifyError,
+} from '@placeos/common';
 import { BuildingLevel } from '@placeos/organisation';
 import { User } from '@placeos/users';
 
@@ -29,24 +35,6 @@ import { User } from '@placeos/users';
                         formControlName="user"
                         class="flex-1"
                     ></a-user-search-field>
-                    <button
-                        icon
-                        matRipple
-                        class="h-12 w-12 min-w-12 rounded bg-secondary text-secondary-content"
-                        matTooltip="Clear Selected User"
-                        (click)="
-                            form.patchValue({
-                                user: null,
-                                user_email: null,
-                                user_name: null,
-                                phone: null,
-                            })
-                        "
-                    >
-                        <app-icon className="material-symbols-outlined">
-                            person_cancel
-                        </app-icon>
-                    </button>
                 </div>
                 <div class="flex items-center space-x-2">
                     <div class="flex-1">
@@ -138,9 +126,11 @@ export class ParkingBookingModalComponent extends AsyncHandler {
             date?: number;
             level?: BuildingLevel;
             space?: ParkingSpace;
+            allow_time_changes?: boolean;
+            external_user?: boolean;
         },
         private _booking_form: BookingFormService,
-        private _dialog_ref: MatDialogRef<ParkingBookingModalComponent>
+        private _dialog_ref: MatDialogRef<ParkingBookingModalComponent>,
     ) {
         super();
     }
@@ -158,7 +148,7 @@ export class ParkingBookingModalComponent extends AsyncHandler {
                     user_id: user.id || user.email,
                     attendees: [user],
                 });
-            })
+            }),
         );
         this.form.patchValue({
             all_day: true,
@@ -188,29 +178,46 @@ export class ParkingBookingModalComponent extends AsyncHandler {
             this.form.patchValue({ resources: [this._data.space] });
         }
         if (this._data.date) {
-            this.form.patchValue({ date: this._data.date });
-            this.subscription(
-                'form_change',
-                this.form.valueChanges.subscribe((v) => {
-                    this.timeout(
-                        'disable_date',
-                        () =>
-                            this.form.get('date').disable({ emitEvent: false }),
-                        50
-                    );
-                })
+            this.timeout(
+                'init_date',
+                () => {
+                    this.form.patchValue({ date: this._data.date });
+                    if (!this._data.allow_time_changes) {
+                        this.form.get('date').disable();
+                    }
+                },
+                300,
             );
-            this.form.get('date').disable();
+            if (!this._data.allow_time_changes) {
+                this.subscription(
+                    'form_change',
+                    this.form.valueChanges.subscribe((v) => {
+                        this.timeout(
+                            'disable_date',
+                            () =>
+                                this.form
+                                    .get('date')
+                                    .disable({ emitEvent: false }),
+                            50,
+                        );
+                    }),
+                );
+            }
         }
     }
 
     public async postForm() {
+        this.form.markAllAsTouched();
         this.form.updateValueAndValidity();
         if (!this.form.valid) return;
         this.loading = true;
+        if (this._data.external_user) {
+            this.form.patchValue({ user_id: undefined });
+        }
         const result = await this._booking_form.postForm().catch((e) => {
             this.loading = false;
             this.form.controls.plate_number.setValidators([]);
+            notifyError(e);
             throw e;
         });
         this.form.controls.plate_number.setValidators([]);

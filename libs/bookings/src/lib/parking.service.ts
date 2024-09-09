@@ -18,7 +18,6 @@ import {
 } from 'rxjs/operators';
 import { queryBookings } from './bookings.fn';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { ca } from 'date-fns/locale';
 
 export interface ParkingSpace {
     id: string;
@@ -56,7 +55,7 @@ export class ParkingService extends AsyncHandler {
                 const list = _.filter(
                     (lvl) =>
                         bld_ids.includes(lvl.parent_id) &&
-                        lvl.tags.includes('parking')
+                        lvl.tags.includes('parking'),
                 );
                 list.map((lvl) => ({
                     ...lvl,
@@ -69,9 +68,9 @@ export class ParkingService extends AsyncHandler {
             return _.filter(
                 (lvl) =>
                     lvl.parent_id === this._org.building.id &&
-                    lvl.tags.includes('parking')
+                    lvl.tags.includes('parking'),
             );
-        })
+        }),
     );
     /** List of parking spaces for the current building/level */
     public spaces = combineLatest([this.levels]).pipe(
@@ -89,19 +88,19 @@ export class ParkingService extends AsyncHandler {
                                 ).map((s) => ({
                                     ...s,
                                     zone_id: lvl.id,
-                                })) as ParkingSpace[]
-                        )
-                    )
-                )
+                                })) as ParkingSpace[],
+                        ),
+                    ),
+                ),
             );
         }),
         map((list) => flatten<ParkingSpace>(list)),
         tap(() =>
             this._loading.next(
-                this._loading.getValue().filter((_) => _ !== 'spaces')
-            )
+                this._loading.getValue().filter((_) => _ !== 'spaces'),
+            ),
         ),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     /** List of parking spaces for the current building/level */
@@ -115,14 +114,14 @@ export class ParkingService extends AsyncHandler {
             (metadata) =>
                 (metadata.details instanceof Array
                     ? metadata.details
-                    : []) as ParkingUser[]
+                    : []) as ParkingUser[],
         ),
         tap(() =>
             this._loading.next(
-                this._loading.getValue().filter((_) => _ !== 'users')
-            )
+                this._loading.getValue().filter((_) => _ !== 'users'),
+            ),
         ),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly assigned_space = this.spaces.pipe(
@@ -130,9 +129,9 @@ export class ParkingService extends AsyncHandler {
             list.find(
                 (_) =>
                     _.assigned_to?.toLowerCase() ===
-                    currentUser().email?.toLowerCase()
-            )
-        )
+                    currentUser().email?.toLowerCase(),
+            ),
+        ),
     );
 
     public readonly user_details = this.users.pipe(
@@ -140,13 +139,13 @@ export class ParkingService extends AsyncHandler {
             list.find(
                 (_) =>
                     _.email?.toLowerCase() ===
-                    currentUser().email?.toLowerCase()
-            )
-        )
+                    currentUser().email?.toLowerCase(),
+            ),
+        ),
     );
 
     public readonly deny_parking_access = this.user_details.pipe(
-        map((details) => !!details?.deny)
+        map((details) => !!details?.deny),
     );
 
     public readonly booked_space = combineLatest([
@@ -164,20 +163,20 @@ export class ParkingService extends AsyncHandler {
                     booking_list
                         .map((booking) =>
                             spaces.find(
-                                (space) => space.id === booking.asset_id
-                            )
+                                (space) => space.id === booking.asset_id,
+                            ),
                         )
-                        .filter((space) => !!space)
-                )
-            )
+                        .filter((space) => !!space),
+                ),
+            ),
         ),
         map((_) => _[0]),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     constructor(
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
         this.subscription('spaces', this.assigned_space.subscribe());

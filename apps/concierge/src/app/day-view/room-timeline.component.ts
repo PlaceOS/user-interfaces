@@ -29,7 +29,7 @@ import {
     selector: 'room-bookings-timeline',
     template: `
         <div
-            class="relative flex items-center justify-center p-2 space-x-2 border-b border-base-200"
+            class="relative flex items-center justify-center p-2 space-x-2 border-b border-base-200 z-20"
         >
             <date-options
                 [date]="date | async"
@@ -42,8 +42,13 @@ import {
             >
                 Today
             </div>
+            <div class="absolute top-1/2 -translate-y-1/2 right-8">
+                <room-booking-search
+                    (selected)="viewEvent($event, $event.system?.id, true)"
+                ></room-booking-search>
+            </div>
         </div>
-        <div timeline class="grid overflow-auto w-full h-1/2 flex-1">
+        <div timeline class="grid overflow-auto w-full h-1/2 flex-1 z-0">
             <div
                 timezone
                 class="sticky top-0 left-0 z-30 bg-base-100 flex items-center justify-center"
@@ -126,6 +131,10 @@ import {
                             [style.height]="endToOffset(event.duration) + '%'"
                             [class.pointer-events-none]="event.state === 'done'"
                             (click)="viewEvent(event, space.id)"
+                            *ngIf="
+                                !event.is_system_event ||
+                                (ui_options | async).show_overflow
+                            "
                         >
                             <div
                                 class="relative w-full h-full shadow bg-base-100 border border-base-200 hover:bg-base-200 rounded-lg overflow-hidden px-3 py-1 text-xs"
@@ -137,7 +146,7 @@ import {
                             >
                                 <ng-container *ngIf="event.is_system_event">
                                     <div
-                                        class="absolute inset-0 bg-secondary opacity-50"
+                                        class="absolute -inset-px bg-secondary opacity-30"
                                     ></div>
                                 </ng-container>
                                 <ng-container *ngIf="!event.is_system_event">
@@ -198,7 +207,7 @@ import {
 
             [timeline] {
                 grid-template-columns: 4rem auto;
-                grid-template-rows: 4rem auto;
+                grid-template-rows: 3.5rem auto;
             }
         `,
     ],
@@ -209,7 +218,7 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
     public readonly spaces = this._state.spaces;
     public readonly date = this._state.date;
     public readonly is_today = this.date.pipe(
-        map((d) => isSameDay(d, Date.now()))
+        map((d) => isSameDay(d, Date.now())),
     );
     public readonly events = combineLatest([
         this._state.spaces,
@@ -223,15 +232,15 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
                         event.resources.find(
                             (item) =>
                                 item.id === space.id ||
-                                item.email === space.email
+                                item.email === space.email,
                         ) ||
                         event.system?.id === space.id ||
-                        event.system?.email === space.email
+                        event.system?.email === space.email,
                 );
             }
             return map;
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public get now() {
@@ -248,7 +257,7 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
     constructor(
         private _state: EventsStateService,
         private _dialog: MatDialog,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -273,23 +282,27 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         return (Math.min(24, duration / 60) / 24) * 100;
     }
 
-    public viewEvent(event: CalendarEvent, space_id: string) {
+    public viewEvent(
+        event: CalendarEvent,
+        space_id: string,
+        scroll_to: boolean = false,
+    ) {
         if (event.is_system_event) return;
         const ref = this._dialog.open(EventDetailsModalComponent, {
             data: event,
         });
         ref.componentInstance.hide_edit = !this._settings.get(
-            'app.events.allow_edit'
+            'app.events.allow_edit',
         );
         this.subscription(
             'remove',
             ref.componentInstance.remove.subscribe(() =>
-                this.remove(event, space_id)
-            )
+                this.remove(event, space_id),
+            ),
         );
         this.subscription(
             'edit',
-            ref.componentInstance.edit.subscribe(() => this.edit(event))
+            ref.componentInstance.edit.subscribe(() => this.edit(event)),
         );
         this.subscription(
             'actions',
@@ -300,7 +313,7 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
                 });
                 const data = await ref.afterClosed().toPromise();
                 if (data) this._state.replace(data);
-            })
+            }),
         );
     }
 
@@ -310,7 +323,7 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         const content = `Delete the booking for ${resource_name} at ${time}`;
         const resp = await openConfirmModal(
             { title: `Delete booking`, content, icon: { content: 'delete' } },
-            this._dialog
+            this._dialog,
         );
         if (resp.reason !== 'done') return;
         resp.loading('Requesting booking deletion...');

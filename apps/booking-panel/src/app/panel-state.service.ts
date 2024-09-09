@@ -12,6 +12,7 @@ import { OrganisationService } from '@placeos/organisation';
 import { BehaviorSubject, combineLatest, interval, Observable, of } from 'rxjs';
 import {
     catchError,
+    debounceTime,
     filter,
     first,
     map,
@@ -27,6 +28,7 @@ import { Space, SpacesService } from '@placeos/spaces';
 import {
     AsyncHandler,
     currentUser,
+    log,
     notifyError,
     notifySuccess,
     notifyWarn,
@@ -98,15 +100,15 @@ export interface PanelSettings {
 
 export function currentBooking(
     list: CalendarEvent[],
-    date: number = new Date().valueOf()
+    date: number = new Date().valueOf(),
 ) {
     return list.find((bkn) =>
         timePeriodsIntersect(
             date,
             date,
             bkn.date,
-            bkn.date + bkn.duration * 1000
-        )
+            bkn.date + bkn.duration * 1000,
+        ),
     );
 }
 
@@ -137,16 +139,24 @@ export class PanelStateService extends AsyncHandler {
     public readonly settings = this._settings.asObservable();
     /** List of current bookings for active system */
     public readonly space = this._system.pipe(
+        debounceTime(1000),
+        tap((id) => log('Panel', `Loading system "${id}"...`)),
         switchMap((id) =>
             showSystem(id).pipe(
-                catchError(({ status }) => {
+                catchError(({ status, message }) => {
+                    log(
+                        'Panel',
+                        'Error loading system details:',
+                        [status, message],
+                        'error',
+                    );
                     status === 404 ? this._router.navigate(['/bootstrap']) : '';
                     return of(new PlaceSystem());
-                })
-            )
+                }),
+            ),
         ),
         map((_) => new Space(_ as any)),
-        shareReplay(1)
+        shareReplay(1),
     );
     /** Active system */
     public get system() {
@@ -165,14 +175,14 @@ export class PanelStateService extends AsyncHandler {
         filter((_) => !!_),
         switchMap((id) => this._listenToModuleBinding(id, 'bookings')),
         map((_) => (_?.length ? _.map((_) => new CalendarEvent(_)) : [])),
-        shareReplay(1)
+        shareReplay(1),
     );
     /** Currently active booking */
     public readonly _current: Observable<CalendarEvent> = this._system.pipe(
         filter((_) => !!_),
         switchMap((id) => this._listenToModuleBinding(id, 'current_booking')),
         map((_) => (_ ? new CalendarEvent(_) : null)),
-        shareReplay(1)
+        shareReplay(1),
     );
     public readonly current = combineLatest([
         this._current,
@@ -183,7 +193,7 @@ export class PanelStateService extends AsyncHandler {
         filter((_) => !!_),
         switchMap((id) => this._listenToModuleBinding(id, 'next_booking')),
         map((_) => (_ ? new CalendarEvent(_) : null)),
-        shareReplay(1)
+        shareReplay(1),
     );
     public readonly next = combineLatest([
         this._next,
@@ -195,7 +205,7 @@ export class PanelStateService extends AsyncHandler {
         this._current,
     ]).pipe(
         map(([{ status }, booking]) => status || (booking ? 'busy' : 'free')),
-        shareReplay(1)
+        shareReplay(1),
     );
     public readonly pending_check = combineLatest([
         this._current,
@@ -216,7 +226,7 @@ export class PanelStateService extends AsyncHandler {
             const diff = differenceInMinutes(Date.now(), current.date);
             if (diff <= pending_period) return;
             this.endCurrent('Pending period expired.');
-        })
+        }),
     );
 
     constructor(
@@ -225,7 +235,7 @@ export class PanelStateService extends AsyncHandler {
         private _events: EventFormService,
         private _app_settings: SettingsService,
         private _org: OrganisationService,
-        private _router: Router
+        private _router: Router,
     ) {
         super();
         this._init();
@@ -269,7 +279,7 @@ export class PanelStateService extends AsyncHandler {
                     if (time >= 30 * 1000) count = 0;
                     else count += 1;
                     if (count > 10) return location.reload();
-                })
+                }),
             );
         }
     }
@@ -282,7 +292,7 @@ export class PanelStateService extends AsyncHandler {
         date: number = Date.now(),
         user: boolean = false,
         future: boolean = false,
-        force_api: boolean = false
+        force_api: boolean = false,
     ) {
         // if (date <= Date.now() && !user) {
         //     return this.confirmBookNow();
@@ -304,7 +314,7 @@ export class PanelStateService extends AsyncHandler {
         }
         if (max_duration != null && max_duration < 15) {
             return notifyError(
-                'Unable to make bookings as the time available before the next meeting is less than 15 minutes'
+                'Unable to make bookings as the time available before the next meeting is less than 15 minutes',
             );
         }
         const space = await this._space_pipe.transform(this.system);
@@ -312,23 +322,25 @@ export class PanelStateService extends AsyncHandler {
             {
                 ...this._settings.getValue(),
                 space,
-                date: future ? date : Date.now(),
+                date: future
+                    ? date
+                    : startOfMinute(Date.now()).getTime() + 1000,
                 future,
                 max_duration,
             },
-            this._dialog
+            this._dialog,
         );
         if (details.reason !== 'done') return details.close();
         this._events.newForm();
         this._events.form.patchValue({
             ...details.metadata,
-            host: details.organiser?.email || currentUser().email,
+            host: details.metadata.organiser?.email,
             resources: [space],
             system: space,
         });
         await this.makeBooking(
             this._events.form.getRawValue(),
-            force_api
+            force_api,
         ).catch((e) => {
             notifyError(`Error creating meeting. ${e}`);
             this._events.clearForm();
@@ -358,7 +370,7 @@ export class PanelStateService extends AsyncHandler {
         }
         if (max_duration != null && max_duration < 15) {
             return notifyError(
-                'Unable to make bookings as the time available before the next meeting is less than 15 minutes'
+                'Unable to make bookings as the time available before the next meeting is less than 15 minutes',
             );
         }
         const ref = await openConfirmModal(
@@ -366,11 +378,11 @@ export class PanelStateService extends AsyncHandler {
                 title: 'Book Meeting',
                 content: `Do you wish to book a meeting in this room for ${Math.min(
                     max_duration || 180,
-                    30
+                    30,
                 )} minutes?`,
                 icon: { content: 'event' },
             },
-            this._dialog
+            this._dialog,
         );
         if (ref.reason !== 'done') return;
         ref.loading('Creating Meeting...');
@@ -394,18 +406,21 @@ export class PanelStateService extends AsyncHandler {
      */
     public async makeBooking(
         details: Partial<CalendarEvent>,
-        force_api = false
+        force_api = false,
     ) {
         if (isAfter(details.date, addMinutes(Date.now(), 5)) || force_api) {
             await this._events.postForm();
         } else {
             const module = getModule(this.system, 'Bookings');
             if (!details || !module) return;
+            const use_as_host = this._app_settings.get(
+                'app.user_as_default_host',
+            );
             await module
                 .execute('book_now', [
                     details.duration * 60,
                     details.title,
-                    details.host,
+                    details.host || (use_as_host ? currentUser().email : null),
                 ])
                 .catch((e) => notifyError(`Error creating meeting. ${e}`));
         }
@@ -423,7 +438,7 @@ export class PanelStateService extends AsyncHandler {
                 } minutes after the start time.`,
                 icon: { class: 'material-icons', content: 'play_arrow' },
             },
-            this._dialog
+            this._dialog,
         );
         if (details.reason !== 'done') return;
         this.startMeeting();
@@ -435,7 +450,7 @@ export class PanelStateService extends AsyncHandler {
     public async startMeeting() {
         if (!this.system || this.setting('status') !== 'pending') {
             return notifyWarn(
-                'Current or upcoming meeting is not in a pending state.'
+                'Current or upcoming meeting is not in a pending state.',
             );
         }
         const meeting =
@@ -460,7 +475,7 @@ export class PanelStateService extends AsyncHandler {
                     'Ending your meeting early will free up this room for others to use',
                 icon: { class: 'material-icons', content: 'event_busy' },
             },
-            this._dialog
+            this._dialog,
         );
         if (details.reason !== 'done') return;
         details.loading('Ending Meeting...');
@@ -524,7 +539,7 @@ export class PanelStateService extends AsyncHandler {
                 content: `Note that it can take up to 15 minutes for them to turn up.`,
                 icon: { class: 'material-icons', content: 'room_service' },
             },
-            this._dialog
+            this._dialog,
         );
         if (details.reason !== 'done') return;
         this.callWaiter();
@@ -548,12 +563,12 @@ export class PanelStateService extends AsyncHandler {
         name: K,
         mod: string = 'Bookings',
         on_change: (v: PanelSettings[K]) => void = (v) =>
-            this.updateProperty(name, v)
+            this.updateProperty(name, v),
     ) {
         const binding = getModule(id, mod).binding(name);
         this.subscription(
             `listen:${name}`,
-            binding.listen().subscribe(on_change)
+            binding.listen().subscribe(on_change),
         );
         this.subscription(`bind:${name}`, binding.bind());
     }
@@ -561,7 +576,7 @@ export class PanelStateService extends AsyncHandler {
     /** Update properties of the system data */
     private updateProperty<K extends keyof PanelSettings>(
         name: K,
-        value: PanelSettings[K]
+        value: PanelSettings[K],
     ) {
         const item = { ...this._settings.getValue() };
         item[name] = value;
@@ -571,7 +586,7 @@ export class PanelStateService extends AsyncHandler {
     private _listenToModuleBinding(
         id: string,
         name: string,
-        mod_name = 'Bookings'
+        mod_name = 'Bookings',
     ) {
         const mod = getModule(id, mod_name);
         if (window.debug) window.panel_module = mod;

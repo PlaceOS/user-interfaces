@@ -5,6 +5,7 @@ import { BookingFormService, ParkingService } from '@placeos/bookings';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
+    currentUser,
     getInvalidFields,
     notifyError,
     SettingsService,
@@ -138,14 +139,14 @@ export class ParkingFlowFormComponent extends AsyncHandler {
         private _settings: SettingsService,
         private _router: Router,
         private _bottom_sheet: MatBottomSheet,
-        private _parking: ParkingService
+        private _parking: ParkingService,
     ) {
         super();
     }
 
     public async ngOnInit() {
         this._state.setOptions({ type: 'parking' });
-        this.form.patchValue({ all_day: true });
+        this.form.patchValue({ all_day: true, user: currentUser() });
         const user = await this._parking.user_details.pipe(take(1)).toPromise();
         if (user?.email) {
             this.form.patchValue({ plate_number: user.plate_number });
@@ -153,14 +154,18 @@ export class ParkingFlowFormComponent extends AsyncHandler {
     }
 
     public readonly viewConfirm = () => {
+        const { asset_id, resources } = this.form.getRawValue();
+        if (resources?.length && !asset_id) {
+            this.form.patchValue({ asset_id: resources[0].id });
+        }
         if (!this.form.valid)
             return notifyError(
                 `Some fields are invalid. [${getInvalidFields(this.form).join(
-                    ', '
-                )}]`
+                    ', ',
+                )}]`,
             );
         this.sheet_ref = this._bottom_sheet.open(
-            NewParkingFlowConfirmComponent
+            NewParkingFlowConfirmComponent,
         );
         this.sheet_ref.instance.show_close = true;
         this.sheet_ref.afterDismissed().subscribe((value) => {

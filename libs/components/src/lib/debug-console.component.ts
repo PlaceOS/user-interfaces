@@ -183,9 +183,9 @@ export class DebugConsoleComponent extends AsyncHandler {
                 (_) =>
                     _.type.toLowerCase().includes(s.toLowerCase()) ||
                     _.subtype.toLowerCase().includes(s.toLowerCase()) ||
-                    `${_.data}`.toLowerCase().includes(s.toLowerCase())
-            )
-        )
+                    `${_.data}`.toLowerCase().includes(s.toLowerCase()),
+            ),
+        ),
     );
 
     public readonly onStart = () =>
@@ -200,7 +200,7 @@ export class DebugConsoleComponent extends AsyncHandler {
         private _org: OrganisationService,
         private _logs: RemoteLoggingService,
         private _hotkey: HotkeysService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -210,9 +210,8 @@ export class DebugConsoleComponent extends AsyncHandler {
         this.subscription(
             'binding',
             this._org.active_building.subscribe(() => {
-                console.log('Binding:', this._org.binding('remote_logger'));
                 this._logs.setSystem(this._org.binding('remote_logger'));
-            })
+            }),
         );
         this.subscription(
             'logs',
@@ -224,16 +223,15 @@ export class DebugConsoleComponent extends AsyncHandler {
                 )
                     logs.splice(0, 1);
                 this.logs.next([...logs, event]);
-            })
+            }),
         );
         this.subscription(
             'toggle',
             this._hotkey.listen(
                 ['Control', 'Backquote'],
-                () => (this.show = !this.show)
-            )
+                () => (this.show = !this.show),
+            ),
         );
-        console.log('Binding:', this._org.binding('remote_logger'));
         this._logs.setSystem(this._org.binding('remote_logger'));
     }
 

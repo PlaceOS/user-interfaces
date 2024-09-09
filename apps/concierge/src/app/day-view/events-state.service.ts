@@ -102,6 +102,8 @@ export class EventsStateService extends AsyncHandler {
     public readonly loading = this._loading.asObservable();
     /** Observable for viewed event */
     public readonly event = this._event.asObservable();
+    /** Period of time to show events for */
+    public readonly period = this._period.asObservable();
 
     public readonly spaces: Observable<Space[]> = combineLatest([
         this._zones,
@@ -128,10 +130,7 @@ export class EventsStateService extends AsyncHandler {
             return forkJoin(zone_ids.map((id) => requestSpacesForZone(id)));
         }),
         map((l) => flatten<Space>(l).filter((_) => _.bookable)),
-        tap((_) => {
-            this._loading.next(false);
-            console.log('Spaces', _);
-        }),
+        tap((_) => this._loading.next(false)),
         shareReplay(1),
     );
     /** Obsevable for filtered list of bookings */
@@ -298,6 +297,10 @@ export class EventsStateService extends AsyncHandler {
         this._date.next(date);
     }
 
+    public setPeriod(period: 'day' | 'week' | 'month'): void {
+        this._period.next(period);
+    }
+
     /**
      * Update the booking's zone
      * @param details
@@ -331,8 +334,12 @@ export class EventsStateService extends AsyncHandler {
         period: 'day' | 'week' | 'month' = 'day',
         delay: number = 30 * 1000,
     ) {
-        this._poll.next(Date.now());
         this._period.next(period);
+        return this.poll(delay);
+    }
+
+    public poll(delay: number = 30 * 1000) {
+        this._poll.next(Date.now());
         this.interval('polling', () => this._poll.next(Date.now()), delay);
         return () => this.stopPolling();
     }
@@ -453,7 +460,7 @@ export class EventsStateService extends AsyncHandler {
                 !!bkn.resources.find((space) =>
                     space.zones.find((zone) => filters.zone_ids.includes(zone)),
                 );
-            const type = bkn.guests.length
+            const type = bkn.guests?.length
                 ? 'external'
                 : bkn.status === 'declined'
                   ? 'cancelled'

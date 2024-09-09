@@ -180,7 +180,7 @@ export class DeskSelectModalComponent {
         private _data: {
             items: BookingAsset[];
             options: Partial<BookingFlowOptions>;
-        }
+        },
     ) {
         this.selected = [...(_data.items || [])];
         this._event_form.setOptions(_data.options);
@@ -194,7 +194,10 @@ export class DeskSelectModalComponent {
         const list = this.selected.filter((_) => _.id !== item.id);
         if (state) list.push(item);
         this.selected = list;
-        if (!this._data.options.group && state) this._dialog_ref.close([item]);
+        if (!this._data.options.group && state) {
+            this.displayed = null;
+            setTimeout(() => this._dialog_ref.close([item]), 50);
+        }
     }
 
     public toggleFavourite(item: BookingAsset) {
@@ -208,7 +211,7 @@ export class DeskSelectModalComponent {
         } else {
             this._settings.saveUserSetting(
                 FAV_DESK_KEY,
-                fav_list.filter((_) => _ !== item.id)
+                fav_list.filter((_) => _ !== item.id),
             );
         }
     }

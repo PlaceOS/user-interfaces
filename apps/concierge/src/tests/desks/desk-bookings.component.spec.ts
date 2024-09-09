@@ -11,6 +11,7 @@ import { BehaviorSubject } from 'rxjs';
 import { DeskBookingsComponent } from '../../app/desks/desk-bookings.component';
 import { DesksStateService } from '../../app/desks/desks-state.service';
 import { SettingsService } from '@placeos/common';
+import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
 
 describe('DeskBookingsComponent', () => {
     let spectator: Spectator<DeskBookingsComponent>;
@@ -28,6 +29,7 @@ describe('DeskBookingsComponent', () => {
             MockComponent(CustomTableComponent),
             MockComponent(ActionIconComponent),
             MockComponent(IconComponent),
+            MockComponent(SimpleTableComponent),
         ],
         imports: [MatMenuModule],
     });

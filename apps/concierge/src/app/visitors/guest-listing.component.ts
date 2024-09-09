@@ -11,7 +11,7 @@ import { User } from '@placeos/users';
     selector: 'guest-listings',
     template: `
         <simple-table
-            class="min-w-[64rem] block text-sm z-0"
+            class="min-w-[72rem] block text-sm z-0"
             [data]="guests"
             [columns]="[
                 {
@@ -19,47 +19,54 @@ import { User } from '@placeos/users';
                     name: 'Checked In',
                     content: state_template,
                     size: '6.5rem',
-                    sortable: false
+                    sortable: false,
                 },
                 {
                     key: 'date',
                     name: 'Time',
                     content: date_template,
-                    size: '6rem'
+                    size: '6rem',
                 },
                 {
                     key: 'asset_name',
                     name: 'Visitor',
-                    content: person_template
+                    content: person_template,
                 },
                 { key: 'user_name', name: 'Host', content: host_template },
                 {
                     key: 'status',
                     name: 'State',
                     content: status_template,
-                    size: '9.5rem'
+                    size: '9.5rem',
                 },
                 {
                     key: 'induction',
                     name: 'Inducted',
-                    content: boolean_template,
+                    content: induction_template,
                     show: !!inductions_enabled,
-                    size: '5.5rem'
+                    size: '5.5rem',
                 },
                 {
                     key: 'parking_space',
                     name: 'Parking',
                     content: parking_template,
                     show: !!has_parking,
-                    size: '5.5rem'
+                    size: '5.5rem',
+                },
+                {
+                    key: 'notes',
+                    name: 'Notes',
+                    content: notes_template,
+                    sortable: false,
+                    size: '4.5rem',
                 },
                 {
                     key: 'actions',
                     name: ' ',
                     content: action_template,
                     size: '3.25rem',
-                    sortable: false
-                }
+                    sortable: false,
+                },
             ]"
             [filter]="search | async"
             [sortable]="true"
@@ -125,8 +132,8 @@ import { User } from '@placeos/users';
                         row.extension_data?.id_confirmed
                             ? 'Confirmed'
                             : row.extension_data?.id_confirmed === false
-                            ? 'Rejected'
-                            : 'Submitted'
+                              ? 'Rejected'
+                              : 'Submitted'
                     }}
                 </button>
             </div>
@@ -162,37 +169,50 @@ import { User } from '@placeos/users';
                 <app-icon>done</app-icon>
             </div>
         </ng-template>
-        <ng-template #boolean_template let-row="row">
+        <ng-template #induction_template let-data="data">
             <div
-                *ngIf="inducted(row)"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl mx-auto"
+                [class.bg-success]="data === 'accepted'"
+                [class.text-success-content]="data === 'accepted'"
+                [class.bg-warning]="data !== 'accepted' && data !== 'declined'"
+                [class.text-warning-content]="
+                    data !== 'accepted' && data !== 'declined'
+                "
+                [class.bg-error]="data === 'declined'"
+                [class.text-error-content]="data === 'declined'"
             >
-                <app-icon>done</app-icon>
-            </div>
-            <div
-                *ngIf="inducted(row) === null"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-warning text-warning-content mx-auto"
-            >
-                <app-icon>question_mark</app-icon>
-            </div>
-            <div
-                *ngIf="inducted(row) === false"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-error text-error-content mx-auto"
-            >
-                <app-icon>close</app-icon>
+                <app-icon>
+                    {{
+                        data === 'accepted'
+                            ? 'done'
+                            : data === 'declined'
+                              ? 'close'
+                              : 'question_mark'
+                    }}
+                </app-icon>
             </div>
         </ng-template>
         <ng-template #status_template let-row="row">
             <div class="px-4">
                 <button
                     matRipple
-                    class="rounded-3xl bg-warning text-warning-content border-none w-[7.5rem] h-10"
-                    [class.!text-success-content]="row?.status === 'approved'"
-                    [class.!bg-success]="row?.status === 'approved'"
-                    [class.!text-error-content]="row?.status === 'declined'"
-                    [class.!bg-error]="row?.status === 'declined'"
-                    [class.!text-neutral-content]="row?.status === 'ended'"
-                    [class.!bg-neutral]="row?.status === 'ended'"
+                    class="rounded-3xl border-none w-[7.5rem] h-10"
+                    [class.text-success-content]="row?.status === 'approved'"
+                    [class.bg-success]="row?.status === 'approved'"
+                    [class.text-error-content]="row?.status === 'declined'"
+                    [class.bg-error]="row?.status === 'declined'"
+                    [class.text-neutral-content]="row?.status === 'ended'"
+                    [class.bg-neutral]="row?.status === 'ended'"
+                    [class.text-warning-content]="
+                        row?.status !== 'ended' &&
+                        row?.status !== 'approved' &&
+                        row?.status !== 'declined'
+                    "
+                    [class.bg-warning]="
+                        row?.status !== 'ended' &&
+                        row?.status !== 'approved' &&
+                        row?.status !== 'declined'
+                    "
                     [class.opacity-30]="row?.status === 'ended'"
                     [matMenuTriggerFor]="menu"
                     [disabled]="
@@ -206,10 +226,10 @@ import { User } from '@placeos/users';
                                 row?.status === 'ended'
                                     ? 'Ended'
                                     : row?.status === 'approved'
-                                    ? 'Approved'
-                                    : row?.status === 'declined'
-                                    ? 'Declined'
-                                    : 'Pending'
+                                      ? 'Approved'
+                                      : row?.status === 'declined'
+                                        ? 'Declined'
+                                        : 'Pending'
                             }}
                         </div>
                         <app-icon
@@ -378,6 +398,31 @@ import { User } from '@placeos/users';
                 </mat-menu>
             </div>
         </ng-template>
+        <ng-template #notes_template let-row="row">
+            <div class="relative p-4 mx-auto">
+                <button
+                    matTooltip="Edit Visitor Notes"
+                    matTooltipPosition="left"
+                    icon
+                    matRipple
+                    (click)="editVisitorNotes(row)"
+                >
+                    <app-icon class="text-2xl">edit_square</app-icon>
+                </button>
+                <div
+                    class="absolute top-1 right-1 bg-info text-info-content rounded-full h-4 w-4 flex items-center justify-center"
+                    *ngIf="row.extension_data?.notes?.length"
+                    matTooltip="Visitor Notes Available"
+                >
+                    <app-icon
+                        className="material-symbols-rounded"
+                        class="text-sm"
+                    >
+                        info_i
+                    </app-icon>
+                </div>
+            </div>
+        </ng-template>
         <button
             class="bg-secondary hover:shadow-lg shadow absolute bottom-4 right-4 text-white h-12 w-12 z-20"
             matTooltip="Download Visitor List"
@@ -409,6 +454,7 @@ export class GuestListingComponent extends AsyncHandler {
     public readonly checkoutAllVisitors = (u) =>
         this._state.setCheckinStateForEvent(u.linked_event?.id, false);
     public readonly setExt = (u, f, v) => this._state.setExt(u, f, v);
+    public readonly editVisitorNotes = (u) => this._state.editVisitorNotes(u);
 
     public readonly checkin = async (item: Booking) => {
         await this._state.setCheckinState(item, true).catch((e) => {
@@ -439,15 +485,15 @@ export class GuestListingComponent extends AsyncHandler {
         return item.process_state.includes('declined')
             ? false
             : item.process_state.includes('inducted') || item.induction
-            ? true
-            : null;
+              ? true
+              : null;
     }
 
     constructor(
         private _state: VisitorsStateService,
         private _parking: ParkingStateService,
         private _settings: SettingsService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -462,12 +508,12 @@ export class GuestListingComponent extends AsyncHandler {
                     'visitor-kiosk_app';
                 const metadata: any = await showMetadata(
                     bld.id,
-                    visitor_kiosk_app
+                    visitor_kiosk_app,
                 ).toPromise();
                 this.inductions_enabled =
                     metadata.details?.induction_enabled &&
                     metadata.details?.induction_details;
-            })
+            }),
         );
     }
 
@@ -476,10 +522,11 @@ export class GuestListingComponent extends AsyncHandler {
             user: new User({ email: item.asset_id, name: item.asset_name }),
             link_id: item.id,
             date: item.date,
+            external_user: true,
         });
         if (id) {
             await saveBooking(
-                new Booking({ ...item, parking_booking_id: id } as any)
+                new Booking({ ...item, parking_booking_id: id } as any),
             ).toPromise();
             this._state.poll();
         }

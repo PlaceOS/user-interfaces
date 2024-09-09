@@ -163,7 +163,6 @@ const app: any = {
         'parking',
         'help',
         'schedule',
-        'wfh',
         'lockers',
         'visitor-invite',
         'group-events',

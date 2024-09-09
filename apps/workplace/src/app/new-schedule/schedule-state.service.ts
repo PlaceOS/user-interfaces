@@ -69,7 +69,7 @@ export class ScheduleStateService extends AsyncHandler {
     private _date = new BehaviorSubject(Date.now());
     private _update = combineLatest([this._date, this._poll]).pipe(
         debounceTime(500),
-        tap((_) => this._loading.next(true))
+        tap((_) => this._loading.next(true)),
     );
 
     private _deleted: string[] = [];
@@ -90,7 +90,7 @@ export class ScheduleStateService extends AsyncHandler {
                 return combineLatest(
                     (list || []).map((space) => {
                         const binding = getModule(space.id, 'Bookings').binding(
-                            'bookings'
+                            'bookings',
                         );
                         const obs = binding.listen().pipe(
                             map((event_list) =>
@@ -101,26 +101,26 @@ export class ScheduleStateService extends AsyncHandler {
                                             resources: i.attendees.filter(
                                                 (_) =>
                                                     _.email === space.email ||
-                                                    _.resource
+                                                    _.resource,
                                             ),
                                             system: space,
-                                        })
-                                )
+                                        }),
+                                ),
                             ),
-                            catchError((_) => of([]))
+                            catchError((_) => of([])),
                         );
                         if (!this.hasSubscription(`bind:${space.id}`)) {
                             this.subscription(
                                 `bind:${space.id}`,
-                                binding.bind()
+                                binding.bind(),
                             );
                         }
                         return obs;
-                    })
+                    }),
                 );
             }),
             map((_) => flatten<CalendarEvent>(_)),
-            shareReplay(1)
+            shareReplay(1),
         );
 
     public readonly ws_events = combineLatest([
@@ -136,13 +136,13 @@ export class ScheduleStateService extends AsyncHandler {
                         _.attendees.find(
                             (a) =>
                                 a.email.toLowerCase() ===
-                                user.email.toLowerCase()
+                                user.email.toLowerCase(),
                         )) &&
                     !_.linked_bookings?.find(
-                        (b) => b.booking_type === 'group-event'
-                    )
+                        (b) => b.booking_type === 'group-event',
+                    ),
             );
-        })
+        }),
     );
     /** List of calendar events for the selected date */
     public readonly api_events: Observable<CalendarEvent[]> = this._update.pipe(
@@ -154,17 +154,21 @@ export class ScheduleStateService extends AsyncHandler {
             return this._settings.get('app.events.use_bookings')
                 ? queryBookings({ ...query, type: 'room' }).pipe(
                       map((_) => _.map((i) => newCalendarEventFromBooking(i))),
-                      catchError((_) => of([]))
+                      catchError((_) => of([])),
                   )
                 : queryEvents({ ...query }).pipe(catchError((_) => of([])));
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
     /** List of calendar events for the selected date */
-    public readonly events = combineLatest([this._poll_type]).pipe(
+    public readonly raw_events = combineLatest([this._poll_type]).pipe(
         switchMap(([t]) => (t === 'api' ? this.api_events : this.ws_events)),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
-        shareReplay(1)
+        shareReplay(1),
+    );
+    /** List of calendar events for the selected date */
+    public readonly events = this.raw_events.pipe(
+        map((_) => _.filter((_) => !_.extension_data?.shared_event)),
     );
     /** List of desk bookings for the selected date */
     public readonly visitors: Observable<Booking[]> = this._update.pipe(
@@ -173,11 +177,11 @@ export class ScheduleStateService extends AsyncHandler {
                 period_start: getUnixTime(startOfDay(date)),
                 period_end: getUnixTime(endOfDay(date)),
                 type: 'visitor',
-            }).pipe(catchError((_) => of([] as Booking[])))
+            }).pipe(catchError((_) => of([] as Booking[]))),
         ),
         map((_) => _.filter((_) => !_.parent_id && !_.linked_event)),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
-        shareReplay(1)
+        shareReplay(1),
     );
     /** List of desk bookings for the selected date */
     public readonly desks: Observable<Booking[]> = this._update.pipe(
@@ -187,10 +191,10 @@ export class ScheduleStateService extends AsyncHandler {
                 period_end: getUnixTime(endOfDay(date)),
                 include_checked_out: true,
                 type: 'desk',
-            }).pipe(catchError((_) => of([])))
+            }).pipe(catchError((_) => of([]))),
         ),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
-        shareReplay(1)
+        shareReplay(1),
     );
     /** List of parking bookings for the selected date */
     public readonly parking: Observable<Booking[]> = this._update.pipe(
@@ -200,28 +204,20 @@ export class ScheduleStateService extends AsyncHandler {
                 period_end: getUnixTime(endOfDay(date)),
                 type: 'parking',
                 include_deleted: 'recurring',
-            }).pipe(catchError((_) => of([])))
+            }).pipe(catchError((_) => of([]))),
         ),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
-        shareReplay(1)
+        shareReplay(1),
     );
-    /** List of group event bookings for the selected date */
-    public readonly group_events: Observable<Booking[]> = this._update.pipe(
-        switchMap(([date]) =>
-            queryBookings({
-                period_start: getUnixTime(startOfDay(date)),
-                period_end: getUnixTime(endOfDay(date)),
-                type: 'group-event',
-            }).pipe(catchError((_) => of([])))
-        ),
-        tap(() => this.timeout('end_loading', () => this._loading.next(false))),
-        shareReplay(1)
+    /** List of calendar events for the selected date */
+    public readonly group_events = this.raw_events.pipe(
+        map((_) => _.filter((_) => _.extension_data?.shared_event)),
     );
     /** List of parking bookings for the selected date */
     public readonly lockers: Observable<Booking[]> = combineLatest([
         this._org.active_building.pipe(
             filter((_) => !!_),
-            distinctUntilKeyChanged('id')
+            distinctUntilKeyChanged('id'),
         ),
         this._lockers.lockers$,
     ]).pipe(
@@ -239,7 +235,7 @@ export class ScheduleStateService extends AsyncHandler {
             return my_lockers
                 .map((i) => {
                     const locker = (lockers as Locker[]).find(
-                        (_) => _.id === i.locker_id
+                        (_) => _.id === i.locker_id,
                     );
                     if (!locker && (!i.level || !i.building)) return null;
                     i.level = i.level || locker?.level_id;
@@ -268,7 +264,7 @@ export class ScheduleStateService extends AsyncHandler {
             return of([]);
         }),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     /** List of events and bookings for the selected date */
@@ -292,9 +288,9 @@ export class ScheduleStateService extends AsyncHandler {
                 const filtered_events = events.filter(
                     (ev) =>
                         !desks.find(
-                            (bkn) => `${ev.meeting_id}` === `${bkn.id}`
+                            (bkn) => `${ev.meeting_id}` === `${bkn.id}`,
                         ) &&
-                        ev.linked_bookings[0]?.booking_type !== 'group-event'
+                        ev.linked_bookings[0]?.booking_type !== 'group-event',
                 );
                 return [
                     ...filtered_events,
@@ -304,8 +300,8 @@ export class ScheduleStateService extends AsyncHandler {
                     ...lockers,
                     ...group_events,
                 ].sort((a, b) => a.date - b.date);
-            }
-        )
+            },
+        ),
     );
     /** Filtered list of events and bookings for the selected date */
     public readonly filtered_bookings = combineLatest([
@@ -313,14 +309,29 @@ export class ScheduleStateService extends AsyncHandler {
         this._filters,
     ]).pipe(
         map(([bkns, filters]) =>
-            bkns.filter(
-                (_) =>
-                    (!this._deleted.includes(_.id) &&
-                        _ instanceof CalendarEvent &&
-                        filters?.shown_types?.includes('event')) ||
-                    filters?.shown_types?.includes((_ as any).booking_type)
-            )
-        )
+            bkns.filter((_) => {
+                if (
+                    this._deleted.includes(
+                        _.instance ? `${_.id}|${_.instance}` : _.id,
+                    )
+                )
+                    return false;
+                if (
+                    _.extension_data?.shared_event &&
+                    !filters?.shown_types?.includes('group-event')
+                ) {
+                    return false;
+                }
+                if (
+                    _ instanceof CalendarEvent &&
+                    !_.extension_data?.shared_event &&
+                    !filters?.shown_types?.includes('event')
+                ) {
+                    return false;
+                } else if (_ instanceof CalendarEvent) return true;
+                return filters?.shown_types?.includes((_ as any).booking_type);
+            }),
+        ),
     );
     /** Currently selected date */
     public readonly filters = this._filters.asObservable();
@@ -351,8 +362,8 @@ export class ScheduleStateService extends AsyncHandler {
                         period_end: getUnixTime(
                             addMinutes(
                                 Date.now(),
-                                (auto_release.time_after || 5) + time_before
-                            )
+                                (auto_release.time_after || 5) + time_before,
+                            ),
                         ),
                         type,
                     }).toPromise();
@@ -370,18 +381,18 @@ export class ScheduleStateService extends AsyncHandler {
                         const diff = differenceInMinutes(
                             addMinutes(
                                 booking.date,
-                                auto_release.time_after || 0
+                                auto_release.time_after || 0,
                             ),
-                            Date.now()
+                            Date.now(),
                         );
                         if (diff > check_block || diff < 0) continue;
                         const time = addMinutes(
                             booking.date,
-                            auto_release.time_after || 0
+                            auto_release.time_after || 0,
                         );
                         const close_after = differenceInMilliseconds(
                             time.getTime() + 60 * 1000,
-                            Date.now()
+                            Date.now(),
                         );
                         const wording =
                             type === 'parking' ? 'reservation' : 'booking';
@@ -393,10 +404,10 @@ export class ScheduleStateService extends AsyncHandler {
                                     booking.asset_name || booking.title
                                 }</i>" at ${format(
                                     booking.date,
-                                    this._settings.time_format
+                                    this._settings.time_format,
                                 )} will be cancelled at ${format(
                                     time,
-                                    this._settings.time_format
+                                    this._settings.time_format,
                                 )}.<br/><br/>
                                 Do you wish to keep this ${wording}?`,
                                 icon: { content: 'event_busy' },
@@ -404,7 +415,7 @@ export class ScheduleStateService extends AsyncHandler {
                                 cancel_text: 'Dismiss',
                                 close_delay: close_after,
                             },
-                            this._dialog
+                            this._dialog,
                         );
                         if (result.reason !== 'done') {
                             this._ignore_cancel.push(booking.id);
@@ -416,7 +427,7 @@ export class ScheduleStateService extends AsyncHandler {
                     }
                 }
             }
-        })
+        }),
     );
 
     constructor(
@@ -424,7 +435,7 @@ export class ScheduleStateService extends AsyncHandler {
         private _org: OrganisationService,
         private _lockers: LockersService,
         private _dialog: MatDialog,
-        private _parking: ParkingService
+        private _parking: ParkingService,
     ) {
         super();
         this.subscription(
@@ -433,19 +444,19 @@ export class ScheduleStateService extends AsyncHandler {
                 this._poll_type.next(
                     this._settings.get('app.schedule.use_websocket')
                         ? 'ws'
-                        : 'api'
-                )
-            )
+                        : 'api',
+                ),
+            ),
         );
         this.subscription(
             'chat_event',
             this._settings
                 .listen('CHAT:task_complete')
-                .subscribe(() => this.triggerPoll())
+                .subscribe(() => this.triggerPoll()),
         );
         this.subscription('wfh_checks', this._checkCancel.subscribe());
         this._deleted = JSON.parse(
-            sessionStorage.getItem('PLACEOS.events.deleted') || '[]'
+            sessionStorage.getItem('PLACEOS.events.deleted') || '[]',
         );
     }
 
@@ -467,7 +478,9 @@ export class ScheduleStateService extends AsyncHandler {
     }
 
     public removeItem(item) {
-        this.setAsDeleted(item.id);
+        this.setAsDeleted(
+            item.instance ? `${item.id}|${item.instance}` : item.id,
+        );
         this._poll.next(Date.now());
     }
 
@@ -475,7 +488,7 @@ export class ScheduleStateService extends AsyncHandler {
         this._deleted.push(id);
         sessionStorage.setItem(
             'PLACEOS.events.deleted',
-            JSON.stringify(this._deleted)
+            JSON.stringify(this._deleted),
         );
     }
 

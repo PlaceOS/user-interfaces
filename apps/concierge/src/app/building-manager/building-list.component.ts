@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
 import { BuildingManagementService } from './building-management.service';
-import { SettingsService, notifySuccess } from '@placeos/common';
+import { notifySuccess } from '@placeos/common';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { MatDialog } from '@angular/material/dialog';
+import { BookingPanelSettingsModalComponent } from '../ui/booking-panel-settings-modal.component';
 
 @Component({
     selector: 'building-list',
@@ -15,24 +17,24 @@ import { Clipboard } from '@angular/cdk/clipboard';
                     {
                         key: 'display_name',
                         name: 'Building Name',
-                        content: name_template
+                        content: name_template,
                     },
                     {
                         key: 'location',
                         name: 'Location',
-                        size: '16rem'
+                        size: '16rem',
                     },
                     {
                         key: 'timezone',
                         name: 'Timezone',
                         size: '14rem',
-                        content: timezone_template
+                        content: timezone_template,
                     },
                     {
                         key: 'region',
                         name: 'Region',
                         size: '11rem',
-                        sortable: false
+                        sortable: false,
                     },
                     { key: 'level_count', name: 'Levels', size: '6rem' },
                     {
@@ -40,8 +42,8 @@ import { Clipboard } from '@angular/cdk/clipboard';
                         name: ' ',
                         content: action_template,
                         size: '3rem',
-                        sortable: false
-                    }
+                        sortable: false,
+                    },
                 ]"
                 [sortable]="true"
             ></simple-table>
@@ -107,6 +109,20 @@ import { Clipboard } from '@angular/cdk/clipboard';
                             <span>Auto-release Settings</span>
                         </div>
                     </button>
+                    <button
+                        mat-menu-item
+                        (click)="editBookingPanelSettings(row)"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <app-icon
+                                className="material-symbols-rounded"
+                                class="text-xl"
+                            >
+                                top_panel_open
+                            </app-icon>
+                            <span>Edit Booking Panel Settings</span>
+                        </div>
+                    </button>
                     <button mat-menu-item (click)="setInduction(row)">
                         <div class="flex items-center space-x-2">
                             <app-icon
@@ -170,9 +186,15 @@ export class BuildingListComponent {
         if (success) notifySuccess('Building ID copied to clipboard.');
     };
 
+    public editBookingPanelSettings(building) {
+        this._dialog.open(BookingPanelSettingsModalComponent, {
+            data: { zone: building },
+        });
+    }
+
     constructor(
         private _manager: BuildingManagementService,
-        private _settings: SettingsService,
-        private _clipboard: Clipboard
+        private _clipboard: Clipboard,
+        private _dialog: MatDialog,
     ) {}
 }

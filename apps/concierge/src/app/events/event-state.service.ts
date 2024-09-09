@@ -57,7 +57,7 @@ export class EventStateService extends AsyncHandler {
             return queryEvents({
                 period_start: getUnixTime(startOfDay(options.date)),
                 period_end: getUnixTime(
-                    endOfDay(options.end || options.date || Date.now())
+                    endOfDay(options.end || options.date || Date.now()),
                 ),
                 calendars: this.calendar,
             });
@@ -65,10 +65,10 @@ export class EventStateService extends AsyncHandler {
         map((list) =>
             list
                 .filter((_) => _.extension_data?.shared_event)
-                .sort((a, b) => a.date - b.date)
+                .sort((a, b) => a.date - b.date),
         ),
         tap(() => this._loading.next('')),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly options = this._options.asObservable();
@@ -90,7 +90,7 @@ export class EventStateService extends AsyncHandler {
         private _settings: SettingsService,
         private _org: OrganisationService,
         private _dialog: MatDialog,
-        private _router: Router
+        private _router: Router,
     ) {
         super();
     }
@@ -99,7 +99,7 @@ export class EventStateService extends AsyncHandler {
         this.interval(
             'poll',
             () => (document.hasFocus() ? this._poll.next(Date.now()) : ''),
-            delay
+            delay,
         );
         return () => this.stopPolling();
     }
@@ -125,14 +125,14 @@ export class EventStateService extends AsyncHandler {
                     'manage',
                     event.id,
                 ]);
-            })
+            }),
         );
         this.subscription(
             `remove:${event.id}`,
             ref.componentInstance.remove.subscribe(async () => {
                 await this.removeEvent(event);
                 ref.close();
-            })
+            }),
         );
     }
 
@@ -144,7 +144,7 @@ export class EventStateService extends AsyncHandler {
                 icon: { content: 'delete' },
                 confirm_text: 'Delete',
             },
-            this._dialog
+            this._dialog,
         );
         if (result.reason !== 'done') return;
         result.loading('Deleting event...');

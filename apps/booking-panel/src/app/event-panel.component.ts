@@ -12,6 +12,7 @@ import {
 } from 'date-fns';
 import { first, map } from 'rxjs/operators';
 import { PanelStateService } from './panel-state.service';
+import { generateQRCode } from 'libs/common/src/lib/qr-code';
 
 @Component({
     selector: 'event-panel',
@@ -91,28 +92,65 @@ import { PanelStateService } from './panel-state.service';
                     binding
                     [sys]="system_id"
                     mod="Bookings"
-                    bind="current"
+                    bind="current_booking"
                     (modelChange)="current = asCalendarEvent($event)"
                 ></i>
                 <i
                     binding
                     [sys]="system_id"
                     mod="Bookings"
-                    bind="next"
+                    bind="next_booking"
                     (modelChange)="next = asCalendarEvent($event)"
                 ></i>
             </div>
+            <div
+                class="absolute top-1/2 -right-[2px] -translate-y-1/2"
+                *ngIf="!hide_qr && checkin"
+            >
+                <button
+                    book-tag
+                    matRipple
+                    (click)="toggleQRShow()"
+                    class="absolute top-1/2 left-px -translate-y-1/2 -translate-x-full bg-base-100 border-l border-y border-base-300 px-1 py-4 rounded-l-lg z-20 uppercase"
+                >
+                    Book
+                </button>
+                <div
+                    qr-code-out
+                    class="overflow-hidden bg-base-100 shadow border border-base-300 rounded-l-lg z-10"
+                    [class.w-0]="!show_qr"
+                    [class.w-56]="show_qr"
+                >
+                    <div qr-checkin class="w-56 z-50 p-3">
+                        <img class="w-full" [src]="qr_code" />
+                    </div>
+                </div>
+            </div>
         </div>
     `,
-    styles: [``],
+    styles: [
+        `
+            [book-tag] {
+                writing-mode: vertical-rl;
+                text-orientation: upright;
+            }
+
+            [qr-code-out] {
+                transition: width 300ms;
+            }
+        `,
+    ],
 })
 export class EventPanelComponent extends AsyncHandler {
     public system_id = '';
+    public show_qr = false;
     public room_name: string | null = '';
     public current: CalendarEvent | null = null;
     public next: CalendarEvent | null = null;
+    public qr_code: any;
+    public hide_qr = false;
     public readonly space_name = this._state.space.pipe(
-        map((_) => _?.display_name || _?.name || '')
+        map((_) => _?.display_name || _?.name || ''),
     );
 
     public get time() {
@@ -138,11 +176,19 @@ export class EventPanelComponent extends AsyncHandler {
         );
     }
 
+    public get checkin() {
+        return this._state.setting('show_qr_code') !== false;
+    }
+
+    public get custom_qr() {
+        return !!this._state.setting('custom_qr_url');
+    }
+
     constructor(
         private _settings: SettingsService,
         private _route: ActivatedRoute,
         private _state: PanelStateService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -154,14 +200,46 @@ export class EventPanelComponent extends AsyncHandler {
             this._route.paramMap.subscribe((params) => {
                 this.system_id = params.get('system_id') || '';
                 this._state.system = this.system_id;
-            })
+            }),
+        );
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((params) => {
+                this.hide_qr = !!params.get('hide_qr_code');
+            }),
         );
         this.timeout(
             'size',
             () =>
-                this._settings.overrideCssVariable('font-size', '4vmin', true),
-            1000
+                this._settings.overrideCssVariable(
+                    'font-size',
+                    '3.5vmin',
+                    true,
+                ),
+            1000,
         );
+        this._state.current.subscribe();
+        this._state.settings.subscribe(({ custom_qr_url, custom_qr_color }) => {
+            if (custom_qr_url) {
+                this.qr_code = generateQRCode(
+                    custom_qr_url,
+                    '#0000',
+                    custom_qr_color || '#000',
+                );
+            } else if (!this.qr_code) {
+                const url = `${location.origin}${location.pathname}#/checkin/${this._state.system}?user=true`;
+                this.qr_code = generateQRCode(
+                    url,
+                    '#0000',
+                    custom_qr_color || '#000',
+                );
+            }
+        });
+    }
+
+    public toggleQRShow() {
+        this.show_qr = !this.show_qr;
+        this.timeout('close', () => (this.show_qr = false), 60 * 1000);
     }
 
     public asCalendarEvent(data: any) {

@@ -2,12 +2,19 @@ import { Component } from '@angular/core';
 import { map } from 'rxjs/operators';
 
 import { ReportsStateService } from '../reports-state.service';
-import { SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: '[report-desks]',
     template: `
-        <reports-options (printing)="printing = $event"></reports-options>
+        <reports-options
+            (printing)="printing = $event"
+            [loading]="loading | async"
+            [has_data]="total_count | async"
+            (download)="downloadReport()"
+            (generate)="generateReport()"
+        ></reports-options>
         <div
             class="relative flex-1 h-1/2 w-full overflow-auto print:overflow-visible print:h-auto"
         >
@@ -74,7 +81,7 @@ import { SettingsService } from '@placeos/common';
         `,
     ],
 })
-export class ReportDesksComponent {
+export class ReportDesksComponent extends AsyncHandler {
     public printing = false;
     public readonly total_count = this._state.stats.pipe(
         map((i) => i.count || 0)
@@ -84,14 +91,20 @@ export class ReportDesksComponent {
     );
     public readonly loading = this._state.loading;
 
+    public readonly downloadReport = () => this._state.downloadReport();
+    public readonly generateReport = () => this._state.generateReport();
+
     public get logo() {
         return this._settings.get('app.logo_light') || {};
     }
 
     constructor(
         private _state: ReportsStateService,
-        private _settings: SettingsService
-    ) {}
+        private _settings: SettingsService,
+        private _route: ActivatedRoute
+    ) {
+        super();
+    }
 
     public print() {
         this.printing = true;
@@ -103,5 +116,20 @@ export class ReportDesksComponent {
 
     public ngOnInit() {
         this._state.setOptions({ type: 'desks' });
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((params) => {
+                if (params.has('start')) {
+                    this._state.setOptions({ start: +params.get('start') });
+                }
+                if (params.has('end')) {
+                    this._state.setOptions({ end: +params.get('end') });
+                }
+                if (params.has('zones')) {
+                    const zones = params.get('zones').split(',');
+                    if (zones.length) this._state.setOptions({ zones });
+                }
+            })
+        );
     }
 }

@@ -406,9 +406,7 @@ export class EventBookModalComponent {
     ) {}
 
     public async ngOnInit() {
-        console.log('Form:', this._data);
         await this._event_form.newForm(this._data.event);
-        console.log('Form:', this.form.value);
     }
 
     public async save() {

@@ -47,7 +47,7 @@ function calculateDistance(
     lat1: number,
     lon1: number,
     lat2: number,
-    lon2: number
+    lon2: number,
 ): number {
     const radius = 6371; // Earth's radius in kilometers
 
@@ -149,7 +149,7 @@ function degreesToRadians(degrees: number): number {
                 >
                     <li
                         class="w-full even:bg-base-200 hover:bg-base-300 rounded border border-base-200"
-                        *ngFor="let item of search_result_items | slice: 0:10"
+                        *ngFor="let item of search_result_items | slice: 0 : 10"
                     >
                         <button
                             class="flex items-center w-full p-2 space-x-2 text-left"
@@ -232,7 +232,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                 name: 'All Levels',
             },
             ...this._org.levelsForBuilding(bld),
-        ])
+        ]),
     );
     public floor_mapping: { [id: string]: string } = {};
 
@@ -242,7 +242,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     constructor(
         private _api_service: MapsPeopleService,
         private _state: ExploreStateService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -269,7 +269,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             const searchParams = { q: this.searchElement.nativeElement.value };
             const locations =
                 await mapsindoors?.services.LocationsService.getLocations(
-                    searchParams
+                    searchParams,
                 );
             if (locations.length) this.getRoute(locations[0]);
         }
@@ -299,14 +299,13 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         if (this._api_service.map_service === MapService.GoogleMaps) {
             log('MapsIndoors', 'Using Google Maps API');
             this.view_instance = new mapsindoors.mapView.GoogleMapsView(
-                view_options
+                view_options,
             );
         } else {
             view_options.accessToken = this._api_service.map_token;
-            console.log('View Options:', view_options);
             log('MapsIndoors', 'Using Mapbox API');
             this.view_instance = new mapsindoors.mapView.MapboxView(
-                view_options
+                view_options,
             );
         }
         if (!this.view_instance) {
@@ -314,7 +313,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                 'MapsIndoors',
                 'Failed to initialise map view instance.',
                 undefined,
-                'warn'
+                'warn',
             );
             return;
         }
@@ -333,17 +332,17 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             this._api_service.map_service === MapService.GoogleMaps
                 ? new mapsindoors.directions.GoogleMapsProvider()
                 : new mapsindoors.directions.MapboxProvider(
-                      this._api_service.map_token
+                      this._api_service.map_token,
                   );
         this.directions_service = new mapsindoors.services.DirectionsService(
-            provider
+            provider,
         );
         const directionsRendererOptions = {
             mapsIndoors: this.maps_service,
         };
         this.directions_renderer =
             new mapsindoors.directions.DirectionsRenderer(
-                directionsRendererOptions
+                directionsRendererOptions,
             );
     }
 
@@ -352,7 +351,6 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         const input_string =
             building?.buildingInfo?.fields?.floorMapping?.value;
         const pairs = input_string?.split(',\n').map((pair) => pair.split(':'));
-        console.log('Pairs:', pairs, building);
         this.floor_mapping =
             pairs?.reduce((lvl_map, [key, value]) => {
                 lvl_map[key] = value;
@@ -398,13 +396,8 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         const searchParams = { q: this.searchElement.nativeElement.value };
         mapsindoors?.services.LocationsService.getLocations(searchParams).then(
             (locations: any[]) => {
-                console.log(
-                    'Locations:',
-                    locations,
-                    this.map_instance.getZoom()
-                );
                 this.search_result_items = locations;
-            }
+            },
         );
     }
 
@@ -414,19 +407,18 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                 'MapsIndoors',
                 "User's geolocation not available.",
                 undefined,
-                'warn'
+                'warn',
             );
             return this._setLocationToBuilding();
         }
         if (this.coordinates) {
-            console.log('Using custom coordinates:', this.coordinates);
             this.user_latitude = this.coordinates.latitude;
             this.user_longitude = this.coordinates.longitude;
             return;
         } else {
             navigator.geolocation.watchPosition(
                 (_) => this._updateGeolocation(_),
-                (_) => this._handleGeolocationError(_)
+                (_) => this._handleGeolocationError(_),
             );
             const options = { timeout: 10000, enableHighAccuracy: true };
             navigator.geolocation.getCurrentPosition(
@@ -447,14 +439,14 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                     });
                 },
                 () => this._setLocationToBuilding(),
-                options
+                options,
             );
         }
     }
 
     private _userWithinRadius(
         [d_lat, d_long]: [number, number],
-        radius: number = 1
+        radius: number = 1,
     ) {
         const [lat_str, long_str] =
             this._org.building?.location.split(',') || [];
@@ -486,7 +478,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             'MapsIndoors',
             'Settings location to user:',
             updated_location.coords,
-            'warn'
+            'warn',
         );
         const { latitude, longitude } = updated_location.coords;
         if (
@@ -506,7 +498,6 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
     public async getRoute(location: any) {
         this.maps_service?.highlight([]);
         if (!this.directions_service || !location) return;
-        console.log('Directions Service:', this.directions_service);
         log('MapsIndoors', 'Getting route to location:', [
             location,
             this.user_latitude,
@@ -526,7 +517,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
         if (
             !this._userWithinRadius(
                 [this.user_latitude, this.user_longitude],
-                1000
+                1000,
             )
         ) {
             this.map_instance.setZoom(19);
@@ -550,8 +541,6 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
             destination: destination,
         };
 
-        console.log('Route Parameters:', routeParameters);
-
         const result = await this.directions_service
             .getRoute(routeParameters)
             .catch((e) => {
@@ -559,7 +548,7 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                     'MapsIndoors',
                     'Error fetching route: ',
                     e.message || e,
-                    'warn'
+                    'warn',
                 );
                 const origin_error =
                     e instanceof TypeError && e.message?.includes('origin');
@@ -567,7 +556,6 @@ export class IndoorMapsComponent extends AsyncHandler implements OnInit {
                 notifyError('Error: Origin location is outside of map area.');
             });
         if (!result) return;
-        console.log('Route:', result);
         this.directions_renderer?.setRoute(result);
     }
 

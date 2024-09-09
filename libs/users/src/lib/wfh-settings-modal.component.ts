@@ -1,138 +1,170 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { currentUser } from '@placeos/common';
-import { addDays, format, set, setDay, startOfWeek } from 'date-fns';
-import { WorktimePreference } from './user.class';
+import { currentUser, notifyError, reloadUserData } from '@placeos/common';
+import { addDays, format, set, startOfMinute, startOfWeek } from 'date-fns';
+import { WorktimeBlock, WorktimePreference } from './user.class';
 import { showUser, updateUser } from '@placeos/ts-client';
 
 @Component({
     selector: `wfh-settings-modal`,
     template: `
-        <div
-            class="relative flex flex-col rounded overflow-hidden w-[40rem] max-w-full"
-            *ngIf="!loading; else load_state"
-        >
-            <div
-                class="w-full px-4 py-8 flex flex-col items-center border-b border-base-200"
-            >
-                <a-user-avatar [user]="user"></a-user-avatar>
-                <div>{{ user.name }}</div>
-                <div class="text-xs opacity-30">{{ user.email }}</div>
-                <div class="text-xs opacity-30">{{ user.phone }}</div>
-            </div>
-            <div class="w-full p-4 flex flex-col  border-b border-base-200">
-                <h3 class="-mt-2 mb-2 text-sm font-medium">
-                    Today's Working Location
-                </h3>
-                <button
-                    btn
-                    matRipple
-                    today-location
-                    class="inverse rounded-3xl w-[20rem] max-w-[calc(100%-2rem)] mx-auto"
-                    [matMenuTriggerFor]="menu"
-                >
-                    <div class="flex items-center justify-between w-full">
-                        <div class="flex-1 w-1/2">{{ option_name }}</div>
-                        <app-icon class="text-2xl">arrow_drop_down</app-icon>
-                    </div>
-                </button>
-                <div class="flex items-center pt-4 space-x-2 mx-auto">
-                    <div
-                        class="h-8 w-8 rounded-full bg-base-200 flex items-center justify-center"
-                    >
-                        <app-icon>{{
-                            option === 'wfh' ? 'home' : 'domain'
-                        }}</app-icon>
-                    </div>
-                    <div class="flex-1 w-1/2 text-sm">
-                        Today is a {{ option === 'aol' ? 'leave' : 'working' }}
-                        <span *ngIf="option !== 'aol'"
-                            >from
-                            {{ option === 'wfh' ? 'home' : 'office' }}</span
-                        >
-                        day<br />
-                        {{ option === 'aol' ? 'Unavailable' : 'Available' }} for
-                        {{ option === 'wfh' ? 'online' : '' }} meetings
-                    </div>
-                </div>
-            </div>
-            <div class="w-full p-4 flex flex-col">
-                <h3 class="-mt-2 mb-2 text-sm font-medium">
-                    Office Day Defaults
-                </h3>
-                <div
-                    class="flex items-center space-x-2 w-full overflow-hidden even:bg-base-200 rounded p-2"
-                    *ngFor="let idx of available_weekdays"
-                >
-                    <label class="w-24 min-w-0 m-0">{{
-                        days[idx] | date: 'EEEE'
-                    }}</label>
-                    <a-time-field
-                        class="h-12 w-36"
-                        [(ngModel)]="start_times[idx]"
-                        (ngModelChange)="changed = true"
-                    ></a-time-field>
-                    <a-time-field
-                        class="h-12 w-36"
-                        [(ngModel)]="end_times[idx]"
-                        (ngModelChange)="changed = true"
-                        [from]="start_times[idx]"
-                    ></a-time-field>
-                    <mat-form-field
-                        class="flex-2 no-subscript"
-                        appearance="outline"
-                    >
-                        <mat-select
-                            [(ngModel)]="settings[idx].location"
-                            (ngModelChange)="changed = true"
-                        >
-                            <mat-option
-                                *ngFor="let type of options"
-                                [value]="type.id"
-                            >
-                                {{ type.name }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
-            </div>
-            <div class="flex items-center justify-end px-4 pb-4">
-                <button
-                    btn
-                    matRipple
-                    save
-                    [disabled]="!changed"
-                    (click)="saveChanges()"
-                >
-                    Update
-                </button>
-            </div>
+        <header class="relative flex items-center justify-between">
+            <h2 class="font-medium text-xl">Working Location Settings</h2>
             <button
                 icon
                 matRipple
                 mat-dialog-close
-                class="absolute top-0 left-0"
+                class="bg-base-200"
+                *ngIf="!loading"
             >
                 <app-icon>close</app-icon>
             </button>
-        </div>
-        <mat-menu #menu="matMenu">
-            <button
-                mat-menu-item
-                *ngFor="let type of options"
-                [attr.id]="type.id"
-                (click)="option = type.id; changed = true"
+        </header>
+        <main
+            class="relative flex flex-col rounded w-[40rem] max-w-full p-4 space-y-2 max-h-[65vh] overflow-auto"
+            *ngIf="!loading; else load_state"
+        >
+            <h3>Working Days</h3>
+            <div
+                class="flex items-center justify-between w-full pb-4 space-x-2"
             >
-                {{ type.name }}
+                <mat-checkbox
+                    *ngFor="let day of days"
+                    [(ngModel)]="weekdays_enabled[day.getDay()]"
+                    (ngModelChange)="$event && initialiseDay(day.getDay())"
+                >
+                    {{ day | date: 'EEE' }}
+                </mat-checkbox>
+            </div>
+            <h3>Work Hours</h3>
+            <ng-container *ngIf="has_working_days; else empty_state">
+                <ng-container *ngFor="let day of days">
+                    <ng-container *ngIf="weekdays_enabled[day.getDay()]">
+                        <div
+                            class="flex w-full space-x-2 hover:bg-base-200 rounded px-2 pt-1"
+                        >
+                            <label class="w-12 min-w-0 px-2 pt-3">
+                                {{ day | date: 'EEE' }}
+                            </label>
+                            <div class="flex-1 w-1/2">
+                                <div
+                                    class="flex items-center space-x-2"
+                                    *ngFor="
+                                        let block of settings[day.getDay()]
+                                            .blocks;
+                                        let i = index
+                                    "
+                                >
+                                    <a-time-field
+                                        [ngModel]="timeFrom(block.start_time)"
+                                        (ngModelChange)="
+                                            setStartTime(
+                                                block,
+                                                day.getDay(),
+                                                $event
+                                            )
+                                        "
+                                        [from]="
+                                            timeFrom(
+                                                (i > 0
+                                                    ? settings[day.getDay()]
+                                                          .blocks[i - 1]
+                                                          ?.end_time
+                                                    : 0) || 0
+                                            )
+                                        "
+                                        class="flex-1 w-1/4 h-[3.25rem]"
+                                    ></a-time-field>
+                                    <a-time-field
+                                        [ngModel]="timeFrom(block.end_time)"
+                                        (ngModelChange)="
+                                            setEndTime(
+                                                block,
+                                                day.getDay(),
+                                                $event
+                                            )
+                                        "
+                                        [from]="
+                                            timeFrom(block.start_time + 0.25)
+                                        "
+                                        class="flex-1 w-1/4 h-[3.25rem]"
+                                    ></a-time-field>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="flex-1 w-1/4 h-[3.25rem]"
+                                    >
+                                        <mat-select
+                                            [(ngModel)]="block.location"
+                                        >
+                                            <mat-option
+                                                *ngFor="let type of options"
+                                                [value]="type.id"
+                                            >
+                                                {{ type.name }}
+                                            </mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
+                                    <button
+                                        icon
+                                        matRipple
+                                        [disabled]="
+                                            settings[day.getDay()].blocks
+                                                .length > 2
+                                        "
+                                        (click)="
+                                            addBlock(settings[day.getDay()], i)
+                                        "
+                                    >
+                                        <app-icon>add</app-icon>
+                                    </button>
+                                    <button
+                                        icon
+                                        matRipple
+                                        class="text-error"
+                                        [class.opacity-0]="i === 0"
+                                        (click)="
+                                            removeBlock(
+                                                settings[day.getDay()],
+                                                i
+                                            )
+                                        "
+                                    >
+                                        <app-icon>delete</app-icon>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-container>
+                </ng-container>
+            </ng-container>
+            <ng-template #empty_state>
+                <div
+                    class="flex flex-col items-center justify-center px-8 py-16 space-y-4"
+                >
+                    <img src="assets/icons/no-results.svg" class="m-auto" />
+                    <p class="opacity-30">
+                        No work days are currently set for this user
+                    </p>
+                </div>
+            </ng-template>
+        </main>
+        <footer
+            class="flex justify-end px-4 py-2 border-t border-base-200"
+            *ngIf="!loading"
+        >
+            <button btn matRipple class="w-48" (click)="saveChanges()">
+                Save
             </button>
-        </mat-menu>
+        </footer>
         <ng-template #load_state>
             <div
                 loading
                 class="relative bg-base-100 flex flex-col justify-center items-center rounded overflow-hidden w-[24rem] h-[18rem] text-center space-y-2"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p>Saving changes to work location settings...</p>
+                <p class="opacity-30">
+                    Saving changes to work location settings...
+                </p>
             </div>
         </ng-template>
     `,
@@ -140,97 +172,144 @@ import { showUser, updateUser } from '@placeos/ts-client';
 })
 export class WFHSettingsModalComponent implements OnInit {
     public readonly options = [
-        { id: 'wfo', name: 'Working from office' },
-        { id: 'wfh', name: 'Working from home' },
-        { id: 'aol', name: 'Away on Leave' },
+        { id: 'wfo', name: 'Office' },
+        { id: 'wfh', name: 'Home' },
+        { id: 'aol', name: 'Leave' },
     ];
     public option = this.options[0].id;
     public settings: WorktimePreference[] = [];
-    public weekdays = [];
+    public weekdays_enabled: Record<number, boolean> = {};
     public changed = false;
     public loading = false;
-    public readonly available_weekdays = [1, 2, 3, 4, 5];
+    public readonly available_weekdays = [];
     public readonly days = new Array(7)
         .fill(0)
         .map((_, idx) => addDays(startOfWeek(addDays(Date.now(), 30)), idx));
-    public start_times: number[] = [];
-    public end_times: number[] = [];
+
+    public get has_working_days() {
+        return Object.keys(this.weekdays_enabled).some(
+            (day) => this.weekdays_enabled[day],
+        );
+    }
 
     public get option_name() {
         return this.options.find((_) => _.id === this.option)?.name || '';
     }
 
-    constructor(private _dialog_ref: MatDialogRef<WFHSettingsModalComponent>) {}
+    public get now() {
+        return startOfMinute(Date.now()).getTime();
+    }
+
+    constructor(
+        private _dialog_ref: MatDialogRef<WFHSettingsModalComponent>,
+        private _cdr: ChangeDetectorRef,
+    ) {}
 
     public ngOnInit() {
         const user = currentUser();
-        this.settings = user.work_preferences;
-        this.option = user.location || 'wfo';
-        if (this.settings?.length < 7) {
-            this.settings = new Array(7).fill({}).map((_, idx) => ({
-                day_of_week: idx as any,
-                start_time: 9,
-                end_time: 17,
-                location: 'wfo',
-            }));
-        }
-        this.start_times = this.settings.map((_, idx) => {
-            const hours = Math.floor(_.start_time);
-            const minutes = Math.round((_.start_time - hours) * 60);
-            return set(this.days[idx], { hours, minutes }).valueOf();
-        });
-        this.end_times = this.settings.map((_, idx) => {
-            const hours = Math.floor(_.end_time);
-            const minutes = Math.round((_.end_time - hours) * 60);
-            return set(this.days[idx], { hours, minutes }).valueOf();
-        });
-        this._initWeekdays();
+        this.settings = [
+            ...(user.work_preferences || []).map((_) => ({
+                ..._,
+                blocks: [...(_?.blocks || [])],
+            })),
+        ];
     }
 
-    public get user() {
-        return currentUser();
+    public timeFrom(hours: number) {
+        return startOfMinute(
+            set(addDays(new Date(), 1), {
+                hours: Math.floor(hours),
+                minutes: (hours * 60) % 60,
+            }),
+        ).getTime();
+    }
+
+    public fromTime(time: number) {
+        const date = new Date(time);
+        return date.getHours() + date.getMinutes() / 60;
+    }
+
+    public initialiseDay(day: number) {
+        if (!this.settings[day])
+            this.settings[day] = { day_of_week: day as any, blocks: [] };
+        if (!this.settings[day].blocks) this.settings[day].blocks = [];
+        if (this.settings[day].blocks.length === 0) {
+            this.addBlock(this.settings[day], 0);
+        }
+    }
+
+    public addBlock(pref: WorktimePreference, index: number) {
+        pref.blocks.splice(index + 1, 0, {
+            start_time: 9,
+            end_time: 17,
+            location: 'wfo',
+        });
+        this.cleanupBlocks(pref);
+    }
+
+    public removeBlock(pref: WorktimePreference, index: number) {
+        pref.blocks.splice(index, 1);
+    }
+
+    public setEndTime(block: WorktimeBlock, day: number, time: number) {
+        setTimeout(() => {
+            block.end_time = this.fromTime(time);
+            this.cleanupBlocks(this.settings[day]);
+        }, 50);
+    }
+
+    public setStartTime(block: WorktimeBlock, day: number, time: number) {
+        setTimeout(() => {
+            block.start_time = this.fromTime(time);
+            this.cleanupBlocks(this.settings[day]);
+        }, 50);
+    }
+
+    public cleanupBlocks(pref: WorktimePreference) {
+        if (!pref?.blocks?.length) return;
+        for (let i = 0; i < pref.blocks.length; i++) {
+            const block = pref.blocks[i];
+            if (i > 0) {
+                if (block.start_time < pref.blocks[i - 1].end_time) {
+                    block.start_time = pref.blocks[i - 1].end_time;
+                }
+            }
+            if (block.end_time <= block.start_time) {
+                block.end_time = block.start_time + 1;
+            }
+        }
     }
 
     public async saveChanges(close = true) {
         this.loading = true;
         this._dialog_ref.disableClose = true;
-        const dow = new Date().getDay();
-        const today = format(Date.now(), 'yyyy-MM-dd');
-        var overrides = {};
-        overrides[today] = {
-            day_of_week: dow,
-            start_time: 9,
-            end_time: 17,
-            location: this.option,
-        };
-        for (const day of this.settings) {
-            const start = new Date(this.start_times[day.day_of_week]);
-            const end = new Date(this.end_times[day.day_of_week]);
-            day.start_time = start.getHours() + start.getMinutes() / 60;
-            day.end_time = end.getHours() + end.getMinutes() / 60;
-            if (day.day_of_week === dow) {
-                overrides[today].start_time = day.start_time;
-                overrides[today].end_time = day.end_time;
+        const user = await showUser('current').toPromise();
+        const new_settings = {};
+        for (const day of this.days) {
+            const day_of_week = day.getDay();
+            if (this.weekdays_enabled[day_of_week]) {
+                new_settings[day_of_week] = {
+                    day_of_week: day_of_week,
+                    blocks: this.settings[day_of_week].blocks,
+                };
             }
         }
-        const user = await showUser('current').toPromise();
         await updateUser(user.id, {
             ...user,
-            work_preferences: this.settings,
-            work_overrides: overrides,
-        }).toPromise();
+            work_preferences: new_settings,
+        } as any)
+            .toPromise()
+            .catch((e) => {
+                this.loading = false;
+                this._dialog_ref.disableClose = false;
+                notifyError('Unable to save user work preferences.');
+                throw e;
+            });
         this.loading = false;
         this._dialog_ref.disableClose = false;
         if (close) {
-            location.reload();
+            reloadUserData();
             this._dialog_ref.close();
         }
-    }
-
-    private _initWeekdays() {
-        let day = new Date();
-        this.weekdays = this.available_weekdays.map((_) =>
-            setDay(day, _).valueOf()
-        );
     }
 }

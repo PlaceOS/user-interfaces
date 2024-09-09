@@ -120,7 +120,7 @@ export class CheckinQRScanComponent
     constructor(
         private _checkin: CheckinStateService,
         private _router: Router,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -166,7 +166,7 @@ export class CheckinQRScanComponent
                 this.checking_code = false;
                 return;
             }
-            if (this.is_induction_enabled && !event?.induction) {
+            if (this.is_induction_enabled && event?.induction !== 'accepted') {
                 this._router.navigate(['/checkin', 'induction']);
             } else {
                 this._router.navigate(['/checkin', 'details']);
@@ -179,13 +179,13 @@ export class CheckinQRScanComponent
         if (!email || !email.includes('@') || email.length < 5) return;
         await this._checkin.loadGuestAndEvent(email).catch((err) => {
             this.handleError(
-                'Unable to find visitor or a meeting associated with the given email address.'
+                'Unable to find visitor or a meeting associated with the given email address.',
             );
             throw err;
         });
         const event = await this._checkin.event.pipe(take(1)).toPromise();
         if (
-            !event?.induction &&
+            event.induction !== 'accepted' &&
             this.is_induction_enabled &&
             !this.induction_after_details
         ) {
@@ -203,15 +203,15 @@ export class CheckinQRScanComponent
                     .getUserMedia({ video: true })
                     .then(
                         (stream) =>
-                            (this._video_el.nativeElement.srcObject = stream)
+                            (this._video_el.nativeElement.srcObject = stream),
                     )
                     .catch((e) =>
-                        console.error('Unable to fetch media devices!', e)
+                        console.error('Unable to fetch media devices!', e),
                     );
             }
             if (!QrScanner) return;
             this._reader = new QrScanner(this._video_el.nativeElement, (r) =>
-                this.checkQRCode(r)
+                this.checkQRCode(r),
             );
             this._reader.start();
         });

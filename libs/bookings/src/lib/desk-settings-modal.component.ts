@@ -93,7 +93,7 @@ export class DeskSettingsModalComponent {
         @Inject(MAT_DIALOG_DATA) private _data: { id: string },
         private _org: OrganisationService,
         private _settings: SettingsService,
-        private _dialog_ref: MatDialogRef<DeskSettingsModalComponent>
+        private _dialog_ref: MatDialogRef<DeskSettingsModalComponent>,
     ) {}
 
     public ngOnInit() {
@@ -104,7 +104,7 @@ export class DeskSettingsModalComponent {
         }
         const last_height = parseInt(
             localStorage.getItem('PLACEOS.last_desk_height'),
-            10
+            10,
         );
         this.height = last_height || sitting_height || 71;
         if (this.height === sitting_height) {
@@ -128,7 +128,6 @@ export class DeskSettingsModalComponent {
     }
 
     public setPreset(value: string) {
-        console.log('Set preset:', value);
         switch (value) {
             case 'standing':
                 this.height = this._settings.get('desk_standing_height') || 102;

@@ -1,9 +1,10 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockModule } from 'ng-mocks';
 import { AttendeeListComponent } from '../lib/attendee-list.component';
 import { User } from '@placeos/users';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 describe('AttendeeListComponent', () => {
     let spectator: Spectator<AttendeeListComponent>;
@@ -14,6 +15,7 @@ describe('AttendeeListComponent', () => {
             MockComponent(IconComponent),
             MockComponent(UserAvatarComponent),
         ],
+        imports: [MockModule(MatTooltipModule)],
     });
 
     beforeEach(() => (spectator = createComponent()));

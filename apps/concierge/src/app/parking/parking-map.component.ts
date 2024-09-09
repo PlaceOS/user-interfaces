@@ -3,6 +3,7 @@ import { AsyncHandler } from '@placeos/common';
 import { ExploreParkingService, ExploreStateService } from '@placeos/explore';
 import { ParkingStateService } from './parking-state.service';
 import { OrganisationService } from '@placeos/organisation';
+import { first, take } from 'rxjs/operators';
 
 @Component({
     selector: 'parking-map',
@@ -37,21 +38,38 @@ export class ParkingMapComponent extends AsyncHandler {
         private _explore: ExploreStateService,
         private _ex_parking: ExploreParkingService,
         private _parking: ParkingStateService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }
 
-    public ngOnInit() {
+    public async ngOnInit() {
+        await this._org.initialised.pipe(first((_) => _)).toPromise();
         this.subscription(
             'parking_level',
             this._parking.options.subscribe((_) => {
-                const zone = _.zones[0] || this._org.levelsForBuilding()[0].id;
-                this._explore.setLevel(_.zones[0]);
-            })
+                const level_list = this._org.levelsForBuilding();
+                const zone =
+                    _.zones[0] ||
+                    level_list.find((_) => _.tags.includes('parking'))?.id;
+                this._explore.setLevel(zone);
+            }),
         );
         this.subscription('parking_poll', this._ex_parking.startPolling());
-        this._ex_parking.on_book = (space) =>
-            this._parking.editReservation(undefined, { space });
+        this.subscription(
+            'parking_options',
+            this._parking.options.subscribe((_) => {
+                this._ex_parking.setOptions(_);
+            }),
+        );
+        this._ex_parking.on_book = async (space) => {
+            const options = await this._parking.options
+                .pipe(take(1))
+                .toPromise();
+            await this._parking.editReservation(undefined, {
+                space,
+                date: options.date,
+            });
+        };
     }
 }

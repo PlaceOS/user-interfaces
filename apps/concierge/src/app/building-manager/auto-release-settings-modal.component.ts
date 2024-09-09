@@ -35,6 +35,8 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
             <label>Cancel Event After</label>
             <a-duration-field
                 [min]="0"
+                [max]="60"
+                [step]="5"
                 [(ngModel)]="settings.time_after"
             ></a-duration-field>
             <label>Event Types</label>
@@ -75,7 +77,7 @@ export class AutoReleaseSettingsModalComponent {
     constructor(
         @Inject(MAT_DIALOG_DATA) private _id: string,
         private _dialog_ref: MatDialogRef<AutoReleaseSettingsModalComponent>,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public ngOnInit() {
@@ -89,7 +91,7 @@ export class AutoReleaseSettingsModalComponent {
             .pipe(map((_) => _.data))
             .toPromise();
         const unencrypted = settings.find(
-            (_) => _.encryption_level === EncryptionLevel.None
+            (_) => _.encryption_level === EncryptionLevel.None,
         );
         if (!unencrypted) return;
         try {
@@ -105,7 +107,7 @@ export class AutoReleaseSettingsModalComponent {
             .pipe(map((_) => _.data))
             .toPromise();
         let unencrypted = settings.find(
-            (_) => _.encryption_level === EncryptionLevel.None
+            (_) => _.encryption_level === EncryptionLevel.None,
         );
         if (!unencrypted) {
             unencrypted = new PlaceSettings({

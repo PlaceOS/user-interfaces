@@ -152,11 +152,10 @@ export class ParkingUserModalComponent extends AsyncHandler {
 
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: ParkingUser,
-        private _dialog_ref: MatDialogRef<ParkingUserModalComponent>
+        private _dialog_ref: MatDialogRef<ParkingUserModalComponent>,
     ) {
         super();
         if (_data) this.form.patchValue(_data);
-        console.log('User Modal', this.form.value, _data);
     }
 
     public ngOnInit() {
@@ -169,7 +168,7 @@ export class ParkingUserModalComponent extends AsyncHandler {
                         name: value.user.name,
                     });
                 }
-            })
+            }),
         );
     }
 

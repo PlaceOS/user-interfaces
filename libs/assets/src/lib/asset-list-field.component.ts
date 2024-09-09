@@ -210,13 +210,13 @@ export class AssetListFieldComponent implements ControlValueAccessor {
     constructor(
         private _settings: SettingsService,
         private _dialog: MatDialog,
-        private _state: AssetStateService
+        private _state: AssetStateService,
     ) {}
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.options) {
             this.asset_requests = (this.asset_requests || []).map(
-                (_) => new AssetRequest({ ..._, event: this.options as any })
+                (_) => new AssetRequest({ ..._, event: this.options as any }),
             );
             this._state.setOptions({
                 date: this.options.date,
@@ -239,14 +239,13 @@ export class AssetListFieldComponent implements ControlValueAccessor {
      * @param value The new value for the component
      */
     public writeValue(value: AssetRequest[]) {
-        console.log('Requests:', value);
         this.asset_requests = (value || []).map(
             (_) =>
                 new AssetRequest({
                     ..._,
                     event: this.options as any,
                     state: _.state,
-                })
+                }),
         );
     }
 
@@ -316,7 +315,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
                     order.items.find(
                         (_) =>
                             items.find((__) => __.id === _.id)?.quantity !==
-                            _.quantity
+                            _.quantity,
                     ),
                 items: items.map((_) => ({ ..._ })),
                 event: this.options as any,
@@ -332,7 +331,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
                         (t +=
                             c.items.find((_) => _.id === item.id)?.quantity ||
                             0),
-                    0
+                    0,
                 );
                 if (total + item.quantity > (item as any).assets.length) {
                     notifyError(
@@ -340,7 +339,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
                         Another request for this asset has been made in this meeting.`,
                         undefined,
                         undefined,
-                        { duration: 5000 }
+                        { duration: 5000 },
                     );
                     return;
                 }
@@ -352,7 +351,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
 
     public removeRequest(request: AssetRequest) {
         const updated_list = this.asset_requests.filter(
-            (_) => _.id !== request.id
+            (_) => _.id !== request.id,
         );
         this.setValue(updated_list);
     }
@@ -371,7 +370,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
             items: order.items.filter((_) => _.id !== item.id),
         });
         const updated_list = this.asset_requests.filter(
-            (_) => _.id !== order.id
+            (_) => _.id !== order.id,
         );
         if (new_order.items.length > 0) {
             this.setValue([...updated_list, new_order]);
@@ -389,7 +388,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
         } else {
             this._settings.saveUserSetting(
                 'favourite_assets',
-                fav_list.filter((_) => _ !== asset.id)
+                fav_list.filter((_) => _ !== asset.id),
             );
         }
     }

@@ -5,6 +5,7 @@ import {
     Booking,
     BookingFormService,
     checkinBooking,
+    checkinBookingInstance,
     queryBookings,
     removeBooking,
 } from '@placeos/bookings';
@@ -115,7 +116,7 @@ export class ScheduleComponent extends AsyncHandler {
     public readonly date = this._state.date;
     public readonly loading = this._state.loading;
     public readonly is_today = this.date.pipe(
-        map((_) => isSameDay(_, Date.now()))
+        map((_) => isSameDay(_, Date.now())),
     );
     public readonly setDate = (d) => this._state.setDate(d);
 
@@ -133,7 +134,7 @@ export class ScheduleComponent extends AsyncHandler {
         private _booking_form: BookingFormService,
         private _router: Router,
         private _dialog: MatDialog,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -189,7 +190,7 @@ export class ScheduleComponent extends AsyncHandler {
         }booking for ${resource_name} at ${time}`;
         const resp = await openConfirmModal(
             { title: `Delete booking`, content, icon: { content: 'delete' } },
-            this._dialog
+            this._dialog,
         );
         if (item instanceof CalendarEvent && item.creator !== item.mailbox) {
             item =
@@ -210,7 +211,11 @@ export class ScheduleComponent extends AsyncHandler {
                     ? null
                     : (item as any).calendar || currentUser()?.email,
                 system_id: (item as any).system?.id,
-            }
+                instance: !!(item as any).instance || undefined,
+                start_time: !!(item as any).instance
+                    ? (item as any).instance
+                    : undefined,
+            } as any,
         )
             .toPromise()
             .catch((e) => {
@@ -229,18 +234,23 @@ export class ScheduleComponent extends AsyncHandler {
         const content = `End the booking for ${resource_name} at ${time}`;
         const resp = await openConfirmModal(
             { title: `End booking`, content, icon: { content: 'delete' } },
-            this._dialog
+            this._dialog,
         );
 
         if (resp.reason !== 'done') return;
         resp.loading('Ending booking...');
-        await checkinBooking(item.id, false)
+        const promise = (
+            item.instance
+                ? checkinBookingInstance(item.id, item.instance, false)
+                : checkinBooking(item.id, false)
+        )
             .toPromise()
             .catch((e) => {
                 notifyError(`Unable to end booking. ${e}`);
                 resp.close();
                 throw e;
             });
+        await promise;
         notifySuccess('Successfully ended booking.');
         this._state.removeItem(item);
         this._dialog.closeAll();

@@ -49,7 +49,7 @@ import { LandingStateService } from './landing-state.service';
                 >
                     <ng-container
                         *ngFor="
-                            let event of upcoming_events | async | slice: 0:5;
+                            let event of upcoming_events | async | slice: 0 : 5;
                             trackBy: trackByFn
                         "
                     >
@@ -103,7 +103,7 @@ export class LandingUpcomingComponent
         private _booking_form: BookingFormService,
         private _router: Router,
         private _dialog: MatDialog,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -147,7 +147,7 @@ export class LandingUpcomingComponent
         const content = `Delete the booking for ${resource_name} at ${time}`;
         const resp = await openConfirmModal(
             { title: `Delete booking`, content, icon: { content: 'delete' } },
-            this._dialog
+            this._dialog,
         );
 
         if (resp.reason !== 'done') return;
@@ -159,7 +159,11 @@ export class LandingUpcomingComponent
                     ? null
                     : currentUser()?.email,
                 system_id: (item as any).system?.id,
-            }
+                instance: !!(item as any).instance,
+                start_time: !!(item as any).instance
+                    ? (item as any).booking_start
+                    : undefined,
+            } as any,
         )
             .toPromise()
             .catch((e) => {
@@ -178,7 +182,7 @@ export class LandingUpcomingComponent
         const content = `End the booking for ${resource_name} at ${time}`;
         const resp = await openConfirmModal(
             { title: `End booking`, content, icon: { content: 'delete' } },
-            this._dialog
+            this._dialog,
         );
 
         if (resp.reason !== 'done') return;

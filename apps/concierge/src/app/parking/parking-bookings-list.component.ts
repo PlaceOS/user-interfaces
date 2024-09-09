@@ -6,7 +6,7 @@ import { ParkingStateService } from './parking-state.service';
     template: `
         <mat-progress-bar
             [class.opacity-0]="!(loading | async)?.includes('bookings')"
-            class="w-full"
+            class="sticky left-0 w-full"
         ></mat-progress-bar>
         <simple-table
             class="min-w-[76rem] block text-sm"
@@ -17,32 +17,39 @@ import { ParkingStateService } from './parking-state.service';
                     name: 'In Use',
                     content: state_template,
                     size: '4.75rem',
-                    sortable: false
+                    sortable: false,
                 },
-                { key: 'description', name: 'Bay Number' },
+                { key: 'asset_name', name: 'Bay Number' },
                 {
                     key: 'user_name',
                     name: 'Reserved For',
-                    content: person_template
+                    content: person_template,
                 },
                 {
                     key: 'booked_by_name',
                     name: 'Reserved By',
-                    content: host_template
+                    content: host_template,
                 },
                 {
                     key: 'plate_number',
                     name: 'Plate Number',
                     content: plate_template,
                     size: '10rem',
-                    sortable: false
+                    sortable: false,
                 },
                 {
                     key: 'status',
                     name: 'Status',
                     content: status_template,
-                    size: '9.5rem'
-                }
+                    size: '9.5rem',
+                },
+                {
+                    key: 'actions',
+                    name: ' ',
+                    content: action_template,
+                    size: '3.5rem',
+                    sortable: false,
+                },
             ]"
             [filter]="(options | async)?.search"
             [sortable]="true"
@@ -74,7 +81,7 @@ import { ParkingStateService } from './parking-state.service';
                 *ngIf="!row?.checked_in && row.checked_out_at"
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-base-300 text-base-100 mx-auto"
                 [matTooltip]="
-                    'Left at ' + (row.checked_out_at | date: time_format)
+                    'Left at ' + (row.checked_out_at * 1000 | date: time_format)
                 "
                 matTooltipPosition="right"
             >
@@ -90,7 +97,7 @@ import { ParkingStateService } from './parking-state.service';
             </div>
             <div
                 *ngIf="row?.checked_in"
-                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-error text-error-content mx-auto"
+                class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
                 matTooltip="Arrived at space"
                 matTooltipPosition="right"
             >
@@ -98,7 +105,7 @@ import { ParkingStateService } from './parking-state.service';
             </div>
         </ng-template>
         <ng-template #plate_template let-row="row">
-            <div class="p-4 font-mono text-sm">
+            <div class="p-4 font-mono text-sm uppercase">
                 {{ row?.extension_data?.plate_number }}
                 <span
                     *ngIf="!row?.extension_data?.plate_number"
@@ -112,14 +119,16 @@ import { ParkingStateService } from './parking-state.service';
             <div class="px-4">
                 <button
                     matRipple
-                    class="rounded-3xl bg-warning text-warning-content border-none w-[7.5rem] h-10"
-                    [class.!text-success-content]="row?.status === 'approved'"
-                    [class.!bg-success]="row?.status === 'approved'"
-                    [class.!text-error-content]="row?.status === 'declined'"
-                    [class.!bg-error]="row?.status === 'declined'"
-                    [class.!text-neutral-content]="row?.status === 'ended'"
-                    [class.!bg-neutral]="row?.status === 'ended'"
+                    class="rounded-3xl border-none w-[7.5rem] h-10"
+                    [class.text-success-content]="row?.status === 'approved'"
+                    [class.bg-success]="row?.status === 'approved'"
+                    [class.text-error-content]="row?.status === 'declined'"
+                    [class.bg-error]="row?.status === 'declined'"
+                    [class.text-neutral-content]="row?.status === 'ended'"
+                    [class.bg-neutral]="row?.status === 'ended'"
                     [class.opacity-30]="row?.status === 'ended'"
+                    [class.text-warning-content]="row?.status === 'tentative'"
+                    [class.bg-warning]="row?.status === 'tentative'"
                     [matMenuTriggerFor]="menu"
                     [disabled]="row?.status === 'ended'"
                 >
@@ -129,10 +138,10 @@ import { ParkingStateService } from './parking-state.service';
                                 row?.status === 'ended'
                                     ? 'Ended'
                                     : row?.status === 'approved'
-                                    ? 'Approved'
-                                    : row?.status === 'declined'
-                                    ? 'Declined'
-                                    : 'Pending'
+                                      ? 'Approved'
+                                      : row?.status === 'declined'
+                                        ? 'Declined'
+                                        : 'Pending'
                             }}
                         </div>
                         <app-icon class="text-2xl">arrow_drop_down</app-icon>
@@ -154,6 +163,19 @@ import { ParkingStateService } from './parking-state.service';
                 </button>
             </mat-menu>
         </ng-template>
+        <ng-template #action_template let-row="row">
+            <div class="flex items-center justify-end space-x-2 mx-auto">
+                <button
+                    icon
+                    matRipple
+                    [matMenuTriggerFor]="menu"
+                    [disabled]="row.checked_in || row.status === 'ended'"
+                    (click)="editReservation(row)"
+                >
+                    <app-icon class="text-2xl">edit</app-icon>
+                </button>
+            </div>
+        </ng-template>
         <div class="w-full h-20"></div>
     `,
     styles: [``],
@@ -165,6 +187,7 @@ export class ParkingBookingsListComponent {
 
     public readonly reject = (e) => this._state.rejectBooking(e);
     public readonly approve = (e) => this._state.approveBooking(e);
+    public readonly editReservation = (e) => this._state.editReservation(e);
 
     constructor(private _state: ParkingStateService) {}
 }

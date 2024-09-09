@@ -7,7 +7,7 @@ import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-moda
 import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { Booking } from './booking.class';
-import { checkinBooking } from './bookings.fn';
+import { checkinBooking, checkinBookingInstance } from './bookings.fn';
 
 import { DeskSettingsModalComponent } from './desk-settings-modal.component';
 
@@ -56,13 +56,15 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                             matRipple
                             class="flex-1 h-10 border-none"
                             [class.bg-success]="booking.checked_in"
+                            [class.text-success-content]="booking.checked_in"
                             [disabled]="checking_in"
                             *ngIf="
                                 !booking.checked_out_at &&
                                 !checked_out &&
                                 !auto_checkin &&
                                 (booking.state === 'upcoming' ||
-                                    booking.state === 'in_progress')
+                                    booking.state === 'in_progress') &&
+                                booking.status !== 'declined'
                             "
                             (click)="toggleCheckedIn()"
                         >
@@ -92,7 +94,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                             icon
                             matRipple
                             [matMenuTriggerFor]="menu"
-                            class="bg-secondary rounded text-white h-10 w-10"
+                            class="bg-secondary rounded text-white h-12 w-12"
                         >
                             <app-icon>more_horiz</app-icon>
                         </button>
@@ -194,9 +196,9 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                                 request.state === 'approved'
                                                     ? 'done'
                                                     : request.state ===
-                                                      'rejected'
-                                                    ? 'close'
-                                                    : 'schedule'
+                                                        'rejected'
+                                                      ? 'close'
+                                                      : 'schedule'
                                             }}
                                         </app-icon>
                                     </div>
@@ -252,7 +254,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                             [features]="features"
                             [options]="{
                                 disable_pan: true,
-                                disable_zoom: true
+                                disable_zoom: true,
                             }"
                         ></interactive-map>
                     </ng-container>
@@ -321,12 +323,13 @@ export class BookingDetailsModalComponent {
     public checking_in = false;
     public readonly features = [
         {
-            location: this.booking?.asset_id,
+            location:
+                this.booking?.extension_data?.map_id || this.booking?.asset_id,
             content: MapPinComponent,
         },
     ];
     public readonly has_assets = !!this.booking?.linked_bookings?.find(
-        (_) => _.booking_type === 'asset-request'
+        (_) => _.booking_type === 'asset-request',
     );
 
     public get level() {
@@ -334,24 +337,30 @@ export class BookingDetailsModalComponent {
     }
 
     public get building() {
+        const building = this._org.buildings.find((bld) =>
+            (this.booking?.zones || []).includes(bld.id),
+        );
         if (this._settings.get('app.use_region')) {
-            const region = this._org.regions.find((region) =>
-                (this.booking?.zones || []).includes(region.id)
+            const region = this._org.regions.find(
+                (region) =>
+                    (this.booking?.zones || []).includes(region.id) ||
+                    region.id === building?.parent_id,
             );
             if (region) return region;
         }
-        return this._org.buildings.find((bld) =>
-            (this.booking?.zones || []).includes(bld.id)
-        );
+        return building;
     }
 
     public get can_edit() {
-        return this.booking.booking_type !== 'visitor';
+        return (
+            this.booking.booking_type !== 'visitor' &&
+            this.booking.booking_type !== 'parking'
+        );
     }
 
     public get auto_checkin() {
         return this._settings.get(
-            `app.${this.booking?.type || 'bookings'}.auto_checkin`
+            `app.${this.booking?.type || 'bookings'}.auto_checkin`,
         );
     }
 
@@ -390,7 +399,7 @@ export class BookingDetailsModalComponent {
         @Inject(MAT_DIALOG_DATA) private _booking: Booking,
         private _settings: SettingsService,
         private _org: OrganisationService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
 
     public get period() {
@@ -406,40 +415,50 @@ export class BookingDetailsModalComponent {
             .replace(' minute', 'min');
         return `${format(start, this.time_format)} - ${format(
             end,
-            this.time_format
+            this.time_format,
         )} (${dur})`;
     }
 
     public async toggleCheckedIn() {
         this.checking_in = true;
-        await checkinBooking(this.booking.id, !this.booking.checked_in)
+        const bkn = this.booking;
+        const promise = (
+            bkn.instance
+                ? checkinBookingInstance(
+                      bkn.id,
+                      bkn.instance,
+                      !this.booking.checked_in,
+                  )
+                : checkinBooking(this.booking.id, !this.booking.checked_in)
+        )
             .toPromise()
             .catch((_) => {
                 notifyError('Error checking in booking');
                 this.checking_in = false;
                 throw _;
             });
+        await promise;
         (this.booking as any).checked_in = !this.booking.checked_in;
         this.checked_out = !this.booking.checked_in;
         notifySuccess(
             `Successfully ${
                 this.booking.checked_in ? 'checked in' : 'ended booking'
-            }`
+            }`,
         );
         this.checking_in = false;
     }
 
     public status(id: string): string {
         const booking = this.booking.linked_bookings.find(
-            (_) => _.asset_id === id
+            (_) => _.asset_id === id,
         );
         if (booking.status) return booking.status;
         return booking
             ? booking.approved
                 ? 'approved'
                 : booking.rejected
-                ? 'rejected'
-                : 'pending'
+                  ? 'rejected'
+                  : 'pending'
             : 'pending';
     }
 
