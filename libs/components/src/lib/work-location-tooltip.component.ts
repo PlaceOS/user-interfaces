@@ -13,24 +13,29 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
         <div
             class="flex flex-col w-[18.5rem] rounded bg-base-100 shadow relative -top-12 -right-1 overflow-hidden"
         >
-            <div class="flex items-center justify-between px-2 pt-2">
-                <h3 class="px-2 font-medium">Work Location</h3>
+            <div class="flex items-center justify-between px-2">
+                <h3 class="px-2 py-4 font-medium">Work Location</h3>
                 <button
                     icon
                     matRipple
                     matTooltip="Edit Work Location Preferences"
-                    class="bg-base-200"
+                    matTooltipPosition="left"
+                    class="hover:bg-base-200"
                     (click)="editSettings()"
                 >
-                    <app-icon>settings</app-icon>
+                    <app-icon>edit_note</app-icon>
                 </button>
             </div>
+
+            <h3 class="px-4 font-medium text-sm">
+                {{ now | date: 'fullDate' }}
+            </h3>
             <div
                 class="pb-2"
                 *ngIf="active_preference?.blocks?.length; else empty_state"
             >
                 <div
-                    class="relative flex items-center px-4 py-2 space-x-2"
+                    class="relative flex items-center px-4 py-2"
                     *ngFor="
                         let block of active_preference?.blocks;
                         let i = index
@@ -57,7 +62,11 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
                         }}</app-icon>
                     </div>
                     <div class="flex-1 ml-2">
-                        <button class="font-medium flex items-center space-x-2">
+                        <button
+                            matRipple
+                            class="font-medium flex items-center space-x-2 rounded hover:bg-base-200 px-2 py-1"
+                            [matMenuTriggerFor]="menu"
+                        >
                             <div>
                                 {{ location(timeFrom(block.start_time)) }}
                             </div>
@@ -69,10 +78,15 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
                                 *ngFor="let loc of locations"
                                 (click)="setLocation(i, loc.id)"
                             >
-                                {{ loc.name }}
+                                <div class="flex items-center space-x-2">
+                                    <app-icon class="text-2xl">{{
+                                        loc.icon
+                                    }}</app-icon>
+                                    <div class="pr-8">{{ loc.name }}</div>
+                                </div>
                             </button>
                         </mat-menu>
-                        <div class="text-xs opacity-60">
+                        <div class="text-xs opacity-60 px-2">
                             {{ timeFrom(block.start_time) | date: 'shortTime' }}
                             &ndash;
                             {{ timeFrom(block.end_time) | date: 'shortTime' }}
@@ -92,7 +106,8 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
                 <app-icon class="text-6xl">event_busy</app-icon>
                 <p class="text-center text-sm">No work location for today.</p>
                 <p class="text-center text-sm">
-                    Click the cog to edit your work location preferences.
+                    Click the edit button on the top right to edit your work
+                    location preferences.
                 </p>
             </div>
         </ng-template>
@@ -101,9 +116,9 @@ import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal
 })
 export class WorkLocationTooltipComponent {
     public readonly locations = [
-        { id: 'wfo', name: 'Office' },
-        { id: 'wfh', name: 'Home' },
-        { id: 'aol', name: 'Leave' },
+        { id: 'wfo', name: 'Office', icon: 'business' },
+        { id: 'wfh', name: 'Home', icon: 'home' },
+        { id: 'aol', name: 'Leave', icon: 'event_busy' },
     ];
     public settings: WorktimePreference[];
     public overrides: Record<string, WorktimePreference>;

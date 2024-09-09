@@ -27,7 +27,10 @@ setTimeout(() => {
 }, 300);
 
 export function reloadUserData() {
-    _change.next(Date.now());
+    setTimeout(async () => {
+        const user = await showUser('current').toPromise();
+        _current_user.next(new StaffUser(user as any));
+    }, 300);
 }
 
 /** Get the current user details */

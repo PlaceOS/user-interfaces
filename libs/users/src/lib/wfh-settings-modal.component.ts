@@ -1,7 +1,7 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { currentUser, notifyError, reloadUserData } from '@placeos/common';
-import { addDays, format, set, startOfMinute, startOfWeek } from 'date-fns';
+import { addDays, set, startOfMinute, startOfWeek } from 'date-fns';
 import { WorktimeBlock, WorktimePreference } from './user.class';
 import { showUser, updateUser } from '@placeos/ts-client';
 
@@ -200,10 +200,7 @@ export class WFHSettingsModalComponent implements OnInit {
         return startOfMinute(Date.now()).getTime();
     }
 
-    constructor(
-        private _dialog_ref: MatDialogRef<WFHSettingsModalComponent>,
-        private _cdr: ChangeDetectorRef,
-    ) {}
+    constructor(private _dialog_ref: MatDialogRef<WFHSettingsModalComponent>) {}
 
     public ngOnInit() {
         const user = currentUser();
@@ -213,6 +210,10 @@ export class WFHSettingsModalComponent implements OnInit {
                 blocks: [...(_?.blocks || [])],
             })),
         ];
+        for (const day of this.settings) {
+            if (day.blocks.length)
+                this.weekdays_enabled[day.day_of_week] = true;
+        }
     }
 
     public timeFrom(hours: number) {
@@ -284,7 +285,9 @@ export class WFHSettingsModalComponent implements OnInit {
         this.loading = true;
         this._dialog_ref.disableClose = true;
         const user = await showUser('current').toPromise();
-        const new_settings = {};
+        const new_settings = new Array(7)
+            .fill(0)
+            .map((_, idx) => ({ day_of_week: idx, blocks: [] }));
         for (const day of this.days) {
             const day_of_week = day.getDay();
             if (this.weekdays_enabled[day_of_week]) {
@@ -294,6 +297,7 @@ export class WFHSettingsModalComponent implements OnInit {
                 };
             }
         }
+        console.log('Update user...');
         await updateUser(user.id, {
             ...user,
             work_preferences: new_settings,
@@ -305,10 +309,12 @@ export class WFHSettingsModalComponent implements OnInit {
                 notifyError('Unable to save user work preferences.');
                 throw e;
             });
+        console.log('Updated user');
         this.loading = false;
         this._dialog_ref.disableClose = false;
         if (close) {
             reloadUserData();
+            console.log('Close WFH Modal');
             this._dialog_ref.close();
         }
     }
