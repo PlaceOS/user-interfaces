@@ -245,6 +245,7 @@ export class BookingFormService extends AsyncHandler {
                                 !booked_ids.includes(asset.id)
                             );
                         });
+                        console.log('Resources:', resources, available);
                         return available;
                     },
                     catchError((_) => of([])),
@@ -787,8 +788,8 @@ export class BookingFormService extends AsyncHandler {
                           id: d.id || d.map_id,
                           zone: _.zone,
                       }
-                    : d.lockers?.map((_) => ({
-                          ..._,
+                    : d.lockers?.map((locker) => ({
+                          ...locker,
                           bank_id: d.id,
                           zone: _.zone,
                       })) || [],

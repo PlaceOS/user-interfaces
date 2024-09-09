@@ -50,6 +50,7 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
             >
                 <locker-filters
                     class="h-full hidden sm:flex max-w-[20rem] sm:h-[65vh] sm:max-h-full"
+                    [hide_levels]="view !== 'list'"
                 ></locker-filters>
                 <div
                     class="flex flex-col items-center flex-1 w-1/2 h-full sm:h-[65vh]"
@@ -162,7 +163,7 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
         </ng-template>
         <ng-template #bank_view>
             <locker-grid
-                class="flex-1 h-1/2 bg-base-200"
+                class="max-w-full overflow-auto flex-1 h-1/2 bg-base-200"
                 [bank]="bank"
                 [selected]="displayed?.id"
                 (clicked)="displayed = $event"
@@ -193,7 +194,7 @@ export class LockerSelectModalComponent {
         private _data: {
             items: BookingAsset[];
             options: Partial<BookingFlowOptions>;
-        }
+        },
     ) {
         this.selected = [...(_data.items || [])];
         this._event_form.setOptions(_data.options);
@@ -221,7 +222,7 @@ export class LockerSelectModalComponent {
         } else {
             this._settings.saveUserSetting(
                 FAV_LOCKER_KEY,
-                fav_list.filter((_) => _ !== item.id)
+                fav_list.filter((_) => _ !== item.id),
             );
         }
     }
