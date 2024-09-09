@@ -24,6 +24,7 @@ import {
     SetupBreakdownModalComponent,
     declineEvent,
 } from '@placeos/events';
+import { DatePipe } from '@angular/common';
 
 @Component({
     selector: 'room-bookings-timeline',
@@ -66,7 +67,7 @@ import {
             <div
                 space-headers
                 class="sticky top-0 z-20 border-b border-base-300 flex items-center bg-base-100"
-                [style.width]="(spaces | async)?.length * 14 + 'rem'"
+                [style.width]="(spaces | async)?.length * block_width + 'rem'"
             >
                 <div
                     *ngFor="let space of spaces | async"
@@ -83,11 +84,12 @@ import {
             <div
                 hour-blocks
                 class="sticky left-0 z-10 border-r border-base-300 bg-base-100"
-                [style.height]="24 * 3 + 'rem'"
+                [style.height]="24 * block_height + 'rem'"
             >
                 <div
                     *ngFor="let hour of hours; let i = index"
-                    class="relative h-12 w-full"
+                    class="relative w-full"
+                    [style.height]="block_height + 'rem'"
                 >
                     <div
                         class="absolute -top-px right-0 w-2 h-px bg-base-300"
@@ -108,12 +110,13 @@ import {
             <div space-blocks class="relative overflow-hidden">
                 <div
                     *ngFor="let hour of hours; let i = index"
-                    class="relative h-12 w-full border-b border-base-200"
+                    class="relative w-full border-b border-base-200"
+                    [style.height]="block_height + 'rem'"
                 ></div>
                 <div
                     *ngFor="let space of spaces | async; let i = index"
                     class="absolute w-px h-full bg-base-200 top-0"
-                    [style.left]="'calc(' + i * 14 + 'rem - 1px)'"
+                    [style.left]="'calc(' + i * block_width + 'rem - 1px)'"
                 ></div>
 
                 <ng-container
@@ -126,11 +129,12 @@ import {
                             event
                             matRipple
                             class="absolute w-52 hover:opacity-90 text-left"
-                            [style.left]="i * 14 + 0.25 + 'rem'"
+                            [style.left]="i * block_width + 0.25 + 'rem'"
                             [style.top]="timeToOffset(event.date) + '%'"
                             [style.height]="endToOffset(event.duration) + '%'"
                             [class.pointer-events-none]="event.state === 'done'"
                             (click)="viewEvent(event, space.id)"
+                            [matTooltip]="eventTooltip(event)"
                             *ngIf="
                                 !event.is_system_event ||
                                 (ui_options | async).show_overflow
@@ -172,9 +176,7 @@ import {
                                                   | date: time_format)
                                         }}
                                         &ndash;
-                                        {{
-                                            event.organiser?.name || event.hjost
-                                        }}
+                                        {{ event.title }}
                                     </p>
                                     <p
                                         class="truncate"
@@ -182,7 +184,9 @@ import {
                                             event.status === 'cancelled'
                                         "
                                     >
-                                        {{ event.title }}
+                                        {{
+                                            event.organiser?.name || event.host
+                                        }}
                                     </p>
                                 </ng-container>
                             </div>
@@ -213,6 +217,7 @@ import {
     ],
 })
 export class RoomBookingsTimelineComponent extends AsyncHandler {
+    public block_width = 14;
     public hours = Array.from({ length: 24 }, (_, i) => i);
     public readonly ui_options = this._state.options;
     public readonly spaces = this._state.spaces;
@@ -250,6 +255,10 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
     public readonly edit = (e) => this._state.newBooking(e);
     public readonly setDate = (d) => this._state.setDate(d);
 
+    public get block_height() {
+        return +this._settings.get('app.events.block_height') || 3;
+    }
+
     public get time_format() {
         return this._settings.time_format;
     }
@@ -267,6 +276,15 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         return this._settings.get('app.use_24_hour_time')
             ? format(date, 'HH:00')
             : format(date, 'h a');
+    }
+
+    private _date_pipe = new DatePipe('en');
+
+    public eventTooltip(event: CalendarEvent) {
+        const tooltip = `Start: ${event.all_day ? 'All Day' : this._date_pipe.transform(event.date, this.time_format)}
+Title:  ${event.title}
+Host:  ${event.organiser?.name || event.host}`;
+        return tooltip;
     }
 
     public ngOnInit() {

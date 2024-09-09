@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { combineLatest } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { BookingFormService, BookingAsset } from '../booking-form.service';
 import { LockersService } from '../lockers.service';
 
@@ -149,25 +149,25 @@ export class LockerBankListComponent {
                 .filter(
                     (i) =>
                         (!show_fav || this.isFavourite(i.id)) &&
-                        resources.find((_: any) => _.bank_id === i.id)
+                        resources.find((_: any) => _.bank_id === i.id),
                 )
                 .map((bank) => ({
                     ...bank,
                     available: resources.filter(
-                        (_: any) => _.bank_id === bank.id
+                        (_: any) => _.bank_id === bank.id,
                     ).length,
                     lockers: bank.lockers.map((_) => ({
                         ..._,
                         zone: bank.zone,
                     })),
                 }));
-        })
+        }),
     );
     public readonly loading = this._state.loading;
 
     constructor(
         private _state: BookingFormService,
-        private _lockers: LockersService
+        private _lockers: LockersService,
     ) {}
 
     public isFavourite(locker_bank_id: string) {
