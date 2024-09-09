@@ -183,7 +183,7 @@ import {
                                         "
                                     >
                                         {{
-                                            event.organiser?.name || event.hjost
+                                            event.organiser?.name || event.host
                                         }}
                                     </p>
                                 </ng-container>
