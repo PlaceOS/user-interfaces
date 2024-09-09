@@ -133,6 +133,20 @@ import {
                             [style.height]="endToOffset(event.duration) + '%'"
                             [class.pointer-events-none]="event.state === 'done'"
                             (click)="viewEvent(event, space.id)"
+                            [matTooltip]="
+                                'Start:  ' +
+                                    (event.all_day
+                                        ? 'All Day'
+                                        : (event.date | date: time_format)) +
+                                    '
+' +
+                                    'Title:  ' +
+                                    event.title +
+                                    '
+' +
+                                    'Host:  ' +
+                                    event.organiser?.name || event.host
+                            "
                             *ngIf="
                                 !event.is_system_event ||
                                 (ui_options | async).show_overflow

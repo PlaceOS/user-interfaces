@@ -364,7 +364,9 @@ div.mdc-menu-panel {
 .mdc-tooltip {
     font-size: 0.8em;
     background-color: rgba(#212121, 0.85);
-    & > * {
+    border-radius: 4px;
+
+    & > div {
         white-space: pre;
         text-align: left;
     }
