@@ -245,6 +245,7 @@ export class BookingFormService extends AsyncHandler {
                                 !booked_ids.includes(asset.id)
                             );
                         });
+                        console.log('Resources:', resources, available);
                         return available;
                     },
                     catchError((_) => of([])),
