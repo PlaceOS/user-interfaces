@@ -245,6 +245,7 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
     }
 
     private _updateIcons(spaces: Space[]) {
+        if (!this._settings.get('show_presence_indicators')) return;
         const features: ViewerFeature[] = [];
         for (const space of spaces) {
             if (!space.map_id) continue;
