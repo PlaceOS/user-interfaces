@@ -101,6 +101,7 @@ const app = {
     has_uploads: true,
     custom_reports,
     desks: { can_book_for_others: true },
+    bookings: { can_book_for_others: true },
     events: {
         allow_setup_breakdown: false,
         custom_actions: [

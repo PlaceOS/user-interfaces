@@ -85,6 +85,19 @@ import { User } from 'libs/users/src/lib/user.class';
                             ></a-duration-field>
                         </div>
                     </div>
+                    <div
+                        *ngIf="can_book_for_others"
+                        class="w-full flex flex-col"
+                    >
+                        <label for="host">
+                            {{ 'FORM.HOST' | translate }}<span>*</span>
+                        </label>
+                        <a-user-search-field
+                            name="host"
+                            class="mb-4"
+                            formControlName="user"
+                        ></a-user-search-field>
+                    </div>
                     <ng-container *ngIf="!multiple; else multi_state">
                         <div class="flex flex-col">
                             <label for="visitor-name" i18n
@@ -306,6 +319,10 @@ export class InviteVisitorFormComponent extends AsyncHandler {
 
     public get multiple() {
         return this._settings.get('app.bookings.multiple_visitors');
+    }
+
+    public get can_book_for_others() {
+        return this._settings.get('app.bookings.can_book_for_others');
     }
 
     public get building() {
