@@ -6,11 +6,11 @@ import { MAP_FEATURE_DATA } from '@placeos/components';
     selector: `explore-icon`,
     template: `
         <div
-            class="flex items-center justify-center h-8 w-8 shadow"
+            class="flex items-center justify-center h-8 w-8 shadow rounded-full border border-base-200"
             [style.background-color]="color"
             [style.color]="text_color"
         >
-            <app-icon [icon]="icon"></app-icon>
+            <app-icon [icon]="icon" class="text-xl"></app-icon>
         </div>
     `,
     styles: [
