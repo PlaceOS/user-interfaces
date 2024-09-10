@@ -3,7 +3,15 @@ import { MatDialog } from '@angular/material/dialog';
 import { currentUser, reloadUserData } from '@placeos/common';
 import { updateUser } from '@placeos/ts-client';
 import { WorktimePreference } from '@placeos/users';
-import { format, set, startOfMinute } from 'date-fns';
+import {
+    format,
+    parse,
+    set,
+    startOfMinute,
+    isBefore,
+    addDays,
+    startOfDay,
+} from 'date-fns';
 
 import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
 
@@ -171,9 +179,10 @@ export class WorkLocationTooltipComponent {
     public async setLocation(index: number, location: string) {
         const user = currentUser();
         const active_preference = this.active_preference;
+        const date = format(Date.now(), 'yyyy-MM-dd');
         const new_overrides = {
             ...user.work_overrides,
-            [format(new Date(), 'yyyy-MM-dd')]: {
+            [date]: {
                 ...active_preference,
                 blocks: [
                     ...active_preference.blocks.slice(0, index),
@@ -185,6 +194,15 @@ export class WorkLocationTooltipComponent {
                 ],
             },
         };
+        for (const key in new_overrides) {
+            const key_date = parse(key, 'yyyy-MM-dd', new Date());
+            if (
+                !new_overrides[key].blocks.length ||
+                isBefore(key_date, addDays(startOfDay(Date.now()), -1))
+            ) {
+                delete new_overrides[key];
+            }
+        }
         this.overrides = new_overrides;
         await updateUser(user.id, {
             ...user,
