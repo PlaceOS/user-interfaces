@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { currentUser } from '@placeos/common';
+import { currentUser, reloadUserData } from '@placeos/common';
 import { updateUser } from '@placeos/ts-client';
 import { WorktimePreference } from '@placeos/users';
 import { format, set, startOfMinute } from 'date-fns';
@@ -171,22 +171,25 @@ export class WorkLocationTooltipComponent {
     public async setLocation(index: number, location: string) {
         const user = currentUser();
         const active_preference = this.active_preference;
+        const new_overrides = {
+            ...user.work_overrides,
+            [format(new Date(), 'yyyy-MM-dd')]: {
+                ...active_preference,
+                blocks: [
+                    ...active_preference.blocks.slice(0, index),
+                    {
+                        ...active_preference.blocks[index],
+                        location,
+                    },
+                    ...active_preference.blocks.slice(index + 1),
+                ],
+            },
+        };
+        this.overrides = new_overrides;
         await updateUser(user.id, {
             ...user,
-            work_overrides: {
-                ...user.work_overrides,
-                [format(new Date(), 'yyyy-MM-dd')]: {
-                    ...active_preference,
-                    blocks: [
-                        ...active_preference.blocks.slice(0, index),
-                        {
-                            ...active_preference.blocks[index],
-                            location,
-                        },
-                        ...active_preference.blocks.slice(index + 1),
-                    ],
-                },
-            },
+            work_overrides: new_overrides,
         } as any).toPromise();
+        reloadUserData();
     }
 }
