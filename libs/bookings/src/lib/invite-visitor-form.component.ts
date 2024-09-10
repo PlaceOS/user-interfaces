@@ -416,7 +416,9 @@ export class InviteVisitorFormComponent extends AsyncHandler {
                 }]`,
             );
         }
-        this.form.patchValue({ user: currentUser() });
+        if (!this.form.value.user_email || !this.can_book_for_others) {
+            this.form.patchValue({ user: currentUser() });
+        }
         const { asset_id, asset_name, company, assets } = this.form.value;
         const visitor_details = `${asset_id}|${asset_name}|${company}`;
         const old_visitors = this._settings.get('visitor-invitees') || [];
