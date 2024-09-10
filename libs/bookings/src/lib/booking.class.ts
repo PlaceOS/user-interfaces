@@ -144,6 +144,8 @@ export class Booking {
     public readonly attendees: User[];
     /** Time  */
     public readonly checked_out_at?: number;
+    /** Time  */
+    public readonly checked_in_at?: number;
 
     public readonly linked_event?: LinkedCalendarEvent;
 
@@ -293,6 +295,7 @@ export class Booking {
             ).getTime();
         }
         this.checked_out_at = data.checked_out_at;
+        this.checked_in_at = data.checked_in_at;
         this.linked_event = data.linked_event || null;
         this.linked_bookings = data.linked_bookings || [];
         this.images = data.images || [];

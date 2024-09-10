@@ -76,7 +76,8 @@ import { User } from '@placeos/users';
                 *ngIf="!row?.checked_in && row.checked_out_at"
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-base-400 text-neutral-content mx-auto"
                 [matTooltip]="
-                    'Checked out at ' + (row.checked_out_at | date: time_format)
+                    'Checked out at:
+' + (row.checked_out_at * 1000 | date: time_format)
                 "
                 matTooltipPosition="right"
             >
@@ -93,7 +94,10 @@ import { User } from '@placeos/users';
             <div
                 *ngIf="row?.checked_in"
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
-                matTooltip="Checked In"
+                [matTooltip]="
+                    'Checked in at:
+' + (row.checked_in_at * 1000 | date: time_format)
+                "
                 matTooltipPosition="right"
             >
                 <app-icon>done</app-icon>
