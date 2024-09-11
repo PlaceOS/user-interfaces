@@ -140,7 +140,7 @@ import { validateURL } from '@placeos/spaces';
                         <div class="flex item-center">
                             <div>Disable auto-ending of current booking</div>
                             <app-icon
-                                matTooltip="Disable ending the of the current booking early when sensors
+                                matTooltip="Disable ending the current booking early when sensors
 don't detect presence in room after a period of time"
                             >
                                 info
