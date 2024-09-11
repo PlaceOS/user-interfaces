@@ -396,11 +396,11 @@ export class BookingPanelSettingsModalComponent {
             ...form_value,
         };
         // Remove default values from settings
-        for (const key in this._defaults) {
-            if (this._defaults[key] === new_settings_blob[key]) {
-                delete new_settings_blob[key];
-            }
-        }
+        // for (const key in this._defaults) {
+        //     if (this._defaults[key] === new_settings_blob[key]) {
+        //         delete new_settings_blob[key];
+        //     }
+        // }
         const new_setting = {
             ...unencrypted_settings,
             settings_string: yaml.dump(new_settings_blob),
