@@ -122,6 +122,7 @@ import { showUser, updateUser } from '@placeos/ts-client';
                                         matRipple
                                         class="text-error"
                                         [class.opacity-0]="i === 0"
+                                        [class.pointer-events-none]="i === 0"
                                         (click)="
                                             removeBlock(
                                                 settings[day.getDay()],
@@ -249,6 +250,7 @@ export class WFHSettingsModalComponent implements OnInit {
     }
 
     public removeBlock(pref: WorktimePreference, index: number) {
+        if (pref.blocks.length <= 1) return;
         pref.blocks.splice(index, 1);
     }
 
