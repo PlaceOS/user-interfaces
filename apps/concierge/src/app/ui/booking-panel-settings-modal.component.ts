@@ -374,12 +374,6 @@ export class BookingPanelSettingsModalComponent {
             );
         }
         const form_value = this.form.getRawValue();
-        // Remove default values from settings
-        for (const key in this._defaults) {
-            if (this._defaults[key] === form_value[key]) {
-                delete form_value[key];
-            }
-        }
         this._dialog_ref.disableClose = true;
         this.loading = 'Loading existing booking panel settings...';
         const settings = await querySettings({ parent_id: this.zone.id })
@@ -397,12 +391,19 @@ export class BookingPanelSettingsModalComponent {
             });
         const setting_value =
             yaml.load(unencrypted_settings.settings_string) || {};
+        const new_settings_blob = {
+            ...setting_value,
+            ...form_value,
+        };
+        // Remove default values from settings
+        for (const key in this._defaults) {
+            if (this._defaults[key] === new_settings_blob[key]) {
+                delete new_settings_blob[key];
+            }
+        }
         const new_setting = {
             ...unencrypted_settings,
-            settings_string: yaml.dump({
-                ...setting_value,
-                ...form_value,
-            }),
+            settings_string: yaml.dump(new_settings_blob),
         };
         this.loading = 'Saving changes to booking panel settings...';
         const update = unencrypted_settings.id
