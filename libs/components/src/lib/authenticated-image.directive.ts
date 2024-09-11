@@ -46,7 +46,14 @@ export class AuthenticatedImageDirective extends AsyncHandler {
         };max-age=30;path=/api/engine/v2/uploads;samesite=strict;${
             location.protocol === 'https:' ? 'secure;' : ''
         }`;
-        const response = await fetch(this.source);
+        let response = null;
+        try {
+            response = await fetch(this.source).catch((_) => null);
+        } catch {}
+        if (!response || !response.ok) {
+            console.info('Failed to load image:', this.source);
+            return;
+        }
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
         IMAGE_STORE.set(this.source, url);
