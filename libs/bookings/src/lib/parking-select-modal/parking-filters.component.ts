@@ -259,6 +259,7 @@ export class ParkingSpaceFiltersComponent {
 
     public readonly close = () => this._bsheet_ref.dismiss();
     public readonly setOptions = (o) => this._form.setOptions(o);
+    public readonly setRegion = (r) => (this._org.region = r);
 
     public setBuilding(bld: Building) {
         this._org.building = bld;

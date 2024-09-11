@@ -22,13 +22,13 @@ import { PointsStateService } from './points-state.service';
                     </button>
                 </points-topbar>
                 <div class="px-8 mb-4">
-                    <nav mat-tab-nav-bar>
+                    <nav mat-tab-nav-bar [tabPanel]="tabPanel">
                         <a
                             mat-tab-link
                             [routerLink]="[
                                 '/points-management',
                                 'new',
-                                'overview'
+                                'overview',
                             ]"
                             [active]="page === 'overview'"
                         >
@@ -39,7 +39,7 @@ import { PointsStateService } from './points-state.service';
                             [routerLink]="[
                                 '/points-management',
                                 'new',
-                                'assets'
+                                'assets',
                             ]"
                             [active]="page === 'assets'"
                         >
@@ -47,9 +47,12 @@ import { PointsStateService } from './points-state.service';
                         </a>
                     </nav>
                 </div>
-                <div class="flex-1 w-full h-1/2 overflow-auto px-8">
+                <mat-tab-nav-panel
+                    class="flex-1 w-full h-1/2 overflow-auto px-8"
+                    #tabPanel
+                >
                     <router-outlet></router-outlet>
-                </div>
+                </mat-tab-nav-panel>
             </main>
         </div>
     `,
@@ -71,7 +74,10 @@ export class NewPointsComponent extends AsyncHandler implements OnInit {
 
     public readonly newAsset = () => this._state.newAsset();
 
-    constructor(private _state: PointsStateService, private _router: Router) {
+    constructor(
+        private _state: PointsStateService,
+        private _router: Router,
+    ) {
         super();
     }
 
@@ -81,7 +87,7 @@ export class NewPointsComponent extends AsyncHandler implements OnInit {
             this._router.events.subscribe(() => {
                 const url_parts = this._router.url?.split('/') || [''];
                 this.page = url_parts[url_parts.length - 1];
-            })
+            }),
         );
         const parts = this._router.url?.split('/') || [''];
         this.page = parts[parts.length - 1];

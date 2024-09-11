@@ -8,7 +8,11 @@ import { AsyncHandler } from '@placeos/common';
     template: `
         <asset-manager-topbar [active]="active"></asset-manager-topbar>
         <div class="flex flex-col flex-1 h-1/2 w-full px-8">
-            <nav mat-tab-nav-bar *ngIf="!is_new || active !== 'requests'">
+            <nav
+                mat-tab-nav-bar
+                *ngIf="!is_new || active !== 'requests'"
+                [tabPanel]="tabPanel"
+            >
                 <a
                     mat-tab-link
                     [routerLink]="[base_route, 'list', 'requests']"
@@ -36,9 +40,12 @@ import { AsyncHandler } from '@placeos/common';
                     Purchase Orders
                 </a>
             </nav>
-            <div class="flex-1 h-1/2 w-full overflow-visible">
+            <mat-tab-nav-panel
+                class="flex-1 h-1/2 w-full overflow-visible"
+                #tabPanel
+            >
                 <router-outlet></router-outlet>
-            </div>
+            </mat-tab-nav-panel>
         </div>
     `,
     styles: [
@@ -62,7 +69,7 @@ export class AssetListingComponent extends AsyncHandler {
 
     constructor(
         private _router: Router,
-        private _state: AssetManagerStateService
+        private _state: AssetManagerStateService,
     ) {
         super();
     }
@@ -72,8 +79,8 @@ export class AssetListingComponent extends AsyncHandler {
         this.active = this._router.url.includes('requests')
             ? 'requests'
             : this._router.url.includes('items')
-            ? 'items'
-            : 'purchase-orders';
+              ? 'items'
+              : 'purchase-orders';
         this.subscription(
             'router.events',
             this._router.events.subscribe((e) => {
@@ -82,10 +89,10 @@ export class AssetListingComponent extends AsyncHandler {
                     this.active = this._router.url.includes('requests')
                         ? 'requests'
                         : this._router.url.includes('items')
-                        ? 'items'
-                        : 'purchase-orders';
+                          ? 'items'
+                          : 'purchase-orders';
                 }
-            })
+            }),
         );
     }
 }

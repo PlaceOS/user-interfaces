@@ -120,10 +120,10 @@ export class NewParkingFlowConfirmComponent extends AsyncHandler {
     public readonly loading = this._state.loading;
 
     public readonly postForm = async () => {
-        await this._state.postForm().catch((_) => {
+        const r = await this._state.postForm().catch((_) => {
             notifyError(`Unable to complete booking. ${_}`);
-            throw _;
         });
+        if (!r) return;
         this.dismiss(true);
     };
     public readonly dismiss = (e?) => this._sheet_ref?.dismiss(e);
@@ -152,10 +152,10 @@ export class NewParkingFlowConfirmComponent extends AsyncHandler {
 
     public get location() {
         const building = this._org.buildings.find(
-            (b) => b.id === this.booking_asset?.zone?.parent_id
+            (b) => b.id === this.booking_asset?.zone?.parent_id,
         );
         const level = this._org.levels.find(
-            (l) => l.id === this.booking_asset?.zone?.id
+            (l) => l.id === this.booking_asset?.zone?.id,
         );
         return `${level?.display_name || level?.name}${building ? ',' : ''} ${
             building?.address || building?.display_name || building?.name || ''
@@ -166,7 +166,7 @@ export class NewParkingFlowConfirmComponent extends AsyncHandler {
         private _state: BookingFormService,
         private _org: OrganisationService,
         @Optional() private _sheet_ref: MatBottomSheetRef,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
