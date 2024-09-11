@@ -127,15 +127,15 @@ export class CheckinStateService {
         const event = this._booking.getValue() || guest.extension_data.event;
         if (!guest || !event) return;
         const checkin_fn = checkinBooking(event.id, true).toPromise();
-        await checkin_fn.catch(async (e) => {
+        const result = await checkin_fn.catch(async (e) => {
             notifyError(
                 e ||
                     `Error checking in ${guest.name} for ${
                         event.user_name || event.user_email
                     }'s meeting.`,
             );
-            throw e;
         });
+        if (!result) return;
         notifySuccess(
             `Successfully checked in ${guest.name} for ${
                 event.user_name || event.user_email
