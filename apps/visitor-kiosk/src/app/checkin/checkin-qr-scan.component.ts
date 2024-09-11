@@ -198,7 +198,10 @@ export class CheckinQRScanComponent
     private setupQRReader() {
         this.timeout('setup_qr_reader', () => {
             if (!this._video_el?.nativeElement) return this.setupQRReader();
-            if (navigator.mediaDevices?.getUserMedia) {
+            if (
+                navigator.mediaDevices?.getUserMedia &&
+                !this._video_el.nativeElement.srcObject
+            ) {
                 navigator.mediaDevices
                     .getUserMedia({ video: true })
                     .then(
@@ -210,8 +213,10 @@ export class CheckinQRScanComponent
                     );
             }
             if (!QrScanner) return;
-            this._reader = new QrScanner(this._video_el.nativeElement, (r) =>
-                this.checkQRCode(r),
+            this._reader = new QrScanner(
+                this._video_el.nativeElement,
+                (r) => this.checkQRCode(r.data),
+                {},
             );
             this._reader.start();
         });
