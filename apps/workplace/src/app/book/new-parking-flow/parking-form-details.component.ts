@@ -80,6 +80,15 @@ import { OrganisationService } from '@placeos/organisation';
                     </mat-checkbox>
                 </div>
             </div>
+            <div *ngIf="can_book_for_others" class="w-full flex flex-col">
+                <label for="host">
+                    {{ 'FORM.HOST' | translate }}<span>*</span>
+                </label>
+                <host-select-field
+                    name="host"
+                    formControlName="organiser"
+                ></host-select-field>
+            </div>
             <div class="flex flex-col">
                 <label for="plate-number" i18n>Plate Number</label>
                 <mat-form-field appearance="outline" class="w-full">
@@ -114,11 +123,15 @@ export class ParkingFormDetailsComponent extends AsyncHandler {
         return this._settings.get('app.use_24_hour_time');
     }
 
+    public get can_book_for_others() {
+        return this._settings.get('app.bookings.can_book_for_others');
+    }
+
     public readonly setBuilding = (bld) => (this._org.building = bld);
 
     constructor(
         private _settings: SettingsService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }
