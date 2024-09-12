@@ -20,7 +20,7 @@ export interface BookingModalData extends HashMap {
 
 export async function openBookingModal(
     data: BookingModalData,
-    dialog: MatDialog
+    dialog: MatDialog,
 ) {
     const ref = dialog.open(BookingModalComponent, {
         data,
@@ -47,7 +47,7 @@ export async function openBookingModal(
         <form
             *ngIf="form && !loading; else load_state"
             [formGroup]="form"
-            class="p-2"
+            class="px-4 pt-4"
         >
             <div class="field" *ngIf="!hide_host && form.controls.organiser">
                 <label for="host">Booked by<span>*</span>:</label>
@@ -71,6 +71,7 @@ export async function openBookingModal(
                     <a-duration-field
                         [min]="min_duration"
                         [max]="max_duration"
+                        [step]="max_duration < 120 ? 5 : 15"
                         name="duration"
                         formControlName="duration"
                     ></a-duration-field>
@@ -151,6 +152,7 @@ export class BookingModalComponent extends AsyncHandler {
             this.form.controls.organiser.setValidators([]);
             this.hide_host = true;
         }
+        console.log('Data:', this._data);
     }
 
     public searchStaff = (q: string) =>
@@ -160,7 +162,7 @@ export class BookingModalComponent extends AsyncHandler {
                 if (!mod) return of([]);
                 return mod.execute('list_users', [q]).catch((_) => []);
             }),
-            shareReplay(1)
+            shareReplay(1),
         );
 
     /**

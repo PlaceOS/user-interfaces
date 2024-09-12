@@ -302,6 +302,7 @@ export class WFHSettingsModalComponent implements OnInit {
         console.log('Update user...');
         await updateUser(user.id, {
             ...user,
+            groups: user.groups.filter((_) => !_.startsWith('placeos_')),
             work_preferences: new_settings,
         } as any)
             .toPromise()
