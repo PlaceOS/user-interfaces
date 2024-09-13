@@ -20,7 +20,7 @@ const PREDEF_USERS = [
 
 export const ACTIVE_USER = {
     id: 'current',
-    name: 'PlaceOS - Mock User',
+    name: 'PlaceOS - Demo User',
     email: 'dev@place.tech',
     groups: ['deals', 'user'],
     sys_admin: true,
