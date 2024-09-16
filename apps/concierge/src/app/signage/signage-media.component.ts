@@ -31,7 +31,7 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
                 </mat-form-field>
                 <a
                     matRipple
-                    class="w-full px-6 rounded-3xl h-12 flex items-center hover:bg-base-200"
+                    class="w-full px-6 rounded-3xl min-h-12 flex items-center hover:bg-base-200"
                     [class.!bg-secondary]="!selected_playlist"
                     [class.text-secondary-content]="!selected_playlist"
                     [routerLink]="[]"
