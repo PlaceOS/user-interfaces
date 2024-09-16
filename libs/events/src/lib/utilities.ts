@@ -109,6 +109,10 @@ export function generateEventForm(
         ),
         images: new FormControl(event.extension_data?.images || []),
         featured: new FormControl(event.extension_data?.featured || false),
+        host_entity: new FormControl(event.extension_data?.host_entity || ''),
+        visitor_entity: new FormControl(
+            event.extension_data?.visitor_entity || '',
+        ),
     });
     form.get('organiser').valueChanges.subscribe((o) =>
         form.controls.host.setValue(o?.email),

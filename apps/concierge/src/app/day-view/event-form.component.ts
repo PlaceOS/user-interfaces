@@ -63,11 +63,35 @@ import { map, tap } from 'rxjs/operators';
                 ></a-user-search-field>
             </div>
             <div class="flex flex-col flex-1">
+                <label for="host_entity">Host's Entity<span>*</span>:</label>
+                <mat-form-field appearance="outline" class="w-full">
+                    <input
+                        matInput
+                        name="host_entity"
+                        formControlName="host_entity"
+                        placeholder="Organisational Entity of the Host"
+                    />
+                </mat-form-field>
+            </div>
+            <div class="flex flex-col flex-1">
                 <label for="attendees">Attendees<span>*</span>:</label>
                 <a-user-list-field
                     name="attendees"
                     formControlName="attendees"
                 ></a-user-list-field>
+            </div>
+            <div class="flex flex-col flex-1">
+                <label for="visitor_entity"
+                    >Vistor's Entity<span>*</span>:</label
+                >
+                <mat-form-field appearance="outline" class="w-full">
+                    <input
+                        matInput
+                        name="visitor_entity"
+                        formControlName="visitor_entity"
+                        placeholder="Organisational Entity of the Visior"
+                    />
+                </mat-form-field>
             </div>
             <div class="flex flex-col flex-1">
                 <label for="space">Space<span>*</span>:</label>
@@ -88,7 +112,7 @@ import { map, tap } from 'rxjs/operators';
                         date: form.value.date,
                         duration: form.value.duration,
                         all_day: form.value.all_day,
-                        zone_id: form.value.resources[0]?.level?.parent_id
+                        zone_id: form.value.resources[0]?.level?.parent_id,
                     }"
                 ></catering-list-field>
                 <mat-form-field
@@ -173,7 +197,7 @@ export class EventFormComponent {
     public code_filter = new BehaviorSubject('');
 
     public readonly has_catering = this._catering.available_menu.pipe(
-        map((l) => l.length > 0)
+        map((l) => l.length > 0),
     );
 
     public readonly has_codes = this._catering.charge_codes.pipe(
@@ -183,7 +207,7 @@ export class EventFormComponent {
                 this.form.get('catering_charge_code').setValidators([]);
                 this.form.updateValueAndValidity();
             }
-        })
+        }),
     );
 
     public readonly filtered_codes = combineLatest([
@@ -191,8 +215,8 @@ export class EventFormComponent {
         this._catering.charge_codes,
     ]).pipe(
         map(([s, l]) =>
-            l.filter((_) => _.toLowerCase().includes(s.toLowerCase()))
-        )
+            l.filter((_) => _.toLowerCase().includes(s.toLowerCase())),
+        ),
     );
 
     public get allow_all_day() {
@@ -210,6 +234,6 @@ export class EventFormComponent {
     constructor(
         private _dialog: MatDialog,
         private _settings: SettingsService,
-        private _catering: CateringOrderStateService
+        private _catering: CateringOrderStateService,
     ) {}
 }

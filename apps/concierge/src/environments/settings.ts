@@ -104,6 +104,7 @@ const app = {
     bookings: { can_book_for_others: true },
     events: {
         allow_setup_breakdown: false,
+        can_book_for_anyone: true,
         custom_actions: [
             {
                 id: 'set_setup_breakdown',

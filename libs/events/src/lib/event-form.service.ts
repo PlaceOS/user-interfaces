@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { getModule, showMetadata } from '@placeos/ts-client';
+import { getModule, showMetadata, updateMetadata } from '@placeos/ts-client';
 import {
     BehaviorSubject,
     combineLatest,
@@ -803,6 +803,7 @@ export class EventFormService extends AsyncHandler {
             this.setView('success');
             this.timeout('post_finshed', () => this._changed.next(Date.now()));
             resolve(result);
+            this._saveEntity(result.extension_data?.host_entity);
             this._loading.next('');
         });
     }
@@ -882,5 +883,21 @@ export class EventFormService extends AsyncHandler {
                 ),
             ]),
         );
+    }
+
+    private async _saveEntity(entity: string) {
+        if (!entity) return;
+        const metadata = await showMetadata(
+            this._org.organisation.id,
+            'host_entities',
+        ).toPromise();
+        const entity_list =
+            metadata.details instanceof Array ? metadata.details : [];
+        const new_list = unique([...entity_list, entity]);
+        await updateMetadata(this._org.organisation.id, {
+            name: 'host_entities',
+            details: new_list,
+            description: 'List of host entities',
+        }).toPromise();
     }
 }

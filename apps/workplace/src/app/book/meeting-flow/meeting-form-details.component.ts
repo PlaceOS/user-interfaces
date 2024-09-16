@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
+import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
 import {
     addDays,
     addMinutes,
@@ -12,6 +13,15 @@ import {
     set,
     startOfDay,
 } from 'date-fns';
+import { of } from 'rxjs';
+import {
+    catchError,
+    filter,
+    map,
+    shareReplay,
+    switchMap,
+} from 'rxjs/operators';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'meeting-form-details',
@@ -145,6 +155,36 @@ import {
                     formControlName="organiser"
                 ></host-select-field>
             </div>
+            <div *ngIf="can_book_for_anyone" class="w-full flex flex-col">
+                <label for="host">
+                    {{ 'FORM.HOST' | translate }}<span>*</span>
+                </label>
+                <a-user-search-field
+                    name="host"
+                    formControlName="organiser"
+                    class="mb-4"
+                ></a-user-search-field>
+                <div class="flex flex-col flex-1">
+                    <label for="host_entity">Host's Entity:</label>
+                    <mat-form-field appearance="outline" class="w-full">
+                        <input
+                            matInput
+                            name="host_entity"
+                            formControlName="host_entity"
+                            placeholder="Organisational Entity of the Host"
+                            [matAutocomplete]="auto"
+                        />
+                    </mat-form-field>
+                    <mat-autocomplete #auto="matAutocomplete" class="w-full">
+                        <mat-option
+                            *ngFor="let option of host_entity_list | async"
+                            [value]="option"
+                        >
+                            {{ option }}
+                        </mat-option>
+                    </mat-autocomplete>
+                </div>
+            </div>
             <div *ngIf="allow_recurrence" class="w-full flex flex-col">
                 <label for="recurrence">
                     {{ 'FORM.RECURRENCE' | translate }}<span>*</span>
@@ -168,6 +208,19 @@ import {
 export class MeetingFormDetailsComponent {
     @Input() public form: FormGroup;
 
+    public readonly host_entity_list = this._org.initialised.pipe(
+        filter((_) => !!_),
+        switchMap((_) =>
+            showMetadata(this._org.organisation.id, 'host_entities').pipe(
+                catchError(() => of({ details: [] } as any)),
+            ),
+        ),
+        map((_: PlaceMetadata) =>
+            _.details instanceof Array ? _.details : [],
+        ),
+        shareReplay(1),
+    );
+
     public readonly force_time = set(Date.now(), {
         hours: 6,
         minutes: 0,
@@ -179,6 +232,10 @@ export class MeetingFormDetailsComponent {
 
     public get can_book_for_others() {
         return this._settings.get('app.events.can_book_for_others');
+    }
+
+    public get can_book_for_anyone() {
+        return this._settings.get('app.events.can_book_for_anyone');
     }
 
     public get allow_all_day() {
@@ -213,8 +270,8 @@ export class MeetingFormDetailsComponent {
         return endOfDay(
             addDays(
                 Date.now(),
-                this._settings.get('app.events.allowed_future_days') || 180
-            )
+                this._settings.get('app.events.allowed_future_days') || 180,
+            ),
         ).valueOf();
     }
 
@@ -235,6 +292,7 @@ export class MeetingFormDetailsComponent {
 
     constructor(
         private _settings: SettingsService,
-        private _event_form: EventFormService
+        private _event_form: EventFormService,
+        private _org: OrganisationService,
     ) {}
 }

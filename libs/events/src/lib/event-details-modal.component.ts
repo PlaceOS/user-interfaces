@@ -170,6 +170,17 @@ const EMPTY_ACTIONS = [];
                             See All
                         </button>
                     </div>
+                    <div
+                        class="flex items-center py-2 space-x-2 text-sm px-4 max-w-full"
+                        *ngIf="event.extension_data.visitor_entity"
+                    >
+                        Entity:
+                        <span
+                            class="ml-2 opacity-60 p-1 text-xs bg-base-200 rounded truncate"
+                        >
+                            {{ event.extension_data.visitor_entity }}
+                        </span>
+                    </div>
                     <div class="flex items-center p-1">
                         <div
                             class="flex flex-col flex-1 items-center justify-center space-y-1"
@@ -207,6 +218,17 @@ const EMPTY_ACTIONS = [];
                                 {{ event.host }}
                             </div>
                         </div>
+                    </div>
+                    <div
+                        class="flex items-center space-x-2 text-sm px-4 py-2 max-w-full"
+                        *ngIf="event.extension_data.host_entity"
+                    >
+                        Entity:
+                        <span
+                            class="ml-2 opacity-60 p-1 text-xs bg-base-200 rounded truncate"
+                        >
+                            {{ event.extension_data.host_entity }}
+                        </span>
                     </div>
                 </div>
                 <ng-container *ngIf="has_catering">

@@ -125,6 +125,15 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                                 [time]="form.value.date"
                                 [guests]="allow_externals"
                             ></a-user-list-field>
+                            <label for="visitor_entity">Vistor's Entity:</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <input
+                                    matInput
+                                    name="visitor_entity"
+                                    formControlName="visitor_entity"
+                                    placeholder="Organisational Entity of the Visior"
+                                />
+                            </mat-form-field>
                         </div>
                     </section>
                     <section class="p-2">
@@ -215,7 +224,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                                     zone_id: form.value?.resources?.length
                                         ? form.value?.resources[0]?.level
                                               ?.parent_id
-                                        : ''
+                                        : '',
                                 }"
                             ></catering-list-field>
                             <mat-form-field
@@ -313,7 +322,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                                     zone_id: form.value?.resources?.length
                                         ? form.value?.resources[0]?.level
                                               ?.parent_id
-                                        : ''
+                                        : '',
                                 }"
                                 [rejected_ids]="invalid_assets"
                                 formControlName="assets"
@@ -369,8 +378,11 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
                             class="inverse w-full sm:w-auto"
                             (click)="clearForm()"
                         >
-                            { !!form.value.id, select, true { Reset } false {
-                            Clear } } {{ 'WPA.CLEAR_FORM' | translate }}
+                            {!!form.value.id, select,
+                                true {Reset }
+                                false {Clear }
+                            }
+                            {{ 'WPA.CLEAR_FORM' | translate }}
                         </button>
                     </section>
                 </form>
@@ -388,7 +400,7 @@ export class MeetingFlowFormComponent extends AsyncHandler {
     public invalid_assets: string[] = [];
 
     public readonly has_catering = this._catering.available_menu.pipe(
-        map((l) => l.length > 0)
+        map((l) => l.length > 0),
     );
 
     public readonly has_codes = this._catering.charge_codes.pipe(
@@ -398,7 +410,7 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                 this.form.get('catering_charge_code').setValidators([]);
                 this.form.updateValueAndValidity();
             }
-        })
+        }),
     );
 
     public readonly filtered_codes = combineLatest([
@@ -406,8 +418,8 @@ export class MeetingFlowFormComponent extends AsyncHandler {
         this._catering.charge_codes,
     ]).pipe(
         map(([s, l]) =>
-            l.filter((_) => _.toLowerCase().includes(s.toLowerCase()))
-        )
+            l.filter((_) => _.toLowerCase().includes(s.toLowerCase())),
+        ),
     );
 
     public get form() {
@@ -456,7 +468,7 @@ export class MeetingFlowFormComponent extends AsyncHandler {
         let count = this.form.value.attendees?.length || 0;
         if (
             !this.form.value.attendees.find(
-                (_) => _.email.toLowerCase() === user.email.toLowerCase()
+                (_) => _.email.toLowerCase() === user.email.toLowerCase(),
             )
         ) {
             count += 1;
@@ -489,14 +501,14 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                             items.filter(
                                 (_) =>
                                     !(_ as any).hide_for_zones?.find((z) =>
-                                        s.zones.includes(z)
-                                    )
-                            ).length > 0
+                                        s.zones.includes(z),
+                                    ),
+                            ).length > 0,
                     );
                     if (
                         assets_available &&
                         !disabled_rooms.find((_) =>
-                            space_list.find((i) => i.id === _)
+                            space_list.find((i) => i.id === _),
                         )
                     )
                         return true;
@@ -511,13 +523,13 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                     if (time_changed) {
                         this.form.patchValue({ assets: [] });
                         notifyWarn(
-                            `Assets are unavailable for some of the selected spaces.`
+                            `Assets are unavailable for some of the selected spaces.`,
                         );
                     }
                     return false;
-                })
+                }),
             );
-        })
+        }),
     );
 
     private _catering_available = this._space_list.pipe(
@@ -544,14 +556,14 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                             menu.filter(
                                 (_) =>
                                     !_.hide_for_zones.find((z) =>
-                                        s.zones.includes(z)
-                                    )
-                            ).length > 0
+                                        s.zones.includes(z),
+                                    ),
+                            ).length > 0,
                     );
                     if (
                         can_cater &&
                         !disabled_rooms.find((_) =>
-                            space_list.find((i) => i.id === _)
+                            space_list.find((i) => i.id === _),
                         )
                     )
                         return true;
@@ -566,13 +578,13 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                     if (time_changed) {
                         this.form.patchValue({ catering: [] });
                         notifyWarn(
-                            `Catering is unavailable for some of the selected spaces.`
+                            `Catering is unavailable for some of the selected spaces.`,
                         );
                     }
                     return false;
-                })
+                }),
             );
-        })
+        }),
     );
 
     public readonly clearForm = () => this._state.resetForm();
@@ -585,15 +597,15 @@ export class MeetingFlowFormComponent extends AsyncHandler {
             this.attendee_count > this.total_capacity
         ) {
             return notifyError(
-                'Attendee count is greater than the capacity of the selected rooms'
+                'Attendee count is greater than the capacity of the selected rooms',
             );
         }
         this.form.markAllAsTouched();
         if (!this.form.valid)
             return notifyError(
                 `Some fields are invalid. [${getInvalidFields(this.form).join(
-                    ', '
-                )}]`
+                    ', ',
+                )}]`,
             );
         if (
             this._settings.get('app.events.no_standalone') &&
@@ -604,7 +616,7 @@ export class MeetingFlowFormComponent extends AsyncHandler {
             return this._state.openEventLinkModal();
         if (window.innerWidth >= 768) {
             this.dialog_ref = this._dialog.open(
-                MeetingFlowConfirmModalComponent
+                MeetingFlowConfirmModalComponent,
             );
             this.dialog_ref.componentInstance.show_close = true;
             this.dialog_ref.afterClosed().subscribe((value) => {
@@ -616,7 +628,7 @@ export class MeetingFlowFormComponent extends AsyncHandler {
             });
         } else {
             this.sheet_ref = this._bottom_sheet.open(
-                MeetingFlowConfirmComponent
+                MeetingFlowConfirmComponent,
             );
             this.sheet_ref.instance.show_close = true;
             this.sheet_ref.afterDismissed().subscribe((value) => {
@@ -641,7 +653,7 @@ export class MeetingFlowFormComponent extends AsyncHandler {
         private _dialog: MatDialog,
         private _bottom_sheet: MatBottomSheet,
         private _org: OrganisationService,
-        private _idle: UserIdleTimeService
+        private _idle: UserIdleTimeService,
     ) {
         super();
     }
@@ -656,8 +668,8 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                 (_) =>
                     !_._changed &&
                     !linked_bookings.find(
-                        (bkn) => bkn.extension_data?.request_id === _.id
-                    )
+                        (bkn) => bkn.extension_data?.request_id === _.id,
+                    ),
             )
             .map((_) => _.id);
     }
@@ -667,17 +679,17 @@ export class MeetingFlowFormComponent extends AsyncHandler {
         this.subscription(
             'asset_changes',
             this.form.controls.assets.valueChanges.subscribe(() =>
-                this._updateValidAssets()
-            )
+                this._updateValidAssets(),
+            ),
         );
         for (const key of ['resources', 'date', 'duration', 'date_end']) {
             this.subscription(
                 `${key}_changes`,
                 this.form.controls[key].valueChanges.subscribe(() =>
                     this.timeout('check_resources', () =>
-                        this._space_list.next(this.form.value.resources || [])
-                    )
-                )
+                        this._space_list.next(this.form.value.resources || []),
+                    ),
+                ),
             );
         }
         this._catering.setOptions({ zone: '' });
@@ -687,20 +699,20 @@ export class MeetingFlowFormComponent extends AsyncHandler {
             this._assets_available.subscribe((a) => {
                 if (!a) this.form.controls.assets.disable();
                 else this.form.controls.assets.enable();
-            })
+            }),
         );
         this.subscription(
             'catering_available',
             this._catering_available.subscribe((a) => {
                 if (!a) this.form.controls.catering.disable();
                 else this.form.controls.catering.enable();
-            })
+            }),
         );
         this.subscription(
             'idle-listen',
             this._idle
                 .idleFor(
-                    (this._settings.get('app.idle_timeout') || 5) * 60 * 1000
+                    (this._settings.get('app.idle_timeout') || 5) * 60 * 1000,
                 )
                 .subscribe(async () => {
                     this.unsub('idle');
@@ -711,16 +723,16 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                             icon: { content: 'update' },
                             confirm_text: 'Refresh',
                         },
-                        this._dialog
+                        this._dialog,
                     );
                     this._state.newForm();
                     location.reload();
-                })
+                }),
         );
         this.timeout(
             'init_valid_assets',
             () => this._updateValidAssets(),
-            1000
+            1000,
         );
     }
 
@@ -731,7 +743,7 @@ export class MeetingFlowFormComponent extends AsyncHandler {
                 this._input_el.nativeElement.value = '';
                 this._input_el?.nativeElement?.focus();
             },
-            300
+            300,
         );
     }
 
