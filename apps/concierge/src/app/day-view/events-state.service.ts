@@ -27,6 +27,7 @@ import {
     AsyncHandler,
     SettingsService,
     flatten,
+    getTimezoneDifferenceInHours,
     openConfirmModal,
     randomInt,
     timePeriodsIntersect,
@@ -201,6 +202,13 @@ export class EventsStateService extends AsyncHandler {
                           .map((_) => _.id)
                     : null) || [this._org.building?.id];
             }
+            const tz = this._settings.get('app.events.use_building_timezone')
+                ? this._org.building.timezone
+                : '';
+            const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const offset = !tz
+                ? 0
+                : getTimezoneDifferenceInHours(current_tz, tz);
             this._loading.next(true);
             const start_fn =
                 period === 'month'
@@ -219,8 +227,8 @@ export class EventsStateService extends AsyncHandler {
             return queryEvents({
                 strict: 'limit',
                 zone_ids: zones.join(','),
-                period_start: getUnixTime(start),
-                period_end: getUnixTime(end),
+                period_start: getUnixTime(start) + offset * 60 * 1000,
+                period_end: getUnixTime(end) + offset * 60 * 1000,
             }).pipe(
                 map((_) => {
                     this._retries = 0;
