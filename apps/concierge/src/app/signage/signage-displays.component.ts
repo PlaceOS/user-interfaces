@@ -1,23 +1,9 @@
 import { Component } from '@angular/core';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { SignageStateService } from './signage-state.service';
-import {
-    debounce,
-    debounceTime,
-    map,
-    shareReplay,
-    startWith,
-    switchMap,
-    take,
-    tap,
-} from 'rxjs/operators';
+import { map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
-import {
-    AsyncHandler,
-    notifySuccess,
-    SettingsService,
-    unique,
-} from '@placeos/common';
+import { AsyncHandler, notifySuccess, SettingsService } from '@placeos/common';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import {
     listSystemTriggers,
@@ -136,11 +122,6 @@ import {
                                 ? ''
                                 : (active_display | async)?.orientation
                         "
-                        [link]="
-                            (active_trigger | async)
-                                ? ''
-                                : signage_path + '/#/signage/'
-                        "
                         (add)="this.adding = true"
                         (remove)="removePlaylist($event)"
                         (ondrop)="drop($event)"
@@ -172,6 +153,41 @@ import {
                                 Add Zone
                             </button>
                         </div>
+                        <button
+                            icon
+                            matRipple
+                            [matMenuTriggerFor]="menu"
+                            class="absolute top-2 right-2 !m-0"
+                        >
+                            <app-icon>more_vert</app-icon>
+                        </button>
+                        <mat-menu #menu="matMenu">
+                            <a
+                                mat-menu-item
+                                [href]="
+                                    signage_path +
+                                    '/#/signage/' +
+                                    (active_display | async)?.id
+                                "
+                                target="_blank"
+                                ref="noopener noreferrer"
+                            >
+                                <div class="flex items-center space-x-2">
+                                    <app-icon class="text-2xl"
+                                        >open_in_new</app-icon
+                                    >
+                                    <div class="pr-2">Open Signage Player</div>
+                                </div>
+                            </a>
+                            <button mat-menu-item (click)="removeDisplay()">
+                                <div class="flex items-center space-x-2">
+                                    <app-icon class="text-2xl text-error"
+                                        >delete</app-icon
+                                    >
+                                    <div class="pr-2">Remove Display</div>
+                                </div>
+                            </button>
+                        </mat-menu>
                     </signage-item-playlists>
                 } @else {
                     <div
@@ -246,6 +262,11 @@ export class SignageDisplaysComponent extends AsyncHandler {
             ),
         ),
     );
+
+    public readonly removeDisplay = async () =>
+        this._state.removeDisplay(
+            await this.active_display.pipe(take(1)).toPromise(),
+        );
 
     public get signage_path() {
         return this._settings.get('app.signage_path') || '/signage';

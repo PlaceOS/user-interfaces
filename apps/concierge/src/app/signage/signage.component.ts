@@ -19,7 +19,10 @@ import { AsyncHandler } from '@placeos/common';
                         btn
                         matRipple
                         class="w-40"
-                        *ngIf="active_link === 'Media'"
+                        *ngIf="
+                            active_link === 'Media' ||
+                            active_link === 'Displays'
+                        "
                         (click)="newItem(active_link)"
                     >
                         Add {{ singular(active_link) }}
@@ -71,20 +74,28 @@ export class SignageComponent extends AsyncHandler implements OnInit {
     public singular(name: string) {
         if (name === 'Media') return 'Playlist';
         if (name === 'Playlists') return 'Playlist';
+        if (name === 'Displays') return 'Display';
         return '';
     }
 
     public async newItem(name: string) {
+        let result = null;
         switch (name) {
             case 'Media':
             case 'Playlists':
-                const result = await this._state.editPlaylist();
+                result = await this._state.editPlaylist();
                 if (result) {
-                    this._router.navigate([
-                        '/signage/media',
-                        { query: { playlist: result.id } },
-                    ]);
+                    this._router.navigate(['/signage/media'], {
+                        queryParams: { playlist: result.id },
+                    });
                 }
+                break;
+            case 'Displays':
+                result = await this._state.editDisplay();
+                if (!result) return;
+                this._router.navigate(['/signage/displays'], {
+                    queryParams: { display: result.id },
+                });
                 break;
         }
     }

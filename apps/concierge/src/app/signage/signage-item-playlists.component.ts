@@ -23,16 +23,6 @@ import { SignagePlaylist } from '@placeos/ts-client';
             >
                 {{ extra }}
             </div>
-            <a
-                icon
-                matRipple
-                [href]="link + item.id"
-                *ngIf="link"
-                target="_blank"
-                ref="noopener noreferrer"
-            >
-                <app-icon>link</app-icon>
-            </a>
         </div>
         <ng-content></ng-content>
         @if ((active_playlists | async).length > 0 && item) {
@@ -131,7 +121,6 @@ export class SignageItemPlaylistsComponent {
     @Input() public item: any;
     @Input() public name: string = 'zone';
     @Input() public extra: string = '';
-    @Input() public link: string = '';
     @Output() public readonly add = new EventEmitter();
     @Output() public readonly remove = new EventEmitter<SignagePlaylist>();
     @Output() public readonly ondrop = new EventEmitter<any>();

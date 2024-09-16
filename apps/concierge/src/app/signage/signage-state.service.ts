@@ -19,11 +19,13 @@ import {
     queryZones,
     removeSignageMedia,
     removeSignagePlaylist,
+    removeSystem,
     SignageMedia,
     SignagePlaylist,
     updateSignageMedia,
     updateSignagePlaylist,
     updateSignagePlaylistMedia,
+    updateSystem,
 } from '@placeos/ts-client';
 import { Attachment } from '@placeos/users';
 import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
@@ -40,6 +42,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { SignageMediaPreviewModalComponent } from './signage-media-preview-modal.component';
 import { SignagePlaylistModalComponent } from './signage-playlist-modal.component';
 import { SignageMediaModalComponent } from './signage-media-modal.component';
+import { SignageDisplayModalComponent } from './signage-display-modal.component';
 
 function dataURLtoBlob(dataURL) {
     // Split the data URL to get the mime type and the data
@@ -127,11 +130,13 @@ export class SignageStateService extends AsyncHandler {
                 signage: true,
             }).pipe(
                 map((_) =>
-                    (_.data || []).sort((a, b) =>
-                        (a.display_name || a.name).localeCompare(
-                            b.display_name || b.name,
-                        ),
-                    ),
+                    (_.data || [])
+                        .sort((a, b) =>
+                            (a.display_name || a.name).localeCompare(
+                                b.display_name || b.name,
+                            ),
+                        )
+                        .filter((_) => _.signage),
                 ),
             ),
         ),
@@ -206,6 +211,40 @@ export class SignageStateService extends AsyncHandler {
                 resolve(result);
             });
         });
+    }
+
+    public async editDisplay(display: PlaceSystem = new PlaceSystem({})) {
+        console.log('Edit Display:', display);
+        const ref = this._dialog.open(SignageDisplayModalComponent, {
+            data: { display },
+        });
+        const result = await ref.afterClosed().toPromise();
+        this.timeout('changed', () => this._change.next(Date.now()));
+        return result;
+    }
+
+    public async removeDisplay(display: PlaceSystem) {
+        const result = await openConfirmModal(
+            {
+                title: `Remove Display`,
+                content: `
+                Are you sure you wish to remove the display "<strong>${display.display_name}</strong>"?
+                `,
+                icon: { content: 'delete' },
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return;
+        result.loading('Removing display...');
+        if (display.map_id || display.email || display.module_list.length > 0) {
+            await updateSystem(display.id, {
+                signage: false,
+            } as any).toPromise();
+        } else {
+            await removeSystem(display.id).toPromise();
+        }
+        this._change.next(Date.now());
+        result.close();
     }
 
     public async savePlaylist(playlist: Partial<SignagePlaylist>) {
