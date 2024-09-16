@@ -134,7 +134,9 @@ import { Region } from '@placeos/organisation';
                     <label i18n>Date</label>
                     <a-date-field
                         name="date"
-                        formControlName="date"
+                        [ngModel]="form.value.date"
+                        (ngModelChange)="form.patchValue({ date: $event })"
+                        [ngModelOptions]="{ standalone: true }"
                         [to]="end_date"
                     >
                         {{ 'FORM.DATE_ERROR' | translate }}
