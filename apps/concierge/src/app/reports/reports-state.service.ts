@@ -80,7 +80,7 @@ export class ReportsStateService {
     private _generate = new Subject<number>();
     private _loading = new BehaviorSubject<string>('');
     private _active_bookings = new BehaviorSubject<(CalendarEvent | Booking)[]>(
-        []
+        [],
     );
 
     private _options = new BehaviorSubject<ReportOptions>({
@@ -94,7 +94,7 @@ export class ReportsStateService {
             ?.map((_) =>
                 typeof _ === 'string'
                     ? _?.toLowerCase()
-                    : format(setDay(new Date(), _), 'eeee')?.toLowerCase()
+                    : format(setDay(new Date(), _), 'eeee')?.toLowerCase(),
             )
             .filter((_) => !!_);
     }
@@ -136,22 +136,25 @@ export class ReportsStateService {
                                               await Promise.all(
                                                   _.resources.map((r) =>
                                                       this._space_pipe.transform(
-                                                          r.id || r.email
-                                                      )
-                                                  )
+                                                          r.id || r.email,
+                                                      ),
+                                                  ),
                                               )
-                                          ).filter((s) =>
-                                              options.zones.find((z) =>
-                                                  s.zones.includes(z)
-                                              )
+                                          ).filter((space) =>
+                                              options.zones?.find((zone_id) =>
+                                                  space.zones.includes(zone_id),
+                                              ),
                                           ),
-                                      } as any)
-                              )
-                          )
-                      )
+                                      } as any),
+                              ),
+                          ),
+                      ),
+                      catchError((_) => {
+                          console.warn(_);
+                          return of([]);
+                      }),
                   );
         }),
-        catchError((_) => []),
         map((list) => {
             this._loading.next('');
             if (!list?.length) {
@@ -160,13 +163,13 @@ export class ReportsStateService {
             list = list.filter(
                 (bkn) =>
                     !this._ignore_days.includes(
-                        DAYS_OF_WEEK_INDEX[new Date(bkn.date).getDay()]
-                    )
+                        DAYS_OF_WEEK_INDEX[new Date(bkn.date).getDay()],
+                    ),
             );
             this._active_bookings.next(list || []);
             return list;
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly loading = this._loading.asObservable();
@@ -187,19 +190,19 @@ export class ReportsStateService {
             }
             return forkJoin(
                 zones.map((id) =>
-                    requestSpacesForZone(id).pipe(catchError(() => of([])))
-                )
+                    requestSpacesForZone(id).pipe(catchError(() => of([]))),
+                ),
             );
         }),
         map((l) => flatten(l)),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly counts = this._options.pipe(
         debounceTime(500),
         switchMap((filters) => {
             const zones = (filters.zones || []).filter(
-                (z: any) => z !== -1 && z !== 'All'
+                (z: any) => z !== -1 && z !== 'All',
             );
             if (filters.type === 'events') {
                 return this.spaces.pipe(
@@ -207,8 +210,8 @@ export class ReportsStateService {
                         zones.map((z) => [
                             z,
                             _.filter((s) => s.zones.includes(z)).length,
-                        ])
-                    )
+                        ]),
+                    ),
                 );
             }
             return Promise.all(
@@ -216,19 +219,19 @@ export class ReportsStateService {
                     showMetadata(z, 'desks')
                         .pipe(
                             catchError(() => of({ details: [] })),
-                            map((m) => [z, m.details.length])
+                            map((m) => [z, m.details.length]),
                         )
-                        .toPromise()
-                )
+                        .toPromise(),
+                ),
             );
         }),
         map((list: [string, number][]) => {
             const map: HashMap<number> = {};
             this._active_bookings.next([]);
-            list.forEach(([id, count]) => (map[id] = count));
+            list.forEach(([id, count]) => (map[id] = count || 0));
             return map;
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly stats: Observable<HashMap> = combineLatest([
@@ -240,15 +243,15 @@ export class ReportsStateService {
                 return generateReportForBookings(
                     list as CalendarEvent[],
                     this.duration * 8,
-                    counts
+                    counts,
                 );
             }
             return generateReportForDeskBookings(
                 (list as Booking[]) || [],
                 this.duration,
-                counts
+                counts,
             );
-        })
+        }),
     );
 
     public readonly day_list = combineLatest([this.options, this.stats]).pipe(
@@ -260,7 +263,7 @@ export class ReportsStateService {
             while (isBefore(date, end)) {
                 if (
                     this._ignore_days.includes(
-                        DAYS_OF_WEEK_INDEX[date.getDay()]
+                        DAYS_OF_WEEK_INDEX[date.getDay()],
                     )
                 ) {
                     date = addDays(date, 1);
@@ -273,8 +276,8 @@ export class ReportsStateService {
                         s,
                         e,
                         bkn.date,
-                        bkn.date + bkn.duration * 60 * 1000
-                    )
+                        bkn.date + bkn.duration * 60 * 1000,
+                    ),
                 );
                 const usage =
                     options.type === 'desks'
@@ -282,24 +285,27 @@ export class ReportsStateService {
                         : unique(events, 'asset_id').length;
                 dates.push({
                     date: s,
-                    total: stats.total,
+                    total: stats.total || 0,
                     usage,
-                    free: stats.total - events.length,
-                    approved: events.reduce(
-                        (c, e) =>
-                            c + (e.approved || e.status === 'approved' ? 1 : 0),
-                        0
-                    ),
-                    count: events.length,
-                    utilisation: ((events.length / stats.total) * 100).toFixed(
-                        1
-                    ),
+                    free: (stats.total || 0) - events.length,
+                    approved:
+                        events.reduce(
+                            (c, e) =>
+                                c +
+                                (e.approved || e.status === 'approved' ? 1 : 0),
+                            0,
+                        ) || '0',
+                    count: events.length || 0,
+                    utilisation: (
+                        (events.length / Math.max(1, stats.total)) *
+                        100
+                    ).toFixed(1),
                 });
                 date = addDays(date, 1);
             }
             return dates;
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public get duration() {
@@ -320,7 +326,7 @@ export class ReportsStateService {
 
     constructor(
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         this._bookings_list.subscribe((_) => _);
     }
@@ -358,7 +364,7 @@ export class ReportsStateService {
         downloadFile(
             `report+${options.type}+${format(
                 options.start,
-                'yyyy-MM-dd'
+                'yyyy-MM-dd',
             )}+${format(options.end, 'yyyy-MM-dd')}.tsv`,
             jsonToCsv(
                 bookings.map((bkn) => {
@@ -368,8 +374,8 @@ export class ReportsStateService {
                     delete details.extension_data;
                     return details;
                 }),
-                '\t'
-            )
+                '\t',
+            ),
         );
     }
 }

@@ -14,7 +14,13 @@ import { ReportsStateService } from '../reports-state.service';
             >
                 <div class="border-b border-base-200 p-4 flex items-center">
                     <h3 class="font-bold text-xl flex-1">Daily Utilisation</h3>
-                    <button icon matRipple *ngIf="!print" (click)="download()">
+                    <button
+                        icon
+                        matRipple
+                        *ngIf="!print"
+                        matTooltip="Download Daily Utilisation"
+                        (click)="download()"
+                    >
                         <app-icon>download</app-icon>
                     </button>
                 </div>
@@ -28,8 +34,8 @@ import { ReportsStateService } from '../reports-state.service';
                         {
                             key: 'utilisation',
                             name: 'Utilisation',
-                            content: percent_template
-                        }
+                            content: percent_template,
+                        },
                     ]"
                     [sortable]="true"
                     [page_size]="print ? 0 : 10"

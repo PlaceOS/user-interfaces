@@ -37,6 +37,9 @@ import { ActivatedRoute } from '@angular/router';
                     <report-spaces-user-listing
                         [print]="printing"
                     ></report-spaces-user-listing>
+                    <report-spaces-entity-listing
+                        [print]="printing"
+                    ></report-spaces-entity-listing>
                 </ng-container>
             </ng-container>
         </div>
@@ -69,7 +72,7 @@ import { ActivatedRoute } from '@angular/router';
 export class ReportSpacesComponent extends AsyncHandler {
     public printing = false;
     public readonly total_count = this._state.stats.pipe(
-        map((i) => i.count || 0)
+        map((i) => i.count || 0),
     );
     public readonly loading = this._state.loading;
 
@@ -83,7 +86,7 @@ export class ReportSpacesComponent extends AsyncHandler {
     constructor(
         private _state: ReportsStateService,
         private _settings: SettingsService,
-        private _route: ActivatedRoute
+        private _route: ActivatedRoute,
     ) {
         super();
     }
@@ -103,7 +106,7 @@ export class ReportSpacesComponent extends AsyncHandler {
                     const zones = params.get('zones').split(',');
                     if (zones.length) this._state.setOptions({ zones });
                 }
-            })
+            }),
         );
     }
 }

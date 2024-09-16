@@ -35,6 +35,7 @@ import { AssetReportDailyUsageComponent } from './assets/asset-report-daily-usag
 import { AssetReportProductUsageComponent } from './assets/asset-report-product-usage.component';
 import { AssetReportUsersComponent } from './assets/asset-report-users.component';
 import { AssetReportExpiredItemsComponent } from './assets/asset-report-expired-items.component';
+import { ReportSpacesEntityListingComponent } from './spaces/report-spaces-entity-listing.component';
 
 const children: Route[] = [
     { path: '', component: ReportsOptionsComponent },
@@ -66,6 +67,7 @@ const ROUTES: Route[] = [
         ReportSpacesOverallListComponent,
         ReportSpacesSpaceListing,
         ReportSpacesUserListingComponent,
+        ReportSpacesEntityListingComponent,
 
         ReportDesksComponent,
         ReportDesksOverallListComponent,
