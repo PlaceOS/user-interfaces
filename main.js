@@ -32403,15 +32403,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "21e8bab",
-  "hash": "21e8bab",
+  "raw": "7e92d4a",
+  "hash": "7e92d4a",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "21e8bab",
+  "suffix": "7e92d4a",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1726478502451
+  "time": 1726485752338
 };
 /* tslint:enable */
 
@@ -41675,12 +41675,13 @@ function SimpleTableComponent_ng_container_3_div_2_div_3_Template(rf, ctx) {
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
+    var tmp_7_0;
     var column_r9 = i0.ɵɵnextContext().$implicit;
     var ctx_r9 = i0.ɵɵnextContext();
     var row_r11 = ctx_r9.$implicit;
     var i_r7 = ctx_r9.index;
     i0.ɵɵadvance();
-    i0.ɵɵtextInterpolate1(" ", row_r11[column_r9.key] || (column_r9.key === "_index" ? i_r7 + 1 : ""), " ");
+    i0.ɵɵtextInterpolate1(" ", (tmp_7_0 = row_r11[column_r9.key]) !== null && tmp_7_0 !== undefined ? tmp_7_0 : column_r9.key === "_index" ? i_r7 + 1 : row_r11[column_r9.key], " ");
     i0.ɵɵadvance();
     i0.ɵɵproperty("ngIf", (row_r11[column_r9.key] == null || row_r11[column_r9.key] === "") && column_r9.key !== "_index");
   }
