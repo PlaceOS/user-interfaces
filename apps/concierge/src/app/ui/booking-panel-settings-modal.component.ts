@@ -34,7 +34,7 @@ import { validateURL } from '@placeos/spaces';
             </button>
         </header>
         <main
-            class="p-4 max-h-[65vh] overflow-auto"
+            class="p-4 max-h-[65vh] overflow-y-auto overflow-x-hidden"
             *ngIf="!loading; else load_state"
             [formGroup]="form"
         >
@@ -54,7 +54,7 @@ import { validateURL } from '@placeos/spaces';
                     </div>
                     <div class="flex-1">
                         <mat-checkbox formControlName="disable_book_now_host">
-                            Disallow selecting a booking host
+                            Hide booking host options
                         </mat-checkbox>
                     </div>
                 </div>
@@ -99,12 +99,12 @@ import { validateURL } from '@placeos/spaces';
                     ></a-duration-field>
                 </div>
                 <div class="flex-1">
-                    <label for="pending_after"
-                        >Cancel meetings when not checked-in after</label
+                    <label for="pending_period"
+                        >Cancel not checked-in meetings after</label
                     >
                     <a-duration-field
-                        name="pending_after"
-                        formControlName="pending_after"
+                        name="pending_period"
+                        formControlName="pending_period"
                         [min]="0"
                         [step]="5"
                         [max]="60"
@@ -137,8 +137,8 @@ import { validateURL } from '@placeos/spaces';
             <div class="flex items-center space-x-4">
                 <div class="flex-1">
                     <mat-checkbox formControlName="disable_end_meeting">
-                        <div class="flex item-center">
-                            <div>Disable auto-ending of current booking</div>
+                        <div class="flex item-center space-x-2">
+                            <div>Disable auto-ending bookings</div>
                             <app-icon
                                 matTooltip="Disable ending the current booking early when sensors
 don't detect presence in room after a period of time"
@@ -150,14 +150,14 @@ don't detect presence in room after a period of time"
                 </div>
                 <div class="flex-1">
                     <mat-checkbox formControlName="enable_end_meeting_button">
-                        Show button to end current booking
+                        Show button to end booking early
                     </mat-checkbox>
                 </div>
             </div>
             <div class="flex items-center space-x-4 mb-4">
                 <div class="flex-1">
                     <mat-checkbox formControlName="hide_meeting_details">
-                        <div class="flex item-center">
+                        <div class="flex item-center space-x-2">
                             <div>Hide Meeting Details</div>
                             <app-icon
                                 matTooltip="When enabled only shows the time of the current meeting"
@@ -169,7 +169,7 @@ don't detect presence in room after a period of time"
                 </div>
                 <div class="flex-1">
                     <mat-checkbox formControlName="hide_meeting_title">
-                        <div class="flex item-center">
+                        <div class="flex item-center space-x-2">
                             <div>Hide Meeting Title</div>
                             <app-icon
                                 matTooltip="When enabled only shows the time and host of the current meeting"
@@ -246,7 +246,7 @@ don't detect presence in room after a period of time"
                     </div>
                 </div>
             </div>
-            <div class="flex space-x-4">
+            <!-- <div class="flex space-x-4">
                 <div class="flex-1">
                     <label for="control-ui">Control Interface URL</label>
                     <mat-form-field appearance="outline" class="w-full">
@@ -261,7 +261,7 @@ don't detect presence in room after a period of time"
                         >
                     </mat-form-field>
                 </div>
-            </div>
+            </div> -->
         </main>
         <footer
             *ngIf="!loading"
@@ -299,7 +299,7 @@ export class BookingPanelSettingsModalComponent {
         min_duration: new FormControl(15),
         max_duration: new FormControl(60),
         pending_before: new FormControl(5),
-        pending_after: new FormControl(15),
+        pending_period: new FormControl(15),
         room_image: new FormControl('', validateURL),
         offline_image: new FormControl('', validateURL),
     });
