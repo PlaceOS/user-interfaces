@@ -277,6 +277,12 @@ export class SignageStateService extends AsyncHandler {
         notifySuccess(`Successfully updated playlist media.`);
     }
 
+    public getPlaylistMedia(playlist_id: string) {
+        return listSignagePlaylistMedia(playlist_id)
+            .toPromise()
+            .then((_) => _.items);
+    }
+
     public previewMedia(item: SignageMedia) {
         const ref = this._dialog.open(SignageMediaPreviewModalComponent, {
             data: {
