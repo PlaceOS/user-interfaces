@@ -270,6 +270,8 @@ export class SignageStateService extends AsyncHandler {
         if (result.reason !== 'done') return;
         await removeSignagePlaylist(playlist.id).toPromise();
         notifySuccess(`Successfully removed playlist.`);
+        this._change.next(Date.now());
+        result.close();
     }
 
     public async updatePlaylistMedia(playlist_id: string, list: string[]) {
