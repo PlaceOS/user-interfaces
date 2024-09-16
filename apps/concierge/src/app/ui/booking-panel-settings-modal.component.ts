@@ -2,6 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
+    AsyncHandler,
     getInvalidFields,
     notifyError,
     notifySuccess,
@@ -67,7 +68,7 @@ import { validateURL } from '@placeos/spaces';
                             name="min-duration"
                             formControlName="min_duration"
                             [min]="0"
-                            [step]="5"
+                            [step]="form.value.max_duration > 60 ? 15 : 5"
                             [max]="form.value.max_duration"
                         ></a-duration-field>
                     </div>
@@ -78,8 +79,12 @@ import { validateURL } from '@placeos/spaces';
                         <a-duration-field
                             name="max-duration"
                             formControlName="max_duration"
-                            [min]="form.value.min_duration"
-                            [step]="5"
+                            [min]="
+                                form.value.min_duration +
+                                15 -
+                                (form.value.min_duration % 15)
+                            "
+                            [step]="15"
                             [max]="480"
                         ></a-duration-field>
                     </div>
@@ -280,7 +285,7 @@ don't detect presence in room after a period of time"
     `,
     styles: [``],
 })
-export class BookingPanelSettingsModalComponent {
+export class BookingPanelSettingsModalComponent extends AsyncHandler {
     public loading = '';
     public uploading = 0;
     public readonly zone = this._data.zone;
@@ -309,7 +314,9 @@ export class BookingPanelSettingsModalComponent {
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: { zone: PlaceZone },
         private _dialog_ref: MatDialogRef<BookingPanelSettingsModalComponent>,
-    ) {}
+    ) {
+        super();
+    }
 
     public async ngOnInit() {
         if (!this.zone?.id) {
@@ -318,6 +325,20 @@ export class BookingPanelSettingsModalComponent {
             );
             return;
         }
+        this.subscription(
+            'max_duration',
+            this.form.controls.max_duration.valueChanges.subscribe(
+                (max_duration) => {
+                    if (max_duration <= 60) return;
+                    this.form.patchValue({
+                        min_duration: Math.max(
+                            15,
+                            Math.floor(this.form.value.min_duration / 15) * 15,
+                        ),
+                    });
+                },
+            ),
+        );
         this._defaults = { ...this.form.getRawValue() };
         this.loading = 'Loading existing panel settings...';
         const settings = await querySettings({ parent_id: this.zone.id })
