@@ -13,7 +13,10 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
     selector: 'signage-media',
     template: `
         <div class="relative h-full w-full overflow-visible flex space-x-4">
-            <div sidebar class="w-64 h-full flex flex-col space-y-4 py-4">
+            <div
+                sidebar
+                class="w-64 h-full flex flex-col space-y-4 py-4 overflow-auto"
+            >
                 <h3 class="text-xl font-medium text-center">Playlists</h3>
                 <mat-form-field
                     appearance="outline"
@@ -41,7 +44,7 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
                     @for (playlist of playlists | async; track playlist.id) {
                         <a
                             matRipple
-                            class="w-full px-6 rounded-3xl h-12 flex items-center hover:bg-base-200"
+                            class="w-full px-6 rounded-3xl h-12 min-h-12 flex items-center hover:bg-base-200"
                             [class.!bg-secondary]="
                                 selected_playlist === playlist.id
                             "

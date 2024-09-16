@@ -47,9 +47,18 @@ import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
                 </mat-checkbox>
             </div>
             <div class="flex items-center space-x-4">
-                <label for="default-duration" class="w-auto min-w-0 m-0">
-                    Default Play Time</label
+                <label
+                    for="default-duration"
+                    class="w-auto min-w-0 m-0 space-x-2 flex items-center"
                 >
+                    <div>Default Play Time</div>
+                    <app-icon
+                        class="text-xl"
+                        matTooltip="Default length of time to hold images on screen"
+                    >
+                        info
+                    </app-icon>
+                </label>
                 <div class="text-xs font-mono">
                     {{ form.value.default_duration / 1000 | mediaDuration }}
                 </div>
@@ -163,7 +172,7 @@ export class SignagePlaylistModalComponent {
         enabled: new FormControl(this.playlist.enabled),
         random: new FormControl(this.playlist.random),
         default_duration: new FormControl(
-            this.playlist.default_duration || 15 * 1000,
+            Math.max(this.playlist.default_duration || 15 * 1000, 5000),
         ),
         valid_from: new FormControl(this.playlist.valid_from * 1000),
         valid_until: new FormControl(this.playlist.valid_until * 1000),

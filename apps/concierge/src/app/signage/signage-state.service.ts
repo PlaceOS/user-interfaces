@@ -219,6 +219,16 @@ export class SignageStateService extends AsyncHandler {
 
     public async removePlaylist(playlist: SignagePlaylist) {
         if (!playlist?.id) return;
+        const result = await openConfirmModal(
+            {
+                title: `Remove Playlist`,
+                content: `
+            Are you sure you wish to remove the playlist "<strong>${playlist.name}</strong>"?<br/><br/>`,
+                icon: { content: 'delete' },
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return;
         await removeSignagePlaylist(playlist.id).toPromise();
         notifySuccess(`Successfully removed playlist.`);
     }
