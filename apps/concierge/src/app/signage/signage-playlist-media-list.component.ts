@@ -259,10 +259,12 @@ export class SignagePlaylistMediaListComponent {
     public readonly editItem = (item: SignageMedia) =>
         this._state.editMedia(item);
 
-    public readonly removePlaylist = async () =>
+    public readonly removePlaylist = async () => {
         this._state.removePlaylist(
             await this.selected_playlist.pipe(take(1)).toPromise(),
         );
+        this._router.navigate(['/signage/media', {}]);
+    };
 
     public readonly selected_playlist = combineLatest([
         this._playlist,
