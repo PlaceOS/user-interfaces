@@ -19659,15 +19659,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "21e8bab",
-  "hash": "21e8bab",
+  "raw": "7e92d4a",
+  "hash": "7e92d4a",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "21e8bab",
+  "suffix": "7e92d4a",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1726478475088
+  "time": 1726485749994
 };
 /* tslint:enable */
 
@@ -27685,12 +27685,13 @@ function SimpleTableComponent_ng_container_3_div_2_div_3_Template(rf, ctx) {
     _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵelementEnd"]();
   }
   if (rf & 2) {
+    let tmp_7_0;
     const column_r9 = _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵnextContext"]().$implicit;
     const ctx_r9 = _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵnextContext"]();
     const row_r11 = ctx_r9.$implicit;
     const i_r7 = ctx_r9.index;
     _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵtextInterpolate1"](" ", row_r11[column_r9.key] || (column_r9.key === "_index" ? i_r7 + 1 : ""), " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵtextInterpolate1"](" ", (tmp_7_0 = row_r11[column_r9.key]) !== null && tmp_7_0 !== undefined ? tmp_7_0 : column_r9.key === "_index" ? i_r7 + 1 : row_r11[column_r9.key], " ");
     _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵadvance"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_3__["ɵɵproperty"]("ngIf", (row_r11[column_r9.key] == null || row_r11[column_r9.key] === "") && column_r9.key !== "_index");
   }
