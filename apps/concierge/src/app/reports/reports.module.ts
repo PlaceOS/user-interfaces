@@ -35,6 +35,10 @@ import { AssetReportDailyUsageComponent } from './assets/asset-report-daily-usag
 import { AssetReportProductUsageComponent } from './assets/asset-report-product-usage.component';
 import { AssetReportUsersComponent } from './assets/asset-report-users.component';
 import { AssetReportExpiredItemsComponent } from './assets/asset-report-expired-items.component';
+import { VisitorsReportComponent } from './visitors/visitors-report.component';
+import { VisitorReportOverallComponent } from './visitors/visitor-report-overall.component';
+import { VisitorReportListComponent } from './visitors/visitor-report-list.component';
+import { VisitorReportDailyUsageComponent } from './visitors/visitor-report-daily-usage.component';
 
 const children: Route[] = [
     { path: '', component: ReportsOptionsComponent },
@@ -46,6 +50,7 @@ const children: Route[] = [
         component: ContactTracingReportComponent,
     },
     { path: 'assets', component: AssetsReportComponent },
+    { path: 'visitors', component: VisitorsReportComponent },
     { path: ':id', component: CustomReportComponent },
     { path: '**', redirectTo: 'desks', pathMatch: 'full' },
 ];
@@ -84,6 +89,11 @@ const ROUTES: Route[] = [
         AssetReportProductUsageComponent,
         AssetReportUsersComponent,
         AssetReportExpiredItemsComponent,
+
+        VisitorsReportComponent,
+        VisitorReportOverallComponent,
+        VisitorReportDailyUsageComponent,
+        VisitorReportListComponent,
 
         ContactTracingReportComponent,
         ContactTracingOptionsComponent,
