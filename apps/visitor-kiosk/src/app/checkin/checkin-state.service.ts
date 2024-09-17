@@ -146,6 +146,7 @@ export class CheckinStateService {
                 event.user_name || event.user_email
             }'s meeting`,
         );
+        this.metadata = '';
     }
 
     public printPass() {
