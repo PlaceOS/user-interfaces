@@ -875,6 +875,7 @@ class CheckinStateService {
       }());
       if (!result) return;
       (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.notifySuccess)(`Successfully checked in ${guest.name} for ${event.user_name || event.user_email}'s meeting`);
+      _this5.metadata = '';
     })();
   }
   printPass() {
@@ -19478,15 +19479,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "75537e8",
-  "hash": "75537e8",
+  "raw": "f18f293",
+  "hash": "f18f293",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "75537e8",
+  "suffix": "f18f293",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1726538810923
+  "time": 1726538985697
 };
 /* tslint:enable */
 
