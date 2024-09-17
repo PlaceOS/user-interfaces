@@ -19,6 +19,7 @@ import { SearchOverlayComponent } from './search-overlay.component';
 import { SignageZonesComponent } from './signage-zones.component';
 import { SignageItemPlaylistsComponent } from './signage-item-playlists.component';
 import { SignageMediaModalComponent } from './signage-media-modal.component';
+import { SignageDisplayModalComponent } from './signage-display-modal.component';
 
 const ROUTES: Route[] = [
     {
@@ -45,6 +46,7 @@ export const COMPONENTS: Type<any>[] = [
     SignagePlaylistMediaListComponent,
 
     SignageDisplaysComponent,
+    SignageDisplayModalComponent,
     SignageZonesComponent,
     SearchOverlayComponent,
     SignageItemPlaylistsComponent,

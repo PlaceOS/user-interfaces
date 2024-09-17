@@ -15,6 +15,7 @@ import {
     listSignagePlaylistMedia,
     MediaAnimation,
     SignageMedia,
+    SignagePlaylist,
 } from '@placeos/ts-client';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Router } from '@angular/router';
@@ -30,12 +31,25 @@ import { getUnixTime, startOfMinute } from 'date-fns';
             <button
                 icon
                 matRipple
-                matTooltip="Edit Playlist"
+                [matMenuTriggerFor]="menu"
                 class="absolute top-2 right-2 !m-0"
-                (click)="editPlaylist()"
             >
-                <app-icon>edit</app-icon>
+                <app-icon>more_vert</app-icon>
             </button>
+            <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="editPlaylist()">
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-2xl">edit</app-icon>
+                        <div class="pr-2">Edit Playlist</div>
+                    </div>
+                </button>
+                <button mat-menu-item (click)="removePlaylist()">
+                    <div class="flex items-center space-x-2">
+                        <app-icon class="text-2xl text-error">delete</app-icon>
+                        <div class="pr-2">Remove Playlist</div>
+                    </div>
+                </button>
+            </mat-menu>
             <div details class="flex items-center flex-wrap">
                 <div
                     class="ml-2 text-xs px-2 py-1 m-1 rounded"
@@ -244,6 +258,13 @@ export class SignagePlaylistMediaListComponent {
 
     public readonly editItem = (item: SignageMedia) =>
         this._state.editMedia(item);
+
+    public readonly removePlaylist = async () => {
+        this._state.removePlaylist(
+            await this.selected_playlist.pipe(take(1)).toPromise(),
+        );
+        this._router.navigate(['/signage/media', {}]);
+    };
 
     public readonly selected_playlist = combineLatest([
         this._playlist,

@@ -140,12 +140,13 @@ export class CheckinDetailsComponent implements OnInit {
 
     public async updateGuest() {
         this.loading = true;
-        await this._checkin.updateGuest();
-        await this._checkin.checkinGuest()?.catch((e) => {
-            this.loading = false;
-            throw e;
-        });
+        // await this._checkin.updateGuest();
+        const result = await this._checkin
+            .checkinGuest()
+            .then(() => true)
+            .catch(() => false);
         this.loading = false;
+        if (!result) return;
         if (this.induction_after_details) {
             this._router.navigate(['/checkin', 'induction']);
         } else {

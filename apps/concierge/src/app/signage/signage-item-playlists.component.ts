@@ -7,8 +7,10 @@ import {
 } from '@angular/core';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { SignageStateService } from './signage-state.service';
-import { map, startWith } from 'rxjs/operators';
+import { map, startWith, tap } from 'rxjs/operators';
 import { SignagePlaylist } from '@placeos/ts-client';
+
+const PLAYLIST_ITEM_COUNTS = {};
 
 @Component({
     selector: `signage-item-playlists`,
@@ -23,16 +25,6 @@ import { SignagePlaylist } from '@placeos/ts-client';
             >
                 {{ extra }}
             </div>
-            <a
-                icon
-                matRipple
-                [href]="link + item.id"
-                *ngIf="link"
-                target="_blank"
-                ref="noopener noreferrer"
-            >
-                <app-icon>link</app-icon>
-            </a>
         </div>
         <ng-content></ng-content>
         @if ((active_playlists | async).length > 0 && item) {
@@ -63,7 +55,7 @@ import { SignagePlaylist } from '@placeos/ts-client';
                                 {{ item.name }}
                             </div>
                             <div class="truncate text-sm opacity-30">
-                                {{ item.media_count || 0 }} Media items
+                                {{ playlistCount(item.id) || 0 }} Media items
                             </div>
                         </div>
                         <button
@@ -131,7 +123,6 @@ export class SignageItemPlaylistsComponent {
     @Input() public item: any;
     @Input() public name: string = 'zone';
     @Input() public extra: string = '';
-    @Input() public link: string = '';
     @Output() public readonly add = new EventEmitter();
     @Output() public readonly remove = new EventEmitter<SignagePlaylist>();
     @Output() public readonly ondrop = new EventEmitter<any>();
@@ -146,8 +137,29 @@ export class SignageItemPlaylistsComponent {
         map(([playlists, ids]) =>
             ids.map((id) => playlists.find((_) => _.id === id)),
         ),
+        tap((playlists) => {
+            for (const item of playlists) {
+                const old_counts = PLAYLIST_ITEM_COUNTS[item.id];
+                if (
+                    old_counts &&
+                    old_counts.last_updated > item.updated_at * 1000
+                ) {
+                    continue;
+                }
+                this._state.getPlaylistMedia(item.id).then((media) => {
+                    PLAYLIST_ITEM_COUNTS[item.id] = {
+                        count: media.length,
+                        last_updated: Date.now(),
+                    };
+                });
+            }
+        }),
         startWith([]),
     );
+
+    public playlistCount(id: string) {
+        return PLAYLIST_ITEM_COUNTS[id]?.count || 0;
+    }
 
     constructor(private _state: SignageStateService) {}
 

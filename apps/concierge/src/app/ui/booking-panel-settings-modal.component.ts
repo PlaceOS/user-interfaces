@@ -2,6 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
+    AsyncHandler,
     getInvalidFields,
     notifyError,
     notifySuccess,
@@ -34,7 +35,7 @@ import { validateURL } from '@placeos/spaces';
             </button>
         </header>
         <main
-            class="p-4 max-h-[65vh] overflow-auto"
+            class="p-4 max-h-[65vh] overflow-y-auto overflow-x-hidden"
             *ngIf="!loading; else load_state"
             [formGroup]="form"
         >
@@ -54,7 +55,7 @@ import { validateURL } from '@placeos/spaces';
                     </div>
                     <div class="flex-1">
                         <mat-checkbox formControlName="disable_book_now_host">
-                            Disallow selecting a booking host
+                            Hide booking host options
                         </mat-checkbox>
                     </div>
                 </div>
@@ -67,7 +68,7 @@ import { validateURL } from '@placeos/spaces';
                             name="min-duration"
                             formControlName="min_duration"
                             [min]="0"
-                            [step]="5"
+                            [step]="form.value.max_duration > 60 ? 15 : 5"
                             [max]="form.value.max_duration"
                         ></a-duration-field>
                     </div>
@@ -78,8 +79,12 @@ import { validateURL } from '@placeos/spaces';
                         <a-duration-field
                             name="max-duration"
                             formControlName="max_duration"
-                            [min]="form.value.min_duration"
-                            [step]="5"
+                            [min]="
+                                form.value.min_duration +
+                                15 -
+                                (form.value.min_duration % 15)
+                            "
+                            [step]="15"
                             [max]="480"
                         ></a-duration-field>
                     </div>
@@ -99,12 +104,12 @@ import { validateURL } from '@placeos/spaces';
                     ></a-duration-field>
                 </div>
                 <div class="flex-1">
-                    <label for="pending_after"
-                        >Cancel meetings when not checked-in after</label
+                    <label for="pending_period"
+                        >Cancel not checked-in meetings after</label
                     >
                     <a-duration-field
-                        name="pending_after"
-                        formControlName="pending_after"
+                        name="pending_period"
+                        formControlName="pending_period"
                         [min]="0"
                         [step]="5"
                         [max]="60"
@@ -137,10 +142,10 @@ import { validateURL } from '@placeos/spaces';
             <div class="flex items-center space-x-4">
                 <div class="flex-1">
                     <mat-checkbox formControlName="disable_end_meeting">
-                        <div class="flex item-center">
-                            <div>Disable auto-ending of current booking</div>
+                        <div class="flex item-center space-x-2">
+                            <div>Disable auto-ending bookings</div>
                             <app-icon
-                                matTooltip="Disable ending the of the current booking early when sensors
+                                matTooltip="Disable ending the current booking early when sensors
 don't detect presence in room after a period of time"
                             >
                                 info
@@ -150,14 +155,14 @@ don't detect presence in room after a period of time"
                 </div>
                 <div class="flex-1">
                     <mat-checkbox formControlName="enable_end_meeting_button">
-                        Show button to end current booking
+                        Show button to end booking early
                     </mat-checkbox>
                 </div>
             </div>
             <div class="flex items-center space-x-4 mb-4">
                 <div class="flex-1">
                     <mat-checkbox formControlName="hide_meeting_details">
-                        <div class="flex item-center">
+                        <div class="flex item-center space-x-2">
                             <div>Hide Meeting Details</div>
                             <app-icon
                                 matTooltip="When enabled only shows the time of the current meeting"
@@ -169,7 +174,7 @@ don't detect presence in room after a period of time"
                 </div>
                 <div class="flex-1">
                     <mat-checkbox formControlName="hide_meeting_title">
-                        <div class="flex item-center">
+                        <div class="flex item-center space-x-2">
                             <div>Hide Meeting Title</div>
                             <app-icon
                                 matTooltip="When enabled only shows the time and host of the current meeting"
@@ -246,7 +251,7 @@ don't detect presence in room after a period of time"
                     </div>
                 </div>
             </div>
-            <div class="flex space-x-4">
+            <!-- <div class="flex space-x-4">
                 <div class="flex-1">
                     <label for="control-ui">Control Interface URL</label>
                     <mat-form-field appearance="outline" class="w-full">
@@ -261,7 +266,7 @@ don't detect presence in room after a period of time"
                         >
                     </mat-form-field>
                 </div>
-            </div>
+            </div> -->
         </main>
         <footer
             *ngIf="!loading"
@@ -280,7 +285,7 @@ don't detect presence in room after a period of time"
     `,
     styles: [``],
 })
-export class BookingPanelSettingsModalComponent {
+export class BookingPanelSettingsModalComponent extends AsyncHandler {
     public loading = '';
     public uploading = 0;
     public readonly zone = this._data.zone;
@@ -299,7 +304,7 @@ export class BookingPanelSettingsModalComponent {
         min_duration: new FormControl(15),
         max_duration: new FormControl(60),
         pending_before: new FormControl(5),
-        pending_after: new FormControl(15),
+        pending_period: new FormControl(15),
         room_image: new FormControl('', validateURL),
         offline_image: new FormControl('', validateURL),
     });
@@ -309,7 +314,9 @@ export class BookingPanelSettingsModalComponent {
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: { zone: PlaceZone },
         private _dialog_ref: MatDialogRef<BookingPanelSettingsModalComponent>,
-    ) {}
+    ) {
+        super();
+    }
 
     public async ngOnInit() {
         if (!this.zone?.id) {
@@ -318,6 +325,20 @@ export class BookingPanelSettingsModalComponent {
             );
             return;
         }
+        this.subscription(
+            'max_duration',
+            this.form.controls.max_duration.valueChanges.subscribe(
+                (max_duration) => {
+                    if (max_duration <= 60) return;
+                    this.form.patchValue({
+                        min_duration: Math.max(
+                            15,
+                            Math.floor(this.form.value.min_duration / 15) * 15,
+                        ),
+                    });
+                },
+            ),
+        );
         this._defaults = { ...this.form.getRawValue() };
         this.loading = 'Loading existing panel settings...';
         const settings = await querySettings({ parent_id: this.zone.id })
@@ -374,12 +395,6 @@ export class BookingPanelSettingsModalComponent {
             );
         }
         const form_value = this.form.getRawValue();
-        // Remove default values from settings
-        for (const key in this._defaults) {
-            if (this._defaults[key] === form_value[key]) {
-                delete form_value[key];
-            }
-        }
         this._dialog_ref.disableClose = true;
         this.loading = 'Loading existing booking panel settings...';
         const settings = await querySettings({ parent_id: this.zone.id })
@@ -397,12 +412,19 @@ export class BookingPanelSettingsModalComponent {
             });
         const setting_value =
             yaml.load(unencrypted_settings.settings_string) || {};
+        const new_settings_blob = {
+            ...setting_value,
+            ...form_value,
+        };
+        // Remove default values from settings
+        // for (const key in this._defaults) {
+        //     if (this._defaults[key] === new_settings_blob[key]) {
+        //         delete new_settings_blob[key];
+        //     }
+        // }
         const new_setting = {
             ...unencrypted_settings,
-            settings_string: yaml.dump({
-                ...setting_value,
-                ...form_value,
-            }),
+            settings_string: yaml.dump(new_settings_blob),
         };
         this.loading = 'Saving changes to booking panel settings...';
         const update = unencrypted_settings.id

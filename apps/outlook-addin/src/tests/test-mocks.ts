@@ -47,7 +47,7 @@ export const mockUser: any = {
 
 export const mockStaffUser: any = {
     id: '123',
-    name: 'PlaceOS - Mock User',
+    name: 'PlaceOS - Demo User',
     email: 'user@test.com',
     first_name: 'user',
     last_name: 'user',

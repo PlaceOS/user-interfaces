@@ -210,6 +210,7 @@ export class VisitorsStateService extends AsyncHandler {
         }
         if (!result) throw 'User declined';
         await updateBookingInductionStatus(item.id, 'accepted').toPromise();
+        return true;
     }
 
     public async setCheckinState(item: Booking, state = true) {

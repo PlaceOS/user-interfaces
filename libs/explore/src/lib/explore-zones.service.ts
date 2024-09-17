@@ -14,6 +14,7 @@ import {
     MapCanvasComponent,
     Polygon,
 } from 'libs/components/src/lib/map-canvas.component';
+import { ExploreIconComponent } from './explore-icon.component';
 
 export interface ZoneData {
     /** ID of the zone */
@@ -233,10 +234,24 @@ export class ExploreZonesService extends AsyncHandler {
                     color: colour,
                 } as Polygon);
             } else {
-                style_map[`#${zone_id}`] = {
-                    fill: colour,
-                    opacity: 0.6,
-                };
+                if (
+                    this._state.has('style', zone_id, ['zones', 'zones-styles'])
+                ) {
+                    features.push({
+                        location: zone_id,
+                        content: ExploreIconComponent,
+                        data: {
+                            icon: { content: 'pin_drop' },
+                        },
+                        full_size: true,
+                        z_index: 98,
+                    } as ViewerFeature);
+                } else {
+                    style_map[`#${zone_id}`] = {
+                        fill: colour,
+                        opacity: 0.6,
+                    };
+                }
             }
         }
         this._polygons$.next(polygons);

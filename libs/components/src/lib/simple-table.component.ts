@@ -123,8 +123,10 @@ export interface TableColumn {
                     <ng-container [ngSwitch]="columnType(column)">
                         <div class="p-4" *ngSwitchDefault>
                             {{
-                                row[column.key] ||
-                                    (column.key === '_index' ? i + 1 : '')
+                                row[column.key] ??
+                                    (column.key === '_index'
+                                        ? i + 1
+                                        : row[column.key])
                             }}
                             <span
                                 *ngIf="

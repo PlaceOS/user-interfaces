@@ -86,14 +86,14 @@ export class ExploreStateService extends AsyncHandler {
                 limit: 50,
             }).pipe(
                 map(({ data }) => data.map((_) => new Space(_ as any))),
-                catchError((_) => of([] as Space[]))
-            )
+                catchError((_) => of([] as Space[])),
+            ),
         ),
-        shareReplay(1)
+        shareReplay(1),
     );
     /** Currently shown space's map URL */
     public readonly map_url = this._level.pipe(
-        map((lvl) => (lvl ? lvl.map_id : '') || '')
+        map((lvl) => (lvl ? lvl.map_id : '') || ''),
     );
     /** Currently center and zoom positions for map */
     public readonly map_positions = this._positions.asObservable();
@@ -116,7 +116,7 @@ export class ExploreStateService extends AsyncHandler {
                 list = list.concat(features[key]);
             }
             return list;
-        })
+        }),
     );
     /** Currently center and zoom positions for map */
     public readonly map_actions = combineLatest([
@@ -135,7 +135,7 @@ export class ExploreStateService extends AsyncHandler {
                 list = list.concat(actions[key]);
             }
             return list;
-        })
+        }),
     );
     /** Currently center and zoom positions for map */
     public readonly map_labels = combineLatest([
@@ -154,7 +154,7 @@ export class ExploreStateService extends AsyncHandler {
                 list = list.concat(labels[key]);
             }
             return list;
-        })
+        }),
     );
     /** Current map styles */
     public readonly map_styles = combineLatest([
@@ -177,7 +177,7 @@ export class ExploreStateService extends AsyncHandler {
                 style_mappings['#Zones'] = { display: 'none' };
             }
             return style_mappings;
-        })
+        }),
     );
 
     public readonly options = this._options.asObservable();
@@ -193,7 +193,7 @@ export class ExploreStateService extends AsyncHandler {
     constructor(
         private _org: OrganisationService,
         private _spaces: SpacesService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
         this.init();
@@ -206,7 +206,7 @@ export class ExploreStateService extends AsyncHandler {
             .subscribe((level_list) => {
                 const level = this._level.getValue();
                 const has_level = level_list.find(
-                    (lvl) => level?.id === lvl.id
+                    (lvl) => level?.id === lvl.id,
                 );
                 if (!has_level && level_list.length) {
                     this.setLevel(level_list[0].id);
@@ -214,28 +214,28 @@ export class ExploreStateService extends AsyncHandler {
                 if (this._settings.get('app.explore.disable_actions')) {
                     this.setOptions({
                         disable_actions: this._settings.get(
-                            'app.explore.disable_actions'
+                            'app.explore.disable_actions',
                         ),
                     });
                 }
                 if (this._settings.get('app.explore.disable_labels')) {
                     this.setOptions({
                         disable_labels: this._settings.get(
-                            'app.explore.disable_labels'
+                            'app.explore.disable_labels',
                         ),
                     });
                 }
                 if (this._settings.get('app.explore.disable_features')) {
                     this.setOptions({
                         disable_features: this._settings.get(
-                            'app.explore.disable_features'
+                            'app.explore.disable_features',
                         ),
                     });
                 }
                 if (this._settings.get('app.explore.disable_styles')) {
                     this.setOptions({
                         disable_styles: this._settings.get(
-                            'app.explore.disable_styles'
+                            'app.explore.disable_styles',
                         ),
                     });
                 }
@@ -298,5 +298,45 @@ export class ExploreStateService extends AsyncHandler {
 
     public setPositions(zoom: number, center: Point) {
         this._positions.next({ zoom, center });
+    }
+
+    public has(
+        type: 'style' | 'feature' | 'action' | 'label',
+        id: string,
+        exclude: string[] = [],
+    ): boolean {
+        if (type === 'style') {
+            const styles_map = this._styles.getValue();
+            for (const group in styles_map) {
+                if (exclude.includes(group)) continue;
+                const styles = styles_map[group];
+                if (id in styles || `#${id}` in styles) return true;
+            }
+        } else if (type === 'feature') {
+            const feature_map = this._features.getValue();
+            for (const group in feature_map) {
+                if (exclude.includes(group)) continue;
+                for (const feature of feature_map[group]) {
+                    if (feature.location === id) return true;
+                }
+            }
+        } else if (type === 'action') {
+            const actions_map = this._actions.getValue();
+            for (const group in actions_map) {
+                if (exclude.includes(group)) continue;
+                for (const feature of actions_map[group]) {
+                    if (feature.id === id) return true;
+                }
+            }
+        } else if (type === 'label') {
+            const labels_map = this._labels.getValue();
+            for (const group in labels_map) {
+                if (exclude.includes(group)) continue;
+                for (const feature of labels_map[group]) {
+                    if (feature.location === id) return true;
+                }
+            }
+        }
+        return false;
     }
 }

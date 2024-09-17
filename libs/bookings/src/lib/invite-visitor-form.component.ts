@@ -85,6 +85,19 @@ import { User } from 'libs/users/src/lib/user.class';
                             ></a-duration-field>
                         </div>
                     </div>
+                    <div
+                        *ngIf="can_book_for_others"
+                        class="w-full flex flex-col"
+                    >
+                        <label for="host">
+                            {{ 'FORM.HOST' | translate }}<span>*</span>
+                        </label>
+                        <a-user-search-field
+                            name="host"
+                            class="mb-4"
+                            formControlName="user"
+                        ></a-user-search-field>
+                    </div>
                     <ng-container *ngIf="!multiple; else multi_state">
                         <div class="flex flex-col">
                             <label for="visitor-name" i18n
@@ -308,6 +321,10 @@ export class InviteVisitorFormComponent extends AsyncHandler {
         return this._settings.get('app.bookings.multiple_visitors');
     }
 
+    public get can_book_for_others() {
+        return this._settings.get('app.bookings.can_book_for_others');
+    }
+
     public get building() {
         return this._settings.get('app.use_region')
             ? this._org.region
@@ -399,7 +416,9 @@ export class InviteVisitorFormComponent extends AsyncHandler {
                 }]`,
             );
         }
-        this.form.patchValue({ user: currentUser() });
+        if (!this.form.value.user_email || !this.can_book_for_others) {
+            this.form.patchValue({ user: currentUser() });
+        }
         const { asset_id, asset_name, company, assets } = this.form.value;
         const visitor_details = `${asset_id}|${asset_name}|${company}`;
         const old_visitors = this._settings.get('visitor-invitees') || [];

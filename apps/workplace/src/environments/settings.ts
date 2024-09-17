@@ -129,6 +129,7 @@ const explore: any = {
     hide_zones: true,
     use_zone_polygons: false,
     show_simple_sensor_info: false,
+    show_presence_indicators: false,
     legend: [
         ['Available', '#43a047'],
         ['In Use', '#e53935'],

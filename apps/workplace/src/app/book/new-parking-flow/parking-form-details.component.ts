@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { addDays, endOfDay } from 'date-fns';
 
 @Component({
     selector: 'parking-form-details',
@@ -42,7 +43,12 @@ import { OrganisationService } from '@placeos/organisation';
                 </div>
                 <div class="flex-1 min-w-[256px]">
                     <label for="date" i18n>Date<span>*</span></label>
-                    <a-date-field name="date" formControlName="date" i18n>
+                    <a-date-field
+                        name="date"
+                        formControlName="date"
+                        [to]="end_date"
+                        i18n
+                    >
                         Date and time must be in the future
                     </a-date-field>
                 </div>
@@ -80,6 +86,15 @@ import { OrganisationService } from '@placeos/organisation';
                     </mat-checkbox>
                 </div>
             </div>
+            <div *ngIf="can_book_for_others" class="w-full flex flex-col">
+                <label for="host">
+                    {{ 'FORM.HOST' | translate }}<span>*</span>
+                </label>
+                <host-select-field
+                    name="host"
+                    formControlName="organiser"
+                ></host-select-field>
+            </div>
             <div class="flex flex-col">
                 <label for="plate-number" i18n>Plate Number</label>
                 <mat-form-field appearance="outline" class="w-full">
@@ -102,6 +117,15 @@ export class ParkingFormDetailsComponent extends AsyncHandler {
     public readonly building = this._org.active_building;
     public readonly building_list = this._org.building_list;
 
+    public get end_date() {
+        return endOfDay(
+            addDays(
+                Date.now(),
+                this._settings.get('app.parking.available_period') || 7,
+            ),
+        );
+    }
+
     public get max_duration() {
         return this._settings.get('app.bookings.max_duration') || 480;
     }
@@ -114,11 +138,15 @@ export class ParkingFormDetailsComponent extends AsyncHandler {
         return this._settings.get('app.use_24_hour_time');
     }
 
+    public get can_book_for_others() {
+        return this._settings.get('app.bookings.can_book_for_others');
+    }
+
     public readonly setBuilding = (bld) => (this._org.building = bld);
 
     constructor(
         private _settings: SettingsService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }

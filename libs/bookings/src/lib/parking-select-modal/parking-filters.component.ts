@@ -4,6 +4,7 @@ import { SettingsService } from '@placeos/common';
 import { Building, OrganisationService } from '@placeos/organisation';
 import { map, take } from 'rxjs/operators';
 import { BookingFormService } from '../booking-form.service';
+import { addDays, endOfDay } from 'date-fns';
 
 @Component({
     selector: `parking-space-filters`,
@@ -134,7 +135,13 @@ import { BookingFormService } from '../booking-form.service';
                 </div>
                 <div class="flex-1 min-w-[256px]">
                     <label for="date" i18n>Date<span>*</span></label>
-                    <a-date-field name="date" formControlName="date" i18n>
+                    <a-date-field
+                        name="date"
+                        [ngModel]="form.value.date"
+                        (ngModelChange)="form.patchValue({ date: $event })"
+                        [ngModelOptions]="{ standalone: true }"
+                        [to]="end_date"
+                    >
                         Date and time must be in the future
                     </a-date-field>
                 </div>
@@ -259,6 +266,7 @@ export class ParkingSpaceFiltersComponent {
 
     public readonly close = () => this._bsheet_ref.dismiss();
     public readonly setOptions = (o) => this._form.setOptions(o);
+    public readonly setRegion = (r) => (this._org.region = r);
 
     public setBuilding(bld: Building) {
         this._org.building = bld;
@@ -270,6 +278,15 @@ export class ParkingSpaceFiltersComponent {
 
     public get form() {
         return this._form.form;
+    }
+
+    public get end_date() {
+        return endOfDay(
+            addDays(
+                Date.now(),
+                this._settings.get('app.parking.available_period') || 7,
+            ),
+        );
     }
 
     public get max_duration() {

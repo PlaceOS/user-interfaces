@@ -235,7 +235,7 @@ export class ScheduleStateService extends AsyncHandler {
             return my_lockers
                 .map((i) => {
                     const locker = (lockers as Locker[]).find(
-                        (_) => _.id === i.locker_id,
+                        (lkr) => lkr.id === i.locker_id,
                     );
                     if (!locker && (!i.level || !i.building)) return null;
                     i.level = i.level || locker?.level_id;

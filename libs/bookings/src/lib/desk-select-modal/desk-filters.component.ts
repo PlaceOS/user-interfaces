@@ -7,6 +7,7 @@ import { OrganisationService } from 'libs/organisation/src/lib/organisation.serv
 import { BookingFormService } from '../booking-form.service';
 import { map } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
+import { Region } from '@placeos/organisation';
 
 @Component({
     selector: 'desk-filters',
@@ -133,7 +134,9 @@ import { combineLatest } from 'rxjs';
                     <label i18n>Date</label>
                     <a-date-field
                         name="date"
-                        formControlName="date"
+                        [ngModel]="form.value.date"
+                        (ngModelChange)="form.patchValue({ date: $event })"
+                        [ngModelOptions]="{ standalone: true }"
                         [to]="end_date"
                     >
                         {{ 'FORM.DATE_ERROR' | translate }}
@@ -248,14 +251,14 @@ export class DeskFiltersComponent {
                 ? this._org.levelsForRegion(region)
                 : this._org.levelsForBuilding(bld);
             const viewable_levels = level_list.filter(
-                (lvl) => !lvl.tags.includes('parking')
+                (lvl) => !lvl.tags.includes('parking'),
             );
             return viewable_levels.sort(
                 (a, b) =>
                     a.parent_id.localeCompare(b.parent_id) ||
-                    (a.display_name || '').localeCompare(b.display_name || '')
+                    (a.display_name || '').localeCompare(b.display_name || ''),
             );
-        })
+        }),
     );
 
     public get building() {
@@ -277,6 +280,8 @@ export class DeskFiltersComponent {
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
     public readonly setLevel = (l) => {};
 
+    public readonly setRegion = (r) => (this._org.region = r);
+
     public get allow_time_changes() {
         return !!this._settings.get('app.desks.allow_time_changes');
     }
@@ -291,8 +296,8 @@ export class DeskFiltersComponent {
         return endOfDay(
             addDays(
                 Date.now(),
-                this._settings.get('app.desks.available_period') || 90
-            )
+                this._settings.get('app.desks.available_period') || 90,
+            ),
         );
     }
 
@@ -309,7 +314,7 @@ export class DeskFiltersComponent {
         private _bsheet_ref: MatBottomSheetRef<DeskFiltersComponent>,
         private _state: BookingFormService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         this.can_close = !!this._bsheet_ref;
     }
