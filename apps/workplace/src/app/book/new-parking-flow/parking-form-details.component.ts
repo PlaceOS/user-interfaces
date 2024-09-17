@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
+import { addDays, endOfDay } from 'date-fns';
 
 @Component({
     selector: 'parking-form-details',
@@ -42,7 +43,12 @@ import { OrganisationService } from '@placeos/organisation';
                 </div>
                 <div class="flex-1 min-w-[256px]">
                     <label for="date" i18n>Date<span>*</span></label>
-                    <a-date-field name="date" formControlName="date" i18n>
+                    <a-date-field
+                        name="date"
+                        formControlName="date"
+                        [to]="end_date"
+                        i18n
+                    >
                         Date and time must be in the future
                     </a-date-field>
                 </div>
@@ -110,6 +116,15 @@ export class ParkingFormDetailsComponent extends AsyncHandler {
 
     public readonly building = this._org.active_building;
     public readonly building_list = this._org.building_list;
+
+    public get end_date() {
+        return endOfDay(
+            addDays(
+                Date.now(),
+                this._settings.get('app.parking.available_period') || 7,
+            ),
+        );
+    }
 
     public get max_duration() {
         return this._settings.get('app.bookings.max_duration') || 480;

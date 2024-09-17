@@ -2,9 +2,9 @@ name: 'PR Flow'
 
 on:
     push:
-        branches: [feat/*, fix/*, '*feat*', '*fix*']
+        branches: [feat/*, fix/*, custom/*]
     pull_request:
-        branches: [feat/*, fix/*, '*feat*', '*fix*']
+        branches: [feat/*, fix/*, custom/*]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -54,6 +54,9 @@ jobs:
                   elif [[ ${{ github.ref_name }} == *"fix"* ]]
                   then
                       echo "configuration=fix" >> $GITHUB_OUTPUT
+                  elif [[ ${{ github.ref_name }} == *"custom"* ]]
+                  then
+                      echo "configuration=custom" >> $GITHUB_OUTPUT
                   else
                       echo "configuration=pr" >> $GITHUB_OUTPUT
                   fi
@@ -188,7 +191,7 @@ jobs:
               uses: s0/git-publish-subdir-action@develop
               env:
                   REPO: self
-                  BRANCH: build/${{env.configuration}}/${{env.deploy_branch}}/${{ matrix.package }} # The branch name where you want to push the assets
+                  BRANCH: build/${{env.deploy_branch}}/${{ matrix.package }} # The branch name where you want to push the assets
                   FOLDER: dist/apps/${{ matrix.package }} # The directory where your assets are generated
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub will automatically add this - you don't need to bother getting a token
                   MESSAGE: 'build(${{ matrix.package }}): ${{env.type}}[${{env.deploy_branch}}] CI build from {sha}' # The commit message
