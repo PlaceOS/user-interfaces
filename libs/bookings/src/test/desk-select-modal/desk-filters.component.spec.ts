@@ -74,8 +74,7 @@ describe('DeskFiltersComponent', () => {
     it('should create component', () =>
         expect(spectator.component).toBeTruthy());
 
-    it('should allow changing date', () =>
-        expect('[formControlName="date"]').toExist());
+    it('should allow changing date', () => expect('[name="date"]').toExist());
 
     it('should allow start time', () =>
         expect('[name="start-time"]').toExist());
@@ -88,7 +87,7 @@ describe('DeskFiltersComponent', () => {
     it('should allow setting all day', () => {
         expect('[formControlName="all_day"]').not.toExist();
         (spectator.inject(SettingsService).get as any).mockImplementation(
-            () => true
+            () => true,
         );
         spectator.detectChanges();
         expect('[formControlName="all_day"]').toExist();

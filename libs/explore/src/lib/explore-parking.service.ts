@@ -15,7 +15,6 @@ import {
     endOfDay,
     endOfMinute,
     getUnixTime,
-    isSameDay,
     startOfDay,
     startOfMinute,
 } from 'date-fns';

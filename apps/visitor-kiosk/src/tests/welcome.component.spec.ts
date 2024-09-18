@@ -1,22 +1,26 @@
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
 import { of } from 'rxjs';
-import { MockComponent } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { TopbarHeaderComponent } from '../app/components/topbar-header.component';
 import { WelcomeComponent } from '../app/welcome.component';
+import { IconComponent } from '@placeos/components';
 
 describe('WelcomeComponent', () => {
     let spectator: SpectatorRouting<WelcomeComponent>;
     const createComponent = createRoutingFactory({
         component: WelcomeComponent,
         providers: [
-            {
-                provide: SettingsService,
-                useValue: { get: jest.fn(), listen: jest.fn(() => of()) },
-            },
+            MockProvider(SettingsService, {
+                get: jest.fn(),
+                listen: jest.fn(() => of()),
+            }),
         ],
-        declarations: [MockComponent(TopbarHeaderComponent)],
+        declarations: [
+            MockComponent(TopbarHeaderComponent),
+            MockComponent(IconComponent),
+        ],
     });
 
     beforeEach(() => (spectator = createComponent()));
