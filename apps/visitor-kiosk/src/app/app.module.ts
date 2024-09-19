@@ -2,8 +2,11 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
+import {
+    provideHttpClient,
+    withInterceptorsFromDi,
+} from '@angular/common/http';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
@@ -23,14 +26,24 @@ import { AssetsModule } from '@placeos/assets';
 import { SharedBookingsModule } from '@placeos/bookings';
 import { HttpClient } from '@angular/common/http';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { VisitorRegistrationComponent } from './visitor-registration.component';
+import { FormFieldsModule } from '../../../../libs/form-fields/src/lib/form-fields.module';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
     return new TranslateHttpLoader(http, './assets/locale/', '.json');
 }
 
-@NgModule({ declarations: [AppComponent, BootstrapComponent, WelcomeComponent],
-    bootstrap: [AppComponent], imports: [BrowserModule,
+@NgModule({
+    declarations: [
+        AppComponent,
+        BootstrapComponent,
+        WelcomeComponent,
+        VisitorRegistrationComponent,
+    ],
+    bootstrap: [AppComponent],
+    imports: [
+        BrowserModule,
         BrowserAnimationsModule,
         AppRoutingModule,
         ServiceWorkerModule.register('ngsw-worker.js', {
@@ -43,6 +56,8 @@ export function HttpLoaderFactory(http: HttpClient) {
         SharedBookingsModule,
         PaymentsModule,
         AssetsModule,
+        FormFieldsModule,
+        ReactiveFormsModule,
         TranslateModule.forRoot({
             defaultLanguage: 'en',
             loader: {
@@ -50,7 +65,10 @@ export function HttpLoaderFactory(http: HttpClient) {
                 useFactory: HttpLoaderFactory,
                 deps: [HttpClient],
             },
-        })], providers: [
+        }),
+        FormFieldsModule,
+    ],
+    providers: [
         {
             provide: ErrorHandler,
             useValue: Sentry.createErrorHandler({
@@ -63,10 +81,11 @@ export function HttpLoaderFactory(http: HttpClient) {
         },
         {
             provide: APP_INITIALIZER,
-            useFactory: () => () => { },
+            useFactory: () => () => {},
             deps: [Sentry.TraceService],
             multi: true,
         },
         provideHttpClient(withInterceptorsFromDi()),
-    ] })
+    ],
+})
 export class AppModule {}

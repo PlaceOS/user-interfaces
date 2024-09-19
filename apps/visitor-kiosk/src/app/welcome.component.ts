@@ -29,6 +29,18 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
                         </div>
                     </a>
                     <a
+                        btn
+                        matRipple
+                        [routerLink]="['/register']"
+                        class="base w-40"
+                        *ngIf="can_register"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <div class="ml-2">Register</div>
+                            <app-icon class="text-2xl">chevron_right</app-icon>
+                        </div>
+                    </a>
+                    <a
                         *ngIf="level"
                         btn
                         matRipple
@@ -72,9 +84,13 @@ export class WelcomeComponent
         return this._settings.get('app.home.background');
     }
 
+    public get can_register() {
+        return this._settings.get('app.allow_self_registration');
+    }
+
     constructor(
         private route: ActivatedRoute,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -85,7 +101,7 @@ export class WelcomeComponent
             'level',
             this._settings
                 .listen('KIOSK.level')
-                .subscribe((lvl) => (this.level = lvl))
+                .subscribe((lvl) => (this.level = lvl)),
         );
         this.level = localStorage?.getItem('KIOSK.level');
         this.subscription(
@@ -94,7 +110,7 @@ export class WelcomeComponent
                 if (params.has('level')) {
                     this.level = params.get('level');
                 }
-            })
+            }),
         );
     }
 }
