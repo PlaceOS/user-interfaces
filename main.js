@@ -1235,17 +1235,23 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js */ 89204);
 /* harmony import */ var _placeos_bookings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @placeos/bookings */ 85616);
 /* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @placeos/common */ 22797);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! date-fns */ 23206);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! date-fns */ 23206);
 /* harmony import */ var _checkin_checkin_state_service__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./checkin/checkin-state.service */ 98488);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @angular/core */ 37580);
-/* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @angular/router */ 95072);
 /* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @angular/forms */ 34456);
-/* harmony import */ var _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../../libs/components/src/lib/icon.component */ 69434);
-/* harmony import */ var _angular_material_form_field__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @angular/material/form-field */ 24950);
-/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @angular/material/core */ 74646);
-/* harmony import */ var _angular_material_input__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! @angular/material/input */ 95541);
-/* harmony import */ var _libs_form_fields_src_lib_user_search_field_component__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../../../libs/form-fields/src/lib/user-search-field.component */ 18000);
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @angular/common */ 60316);
+/* harmony import */ var _placeos_users__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @placeos/users */ 41489);
+/* harmony import */ var _placeos_organisation__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @placeos/organisation */ 2510);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @angular/core */ 37580);
+/* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @angular/router */ 95072);
+/* harmony import */ var _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../../../libs/components/src/lib/icon.component */ 69434);
+/* harmony import */ var _angular_material_form_field__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! @angular/material/form-field */ 24950);
+/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @angular/material/core */ 74646);
+/* harmony import */ var _angular_material_input__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! @angular/material/input */ 95541);
+/* harmony import */ var _libs_form_fields_src_lib_user_search_field_component__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../../../libs/form-fields/src/lib/user-search-field.component */ 18000);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! @angular/common */ 60316);
+
+
+
+
 
 
 
@@ -1267,7 +1273,7 @@ __webpack_require__.r(__webpack_exports__);
 const _c0 = () => ["/welcome"];
 class VisitorRegistrationComponent {
   get now() {
-    return (0,date_fns__WEBPACK_IMPORTED_MODULE_6__.startOfMinute)(Date.now());
+    return (0,date_fns__WEBPACK_IMPORTED_MODULE_8__.startOfMinute)(Date.now());
   }
   get background() {
     return this._settings.get('app.home.background');
@@ -1278,18 +1284,21 @@ class VisitorRegistrationComponent {
   get induction_after_details() {
     return this._settings.get('app.induction_after_details');
   }
-  constructor(_settings, _booking_form, _checkin, _router) {
+  constructor(_settings, _booking_form, _checkin, _router, _org) {
     this._settings = _settings;
     this._booking_form = _booking_form;
     this._checkin = _checkin;
     this._router = _router;
+    this._org = _org;
     this.form = this._booking_form.form;
   }
   ngOnInit() {
+    this._booking_form.clearOldState();
     this._booking_form.newForm();
     this._booking_form.setOptions({
       type: 'visitor'
     });
+    this.form.get('asset_id').setValidators([_angular_forms__WEBPACK_IMPORTED_MODULE_9__.Validators.required, _angular_forms__WEBPACK_IMPORTED_MODULE_9__.Validators.email]);
     this._booking_form.form.patchValue({
       booking_type: 'visitor'
     });
@@ -1305,7 +1314,20 @@ class VisitorRegistrationComponent {
       if (!_this.form.valid) {
         return (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.notifyError)(`Some fields are invalid. [${(0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.getInvalidFields)(_this.form).join(', ')}]`);
       }
-      const result = yield _this._booking_form.postForm();
+      const value = _this.form.value;
+      _this._booking_form.form.patchValue({
+        booking_type: 'visitor',
+        self_registered: true,
+        name: value.asset_name,
+        attendees: [new _placeos_users__WEBPACK_IMPORTED_MODULE_4__.User({
+          name: value.asset_name,
+          email: value.asset_id,
+          organisation: value.company,
+          phone: value.phone
+        })],
+        zones: (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.unique)([_this._org.organisation.id, _this._org.region?.id, _this._org.building?.id])
+      });
+      const result = yield _this._booking_form.postForm(true);
       _this._checkin.setBooking(result, 'registered');
       if (result.induction !== 'accepted' && _this.is_induction_enabled && !_this.induction_after_details) {
         _this._router.navigate(['/checkin', 'induction']);
@@ -1315,9 +1337,9 @@ class VisitorRegistrationComponent {
     })();
   }
   static #_ = this.ɵfac = function VisitorRegistrationComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || VisitorRegistrationComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵdirectiveInject"](_placeos_common__WEBPACK_IMPORTED_MODULE_2__.SettingsService), _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵdirectiveInject"](_placeos_bookings__WEBPACK_IMPORTED_MODULE_1__.BookingFormService), _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵdirectiveInject"](_checkin_checkin_state_service__WEBPACK_IMPORTED_MODULE_3__.CheckinStateService), _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵdirectiveInject"](_angular_router__WEBPACK_IMPORTED_MODULE_8__.Router));
+    return new (__ngFactoryType__ || VisitorRegistrationComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵdirectiveInject"](_placeos_common__WEBPACK_IMPORTED_MODULE_2__.SettingsService), _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵdirectiveInject"](_placeos_bookings__WEBPACK_IMPORTED_MODULE_1__.BookingFormService), _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵdirectiveInject"](_checkin_checkin_state_service__WEBPACK_IMPORTED_MODULE_3__.CheckinStateService), _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵdirectiveInject"](_angular_router__WEBPACK_IMPORTED_MODULE_11__.Router), _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵdirectiveInject"](_placeos_organisation__WEBPACK_IMPORTED_MODULE_5__.OrganisationService));
   };
-  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵdefineComponent"]({
+  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵdefineComponent"]({
     type: VisitorRegistrationComponent,
     selectors: [["visitor-registration"]],
     decls: 41,
@@ -1353,74 +1375,74 @@ class VisitorRegistrationComponent {
       } else {
         i18n_2 = $localize`:␟fe22ca53e651df951dac25b67c17894b0980f767␟6641024648411549335:Host`;
       }
-      return [i18n_0, i18n_1, i18n_2, [1, "absolute", "inset-0", "p-8", "flex", "items-center"], [1, "absolute", "min-h-[100%]", "min-w-[100%]", "top-1/2", "-translate-y-1/2", "left-1/2", "-translate-x-1/2", 3, "src"], ["src", "assets/img/building.png", 1, "absolute", "w-[60%]", "bottom-0", "right-0"], [1, "absolute", "top-1/2", "left-4", "-translate-y-1/2", "bg-base-100", "rounded", "shadow", "overflow-auto", "max-h-[80vh]", "max-w-[calc(100%-2rem)]", "w-[32rem]", 3, "formGroup"], [1, "flex", "items-center", "justify-between", "space-x-4", "px-4", "py-2", "border-b", "border-base-300"], [1, "text-lg", "font-medium", "py-2"], ["icon", "", "matRipple", "", 3, "routerLink"], [1, "p-4"], ["for", "name"], ["appearance", "outline", 1, "w-full"], ["matInput", "", "name", "name", "formControlName", "asset_name", "placeholder", "Name"], ["for", "email"], ["matInput", "", "name", "email", "formControlName", "asset_id", "placeholder", "Email"], ["for", "user"], ["formControlName", "user", 1, "mb-4"], ["form", "phone"], ["matInput", "", "name", "phone", "type", "tel", "formControlName", "phone", "placeholder", "Phone Number"], ["form", "org"], ["matInput", "", "name", "org", "formControlName", "organisation", "placeholder", "Organisation / Company"], [1, "flex", "justify-end", "px-4", "py-2", "space-x-4", "border-t", "border-base-300"], ["btn", "", "matRipple", "", 1, "w-40", 3, "click"], [1, "absolute", "top-4", "right-4", "text-2xl", "text-white"]];
+      return [i18n_0, i18n_1, i18n_2, [1, "absolute", "inset-0", "p-8", "flex", "items-center"], [1, "absolute", "min-h-[100%]", "min-w-[100%]", "top-1/2", "-translate-y-1/2", "left-1/2", "-translate-x-1/2", 3, "src"], ["src", "assets/img/building.png", 1, "absolute", "w-[60%]", "bottom-0", "right-0"], [1, "absolute", "top-1/2", "left-4", "-translate-y-1/2", "bg-base-100", "rounded", "shadow", "overflow-auto", "max-h-[80vh]", "max-w-[calc(100%-2rem)]", "w-[32rem]", 3, "formGroup"], [1, "flex", "items-center", "justify-between", "space-x-4", "px-4", "py-2", "border-b", "border-base-300"], [1, "text-lg", "font-medium", "py-2"], ["icon", "", "matRipple", "", 3, "routerLink"], [1, "p-4"], ["for", "name"], ["appearance", "outline", 1, "w-full"], ["matInput", "", "name", "name", "formControlName", "asset_name", "placeholder", "Name"], ["for", "email"], ["matInput", "", "name", "email", "formControlName", "asset_id", "placeholder", "Email"], ["for", "user"], ["formControlName", "user", 1, "mb-4"], ["form", "phone"], ["matInput", "", "name", "phone", "type", "tel", "formControlName", "phone", "placeholder", "Phone Number"], ["form", "org"], ["matInput", "", "name", "org", "formControlName", "company", "placeholder", "Organisation / Company"], [1, "flex", "justify-end", "px-4", "py-2", "space-x-4", "border-t", "border-base-300"], ["btn", "", "matRipple", "", 1, "w-40", 3, "click"], [1, "absolute", "top-4", "right-4", "text-2xl", "text-white"]];
     },
     template: function VisitorRegistrationComponent_Template(rf, ctx) {
       if (rf & 1) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](0, "div", 3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](1, "img", 4)(2, "img", 5);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](3, "div", 6)(4, "div", 7)(5, "h3", 8);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](6, " Visitor Registration ");
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](7, "a", 9)(8, "app-icon");
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](9, "close");
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](10, "div", 10)(11, "label", 11);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵi18n"](12, 0);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](13, "mat-form-field", 12);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](14, "input", 13);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](15, "mat-error");
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](16, "A valid email is required");
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](17, "label", 14);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵi18n"](18, 1);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](19, "mat-form-field", 12);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](20, "input", 15);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](21, "mat-error");
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](22, "A valid email is required");
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](23, "label", 16);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵi18n"](24, 2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](25, "a-user-search-field", 17);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](26, "label", 18);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](27, "Phone Number");
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](28, "mat-form-field", 12);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](29, "input", 19);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](30, "label", 20);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](31, "Organisation / Company");
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](32, "mat-form-field", 12);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](33, "input", 21);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](34, "div", 22)(35, "button", 23);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵlistener"]("click", function VisitorRegistrationComponent_Template_button_click_35_listener() {
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](0, "div", 3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](1, "img", 4)(2, "img", 5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](3, "div", 6)(4, "div", 7)(5, "h3", 8);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](6, " Visitor Registration ");
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](7, "a", 9)(8, "app-icon");
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](9, "close");
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](10, "div", 10)(11, "label", 11);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵi18n"](12, 0);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](13, "mat-form-field", 12);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](14, "input", 13);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](15, "mat-error");
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](16, "A valid email is required");
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](17, "label", 14);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵi18n"](18, 1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](19, "mat-form-field", 12);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](20, "input", 15);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](21, "mat-error");
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](22, "A valid email is required");
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](23, "label", 16);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵi18n"](24, 2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](25, "a-user-search-field", 17);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](26, "label", 18);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](27, "Phone Number");
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](28, "mat-form-field", 12);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](29, "input", 19);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](30, "label", 20);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](31, "Organisation / Company");
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](32, "mat-form-field", 12);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](33, "input", 21);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](34, "div", 22)(35, "button", 23);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵlistener"]("click", function VisitorRegistrationComponent_Template_button_click_35_listener() {
           return ctx.register();
         });
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](36, " Register ");
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](37, "div", 24);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](38);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](39, "date");
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](40, "date");
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](36, " Register ");
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](37, "div", 24);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](38);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵpipe"](39, "date");
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵpipe"](40, "date");
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()();
       }
       if (rf & 2) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("src", ctx.background, _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵsanitizeUrl"]);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("formGroup", ctx.form);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](4);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("routerLink", _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpureFunction0"](11, _c0));
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](31);
-        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtextInterpolate2"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind2"](39, 5, ctx.now, "mediumDate"), " ", _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind2"](40, 8, ctx.now, "shortTime"), " ");
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵadvance"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵproperty"]("src", ctx.background, _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵsanitizeUrl"]);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵproperty"]("formGroup", ctx.form);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵadvance"](4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵproperty"]("routerLink", _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵpureFunction0"](11, _c0));
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵadvance"](31);
+        _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtextInterpolate2"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵpipeBind2"](39, 5, ctx.now, "mediumDate"), " ", _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵpipeBind2"](40, 8, ctx.now, "shortTime"), " ");
       }
     },
-    dependencies: [_angular_router__WEBPACK_IMPORTED_MODULE_8__.RouterLink, _angular_forms__WEBPACK_IMPORTED_MODULE_9__.DefaultValueAccessor, _angular_forms__WEBPACK_IMPORTED_MODULE_9__.NgControlStatus, _angular_forms__WEBPACK_IMPORTED_MODULE_9__.NgControlStatusGroup, _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_4__.IconComponent, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_10__.MatFormField, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_10__.MatError, _angular_material_core__WEBPACK_IMPORTED_MODULE_11__.MatRipple, _angular_material_input__WEBPACK_IMPORTED_MODULE_12__.MatInput, _libs_form_fields_src_lib_user_search_field_component__WEBPACK_IMPORTED_MODULE_5__.UserSearchFieldComponent, _angular_forms__WEBPACK_IMPORTED_MODULE_9__.FormGroupDirective, _angular_forms__WEBPACK_IMPORTED_MODULE_9__.FormControlName, _angular_common__WEBPACK_IMPORTED_MODULE_13__.DatePipe]
+    dependencies: [_angular_router__WEBPACK_IMPORTED_MODULE_11__.RouterLink, _angular_forms__WEBPACK_IMPORTED_MODULE_9__.DefaultValueAccessor, _angular_forms__WEBPACK_IMPORTED_MODULE_9__.NgControlStatus, _angular_forms__WEBPACK_IMPORTED_MODULE_9__.NgControlStatusGroup, _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_6__.IconComponent, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_12__.MatFormField, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_12__.MatError, _angular_material_core__WEBPACK_IMPORTED_MODULE_13__.MatRipple, _angular_material_input__WEBPACK_IMPORTED_MODULE_14__.MatInput, _libs_form_fields_src_lib_user_search_field_component__WEBPACK_IMPORTED_MODULE_7__.UserSearchFieldComponent, _angular_forms__WEBPACK_IMPORTED_MODULE_9__.FormGroupDirective, _angular_forms__WEBPACK_IMPORTED_MODULE_9__.FormControlName, _angular_common__WEBPACK_IMPORTED_MODULE_15__.DatePipe]
   });
 }
 
@@ -5965,7 +5987,8 @@ function generateBookingForm(booking = new _booking_class__WEBPACK_IMPORTED_MODU
     recurrence_interval: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.recurrence_interval),
     recurrence_end: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.recurrence_end),
     notes: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.extension_data.notes || ''),
-    update_master: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(false)
+    update_master: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(false),
+    self_registered: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(false)
   });
   form.valueChanges.subscribe(v => {
     if (form.getRawValue().date < Date.now() && form.value.id) {
@@ -19479,15 +19502,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "f18f293",
-  "hash": "f18f293",
+  "raw": "2b2572c",
+  "hash": "2b2572c",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "f18f293",
+  "suffix": "2b2572c",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1726538985697
+  "time": 1726722573105
 };
 /* tslint:enable */
 
