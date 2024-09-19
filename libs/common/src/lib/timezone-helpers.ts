@@ -35,7 +35,7 @@ export function getTimezoneOffsetInMinutes(timeZone, date = new Date()) {
     const tzOffsetString = tzOffsetPart ? tzOffsetPart.value : 'GMT';
 
     // Match the offset from the string (e.g., "GMT+0530")
-    const offsetMatch = tzOffsetString.match(/GMT([+-])(\d{2})(\d{2})?/);
+    const offsetMatch = tzOffsetString.match(/GMT([+-])(\d{1,2})(\d{2})?/);
     if (!offsetMatch) {
         return 0; // If no match, assume UTC (offset 0)
     }
@@ -48,12 +48,12 @@ export function getTimezoneOffsetInMinutes(timeZone, date = new Date()) {
 }
 
 export function getTimezoneDifferenceInHours(
-    timeZone1: string,
-    timeZone2: string,
+    src_tz: string,
+    dest_tz: string,
     date: Date = new Date(),
 ) {
-    const offset1 = getTimezoneOffsetInMinutes(timeZone1, date);
-    const offset2 = getTimezoneOffsetInMinutes(timeZone2, date);
+    const offset1 = getTimezoneOffsetInMinutes(src_tz, date);
+    const offset2 = getTimezoneOffsetInMinutes(dest_tz, date);
 
     // Calculate the difference in hours
     return (offset1 - offset2) / 60;

@@ -9,6 +9,7 @@ import {
     endOfMonth,
     format,
     getUnixTime,
+    addMinutes,
 } from 'date-fns';
 import { BehaviorSubject, of, combineLatest, Observable, forkJoin } from 'rxjs';
 import {
@@ -155,8 +156,8 @@ export class EventsStateService extends AsyncHandler {
                     : period === 'week'
                       ? endOfWeek
                       : endOfDay;
-            const start = start_fn(date);
-            const end = end_fn(date);
+            const start = addMinutes(start_fn(date), this.tz_offset * 60);
+            const end = addMinutes(end_fn(date), this.tz_offset * 60);
             return this.filterEvents(events, start, end, filters, zones);
         }),
         shareReplay(1),
@@ -202,13 +203,6 @@ export class EventsStateService extends AsyncHandler {
                           .map((_) => _.id)
                     : null) || [this._org.building?.id];
             }
-            const tz = this._settings.get('app.events.use_building_timezone')
-                ? this._org.building.timezone
-                : '';
-            const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            const offset = !tz
-                ? 0
-                : getTimezoneDifferenceInHours(current_tz, tz);
             this._loading.next(true);
             const start_fn =
                 period === 'month'
@@ -222,13 +216,13 @@ export class EventsStateService extends AsyncHandler {
                     : period === 'week'
                       ? endOfWeek
                       : endOfDay;
-            const start = start_fn(date);
-            const end = end_fn(date);
+            const start = addMinutes(start_fn(date), this.tz_offset * 60);
+            const end = addMinutes(end_fn(date), this.tz_offset * 60);
             return queryEvents({
                 strict: 'limit',
                 zone_ids: zones.join(','),
-                period_start: getUnixTime(start) + offset * 60 * 1000,
-                period_end: getUnixTime(end) + offset * 60 * 1000,
+                period_start: getUnixTime(start),
+                period_end: getUnixTime(end),
             }).pipe(
                 map((_) => {
                     this._retries = 0;
@@ -278,6 +272,14 @@ export class EventsStateService extends AsyncHandler {
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public get tz_offset() {
+        const tz = this._settings.get('app.events.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        return !tz ? 0 : getTimezoneDifferenceInHours(tz, current_tz);
     }
 
     constructor(
