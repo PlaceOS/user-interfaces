@@ -22,6 +22,7 @@ import { VisitorsReportService } from './visitors-report.service';
                     { key: 'visitor_name', name: 'Visitor Name' },
                     { key: 'date', name: 'Date', content: date_template },
                     { key: 'host', name: 'Host' },
+                    { key: 'checked_in', name: 'Checked In' },
                 ]"
                 [sortable]="true"
                 [page_size]="print ? 0 : 10"
@@ -51,6 +52,7 @@ export class VisitorReportListComponent {
                         booking.asset_id,
                     date: booking.date,
                     host: booking.user_name || booking.user_email,
+                    checked_in: booking.checked_in,
                 });
             }
             return list;

@@ -10,7 +10,7 @@ import { VisitorsReportService } from './visitors-report.service';
             class="m-4 rounded bg-base-100 border border-base-200 overflow-hidden"
         >
             <div class="border-b border-base-200 px-4 py-2 flex items-center">
-                <h3 class="font-bold text-xl flex-1">Daily Asset Usage</h3>
+                <h3 class="font-bold text-xl flex-1">Daily Visitor Details</h3>
                 <button icon matRipple (click)="download()" *ngIf="!print">
                     <app-icon>download</app-icon>
                 </button>

@@ -14,7 +14,7 @@ import { differenceInBusinessDays, endOfDay, startOfDay } from 'date-fns';
                 <p class="text-2xl">{{ (business_days | async) || 0 }}</p>
             </div>
             <div class="flex flex-col items-center flex-1">
-                <h3 class="text-sm">Total Bookings</h3>
+                <h3 class="text-sm">Total Visits</h3>
                 <p class="text-2xl">{{ (total_count | async) || 0 }}</p>
             </div>
             <div class="flex flex-col items-center flex-1">
