@@ -23,6 +23,7 @@ import { VisitorsReportService } from './visitors-report.service';
                     { key: 'date', name: 'Date', content: date_template },
                     { key: 'host', name: 'Host' },
                     { key: 'checked_in', name: 'Checked In' },
+                    { key: 'self_registered', name: 'Self Registered' },
                 ]"
                 [sortable]="true"
                 [page_size]="print ? 0 : 10"
@@ -52,7 +53,10 @@ export class VisitorReportListComponent {
                         booking.asset_id,
                     date: booking.date,
                     host: booking.user_name || booking.user_email,
-                    checked_in: booking.checked_in,
+                    checked_in: booking.checked_in ? 'Yes' : 'No',
+                    self_registered: booking.extension_data?.self_registered
+                        ? 'Yes'
+                        : 'No',
                 });
             }
             return list;
