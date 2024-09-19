@@ -36,7 +36,7 @@ import { padLength } from 'libs/components/src/lib/media-duration.pipe';
     template: `
         <div
             class="mx-2 mt-2 p-2 w-[calc(100%-1rem)] bg-info text-info-content rounded-lg text-center text-xs"
-            *ngIf="timezone"
+            *ngIf="diff_tz"
         >
             Timezone of the building is displayed and is different from your
             local timezone.
@@ -283,6 +283,13 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         const hours = Math.floor(Math.abs(offset) / 60);
         const minutes = Math.abs(offset) % 60;
         return `${offset > 0 ? '+' : '-'}${padLength(hours, 2)}${padLength(minutes, 2)}`;
+    }
+
+    public get diff_tz() {
+        const tz = this.timezone;
+        if (!tz) return false;
+        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        return tz !== current_tz;
     }
 
     public get block_start() {
