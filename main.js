@@ -798,12 +798,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! date-fns */ 21121);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! date-fns */ 60665);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! date-fns */ 56441);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! date-fns */ 99908);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! date-fns */ 45726);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! date-fns */ 49675);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! date-fns */ 99908);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! date-fns */ 45726);
 /* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! rxjs */ 90521);
 /* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! rxjs */ 68824);
 /* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! rxjs */ 68757);
-/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! rxjs */ 71536);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! rxjs */ 71536);
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! rxjs/operators */ 8627);
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! rxjs/operators */ 47504);
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! rxjs/operators */ 19803);
@@ -811,16 +812,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! rxjs/operators */ 71963);
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! rxjs/operators */ 35443);
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! rxjs/operators */ 7841);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! rxjs/operators */ 29314);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! rxjs/operators */ 57871);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! rxjs/operators */ 29314);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! rxjs/operators */ 57871);
 /* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @placeos/common */ 22797);
 /* harmony import */ var _placeos_events__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @placeos/events */ 40569);
 /* harmony import */ var _placeos_spaces__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @placeos/spaces */ 44855);
 /* harmony import */ var _placeos_organisation__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @placeos/organisation */ 2510);
 /* harmony import */ var _placeos_ts_client__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @placeos/ts-client */ 35713);
 /* harmony import */ var _event_book_modal_component__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./event-book-modal.component */ 98575);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! @angular/core */ 37580);
-/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! @angular/material/dialog */ 12587);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! @angular/core */ 37580);
+/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! @angular/material/dialog */ 12587);
 
 
 
@@ -843,6 +844,11 @@ class EventsStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.As
   }
   get time_format() {
     return this._settings.time_format;
+  }
+  get tz_offset() {
+    const tz = this._settings.get('app.events.use_building_timezone') ? this._org.building.timezone : '';
+    const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return !tz ? 0 : (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.getTimezoneDifferenceInHours)(tz, current_tz);
   }
   constructor(_org, _dialog, _settings) {
     super();
@@ -890,15 +896,15 @@ class EventsStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.As
     this.filtered = (0,rxjs__WEBPACK_IMPORTED_MODULE_8__.combineLatest)([this._bookings, this._filters, this._date, this._period, this._zones]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_15__.map)(([events, filters, date, period, zones]) => {
       const start_fn = period === 'month' ? date_fns__WEBPACK_IMPORTED_MODULE_17__.startOfMonth : period === 'week' ? date_fns__WEBPACK_IMPORTED_MODULE_18__.startOfWeek : date_fns__WEBPACK_IMPORTED_MODULE_19__.startOfDay;
       const end_fn = period === 'month' ? date_fns__WEBPACK_IMPORTED_MODULE_20__.endOfMonth : period === 'week' ? date_fns__WEBPACK_IMPORTED_MODULE_21__.endOfWeek : date_fns__WEBPACK_IMPORTED_MODULE_22__.endOfDay;
-      const start = start_fn(date);
-      const end = end_fn(date);
+      const start = (0,date_fns__WEBPACK_IMPORTED_MODULE_23__.addMinutes)(start_fn(date), this.tz_offset * 60);
+      const end = (0,date_fns__WEBPACK_IMPORTED_MODULE_23__.addMinutes)(end_fn(date), this.tz_offset * 60);
       return this.filterEvents(events, start, end, filters, zones);
     }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_16__.shareReplay)(1));
-    this.pending = (0,rxjs__WEBPACK_IMPORTED_MODULE_23__.of)(1).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_13__.switchMap)(() => {
+    this.pending = (0,rxjs__WEBPACK_IMPORTED_MODULE_24__.of)(1).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_13__.switchMap)(() => {
       const system_id = this._org.binding('approvals');
-      if (!system_id) return (0,rxjs__WEBPACK_IMPORTED_MODULE_23__.of)([]);
+      if (!system_id) return (0,rxjs__WEBPACK_IMPORTED_MODULE_24__.of)([]);
       const mod = (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_5__.getModule)(system_id, 'RoomBookingApproval');
-      if (!mod) return (0,rxjs__WEBPACK_IMPORTED_MODULE_23__.of)([]);
+      if (!mod) return (0,rxjs__WEBPACK_IMPORTED_MODULE_24__.of)([]);
       const binding = mod.binding('approval_required');
       this.subscription('pending', binding.bind());
       return binding.listen().pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_15__.map)(_ => (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.flatten)(Object.values(_ || {}))?.map(i => new _placeos_events__WEBPACK_IMPORTED_MODULE_2__.CalendarEvent(i))));
@@ -906,33 +912,30 @@ class EventsStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.As
     this._retries = 0;
     /** Observable for list of bookings */
     this.events = (0,rxjs__WEBPACK_IMPORTED_MODULE_8__.combineLatest)([this._period, this._zones, this._date, this._poll]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_9__.filter)(([period]) => !!period), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_11__.debounceTime)(300), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_13__.switchMap)(([period, zones, date]) => {
-      if (!zones?.length) return (0,rxjs__WEBPACK_IMPORTED_MODULE_23__.of)([]);
+      if (!zones?.length) return (0,rxjs__WEBPACK_IMPORTED_MODULE_24__.of)([]);
       if (zones[0] === this._org.region.id) {
         zones = (this._settings.get('app.use_region') ? this._org.buildingsForRegion(this._org.region).map(_ => _.id) : null) || [this._org.building?.id];
       }
-      const tz = this._settings.get('app.events.use_building_timezone') ? this._org.building.timezone : '';
-      const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const offset = !tz ? 0 : (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.getTimezoneDifferenceInHours)(current_tz, tz);
       this._loading.next(true);
       const start_fn = period === 'month' ? date_fns__WEBPACK_IMPORTED_MODULE_17__.startOfMonth : period === 'week' ? date_fns__WEBPACK_IMPORTED_MODULE_18__.startOfWeek : date_fns__WEBPACK_IMPORTED_MODULE_19__.startOfDay;
       const end_fn = period === 'month' ? date_fns__WEBPACK_IMPORTED_MODULE_20__.endOfMonth : period === 'week' ? date_fns__WEBPACK_IMPORTED_MODULE_21__.endOfWeek : date_fns__WEBPACK_IMPORTED_MODULE_22__.endOfDay;
-      const start = start_fn(date);
-      const end = end_fn(date);
+      const start = (0,date_fns__WEBPACK_IMPORTED_MODULE_23__.addMinutes)(start_fn(date), this.tz_offset * 60);
+      const end = (0,date_fns__WEBPACK_IMPORTED_MODULE_23__.addMinutes)(end_fn(date), this.tz_offset * 60);
       return (0,_placeos_events__WEBPACK_IMPORTED_MODULE_2__.queryEvents)({
         strict: 'limit',
         zone_ids: zones.join(','),
-        period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_24__.getUnixTime)(start) + offset * 60 * 1000,
-        period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_24__.getUnixTime)(end) + offset * 60 * 1000
+        period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_25__.getUnixTime)(start),
+        period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_25__.getUnixTime)(end)
       }).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_15__.map)(_ => {
         this._retries = 0;
         return [_, start, end, true];
-      }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_25__.catchError)(e => {
+      }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_26__.catchError)(e => {
         if (e?.status === 429) {
           this._retries += 1;
           const timeout_base = Math.min(8000, 1000 * this._retries);
           this.timeout('retry', () => this._poll.next(Date.now()), (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.randomInt)(timeout_base + 1000, timeout_base));
         }
-        return (0,rxjs__WEBPACK_IMPORTED_MODULE_23__.of)([[], undefined, undefined, false]);
+        return (0,rxjs__WEBPACK_IMPORTED_MODULE_24__.of)([[], undefined, undefined, false]);
       }));
     }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_12__.tap)(([events, start, end, clear]) => {
       if (!clear && !events?.length) {
@@ -1013,7 +1016,7 @@ class EventsStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.As
           event
         }
       });
-      const details = yield Promise.race([ref.componentInstance.event.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_26__.first)(_ => _.reason === 'done')).toPromise(), ref.afterClosed().toPromise()]);
+      const details = yield Promise.race([ref.componentInstance.event.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_27__.first)(_ => _.reason === 'done')).toPromise(), ref.afterClosed().toPromise()]);
       if (details?.reason !== 'done') return;
       _this.replace(details.metadata);
     })();
@@ -1023,7 +1026,7 @@ class EventsStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.As
     return (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
       const details = yield (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.openConfirmModal)({
         title: 'Delete meeting?',
-        content: `Are you sure you want to delete the meeting at ${(0,date_fns__WEBPACK_IMPORTED_MODULE_27__.format)(new Date(event.date), 'dd MMM yyyy, ' + _this2.time_format)}<br> in ${event.location}?`,
+        content: `Are you sure you want to delete the meeting at ${(0,date_fns__WEBPACK_IMPORTED_MODULE_28__.format)(new Date(event.date), 'dd MMM yyyy, ' + _this2.time_format)}<br> in ${event.location}?`,
         icon: {
           class: 'material-icons',
           content: 'delete'
@@ -1080,9 +1083,9 @@ class EventsStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.As
     });
   }
   static #_ = this.ɵfac = function EventsStateService_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || EventsStateService)(_angular_core__WEBPACK_IMPORTED_MODULE_28__["ɵɵinject"](_placeos_organisation__WEBPACK_IMPORTED_MODULE_4__.OrganisationService), _angular_core__WEBPACK_IMPORTED_MODULE_28__["ɵɵinject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_29__.MatDialog), _angular_core__WEBPACK_IMPORTED_MODULE_28__["ɵɵinject"](_placeos_common__WEBPACK_IMPORTED_MODULE_1__.SettingsService));
+    return new (__ngFactoryType__ || EventsStateService)(_angular_core__WEBPACK_IMPORTED_MODULE_29__["ɵɵinject"](_placeos_organisation__WEBPACK_IMPORTED_MODULE_4__.OrganisationService), _angular_core__WEBPACK_IMPORTED_MODULE_29__["ɵɵinject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_30__.MatDialog), _angular_core__WEBPACK_IMPORTED_MODULE_29__["ɵɵinject"](_placeos_common__WEBPACK_IMPORTED_MODULE_1__.SettingsService));
   };
-  static #_2 = this.ɵprov = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_28__["ɵɵdefineInjectable"]({
+  static #_2 = this.ɵprov = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_29__["ɵɵdefineInjectable"]({
     token: EventsStateService,
     factory: EventsStateService.ɵfac,
     providedIn: 'root'
@@ -12277,7 +12280,7 @@ function getTimezoneOffsetInMinutes(timeZone, date = new Date()) {
   const tzOffsetPart = parts.find(part => part.type === 'timeZoneName');
   const tzOffsetString = tzOffsetPart ? tzOffsetPart.value : 'GMT';
   // Match the offset from the string (e.g., "GMT+0530")
-  const offsetMatch = tzOffsetString.match(/GMT([+-])(\d{2})(\d{2})?/);
+  const offsetMatch = tzOffsetString.match(/GMT([+-])(\d{1,2})(\d{2})?/);
   if (!offsetMatch) {
     return 0; // If no match, assume UTC (offset 0)
   }
@@ -12286,9 +12289,9 @@ function getTimezoneOffsetInMinutes(timeZone, date = new Date()) {
   const minutes = offsetMatch[3] ? parseInt(offsetMatch[3], 10) : 0;
   return sign * (hours * 60 + minutes);
 }
-function getTimezoneDifferenceInHours(timeZone1, timeZone2, date = new Date()) {
-  const offset1 = getTimezoneOffsetInMinutes(timeZone1, date);
-  const offset2 = getTimezoneOffsetInMinutes(timeZone2, date);
+function getTimezoneDifferenceInHours(src_tz, dest_tz, date = new Date()) {
+  const offset1 = getTimezoneOffsetInMinutes(src_tz, date);
+  const offset2 = getTimezoneOffsetInMinutes(dest_tz, date);
   // Calculate the difference in hours
   return (offset1 - offset2) / 60;
 }
@@ -13612,15 +13615,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "cd750ae",
-  "hash": "cd750ae",
+  "raw": "2da706e",
+  "hash": "2da706e",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "cd750ae",
+  "suffix": "2da706e",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1726532436566
+  "time": 1726712833035
 };
 /* tslint:enable */
 
