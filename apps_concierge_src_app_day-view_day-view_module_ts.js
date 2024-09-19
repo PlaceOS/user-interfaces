@@ -2622,6 +2622,12 @@ class RoomBookingsTimelineComponent extends _placeos_common__WEBPACK_IMPORTED_MO
     const minutes = Math.abs(offset) % 60;
     return `${offset > 0 ? '+' : '-'}${(0,libs_components_src_lib_media_duration_pipe__WEBPACK_IMPORTED_MODULE_5__.padLength)(hours, 2)}${(0,libs_components_src_lib_media_duration_pipe__WEBPACK_IMPORTED_MODULE_5__.padLength)(minutes, 2)}`;
   }
+  get diff_tz() {
+    const tz = this.timezone;
+    if (!tz) return false;
+    const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return tz !== current_tz;
+  }
   get block_start() {
     return +this._settings.get('app.events.block_start') || 0;
   }
@@ -2795,7 +2801,7 @@ Host:  ${event.organiser?.name || event.host}`;
       }
       if (rf & 2) {
         let tmp_5_0;
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", ctx.timezone);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", ctx.diff_tz);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("date", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](3, 16, ctx.date))("is_new", true);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
