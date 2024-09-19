@@ -5,9 +5,13 @@ import {
     getInvalidFields,
     notifyError,
     SettingsService,
+    unique,
 } from '@placeos/common';
 import { startOfMinute } from 'date-fns';
 import { CheckinStateService } from './checkin/checkin-state.service';
+import { Validators } from '@angular/forms';
+import { User } from '@placeos/users';
+import { OrganisationService } from '@placeos/organisation';
 
 @Component({
     selector: 'visitor-registration',
@@ -76,7 +80,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                         <input
                             matInput
                             name="org"
-                            formControlName="organisation"
+                            formControlName="company"
                             placeholder="Organisation / Company"
                         />
                     </mat-form-field>
@@ -123,11 +127,16 @@ export class VisitorRegistrationComponent {
         private _booking_form: BookingFormService,
         private _checkin: CheckinStateService,
         private _router: Router,
+        private _org: OrganisationService,
     ) {}
 
     public ngOnInit() {
+        this._booking_form.clearOldState();
         this._booking_form.newForm();
         this._booking_form.setOptions({ type: 'visitor' });
+        this.form
+            .get('asset_id')
+            .setValidators([Validators.required, Validators.email]);
         this._booking_form.form.patchValue({
             booking_type: 'visitor',
         });
@@ -144,7 +153,26 @@ export class VisitorRegistrationComponent {
                 `Some fields are invalid. [${getInvalidFields(this.form).join(', ')}]`,
             );
         }
-        const result = await this._booking_form.postForm();
+        const value = this.form.value;
+        this._booking_form.form.patchValue({
+            booking_type: 'visitor',
+            self_registered: true,
+            name: value.asset_name,
+            attendees: [
+                new User({
+                    name: value.asset_name,
+                    email: value.asset_id,
+                    organisation: value.company,
+                    phone: value.phone,
+                }),
+            ],
+            zones: unique([
+                this._org.organisation.id,
+                this._org.region?.id,
+                this._org.building?.id,
+            ]),
+        });
+        const result = await this._booking_form.postForm(true);
         this._checkin.setBooking(result, 'registered');
         if (
             result.induction !== 'accepted' &&
