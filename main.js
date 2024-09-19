@@ -17758,7 +17758,7 @@ function getTimezoneOffsetInMinutes(timeZone, date = new Date()) {
   const tzOffsetPart = parts.find(part => part.type === 'timeZoneName');
   const tzOffsetString = tzOffsetPart ? tzOffsetPart.value : 'GMT';
   // Match the offset from the string (e.g., "GMT+0530")
-  const offsetMatch = tzOffsetString.match(/GMT([+-])(\d{2})(\d{2})?/);
+  const offsetMatch = tzOffsetString.match(/GMT([+-])(\d{1,2})(\d{2})?/);
   if (!offsetMatch) {
     return 0; // If no match, assume UTC (offset 0)
   }
@@ -17767,9 +17767,9 @@ function getTimezoneOffsetInMinutes(timeZone, date = new Date()) {
   const minutes = offsetMatch[3] ? parseInt(offsetMatch[3], 10) : 0;
   return sign * (hours * 60 + minutes);
 }
-function getTimezoneDifferenceInHours(timeZone1, timeZone2, date = new Date()) {
-  const offset1 = getTimezoneOffsetInMinutes(timeZone1, date);
-  const offset2 = getTimezoneOffsetInMinutes(timeZone2, date);
+function getTimezoneDifferenceInHours(src_tz, dest_tz, date = new Date()) {
+  const offset1 = getTimezoneOffsetInMinutes(src_tz, date);
+  const offset2 = getTimezoneOffsetInMinutes(dest_tz, date);
   // Calculate the difference in hours
   return (offset1 - offset2) / 60;
 }
@@ -19093,15 +19093,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "cd750ae",
-  "hash": "cd750ae",
+  "raw": "2da706e",
+  "hash": "2da706e",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "cd750ae",
+  "suffix": "2da706e",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1726532782125
+  "time": 1726712833538
 };
 /* tslint:enable */
 
