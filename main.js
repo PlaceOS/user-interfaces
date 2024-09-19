@@ -30995,7 +30995,7 @@ function getTimezoneOffsetInMinutes(timeZone) {
   });
   var tzOffsetString = tzOffsetPart ? tzOffsetPart.value : 'GMT';
   // Match the offset from the string (e.g., "GMT+0530")
-  var offsetMatch = tzOffsetString.match(/GMT([+-])(\d{2})(\d{2})?/);
+  var offsetMatch = tzOffsetString.match(/GMT([+-])(\d{1,2})(\d{2})?/);
   if (!offsetMatch) {
     return 0; // If no match, assume UTC (offset 0)
   }
@@ -31004,10 +31004,10 @@ function getTimezoneOffsetInMinutes(timeZone) {
   var minutes = offsetMatch[3] ? parseInt(offsetMatch[3], 10) : 0;
   return sign * (hours * 60 + minutes);
 }
-function getTimezoneDifferenceInHours(timeZone1, timeZone2) {
+function getTimezoneDifferenceInHours(src_tz, dest_tz) {
   var date = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : new Date();
-  var offset1 = getTimezoneOffsetInMinutes(timeZone1, date);
-  var offset2 = getTimezoneOffsetInMinutes(timeZone2, date);
+  var offset1 = getTimezoneOffsetInMinutes(src_tz, date);
+  var offset2 = getTimezoneOffsetInMinutes(dest_tz, date);
   // Calculate the difference in hours
   return (offset1 - offset2) / 60;
 }
@@ -32444,15 +32444,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "cd750ae",
-  "hash": "cd750ae",
+  "raw": "2da706e",
+  "hash": "2da706e",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "cd750ae",
+  "suffix": "2da706e",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1726532442392
+  "time": 1726712836327
 };
 /* tslint:enable */
 
