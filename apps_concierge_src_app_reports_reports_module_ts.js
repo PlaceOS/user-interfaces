@@ -4844,7 +4844,7 @@ class VisitorReportDailyUsageComponent {
     template: function VisitorReportDailyUsageComponent_Template(rf, ctx) {
       if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](0, "div", 1)(1, "div", 2)(2, "h3", 3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](3, "Daily Asset Usage");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](3, "Daily Visitor Details");
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtemplate"](4, VisitorReportDailyUsageComponent_button_4_Template, 3, 0, "button", 4);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
@@ -4909,7 +4909,11 @@ const _c2 = () => ({
   key: "host",
   name: "Host"
 });
-const _c3 = (a0, a1, a2) => [a0, a1, a2];
+const _c3 = () => ({
+  key: "checked_in",
+  name: "Checked In"
+});
+const _c4 = (a0, a1, a2, a3) => [a0, a1, a2, a3];
 function VisitorReportListComponent_button_4_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵgetCurrentView"]();
@@ -4948,7 +4952,8 @@ class VisitorReportListComponent {
         list.push({
           visitor_name: booking.asset_name || booking.extension_data?.asset_name || booking.description || booking.asset_id,
           date: booking.date,
-          host: booking.user_name || booking.user_email
+          host: booking.user_name || booking.user_email,
+          checked_in: booking.checked_in
         });
       }
       return list;
@@ -4968,7 +4973,7 @@ class VisitorReportListComponent {
       print: "print"
     },
     decls: 8,
-    vars: 13,
+    vars: 15,
     consts: [["date_template", ""], [1, "m-4", "rounded", "bg-base-100", "border", "border-base-200", "overflow-hidden"], [1, "border-b", "border-base-200", "px-4", "py-2", "flex", "items-center"], [1, "font-bold", "text-xl", "flex-1"], ["icon", "", "matRipple", "", 3, "click", 4, "ngIf"], ["empty_message", "No events for selected period", 1, "w-full", "block", "text-sm", 3, "data", "columns", "sortable", "page_size"], ["icon", "", "matRipple", "", 3, "click"], [1, "p-4"]],
     template: function VisitorReportListComponent_Template(rf, ctx) {
       if (rf & 1) {
@@ -4986,7 +4991,7 @@ class VisitorReportListComponent {
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](4);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngIf", !ctx.print);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("data", ctx.visitor_bookings)("columns", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction3"](9, _c3, _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](5, _c0), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction1"](6, _c1, date_template_r4), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](8, _c2)))("sortable", true)("page_size", ctx.print ? 0 : 10);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("data", ctx.visitor_bookings)("columns", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction4"](10, _c4, _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](5, _c0), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction1"](6, _c1, date_template_r4), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](8, _c2), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](9, _c3)))("sortable", true)("page_size", ctx.print ? 0 : 10);
       }
     },
     dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_8__.NgIf, _angular_material_core__WEBPACK_IMPORTED_MODULE_9__.MatRipple, _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_3__.IconComponent, _libs_components_src_lib_simple_table_component__WEBPACK_IMPORTED_MODULE_4__.SimpleTableComponent, _angular_common__WEBPACK_IMPORTED_MODULE_8__.DatePipe]
@@ -5047,7 +5052,7 @@ class VisitorReportOverallComponent {
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipe"](6, "async");
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]()();
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](7, "div", 1)(8, "h3", 2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](9, "Total Bookings");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](9, "Total Visits");
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](10, "p", 3);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](11);
