@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1726791427753,
+  "timestamp": 1726793017523,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -152,7 +152,7 @@
   "dataGroups": [],
   "hashTable": {
     "./apps_concierge_src_app_asset-manager_asset-manager_module_ts.js": "ff539ab914100ccc554199fc8448d295dea11a54",
-    "./apps_concierge_src_app_building-manager_building-manager_module_ts.js": "308c88553d37e71c957877ba777c60a7fe47536b",
+    "./apps_concierge_src_app_building-manager_building-manager_module_ts.js": "be9ef06a047ffdf10bb70203006a26670d268d6c",
     "./apps_concierge_src_app_catering_catering_module_ts.js": "380317f362d4dc75de71bff5daff21eacdb5dc16",
     "./apps_concierge_src_app_day-view_day-view_module_ts.js": "024b5c5e85e7a3a6324fe9d242f913729f8f029f",
     "./apps_concierge_src_app_desks_desks_module_ts.js": "3da9d36823bfffb7d52dc238d8c3b59ea8980327",
@@ -260,7 +260,7 @@
     "./default-node_modules_angular_material_fesm2022_tabs_mjs.js": "e940c2d18145992fa91bfeb49918c9a16de14395",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "41ccd092fcb03c42f45a110085d6551aa70b2341",
-    "./main.js": "71a95058775724d0317dac104297d4b136346983",
+    "./main.js": "85b2d0d21828e823e4dc0e0aa684cd5d0e12513d",
     "./manifest.webmanifest": "d04bbed3c845e540889389abee7383200d83ab8b",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
