@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1727072445418,
+  "timestamp": 1727082102390,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -184,15 +184,15 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./apps_workplace_src_app_book_book_module_ts.js": "5756851bb28285be623b4b42ead7de3211b400ec",
-    "./apps_workplace_src_app_control_control_module_ts.js": "f1c8b4dd393840eb5309a78e4352227ba61b4249",
-    "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "38cb71d59dfdb3b90b6857eb70daf54f2aa394e9",
-    "./apps_workplace_src_app_directory_directory_module_ts.js": "fd298d8eb9e39d9d1465d6936c3a2172a6792317",
-    "./apps_workplace_src_app_events_group-events_module_ts.js": "9aca3cef8eece0762b34ab2ad799d1a229e5f42f",
-    "./apps_workplace_src_app_explore_explore_module_ts.js": "3ec58e254d667eaf474bc8bfdada6f98acae2309",
-    "./apps_workplace_src_app_landing_landing_module_ts.js": "be3fbde67ced55adae589dcf81177fa92e46c28f",
-    "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "f55962f3ebf5ff261b65ed7ee7421627c75b8d91",
-    "./apps_workplace_src_app_schedule_schedule_module_ts.js": "a25f5665e4d3f5a40fcc1fa65b021d6bbc1291af",
+    "./apps_workplace_src_app_book_book_module_ts.js": "297bae95010650dc791f73aaf9eab4c61b852100",
+    "./apps_workplace_src_app_control_control_module_ts.js": "4214d3308fc60caf3cdad31fa3e43cfb4c9df942",
+    "./apps_workplace_src_app_dashboard_dashboard_module_ts.js": "a4ce7355be6c5a8ac2ad9da9294e8a651ef9f699",
+    "./apps_workplace_src_app_directory_directory_module_ts.js": "4033881aeb0e87c66d14b9cbc703c7bfe13208f2",
+    "./apps_workplace_src_app_events_group-events_module_ts.js": "cc88479b25fa5e103e9b07ee4f9046fe57ff36ad",
+    "./apps_workplace_src_app_explore_explore_module_ts.js": "18f9f83ba15bae23be7a6429d8497164dad65fe6",
+    "./apps_workplace_src_app_landing_landing_module_ts.js": "374ceb6e4ffb01fcb58b602e931c9bc013d28b56",
+    "./apps_workplace_src_app_new-schedule_schedule_module_ts.js": "907243ce9002ff3742c81114f9e01b8daa9336c8",
+    "./apps_workplace_src_app_schedule_schedule_module_ts.js": "1e505baa94edf3074ee03800fec4440b14e7f93f",
     "./assets/icons/amex.svg": "3530eff717af33317b79bdd1d0ec96abfa884287",
     "./assets/icons/asset-placeholder.svg": "57d3c780a925b7434aadbe716a991457666eb450",
     "./assets/icons/building-filled.svg": "34585f7c33b655e2a69c1279c0ce2d7ce7c3dcea",
@@ -325,7 +325,7 @@
     "./common.js": "1b774eceea92c59e9afce51f12fefa29a28840b9",
     "./favicon.ico": "5d8cf2b09be186513f3621f4c03d98eea93822ba",
     "./index.html": "e89f914cf79129b5d1db09bd70320e498d3b57e2",
-    "./main.js": "9f250fceebe050ea4f59c3d6ff3d72667301eb4f",
+    "./main.js": "08e1d74bac7dd72ec1b1497368736bd7afb195d9",
     "./manifest.webmanifest": "c49610ac8cbb68f39e210180febab6cc58859527",
     "./material-icons-outlined.woff2": "2f9e28ab559782402f27332633c843c40209d95a",
     "./material-icons-round.woff2": "abe05e0641f1050fbe00ef0dbb10c5ea72c26cff",
@@ -338,7 +338,7 @@
     "./node_modules_qr-scanner_qr-scanner-worker_min_js.js": "52307b044908d6e641b20f0db6f7b0d832d0bdc6",
     "./polyfills.js": "c7869949ecf76832cf4075fc54ae3c08cc81a632",
     "./runtime.js": "a7b7cf44cdb4158cadacfb336c9ee5d7949625ef",
-    "./styles.css": "53e7d670886176c10b59b5f1e440ae83d095f6ca",
+    "./styles.css": "6e148900b8653c9819fc1d6dc0822c67f72c479e",
     "./vendor.js": "a3b758373b932e70315ed454ce30d48d0c072576"
   },
   "navigationUrls": [
