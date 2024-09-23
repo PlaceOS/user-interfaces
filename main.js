@@ -12111,11 +12111,12 @@ const app = {
     can_book_for_others: true
   },
   bookings: {
-    can_book_for_others: true
+    can_book_for_others: true,
+    use_building_timezone: false
   },
   events: {
     allow_setup_breakdown: false,
-    use_building_timezone: true,
+    use_building_timezone: false,
     block_start: 7,
     block_end: 19,
     block_height: 5,
@@ -13615,15 +13616,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "8f9b223",
-  "hash": "8f9b223",
+  "raw": "cf1ab3b",
+  "hash": "cf1ab3b",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "8f9b223",
+  "suffix": "cf1ab3b",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1726721928254
+  "time": 1727061907957
 };
 /* tslint:enable */
 
