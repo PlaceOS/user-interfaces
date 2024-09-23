@@ -1,5 +1,6 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import {
+    addHours,
     differenceInMinutes,
     format,
     isSameDay,
@@ -9,7 +10,7 @@ import {
 } from 'date-fns';
 import { EventsStateService } from './events-state.service';
 import { combineLatest } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
+import { debounceTime, map, shareReplay, startWith } from 'rxjs/operators';
 import {
     AsyncHandler,
     SettingsService,
@@ -239,23 +240,41 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
     public readonly events = combineLatest([
         this._state.spaces,
         this._state.filtered,
+        this.date,
     ]).pipe(
-        map(([spaces, events]) => {
+        debounceTime(300),
+        map(([spaces, events, date]) => {
             const map = {};
+            const offset = this.timezone
+                ? getTimezoneDifferenceInHours(this.timezone)
+                : 0;
+            const start = addHours(
+                setHours(startOfDay(date), this.block_start),
+                -offset,
+            ).valueOf();
+            const end = addHours(
+                setHours(startOfDay(date), this.block_end),
+                -offset,
+            ).valueOf();
             for (const space of spaces) {
-                map[space.id] = events.filter(
-                    (event) =>
-                        event.resources.find(
-                            (item) =>
-                                item.id === space.id ||
-                                item.email === space.email,
-                        ) ||
-                        event.system?.id === space.id ||
-                        event.system?.email === space.email,
-                );
+                map[space.id] = events
+                    .filter(
+                        (event) =>
+                            event.resources.find(
+                                (item) =>
+                                    item.id === space.id ||
+                                    item.email === space.email,
+                            ) ||
+                            event.system?.id === space.id ||
+                            event.system?.email === space.email,
+                    )
+                    .filter(
+                        (event) => event.date_end >= start && event.date <= end,
+                    );
             }
             return map;
         }),
+        startWith({}),
         shareReplay(1),
     );
 

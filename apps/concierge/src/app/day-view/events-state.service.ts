@@ -279,7 +279,7 @@ export class EventsStateService extends AsyncHandler {
             ? this._org.building.timezone
             : '';
         const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        return !tz ? 0 : getTimezoneDifferenceInHours(tz, current_tz);
+        return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
     }
 
     constructor(
