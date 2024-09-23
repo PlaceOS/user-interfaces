@@ -3309,7 +3309,7 @@ class ReportsOptionsComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1
     features: [_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵInheritDefinitionFeature"]],
     decls: 20,
     vars: 11,
-    consts: [["startDate", ""], ["endDate", ""], [1, "bg-base-100", "h-20", "w-full", "flex", "items-center", "space-x-2", "p-4", "shadow", "z-20", "border-b", "border-base-200", "print:hidden"], ["appearance", "outline", 1, "w-60", "no-subscript"], ["placeholder", "All Levels", "multiple", "", 3, "ngModelChange", "ngModel"], [3, "value", 4, "ngFor", "ngForOf"], [3, "ngModelChange", "ngModel"], ["btn", "", "matRipple", "", 3, "click", "disabled"], [3, "diameter", 4, "ngIf"], [4, "ngIf"], [1, "flex-1"], ["icon", "", "matRipple", "", "matTooltip", "Download Report Data", 1, "h-12", "w-12", "rounded", "bg-secondary", "text-secondary-content", 3, "click", "disabled"], ["icon", "", "matRipple", "", "matTooltip", "Print Report", 1, "h-12", "w-12", "rounded", "bg-secondary", "text-secondary-content", 3, "click", "disabled"], [3, "value"], [1, "flex", "flex-col-reverse"], ["class", "text-xs opacity-30", 4, "ngIf"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], [3, "diameter"]],
+    consts: [["startDate", ""], ["endDate", ""], [1, "bg-base-100", "h-20", "w-full", "flex", "items-center", "space-x-2", "p-4", "z-20", "border-b", "border-base-200", "print:hidden"], ["appearance", "outline", 1, "w-60", "no-subscript"], ["placeholder", "All Levels", "multiple", "", 3, "ngModelChange", "ngModel"], [3, "value", 4, "ngFor", "ngForOf"], [3, "ngModelChange", "ngModel"], ["btn", "", "matRipple", "", 3, "click", "disabled"], [3, "diameter", 4, "ngIf"], [4, "ngIf"], [1, "flex-1"], ["icon", "", "matRipple", "", "matTooltip", "Download Report Data", 1, "h-12", "w-12", "rounded", "bg-secondary", "text-secondary-content", 3, "click", "disabled"], ["icon", "", "matRipple", "", "matTooltip", "Print Report", 1, "h-12", "w-12", "rounded", "bg-secondary", "text-secondary-content", 3, "click", "disabled"], [3, "value"], [1, "flex", "flex-col-reverse"], ["class", "text-xs opacity-30", 4, "ngIf"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], [3, "diameter"]],
     template: function ReportsOptionsComponent_Template(rf, ctx) {
       if (rf & 1) {
         const _r1 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵgetCurrentView"]();
@@ -3373,7 +3373,7 @@ class ReportsOptionsComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](2);
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngModel", ctx.end);
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("disabled", !!ctx.loading || !(ctx.zones == null ? null : ctx.zones.length));
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("disabled", !!ctx.loading);
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngIf", ctx.loading);
         _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"]();
@@ -3720,11 +3720,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   ReportsModule: () => (/* binding */ ReportsModule)
 /* harmony export */ });
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! @angular/common */ 60316);
-/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! @angular/forms */ 34456);
-/* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! @angular/router */ 95072);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! @angular/common */ 60316);
+/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! @angular/forms */ 34456);
+/* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! @angular/router */ 95072);
 /* harmony import */ var _ui_ui_module__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../ui/ui.module */ 15412);
-/* harmony import */ var _angular_material_paginator__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! @angular/material/paginator */ 24624);
+/* harmony import */ var _angular_material_paginator__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! @angular/material/paginator */ 24624);
 /* harmony import */ var _reports_component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./reports.component */ 99179);
 /* harmony import */ var _placeos_spaces__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @placeos/spaces */ 44855);
 /* harmony import */ var _placeos_users__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @placeos/users */ 41489);
@@ -3754,7 +3754,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _assets_asset_report_product_usage_component__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./assets/asset-report-product-usage.component */ 3623);
 /* harmony import */ var _assets_asset_report_users_component__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./assets/asset-report-users.component */ 18686);
 /* harmony import */ var _assets_asset_report_expired_items_component__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./assets/asset-report-expired-items.component */ 86890);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! @angular/core */ 37580);
+/* harmony import */ var _visitors_visitors_report_component__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./visitors/visitors-report.component */ 9820);
+/* harmony import */ var _visitors_visitor_report_overall_component__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./visitors/visitor-report-overall.component */ 22471);
+/* harmony import */ var _visitors_visitor_report_list_component__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./visitors/visitor-report-list.component */ 83010);
+/* harmony import */ var _visitors_visitor_report_daily_usage_component__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./visitors/visitor-report-daily-usage.component */ 56789);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! @angular/core */ 37580);
+
+
+
+
 
 
 
@@ -3810,6 +3818,9 @@ const children = [{
   path: 'assets',
   component: _assets_assets_report_component__WEBPACK_IMPORTED_MODULE_24__.AssetsReportComponent
 }, {
+  path: 'visitors',
+  component: _visitors_visitors_report_component__WEBPACK_IMPORTED_MODULE_30__.VisitorsReportComponent
+}, {
   path: ':id',
   component: _custom_report_component__WEBPACK_IMPORTED_MODULE_21__.CustomReportComponent
 }, {
@@ -3830,17 +3841,17 @@ class ReportsModule {
   static #_ = this.ɵfac = function ReportsModule_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || ReportsModule)();
   };
-  static #_2 = this.ɵmod = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_30__["ɵɵdefineNgModule"]({
+  static #_2 = this.ɵmod = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_34__["ɵɵdefineNgModule"]({
     type: ReportsModule
   });
-  static #_3 = this.ɵinj = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_30__["ɵɵdefineInjector"]({
-    imports: [_angular_common__WEBPACK_IMPORTED_MODULE_31__.CommonModule, _angular_forms__WEBPACK_IMPORTED_MODULE_32__.FormsModule, _ui_ui_module__WEBPACK_IMPORTED_MODULE_0__.UIModule, _placeos_spaces__WEBPACK_IMPORTED_MODULE_2__.SharedSpacesModule, _placeos_users__WEBPACK_IMPORTED_MODULE_3__.SharedUsersModule, _angular_material_paginator__WEBPACK_IMPORTED_MODULE_33__.MatPaginatorModule, _angular_router__WEBPACK_IMPORTED_MODULE_34__.RouterModule.forChild(ROUTES)]
+  static #_3 = this.ɵinj = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_34__["ɵɵdefineInjector"]({
+    imports: [_angular_common__WEBPACK_IMPORTED_MODULE_35__.CommonModule, _angular_forms__WEBPACK_IMPORTED_MODULE_36__.FormsModule, _ui_ui_module__WEBPACK_IMPORTED_MODULE_0__.UIModule, _placeos_spaces__WEBPACK_IMPORTED_MODULE_2__.SharedSpacesModule, _placeos_users__WEBPACK_IMPORTED_MODULE_3__.SharedUsersModule, _angular_material_paginator__WEBPACK_IMPORTED_MODULE_37__.MatPaginatorModule, _angular_router__WEBPACK_IMPORTED_MODULE_38__.RouterModule.forChild(ROUTES)]
   });
 }
 (function () {
-  (typeof ngJitMode === "undefined" || ngJitMode) && _angular_core__WEBPACK_IMPORTED_MODULE_30__["ɵɵsetNgModuleScope"](ReportsModule, {
-    declarations: [_new_reports_component__WEBPACK_IMPORTED_MODULE_22__.NewReportsComponent, _reports_component__WEBPACK_IMPORTED_MODULE_1__.ReportsComponent, _reports_options_component__WEBPACK_IMPORTED_MODULE_4__.ReportsOptionsComponent, _spaces_report_spaces_component__WEBPACK_IMPORTED_MODULE_5__.ReportSpacesComponent, _spaces_report_spaces_overall_component__WEBPACK_IMPORTED_MODULE_10__.ReportSpacesOverallComponent, _spaces_report_spaces_overall_list_component__WEBPACK_IMPORTED_MODULE_23__.ReportSpacesOverallListComponent, _spaces_report_spaces_space_listing_component__WEBPACK_IMPORTED_MODULE_11__.ReportSpacesSpaceListing, _spaces_report_spaces_user_listing_component__WEBPACK_IMPORTED_MODULE_12__.ReportSpacesUserListingComponent, _desks_report_desks_component__WEBPACK_IMPORTED_MODULE_6__.ReportDesksComponent, _desks_report_desks_overall_list_component__WEBPACK_IMPORTED_MODULE_7__.ReportDesksOverallListComponent, _desks_report_desks_level_list_component__WEBPACK_IMPORTED_MODULE_8__.ReportDesksLevelListComponent, _desks_report_desks_charts_component__WEBPACK_IMPORTED_MODULE_17__.ReportDesksChartsComponent, _reports_menu_component__WEBPACK_IMPORTED_MODULE_9__.ReportsMenuComponent, _catering_catering_report_component__WEBPACK_IMPORTED_MODULE_13__.CateringReportComponent, _catering_catering_report_overall_component__WEBPACK_IMPORTED_MODULE_14__.CateringReportOverallComponent, _catering_catering_report_orders_component__WEBPACK_IMPORTED_MODULE_15__.CateringReportOrdersComponent, _catering_catering_report_items_component__WEBPACK_IMPORTED_MODULE_16__.CateringReportItemsComponent, _assets_assets_report_component__WEBPACK_IMPORTED_MODULE_24__.AssetsReportComponent, _assets_asset_report_overall_component__WEBPACK_IMPORTED_MODULE_25__.AssetReportOverallComponent, _assets_asset_report_daily_usage_component__WEBPACK_IMPORTED_MODULE_26__.AssetReportDailyUsageComponent, _assets_asset_report_product_usage_component__WEBPACK_IMPORTED_MODULE_27__.AssetReportProductUsageComponent, _assets_asset_report_users_component__WEBPACK_IMPORTED_MODULE_28__.AssetReportUsersComponent, _assets_asset_report_expired_items_component__WEBPACK_IMPORTED_MODULE_29__.AssetReportExpiredItemsComponent, _contact_tracing_contact_tracing_report_component__WEBPACK_IMPORTED_MODULE_18__.ContactTracingReportComponent, _contact_tracing_contact_tracing_options_component__WEBPACK_IMPORTED_MODULE_20__.ContactTracingOptionsComponent, _contact_tracing_get_user_pipe__WEBPACK_IMPORTED_MODULE_19__.GetUserPipe, _custom_report_component__WEBPACK_IMPORTED_MODULE_21__.CustomReportComponent],
-    imports: [_angular_common__WEBPACK_IMPORTED_MODULE_31__.CommonModule, _angular_forms__WEBPACK_IMPORTED_MODULE_32__.FormsModule, _ui_ui_module__WEBPACK_IMPORTED_MODULE_0__.UIModule, _placeos_spaces__WEBPACK_IMPORTED_MODULE_2__.SharedSpacesModule, _placeos_users__WEBPACK_IMPORTED_MODULE_3__.SharedUsersModule, _angular_material_paginator__WEBPACK_IMPORTED_MODULE_33__.MatPaginatorModule, _angular_router__WEBPACK_IMPORTED_MODULE_34__.RouterModule]
+  (typeof ngJitMode === "undefined" || ngJitMode) && _angular_core__WEBPACK_IMPORTED_MODULE_34__["ɵɵsetNgModuleScope"](ReportsModule, {
+    declarations: [_new_reports_component__WEBPACK_IMPORTED_MODULE_22__.NewReportsComponent, _reports_component__WEBPACK_IMPORTED_MODULE_1__.ReportsComponent, _reports_options_component__WEBPACK_IMPORTED_MODULE_4__.ReportsOptionsComponent, _spaces_report_spaces_component__WEBPACK_IMPORTED_MODULE_5__.ReportSpacesComponent, _spaces_report_spaces_overall_component__WEBPACK_IMPORTED_MODULE_10__.ReportSpacesOverallComponent, _spaces_report_spaces_overall_list_component__WEBPACK_IMPORTED_MODULE_23__.ReportSpacesOverallListComponent, _spaces_report_spaces_space_listing_component__WEBPACK_IMPORTED_MODULE_11__.ReportSpacesSpaceListing, _spaces_report_spaces_user_listing_component__WEBPACK_IMPORTED_MODULE_12__.ReportSpacesUserListingComponent, _desks_report_desks_component__WEBPACK_IMPORTED_MODULE_6__.ReportDesksComponent, _desks_report_desks_overall_list_component__WEBPACK_IMPORTED_MODULE_7__.ReportDesksOverallListComponent, _desks_report_desks_level_list_component__WEBPACK_IMPORTED_MODULE_8__.ReportDesksLevelListComponent, _desks_report_desks_charts_component__WEBPACK_IMPORTED_MODULE_17__.ReportDesksChartsComponent, _reports_menu_component__WEBPACK_IMPORTED_MODULE_9__.ReportsMenuComponent, _catering_catering_report_component__WEBPACK_IMPORTED_MODULE_13__.CateringReportComponent, _catering_catering_report_overall_component__WEBPACK_IMPORTED_MODULE_14__.CateringReportOverallComponent, _catering_catering_report_orders_component__WEBPACK_IMPORTED_MODULE_15__.CateringReportOrdersComponent, _catering_catering_report_items_component__WEBPACK_IMPORTED_MODULE_16__.CateringReportItemsComponent, _assets_assets_report_component__WEBPACK_IMPORTED_MODULE_24__.AssetsReportComponent, _assets_asset_report_overall_component__WEBPACK_IMPORTED_MODULE_25__.AssetReportOverallComponent, _assets_asset_report_daily_usage_component__WEBPACK_IMPORTED_MODULE_26__.AssetReportDailyUsageComponent, _assets_asset_report_product_usage_component__WEBPACK_IMPORTED_MODULE_27__.AssetReportProductUsageComponent, _assets_asset_report_users_component__WEBPACK_IMPORTED_MODULE_28__.AssetReportUsersComponent, _assets_asset_report_expired_items_component__WEBPACK_IMPORTED_MODULE_29__.AssetReportExpiredItemsComponent, _visitors_visitors_report_component__WEBPACK_IMPORTED_MODULE_30__.VisitorsReportComponent, _visitors_visitor_report_overall_component__WEBPACK_IMPORTED_MODULE_31__.VisitorReportOverallComponent, _visitors_visitor_report_daily_usage_component__WEBPACK_IMPORTED_MODULE_33__.VisitorReportDailyUsageComponent, _visitors_visitor_report_list_component__WEBPACK_IMPORTED_MODULE_32__.VisitorReportListComponent, _contact_tracing_contact_tracing_report_component__WEBPACK_IMPORTED_MODULE_18__.ContactTracingReportComponent, _contact_tracing_contact_tracing_options_component__WEBPACK_IMPORTED_MODULE_20__.ContactTracingOptionsComponent, _contact_tracing_get_user_pipe__WEBPACK_IMPORTED_MODULE_19__.GetUserPipe, _custom_report_component__WEBPACK_IMPORTED_MODULE_21__.CustomReportComponent],
+    imports: [_angular_common__WEBPACK_IMPORTED_MODULE_35__.CommonModule, _angular_forms__WEBPACK_IMPORTED_MODULE_36__.FormsModule, _ui_ui_module__WEBPACK_IMPORTED_MODULE_0__.UIModule, _placeos_spaces__WEBPACK_IMPORTED_MODULE_2__.SharedSpacesModule, _placeos_users__WEBPACK_IMPORTED_MODULE_3__.SharedUsersModule, _angular_material_paginator__WEBPACK_IMPORTED_MODULE_37__.MatPaginatorModule, _angular_router__WEBPACK_IMPORTED_MODULE_38__.RouterModule]
   });
 })();
 
@@ -4716,6 +4727,652 @@ class ReportSpacesComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__
     },
     dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_10__.NgIf, _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_11__.MatProgressSpinner, _reports_options_component__WEBPACK_IMPORTED_MODULE_2__.ReportsOptionsComponent, _report_spaces_overall_component__WEBPACK_IMPORTED_MODULE_3__.ReportSpacesOverallComponent, _report_spaces_overall_list_component__WEBPACK_IMPORTED_MODULE_4__.ReportSpacesOverallListComponent, _report_spaces_space_listing_component__WEBPACK_IMPORTED_MODULE_5__.ReportSpacesSpaceListing, _report_spaces_user_listing_component__WEBPACK_IMPORTED_MODULE_6__.ReportSpacesUserListingComponent, _angular_common__WEBPACK_IMPORTED_MODULE_10__.AsyncPipe],
     styles: ["[_nghost-%COMP%] {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n            }\n        \n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInJlcG9ydC1zcGFjZXMuY29tcG9uZW50LnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7WUFDWTtnQkFDSSxhQUFhO2dCQUNiLHNCQUFzQjtnQkFDdEIsWUFBWTtZQUNoQiIsImZpbGUiOiJyZXBvcnQtc3BhY2VzLmNvbXBvbmVudC50cyIsInNvdXJjZXNDb250ZW50IjpbIlxuICAgICAgICAgICAgOmhvc3Qge1xuICAgICAgICAgICAgICAgIGRpc3BsYXk6IGZsZXg7XG4gICAgICAgICAgICAgICAgZmxleC1kaXJlY3Rpb246IGNvbHVtbjtcbiAgICAgICAgICAgICAgICBoZWlnaHQ6IDEwMCU7XG4gICAgICAgICAgICB9XG4gICAgICAgICJdfQ== */\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2FwcHMvY29uY2llcmdlL3NyYy9hcHAvcmVwb3J0cy9zcGFjZXMvcmVwb3J0LXNwYWNlcy5jb21wb25lbnQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IjtZQUNZO2dCQUNJLGFBQWE7Z0JBQ2Isc0JBQXNCO2dCQUN0QixZQUFZO1lBQ2hCOztBQUVaLG9mQUFvZiIsInNvdXJjZXNDb250ZW50IjpbIlxuICAgICAgICAgICAgOmhvc3Qge1xuICAgICAgICAgICAgICAgIGRpc3BsYXk6IGZsZXg7XG4gICAgICAgICAgICAgICAgZmxleC1kaXJlY3Rpb246IGNvbHVtbjtcbiAgICAgICAgICAgICAgICBoZWlnaHQ6IDEwMCU7XG4gICAgICAgICAgICB9XG4gICAgICAgICJdLCJzb3VyY2VSb290IjoiIn0= */"]
+  });
+}
+
+/***/ }),
+
+/***/ 56789:
+/*!*****************************************************************************************!*\
+  !*** ./apps/concierge/src/app/reports/visitors/visitor-report-daily-usage.component.ts ***!
+  \*****************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   VisitorReportDailyUsageComponent: () => (/* binding */ VisitorReportDailyUsageComponent)
+/* harmony export */ });
+/* harmony import */ var _home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js */ 89204);
+/* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @placeos/common */ 22797);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! rxjs/operators */ 35443);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! rxjs/operators */ 33602);
+/* harmony import */ var _visitors_report_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./visitors-report.service */ 61300);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @angular/core */ 37580);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @angular/common */ 60316);
+/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @angular/material/core */ 74646);
+/* harmony import */ var _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../../../libs/components/src/lib/icon.component */ 69434);
+/* harmony import */ var _libs_components_src_lib_simple_table_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../../../../libs/components/src/lib/simple-table.component */ 88328);
+
+
+
+
+
+
+
+
+
+
+const _c0 = a0 => ({
+  key: "date",
+  name: "Date",
+  content: a0
+});
+const _c1 = () => ({
+  key: "booking_count",
+  name: "Unique Visitors"
+});
+const _c2 = () => ({
+  key: "host_count",
+  name: "Host Count"
+});
+const _c3 = () => ({
+  key: "booked_count",
+  name: "Booking Count"
+});
+const _c4 = (a0, a1, a2, a3) => [a0, a1, a2, a3];
+function VisitorReportDailyUsageComponent_button_4_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](0, "button", 6);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵlistener"]("click", function VisitorReportDailyUsageComponent_button_4_Template_button_click_0_listener() {
+      _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵrestoreView"](_r1);
+      const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵresetView"](ctx_r1.download());
+    });
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](1, "app-icon");
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](2, "download");
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]()();
+  }
+}
+function VisitorReportDailyUsageComponent_ng_template_6_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](0, "div", 7);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipe"](2, "date");
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
+  }
+  if (rf & 2) {
+    const row_r3 = ctx.row;
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind2"](2, 1, row_r3.date, "mediumDate"), " ");
+  }
+}
+class VisitorReportDailyUsageComponent {
+  constructor(_state) {
+    var _this = this;
+    this._state = _state;
+    this.print = false;
+    this.daily_stats = this._state.daily_stats$.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_6__.map)(days => {
+      let list = [];
+      for (const date in days) {
+        list.push({
+          date,
+          booking_count: (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.unique)(days[date].bookings, 'asset_id').length,
+          host_count: (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.unique)(days[date].bookings, 'user_email').length,
+          booked_count: days[date].bookings.length
+        });
+      }
+      return list;
+    }));
+    this.download = /*#__PURE__*/(0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
+      const data = yield _this.daily_stats.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_7__.take)(1)).toPromise();
+      (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.downloadFile)('report-visitors-daily-usage.csv', (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.jsonToCsv)(data));
+    });
+  }
+  static #_ = this.ɵfac = function VisitorReportDailyUsageComponent_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || VisitorReportDailyUsageComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵdirectiveInject"](_visitors_report_service__WEBPACK_IMPORTED_MODULE_2__.VisitorsReportService));
+  };
+  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵdefineComponent"]({
+    type: VisitorReportDailyUsageComponent,
+    selectors: [["visitor-report-daily-usage"]],
+    inputs: {
+      print: "print"
+    },
+    decls: 8,
+    vars: 15,
+    consts: [["date_template", ""], [1, "m-4", "rounded", "bg-base-100", "border", "border-base-200", "overflow-hidden"], [1, "border-b", "border-base-200", "px-4", "py-2", "flex", "items-center"], [1, "font-bold", "text-xl", "flex-1"], ["icon", "", "matRipple", "", 3, "click", 4, "ngIf"], ["empty_message", "No events for selected period", 1, "w-full", "block", "text-sm", 3, "data", "columns", "sortable", "page_size"], ["icon", "", "matRipple", "", 3, "click"], [1, "p-4"]],
+    template: function VisitorReportDailyUsageComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](0, "div", 1)(1, "div", 2)(2, "h3", 3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](3, "Daily Visitor Details");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtemplate"](4, VisitorReportDailyUsageComponent_button_4_Template, 3, 0, "button", 4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelement"](5, "simple-table", 5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtemplate"](6, VisitorReportDailyUsageComponent_ng_template_6_Template, 3, 4, "ng-template", null, 0, _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtemplateRefExtractor"]);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
+      }
+      if (rf & 2) {
+        const date_template_r4 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵreference"](7);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngIf", !ctx.print);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("data", ctx.daily_stats)("columns", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction4"](10, _c4, _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction1"](5, _c0, date_template_r4), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](7, _c1), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](8, _c2), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](9, _c3)))("sortable", true)("page_size", ctx.print ? 0 : 10);
+      }
+    },
+    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_8__.NgIf, _angular_material_core__WEBPACK_IMPORTED_MODULE_9__.MatRipple, _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_3__.IconComponent, _libs_components_src_lib_simple_table_component__WEBPACK_IMPORTED_MODULE_4__.SimpleTableComponent, _angular_common__WEBPACK_IMPORTED_MODULE_8__.DatePipe]
+  });
+}
+
+/***/ }),
+
+/***/ 83010:
+/*!**********************************************************************************!*\
+  !*** ./apps/concierge/src/app/reports/visitors/visitor-report-list.component.ts ***!
+  \**********************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   VisitorReportListComponent: () => (/* binding */ VisitorReportListComponent)
+/* harmony export */ });
+/* harmony import */ var _home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js */ 89204);
+/* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @placeos/common */ 22797);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! rxjs/operators */ 35443);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! rxjs/operators */ 33602);
+/* harmony import */ var _visitors_report_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./visitors-report.service */ 61300);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @angular/core */ 37580);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @angular/common */ 60316);
+/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @angular/material/core */ 74646);
+/* harmony import */ var _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../../../libs/components/src/lib/icon.component */ 69434);
+/* harmony import */ var _libs_components_src_lib_simple_table_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../../../../libs/components/src/lib/simple-table.component */ 88328);
+
+
+
+
+
+
+
+
+
+
+const _c0 = () => ({
+  key: "visitor_name",
+  name: "Visitor Name"
+});
+const _c1 = a0 => ({
+  key: "date",
+  name: "Date",
+  content: a0
+});
+const _c2 = () => ({
+  key: "host",
+  name: "Host"
+});
+const _c3 = () => ({
+  key: "checked_in",
+  name: "Checked In"
+});
+const _c4 = () => ({
+  key: "self_registered",
+  name: "Self Registered"
+});
+const _c5 = (a0, a1, a2, a3, a4) => [a0, a1, a2, a3, a4];
+function VisitorReportListComponent_button_4_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](0, "button", 6);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵlistener"]("click", function VisitorReportListComponent_button_4_Template_button_click_0_listener() {
+      _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵrestoreView"](_r1);
+      const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵresetView"](ctx_r1.download());
+    });
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](1, "app-icon");
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](2, "download");
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]()();
+  }
+}
+function VisitorReportListComponent_ng_template_6_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](0, "div", 7);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipe"](2, "date");
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
+  }
+  if (rf & 2) {
+    const row_r3 = ctx.row;
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind2"](2, 1, row_r3.date, "mediumDate"), " ");
+  }
+}
+class VisitorReportListComponent {
+  constructor(_state) {
+    var _this = this;
+    this._state = _state;
+    this.print = false;
+    this.visitor_bookings = this._state.bookings$.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_6__.map)(bookings => {
+      let list = [];
+      for (const booking of bookings) {
+        list.push({
+          visitor_name: booking.asset_name || booking.extension_data?.asset_name || booking.description || booking.asset_id,
+          date: booking.date,
+          host: booking.user_name || booking.user_email,
+          checked_in: booking.checked_in ? 'Yes' : 'No',
+          self_registered: booking.extension_data?.self_registered ? 'Yes' : 'No'
+        });
+      }
+      return list;
+    }));
+    this.download = /*#__PURE__*/(0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
+      const data = yield _this.visitor_bookings.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_7__.take)(1)).toPromise();
+      (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.downloadFile)('report-assets-daily-usage.csv', (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.jsonToCsv)(data));
+    });
+  }
+  static #_ = this.ɵfac = function VisitorReportListComponent_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || VisitorReportListComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵdirectiveInject"](_visitors_report_service__WEBPACK_IMPORTED_MODULE_2__.VisitorsReportService));
+  };
+  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵdefineComponent"]({
+    type: VisitorReportListComponent,
+    selectors: [["visitor-report-list"]],
+    inputs: {
+      print: "print"
+    },
+    decls: 8,
+    vars: 17,
+    consts: [["date_template", ""], [1, "m-4", "rounded", "bg-base-100", "border", "border-base-200", "overflow-hidden"], [1, "border-b", "border-base-200", "px-4", "py-2", "flex", "items-center"], [1, "font-bold", "text-xl", "flex-1"], ["icon", "", "matRipple", "", 3, "click", 4, "ngIf"], ["empty_message", "No events for selected period", 1, "w-full", "block", "text-sm", 3, "data", "columns", "sortable", "page_size"], ["icon", "", "matRipple", "", 3, "click"], [1, "p-4"]],
+    template: function VisitorReportListComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](0, "div", 1)(1, "div", 2)(2, "h3", 3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](3, "Visitor List");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtemplate"](4, VisitorReportListComponent_button_4_Template, 3, 0, "button", 4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelement"](5, "simple-table", 5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtemplate"](6, VisitorReportListComponent_ng_template_6_Template, 3, 4, "ng-template", null, 0, _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtemplateRefExtractor"]);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
+      }
+      if (rf & 2) {
+        const date_template_r4 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵreference"](7);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngIf", !ctx.print);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("data", ctx.visitor_bookings)("columns", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction5"](11, _c5, _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](5, _c0), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction1"](6, _c1, date_template_r4), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](8, _c2), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](9, _c3), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](10, _c4)))("sortable", true)("page_size", ctx.print ? 0 : 10);
+      }
+    },
+    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_8__.NgIf, _angular_material_core__WEBPACK_IMPORTED_MODULE_9__.MatRipple, _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_3__.IconComponent, _libs_components_src_lib_simple_table_component__WEBPACK_IMPORTED_MODULE_4__.SimpleTableComponent, _angular_common__WEBPACK_IMPORTED_MODULE_8__.DatePipe]
+  });
+}
+
+/***/ }),
+
+/***/ 22471:
+/*!*************************************************************************************!*\
+  !*** ./apps/concierge/src/app/reports/visitors/visitor-report-overall.component.ts ***!
+  \*************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   VisitorReportOverallComponent: () => (/* binding */ VisitorReportOverallComponent)
+/* harmony export */ });
+/* harmony import */ var _visitors_report_service__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./visitors-report.service */ 61300);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! rxjs/operators */ 35443);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! date-fns */ 88948);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! date-fns */ 56441);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! date-fns */ 33240);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @angular/core */ 37580);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @angular/common */ 60316);
+
+
+
+
+
+
+class VisitorReportOverallComponent {
+  constructor(_state) {
+    this._state = _state;
+    this.total_count = this._state.bookings$.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_1__.map)(i => i.length || 0));
+    this.business_days = this._state.options$.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_1__.map)(({
+      start,
+      end
+    }) => (0,date_fns__WEBPACK_IMPORTED_MODULE_2__.differenceInBusinessDays)((0,date_fns__WEBPACK_IMPORTED_MODULE_3__.endOfDay)(end || Date.now()).valueOf() + 1, (0,date_fns__WEBPACK_IMPORTED_MODULE_4__.startOfDay)(start || Date.now())) || 1));
+    this.avg_length = this._state.bookings$.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_1__.map)(events => Math.floor(events.reduce((c, i) => c + i.duration, 0) / events.length)));
+  }
+  static #_ = this.ɵfac = function VisitorReportOverallComponent_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || VisitorReportOverallComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵdirectiveInject"](_visitors_report_service__WEBPACK_IMPORTED_MODULE_0__.VisitorsReportService));
+  };
+  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵdefineComponent"]({
+    type: VisitorReportOverallComponent,
+    selectors: [["visitor-report-overall"]],
+    decls: 19,
+    vars: 9,
+    consts: [[1, "m-4", "p-4", "rounded", "bg-base-100", "border", "border-base-200", "flex", "justify-center", "items-center", "space-x-2"], [1, "flex", "flex-col", "items-center", "flex-1"], [1, "text-sm"], [1, "text-2xl"]],
+    template: function VisitorReportOverallComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](0, "div", 0)(1, "div", 1)(2, "h3", 2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](3, "Business Days");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](4, "p", 3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipe"](6, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](7, "div", 1)(8, "h3", 2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](9, "Total Visits");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](10, "p", 3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](11);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipe"](12, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](13, "div", 1)(14, "h3", 2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](15, "Avg. Booking Length");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](16, "p", 3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](17);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipe"](18, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]()()();
+      }
+      if (rf & 2) {
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtextInterpolate"](_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](6, 3, ctx.business_days) || 0);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](6);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtextInterpolate"](_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](12, 5, ctx.total_count) || 0);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](6);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtextInterpolate1"]("", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](18, 7, ctx.avg_length) || "0", " mins");
+      }
+    },
+    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_6__.AsyncPipe]
+  });
+}
+
+/***/ }),
+
+/***/ 9820:
+/*!******************************************************************************!*\
+  !*** ./apps/concierge/src/app/reports/visitors/visitors-report.component.ts ***!
+  \******************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   VisitorsReportComponent: () => (/* binding */ VisitorsReportComponent)
+/* harmony export */ });
+/* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @placeos/common */ 22797);
+/* harmony import */ var _visitors_report_service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./visitors-report.service */ 61300);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! rxjs/operators */ 35443);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @angular/core */ 37580);
+/* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @angular/router */ 95072);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @angular/common */ 60316);
+/* harmony import */ var _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @angular/material/progress-spinner */ 41134);
+/* harmony import */ var _reports_options_component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../reports-options.component */ 5956);
+/* harmony import */ var _visitor_report_overall_component__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./visitor-report-overall.component */ 22471);
+/* harmony import */ var _visitor_report_daily_usage_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./visitor-report-daily-usage.component */ 56789);
+/* harmony import */ var _visitor_report_list_component__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./visitor-report-list.component */ 83010);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const _c0 = ["visitors-report", ""];
+function VisitorsReportComponent_ng_container_10_ng_container_1_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementContainerStart"](0);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](1, "visitor-report-overall")(2, "visitor-report-daily-usage", 10)(3, "visitor-report-list");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementContainerEnd"]();
+  }
+  if (rf & 2) {
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("print", ctx_r1.printing);
+  }
+}
+function VisitorsReportComponent_ng_container_10_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementContainerStart"](0);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](1, VisitorsReportComponent_ng_container_10_ng_container_1_Template, 4, 1, "ng-container", 9);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipe"](2, "async");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementContainerEnd"]();
+  }
+  if (rf & 2) {
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"]();
+    const empty_state_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵreference"](15);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngIf", _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipeBind1"](2, 2, ctx_r1.total_count))("ngIfElse", empty_state_r3);
+  }
+}
+function VisitorsReportComponent_ng_template_12_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "div", 11);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](1, "mat-spinner", 12);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](2, "p", 13);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](3, "Loading report data...");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
+  }
+  if (rf & 2) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("diameter", 32);
+  }
+}
+function VisitorsReportComponent_ng_template_14_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "div", 14)(1, "p", 13);
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](2, " Select levels and time period to generate a report. ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
+  }
+}
+class VisitorsReportComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0__.AsyncHandler {
+  get logo() {
+    return this._settings.get('app.logo_light') || {};
+  }
+  constructor(_state, _settings, _route) {
+    super();
+    this._state = _state;
+    this._settings = _settings;
+    this._route = _route;
+    this.printing = false;
+    this.total_count = this._state.bookings$.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_7__.map)(i => i.length || 0));
+    this.loading = this._state.loading$;
+    this.downloadReport = () => this._state.downloadReport();
+    this.generateReport = () => this._state.generateReport();
+  }
+  ngOnInit() {
+    this.subscription('route.query', this._route.queryParamMap.subscribe(params => {
+      if (params.has('start')) {
+        this._state.setOptions({
+          start: +params.get('start')
+        });
+      }
+      if (params.has('end')) {
+        this._state.setOptions({
+          end: +params.get('end')
+        });
+      }
+      if (params.has('zones') || params.has('zone_ids')) {
+        const zones = (params.get('zones') || params.get('zone_ids')).split(',');
+        if (zones.length) this._state.setOptions({
+          zones
+        });
+      }
+    }));
+  }
+  static #_ = this.ɵfac = function VisitorsReportComponent_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || VisitorsReportComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdirectiveInject"](_visitors_report_service__WEBPACK_IMPORTED_MODULE_1__.VisitorsReportService), _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdirectiveInject"](_placeos_common__WEBPACK_IMPORTED_MODULE_0__.SettingsService), _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdirectiveInject"](_angular_router__WEBPACK_IMPORTED_MODULE_8__.ActivatedRoute));
+  };
+  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdefineComponent"]({
+    type: VisitorsReportComponent,
+    selectors: [["", "visitors-report", ""]],
+    features: [_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵInheritDefinitionFeature"]],
+    attrs: _c0,
+    decls: 16,
+    vars: 11,
+    consts: [["load_state", ""], ["empty_state", ""], [3, "printing", "download", "generate", "loading", "has_data"], [1, "relative", "flex-1", "h-1/2", "w-full", "overflow-auto", "print:overflow-visible", "print:h-auto"], [1, "w-full"], [1, "flex", "items-center", "m-4", "p-4", "rounded", "bg-base-200"], [1, "h-12", 3, "src"], [1, "flex-1"], [1, "text-2xl", "font-medium", "px-2"], [4, "ngIf", "ngIfElse"], [3, "print"], [1, "h-full", "w-full", "flex", "flex-col", "items-center", "p-8"], [1, "mb-4", 3, "diameter"], [1, "opacity-30"], [1, "h-full", "w-full", "flex", "flex-col", "items-center", "p-8", "screen-only"]],
+    template: function VisitorsReportComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        const _r1 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵgetCurrentView"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "reports-options", 2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipe"](1, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipe"](2, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵlistener"]("printing", function VisitorsReportComponent_Template_reports_options_printing_0_listener($event) {
+          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵrestoreView"](_r1);
+          return _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵresetView"](ctx.printing = $event);
+        })("download", function VisitorsReportComponent_Template_reports_options_download_0_listener() {
+          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵrestoreView"](_r1);
+          return _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵresetView"](ctx.downloadReport());
+        })("generate", function VisitorsReportComponent_Template_reports_options_generate_0_listener() {
+          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵrestoreView"](_r1);
+          return _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵresetView"](ctx.generateReport());
+        });
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](3, "div", 3)(4, "div", 4)(5, "div", 5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](6, "img", 6)(7, "div", 7);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](8, "h2", 8);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](9, "Visitors Report");
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](10, VisitorsReportComponent_ng_container_10_Template, 3, 4, "ng-container", 9);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipe"](11, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](12, VisitorsReportComponent_ng_template_12_Template, 4, 1, "ng-template", null, 0, _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplateRefExtractor"])(14, VisitorsReportComponent_ng_template_14_Template, 3, 0, "ng-template", null, 1, _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplateRefExtractor"]);
+      }
+      if (rf & 2) {
+        const load_state_r4 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵreference"](13);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("loading", _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipeBind1"](1, 5, ctx.loading))("has_data", _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipeBind1"](2, 7, ctx.total_count));
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](6);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("src", ctx.logo.src, _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵsanitizeUrl"]);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngIf", !_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpipeBind1"](11, 9, ctx.loading))("ngIfElse", load_state_r4);
+      }
+    },
+    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_9__.NgIf, _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_10__.MatProgressSpinner, _reports_options_component__WEBPACK_IMPORTED_MODULE_2__.ReportsOptionsComponent, _visitor_report_overall_component__WEBPACK_IMPORTED_MODULE_3__.VisitorReportOverallComponent, _visitor_report_daily_usage_component__WEBPACK_IMPORTED_MODULE_4__.VisitorReportDailyUsageComponent, _visitor_report_list_component__WEBPACK_IMPORTED_MODULE_5__.VisitorReportListComponent, _angular_common__WEBPACK_IMPORTED_MODULE_9__.AsyncPipe],
+    styles: ["[_nghost-%COMP%] {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n            }\n        \n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInZpc2l0b3JzLXJlcG9ydC5jb21wb25lbnQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IjtZQUNZO2dCQUNJLGFBQWE7Z0JBQ2Isc0JBQXNCO2dCQUN0QixZQUFZO1lBQ2hCIiwiZmlsZSI6InZpc2l0b3JzLXJlcG9ydC5jb21wb25lbnQudHMiLCJzb3VyY2VzQ29udGVudCI6WyJcbiAgICAgICAgICAgIDpob3N0IHtcbiAgICAgICAgICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICAgICAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47XG4gICAgICAgICAgICAgICAgaGVpZ2h0OiAxMDAlO1xuICAgICAgICAgICAgfVxuICAgICAgICAiXX0= */\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2FwcHMvY29uY2llcmdlL3NyYy9hcHAvcmVwb3J0cy92aXNpdG9ycy92aXNpdG9ycy1yZXBvcnQuY29tcG9uZW50LnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7WUFDWTtnQkFDSSxhQUFhO2dCQUNiLHNCQUFzQjtnQkFDdEIsWUFBWTtZQUNoQjs7QUFFWix3ZkFBd2YiLCJzb3VyY2VzQ29udGVudCI6WyJcbiAgICAgICAgICAgIDpob3N0IHtcbiAgICAgICAgICAgICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgICAgICAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47XG4gICAgICAgICAgICAgICAgaGVpZ2h0OiAxMDAlO1xuICAgICAgICAgICAgfVxuICAgICAgICAiXSwic291cmNlUm9vdCI6IiJ9 */"]
+  });
+}
+
+/***/ }),
+
+/***/ 61300:
+/*!****************************************************************************!*\
+  !*** ./apps/concierge/src/app/reports/visitors/visitors-report.service.ts ***!
+  \****************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   VisitorsReportService: () => (/* binding */ VisitorsReportService)
+/* harmony export */ });
+/* harmony import */ var _home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js */ 89204);
+/* harmony import */ var _placeos_bookings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @placeos/bookings */ 85616);
+/* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @placeos/common */ 22797);
+/* harmony import */ var _placeos_organisation__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @placeos/organisation */ 2510);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! date-fns */ 99908);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! date-fns */ 33240);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! date-fns */ 56441);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! date-fns */ 45726);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! date-fns */ 31257);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! rxjs */ 90521);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! rxjs */ 68824);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! rxjs/operators */ 8627);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! rxjs/operators */ 71963);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! rxjs/operators */ 33602);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! rxjs/operators */ 19803);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! rxjs/operators */ 66000);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! rxjs/operators */ 89273);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! rxjs/operators */ 7841);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! rxjs/operators */ 35443);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! @angular/core */ 37580);
+
+
+
+
+
+
+
+
+
+
+class VisitorsReportService {
+  constructor(_settings, _org) {
+    this._settings = _settings;
+    this._org = _org;
+    this._loading = new rxjs__WEBPACK_IMPORTED_MODULE_4__.BehaviorSubject(false);
+    this._options = new rxjs__WEBPACK_IMPORTED_MODULE_4__.BehaviorSubject({});
+    this._generate = new rxjs__WEBPACK_IMPORTED_MODULE_4__.BehaviorSubject(0);
+    this.loading$ = this._loading.asObservable();
+    this.options$ = this._options.asObservable();
+    this.bookings$ = this._generate.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_5__.filter)(gen => gen > 0), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_6__.switchMap)(() => this._options.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_7__.take)(1))), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_8__.debounceTime)(300), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_6__.switchMap)(options => {
+      this._loading.next(true);
+      const {
+        start,
+        end,
+        zones
+      } = options;
+      return (0,_placeos_bookings__WEBPACK_IMPORTED_MODULE_1__.queryBookings)({
+        period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_9__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_10__.startOfDay)(start || Date.now())),
+        period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_9__.getUnixTime)((0,date_fns__WEBPACK_IMPORTED_MODULE_11__.endOfDay)(end || start || Date.now())),
+        type: 'visitor',
+        zones: (zones || [])?.join(',') || (this._settings.get('app.use_region') ? this._org.region?.id : '') || this._org.building?.id
+      });
+    }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_12__.tap)(_ => {
+      if (!_.length) {
+        (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.notifyError)('No bookings for the selected levels and period');
+      }
+      this._loading.next(false);
+    }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_13__.startWith)([]), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_14__.shareReplay)(1));
+    this.daily_stats$ = (0,rxjs__WEBPACK_IMPORTED_MODULE_15__.combineLatest)([this.bookings$, this._options]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_16__.map)(([bookings, options]) => {
+      const days = {};
+      for (const booking of bookings) {
+        const date = (0,date_fns__WEBPACK_IMPORTED_MODULE_17__.format)(booking.date, 'yyyy-MM-dd');
+        if (!days[date]) {
+          days[date] = {
+            date: booking.date,
+            bookings: []
+          };
+        }
+        days[date].bookings.push(booking);
+      }
+      return days;
+    }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_14__.shareReplay)(1));
+  }
+  setOptions(options) {
+    this._options.next({
+      ...this._options.getValue(),
+      ...options
+    });
+  }
+  generateReport() {
+    this._generate.next(Date.now());
+  }
+  downloadReport() {
+    var _this = this;
+    return (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
+      const options = _this._options.getValue();
+      const bookings = yield _this.bookings$.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_7__.take)(1)).toPromise();
+      if (!bookings?.length) return;
+      const is_same = (0,date_fns__WEBPACK_IMPORTED_MODULE_18__.isSameDay)(options.start, options.end);
+      const date = is_same ? (0,date_fns__WEBPACK_IMPORTED_MODULE_17__.format)(options.start, 'yyyy-MM-dd') : `${(0,date_fns__WEBPACK_IMPORTED_MODULE_17__.format)(options.start, 'yyyy-MM-dd')}-${(0,date_fns__WEBPACK_IMPORTED_MODULE_17__.format)(options.end, 'yyyy-MM-dd')}`;
+      (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.downloadFile)(`report+assets+${date}.tsv`, (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.jsonToCsv)(bookings.map(bkn => {
+        const details = bkn.toJSON();
+        delete details.zones;
+        delete details.server_names;
+        delete details.extension_data;
+        return details;
+      }), '\t'));
+    })();
+  }
+  static #_ = this.ɵfac = function VisitorsReportService_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || VisitorsReportService)(_angular_core__WEBPACK_IMPORTED_MODULE_19__["ɵɵinject"](_placeos_common__WEBPACK_IMPORTED_MODULE_2__.SettingsService), _angular_core__WEBPACK_IMPORTED_MODULE_19__["ɵɵinject"](_placeos_organisation__WEBPACK_IMPORTED_MODULE_3__.OrganisationService));
+  };
+  static #_2 = this.ɵprov = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_19__["ɵɵdefineInjectable"]({
+    token: VisitorsReportService,
+    factory: VisitorsReportService.ɵfac,
+    providedIn: 'root'
   });
 }
 

@@ -736,7 +736,7 @@ class ParkingStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.A
       }, _this4._dialog);
       if (state?.reason !== 'done') return;
       state.loading('Removing parking user...');
-      const zone = _this4._options.getValue().zones[0];
+      const zone = _this4._org.building.id;
       const users = yield _this4.users.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_21__.take)(1)).toPromise();
       yield (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_4__.updateMetadata)(zone, {
         name: 'parking-users',
@@ -744,6 +744,7 @@ class ParkingStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.A
         description: 'List of available parking users'
       }).toPromise();
       state.close();
+      _this4._change.next(Date.now());
     })();
   }
   editReservation(reservation, {
