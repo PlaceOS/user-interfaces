@@ -129,7 +129,9 @@ export class InductionSettingsModalComponent {
             .toPromise()
             .catch((err) => {
                 console.error(err);
-                notifyError('Error saving induction settings');
+                notifyError(
+                    'Error saving induction settings for visitor kiosk',
+                );
             });
         const result2 = await updateMetadata(this._zone_id, {
             name: con_metadata.name || concierge_app,
@@ -139,7 +141,7 @@ export class InductionSettingsModalComponent {
             .toPromise()
             .catch((err) => {
                 console.error(err);
-                notifyError('Error saving induction settings');
+                notifyError('Error saving induction settings for concierge');
             });
         this.loading = '';
         if (result) {
