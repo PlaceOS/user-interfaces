@@ -2591,14 +2591,15 @@ class ExploreParkingService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__
       const booked_space = yield _this._parking.booked_space.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_24__.take)(1)).toPromise();
       for (const space of spaces) {
         const can_book = !!available.find(_ => _.id === space.id);
-        const assigned_space = !!space.assigned_to;
+        const is_assigned = !!space.assigned_to;
+        const id = space.map_id || space.id;
         const status = can_book ? 'free' : assigned_space ? 'pending' : 'busy';
-        styles[`#${space.map_id}`] = {
+        styles[`#${id}`] = {
           fill: colours[`parking-${status}`] || colours[`${status}`] || _explore_spaces_service__WEBPACK_IMPORTED_MODULE_6__.DEFAULT_COLOURS[`${status}`],
           opacity: 0.6
         };
         features.push({
-          location: `${space.map_id}`,
+          location: `${id}`,
           content: _explore_parking_info_component__WEBPACK_IMPORTED_MODULE_9__.ExploreParkingInfoComponent,
           z_index: 20,
           hover: true,
@@ -2679,7 +2680,7 @@ class ExploreParkingService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__
           };
         }();
         actions.push({
-          id: space?.map_id || space?.id,
+          id,
           action: 'click',
           priority: 10,
           callback: book_fn
