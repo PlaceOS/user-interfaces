@@ -7522,7 +7522,8 @@ function generateBookingForm(booking = new _booking_class__WEBPACK_IMPORTED_MODU
     recurrence_interval: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.recurrence_interval),
     recurrence_end: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.recurrence_end),
     notes: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(booking.extension_data.notes || ''),
-    update_master: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(false)
+    update_master: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(false),
+    self_registered: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(false)
   });
   form.valueChanges.subscribe(v => {
     if (form.getRawValue().date < Date.now() && form.value.id) {
@@ -17180,6 +17181,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   getInvalidFields: () => (/* reexport safe */ _lib_common__WEBPACK_IMPORTED_MODULE_0__.getInvalidFields),
 /* harmony export */   getItemWithKeys: () => (/* reexport safe */ _lib_common__WEBPACK_IMPORTED_MODULE_0__.getItemWithKeys),
 /* harmony export */   getShortUrlQRCode: () => (/* reexport safe */ _lib_shorten_fn__WEBPACK_IMPORTED_MODULE_9__.getShortUrlQRCode),
+/* harmony export */   getTimezoneDifferenceInHours: () => (/* reexport safe */ _lib_timezone_helpers__WEBPACK_IMPORTED_MODULE_4__.getTimezoneDifferenceInHours),
+/* harmony export */   getTimezoneOffsetInMinutes: () => (/* reexport safe */ _lib_timezone_helpers__WEBPACK_IMPORTED_MODULE_4__.getTimezoneOffsetInMinutes),
 /* harmony export */   hasNewVersion: () => (/* reexport safe */ _lib_common__WEBPACK_IMPORTED_MODULE_0__.hasNewVersion),
 /* harmony export */   hexToRgb: () => (/* reexport safe */ _lib_common__WEBPACK_IMPORTED_MODULE_0__.hexToRgb),
 /* harmony export */   interpolateColors: () => (/* reexport safe */ _lib_common__WEBPACK_IMPORTED_MODULE_0__.interpolateColors),
@@ -19812,6 +19815,8 @@ function _whenChangesStable() {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   LOCAL_TIMEZONE: () => (/* binding */ LOCAL_TIMEZONE),
+/* harmony export */   getTimezoneDifferenceInHours: () => (/* binding */ getTimezoneDifferenceInHours),
+/* harmony export */   getTimezoneOffsetInMinutes: () => (/* binding */ getTimezoneOffsetInMinutes),
 /* harmony export */   localToTimezone: () => (/* binding */ localToTimezone),
 /* harmony export */   timezoneToLocal: () => (/* binding */ timezoneToLocal)
 /* harmony export */ });
@@ -19827,6 +19832,33 @@ function localToTimezone(date, tz = LOCAL_TIMEZONE) {
 function timezoneToLocal(date, tz = LOCAL_TIMEZONE) {
   const offset_diff = (0,date_fns_tz__WEBPACK_IMPORTED_MODULE_0__.getTimezoneOffset)(LOCAL_TIMEZONE) - (0,date_fns_tz__WEBPACK_IMPORTED_MODULE_0__.getTimezoneOffset)(tz);
   return (0,date_fns__WEBPACK_IMPORTED_MODULE_1__.addMilliseconds)(date, offset_diff).valueOf();
+}
+function getTimezoneOffsetInMinutes(timeZone, date = new Date()) {
+  const options = {
+    timeZone,
+    hour12: false,
+    timeZoneName: 'short'
+  };
+  const formatter = new Intl.DateTimeFormat([], options);
+  const parts = formatter.formatToParts(date);
+  // Find the timeZoneName part which contains the GMT offset
+  const tzOffsetPart = parts.find(part => part.type === 'timeZoneName');
+  const tzOffsetString = tzOffsetPart ? tzOffsetPart.value : 'GMT';
+  // Match the offset from the string (e.g., "GMT+0530")
+  const offsetMatch = tzOffsetString.match(/GMT([+-])(\d{1,2})(\d{2})?/);
+  if (!offsetMatch) {
+    return 0; // If no match, assume UTC (offset 0)
+  }
+  const sign = offsetMatch[1] === '+' ? 1 : -1;
+  const hours = parseInt(offsetMatch[2], 10);
+  const minutes = offsetMatch[3] ? parseInt(offsetMatch[3], 10) : 0;
+  return sign * (hours * 60 + minutes);
+}
+function getTimezoneDifferenceInHours(src_tz, dest_tz, date = new Date()) {
+  const offset1 = getTimezoneOffsetInMinutes(src_tz, date);
+  const offset2 = getTimezoneOffsetInMinutes(dest_tz, date);
+  // Calculate the difference in hours
+  return (offset1 - offset2) / 60;
 }
 
 /***/ }),
@@ -21148,15 +21180,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "f028770",
-  "hash": "f028770",
+  "raw": "6ba7961",
+  "hash": "6ba7961",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "f028770",
+  "suffix": "6ba7961",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1726532355514
+  "time": 1727062990013
 };
 /* tslint:enable */
 
@@ -38020,14 +38052,15 @@ class ExploreParkingService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__
       const booked_space = yield _this._parking.booked_space.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_24__.take)(1)).toPromise();
       for (const space of spaces) {
         const can_book = !!available.find(_ => _.id === space.id);
-        const assigned_space = !!space.assigned_to;
+        const is_assigned = !!space.assigned_to;
+        const id = space.map_id || space.id;
         const status = can_book ? 'free' : assigned_space ? 'pending' : 'busy';
-        styles[`#${space.map_id}`] = {
+        styles[`#${id}`] = {
           fill: colours[`parking-${status}`] || colours[`${status}`] || _explore_spaces_service__WEBPACK_IMPORTED_MODULE_6__.DEFAULT_COLOURS[`${status}`],
           opacity: 0.6
         };
         features.push({
-          location: `${space.map_id}`,
+          location: `${id}`,
           content: _explore_parking_info_component__WEBPACK_IMPORTED_MODULE_9__.ExploreParkingInfoComponent,
           z_index: 20,
           hover: true,
@@ -38108,7 +38141,7 @@ class ExploreParkingService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__
           };
         }();
         actions.push({
-          id: space?.map_id || space?.id,
+          id,
           action: 'click',
           priority: 10,
           callback: book_fn
@@ -39160,7 +39193,7 @@ class ExploreSpacesService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.
     this._state.setFeatures('spaces', features);
   }
   _updateIcons(spaces) {
-    if (!this._settings.get('show_presence_indicators')) return;
+    if (!this._settings.get('app.show_presence_indicators')) return;
     const features = [];
     for (const space of spaces) {
       if (!space.map_id) continue;
