@@ -250,7 +250,7 @@ export class DetailBookSpaceFormComponent {
                 await this._catering.manageCateringOrder(
                     (this.form.value.catering
                         ? this.form.value.catering[0]
-                        : null) || new CateringOrder()
+                        : null) || new CateringOrder(),
                 ),
             ],
         });
@@ -258,6 +258,6 @@ export class DetailBookSpaceFormComponent {
     constructor(
         private _catering: CateringStateService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 }

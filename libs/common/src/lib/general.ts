@@ -488,6 +488,17 @@ export function shiftColorTowards(
     return rgbToHex(resultRgb[0], resultRgb[1], resultRgb[2]);
 }
 
+export function extractTextFromHTML(html_string: string) {
+    // Create a temporary DOM element
+    const temp_element = document.createElement('div');
+
+    // Set the innerHTML to our HTML string
+    temp_element.innerHTML = html_string;
+
+    // Extract and return the text content
+    return temp_element.textContent || temp_element.innerText || '';
+}
+
 /**
  * Shuffle the items in array into random order
  * @param array List of items to shuffle

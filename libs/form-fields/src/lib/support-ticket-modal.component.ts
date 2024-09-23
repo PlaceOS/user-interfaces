@@ -169,7 +169,7 @@ export class SupportTicketModalComponent {
     constructor(
         private _dialog_ref: MatDialogRef<SupportTicketModalComponent>,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {}
 
     public ngOnInit() {
@@ -196,7 +196,7 @@ export class SupportTicketModalComponent {
             const stmp_system = this._org.binding('smtp');
             if (!stmp_system) {
                 return notifyError(
-                    'Mailing system not configured for application.'
+                    'Mailing system not configured for application.',
                 );
             }
             const mod = getModule(stmp_system, 'Mailer');
@@ -204,7 +204,7 @@ export class SupportTicketModalComponent {
                 this.form.value;
             const support_email =
                 this.support_request_types.find(
-                    (type) => type.name === issue_type
+                    (type) => type.name === issue_type,
                 )?.email || this.support_email;
             await mod.execute('send_mail', [
                 support_email,
@@ -213,10 +213,10 @@ export class SupportTicketModalComponent {
                 }`,
                 `${name}\n${email}\n\n${location}\n\n${description.replace(
                     /<[^>]+>/g,
-                    ''
+                    '',
                 )}\n\n${images.join('\n')}`,
                 `<p>${name}</p><p>${email}</p><p>${location}</p><p>${description}</p>${images.join(
-                    '<br>'
+                    '<br>',
                 )}`,
                 [],
                 [],
