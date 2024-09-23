@@ -1362,9 +1362,16 @@ class InductionSettingsModalComponent {
     return (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
       _this2.loading = 'Saving induction settings...';
       const visitor_kiosk_app = _this2._settings.get('app.visitor_kiosk_app') || 'visitor-kiosk_app';
+      const concierge_app = _this2._settings.get('app.concierge_app') || 'concierge_app';
       _this2._dialog_ref.disableClose = true;
       const metadata = yield (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_3__.showMetadata)(_this2._zone_id, visitor_kiosk_app).toPromise();
-      const new_metadata = {
+      const con_metadata = yield (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_3__.showMetadata)(_this2._zone_id, concierge_app).toPromise();
+      const visitor_metadata = {
+        ...metadata.details,
+        induction_details: _this2.induction_details,
+        induction_enabled: _this2.is_enabled
+      };
+      const concierge_metadata = {
         ...metadata.details,
         induction_details: _this2.induction_details,
         induction_enabled: _this2.is_enabled
@@ -1372,10 +1379,18 @@ class InductionSettingsModalComponent {
       const result = yield (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_3__.updateMetadata)(_this2._zone_id, {
         name: metadata.name || visitor_kiosk_app,
         description: metadata.description || '',
-        details: new_metadata
+        details: visitor_metadata
       }).toPromise().catch(err => {
         console.error(err);
-        (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.notifyError)('Error saving induction settings');
+        (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.notifyError)('Error saving induction settings for visitor kiosk');
+      });
+      const result2 = yield (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_3__.updateMetadata)(_this2._zone_id, {
+        name: con_metadata.name || concierge_app,
+        description: con_metadata.description || '',
+        details: concierge_metadata
+      }).toPromise().catch(err => {
+        console.error(err);
+        (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.notifyError)('Error saving induction settings for concierge');
       });
       _this2.loading = '';
       if (result) {
