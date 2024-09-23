@@ -13,9 +13,12 @@ import { map, shareReplay } from 'rxjs/operators';
 import {
     AsyncHandler,
     SettingsService,
+    getTimezoneDifferenceInHours,
+    getTimezoneOffsetInMinutes,
     notifyError,
     notifySuccess,
     openConfirmModal,
+    padString,
 } from '@placeos/common';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -25,10 +28,19 @@ import {
     declineEvent,
 } from '@placeos/events';
 import { DatePipe } from '@angular/common';
+import { OrganisationService } from '@placeos/organisation';
+import { padLength } from 'libs/components/src/lib/media-duration.pipe';
 
 @Component({
     selector: 'room-bookings-timeline',
     template: `
+        <div
+            class="mx-2 mt-2 p-2 w-[calc(100%-1rem)] bg-info text-info-content rounded-lg text-center text-xs"
+            *ngIf="diff_tz"
+        >
+            Timezone of the building is displayed and is different from your
+            local timezone.
+        </div>
         <div
             class="relative flex items-center justify-center p-2 space-x-2 border-b border-base-200 z-20"
         >
@@ -55,7 +67,7 @@ import { DatePipe } from '@angular/common';
                 class="sticky top-0 left-0 z-30 bg-base-100 flex items-center justify-center"
             >
                 <div class="text-xs opacity-30">
-                    {{ date | async | date: 'z' }}
+                    {{ date | async | date: 'z' : tz }}
                 </div>
                 <div
                     class="absolute h-2 w-px right-0 bottom-0 bg-base-300"
@@ -83,8 +95,8 @@ import { DatePipe } from '@angular/common';
             </div>
             <div
                 hour-blocks
-                class="sticky left-0 z-10 border-r border-base-300 bg-base-100"
-                [style.height]="24 * block_height + 'rem'"
+                class="sticky left-0 z-10 border-r border-base-300 bg-base-100 overflow-visible"
+                [style.height]="block_range * block_height + 'rem'"
             >
                 <div
                     *ngFor="let hour of hours; let i = index"
@@ -103,7 +115,7 @@ import { DatePipe } from '@angular/common';
                 </div>
                 <div
                     class="absolute bg-secondary right-0 translate-x-1/2 -translate-y-1/2 h-2 w-2 rounded-full"
-                    *ngIf="is_today | async"
+                    *ngIf="(is_today | async) && timeToOffset(now) < 100"
                     [style.top]="'calc(' + timeToOffset(now) + '% + 1px)'"
                 ></div>
             </div>
@@ -173,7 +185,7 @@ import { DatePipe } from '@angular/common';
                                             event.all_day
                                                 ? 'All Day'
                                                 : (event.date
-                                                  | date: time_format)
+                                                  | date: time_format : tz)
                                         }}
                                         &ndash;
                                         {{ event.title }}
@@ -218,7 +230,6 @@ import { DatePipe } from '@angular/common';
 })
 export class RoomBookingsTimelineComponent extends AsyncHandler {
     public block_width = 14;
-    public hours = Array.from({ length: 24 }, (_, i) => i);
     public readonly ui_options = this._state.options;
     public readonly spaces = this._state.spaces;
     public readonly date = this._state.date;
@@ -248,12 +259,50 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         shareReplay(1),
     );
 
+    private _hour_list = Array.from({ length: 24 }, (_, i) => i);
+    public hours: number[] = [];
+
     public get now() {
         return startOfMinute(Date.now()).valueOf();
     }
 
     public readonly edit = (e) => this._state.newBooking(e);
     public readonly setDate = (d) => this._state.setDate(d);
+
+    public get timezone() {
+        return this._settings.get('app.events.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+    }
+
+    public get tz() {
+        // Get Timezone as +/-HHMM
+        const tz = this.timezone;
+        if (!tz) return '';
+        const offset = getTimezoneOffsetInMinutes(tz);
+        const hours = Math.floor(Math.abs(offset) / 60);
+        const minutes = Math.abs(offset) % 60;
+        return `${offset > 0 ? '+' : '-'}${padLength(hours, 2)}${padLength(minutes, 2)}`;
+    }
+
+    public get diff_tz() {
+        const tz = this.timezone;
+        if (!tz) return false;
+        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        return tz !== current_tz;
+    }
+
+    public get block_start() {
+        return +this._settings.get('app.events.block_start') || 0;
+    }
+
+    public get block_end() {
+        return +this._settings.get('app.events.block_end') || 24;
+    }
+
+    public get block_range() {
+        return Math.min(24, Math.max(this.block_end - this.block_start, 1));
+    }
 
     public get block_height() {
         return +this._settings.get('app.events.block_height') || 3;
@@ -267,6 +316,7 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         private _state: EventsStateService,
         private _dialog: MatDialog,
         private _settings: SettingsService,
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -289,15 +339,41 @@ Host:  ${event.organiser?.name || event.host}`;
 
     public ngOnInit() {
         this.subscription('poll', this._state.startPolling());
+        this.subscription(
+            'hour_list',
+            this._org.active_building.subscribe(() => {
+                this.hours = this._hour_list.filter(
+                    (h) => h >= this.block_start && h < this.block_end,
+                );
+            }),
+        );
+        this.hours = this._hour_list.filter(
+            (h) => h >= this.block_start && h < this.block_end,
+        );
+        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const offset = !this.timezone
+            ? 0
+            : getTimezoneDifferenceInHours(current_tz, this.timezone);
     }
 
     public timeToOffset(date: number) {
-        const diff = differenceInMinutes(date, startOfDay(date));
-        return (Math.max(0, diff / 60) / 24) * 100;
+        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const offset = !this.timezone
+            ? 0
+            : getTimezoneDifferenceInHours(this.timezone, current_tz);
+        const start_time = setHours(
+            startOfDay(date),
+            this.block_start - offset,
+        );
+        const diff = differenceInMinutes(date, start_time);
+
+        return (Math.max(0, diff / 60) / this.block_range) * 100;
     }
 
     public endToOffset(duration: number) {
-        return (Math.min(24, duration / 60) / 24) * 100;
+        return (
+            (Math.min(this.block_range, duration / 60) / this.block_range) * 100
+        );
     }
 
     public viewEvent(

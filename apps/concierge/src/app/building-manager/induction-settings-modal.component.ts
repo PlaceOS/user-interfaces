@@ -62,7 +62,7 @@ export class InductionSettingsModalComponent {
         @Inject(MAT_DIALOG_DATA) private _zone_id: string,
         private _settings: SettingsService,
         private _org: OrganisationService,
-        private _dialog_ref: MatDialogRef<InductionSettingsModalComponent>
+        private _dialog_ref: MatDialogRef<InductionSettingsModalComponent>,
     ) {}
 
     public ngOnInit() {
@@ -79,11 +79,11 @@ export class InductionSettingsModalComponent {
             await showMetadata(this._zone_id, visitor_kiosk_app).toPromise(),
             await showMetadata(
                 this._org.organisation.id,
-                visitor_kiosk_app
+                visitor_kiosk_app,
             ).toPromise(),
             await showMetadata(
                 this._org.organisation.id,
-                'settings'
+                'settings',
             ).toPromise(),
         ]);
         this.settings = {
@@ -100,12 +100,23 @@ export class InductionSettingsModalComponent {
         this.loading = 'Saving induction settings...';
         const visitor_kiosk_app =
             this._settings.get('app.visitor_kiosk_app') || 'visitor-kiosk_app';
+        const concierge_app =
+            this._settings.get('app.concierge_app') || 'concierge_app';
         this._dialog_ref.disableClose = true;
         const metadata = await showMetadata(
             this._zone_id,
-            visitor_kiosk_app
+            visitor_kiosk_app,
         ).toPromise();
-        const new_metadata = {
+        const con_metadata = await showMetadata(
+            this._zone_id,
+            concierge_app,
+        ).toPromise();
+        const visitor_metadata = {
+            ...metadata.details,
+            induction_details: this.induction_details,
+            induction_enabled: this.is_enabled,
+        };
+        const concierge_metadata = {
             ...metadata.details,
             induction_details: this.induction_details,
             induction_enabled: this.is_enabled,
@@ -113,12 +124,24 @@ export class InductionSettingsModalComponent {
         const result = await updateMetadata(this._zone_id, {
             name: metadata.name || visitor_kiosk_app,
             description: metadata.description || '',
-            details: new_metadata,
+            details: visitor_metadata,
         })
             .toPromise()
             .catch((err) => {
                 console.error(err);
-                notifyError('Error saving induction settings');
+                notifyError(
+                    'Error saving induction settings for visitor kiosk',
+                );
+            });
+        const result2 = await updateMetadata(this._zone_id, {
+            name: con_metadata.name || concierge_app,
+            description: con_metadata.description || '',
+            details: concierge_metadata,
+        })
+            .toPromise()
+            .catch((err) => {
+                console.error(err);
+                notifyError('Error saving induction settings for concierge');
             });
         this.loading = '';
         if (result) {

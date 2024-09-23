@@ -3,10 +3,12 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { BootstrapComponent } from './bootstrap.component';
 import { WelcomeComponent } from './welcome.component';
+import { VisitorRegistrationComponent } from './visitor-registration.component';
 
 const routes: Routes = [
     { path: 'bootstrap', component: BootstrapComponent },
     { path: 'welcome', component: WelcomeComponent },
+    { path: 'register', component: VisitorRegistrationComponent },
     {
         path: 'explore',
         loadChildren: () =>
@@ -16,7 +18,7 @@ const routes: Routes = [
         path: 'checkin',
         loadChildren: () =>
             import('./checkin/checkin.module').then(
-                (m) => m.VisitorCheckinModule
+                (m) => m.VisitorCheckinModule,
             ),
     },
     { path: '**', redirectTo: 'bootstrap' },

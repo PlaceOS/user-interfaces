@@ -14,6 +14,7 @@ import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 import { BootstrapComponent } from '../app/bootstrap.component';
 import { take } from 'rxjs/operators';
+import { SettingsService } from '@placeos/common';
 
 describe('BootstrapComponent', () => {
     let spectator: SpectatorRouting<BootstrapComponent>;
@@ -43,6 +44,7 @@ describe('BootstrapComponent', () => {
                 ]),
                 initialised: of(true),
             }),
+            MockProvider(SettingsService, { get: jest.fn() }),
         ],
         imports: [MatFormFieldModule, MatSelectModule, FormsModule],
     });

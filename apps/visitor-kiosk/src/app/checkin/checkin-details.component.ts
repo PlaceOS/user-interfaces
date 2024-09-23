@@ -136,6 +136,9 @@ export class CheckinDetailsComponent implements OnInit {
         this.form
             .pipe(first())
             .subscribe((_) => (!_ || !_.value.email ? this.previous() : ''));
+        if (this._checkin.metadata === 'registered') {
+            this.updateGuest();
+        }
     }
 
     public async updateGuest() {
