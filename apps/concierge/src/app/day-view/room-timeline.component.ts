@@ -116,7 +116,7 @@ import { padLength } from 'libs/components/src/lib/media-duration.pipe';
                 </div>
                 <div
                     class="absolute bg-secondary right-0 translate-x-1/2 -translate-y-1/2 h-2 w-2 rounded-full"
-                    *ngIf="(is_today | async) && timeToOffset(now) < 100"
+                    *ngIf="(show_time | async) && timeToOffset(now) < 100"
                     [style.top]="'calc(' + timeToOffset(now) + '% + 1px)'"
                 ></div>
             </div>
@@ -207,7 +207,7 @@ import { padLength } from 'libs/components/src/lib/media-duration.pipe';
                     </ng-container>
                 </ng-container>
                 <div
-                    *ngIf="is_today | async"
+                    *ngIf="show_time | async"
                     class="absolute inset-x-0 h-[2px] bg-secondary"
                     [style.top]="timeToOffset(now) + '%'"
                 ></div>
@@ -236,6 +236,26 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
     public readonly date = this._state.date;
     public readonly is_today = this.date.pipe(
         map((d) => isSameDay(d, Date.now())),
+    );
+    public readonly show_time = combineLatest([
+        this.date,
+        this._org.active_building,
+    ]).pipe(
+        map(([d]) => {
+            const today = isSameDay(d, Date.now());
+            const offset = this.timezone
+                ? getTimezoneDifferenceInHours(this.timezone)
+                : 0;
+            const start = addHours(
+                setHours(startOfDay(Date.now()), this.block_start),
+                -offset,
+            ).valueOf();
+            const end = addHours(
+                setHours(startOfDay(Date.now()), this.block_end),
+                -offset,
+            ).valueOf();
+            return today && d >= start && d <= end;
+        }),
     );
     public readonly events = combineLatest([
         this._state.spaces,
