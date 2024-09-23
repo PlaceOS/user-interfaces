@@ -10762,7 +10762,8 @@ function generateBookingForm() {
     recurrence_interval: new forms_1.FormControl(booking.recurrence_interval),
     recurrence_end: new forms_1.FormControl(booking.recurrence_end),
     notes: new forms_1.FormControl(booking.extension_data.notes || ''),
-    update_master: new forms_1.FormControl(false)
+    update_master: new forms_1.FormControl(false),
+    self_registered: new forms_1.FormControl(false)
   });
   form.valueChanges.subscribe(function (v) {
     if (form.getRawValue().date < Date.now() && form.value.id) {
@@ -30974,6 +30975,8 @@ Object.defineProperty(exports, "__esModule", ({
 exports.LOCAL_TIMEZONE = void 0;
 exports.localToTimezone = localToTimezone;
 exports.timezoneToLocal = timezoneToLocal;
+exports.getTimezoneOffsetInMinutes = getTimezoneOffsetInMinutes;
+exports.getTimezoneDifferenceInHours = getTimezoneDifferenceInHours;
 var date_fns_1 = __webpack_require__(/*! date-fns */ 25773);
 var date_fns_tz_1 = __webpack_require__(/*! date-fns-tz */ 79315);
 exports.LOCAL_TIMEZONE = ((_Intl = Intl) === null || _Intl === void 0 || (_Intl = _Intl.DateTimeFormat()) === null || _Intl === void 0 || (_Intl = _Intl.resolvedOptions()) === null || _Intl === void 0 ? void 0 : _Intl.timeZone) || 'Australia/Sydney';
@@ -30986,6 +30989,37 @@ function timezoneToLocal(date) {
   var tz = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : exports.LOCAL_TIMEZONE;
   var offset_diff = (0, date_fns_tz_1.getTimezoneOffset)(exports.LOCAL_TIMEZONE) - (0, date_fns_tz_1.getTimezoneOffset)(tz);
   return (0, date_fns_1.addMilliseconds)(date, offset_diff).valueOf();
+}
+function getTimezoneOffsetInMinutes(timeZone) {
+  var date = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : new Date();
+  var options = {
+    timeZone: timeZone,
+    hour12: false,
+    timeZoneName: 'short'
+  };
+  var formatter = new Intl.DateTimeFormat([], options);
+  var parts = formatter.formatToParts(date);
+  // Find the timeZoneName part which contains the GMT offset
+  var tzOffsetPart = parts.find(function (part) {
+    return part.type === 'timeZoneName';
+  });
+  var tzOffsetString = tzOffsetPart ? tzOffsetPart.value : 'GMT';
+  // Match the offset from the string (e.g., "GMT+0530")
+  var offsetMatch = tzOffsetString.match(/GMT([+-])(\d{1,2})(\d{2})?/);
+  if (!offsetMatch) {
+    return 0; // If no match, assume UTC (offset 0)
+  }
+  var sign = offsetMatch[1] === '+' ? 1 : -1;
+  var hours = parseInt(offsetMatch[2], 10);
+  var minutes = offsetMatch[3] ? parseInt(offsetMatch[3], 10) : 0;
+  return sign * (hours * 60 + minutes);
+}
+function getTimezoneDifferenceInHours(src_tz, dest_tz) {
+  var date = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : new Date();
+  var offset1 = getTimezoneOffsetInMinutes(src_tz, date);
+  var offset2 = getTimezoneOffsetInMinutes(dest_tz, date);
+  // Calculate the difference in hours
+  return (offset1 - offset2) / 60;
 }
 
 /***/ }),
@@ -32420,15 +32454,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "f028770",
-  "hash": "f028770",
+  "raw": "6ba7961",
+  "hash": "6ba7961",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "f028770",
+  "suffix": "6ba7961",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1726532355673
+  "time": 1727062968443
 };
 /* tslint:enable */
 
@@ -52143,7 +52177,7 @@ var ExploreParkingService = /*#__PURE__*/function (_common_1$AsyncHandle) {
               _iterator = _createForOfIteratorHelper(spaces);
               _context3.prev = 15;
               _loop = /*#__PURE__*/_regeneratorRuntime().mark(function _loop() {
-                var space, can_book, assigned_space, status, book_fn;
+                var space, can_book, is_assigned, id, status, book_fn;
                 return _regeneratorRuntime().wrap(function _loop$(_context2) {
                   while (1) switch (_context2.prev = _context2.next) {
                     case 0:
@@ -52151,14 +52185,15 @@ var ExploreParkingService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                       can_book = !!available.find(function (_) {
                         return _.id === space.id;
                       });
-                      assigned_space = !!space.assigned_to;
+                      is_assigned = !!space.assigned_to;
+                      id = space.map_id || space.id;
                       status = can_book ? 'free' : assigned_space ? 'pending' : 'busy';
-                      styles["#".concat(space.map_id)] = {
+                      styles["#".concat(id)] = {
                         fill: colours["parking-".concat(status)] || colours["".concat(status)] || explore_spaces_service_1.DEFAULT_COLOURS["".concat(status)],
                         opacity: 0.6
                       };
                       features.push({
-                        location: "".concat(space.map_id),
+                        location: "".concat(id),
                         content: explore_parking_info_component_1.ExploreParkingInfoComponent,
                         z_index: 20,
                         hover: true,
@@ -52169,11 +52204,11 @@ var ExploreParkingService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                         })
                       });
                       if (can_book) {
-                        _context2.next = 8;
+                        _context2.next = 9;
                         break;
                       }
                       return _context2.abrupt("return", 1);
-                    case 8:
+                    case 9:
                       book_fn = /*#__PURE__*/function () {
                         var _ref10 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
                           var _space$groups, _this3$_options$getVa, _this3$_options$getVa2, _user, _space$zone3, _space$zone4;
@@ -52281,12 +52316,12 @@ var ExploreParkingService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                         };
                       }();
                       actions.push({
-                        id: (space === null || space === void 0 ? void 0 : space.map_id) || (space === null || space === void 0 ? void 0 : space.id),
+                        id: id,
                         action: 'click',
                         priority: 10,
                         callback: book_fn
                       });
-                    case 10:
+                    case 11:
                     case "end":
                       return _context2.stop();
                   }
@@ -53728,7 +53763,7 @@ var ExploreSpacesService = /*#__PURE__*/function (_common_1$AsyncHandle) {
   }, {
     key: "_updateIcons",
     value: function _updateIcons(spaces) {
-      if (!this._settings.get('show_presence_indicators')) return;
+      if (!this._settings.get('app.show_presence_indicators')) return;
       var features = [];
       var _iterator4 = _createForOfIteratorHelper(spaces),
         _step4;
