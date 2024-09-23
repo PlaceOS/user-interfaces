@@ -385,7 +385,7 @@ export class ParkingStateService extends AsyncHandler {
         );
         if (state?.reason !== 'done') return;
         state.loading('Removing parking user...');
-        const zone = this._options.getValue().zones[0];
+        const zone = this._org.building.id;
         const users = await this.users.pipe(take(1)).toPromise();
         await updateMetadata(zone, {
             name: 'parking-users',
@@ -393,6 +393,7 @@ export class ParkingStateService extends AsyncHandler {
             description: 'List of available parking users',
         }).toPromise();
         state.close();
+        this._change.next(Date.now());
     }
 
     public editReservation(

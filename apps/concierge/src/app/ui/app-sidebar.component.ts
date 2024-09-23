@@ -268,6 +268,11 @@ export class ApplicationSidebarComponent extends AsyncHandler {
                     name: 'Assets',
                     route: ['/reports/new/assets'],
                 },
+                {
+                    id: 'visitors-report',
+                    name: 'Visitors',
+                    route: ['/reports/new/visitors'],
+                },
             ],
         },
     ];

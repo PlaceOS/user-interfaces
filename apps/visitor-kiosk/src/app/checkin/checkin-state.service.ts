@@ -19,17 +19,7 @@ import { SpacePipe } from '@placeos/spaces';
 })
 export class CheckinStateService {
     /** Current event being checked in */
-    private _booking = new BehaviorSubject<Booking>(
-        new Booking({
-            asset_id: 'jim@1234.com',
-            asset_name: 'Jim Jones',
-            user_email: 'alex@place.tech',
-            user_name: 'Alex Sorafumo',
-            date: startOfHour(Date.now()).valueOf(),
-            duration: 60,
-            zones: ['zone-Do2HJ00hTG'],
-        }),
-    );
+    private _booking = new BehaviorSubject<Booking>(null);
     /** Current guest being checked in */
     private _guest = new BehaviorSubject<GuestUser>(null);
     /** Photo of the current guest */
@@ -45,10 +35,25 @@ export class CheckinStateService {
     public readonly error = this._error.asObservable();
     public readonly form = this._form.asObservable();
 
+    public metadata: string = '';
+
     public clear() {
         this._guest.next(null);
         this._booking.next(null);
         this._photo.next(null);
+    }
+
+    public setBooking(booking: Booking, metadata: string = '') {
+        this._booking.next(booking);
+        this._guest.next(
+            new GuestUser({
+                email: booking.asset_id,
+                name: booking.asset_name,
+                organisation: booking.extension_data.organisation,
+                phone: booking.extension_data.phone,
+            }),
+        );
+        this.metadata = metadata;
     }
 
     public setPhoto(data: string) {
@@ -141,6 +146,7 @@ export class CheckinStateService {
                 event.user_name || event.user_email
             }'s meeting`,
         );
+        this.metadata = '';
     }
 
     public printPass() {

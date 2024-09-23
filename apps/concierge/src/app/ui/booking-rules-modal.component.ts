@@ -17,6 +17,7 @@ import {
     shareReplay,
     switchMap,
     take,
+    tap,
 } from 'rxjs/operators';
 
 @Component({
@@ -29,7 +30,7 @@ import {
             <h2 class="capitalize" *ngIf="view === 'form'">
                 {{ selected?.id ? 'Edit' : 'New' }} {{ type }} Booking Ruleset
             </h2>
-            <button icon matRipple mat-dialog-close>
+            <button icon matRipple mat-dialog-close *ngIf="!loading">
                 <app-icon>close</app-icon>
             </button>
         </header>
@@ -59,7 +60,7 @@ import {
                             key: '_index',
                             name: ' ',
                             size: '3.5rem',
-                            content: index_template
+                            content: index_template,
                         },
                         { key: 'zone', name: 'Zone', content: zone_template },
                         { key: 'name', name: 'Name' },
@@ -67,25 +68,25 @@ import {
                             key: 'auto_approve',
                             name: 'Auto-Approve',
                             content: bool_template,
-                            size: '5.5rem'
+                            size: '5.5rem',
                         },
                         {
                             key: 'hidden',
                             name: 'Hide Matches',
                             content: bool_template,
-                            size: '5.5rem'
+                            size: '5.5rem',
                         },
                         {
                             key: 'conditions',
                             name: 'Conditions',
-                            content: conditions_template
+                            content: conditions_template,
                         },
                         {
                             key: 'actions',
                             name: 'Actions',
                             size: '11.5rem',
-                            content: actions_template
-                        }
+                            content: actions_template,
+                        },
                     ]"
                 ></simple-table>
                 <ng-template #index_template let-index="index">
@@ -110,13 +111,15 @@ import {
                         {{ data === '*' ? 'All Zones' : data }}
                     </div>
                 </ng-template>
-                <ng-template #bool_template let-data="data">
+                <ng-template #bool_template let-key="key" let-row="row">
                     <div
-                        [class.bg-error]="!data"
-                        [class.bg-success]="data"
+                        [class.bg-error]="!row.rules[key]"
+                        [class.bg-success]="row.rules[key]"
                         class="rounded h-8 w-8 flex items-center justify-center text-2xl text-white mx-auto"
                     >
-                        <app-icon>{{ data ? 'done' : 'close' }}</app-icon>
+                        <app-icon>{{
+                            row.rules[key] ? 'done' : 'close'
+                        }}</app-icon>
                     </div>
                 </ng-template>
                 <ng-template #actions_template let-row="row">
@@ -201,7 +204,9 @@ import {
             </button>
         </footer>
         <ng-template #load_state>
-            <main class="flex flex-col items-center justify-center h-full">
+            <main
+                class="flex flex-col items-center justify-center h-full min-w-[20rem] min-h-64"
+            >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p class="mt-2">Saving Booking Rules...</p>
             </main>
@@ -216,17 +221,17 @@ export class BookingRulesModalComponent {
     public selected?: BookingRuleset;
     public readonly change = new BehaviorSubject(0);
     public readonly booking_rules: Observable<BookingRuleset[]> = combineLatest(
-        [this._org.active_building, this.change]
+        [this._org.active_building, this.change],
     ).pipe(
         filter(([_]) => !!_),
         switchMap(([bld]) => {
             return showMetadata(
                 bld.id,
-                `${this._data.type}_booking_rules`
+                `${this._data.type}_booking_rules`,
             ).pipe(catchError(() => of({ details: [] })));
         }),
         map(({ details }) => (details instanceof Array ? details : [])),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly type = this._data.type;
@@ -234,7 +239,7 @@ export class BookingRulesModalComponent {
     constructor(
         @Inject(MAT_DIALOG_DATA) private _data: { type: string },
         private _org: OrganisationService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
 
     public keyCount(item: Record<string, any>): number {
@@ -255,7 +260,7 @@ export class BookingRulesModalComponent {
                 confirm_text: 'Remove Ruleset',
                 cancel_text: 'Cancel',
             },
-            this._dialog
+            this._dialog,
         );
         if (result.reason !== 'done') return;
         result.loading('Removing Ruleset...');
@@ -281,7 +286,7 @@ export class BookingRulesModalComponent {
 
     public async updateRulesetPriority(
         ruleset: BookingRuleset,
-        position_change: number
+        position_change: number,
     ) {
         const rules = await this.booking_rules.pipe(take(1)).toPromise();
         // Move ruleset up or down in array based on position change

@@ -31,7 +31,7 @@ import { BookingPanelSettingsModalComponent } from '../ui/booking-panel-settings
                         key: 'actions',
                         name: ' ',
                         content: action_template,
-                        size: '6rem',
+                        size: '3.75rem',
                         sortable: false,
                     },
                 ]"
@@ -63,31 +63,41 @@ import { BookingPanelSettingsModalComponent } from '../ui/booking-panel-settings
                 <button
                     icon
                     matRipple
-                    matTooltip="Edit Level"
-                    (click)="editLevel(row)"
+                    class="h-12 w-12 rounded"
+                    [matMenuTriggerFor]="menu"
                 >
-                    <app-icon>edit</app-icon>
+                    <app-icon>more_vert</app-icon>
                 </button>
-                <button mat-menu-item (click)="editBookingPanelSettings(row)">
-                    <div class="flex items-center space-x-2">
-                        <app-icon
-                            className="material-symbols-rounded"
-                            class="text-xl"
-                        >
-                            top_panel_open
-                        </app-icon>
-                        <span>Edit Booking Panel Settings</span>
-                    </div>
-                </button>
-                <button
-                    icon
-                    matRipple
-                    class="text-error"
-                    (click)="removeLevel(row)"
-                    matTooltip="Remove Level"
-                >
-                    <app-icon>delete</app-icon>
-                </button>
+                <mat-menu #menu="matMenu">
+                    <button mat-menu-item (click)="editLevel(row)">
+                        <div class="flex items-center space-x-2">
+                            <app-icon class="text-2xl">edit</app-icon>
+                            <span>Edit Level</span>
+                        </div>
+                    </button>
+                    <button
+                        mat-menu-item
+                        (click)="editBookingPanelSettings(row)"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <app-icon
+                                className="material-symbols-rounded"
+                                class="text-2xl"
+                            >
+                                top_panel_open
+                            </app-icon>
+                            <span>Edit Booking Panel Settings</span>
+                        </div>
+                    </button>
+                    <button mat-menu-item (click)="removeLevel(row)">
+                        <div class="flex items-center space-x-2">
+                            <app-icon class="text-2xl text-error">
+                                delete
+                            </app-icon>
+                            <span>Remove Level</span>
+                        </div>
+                    </button>
+                </mat-menu>
             </div>
         </ng-template>
     `,

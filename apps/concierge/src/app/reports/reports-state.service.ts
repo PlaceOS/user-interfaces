@@ -149,10 +149,7 @@ export class ReportsStateService {
                               ),
                           ),
                       ),
-                      catchError((_) => {
-                          console.warn(_);
-                          return of([]);
-                      }),
+                      catchError((_) => of([])),
                   );
         }),
         map((list) => {

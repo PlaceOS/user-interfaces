@@ -1,3 +1,5 @@
+import { block } from 'marked';
+
 const general = {
     menu: [
         {
@@ -101,10 +103,14 @@ const app = {
     has_uploads: true,
     custom_reports,
     desks: { can_book_for_others: true },
-    bookings: { can_book_for_others: true },
+    bookings: { can_book_for_others: true, use_building_timezone: true },
     events: {
         allow_setup_breakdown: false,
         can_book_for_anyone: true,
+        use_building_timezone: true,
+        block_start: 7,
+        block_end: 19,
+        block_height: 5,
         custom_actions: [
             {
                 id: 'set_setup_breakdown',

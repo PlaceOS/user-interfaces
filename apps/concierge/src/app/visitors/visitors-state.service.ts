@@ -29,12 +29,9 @@ import {
     checkinBooking,
     queryBookings,
     rejectBooking,
-    setBookingState,
-    updateBooking,
     updateBookingInductionStatus,
 } from '@placeos/bookings';
 import { OrganisationService } from '@placeos/organisation';
-import { SpacePipe } from '@placeos/spaces';
 import { VisitorInductionModalComponent } from './visitor-induction-modal.component';
 import { VisitorNotesModalComponent } from './visitor-notes-modal.component';
 

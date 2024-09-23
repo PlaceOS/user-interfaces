@@ -1,11 +1,17 @@
 import { Component } from '@angular/core';
-import { AsyncHandler, SettingsService, notifyError } from '@placeos/common';
+import {
+    AsyncHandler,
+    SettingsService,
+    getTimezoneOffsetInMinutes,
+    notifyError,
+} from '@placeos/common';
 import { VisitorsStateService } from './visitors-state.service';
 import { Booking, saveBooking } from '@placeos/bookings';
 import { showMetadata } from '@placeos/ts-client';
 import { OrganisationService } from '@placeos/organisation';
 import { ParkingStateService } from '../parking/parking-state.service';
 import { User } from '@placeos/users';
+import { padLength } from 'libs/components/src/lib/media-duration.pipe';
 
 @Component({
     selector: 'guest-listings',
@@ -77,7 +83,7 @@ import { User } from '@placeos/users';
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-base-400 text-neutral-content mx-auto"
                 [matTooltip]="
                     'Checked out at:
-' + (row.checked_out_at * 1000 | date: time_format)
+' + (row.checked_out_at * 1000 | date: time_format : tz)
                 "
                 matTooltipPosition="right"
             >
@@ -96,7 +102,7 @@ import { User } from '@placeos/users';
                 class="rounded h-8 w-8 flex items-center justify-center text-2xl bg-success text-success-content mx-auto"
                 [matTooltip]="
                     'Checked in at:
-' + (row.checked_in_at * 1000 | date: time_format)
+' + (row.checked_in_at * 1000 | date: time_format : tz)
                 "
                 matTooltipPosition="right"
             >
@@ -275,7 +281,11 @@ import { User } from '@placeos/users';
                             : ((filters | async)?.period > 1
                                   ? 'MMM d, ' + time_format
                                   : time_format)
+                            : tz
                 }}
+                <span class="text-xs opacity-30" *ngIf="timezone">
+                    {{ row.date | date: 'z' : tz }}
+                </span>
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
@@ -447,6 +457,25 @@ export class GuestListingComponent extends AsyncHandler {
     public readonly search = this._state.search;
     public readonly filters = this._state.filters;
     public inductions_enabled = false;
+
+    public get timezone() {
+        const use_tz = this._settings.get('app.bookings.use_building_timezone');
+        const bld_tz = this._org.building.timezone;
+        return use_tz &&
+            bld_tz !== Intl.DateTimeFormat().resolvedOptions().timeZone
+            ? bld_tz
+            : '';
+    }
+
+    public get tz() {
+        // Get Timezone as +/-HHMM
+        const tz = this.timezone;
+        if (!tz) return '';
+        const offset = getTimezoneOffsetInMinutes(tz);
+        const hours = Math.floor(Math.abs(offset) / 60);
+        const minutes = Math.abs(offset) % 60;
+        return `${offset > 0 ? '+' : '-'}${padLength(hours, 2)}${padLength(minutes, 2)}`;
+    }
 
     public readonly downloadVisitorList = () =>
         this._state.downloadVisitorsList();

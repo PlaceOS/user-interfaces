@@ -15,7 +15,6 @@ import {
     endOfDay,
     endOfMinute,
     getUnixTime,
-    isSameDay,
     startOfDay,
     startOfMinute,
 } from 'date-fns';
@@ -218,13 +217,14 @@ export class ExploreParkingService extends AsyncHandler {
             .toPromise();
         for (const space of spaces) {
             const can_book = !!available.find((_) => _.id === space.id);
-            const assigned_space = !!space.assigned_to;
+            const is_assigned = !!space.assigned_to;
+            const id = space.map_id || space.id;
             const status = can_book
                 ? 'free'
                 : assigned_space
                   ? 'pending'
                   : 'busy';
-            styles[`#${space.map_id}`] = {
+            styles[`#${id}`] = {
                 fill:
                     colours[`parking-${status}`] ||
                     colours[`${status}`] ||
@@ -232,7 +232,7 @@ export class ExploreParkingService extends AsyncHandler {
                 opacity: 0.6,
             };
             features.push({
-                location: `${space.map_id}`,
+                location: `${id}`,
                 content: ExploreParkingInfoComponent,
                 z_index: 20,
                 hover: true,
@@ -339,7 +339,7 @@ export class ExploreParkingService extends AsyncHandler {
                 this._poll.next(Date.now());
             };
             actions.push({
-                id: space?.map_id || space?.id,
+                id,
                 action: 'click',
                 priority: 10,
                 callback: book_fn,

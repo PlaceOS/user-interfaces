@@ -12,7 +12,7 @@ import { endOfDay, startOfDay } from 'date-fns';
     selector: 'reports-options',
     template: `
         <div
-            class="bg-base-100 h-20 w-full flex items-center space-x-2 p-4 shadow z-20 border-b border-base-200 print:hidden"
+            class="bg-base-100 h-20 w-full flex items-center space-x-2 p-4 z-20 border-b border-base-200 print:hidden"
         >
             <mat-form-field appearance="outline" class="w-60 no-subscript">
                 <mat-select
@@ -50,7 +50,7 @@ import { endOfDay, startOfDay } from 'date-fns';
             <button
                 btn
                 matRipple
-                [disabled]="!!loading || !zones?.length"
+                [disabled]="!!loading"
                 (click)="generate.emit()"
             >
                 <mat-spinner *ngIf="loading" [diameter]="32"></mat-spinner>
