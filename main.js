@@ -10762,7 +10762,8 @@ function generateBookingForm() {
     recurrence_interval: new forms_1.FormControl(booking.recurrence_interval),
     recurrence_end: new forms_1.FormControl(booking.recurrence_end),
     notes: new forms_1.FormControl(booking.extension_data.notes || ''),
-    update_master: new forms_1.FormControl(false)
+    update_master: new forms_1.FormControl(false),
+    self_registered: new forms_1.FormControl(false)
   });
   form.valueChanges.subscribe(function (v) {
     if (form.getRawValue().date < Date.now() && form.value.id) {
@@ -13402,7 +13403,7 @@ _DeskFiltersComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     hide_levels: "hide_levels"
   },
   decls: 39,
-  vars: 30,
+  vars: 33,
   consts: function consts() {
     var i18n_0;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
@@ -13546,7 +13547,7 @@ _DeskFiltersComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     } else {
       i18n_12 = $localize(_templateObject13 || (_templateObject13 = _taggedTemplateLiteral([":\u241Fc17e2cc448524a39eb83b2937cea3235a2e8bf37\u241F2296888311792137027: Apply Filters "])));
     }
-    return [i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_5, i18n_8, i18n_9, i18n_10, i18n_11, i18n_12, [1, "flex", "rounded-t-md", "items-center", "border-b", "border-base-200", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-desk-filters", "class", "sm:hidden", 3, "click", 4, "ngIf"], [1, "font-medium", "flex-2", "text-center"], [1, "flex-1"], [1, "max-h-[65vh]", "p-2", "overflow-y-auto", "overflow-x-hidden", "divide-y", "divide-base-200", "w-full", "max-w-[100vw]", "sm:max-w-[30vw]", 3, "formGroup"], ["details", ""], [1, "text-lg", "font-medium", "mb-1"], [1, "flex-1", "min-w-[8rem]", "flex", "flex-col"], ["for", "location"], ["appearance", "outline", "class", "w-full", 4, "ngIf"], [1, "flex-1", "min-w-[256px]"], ["name", "date", "formControlName", "date", 3, "to"], ["class", "flex justify-end -mt-2 mb-2", 4, "ngIf"], ["class", "flex items-center space-x-2", 4, "ngIf"], ["favs", "", 1, "space-y-2", "pb-4"], [1, "text-lg", "font-medium"], [1, "flex", "items-center"], ["for", "fav", 1, "flex-1", "w-1/2"], ["name", "fav", 3, "ngModelChange", "ngModel", "ngModelOptions"], ["class", "space-y-2", "features", "", 4, "ngIf"], ["class", "px-2 py-2 w-full border-t border-base-200", 4, "ngIf"], ["icon", "", "matRipple", "", "name", "close-desk-filters", 1, "sm:hidden", 3, "click"], ["appearance", "outline", 1, "w-full"], ["name", "region", "placeholder", i18n_6, 3, "ngModelChange", "ngModel", "ngModelOptions"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", "placeholder", i18n_7, 3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "flex", "flex-col-reverse"], ["class", "opacity-30 text-xs", 4, "ngIf"], [1, "opacity-30", "text-xs"], [1, "opacity-0"], [1, "flex", "justify-end", "-mt-2", "mb-2"], ["formControlName", "all_day"], [1, "flex", "items-center", "space-x-2"], [1, "flex-1", "w-1/3"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr"], ["formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr"], ["features", "", 1, "space-y-2"], ["class", "flex items-center flex-wrap space-x-2", 4, "ngFor", "ngForOf"], [1, "flex", "items-center", "flex-wrap", "space-x-2"], ["for", "feat", 1, "flex-1", "w-1/2"], [3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "px-2", "py-2", "w-full", "border-t", "border-base-200"], ["btn", "", "matRipple", "", "name", "apply-desk-filters", 1, "w-full", 3, "click"]];
+    return [i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_5, i18n_8, i18n_9, i18n_10, i18n_11, i18n_12, [1, "flex", "rounded-t-md", "items-center", "border-b", "border-base-200", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-desk-filters", "class", "sm:hidden", 3, "click", 4, "ngIf"], [1, "font-medium", "flex-2", "text-center"], [1, "flex-1"], [1, "max-h-[65vh]", "p-2", "overflow-y-auto", "overflow-x-hidden", "divide-y", "divide-base-200", "w-full", "max-w-[100vw]", "sm:max-w-[30vw]", 3, "formGroup"], ["details", ""], [1, "text-lg", "font-medium", "mb-1"], [1, "flex-1", "min-w-[8rem]", "flex", "flex-col"], ["for", "location"], ["appearance", "outline", "class", "w-full", 4, "ngIf"], [1, "flex-1", "min-w-[256px]"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to"], ["class", "flex justify-end -mt-2 mb-2", 4, "ngIf"], ["class", "flex items-center space-x-2", 4, "ngIf"], ["favs", "", 1, "space-y-2", "pb-4"], [1, "text-lg", "font-medium"], [1, "flex", "items-center"], ["for", "fav", 1, "flex-1", "w-1/2"], ["name", "fav", 3, "ngModelChange", "ngModel", "ngModelOptions"], ["class", "space-y-2", "features", "", 4, "ngIf"], ["class", "px-2 py-2 w-full border-t border-base-200", 4, "ngIf"], ["icon", "", "matRipple", "", "name", "close-desk-filters", 1, "sm:hidden", 3, "click"], ["appearance", "outline", 1, "w-full"], ["name", "region", "placeholder", i18n_6, 3, "ngModelChange", "ngModel", "ngModelOptions"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", "placeholder", i18n_7, 3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "flex", "flex-col-reverse"], ["class", "opacity-30 text-xs", 4, "ngIf"], [1, "opacity-30", "text-xs"], [1, "opacity-0"], [1, "flex", "justify-end", "-mt-2", "mb-2"], ["formControlName", "all_day"], [1, "flex", "items-center", "space-x-2"], [1, "flex-1", "w-1/3"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr"], ["formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr"], ["features", "", 1, "space-y-2"], ["class", "flex items-center flex-wrap space-x-2", 4, "ngFor", "ngForOf"], [1, "flex", "items-center", "flex-wrap", "space-x-2"], ["for", "feat", 1, "flex-1", "w-1/2"], [3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "px-2", "py-2", "w-full", "border-t", "border-base-200"], ["btn", "", "matRipple", "", "name", "apply-desk-filters", 1, "w-full", 3, "click"]];
   },
   template: function DeskFiltersComponent_Template(rf, ctx) {
     if (rf & 1) {
@@ -13574,6 +13575,11 @@ _DeskFiltersComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵi18n(20, 3);
       i0.ɵɵelementEnd();
       i0.ɵɵelementStart(21, "a-date-field", 23);
+      i0.ɵɵlistener("ngModelChange", function DeskFiltersComponent_Template_a_date_field_ngModelChange_21_listener($event) {
+        return ctx.form.patchValue({
+          date: $event
+        });
+      });
       i0.ɵɵtext(22);
       i0.ɵɵpipe(23, "translate");
       i0.ɵɵelementEnd()();
@@ -13603,36 +13609,36 @@ _DeskFiltersComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     if (rf & 2) {
       var tmp_2_0;
       var tmp_3_0;
-      var tmp_13_0;
       var tmp_15_0;
+      var tmp_17_0;
       i0.ɵɵadvance(2);
       i0.ɵɵproperty("ngIf", ctx.can_close);
       i0.ɵɵadvance(4);
       i0.ɵɵproperty("formGroup", ctx.form);
       i0.ɵɵadvance(7);
-      i0.ɵɵproperty("ngIf", ctx.use_region && ((tmp_2_0 = i0.ɵɵpipeBind1(14, 15, ctx.regions)) == null ? null : tmp_2_0.length));
+      i0.ɵɵproperty("ngIf", ctx.use_region && ((tmp_2_0 = i0.ɵɵpipeBind1(14, 17, ctx.regions)) == null ? null : tmp_2_0.length));
       i0.ɵɵadvance(2);
-      i0.ɵɵproperty("ngIf", !ctx.use_region && ((tmp_3_0 = i0.ɵɵpipeBind1(16, 17, ctx.buildings)) == null ? null : tmp_3_0.length) > 1);
+      i0.ɵɵproperty("ngIf", !ctx.use_region && ((tmp_3_0 = i0.ɵɵpipeBind1(16, 19, ctx.buildings)) == null ? null : tmp_3_0.length) > 1);
       i0.ɵɵadvance(2);
       i0.ɵɵproperty("ngIf", !ctx.hide_levels);
       i0.ɵɵadvance(4);
-      i0.ɵɵproperty("to", ctx.end_date);
+      i0.ɵɵproperty("ngModel", ctx.form.value.date)("ngModelOptions", i0.ɵɵpureFunction0(31, _c0))("to", ctx.end_date);
       i0.ɵɵadvance();
-      i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind1(23, 19, "FORM.DATE_ERROR"), " ");
+      i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind1(23, 21, "FORM.DATE_ERROR"), " ");
       i0.ɵɵadvance(2);
       i0.ɵɵproperty("ngIf", ctx.allow_all_day);
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngIf", !ctx.form.value.all_day);
       i0.ɵɵadvance(4);
-      i0.ɵɵi18nExp(i0.ɵɵpipeBind1(29, 21, "COMMON.FAVOURITES"));
+      i0.ɵɵi18nExp(i0.ɵɵpipeBind1(29, 23, "COMMON.FAVOURITES"));
       i0.ɵɵi18nApply(28);
       i0.ɵɵadvance(4);
-      i0.ɵɵi18nExp(i0.ɵɵpipeBind1(33, 23, "DESKS.SHOW_FAVOURITES"));
+      i0.ɵɵi18nExp(i0.ɵɵpipeBind1(33, 25, "DESKS.SHOW_FAVOURITES"));
       i0.ɵɵi18nApply(32);
       i0.ɵɵadvance();
-      i0.ɵɵproperty("ngModel", (tmp_13_0 = i0.ɵɵpipeBind1(35, 25, ctx.options)) == null ? null : tmp_13_0.show_fav)("ngModelOptions", i0.ɵɵpureFunction0(29, _c0));
+      i0.ɵɵproperty("ngModel", (tmp_15_0 = i0.ɵɵpipeBind1(35, 27, ctx.options)) == null ? null : tmp_15_0.show_fav)("ngModelOptions", i0.ɵɵpureFunction0(32, _c0));
       i0.ɵɵadvance(2);
-      i0.ɵɵproperty("ngIf", (tmp_15_0 = i0.ɵɵpipeBind1(37, 27, ctx.features)) == null ? null : tmp_15_0.length);
+      i0.ɵɵproperty("ngIf", (tmp_17_0 = i0.ɵɵpipeBind1(37, 29, ctx.features)) == null ? null : tmp_17_0.length);
       i0.ɵɵadvance(2);
       i0.ɵɵproperty("ngIf", ctx.can_close);
     }
@@ -19094,7 +19100,7 @@ var _asyncToGenerator = (__webpack_require__(/*! ./node_modules/@babel/runtime/h
 var _createForOfIteratorHelper = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/createForOfIteratorHelper.js */ 36350)["default"]);
 var _classCallCheck = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/classCallCheck.js */ 80912)["default"]);
 var _createClass = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/createClass.js */ 92974)["default"]);
-var _ParkingSpaceFiltersComponent, _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13, _templateObject14;
+var _ParkingSpaceFiltersComponent, _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13;
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
@@ -19104,6 +19110,7 @@ var common_1 = __webpack_require__(/*! @placeos/common */ 22797);
 var organisation_1 = __webpack_require__(/*! @placeos/organisation */ 2510);
 var operators_1 = __webpack_require__(/*! rxjs/operators */ 97303);
 var booking_form_service_1 = __webpack_require__(/*! ../booking-form.service */ 18379);
+var date_fns_1 = __webpack_require__(/*! date-fns */ 25773);
 var i0 = __webpack_require__(/*! @angular/core */ 37580);
 var i1 = __webpack_require__(/*! @angular/material/bottom-sheet */ 15244);
 var i2 = __webpack_require__(/*! @placeos/common */ 22797);
@@ -19127,7 +19134,7 @@ var _c0 = function _c0() {
 function ParkingSpaceFiltersComponent_button_2_Template(rf, ctx) {
   if (rf & 1) {
     var _r1 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "button", 32);
+    i0.ɵɵelementStart(0, "button", 31);
     i0.ɵɵlistener("click", function ParkingSpaceFiltersComponent_button_2_Template_button_click_0_listener() {
       i0.ɵɵrestoreView(_r1);
       var ctx_r1 = i0.ɵɵnextContext();
@@ -19140,7 +19147,7 @@ function ParkingSpaceFiltersComponent_button_2_Template(rf, ctx) {
 }
 function ParkingSpaceFiltersComponent_ng_container_13_mat_form_field_1_mat_option_5_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "mat-option", 37);
+    i0.ɵɵelementStart(0, "mat-option", 36);
     i0.ɵɵtext(1);
     i0.ɵɵelementEnd();
   }
@@ -19154,7 +19161,7 @@ function ParkingSpaceFiltersComponent_ng_container_13_mat_form_field_1_mat_optio
 function ParkingSpaceFiltersComponent_ng_container_13_mat_form_field_1_Template(rf, ctx) {
   if (rf & 1) {
     var _r3 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "mat-form-field", 34)(1, "mat-select", 35);
+    i0.ɵɵelementStart(0, "mat-form-field", 33)(1, "mat-select", 34);
     i0.ɵɵpipe(2, "async");
     i0.ɵɵpipe(3, "async");
     i0.ɵɵpipe(4, "async");
@@ -19163,7 +19170,7 @@ function ParkingSpaceFiltersComponent_ng_container_13_mat_form_field_1_Template(
       var ctx_r1 = i0.ɵɵnextContext(2);
       return i0.ɵɵresetView(ctx_r1.setBuilding($event));
     });
-    i0.ɵɵtemplate(5, ParkingSpaceFiltersComponent_ng_container_13_mat_form_field_1_mat_option_5_Template, 2, 2, "mat-option", 36);
+    i0.ɵɵtemplate(5, ParkingSpaceFiltersComponent_ng_container_13_mat_form_field_1_mat_option_5_Template, 2, 2, "mat-option", 35);
     i0.ɵɵpipe(6, "async");
     i0.ɵɵelementEnd()();
   }
@@ -19178,7 +19185,7 @@ function ParkingSpaceFiltersComponent_ng_container_13_mat_form_field_1_Template(
 }
 function ParkingSpaceFiltersComponent_ng_container_13_mat_form_field_3_mat_option_3_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "mat-option", 37);
+    i0.ɵɵelementStart(0, "mat-option", 36);
     i0.ɵɵtext(1);
     i0.ɵɵelementEnd();
   }
@@ -19192,7 +19199,7 @@ function ParkingSpaceFiltersComponent_ng_container_13_mat_form_field_3_mat_optio
 function ParkingSpaceFiltersComponent_ng_container_13_mat_form_field_3_Template(rf, ctx) {
   if (rf & 1) {
     var _r5 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "mat-form-field", 34)(1, "mat-select", 38);
+    i0.ɵɵelementStart(0, "mat-form-field", 33)(1, "mat-select", 37);
     i0.ɵɵpipe(2, "async");
     i0.ɵɵlistener("ngModelChange", function ParkingSpaceFiltersComponent_ng_container_13_mat_form_field_3_Template_mat_select_ngModelChange_1_listener($event) {
       i0.ɵɵrestoreView(_r5);
@@ -19201,7 +19208,7 @@ function ParkingSpaceFiltersComponent_ng_container_13_mat_form_field_3_Template(
         zone_id: $event
       }));
     });
-    i0.ɵɵtemplate(3, ParkingSpaceFiltersComponent_ng_container_13_mat_form_field_3_mat_option_3_Template, 2, 2, "mat-option", 36);
+    i0.ɵɵtemplate(3, ParkingSpaceFiltersComponent_ng_container_13_mat_form_field_3_mat_option_3_Template, 2, 2, "mat-option", 35);
     i0.ɵɵpipe(4, "async");
     i0.ɵɵelementEnd()();
   }
@@ -19217,9 +19224,9 @@ function ParkingSpaceFiltersComponent_ng_container_13_mat_form_field_3_Template(
 function ParkingSpaceFiltersComponent_ng_container_13_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementContainerStart(0);
-    i0.ɵɵtemplate(1, ParkingSpaceFiltersComponent_ng_container_13_mat_form_field_1_Template, 7, 13, "mat-form-field", 33);
+    i0.ɵɵtemplate(1, ParkingSpaceFiltersComponent_ng_container_13_mat_form_field_1_Template, 7, 13, "mat-form-field", 32);
     i0.ɵɵpipe(2, "async");
-    i0.ɵɵtemplate(3, ParkingSpaceFiltersComponent_ng_container_13_mat_form_field_3_Template, 5, 8, "mat-form-field", 33);
+    i0.ɵɵtemplate(3, ParkingSpaceFiltersComponent_ng_container_13_mat_form_field_3_Template, 5, 8, "mat-form-field", 32);
     i0.ɵɵelementContainerEnd();
   }
   if (rf & 2) {
@@ -19233,7 +19240,7 @@ function ParkingSpaceFiltersComponent_ng_container_13_Template(rf, ctx) {
 }
 function ParkingSpaceFiltersComponent_ng_container_14_mat_form_field_1_mat_option_2_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "mat-option", 37);
+    i0.ɵɵelementStart(0, "mat-option", 36);
     i0.ɵɵtext(1);
     i0.ɵɵelementEnd();
   }
@@ -19247,13 +19254,13 @@ function ParkingSpaceFiltersComponent_ng_container_14_mat_form_field_1_mat_optio
 function ParkingSpaceFiltersComponent_ng_container_14_mat_form_field_1_Template(rf, ctx) {
   if (rf & 1) {
     var _r7 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "mat-form-field", 34)(1, "mat-select", 39);
+    i0.ɵɵelementStart(0, "mat-form-field", 33)(1, "mat-select", 38);
     i0.ɵɵlistener("ngModelChange", function ParkingSpaceFiltersComponent_ng_container_14_mat_form_field_1_Template_mat_select_ngModelChange_1_listener($event) {
       i0.ɵɵrestoreView(_r7);
       var ctx_r1 = i0.ɵɵnextContext(2);
       return i0.ɵɵresetView(ctx_r1.setRegion($event));
     });
-    i0.ɵɵtemplate(2, ParkingSpaceFiltersComponent_ng_container_14_mat_form_field_1_mat_option_2_Template, 2, 2, "mat-option", 36);
+    i0.ɵɵtemplate(2, ParkingSpaceFiltersComponent_ng_container_14_mat_form_field_1_mat_option_2_Template, 2, 2, "mat-option", 35);
     i0.ɵɵpipe(3, "async");
     i0.ɵɵelementEnd()();
   }
@@ -19267,7 +19274,7 @@ function ParkingSpaceFiltersComponent_ng_container_14_mat_form_field_1_Template(
 }
 function ParkingSpaceFiltersComponent_ng_container_14_mat_form_field_3_mat_optgroup_5_mat_option_1_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "mat-option", 37);
+    i0.ɵɵelementStart(0, "mat-option", 36);
     i0.ɵɵtext(1);
     i0.ɵɵelementEnd();
   }
@@ -19280,8 +19287,8 @@ function ParkingSpaceFiltersComponent_ng_container_14_mat_form_field_3_mat_optgr
 }
 function ParkingSpaceFiltersComponent_ng_container_14_mat_form_field_3_mat_optgroup_5_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "mat-optgroup", 42);
-    i0.ɵɵtemplate(1, ParkingSpaceFiltersComponent_ng_container_14_mat_form_field_3_mat_optgroup_5_mat_option_1_Template, 2, 2, "mat-option", 36);
+    i0.ɵɵelementStart(0, "mat-optgroup", 41);
+    i0.ɵɵtemplate(1, ParkingSpaceFiltersComponent_ng_container_14_mat_form_field_3_mat_optgroup_5_mat_option_1_Template, 2, 2, "mat-option", 35);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
@@ -19294,7 +19301,7 @@ function ParkingSpaceFiltersComponent_ng_container_14_mat_form_field_3_mat_optgr
 function ParkingSpaceFiltersComponent_ng_container_14_mat_form_field_3_Template(rf, ctx) {
   if (rf & 1) {
     var _r9 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "mat-form-field", 34)(1, "mat-select", 40);
+    i0.ɵɵelementStart(0, "mat-form-field", 33)(1, "mat-select", 39);
     i0.ɵɵpipe(2, "async");
     i0.ɵɵlistener("ngModelChange", function ParkingSpaceFiltersComponent_ng_container_14_mat_form_field_3_Template_mat_select_ngModelChange_1_listener($event) {
       i0.ɵɵrestoreView(_r9);
@@ -19303,10 +19310,10 @@ function ParkingSpaceFiltersComponent_ng_container_14_mat_form_field_3_Template(
         zone_id: $event
       }));
     });
-    i0.ɵɵelementStart(3, "mat-option", 37);
+    i0.ɵɵelementStart(3, "mat-option", 36);
     i0.ɵɵtext(4, "Any Level");
     i0.ɵɵelementEnd();
-    i0.ɵɵtemplate(5, ParkingSpaceFiltersComponent_ng_container_14_mat_form_field_3_mat_optgroup_5_Template, 2, 2, "mat-optgroup", 41);
+    i0.ɵɵtemplate(5, ParkingSpaceFiltersComponent_ng_container_14_mat_form_field_3_mat_optgroup_5_Template, 2, 2, "mat-optgroup", 40);
     i0.ɵɵpipe(6, "async");
     i0.ɵɵelementEnd()();
   }
@@ -19322,9 +19329,9 @@ function ParkingSpaceFiltersComponent_ng_container_14_mat_form_field_3_Template(
 function ParkingSpaceFiltersComponent_ng_container_14_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementContainerStart(0);
-    i0.ɵɵtemplate(1, ParkingSpaceFiltersComponent_ng_container_14_mat_form_field_1_Template, 4, 6, "mat-form-field", 33);
+    i0.ɵɵtemplate(1, ParkingSpaceFiltersComponent_ng_container_14_mat_form_field_1_Template, 4, 6, "mat-form-field", 32);
     i0.ɵɵpipe(2, "async");
-    i0.ɵɵtemplate(3, ParkingSpaceFiltersComponent_ng_container_14_mat_form_field_3_Template, 7, 8, "mat-form-field", 33);
+    i0.ɵɵtemplate(3, ParkingSpaceFiltersComponent_ng_container_14_mat_form_field_3_Template, 7, 8, "mat-form-field", 32);
     i0.ɵɵelementContainerEnd();
   }
   if (rf & 2) {
@@ -19339,12 +19346,12 @@ function ParkingSpaceFiltersComponent_ng_container_14_Template(rf, ctx) {
 function ParkingSpaceFiltersComponent_div_21_Template(rf, ctx) {
   if (rf & 1) {
     var _r12 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "div", 43)(1, "div", 44)(2, "label", 45);
-    i0.ɵɵi18nStart(3, 7);
+    i0.ɵɵelementStart(0, "div", 42)(1, "div", 43)(2, "label", 44);
+    i0.ɵɵi18nStart(3, 6);
     i0.ɵɵelement(4, "span");
     i0.ɵɵi18nEnd();
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(5, "a-time-field", 46);
+    i0.ɵɵelementStart(5, "a-time-field", 45);
     i0.ɵɵlistener("ngModelChange", function ParkingSpaceFiltersComponent_div_21_Template_a_time_field_ngModelChange_5_listener($event) {
       i0.ɵɵrestoreView(_r12);
       var ctx_r1 = i0.ɵɵnextContext();
@@ -19353,12 +19360,12 @@ function ParkingSpaceFiltersComponent_div_21_Template(rf, ctx) {
       }));
     });
     i0.ɵɵelementEnd()();
-    i0.ɵɵelementStart(6, "div", 44)(7, "label", 47);
-    i0.ɵɵi18nStart(8, 8);
+    i0.ɵɵelementStart(6, "div", 43)(7, "label", 46);
+    i0.ɵɵi18nStart(8, 7);
     i0.ɵɵelement(9, "span");
     i0.ɵɵi18nEnd();
     i0.ɵɵelementEnd();
-    i0.ɵɵelement(10, "a-duration-field", 48);
+    i0.ɵɵelement(10, "a-duration-field", 47);
     i0.ɵɵelementEnd()();
   }
   if (rf & 2) {
@@ -19372,10 +19379,10 @@ function ParkingSpaceFiltersComponent_div_21_Template(rf, ctx) {
 function ParkingSpaceFiltersComponent_section_30_div_3_Template(rf, ctx) {
   if (rf & 1) {
     var _r13 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "div", 27)(1, "div", 51);
+    i0.ɵɵelementStart(0, "div", 26)(1, "div", 50);
     i0.ɵɵtext(2);
     i0.ɵɵelementEnd();
-    i0.ɵɵelementStart(3, "mat-checkbox", 52);
+    i0.ɵɵelementStart(3, "mat-checkbox", 51);
     i0.ɵɵpipe(4, "async");
     i0.ɵɵlistener("ngModelChange", function ParkingSpaceFiltersComponent_section_30_div_3_Template_mat_checkbox_ngModelChange_3_listener($event) {
       var feat_r14 = i0.ɵɵrestoreView(_r13).$implicit;
@@ -19396,10 +19403,10 @@ function ParkingSpaceFiltersComponent_section_30_div_3_Template(rf, ctx) {
 }
 function ParkingSpaceFiltersComponent_section_30_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "section", 49)(1, "h2", 18);
-    i0.ɵɵi18n(2, 9);
+    i0.ɵɵelementStart(0, "section", 48)(1, "h2", 17);
+    i0.ɵɵi18n(2, 8);
     i0.ɵɵelementEnd();
-    i0.ɵɵtemplate(3, ParkingSpaceFiltersComponent_section_30_div_3_Template, 5, 6, "div", 50);
+    i0.ɵɵtemplate(3, ParkingSpaceFiltersComponent_section_30_div_3_Template, 5, 6, "div", 49);
     i0.ɵɵpipe(4, "async");
     i0.ɵɵelementEnd();
   }
@@ -19412,13 +19419,13 @@ function ParkingSpaceFiltersComponent_section_30_Template(rf, ctx) {
 function ParkingSpaceFiltersComponent_div_32_Template(rf, ctx) {
   if (rf & 1) {
     var _r15 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "div", 53)(1, "button", 54);
+    i0.ɵɵelementStart(0, "div", 52)(1, "button", 53);
     i0.ɵɵlistener("click", function ParkingSpaceFiltersComponent_div_32_Template_button_click_1_listener() {
       i0.ɵɵrestoreView(_r15);
       var ctx_r1 = i0.ɵɵnextContext();
       return i0.ɵɵresetView(ctx_r1.close());
     });
-    i0.ɵɵi18n(2, 10);
+    i0.ɵɵi18n(2, 9);
     i0.ɵɵelementEnd()();
   }
 }
@@ -19502,6 +19509,11 @@ var ParkingSpaceFiltersComponent = /*#__PURE__*/function () {
       return this._form.form;
     }
   }, {
+    key: "end_date",
+    get: function get() {
+      return (0, date_fns_1.endOfDay)((0, date_fns_1.addDays)(Date.now(), this._settings.get('app.parking.available_period') || 7));
+    }
+  }, {
     key: "max_duration",
     get: function get() {
       return this._settings.get('app.events.max_duration') || 480;
@@ -19560,7 +19572,7 @@ _ParkingSpaceFiltersComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     hide_levels: "hide_levels"
   },
   decls: 33,
-  vars: 14,
+  vars: 18,
   consts: function consts() {
     var i18n_0;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
@@ -19615,67 +19627,57 @@ _ParkingSpaceFiltersComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_608708688936992021$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_4 = goog.getMsg(" Date and time must be in the future ");
-      i18n_4 = MSG_EXTERNAL_608708688936992021$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_4;
+      var MSG_EXTERNAL_4158925728608139729$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_4 = goog.getMsg("Favourites");
+      i18n_4 = MSG_EXTERNAL_4158925728608139729$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_4;
     } else {
-      i18n_4 = $localize(_templateObject5 || (_templateObject5 = _taggedTemplateLiteral([":\u241Fe06c2195d60fdee7b259bd3ff16eb3d594c42b2b\u241F608708688936992021: Date and time must be in the future "])));
+      i18n_4 = $localize(_templateObject5 || (_templateObject5 = _taggedTemplateLiteral([":\u241F62ab0c2bf8d16ce7baf2c8b1da2c561d99522256\u241F4158925728608139729:Favourites"])));
     }
     var i18n_5;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_4158925728608139729$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_5 = goog.getMsg("Favourites");
-      i18n_5 = MSG_EXTERNAL_4158925728608139729$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_5;
+      var MSG_EXTERNAL_165958440274527719$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_5 = goog.getMsg(" Only show favourite spaces ");
+      i18n_5 = MSG_EXTERNAL_165958440274527719$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_5;
     } else {
-      i18n_5 = $localize(_templateObject6 || (_templateObject6 = _taggedTemplateLiteral([":\u241F62ab0c2bf8d16ce7baf2c8b1da2c561d99522256\u241F4158925728608139729:Favourites"])));
+      i18n_5 = $localize(_templateObject6 || (_templateObject6 = _taggedTemplateLiteral([":\u241Fac378c0b437746af89a84b4909ab5b83c5ff55a3\u241F165958440274527719: Only show favourite spaces "])));
     }
     var i18n_6;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_165958440274527719$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_6 = goog.getMsg(" Only show favourite spaces ");
-      i18n_6 = MSG_EXTERNAL_165958440274527719$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_6;
+      var MSG_EXTERNAL_7323982518822503502$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_6 = goog.getMsg("Any Level");
+      i18n_6 = MSG_EXTERNAL_7323982518822503502$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_6;
     } else {
-      i18n_6 = $localize(_templateObject7 || (_templateObject7 = _taggedTemplateLiteral([":\u241Fac378c0b437746af89a84b4909ab5b83c5ff55a3\u241F165958440274527719: Only show favourite spaces "])));
+      i18n_6 = $localize(_templateObject7 || (_templateObject7 = _taggedTemplateLiteral([":\u241F50407595967bf29832e873b41f9de3502d5c3e03\u241F7323982518822503502:Any Level"])));
     }
     var i18n_7;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_7323982518822503502$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_7 = goog.getMsg("Any Level");
-      i18n_7 = MSG_EXTERNAL_7323982518822503502$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_7;
+      var MSG_EXTERNAL_8264413387051126615$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_7 = goog.getMsg("Any Region");
+      i18n_7 = MSG_EXTERNAL_8264413387051126615$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_7;
     } else {
-      i18n_7 = $localize(_templateObject8 || (_templateObject8 = _taggedTemplateLiteral([":\u241F50407595967bf29832e873b41f9de3502d5c3e03\u241F7323982518822503502:Any Level"])));
+      i18n_7 = $localize(_templateObject8 || (_templateObject8 = _taggedTemplateLiteral([":\u241F130845b58eba8e50c98f3fba117a0168cdba4f31\u241F8264413387051126615:Any Region"])));
     }
     var i18n_8;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_8264413387051126615$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_8 = goog.getMsg("Any Region");
-      i18n_8 = MSG_EXTERNAL_8264413387051126615$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_8;
+      var MSG_EXTERNAL_7323982518822503502$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_8 = goog.getMsg("Any Level");
+      i18n_8 = MSG_EXTERNAL_7323982518822503502$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_8;
     } else {
-      i18n_8 = $localize(_templateObject9 || (_templateObject9 = _taggedTemplateLiteral([":\u241F130845b58eba8e50c98f3fba117a0168cdba4f31\u241F8264413387051126615:Any Region"])));
+      i18n_8 = $localize(_templateObject9 || (_templateObject9 = _taggedTemplateLiteral([":\u241F50407595967bf29832e873b41f9de3502d5c3e03\u241F7323982518822503502:Any Level"])));
     }
     var i18n_9;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_7323982518822503502$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_9 = goog.getMsg("Any Level");
-      i18n_9 = MSG_EXTERNAL_7323982518822503502$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_9;
-    } else {
-      i18n_9 = $localize(_templateObject10 || (_templateObject10 = _taggedTemplateLiteral([":\u241F50407595967bf29832e873b41f9de3502d5c3e03\u241F7323982518822503502:Any Level"])));
-    }
-    var i18n_10;
-    if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
-      /**
-       * @suppress {msgDescriptions}
-       */
-      var MSG_EXTERNAL_3039786638368843634$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_10 = goog.getMsg("Start Time{$startTagSpan}*{$closeTagSpan}", {
+      var MSG_EXTERNAL_3039786638368843634$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_9 = goog.getMsg("Start Time{$startTagSpan}*{$closeTagSpan}", {
         "closeTagSpan": "\uFFFD/#4\uFFFD",
         "startTagSpan": "\uFFFD#4\uFFFD"
       }, {
@@ -19684,16 +19686,16 @@ _ParkingSpaceFiltersComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
           "startTagSpan": "<span>"
         }
       });
-      i18n_10 = MSG_EXTERNAL_3039786638368843634$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_10;
+      i18n_9 = MSG_EXTERNAL_3039786638368843634$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_9;
     } else {
-      i18n_10 = $localize(_templateObject11 || (_templateObject11 = _taggedTemplateLiteral([":\u241F34a7595cdc15925514038224946986bfd90dc0ed\u241F3039786638368843634:Start Time", ":START_TAG_SPAN:*", ":CLOSE_TAG_SPAN:"])), "\uFFFD#4\uFFFD", "\uFFFD/#4\uFFFD");
+      i18n_9 = $localize(_templateObject10 || (_templateObject10 = _taggedTemplateLiteral([":\u241F34a7595cdc15925514038224946986bfd90dc0ed\u241F3039786638368843634:Start Time", ":START_TAG_SPAN:*", ":CLOSE_TAG_SPAN:"])), "\uFFFD#4\uFFFD", "\uFFFD/#4\uFFFD");
     }
-    var i18n_11;
+    var i18n_10;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_5960185837188220843$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_11 = goog.getMsg("End Time{$startTagSpan}*{$closeTagSpan}", {
+      var MSG_EXTERNAL_5960185837188220843$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_10 = goog.getMsg("End Time{$startTagSpan}*{$closeTagSpan}", {
         "closeTagSpan": "\uFFFD/#9\uFFFD",
         "startTagSpan": "\uFFFD#9\uFFFD"
       }, {
@@ -19702,67 +19704,72 @@ _ParkingSpaceFiltersComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
           "startTagSpan": "<span>"
         }
       });
-      i18n_11 = MSG_EXTERNAL_5960185837188220843$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_11;
+      i18n_10 = MSG_EXTERNAL_5960185837188220843$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_10;
     } else {
-      i18n_11 = $localize(_templateObject12 || (_templateObject12 = _taggedTemplateLiteral([":\u241F85d5c3a89bab9a7475a7db095089e161586cb7a1\u241F5960185837188220843:End Time", ":START_TAG_SPAN:*", ":CLOSE_TAG_SPAN:"])), "\uFFFD#9\uFFFD", "\uFFFD/#9\uFFFD");
+      i18n_10 = $localize(_templateObject11 || (_templateObject11 = _taggedTemplateLiteral([":\u241F85d5c3a89bab9a7475a7db095089e161586cb7a1\u241F5960185837188220843:End Time", ":START_TAG_SPAN:*", ":CLOSE_TAG_SPAN:"])), "\uFFFD#9\uFFFD", "\uFFFD/#9\uFFFD");
+    }
+    var i18n_11;
+    if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
+      /**
+       * @suppress {msgDescriptions}
+       */
+      var MSG_EXTERNAL_1551920764795208868$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_11 = goog.getMsg("Facilities");
+      i18n_11 = MSG_EXTERNAL_1551920764795208868$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_11;
+    } else {
+      i18n_11 = $localize(_templateObject12 || (_templateObject12 = _taggedTemplateLiteral([":\u241Fbf10c600bd861cfd0a23f4759562ee0ae9dbe19f\u241F1551920764795208868:Facilities"])));
     }
     var i18n_12;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
       /**
        * @suppress {msgDescriptions}
        */
-      var MSG_EXTERNAL_1551920764795208868$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_12 = goog.getMsg("Facilities");
-      i18n_12 = MSG_EXTERNAL_1551920764795208868$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_12;
+      var MSG_EXTERNAL_2296888311792137027$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_12 = goog.getMsg(" Apply Filters ");
+      i18n_12 = MSG_EXTERNAL_2296888311792137027$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_12;
     } else {
-      i18n_12 = $localize(_templateObject13 || (_templateObject13 = _taggedTemplateLiteral([":\u241Fbf10c600bd861cfd0a23f4759562ee0ae9dbe19f\u241F1551920764795208868:Facilities"])));
+      i18n_12 = $localize(_templateObject13 || (_templateObject13 = _taggedTemplateLiteral([":\u241Fc17e2cc448524a39eb83b2937cea3235a2e8bf37\u241F2296888311792137027: Apply Filters "])));
     }
-    var i18n_13;
-    if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
-      /**
-       * @suppress {msgDescriptions}
-       */
-      var MSG_EXTERNAL_2296888311792137027$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_13 = goog.getMsg(" Apply Filters ");
-      i18n_13 = MSG_EXTERNAL_2296888311792137027$$LIBS_BOOKINGS_SRC_LIB_PARKING_SELECT_MODAL_PARKING_FILTERS_COMPONENT_TS_13;
-    } else {
-      i18n_13 = $localize(_templateObject14 || (_templateObject14 = _taggedTemplateLiteral([":\u241Fc17e2cc448524a39eb83b2937cea3235a2e8bf37\u241F2296888311792137027: Apply Filters "])));
-    }
-    return [i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_5, i18n_6, i18n_10, i18n_11, i18n_12, i18n_13, [1, "flex", "items-center", "border-b", "border-base-200", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "close", "", 3, "click", 4, "ngIf"], [1, "font-medium", "flex-2", "text-center"], [1, "flex-1"], [1, "max-h-[65vh]", "p-2", "overflow-y-auto", "overflow-x-hidden", "divide-y", "divide-base-200", "w-full", "max-w-[100vw]", 3, "formGroup"], ["details", ""], [1, "text-lg", "font-medium"], [1, "flex-1", "min-w-[256px]", "flex", "flex-col"], ["for", "location"], [4, "ngIf"], [1, "flex-1", "min-w-[256px]"], ["for", "date"], ["name", "date", "formControlName", "date"], ["class", "flex items-center space-x-2", 4, "ngIf"], ["favs", "", 1, "space-y-2", "pb-4"], [1, "flex", "items-center"], ["for", "fav", 1, "flex-1", "w-1/2"], ["name", "fav", 3, "ngModelChange", "ngModel", "ngModelOptions"], ["features", "", "class", "space-y-2", 4, "ngIf"], ["class", "px-2 pt-2 w-full border-t border-base-200", 4, "ngIf"], ["icon", "", "matRipple", "", "close", "", 3, "click"], ["appearance", "outline", "class", "w-full", 4, "ngIf"], ["appearance", "outline", 1, "w-full"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], ["name", "location", "placeholder", i18n_7, 3, "ngModelChange", "ngModel", "ngModelOptions"], ["name", "region", "placeholder", i18n_8, 3, "ngModelChange", "ngModel", "ngModelOptions"], ["name", "location", "placeholder", i18n_9, 3, "ngModelChange", "ngModel", "ngModelOptions"], [3, "label", 4, "ngFor", "ngForOf"], [3, "label"], [1, "flex", "items-center", "space-x-2"], [1, "flex-1", "w-1/3"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr"], ["for", "end-time"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr"], ["features", "", 1, "space-y-2"], ["class", "flex items-center", 4, "ngFor", "ngForOf"], ["for", "feat", 1, "flex-1", "w-1/2"], ["name", "feat", 3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "px-2", "pt-2", "w-full", "border-t", "border-base-200"], ["btn", "", "matRipple", "", "close", "", 1, "w-full", 3, "click"]];
+    return [i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_5, i18n_9, i18n_10, i18n_11, i18n_12, [1, "flex", "items-center", "border-b", "border-base-200", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "close", "", 3, "click", 4, "ngIf"], [1, "font-medium", "flex-2", "text-center"], [1, "flex-1"], [1, "max-h-[65vh]", "p-2", "overflow-y-auto", "overflow-x-hidden", "divide-y", "divide-base-200", "w-full", "max-w-[100vw]", 3, "formGroup"], ["details", ""], [1, "text-lg", "font-medium"], [1, "flex-1", "min-w-[256px]", "flex", "flex-col"], ["for", "location"], [4, "ngIf"], [1, "flex-1", "min-w-[256px]"], ["for", "date"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to"], ["class", "flex items-center space-x-2", 4, "ngIf"], ["favs", "", 1, "space-y-2", "pb-4"], [1, "flex", "items-center"], ["for", "fav", 1, "flex-1", "w-1/2"], ["name", "fav", 3, "ngModelChange", "ngModel", "ngModelOptions"], ["features", "", "class", "space-y-2", 4, "ngIf"], ["class", "px-2 pt-2 w-full border-t border-base-200", 4, "ngIf"], ["icon", "", "matRipple", "", "close", "", 3, "click"], ["appearance", "outline", "class", "w-full", 4, "ngIf"], ["appearance", "outline", 1, "w-full"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], ["name", "location", "placeholder", i18n_6, 3, "ngModelChange", "ngModel", "ngModelOptions"], ["name", "region", "placeholder", i18n_7, 3, "ngModelChange", "ngModel", "ngModelOptions"], ["name", "location", "placeholder", i18n_8, 3, "ngModelChange", "ngModel", "ngModelOptions"], [3, "label", 4, "ngFor", "ngForOf"], [3, "label"], [1, "flex", "items-center", "space-x-2"], [1, "flex-1", "w-1/3"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr"], ["for", "end-time"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr"], ["features", "", 1, "space-y-2"], ["class", "flex items-center", 4, "ngFor", "ngForOf"], ["for", "feat", 1, "flex-1", "w-1/2"], ["name", "feat", 3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "px-2", "pt-2", "w-full", "border-t", "border-base-200"], ["btn", "", "matRipple", "", "close", "", 1, "w-full", 3, "click"]];
   },
   template: function ParkingSpaceFiltersComponent_Template(rf, ctx) {
     if (rf & 1) {
-      i0.ɵɵelementStart(0, "div", 11)(1, "div", 12);
-      i0.ɵɵtemplate(2, ParkingSpaceFiltersComponent_button_2_Template, 3, 0, "button", 13);
+      i0.ɵɵelementStart(0, "div", 10)(1, "div", 11);
+      i0.ɵɵtemplate(2, ParkingSpaceFiltersComponent_button_2_Template, 3, 0, "button", 12);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(3, "h3", 14);
+      i0.ɵɵelementStart(3, "h3", 13);
       i0.ɵɵi18n(4, 0);
       i0.ɵɵelementEnd();
-      i0.ɵɵelement(5, "div", 15);
+      i0.ɵɵelement(5, "div", 14);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(6, "form", 16)(7, "section", 17)(8, "h2", 18);
+      i0.ɵɵelementStart(6, "form", 15)(7, "section", 16)(8, "h2", 17);
       i0.ɵɵi18n(9, 1);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(10, "div", 19)(11, "label", 20);
+      i0.ɵɵelementStart(10, "div", 18)(11, "label", 19);
       i0.ɵɵi18n(12, 2);
       i0.ɵɵelementEnd();
-      i0.ɵɵtemplate(13, ParkingSpaceFiltersComponent_ng_container_13_Template, 4, 4, "ng-container", 21)(14, ParkingSpaceFiltersComponent_ng_container_14_Template, 4, 4, "ng-container", 21);
+      i0.ɵɵtemplate(13, ParkingSpaceFiltersComponent_ng_container_13_Template, 4, 4, "ng-container", 20)(14, ParkingSpaceFiltersComponent_ng_container_14_Template, 4, 4, "ng-container", 20);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(15, "div", 22)(16, "label", 23);
+      i0.ɵɵelementStart(15, "div", 21)(16, "label", 22);
       i0.ɵɵi18nStart(17, 3);
       i0.ɵɵelement(18, "span");
       i0.ɵɵi18nEnd();
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(19, "a-date-field", 24);
-      i0.ɵɵi18n(20, 4);
+      i0.ɵɵelementStart(19, "a-date-field", 23);
+      i0.ɵɵlistener("ngModelChange", function ParkingSpaceFiltersComponent_Template_a_date_field_ngModelChange_19_listener($event) {
+        return ctx.form.patchValue({
+          date: $event
+        });
+      });
+      i0.ɵɵtext(20, " Date and time must be in the future ");
       i0.ɵɵelementEnd()();
-      i0.ɵɵtemplate(21, ParkingSpaceFiltersComponent_div_21_Template, 11, 7, "div", 25);
+      i0.ɵɵtemplate(21, ParkingSpaceFiltersComponent_div_21_Template, 11, 7, "div", 24);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(22, "section", 26)(23, "h2", 18);
-      i0.ɵɵi18n(24, 5);
+      i0.ɵɵelementStart(22, "section", 25)(23, "h2", 17);
+      i0.ɵɵi18n(24, 4);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(25, "div", 27)(26, "div", 28);
-      i0.ɵɵi18n(27, 6);
+      i0.ɵɵelementStart(25, "div", 26)(26, "div", 27);
+      i0.ɵɵi18n(27, 5);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(28, "mat-checkbox", 29);
+      i0.ɵɵelementStart(28, "mat-checkbox", 28);
       i0.ɵɵpipe(29, "async");
       i0.ɵɵlistener("ngModelChange", function ParkingSpaceFiltersComponent_Template_mat_checkbox_ngModelChange_28_listener($event) {
         return ctx.setOptions({
@@ -19770,14 +19777,14 @@ _ParkingSpaceFiltersComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
         });
       });
       i0.ɵɵelementEnd()()();
-      i0.ɵɵtemplate(30, ParkingSpaceFiltersComponent_section_30_Template, 5, 3, "section", 30);
+      i0.ɵɵtemplate(30, ParkingSpaceFiltersComponent_section_30_Template, 5, 3, "section", 29);
       i0.ɵɵpipe(31, "async");
       i0.ɵɵelementEnd();
-      i0.ɵɵtemplate(32, ParkingSpaceFiltersComponent_div_32_Template, 3, 0, "div", 31);
+      i0.ɵɵtemplate(32, ParkingSpaceFiltersComponent_div_32_Template, 3, 0, "div", 30);
     }
     if (rf & 2) {
-      var tmp_5_0;
-      var tmp_7_0;
+      var tmp_8_0;
+      var tmp_10_0;
       i0.ɵɵadvance(2);
       i0.ɵɵproperty("ngIf", ctx.can_close);
       i0.ɵɵadvance(4);
@@ -19786,12 +19793,14 @@ _ParkingSpaceFiltersComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵproperty("ngIf", !ctx.use_region);
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngIf", ctx.use_region);
-      i0.ɵɵadvance(7);
+      i0.ɵɵadvance(5);
+      i0.ɵɵproperty("ngModel", ctx.form.value.date)("ngModelOptions", i0.ɵɵpureFunction0(16, _c0))("to", ctx.end_date);
+      i0.ɵɵadvance(2);
       i0.ɵɵproperty("ngIf", false);
       i0.ɵɵadvance(7);
-      i0.ɵɵproperty("ngModel", (tmp_5_0 = i0.ɵɵpipeBind1(29, 9, ctx.options)) == null ? null : tmp_5_0.show_fav)("ngModelOptions", i0.ɵɵpureFunction0(13, _c0));
+      i0.ɵɵproperty("ngModel", (tmp_8_0 = i0.ɵɵpipeBind1(29, 12, ctx.options)) == null ? null : tmp_8_0.show_fav)("ngModelOptions", i0.ɵɵpureFunction0(17, _c0));
       i0.ɵɵadvance(2);
-      i0.ɵɵproperty("ngIf", (tmp_7_0 = i0.ɵɵpipeBind1(31, 11, ctx.features)) == null ? null : tmp_7_0.length);
+      i0.ɵɵproperty("ngIf", (tmp_10_0 = i0.ɵɵpipeBind1(31, 14, ctx.features)) == null ? null : tmp_10_0.length);
       i0.ɵɵadvance(2);
       i0.ɵɵproperty("ngIf", ctx.can_close);
     }
@@ -30957,6 +30966,8 @@ Object.defineProperty(exports, "__esModule", ({
 exports.LOCAL_TIMEZONE = void 0;
 exports.localToTimezone = localToTimezone;
 exports.timezoneToLocal = timezoneToLocal;
+exports.getTimezoneOffsetInMinutes = getTimezoneOffsetInMinutes;
+exports.getTimezoneDifferenceInHours = getTimezoneDifferenceInHours;
 var date_fns_1 = __webpack_require__(/*! date-fns */ 25773);
 var date_fns_tz_1 = __webpack_require__(/*! date-fns-tz */ 79315);
 exports.LOCAL_TIMEZONE = ((_Intl = Intl) === null || _Intl === void 0 || (_Intl = _Intl.DateTimeFormat()) === null || _Intl === void 0 || (_Intl = _Intl.resolvedOptions()) === null || _Intl === void 0 ? void 0 : _Intl.timeZone) || 'Australia/Sydney';
@@ -30969,6 +30980,37 @@ function timezoneToLocal(date) {
   var tz = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : exports.LOCAL_TIMEZONE;
   var offset_diff = (0, date_fns_tz_1.getTimezoneOffset)(exports.LOCAL_TIMEZONE) - (0, date_fns_tz_1.getTimezoneOffset)(tz);
   return (0, date_fns_1.addMilliseconds)(date, offset_diff).valueOf();
+}
+function getTimezoneOffsetInMinutes(timeZone) {
+  var date = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : new Date();
+  var options = {
+    timeZone: timeZone,
+    hour12: false,
+    timeZoneName: 'short'
+  };
+  var formatter = new Intl.DateTimeFormat([], options);
+  var parts = formatter.formatToParts(date);
+  // Find the timeZoneName part which contains the GMT offset
+  var tzOffsetPart = parts.find(function (part) {
+    return part.type === 'timeZoneName';
+  });
+  var tzOffsetString = tzOffsetPart ? tzOffsetPart.value : 'GMT';
+  // Match the offset from the string (e.g., "GMT+0530")
+  var offsetMatch = tzOffsetString.match(/GMT([+-])(\d{1,2})(\d{2})?/);
+  if (!offsetMatch) {
+    return 0; // If no match, assume UTC (offset 0)
+  }
+  var sign = offsetMatch[1] === '+' ? 1 : -1;
+  var hours = parseInt(offsetMatch[2], 10);
+  var minutes = offsetMatch[3] ? parseInt(offsetMatch[3], 10) : 0;
+  return sign * (hours * 60 + minutes);
+}
+function getTimezoneDifferenceInHours(src_tz, dest_tz) {
+  var date = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : new Date();
+  var offset1 = getTimezoneOffsetInMinutes(src_tz, date);
+  var offset2 = getTimezoneOffsetInMinutes(dest_tz, date);
+  // Calculate the difference in hours
+  return (offset1 - offset2) / 60;
 }
 
 /***/ }),
@@ -32403,15 +32445,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "7e92d4a",
-  "hash": "7e92d4a",
+  "raw": "360bdcd",
+  "hash": "360bdcd",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "7e92d4a",
+  "suffix": "360bdcd",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1726485752338
+  "time": 1727070530895
 };
 /* tslint:enable */
 
@@ -52201,7 +52243,7 @@ var ExploreParkingService = /*#__PURE__*/function (_common_1$AsyncHandle) {
               _iterator = _createForOfIteratorHelper(spaces);
               _context3.prev = 15;
               _loop = /*#__PURE__*/_regeneratorRuntime().mark(function _loop() {
-                var space, can_book, assigned_space, status, book_fn;
+                var space, can_book, is_assigned, id, status, book_fn;
                 return _regeneratorRuntime().wrap(function _loop$(_context2) {
                   while (1) switch (_context2.prev = _context2.next) {
                     case 0:
@@ -52209,14 +52251,15 @@ var ExploreParkingService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                       can_book = !!available.find(function (_) {
                         return _.id === space.id;
                       });
-                      assigned_space = !!space.assigned_to;
+                      is_assigned = !!space.assigned_to;
+                      id = space.map_id || space.id;
                       status = can_book ? 'free' : assigned_space ? 'pending' : 'busy';
-                      styles["#".concat(space.map_id)] = {
+                      styles["#".concat(id)] = {
                         fill: colours["parking-".concat(status)] || colours["".concat(status)] || explore_spaces_service_1.DEFAULT_COLOURS["".concat(status)],
                         opacity: 0.6
                       };
                       features.push({
-                        location: "".concat(space.map_id),
+                        location: "".concat(id),
                         content: explore_parking_info_component_1.ExploreParkingInfoComponent,
                         z_index: 20,
                         hover: true,
@@ -52227,11 +52270,11 @@ var ExploreParkingService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                         })
                       });
                       if (can_book) {
-                        _context2.next = 8;
+                        _context2.next = 9;
                         break;
                       }
                       return _context2.abrupt("return", 1);
-                    case 8:
+                    case 9:
                       book_fn = /*#__PURE__*/function () {
                         var _ref10 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
                           var _space$groups, _this3$_options$getVa, _this3$_options$getVa2, _user, _space$zone3, _space$zone4;
@@ -52339,12 +52382,12 @@ var ExploreParkingService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                         };
                       }();
                       actions.push({
-                        id: (space === null || space === void 0 ? void 0 : space.map_id) || (space === null || space === void 0 ? void 0 : space.id),
+                        id: id,
                         action: 'click',
                         priority: 10,
                         callback: book_fn
                       });
-                    case 10:
+                    case 11:
                     case "end":
                       return _context2.stop();
                   }
@@ -53786,7 +53829,7 @@ var ExploreSpacesService = /*#__PURE__*/function (_common_1$AsyncHandle) {
   }, {
     key: "_updateIcons",
     value: function _updateIcons(spaces) {
-      if (!this._settings.get('show_presence_indicators')) return;
+      if (!this._settings.get('app.show_presence_indicators')) return;
       var features = [];
       var _iterator4 = _createForOfIteratorHelper(spaces),
         _step4;
