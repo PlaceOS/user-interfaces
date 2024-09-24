@@ -268,14 +268,15 @@ export class ReportsStateService {
                 }
                 const s = startOfDay(date).valueOf();
                 const e = endOfDay(s).valueOf();
-                const events: Booking[] = stats.events.filter((bkn) =>
-                    timePeriodsIntersect(
-                        s,
-                        e,
-                        bkn.date,
-                        bkn.date + bkn.duration * 60 * 1000,
-                    ),
-                );
+                const events: Booking[] =
+                    stats.events?.filter((bkn) =>
+                        timePeriodsIntersect(
+                            s,
+                            e,
+                            bkn.date,
+                            bkn.date + bkn.duration * 60 * 1000,
+                        ),
+                    ) || [];
                 const usage =
                     options.type === 'desks'
                         ? unique(events, 'system_id').length
@@ -291,9 +292,11 @@ export class ReportsStateService {
                         0,
                     ),
                     count: events.length,
-                    utilisation: ((events.length / stats.total) * 100).toFixed(
-                        1,
-                    ),
+                    utilisation: (
+                        (events.length /
+                            Math.max(events.length || 1, stats.total)) *
+                        100
+                    ).toFixed(1),
                 });
                 date = addDays(date, 1);
             }
@@ -305,9 +308,9 @@ export class ReportsStateService {
     public get duration() {
         const opts = this._options.getValue();
         let start = startOfDay(opts.start);
-        const end = addMinutes(endOfDay(opts.end), 1);
-        let count = 0;
-        while (start.valueOf() < end.valueOf()) {
+        const end = endOfDay(opts.end).valueOf();
+        let count = 1;
+        while (start.valueOf() < end) {
             if (
                 !this._ignore_days.includes(DAYS_OF_WEEK_INDEX[start.getDay()])
             ) {

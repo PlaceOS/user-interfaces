@@ -5,7 +5,7 @@ import { CalendarEvent } from '@placeos/events';
 export function generateReportForDeskBookings(
     bookings: Booking[],
     util_period: number = 1,
-    counts: HashMap<number> = {}
+    counts: HashMap<number> = {},
 ) {
     util_period = Math.max(1, util_period);
     const total = Object.keys(counts).reduce((c, i) => c + (counts[i] || 0), 0);
@@ -22,16 +22,19 @@ export function generateReportForDeskBookings(
 export function generateReportForBookings(
     bookings: CalendarEvent[],
     util_period: number = 8,
-    counts: HashMap<number> = {}
+    counts: HashMap<number> = {},
 ) {
     util_period = Math.max(1, util_period);
     const total_users = bookings.reduce((c, i) => c + i.attendees.length, 0);
-    const total_capacity = bookings.reduce((c, i) => c + i.system?.capacity, 0);
+    const total_capacity = bookings.reduce(
+        (c, i) => c + Math.max(1, i.system?.capacity),
+        0,
+    );
     const utilisation =
         Math.floor(
             (bookings.reduce((c, i) => c + i.duration, 0) /
                 (util_period * 60)) *
-                100
+                100,
         ) / 100;
     const occupancy = Math.floor((total_users / total_capacity) * 100) / 100;
     const total = Object.keys(counts).reduce((c, i) => c + (counts[i] || 0), 0);
@@ -41,7 +44,7 @@ export function generateReportForBookings(
             Math.floor(
                 (bookings.reduce((c, i) => c + i.duration, 0) /
                     bookings.length) *
-                    100
+                    100,
             ) / 100,
         efficiency: Math.floor(((utilisation + occupancy) / 2) * 100) / 100,
         total,

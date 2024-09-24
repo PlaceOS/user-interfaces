@@ -60,34 +60,34 @@ export class ReportSpacesOverallComponent {
         map(
             ({ start, end }) =>
                 differenceInBusinessDays(
-                    startOfDay(end || Date.now()),
-                    endOfDay(start || Date.now())
-                ) || 1
-        )
+                    endOfDay(end || Date.now()).valueOf() + 2,
+                    startOfDay(start || Date.now()),
+                ) || 1,
+        ),
     );
     public readonly total_count = this._state.stats.pipe(
-        map((i) => i.count || 0)
+        map((i) => i.count || 0),
     );
     public readonly avg_length = this._state.stats.pipe(
-        map((i) => formatDuration({ minutes: Math.floor(i.avg_length || 0) }))
+        map((i) => formatDuration({ minutes: Math.floor(i.avg_length || 0) })),
     );
     public readonly attendance = this._state.stats.pipe(
         map(({ events }) =>
             events.reduce(
                 (c, { extension_data }) =>
                     c + (+extension_data?.people_count?.max || 0),
-                0
-            )
-        )
+                0,
+            ),
+        ),
     );
     public readonly no_shows = this._state.stats.pipe(
         map(({ events }) =>
             events.reduce(
                 (c, { extension_data }) =>
                     c + +extension_data?.people_count?.max ? 1 : 0,
-                0
-            )
-        )
+                0,
+            ),
+        ),
     );
     public readonly no_show_percent = this._state.stats.pipe(
         map(
@@ -96,20 +96,20 @@ export class ReportSpacesOverallComponent {
                     (events.reduce(
                         (c, { extension_data }) =>
                             c + +extension_data?.people_count?.max ? 1 : 0,
-                        0
+                        0,
                     ) /
                         events.length) *
-                        10000
-                ) / 100
-        )
+                        10000,
+                ) / 100,
+        ),
     );
     public readonly has_attendance = this._state.stats.pipe(
         map(
             ({ events }) =>
                 !!events.find(
-                    ({ extension_data }) => !!extension_data?.people_count
-                )
-        )
+                    ({ extension_data }) => !!extension_data?.people_count,
+                ),
+        ),
     );
 
     constructor(private _state: ReportsStateService) {}
