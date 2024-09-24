@@ -254,7 +254,7 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
                 setHours(startOfDay(Date.now()), this.block_end),
                 -offset,
             ).valueOf();
-            return today && d >= start && d <= end;
+            return today && Date.now() >= start && Date.now() <= end;
         }),
     );
     public readonly events = combineLatest([
