@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { downloadFile, jsonToCsv } from '@placeos/common';
+import { downloadFile, jsonToCsv, SettingsService } from '@placeos/common';
 import { OrganisationService } from '@placeos/organisation';
 import { differenceInDays } from 'date-fns';
 import { combineLatest } from 'rxjs';
@@ -31,8 +31,8 @@ import { ReportsStateService } from '../reports-state.service';
                         {
                             key: 'utilisation',
                             name: 'Utilisation',
-                            content: percent_view
-                        }
+                            content: percent_view,
+                        },
                     ]"
                     [page_size]="print ? 0 : 10"
                     [sortable]="true"
@@ -54,15 +54,20 @@ export class ReportDesksLevelListComponent {
         this._state.counts,
     ]).pipe(
         map(([options, stats, counts]) => {
-            const { start, end, zones } = options;
+            let { start, end, zones } = options;
             const duration = differenceInDays(end, start) || 1;
+            if (!zones.length) {
+                zones = this._settings.get('app.use_region')
+                    ? this._org.levelsForRegion().map((_) => _.id)
+                    : this._org.levelsForBuilding().map((_) => _.id);
+            }
             const levels = [];
             for (const zone of zones) {
                 if (zone === 'All') continue;
                 const lvl = this._org.levelWithID([zone]);
                 const count = counts[zone] || 0;
                 const events = stats.events.filter((bkn) =>
-                    bkn.zones.includes(zone)
+                    bkn.zones.includes(zone),
                 );
                 let free: any = (count * duration - events.length) / duration;
                 if (free % 1 !== 0) {
@@ -82,7 +87,7 @@ export class ReportDesksLevelListComponent {
             }
             return levels;
         }),
-        shareReplay(1)
+        shareReplay(1),
     );
 
     public readonly download = async () => {
@@ -92,6 +97,7 @@ export class ReportDesksLevelListComponent {
 
     constructor(
         private _state: ReportsStateService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _settings: SettingsService,
     ) {}
 }

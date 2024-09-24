@@ -65,7 +65,7 @@ export class ReportDesksChartsComponent extends AsyncHandler {
 
     constructor(
         private _state: ReportsStateService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
     ) {
         super();
     }
@@ -74,8 +74,8 @@ export class ReportDesksChartsComponent extends AsyncHandler {
         this.subscription(
             'charts',
             combineLatest([this.day_list, this.stats]).subscribe(() =>
-                this.updateCharts()
-            )
+                this.updateCharts(),
+            ),
         );
     }
 
@@ -101,10 +101,10 @@ export class ReportDesksChartsComponent extends AsyncHandler {
                 this.timeout(
                     'update_charts',
                     () => this.updateDailyChart(day_list),
-                    500
+                    500,
                 );
             },
-            50
+            50,
         );
     }
 
@@ -117,7 +117,8 @@ export class ReportDesksChartsComponent extends AsyncHandler {
     }
 
     public updateLevelChart(mapping, count) {
-        let { zones } = mapping || {};
+        let { zones } = mapping || { zones: [] };
+        if (!zones) zones = [];
         if (zones.includes('All'))
             zones = this._org.levels
                 .filter((_) => _.parent_id === this._org.building.id)
