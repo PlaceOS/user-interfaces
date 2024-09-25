@@ -513,7 +513,14 @@ export class BookingFormService extends AsyncHandler {
         let booking = this._booking.getValue() || new Booking();
         if (!ignore_check) {
             await this.checkResourceAvailable(
-                { ...booking, ...value },
+                {
+                    ...booking,
+                    ...value,
+                    user_email:
+                        value.user?.email ||
+                        value.user_email ||
+                        currentUser()?.email,
+                },
                 this._options.getValue().type,
             );
         }
