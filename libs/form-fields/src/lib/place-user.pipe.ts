@@ -17,7 +17,7 @@ export class PlaceUserPipe {
     public async transform(user_id: string): Promise<User> {
         if (!user_id) return EMPTY_USER;
         let user = USER_LIST.find(
-            ({ id, email }) => id === user_id || email === user_id
+            ({ id, email }) => id === user_id || email === user_id,
         );
         if (user) return user;
         user = await showUser(user_id)
@@ -26,7 +26,6 @@ export class PlaceUserPipe {
         if (user) {
             user = new StaffUser(user);
             USER_LIST.push(user);
-            console.log('Place User:', user);
             return user;
         }
         return EMPTY_USER;

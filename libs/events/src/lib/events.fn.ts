@@ -372,16 +372,18 @@ export function querySpaceAvailability(
                         (s) => s.id === id || (s as any).resource?.id === id,
                     ),
             );
-            if (
-                ignore_check.length &&
-                ignore_check[0].id === ignore &&
-                id_list.includes(ignore) &&
-                ignore_check[0].inUseAt(
-                    ignore_period[0] || start,
-                    ignore_period[1] || duration,
-                )
-            ) {
-                short_list[id_list.indexOf(ignore)] = true;
+            for (const space of ignore_check) {
+                if (!id_list.includes(space.id)) continue;
+                const availability = space.availability.filter(
+                    (i) =>
+                        !(
+                            i.date === ignore_period[0] &&
+                            i.duration === ignore_period[1]
+                        ),
+                );
+                short_list[id_list.indexOf(space.id)] = !availability.find(
+                    (i) => i.status !== 'free',
+                );
             }
             return short_list;
         }),
