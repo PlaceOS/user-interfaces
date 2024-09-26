@@ -8162,13 +8162,6 @@ function _validateAssetRequestsForResource() {
             })).toPromise();
           case 24:
             available_groups = _context3.sent;
-            console.log('Used IDs:', used_ids);
-            console.log('Changed Assets:', changed_assets);
-            console.log('Requests:', requests);
-            console.log('Bookings:', bookings);
-            console.log('Filtered:', filtered);
-            console.log('Unchanged:', unchanged);
-            console.log('Available Groups:', available_groups);
             processed_requests = changed_assets.map(function (request) {
               // Handle duplicate asset ids
               var asset_ids = (0, common_1.flatten)(request.items.map(function (_ref20) {
@@ -8258,7 +8251,7 @@ function _validateAssetRequestsForResource() {
                 }
               }, _callee2);
             })));
-          case 34:
+          case 27:
           case "end":
             return _context3.stop();
         }
@@ -9806,8 +9799,8 @@ var BookingFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
       var _postForm = _asyncToGenerator(function () {
         var _this3 = this;
         var ignore_check = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-        return /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(_value$zones, _this3$_booking$getVa, _resources$, _this3$_org$region, _resources$2, _resources$3, _this3$_org$region2, _value$user, _value$user2, _value$user3, _ref11, _value$assets, _booking$extension_da, _this3$form) {
-          var value, booking, receipt, event_id, parent_id, resources, zones, q, result, requests, booking_type;
+        return /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(_value$zones, _this3$_booking$getVa, _resources$, _this3$_org$region, _resources$2, _resources$3, _this3$_org$region2, _value$user2, _value$user3, _value$user4, _ref12, _value$assets, _booking$extension_da, _this3$form) {
+          var value, booking, _value$user, _ref11, receipt, event_id, parent_id, resources, zones, q, result, requests, booking_type;
           return _regeneratorRuntime().wrap(function _callee2$(_context2) {
             while (1) switch (_context2.prev = _context2.next) {
               case 0:
@@ -9833,7 +9826,9 @@ var BookingFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                   break;
                 }
                 _context2.next = 10;
-                return _this3.checkResourceAvailable(_objectSpread(_objectSpread({}, booking), value), _this3._options.getValue().type);
+                return _this3.checkResourceAvailable(_objectSpread(_objectSpread(_objectSpread({}, booking), value), {}, {
+                  user_email: ((_value$user = value.user) === null || _value$user === void 0 ? void 0 : _value$user.email) || value.user_email || ((_ref11 = (0, common_1.currentUser)()) === null || _ref11 === void 0 ? void 0 : _ref11.email)
+                }), _this3._options.getValue().type);
               case 10:
                 if (!_this3._payments.payment_module) {
                   _context2.next = 17;
@@ -9887,12 +9882,12 @@ var BookingFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
                 _context2.next = 30;
                 return (0, bookings_fn_1.saveBooking)(new booking_class_1.Booking(_objectSpread(_objectSpread(_objectSpread({}, _this3._options.getValue()), value), {}, {
                   description: value.asset_name || value.description,
-                  user_name: ((_value$user = value.user) === null || _value$user === void 0 ? void 0 : _value$user.name) || value.user_name,
-                  user_email: ((_value$user2 = value.user) === null || _value$user2 === void 0 ? void 0 : _value$user2.email) || value.user_email,
+                  user_name: ((_value$user2 = value.user) === null || _value$user2 === void 0 ? void 0 : _value$user2.name) || value.user_name,
+                  user_email: ((_value$user3 = value.user) === null || _value$user3 === void 0 ? void 0 : _value$user3.email) || value.user_email,
                   extension_data: _objectSpread(_objectSpread({}, value.extension_data || {}), {}, {
                     group: value.group,
                     phone: value.phone,
-                    department: ((_value$user3 = value.user) === null || _value$user3 === void 0 ? void 0 : _value$user3.department) || ((_ref11 = (0, common_1.currentUser)()) === null || _ref11 === void 0 ? void 0 : _ref11.department)
+                    department: ((_value$user4 = value.user) === null || _value$user4 === void 0 ? void 0 : _value$user4.department) || ((_ref12 = (0, common_1.currentUser)()) === null || _ref12 === void 0 ? void 0 : _ref12.department)
                   }),
                   approved: !_this3._settings.get('app.bookings.no_approval'),
                   zones: (0, common_1.unique)([].concat(_toConsumableArray(zones), _toConsumableArray(value.zones || []))).filter(function (_) {
@@ -10131,15 +10126,15 @@ var BookingFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
   }, {
     key: "checkResourceAvailable",
     value: (function () {
-      var _checkResourceAvailable = _asyncToGenerator(function (_ref12, type) {
+      var _checkResourceAvailable = _asyncToGenerator(function (_ref13, type) {
         var _this5 = this;
-        var id = _ref12.id,
-          asset_id = _ref12.asset_id,
-          date = _ref12.date,
-          duration = _ref12.duration,
-          user_email = _ref12.user_email;
+        var id = _ref13.id,
+          asset_id = _ref13.asset_id,
+          date = _ref13.date,
+          duration = _ref13.duration,
+          user_email = _ref13.user_email;
         return /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(_this5$_settings$get) {
-          var bookings, active_bookings, allowed_bookings, _ref14, current;
+          var bookings, active_bookings, allowed_bookings, _ref15, current;
           return _regeneratorRuntime().wrap(function _callee5$(_context5) {
             while (1) switch (_context5.prev = _context5.next) {
               case 0:
@@ -10184,13 +10179,13 @@ var BookingFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
               case 14:
                 allowed_bookings = (_this5$_settings$get = _this5._settings.get("app.bookings.allowed_daily_".concat(type, "_count"))) !== null && _this5$_settings$get !== void 0 ? _this5$_settings$get : 1;
                 if (!(allowed_bookings > 0 && active_bookings.filter(function (_) {
-                  var _ref13;
-                  return _.user_email.toLowerCase() === (user_email || ((_ref13 = (0, common_1.currentUser)()) === null || _ref13 === void 0 ? void 0 : _ref13.email)).toLowerCase() && _.id !== id;
+                  var _ref14;
+                  return _.user_email.toLowerCase() === (user_email || ((_ref14 = (0, common_1.currentUser)()) === null || _ref14 === void 0 ? void 0 : _ref14.email)).toLowerCase() && _.id !== id;
                 }).length >= allowed_bookings)) {
                   _context5.next = 18;
                   break;
                 }
-                current = user_email === ((_ref14 = (0, common_1.currentUser)()) === null || _ref14 === void 0 ? void 0 : _ref14.email);
+                current = user_email === ((_ref15 = (0, common_1.currentUser)()) === null || _ref15 === void 0 ? void 0 : _ref15.email);
                 throw "".concat(current ? 'You' : user_email, " already ").concat(current ? 'have' : 'has', " a booking at the selected time");
               case 18:
                 return _context5.abrupt("return", true);
@@ -28754,6 +28749,7 @@ exports.hexToRgb = hexToRgb;
 exports.interpolateColors = interpolateColors;
 exports.rgbToHex = rgbToHex;
 exports.shiftColorTowards = shiftColorTowards;
+exports.extractTextFromHTML = extractTextFromHTML;
 exports.shuffleArray = shuffleArray;
 exports.shuffleArrayWithFirstItem = shuffleArrayWithFirstItem;
 var forms_1 = __webpack_require__(/*! @angular/forms */ 34456);
@@ -29138,6 +29134,14 @@ function shiftColorTowards(hex1, hex2, fraction) {
   var rgb2 = hexToRgb(hex2);
   var resultRgb = interpolateColors(rgb1, rgb2, fraction);
   return rgbToHex(resultRgb[0], resultRgb[1], resultRgb[2]);
+}
+function extractTextFromHTML(html_string) {
+  // Create a temporary DOM element
+  var temp_element = document.createElement('div');
+  // Set the innerHTML to our HTML string
+  temp_element.innerHTML = html_string;
+  // Extract and return the text content
+  return temp_element.textContent || temp_element.innerText || '';
 }
 /**
  * Shuffle the items in array into random order
@@ -31005,7 +31009,8 @@ function getTimezoneOffsetInMinutes(timeZone) {
   var minutes = offsetMatch[3] ? parseInt(offsetMatch[3], 10) : 0;
   return sign * (hours * 60 + minutes);
 }
-function getTimezoneDifferenceInHours(src_tz, dest_tz) {
+function getTimezoneDifferenceInHours(src_tz) {
+  var dest_tz = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : exports.LOCAL_TIMEZONE;
   var date = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : new Date();
   var offset1 = getTimezoneOffsetInMinutes(src_tz, date);
   var offset2 = getTimezoneOffsetInMinutes(dest_tz, date);
@@ -32445,15 +32450,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "360bdcd",
-  "hash": "360bdcd",
+  "raw": "bdd0407",
+  "hash": "bdd0407",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "360bdcd",
+  "suffix": "bdd0407",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1727070530895
+  "time": 1727323662619
 };
 /* tslint:enable */
 
@@ -45734,7 +45739,7 @@ var EventFormService = /*#__PURE__*/function (_common_1$AsyncHandle) {
     }), (0, operators_1.shareReplay)(1));
     _this.future_available_spaces = (0, rxjs_1.combineLatest)([_this.filtered_spaces, _this.booking_rules, _this.form.valueChanges.pipe((0, operators_1.debounceTime)(400), (0, operators_1.startWith)({}))]).pipe((0, operators_1.filter)(function () {
       return !_this._loading.getValue();
-    }), (0, operators_1.debounceTime)(300), (0, operators_1.switchMap)(function (_ref14) {
+    }), (0, operators_1.debounceTime)(500), (0, operators_1.switchMap)(function (_ref14) {
       var _this$_org$building4, _this2, _this$event, _this$event2, _this$event3, _this$event4;
       var _ref15 = _slicedToArray(_ref14, 2),
         spaces = _ref15[0],
@@ -46972,6 +46977,7 @@ Object.defineProperty(exports, "__esModule", ({
 
 
 
+var _createForOfIteratorHelper = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/createForOfIteratorHelper.js */ 36350)["default"]);
 var _slicedToArray = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/slicedToArray.js */ 6282)["default"]);
 var _objectSpread = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/objectSpread2.js */ 34092)["default"]);
 var _regeneratorRuntime = (__webpack_require__(/*! ./node_modules/@babel/runtime/helpers/regeneratorRuntime.js */ 8698)["default"]);
@@ -47291,8 +47297,23 @@ function querySpaceAvailability(id_list, start, duration, ignore, type) {
         return s.id === id || ((_s$resource = s.resource) === null || _s$resource === void 0 ? void 0 : _s$resource.id) === id;
       });
     });
-    if (ignore_check.length && ignore_check[0].id === ignore && id_list.includes(ignore) && ignore_check[0].inUseAt(ignore_period[0] || start, ignore_period[1] || duration)) {
-      short_list[id_list.indexOf(ignore)] = true;
+    var _iterator = _createForOfIteratorHelper(ignore_check),
+      _step;
+    try {
+      for (_iterator.s(); !(_step = _iterator.n()).done;) {
+        var space = _step.value;
+        if (!id_list.includes(space.id)) continue;
+        var availability = space.availability.filter(function (i) {
+          return !(i.date === ignore_period[0] && i.duration === ignore_period[1]);
+        });
+        short_list[id_list.indexOf(space.id)] = !availability.find(function (i) {
+          return i.status !== 'free';
+        });
+      }
+    } catch (err) {
+      _iterator.e(err);
+    } finally {
+      _iterator.f();
     }
     return short_list;
   }));
@@ -58123,16 +58144,15 @@ var PlaceUserPipe = /*#__PURE__*/function () {
             case 7:
               user = _context.sent;
               if (!user) {
-                _context.next = 13;
+                _context.next = 12;
                 break;
               }
               user = new user_class_1.StaffUser(user);
               USER_LIST.push(user);
-              console.log('Place User:', user);
               return _context.abrupt("return", user);
-            case 13:
+            case 12:
               return _context.abrupt("return", EMPTY_USER);
-            case 14:
+            case 13:
             case "end":
               return _context.stop();
           }
@@ -58680,7 +58700,7 @@ exports.RichTextInputComponent = void 0;
 var core_1 = __webpack_require__(/*! @angular/core */ 37580);
 var forms_1 = __webpack_require__(/*! @angular/forms */ 34456);
 var common_1 = __webpack_require__(/*! @placeos/common */ 22797);
-var Quill = __webpack_require__(/*! quill */ 41242);
+var quill_1 = __webpack_require__(/*! quill */ 41242);
 var i0 = __webpack_require__(/*! @angular/core */ 37580);
 var _c0 = ["container"];
 var _c1 = ["editor"];
@@ -58691,6 +58711,7 @@ var RichTextInputComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
     _this = _callSuper(this, RichTextInputComponent, arguments);
     _this.placeholder = '';
     _this.readonly = false;
+    _this.images_allowed = false;
     _this._updateFn = function () {
       return _this.setValue(_this._editor.root.innerHTML);
     };
@@ -58705,11 +58726,21 @@ var RichTextInputComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
   _inherits(RichTextInputComponent, _common_1$AsyncHandle);
   return _createClass(RichTextInputComponent, [{
     key: "ngOnChanges",
-    value: function ngOnChanges(changes) {}
+    value: function ngOnChanges(changes) {
+      var _this2 = this;
+      if (changes.images_allowed) {
+        this.timeout('init', function () {
+          return _this2._initialiseEditor();
+        });
+      }
+    }
   }, {
     key: "ngAfterViewInit",
     value: function ngAfterViewInit() {
-      this._initialiseEditor();
+      var _this3 = this;
+      this.timeout('init', function () {
+        return _this3._initialiseEditor();
+      });
     }
     /**
      * Update the form field value
@@ -58730,14 +58761,16 @@ var RichTextInputComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
   }, {
     key: "writeValue",
     value: function writeValue(value) {
-      var _this2 = this;
+      var _this4 = this;
       this.timeout('write', function () {
-        if (_this2._editor) {
-          var delta = _this2._editor.clipboard.convert(value);
-          _this2._editor.setContents(delta, 'silent');
+        if (_this4._editor) {
+          var delta = _this4._editor.clipboard.convert({
+            html: value
+          });
+          _this4._editor.setContents(delta, 'silent');
         } else {
-          _this2.timeout('write', function () {
-            return _this2.writeValue(value);
+          _this4.timeout('write', function () {
+            return _this4.writeValue(value);
           });
         }
       });
@@ -58745,26 +58778,106 @@ var RichTextInputComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
   }, {
     key: "_initialiseEditor",
     value: function _initialiseEditor() {
-      var _this3 = this;
-      this._editor = new Quill(this._editor_el.nativeElement, {
+      var _this$_editor_el,
+        _this$_container_el,
+        _this5 = this;
+      if (!((_this$_editor_el = this._editor_el) !== null && _this$_editor_el !== void 0 && _this$_editor_el.nativeElement) || !((_this$_container_el = this._container_el) !== null && _this$_container_el !== void 0 && _this$_container_el.nativeElement)) {
+        return this.timeout('init', function () {
+          return _this5._initialiseEditor();
+        });
+      }
+      var toolbarOptions = [[{
+        font: []
+      }], [{
+        header: [1, 2, 3, 4, 5, 6, false]
+      }], ['bold', 'italic', 'underline'],
+      // toggled buttons
+      [{
+        list: 'ordered'
+      }, {
+        list: 'bullet'
+      }, {
+        list: 'check'
+      }], [{
+        align: []
+      }]];
+      if (this.images_allowed) {
+        toolbarOptions.push(['image', 'link']);
+      }
+      if (this._editor) {
+        this.unsub('changes');
+        this._editor_el.nativeElement.innerHTML = '';
+        delete this._editor;
+      }
+      this._editor = new quill_1["default"](this._editor_el.nativeElement, {
         bounds: this._container_el.nativeElement,
         placeholder: this.placeholder,
         modules: {
-          toolbar: [[{
-            size: ['small', false, 'large', 'huge']
-          }], ['bold', 'italic', 'underline'], [{
-            list: 'ordered'
-          }, {
-            list: 'bullet'
-          }]]
+          toolbar: {
+            container: toolbarOptions,
+            handlers: {
+              image: function image() {
+                return _this5._embedImage();
+              },
+              link: function link() {
+                return _this5._embedAttachment();
+              }
+            }
+          }
         },
         readOnly: this.readonly,
         theme: 'snow'
       });
       this._editor.on('text-change', this._updateFn);
       this.subscription('changes', function () {
-        return _this3._editor.off('text-change', _this3._updateFn);
+        return _this5._editor.off('text-change', _this5._updateFn);
       });
+    }
+  }, {
+    key: "_embedImage",
+    value: function _embedImage() {
+      var _this6 = this;
+      if (!this._editor) return;
+      var range = this._editor.getSelection();
+      if (!range) return;
+      var index = range.index;
+      // Create a File input element
+      var file_input = document.createElement('input');
+      file_input.setAttribute('type', 'file');
+      file_input.setAttribute('accept', 'image/*');
+      file_input.click();
+      file_input.onchange = function () {
+        var file = file_input.files[0];
+        (0, common_1.uploadFile)(file, true).subscribe(function (_ref) {
+          var link = _ref.link,
+            progress = _ref.progress;
+          if (!link || progress !== 100) return;
+          _this6._editor.insertEmbed(index, 'image', link);
+        });
+      };
+    }
+  }, {
+    key: "_embedAttachment",
+    value: function _embedAttachment() {
+      var _this7 = this;
+      if (!this._editor) return;
+      var range = this._editor.getSelection();
+      if (!range) return;
+      var index = range.index;
+      // Create a File input element
+      var file_input = document.createElement('input');
+      file_input.setAttribute('type', 'file');
+      file_input.click();
+      file_input.onchange = function () {
+        var file = file_input.files[0];
+        (0, common_1.uploadFile)(file, true).subscribe(function (_ref2) {
+          var link = _ref2.link,
+            progress = _ref2.progress;
+          if (!link || progress !== 100) return;
+          _this7._editor.insertText(range.index, file.name, 'link', link);
+          _this7._editor.setSelection(range.index + file.name.length);
+        });
+      };
     }
   }]);
 }(common_1.AsyncHandler);
@@ -58791,7 +58904,8 @@ _RichTextInputComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
   },
   inputs: {
     placeholder: "placeholder",
-    readonly: "readonly"
+    readonly: "readonly",
+    images_allowed: "images_allowed"
   },
   features: [i0.ɵɵProvidersFeature([{
     provide: forms_1.NG_VALUE_ACCESSOR,
@@ -58803,14 +58917,15 @@ _RichTextInputComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
   }]), i0.ɵɵInheritDefinitionFeature, i0.ɵɵNgOnChangesFeature],
   decls: 4,
   vars: 0,
-  consts: [["container", ""], ["editor", ""]],
+  consts: [["container", ""], ["editor", ""], [1, "absolute", "inset-0"], [1, "h-full"]],
   template: function RichTextInputComponent_Template(rf, ctx) {
     if (rf & 1) {
-      i0.ɵɵelementStart(0, "div", null, 0);
-      i0.ɵɵelement(2, "div", null, 1);
+      i0.ɵɵelementStart(0, "div", 2, 0);
+      i0.ɵɵelement(2, "div", 3, 1);
       i0.ɵɵelementEnd();
     }
-  }
+  },
+  styles: ["[_nghost-%COMP%] {\n                display: block;\n                position: relative;\n                min-height: 8rem;\n                margin-bottom: 4rem;\n            }\n        \n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInJpY2gtdGV4dC1pbnB1dC5jb21wb25lbnQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IjtZQUNZO2dCQUNJLGNBQWM7Z0JBQ2Qsa0JBQWtCO2dCQUNsQixnQkFBZ0I7Z0JBQ2hCLG1CQUFtQjtZQUN2QiIsImZpbGUiOiJyaWNoLXRleHQtaW5wdXQuY29tcG9uZW50LnRzIiwic291cmNlc0NvbnRlbnQiOlsiXG4gICAgICAgICAgICA6aG9zdCB7XG4gICAgICAgICAgICAgICAgZGlzcGxheTogYmxvY2s7XG4gICAgICAgICAgICAgICAgcG9zaXRpb246IHJlbGF0aXZlO1xuICAgICAgICAgICAgICAgIG1pbi1oZWlnaHQ6IDhyZW07XG4gICAgICAgICAgICAgICAgbWFyZ2luLWJvdHRvbTogNHJlbTtcbiAgICAgICAgICAgIH1cbiAgICAgICAgIl19 */\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2xpYnMvZm9ybS1maWVsZHMvc3JjL2xpYi9yaWNoLXRleHQtaW5wdXQuY29tcG9uZW50LnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7WUFDWTtnQkFDSSxjQUFjO2dCQUNkLGtCQUFrQjtnQkFDbEIsZ0JBQWdCO2dCQUNoQixtQkFBbUI7WUFDdkI7O0FBRVosZ2tCQUFna0IiLCJzb3VyY2VzQ29udGVudCI6WyJcbiAgICAgICAgICAgIDpob3N0IHtcbiAgICAgICAgICAgICAgICBkaXNwbGF5OiBibG9jaztcbiAgICAgICAgICAgICAgICBwb3NpdGlvbjogcmVsYXRpdmU7XG4gICAgICAgICAgICAgICAgbWluLWhlaWdodDogOHJlbTtcbiAgICAgICAgICAgICAgICBtYXJnaW4tYm90dG9tOiA0cmVtO1xuICAgICAgICAgICAgfVxuICAgICAgICAiXSwic291cmNlUm9vdCI6IiJ9 */"]
 });
 exports.RichTextInputComponent = RichTextInputComponent;
 
@@ -72250,18 +72365,20 @@ var StaffUser = /*#__PURE__*/function (_User2) {
     }
   }, {
     key: "location_time",
-    value: function location_time(datetime) {
+    value: function location_time() {
       var _this$work_preference;
+      var datetime = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : Date.now();
       return ((_this$work_preference = this.work_preference(datetime)) === null || _this$work_preference === void 0 ? void 0 : _this$work_preference.location) || 'wfo';
     }
   }, {
     key: "location_name",
     get: function get() {
-      return this.location_name_time(Date.now());
+      return this.location_name_time();
     }
   }, {
     key: "location_name_time",
-    value: function location_name_time(datetime) {
+    value: function location_name_time() {
+      var datetime = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : Date.now();
       if (!datetime) datetime = Date.now();
       var location = this.location_time(datetime);
       var in_hours = this.in_hours_time(datetime);
@@ -72282,6 +72399,14 @@ var StaffUser = /*#__PURE__*/function (_User2) {
       }
     }
   }, {
+    key: "outsideHours",
+    value: function outsideHours() {
+      var datetime = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : Date.now();
+      var location = this.location_time(datetime);
+      var in_hours = this.in_hours_time(datetime);
+      return location.includes('w') && !in_hours;
+    }
+  }, {
     key: "in_hours",
     get: function get() {
       return this.in_hours_time(Date.now());
@@ -72298,7 +72423,8 @@ var StaffUser = /*#__PURE__*/function (_User2) {
     }
   }, {
     key: "in_hours_time",
-    value: function in_hours_time(datetime) {
+    value: function in_hours_time() {
+      var datetime = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : Date.now();
       var block = this.work_preference(datetime);
       return !!block;
     }
