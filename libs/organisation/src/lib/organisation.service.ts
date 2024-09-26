@@ -481,13 +481,14 @@ export class OrganisationService {
      * Load levels data for the buildings
      */
     public async loadLevels(): Promise<void> {
-        const level_list = await queryZones({
+        let level_list = await queryZones({
             tags: 'level',
+            authority_id: authority().id,
             limit: 2500,
         } as any)
             .pipe(map((i) => i.data))
             .toPromise();
-
+        level_list = level_list.filter((_) => _.parent_id);
         if (!level_list?.length) {
             this._router.navigate(['/misconfigured']);
         }
