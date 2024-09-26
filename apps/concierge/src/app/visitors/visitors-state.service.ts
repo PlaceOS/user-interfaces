@@ -29,6 +29,7 @@ import {
     checkinBooking,
     queryBookings,
     rejectBooking,
+    updateBooking,
     updateBookingInductionStatus,
 } from '@placeos/bookings';
 import { OrganisationService } from '@placeos/organisation';
@@ -138,10 +139,13 @@ export class VisitorsStateService extends AsyncHandler {
         this.clearInterval('poll');
     }
 
-    public async setExt<T = any>(guest: GuestUser, field: string, value: T) {
+    public async setExt<T = any>(guest: Booking, field: string, value: T) {
         const extension_data = { ...guest.extension_data };
         extension_data[field] = value;
-        await updateGuest(guest.id, { ...guest, extension_data }).toPromise();
+        await updateBooking(guest.id, {
+            ...guest.toJSON(),
+            extension_data,
+        }).toPromise();
         this._poll.next(Date.now());
     }
 

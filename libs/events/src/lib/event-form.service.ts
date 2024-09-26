@@ -284,7 +284,7 @@ export class EventFormService extends AsyncHandler {
             this.form.valueChanges.pipe(debounceTime(400), startWith({})),
         ]).pipe(
             filter(() => !this._loading.getValue()),
-            debounceTime(300),
+            debounceTime(500),
             switchMap(([spaces, booking_rules]) => {
                 if (!spaces.length) return of([]);
                 this._loading.next('Retrieving available spaces...');

@@ -150,6 +150,13 @@ const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
     },
     {
+        path: 'email-templates',
+        loadChildren: () =>
+            import('./email-templates/email-templates.module').then(
+                (m) => m.EmailTemplatesModule
+            ),
+    },
+    {
         path: 'points-of-interest',
         loadChildren: () =>
             import('./poi-manager/poi-manager.module').then(

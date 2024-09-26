@@ -532,10 +532,13 @@ export class MeetingFlowFormComponent extends AsyncHandler {
         }),
     );
 
-    private _catering_available = this._space_list.pipe(
+    private _catering_available = combineLatest([
+        this._space_list,
+        this.has_catering,
+    ]).pipe(
         debounceTime(300),
-        switchMap((space_list) => {
-            if (!space_list?.length) return of(false);
+        switchMap(([space_list, has_catering]) => {
+            if (!space_list?.length || !has_catering) return of(false);
             const value = this.form.getRawValue();
             this._catering.setFilters({
                 search: '',

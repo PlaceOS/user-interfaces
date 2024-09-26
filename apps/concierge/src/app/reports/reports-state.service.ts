@@ -86,6 +86,7 @@ export class ReportsStateService {
     private _options = new BehaviorSubject<ReportOptions>({
         start: new Date(),
         end: new Date(),
+        zones: [],
     });
 
     private get _ignore_days() {
@@ -198,9 +199,14 @@ export class ReportsStateService {
     public readonly counts = this._options.pipe(
         debounceTime(500),
         switchMap((filters) => {
-            const zones = (filters.zones || []).filter(
+            let zones = (filters.zones || []).filter(
                 (z: any) => z !== -1 && z !== 'All',
             );
+            if (!zones.length) {
+                zones = this._settings.get('app.use_region')
+                    ? this._org.levelsForRegion().map((_) => _.id)
+                    : this._org.levelsForBuilding().map((_) => _.id);
+            }
             if (filters.type === 'events') {
                 return this.spaces.pipe(
                     map((_) =>
@@ -223,6 +229,7 @@ export class ReportsStateService {
             );
         }),
         map((list: [string, number][]) => {
+            console.log('Counts:', list);
             const map: HashMap<number> = {};
             this._active_bookings.next([]);
             list.forEach(([id, count]) => (map[id] = count || 0));
@@ -236,6 +243,7 @@ export class ReportsStateService {
         this.bookings,
     ]).pipe(
         switchMap(async ([counts, list]) => {
+            console.log('Details:', counts, list);
             if (list[0] instanceof CalendarEvent) {
                 return generateReportForBookings(
                     list as CalendarEvent[],
@@ -268,14 +276,15 @@ export class ReportsStateService {
                 }
                 const s = startOfDay(date).valueOf();
                 const e = endOfDay(s).valueOf();
-                const events: Booking[] = stats.events.filter((bkn) =>
-                    timePeriodsIntersect(
-                        s,
-                        e,
-                        bkn.date,
-                        bkn.date + bkn.duration * 60 * 1000,
-                    ),
-                );
+                const events: Booking[] =
+                    stats.events?.filter((bkn) =>
+                        timePeriodsIntersect(
+                            s,
+                            e,
+                            bkn.date,
+                            bkn.date + bkn.duration * 60 * 1000,
+                        ),
+                    ) || [];
                 const usage =
                     options.type === 'desks'
                         ? unique(events, 'system_id').length
@@ -308,9 +317,9 @@ export class ReportsStateService {
     public get duration() {
         const opts = this._options.getValue();
         let start = startOfDay(opts.start);
-        const end = addMinutes(endOfDay(opts.end), 1);
-        let count = 0;
-        while (start.valueOf() < end.valueOf()) {
+        const end = endOfDay(opts.end).valueOf();
+        let count = 1;
+        while (start.valueOf() < end) {
             if (
                 !this._ignore_days.includes(DAYS_OF_WEEK_INDEX[start.getDay()])
             ) {

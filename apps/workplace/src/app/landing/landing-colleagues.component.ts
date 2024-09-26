@@ -14,8 +14,12 @@ import { LandingStateService } from './landing-state.service';
             class="flex items-center justify-between py-2 mx-2 border-b border-base-200"
         >
             <h2 class="mx-2" i18n>
-                {{ (contacts | async)?.length || 0 }} { (contacts |
-                async)?.length, plural, =1 { Person } other { People } }
+                {{ (contacts | async)?.length || 0 }}
+                {(contacts |
+                async)?.length, plural,
+                    =1 {Person }
+                    other {People }
+                }
             </h2>
             <!-- <div class="flex items-center space-x-2 text-primary">
                 <button icon
@@ -49,6 +53,7 @@ import { LandingStateService } from './landing-state.service';
                             [class.bg-warning]="user.location === 'wfh'"
                             [class.bg-neutral]="!user.location"
                             [matTooltip]="user.location_name"
+                            *ngIf="!user.outsideHours()"
                         ></div>
                     </div>
                     <div class="leading-tight flex-1 w-1/2">
@@ -226,10 +231,10 @@ export class LandingColleaguesComponent extends AsyncHandler {
             list.filter(
                 (_) =>
                     !contacts.find(
-                        (user) => user.id === _.id || user.email === _.email
-                    )
-            )
-        )
+                        (user) => user.id === _.id || user.email === _.email,
+                    ),
+            ),
+        ),
     );
 
     public readonly options = this._state.options;
@@ -256,7 +261,7 @@ export class LandingColleaguesComponent extends AsyncHandler {
         private _state: LandingStateService,
         private _settings: SettingsService,
         private _event_form: EventFormService,
-        private _router: Router
+        private _router: Router,
     ) {
         super();
     }

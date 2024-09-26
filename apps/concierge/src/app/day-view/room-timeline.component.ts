@@ -1,5 +1,6 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import {
+    addHours,
     differenceInMinutes,
     format,
     isSameDay,
@@ -9,7 +10,7 @@ import {
 } from 'date-fns';
 import { EventsStateService } from './events-state.service';
 import { combineLatest } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
+import { debounceTime, map, shareReplay, startWith } from 'rxjs/operators';
 import {
     AsyncHandler,
     SettingsService,
@@ -115,7 +116,7 @@ import { padLength } from 'libs/components/src/lib/media-duration.pipe';
                 </div>
                 <div
                     class="absolute bg-secondary right-0 translate-x-1/2 -translate-y-1/2 h-2 w-2 rounded-full"
-                    *ngIf="(is_today | async) && timeToOffset(now) < 100"
+                    *ngIf="(show_time | async) && timeToOffset(now) < 100"
                     [style.top]="'calc(' + timeToOffset(now) + '% + 1px)'"
                 ></div>
             </div>
@@ -206,7 +207,7 @@ import { padLength } from 'libs/components/src/lib/media-duration.pipe';
                     </ng-container>
                 </ng-container>
                 <div
-                    *ngIf="is_today | async"
+                    *ngIf="show_time | async"
                     class="absolute inset-x-0 h-[2px] bg-secondary"
                     [style.top]="timeToOffset(now) + '%'"
                 ></div>
@@ -236,26 +237,64 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
     public readonly is_today = this.date.pipe(
         map((d) => isSameDay(d, Date.now())),
     );
+    public readonly show_time = combineLatest([
+        this.date,
+        this._org.active_building,
+    ]).pipe(
+        map(([d]) => {
+            const today = isSameDay(d, Date.now());
+            const offset = this.timezone
+                ? getTimezoneDifferenceInHours(this.timezone)
+                : 0;
+            const start = addHours(
+                setHours(startOfDay(Date.now()), this.block_start),
+                -offset,
+            ).valueOf();
+            const end = addHours(
+                setHours(startOfDay(Date.now()), this.block_end),
+                -offset,
+            ).valueOf();
+            return today && Date.now() >= start && Date.now() <= end;
+        }),
+    );
     public readonly events = combineLatest([
         this._state.spaces,
         this._state.filtered,
+        this.date,
     ]).pipe(
-        map(([spaces, events]) => {
+        debounceTime(300),
+        map(([spaces, events, date]) => {
             const map = {};
+            const offset = this.timezone
+                ? getTimezoneDifferenceInHours(this.timezone)
+                : 0;
+            const start = addHours(
+                setHours(startOfDay(date), this.block_start),
+                -offset,
+            ).valueOf();
+            const end = addHours(
+                setHours(startOfDay(date), this.block_end),
+                -offset,
+            ).valueOf();
             for (const space of spaces) {
-                map[space.id] = events.filter(
-                    (event) =>
-                        event.resources.find(
-                            (item) =>
-                                item.id === space.id ||
-                                item.email === space.email,
-                        ) ||
-                        event.system?.id === space.id ||
-                        event.system?.email === space.email,
-                );
+                map[space.id] = events
+                    .filter(
+                        (event) =>
+                            event.resources.find(
+                                (item) =>
+                                    item.id === space.id ||
+                                    item.email === space.email,
+                            ) ||
+                            event.system?.id === space.id ||
+                            event.system?.email === space.email,
+                    )
+                    .filter(
+                        (event) => event.date_end >= start && event.date <= end,
+                    );
             }
             return map;
         }),
+        startWith({}),
         shareReplay(1),
     );
 

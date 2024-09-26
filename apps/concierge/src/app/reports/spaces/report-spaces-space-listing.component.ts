@@ -23,31 +23,41 @@ import { ReportsStateService } from '../reports-state.service';
                 [data]="space_list"
                 [columns]="[
                     { key: 'name', name: 'Name' },
-                    { key: 'capacity', name: 'Capacity' },
+                    {
+                        key: 'capacity',
+                        name: 'Capacity',
+                        content: capacity_template,
+                    },
                     { key: 'booking_count', name: 'Bookings' },
                     { key: 'utilisation', name: 'Utilisation' },
                     { key: 'avg_attendees', name: 'Avg. Invitees per Booking' },
                     {
                         key: 'no_shows',
                         name: 'No Shows',
-                        show: has_attendance | async
+                        show: has_attendance | async,
                     },
                     {
                         key: 'min_attendance',
                         name: 'Min. In-Room Attendance',
-                        show: has_attendance | async
+                        show: has_attendance | async,
                     },
                     {
                         key: 'max_attendance',
                         name: 'Max. In-Room Attendance',
-                        show: has_attendance | async
+                        show: has_attendance | async,
                     },
-                    { key: 'occupancy', name: 'Occupancy %' }
+                    { key: 'occupancy', name: 'Occupancy %' },
                 ]"
                 [sortable]="true"
                 [page_size]="print ? 0 : 10"
                 empty_message="No events for selected period"
             ></simple-table>
+            <ng-template #capacity_template let-data="data">
+                <div class="p-4">
+                    {{ data < 1 ? '' : data }}
+                    <span class="opacity-30" *ngIf="data < 1">Not set</span>
+                </div>
+            </ng-template>
         </div>
     `,
     styles: [``],
@@ -66,19 +76,19 @@ export class ReportSpacesSpaceListing {
             for (const booking of stats.events) {
                 const resources: Space[] = unique(
                     booking.resources,
-                    'email'
+                    'email',
                 ) || [booking.system];
                 for (const space of resources) {
                     let details = list.find(
                         (_) =>
                             _.id === space.id ||
-                            _.id?.toLowerCase() === space.email.toLowerCase()
+                            _.id?.toLowerCase() === space.email.toLowerCase(),
                     );
                     if (!details) {
                         details = {
                             id: space.id || space.email,
                             name: space.display_name || space.name,
-                            capacity: space.capacity || 1,
+                            capacity: space.capacity,
                             booking_count: 0,
                             attendance: 0,
                             avg_attendance: 0,
@@ -104,11 +114,11 @@ export class ReportSpacesSpaceListing {
                         booking.extension_data?.people_count?.avg ?? 0;
                     details.min_attendance = Math.min(
                         details.max_attendance,
-                        booking.extension_data?.people_count?.max ?? 99
+                        booking.extension_data?.people_count?.max ?? 99,
                     );
                     details.max_attendance = Math.max(
                         details.max_attendance,
-                        booking.extension_data?.people_count?.max ?? 0
+                        booking.extension_data?.people_count?.max ?? 0,
                     );
                     details.usage += booking.duration;
                     details.attendees += booking.attendees.length;
@@ -118,7 +128,7 @@ export class ReportSpacesSpaceListing {
             }
             const period_in_days = Math.max(
                 1,
-                differenceInDays(end, start) + 1
+                differenceInDays(end, start) + 1,
             );
             for (const space of list) {
                 space.avg_attendees =
@@ -128,13 +138,15 @@ export class ReportSpacesSpaceListing {
                     Math.floor((space.attendance / space.booking_count) * 100) /
                     100;
                 space.utilisation = `${Math.floor(
-                    (space.usage / 60 / 8 / period_in_days) * 100
+                    (space.usage / 60 / 8 / period_in_days) * 100,
                 )}%`;
                 space.min_attendance =
                     space.min_attendance === 99 ? '?' : space.min_attendance;
                 space.occupancy = `${
-                    Math.floor((space.avg_attendees / space.capacity) * 1000) /
-                    10
+                    Math.floor(
+                        (space.avg_attendees / Math.max(1, space.capacity)) *
+                            1000,
+                    ) / 10
                 }%`;
                 if (space.attendance < 0 || !has_attendance) {
                     space.attendance = '?';
@@ -142,11 +154,11 @@ export class ReportSpacesSpaceListing {
                 }
             }
             return list;
-        })
+        }),
     );
 
     public readonly has_attendance = this.space_list.pipe(
-        map((_) => !!_.find(({ attendance }) => attendance !== '?'))
+        map((_) => !!_.find(({ attendance }) => attendance !== '?')),
     );
 
     public readonly download = async () => {

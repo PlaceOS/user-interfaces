@@ -196,15 +196,15 @@ export class StaffUser extends User {
         }
     }
 
-    public location_time(datetime: number) {
+    public location_time(datetime: number = Date.now()) {
         return this.work_preference(datetime)?.location || 'wfo';
     }
 
     public get location_name() {
-        return this.location_name_time(Date.now());
+        return this.location_name_time();
     }
 
-    public location_name_time(datetime: number) {
+    public location_name_time(datetime: number = Date.now()) {
         if (!datetime) datetime = Date.now();
         const location = this.location_time(datetime);
         const in_hours = this.in_hours_time(datetime);
@@ -225,6 +225,12 @@ export class StaffUser extends User {
         }
     }
 
+    public outsideHours(datetime: number = Date.now()) {
+        const location = this.location_time(datetime);
+        const in_hours = this.in_hours_time(datetime);
+        return location.includes('w') && !in_hours;
+    }
+
     public get in_hours() {
         return this.in_hours_time(Date.now());
     }
@@ -238,7 +244,7 @@ export class StaffUser extends User {
         return 'event_busy';
     }
 
-    public in_hours_time(datetime: number) {
+    public in_hours_time(datetime: number = Date.now()) {
         const block = this.work_preference(datetime);
         return !!block;
     }

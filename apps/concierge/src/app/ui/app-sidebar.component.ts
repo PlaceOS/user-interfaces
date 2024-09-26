@@ -212,6 +212,11 @@ export class ApplicationSidebarComponent extends AsyncHandler {
                     name: 'URL Management',
                     route: ['/url-management'],
                 },
+                {
+                    id: 'email-templates',
+                    name: 'Email Templates',
+                    route: ['/email-templates'],
+                },
             ],
         },
         {

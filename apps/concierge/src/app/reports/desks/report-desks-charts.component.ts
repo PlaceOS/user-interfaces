@@ -2,7 +2,7 @@ import { Component, Input, SimpleChanges } from '@angular/core';
 import { ReportsStateService } from '../reports-state.service';
 
 import { LineChart, PieChart } from 'chartist';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { format } from 'date-fns';
 import { OrganisationService } from '@placeos/organisation';
 import { combineLatest } from 'rxjs';
@@ -65,7 +65,8 @@ export class ReportDesksChartsComponent extends AsyncHandler {
 
     constructor(
         private _state: ReportsStateService,
-        private _org: OrganisationService
+        private _org: OrganisationService,
+        private _settings: SettingsService,
     ) {
         super();
     }
@@ -74,8 +75,8 @@ export class ReportDesksChartsComponent extends AsyncHandler {
         this.subscription(
             'charts',
             combineLatest([this.day_list, this.stats]).subscribe(() =>
-                this.updateCharts()
-            )
+                this.updateCharts(),
+            ),
         );
     }
 
@@ -101,10 +102,10 @@ export class ReportDesksChartsComponent extends AsyncHandler {
                 this.timeout(
                     'update_charts',
                     () => this.updateDailyChart(day_list),
-                    500
+                    500,
                 );
             },
-            50
+            50,
         );
     }
 
@@ -117,11 +118,12 @@ export class ReportDesksChartsComponent extends AsyncHandler {
     }
 
     public updateLevelChart(mapping, count) {
-        let { zones } = mapping || {};
-        if (zones.includes('All'))
-            zones = this._org.levels
-                .filter((_) => _.parent_id === this._org.building.id)
-                .map((_) => _.id);
+        let { zones } = mapping || { zones: [] };
+        if (!zones.length) {
+            zones = this._settings.get('app.use_region')
+                ? this._org.levelsForRegion().map((_) => _.id)
+                : this._org.levelsForBuilding().map((_) => _.id);
+        }
         const zone_list = (zones || []).filter((_) => (count[_] || 0) > 0);
         const data = {
             labels: zone_list.map((_) => {

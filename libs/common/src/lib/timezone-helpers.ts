@@ -49,7 +49,7 @@ export function getTimezoneOffsetInMinutes(timeZone, date = new Date()) {
 
 export function getTimezoneDifferenceInHours(
     src_tz: string,
-    dest_tz: string,
+    dest_tz: string = LOCAL_TIMEZONE,
     date: Date = new Date(),
 ) {
     const offset1 = getTimezoneOffsetInMinutes(src_tz, date);

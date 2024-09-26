@@ -196,7 +196,7 @@ export class EventsStateService extends AsyncHandler {
         debounceTime(300),
         switchMap(([period, zones, date]) => {
             if (!zones?.length) return of([]);
-            if (zones[0] === this._org.region.id) {
+            if (zones[0] === this._org.region?.id) {
                 zones = (this._settings.get('app.use_region')
                     ? this._org
                           .buildingsForRegion(this._org.region)
@@ -279,7 +279,7 @@ export class EventsStateService extends AsyncHandler {
             ? this._org.building.timezone
             : '';
         const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        return !tz ? 0 : getTimezoneDifferenceInHours(tz, current_tz);
+        return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
     }
 
     constructor(
