@@ -5015,8 +5015,8 @@ class MeetingFlowFormComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_
         return false;
       }));
     }));
-    this._catering_available = this._space_list.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_21__.debounceTime)(300), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_22__.switchMap)(space_list => {
-      if (!space_list?.length) return (0,rxjs__WEBPACK_IMPORTED_MODULE_23__.of)(false);
+    this._catering_available = (0,rxjs__WEBPACK_IMPORTED_MODULE_20__.combineLatest)([this._space_list, this.has_catering]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_21__.debounceTime)(300), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_22__.switchMap)(([space_list, has_catering]) => {
+      if (!space_list?.length || !has_catering) return (0,rxjs__WEBPACK_IMPORTED_MODULE_23__.of)(false);
       const value = this.form.getRawValue();
       this._catering.setFilters({
         search: '',
