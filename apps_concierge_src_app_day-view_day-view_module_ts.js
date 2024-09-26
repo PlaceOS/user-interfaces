@@ -2399,24 +2399,27 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js */ 89204);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! date-fns */ 23206);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! date-fns */ 31257);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! date-fns */ 3330);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! date-fns */ 45726);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! date-fns */ 33240);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! date-fns */ 1874);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! date-fns */ 29533);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! date-fns */ 3330);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! date-fns */ 33240);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! date-fns */ 45726);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! date-fns */ 1874);
 /* harmony import */ var _events_state_service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./events-state.service */ 88288);
 /* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! rxjs */ 68824);
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! rxjs/operators */ 35443);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! rxjs/operators */ 7841);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! rxjs/operators */ 19803);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! rxjs/operators */ 89273);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! rxjs/operators */ 7841);
 /* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @placeos/common */ 22797);
 /* harmony import */ var _placeos_events__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @placeos/events */ 40569);
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! @angular/common */ 60316);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! @angular/common */ 60316);
 /* harmony import */ var _placeos_organisation__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @placeos/organisation */ 2510);
 /* harmony import */ var libs_components_src_lib_media_duration_pipe__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! libs/components/src/lib/media-duration.pipe */ 28975);
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @angular/core */ 37580);
-/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! @angular/material/dialog */ 12587);
+/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! @angular/material/dialog */ 12587);
 /* harmony import */ var _ui_date_options_component__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../ui/date-options.component */ 94584);
-/* harmony import */ var _angular_material_tooltip__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! @angular/material/tooltip */ 80640);
-/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! @angular/material/core */ 74646);
+/* harmony import */ var _angular_material_tooltip__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! @angular/material/tooltip */ 80640);
+/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! @angular/material/core */ 74646);
 /* harmony import */ var _room_booking_search_component__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./room-booking-search.component */ 96891);
 
 
@@ -2674,24 +2677,34 @@ class RoomBookingsTimelineComponent extends _placeos_common__WEBPACK_IMPORTED_MO
     this.spaces = this._state.spaces;
     this.date = this._state.date;
     this.is_today = this.date.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_10__.map)(d => (0,date_fns__WEBPACK_IMPORTED_MODULE_11__.isSameDay)(d, Date.now())));
-    this.events = (0,rxjs__WEBPACK_IMPORTED_MODULE_12__.combineLatest)([this._state.spaces, this._state.filtered]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_10__.map)(([spaces, events]) => {
+    this.show_time = (0,rxjs__WEBPACK_IMPORTED_MODULE_12__.combineLatest)([this.date, this._org.active_building]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_10__.map)(([d]) => {
+      const today = (0,date_fns__WEBPACK_IMPORTED_MODULE_11__.isSameDay)(d, Date.now());
+      const offset = this.timezone ? (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.getTimezoneDifferenceInHours)(this.timezone) : 0;
+      const start = (0,date_fns__WEBPACK_IMPORTED_MODULE_13__.addHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_14__.setHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_15__.startOfDay)(Date.now()), this.block_start), -offset).valueOf();
+      const end = (0,date_fns__WEBPACK_IMPORTED_MODULE_13__.addHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_14__.setHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_15__.startOfDay)(Date.now()), this.block_end), -offset).valueOf();
+      return today && Date.now() >= start && Date.now() <= end;
+    }));
+    this.events = (0,rxjs__WEBPACK_IMPORTED_MODULE_12__.combineLatest)([this._state.spaces, this._state.filtered, this.date]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_16__.debounceTime)(300), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_10__.map)(([spaces, events, date]) => {
       const map = {};
+      const offset = this.timezone ? (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.getTimezoneDifferenceInHours)(this.timezone) : 0;
+      const start = (0,date_fns__WEBPACK_IMPORTED_MODULE_13__.addHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_14__.setHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_15__.startOfDay)(date), this.block_start), -offset).valueOf();
+      const end = (0,date_fns__WEBPACK_IMPORTED_MODULE_13__.addHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_14__.setHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_15__.startOfDay)(date), this.block_end), -offset).valueOf();
       for (const space of spaces) {
-        map[space.id] = events.filter(event => event.resources.find(item => item.id === space.id || item.email === space.email) || event.system?.id === space.id || event.system?.email === space.email);
+        map[space.id] = events.filter(event => event.resources.find(item => item.id === space.id || item.email === space.email) || event.system?.id === space.id || event.system?.email === space.email).filter(event => event.date_end >= start && event.date <= end);
       }
       return map;
-    }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_13__.shareReplay)(1));
+    }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_17__.startWith)({}), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_18__.shareReplay)(1));
     this._hour_list = Array.from({
       length: 24
     }, (_, i) => i);
     this.hours = [];
     this.edit = e => this._state.newBooking(e);
     this.setDate = d => this._state.setDate(d);
-    this._date_pipe = new _angular_common__WEBPACK_IMPORTED_MODULE_14__.DatePipe('en');
+    this._date_pipe = new _angular_common__WEBPACK_IMPORTED_MODULE_19__.DatePipe('en');
   }
   formatHour(hour) {
-    const date = (0,date_fns__WEBPACK_IMPORTED_MODULE_15__.setHours)(Date.now(), hour);
-    return this._settings.get('app.use_24_hour_time') ? (0,date_fns__WEBPACK_IMPORTED_MODULE_16__.format)(date, 'HH:00') : (0,date_fns__WEBPACK_IMPORTED_MODULE_16__.format)(date, 'h a');
+    const date = (0,date_fns__WEBPACK_IMPORTED_MODULE_14__.setHours)(Date.now(), hour);
+    return this._settings.get('app.use_24_hour_time') ? (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.format)(date, 'HH:00') : (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.format)(date, 'h a');
   }
   eventTooltip(event) {
     const tooltip = `Start: ${event.all_day ? 'All Day' : this._date_pipe.transform(event.date, this.time_format)}
@@ -2711,8 +2724,8 @@ Host:  ${event.organiser?.name || event.host}`;
   timeToOffset(date) {
     const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const offset = !this.timezone ? 0 : (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.getTimezoneDifferenceInHours)(this.timezone, current_tz);
-    const start_time = (0,date_fns__WEBPACK_IMPORTED_MODULE_15__.setHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_17__.startOfDay)(date), this.block_start - offset);
-    const diff = (0,date_fns__WEBPACK_IMPORTED_MODULE_18__.differenceInMinutes)(date, start_time);
+    const start_time = (0,date_fns__WEBPACK_IMPORTED_MODULE_14__.setHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_15__.startOfDay)(date), this.block_start - offset);
+    const diff = (0,date_fns__WEBPACK_IMPORTED_MODULE_21__.differenceInMinutes)(date, start_time);
     return Math.max(0, diff / 60) / this.block_range * 100;
   }
   endToOffset(duration) {
@@ -2744,7 +2757,7 @@ Host:  ${event.organiser?.name || event.host}`;
   remove(item, space_id) {
     var _this2 = this;
     return (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
-      const time = `${(0,date_fns__WEBPACK_IMPORTED_MODULE_16__.format)(item.date, 'dd MMM yyyy ' + _this2.time_format)}`;
+      const time = `${(0,date_fns__WEBPACK_IMPORTED_MODULE_20__.format)(item.date, 'dd MMM yyyy ' + _this2.time_format)}`;
       const resource_name = item.space?.display_name;
       const content = `Delete the booking for ${resource_name} at ${time}`;
       const resp = yield (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.openConfirmModal)({
@@ -2769,7 +2782,7 @@ Host:  ${event.organiser?.name || event.host}`;
     })();
   }
   static #_ = this.ɵfac = function RoomBookingsTimelineComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || RoomBookingsTimelineComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdirectiveInject"](_events_state_service__WEBPACK_IMPORTED_MODULE_1__.EventsStateService), _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdirectiveInject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_19__.MatDialog), _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdirectiveInject"](_placeos_common__WEBPACK_IMPORTED_MODULE_2__.SettingsService), _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdirectiveInject"](_placeos_organisation__WEBPACK_IMPORTED_MODULE_4__.OrganisationService));
+    return new (__ngFactoryType__ || RoomBookingsTimelineComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdirectiveInject"](_events_state_service__WEBPACK_IMPORTED_MODULE_1__.EventsStateService), _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdirectiveInject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_22__.MatDialog), _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdirectiveInject"](_placeos_common__WEBPACK_IMPORTED_MODULE_2__.SettingsService), _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdirectiveInject"](_placeos_organisation__WEBPACK_IMPORTED_MODULE_4__.OrganisationService));
   };
   static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdefineComponent"]({
     type: RoomBookingsTimelineComponent,
@@ -2837,7 +2850,7 @@ Host:  ${event.organiser?.name || event.host}`;
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngForOf", ctx.hours);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](23, 30, ctx.is_today) && ctx.timeToOffset(ctx.now) < 100);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](23, 30, ctx.show_time) && ctx.timeToOffset(ctx.now) < 100);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](3);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngForOf", ctx.hours);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
@@ -2845,10 +2858,10 @@ Host:  ${event.organiser?.name || event.host}`;
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](29, 34, ctx.spaces));
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](31, 36, ctx.is_today));
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](31, 36, ctx.show_time));
       }
     },
-    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_14__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_14__.NgIf, _ui_date_options_component__WEBPACK_IMPORTED_MODULE_6__.DateOptionsComponent, _angular_material_tooltip__WEBPACK_IMPORTED_MODULE_20__.MatTooltip, _angular_material_core__WEBPACK_IMPORTED_MODULE_21__.MatRipple, _room_booking_search_component__WEBPACK_IMPORTED_MODULE_7__.RoomBookingSearchComponent, _angular_common__WEBPACK_IMPORTED_MODULE_14__.AsyncPipe, _angular_common__WEBPACK_IMPORTED_MODULE_14__.DatePipe],
+    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_19__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_19__.NgIf, _ui_date_options_component__WEBPACK_IMPORTED_MODULE_6__.DateOptionsComponent, _angular_material_tooltip__WEBPACK_IMPORTED_MODULE_23__.MatTooltip, _angular_material_core__WEBPACK_IMPORTED_MODULE_24__.MatRipple, _room_booking_search_component__WEBPACK_IMPORTED_MODULE_7__.RoomBookingSearchComponent, _angular_common__WEBPACK_IMPORTED_MODULE_19__.AsyncPipe, _angular_common__WEBPACK_IMPORTED_MODULE_19__.DatePipe],
     styles: ["[_nghost-%COMP%] {\n                display: flex;\n                flex-direction: column;\n                max-width: 100%;\n            }\n\n            [timeline][_ngcontent-%COMP%] {\n                grid-template-columns: 4rem auto;\n                grid-template-rows: 3.5rem auto;\n            }\n        \n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInJvb20tdGltZWxpbmUuY29tcG9uZW50LnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7WUFDWTtnQkFDSSxhQUFhO2dCQUNiLHNCQUFzQjtnQkFDdEIsZUFBZTtZQUNuQjs7WUFFQTtnQkFDSSxnQ0FBZ0M7Z0JBQ2hDLCtCQUErQjtZQUNuQyIsImZpbGUiOiJyb29tLXRpbWVsaW5lLmNvbXBvbmVudC50cyIsInNvdXJjZXNDb250ZW50IjpbIlxuICAgICAgICAgICAgOmhvc3Qge1xuICAgICAgICAgICAgICAgIGRpc3BsYXk6IGZsZXg7XG4gICAgICAgICAgICAgICAgZmxleC1kaXJlY3Rpb246IGNvbHVtbjtcbiAgICAgICAgICAgICAgICBtYXgtd2lkdGg6IDEwMCU7XG4gICAgICAgICAgICB9XG5cbiAgICAgICAgICAgIFt0aW1lbGluZV0ge1xuICAgICAgICAgICAgICAgIGdyaWQtdGVtcGxhdGUtY29sdW1uczogNHJlbSBhdXRvO1xuICAgICAgICAgICAgICAgIGdyaWQtdGVtcGxhdGUtcm93czogMy41cmVtIGF1dG87XG4gICAgICAgICAgICB9XG4gICAgICAgICJdfQ== */\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2FwcHMvY29uY2llcmdlL3NyYy9hcHAvZGF5LXZpZXcvcm9vbS10aW1lbGluZS5jb21wb25lbnQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IjtZQUNZO2dCQUNJLGFBQWE7Z0JBQ2Isc0JBQXNCO2dCQUN0QixlQUFlO1lBQ25COztZQUVBO2dCQUNJLGdDQUFnQztnQkFDaEMsK0JBQStCO1lBQ25DOztBQUVaLDR1QkFBNHVCIiwic291cmNlc0NvbnRlbnQiOlsiXG4gICAgICAgICAgICA6aG9zdCB7XG4gICAgICAgICAgICAgICAgZGlzcGxheTogZmxleDtcbiAgICAgICAgICAgICAgICBmbGV4LWRpcmVjdGlvbjogY29sdW1uO1xuICAgICAgICAgICAgICAgIG1heC13aWR0aDogMTAwJTtcbiAgICAgICAgICAgIH1cblxuICAgICAgICAgICAgW3RpbWVsaW5lXSB7XG4gICAgICAgICAgICAgICAgZ3JpZC10ZW1wbGF0ZS1jb2x1bW5zOiA0cmVtIGF1dG87XG4gICAgICAgICAgICAgICAgZ3JpZC10ZW1wbGF0ZS1yb3dzOiAzLjVyZW0gYXV0bztcbiAgICAgICAgICAgIH1cbiAgICAgICAgIl0sInNvdXJjZVJvb3QiOiIifQ== */"]
   });
 }

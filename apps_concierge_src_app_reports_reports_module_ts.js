@@ -2252,11 +2252,13 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
 class ReportDesksChartsComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.AsyncHandler {
-  constructor(_state, _org) {
+  constructor(_state, _org, _settings) {
     super();
     this._state = _state;
     this._org = _org;
+    this._settings = _settings;
     this.print = false;
     this.day_list = this._state.day_list;
     this.stats = (0,rxjs__WEBPACK_IMPORTED_MODULE_4__.combineLatest)([this._state.options, this._state.counts]);
@@ -2289,8 +2291,12 @@ class ReportDesksChartsComponent extends _placeos_common__WEBPACK_IMPORTED_MODUL
   updateLevelChart(mapping, count) {
     let {
       zones
-    } = mapping || {};
-    if (zones.includes('All')) zones = this._org.levels.filter(_ => _.parent_id === this._org.building.id).map(_ => _.id);
+    } = mapping || {
+      zones: []
+    };
+    if (!zones.length) {
+      zones = this._settings.get('app.use_region') ? this._org.levelsForRegion().map(_ => _.id) : this._org.levelsForBuilding().map(_ => _.id);
+    }
     const zone_list = (zones || []).filter(_ => (count[_] || 0) > 0);
     const data = {
       labels: zone_list.map(_ => {
@@ -2302,7 +2308,7 @@ class ReportDesksChartsComponent extends _placeos_common__WEBPACK_IMPORTED_MODUL
     this._level_chart = new chartist__WEBPACK_IMPORTED_MODULE_7__.PieChart('#level-chart', data);
   }
   static #_ = this.ɵfac = function ReportDesksChartsComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || ReportDesksChartsComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdirectiveInject"](_reports_state_service__WEBPACK_IMPORTED_MODULE_1__.ReportsStateService), _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdirectiveInject"](_placeos_organisation__WEBPACK_IMPORTED_MODULE_3__.OrganisationService));
+    return new (__ngFactoryType__ || ReportDesksChartsComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdirectiveInject"](_reports_state_service__WEBPACK_IMPORTED_MODULE_1__.ReportsStateService), _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdirectiveInject"](_placeos_organisation__WEBPACK_IMPORTED_MODULE_3__.OrganisationService), _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdirectiveInject"](_placeos_common__WEBPACK_IMPORTED_MODULE_2__.SettingsService));
   };
   static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdefineComponent"]({
     type: ReportDesksChartsComponent,
@@ -2379,6 +2385,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
 const _c0 = () => ({
   key: "name",
   name: "Level"
@@ -2428,18 +2435,22 @@ function ReportDesksLevelListComponent_ng_template_7_Template(rf, ctx) {
   }
 }
 class ReportDesksLevelListComponent {
-  constructor(_state, _org) {
+  constructor(_state, _org, _settings) {
     var _this = this;
     this._state = _state;
     this._org = _org;
+    this._settings = _settings;
     this.print = false;
     this.level_list = (0,rxjs__WEBPACK_IMPORTED_MODULE_7__.combineLatest)([this._state.options, this._state.stats, this._state.counts]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_8__.map)(([options, stats, counts]) => {
-      const {
+      let {
         start,
         end,
         zones
       } = options;
       const duration = (0,date_fns__WEBPACK_IMPORTED_MODULE_9__.differenceInDays)(end, start) || 1;
+      if (!zones.length) {
+        zones = this._settings.get('app.use_region') ? this._org.levelsForRegion().map(_ => _.id) : this._org.levelsForBuilding().map(_ => _.id);
+      }
       const levels = [];
       for (const zone of zones) {
         if (zone === 'All') continue;
@@ -2468,7 +2479,7 @@ class ReportDesksLevelListComponent {
     });
   }
   static #_ = this.ɵfac = function ReportDesksLevelListComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || ReportDesksLevelListComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdirectiveInject"](_reports_state_service__WEBPACK_IMPORTED_MODULE_3__.ReportsStateService), _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdirectiveInject"](_placeos_organisation__WEBPACK_IMPORTED_MODULE_2__.OrganisationService));
+    return new (__ngFactoryType__ || ReportDesksLevelListComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdirectiveInject"](_reports_state_service__WEBPACK_IMPORTED_MODULE_3__.ReportsStateService), _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdirectiveInject"](_placeos_organisation__WEBPACK_IMPORTED_MODULE_2__.OrganisationService), _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdirectiveInject"](_placeos_common__WEBPACK_IMPORTED_MODULE_1__.SettingsService));
   };
   static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdefineComponent"]({
     type: ReportDesksLevelListComponent,
@@ -3410,25 +3421,24 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! date-fns */ 45726);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! date-fns */ 7729);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! date-fns */ 33240);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! date-fns */ 49675);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! date-fns */ 56441);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! date-fns */ 28797);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! date-fns */ 99908);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! date-fns */ 55882);
-/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! rxjs */ 33119);
-/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! rxjs */ 90521);
-/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! rxjs */ 71536);
-/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! rxjs */ 68757);
-/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! rxjs */ 68824);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! rxjs/operators */ 19803);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! rxjs/operators */ 71963);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! rxjs/operators */ 29314);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! rxjs/operators */ 35443);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! rxjs/operators */ 7841);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! date-fns */ 56441);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! date-fns */ 28797);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! date-fns */ 99908);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! date-fns */ 55882);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! rxjs */ 33119);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! rxjs */ 90521);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! rxjs */ 71536);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! rxjs */ 68757);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! rxjs */ 68824);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! rxjs/operators */ 19803);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! rxjs/operators */ 71963);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! rxjs/operators */ 29314);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! rxjs/operators */ 35443);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! rxjs/operators */ 7841);
 /* harmony import */ var _reports_utilities__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./reports.utilities */ 41360);
 /* harmony import */ var libs_spaces_src_lib_space_pipe__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! libs/spaces/src/lib/space.pipe */ 22011);
 /* harmony import */ var _placeos_spaces__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @placeos/spaces */ 44855);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! @angular/core */ 37580);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! @angular/core */ 37580);
 
 
 
@@ -3470,13 +3480,13 @@ class ReportsStateService {
   get duration() {
     const opts = this._options.getValue();
     let start = (0,date_fns__WEBPACK_IMPORTED_MODULE_11__.startOfDay)(opts.start);
-    const end = (0,date_fns__WEBPACK_IMPORTED_MODULE_12__.addMinutes)((0,date_fns__WEBPACK_IMPORTED_MODULE_13__.endOfDay)(opts.end), 1);
-    let count = 0;
-    while (start.valueOf() < end.valueOf()) {
+    const end = (0,date_fns__WEBPACK_IMPORTED_MODULE_12__.endOfDay)(opts.end).valueOf();
+    let count = 1;
+    while (start.valueOf() < end) {
       if (!this._ignore_days.includes(DAYS_OF_WEEK_INDEX[start.getDay()])) {
         count++;
       }
-      start = (0,date_fns__WEBPACK_IMPORTED_MODULE_14__.addDays)(start, 1);
+      start = (0,date_fns__WEBPACK_IMPORTED_MODULE_13__.addDays)(start, 1);
     }
     return Math.max(1, count);
   }
@@ -3485,23 +3495,24 @@ class ReportsStateService {
     this._org = _org;
     this._settings = _settings;
     this._space_pipe = new libs_spaces_src_lib_space_pipe__WEBPACK_IMPORTED_MODULE_7__.SpacePipe(this._org);
-    this._generate = new rxjs__WEBPACK_IMPORTED_MODULE_15__.Subject();
-    this._loading = new rxjs__WEBPACK_IMPORTED_MODULE_16__.BehaviorSubject('');
-    this._active_bookings = new rxjs__WEBPACK_IMPORTED_MODULE_16__.BehaviorSubject([]);
-    this._options = new rxjs__WEBPACK_IMPORTED_MODULE_16__.BehaviorSubject({
+    this._generate = new rxjs__WEBPACK_IMPORTED_MODULE_14__.Subject();
+    this._loading = new rxjs__WEBPACK_IMPORTED_MODULE_15__.BehaviorSubject('');
+    this._active_bookings = new rxjs__WEBPACK_IMPORTED_MODULE_15__.BehaviorSubject([]);
+    this._options = new rxjs__WEBPACK_IMPORTED_MODULE_15__.BehaviorSubject({
       start: new Date(),
-      end: new Date()
+      end: new Date(),
+      zones: []
     });
-    this._bookings_list = this._generate.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_17__.debounceTime)(500), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_18__.switchMap)(_ => {
+    this._bookings_list = this._generate.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_16__.debounceTime)(500), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_17__.switchMap)(_ => {
       const options = this._options.getValue();
       this._loading.next('Loading report details...');
-      if (!options?.type && !options?.zones?.length) return (0,rxjs__WEBPACK_IMPORTED_MODULE_19__.of)([]);
+      if (!options?.type && !options?.zones?.length) return (0,rxjs__WEBPACK_IMPORTED_MODULE_18__.of)([]);
       const start = (0,date_fns__WEBPACK_IMPORTED_MODULE_11__.startOfDay)(options.start || Date.now());
-      const end = (0,date_fns__WEBPACK_IMPORTED_MODULE_13__.endOfDay)(options.end || start);
+      const end = (0,date_fns__WEBPACK_IMPORTED_MODULE_12__.endOfDay)(options.end || start);
       const zones = options?.zones ? options.zones.filter(z => z !== 'All').join(',') : '';
       const query = {
-        period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.getUnixTime)(start),
-        period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.getUnixTime)(end)
+        period_start: (0,date_fns__WEBPACK_IMPORTED_MODULE_19__.getUnixTime)(start),
+        period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_19__.getUnixTime)(end)
       };
       return options.type === 'desks' ? (0,_placeos_bookings__WEBPACK_IMPORTED_MODULE_2__.queryAllBookings)({
         ...query,
@@ -3512,7 +3523,7 @@ class ReportsStateService {
         ...query,
         zone_ids: zones,
         limit: 1000
-      }).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_18__.switchMap)( /*#__PURE__*/function () {
+      }).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_17__.switchMap)( /*#__PURE__*/function () {
         var _ref = (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* (l) {
           return Promise.all(l.map( /*#__PURE__*/function () {
             var _ref2 = (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* (_) {
@@ -3529,8 +3540,8 @@ class ReportsStateService {
         return function (_x) {
           return _ref.apply(this, arguments);
         };
-      }()), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_21__.catchError)(_ => (0,rxjs__WEBPACK_IMPORTED_MODULE_19__.of)([])));
-    }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_22__.map)(list => {
+      }()), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_20__.catchError)(_ => (0,rxjs__WEBPACK_IMPORTED_MODULE_18__.of)([])));
+    }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_21__.map)(list => {
       this._loading.next('');
       if (!list?.length) {
         (0,_placeos_common__WEBPACK_IMPORTED_MODULE_3__.notifyError)('No bookings for the selected levels and period');
@@ -3538,35 +3549,40 @@ class ReportsStateService {
       list = list.filter(bkn => !this._ignore_days.includes(DAYS_OF_WEEK_INDEX[new Date(bkn.date).getDay()]));
       this._active_bookings.next(list || []);
       return list;
-    }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_23__.shareReplay)(1));
+    }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_22__.shareReplay)(1));
     this.loading = this._loading.asObservable();
     this.options = this._options.asObservable();
     this.bookings = this._active_bookings.asObservable();
-    this.spaces = this._options.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_18__.switchMap)(({
+    this.spaces = this._options.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_17__.switchMap)(({
       zones
     }) => {
       const use_region = this._settings.get('app.use_region');
       if (!zones?.length) {
         zones = [(use_region ? this._org.building?.parent_id : this._org.building?.id) || this._org.building?.id];
       }
-      return (0,rxjs__WEBPACK_IMPORTED_MODULE_24__.forkJoin)(zones.map(id => (0,_placeos_spaces__WEBPACK_IMPORTED_MODULE_8__.requestSpacesForZone)(id).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_21__.catchError)(() => (0,rxjs__WEBPACK_IMPORTED_MODULE_19__.of)([])))));
-    }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_22__.map)(l => (0,_placeos_common__WEBPACK_IMPORTED_MODULE_3__.flatten)(l)), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_23__.shareReplay)(1));
-    this.counts = this._options.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_17__.debounceTime)(500), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_18__.switchMap)(filters => {
-      const zones = (filters.zones || []).filter(z => z !== -1 && z !== 'All');
-      if (filters.type === 'events') {
-        return this.spaces.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_22__.map)(_ => zones.map(z => [z, _.filter(s => s.zones.includes(z)).length])));
+      return (0,rxjs__WEBPACK_IMPORTED_MODULE_23__.forkJoin)(zones.map(id => (0,_placeos_spaces__WEBPACK_IMPORTED_MODULE_8__.requestSpacesForZone)(id).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_20__.catchError)(() => (0,rxjs__WEBPACK_IMPORTED_MODULE_18__.of)([])))));
+    }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_21__.map)(l => (0,_placeos_common__WEBPACK_IMPORTED_MODULE_3__.flatten)(l)), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_22__.shareReplay)(1));
+    this.counts = this._options.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_16__.debounceTime)(500), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_17__.switchMap)(filters => {
+      let zones = (filters.zones || []).filter(z => z !== -1 && z !== 'All');
+      if (!zones.length) {
+        zones = this._settings.get('app.use_region') ? this._org.levelsForRegion().map(_ => _.id) : this._org.levelsForBuilding().map(_ => _.id);
       }
-      return Promise.all(zones.map(z => (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__.showMetadata)(z, 'desks').pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_21__.catchError)(() => (0,rxjs__WEBPACK_IMPORTED_MODULE_19__.of)({
+      if (filters.type === 'events') {
+        return this.spaces.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_21__.map)(_ => zones.map(z => [z, _.filter(s => s.zones.includes(z)).length])));
+      }
+      return Promise.all(zones.map(z => (0,_placeos_ts_client__WEBPACK_IMPORTED_MODULE_1__.showMetadata)(z, 'desks').pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_20__.catchError)(() => (0,rxjs__WEBPACK_IMPORTED_MODULE_18__.of)({
         details: []
-      })), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_22__.map)(m => [z, m.details.length])).toPromise()));
-    }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_22__.map)(list => {
+      })), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_21__.map)(m => [z, m.details.length])).toPromise()));
+    }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_21__.map)(list => {
+      console.log('Counts:', list);
       const map = {};
       this._active_bookings.next([]);
       list.forEach(([id, count]) => map[id] = count || 0);
       return map;
-    }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_23__.shareReplay)(1));
-    this.stats = (0,rxjs__WEBPACK_IMPORTED_MODULE_25__.combineLatest)([this.counts, this.bookings]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_18__.switchMap)( /*#__PURE__*/function () {
+    }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_22__.shareReplay)(1));
+    this.stats = (0,rxjs__WEBPACK_IMPORTED_MODULE_24__.combineLatest)([this.counts, this.bookings]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_17__.switchMap)( /*#__PURE__*/function () {
       var _ref3 = (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* ([counts, list]) {
+        console.log('Details:', counts, list);
         if (list[0] instanceof _placeos_events__WEBPACK_IMPORTED_MODULE_4__.CalendarEvent) {
           return (0,_reports_utilities__WEBPACK_IMPORTED_MODULE_6__.generateReportForBookings)(list, _this.duration * 8, counts);
         }
@@ -3576,21 +3592,21 @@ class ReportsStateService {
         return _ref3.apply(this, arguments);
       };
     }()));
-    this.day_list = (0,rxjs__WEBPACK_IMPORTED_MODULE_25__.combineLatest)([this.options, this.stats]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_22__.map)(([options, stats]) => {
+    this.day_list = (0,rxjs__WEBPACK_IMPORTED_MODULE_24__.combineLatest)([this.options, this.stats]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_21__.map)(([options, stats]) => {
       const {
         start
       } = options;
       let date = (0,date_fns__WEBPACK_IMPORTED_MODULE_11__.startOfDay)(start);
-      const end = (0,date_fns__WEBPACK_IMPORTED_MODULE_13__.endOfDay)(options.end || date);
+      const end = (0,date_fns__WEBPACK_IMPORTED_MODULE_12__.endOfDay)(options.end || date);
       const dates = [];
-      while ((0,date_fns__WEBPACK_IMPORTED_MODULE_26__.isBefore)(date, end)) {
+      while ((0,date_fns__WEBPACK_IMPORTED_MODULE_25__.isBefore)(date, end)) {
         if (this._ignore_days.includes(DAYS_OF_WEEK_INDEX[date.getDay()])) {
-          date = (0,date_fns__WEBPACK_IMPORTED_MODULE_14__.addDays)(date, 1);
+          date = (0,date_fns__WEBPACK_IMPORTED_MODULE_13__.addDays)(date, 1);
           continue;
         }
         const s = (0,date_fns__WEBPACK_IMPORTED_MODULE_11__.startOfDay)(date).valueOf();
-        const e = (0,date_fns__WEBPACK_IMPORTED_MODULE_13__.endOfDay)(s).valueOf();
-        const events = stats.events.filter(bkn => (0,_placeos_common__WEBPACK_IMPORTED_MODULE_3__.timePeriodsIntersect)(s, e, bkn.date, bkn.date + bkn.duration * 60 * 1000));
+        const e = (0,date_fns__WEBPACK_IMPORTED_MODULE_12__.endOfDay)(s).valueOf();
+        const events = stats.events?.filter(bkn => (0,_placeos_common__WEBPACK_IMPORTED_MODULE_3__.timePeriodsIntersect)(s, e, bkn.date, bkn.date + bkn.duration * 60 * 1000)) || [];
         const usage = options.type === 'desks' ? (0,_placeos_common__WEBPACK_IMPORTED_MODULE_3__.unique)(events, 'system_id').length : (0,_placeos_common__WEBPACK_IMPORTED_MODULE_3__.unique)(events, 'asset_id').length;
         dates.push({
           date: s,
@@ -3601,10 +3617,10 @@ class ReportsStateService {
           count: events.length || 0,
           utilisation: (events.length / Math.max(1, stats.total) * 100).toFixed(1)
         });
-        date = (0,date_fns__WEBPACK_IMPORTED_MODULE_14__.addDays)(date, 1);
+        date = (0,date_fns__WEBPACK_IMPORTED_MODULE_13__.addDays)(date, 1);
       }
       return dates;
-    }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_23__.shareReplay)(1));
+    }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_22__.shareReplay)(1));
     this._bookings_list.subscribe(_ => _);
   }
   generateReport() {
@@ -3634,9 +3650,9 @@ class ReportsStateService {
     }), '\t'));
   }
   static #_ = this.ɵfac = function ReportsStateService_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || ReportsStateService)(_angular_core__WEBPACK_IMPORTED_MODULE_27__["ɵɵinject"](_placeos_organisation__WEBPACK_IMPORTED_MODULE_5__.OrganisationService), _angular_core__WEBPACK_IMPORTED_MODULE_27__["ɵɵinject"](_placeos_common__WEBPACK_IMPORTED_MODULE_3__.SettingsService));
+    return new (__ngFactoryType__ || ReportsStateService)(_angular_core__WEBPACK_IMPORTED_MODULE_26__["ɵɵinject"](_placeos_organisation__WEBPACK_IMPORTED_MODULE_5__.OrganisationService), _angular_core__WEBPACK_IMPORTED_MODULE_26__["ɵɵinject"](_placeos_common__WEBPACK_IMPORTED_MODULE_3__.SettingsService));
   };
-  static #_2 = this.ɵprov = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_27__["ɵɵdefineInjectable"]({
+  static #_2 = this.ɵprov = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_26__["ɵɵdefineInjectable"]({
     token: ReportsStateService,
     factory: ReportsStateService.ɵfac,
     providedIn: 'root'
@@ -3872,7 +3888,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 function generateReportForDeskBookings(bookings, util_period = 1, counts = {}) {
   util_period = Math.max(1, util_period);
-  const total = Object.keys(counts).reduce((c, i) => c + (counts[i] || 0), 0);
+  let total = Object.keys(counts).reduce((c, i) => c + (counts[i] || 0), 0);
+  total = Math.max(1, total);
   const utilisation = Math.floor(bookings.length / total / util_period * 10000) / 10000;
   return {
     total,
@@ -3884,7 +3901,7 @@ function generateReportForDeskBookings(bookings, util_period = 1, counts = {}) {
 function generateReportForBookings(bookings, util_period = 8, counts = {}) {
   util_period = Math.max(1, util_period);
   const total_users = bookings.reduce((c, i) => c + i.attendees.length, 0);
-  const total_capacity = bookings.reduce((c, i) => c + i.system?.capacity, 0);
+  const total_capacity = bookings.reduce((c, i) => c + Math.max(1, i.system?.capacity), 0);
   const utilisation = Math.floor(bookings.reduce((c, i) => c + i.duration, 0) / (util_period * 60) * 100) / 100;
   const occupancy = Math.floor(total_users / total_capacity * 100) / 100;
   const total = Object.keys(counts).reduce((c, i) => c + (counts[i] || 0), 0);
@@ -4220,8 +4237,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   ReportSpacesOverallComponent: () => (/* binding */ ReportSpacesOverallComponent)
 /* harmony export */ });
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! date-fns */ 88948);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! date-fns */ 33240);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! date-fns */ 56441);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! date-fns */ 56441);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! date-fns */ 33240);
 /* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! date-fns */ 99134);
 /* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! rxjs/operators */ 35443);
 /* harmony import */ var _reports_state_service__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../reports-state.service */ 58255);
@@ -4273,7 +4290,7 @@ class ReportSpacesOverallComponent {
     this.business_days = this._state.options.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_2__.map)(({
       start,
       end
-    }) => (0,date_fns__WEBPACK_IMPORTED_MODULE_3__.differenceInBusinessDays)((0,date_fns__WEBPACK_IMPORTED_MODULE_4__.startOfDay)(end || Date.now()), (0,date_fns__WEBPACK_IMPORTED_MODULE_5__.endOfDay)(start || Date.now())) || 1));
+    }) => (0,date_fns__WEBPACK_IMPORTED_MODULE_3__.differenceInBusinessDays)((0,date_fns__WEBPACK_IMPORTED_MODULE_4__.endOfDay)(end || Date.now()).valueOf() + 2, (0,date_fns__WEBPACK_IMPORTED_MODULE_5__.startOfDay)(start || Date.now())) || 1));
     this.total_count = this._state.stats.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_2__.map)(i => i.count || 0));
     this.avg_length = this._state.stats.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_2__.map)(i => (0,date_fns__WEBPACK_IMPORTED_MODULE_6__.formatDuration)({
       minutes: Math.floor(i.avg_length || 0)
@@ -4391,9 +4408,10 @@ const _c0 = () => ({
   key: "name",
   name: "Name"
 });
-const _c1 = () => ({
+const _c1 = a0 => ({
   key: "capacity",
-  name: "Capacity"
+  name: "Capacity",
+  content: a0
 });
 const _c2 = () => ({
   key: "booking_count",
@@ -4430,7 +4448,7 @@ const _c9 = (a0, a1, a2, a3, a4, a5, a6, a7, a8) => [a0, a1, a2, a3, a4, a5, a6,
 function ReportSpacesSpaceListing_button_4_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵgetCurrentView"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](0, "button", 5);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](0, "button", 6);
     _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵlistener"]("click", function ReportSpacesSpaceListing_button_4_Template_button_click_0_listener() {
       _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵrestoreView"](_r1);
       const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵnextContext"]();
@@ -4439,6 +4457,28 @@ function ReportSpacesSpaceListing_button_4_Template(rf, ctx) {
     _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](1, "app-icon");
     _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](2, "download");
     _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]()();
+  }
+}
+function ReportSpacesSpaceListing_ng_template_9_span_2_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](0, "span", 9);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](1, "Not set");
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
+  }
+}
+function ReportSpacesSpaceListing_ng_template_9_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](0, "div", 7);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtemplate"](2, ReportSpacesSpaceListing_ng_template_9_span_2_Template, 2, 0, "span", 8);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
+  }
+  if (rf & 2) {
+    const data_r3 = ctx.data;
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtextInterpolate1"](" ", data_r3 < 1 ? "" : data_r3, " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngIf", data_r3 < 1);
   }
 }
 class ReportSpacesSpaceListing {
@@ -4460,7 +4500,7 @@ class ReportSpacesSpaceListing {
             details = {
               id: space.id || space.email,
               name: space.display_name || space.name,
-              capacity: space.capacity || 1,
+              capacity: space.capacity,
               booking_count: 0,
               attendance: 0,
               avg_attendance: 0,
@@ -4495,7 +4535,7 @@ class ReportSpacesSpaceListing {
         space.avg_attendance = Math.floor(space.attendance / space.booking_count * 100) / 100;
         space.utilisation = `${Math.floor(space.usage / 60 / 8 / period_in_days * 100)}%`;
         space.min_attendance = space.min_attendance === 99 ? '?' : space.min_attendance;
-        space.occupancy = `${Math.floor(space.avg_attendees / space.capacity * 1000) / 10}%`;
+        space.occupancy = `${Math.floor(space.avg_attendees / Math.max(1, space.capacity) * 1000) / 10}%`;
         if (space.attendance < 0 || !has_attendance) {
           space.attendance = '?';
           space.avg_attendance = '?';
@@ -4527,27 +4567,29 @@ class ReportSpacesSpaceListing {
     inputs: {
       print: "print"
     },
-    decls: 9,
-    vars: 33,
-    consts: [[1, "m-4", "rounded", "bg-base-100", "border", "border-base-200", "overflow-hidden"], [1, "border-b", "border-base-200", "px-4", "py-2", "flex", "items-center"], [1, "font-bold", "text-xl", "flex-1"], ["icon", "", "matRipple", "", 3, "click", 4, "ngIf"], ["empty_message", "No events for selected period", 1, "w-full", "block", "text-sm", 3, "data", "columns", "sortable", "page_size"], ["icon", "", "matRipple", "", 3, "click"]],
+    decls: 11,
+    vars: 34,
+    consts: [["capacity_template", ""], [1, "m-4", "rounded", "bg-base-100", "border", "border-base-200", "overflow-hidden"], [1, "border-b", "border-base-200", "px-4", "py-2", "flex", "items-center"], [1, "font-bold", "text-xl", "flex-1"], ["icon", "", "matRipple", "", 3, "click", 4, "ngIf"], ["empty_message", "No events for selected period", 1, "w-full", "block", "text-sm", 3, "data", "columns", "sortable", "page_size"], ["icon", "", "matRipple", "", 3, "click"], [1, "p-4"], ["class", "opacity-30", 4, "ngIf"], [1, "opacity-30"]],
     template: function ReportSpacesSpaceListing_Template(rf, ctx) {
       if (rf & 1) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](0, "div", 0)(1, "div", 1)(2, "h3", 2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementStart"](0, "div", 1)(1, "div", 2)(2, "h3", 3);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtext"](3, "Room Utilisation");
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtemplate"](4, ReportSpacesSpaceListing_button_4_Template, 3, 0, "button", 3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtemplate"](4, ReportSpacesSpaceListing_button_4_Template, 3, 0, "button", 4);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelement"](5, "simple-table", 4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelement"](5, "simple-table", 5);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipe"](6, "async");
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipe"](7, "async");
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipe"](8, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtemplate"](9, ReportSpacesSpaceListing_ng_template_9_Template, 3, 2, "ng-template", null, 0, _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtemplateRefExtractor"]);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
       }
       if (rf & 2) {
+        const capacity_template_r4 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵreference"](10);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](4);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngIf", !ctx.print);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("data", ctx.space_list)("columns", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunctionV"](23, _c9, [_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](11, _c0), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](12, _c1), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](13, _c2), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](14, _c3), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](15, _c4), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction1"](16, _c5, _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](6, 5, ctx.has_attendance)), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction1"](18, _c6, _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](7, 7, ctx.has_attendance)), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction1"](20, _c7, _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](8, 9, ctx.has_attendance)), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](22, _c8)]))("sortable", true)("page_size", ctx.print ? 0 : 10);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("data", ctx.space_list)("columns", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunctionV"](24, _c9, [_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](11, _c0), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction1"](12, _c1, capacity_template_r4), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](14, _c2), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](15, _c3), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](16, _c4), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction1"](17, _c5, _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](6, 5, ctx.has_attendance)), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction1"](19, _c6, _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](7, 7, ctx.has_attendance)), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction1"](21, _c7, _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](8, 9, ctx.has_attendance)), _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](23, _c8)]))("sortable", true)("page_size", ctx.print ? 0 : 10);
       }
     },
     dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_11__.NgIf, _angular_material_core__WEBPACK_IMPORTED_MODULE_12__.MatRipple, _libs_components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_3__.IconComponent, _libs_components_src_lib_simple_table_component__WEBPACK_IMPORTED_MODULE_4__.SimpleTableComponent, _angular_common__WEBPACK_IMPORTED_MODULE_11__.AsyncPipe]

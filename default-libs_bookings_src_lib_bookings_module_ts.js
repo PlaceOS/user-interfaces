@@ -1266,7 +1266,8 @@ class BookingFormService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.As
       if (!ignore_check) {
         yield _this2.checkResourceAvailable({
           ...booking,
-          ...value
+          ...value,
+          user_email: value.user?.email || value.user_email || (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.currentUser)()?.email
         }, _this2._options.getValue().type);
       }
       if (_this2._payments.payment_module) {

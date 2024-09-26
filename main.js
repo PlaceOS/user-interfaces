@@ -115,6 +115,9 @@ const routes = [{
   canActivate: [_placeos_components__WEBPACK_IMPORTED_MODULE_0__.AuthorisedUserGuard],
   canLoad: [_placeos_components__WEBPACK_IMPORTED_MODULE_0__.AuthorisedUserGuard]
 }, {
+  path: 'email-templates',
+  loadChildren: () => Promise.all(/*! import() */[__webpack_require__.e("default-libs_users_src_lib_users_module_ts"), __webpack_require__.e("default-libs_bookings_src_lib_bookings_module_ts"), __webpack_require__.e("apps_concierge_src_app_email-templates_email-templates_module_ts")]).then(__webpack_require__.bind(__webpack_require__, /*! ./email-templates/email-templates.module */ 59166)).then(m => m.EmailTemplatesModule)
+}, {
   path: 'points-of-interest',
   loadChildren: () => Promise.all(/*! import() */[__webpack_require__.e("default-libs_users_src_lib_users_module_ts"), __webpack_require__.e("apps_concierge_src_app_poi-manager_poi-manager_module_ts")]).then(__webpack_require__.bind(__webpack_require__, /*! ./poi-manager/poi-manager.module */ 15962)).then(m => m.POIManagerModule),
   canActivate: [_placeos_components__WEBPACK_IMPORTED_MODULE_0__.AuthorisedUserGuard],
@@ -854,7 +857,7 @@ class EventsStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.As
   get tz_offset() {
     const tz = this._settings.get('app.events.use_building_timezone') ? this._org.building.timezone : '';
     const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    return !tz ? 0 : (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.getTimezoneDifferenceInHours)(tz, current_tz);
+    return !tz ? 0 : (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.getTimezoneDifferenceInHours)(current_tz, tz);
   }
   constructor(_org, _dialog, _settings) {
     super();
@@ -919,7 +922,7 @@ class EventsStateService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.As
     /** Observable for list of bookings */
     this.events = (0,rxjs__WEBPACK_IMPORTED_MODULE_8__.combineLatest)([this._period, this._zones, this._date, this._poll]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_9__.filter)(([period]) => !!period), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_11__.debounceTime)(300), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_13__.switchMap)(([period, zones, date]) => {
       if (!zones?.length) return (0,rxjs__WEBPACK_IMPORTED_MODULE_24__.of)([]);
-      if (zones[0] === this._org.region.id) {
+      if (zones[0] === this._org.region?.id) {
         zones = (this._settings.get('app.use_region') ? this._org.buildingsForRegion(this._org.region).map(_ => _.id) : null) || [this._org.building?.id];
       }
       this._loading.next(true);
@@ -1809,6 +1812,10 @@ class ApplicationSidebarComponent extends _placeos_common__WEBPACK_IMPORTED_MODU
         id: 'url-management',
         name: 'URL Management',
         route: ['/url-management']
+      }, {
+        id: 'email-templates',
+        name: 'Email Templates',
+        route: ['/email-templates']
       }]
     }, {
       id: 'assets',
@@ -6477,13 +6484,6 @@ function _validateAssetRequestsForResource() {
       period_end: (0,date_fns__WEBPACK_IMPORTED_MODULE_13__.getUnixTime)(all_day ? (0,date_fns__WEBPACK_IMPORTED_MODULE_15__.endOfDay)((0,date_fns__WEBPACK_IMPORTED_MODULE_16__.addMinutes)(date, duration)) : (0,date_fns__WEBPACK_IMPORTED_MODULE_16__.addMinutes)(date, duration)),
       type: 'asset-request'
     }, bookings.map(_ => _.id)).toPromise();
-    console.log('Used IDs:', used_ids);
-    console.log('Changed Assets:', changed_assets);
-    console.log('Requests:', requests);
-    console.log('Bookings:', bookings);
-    console.log('Filtered:', filtered);
-    console.log('Unchanged:', unchanged);
-    console.log('Available Groups:', available_groups);
     const processed_requests = changed_assets.map(request => {
       // Handle duplicate asset ids
       let asset_ids = (0,_placeos_common__WEBPACK_IMPORTED_MODULE_5__.flatten)(request.items.map(({
@@ -9782,6 +9782,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   current_user: () => (/* reexport safe */ _lib_common__WEBPACK_IMPORTED_MODULE_0__.current_user),
 /* harmony export */   deleteShortURL: () => (/* reexport safe */ _lib_shorten_fn__WEBPACK_IMPORTED_MODULE_9__.deleteShortURL),
 /* harmony export */   downloadFile: () => (/* reexport safe */ _lib_common__WEBPACK_IMPORTED_MODULE_0__.downloadFile),
+/* harmony export */   extractTextFromHTML: () => (/* reexport safe */ _lib_common__WEBPACK_IMPORTED_MODULE_0__.extractTextFromHTML),
 /* harmony export */   filterResourcesFromRules: () => (/* reexport safe */ _lib_booking_rules__WEBPACK_IMPORTED_MODULE_6__.filterResourcesFromRules),
 /* harmony export */   flatten: () => (/* reexport safe */ _lib_common__WEBPACK_IMPORTED_MODULE_0__.flatten),
 /* harmony export */   formatRecurrence: () => (/* reexport safe */ _lib_common__WEBPACK_IMPORTED_MODULE_0__.formatRecurrence),
@@ -10370,6 +10371,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   currentUser: () => (/* reexport safe */ _user_state__WEBPACK_IMPORTED_MODULE_17__.currentUser),
 /* harmony export */   current_user: () => (/* reexport safe */ _user_state__WEBPACK_IMPORTED_MODULE_17__.current_user),
 /* harmony export */   downloadFile: () => (/* reexport safe */ _general__WEBPACK_IMPORTED_MODULE_11__.downloadFile),
+/* harmony export */   extractTextFromHTML: () => (/* reexport safe */ _general__WEBPACK_IMPORTED_MODULE_11__.extractTextFromHTML),
 /* harmony export */   flatten: () => (/* reexport safe */ _general__WEBPACK_IMPORTED_MODULE_11__.flatten),
 /* harmony export */   formatRecurrence: () => (/* reexport safe */ _formatting__WEBPACK_IMPORTED_MODULE_10__.formatRecurrence),
 /* harmony export */   getInvalidFields: () => (/* reexport safe */ _general__WEBPACK_IMPORTED_MODULE_11__.getInvalidFields),
@@ -10596,6 +10598,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   cleanArray: () => (/* binding */ cleanArray),
 /* harmony export */   csvToJson: () => (/* binding */ csvToJson),
 /* harmony export */   downloadFile: () => (/* binding */ downloadFile),
+/* harmony export */   extractTextFromHTML: () => (/* binding */ extractTextFromHTML),
 /* harmony export */   flatten: () => (/* binding */ flatten),
 /* harmony export */   getInvalidFields: () => (/* binding */ getInvalidFields),
 /* harmony export */   getItemWithKeys: () => (/* binding */ getItemWithKeys),
@@ -10959,6 +10962,14 @@ function shiftColorTowards(hex1, hex2, fraction) {
   const rgb2 = hexToRgb(hex2);
   const resultRgb = interpolateColors(rgb1, rgb2, fraction);
   return rgbToHex(resultRgb[0], resultRgb[1], resultRgb[2]);
+}
+function extractTextFromHTML(html_string) {
+  // Create a temporary DOM element
+  const temp_element = document.createElement('div');
+  // Set the innerHTML to our HTML string
+  temp_element.innerHTML = html_string;
+  // Extract and return the text content
+  return temp_element.textContent || temp_element.innerText || '';
 }
 /**
  * Shuffle the items in array into random order
@@ -12190,7 +12201,7 @@ const app = {
   default_route: '/book/rooms/new',
   use_24_hour_time: false,
   admin_group: 'concierge_admins',
-  features: ['spaces', 'zones', 'desks', 'parking', 'visitors', 'assets', 'facilities', 'internal-users', 'points', 'surveys', 'catering', 'events', 'booking-report', 'contact-tracing-report', 'signage', 'events'],
+  features: ['spaces', 'zones', 'desks', 'parking', 'visitors', 'assets', 'facilities', 'internal-users', 'points', 'surveys', 'catering', 'events', 'booking-report', 'contact-tracing-report', 'signage', 'events', 'email-templates'],
   general,
   guests: {
     vaccine_check: true
@@ -12382,7 +12393,7 @@ function getTimezoneOffsetInMinutes(timeZone, date = new Date()) {
   const minutes = offsetMatch[3] ? parseInt(offsetMatch[3], 10) : 0;
   return sign * (hours * 60 + minutes);
 }
-function getTimezoneDifferenceInHours(src_tz, dest_tz, date = new Date()) {
+function getTimezoneDifferenceInHours(src_tz, dest_tz = LOCAL_TIMEZONE, date = new Date()) {
   const offset1 = getTimezoneOffsetInMinutes(src_tz, date);
   const offset2 = getTimezoneOffsetInMinutes(dest_tz, date);
   // Calculate the difference in hours
@@ -13708,15 +13719,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "360bdcd",
-  "hash": "360bdcd",
+  "raw": "bdd0407",
+  "hash": "bdd0407",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "360bdcd",
+  "suffix": "bdd0407",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1727070530111
+  "time": 1727323621899
 };
 /* tslint:enable */
 
@@ -25354,7 +25365,7 @@ class EventFormService extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.Asyn
         return (0,_helpers__WEBPACK_IMPORTED_MODULE_13__.periodInFreeTimeSlot)(start, end, booking_list.filter(_ => _.ical_uid !== ical_uid));
       }).sort((a, b) => a.capacity - b.capacity);
     }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_27__.tap)(_ => this._loading.next('')), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_22__.shareReplay)(1));
-    this.future_available_spaces = (0,rxjs__WEBPACK_IMPORTED_MODULE_23__.combineLatest)([this.filtered_spaces, this.booking_rules, this.form.valueChanges.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_26__.debounceTime)(400), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_35__.startWith)({}))]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_25__.filter)(() => !this._loading.getValue()), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_26__.debounceTime)(300), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_20__.switchMap)(([spaces, booking_rules]) => {
+    this.future_available_spaces = (0,rxjs__WEBPACK_IMPORTED_MODULE_23__.combineLatest)([this.filtered_spaces, this.booking_rules, this.form.valueChanges.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_26__.debounceTime)(400), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_35__.startWith)({}))]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_25__.filter)(() => !this._loading.getValue()), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_26__.debounceTime)(500), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_20__.switchMap)(([spaces, booking_rules]) => {
       if (!spaces.length) return (0,rxjs__WEBPACK_IMPORTED_MODULE_30__.of)([]);
       this._loading.next('Retrieving available spaces...');
       let {
@@ -26468,8 +26479,10 @@ function querySpaceAvailability(id_list, start, duration, ignore, type, ignore_p
     system_ids: ignore
   }) : (0,rxjs__WEBPACK_IMPORTED_MODULE_8__.of)([])]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_6__.map)(([spaces, ignore_check]) => {
     const short_list = id_list.map(id => !!spaces.find(s => s.id === id || s.resource?.id === id));
-    if (ignore_check.length && ignore_check[0].id === ignore && id_list.includes(ignore) && ignore_check[0].inUseAt(ignore_period[0] || start, ignore_period[1] || duration)) {
-      short_list[id_list.indexOf(ignore)] = true;
+    for (const space of ignore_check) {
+      if (!id_list.includes(space.id)) continue;
+      const availability = space.availability.filter(i => !(i.date === ignore_period[0] && i.duration === ignore_period[1]));
+      short_list[id_list.indexOf(space.id)] = !availability.find(i => i.status !== 'free');
     }
     return short_list;
   }));
@@ -32212,7 +32225,6 @@ class PlaceUserPipe {
       if (user) {
         user = new _users_src_lib_user_class__WEBPACK_IMPORTED_MODULE_1__.StaffUser(user);
         USER_LIST.push(user);
-        console.log('Place User:', user);
         return user;
       }
       return EMPTY_USER;
@@ -32736,13 +32748,18 @@ class RichTextInputComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0_
     super(...arguments);
     this.placeholder = '';
     this.readonly = false;
+    this.images_allowed = false;
     this._updateFn = () => this.setValue(this._editor.root.innerHTML);
     this.registerOnChange = fn => this._onChange = fn;
     this.registerOnTouched = fn => this._onTouch = fn;
   }
-  ngOnChanges(changes) {}
+  ngOnChanges(changes) {
+    if (changes.images_allowed) {
+      this.timeout('init', () => this._initialiseEditor());
+    }
+  }
   ngAfterViewInit() {
-    this._initialiseEditor();
+    this.timeout('init', () => this._initialiseEditor());
   }
   /**
    * Update the form field value
@@ -32761,7 +32778,9 @@ class RichTextInputComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0_
   writeValue(value) {
     this.timeout('write', () => {
       if (this._editor) {
-        const delta = this._editor.clipboard.convert(value);
+        const delta = this._editor.clipboard.convert({
+          html: value
+        });
         this._editor.setContents(delta, 'silent');
       } else {
         this.timeout('write', () => this.writeValue(value));
@@ -32769,23 +32788,95 @@ class RichTextInputComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0_
     });
   }
   _initialiseEditor() {
-    this._editor = new quill__WEBPACK_IMPORTED_MODULE_1__(this._editor_el.nativeElement, {
+    if (!this._editor_el?.nativeElement || !this._container_el?.nativeElement) {
+      return this.timeout('init', () => this._initialiseEditor());
+    }
+    const toolbarOptions = [[{
+      font: []
+    }], [{
+      header: [1, 2, 3, 4, 5, 6, false]
+    }], ['bold', 'italic', 'underline'],
+    // toggled buttons
+    [{
+      list: 'ordered'
+    }, {
+      list: 'bullet'
+    }, {
+      list: 'check'
+    }], [{
+      align: []
+    }]];
+    if (this.images_allowed) {
+      toolbarOptions.push(['image', 'link']);
+    }
+    if (this._editor) {
+      this.unsub('changes');
+      this._editor_el.nativeElement.innerHTML = '';
+      delete this._editor;
+    }
+    this._editor = new (quill__WEBPACK_IMPORTED_MODULE_1___default())(this._editor_el.nativeElement, {
       bounds: this._container_el.nativeElement,
       placeholder: this.placeholder,
       modules: {
-        toolbar: [[{
-          size: ['small', false, 'large', 'huge']
-        }], ['bold', 'italic', 'underline'], [{
-          list: 'ordered'
-        }, {
-          list: 'bullet'
-        }]]
+        toolbar: {
+          container: toolbarOptions,
+          handlers: {
+            image: () => this._embedImage(),
+            link: () => this._embedAttachment()
+          }
+        }
       },
       readOnly: this.readonly,
       theme: 'snow'
     });
     this._editor.on('text-change', this._updateFn);
     this.subscription('changes', () => this._editor.off('text-change', this._updateFn));
+  }
+  _embedImage() {
+    if (!this._editor) return;
+    const range = this._editor.getSelection();
+    if (!range) return;
+    const {
+      index
+    } = range;
+    // Create a File input element
+    var file_input = document.createElement('input');
+    file_input.setAttribute('type', 'file');
+    file_input.setAttribute('accept', 'image/*');
+    file_input.click();
+    file_input.onchange = () => {
+      var file = file_input.files[0];
+      (0,_placeos_common__WEBPACK_IMPORTED_MODULE_0__.uploadFile)(file, true).subscribe(({
+        link,
+        progress
+      }) => {
+        if (!link || progress !== 100) return;
+        this._editor.insertEmbed(index, 'image', link);
+      });
+    };
+  }
+  _embedAttachment() {
+    if (!this._editor) return;
+    const range = this._editor.getSelection();
+    if (!range) return;
+    const {
+      index
+    } = range;
+    // Create a File input element
+    var file_input = document.createElement('input');
+    file_input.setAttribute('type', 'file');
+    file_input.click();
+    file_input.onchange = () => {
+      var file = file_input.files[0];
+      (0,_placeos_common__WEBPACK_IMPORTED_MODULE_0__.uploadFile)(file, true).subscribe(({
+        link,
+        progress
+      }) => {
+        if (!link || progress !== 100) return;
+        this._editor.insertText(range.index, file.name, 'link', link);
+        this._editor.setSelection(range.index + file.name.length);
+      });
+    };
   }
   static #_ = this.ɵfac = /*@__PURE__*/(() => {
     let ɵRichTextInputComponent_BaseFactory;
@@ -32809,7 +32900,8 @@ class RichTextInputComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0_
     },
     inputs: {
       placeholder: "placeholder",
-      readonly: "readonly"
+      readonly: "readonly",
+      images_allowed: "images_allowed"
     },
     features: [_angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵProvidersFeature"]([{
       provide: _angular_forms__WEBPACK_IMPORTED_MODULE_3__.NG_VALUE_ACCESSOR,
@@ -32819,14 +32911,15 @@ class RichTextInputComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0_
     }]), _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵInheritDefinitionFeature"], _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵNgOnChangesFeature"]],
     decls: 4,
     vars: 0,
-    consts: [["container", ""], ["editor", ""]],
+    consts: [["container", ""], ["editor", ""], [1, "absolute", "inset-0"], [1, "h-full"]],
     template: function RichTextInputComponent_Template(rf, ctx) {
       if (rf & 1) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "div", null, 0);
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](2, "div", null, 1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "div", 2, 0);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelement"](2, "div", 3, 1);
         _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
       }
-    }
+    },
+    styles: ["[_nghost-%COMP%] {\n                display: block;\n                position: relative;\n                min-height: 8rem;\n                margin-bottom: 4rem;\n            }\n        \n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInJpY2gtdGV4dC1pbnB1dC5jb21wb25lbnQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IjtZQUNZO2dCQUNJLGNBQWM7Z0JBQ2Qsa0JBQWtCO2dCQUNsQixnQkFBZ0I7Z0JBQ2hCLG1CQUFtQjtZQUN2QiIsImZpbGUiOiJyaWNoLXRleHQtaW5wdXQuY29tcG9uZW50LnRzIiwic291cmNlc0NvbnRlbnQiOlsiXG4gICAgICAgICAgICA6aG9zdCB7XG4gICAgICAgICAgICAgICAgZGlzcGxheTogYmxvY2s7XG4gICAgICAgICAgICAgICAgcG9zaXRpb246IHJlbGF0aXZlO1xuICAgICAgICAgICAgICAgIG1pbi1oZWlnaHQ6IDhyZW07XG4gICAgICAgICAgICAgICAgbWFyZ2luLWJvdHRvbTogNHJlbTtcbiAgICAgICAgICAgIH1cbiAgICAgICAgIl19 */\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2xpYnMvZm9ybS1maWVsZHMvc3JjL2xpYi9yaWNoLXRleHQtaW5wdXQuY29tcG9uZW50LnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7WUFDWTtnQkFDSSxjQUFjO2dCQUNkLGtCQUFrQjtnQkFDbEIsZ0JBQWdCO2dCQUNoQixtQkFBbUI7WUFDdkI7O0FBRVosZ2tCQUFna0IiLCJzb3VyY2VzQ29udGVudCI6WyJcbiAgICAgICAgICAgIDpob3N0IHtcbiAgICAgICAgICAgICAgICBkaXNwbGF5OiBibG9jaztcbiAgICAgICAgICAgICAgICBwb3NpdGlvbjogcmVsYXRpdmU7XG4gICAgICAgICAgICAgICAgbWluLWhlaWdodDogOHJlbTtcbiAgICAgICAgICAgICAgICBtYXJnaW4tYm90dG9tOiA0cmVtO1xuICAgICAgICAgICAgfVxuICAgICAgICAiXSwic291cmNlUm9vdCI6IiJ9 */"]
   });
 }
 
@@ -43631,13 +43724,13 @@ class StaffUser extends User {
       }
     }
   }
-  location_time(datetime) {
+  location_time(datetime = Date.now()) {
     return this.work_preference(datetime)?.location || 'wfo';
   }
   get location_name() {
-    return this.location_name_time(Date.now());
+    return this.location_name_time();
   }
-  location_name_time(datetime) {
+  location_name_time(datetime = Date.now()) {
     if (!datetime) datetime = Date.now();
     const location = this.location_time(datetime);
     const in_hours = this.in_hours_time(datetime);
@@ -43657,6 +43750,11 @@ class StaffUser extends User {
         return 'Unknown';
     }
   }
+  outsideHours(datetime = Date.now()) {
+    const location = this.location_time(datetime);
+    const in_hours = this.in_hours_time(datetime);
+    return location.includes('w') && !in_hours;
+  }
   get in_hours() {
     return this.in_hours_time(Date.now());
   }
@@ -43668,7 +43766,7 @@ class StaffUser extends User {
     if (location === 'wfo' && in_hours) return 'business';
     return 'event_busy';
   }
-  in_hours_time(datetime) {
+  in_hours_time(datetime = Date.now()) {
     const block = this.work_preference(datetime);
     return !!block;
   }
