@@ -577,6 +577,7 @@ export class BookingFormService extends AsyncHandler {
                 user_email: value.user?.email || value.user_email,
                 extension_data: {
                     ...((value as any).extension_data || {}),
+                    assets: value.assets.map((_) => _.toJSON()),
                     group: value.group,
                     phone: value.phone,
                     department:

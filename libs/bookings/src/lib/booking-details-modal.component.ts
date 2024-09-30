@@ -1,6 +1,11 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { notifyError, notifySuccess, SettingsService } from '@placeos/common';
+import {
+    ANIMATION_SHOW_CONTRACT_EXPAND,
+    notifyError,
+    notifySuccess,
+    SettingsService,
+} from '@placeos/common';
 import { addMinutes, format, formatDuration } from 'date-fns';
 
 import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-modal.component';
@@ -137,7 +142,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     <div
                         class="mt-4 sm:p-4 sm:bg-base-100 sm:dark:bg-neutral-700 rounded sm:m-2 sm:border border-base-200 flex-grow-[3] min-w-1/3 sm:w-[16rem]"
                     >
-                        <h3 class="mx-3 pt-2 text-lg font-medium" i18n>
+                        <h3 class="mx-3 py-2 text-lg font-medium" i18n>
                             Assets ({{ booking.valid_assets?.length || 0 }})
                         </h3>
                         <div class="flex flex-col space-y-2">
@@ -312,6 +317,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
         </mat-menu>
     `,
     styles: [``],
+    animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
 })
 export class BookingDetailsModalComponent {
     @Output() public edit = new EventEmitter();
@@ -319,6 +325,7 @@ export class BookingDetailsModalComponent {
     @Output() public end = new EventEmitter();
     public readonly booking = this._booking;
     public hide_map = false;
+    public show_request = {};
     public checked_out = false;
     public checking_in = false;
     public readonly features = [
@@ -328,9 +335,7 @@ export class BookingDetailsModalComponent {
             content: MapPinComponent,
         },
     ];
-    public readonly has_assets = !!this.booking?.linked_bookings?.find(
-        (_) => _.booking_type === 'asset-request',
-    );
+    public readonly has_assets = !!this.booking?.valid_assets.length;
 
     public get level() {
         return this._org.levelWithID(this.booking?.zones || []);
@@ -400,7 +405,9 @@ export class BookingDetailsModalComponent {
         private _settings: SettingsService,
         private _org: OrganisationService,
         private _dialog: MatDialog,
-    ) {}
+    ) {
+        console.log('Valid assets:', this.booking?.valid_assets);
+    }
 
     public get period() {
         if (this.booking?.is_all_day) return 'All Day';

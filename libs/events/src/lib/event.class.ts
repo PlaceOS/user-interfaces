@@ -315,8 +315,8 @@ export class CalendarEvent {
         );
     }
 
-    private _valid_asset_cache = [];
-    private _valid_cache_expiry = 0;
+    _valid_asset_cache = [];
+    _valid_cache_expiry = 0;
 
     public get valid_assets() {
         if (
