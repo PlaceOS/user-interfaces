@@ -134,6 +134,7 @@ import { Region } from '@placeos/organisation';
                             i18n
                             [to]="end_date"
                             [short]="true"
+                            [timezone]="timezone"
                         >
                             {{ 'FORM.DATE_ERROR' | translate }}
                         </a-date-field>
@@ -152,6 +153,7 @@ import { Region } from '@placeos/organisation';
                             [from]="start_date"
                             [to]="end_date"
                             [short]="true"
+                            [timezone]="timezone"
                         >
                             {{ 'FORM.DATE_ERROR' | translate }}
                         </a-date-field>
@@ -177,6 +179,7 @@ import { Region } from '@placeos/organisation';
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
                             [use_24hr]="use_24hr"
+                            [timezone]="timezone"
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3" *ngIf="multiday">
@@ -192,6 +195,7 @@ import { Region } from '@placeos/organisation';
                             [ngModelOptions]="{ standalone: true }"
                             [from]="form?.getRawValue()?.date"
                             [use_24hr]="use_24hr"
+                            [timezone]="timezone"
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3" *ngIf="!multiday">
@@ -204,6 +208,7 @@ import { Region } from '@placeos/organisation';
                             [time]="form?.getRawValue()?.date"
                             [max]="max_duration"
                             [use_24hr]="use_24hr"
+                            [timezone]="timezone"
                         ></a-duration-field>
                     </div>
                 </div>
@@ -304,14 +309,14 @@ export class SpaceFiltersComponent {
                 ? this._org.levelsForRegion(region)
                 : this._org.levelsForBuilding(bld);
             const viewable_levels = level_list.filter(
-                (lvl) => !lvl.tags.includes('parking')
+                (lvl) => !lvl.tags.includes('parking'),
             );
             return viewable_levels.sort(
                 (a, b) =>
                     a.parent_id.localeCompare(b.parent_id) ||
-                    (a.display_name || '').localeCompare(b.display_name || '')
+                    (a.display_name || '').localeCompare(b.display_name || ''),
             );
-        })
+        }),
     );
 
     public readonly regions = this._org.region_list;
@@ -323,8 +328,8 @@ export class SpaceFiltersComponent {
         this._event_form.available_spaces,
     ]).pipe(
         map(([features, spaces]) =>
-            unique(features.concat(flatten(spaces.map((_) => _.features))))
-        )
+            unique(features.concat(flatten(spaces.map((_) => _.features)))),
+        ),
     );
 
     public get allow_all_day() {
@@ -333,6 +338,12 @@ export class SpaceFiltersComponent {
 
     public get use_region() {
         return !!this._settings.get('app.use_region');
+    }
+
+    public get timezone() {
+        return this._settings.get('app.events.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
     }
 
     public readonly close = () => this._bsheet_ref.dismiss();
@@ -374,8 +385,8 @@ export class SpaceFiltersComponent {
         return endOfDay(
             addDays(
                 Date.now(),
-                this._settings.get('app.events.allowed_future_days') || 180
-            )
+                this._settings.get('app.events.allowed_future_days') || 180,
+            ),
         );
     }
 
@@ -386,7 +397,7 @@ export class SpaceFiltersComponent {
         private _event_form: EventFormService,
         private _org: OrganisationService,
         private _spaces: SpacesService,
-        private _mapspeople: MapsPeopleService
+        private _mapspeople: MapsPeopleService,
     ) {
         this.can_close = !!this._bsheet_ref;
     }

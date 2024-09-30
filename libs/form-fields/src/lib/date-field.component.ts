@@ -14,6 +14,8 @@ import {
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { addYears, endOfDay, set, startOfDay } from 'date-fns';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
+import { getTimezoneOffsetInMinutes } from '@placeos/common';
+import { padLength } from 'libs/components/src/lib/media-duration.pipe';
 
 @Component({
     selector: 'a-date-field',
@@ -27,13 +29,24 @@ import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
             [class.opacity-30]="disabled"
             matRipple
         >
-            <p class="px-4 py-2 flex-1 truncate w-1/2 text-left font-normal">
-                @if (date) {
-                    {{ date | date: (short ? 'MMM d, yyyy' : 'MMMM d, yyyy') }}
-                } @else {
-                    <span class="opacity-30">No Date Selected</span>
-                }
-            </p>
+            <div
+                class="flex flex-col px-4 py-2 flex-1 truncate w-1/2 text-left leading-tight"
+            >
+                <div class="font-normal text-base">
+                    @if (date) {
+                        {{ date | date: date_format }}
+                    } @else {
+                        <span class="opacity-30">No Date Selected</span>
+                    }
+                </div>
+                <div class="text-xs opacity-30 truncate" *ngIf="timezone">
+                    {{ start_of_day | date: 'MMM d, ' + time_format : tz }}
+                    -
+                    {{
+                        end_of_day | date: 'MMM d, ' + time_format + ' (z)' : tz
+                    }}
+                </div>
+            </div>
             <div class="h-10 w-10 flex items-center justify-center text-2xl">
                 <app-icon>today</app-icon>
             </div>
@@ -72,9 +85,11 @@ export class DateFieldComponent
     @Input('to') public to_date: number;
     /** Index of the day to start the week on when displaying the calendar */
     @Input() public week_start: number = 0;
+    @Input() public use_24hr = false;
     /** Whether form control is disabled */
     @Input() public disabled: boolean;
     @Input() public short = false;
+    @Input() public timezone: string = '';
     /** Currently selected date */
     public date: number;
 
@@ -86,8 +101,34 @@ export class DateFieldComponent
     private _onTouch: (_: number) => void;
     private _control?: NgControl;
 
+    public get date_format() {
+        return this.short ? 'MMM d, yyyy' : 'MMMM d, yyyy';
+    }
+
+    public get time_format() {
+        return this.use_24hr ? 'HH : mm' : 'h : mm a';
+    }
+
+    public get start_of_day() {
+        return startOfDay(this.date).valueOf();
+    }
+
+    public get end_of_day() {
+        return endOfDay(this.date).valueOf();
+    }
+
     public get has_error(): boolean {
         return this._control?.invalid && this._control?.touched;
+    }
+
+    public get tz() {
+        // Get Timezone as +/-HHMM
+        const tz = this.timezone;
+        if (!tz) return '';
+        const offset = getTimezoneOffsetInMinutes(tz);
+        const hours = Math.floor(Math.abs(offset) / 60);
+        const minutes = Math.abs(offset) % 60;
+        return `${offset > 0 ? '+' : '-'}${padLength(hours, 2)}${padLength(minutes, 2)}`;
     }
 
     @ViewChild(CustomTooltipComponent) private _tooltip: CustomTooltipComponent;

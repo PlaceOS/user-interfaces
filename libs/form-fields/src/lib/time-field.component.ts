@@ -9,7 +9,11 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatSelect } from '@angular/material/select';
-import { AsyncHandler, Identity } from '@placeos/common';
+import {
+    AsyncHandler,
+    getTimezoneOffsetInMinutes,
+    Identity,
+} from '@placeos/common';
 import {
     addMinutes,
     endOfDay,
@@ -21,6 +25,7 @@ import {
     startOfDay,
     startOfMinute,
 } from 'date-fns';
+import { padLength } from 'libs/components/src/lib/media-duration.pipe';
 
 @Component({
     selector: 'a-time-field',
@@ -32,17 +37,41 @@ import {
                 [disabled]="disabled"
                 (ngModelChange)="setValue($event)"
             >
+                <mat-select-trigger>
+                    <div
+                        class="flex flex-col leading-tight absolute -translate-y-1/2 top-2"
+                    >
+                        <div class="">
+                            {{ active_time | date: time_format }}
+                        </div>
+                        <div class="text-xs opacity-30" *ngIf="timezone">
+                            {{ active_time | date: time_format + ' (z)' : tz }}
+                        </div>
+                    </div>
+                </mat-select-trigger>
                 <mat-option *ngIf="force_time" [value]="force_time">
-                    {{ force_time | date: (use_24hr ? 'HH : mm' : 'h : mm a') }}
+                    <div class="flex flex-col leading-tight">
+                        <div class="">
+                            {{ force_time | date: time_format }}
+                        </div>
+                        <div class="text-xs opacity-30" *ngIf="timezone">
+                            {{ force_time | date: time_format + ' (z)' : tz }}
+                        </div>
+                    </div>
                 </mat-option>
                 <mat-option
                     *ngFor="let option of time_options"
                     [value]="option.id"
                 >
-                    {{
-                        option.date | date: (use_24hr ? 'HH : mm' : 'h : mm a')
-                    }}
-                    {{ extra_info_fn(option.date) }}
+                    <div class="flex flex-col leading-tight">
+                        <div class="">
+                            {{ option.date | date: time_format }}
+                            {{ extra_info_fn(option.date) }}
+                        </div>
+                        <div class="text-xs opacity-30" *ngIf="timezone">
+                            {{ option.date | date: time_format + ' (z)' : tz }}
+                        </div>
+                    </div>
                 </mat-option>
             </mat-select>
         </mat-form-field>
@@ -77,6 +106,7 @@ export class TimeFieldComponent
     @Input() public extra_info_fn = (t?: number) => '';
     /** Prevent times before */
     @Input() public from: number = startOfDay(Date.now()).valueOf();
+    @Input() public timezone: string = '';
     /** String representing the currently set time */
     public date: number = new Date().valueOf();
     /** String representing the currently set time */
@@ -85,6 +115,8 @@ export class TimeFieldComponent
     public _time_options: any[];
     /** Whether select field should be shown */
     public show_select: boolean;
+
+    public active_time: number;
     /** Form control on change handler */
     private _onChange: (_: number) => void;
     /** Form control on touch handler */
@@ -92,6 +124,20 @@ export class TimeFieldComponent
 
     /** Select field for selecting the time */
     @ViewChild('select') private select_field: MatSelect;
+
+    public get time_format() {
+        return this.use_24hr ? 'HH : mm' : 'h : mm a';
+    }
+
+    public get tz() {
+        // Get Timezone as +/-HHMM
+        const tz = this.timezone;
+        if (!tz) return '';
+        const offset = getTimezoneOffsetInMinutes(tz);
+        const hours = Math.floor(Math.abs(offset) / 60);
+        const minutes = Math.abs(offset) % 60;
+        return `${offset > 0 ? '+' : '-'}${padLength(hours, 2)}${padLength(minutes, 2)}`;
+    }
 
     public ngOnInit(): void {
         this.show_select = true;
@@ -147,6 +193,9 @@ export class TimeFieldComponent
             );
             this._onChange(date.valueOf());
         }
+
+        const time = this.force_time || this.time;
+        this.active_time = this._time_options.find((_) => _.id === time)?.date;
     }
 
     /**
@@ -163,6 +212,8 @@ export class TimeFieldComponent
             !this.no_past_times,
             this.step,
         );
+        const time = this.force_time || this.time;
+        this.active_time = this._time_options.find((_) => _.id === time)?.date;
     }
 
     public setDisabledState(disabled: boolean) {
