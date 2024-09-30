@@ -13553,12 +13553,12 @@ function DeskFiltersComponent_div_25_Template(rf, ctx) {
     _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]()();
   }
   if (rf & 2) {
-    let tmp_4_0;
+    let tmp_5_0;
     const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](4);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngModel", ctx_r1.form.value.date)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpureFunction0"](8, _c0))("use_24hr", ctx_r1.use_24hr);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngModel", ctx_r1.form.value.date)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpureFunction0"](10, _c0))("use_24hr", ctx_r1.use_24hr)("timezone", ctx_r1.timezone);
     _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](4);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("time", (tmp_4_0 = ctx_r1.form.get("date")) == null ? null : tmp_4_0.value)("max", 10 * 60)("min", 60)("step", 60)("use_24hr", ctx_r1.use_24hr);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("time", (tmp_5_0 = ctx_r1.form.get("date")) == null ? null : tmp_5_0.value)("max", 10 * 60)("min", 60)("step", 60)("use_24hr", ctx_r1.use_24hr)("timezone", ctx_r1.timezone);
   }
 }
 function DeskFiltersComponent_section_36_div_3_Template(rf, ctx) {
@@ -13642,6 +13642,9 @@ class DeskFiltersComponent {
   get use_region() {
     return this._settings.get('app.use_region');
   }
+  get timezone() {
+    return this._settings.get('app.events.use_building_timezone') ? this._org.building.timezone : '';
+  }
   constructor(_bsheet_ref, _state, _org, _settings) {
     this._bsheet_ref = _bsheet_ref;
     this._state = _state;
@@ -13675,7 +13678,7 @@ class DeskFiltersComponent {
       hide_levels: "hide_levels"
     },
     decls: 39,
-    vars: 33,
+    vars: 34,
     consts: () => {
       let i18n_0;
       if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
@@ -13819,7 +13822,7 @@ class DeskFiltersComponent {
       } else {
         i18n_12 = $localize`:␟c17e2cc448524a39eb83b2937cea3235a2e8bf37␟2296888311792137027: Apply Filters `;
       }
-      return [i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_5, i18n_8, i18n_9, i18n_10, i18n_11, i18n_12, [1, "flex", "rounded-t-md", "items-center", "border-b", "border-base-200", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-desk-filters", "class", "sm:hidden", 3, "click", 4, "ngIf"], [1, "font-medium", "flex-2", "text-center"], [1, "flex-1"], [1, "max-h-[65vh]", "p-2", "overflow-y-auto", "overflow-x-hidden", "divide-y", "divide-base-200", "w-full", "max-w-[100vw]", "sm:max-w-[30vw]", 3, "formGroup"], ["details", ""], [1, "text-lg", "font-medium", "mb-1"], [1, "flex-1", "min-w-[8rem]", "flex", "flex-col"], ["for", "location"], ["appearance", "outline", "class", "w-full", 4, "ngIf"], [1, "flex-1", "min-w-[256px]"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to"], ["class", "flex justify-end -mt-2 mb-2", 4, "ngIf"], ["class", "flex items-center space-x-2", 4, "ngIf"], ["favs", "", 1, "space-y-2", "pb-4"], [1, "text-lg", "font-medium"], [1, "flex", "items-center"], ["for", "fav", 1, "flex-1", "w-1/2"], ["name", "fav", 3, "ngModelChange", "ngModel", "ngModelOptions"], ["class", "space-y-2", "features", "", 4, "ngIf"], ["class", "px-2 py-2 w-full border-t border-base-200", 4, "ngIf"], ["icon", "", "matRipple", "", "name", "close-desk-filters", 1, "sm:hidden", 3, "click"], ["appearance", "outline", 1, "w-full"], ["name", "region", "placeholder", i18n_6, 3, "ngModelChange", "ngModel", "ngModelOptions"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", "placeholder", i18n_7, 3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "flex", "flex-col-reverse"], ["class", "opacity-30 text-xs", 4, "ngIf"], [1, "opacity-30", "text-xs"], [1, "opacity-0"], [1, "flex", "justify-end", "-mt-2", "mb-2"], ["formControlName", "all_day"], [1, "flex", "items-center", "space-x-2"], [1, "flex-1", "w-1/3"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr"], ["formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr"], ["features", "", 1, "space-y-2"], ["class", "flex items-center flex-wrap space-x-2", 4, "ngFor", "ngForOf"], [1, "flex", "items-center", "flex-wrap", "space-x-2"], ["for", "feat", 1, "flex-1", "w-1/2"], [3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "px-2", "py-2", "w-full", "border-t", "border-base-200"], ["btn", "", "matRipple", "", "name", "apply-desk-filters", 1, "w-full", 3, "click"]];
+      return [i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_5, i18n_8, i18n_9, i18n_10, i18n_11, i18n_12, [1, "flex", "rounded-t-md", "items-center", "border-b", "border-base-200", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-desk-filters", "class", "sm:hidden", 3, "click", 4, "ngIf"], [1, "font-medium", "flex-2", "text-center"], [1, "flex-1"], [1, "max-h-[65vh]", "p-2", "overflow-y-auto", "overflow-x-hidden", "divide-y", "divide-base-200", "w-full", "max-w-[100vw]", "sm:max-w-[30vw]", 3, "formGroup"], ["details", ""], [1, "text-lg", "font-medium", "mb-1"], [1, "flex-1", "min-w-[8rem]", "flex", "flex-col"], ["for", "location"], ["appearance", "outline", "class", "w-full", 4, "ngIf"], [1, "flex-1", "min-w-[256px]"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "timezone"], ["class", "flex justify-end -mt-2 mb-2", 4, "ngIf"], ["class", "flex items-center space-x-2", 4, "ngIf"], ["favs", "", 1, "space-y-2", "pb-4"], [1, "text-lg", "font-medium"], [1, "flex", "items-center"], ["for", "fav", 1, "flex-1", "w-1/2"], ["name", "fav", 3, "ngModelChange", "ngModel", "ngModelOptions"], ["class", "space-y-2", "features", "", 4, "ngIf"], ["class", "px-2 py-2 w-full border-t border-base-200", 4, "ngIf"], ["icon", "", "matRipple", "", "name", "close-desk-filters", 1, "sm:hidden", 3, "click"], ["appearance", "outline", 1, "w-full"], ["name", "region", "placeholder", i18n_6, 3, "ngModelChange", "ngModel", "ngModelOptions"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", "placeholder", i18n_7, 3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "flex", "flex-col-reverse"], ["class", "opacity-30 text-xs", 4, "ngIf"], [1, "opacity-30", "text-xs"], [1, "opacity-0"], [1, "flex", "justify-end", "-mt-2", "mb-2"], ["formControlName", "all_day"], [1, "flex", "items-center", "space-x-2"], [1, "flex-1", "w-1/3"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr", "timezone"], ["features", "", 1, "space-y-2"], ["class", "flex items-center flex-wrap space-x-2", 4, "ngFor", "ngForOf"], [1, "flex", "items-center", "flex-wrap", "space-x-2"], ["for", "feat", 1, "flex-1", "w-1/2"], [3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "px-2", "py-2", "w-full", "border-t", "border-base-200"], ["btn", "", "matRipple", "", "name", "apply-desk-filters", 1, "w-full", 3, "click"]];
     },
     template: function DeskFiltersComponent_Template(rf, ctx) {
       if (rf & 1) {
@@ -13855,7 +13858,7 @@ class DeskFiltersComponent {
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](22);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](23, "translate");
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](24, DeskFiltersComponent_div_24_Template, 3, 0, "div", 24)(25, DeskFiltersComponent_div_25_Template, 9, 9, "div", 25);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](24, DeskFiltersComponent_div_24_Template, 3, 0, "div", 24)(25, DeskFiltersComponent_div_25_Template, 9, 11, "div", 25);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](26, "section", 26)(27, "h2", 27);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵi18n"](28, 4);
@@ -13881,36 +13884,36 @@ class DeskFiltersComponent {
       if (rf & 2) {
         let tmp_2_0;
         let tmp_3_0;
-        let tmp_15_0;
-        let tmp_17_0;
+        let tmp_16_0;
+        let tmp_18_0;
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", ctx.can_close);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](4);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("formGroup", ctx.form);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](7);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", ctx.use_region && ((tmp_2_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](14, 17, ctx.regions)) == null ? null : tmp_2_0.length));
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", ctx.use_region && ((tmp_2_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](14, 18, ctx.regions)) == null ? null : tmp_2_0.length));
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", !ctx.use_region && ((tmp_3_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](16, 19, ctx.buildings)) == null ? null : tmp_3_0.length) > 1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", !ctx.use_region && ((tmp_3_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](16, 20, ctx.buildings)) == null ? null : tmp_3_0.length) > 1);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", !ctx.hide_levels);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](4);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngModel", ctx.form.value.date)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpureFunction0"](31, _c0))("to", ctx.end_date);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngModel", ctx.form.value.date)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpureFunction0"](32, _c0))("to", ctx.end_date)("timezone", ctx.timezone);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](23, 21, "FORM.DATE_ERROR"), " ");
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](23, 22, "FORM.DATE_ERROR"), " ");
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", ctx.allow_all_day);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", !ctx.form.value.all_day);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](4);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵi18nExp"](_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](29, 23, "COMMON.FAVOURITES"));
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵi18nExp"](_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](29, 24, "COMMON.FAVOURITES"));
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵi18nApply"](28);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](4);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵi18nExp"](_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](33, 25, "DESKS.SHOW_FAVOURITES"));
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵi18nExp"](_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](33, 26, "DESKS.SHOW_FAVOURITES"));
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵi18nApply"](32);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngModel", (tmp_15_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](35, 27, ctx.options)) == null ? null : tmp_15_0.show_fav)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpureFunction0"](32, _c0));
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngModel", (tmp_16_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](35, 28, ctx.options)) == null ? null : tmp_16_0.show_fav)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpureFunction0"](33, _c0));
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", (tmp_17_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](37, 29, ctx.features)) == null ? null : tmp_17_0.length);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", (tmp_18_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](37, 30, ctx.features)) == null ? null : tmp_18_0.length);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", ctx.can_close);
       }
@@ -24769,15 +24772,15 @@ __webpack_require__.r(__webpack_exports__);
 /* tslint:disable */
 const VERSION = {
   "dirty": false,
-  "raw": "cfd8a42",
-  "hash": "cfd8a42",
+  "raw": "57df4df",
+  "hash": "57df4df",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "cfd8a42",
+  "suffix": "57df4df",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1727690438424
+  "time": 1727690586981
 };
 /* tslint:enable */
 
@@ -37501,16 +37504,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   SharedEventsModule: () => (/* binding */ SharedEventsModule)
 /* harmony export */ });
 /* harmony import */ var _home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js */ 89204);
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! @angular/common */ 60316);
-/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! @angular/forms */ 34456);
-/* harmony import */ var _angular_material_button__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! @angular/material/button */ 84175);
-/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! @angular/material/core */ 74646);
-/* harmony import */ var _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! @angular/material/datepicker */ 61977);
-/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! @angular/material/dialog */ 12587);
-/* harmony import */ var _angular_material_form_field__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! @angular/material/form-field */ 24950);
-/* harmony import */ var _angular_material_input__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! @angular/material/input */ 95541);
-/* harmony import */ var _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! @angular/material/progress-spinner */ 41134);
-/* harmony import */ var _angular_material_radio__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! @angular/material/radio */ 53804);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! @angular/common */ 60316);
+/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! @angular/forms */ 34456);
+/* harmony import */ var _angular_material_button__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! @angular/material/button */ 84175);
+/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! @angular/material/core */ 74646);
+/* harmony import */ var _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! @angular/material/datepicker */ 61977);
+/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! @angular/material/dialog */ 12587);
+/* harmony import */ var _angular_material_form_field__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! @angular/material/form-field */ 24950);
+/* harmony import */ var _angular_material_input__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! @angular/material/input */ 95541);
+/* harmony import */ var _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! @angular/material/progress-spinner */ 41134);
+/* harmony import */ var _angular_material_radio__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! @angular/material/radio */ 53804);
 /* harmony import */ var libs_form_fields_src_lib_form_fields_module__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! libs/form-fields/src/lib/form-fields.module */ 77066);
 /* harmony import */ var libs_components_src_lib_components_module__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! libs/components/src/lib/components.module */ 14974);
 /* harmony import */ var libs_spaces_src_lib_spaces_module__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! libs/spaces/src/lib/spaces.module */ 34360);
@@ -37523,19 +37526,23 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _group_event_details_modal_component__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./group-event-details-modal.component */ 58094);
 /* harmony import */ var _event_class__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./event.class */ 6727);
 /* harmony import */ var libs_common_src_lib_user_state__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! libs/common/src/lib/user-state */ 37958);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! rxjs/operators */ 57871);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! @angular/core */ 37580);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! rxjs/operators */ 57871);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! @angular/core */ 37580);
 /* harmony import */ var _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../../../components/src/lib/icon.component */ 69434);
 /* harmony import */ var _components_src_lib_user_avatar_component__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../../../components/src/lib/user-avatar.component */ 23574);
 /* harmony import */ var _components_src_lib_interactive_map_component__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../../../components/src/lib/interactive-map.component */ 24918);
 /* harmony import */ var _components_src_lib_image_carousel_component__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../../../components/src/lib/image-carousel.component */ 65277);
 /* harmony import */ var _components_src_lib_status_pill_component__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../../../components/src/lib/status-pill.component */ 50907);
 /* harmony import */ var _components_src_lib_binding_directive__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../../../components/src/lib/binding.directive */ 83938);
-/* harmony import */ var _angular_material_menu__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! @angular/material/menu */ 31034);
-/* harmony import */ var _angular_material_tooltip__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! @angular/material/tooltip */ 80640);
+/* harmony import */ var _angular_material_menu__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! @angular/material/menu */ 31034);
+/* harmony import */ var _angular_material_tooltip__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! @angular/material/tooltip */ 80640);
 /* harmony import */ var _components_src_lib_sanitise_pipe__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../../../components/src/lib/sanitise.pipe */ 54616);
-/* harmony import */ var _components_src_lib_authenticated_image_directive__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../../../components/src/lib/authenticated-image.directive */ 93208);
-/* harmony import */ var _spaces_src_lib_space_pipe__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../../../spaces/src/lib/space.pipe */ 22011);
+/* harmony import */ var _form_fields_src_lib_duration_field_component__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../../../form-fields/src/lib/duration-field.component */ 83476);
+/* harmony import */ var _components_src_lib_authenticated_image_directive__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../../../components/src/lib/authenticated-image.directive */ 93208);
+/* harmony import */ var _spaces_src_lib_space_pipe__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../../../spaces/src/lib/space.pipe */ 22011);
+
+
+
 
 
 
@@ -37579,33 +37586,34 @@ const COMPONENTS = [_event_details_modal_component__WEBPACK_IMPORTED_MODULE_6__.
 class SharedEventsModule {
   ngOnInit() {
     return (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
-      yield libs_common_src_lib_user_state__WEBPACK_IMPORTED_MODULE_12__.current_user.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_22__.first)(_ => !!_)).toPromise();
+      yield libs_common_src_lib_user_state__WEBPACK_IMPORTED_MODULE_12__.current_user.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_23__.first)(_ => !!_)).toPromise();
       (0,_event_class__WEBPACK_IMPORTED_MODULE_11__.setDefaultCreator)((0,libs_common_src_lib_user_state__WEBPACK_IMPORTED_MODULE_12__.currentUser)());
     })();
   }
   static #_ = this.ɵfac = function SharedEventsModule_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || SharedEventsModule)();
   };
-  static #_2 = this.ɵmod = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_23__["ɵɵdefineNgModule"]({
+  static #_2 = this.ɵmod = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_24__["ɵɵdefineNgModule"]({
     type: SharedEventsModule
   });
-  static #_3 = this.ɵinj = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_23__["ɵɵdefineInjector"]({
-    providers: [_angular_forms__WEBPACK_IMPORTED_MODULE_24__.ReactiveFormsModule],
-    imports: [_angular_common__WEBPACK_IMPORTED_MODULE_25__.CommonModule, _angular_forms__WEBPACK_IMPORTED_MODULE_24__.FormsModule, _angular_forms__WEBPACK_IMPORTED_MODULE_24__.ReactiveFormsModule, _angular_material_radio__WEBPACK_IMPORTED_MODULE_26__.MatRadioModule, _angular_material_input__WEBPACK_IMPORTED_MODULE_27__.MatInputModule, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_28__.MatFormFieldModule, _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_29__.MatDatepickerModule, _angular_material_button__WEBPACK_IMPORTED_MODULE_30__.MatButtonModule, _angular_material_dialog__WEBPACK_IMPORTED_MODULE_31__.MatDialogModule, _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_32__.MatProgressSpinnerModule, libs_form_fields_src_lib_form_fields_module__WEBPACK_IMPORTED_MODULE_1__.FormFieldsModule, libs_components_src_lib_components_module__WEBPACK_IMPORTED_MODULE_2__.ComponentsModule, _angular_material_core__WEBPACK_IMPORTED_MODULE_33__.MatRippleModule, libs_spaces_src_lib_spaces_module__WEBPACK_IMPORTED_MODULE_3__.SharedSpacesModule]
+  static #_3 = this.ɵinj = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_24__["ɵɵdefineInjector"]({
+    providers: [_angular_forms__WEBPACK_IMPORTED_MODULE_25__.ReactiveFormsModule],
+    imports: [_angular_common__WEBPACK_IMPORTED_MODULE_26__.CommonModule, _angular_forms__WEBPACK_IMPORTED_MODULE_25__.FormsModule, _angular_forms__WEBPACK_IMPORTED_MODULE_25__.ReactiveFormsModule, _angular_material_radio__WEBPACK_IMPORTED_MODULE_27__.MatRadioModule, _angular_material_input__WEBPACK_IMPORTED_MODULE_28__.MatInputModule, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_29__.MatFormFieldModule, _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_30__.MatDatepickerModule, _angular_material_button__WEBPACK_IMPORTED_MODULE_31__.MatButtonModule, _angular_material_dialog__WEBPACK_IMPORTED_MODULE_32__.MatDialogModule, _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_33__.MatProgressSpinnerModule, libs_form_fields_src_lib_form_fields_module__WEBPACK_IMPORTED_MODULE_1__.FormFieldsModule, libs_components_src_lib_components_module__WEBPACK_IMPORTED_MODULE_2__.ComponentsModule, _angular_material_core__WEBPACK_IMPORTED_MODULE_34__.MatRippleModule, libs_spaces_src_lib_spaces_module__WEBPACK_IMPORTED_MODULE_3__.SharedSpacesModule]
   });
 }
 (function () {
-  (typeof ngJitMode === "undefined" || ngJitMode) && _angular_core__WEBPACK_IMPORTED_MODULE_23__["ɵɵsetNgModuleScope"](SharedEventsModule, {
+  (typeof ngJitMode === "undefined" || ngJitMode) && _angular_core__WEBPACK_IMPORTED_MODULE_24__["ɵɵsetNgModuleScope"](SharedEventsModule, {
     declarations: [_event_details_modal_component__WEBPACK_IMPORTED_MODULE_6__.EventDetailsModalComponent, _attendee_list_component__WEBPACK_IMPORTED_MODULE_4__.AttendeeListComponent, _event_card_component__WEBPACK_IMPORTED_MODULE_5__.EventCardComponent, _event_link_modal_component__WEBPACK_IMPORTED_MODULE_7__.EventLinkModalComponent, _setup_breakdown_modal_component__WEBPACK_IMPORTED_MODULE_8__.SetupBreakdownModalComponent, _group_event_details_modal_component__WEBPACK_IMPORTED_MODULE_10__.GroupEventDetailsModalComponent, _group_event_card_component__WEBPACK_IMPORTED_MODULE_9__.GroupEventCardComponent],
-    imports: [_angular_common__WEBPACK_IMPORTED_MODULE_25__.CommonModule, _angular_forms__WEBPACK_IMPORTED_MODULE_24__.FormsModule, _angular_forms__WEBPACK_IMPORTED_MODULE_24__.ReactiveFormsModule, _angular_material_radio__WEBPACK_IMPORTED_MODULE_26__.MatRadioModule, _angular_material_input__WEBPACK_IMPORTED_MODULE_27__.MatInputModule, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_28__.MatFormFieldModule, _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_29__.MatDatepickerModule, _angular_material_button__WEBPACK_IMPORTED_MODULE_30__.MatButtonModule, _angular_material_dialog__WEBPACK_IMPORTED_MODULE_31__.MatDialogModule, _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_32__.MatProgressSpinnerModule, libs_form_fields_src_lib_form_fields_module__WEBPACK_IMPORTED_MODULE_1__.FormFieldsModule, libs_components_src_lib_components_module__WEBPACK_IMPORTED_MODULE_2__.ComponentsModule, _angular_material_core__WEBPACK_IMPORTED_MODULE_33__.MatRippleModule, libs_spaces_src_lib_spaces_module__WEBPACK_IMPORTED_MODULE_3__.SharedSpacesModule],
+    imports: [_angular_common__WEBPACK_IMPORTED_MODULE_26__.CommonModule, _angular_forms__WEBPACK_IMPORTED_MODULE_25__.FormsModule, _angular_forms__WEBPACK_IMPORTED_MODULE_25__.ReactiveFormsModule, _angular_material_radio__WEBPACK_IMPORTED_MODULE_27__.MatRadioModule, _angular_material_input__WEBPACK_IMPORTED_MODULE_28__.MatInputModule, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_29__.MatFormFieldModule, _angular_material_datepicker__WEBPACK_IMPORTED_MODULE_30__.MatDatepickerModule, _angular_material_button__WEBPACK_IMPORTED_MODULE_31__.MatButtonModule, _angular_material_dialog__WEBPACK_IMPORTED_MODULE_32__.MatDialogModule, _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_33__.MatProgressSpinnerModule, libs_form_fields_src_lib_form_fields_module__WEBPACK_IMPORTED_MODULE_1__.FormFieldsModule, libs_components_src_lib_components_module__WEBPACK_IMPORTED_MODULE_2__.ComponentsModule, _angular_material_core__WEBPACK_IMPORTED_MODULE_34__.MatRippleModule, libs_spaces_src_lib_spaces_module__WEBPACK_IMPORTED_MODULE_3__.SharedSpacesModule],
     exports: [_event_details_modal_component__WEBPACK_IMPORTED_MODULE_6__.EventDetailsModalComponent, _attendee_list_component__WEBPACK_IMPORTED_MODULE_4__.AttendeeListComponent, _event_card_component__WEBPACK_IMPORTED_MODULE_5__.EventCardComponent, _event_link_modal_component__WEBPACK_IMPORTED_MODULE_7__.EventLinkModalComponent, _setup_breakdown_modal_component__WEBPACK_IMPORTED_MODULE_8__.SetupBreakdownModalComponent, _group_event_details_modal_component__WEBPACK_IMPORTED_MODULE_10__.GroupEventDetailsModalComponent, _group_event_card_component__WEBPACK_IMPORTED_MODULE_9__.GroupEventCardComponent]
   });
 })();
-_angular_core__WEBPACK_IMPORTED_MODULE_23__["ɵɵsetComponentScope"](_event_details_modal_component__WEBPACK_IMPORTED_MODULE_6__.EventDetailsModalComponent, [_angular_common__WEBPACK_IMPORTED_MODULE_25__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_25__.NgIf, _angular_material_dialog__WEBPACK_IMPORTED_MODULE_31__.MatDialogClose, _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_13__.IconComponent, _components_src_lib_user_avatar_component__WEBPACK_IMPORTED_MODULE_14__.UserAvatarComponent, _components_src_lib_interactive_map_component__WEBPACK_IMPORTED_MODULE_15__.InteractiveMapComponent, _components_src_lib_image_carousel_component__WEBPACK_IMPORTED_MODULE_16__.ImageCarouselComponent, _components_src_lib_status_pill_component__WEBPACK_IMPORTED_MODULE_17__.StatusPillComponent, _components_src_lib_binding_directive__WEBPACK_IMPORTED_MODULE_18__.BindingDirective, _angular_material_menu__WEBPACK_IMPORTED_MODULE_34__.MatMenu, _angular_material_menu__WEBPACK_IMPORTED_MODULE_34__.MatMenuItem, _angular_material_menu__WEBPACK_IMPORTED_MODULE_34__.MatMenuTrigger, _angular_material_core__WEBPACK_IMPORTED_MODULE_33__.MatRipple, _angular_material_tooltip__WEBPACK_IMPORTED_MODULE_35__.MatTooltip, _attendee_list_component__WEBPACK_IMPORTED_MODULE_4__.AttendeeListComponent], [_angular_common__WEBPACK_IMPORTED_MODULE_25__.CurrencyPipe, _angular_common__WEBPACK_IMPORTED_MODULE_25__.DatePipe, _components_src_lib_sanitise_pipe__WEBPACK_IMPORTED_MODULE_19__.SanitizePipe]);
-_angular_core__WEBPACK_IMPORTED_MODULE_23__["ɵɵsetComponentScope"](_attendee_list_component__WEBPACK_IMPORTED_MODULE_4__.AttendeeListComponent, [_angular_common__WEBPACK_IMPORTED_MODULE_25__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_25__.NgIf, _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_13__.IconComponent, _components_src_lib_user_avatar_component__WEBPACK_IMPORTED_MODULE_14__.UserAvatarComponent, _angular_material_core__WEBPACK_IMPORTED_MODULE_33__.MatRipple, _angular_material_tooltip__WEBPACK_IMPORTED_MODULE_35__.MatTooltip], []);
-_angular_core__WEBPACK_IMPORTED_MODULE_23__["ɵɵsetComponentScope"](_event_card_component__WEBPACK_IMPORTED_MODULE_5__.EventCardComponent, [_angular_common__WEBPACK_IMPORTED_MODULE_25__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_25__.NgIf, _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_13__.IconComponent, _components_src_lib_user_avatar_component__WEBPACK_IMPORTED_MODULE_14__.UserAvatarComponent, _components_src_lib_status_pill_component__WEBPACK_IMPORTED_MODULE_17__.StatusPillComponent], [_angular_common__WEBPACK_IMPORTED_MODULE_25__.SlicePipe, _angular_common__WEBPACK_IMPORTED_MODULE_25__.DatePipe]);
-_angular_core__WEBPACK_IMPORTED_MODULE_23__["ɵɵsetComponentScope"](_group_event_details_modal_component__WEBPACK_IMPORTED_MODULE_10__.GroupEventDetailsModalComponent, [_angular_common__WEBPACK_IMPORTED_MODULE_25__.NgIf, _angular_material_dialog__WEBPACK_IMPORTED_MODULE_31__.MatDialogClose, _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_13__.IconComponent, _components_src_lib_interactive_map_component__WEBPACK_IMPORTED_MODULE_15__.InteractiveMapComponent, _components_src_lib_authenticated_image_directive__WEBPACK_IMPORTED_MODULE_20__.AuthenticatedImageDirective, _angular_material_menu__WEBPACK_IMPORTED_MODULE_34__.MatMenu, _angular_material_menu__WEBPACK_IMPORTED_MODULE_34__.MatMenuItem, _angular_material_menu__WEBPACK_IMPORTED_MODULE_34__.MatMenuTrigger, _angular_material_core__WEBPACK_IMPORTED_MODULE_33__.MatRipple, _attendee_list_component__WEBPACK_IMPORTED_MODULE_4__.AttendeeListComponent], [_angular_common__WEBPACK_IMPORTED_MODULE_25__.AsyncPipe, _angular_common__WEBPACK_IMPORTED_MODULE_25__.DatePipe, _components_src_lib_sanitise_pipe__WEBPACK_IMPORTED_MODULE_19__.SanitizePipe, _spaces_src_lib_space_pipe__WEBPACK_IMPORTED_MODULE_21__.SpacePipe]);
-_angular_core__WEBPACK_IMPORTED_MODULE_23__["ɵɵsetComponentScope"](_group_event_card_component__WEBPACK_IMPORTED_MODULE_9__.GroupEventCardComponent, [_angular_common__WEBPACK_IMPORTED_MODULE_25__.NgIf, _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_13__.IconComponent, _components_src_lib_authenticated_image_directive__WEBPACK_IMPORTED_MODULE_20__.AuthenticatedImageDirective, _angular_material_core__WEBPACK_IMPORTED_MODULE_33__.MatRipple], [_angular_common__WEBPACK_IMPORTED_MODULE_25__.DatePipe]);
+_angular_core__WEBPACK_IMPORTED_MODULE_24__["ɵɵsetComponentScope"](_event_details_modal_component__WEBPACK_IMPORTED_MODULE_6__.EventDetailsModalComponent, [_angular_common__WEBPACK_IMPORTED_MODULE_26__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_26__.NgIf, _angular_material_dialog__WEBPACK_IMPORTED_MODULE_32__.MatDialogClose, _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_13__.IconComponent, _components_src_lib_user_avatar_component__WEBPACK_IMPORTED_MODULE_14__.UserAvatarComponent, _components_src_lib_interactive_map_component__WEBPACK_IMPORTED_MODULE_15__.InteractiveMapComponent, _components_src_lib_image_carousel_component__WEBPACK_IMPORTED_MODULE_16__.ImageCarouselComponent, _components_src_lib_status_pill_component__WEBPACK_IMPORTED_MODULE_17__.StatusPillComponent, _components_src_lib_binding_directive__WEBPACK_IMPORTED_MODULE_18__.BindingDirective, _angular_material_menu__WEBPACK_IMPORTED_MODULE_35__.MatMenu, _angular_material_menu__WEBPACK_IMPORTED_MODULE_35__.MatMenuItem, _angular_material_menu__WEBPACK_IMPORTED_MODULE_35__.MatMenuTrigger, _angular_material_core__WEBPACK_IMPORTED_MODULE_34__.MatRipple, _angular_material_tooltip__WEBPACK_IMPORTED_MODULE_36__.MatTooltip, _attendee_list_component__WEBPACK_IMPORTED_MODULE_4__.AttendeeListComponent], [_angular_common__WEBPACK_IMPORTED_MODULE_26__.CurrencyPipe, _angular_common__WEBPACK_IMPORTED_MODULE_26__.DatePipe, _components_src_lib_sanitise_pipe__WEBPACK_IMPORTED_MODULE_19__.SanitizePipe]);
+_angular_core__WEBPACK_IMPORTED_MODULE_24__["ɵɵsetComponentScope"](_attendee_list_component__WEBPACK_IMPORTED_MODULE_4__.AttendeeListComponent, [_angular_common__WEBPACK_IMPORTED_MODULE_26__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_26__.NgIf, _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_13__.IconComponent, _components_src_lib_user_avatar_component__WEBPACK_IMPORTED_MODULE_14__.UserAvatarComponent, _angular_material_core__WEBPACK_IMPORTED_MODULE_34__.MatRipple, _angular_material_tooltip__WEBPACK_IMPORTED_MODULE_36__.MatTooltip], []);
+_angular_core__WEBPACK_IMPORTED_MODULE_24__["ɵɵsetComponentScope"](_event_card_component__WEBPACK_IMPORTED_MODULE_5__.EventCardComponent, [_angular_common__WEBPACK_IMPORTED_MODULE_26__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_26__.NgIf, _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_13__.IconComponent, _components_src_lib_user_avatar_component__WEBPACK_IMPORTED_MODULE_14__.UserAvatarComponent, _components_src_lib_status_pill_component__WEBPACK_IMPORTED_MODULE_17__.StatusPillComponent], [_angular_common__WEBPACK_IMPORTED_MODULE_26__.SlicePipe, _angular_common__WEBPACK_IMPORTED_MODULE_26__.DatePipe]);
+_angular_core__WEBPACK_IMPORTED_MODULE_24__["ɵɵsetComponentScope"](_setup_breakdown_modal_component__WEBPACK_IMPORTED_MODULE_8__.SetupBreakdownModalComponent, [_angular_common__WEBPACK_IMPORTED_MODULE_26__.NgIf, _angular_forms__WEBPACK_IMPORTED_MODULE_25__.NgControlStatus, _angular_forms__WEBPACK_IMPORTED_MODULE_25__.NgControlStatusGroup, _angular_forms__WEBPACK_IMPORTED_MODULE_25__.FormGroupDirective, _angular_forms__WEBPACK_IMPORTED_MODULE_25__.FormControlName, _angular_material_dialog__WEBPACK_IMPORTED_MODULE_32__.MatDialogClose, _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_33__.MatProgressSpinner, _form_fields_src_lib_duration_field_component__WEBPACK_IMPORTED_MODULE_20__.DurationFieldComponent, _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_13__.IconComponent, _angular_material_core__WEBPACK_IMPORTED_MODULE_34__.MatRipple], []);
+_angular_core__WEBPACK_IMPORTED_MODULE_24__["ɵɵsetComponentScope"](_group_event_details_modal_component__WEBPACK_IMPORTED_MODULE_10__.GroupEventDetailsModalComponent, [_angular_common__WEBPACK_IMPORTED_MODULE_26__.NgIf, _angular_material_dialog__WEBPACK_IMPORTED_MODULE_32__.MatDialogClose, _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_13__.IconComponent, _components_src_lib_interactive_map_component__WEBPACK_IMPORTED_MODULE_15__.InteractiveMapComponent, _components_src_lib_authenticated_image_directive__WEBPACK_IMPORTED_MODULE_21__.AuthenticatedImageDirective, _angular_material_menu__WEBPACK_IMPORTED_MODULE_35__.MatMenu, _angular_material_menu__WEBPACK_IMPORTED_MODULE_35__.MatMenuItem, _angular_material_menu__WEBPACK_IMPORTED_MODULE_35__.MatMenuTrigger, _angular_material_core__WEBPACK_IMPORTED_MODULE_34__.MatRipple, _attendee_list_component__WEBPACK_IMPORTED_MODULE_4__.AttendeeListComponent], [_angular_common__WEBPACK_IMPORTED_MODULE_26__.AsyncPipe, _angular_common__WEBPACK_IMPORTED_MODULE_26__.DatePipe, _components_src_lib_sanitise_pipe__WEBPACK_IMPORTED_MODULE_19__.SanitizePipe, _spaces_src_lib_space_pipe__WEBPACK_IMPORTED_MODULE_22__.SpacePipe]);
+_angular_core__WEBPACK_IMPORTED_MODULE_24__["ɵɵsetComponentScope"](_group_event_card_component__WEBPACK_IMPORTED_MODULE_9__.GroupEventCardComponent, [_angular_common__WEBPACK_IMPORTED_MODULE_26__.NgIf, _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_13__.IconComponent, _components_src_lib_authenticated_image_directive__WEBPACK_IMPORTED_MODULE_21__.AuthenticatedImageDirective, _angular_material_core__WEBPACK_IMPORTED_MODULE_34__.MatRipple], [_angular_common__WEBPACK_IMPORTED_MODULE_26__.DatePipe]);
 
 /***/ }),
 
@@ -38761,23 +38769,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   SetupBreakdownModalComponent: () => (/* binding */ SetupBreakdownModalComponent)
 /* harmony export */ });
 /* harmony import */ var _home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js */ 89204);
-/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @angular/forms */ 34456);
-/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @angular/material/dialog */ 12587);
+/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @angular/forms */ 34456);
+/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @angular/material/dialog */ 12587);
 /* harmony import */ var _event_class__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./event.class */ 6727);
 /* harmony import */ var _events_fn__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./events.fn */ 51416);
 /* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @placeos/common */ 22797);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @angular/core */ 37580);
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @angular/common */ 60316);
-/* harmony import */ var _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @angular/material/progress-spinner */ 41134);
-/* harmony import */ var _form_fields_src_lib_duration_field_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../form-fields/src/lib/duration-field.component */ 83476);
-/* harmony import */ var _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../../components/src/lib/icon.component */ 69434);
-/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @angular/material/core */ 74646);
-
-
-
-
-
-
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/core */ 37580);
 
 
 
@@ -38790,57 +38787,57 @@ __webpack_require__.r(__webpack_exports__);
 const _c0 = () => [5, 10];
 function SetupBreakdownModalComponent_button_3_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "button", 5)(1, "app-icon");
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](2, "close");
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](0, "button", 5)(1, "app-icon");
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtext"](2, "close");
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]()();
   }
 }
 function SetupBreakdownModalComponent_main_4_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "main", 6)(1, "div", 7)(2, "label", 8);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](3, "Setup Duration");
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](4, "a-duration-field", 9);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](5, "div", 7)(6, "label", 10);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](7, "Breakdown Duration");
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](8, "a-duration-field", 11);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](0, "main", 6)(1, "div", 7)(2, "label", 8);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtext"](3, "Setup Duration");
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelement"](4, "a-duration-field", 9);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](5, "div", 7)(6, "label", 10);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtext"](7, "Breakdown Duration");
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelement"](8, "a-duration-field", 11);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]()();
   }
   if (rf & 2) {
-    const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("formGroup", ctx_r0.form);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](4);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("min", 0)("custom_options", _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpureFunction0"](5, _c0));
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](4);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("min", 0)("custom_options", _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵpureFunction0"](6, _c0));
+    const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("formGroup", ctx_r0.form);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"](4);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("min", 0)("custom_options", _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵpureFunction0"](5, _c0));
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"](4);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("min", 0)("custom_options", _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵpureFunction0"](6, _c0));
   }
 }
 function SetupBreakdownModalComponent_footer_5_Template(rf, ctx) {
   if (rf & 1) {
-    const _r2 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵgetCurrentView"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "footer", 12)(1, "button", 13);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵlistener"]("click", function SetupBreakdownModalComponent_footer_5_Template_button_click_1_listener() {
-      _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵrestoreView"](_r2);
-      const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"]();
-      return _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵresetView"](ctx_r0.save());
+    const _r2 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](0, "footer", 12)(1, "button", 13);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵlistener"]("click", function SetupBreakdownModalComponent_footer_5_Template_button_click_1_listener() {
+      _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵrestoreView"](_r2);
+      const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵresetView"](ctx_r0.save());
     });
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](2, "Save Changes");
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtext"](2, "Save Changes");
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]()();
   }
 }
 function SetupBreakdownModalComponent_ng_template_6_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "div", 14);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](1, "mat-spinner", 15);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](2, "p", 16);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](3, " Saving setup and breakdown durations... ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](0, "div", 14);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelement"](1, "mat-spinner", 15);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](2, "p", 16);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtext"](3, " Saving setup and breakdown durations... ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]()();
   }
   if (rf & 2) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("diameter", 32);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("diameter", 32);
   }
 }
 class SetupBreakdownModalComponent {
@@ -38848,9 +38845,9 @@ class SetupBreakdownModalComponent {
     this._event = _event;
     this._dialog_ref = _dialog_ref;
     this.loading = false;
-    this.form = new _angular_forms__WEBPACK_IMPORTED_MODULE_7__.FormGroup({
-      setup: new _angular_forms__WEBPACK_IMPORTED_MODULE_7__.FormControl(this._event.setup_time || 0),
-      breakdown: new _angular_forms__WEBPACK_IMPORTED_MODULE_7__.FormControl(this._event.breakdown_time || 0)
+    this.form = new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormGroup({
+      setup: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(this._event.setup_time || 0),
+      breakdown: new _angular_forms__WEBPACK_IMPORTED_MODULE_5__.FormControl(this._event.breakdown_time || 0)
     });
   }
   save() {
@@ -38893,9 +38890,9 @@ class SetupBreakdownModalComponent {
     })();
   }
   static #_ = this.ɵfac = function SetupBreakdownModalComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || SetupBreakdownModalComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdirectiveInject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_8__.MAT_DIALOG_DATA), _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdirectiveInject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_8__.MatDialogRef));
+    return new (__ngFactoryType__ || SetupBreakdownModalComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵdirectiveInject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_6__.MAT_DIALOG_DATA), _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵdirectiveInject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_6__.MatDialogRef));
   };
-  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdefineComponent"]({
+  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵdefineComponent"]({
     type: SetupBreakdownModalComponent,
     selectors: [["setup-breakdown-modal"]],
     decls: 8,
@@ -38903,24 +38900,23 @@ class SetupBreakdownModalComponent {
     consts: [["load_state", ""], [1, "space-x-4", "min-h-16"], ["btn", "", "icon", "", "mat-dialog-close", "", "matRipple", "", 4, "ngIf"], ["class", "p-4 min-w-[20rem] w-full", 3, "formGroup", 4, "ngIf", "ngIfElse"], ["class", "flex justify-end px-4 py-2 border-t border-base-200", 4, "ngIf"], ["btn", "", "icon", "", "mat-dialog-close", "", "matRipple", ""], [1, "p-4", "min-w-[20rem]", "w-full", 3, "formGroup"], [1, "flex", "flex-col", "space-y-2"], ["for", "setup"], ["name", "setup", "formControlName", "setup", 3, "min", "custom_options"], ["for", "breakdown"], ["name", "breakdown", "formControlName", "breakdown", 3, "min", "custom_options"], [1, "flex", "justify-end", "px-4", "py-2", "border-t", "border-base-200"], ["btn", "", "matRipple", "", 3, "click"], [1, "flex", "flex-col", "items-center", "justify-center", "h-64", "w-64"], [3, "diameter"], [1, "text-center", "p-4"]],
     template: function SetupBreakdownModalComponent_Template(rf, ctx) {
       if (rf & 1) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "header", 1)(1, "h2");
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](2, "Set Event's Setup and Breakdown");
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](3, SetupBreakdownModalComponent_button_3_Template, 3, 0, "button", 2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplate"](4, SetupBreakdownModalComponent_main_4_Template, 9, 7, "main", 3)(5, SetupBreakdownModalComponent_footer_5_Template, 3, 0, "footer", 4)(6, SetupBreakdownModalComponent_ng_template_6_Template, 4, 1, "ng-template", null, 0, _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtemplateRefExtractor"]);
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](0, "header", 1)(1, "h2");
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtext"](2, "Set Event's Setup and Breakdown");
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtemplate"](3, SetupBreakdownModalComponent_button_3_Template, 3, 0, "button", 2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtemplate"](4, SetupBreakdownModalComponent_main_4_Template, 9, 7, "main", 3)(5, SetupBreakdownModalComponent_footer_5_Template, 3, 0, "footer", 4)(6, SetupBreakdownModalComponent_ng_template_6_Template, 4, 1, "ng-template", null, 0, _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtemplateRefExtractor"]);
       }
       if (rf & 2) {
-        const load_state_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵreference"](7);
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngIf", !ctx.loading);
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngIf", !ctx.loading)("ngIfElse", load_state_r3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("ngIf", !ctx.loading);
+        const load_state_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵreference"](7);
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"](3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("ngIf", !ctx.loading);
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("ngIf", !ctx.loading)("ngIfElse", load_state_r3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("ngIf", !ctx.loading);
       }
-    },
-    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_9__.NgIf, _angular_forms__WEBPACK_IMPORTED_MODULE_7__.NgControlStatus, _angular_forms__WEBPACK_IMPORTED_MODULE_7__.NgControlStatusGroup, _angular_forms__WEBPACK_IMPORTED_MODULE_7__.FormGroupDirective, _angular_forms__WEBPACK_IMPORTED_MODULE_7__.FormControlName, _angular_material_dialog__WEBPACK_IMPORTED_MODULE_8__.MatDialogClose, _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_10__.MatProgressSpinner, _form_fields_src_lib_duration_field_component__WEBPACK_IMPORTED_MODULE_4__.DurationFieldComponent, _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_5__.IconComponent, _angular_material_core__WEBPACK_IMPORTED_MODULE_11__.MatRipple]
+    }
   });
 }
 
@@ -44830,14 +44826,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   DateFieldComponent: () => (/* binding */ DateFieldComponent)
 /* harmony export */ });
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/core */ 37580);
-/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @angular/forms */ 34456);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/core */ 37580);
+/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @angular/forms */ 34456);
 /* harmony import */ var libs_components_src_lib_custom_tooltip_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! libs/components/src/lib/custom-tooltip.component */ 22238);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! date-fns */ 33240);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! date-fns */ 34938);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! date-fns */ 56441);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! date-fns */ 77177);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! date-fns */ 33240);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! date-fns */ 56441);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! date-fns */ 34938);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! date-fns */ 77177);
 /* harmony import */ var libs_common_src_lib_async_handler_class__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! libs/common/src/lib/async-handler.class */ 75354);
+/* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @placeos/common */ 22797);
+/* harmony import */ var libs_components_src_lib_media_duration_pipe__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! libs/components/src/lib/media-duration.pipe */ 28975);
+
+
 
 
 
@@ -44845,71 +44845,108 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const _c0 = ["*"];
-function DateFieldComponent_Conditional_2_Template(rf, ctx) {
-  if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](0);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipe"](1, "date");
-  }
-  if (rf & 2) {
-    const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipeBind2"](1, 1, ctx_r0.date, ctx_r0.short ? "MMM d, yyyy" : "MMMM d, yyyy"), " ");
-  }
-}
 function DateFieldComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "span", 3);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](1, "No Date Selected");
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-  }
-}
-function DateFieldComponent_span_8_Template(rf, ctx) {
-  if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "span");
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵprojection"](1);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-  }
-}
-function DateFieldComponent_ng_template_9_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r2 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵgetCurrentView"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "div", 7)(1, "date-calendar", 8);
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵlistener"]("ngModelChange", function DateFieldComponent_ng_template_9_Template_date_calendar_ngModelChange_1_listener($event) {
-      _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵrestoreView"](_r2);
-      const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"]();
-      return _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵresetView"](ctx_r0.setValue($event));
-    });
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtext"](0);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵpipe"](1, "date");
   }
   if (rf & 2) {
-    const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngModel", ctx_r0.date || ctx_r0.now)("from", ctx_r0.from)("to", ctx_r0.until)("offset_weekday", ctx_r0.week_start);
+    const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵpipeBind2"](1, 1, ctx_r0.date, ctx_r0.date_format), " ");
+  }
+}
+function DateFieldComponent_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](0, "span", 4);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtext"](1, "No Date Selected");
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
+  }
+}
+function DateFieldComponent_div_5_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](0, "div", 9);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtext"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵpipe"](2, "date");
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵpipe"](3, "date");
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
+  }
+  if (rf & 2) {
+    const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtextInterpolate2"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵpipeBind3"](2, 2, ctx_r0.start_of_day, "MMM d, " + ctx_r0.time_format, ctx_r0.tz), " - ", _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵpipeBind3"](3, 6, ctx_r0.end_of_day, "MMM d, " + ctx_r0.time_format + " (z)", ctx_r0.tz), " ");
+  }
+}
+function DateFieldComponent_span_10_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](0, "span");
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵprojection"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
+  }
+}
+function DateFieldComponent_ng_template_11_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](0, "div", 10)(1, "date-calendar", 11);
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵlistener"]("ngModelChange", function DateFieldComponent_ng_template_11_Template_date_calendar_ngModelChange_1_listener($event) {
+      _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵrestoreView"](_r2);
+      const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵresetView"](ctx_r0.setValue($event));
+    });
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("ngModel", ctx_r0.date || ctx_r0.now)("from", ctx_r0.from)("to", ctx_r0.until)("offset_weekday", ctx_r0.week_start);
   }
 }
 class DateFieldComponent extends libs_common_src_lib_async_handler_class__WEBPACK_IMPORTED_MODULE_1__.AsyncHandler {
+  get date_format() {
+    return this.short ? 'MMM d, yyyy' : 'MMMM d, yyyy';
+  }
+  get time_format() {
+    return this.use_24hr ? 'HH : mm' : 'h : mm a';
+  }
+  get start_of_day() {
+    return (0,date_fns__WEBPACK_IMPORTED_MODULE_5__.startOfDay)(this.date).valueOf();
+  }
+  get end_of_day() {
+    return (0,date_fns__WEBPACK_IMPORTED_MODULE_6__.endOfDay)(this.date).valueOf();
+  }
   get has_error() {
     return this._control?.invalid && this._control?.touched;
+  }
+  get tz() {
+    // Get Timezone as +/-HHMM
+    const tz = this.timezone;
+    if (!tz) return '';
+    const offset = (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.getTimezoneOffsetInMinutes)(tz);
+    const hours = Math.floor(Math.abs(offset) / 60);
+    const minutes = Math.abs(offset) % 60;
+    return `${offset > 0 ? '+' : '-'}${(0,libs_components_src_lib_media_duration_pipe__WEBPACK_IMPORTED_MODULE_3__.padLength)(hours, 2)}${(0,libs_components_src_lib_media_duration_pipe__WEBPACK_IMPORTED_MODULE_3__.padLength)(minutes, 2)}`;
   }
   constructor(_injector) {
     super();
     this._injector = _injector;
     /** Earliest date available the user is allowed to pick */
-    this.from_date = (0,date_fns__WEBPACK_IMPORTED_MODULE_3__.startOfDay)(Date.now()).valueOf();
+    this.from_date = (0,date_fns__WEBPACK_IMPORTED_MODULE_5__.startOfDay)(Date.now()).valueOf();
     /** Index of the day to start the week on when displaying the calendar */
     this.week_start = 0;
+    this.use_24hr = false;
     this.short = false;
+    this.timezone = '';
     this.now = Date.now();
   }
   /** First allowed date on the calendar */
   get from() {
-    return new Date(this.from_date) || (0,date_fns__WEBPACK_IMPORTED_MODULE_3__.startOfDay)(new Date());
+    return new Date(this.from_date) || (0,date_fns__WEBPACK_IMPORTED_MODULE_5__.startOfDay)(new Date());
   }
   /** Current date value */
   get until() {
-    return new Date(this.to_date) || (0,date_fns__WEBPACK_IMPORTED_MODULE_4__.addYears)((0,date_fns__WEBPACK_IMPORTED_MODULE_5__.endOfDay)(new Date()), 1);
+    return new Date(this.to_date) || (0,date_fns__WEBPACK_IMPORTED_MODULE_7__.addYears)((0,date_fns__WEBPACK_IMPORTED_MODULE_6__.endOfDay)(new Date()), 1);
   }
   ngOnInit() {
-    this._control = this._injector.get(_angular_forms__WEBPACK_IMPORTED_MODULE_6__.NgControl);
+    this._control = this._injector.get(_angular_forms__WEBPACK_IMPORTED_MODULE_8__.NgControl);
     this.date = Date.now();
   }
   /**
@@ -44919,7 +44956,7 @@ class DateFieldComponent extends libs_common_src_lib_async_handler_class__WEBPAC
   setValue(new_value) {
     // Keep hours and minutes of the old date
     const old_date = new Date(this.date);
-    let new_date = (0,date_fns__WEBPACK_IMPORTED_MODULE_7__.set)(new_value, {
+    let new_date = (0,date_fns__WEBPACK_IMPORTED_MODULE_9__.set)(new_value, {
       hours: old_date.getHours(),
       minutes: old_date.getMinutes()
     }).valueOf();
@@ -44962,58 +44999,64 @@ class DateFieldComponent extends libs_common_src_lib_async_handler_class__WEBPAC
     this.disabled = disabled;
   }
   static #_ = this.ɵfac = function DateFieldComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || DateFieldComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵdirectiveInject"](_angular_core__WEBPACK_IMPORTED_MODULE_2__.Injector));
+    return new (__ngFactoryType__ || DateFieldComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵdirectiveInject"](_angular_core__WEBPACK_IMPORTED_MODULE_4__.Injector));
   };
-  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵdefineComponent"]({
+  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵdefineComponent"]({
     type: DateFieldComponent,
     selectors: [["a-date-field"]],
     viewQuery: function DateFieldComponent_Query(rf, ctx) {
       if (rf & 1) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵviewQuery"](libs_components_src_lib_custom_tooltip_component__WEBPACK_IMPORTED_MODULE_0__.CustomTooltipComponent, 5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵviewQuery"](libs_components_src_lib_custom_tooltip_component__WEBPACK_IMPORTED_MODULE_0__.CustomTooltipComponent, 5);
       }
       if (rf & 2) {
         let _t;
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵqueryRefresh"](_t = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵloadQuery"]()) && (ctx._tooltip = _t.first);
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵqueryRefresh"](_t = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵloadQuery"]()) && (ctx._tooltip = _t.first);
       }
     },
     inputs: {
       from_date: [0, "from", "from_date"],
       to_date: [0, "to", "to_date"],
       week_start: "week_start",
+      use_24hr: "use_24hr",
       disabled: "disabled",
-      short: "short"
+      short: "short",
+      timezone: "timezone"
     },
-    features: [_angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵProvidersFeature"]([{
-      provide: _angular_forms__WEBPACK_IMPORTED_MODULE_6__.NG_VALUE_ACCESSOR,
-      useExisting: (0,_angular_core__WEBPACK_IMPORTED_MODULE_2__.forwardRef)(() => DateFieldComponent),
+    features: [_angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵProvidersFeature"]([{
+      provide: _angular_forms__WEBPACK_IMPORTED_MODULE_8__.NG_VALUE_ACCESSOR,
+      useExisting: (0,_angular_core__WEBPACK_IMPORTED_MODULE_4__.forwardRef)(() => DateFieldComponent),
       multi: true
-    }]), _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵInheritDefinitionFeature"]],
+    }]), _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵInheritDefinitionFeature"]],
     ngContentSelectors: _c0,
-    decls: 11,
-    vars: 6,
-    consts: [["calendar_picker", ""], ["customTooltip", "", "yPosition", "top", "matRipple", "", 1, "flex", "items-center", "justify-between", "border", "border-neutral", "rounded", "h-12", "w-full", 3, "content", "disabled"], [1, "px-4", "py-2", "flex-1", "truncate", "w-1/2", "text-left", "font-normal"], [1, "opacity-30"], [1, "h-10", "w-10", "flex", "items-center", "justify-center", "text-2xl"], [1, "error", "h-5", "p-1", "text-xs", "text-error"], [4, "ngIf"], [1, "relative", "w-[18rem]", "rounded", "bg-base-100", "px-2", "py-4"], [3, "ngModelChange", "ngModel", "from", "to", "offset_weekday"]],
+    decls: 13,
+    vars: 7,
+    consts: [["calendar_picker", ""], ["customTooltip", "", "yPosition", "top", "matRipple", "", 1, "flex", "items-center", "justify-between", "border", "border-neutral", "rounded", "h-12", "w-full", 3, "content", "disabled"], [1, "flex", "flex-col", "px-4", "py-2", "flex-1", "truncate", "w-1/2", "text-left", "leading-tight"], [1, "font-normal", "text-base"], [1, "opacity-30"], ["class", "text-xs opacity-30 truncate", 4, "ngIf"], [1, "h-10", "w-10", "flex", "items-center", "justify-center", "text-2xl"], [1, "error", "h-5", "p-1", "text-xs", "text-error"], [4, "ngIf"], [1, "text-xs", "opacity-30", "truncate"], [1, "relative", "w-[18rem]", "rounded", "bg-base-100", "px-2", "py-4"], [3, "ngModelChange", "ngModel", "from", "to", "offset_weekday"]],
     template: function DateFieldComponent_Template(rf, ctx) {
       if (rf & 1) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵprojectionDef"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "button", 1)(1, "p", 2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtemplate"](2, DateFieldComponent_Conditional_2_Template, 2, 4)(3, DateFieldComponent_Conditional_3_Template, 2, 0, "span", 3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](4, "div", 4)(5, "app-icon");
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](6, "today");
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]()()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](7, "div", 5);
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtemplate"](8, DateFieldComponent_span_8_Template, 2, 0, "span", 6);
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtemplate"](9, DateFieldComponent_ng_template_9_Template, 2, 4, "ng-template", null, 0, _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtemplateRefExtractor"]);
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵprojectionDef"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](0, "button", 1)(1, "div", 2)(2, "div", 3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtemplate"](3, DateFieldComponent_Conditional_3_Template, 2, 4)(4, DateFieldComponent_Conditional_4_Template, 2, 0, "span", 4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtemplate"](5, DateFieldComponent_div_5_Template, 4, 10, "div", 5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](6, "div", 6)(7, "app-icon");
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtext"](8, "today");
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]()()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](9, "div", 7);
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtemplate"](10, DateFieldComponent_span_10_Template, 2, 0, "span", 8);
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtemplate"](11, DateFieldComponent_ng_template_11_Template, 2, 4, "ng-template", null, 0, _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtemplateRefExtractor"]);
       }
       if (rf & 2) {
-        const calendar_picker_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵreference"](10);
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵclassProp"]("opacity-30", ctx.disabled);
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("content", calendar_picker_r3)("disabled", ctx.disabled);
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵconditional"](ctx.date ? 2 : 3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](6);
-        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngIf", ctx.has_error);
+        const calendar_picker_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵreference"](12);
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵclassProp"]("opacity-30", ctx.disabled);
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("content", calendar_picker_r3)("disabled", ctx.disabled);
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"](3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵconditional"](ctx.date ? 3 : 4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("ngIf", ctx.timezone);
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵadvance"](5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("ngIf", ctx.has_error);
       }
     }
   });
@@ -45435,14 +45478,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   DurationFieldComponent: () => (/* binding */ DurationFieldComponent)
 /* harmony export */ });
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ 37580);
-/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @angular/forms */ 34456);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! date-fns */ 49675);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! date-fns */ 99134);
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/common */ 60316);
-/* harmony import */ var _angular_material_form_field__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @angular/material/form-field */ 24950);
-/* harmony import */ var _angular_material_select__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @angular/material/select */ 25175);
-/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @angular/material/core */ 74646);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/core */ 37580);
+/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @angular/forms */ 34456);
+/* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @placeos/common */ 22797);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! date-fns */ 49675);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! date-fns */ 99134);
+/* harmony import */ var libs_components_src_lib_media_duration_pipe__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! libs/components/src/lib/media-duration.pipe */ 28975);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @angular/common */ 60316);
+/* harmony import */ var _angular_material_form_field__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @angular/material/form-field */ 24950);
+/* harmony import */ var _angular_material_select__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @angular/material/select */ 25175);
+/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @angular/material/core */ 74646);
+
+
 
 
 
@@ -45452,35 +45499,68 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const _c0 = ["*"];
-function DurationFieldComponent_mat_option_4_ng_container_1_Template(rf, ctx) {
+function DurationFieldComponent_div_9_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementContainerStart"](0);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](1);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipe"](2, "date");
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementContainerEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "div", 7);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipe"](2, "date");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
   }
   if (rf & 2) {
-    const option_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵnextContext"]().$implicit;
-    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtextInterpolate3"](" ", option_r2.date ? _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵpipeBind2"](2, 3, option_r2.date, option_r2.id >= 24 * 60 ? "mediumDate" : ctx_r2.use_24hr ? "HH : mm" : "h : mm a") + " (" : "", "", option_r2.name, "", option_r2.date ? ")" : "", " ");
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipeBind3"](2, 1, ctx_r1.selected == null ? null : ctx_r1.selected.date, ctx_r1.time_format + " (z)", ctx_r1.tz), " ");
   }
 }
-function DurationFieldComponent_mat_option_4_Template(rf, ctx) {
+function DurationFieldComponent_mat_option_10_ng_container_1_div_5_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](0, "mat-option", 5);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](1, DurationFieldComponent_mat_option_4_ng_container_1_Template, 3, 6, "ng-container", 6);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "div", 7);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipe"](2, "date");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
   }
   if (rf & 2) {
-    const option_r2 = ctx.$implicit;
-    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("value", option_r2.id);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("ngIf", !ctx_r2.force);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtextInterpolate1"](" ", ctx_r2.force, " ");
+    const option_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"](2).$implicit;
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipeBind3"](2, 1, option_r3.date, ctx_r1.time_format + " (z)", ctx_r1.tz), " ");
+  }
+}
+function DurationFieldComponent_mat_option_10_ng_container_1_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementContainerStart"](0);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](1, "div", 10)(2, "div");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipe"](4, "date");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtemplate"](5, DurationFieldComponent_mat_option_10_ng_container_1_div_5_Template, 3, 5, "div", 5);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementContainerEnd"]();
+  }
+  if (rf & 2) {
+    const option_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"]().$implicit;
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate3"](" ", option_r3.date ? _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipeBind2"](4, 4, option_r3.date, option_r3.id >= 24 * 60 ? "mediumDate" : ctx_r1.time_format) + " (" : "", "", option_r3.name, "", option_r3.date ? ")" : "", " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngIf", ctx_r1.timezone);
+  }
+}
+function DurationFieldComponent_mat_option_10_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "mat-option", 8);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtemplate"](1, DurationFieldComponent_mat_option_10_ng_container_1_Template, 6, 7, "ng-container", 9);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+  }
+  if (rf & 2) {
+    const option_r3 = ctx.$implicit;
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("value", option_r3.id);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngIf", !ctx_r1.force);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate1"](" ", ctx_r1.force, " ");
   }
 }
 class DurationFieldComponent {
@@ -45493,10 +45573,28 @@ class DurationFieldComponent {
     this.step = 15;
     /** Special case prepopulation i.e. out of step options */
     this.custom_options = [];
+    /** Whether to use 24 hour time when formatting displayed time */
     this.use_24hr = false;
+    /** Display extra information for displayed times for timezone */
+    this.timezone = '';
     this.duration = 60;
     /** List of available duration options */
     this.duration_options = [];
+  }
+  get time_format() {
+    return this.use_24hr ? 'HH : mm' : 'h : mm a';
+  }
+  get selected() {
+    return this.duration_options.find(_ => _.id === this.duration);
+  }
+  get tz() {
+    // Get Timezone as +/-HHMM
+    const tz = this.timezone;
+    if (!tz) return '';
+    const offset = (0,_placeos_common__WEBPACK_IMPORTED_MODULE_0__.getTimezoneOffsetInMinutes)(tz);
+    const hours = Math.floor(Math.abs(offset) / 60);
+    const minutes = Math.abs(offset) % 60;
+    return `${offset > 0 ? '+' : '-'}${(0,libs_components_src_lib_media_duration_pipe__WEBPACK_IMPORTED_MODULE_1__.padLength)(hours, 2)}${(0,libs_components_src_lib_media_duration_pipe__WEBPACK_IMPORTED_MODULE_1__.padLength)(minutes, 2)}`;
   }
   ngOnInit() {
     this.duration_options = this.generateDurationOptions(this.max, this.min, this.step);
@@ -45556,10 +45654,10 @@ class DurationFieldComponent {
     for (const option of this.custom_options) {
       blocks.push({
         id: option,
-        date: date ? (0,date_fns__WEBPACK_IMPORTED_MODULE_1__.addMinutes)(date, option).valueOf() : undefined,
-        name: option >= 24 * 60 ? `${(0,date_fns__WEBPACK_IMPORTED_MODULE_2__.formatDuration)({
+        date: date ? (0,date_fns__WEBPACK_IMPORTED_MODULE_3__.addMinutes)(date, option).valueOf() : undefined,
+        name: option >= 24 * 60 ? `${(0,date_fns__WEBPACK_IMPORTED_MODULE_4__.formatDuration)({
           days: Math.floor(option / (24 * 60))
-        })}` : `${(0,date_fns__WEBPACK_IMPORTED_MODULE_2__.formatDuration)({
+        })}` : `${(0,date_fns__WEBPACK_IMPORTED_MODULE_4__.formatDuration)({
           hours: Math.floor(option / 60),
           minutes: option % 60
         })}`
@@ -45568,14 +45666,14 @@ class DurationFieldComponent {
     while (time <= max) {
       blocks.push({
         id: time,
-        date: date ? (0,date_fns__WEBPACK_IMPORTED_MODULE_1__.addMinutes)(date, time).valueOf() : undefined,
-        name: time === 0 ? (0,date_fns__WEBPACK_IMPORTED_MODULE_2__.formatDuration)({
+        date: date ? (0,date_fns__WEBPACK_IMPORTED_MODULE_3__.addMinutes)(date, time).valueOf() : undefined,
+        name: time === 0 ? (0,date_fns__WEBPACK_IMPORTED_MODULE_4__.formatDuration)({
           minutes: 0
         }, {
           zero: true
-        }) : time >= 24 * 60 ? `${(0,date_fns__WEBPACK_IMPORTED_MODULE_2__.formatDuration)({
+        }) : time >= 24 * 60 ? `${(0,date_fns__WEBPACK_IMPORTED_MODULE_4__.formatDuration)({
           days: Math.floor(time / (24 * 60))
-        })}` : `${(0,date_fns__WEBPACK_IMPORTED_MODULE_2__.formatDuration)({
+        })}` : `${(0,date_fns__WEBPACK_IMPORTED_MODULE_4__.formatDuration)({
           hours: Math.floor(time / 60),
           minutes: time % 60
         })}`
@@ -45593,7 +45691,7 @@ class DurationFieldComponent {
   static #_ = this.ɵfac = function DurationFieldComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || DurationFieldComponent)();
   };
-  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({
+  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵdefineComponent"]({
     type: DurationFieldComponent,
     selectors: [["a-duration-field"]],
     inputs: {
@@ -45604,41 +45702,52 @@ class DurationFieldComponent {
       disabled: "disabled",
       custom_options: "custom_options",
       force: "force",
-      use_24hr: "use_24hr"
+      use_24hr: "use_24hr",
+      timezone: "timezone"
     },
-    features: [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵProvidersFeature"]([{
-      provide: _angular_forms__WEBPACK_IMPORTED_MODULE_3__.NG_VALUE_ACCESSOR,
-      useExisting: (0,_angular_core__WEBPACK_IMPORTED_MODULE_0__.forwardRef)(() => DurationFieldComponent),
+    features: [_angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵProvidersFeature"]([{
+      provide: _angular_forms__WEBPACK_IMPORTED_MODULE_5__.NG_VALUE_ACCESSOR,
+      useExisting: (0,_angular_core__WEBPACK_IMPORTED_MODULE_2__.forwardRef)(() => DurationFieldComponent),
       multi: true
-    }]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵNgOnChangesFeature"]],
+    }]), _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵNgOnChangesFeature"]],
     ngContentSelectors: _c0,
-    decls: 7,
-    vars: 5,
-    consts: [["select", ""], [1, "duration-field"], ["appearance", "outline"], [3, "valueChange", "value", "disabled", "placeholder"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], [4, "ngIf"]],
+    decls: 13,
+    vars: 12,
+    consts: [["select", ""], [1, "duration-field"], ["appearance", "outline"], [3, "valueChange", "value", "disabled", "placeholder"], [1, "flex", "flex-col", "leading-tight", "absolute", "-translate-y-1/2", "top-2"], ["class", "text-xs opacity-30", 4, "ngIf"], [3, "value", 4, "ngFor", "ngForOf"], [1, "text-xs", "opacity-30"], [3, "value"], [4, "ngIf"], [1, "flex", "flex-col", "leading-tight"]],
     template: function DurationFieldComponent_Template(rf, ctx) {
       if (rf & 1) {
-        const _r1 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵgetCurrentView"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵprojectionDef"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](0, "div", 1)(1, "mat-form-field", 2)(2, "mat-select", 3, 0);
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵlistener"]("valueChange", function DurationFieldComponent_Template_mat_select_valueChange_2_listener($event) {
-          _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r1);
-          return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵresetView"](ctx.setValue($event));
+        const _r1 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵgetCurrentView"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵprojectionDef"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "div", 1)(1, "mat-form-field", 2)(2, "mat-select", 3, 0);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵlistener"]("valueChange", function DurationFieldComponent_Template_mat_select_valueChange_2_listener($event) {
+          _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵrestoreView"](_r1);
+          return _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵresetView"](ctx.setValue($event));
         });
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](4, DurationFieldComponent_mat_option_4_Template, 3, 3, "mat-option", 4);
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](5, "mat-error");
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵprojection"](6);
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]()()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](4, "mat-select-trigger")(5, "div", 4)(6, "div");
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](7);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipe"](8, "date");
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtemplate"](9, DurationFieldComponent_div_9_Template, 3, 5, "div", 5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtemplate"](10, DurationFieldComponent_mat_option_10_Template, 3, 3, "mat-option", 6);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](11, "mat-error");
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵprojection"](12);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]()()();
       }
       if (rf & 2) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵattribute"]("disabled", ctx.disabled);
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("value", ctx.duration)("disabled", ctx.disabled)("placeholder", ctx.duration + " minutes");
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("ngForOf", ctx.duration_options);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵattribute"]("disabled", ctx.disabled);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("value", ctx.duration)("disabled", ctx.disabled)("placeholder", ctx.duration + " minutes");
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate3"](" ", (ctx.selected == null ? null : ctx.selected.date) ? _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipeBind2"](8, 9, ctx.selected == null ? null : ctx.selected.date, ctx.selected.id >= 24 * 60 ? "mediumDate" : ctx.time_format) + " (" : "", "", ctx.selected == null ? null : ctx.selected.name, "", (ctx.selected == null ? null : ctx.selected.date) ? ")" : "", " ");
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngIf", ctx.timezone);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngForOf", ctx.duration_options);
       }
     },
-    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_4__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_4__.NgIf, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_5__.MatFormField, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_5__.MatError, _angular_material_select__WEBPACK_IMPORTED_MODULE_6__.MatSelect, _angular_material_core__WEBPACK_IMPORTED_MODULE_7__.MatOption, _angular_common__WEBPACK_IMPORTED_MODULE_4__.DatePipe],
+    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_6__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_6__.NgIf, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_7__.MatFormField, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_7__.MatError, _angular_material_select__WEBPACK_IMPORTED_MODULE_8__.MatSelect, _angular_material_select__WEBPACK_IMPORTED_MODULE_8__.MatSelectTrigger, _angular_material_core__WEBPACK_IMPORTED_MODULE_9__.MatOption, _angular_common__WEBPACK_IMPORTED_MODULE_6__.DatePipe],
     styles: ["[_nghost-%COMP%] {\n                width: 100%;\n            }\n\n            mat-form-field[_ngcontent-%COMP%] {\n                width: 100%;\n            }\n        \n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImR1cmF0aW9uLWZpZWxkLmNvbXBvbmVudC50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiO1lBQ1k7Z0JBQ0ksV0FBVztZQUNmOztZQUVBO2dCQUNJLFdBQVc7WUFDZiIsImZpbGUiOiJkdXJhdGlvbi1maWVsZC5jb21wb25lbnQudHMiLCJzb3VyY2VzQ29udGVudCI6WyJcbiAgICAgICAgICAgIDpob3N0IHtcbiAgICAgICAgICAgICAgICB3aWR0aDogMTAwJTtcbiAgICAgICAgICAgIH1cblxuICAgICAgICAgICAgbWF0LWZvcm0tZmllbGQge1xuICAgICAgICAgICAgICAgIHdpZHRoOiAxMDAlO1xuICAgICAgICAgICAgfVxuICAgICAgICAiXX0= */\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2xpYnMvZm9ybS1maWVsZHMvc3JjL2xpYi9kdXJhdGlvbi1maWVsZC5jb21wb25lbnQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IjtZQUNZO2dCQUNJLFdBQVc7WUFDZjs7WUFFQTtnQkFDSSxXQUFXO1lBQ2Y7O0FBRVosb2ZBQW9mIiwic291cmNlc0NvbnRlbnQiOlsiXG4gICAgICAgICAgICA6aG9zdCB7XG4gICAgICAgICAgICAgICAgd2lkdGg6IDEwMCU7XG4gICAgICAgICAgICB9XG5cbiAgICAgICAgICAgIG1hdC1mb3JtLWZpZWxkIHtcbiAgICAgICAgICAgICAgICB3aWR0aDogMTAwJTtcbiAgICAgICAgICAgIH1cbiAgICAgICAgIl0sInNvdXJjZVJvb3QiOiIifQ== */"]
   });
 }
@@ -48088,22 +48197,24 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   TimeFieldComponent: () => (/* binding */ TimeFieldComponent)
 /* harmony export */ });
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ 37580);
-/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @angular/forms */ 34456);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/core */ 37580);
+/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! @angular/forms */ 34456);
 /* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @placeos/common */ 22797);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! date-fns */ 33240);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! date-fns */ 45726);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! date-fns */ 77177);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! date-fns */ 23206);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! date-fns */ 5647);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! date-fns */ 31257);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! date-fns */ 91543);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! date-fns */ 56441);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! date-fns */ 49675);
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! @angular/common */ 60316);
-/* harmony import */ var _angular_material_form_field__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @angular/material/form-field */ 24950);
-/* harmony import */ var _angular_material_select__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! @angular/material/select */ 25175);
-/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! @angular/material/core */ 74646);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! date-fns */ 33240);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! date-fns */ 45726);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! date-fns */ 77177);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! date-fns */ 23206);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! date-fns */ 5647);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! date-fns */ 31257);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! date-fns */ 91543);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! date-fns */ 56441);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! date-fns */ 49675);
+/* harmony import */ var libs_components_src_lib_media_duration_pipe__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! libs/components/src/lib/media-duration.pipe */ 28975);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @angular/common */ 60316);
+/* harmony import */ var _angular_material_form_field__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! @angular/material/form-field */ 24950);
+/* harmony import */ var _angular_material_select__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! @angular/material/select */ 25175);
+/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! @angular/material/core */ 74646);
+
 
 
 
@@ -48116,33 +48227,81 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const _c0 = ["select"];
-function TimeFieldComponent_mat_option_3_Template(rf, ctx) {
+function TimeFieldComponent_div_8_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](0, "mat-option", 5);
-    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵtext"](1);
-    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipe"](2, "date");
-    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "div", 8);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipe"](2, "date");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
   }
   if (rf & 2) {
-    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵproperty"]("value", ctx_r1.force_time);
-    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind2"](2, 2, ctx_r1.force_time, ctx_r1.use_24hr ? "HH : mm" : "h : mm a"), " ");
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipeBind3"](2, 1, ctx_r1.active_time, ctx_r1.time_format + " (z)", ctx_r1.tz), " ");
   }
 }
-function TimeFieldComponent_mat_option_4_Template(rf, ctx) {
+function TimeFieldComponent_mat_option_9_div_5_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](0, "mat-option", 5);
-    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵtext"](1);
-    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipe"](2, "date");
-    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "div", 8);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipe"](2, "date");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+  }
+  if (rf & 2) {
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipeBind3"](2, 1, ctx_r1.force_time, ctx_r1.time_format + " (z)", ctx_r1.tz), " ");
+  }
+}
+function TimeFieldComponent_mat_option_9_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "mat-option", 9)(1, "div", 10)(2, "div", 4);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipe"](4, "date");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtemplate"](5, TimeFieldComponent_mat_option_9_div_5_Template, 3, 5, "div", 5);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("value", ctx_r1.force_time);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipeBind2"](4, 3, ctx_r1.force_time, ctx_r1.time_format), " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngIf", ctx_r1.timezone);
+  }
+}
+function TimeFieldComponent_mat_option_10_div_5_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "div", 8);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipe"](2, "date");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+  }
+  if (rf & 2) {
+    const option_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"]().$implicit;
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipeBind3"](2, 1, option_r3.date, ctx_r1.time_format + " (z)", ctx_r1.tz), " ");
+  }
+}
+function TimeFieldComponent_mat_option_10_Template(rf, ctx) {
+  if (rf & 1) {
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "mat-option", 9)(1, "div", 10)(2, "div", 4);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipe"](4, "date");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtemplate"](5, TimeFieldComponent_mat_option_10_div_5_Template, 3, 5, "div", 5);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]()();
   }
   if (rf & 2) {
     const option_r3 = ctx.$implicit;
-    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵproperty"]("value", option_r3.id);
-    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵtextInterpolate2"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵpipeBind2"](2, 3, option_r3.date, ctx_r1.use_24hr ? "HH : mm" : "h : mm a"), " ", ctx_r1.extra_info_fn(option_r3.date), " ");
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("value", option_r3.id);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate2"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipeBind2"](4, 4, option_r3.date, ctx_r1.time_format), " ", ctx_r1.extra_info_fn(option_r3.date), " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngIf", ctx_r1.timezone);
   }
 }
 class TimeFieldComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0__.AsyncHandler {
@@ -48155,11 +48314,24 @@ class TimeFieldComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0__.As
     this.use_24hr = false;
     this.extra_info_fn = t => '';
     /** Prevent times before */
-    this.from = (0,date_fns__WEBPACK_IMPORTED_MODULE_2__.startOfDay)(Date.now()).valueOf();
+    this.from = (0,date_fns__WEBPACK_IMPORTED_MODULE_3__.startOfDay)(Date.now()).valueOf();
+    this.timezone = '';
     /** String representing the currently set time */
     this.date = new Date().valueOf();
     /** String representing the currently set time */
-    this.time = (0,date_fns__WEBPACK_IMPORTED_MODULE_3__.format)(new Date(), 'HH:mm');
+    this.time = (0,date_fns__WEBPACK_IMPORTED_MODULE_4__.format)(new Date(), 'HH:mm');
+  }
+  get time_format() {
+    return this.use_24hr ? 'HH : mm' : 'h : mm a';
+  }
+  get tz() {
+    // Get Timezone as +/-HHMM
+    const tz = this.timezone;
+    if (!tz) return '';
+    const offset = (0,_placeos_common__WEBPACK_IMPORTED_MODULE_0__.getTimezoneOffsetInMinutes)(tz);
+    const hours = Math.floor(Math.abs(offset) / 60);
+    const minutes = Math.abs(offset) % 60;
+    return `${offset > 0 ? '+' : '-'}${(0,libs_components_src_lib_media_duration_pipe__WEBPACK_IMPORTED_MODULE_1__.padLength)(hours, 2)}${(0,libs_components_src_lib_media_duration_pipe__WEBPACK_IMPORTED_MODULE_1__.padLength)(minutes, 2)}`;
   }
   ngOnInit() {
     this.show_select = true;
@@ -48174,14 +48346,14 @@ class TimeFieldComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0__.As
   /** Available time blocks for the selected date */
   get time_options() {
     const time = (this.time || '00:00').split(':');
-    const date = (0,date_fns__WEBPACK_IMPORTED_MODULE_4__.set)(this.date, {
+    const date = (0,date_fns__WEBPACK_IMPORTED_MODULE_5__.set)(this.date, {
       hours: +time[0],
       minutes: +time[1]
     });
-    if (date.getMinutes() % 15 !== 0 && !this._time_options.find(time => time.id === (0,date_fns__WEBPACK_IMPORTED_MODULE_3__.format)(date, 'HH:mm'))) {
+    if (date.getMinutes() % 15 !== 0 && !this._time_options.find(time => time.id === (0,date_fns__WEBPACK_IMPORTED_MODULE_4__.format)(date, 'HH:mm'))) {
       this._time_options.push({
         date,
-        id: (0,date_fns__WEBPACK_IMPORTED_MODULE_3__.format)(date, 'HH:mm')
+        id: (0,date_fns__WEBPACK_IMPORTED_MODULE_4__.format)(date, 'HH:mm')
       });
       this._time_options.sort((a, b) => `${a.id}`.localeCompare(`${b.id}`));
     }
@@ -48195,12 +48367,14 @@ class TimeFieldComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0__.As
     this.time = new_value;
     if (this._onChange) {
       const time = (this.time || '00:00').split(':');
-      const date = (0,date_fns__WEBPACK_IMPORTED_MODULE_5__.startOfMinute)((0,date_fns__WEBPACK_IMPORTED_MODULE_4__.set)(this.date, {
+      const date = (0,date_fns__WEBPACK_IMPORTED_MODULE_6__.startOfMinute)((0,date_fns__WEBPACK_IMPORTED_MODULE_5__.set)(this.date, {
         hours: +time[0],
         minutes: +time[1]
       }));
       this._onChange(date.valueOf());
     }
+    const time = this.force_time || this.time;
+    this.active_time = this._time_options.find(_ => _.id === time)?.date;
   }
   /**
    * Update local value when form control value is changed
@@ -48208,12 +48382,14 @@ class TimeFieldComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0__.As
    */
   writeValue(value) {
     this.date = value || this.date;
-    let date = (0,date_fns__WEBPACK_IMPORTED_MODULE_5__.startOfMinute)(this.date);
-    date = (0,date_fns__WEBPACK_IMPORTED_MODULE_6__.roundToNearestMinutes)(date, {
+    let date = (0,date_fns__WEBPACK_IMPORTED_MODULE_6__.startOfMinute)(this.date);
+    date = (0,date_fns__WEBPACK_IMPORTED_MODULE_7__.roundToNearestMinutes)(date, {
       nearestTo: 5
     });
-    this.time = (0,date_fns__WEBPACK_IMPORTED_MODULE_3__.format)(date, 'HH:mm');
+    this.time = (0,date_fns__WEBPACK_IMPORTED_MODULE_4__.format)(date, 'HH:mm');
     this._time_options = this.generateAvailableTimes(this.date, !this.no_past_times, this.step);
+    const time = this.force_time || this.time;
+    this.active_time = this._time_options.find(_ => _.id === time)?.date;
   }
   setDisabledState(disabled) {
     this.disabled = disabled;
@@ -48259,41 +48435,41 @@ class TimeFieldComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0__.As
     const now = new Date(Math.max(this.from, Date.now()));
     let date = new Date(datestamp);
     const blocks = [];
-    if (show_past || !(0,date_fns__WEBPACK_IMPORTED_MODULE_7__.isSameDay)(date, now) && (0,date_fns__WEBPACK_IMPORTED_MODULE_8__.isAfter)(date, now)) {
-      date = (0,date_fns__WEBPACK_IMPORTED_MODULE_2__.startOfDay)(date);
-    } else if ((0,date_fns__WEBPACK_IMPORTED_MODULE_8__.isAfter)(date, now)) {
+    if (show_past || !(0,date_fns__WEBPACK_IMPORTED_MODULE_8__.isSameDay)(date, now) && (0,date_fns__WEBPACK_IMPORTED_MODULE_9__.isAfter)(date, now)) {
+      date = (0,date_fns__WEBPACK_IMPORTED_MODULE_3__.startOfDay)(date);
+    } else if ((0,date_fns__WEBPACK_IMPORTED_MODULE_9__.isAfter)(date, now)) {
       date = new Date(now);
     }
-    date = (0,date_fns__WEBPACK_IMPORTED_MODULE_6__.roundToNearestMinutes)(date, {
+    date = (0,date_fns__WEBPACK_IMPORTED_MODULE_7__.roundToNearestMinutes)(date, {
       nearestTo: step
     });
-    const end = (0,date_fns__WEBPACK_IMPORTED_MODULE_9__.endOfDay)(date);
+    const end = (0,date_fns__WEBPACK_IMPORTED_MODULE_10__.endOfDay)(date);
     // Add options for the rest of the day
-    while ((0,date_fns__WEBPACK_IMPORTED_MODULE_8__.isAfter)(end, date)) {
+    while ((0,date_fns__WEBPACK_IMPORTED_MODULE_9__.isAfter)(end, date)) {
       blocks.push({
         date: date.valueOf(),
-        id: (0,date_fns__WEBPACK_IMPORTED_MODULE_3__.format)(date, 'HH:mm')
+        id: (0,date_fns__WEBPACK_IMPORTED_MODULE_4__.format)(date, 'HH:mm')
       });
-      date = (0,date_fns__WEBPACK_IMPORTED_MODULE_10__.addMinutes)(date, step);
+      date = (0,date_fns__WEBPACK_IMPORTED_MODULE_11__.addMinutes)(date, step);
     }
     return blocks;
   }
   static #_ = this.ɵfac = /*@__PURE__*/(() => {
     let ɵTimeFieldComponent_BaseFactory;
     return function TimeFieldComponent_Factory(__ngFactoryType__) {
-      return (ɵTimeFieldComponent_BaseFactory || (ɵTimeFieldComponent_BaseFactory = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵgetInheritedFactory"](TimeFieldComponent)))(__ngFactoryType__ || TimeFieldComponent);
+      return (ɵTimeFieldComponent_BaseFactory || (ɵTimeFieldComponent_BaseFactory = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵgetInheritedFactory"](TimeFieldComponent)))(__ngFactoryType__ || TimeFieldComponent);
     };
   })();
-  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefineComponent"]({
+  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵdefineComponent"]({
     type: TimeFieldComponent,
     selectors: [["a-time-field"]],
     viewQuery: function TimeFieldComponent_Query(rf, ctx) {
       if (rf & 1) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵviewQuery"](_c0, 5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵviewQuery"](_c0, 5);
       }
       if (rf & 2) {
         let _t;
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵqueryRefresh"](_t = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵloadQuery"]()) && (ctx.select_field = _t.first);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵqueryRefresh"](_t = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵloadQuery"]()) && (ctx.select_field = _t.first);
       }
     },
     inputs: {
@@ -48303,37 +48479,48 @@ class TimeFieldComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_0__.As
       use_24hr: "use_24hr",
       force_time: "force_time",
       extra_info_fn: "extra_info_fn",
-      from: "from"
+      from: "from",
+      timezone: "timezone"
     },
-    features: [_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵProvidersFeature"]([{
-      provide: _angular_forms__WEBPACK_IMPORTED_MODULE_11__.NG_VALUE_ACCESSOR,
-      useExisting: (0,_angular_core__WEBPACK_IMPORTED_MODULE_1__.forwardRef)(() => TimeFieldComponent),
+    features: [_angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵProvidersFeature"]([{
+      provide: _angular_forms__WEBPACK_IMPORTED_MODULE_12__.NG_VALUE_ACCESSOR,
+      useExisting: (0,_angular_core__WEBPACK_IMPORTED_MODULE_2__.forwardRef)(() => TimeFieldComponent),
       multi: true
-    }]), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵInheritDefinitionFeature"], _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵNgOnChangesFeature"]],
-    decls: 5,
-    vars: 4,
-    consts: [["select", ""], ["appearance", "outline"], [3, "ngModelChange", "ngModel", "disabled"], [3, "value", 4, "ngIf"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"]],
+    }]), _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵInheritDefinitionFeature"], _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵNgOnChangesFeature"]],
+    decls: 11,
+    vars: 9,
+    consts: [["select", ""], ["appearance", "outline"], [3, "ngModelChange", "ngModel", "disabled"], [1, "flex", "flex-col", "leading-tight", "absolute", "-translate-y-1/2", "top-2"], [1, ""], ["class", "text-xs opacity-30", 4, "ngIf"], [3, "value", 4, "ngIf"], [3, "value", 4, "ngFor", "ngForOf"], [1, "text-xs", "opacity-30"], [3, "value"], [1, "flex", "flex-col", "leading-tight"]],
     template: function TimeFieldComponent_Template(rf, ctx) {
       if (rf & 1) {
-        const _r1 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵgetCurrentView"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](0, "mat-form-field", 1)(1, "mat-select", 2, 0);
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵlistener"]("ngModelChange", function TimeFieldComponent_Template_mat_select_ngModelChange_1_listener($event) {
-          _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵrestoreView"](_r1);
-          return _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵresetView"](ctx.setValue($event));
+        const _r1 = _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵgetCurrentView"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "mat-form-field", 1)(1, "mat-select", 2, 0);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵlistener"]("ngModelChange", function TimeFieldComponent_Template_mat_select_ngModelChange_1_listener($event) {
+          _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵrestoreView"](_r1);
+          return _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵresetView"](ctx.setValue($event));
         });
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵtemplate"](3, TimeFieldComponent_mat_option_3_Template, 3, 5, "mat-option", 3)(4, TimeFieldComponent_mat_option_4_Template, 3, 6, "mat-option", 4);
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementEnd"]()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](3, "mat-select-trigger")(4, "div", 3)(5, "div", 4);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](6);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipe"](7, "date");
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtemplate"](8, TimeFieldComponent_div_8_Template, 3, 5, "div", 5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtemplate"](9, TimeFieldComponent_mat_option_9_Template, 6, 6, "mat-option", 6)(10, TimeFieldComponent_mat_option_10_Template, 6, 7, "mat-option", 7);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]()();
       }
       if (rf & 2) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵproperty"]("ngModel", ctx.force_time || ctx.time)("disabled", ctx.disabled);
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵproperty"]("ngIf", ctx.force_time);
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵproperty"]("ngForOf", ctx.time_options);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngModel", ctx.force_time || ctx.time)("disabled", ctx.disabled);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵpipeBind2"](7, 6, ctx.active_time, ctx.time_format), " ");
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngIf", ctx.timezone);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngIf", ctx.force_time);
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵadvance"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵproperty"]("ngForOf", ctx.time_options);
       }
     },
-    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_12__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_12__.NgIf, _angular_forms__WEBPACK_IMPORTED_MODULE_11__.NgControlStatus, _angular_forms__WEBPACK_IMPORTED_MODULE_11__.NgModel, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_13__.MatFormField, _angular_material_select__WEBPACK_IMPORTED_MODULE_14__.MatSelect, _angular_material_core__WEBPACK_IMPORTED_MODULE_15__.MatOption, _angular_common__WEBPACK_IMPORTED_MODULE_12__.DatePipe],
+    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_13__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_13__.NgIf, _angular_forms__WEBPACK_IMPORTED_MODULE_12__.NgControlStatus, _angular_forms__WEBPACK_IMPORTED_MODULE_12__.NgModel, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_14__.MatFormField, _angular_material_select__WEBPACK_IMPORTED_MODULE_15__.MatSelect, _angular_material_select__WEBPACK_IMPORTED_MODULE_15__.MatSelectTrigger, _angular_material_core__WEBPACK_IMPORTED_MODULE_16__.MatOption, _angular_common__WEBPACK_IMPORTED_MODULE_13__.DatePipe],
     styles: ["mat-form-field[_ngcontent-%COMP%] {\n                width: 100%;\n            }\n        \n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInRpbWUtZmllbGQuY29tcG9uZW50LnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7WUFDWTtnQkFDSSxXQUFXO1lBQ2YiLCJmaWxlIjoidGltZS1maWVsZC5jb21wb25lbnQudHMiLCJzb3VyY2VzQ29udGVudCI6WyJcbiAgICAgICAgICAgIG1hdC1mb3JtLWZpZWxkIHtcbiAgICAgICAgICAgICAgICB3aWR0aDogMTAwJTtcbiAgICAgICAgICAgIH1cbiAgICAgICAgIl19 */\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2xpYnMvZm9ybS1maWVsZHMvc3JjL2xpYi90aW1lLWZpZWxkLmNvbXBvbmVudC50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiO1lBQ1k7Z0JBQ0ksV0FBVztZQUNmOztBQUVaLGdYQUFnWCIsInNvdXJjZXNDb250ZW50IjpbIlxuICAgICAgICAgICAgbWF0LWZvcm0tZmllbGQge1xuICAgICAgICAgICAgICAgIHdpZHRoOiAxMDAlO1xuICAgICAgICAgICAgfVxuICAgICAgICAiXSwic291cmNlUm9vdCI6IiJ9 */"]
   });
 }
@@ -55871,11 +56058,11 @@ function SpaceFiltersComponent_div_26_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵnextContext"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](3, 7, "FORM.END_DATE"), "");
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](3, 8, "FORM.END_DATE"), "");
     _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](4);
-    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngModel", ctx_r1.form.getRawValue().date_end)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](11, _c0))("from", ctx_r1.start_date)("to", ctx_r1.end_date)("short", true);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngModel", ctx_r1.form.getRawValue().date_end)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](12, _c0))("from", ctx_r1.start_date)("to", ctx_r1.end_date)("short", true)("timezone", ctx_r1.timezone);
     _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](8, 9, "FORM.DATE_ERROR"), " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](8, 10, "FORM.DATE_ERROR"), " ");
   }
 }
 function SpaceFiltersComponent_div_27_Template(rf, ctx) {
@@ -55908,9 +56095,9 @@ function SpaceFiltersComponent_div_28_div_6_Template(rf, ctx) {
     let tmp_5_0;
     const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵnextContext"](2);
     _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](3, 5, "FORM.END_TIME"), "");
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](3, 6, "FORM.END_TIME"), "");
     _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](4);
-    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngModel", ctx_r1.form.value.date_end)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](7, _c0))("from", ctx_r1.form == null ? null : (tmp_5_0 = ctx_r1.form.getRawValue()) == null ? null : tmp_5_0.date)("use_24hr", ctx_r1.use_24hr);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngModel", ctx_r1.form.value.date_end)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](8, _c0))("from", ctx_r1.form == null ? null : (tmp_5_0 = ctx_r1.form.getRawValue()) == null ? null : tmp_5_0.date)("use_24hr", ctx_r1.use_24hr)("timezone", ctx_r1.timezone);
   }
 }
 function SpaceFiltersComponent_div_28_div_7_Template(rf, ctx) {
@@ -55928,9 +56115,9 @@ function SpaceFiltersComponent_div_28_div_7_Template(rf, ctx) {
     let tmp_3_0;
     const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵnextContext"](2);
     _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](3, 4, "FORM.END_TIME"), "");
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](3, 5, "FORM.END_TIME"), "");
     _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](4);
-    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("time", ctx_r1.form == null ? null : (tmp_3_0 = ctx_r1.form.getRawValue()) == null ? null : tmp_3_0.date)("max", ctx_r1.max_duration)("use_24hr", ctx_r1.use_24hr);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("time", ctx_r1.form == null ? null : (tmp_3_0 = ctx_r1.form.getRawValue()) == null ? null : tmp_3_0.date)("max", ctx_r1.max_duration)("use_24hr", ctx_r1.use_24hr)("timezone", ctx_r1.timezone);
   }
 }
 function SpaceFiltersComponent_div_28_Template(rf, ctx) {
@@ -55950,13 +56137,13 @@ function SpaceFiltersComponent_div_28_Template(rf, ctx) {
       }));
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtemplate"](6, SpaceFiltersComponent_div_28_div_6_Template, 7, 8, "div", 51)(7, SpaceFiltersComponent_div_28_div_7_Template, 7, 6, "div", 51);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtemplate"](6, SpaceFiltersComponent_div_28_div_6_Template, 7, 9, "div", 51)(7, SpaceFiltersComponent_div_28_div_7_Template, 7, 7, "div", 51);
     _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
   }
   if (rf & 2) {
     const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵnextContext"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](5);
-    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngModel", ctx_r1.form.getRawValue().date)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](5, _c0))("use_24hr", ctx_r1.use_24hr);
+    _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngModel", ctx_r1.form.getRawValue().date)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](6, _c0))("use_24hr", ctx_r1.use_24hr)("timezone", ctx_r1.timezone);
     _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngIf", ctx_r1.multiday);
     _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"]();
@@ -56072,6 +56259,9 @@ class SpaceFiltersComponent {
   get use_region() {
     return !!this._settings.get('app.use_region');
   }
+  get timezone() {
+    return this._settings.get('app.events.use_building_timezone') ? this._org.building.timezone : '';
+  }
   get bld() {
     return this._org.building;
   }
@@ -56153,7 +56343,7 @@ class SpaceFiltersComponent {
       viewing_map: "viewing_map"
     },
     decls: 35,
-    vars: 29,
+    vars: 30,
     consts: () => {
       let i18n_0;
       if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
@@ -56319,7 +56509,7 @@ class SpaceFiltersComponent {
       } else {
         i18n_12 = $localize`:␟c17e2cc448524a39eb83b2937cea3235a2e8bf37␟2296888311792137027: Apply Filters `;
       }
-      return [i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_7, i18n_8, i18n_9, i18n_10, i18n_11, i18n_12, [1, "flex", "items-center", "border-b", "border-base-200", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-space-filters", 3, "click", 4, "ngIf"], [1, "font-medium", "flex-2", "text-center"], [1, "flex-1"], [1, "max-h-[65vh]", "p-2", "overflow-y-auto", "overflow-x-hidden", "divide-y", "divide-base-200", "w-full", "max-w-[100vw]", 3, "formGroup"], ["details", ""], [1, "text-lg", "font-medium", "mb-1"], [1, "flex-1", "min-w-[8rem]", "flex", "flex-col"], ["for", "location"], ["appearance", "outline", "class", "w-full", 4, "ngIf"], [1, "flex", "items-center", "flex-wrap", "sm:space-x-2"], [1, "flex-1", "min-w-[8rem]"], ["for", "date"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "short"], ["class", "flex-1 min-w-[8rem] relative", 4, "ngIf"], ["class", "flex justify-end -mt-2 mb-2", 4, "ngIf"], ["class", "flex items-center space-x-2", 4, "ngIf"], ["favs", "", "class", "space-y-2 pb-4", 4, "ngIf"], ["features", "", "class", "space-y-2", 4, "ngIf"], ["class", "px-2 pt-2 w-full border-t border-base-200", 4, "ngIf"], ["icon", "", "matRipple", "", "name", "close-space-filters", 3, "click"], ["appearance", "outline", 1, "w-full"], ["name", "region", "placeholder", i18n_5, 3, "ngModelChange", "ngModel", "ngModelOptions"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", "placeholder", i18n_6, 3, "ngModelChange", "ngModel", "ngModelOptions", "multiple"], [1, "flex", "flex-col-reverse"], ["class", "opacity-30 text-xs", 4, "ngIf"], [1, "opacity-30", "text-xs"], [1, "opacity-0"], [1, "flex-1", "min-w-[8rem]", "relative"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "to", "short"], [1, "flex", "justify-end", "-mt-2", "mb-2"], ["formControlName", "all_day"], [1, "flex", "items-center", "space-x-2"], [1, "flex-1", "w-1/3"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr"], ["class", "flex-1 w-1/3", 4, "ngIf"], ["for", "end-time"], ["name", "end-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "use_24hr"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr"], ["favs", "", 1, "space-y-2", "pb-4"], [1, "text-lg", "font-medium"], [1, "flex", "items-center"], ["for", "fav", 1, "flex-1", "w-1/2"], ["name", "fav", 3, "ngModelChange", "ngModel", "ngModelOptions"], ["features", "", 1, "space-y-2"], [4, "ngFor", "ngForOf"], ["class", "flex items-center", 4, "ngIf"], ["for", "feat", 1, "flex-1", "w-1/2"], ["name", "feat", 3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "px-2", "pt-2", "w-full", "border-t", "border-base-200"], ["btn", "", "matRipple", "", "name", "apply-space-filters", 1, "w-full", 3, "click"]];
+      return [i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_7, i18n_8, i18n_9, i18n_10, i18n_11, i18n_12, [1, "flex", "items-center", "border-b", "border-base-200", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-space-filters", 3, "click", 4, "ngIf"], [1, "font-medium", "flex-2", "text-center"], [1, "flex-1"], [1, "max-h-[65vh]", "p-2", "overflow-y-auto", "overflow-x-hidden", "divide-y", "divide-base-200", "w-full", "max-w-[100vw]", 3, "formGroup"], ["details", ""], [1, "text-lg", "font-medium", "mb-1"], [1, "flex-1", "min-w-[8rem]", "flex", "flex-col"], ["for", "location"], ["appearance", "outline", "class", "w-full", 4, "ngIf"], [1, "flex", "items-center", "flex-wrap", "sm:space-x-2"], [1, "flex-1", "min-w-[8rem]"], ["for", "date"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "short", "timezone"], ["class", "flex-1 min-w-[8rem] relative", 4, "ngIf"], ["class", "flex justify-end -mt-2 mb-2", 4, "ngIf"], ["class", "flex items-center space-x-2", 4, "ngIf"], ["favs", "", "class", "space-y-2 pb-4", 4, "ngIf"], ["features", "", "class", "space-y-2", 4, "ngIf"], ["class", "px-2 pt-2 w-full border-t border-base-200", 4, "ngIf"], ["icon", "", "matRipple", "", "name", "close-space-filters", 3, "click"], ["appearance", "outline", 1, "w-full"], ["name", "region", "placeholder", i18n_5, 3, "ngModelChange", "ngModel", "ngModelOptions"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", "placeholder", i18n_6, 3, "ngModelChange", "ngModel", "ngModelOptions", "multiple"], [1, "flex", "flex-col-reverse"], ["class", "opacity-30 text-xs", 4, "ngIf"], [1, "opacity-30", "text-xs"], [1, "opacity-0"], [1, "flex-1", "min-w-[8rem]", "relative"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "to", "short", "timezone"], [1, "flex", "justify-end", "-mt-2", "mb-2"], ["formControlName", "all_day"], [1, "flex", "items-center", "space-x-2"], [1, "flex-1", "w-1/3"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["class", "flex-1 w-1/3", 4, "ngIf"], ["for", "end-time"], ["name", "end-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "use_24hr", "timezone"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr", "timezone"], ["favs", "", 1, "space-y-2", "pb-4"], [1, "text-lg", "font-medium"], [1, "flex", "items-center"], ["for", "fav", 1, "flex-1", "w-1/2"], ["name", "fav", 3, "ngModelChange", "ngModel", "ngModelOptions"], ["features", "", 1, "space-y-2"], [4, "ngFor", "ngForOf"], ["class", "flex items-center", 4, "ngIf"], ["for", "feat", 1, "flex-1", "w-1/2"], ["name", "feat", 3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "px-2", "pt-2", "w-full", "border-t", "border-base-200"], ["btn", "", "matRipple", "", "name", "apply-space-filters", 1, "w-full", 3, "click"]];
     },
     template: function SpaceFiltersComponent_Template(rf, ctx) {
       if (rf & 1) {
@@ -56357,9 +56547,9 @@ class SpaceFiltersComponent {
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵi18n"](24, 4);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipe"](25, "translate");
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtemplate"](26, SpaceFiltersComponent_div_26_Template, 9, 12, "div", 26);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtemplate"](26, SpaceFiltersComponent_div_26_Template, 9, 13, "div", 26);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtemplate"](27, SpaceFiltersComponent_div_27_Template, 3, 0, "div", 27)(28, SpaceFiltersComponent_div_28_Template, 8, 6, "div", 28);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtemplate"](27, SpaceFiltersComponent_div_27_Template, 3, 0, "div", 27)(28, SpaceFiltersComponent_div_28_Template, 8, 7, "div", 28);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵelementEnd"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵtemplate"](29, SpaceFiltersComponent_section_29_Template, 10, 11, "section", 29);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipe"](30, "async");
@@ -56372,21 +56562,21 @@ class SpaceFiltersComponent {
       if (rf & 2) {
         let tmp_2_0;
         let tmp_3_0;
-        let tmp_15_0;
+        let tmp_16_0;
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](2);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngIf", ctx.can_close);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](4);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("formGroup", ctx.form);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](7);
-        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngIf", ctx.use_region && ((tmp_2_0 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](14, 16, ctx.regions)) == null ? null : tmp_2_0.length));
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngIf", ctx.use_region && ((tmp_2_0 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](14, 17, ctx.regions)) == null ? null : tmp_2_0.length));
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngIf", !ctx.use_region && ((tmp_3_0 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](16, 18, ctx.buildings)) == null ? null : tmp_3_0.length) > 1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngIf", !ctx.use_region && ((tmp_3_0 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](16, 19, ctx.buildings)) == null ? null : tmp_3_0.length) > 1);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](2);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngIf", !ctx.hide_levels);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](6);
-        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngModel", ctx.form.getRawValue().date)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](28, _c0))("to", ctx.end_date)("short", true);
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngModel", ctx.form.getRawValue().date)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpureFunction0"](29, _c0))("to", ctx.end_date)("short", true)("timezone", ctx.timezone);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵi18nExp"](_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](25, 20, "FORM.DATE_ERROR"));
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵi18nExp"](_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](25, 21, "FORM.DATE_ERROR"));
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵi18nApply"](24);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngIf", ctx.multiday);
@@ -56395,9 +56585,9 @@ class SpaceFiltersComponent {
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngIf", !ctx.form.value.all_day);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngIf", !ctx.viewing_map || !_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](30, 22, ctx.using_mapspeople));
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngIf", !ctx.viewing_map || !_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](30, 23, ctx.using_mapspeople));
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngIf", ((tmp_15_0 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](32, 24, ctx.features)) == null ? null : tmp_15_0.length) && (!ctx.viewing_map || !_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](33, 26, ctx.using_mapspeople)));
+        _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngIf", ((tmp_16_0 = _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](32, 25, ctx.features)) == null ? null : tmp_16_0.length) && (!ctx.viewing_map || !_angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵpipeBind1"](33, 27, ctx.using_mapspeople)));
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵadvance"](3);
         _angular_core__WEBPACK_IMPORTED_MODULE_5__["ɵɵproperty"]("ngIf", ctx.can_close);
       }
