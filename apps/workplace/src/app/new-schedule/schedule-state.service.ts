@@ -348,12 +348,10 @@ export class ScheduleStateService extends AsyncHandler {
         filter(([u]) => !!u),
         map(async ([user]) => {
             const is_home = user.location !== 'wfo';
-            const is_within_hours = user.in_hours;
             const auto_release = this._settings.get('app.auto_release');
             if (
                 auto_release &&
                 is_home &&
-                is_within_hours &&
                 (auto_release.time_after || auto_release.time_before) &&
                 auto_release.resources?.length
             ) {
