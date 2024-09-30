@@ -57,6 +57,19 @@ export interface LinkedCalendarEvent {
     host_email: string;
 }
 
+export enum WeekOfMonth {
+    First = 1,
+    Second = 2,
+    Third = 3,
+    Fourth = 4,
+    Fifth = 5,
+    Last = -1,
+    SecondLast = -2,
+    ThirdLast = -3,
+    FourthLast = -4,
+    FifthLast = -5,
+}
+
 /** General purpose booking class */
 export class Booking {
     /** Unique Identifier of the object */
@@ -159,17 +172,7 @@ export class Booking {
     /** Bit flags for the recurrence days of the week */
     public readonly recurrence_days?: number;
     /** Week of the month to recur on */
-    public readonly recurrence_nth_of_month?:
-        | 1
-        | 2
-        | 3
-        | 4
-        | 5
-        | -1
-        | -2
-        | -3
-        | -4
-        | -5;
+    public readonly recurrence_nth_of_month?: WeekOfMonth;
     /** How often to recur */
     public readonly recurrence_interval?: number;
     /** Unix epoch for the end time of the recurrence in seconds */
