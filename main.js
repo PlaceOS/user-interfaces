@@ -13263,12 +13263,12 @@ function DeskFiltersComponent_div_25_Template(rf, ctx) {
     i0.ɵɵelementEnd()();
   }
   if (rf & 2) {
-    var tmp_4_0;
+    var tmp_5_0;
     var ctx_r1 = i0.ɵɵnextContext();
     i0.ɵɵadvance(4);
-    i0.ɵɵproperty("ngModel", ctx_r1.form.value.date)("ngModelOptions", i0.ɵɵpureFunction0(8, _c0))("use_24hr", ctx_r1.use_24hr);
+    i0.ɵɵproperty("ngModel", ctx_r1.form.value.date)("ngModelOptions", i0.ɵɵpureFunction0(10, _c0))("use_24hr", ctx_r1.use_24hr)("timezone", ctx_r1.timezone);
     i0.ɵɵadvance(4);
-    i0.ɵɵproperty("time", (tmp_4_0 = ctx_r1.form.get("date")) == null ? null : tmp_4_0.value)("max", 10 * 60)("min", 60)("step", 60)("use_24hr", ctx_r1.use_24hr);
+    i0.ɵɵproperty("time", (tmp_5_0 = ctx_r1.form.get("date")) == null ? null : tmp_5_0.value)("max", 10 * 60)("min", 60)("step", 60)("use_24hr", ctx_r1.use_24hr)("timezone", ctx_r1.timezone);
   }
 }
 function DeskFiltersComponent_section_36_div_3_Template(rf, ctx) {
@@ -13406,6 +13406,11 @@ var DeskFiltersComponent = /*#__PURE__*/function () {
     get: function get() {
       return this._settings.get('app.use_region');
     }
+  }, {
+    key: "timezone",
+    get: function get() {
+      return this._settings.get('app.events.use_building_timezone') ? this._org.building.timezone : '';
+    }
   }]);
 }();
 _DeskFiltersComponent = DeskFiltersComponent;
@@ -13419,7 +13424,7 @@ _DeskFiltersComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     hide_levels: "hide_levels"
   },
   decls: 39,
-  vars: 33,
+  vars: 34,
   consts: function consts() {
     var i18n_0;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
@@ -13563,7 +13568,7 @@ _DeskFiltersComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     } else {
       i18n_12 = $localize(_templateObject13 || (_templateObject13 = _taggedTemplateLiteral([":\u241Fc17e2cc448524a39eb83b2937cea3235a2e8bf37\u241F2296888311792137027: Apply Filters "])));
     }
-    return [i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_5, i18n_8, i18n_9, i18n_10, i18n_11, i18n_12, [1, "flex", "rounded-t-md", "items-center", "border-b", "border-base-200", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-desk-filters", "class", "sm:hidden", 3, "click", 4, "ngIf"], [1, "font-medium", "flex-2", "text-center"], [1, "flex-1"], [1, "max-h-[65vh]", "p-2", "overflow-y-auto", "overflow-x-hidden", "divide-y", "divide-base-200", "w-full", "max-w-[100vw]", "sm:max-w-[30vw]", 3, "formGroup"], ["details", ""], [1, "text-lg", "font-medium", "mb-1"], [1, "flex-1", "min-w-[8rem]", "flex", "flex-col"], ["for", "location"], ["appearance", "outline", "class", "w-full", 4, "ngIf"], [1, "flex-1", "min-w-[256px]"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to"], ["class", "flex justify-end -mt-2 mb-2", 4, "ngIf"], ["class", "flex items-center space-x-2", 4, "ngIf"], ["favs", "", 1, "space-y-2", "pb-4"], [1, "text-lg", "font-medium"], [1, "flex", "items-center"], ["for", "fav", 1, "flex-1", "w-1/2"], ["name", "fav", 3, "ngModelChange", "ngModel", "ngModelOptions"], ["class", "space-y-2", "features", "", 4, "ngIf"], ["class", "px-2 py-2 w-full border-t border-base-200", 4, "ngIf"], ["icon", "", "matRipple", "", "name", "close-desk-filters", 1, "sm:hidden", 3, "click"], ["appearance", "outline", 1, "w-full"], ["name", "region", "placeholder", i18n_6, 3, "ngModelChange", "ngModel", "ngModelOptions"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", "placeholder", i18n_7, 3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "flex", "flex-col-reverse"], ["class", "opacity-30 text-xs", 4, "ngIf"], [1, "opacity-30", "text-xs"], [1, "opacity-0"], [1, "flex", "justify-end", "-mt-2", "mb-2"], ["formControlName", "all_day"], [1, "flex", "items-center", "space-x-2"], [1, "flex-1", "w-1/3"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr"], ["formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr"], ["features", "", 1, "space-y-2"], ["class", "flex items-center flex-wrap space-x-2", 4, "ngFor", "ngForOf"], [1, "flex", "items-center", "flex-wrap", "space-x-2"], ["for", "feat", 1, "flex-1", "w-1/2"], [3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "px-2", "py-2", "w-full", "border-t", "border-base-200"], ["btn", "", "matRipple", "", "name", "apply-desk-filters", 1, "w-full", 3, "click"]];
+    return [i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_5, i18n_8, i18n_9, i18n_10, i18n_11, i18n_12, [1, "flex", "rounded-t-md", "items-center", "border-b", "border-base-200", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-desk-filters", "class", "sm:hidden", 3, "click", 4, "ngIf"], [1, "font-medium", "flex-2", "text-center"], [1, "flex-1"], [1, "max-h-[65vh]", "p-2", "overflow-y-auto", "overflow-x-hidden", "divide-y", "divide-base-200", "w-full", "max-w-[100vw]", "sm:max-w-[30vw]", 3, "formGroup"], ["details", ""], [1, "text-lg", "font-medium", "mb-1"], [1, "flex-1", "min-w-[8rem]", "flex", "flex-col"], ["for", "location"], ["appearance", "outline", "class", "w-full", 4, "ngIf"], [1, "flex-1", "min-w-[256px]"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "timezone"], ["class", "flex justify-end -mt-2 mb-2", 4, "ngIf"], ["class", "flex items-center space-x-2", 4, "ngIf"], ["favs", "", 1, "space-y-2", "pb-4"], [1, "text-lg", "font-medium"], [1, "flex", "items-center"], ["for", "fav", 1, "flex-1", "w-1/2"], ["name", "fav", 3, "ngModelChange", "ngModel", "ngModelOptions"], ["class", "space-y-2", "features", "", 4, "ngIf"], ["class", "px-2 py-2 w-full border-t border-base-200", 4, "ngIf"], ["icon", "", "matRipple", "", "name", "close-desk-filters", 1, "sm:hidden", 3, "click"], ["appearance", "outline", 1, "w-full"], ["name", "region", "placeholder", i18n_6, 3, "ngModelChange", "ngModel", "ngModelOptions"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", "placeholder", i18n_7, 3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "flex", "flex-col-reverse"], ["class", "opacity-30 text-xs", 4, "ngIf"], [1, "opacity-30", "text-xs"], [1, "opacity-0"], [1, "flex", "justify-end", "-mt-2", "mb-2"], ["formControlName", "all_day"], [1, "flex", "items-center", "space-x-2"], [1, "flex-1", "w-1/3"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr", "timezone"], ["features", "", 1, "space-y-2"], ["class", "flex items-center flex-wrap space-x-2", 4, "ngFor", "ngForOf"], [1, "flex", "items-center", "flex-wrap", "space-x-2"], ["for", "feat", 1, "flex-1", "w-1/2"], [3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "px-2", "py-2", "w-full", "border-t", "border-base-200"], ["btn", "", "matRipple", "", "name", "apply-desk-filters", 1, "w-full", 3, "click"]];
   },
   template: function DeskFiltersComponent_Template(rf, ctx) {
     if (rf & 1) {
@@ -13599,7 +13604,7 @@ _DeskFiltersComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵtext(22);
       i0.ɵɵpipe(23, "translate");
       i0.ɵɵelementEnd()();
-      i0.ɵɵtemplate(24, DeskFiltersComponent_div_24_Template, 3, 0, "div", 24)(25, DeskFiltersComponent_div_25_Template, 9, 9, "div", 25);
+      i0.ɵɵtemplate(24, DeskFiltersComponent_div_24_Template, 3, 0, "div", 24)(25, DeskFiltersComponent_div_25_Template, 9, 11, "div", 25);
       i0.ɵɵelementEnd();
       i0.ɵɵelementStart(26, "section", 26)(27, "h2", 27);
       i0.ɵɵi18n(28, 4);
@@ -13625,36 +13630,36 @@ _DeskFiltersComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     if (rf & 2) {
       var tmp_2_0;
       var tmp_3_0;
-      var tmp_15_0;
-      var tmp_17_0;
+      var tmp_16_0;
+      var tmp_18_0;
       i0.ɵɵadvance(2);
       i0.ɵɵproperty("ngIf", ctx.can_close);
       i0.ɵɵadvance(4);
       i0.ɵɵproperty("formGroup", ctx.form);
       i0.ɵɵadvance(7);
-      i0.ɵɵproperty("ngIf", ctx.use_region && ((tmp_2_0 = i0.ɵɵpipeBind1(14, 17, ctx.regions)) == null ? null : tmp_2_0.length));
+      i0.ɵɵproperty("ngIf", ctx.use_region && ((tmp_2_0 = i0.ɵɵpipeBind1(14, 18, ctx.regions)) == null ? null : tmp_2_0.length));
       i0.ɵɵadvance(2);
-      i0.ɵɵproperty("ngIf", !ctx.use_region && ((tmp_3_0 = i0.ɵɵpipeBind1(16, 19, ctx.buildings)) == null ? null : tmp_3_0.length) > 1);
+      i0.ɵɵproperty("ngIf", !ctx.use_region && ((tmp_3_0 = i0.ɵɵpipeBind1(16, 20, ctx.buildings)) == null ? null : tmp_3_0.length) > 1);
       i0.ɵɵadvance(2);
       i0.ɵɵproperty("ngIf", !ctx.hide_levels);
       i0.ɵɵadvance(4);
-      i0.ɵɵproperty("ngModel", ctx.form.value.date)("ngModelOptions", i0.ɵɵpureFunction0(31, _c0))("to", ctx.end_date);
+      i0.ɵɵproperty("ngModel", ctx.form.value.date)("ngModelOptions", i0.ɵɵpureFunction0(32, _c0))("to", ctx.end_date)("timezone", ctx.timezone);
       i0.ɵɵadvance();
-      i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind1(23, 21, "FORM.DATE_ERROR"), " ");
+      i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind1(23, 22, "FORM.DATE_ERROR"), " ");
       i0.ɵɵadvance(2);
       i0.ɵɵproperty("ngIf", ctx.allow_all_day);
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngIf", !ctx.form.value.all_day);
       i0.ɵɵadvance(4);
-      i0.ɵɵi18nExp(i0.ɵɵpipeBind1(29, 23, "COMMON.FAVOURITES"));
+      i0.ɵɵi18nExp(i0.ɵɵpipeBind1(29, 24, "COMMON.FAVOURITES"));
       i0.ɵɵi18nApply(28);
       i0.ɵɵadvance(4);
-      i0.ɵɵi18nExp(i0.ɵɵpipeBind1(33, 25, "DESKS.SHOW_FAVOURITES"));
+      i0.ɵɵi18nExp(i0.ɵɵpipeBind1(33, 26, "DESKS.SHOW_FAVOURITES"));
       i0.ɵɵi18nApply(32);
       i0.ɵɵadvance();
-      i0.ɵɵproperty("ngModel", (tmp_15_0 = i0.ɵɵpipeBind1(35, 27, ctx.options)) == null ? null : tmp_15_0.show_fav)("ngModelOptions", i0.ɵɵpureFunction0(32, _c0));
+      i0.ɵɵproperty("ngModel", (tmp_16_0 = i0.ɵɵpipeBind1(35, 28, ctx.options)) == null ? null : tmp_16_0.show_fav)("ngModelOptions", i0.ɵɵpureFunction0(33, _c0));
       i0.ɵɵadvance(2);
-      i0.ɵɵproperty("ngIf", (tmp_17_0 = i0.ɵɵpipeBind1(37, 29, ctx.features)) == null ? null : tmp_17_0.length);
+      i0.ɵɵproperty("ngIf", (tmp_18_0 = i0.ɵɵpipeBind1(37, 30, ctx.features)) == null ? null : tmp_18_0.length);
       i0.ɵɵadvance(2);
       i0.ɵɵproperty("ngIf", ctx.can_close);
     }
@@ -32471,15 +32476,15 @@ exports.VERSION = void 0;
 /* tslint:disable */
 exports.VERSION = {
   "dirty": false,
-  "raw": "cfd8a42",
-  "hash": "cfd8a42",
+  "raw": "57df4df",
+  "hash": "57df4df",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "cfd8a42",
+  "suffix": "57df4df",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1727690444707
+  "time": 1727690712285
 };
 /* tslint:enable */
 
@@ -47322,8 +47327,11 @@ var i9 = __webpack_require__(/*! @angular/material/menu */ 31034);
 var i10 = __webpack_require__(/*! @angular/material/core */ 74646);
 var i11 = __webpack_require__(/*! @angular/material/tooltip */ 80640);
 var i12 = __webpack_require__(/*! ../../../components/src/lib/sanitise.pipe */ 54616);
-var i13 = __webpack_require__(/*! ../../../components/src/lib/authenticated-image.directive */ 93208);
-var i14 = __webpack_require__(/*! ../../../spaces/src/lib/space.pipe */ 22011);
+var i13 = __webpack_require__(/*! @angular/forms */ 34456);
+var i14 = __webpack_require__(/*! @angular/material/progress-spinner */ 41134);
+var i15 = __webpack_require__(/*! ../../../form-fields/src/lib/duration-field.component */ 83476);
+var i16 = __webpack_require__(/*! ../../../components/src/lib/authenticated-image.directive */ 93208);
+var i17 = __webpack_require__(/*! ../../../spaces/src/lib/space.pipe */ 22011);
 var COMPONENTS = [event_details_modal_component_1.EventDetailsModalComponent, attendee_list_component_1.AttendeeListComponent, event_card_component_1.EventCardComponent, event_link_modal_component_1.EventLinkModalComponent, setup_breakdown_modal_component_1.SetupBreakdownModalComponent, group_event_details_modal_component_1.GroupEventDetailsModalComponent, group_event_card_component_1.GroupEventCardComponent];
 var SharedEventsModule = /*#__PURE__*/function () {
   function SharedEventsModule() {
@@ -47377,8 +47385,9 @@ exports.SharedEventsModule = SharedEventsModule;
 i0.ɵɵsetComponentScope(event_details_modal_component_1.EventDetailsModalComponent, [i1.NgForOf, i1.NgIf, i2.MatDialogClose, i3.IconComponent, i4.UserAvatarComponent, i5.InteractiveMapComponent, i6.ImageCarouselComponent, i7.StatusPillComponent, i8.BindingDirective, i9.MatMenu, i9.MatMenuItem, i9.MatMenuTrigger, i10.MatRipple, i11.MatTooltip, attendee_list_component_1.AttendeeListComponent], [i1.CurrencyPipe, i1.DatePipe, i12.SanitizePipe]);
 i0.ɵɵsetComponentScope(attendee_list_component_1.AttendeeListComponent, [i1.NgForOf, i1.NgIf, i3.IconComponent, i4.UserAvatarComponent, i10.MatRipple, i11.MatTooltip], []);
 i0.ɵɵsetComponentScope(event_card_component_1.EventCardComponent, [i1.NgForOf, i1.NgIf, i3.IconComponent, i4.UserAvatarComponent, i7.StatusPillComponent], [i1.SlicePipe, i1.DatePipe]);
-i0.ɵɵsetComponentScope(group_event_details_modal_component_1.GroupEventDetailsModalComponent, [i1.NgIf, i2.MatDialogClose, i3.IconComponent, i5.InteractiveMapComponent, i13.AuthenticatedImageDirective, i9.MatMenu, i9.MatMenuItem, i9.MatMenuTrigger, i10.MatRipple, attendee_list_component_1.AttendeeListComponent], [i1.AsyncPipe, i1.DatePipe, i12.SanitizePipe, i14.SpacePipe]);
-i0.ɵɵsetComponentScope(group_event_card_component_1.GroupEventCardComponent, [i1.NgIf, i3.IconComponent, i13.AuthenticatedImageDirective, i10.MatRipple], [i1.DatePipe]);
+i0.ɵɵsetComponentScope(setup_breakdown_modal_component_1.SetupBreakdownModalComponent, [i1.NgIf, i13.NgControlStatus, i13.NgControlStatusGroup, i13.FormGroupDirective, i13.FormControlName, i2.MatDialogClose, i14.MatProgressSpinner, i15.DurationFieldComponent, i3.IconComponent, i10.MatRipple], []);
+i0.ɵɵsetComponentScope(group_event_details_modal_component_1.GroupEventDetailsModalComponent, [i1.NgIf, i2.MatDialogClose, i3.IconComponent, i5.InteractiveMapComponent, i16.AuthenticatedImageDirective, i9.MatMenu, i9.MatMenuItem, i9.MatMenuTrigger, i10.MatRipple, attendee_list_component_1.AttendeeListComponent], [i1.AsyncPipe, i1.DatePipe, i12.SanitizePipe, i17.SpacePipe]);
+i0.ɵɵsetComponentScope(group_event_card_component_1.GroupEventCardComponent, [i1.NgIf, i3.IconComponent, i16.AuthenticatedImageDirective, i10.MatRipple], [i1.DatePipe]);
 
 /***/ }),
 
@@ -48706,13 +48715,7 @@ var events_fn_1 = __webpack_require__(/*! ./events.fn */ 51416);
 var common_1 = __webpack_require__(/*! @placeos/common */ 22797);
 var i0 = __webpack_require__(/*! @angular/core */ 37580);
 var i1 = __webpack_require__(/*! @angular/material/dialog */ 12587);
-var i2 = __webpack_require__(/*! @angular/common */ 60316);
-var i3 = __webpack_require__(/*! @angular/forms */ 34456);
-var i4 = __webpack_require__(/*! @angular/material/progress-spinner */ 41134);
-var i5 = __webpack_require__(/*! ../../../form-fields/src/lib/duration-field.component */ 83476);
-var i6 = __webpack_require__(/*! ../../../components/src/lib/icon.component */ 69434);
-var i7 = __webpack_require__(/*! @angular/material/core */ 74646);
-var i8 = __webpack_require__(/*! ./event.class */ 6727);
+var i2 = __webpack_require__(/*! ./event.class */ 6727);
 var _c0 = function _c0() {
   return [5, 10];
 };
@@ -48877,8 +48880,7 @@ _SetupBreakdownModalComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngIf", !ctx.loading);
     }
-  },
-  dependencies: [i2.NgIf, i3.NgControlStatus, i3.NgControlStatusGroup, i3.FormGroupDirective, i3.FormControlName, i1.MatDialogClose, i4.MatProgressSpinner, i5.DurationFieldComponent, i6.IconComponent, i7.MatRipple]
+  }
 });
 exports.SetupBreakdownModalComponent = SetupBreakdownModalComponent;
 
@@ -56084,37 +56086,53 @@ var forms_1 = __webpack_require__(/*! @angular/forms */ 34456);
 var custom_tooltip_component_1 = __webpack_require__(/*! libs/components/src/lib/custom-tooltip.component */ 22238);
 var date_fns_1 = __webpack_require__(/*! date-fns */ 25773);
 var async_handler_class_1 = __webpack_require__(/*! libs/common/src/lib/async-handler.class */ 75354);
+var common_1 = __webpack_require__(/*! @placeos/common */ 22797);
+var media_duration_pipe_1 = __webpack_require__(/*! libs/components/src/lib/media-duration.pipe */ 28975);
 var i0 = __webpack_require__(/*! @angular/core */ 37580);
 var _c0 = ["*"];
-function DateFieldComponent_Conditional_2_Template(rf, ctx) {
+function DateFieldComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵtext(0);
     i0.ɵɵpipe(1, "date");
   }
   if (rf & 2) {
     var ctx_r0 = i0.ɵɵnextContext();
-    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind2(1, 1, ctx_r0.date, ctx_r0["short"] ? "MMM d, yyyy" : "MMMM d, yyyy"), " ");
+    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind2(1, 1, ctx_r0.date, ctx_r0.date_format), " ");
   }
 }
-function DateFieldComponent_Conditional_3_Template(rf, ctx) {
+function DateFieldComponent_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "span", 3);
+    i0.ɵɵelementStart(0, "span", 4);
     i0.ɵɵtext(1, "No Date Selected");
     i0.ɵɵelementEnd();
   }
 }
-function DateFieldComponent_span_8_Template(rf, ctx) {
+function DateFieldComponent_div_5_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementStart(0, "div", 9);
+    i0.ɵɵtext(1);
+    i0.ɵɵpipe(2, "date");
+    i0.ɵɵpipe(3, "date");
+    i0.ɵɵelementEnd();
+  }
+  if (rf & 2) {
+    var ctx_r0 = i0.ɵɵnextContext();
+    i0.ɵɵadvance();
+    i0.ɵɵtextInterpolate2(" ", i0.ɵɵpipeBind3(2, 2, ctx_r0.start_of_day, "MMM d, " + ctx_r0.time_format, ctx_r0.tz), " - ", i0.ɵɵpipeBind3(3, 6, ctx_r0.end_of_day, "MMM d, " + ctx_r0.time_format + " (z)", ctx_r0.tz), " ");
+  }
+}
+function DateFieldComponent_span_10_Template(rf, ctx) {
   if (rf & 1) {
     i0.ɵɵelementStart(0, "span");
     i0.ɵɵprojection(1);
     i0.ɵɵelementEnd();
   }
 }
-function DateFieldComponent_ng_template_9_Template(rf, ctx) {
+function DateFieldComponent_ng_template_11_Template(rf, ctx) {
   if (rf & 1) {
     var _r2 = i0.ɵɵgetCurrentView();
-    i0.ɵɵelementStart(0, "div", 7)(1, "date-calendar", 8);
-    i0.ɵɵlistener("ngModelChange", function DateFieldComponent_ng_template_9_Template_date_calendar_ngModelChange_1_listener($event) {
+    i0.ɵɵelementStart(0, "div", 10)(1, "date-calendar", 11);
+    i0.ɵɵlistener("ngModelChange", function DateFieldComponent_ng_template_11_Template_date_calendar_ngModelChange_1_listener($event) {
       i0.ɵɵrestoreView(_r2);
       var ctx_r0 = i0.ɵɵnextContext();
       return i0.ɵɵresetView(ctx_r0.setValue($event));
@@ -56137,17 +56155,50 @@ var DateFieldComponent = /*#__PURE__*/function (_async_handler_class_) {
     _this.from_date = (0, date_fns_1.startOfDay)(Date.now()).valueOf();
     /** Index of the day to start the week on when displaying the calendar */
     _this.week_start = 0;
+    _this.use_24hr = false;
     _this["short"] = false;
+    _this.timezone = '';
     _this.now = Date.now();
     return _this;
   }
   /** First allowed date on the calendar */
   _inherits(DateFieldComponent, _async_handler_class_);
   return _createClass(DateFieldComponent, [{
+    key: "date_format",
+    get: function get() {
+      return this["short"] ? 'MMM d, yyyy' : 'MMMM d, yyyy';
+    }
+  }, {
+    key: "time_format",
+    get: function get() {
+      return this.use_24hr ? 'HH : mm' : 'h : mm a';
+    }
+  }, {
+    key: "start_of_day",
+    get: function get() {
+      return (0, date_fns_1.startOfDay)(this.date).valueOf();
+    }
+  }, {
+    key: "end_of_day",
+    get: function get() {
+      return (0, date_fns_1.endOfDay)(this.date).valueOf();
+    }
+  }, {
     key: "has_error",
     get: function get() {
       var _this$_control, _this$_control2;
       return ((_this$_control = this._control) === null || _this$_control === void 0 ? void 0 : _this$_control.invalid) && ((_this$_control2 = this._control) === null || _this$_control2 === void 0 ? void 0 : _this$_control2.touched);
+    }
+  }, {
+    key: "tz",
+    get: function get() {
+      // Get Timezone as +/-HHMM
+      var tz = this.timezone;
+      if (!tz) return '';
+      var offset = (0, common_1.getTimezoneOffsetInMinutes)(tz);
+      var hours = Math.floor(Math.abs(offset) / 60);
+      var minutes = Math.abs(offset) % 60;
+      return "".concat(offset > 0 ? '+' : '-').concat((0, media_duration_pipe_1.padLength)(hours, 2)).concat((0, media_duration_pipe_1.padLength)(minutes, 2));
     }
   }, {
     key: "from",
@@ -56249,8 +56300,10 @@ _DateFieldComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     from_date: [0, "from", "from_date"],
     to_date: [0, "to", "to_date"],
     week_start: "week_start",
+    use_24hr: "use_24hr",
     disabled: "disabled",
-    "short": "short"
+    "short": "short",
+    timezone: "timezone"
   },
   features: [i0.ɵɵProvidersFeature([{
     provide: forms_1.NG_VALUE_ACCESSOR,
@@ -56260,30 +56313,34 @@ _DateFieldComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     multi: true
   }]), i0.ɵɵInheritDefinitionFeature],
   ngContentSelectors: _c0,
-  decls: 11,
-  vars: 6,
-  consts: [["calendar_picker", ""], ["customTooltip", "", "yPosition", "top", "matRipple", "", 1, "flex", "items-center", "justify-between", "border", "border-neutral", "rounded", "h-12", "w-full", 3, "content", "disabled"], [1, "px-4", "py-2", "flex-1", "truncate", "w-1/2", "text-left", "font-normal"], [1, "opacity-30"], [1, "h-10", "w-10", "flex", "items-center", "justify-center", "text-2xl"], [1, "error", "h-5", "p-1", "text-xs", "text-error"], [4, "ngIf"], [1, "relative", "w-[18rem]", "rounded", "bg-base-100", "px-2", "py-4"], [3, "ngModelChange", "ngModel", "from", "to", "offset_weekday"]],
+  decls: 13,
+  vars: 7,
+  consts: [["calendar_picker", ""], ["customTooltip", "", "yPosition", "top", "matRipple", "", 1, "flex", "items-center", "justify-between", "border", "border-neutral", "rounded", "h-12", "w-full", 3, "content", "disabled"], [1, "flex", "flex-col", "px-4", "py-2", "flex-1", "truncate", "w-1/2", "text-left", "leading-tight"], [1, "font-normal", "text-base"], [1, "opacity-30"], ["class", "text-xs opacity-30 truncate", 4, "ngIf"], [1, "h-10", "w-10", "flex", "items-center", "justify-center", "text-2xl"], [1, "error", "h-5", "p-1", "text-xs", "text-error"], [4, "ngIf"], [1, "text-xs", "opacity-30", "truncate"], [1, "relative", "w-[18rem]", "rounded", "bg-base-100", "px-2", "py-4"], [3, "ngModelChange", "ngModel", "from", "to", "offset_weekday"]],
   template: function DateFieldComponent_Template(rf, ctx) {
     if (rf & 1) {
       i0.ɵɵprojectionDef();
-      i0.ɵɵelementStart(0, "button", 1)(1, "p", 2);
-      i0.ɵɵtemplate(2, DateFieldComponent_Conditional_2_Template, 2, 4)(3, DateFieldComponent_Conditional_3_Template, 2, 0, "span", 3);
+      i0.ɵɵelementStart(0, "button", 1)(1, "div", 2)(2, "div", 3);
+      i0.ɵɵtemplate(3, DateFieldComponent_Conditional_3_Template, 2, 4)(4, DateFieldComponent_Conditional_4_Template, 2, 0, "span", 4);
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(4, "div", 4)(5, "app-icon");
-      i0.ɵɵtext(6, "today");
+      i0.ɵɵtemplate(5, DateFieldComponent_div_5_Template, 4, 10, "div", 5);
+      i0.ɵɵelementEnd();
+      i0.ɵɵelementStart(6, "div", 6)(7, "app-icon");
+      i0.ɵɵtext(8, "today");
       i0.ɵɵelementEnd()()();
-      i0.ɵɵelementStart(7, "div", 5);
-      i0.ɵɵtemplate(8, DateFieldComponent_span_8_Template, 2, 0, "span", 6);
+      i0.ɵɵelementStart(9, "div", 7);
+      i0.ɵɵtemplate(10, DateFieldComponent_span_10_Template, 2, 0, "span", 8);
       i0.ɵɵelementEnd();
-      i0.ɵɵtemplate(9, DateFieldComponent_ng_template_9_Template, 2, 4, "ng-template", null, 0, i0.ɵɵtemplateRefExtractor);
+      i0.ɵɵtemplate(11, DateFieldComponent_ng_template_11_Template, 2, 4, "ng-template", null, 0, i0.ɵɵtemplateRefExtractor);
     }
     if (rf & 2) {
-      var calendar_picker_r3 = i0.ɵɵreference(10);
+      var calendar_picker_r3 = i0.ɵɵreference(12);
       i0.ɵɵclassProp("opacity-30", ctx.disabled);
       i0.ɵɵproperty("content", calendar_picker_r3)("disabled", ctx.disabled);
+      i0.ɵɵadvance(3);
+      i0.ɵɵconditional(ctx.date ? 3 : 4);
       i0.ɵɵadvance(2);
-      i0.ɵɵconditional(ctx.date ? 2 : 3);
-      i0.ɵɵadvance(6);
+      i0.ɵɵproperty("ngIf", ctx.timezone);
+      i0.ɵɵadvance(5);
       i0.ɵɵproperty("ngIf", ctx.has_error);
     }
   }
@@ -56746,42 +56803,77 @@ Object.defineProperty(exports, "__esModule", ({
 exports.DurationFieldComponent = void 0;
 var core_1 = __webpack_require__(/*! @angular/core */ 37580);
 var forms_1 = __webpack_require__(/*! @angular/forms */ 34456);
+var common_1 = __webpack_require__(/*! @placeos/common */ 22797);
 var date_fns_1 = __webpack_require__(/*! date-fns */ 25773);
+var media_duration_pipe_1 = __webpack_require__(/*! libs/components/src/lib/media-duration.pipe */ 28975);
 var i0 = __webpack_require__(/*! @angular/core */ 37580);
 var i1 = __webpack_require__(/*! @angular/common */ 60316);
 var i2 = __webpack_require__(/*! @angular/material/form-field */ 24950);
 var i3 = __webpack_require__(/*! @angular/material/select */ 25175);
 var i4 = __webpack_require__(/*! @angular/material/core */ 74646);
 var _c0 = ["*"];
-function DurationFieldComponent_mat_option_4_ng_container_1_Template(rf, ctx) {
+function DurationFieldComponent_div_9_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementContainerStart(0);
+    i0.ɵɵelementStart(0, "div", 7);
     i0.ɵɵtext(1);
     i0.ɵɵpipe(2, "date");
+    i0.ɵɵelementEnd();
+  }
+  if (rf & 2) {
+    var ctx_r1 = i0.ɵɵnextContext();
+    i0.ɵɵadvance();
+    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind3(2, 1, ctx_r1.selected == null ? null : ctx_r1.selected.date, ctx_r1.time_format + " (z)", ctx_r1.tz), " ");
+  }
+}
+function DurationFieldComponent_mat_option_10_ng_container_1_div_5_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementStart(0, "div", 7);
+    i0.ɵɵtext(1);
+    i0.ɵɵpipe(2, "date");
+    i0.ɵɵelementEnd();
+  }
+  if (rf & 2) {
+    var option_r3 = i0.ɵɵnextContext(2).$implicit;
+    var ctx_r1 = i0.ɵɵnextContext();
+    i0.ɵɵadvance();
+    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind3(2, 1, option_r3.date, ctx_r1.time_format + " (z)", ctx_r1.tz), " ");
+  }
+}
+function DurationFieldComponent_mat_option_10_ng_container_1_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementContainerStart(0);
+    i0.ɵɵelementStart(1, "div", 10)(2, "div");
+    i0.ɵɵtext(3);
+    i0.ɵɵpipe(4, "date");
+    i0.ɵɵelementEnd();
+    i0.ɵɵtemplate(5, DurationFieldComponent_mat_option_10_ng_container_1_div_5_Template, 3, 5, "div", 5);
+    i0.ɵɵelementEnd();
     i0.ɵɵelementContainerEnd();
   }
   if (rf & 2) {
-    var option_r2 = i0.ɵɵnextContext().$implicit;
-    var ctx_r2 = i0.ɵɵnextContext();
-    i0.ɵɵadvance();
-    i0.ɵɵtextInterpolate3(" ", option_r2.date ? i0.ɵɵpipeBind2(2, 3, option_r2.date, option_r2.id >= 24 * 60 ? "mediumDate" : ctx_r2.use_24hr ? "HH : mm" : "h : mm a") + " (" : "", "", option_r2.name, "", option_r2.date ? ")" : "", " ");
+    var option_r3 = i0.ɵɵnextContext().$implicit;
+    var ctx_r1 = i0.ɵɵnextContext();
+    i0.ɵɵadvance(3);
+    i0.ɵɵtextInterpolate3(" ", option_r3.date ? i0.ɵɵpipeBind2(4, 4, option_r3.date, option_r3.id >= 24 * 60 ? "mediumDate" : ctx_r1.time_format) + " (" : "", "", option_r3.name, "", option_r3.date ? ")" : "", " ");
+    i0.ɵɵadvance(2);
+    i0.ɵɵproperty("ngIf", ctx_r1.timezone);
   }
 }
-function DurationFieldComponent_mat_option_4_Template(rf, ctx) {
+function DurationFieldComponent_mat_option_10_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "mat-option", 5);
-    i0.ɵɵtemplate(1, DurationFieldComponent_mat_option_4_ng_container_1_Template, 3, 6, "ng-container", 6);
+    i0.ɵɵelementStart(0, "mat-option", 8);
+    i0.ɵɵtemplate(1, DurationFieldComponent_mat_option_10_ng_container_1_Template, 6, 7, "ng-container", 9);
     i0.ɵɵtext(2);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
-    var option_r2 = ctx.$implicit;
-    var ctx_r2 = i0.ɵɵnextContext();
-    i0.ɵɵproperty("value", option_r2.id);
+    var option_r3 = ctx.$implicit;
+    var ctx_r1 = i0.ɵɵnextContext();
+    i0.ɵɵproperty("value", option_r3.id);
     i0.ɵɵadvance();
-    i0.ɵɵproperty("ngIf", !ctx_r2.force);
+    i0.ɵɵproperty("ngIf", !ctx_r1.force);
     i0.ɵɵadvance();
-    i0.ɵɵtextInterpolate1(" ", ctx_r2.force, " ");
+    i0.ɵɵtextInterpolate1(" ", ctx_r1.force, " ");
   }
 }
 var DurationFieldComponent = /*#__PURE__*/function () {
@@ -56795,12 +56887,39 @@ var DurationFieldComponent = /*#__PURE__*/function () {
     this.step = 15;
     /** Special case prepopulation i.e. out of step options */
     this.custom_options = [];
+    /** Whether to use 24 hour time when formatting displayed time */
     this.use_24hr = false;
+    /** Display extra information for displayed times for timezone */
+    this.timezone = '';
     this.duration = 60;
     /** List of available duration options */
     this.duration_options = [];
   }
   return _createClass(DurationFieldComponent, [{
+    key: "time_format",
+    get: function get() {
+      return this.use_24hr ? 'HH : mm' : 'h : mm a';
+    }
+  }, {
+    key: "selected",
+    get: function get() {
+      var _this = this;
+      return this.duration_options.find(function (_) {
+        return _.id === _this.duration;
+      });
+    }
+  }, {
+    key: "tz",
+    get: function get() {
+      // Get Timezone as +/-HHMM
+      var tz = this.timezone;
+      if (!tz) return '';
+      var offset = (0, common_1.getTimezoneOffsetInMinutes)(tz);
+      var hours = Math.floor(Math.abs(offset) / 60);
+      var minutes = Math.abs(offset) % 60;
+      return "".concat(offset > 0 ? '+' : '-').concat((0, media_duration_pipe_1.padLength)(hours, 2)).concat((0, media_duration_pipe_1.padLength)(minutes, 2));
+    }
+  }, {
     key: "ngOnInit",
     value: function ngOnInit() {
       this.duration_options = this.generateDurationOptions(this.max, this.min, this.step);
@@ -56918,10 +57037,10 @@ var DurationFieldComponent = /*#__PURE__*/function () {
     key: "_updateOption",
     value: function _updateOption() {
       var _this$duration_option,
-        _this = this;
+        _this2 = this;
       if (!((_this$duration_option = this.duration_options) !== null && _this$duration_option !== void 0 && _this$duration_option.length)) return;
       var idx = this.duration_options.findIndex(function (_) {
-        return _.id === _this.duration;
+        return _.id === _this2.duration;
       });
       if (idx < 0) this.setValue(this.min);
     }
@@ -56942,7 +57061,8 @@ _DurationFieldComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     disabled: "disabled",
     custom_options: "custom_options",
     force: "force",
-    use_24hr: "use_24hr"
+    use_24hr: "use_24hr",
+    timezone: "timezone"
   },
   features: [i0.ɵɵProvidersFeature([{
     provide: forms_1.NG_VALUE_ACCESSOR,
@@ -56952,9 +57072,9 @@ _DurationFieldComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     multi: true
   }]), i0.ɵɵNgOnChangesFeature],
   ngContentSelectors: _c0,
-  decls: 7,
-  vars: 5,
-  consts: [["select", ""], [1, "duration-field"], ["appearance", "outline"], [3, "valueChange", "value", "disabled", "placeholder"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], [4, "ngIf"]],
+  decls: 13,
+  vars: 12,
+  consts: [["select", ""], [1, "duration-field"], ["appearance", "outline"], [3, "valueChange", "value", "disabled", "placeholder"], [1, "flex", "flex-col", "leading-tight", "absolute", "-translate-y-1/2", "top-2"], ["class", "text-xs opacity-30", 4, "ngIf"], [3, "value", 4, "ngFor", "ngForOf"], [1, "text-xs", "opacity-30"], [3, "value"], [4, "ngIf"], [1, "flex", "flex-col", "leading-tight"]],
   template: function DurationFieldComponent_Template(rf, ctx) {
     if (rf & 1) {
       var _r1 = i0.ɵɵgetCurrentView();
@@ -56964,21 +57084,31 @@ _DurationFieldComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
         i0.ɵɵrestoreView(_r1);
         return i0.ɵɵresetView(ctx.setValue($event));
       });
-      i0.ɵɵtemplate(4, DurationFieldComponent_mat_option_4_Template, 3, 3, "mat-option", 4);
+      i0.ɵɵelementStart(4, "mat-select-trigger")(5, "div", 4)(6, "div");
+      i0.ɵɵtext(7);
+      i0.ɵɵpipe(8, "date");
       i0.ɵɵelementEnd();
-      i0.ɵɵelementStart(5, "mat-error");
-      i0.ɵɵprojection(6);
+      i0.ɵɵtemplate(9, DurationFieldComponent_div_9_Template, 3, 5, "div", 5);
+      i0.ɵɵelementEnd()();
+      i0.ɵɵtemplate(10, DurationFieldComponent_mat_option_10_Template, 3, 3, "mat-option", 6);
+      i0.ɵɵelementEnd();
+      i0.ɵɵelementStart(11, "mat-error");
+      i0.ɵɵprojection(12);
       i0.ɵɵelementEnd()()();
     }
     if (rf & 2) {
       i0.ɵɵattribute("disabled", ctx.disabled);
       i0.ɵɵadvance(2);
       i0.ɵɵproperty("value", ctx.duration)("disabled", ctx.disabled)("placeholder", ctx.duration + " minutes");
+      i0.ɵɵadvance(5);
+      i0.ɵɵtextInterpolate3(" ", (ctx.selected == null ? null : ctx.selected.date) ? i0.ɵɵpipeBind2(8, 9, ctx.selected == null ? null : ctx.selected.date, ctx.selected.id >= 24 * 60 ? "mediumDate" : ctx.time_format) + " (" : "", "", ctx.selected == null ? null : ctx.selected.name, "", (ctx.selected == null ? null : ctx.selected.date) ? ")" : "", " ");
       i0.ɵɵadvance(2);
+      i0.ɵɵproperty("ngIf", ctx.timezone);
+      i0.ɵɵadvance();
       i0.ɵɵproperty("ngForOf", ctx.duration_options);
     }
   },
-  dependencies: [i1.NgForOf, i1.NgIf, i2.MatFormField, i2.MatError, i3.MatSelect, i4.MatOption, i1.DatePipe],
+  dependencies: [i1.NgForOf, i1.NgIf, i2.MatFormField, i2.MatError, i3.MatSelect, i3.MatSelectTrigger, i4.MatOption, i1.DatePipe],
   styles: ["[_nghost-%COMP%] {\n                width: 100%;\n            }\n\n            mat-form-field[_ngcontent-%COMP%] {\n                width: 100%;\n            }\n        \n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImR1cmF0aW9uLWZpZWxkLmNvbXBvbmVudC50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiO1lBQ1k7Z0JBQ0ksV0FBVztZQUNmOztZQUVBO2dCQUNJLFdBQVc7WUFDZiIsImZpbGUiOiJkdXJhdGlvbi1maWVsZC5jb21wb25lbnQudHMiLCJzb3VyY2VzQ29udGVudCI6WyJcbiAgICAgICAgICAgIDpob3N0IHtcbiAgICAgICAgICAgICAgICB3aWR0aDogMTAwJTtcbiAgICAgICAgICAgIH1cblxuICAgICAgICAgICAgbWF0LWZvcm0tZmllbGQge1xuICAgICAgICAgICAgICAgIHdpZHRoOiAxMDAlO1xuICAgICAgICAgICAgfVxuICAgICAgICAiXX0= */\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2xpYnMvZm9ybS1maWVsZHMvc3JjL2xpYi9kdXJhdGlvbi1maWVsZC5jb21wb25lbnQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IjtZQUNZO2dCQUNJLFdBQVc7WUFDZjs7WUFFQTtnQkFDSSxXQUFXO1lBQ2Y7O0FBRVosb2ZBQW9mIiwic291cmNlc0NvbnRlbnQiOlsiXG4gICAgICAgICAgICA6aG9zdCB7XG4gICAgICAgICAgICAgICAgd2lkdGg6IDEwMCU7XG4gICAgICAgICAgICB9XG5cbiAgICAgICAgICAgIG1hdC1mb3JtLWZpZWxkIHtcbiAgICAgICAgICAgICAgICB3aWR0aDogMTAwJTtcbiAgICAgICAgICAgIH1cbiAgICAgICAgIl0sInNvdXJjZVJvb3QiOiIifQ== */"]
 });
 exports.DurationFieldComponent = DurationFieldComponent;
@@ -59773,6 +59903,7 @@ var forms_1 = __webpack_require__(/*! @angular/forms */ 34456);
 var select_1 = __webpack_require__(/*! @angular/material/select */ 25175);
 var common_1 = __webpack_require__(/*! @placeos/common */ 22797);
 var date_fns_1 = __webpack_require__(/*! date-fns */ 25773);
+var media_duration_pipe_1 = __webpack_require__(/*! libs/components/src/lib/media-duration.pipe */ 28975);
 var i0 = __webpack_require__(/*! @angular/core */ 37580);
 var i1 = __webpack_require__(/*! @angular/common */ 60316);
 var i2 = __webpack_require__(/*! @angular/forms */ 34456);
@@ -59780,33 +59911,81 @@ var i3 = __webpack_require__(/*! @angular/material/form-field */ 24950);
 var i4 = __webpack_require__(/*! @angular/material/select */ 25175);
 var i5 = __webpack_require__(/*! @angular/material/core */ 74646);
 var _c0 = ["select"];
-function TimeFieldComponent_mat_option_3_Template(rf, ctx) {
+function TimeFieldComponent_div_8_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "mat-option", 5);
+    i0.ɵɵelementStart(0, "div", 8);
     i0.ɵɵtext(1);
     i0.ɵɵpipe(2, "date");
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
     var ctx_r1 = i0.ɵɵnextContext();
-    i0.ɵɵproperty("value", ctx_r1.force_time);
     i0.ɵɵadvance();
-    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind2(2, 2, ctx_r1.force_time, ctx_r1.use_24hr ? "HH : mm" : "h : mm a"), " ");
+    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind3(2, 1, ctx_r1.active_time, ctx_r1.time_format + " (z)", ctx_r1.tz), " ");
   }
 }
-function TimeFieldComponent_mat_option_4_Template(rf, ctx) {
+function TimeFieldComponent_mat_option_9_div_5_Template(rf, ctx) {
   if (rf & 1) {
-    i0.ɵɵelementStart(0, "mat-option", 5);
+    i0.ɵɵelementStart(0, "div", 8);
     i0.ɵɵtext(1);
     i0.ɵɵpipe(2, "date");
     i0.ɵɵelementEnd();
+  }
+  if (rf & 2) {
+    var ctx_r1 = i0.ɵɵnextContext(2);
+    i0.ɵɵadvance();
+    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind3(2, 1, ctx_r1.force_time, ctx_r1.time_format + " (z)", ctx_r1.tz), " ");
+  }
+}
+function TimeFieldComponent_mat_option_9_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementStart(0, "mat-option", 9)(1, "div", 10)(2, "div", 4);
+    i0.ɵɵtext(3);
+    i0.ɵɵpipe(4, "date");
+    i0.ɵɵelementEnd();
+    i0.ɵɵtemplate(5, TimeFieldComponent_mat_option_9_div_5_Template, 3, 5, "div", 5);
+    i0.ɵɵelementEnd()();
+  }
+  if (rf & 2) {
+    var ctx_r1 = i0.ɵɵnextContext();
+    i0.ɵɵproperty("value", ctx_r1.force_time);
+    i0.ɵɵadvance(3);
+    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind2(4, 3, ctx_r1.force_time, ctx_r1.time_format), " ");
+    i0.ɵɵadvance(2);
+    i0.ɵɵproperty("ngIf", ctx_r1.timezone);
+  }
+}
+function TimeFieldComponent_mat_option_10_div_5_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementStart(0, "div", 8);
+    i0.ɵɵtext(1);
+    i0.ɵɵpipe(2, "date");
+    i0.ɵɵelementEnd();
+  }
+  if (rf & 2) {
+    var option_r3 = i0.ɵɵnextContext().$implicit;
+    var ctx_r1 = i0.ɵɵnextContext();
+    i0.ɵɵadvance();
+    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind3(2, 1, option_r3.date, ctx_r1.time_format + " (z)", ctx_r1.tz), " ");
+  }
+}
+function TimeFieldComponent_mat_option_10_Template(rf, ctx) {
+  if (rf & 1) {
+    i0.ɵɵelementStart(0, "mat-option", 9)(1, "div", 10)(2, "div", 4);
+    i0.ɵɵtext(3);
+    i0.ɵɵpipe(4, "date");
+    i0.ɵɵelementEnd();
+    i0.ɵɵtemplate(5, TimeFieldComponent_mat_option_10_div_5_Template, 3, 5, "div", 5);
+    i0.ɵɵelementEnd()();
   }
   if (rf & 2) {
     var option_r3 = ctx.$implicit;
     var ctx_r1 = i0.ɵɵnextContext();
     i0.ɵɵproperty("value", option_r3.id);
-    i0.ɵɵadvance();
-    i0.ɵɵtextInterpolate2(" ", i0.ɵɵpipeBind2(2, 3, option_r3.date, ctx_r1.use_24hr ? "HH : mm" : "h : mm a"), " ", ctx_r1.extra_info_fn(option_r3.date), " ");
+    i0.ɵɵadvance(3);
+    i0.ɵɵtextInterpolate2(" ", i0.ɵɵpipeBind2(4, 4, option_r3.date, ctx_r1.time_format), " ", ctx_r1.extra_info_fn(option_r3.date), " ");
+    i0.ɵɵadvance(2);
+    i0.ɵɵproperty("ngIf", ctx_r1.timezone);
   }
 }
 var TimeFieldComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
@@ -59824,6 +60003,7 @@ var TimeFieldComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
     };
     /** Prevent times before */
     _this.from = (0, date_fns_1.startOfDay)(Date.now()).valueOf();
+    _this.timezone = '';
     /** String representing the currently set time */
     _this.date = new Date().valueOf();
     /** String representing the currently set time */
@@ -59832,6 +60012,22 @@ var TimeFieldComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
   }
   _inherits(TimeFieldComponent, _common_1$AsyncHandle);
   return _createClass(TimeFieldComponent, [{
+    key: "time_format",
+    get: function get() {
+      return this.use_24hr ? 'HH : mm' : 'h : mm a';
+    }
+  }, {
+    key: "tz",
+    get: function get() {
+      // Get Timezone as +/-HHMM
+      var tz = this.timezone;
+      if (!tz) return '';
+      var offset = (0, common_1.getTimezoneOffsetInMinutes)(tz);
+      var hours = Math.floor(Math.abs(offset) / 60);
+      var minutes = Math.abs(offset) % 60;
+      return "".concat(offset > 0 ? '+' : '-').concat((0, media_duration_pipe_1.padLength)(hours, 2)).concat((0, media_duration_pipe_1.padLength)(minutes, 2));
+    }
+  }, {
     key: "ngOnInit",
     value: function ngOnInit() {
       var _this2 = this;
@@ -59877,15 +60073,20 @@ var TimeFieldComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
   }, {
     key: "setValue",
     value: function setValue(new_value) {
+      var _this$_time_options$f;
       this.time = new_value;
       if (this._onChange) {
-        var time = (this.time || '00:00').split(':');
+        var _time = (this.time || '00:00').split(':');
         var date = (0, date_fns_1.startOfMinute)((0, date_fns_1.set)(this.date, {
-          hours: +time[0],
-          minutes: +time[1]
+          hours: +_time[0],
+          minutes: +_time[1]
         }));
         this._onChange(date.valueOf());
       }
+      var time = this.force_time || this.time;
+      this.active_time = (_this$_time_options$f = this._time_options.find(function (_) {
+        return _.id === time;
+      })) === null || _this$_time_options$f === void 0 ? void 0 : _this$_time_options$f.date;
     }
     /**
      * Update local value when form control value is changed
@@ -59894,6 +60095,7 @@ var TimeFieldComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
   }, {
     key: "writeValue",
     value: function writeValue(value) {
+      var _this$_time_options$f2;
       this.date = value || this.date;
       var date = (0, date_fns_1.startOfMinute)(this.date);
       date = (0, date_fns_1.roundToNearestMinutes)(date, {
@@ -59901,6 +60103,10 @@ var TimeFieldComponent = /*#__PURE__*/function (_common_1$AsyncHandle) {
       });
       this.time = (0, date_fns_1.format)(date, 'HH:mm');
       this._time_options = this.generateAvailableTimes(this.date, !this.no_past_times, this.step);
+      var time = this.force_time || this.time;
+      this.active_time = (_this$_time_options$f2 = this._time_options.find(function (_) {
+        return _.id === time;
+      })) === null || _this$_time_options$f2 === void 0 ? void 0 : _this$_time_options$f2.date;
     }
   }, {
     key: "setDisabledState",
@@ -60005,7 +60211,8 @@ _TimeFieldComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     use_24hr: "use_24hr",
     force_time: "force_time",
     extra_info_fn: "extra_info_fn",
-    from: "from"
+    from: "from",
+    timezone: "timezone"
   },
   features: [i0.ɵɵProvidersFeature([{
     provide: forms_1.NG_VALUE_ACCESSOR,
@@ -60014,9 +60221,9 @@ _TimeFieldComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     }),
     multi: true
   }]), i0.ɵɵInheritDefinitionFeature, i0.ɵɵNgOnChangesFeature],
-  decls: 5,
-  vars: 4,
-  consts: [["select", ""], ["appearance", "outline"], [3, "ngModelChange", "ngModel", "disabled"], [3, "value", 4, "ngIf"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"]],
+  decls: 11,
+  vars: 9,
+  consts: [["select", ""], ["appearance", "outline"], [3, "ngModelChange", "ngModel", "disabled"], [1, "flex", "flex-col", "leading-tight", "absolute", "-translate-y-1/2", "top-2"], [1, ""], ["class", "text-xs opacity-30", 4, "ngIf"], [3, "value", 4, "ngIf"], [3, "value", 4, "ngFor", "ngForOf"], [1, "text-xs", "opacity-30"], [3, "value"], [1, "flex", "flex-col", "leading-tight"]],
   template: function TimeFieldComponent_Template(rf, ctx) {
     if (rf & 1) {
       var _r1 = i0.ɵɵgetCurrentView();
@@ -60025,19 +60232,29 @@ _TimeFieldComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
         i0.ɵɵrestoreView(_r1);
         return i0.ɵɵresetView(ctx.setValue($event));
       });
-      i0.ɵɵtemplate(3, TimeFieldComponent_mat_option_3_Template, 3, 5, "mat-option", 3)(4, TimeFieldComponent_mat_option_4_Template, 3, 6, "mat-option", 4);
+      i0.ɵɵelementStart(3, "mat-select-trigger")(4, "div", 3)(5, "div", 4);
+      i0.ɵɵtext(6);
+      i0.ɵɵpipe(7, "date");
+      i0.ɵɵelementEnd();
+      i0.ɵɵtemplate(8, TimeFieldComponent_div_8_Template, 3, 5, "div", 5);
+      i0.ɵɵelementEnd()();
+      i0.ɵɵtemplate(9, TimeFieldComponent_mat_option_9_Template, 6, 6, "mat-option", 6)(10, TimeFieldComponent_mat_option_10_Template, 6, 7, "mat-option", 7);
       i0.ɵɵelementEnd()();
     }
     if (rf & 2) {
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngModel", ctx.force_time || ctx.time)("disabled", ctx.disabled);
+      i0.ɵɵadvance(5);
+      i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind2(7, 6, ctx.active_time, ctx.time_format), " ");
       i0.ɵɵadvance(2);
+      i0.ɵɵproperty("ngIf", ctx.timezone);
+      i0.ɵɵadvance();
       i0.ɵɵproperty("ngIf", ctx.force_time);
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngForOf", ctx.time_options);
     }
   },
-  dependencies: [i1.NgForOf, i1.NgIf, i2.NgControlStatus, i2.NgModel, i3.MatFormField, i4.MatSelect, i5.MatOption, i1.DatePipe],
+  dependencies: [i1.NgForOf, i1.NgIf, i2.NgControlStatus, i2.NgModel, i3.MatFormField, i4.MatSelect, i4.MatSelectTrigger, i5.MatOption, i1.DatePipe],
   styles: ["mat-form-field[_ngcontent-%COMP%] {\n                width: 100%;\n            }\n        \n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInRpbWUtZmllbGQuY29tcG9uZW50LnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7WUFDWTtnQkFDSSxXQUFXO1lBQ2YiLCJmaWxlIjoidGltZS1maWVsZC5jb21wb25lbnQudHMiLCJzb3VyY2VzQ29udGVudCI6WyJcbiAgICAgICAgICAgIG1hdC1mb3JtLWZpZWxkIHtcbiAgICAgICAgICAgICAgICB3aWR0aDogMTAwJTtcbiAgICAgICAgICAgIH1cbiAgICAgICAgIl19 */\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2xpYnMvZm9ybS1maWVsZHMvc3JjL2xpYi90aW1lLWZpZWxkLmNvbXBvbmVudC50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiO1lBQ1k7Z0JBQ0ksV0FBVztZQUNmOztBQUVaLGdYQUFnWCIsInNvdXJjZXNDb250ZW50IjpbIlxuICAgICAgICAgICAgbWF0LWZvcm0tZmllbGQge1xuICAgICAgICAgICAgICAgIHdpZHRoOiAxMDAlO1xuICAgICAgICAgICAgfVxuICAgICAgICAiXSwic291cmNlUm9vdCI6IiJ9 */"]
 });
 exports.TimeFieldComponent = TimeFieldComponent;
@@ -69163,11 +69380,11 @@ function SpaceFiltersComponent_div_26_Template(rf, ctx) {
   if (rf & 2) {
     var ctx_r1 = i0.ɵɵnextContext();
     i0.ɵɵadvance(2);
-    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind1(3, 7, "FORM.END_DATE"), "");
+    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind1(3, 8, "FORM.END_DATE"), "");
     i0.ɵɵadvance(4);
-    i0.ɵɵproperty("ngModel", ctx_r1.form.getRawValue().date_end)("ngModelOptions", i0.ɵɵpureFunction0(11, _c0))("from", ctx_r1.start_date)("to", ctx_r1.end_date)("short", true);
+    i0.ɵɵproperty("ngModel", ctx_r1.form.getRawValue().date_end)("ngModelOptions", i0.ɵɵpureFunction0(12, _c0))("from", ctx_r1.start_date)("to", ctx_r1.end_date)("short", true)("timezone", ctx_r1.timezone);
     i0.ɵɵadvance();
-    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind1(8, 9, "FORM.DATE_ERROR"), " ");
+    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind1(8, 10, "FORM.DATE_ERROR"), " ");
   }
 }
 function SpaceFiltersComponent_div_27_Template(rf, ctx) {
@@ -69200,9 +69417,9 @@ function SpaceFiltersComponent_div_28_div_6_Template(rf, ctx) {
     var tmp_5_0;
     var ctx_r1 = i0.ɵɵnextContext(2);
     i0.ɵɵadvance(2);
-    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind1(3, 5, "FORM.END_TIME"), "");
+    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind1(3, 6, "FORM.END_TIME"), "");
     i0.ɵɵadvance(4);
-    i0.ɵɵproperty("ngModel", ctx_r1.form.value.date_end)("ngModelOptions", i0.ɵɵpureFunction0(7, _c0))("from", ctx_r1.form == null ? null : (tmp_5_0 = ctx_r1.form.getRawValue()) == null ? null : tmp_5_0.date)("use_24hr", ctx_r1.use_24hr);
+    i0.ɵɵproperty("ngModel", ctx_r1.form.value.date_end)("ngModelOptions", i0.ɵɵpureFunction0(8, _c0))("from", ctx_r1.form == null ? null : (tmp_5_0 = ctx_r1.form.getRawValue()) == null ? null : tmp_5_0.date)("use_24hr", ctx_r1.use_24hr)("timezone", ctx_r1.timezone);
   }
 }
 function SpaceFiltersComponent_div_28_div_7_Template(rf, ctx) {
@@ -69220,9 +69437,9 @@ function SpaceFiltersComponent_div_28_div_7_Template(rf, ctx) {
     var tmp_3_0;
     var ctx_r1 = i0.ɵɵnextContext(2);
     i0.ɵɵadvance(2);
-    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind1(3, 4, "FORM.END_TIME"), "");
+    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind1(3, 5, "FORM.END_TIME"), "");
     i0.ɵɵadvance(4);
-    i0.ɵɵproperty("time", ctx_r1.form == null ? null : (tmp_3_0 = ctx_r1.form.getRawValue()) == null ? null : tmp_3_0.date)("max", ctx_r1.max_duration)("use_24hr", ctx_r1.use_24hr);
+    i0.ɵɵproperty("time", ctx_r1.form == null ? null : (tmp_3_0 = ctx_r1.form.getRawValue()) == null ? null : tmp_3_0.date)("max", ctx_r1.max_duration)("use_24hr", ctx_r1.use_24hr)("timezone", ctx_r1.timezone);
   }
 }
 function SpaceFiltersComponent_div_28_Template(rf, ctx) {
@@ -69242,13 +69459,13 @@ function SpaceFiltersComponent_div_28_Template(rf, ctx) {
       }));
     });
     i0.ɵɵelementEnd()();
-    i0.ɵɵtemplate(6, SpaceFiltersComponent_div_28_div_6_Template, 7, 8, "div", 51)(7, SpaceFiltersComponent_div_28_div_7_Template, 7, 6, "div", 51);
+    i0.ɵɵtemplate(6, SpaceFiltersComponent_div_28_div_6_Template, 7, 9, "div", 51)(7, SpaceFiltersComponent_div_28_div_7_Template, 7, 7, "div", 51);
     i0.ɵɵelementEnd();
   }
   if (rf & 2) {
     var ctx_r1 = i0.ɵɵnextContext();
     i0.ɵɵadvance(5);
-    i0.ɵɵproperty("ngModel", ctx_r1.form.getRawValue().date)("ngModelOptions", i0.ɵɵpureFunction0(5, _c0))("use_24hr", ctx_r1.use_24hr);
+    i0.ɵɵproperty("ngModel", ctx_r1.form.getRawValue().date)("ngModelOptions", i0.ɵɵpureFunction0(6, _c0))("use_24hr", ctx_r1.use_24hr)("timezone", ctx_r1.timezone);
     i0.ɵɵadvance();
     i0.ɵɵproperty("ngIf", ctx_r1.multiday);
     i0.ɵɵadvance();
@@ -69412,6 +69629,11 @@ var SpaceFiltersComponent = /*#__PURE__*/function () {
       return !!this._settings.get('app.use_region');
     }
   }, {
+    key: "timezone",
+    get: function get() {
+      return this._settings.get('app.events.use_building_timezone') ? this._org.building.timezone : '';
+    }
+  }, {
     key: "bld",
     get: function get() {
       return this._org.building;
@@ -69512,7 +69734,7 @@ _SpaceFiltersComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     viewing_map: "viewing_map"
   },
   decls: 35,
-  vars: 29,
+  vars: 30,
   consts: function consts() {
     var i18n_0;
     if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
@@ -69678,7 +69900,7 @@ _SpaceFiltersComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     } else {
       i18n_12 = $localize(_templateObject13 || (_templateObject13 = _taggedTemplateLiteral([":\u241Fc17e2cc448524a39eb83b2937cea3235a2e8bf37\u241F2296888311792137027: Apply Filters "])));
     }
-    return [i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_7, i18n_8, i18n_9, i18n_10, i18n_11, i18n_12, [1, "flex", "items-center", "border-b", "border-base-200", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-space-filters", 3, "click", 4, "ngIf"], [1, "font-medium", "flex-2", "text-center"], [1, "flex-1"], [1, "max-h-[65vh]", "p-2", "overflow-y-auto", "overflow-x-hidden", "divide-y", "divide-base-200", "w-full", "max-w-[100vw]", 3, "formGroup"], ["details", ""], [1, "text-lg", "font-medium", "mb-1"], [1, "flex-1", "min-w-[8rem]", "flex", "flex-col"], ["for", "location"], ["appearance", "outline", "class", "w-full", 4, "ngIf"], [1, "flex", "items-center", "flex-wrap", "sm:space-x-2"], [1, "flex-1", "min-w-[8rem]"], ["for", "date"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "short"], ["class", "flex-1 min-w-[8rem] relative", 4, "ngIf"], ["class", "flex justify-end -mt-2 mb-2", 4, "ngIf"], ["class", "flex items-center space-x-2", 4, "ngIf"], ["favs", "", "class", "space-y-2 pb-4", 4, "ngIf"], ["features", "", "class", "space-y-2", 4, "ngIf"], ["class", "px-2 pt-2 w-full border-t border-base-200", 4, "ngIf"], ["icon", "", "matRipple", "", "name", "close-space-filters", 3, "click"], ["appearance", "outline", 1, "w-full"], ["name", "region", "placeholder", i18n_5, 3, "ngModelChange", "ngModel", "ngModelOptions"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", "placeholder", i18n_6, 3, "ngModelChange", "ngModel", "ngModelOptions", "multiple"], [1, "flex", "flex-col-reverse"], ["class", "opacity-30 text-xs", 4, "ngIf"], [1, "opacity-30", "text-xs"], [1, "opacity-0"], [1, "flex-1", "min-w-[8rem]", "relative"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "to", "short"], [1, "flex", "justify-end", "-mt-2", "mb-2"], ["formControlName", "all_day"], [1, "flex", "items-center", "space-x-2"], [1, "flex-1", "w-1/3"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr"], ["class", "flex-1 w-1/3", 4, "ngIf"], ["for", "end-time"], ["name", "end-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "use_24hr"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr"], ["favs", "", 1, "space-y-2", "pb-4"], [1, "text-lg", "font-medium"], [1, "flex", "items-center"], ["for", "fav", 1, "flex-1", "w-1/2"], ["name", "fav", 3, "ngModelChange", "ngModel", "ngModelOptions"], ["features", "", 1, "space-y-2"], [4, "ngFor", "ngForOf"], ["class", "flex items-center", 4, "ngIf"], ["for", "feat", 1, "flex-1", "w-1/2"], ["name", "feat", 3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "px-2", "pt-2", "w-full", "border-t", "border-base-200"], ["btn", "", "matRipple", "", "name", "apply-space-filters", 1, "w-full", 3, "click"]];
+    return [i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_7, i18n_8, i18n_9, i18n_10, i18n_11, i18n_12, [1, "flex", "items-center", "border-b", "border-base-200", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-space-filters", 3, "click", 4, "ngIf"], [1, "font-medium", "flex-2", "text-center"], [1, "flex-1"], [1, "max-h-[65vh]", "p-2", "overflow-y-auto", "overflow-x-hidden", "divide-y", "divide-base-200", "w-full", "max-w-[100vw]", 3, "formGroup"], ["details", ""], [1, "text-lg", "font-medium", "mb-1"], [1, "flex-1", "min-w-[8rem]", "flex", "flex-col"], ["for", "location"], ["appearance", "outline", "class", "w-full", 4, "ngIf"], [1, "flex", "items-center", "flex-wrap", "sm:space-x-2"], [1, "flex-1", "min-w-[8rem]"], ["for", "date"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "short", "timezone"], ["class", "flex-1 min-w-[8rem] relative", 4, "ngIf"], ["class", "flex justify-end -mt-2 mb-2", 4, "ngIf"], ["class", "flex items-center space-x-2", 4, "ngIf"], ["favs", "", "class", "space-y-2 pb-4", 4, "ngIf"], ["features", "", "class", "space-y-2", 4, "ngIf"], ["class", "px-2 pt-2 w-full border-t border-base-200", 4, "ngIf"], ["icon", "", "matRipple", "", "name", "close-space-filters", 3, "click"], ["appearance", "outline", 1, "w-full"], ["name", "region", "placeholder", i18n_5, 3, "ngModelChange", "ngModel", "ngModelOptions"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", "placeholder", i18n_6, 3, "ngModelChange", "ngModel", "ngModelOptions", "multiple"], [1, "flex", "flex-col-reverse"], ["class", "opacity-30 text-xs", 4, "ngIf"], [1, "opacity-30", "text-xs"], [1, "opacity-0"], [1, "flex-1", "min-w-[8rem]", "relative"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "to", "short", "timezone"], [1, "flex", "justify-end", "-mt-2", "mb-2"], ["formControlName", "all_day"], [1, "flex", "items-center", "space-x-2"], [1, "flex-1", "w-1/3"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["class", "flex-1 w-1/3", 4, "ngIf"], ["for", "end-time"], ["name", "end-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "use_24hr", "timezone"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr", "timezone"], ["favs", "", 1, "space-y-2", "pb-4"], [1, "text-lg", "font-medium"], [1, "flex", "items-center"], ["for", "fav", 1, "flex-1", "w-1/2"], ["name", "fav", 3, "ngModelChange", "ngModel", "ngModelOptions"], ["features", "", 1, "space-y-2"], [4, "ngFor", "ngForOf"], ["class", "flex items-center", 4, "ngIf"], ["for", "feat", 1, "flex-1", "w-1/2"], ["name", "feat", 3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "px-2", "pt-2", "w-full", "border-t", "border-base-200"], ["btn", "", "matRipple", "", "name", "apply-space-filters", 1, "w-full", 3, "click"]];
   },
   template: function SpaceFiltersComponent_Template(rf, ctx) {
     if (rf & 1) {
@@ -69716,9 +69938,9 @@ _SpaceFiltersComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵi18n(24, 4);
       i0.ɵɵpipe(25, "translate");
       i0.ɵɵelementEnd()();
-      i0.ɵɵtemplate(26, SpaceFiltersComponent_div_26_Template, 9, 12, "div", 26);
+      i0.ɵɵtemplate(26, SpaceFiltersComponent_div_26_Template, 9, 13, "div", 26);
       i0.ɵɵelementEnd();
-      i0.ɵɵtemplate(27, SpaceFiltersComponent_div_27_Template, 3, 0, "div", 27)(28, SpaceFiltersComponent_div_28_Template, 8, 6, "div", 28);
+      i0.ɵɵtemplate(27, SpaceFiltersComponent_div_27_Template, 3, 0, "div", 27)(28, SpaceFiltersComponent_div_28_Template, 8, 7, "div", 28);
       i0.ɵɵelementEnd();
       i0.ɵɵtemplate(29, SpaceFiltersComponent_section_29_Template, 10, 11, "section", 29);
       i0.ɵɵpipe(30, "async");
@@ -69731,21 +69953,21 @@ _SpaceFiltersComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
     if (rf & 2) {
       var tmp_2_0;
       var tmp_3_0;
-      var tmp_15_0;
+      var tmp_16_0;
       i0.ɵɵadvance(2);
       i0.ɵɵproperty("ngIf", ctx.can_close);
       i0.ɵɵadvance(4);
       i0.ɵɵproperty("formGroup", ctx.form);
       i0.ɵɵadvance(7);
-      i0.ɵɵproperty("ngIf", ctx.use_region && ((tmp_2_0 = i0.ɵɵpipeBind1(14, 16, ctx.regions)) == null ? null : tmp_2_0.length));
+      i0.ɵɵproperty("ngIf", ctx.use_region && ((tmp_2_0 = i0.ɵɵpipeBind1(14, 17, ctx.regions)) == null ? null : tmp_2_0.length));
       i0.ɵɵadvance(2);
-      i0.ɵɵproperty("ngIf", !ctx.use_region && ((tmp_3_0 = i0.ɵɵpipeBind1(16, 18, ctx.buildings)) == null ? null : tmp_3_0.length) > 1);
+      i0.ɵɵproperty("ngIf", !ctx.use_region && ((tmp_3_0 = i0.ɵɵpipeBind1(16, 19, ctx.buildings)) == null ? null : tmp_3_0.length) > 1);
       i0.ɵɵadvance(2);
       i0.ɵɵproperty("ngIf", !ctx.hide_levels);
       i0.ɵɵadvance(6);
-      i0.ɵɵproperty("ngModel", ctx.form.getRawValue().date)("ngModelOptions", i0.ɵɵpureFunction0(28, _c0))("to", ctx.end_date)("short", true);
+      i0.ɵɵproperty("ngModel", ctx.form.getRawValue().date)("ngModelOptions", i0.ɵɵpureFunction0(29, _c0))("to", ctx.end_date)("short", true)("timezone", ctx.timezone);
       i0.ɵɵadvance(2);
-      i0.ɵɵi18nExp(i0.ɵɵpipeBind1(25, 20, "FORM.DATE_ERROR"));
+      i0.ɵɵi18nExp(i0.ɵɵpipeBind1(25, 21, "FORM.DATE_ERROR"));
       i0.ɵɵi18nApply(24);
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngIf", ctx.multiday);
@@ -69754,9 +69976,9 @@ _SpaceFiltersComponent.ɵcmp = /*@__PURE__*/i0.ɵɵdefineComponent({
       i0.ɵɵadvance();
       i0.ɵɵproperty("ngIf", !ctx.form.value.all_day);
       i0.ɵɵadvance();
-      i0.ɵɵproperty("ngIf", !ctx.viewing_map || !i0.ɵɵpipeBind1(30, 22, ctx.using_mapspeople));
+      i0.ɵɵproperty("ngIf", !ctx.viewing_map || !i0.ɵɵpipeBind1(30, 23, ctx.using_mapspeople));
       i0.ɵɵadvance(2);
-      i0.ɵɵproperty("ngIf", ((tmp_15_0 = i0.ɵɵpipeBind1(32, 24, ctx.features)) == null ? null : tmp_15_0.length) && (!ctx.viewing_map || !i0.ɵɵpipeBind1(33, 26, ctx.using_mapspeople)));
+      i0.ɵɵproperty("ngIf", ((tmp_16_0 = i0.ɵɵpipeBind1(32, 25, ctx.features)) == null ? null : tmp_16_0.length) && (!ctx.viewing_map || !i0.ɵɵpipeBind1(33, 27, ctx.using_mapspeople)));
       i0.ɵɵadvance(3);
       i0.ɵɵproperty("ngIf", ctx.can_close);
     }
