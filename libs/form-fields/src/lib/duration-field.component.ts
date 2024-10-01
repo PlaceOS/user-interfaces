@@ -7,9 +7,8 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { getTimezoneOffsetInMinutes } from '@placeos/common';
+import { getTimezoneOffsetString } from '@placeos/common';
 import { addMinutes, formatDuration } from 'date-fns';
-import { padLength } from 'libs/components/src/lib/media-duration.pipe';
 
 export interface DurationOption {
     id: number;
@@ -152,10 +151,7 @@ export class DurationFieldComponent
         // Get Timezone as +/-HHMM
         const tz = this.timezone;
         if (!tz) return '';
-        const offset = getTimezoneOffsetInMinutes(tz);
-        const hours = Math.floor(Math.abs(offset) / 60);
-        const minutes = Math.abs(offset) % 60;
-        return `${offset > 0 ? '+' : '-'}${padLength(hours, 2)}${padLength(minutes, 2)}`;
+        return getTimezoneOffsetString(tz);
     }
 
     public ngOnInit(): void {

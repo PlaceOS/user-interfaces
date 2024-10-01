@@ -72,6 +72,7 @@ import {
                         [to]="end_date"
                         [use_24hr]="use_24hr"
                         [timezone]="timezone"
+                        [range]="1"
                     >
                         {{ 'FORM.DATE_ERROR' | translate }}
                     </a-date-field>
@@ -94,6 +95,7 @@ import {
                         [to]="end_date"
                         [use_24hr]="use_24hr"
                         [timezone]="timezone"
+                        [range]="2"
                     >
                         {{ 'FORM.DATE_ERROR' | translate }}
                     </a-date-field>

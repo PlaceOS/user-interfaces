@@ -135,6 +135,7 @@ import { Region } from '@placeos/organisation';
                             [to]="end_date"
                             [short]="true"
                             [timezone]="timezone"
+                            [range]="multiday ? 1 : 0"
                         >
                             {{ 'FORM.DATE_ERROR' | translate }}
                         </a-date-field>
@@ -154,6 +155,7 @@ import { Region } from '@placeos/organisation';
                             [to]="end_date"
                             [short]="true"
                             [timezone]="timezone"
+                            [range]="2"
                         >
                             {{ 'FORM.DATE_ERROR' | translate }}
                         </a-date-field>

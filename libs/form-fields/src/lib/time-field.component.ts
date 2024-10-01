@@ -11,7 +11,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatSelect } from '@angular/material/select';
 import {
     AsyncHandler,
-    getTimezoneOffsetInMinutes,
+    getTimezoneOffsetString,
     Identity,
 } from '@placeos/common';
 import {
@@ -25,7 +25,6 @@ import {
     startOfDay,
     startOfMinute,
 } from 'date-fns';
-import { padLength } from 'libs/components/src/lib/media-duration.pipe';
 
 @Component({
     selector: 'a-time-field',
@@ -116,7 +115,7 @@ export class TimeFieldComponent
     /** Whether select field should be shown */
     public show_select: boolean;
 
-    public active_time: number;
+    public active_time: number = Date.now();
     /** Form control on change handler */
     private _onChange: (_: number) => void;
     /** Form control on touch handler */
@@ -133,10 +132,7 @@ export class TimeFieldComponent
         // Get Timezone as +/-HHMM
         const tz = this.timezone;
         if (!tz) return '';
-        const offset = getTimezoneOffsetInMinutes(tz);
-        const hours = Math.floor(Math.abs(offset) / 60);
-        const minutes = Math.abs(offset) % 60;
-        return `${offset > 0 ? '+' : '-'}${padLength(hours, 2)}${padLength(minutes, 2)}`;
+        return getTimezoneOffsetString(tz);
     }
 
     public ngOnInit(): void {
@@ -195,7 +191,11 @@ export class TimeFieldComponent
         }
 
         const time = this.force_time || this.time;
-        this.active_time = this._time_options.find((_) => _.id === time)?.date;
+        const date = startOfMinute(
+            set(this.date, { hours: +time[0], minutes: +time[1] }),
+        );
+        this.active_time =
+            this._time_options.find((_) => _.id === time)?.date || date;
     }
 
     /**
@@ -213,7 +213,8 @@ export class TimeFieldComponent
             this.step,
         );
         const time = this.force_time || this.time;
-        this.active_time = this._time_options.find((_) => _.id === time)?.date;
+        this.active_time =
+            this._time_options.find((_) => _.id === time)?.date || date;
     }
 
     public setDisabledState(disabled: boolean) {

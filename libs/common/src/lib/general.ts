@@ -60,6 +60,22 @@ export function log(
 }
 
 /**
+ * Pad the start of a string or number with given character
+ * @param value String or number to pad
+ * @param length Length of the final string
+ * @param character Character to pad output string with. Defaults to `0`.
+ */
+export function padLength(
+    value: number | string,
+    length: number = 2,
+    character = '0',
+): string {
+    let str = `${value}`;
+    while (str.length < length) str = `${character}${str}`;
+    return str;
+}
+
+/**
  * Get item from the nested object
  * @param keys List of sub-keys to search for
  * @param map Object to search

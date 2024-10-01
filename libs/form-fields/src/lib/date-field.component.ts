@@ -14,8 +14,13 @@ import {
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { addYears, endOfDay, set, startOfDay } from 'date-fns';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
-import { getTimezoneOffsetInMinutes } from '@placeos/common';
-import { padLength } from 'libs/components/src/lib/media-duration.pipe';
+import { getTimezoneOffsetString } from '@placeos/common';
+
+export enum TimezoneDiffRange {
+    Both,
+    Start,
+    End,
+}
 
 @Component({
     selector: 'a-date-field',
@@ -40,11 +45,23 @@ import { padLength } from 'libs/components/src/lib/media-duration.pipe';
                     }
                 </div>
                 <div class="text-xs opacity-30 truncate" *ngIf="timezone">
-                    {{ start_of_day | date: 'MMM d, ' + time_format : tz }}
-                    -
-                    {{
-                        end_of_day | date: 'MMM d, ' + time_format + ' (z)' : tz
-                    }}
+                    <span *ngIf="range !== 2">
+                        {{
+                            start_of_day
+                                | date
+                                    : 'MMM d, ' +
+                                          time_format +
+                                          (range === 1 ? ' (z)' : '')
+                                    : tz
+                        }}
+                    </span>
+                    <span *ngIf="range === 0"> - </span>
+                    <span *ngIf="range !== 1">
+                        {{
+                            end_of_day
+                                | date: 'MMM d, ' + time_format + ' (z)' : tz
+                        }}
+                    </span>
                 </div>
             </div>
             <div class="h-10 w-10 flex items-center justify-center text-2xl">
@@ -90,6 +107,7 @@ export class DateFieldComponent
     @Input() public disabled: boolean;
     @Input() public short = false;
     @Input() public timezone: string = '';
+    @Input() public range: TimezoneDiffRange = TimezoneDiffRange.Both;
     /** Currently selected date */
     public date: number;
 
@@ -122,13 +140,9 @@ export class DateFieldComponent
     }
 
     public get tz() {
-        // Get Timezone as +/-HHMM
         const tz = this.timezone;
         if (!tz) return '';
-        const offset = getTimezoneOffsetInMinutes(tz);
-        const hours = Math.floor(Math.abs(offset) / 60);
-        const minutes = Math.abs(offset) % 60;
-        return `${offset > 0 ? '+' : '-'}${padLength(hours, 2)}${padLength(minutes, 2)}`;
+        return getTimezoneOffsetString(tz);
     }
 
     @ViewChild(CustomTooltipComponent) private _tooltip: CustomTooltipComponent;
