@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import {
     EncryptionLevel,
+    PlaceMetadata,
     PlaceZone,
     authority,
     isFixedDevice,
@@ -162,7 +163,11 @@ export class OrganisationService {
     public set building(bld: Building) {
         if (!bld) return;
         this._active_building.next(bld);
-        this.loadBuildingData(bld).then(() => this._updateSettingOverrides());
+        if (!this._service.get('dont_load_metadata')) {
+            this.loadBuildingData(bld).then(() =>
+                this._updateSettingOverrides(),
+            );
+        }
         if (this.regions.length && this.region?.id !== bld.parent_id) {
             this.region = this.regions.find(
                 (_) => _.id === this.building.parent_id,
@@ -364,8 +369,14 @@ export class OrganisationService {
                 org_list.find(
                     (list) => isMock() || list.id === auth?.config?.org_zone,
                 ) || org_list[0];
+
+            const load_metadata = !this._service.get('dont_load_metadata');
             const bindings: Record<string, any> = (
-                await showMetadata(org.id, 'bindings').toPromise()
+                await (
+                    load_metadata
+                        ? showMetadata(org.id, 'bindings')
+                        : of({ details: {} })
+                ).toPromise()
             )?.details;
             this._organisation = new Organisation({ ...org, bindings });
         } else {
@@ -393,13 +404,16 @@ export class OrganisationService {
 
     public async loadRegionData(region: Region): Promise<void> {
         if (this._loaded_data[region.id]) return;
+        const load_metadata = !this._service.get('dont_load_metadata');
+        const settings_request = load_metadata
+            ? showMetadata(region.id, this.app_key)
+            : of(new PlaceMetadata());
+        const bindings_request = load_metadata
+            ? showMetadata(region.id, 'bindings')
+            : of(new PlaceMetadata());
         const [settings, bindings, buildings]: any = await Promise.all([
-            showMetadata(region.id, this.app_key)
-                .pipe(map((_) => _?.details))
-                .toPromise(),
-            showMetadata(region.id, 'bindings')
-                .pipe(map((_) => _?.details))
-                .toPromise(),
+            settings_request.pipe(map((_) => _?.details)).toPromise(),
+            bindings_request.pipe(map((_) => _?.details)).toPromise(),
             this.loadBuildings(region.id),
         ]);
         this._buildings.next(
@@ -508,13 +522,22 @@ export class OrganisationService {
 
     public async loadSettings() {
         if (!this._organisation) return;
-        const app_settings = (
-            await showMetadata(this._organisation?.id, this.app_key).toPromise()
-        )?.details;
-        const global_settings = (
-            await showMetadata(this._organisation?.id, 'settings').toPromise()
-        )?.details;
-        this._settings = [global_settings, app_settings];
+        const load_metadata = !this._service.get('dont_load_metadata');
+        if (load_metadata) {
+            const app_settings = (
+                await showMetadata(
+                    this._organisation?.id,
+                    this.app_key,
+                ).toPromise()
+            )?.details;
+            const global_settings = (
+                await showMetadata(
+                    this._organisation?.id,
+                    'settings',
+                ).toPromise()
+            )?.details;
+            this._settings = [global_settings, app_settings];
+        }
         this._service.overrides = [...this._settings];
         await this._initialiseActiveBuilding();
         this._updateSettingOverrides();
