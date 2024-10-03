@@ -51,6 +51,7 @@ import { BookLockerFlowSuccessComponent } from './locker-flow/locker-flow-succes
 import { BookLockerFlowFormComponent } from './locker-flow/locker-flow-form.component';
 import { BookLockerFlowConfirmComponent } from './locker-flow/locker-flow-confirm.component';
 import { LockerFormDetailsComponent } from './locker-flow/locker-form-details.component';
+import { NativeDateModule } from '@angular/material/core';
 
 const ROUTES: Route[] = [
     {

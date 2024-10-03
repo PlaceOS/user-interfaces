@@ -7,14 +7,19 @@ import {
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
-import { addMinutes, format, formatDuration, isSameDay } from 'date-fns';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { format, isSameDay } from 'date-fns';
+import {
+    AsyncHandler,
+    getTimezoneOffsetString,
+    SettingsService,
+} from '@placeos/common';
 
 import { CalendarEvent } from './event.class';
 import { EventDetailsModalComponent } from './event-details-modal.component';
 import { OrganisationService } from 'libs/organisation/src/lib/organisation.service';
 import { SpacePipe } from 'libs/spaces/src/lib/space.pipe';
 import { GroupEventDetailsModalComponent } from './group-event-details-modal.component';
+import { DatePipe } from '@angular/common';
 
 @Component({
     selector: 'event-card',
@@ -37,7 +42,17 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
             >
                 <h4 class="px-4 text-lg">{{ event?.title }}</h4>
                 <div class="flex mx-4 my-2">
-                    <status-pill [status]="status">{{ period }}</status-pill>
+                    <status-pill [status]="status">
+                        <div
+                            class="flex flex-col leading-tight"
+                            [class.pr-4]="timezone"
+                        >
+                            <div>{{ period }}</div>
+                            <div class="opacity-30 text-xs" *ngIf="timezone">
+                                {{ period_tz }}
+                            </div>
+                        </div>
+                    </status-pill>
                 </div>
                 <div
                     class="flex flex-wrap flex-col sm:flex-row sm:divide-x divide-base-200-500 py-2 space-y-2 sm:space-y-0"
@@ -125,8 +140,50 @@ export class EventCardComponent extends AsyncHandler {
 
     public location = '';
 
+    public get timezone() {
+        return this._settings.get('app.events.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+    }
+
+    public get tz() {
+        const tz = this.timezone;
+        if (!tz) return '';
+        return getTimezoneOffsetString(tz);
+    }
+
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public get period() {
+        if (this.event?.all_day) return 'All Day';
+        return this.formattedTime();
+    }
+
+    public get period_tz() {
+        return this.formattedTime(this.tz);
+    }
+
+    private _date: DatePipe = new DatePipe('en');
+
+    public formattedTime(tz?: string) {
+        const date = this.event.date;
+        const date_end = this.event.date_end;
+        const all_day = this.event.all_day;
+        const tz_format = this._date.transform(date, 'z', tz);
+        const start_date = this._date.transform(date, 'MMM d', tz);
+        const start_time = this._date.transform(date, this.time_format, tz);
+        const end_date = this._date.transform(date_end, 'MMM d', tz);
+        const end_time = this._date.transform(date_end, this.time_format, tz);
+        const is_multiday = this.event?.duration > 24 * 60;
+
+        if (is_multiday) {
+            return `${start_date}${all_day ? '' : ', ' + start_time} - ${end_date}${all_day ? '' : ', ' + end_time}`;
+        } else if (all_day) {
+            return 'All Day';
+        }
+        return `${start_time} - ${end_time} ${'(' + tz_format + ')'}`;
     }
 
     public get status() {
@@ -187,27 +244,6 @@ export class EventCardComponent extends AsyncHandler {
         return `${zone ? (zone.display_name || zone.name) + ', ' : ''} ${
             space?.display_name || space?.name
         }`;
-    }
-
-    public get period() {
-        if (this.event?.all_day) return 'All Day';
-        const start = this.event?.date || Date.now();
-        const duration = this.event?.duration || 60;
-        const end = addMinutes(start, duration);
-        const is_multiday = this.event?.duration > 24 * 60;
-        const dur = formatDuration({
-            hours: Math.floor(duration / 60),
-            minutes: duration % 60,
-        })
-            .replace(' hour', 'hr')
-            .replace(' minute', 'min');
-        return `${format(
-            start,
-            (is_multiday ? `MMM d, ` : '') + this.time_format,
-        )} - ${format(
-            end,
-            (is_multiday ? `MMM d, ` : '') + this.time_format,
-        )} ${duration < 24 * 60 ? '(' + dur + ')' : ''}`;
     }
 
     public viewDetails() {

@@ -3,7 +3,9 @@ import {
     AsyncHandler,
     SettingsService,
     getTimezoneOffsetInMinutes,
+    getTimezoneOffsetString,
     notifyError,
+    padLength,
 } from '@placeos/common';
 import { VisitorsStateService } from './visitors-state.service';
 import { Booking, saveBooking } from '@placeos/bookings';
@@ -11,7 +13,6 @@ import { showMetadata } from '@placeos/ts-client';
 import { OrganisationService } from '@placeos/organisation';
 import { ParkingStateService } from '../parking/parking-state.service';
 import { User } from '@placeos/users';
-import { padLength } from 'libs/components/src/lib/media-duration.pipe';
 
 @Component({
     selector: 'guest-listings',
@@ -468,13 +469,9 @@ export class GuestListingComponent extends AsyncHandler {
     }
 
     public get tz() {
-        // Get Timezone as +/-HHMM
         const tz = this.timezone;
         if (!tz) return '';
-        const offset = getTimezoneOffsetInMinutes(tz);
-        const hours = Math.floor(Math.abs(offset) / 60);
-        const minutes = Math.abs(offset) % 60;
-        return `${offset > 0 ? '+' : '-'}${padLength(hours, 2)}${padLength(minutes, 2)}`;
+        return getTimezoneOffsetString(tz);
     }
 
     public readonly downloadVisitorList = () =>

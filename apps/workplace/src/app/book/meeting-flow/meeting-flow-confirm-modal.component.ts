@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, Input, Optional } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { validateAssetRequestsForResource } from '@placeos/assets';
@@ -5,6 +6,7 @@ import { CateringItem, CateringOrder } from '@placeos/catering';
 import {
     AsyncHandler,
     SettingsService,
+    getTimezoneOffsetString,
     notifyError,
     openConfirmModal,
 } from '@placeos/common';
@@ -55,39 +57,23 @@ import { map } from 'rxjs/operators';
                         {{ event.title || 'Meeting Details' }}
                     </h3>
                     <div class="flex items-center space-x-2">
-                        <app-icon>today</app-icon>
+                        <app-icon class="text-2xl">today</app-icon>
                         <div date>{{ event.date | date: 'fullDate' }}</div>
                     </div>
                     <div
                         class="flex items-center space-x-2"
                         *ngIf="event.recurrence?.pattern"
                     >
-                        <app-icon>update</app-icon>
+                        <app-icon class="text-2xl">update</app-icon>
                         <div date>{{ formatted_recurrence }}</div>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <app-icon>schedule</app-icon>
-                        <div time>
-                            {{
-                                is_multiday
-                                    ? (event.date | date: 'MMM d') +
-                                      (event.all_day
-                                          ? ''
-                                          : (event.date
-                                            | date: ', ' + time_format)) +
-                                      ' - ' +
-                                      (event.date_end | date: 'MMM d') +
-                                      (event.all_day
-                                          ? ''
-                                          : (event.date_end
-                                            | date: ', ' + time_format))
-                                    : event.all_day
-                                      ? 'All Day'
-                                      : (event.date | date: time_format) +
-                                        ' - ' +
-                                        (event.date + event.duration * 60 * 1000
-                                            | date: time_format + ' (z)')
-                            }}
+                        <app-icon class="text-2xl">schedule</app-icon>
+                        <div class="flex flex-col leading-tight">
+                            <div time>{{ formattedTime() }}</div>
+                            <div class="text-xs opacity-30" *ngIf="timezone">
+                                {{ formattedTime(tz) }}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -103,7 +89,7 @@ import { map } from 'rxjs/operators';
                     <h3 class="text-xl !mt-0" i18n>Booked Room</h3>
                     <ng-container *ngFor="let s of event.resources">
                         <div class="flex items-center space-x-2">
-                            <app-icon>layers</app-icon>
+                            <app-icon class="text-2xl">layers</app-icon>
                             <div>
                                 {{ level?.display_name || level?.name }},
                                 {{ s.display_name || s.name }}
@@ -111,7 +97,7 @@ import { map } from 'rxjs/operators';
                         </div>
                     </ng-container>
                     <div class="flex items-center space-x-2">
-                        <app-icon>place</app-icon>
+                        <app-icon class="text-2xl">place</app-icon>
                         <div>{{ location }}</div>
                     </div>
                 </div>
@@ -363,6 +349,8 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
 
     private _loading = new BehaviorSubject(false);
 
+    private _date: DatePipe = new DatePipe('en');
+
     public readonly loading = combineLatest([
         this._event_form.loading,
         this._loading,
@@ -377,6 +365,24 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
 
     public get has_conflict() {
         return this.assets?.some((_) => _.conflict);
+    }
+
+    public formattedTime(tz?: string) {
+        const date = this.event.date;
+        const date_end = this.event.date_end;
+        const all_day = this.event.all_day;
+        const tz_format = this._date.transform(date, 'z', tz);
+        const start_date = this._date.transform(date, 'MMM d', tz);
+        const start_time = this._date.transform(date, this.time_format, tz);
+        const end_date = this._date.transform(date_end, 'MMM d', tz);
+        const end_time = this._date.transform(date_end, this.time_format, tz);
+
+        if (this.is_multiday) {
+            return `${start_date}${all_day ? '' : ', ' + start_time} - ${end_date}${all_day ? '' : ', ' + end_time}`;
+        } else if (all_day) {
+            return 'All Day';
+        }
+        return `${start_time} - ${end_time} ${'(' + tz_format + ')'}`;
     }
 
     public readonly postForm = async () => {
@@ -410,6 +416,18 @@ export class MeetingFlowConfirmModalComponent extends AsyncHandler {
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public get timezone() {
+        return this._settings.get('app.events.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+    }
+
+    public get tz() {
+        const tz = this.timezone;
+        if (!tz) return '';
+        return getTimezoneOffsetString(tz);
     }
 
     public get end_time() {

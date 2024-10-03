@@ -138,6 +138,7 @@ import { Region } from '@placeos/organisation';
                         (ngModelChange)="form.patchValue({ date: $event })"
                         [ngModelOptions]="{ standalone: true }"
                         [to]="end_date"
+                        [timezone]="timezone"
                     >
                         {{ 'FORM.DATE_ERROR' | translate }}
                     </a-date-field>
@@ -161,6 +162,7 @@ import { Region } from '@placeos/organisation';
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
                             [use_24hr]="use_24hr"
+                            [timezone]="timezone"
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3">
@@ -172,6 +174,7 @@ import { Region } from '@placeos/organisation';
                             [min]="60"
                             [step]="60"
                             [use_24hr]="use_24hr"
+                            [timezone]="timezone"
                         >
                         </a-duration-field>
                     </div>
@@ -307,6 +310,12 @@ export class DeskFiltersComponent {
 
     public get use_region() {
         return this._settings.get('app.use_region');
+    }
+
+    public get timezone() {
+        return this._settings.get('app.events.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
     }
 
     constructor(

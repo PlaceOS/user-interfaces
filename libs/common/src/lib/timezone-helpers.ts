@@ -1,5 +1,6 @@
 import { addMilliseconds } from 'date-fns';
 import { getTimezoneOffset } from 'date-fns-tz';
+import { padLength } from './general';
 
 export const LOCAL_TIMEZONE =
     Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone || 'Australia/Sydney';
@@ -21,6 +22,17 @@ export function timezoneToLocal(
         getTimezoneOffset(LOCAL_TIMEZONE) - getTimezoneOffset(tz);
     return addMilliseconds(date, offset_diff).valueOf();
 }
+
+export function getTimezoneOffsetString(tz: string) {
+    const offset = getTimezoneOffsetInMinutes(tz);
+    const hours = Math.floor(Math.abs(offset) / 60);
+    const minutes = Math.abs(offset) % 60;
+    return `${offset > 0 ? '+' : '-'}${padLength(hours, 2)}${padLength(
+        minutes,
+        2,
+    )}`;
+}
+
 export function getTimezoneOffsetInMinutes(timeZone, date = new Date()) {
     const options: Intl.DateTimeFormatOptions = {
         timeZone,

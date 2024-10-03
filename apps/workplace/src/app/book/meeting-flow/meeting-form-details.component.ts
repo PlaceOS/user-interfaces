@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
+import { OrganisationService } from '@placeos/organisation';
 import {
     addDays,
     addMinutes,
@@ -43,6 +44,8 @@ import {
                         name="date"
                         formControlName="date"
                         [to]="end_date"
+                        [use_24hr]="use_24hr"
+                        [timezone]="timezone"
                     >
                         {{ 'FORM.DATE_ERROR' | translate }}
                     </a-date-field>
@@ -67,6 +70,9 @@ import {
                         name="date"
                         formControlName="date"
                         [to]="end_date"
+                        [use_24hr]="use_24hr"
+                        [timezone]="timezone"
+                        [range]="1"
                     >
                         {{ 'FORM.DATE_ERROR' | translate }}
                     </a-date-field>
@@ -87,6 +93,9 @@ import {
                         formControlName="date_end"
                         [from]="start_date"
                         [to]="end_date"
+                        [use_24hr]="use_24hr"
+                        [timezone]="timezone"
+                        [range]="2"
                     >
                         {{ 'FORM.DATE_ERROR' | translate }}
                     </a-date-field>
@@ -107,6 +116,7 @@ import {
                         (ngModelChange)="form.patchValue({ date: $event })"
                         [ngModelOptions]="{ standalone: true }"
                         [use_24hr]="use_24hr"
+                        [timezone]="timezone"
                     ></a-time-field>
                 </div>
                 <div class="flex-1 w-1/3" *ngIf="allow_multiday">
@@ -121,6 +131,7 @@ import {
                         [from]="form?.getRawValue()?.date + 30 * 60 * 1000"
                         [use_24hr]="use_24hr"
                         [extra_info_fn]="duration_info"
+                        [timezone]="timezone"
                     ></a-time-field>
                 </div>
                 <div class="flex-1 w-1/3" *ngIf="!allow_multiday">
@@ -133,6 +144,7 @@ import {
                         [time]="form?.getRawValue()?.date"
                         [max]="max_duration"
                         [use_24hr]="use_24hr"
+                        [timezone]="timezone"
                     ></a-duration-field>
                 </div>
             </div>
@@ -199,6 +211,12 @@ export class MeetingFormDetailsComponent {
         );
     }
 
+    public get timezone() {
+        return this._settings.get('app.events.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+    }
+
     public get start_date() {
         const date = this.form.getRawValue().date;
         const date_end = this.form.getRawValue().date_end;
@@ -213,8 +231,8 @@ export class MeetingFormDetailsComponent {
         return endOfDay(
             addDays(
                 Date.now(),
-                this._settings.get('app.events.allowed_future_days') || 180
-            )
+                this._settings.get('app.events.allowed_future_days') || 180,
+            ),
         ).valueOf();
     }
 
@@ -235,6 +253,7 @@ export class MeetingFormDetailsComponent {
 
     constructor(
         private _settings: SettingsService,
-        private _event_form: EventFormService
+        private _event_form: EventFormService,
+        private _org: OrganisationService,
     ) {}
 }

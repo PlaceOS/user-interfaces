@@ -1,10 +1,5 @@
 import { Pipe } from '@angular/core';
-
-export function padLength(value: number | string, length: number = 2): string {
-    let str = `${value}`;
-    while (str.length < length) str = `0${str}`;
-    return str;
-}
+import { padLength } from '@placeos/common';
 
 @Pipe({
     name: 'mediaDuration',
