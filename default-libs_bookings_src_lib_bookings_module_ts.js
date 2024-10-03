@@ -666,13 +666,15 @@ class BookingDetailsModalComponent {
     this.end = new _angular_core__WEBPACK_IMPORTED_MODULE_12__.EventEmitter();
     this.booking = this._booking;
     this.hide_map = false;
+    this.show_request = {};
     this.checked_out = false;
     this.checking_in = false;
     this.features = [{
       location: this.booking?.extension_data?.map_id || this.booking?.asset_id,
       content: libs_components_src_lib_map_pin_component__WEBPACK_IMPORTED_MODULE_3__.MapPinComponent
     }];
-    this.has_assets = !!this.booking?.linked_bookings?.find(_ => _.booking_type === 'asset-request');
+    this.has_assets = !!this.booking?.valid_assets.length;
+    console.log('Valid assets:', this.booking?.valid_assets);
   }
   get period() {
     if (this.booking?.is_all_day) return 'All Day';
@@ -810,7 +812,7 @@ class BookingDetailsModalComponent {
       } else {
         i18n_5 = $localize`:␟2f3dfd27ad1999e91bb66ad271f967d6e543956f␟834898868131691573:End booking`;
       }
-      return [["menu", "matMenu"], ["loading_state", ""], i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_5, [1, "w-[100vw]", "h-[100vh]", "sm:relative", "sm:inset-auto", "sm:w-[51rem]", "sm:h-auto", "sm:max-h-[80vh]", "bg-base-100", "sm:bg-base-200", "sm:dark:bg-neutral-600", "sm:rounded", "overflow-auto", "space-y-2", "pb-2"], [1, "sm:flex", "flex-col", "items-center", "pb-4", "max-h-screen", "sm:max-h-[80vh]", "sm:px-16", "sm:border-b", "bg-base-100", "border-base-200"], ["class", "h-8 w-full sm:hidden block", 4, "ngIf"], ["class", "bg-neutral w-full h-64 sm:rounded-b overflow-hidden", 4, "ngIf"], ["title", "", 1, "px-3", "mt-2", "text-xl", "font-medium", "w-full"], [1, "sm:flex", "items-center", "justify-between", "w-full"], [1, "flex", "m-2"], [3, "status"], ["actions", "", "class", "flex items-center space-x-2 px-2", 4, "ngIf"], [1, "sm:flex", "flex-wrap", "sm:px-12"], [1, "sm:p-4", "sm:bg-base-100", "sm:dark:bg-neutral-700", "rounded", "sm:m-2", "sm:border", "border-base-200", "flex-grow-[4]", "min-w-1/3", "sm:w-[16rem]"], [1, "px-3", "mt-2", "text-lg", "font-medium", "mb-2"], [1, "flex", "items-center", "px-2", "space-x-2"], [4, "ngIf"], ["map", "", 1, "mt-4", "sm:my-2", "h-64", "sm:h-48", "relative", "border", "border-base-200", "overflow-hidden", "rounded", "sm:bg-base-100", "m-2", "flex-grow-[3]", "min-w-1/3", "w-[calc(100%-1rem)]", "p-2", "sm:w-[16rem]", 3, "click"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-0", "left-2", "bg-neutral", "text-white"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click", 4, "ngIf"], ["mat-menu-item", "", 3, "click", 4, "ngIf"], [1, "h-8", "w-full", "sm:hidden", "block"], [1, "bg-neutral", "w-full", "h-64", "sm:rounded-b", "overflow-hidden"], [1, "w-full", "h-64", 3, "images"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2"], ["btn", "", "matRipple", "", "class", "flex-1 h-10 border-none", 3, "bg-success", "text-success-content", "disabled", "click", 4, "ngIf"], ["icon", "", "matRipple", "", 1, "bg-secondary", "rounded", "text-white", "h-12", "w-12", 3, "matMenuTriggerFor"], ["btn", "", "matRipple", "", 1, "flex-1", "h-10", "border-none", 3, "click", "disabled"], ["class", "flex items-center space-x-2 justify-center", 4, "ngIf", "ngIfElse"], [1, "flex", "items-center", "space-x-2", "justify-center"], [1, "mr-4"], [1, "mx-auto", 3, "diameter"], [1, "mt-4", "sm:p-4", "sm:bg-base-100", "sm:dark:bg-neutral-700", "rounded", "sm:m-2", "sm:border", "border-base-200", "flex-grow-[3]", "min-w-1/3", "sm:w-[16rem]"], [1, "mx-3", "pt-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2"], ["request", "", "class", "border border-base-300 bg-base-100 rounded-xl overflow-hidden", 4, "ngFor", "ngForOf"], ["request", "", 1, "border", "border-base-300", "bg-base-100", "rounded-xl", "overflow-hidden"], ["matRipple", "", 1, "flex", "items-center", "space-x-2", "p-3", "w-full", 3, "click"], [1, "flex-1", "text-left"], [1, "text-sm"], [1, "flex", "items-center", "justify-center", "rounded-full", "w-8", "h-8", 3, "matTooltip"], [1, "flex", "items-center", "justify-center", "rounded-full", "w-8", "h-8"], [1, "text-2xl"], [1, "flex", "flex-col", "bg-base-200", "divide-y", "divide-base-100"], ["class", "flex items-center px-3 py-1 space-x-2 hover:opacity-90", 4, "ngFor", "ngForOf"], [1, "flex", "items-center", "px-3", "py-1", "space-x-2", "hover:opacity-90"], [1, "flex", "items-center", "flex-1"], [1, "rounded", "bg-success", "text-success-content", "text-xs", "px-2", "py-1"], [1, "pointer-events-none", 3, "src", "features", "options"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click"], [1, "flex", "items-center", "space-x-2", "text-base"], ["mat-menu-item", "", 3, "click"], ["className", "material-symbols-rounded"], [1, "text-error"]];
+      return [["menu", "matMenu"], ["loading_state", ""], i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_5, [1, "w-[100vw]", "h-[100vh]", "sm:relative", "sm:inset-auto", "sm:w-[51rem]", "sm:h-auto", "sm:max-h-[80vh]", "bg-base-100", "sm:bg-base-200", "sm:dark:bg-neutral-600", "sm:rounded", "overflow-auto", "space-y-2", "pb-2"], [1, "sm:flex", "flex-col", "items-center", "pb-4", "max-h-screen", "sm:max-h-[80vh]", "sm:px-16", "sm:border-b", "bg-base-100", "border-base-200"], ["class", "h-8 w-full sm:hidden block", 4, "ngIf"], ["class", "bg-neutral w-full h-64 sm:rounded-b overflow-hidden", 4, "ngIf"], ["title", "", 1, "px-3", "mt-2", "text-xl", "font-medium", "w-full"], [1, "sm:flex", "items-center", "justify-between", "w-full"], [1, "flex", "m-2"], [3, "status"], ["actions", "", "class", "flex items-center space-x-2 px-2", 4, "ngIf"], [1, "sm:flex", "flex-wrap", "sm:px-12"], [1, "sm:p-4", "sm:bg-base-100", "sm:dark:bg-neutral-700", "rounded", "sm:m-2", "sm:border", "border-base-200", "flex-grow-[4]", "min-w-1/3", "sm:w-[16rem]"], [1, "px-3", "mt-2", "text-lg", "font-medium", "mb-2"], [1, "flex", "items-center", "px-2", "space-x-2"], [4, "ngIf"], ["map", "", 1, "mt-4", "sm:my-2", "h-64", "sm:h-48", "relative", "border", "border-base-200", "overflow-hidden", "rounded", "sm:bg-base-100", "m-2", "flex-grow-[3]", "min-w-1/3", "w-[calc(100%-1rem)]", "p-2", "sm:w-[16rem]", 3, "click"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-0", "left-2", "bg-neutral", "text-white"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click", 4, "ngIf"], ["mat-menu-item", "", 3, "click", 4, "ngIf"], [1, "h-8", "w-full", "sm:hidden", "block"], [1, "bg-neutral", "w-full", "h-64", "sm:rounded-b", "overflow-hidden"], [1, "w-full", "h-64", 3, "images"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2"], ["btn", "", "matRipple", "", "class", "flex-1 h-10 border-none", 3, "bg-success", "text-success-content", "disabled", "click", 4, "ngIf"], ["icon", "", "matRipple", "", 1, "bg-secondary", "rounded", "text-white", "h-12", "w-12", 3, "matMenuTriggerFor"], ["btn", "", "matRipple", "", 1, "flex-1", "h-10", "border-none", 3, "click", "disabled"], ["class", "flex items-center space-x-2 justify-center", 4, "ngIf", "ngIfElse"], [1, "flex", "items-center", "space-x-2", "justify-center"], [1, "mr-4"], [1, "mx-auto", 3, "diameter"], [1, "mt-4", "sm:p-4", "sm:bg-base-100", "sm:dark:bg-neutral-700", "rounded", "sm:m-2", "sm:border", "border-base-200", "flex-grow-[3]", "min-w-1/3", "sm:w-[16rem]"], [1, "mx-3", "py-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2"], ["request", "", "class", "border border-base-300 bg-base-100 rounded-xl overflow-hidden", 4, "ngFor", "ngForOf"], ["request", "", 1, "border", "border-base-300", "bg-base-100", "rounded-xl", "overflow-hidden"], ["matRipple", "", 1, "flex", "items-center", "space-x-2", "p-3", "w-full", 3, "click"], [1, "flex-1", "text-left"], [1, "text-sm"], [1, "flex", "items-center", "justify-center", "rounded-full", "w-8", "h-8", 3, "matTooltip"], [1, "flex", "items-center", "justify-center", "rounded-full", "w-8", "h-8"], [1, "text-2xl"], [1, "flex", "flex-col", "bg-base-200", "divide-y", "divide-base-100"], ["class", "flex items-center px-3 py-1 space-x-2 hover:opacity-90", 4, "ngFor", "ngForOf"], [1, "flex", "items-center", "px-3", "py-1", "space-x-2", "hover:opacity-90"], [1, "flex", "items-center", "flex-1"], [1, "rounded", "bg-success", "text-success-content", "text-xs", "px-2", "py-1"], [1, "pointer-events-none", 3, "src", "features", "options"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click"], [1, "flex", "items-center", "space-x-2", "text-base"], ["mat-menu-item", "", 3, "click"], ["className", "material-symbols-rounded"], [1, "text-error"]];
     },
     template: function BookingDetailsModalComponent_Template(rf, ctx) {
       if (rf & 1) {
@@ -905,7 +907,10 @@ class BookingDetailsModalComponent {
         _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵproperty"]("ngIf", ctx.is_in_progress);
       }
     },
-    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_17__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_17__.NgIf, _angular_material_dialog__WEBPACK_IMPORTED_MODULE_16__.MatDialogClose, _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_18__.MatProgressSpinner, _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_8__.IconComponent, _components_src_lib_interactive_map_component__WEBPACK_IMPORTED_MODULE_9__.InteractiveMapComponent, _components_src_lib_image_carousel_component__WEBPACK_IMPORTED_MODULE_10__.ImageCarouselComponent, _components_src_lib_status_pill_component__WEBPACK_IMPORTED_MODULE_11__.StatusPillComponent, _angular_material_menu__WEBPACK_IMPORTED_MODULE_19__.MatMenu, _angular_material_menu__WEBPACK_IMPORTED_MODULE_19__.MatMenuItem, _angular_material_menu__WEBPACK_IMPORTED_MODULE_19__.MatMenuTrigger, _angular_material_core__WEBPACK_IMPORTED_MODULE_20__.MatRipple, _angular_material_tooltip__WEBPACK_IMPORTED_MODULE_21__.MatTooltip, _angular_common__WEBPACK_IMPORTED_MODULE_17__.DatePipe]
+    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_17__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_17__.NgIf, _angular_material_dialog__WEBPACK_IMPORTED_MODULE_16__.MatDialogClose, _angular_material_progress_spinner__WEBPACK_IMPORTED_MODULE_18__.MatProgressSpinner, _components_src_lib_icon_component__WEBPACK_IMPORTED_MODULE_8__.IconComponent, _components_src_lib_interactive_map_component__WEBPACK_IMPORTED_MODULE_9__.InteractiveMapComponent, _components_src_lib_image_carousel_component__WEBPACK_IMPORTED_MODULE_10__.ImageCarouselComponent, _components_src_lib_status_pill_component__WEBPACK_IMPORTED_MODULE_11__.StatusPillComponent, _angular_material_menu__WEBPACK_IMPORTED_MODULE_19__.MatMenu, _angular_material_menu__WEBPACK_IMPORTED_MODULE_19__.MatMenuItem, _angular_material_menu__WEBPACK_IMPORTED_MODULE_19__.MatMenuTrigger, _angular_material_core__WEBPACK_IMPORTED_MODULE_20__.MatRipple, _angular_material_tooltip__WEBPACK_IMPORTED_MODULE_21__.MatTooltip, _angular_common__WEBPACK_IMPORTED_MODULE_17__.DatePipe],
+    data: {
+      animation: [_placeos_common__WEBPACK_IMPORTED_MODULE_1__.ANIMATION_SHOW_CONTRACT_EXPAND]
+    }
   });
 }
 
@@ -1319,6 +1324,7 @@ class BookingFormService extends _placeos_common__WEBPACK_IMPORTED_MODULE_1__.As
         user_email: value.user?.email || value.user_email,
         extension_data: {
           ...(value.extension_data || {}),
+          assets: value.assets.map(_ => _.toJSON()),
           group: value.group,
           phone: value.phone,
           department: value.user?.department || (0,_placeos_common__WEBPACK_IMPORTED_MODULE_1__.currentUser)()?.department
@@ -3400,12 +3406,12 @@ function DeskFiltersComponent_div_25_Template(rf, ctx) {
     _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]()();
   }
   if (rf & 2) {
-    let tmp_4_0;
+    let tmp_5_0;
     const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](4);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngModel", ctx_r1.form.value.date)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpureFunction0"](8, _c0))("use_24hr", ctx_r1.use_24hr);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngModel", ctx_r1.form.value.date)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpureFunction0"](10, _c0))("use_24hr", ctx_r1.use_24hr)("timezone", ctx_r1.timezone);
     _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](4);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("time", (tmp_4_0 = ctx_r1.form.get("date")) == null ? null : tmp_4_0.value)("max", 10 * 60)("min", 60)("step", 60)("use_24hr", ctx_r1.use_24hr);
+    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("time", (tmp_5_0 = ctx_r1.form.get("date")) == null ? null : tmp_5_0.value)("max", 10 * 60)("min", 60)("step", 60)("use_24hr", ctx_r1.use_24hr)("timezone", ctx_r1.timezone);
   }
 }
 function DeskFiltersComponent_section_36_div_3_Template(rf, ctx) {
@@ -3489,6 +3495,9 @@ class DeskFiltersComponent {
   get use_region() {
     return this._settings.get('app.use_region');
   }
+  get timezone() {
+    return this._settings.get('app.events.use_building_timezone') ? this._org.building.timezone : '';
+  }
   constructor(_bsheet_ref, _state, _org, _settings) {
     this._bsheet_ref = _bsheet_ref;
     this._state = _state;
@@ -3522,7 +3531,7 @@ class DeskFiltersComponent {
       hide_levels: "hide_levels"
     },
     decls: 39,
-    vars: 33,
+    vars: 34,
     consts: () => {
       let i18n_0;
       if (typeof ngI18nClosureMode !== "undefined" && ngI18nClosureMode) {
@@ -3666,7 +3675,7 @@ class DeskFiltersComponent {
       } else {
         i18n_12 = $localize`:␟c17e2cc448524a39eb83b2937cea3235a2e8bf37␟2296888311792137027: Apply Filters `;
       }
-      return [i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_5, i18n_8, i18n_9, i18n_10, i18n_11, i18n_12, [1, "flex", "rounded-t-md", "items-center", "border-b", "border-base-200", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-desk-filters", "class", "sm:hidden", 3, "click", 4, "ngIf"], [1, "font-medium", "flex-2", "text-center"], [1, "flex-1"], [1, "max-h-[65vh]", "p-2", "overflow-y-auto", "overflow-x-hidden", "divide-y", "divide-base-200", "w-full", "max-w-[100vw]", "sm:max-w-[30vw]", 3, "formGroup"], ["details", ""], [1, "text-lg", "font-medium", "mb-1"], [1, "flex-1", "min-w-[8rem]", "flex", "flex-col"], ["for", "location"], ["appearance", "outline", "class", "w-full", 4, "ngIf"], [1, "flex-1", "min-w-[256px]"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to"], ["class", "flex justify-end -mt-2 mb-2", 4, "ngIf"], ["class", "flex items-center space-x-2", 4, "ngIf"], ["favs", "", 1, "space-y-2", "pb-4"], [1, "text-lg", "font-medium"], [1, "flex", "items-center"], ["for", "fav", 1, "flex-1", "w-1/2"], ["name", "fav", 3, "ngModelChange", "ngModel", "ngModelOptions"], ["class", "space-y-2", "features", "", 4, "ngIf"], ["class", "px-2 py-2 w-full border-t border-base-200", 4, "ngIf"], ["icon", "", "matRipple", "", "name", "close-desk-filters", 1, "sm:hidden", 3, "click"], ["appearance", "outline", 1, "w-full"], ["name", "region", "placeholder", i18n_6, 3, "ngModelChange", "ngModel", "ngModelOptions"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", "placeholder", i18n_7, 3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "flex", "flex-col-reverse"], ["class", "opacity-30 text-xs", 4, "ngIf"], [1, "opacity-30", "text-xs"], [1, "opacity-0"], [1, "flex", "justify-end", "-mt-2", "mb-2"], ["formControlName", "all_day"], [1, "flex", "items-center", "space-x-2"], [1, "flex-1", "w-1/3"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr"], ["formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr"], ["features", "", 1, "space-y-2"], ["class", "flex items-center flex-wrap space-x-2", 4, "ngFor", "ngForOf"], [1, "flex", "items-center", "flex-wrap", "space-x-2"], ["for", "feat", 1, "flex-1", "w-1/2"], [3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "px-2", "py-2", "w-full", "border-t", "border-base-200"], ["btn", "", "matRipple", "", "name", "apply-desk-filters", 1, "w-full", 3, "click"]];
+      return [i18n_0, i18n_1, i18n_2, i18n_3, i18n_4, i18n_5, i18n_8, i18n_9, i18n_10, i18n_11, i18n_12, [1, "flex", "rounded-t-md", "items-center", "border-b", "border-base-200", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-desk-filters", "class", "sm:hidden", 3, "click", 4, "ngIf"], [1, "font-medium", "flex-2", "text-center"], [1, "flex-1"], [1, "max-h-[65vh]", "p-2", "overflow-y-auto", "overflow-x-hidden", "divide-y", "divide-base-200", "w-full", "max-w-[100vw]", "sm:max-w-[30vw]", 3, "formGroup"], ["details", ""], [1, "text-lg", "font-medium", "mb-1"], [1, "flex-1", "min-w-[8rem]", "flex", "flex-col"], ["for", "location"], ["appearance", "outline", "class", "w-full", 4, "ngIf"], [1, "flex-1", "min-w-[256px]"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "timezone"], ["class", "flex justify-end -mt-2 mb-2", 4, "ngIf"], ["class", "flex items-center space-x-2", 4, "ngIf"], ["favs", "", 1, "space-y-2", "pb-4"], [1, "text-lg", "font-medium"], [1, "flex", "items-center"], ["for", "fav", 1, "flex-1", "w-1/2"], ["name", "fav", 3, "ngModelChange", "ngModel", "ngModelOptions"], ["class", "space-y-2", "features", "", 4, "ngIf"], ["class", "px-2 py-2 w-full border-t border-base-200", 4, "ngIf"], ["icon", "", "matRipple", "", "name", "close-desk-filters", 1, "sm:hidden", 3, "click"], ["appearance", "outline", 1, "w-full"], ["name", "region", "placeholder", i18n_6, 3, "ngModelChange", "ngModel", "ngModelOptions"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", "placeholder", i18n_7, 3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "flex", "flex-col-reverse"], ["class", "opacity-30 text-xs", 4, "ngIf"], [1, "opacity-30", "text-xs"], [1, "opacity-0"], [1, "flex", "justify-end", "-mt-2", "mb-2"], ["formControlName", "all_day"], [1, "flex", "items-center", "space-x-2"], [1, "flex-1", "w-1/3"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr", "timezone"], ["features", "", 1, "space-y-2"], ["class", "flex items-center flex-wrap space-x-2", 4, "ngFor", "ngForOf"], [1, "flex", "items-center", "flex-wrap", "space-x-2"], ["for", "feat", 1, "flex-1", "w-1/2"], [3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "px-2", "py-2", "w-full", "border-t", "border-base-200"], ["btn", "", "matRipple", "", "name", "apply-desk-filters", 1, "w-full", 3, "click"]];
     },
     template: function DeskFiltersComponent_Template(rf, ctx) {
       if (rf & 1) {
@@ -3702,7 +3711,7 @@ class DeskFiltersComponent {
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](22);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](23, "translate");
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](24, DeskFiltersComponent_div_24_Template, 3, 0, "div", 24)(25, DeskFiltersComponent_div_25_Template, 9, 9, "div", 25);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](24, DeskFiltersComponent_div_24_Template, 3, 0, "div", 24)(25, DeskFiltersComponent_div_25_Template, 9, 11, "div", 25);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](26, "section", 26)(27, "h2", 27);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵi18n"](28, 4);
@@ -3728,36 +3737,36 @@ class DeskFiltersComponent {
       if (rf & 2) {
         let tmp_2_0;
         let tmp_3_0;
-        let tmp_15_0;
-        let tmp_17_0;
+        let tmp_16_0;
+        let tmp_18_0;
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", ctx.can_close);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](4);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("formGroup", ctx.form);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](7);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", ctx.use_region && ((tmp_2_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](14, 17, ctx.regions)) == null ? null : tmp_2_0.length));
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", ctx.use_region && ((tmp_2_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](14, 18, ctx.regions)) == null ? null : tmp_2_0.length));
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", !ctx.use_region && ((tmp_3_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](16, 19, ctx.buildings)) == null ? null : tmp_3_0.length) > 1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", !ctx.use_region && ((tmp_3_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](16, 20, ctx.buildings)) == null ? null : tmp_3_0.length) > 1);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", !ctx.hide_levels);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](4);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngModel", ctx.form.value.date)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpureFunction0"](31, _c0))("to", ctx.end_date);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngModel", ctx.form.value.date)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpureFunction0"](32, _c0))("to", ctx.end_date)("timezone", ctx.timezone);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](23, 21, "FORM.DATE_ERROR"), " ");
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](23, 22, "FORM.DATE_ERROR"), " ");
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", ctx.allow_all_day);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", !ctx.form.value.all_day);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](4);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵi18nExp"](_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](29, 23, "COMMON.FAVOURITES"));
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵi18nExp"](_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](29, 24, "COMMON.FAVOURITES"));
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵi18nApply"](28);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](4);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵi18nExp"](_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](33, 25, "DESKS.SHOW_FAVOURITES"));
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵi18nExp"](_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](33, 26, "DESKS.SHOW_FAVOURITES"));
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵi18nApply"](32);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngModel", (tmp_15_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](35, 27, ctx.options)) == null ? null : tmp_15_0.show_fav)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpureFunction0"](32, _c0));
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngModel", (tmp_16_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](35, 28, ctx.options)) == null ? null : tmp_16_0.show_fav)("ngModelOptions", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpureFunction0"](33, _c0));
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", (tmp_17_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](37, 29, ctx.features)) == null ? null : tmp_17_0.length);
+        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", (tmp_18_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](37, 30, ctx.features)) == null ? null : tmp_18_0.length);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
         _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", ctx.can_close);
       }

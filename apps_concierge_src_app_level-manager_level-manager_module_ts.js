@@ -240,7 +240,8 @@ class LevelManagementService {
     this._change = new rxjs__WEBPACK_IMPORTED_MODULE_5__.BehaviorSubject(0);
     this.options = this._options.asObservable();
     this.level_list = this._org.level_list;
-    this.filtered_levels = (0,rxjs__WEBPACK_IMPORTED_MODULE_6__.combineLatest)([this.level_list, this._options]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_7__.map)(([list, options]) => {
+    this.filtered_levels = (0,rxjs__WEBPACK_IMPORTED_MODULE_6__.combineLatest)([this._org.building_list, this.level_list, this._options]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_7__.map)(([buildings, list, options]) => {
+      list = list.filter(_ => buildings.find(bld => bld.id === _.parent_id));
       if (options.zone) {
         list = list.filter(_ => _.parent_id === options.zone);
       }

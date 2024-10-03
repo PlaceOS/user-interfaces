@@ -2397,31 +2397,29 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   RoomBookingsTimelineComponent: () => (/* binding */ RoomBookingsTimelineComponent)
 /* harmony export */ });
 /* harmony import */ var _home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js */ 89204);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! date-fns */ 23206);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! date-fns */ 31257);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! date-fns */ 29533);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! date-fns */ 3330);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! date-fns */ 33240);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! date-fns */ 45726);
-/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! date-fns */ 1874);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! date-fns */ 23206);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! date-fns */ 31257);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! date-fns */ 29533);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! date-fns */ 3330);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! date-fns */ 33240);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! date-fns */ 45726);
+/* harmony import */ var date_fns__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! date-fns */ 1874);
 /* harmony import */ var _events_state_service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./events-state.service */ 88288);
-/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! rxjs */ 68824);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! rxjs/operators */ 35443);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! rxjs/operators */ 19803);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! rxjs/operators */ 89273);
-/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! rxjs/operators */ 7841);
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! rxjs */ 68824);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! rxjs/operators */ 35443);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! rxjs/operators */ 19803);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! rxjs/operators */ 89273);
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! rxjs/operators */ 7841);
 /* harmony import */ var _placeos_common__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @placeos/common */ 22797);
 /* harmony import */ var _placeos_events__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @placeos/events */ 40569);
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! @angular/common */ 60316);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! @angular/common */ 60316);
 /* harmony import */ var _placeos_organisation__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @placeos/organisation */ 2510);
-/* harmony import */ var libs_components_src_lib_media_duration_pipe__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! libs/components/src/lib/media-duration.pipe */ 28975);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @angular/core */ 37580);
-/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! @angular/material/dialog */ 12587);
-/* harmony import */ var _ui_date_options_component__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../ui/date-options.component */ 94584);
-/* harmony import */ var _angular_material_tooltip__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! @angular/material/tooltip */ 80640);
-/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! @angular/material/core */ 74646);
-/* harmony import */ var _room_booking_search_component__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./room-booking-search.component */ 96891);
-
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @angular/core */ 37580);
+/* harmony import */ var _angular_material_dialog__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! @angular/material/dialog */ 12587);
+/* harmony import */ var _ui_date_options_component__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../ui/date-options.component */ 94584);
+/* harmony import */ var _angular_material_tooltip__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! @angular/material/tooltip */ 80640);
+/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! @angular/material/core */ 74646);
+/* harmony import */ var _room_booking_search_component__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./room-booking-search.component */ 96891);
 
 
 
@@ -2445,193 +2443,193 @@ __webpack_require__.r(__webpack_exports__);
 const _c0 = () => [];
 function RoomBookingsTimelineComponent_div_0_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](0, "div", 21);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](1, " Timezone of the building is displayed and is different from your local timezone. ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](0, "div", 21);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](1, " Timezone of the building is displayed and is different from your local timezone. ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
   }
 }
 function RoomBookingsTimelineComponent_div_4_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](0, "div", 22);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](1, " Today ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](0, "div", 22);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](1, " Today ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
   }
 }
 function RoomBookingsTimelineComponent_div_18_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](0, "div", 23)(1, "div", 24);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelement"](3, "div", 25);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](0, "div", 23)(1, "div", 24);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](3, "div", 25);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
   }
   if (rf & 2) {
     const space_r1 = ctx.$implicit;
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtextInterpolate1"](" ", space_r1.display_name || space_r1.name, " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtextInterpolate1"](" ", space_r1.display_name || space_r1.name, " ");
   }
 }
 function RoomBookingsTimelineComponent_div_21_div_2_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](0, "div", 29);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](1);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](0, "div", 29);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
   }
   if (rf & 2) {
-    const hour_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]().$implicit;
-    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtextInterpolate1"](" ", ctx_r2.formatHour(hour_r2), " ");
+    const hour_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"]().$implicit;
+    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtextInterpolate1"](" ", ctx_r2.formatHour(hour_r2), " ");
   }
 }
 function RoomBookingsTimelineComponent_div_21_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](0, "div", 26);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelement"](1, "div", 27);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](2, RoomBookingsTimelineComponent_div_21_div_2_Template, 2, 1, "div", 28);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](0, "div", 26);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](1, "div", 27);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtemplate"](2, RoomBookingsTimelineComponent_div_21_div_2_Template, 2, 1, "div", 28);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
   }
   if (rf & 2) {
     const i_r4 = ctx.index;
-    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵstyleProp"]("height", ctx_r2.block_height + "rem");
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", i_r4 !== 0);
+    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵstyleProp"]("height", ctx_r2.block_height + "rem");
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("ngIf", i_r4 !== 0);
   }
 }
 function RoomBookingsTimelineComponent_div_22_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelement"](0, "div", 30);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](0, "div", 30);
   }
   if (rf & 2) {
-    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵstyleProp"]("top", "calc(" + ctx_r2.timeToOffset(ctx_r2.now) + "% + 1px)");
+    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵstyleProp"]("top", "calc(" + ctx_r2.timeToOffset(ctx_r2.now) + "% + 1px)");
   }
 }
 function RoomBookingsTimelineComponent_div_25_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelement"](0, "div", 31);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](0, "div", 31);
   }
   if (rf & 2) {
-    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵstyleProp"]("height", ctx_r2.block_height + "rem");
+    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵstyleProp"]("height", ctx_r2.block_height + "rem");
   }
 }
 function RoomBookingsTimelineComponent_div_26_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelement"](0, "div", 32);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](0, "div", 32);
   }
   if (rf & 2) {
     const i_r5 = ctx.index;
-    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵstyleProp"]("left", "calc(" + i_r5 * ctx_r2.block_width + "rem - 1px)");
+    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵstyleProp"]("left", "calc(" + i_r5 * ctx_r2.block_width + "rem - 1px)");
   }
 }
 function RoomBookingsTimelineComponent_ng_container_28_ng_container_1_button_1_ng_container_2_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementContainerStart"](0);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelement"](1, "div", 37);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementContainerEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementContainerStart"](0);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](1, "div", 37);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementContainerEnd"]();
   }
 }
 function RoomBookingsTimelineComponent_ng_container_28_ng_container_1_button_1_ng_container_3_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementContainerStart"](0);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelement"](1, "div", 38);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](2, "p", 24);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](3);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](4, "date");
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](5, "p", 24);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](6);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementContainerEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementContainerStart"](0);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](1, "div", 38);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](2, "p", 24);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](4, "date");
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](5, "p", 24);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](6);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementContainerEnd"]();
   }
   if (rf & 2) {
-    const event_r7 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"](2).$implicit;
-    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵclassProp"]("bg-secondary", event_r7.status !== "cancelled")("bg-error", event_r7.status === "cancelled");
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵclassProp"]("opacity-60", event_r7.status === "cancelled");
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtextInterpolate2"](" ", event_r7.all_day ? "All Day" : _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind3"](4, 11, event_r7.date, ctx_r2.time_format, ctx_r2.tz), " \u2013 ", event_r7.title, " ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵclassProp"]("opacity-60", event_r7.status === "cancelled");
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtextInterpolate1"](" ", (event_r7.organiser == null ? null : event_r7.organiser.name) || event_r7.host, " ");
+    const event_r7 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"](2).$implicit;
+    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵclassProp"]("bg-secondary", event_r7.status !== "cancelled")("bg-error", event_r7.status === "cancelled");
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵclassProp"]("opacity-60", event_r7.status === "cancelled");
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtextInterpolate2"](" ", event_r7.all_day ? "All Day" : _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind3"](4, 11, event_r7.date, ctx_r2.time_format, ctx_r2.tz), " \u2013 ", event_r7.title, " ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵclassProp"]("opacity-60", event_r7.status === "cancelled");
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtextInterpolate1"](" ", (event_r7.organiser == null ? null : event_r7.organiser.name) || event_r7.host, " ");
   }
 }
 function RoomBookingsTimelineComponent_ng_container_28_ng_container_1_button_1_Template(rf, ctx) {
   if (rf & 1) {
-    const _r6 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵgetCurrentView"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](0, "button", 34);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵlistener"]("click", function RoomBookingsTimelineComponent_ng_container_28_ng_container_1_button_1_Template_button_click_0_listener() {
-      _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵrestoreView"](_r6);
-      const event_r7 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]().$implicit;
-      const space_r8 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]().$implicit;
-      const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]();
-      return _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵresetView"](ctx_r2.viewEvent(event_r7, space_r8.id));
+    const _r6 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](0, "button", 34);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵlistener"]("click", function RoomBookingsTimelineComponent_ng_container_28_ng_container_1_button_1_Template_button_click_0_listener() {
+      _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵrestoreView"](_r6);
+      const event_r7 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"]().$implicit;
+      const space_r8 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"]().$implicit;
+      const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"]();
+      return _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵresetView"](ctx_r2.viewEvent(event_r7, space_r8.id));
     });
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](1, "div", 35);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](2, RoomBookingsTimelineComponent_ng_container_28_ng_container_1_button_1_ng_container_2_Template, 2, 0, "ng-container", 36)(3, RoomBookingsTimelineComponent_ng_container_28_ng_container_1_button_1_ng_container_3_Template, 7, 15, "ng-container", 36);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]()();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](1, "div", 35);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtemplate"](2, RoomBookingsTimelineComponent_ng_container_28_ng_container_1_button_1_ng_container_2_Template, 2, 0, "ng-container", 36)(3, RoomBookingsTimelineComponent_ng_container_28_ng_container_1_button_1_ng_container_3_Template, 7, 15, "ng-container", 36);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()();
   }
   if (rf & 2) {
-    const event_r7 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]().$implicit;
-    const i_r9 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]().index;
-    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵstyleProp"]("left", i_r9 * ctx_r2.block_width + 0.25 + "rem")("top", ctx_r2.timeToOffset(event_r7.date) + "%")("height", ctx_r2.endToOffset(event_r7.duration) + "%");
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵclassProp"]("pointer-events-none", event_r7.state === "done");
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("matTooltip", ctx_r2.eventTooltip(event_r7));
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵclassProp"]("opacity-60", event_r7.state === "done")("!rounded-none", event_r7.is_system_event)("!border-secondary", event_r7.is_system_event);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", event_r7.is_system_event);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", !event_r7.is_system_event);
+    const event_r7 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"]().$implicit;
+    const i_r9 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"]().index;
+    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵstyleProp"]("left", i_r9 * ctx_r2.block_width + 0.25 + "rem")("top", ctx_r2.timeToOffset(event_r7.date) + "%")("height", ctx_r2.endToOffset(event_r7.duration) + "%");
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵclassProp"]("pointer-events-none", event_r7.state === "done");
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("matTooltip", ctx_r2.eventTooltip(event_r7));
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵclassProp"]("opacity-60", event_r7.state === "done")("!rounded-none", event_r7.is_system_event)("!border-secondary", event_r7.is_system_event);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("ngIf", event_r7.is_system_event);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("ngIf", !event_r7.is_system_event);
   }
 }
 function RoomBookingsTimelineComponent_ng_container_28_ng_container_1_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementContainerStart"](0);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](1, RoomBookingsTimelineComponent_ng_container_28_ng_container_1_button_1_Template, 4, 17, "button", 33);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](2, "async");
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementContainerEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementContainerStart"](0);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtemplate"](1, RoomBookingsTimelineComponent_ng_container_28_ng_container_1_button_1_Template, 4, 17, "button", 33);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](2, "async");
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementContainerEnd"]();
   }
   if (rf & 2) {
     const event_r7 = ctx.$implicit;
-    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"](2);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", !event_r7.is_system_event || _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](2, 1, ctx_r2.ui_options).show_overflow);
+    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"](2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("ngIf", !event_r7.is_system_event || _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind1"](2, 1, ctx_r2.ui_options).show_overflow);
   }
 }
 function RoomBookingsTimelineComponent_ng_container_28_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementContainerStart"](0);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](1, RoomBookingsTimelineComponent_ng_container_28_ng_container_1_Template, 3, 3, "ng-container", 19);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](2, "async");
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementContainerEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementContainerStart"](0);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtemplate"](1, RoomBookingsTimelineComponent_ng_container_28_ng_container_1_Template, 3, 3, "ng-container", 19);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](2, "async");
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementContainerEnd"]();
   }
   if (rf & 2) {
     const space_r8 = ctx.$implicit;
-    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](2, 1, ctx_r2.events)[space_r8.id] || _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpureFunction0"](3, _c0));
+    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind1"](2, 1, ctx_r2.events)[space_r8.id] || _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpureFunction0"](3, _c0));
   }
 }
 function RoomBookingsTimelineComponent_div_30_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelement"](0, "div", 39);
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](0, "div", 39);
   }
   if (rf & 2) {
-    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵstyleProp"]("top", ctx_r2.timeToOffset(ctx_r2.now) + "%");
+    const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵstyleProp"]("top", ctx_r2.timeToOffset(ctx_r2.now) + "%");
   }
 }
 class RoomBookingsTimelineComponent extends _placeos_common__WEBPACK_IMPORTED_MODULE_2__.AsyncHandler {
   get now() {
-    return (0,date_fns__WEBPACK_IMPORTED_MODULE_9__.startOfMinute)(Date.now()).valueOf();
+    return (0,date_fns__WEBPACK_IMPORTED_MODULE_8__.startOfMinute)(Date.now()).valueOf();
   }
   get timezone() {
     return this._settings.get('app.events.use_building_timezone') ? this._org.building.timezone : '';
@@ -2640,10 +2638,7 @@ class RoomBookingsTimelineComponent extends _placeos_common__WEBPACK_IMPORTED_MO
     // Get Timezone as +/-HHMM
     const tz = this.timezone;
     if (!tz) return '';
-    const offset = (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.getTimezoneOffsetInMinutes)(tz);
-    const hours = Math.floor(Math.abs(offset) / 60);
-    const minutes = Math.abs(offset) % 60;
-    return `${offset > 0 ? '+' : '-'}${(0,libs_components_src_lib_media_duration_pipe__WEBPACK_IMPORTED_MODULE_5__.padLength)(hours, 2)}${(0,libs_components_src_lib_media_duration_pipe__WEBPACK_IMPORTED_MODULE_5__.padLength)(minutes, 2)}`;
+    return (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.getTimezoneOffsetString)(tz);
   }
   get diff_tz() {
     const tz = this.timezone;
@@ -2676,35 +2671,35 @@ class RoomBookingsTimelineComponent extends _placeos_common__WEBPACK_IMPORTED_MO
     this.ui_options = this._state.options;
     this.spaces = this._state.spaces;
     this.date = this._state.date;
-    this.is_today = this.date.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_10__.map)(d => (0,date_fns__WEBPACK_IMPORTED_MODULE_11__.isSameDay)(d, Date.now())));
-    this.show_time = (0,rxjs__WEBPACK_IMPORTED_MODULE_12__.combineLatest)([this.date, this._org.active_building]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_10__.map)(([d]) => {
-      const today = (0,date_fns__WEBPACK_IMPORTED_MODULE_11__.isSameDay)(d, Date.now());
+    this.is_today = this.date.pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_9__.map)(d => (0,date_fns__WEBPACK_IMPORTED_MODULE_10__.isSameDay)(d, Date.now())));
+    this.show_time = (0,rxjs__WEBPACK_IMPORTED_MODULE_11__.combineLatest)([this.date, this._org.active_building]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_9__.map)(([d]) => {
+      const today = (0,date_fns__WEBPACK_IMPORTED_MODULE_10__.isSameDay)(d, Date.now());
       const offset = this.timezone ? (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.getTimezoneDifferenceInHours)(this.timezone) : 0;
-      const start = (0,date_fns__WEBPACK_IMPORTED_MODULE_13__.addHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_14__.setHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_15__.startOfDay)(Date.now()), this.block_start), -offset).valueOf();
-      const end = (0,date_fns__WEBPACK_IMPORTED_MODULE_13__.addHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_14__.setHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_15__.startOfDay)(Date.now()), this.block_end), -offset).valueOf();
+      const start = (0,date_fns__WEBPACK_IMPORTED_MODULE_12__.addHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_13__.setHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_14__.startOfDay)(Date.now()), this.block_start), -offset).valueOf();
+      const end = (0,date_fns__WEBPACK_IMPORTED_MODULE_12__.addHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_13__.setHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_14__.startOfDay)(Date.now()), this.block_end), -offset).valueOf();
       return today && Date.now() >= start && Date.now() <= end;
     }));
-    this.events = (0,rxjs__WEBPACK_IMPORTED_MODULE_12__.combineLatest)([this._state.spaces, this._state.filtered, this.date]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_16__.debounceTime)(300), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_10__.map)(([spaces, events, date]) => {
+    this.events = (0,rxjs__WEBPACK_IMPORTED_MODULE_11__.combineLatest)([this._state.spaces, this._state.filtered, this.date]).pipe((0,rxjs_operators__WEBPACK_IMPORTED_MODULE_15__.debounceTime)(300), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_9__.map)(([spaces, events, date]) => {
       const map = {};
       const offset = this.timezone ? (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.getTimezoneDifferenceInHours)(this.timezone) : 0;
-      const start = (0,date_fns__WEBPACK_IMPORTED_MODULE_13__.addHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_14__.setHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_15__.startOfDay)(date), this.block_start), -offset).valueOf();
-      const end = (0,date_fns__WEBPACK_IMPORTED_MODULE_13__.addHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_14__.setHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_15__.startOfDay)(date), this.block_end), -offset).valueOf();
+      const start = (0,date_fns__WEBPACK_IMPORTED_MODULE_12__.addHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_13__.setHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_14__.startOfDay)(date), this.block_start), -offset).valueOf();
+      const end = (0,date_fns__WEBPACK_IMPORTED_MODULE_12__.addHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_13__.setHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_14__.startOfDay)(date), this.block_end), -offset).valueOf();
       for (const space of spaces) {
         map[space.id] = events.filter(event => event.resources.find(item => item.id === space.id || item.email === space.email) || event.system?.id === space.id || event.system?.email === space.email).filter(event => event.date_end >= start && event.date <= end);
       }
       return map;
-    }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_17__.startWith)({}), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_18__.shareReplay)(1));
+    }), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_16__.startWith)({}), (0,rxjs_operators__WEBPACK_IMPORTED_MODULE_17__.shareReplay)(1));
     this._hour_list = Array.from({
       length: 24
     }, (_, i) => i);
     this.hours = [];
     this.edit = e => this._state.newBooking(e);
     this.setDate = d => this._state.setDate(d);
-    this._date_pipe = new _angular_common__WEBPACK_IMPORTED_MODULE_19__.DatePipe('en');
+    this._date_pipe = new _angular_common__WEBPACK_IMPORTED_MODULE_18__.DatePipe('en');
   }
   formatHour(hour) {
-    const date = (0,date_fns__WEBPACK_IMPORTED_MODULE_14__.setHours)(Date.now(), hour);
-    return this._settings.get('app.use_24_hour_time') ? (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.format)(date, 'HH:00') : (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.format)(date, 'h a');
+    const date = (0,date_fns__WEBPACK_IMPORTED_MODULE_13__.setHours)(Date.now(), hour);
+    return this._settings.get('app.use_24_hour_time') ? (0,date_fns__WEBPACK_IMPORTED_MODULE_19__.format)(date, 'HH:00') : (0,date_fns__WEBPACK_IMPORTED_MODULE_19__.format)(date, 'h a');
   }
   eventTooltip(event) {
     const tooltip = `Start: ${event.all_day ? 'All Day' : this._date_pipe.transform(event.date, this.time_format)}
@@ -2724,8 +2719,8 @@ Host:  ${event.organiser?.name || event.host}`;
   timeToOffset(date) {
     const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const offset = !this.timezone ? 0 : (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.getTimezoneDifferenceInHours)(this.timezone, current_tz);
-    const start_time = (0,date_fns__WEBPACK_IMPORTED_MODULE_14__.setHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_15__.startOfDay)(date), this.block_start - offset);
-    const diff = (0,date_fns__WEBPACK_IMPORTED_MODULE_21__.differenceInMinutes)(date, start_time);
+    const start_time = (0,date_fns__WEBPACK_IMPORTED_MODULE_13__.setHours)((0,date_fns__WEBPACK_IMPORTED_MODULE_14__.startOfDay)(date), this.block_start - offset);
+    const diff = (0,date_fns__WEBPACK_IMPORTED_MODULE_20__.differenceInMinutes)(date, start_time);
     return Math.max(0, diff / 60) / this.block_range * 100;
   }
   endToOffset(duration) {
@@ -2757,7 +2752,7 @@ Host:  ${event.organiser?.name || event.host}`;
   remove(item, space_id) {
     var _this2 = this;
     return (0,_home_runner_work_user_interfaces_user_interfaces_node_modules_babel_runtime_helpers_esm_asyncToGenerator_js__WEBPACK_IMPORTED_MODULE_0__["default"])(function* () {
-      const time = `${(0,date_fns__WEBPACK_IMPORTED_MODULE_20__.format)(item.date, 'dd MMM yyyy ' + _this2.time_format)}`;
+      const time = `${(0,date_fns__WEBPACK_IMPORTED_MODULE_19__.format)(item.date, 'dd MMM yyyy ' + _this2.time_format)}`;
       const resource_name = item.space?.display_name;
       const content = `Delete the booking for ${resource_name} at ${time}`;
       const resp = yield (0,_placeos_common__WEBPACK_IMPORTED_MODULE_2__.openConfirmModal)({
@@ -2782,86 +2777,86 @@ Host:  ${event.organiser?.name || event.host}`;
     })();
   }
   static #_ = this.ɵfac = function RoomBookingsTimelineComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || RoomBookingsTimelineComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdirectiveInject"](_events_state_service__WEBPACK_IMPORTED_MODULE_1__.EventsStateService), _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdirectiveInject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_22__.MatDialog), _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdirectiveInject"](_placeos_common__WEBPACK_IMPORTED_MODULE_2__.SettingsService), _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdirectiveInject"](_placeos_organisation__WEBPACK_IMPORTED_MODULE_4__.OrganisationService));
+    return new (__ngFactoryType__ || RoomBookingsTimelineComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵdirectiveInject"](_events_state_service__WEBPACK_IMPORTED_MODULE_1__.EventsStateService), _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵdirectiveInject"](_angular_material_dialog__WEBPACK_IMPORTED_MODULE_21__.MatDialog), _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵdirectiveInject"](_placeos_common__WEBPACK_IMPORTED_MODULE_2__.SettingsService), _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵdirectiveInject"](_placeos_organisation__WEBPACK_IMPORTED_MODULE_4__.OrganisationService));
   };
-  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdefineComponent"]({
+  static #_2 = this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵdefineComponent"]({
     type: RoomBookingsTimelineComponent,
     selectors: [["room-bookings-timeline"]],
-    features: [_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵInheritDefinitionFeature"]],
+    features: [_angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵInheritDefinitionFeature"]],
     decls: 32,
     vars: 38,
     consts: [["class", "mx-2 mt-2 p-2 w-[calc(100%-1rem)] bg-info text-info-content rounded-lg text-center text-xs", 4, "ngIf"], [1, "relative", "flex", "items-center", "justify-center", "p-2", "space-x-2", "border-b", "border-base-200", "z-20"], [3, "dateChange", "date", "is_new"], ["class", "absolute top-1/2 -translate-y-1/2 left-4 text-info text-sm", 4, "ngIf"], [1, "absolute", "top-1/2", "-translate-y-1/2", "right-8"], [3, "selected"], ["timeline", "", 1, "grid", "overflow-auto", "w-full", "h-1/2", "flex-1", "z-0"], ["timezone", "", 1, "sticky", "top-0", "left-0", "z-30", "bg-base-100", "flex", "items-center", "justify-center"], [1, "text-xs", "opacity-30"], [1, "absolute", "h-2", "w-px", "right-0", "bottom-0", "bg-base-300"], [1, "absolute", "w-2", "h-px", "right-0", "bottom-0", "bg-base-300"], ["space-headers", "", 1, "sticky", "top-0", "z-20", "border-b", "border-base-300", "flex", "items-center", "bg-base-100"], ["class", "relative h-full w-56 flex items-center justify-center", 4, "ngFor", "ngForOf"], ["hour-blocks", "", 1, "sticky", "left-0", "z-10", "border-r", "border-base-300", "bg-base-100", "overflow-visible"], ["class", "relative w-full", 3, "height", 4, "ngFor", "ngForOf"], ["class", "absolute bg-secondary right-0 translate-x-1/2 -translate-y-1/2 h-2 w-2 rounded-full", 3, "top", 4, "ngIf"], ["space-blocks", "", 1, "relative", "overflow-hidden"], ["class", "relative w-full border-b border-base-200", 3, "height", 4, "ngFor", "ngForOf"], ["class", "absolute w-px h-full bg-base-200 top-0", 3, "left", 4, "ngFor", "ngForOf"], [4, "ngFor", "ngForOf"], ["class", "absolute inset-x-0 h-[2px] bg-secondary", 3, "top", 4, "ngIf"], [1, "mx-2", "mt-2", "p-2", "w-[calc(100%-1rem)]", "bg-info", "text-info-content", "rounded-lg", "text-center", "text-xs"], [1, "absolute", "top-1/2", "-translate-y-1/2", "left-4", "text-info", "text-sm"], [1, "relative", "h-full", "w-56", "flex", "items-center", "justify-center"], [1, "truncate"], [1, "absolute", "h-2", "w-px", "-left-px", "bottom-0", "bg-base-300"], [1, "relative", "w-full"], [1, "absolute", "-top-px", "right-0", "w-2", "h-px", "bg-base-300"], ["class", "absolute -top-px right-3 -translate-y-1/2 text-xs opacity-60", 4, "ngIf"], [1, "absolute", "-top-px", "right-3", "-translate-y-1/2", "text-xs", "opacity-60"], [1, "absolute", "bg-secondary", "right-0", "translate-x-1/2", "-translate-y-1/2", "h-2", "w-2", "rounded-full"], [1, "relative", "w-full", "border-b", "border-base-200"], [1, "absolute", "w-px", "h-full", "bg-base-200", "top-0"], ["event", "", "matRipple", "", "class", "absolute w-52 hover:opacity-90 text-left", 3, "left", "top", "height", "pointer-events-none", "matTooltip", "click", 4, "ngIf"], ["event", "", "matRipple", "", 1, "absolute", "w-52", "hover:opacity-90", "text-left", 3, "click", "matTooltip"], [1, "relative", "w-full", "h-full", "shadow", "bg-base-100", "border", "border-base-200", "hover:bg-base-200", "rounded-lg", "overflow-hidden", "px-3", "py-1", "text-xs"], [4, "ngIf"], [1, "absolute", "-inset-px", "bg-secondary", "opacity-30"], [1, "absolute", "left-0", "inset-y-0", "w-1"], [1, "absolute", "inset-x-0", "h-[2px]", "bg-secondary"]],
     template: function RoomBookingsTimelineComponent_Template(rf, ctx) {
       if (rf & 1) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](0, RoomBookingsTimelineComponent_div_0_Template, 2, 0, "div", 0);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](1, "div", 1)(2, "date-options", 2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](3, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵlistener"]("dateChange", function RoomBookingsTimelineComponent_Template_date_options_dateChange_2_listener($event) {
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtemplate"](0, RoomBookingsTimelineComponent_div_0_Template, 2, 0, "div", 0);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](1, "div", 1)(2, "date-options", 2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](3, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵlistener"]("dateChange", function RoomBookingsTimelineComponent_Template_date_options_dateChange_2_listener($event) {
           return ctx.setDate($event);
         });
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](4, RoomBookingsTimelineComponent_div_4_Template, 2, 0, "div", 3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](5, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](6, "div", 4)(7, "room-booking-search", 5);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵlistener"]("selected", function RoomBookingsTimelineComponent_Template_room_booking_search_selected_7_listener($event) {
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtemplate"](4, RoomBookingsTimelineComponent_div_4_Template, 2, 0, "div", 3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](5, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](6, "div", 4)(7, "room-booking-search", 5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵlistener"]("selected", function RoomBookingsTimelineComponent_Template_room_booking_search_selected_7_listener($event) {
           return ctx.viewEvent($event, $event.system == null ? null : $event.system.id, true);
         });
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]()()();
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](8, "div", 6)(9, "div", 7)(10, "div", 8);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtext"](11);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](12, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](13, "date");
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelement"](14, "div", 9)(15, "div", 10);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](16, "div", 11);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](17, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](18, RoomBookingsTimelineComponent_div_18_Template, 4, 1, "div", 12);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](19, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](20, "div", 13);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](21, RoomBookingsTimelineComponent_div_21_Template, 3, 3, "div", 14)(22, RoomBookingsTimelineComponent_div_22_Template, 1, 2, "div", 15);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](23, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](24, "div", 16);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](25, RoomBookingsTimelineComponent_div_25_Template, 1, 2, "div", 17)(26, RoomBookingsTimelineComponent_div_26_Template, 1, 2, "div", 18);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](27, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](28, RoomBookingsTimelineComponent_ng_container_28_Template, 3, 4, "ng-container", 19);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](29, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](30, RoomBookingsTimelineComponent_div_30_Template, 1, 2, "div", 20);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipe"](31, "async");
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()()();
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](8, "div", 6)(9, "div", 7)(10, "div", 8);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtext"](11);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](12, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](13, "date");
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelement"](14, "div", 9)(15, "div", 10);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](16, "div", 11);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](17, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtemplate"](18, RoomBookingsTimelineComponent_div_18_Template, 4, 1, "div", 12);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](19, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](20, "div", 13);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtemplate"](21, RoomBookingsTimelineComponent_div_21_Template, 3, 3, "div", 14)(22, RoomBookingsTimelineComponent_div_22_Template, 1, 2, "div", 15);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](23, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementStart"](24, "div", 16);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtemplate"](25, RoomBookingsTimelineComponent_div_25_Template, 1, 2, "div", 17)(26, RoomBookingsTimelineComponent_div_26_Template, 1, 2, "div", 18);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](27, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtemplate"](28, RoomBookingsTimelineComponent_ng_container_28_Template, 3, 4, "ng-container", 19);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](29, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtemplate"](30, RoomBookingsTimelineComponent_div_30_Template, 1, 2, "div", 20);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipe"](31, "async");
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵelementEnd"]()();
       }
       if (rf & 2) {
         let tmp_5_0;
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", ctx.diff_tz);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("date", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](3, 16, ctx.date))("is_new", true);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](5, 18, ctx.is_today));
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](7);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind3"](13, 22, _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](12, 20, ctx.date), "z", ctx.tz), " ");
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](5);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵstyleProp"]("width", ((tmp_5_0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](17, 26, ctx.spaces)) == null ? null : tmp_5_0.length) * ctx.block_width + "rem");
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](19, 28, ctx.spaces));
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵstyleProp"]("height", ctx.block_range * ctx.block_height + "rem");
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngForOf", ctx.hours);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](23, 30, ctx.show_time) && ctx.timeToOffset(ctx.now) < 100);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](3);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngForOf", ctx.hours);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](27, 32, ctx.spaces));
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](29, 34, ctx.spaces));
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngIf", _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵpipeBind1"](31, 36, ctx.show_time));
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("ngIf", ctx.diff_tz);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("date", _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind1"](3, 16, ctx.date))("is_new", true);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("ngIf", _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind1"](5, 18, ctx.is_today));
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](7);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵtextInterpolate1"](" ", _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind3"](13, 22, _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind1"](12, 20, ctx.date), "z", ctx.tz), " ");
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](5);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵstyleProp"]("width", ((tmp_5_0 = _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind1"](17, 26, ctx.spaces)) == null ? null : tmp_5_0.length) * ctx.block_width + "rem");
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind1"](19, 28, ctx.spaces));
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵstyleProp"]("height", ctx.block_range * ctx.block_height + "rem");
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("ngForOf", ctx.hours);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("ngIf", _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind1"](23, 30, ctx.show_time) && ctx.timeToOffset(ctx.now) < 100);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](3);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("ngForOf", ctx.hours);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind1"](27, 32, ctx.spaces));
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("ngForOf", _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind1"](29, 34, ctx.spaces));
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵadvance"](2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵproperty"]("ngIf", _angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵpipeBind1"](31, 36, ctx.show_time));
       }
     },
-    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_19__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_19__.NgIf, _ui_date_options_component__WEBPACK_IMPORTED_MODULE_6__.DateOptionsComponent, _angular_material_tooltip__WEBPACK_IMPORTED_MODULE_23__.MatTooltip, _angular_material_core__WEBPACK_IMPORTED_MODULE_24__.MatRipple, _room_booking_search_component__WEBPACK_IMPORTED_MODULE_7__.RoomBookingSearchComponent, _angular_common__WEBPACK_IMPORTED_MODULE_19__.AsyncPipe, _angular_common__WEBPACK_IMPORTED_MODULE_19__.DatePipe],
+    dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_18__.NgForOf, _angular_common__WEBPACK_IMPORTED_MODULE_18__.NgIf, _ui_date_options_component__WEBPACK_IMPORTED_MODULE_5__.DateOptionsComponent, _angular_material_tooltip__WEBPACK_IMPORTED_MODULE_22__.MatTooltip, _angular_material_core__WEBPACK_IMPORTED_MODULE_23__.MatRipple, _room_booking_search_component__WEBPACK_IMPORTED_MODULE_6__.RoomBookingSearchComponent, _angular_common__WEBPACK_IMPORTED_MODULE_18__.AsyncPipe, _angular_common__WEBPACK_IMPORTED_MODULE_18__.DatePipe],
     styles: ["[_nghost-%COMP%] {\n                display: flex;\n                flex-direction: column;\n                max-width: 100%;\n            }\n\n            [timeline][_ngcontent-%COMP%] {\n                grid-template-columns: 4rem auto;\n                grid-template-rows: 3.5rem auto;\n            }\n        \n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInJvb20tdGltZWxpbmUuY29tcG9uZW50LnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7WUFDWTtnQkFDSSxhQUFhO2dCQUNiLHNCQUFzQjtnQkFDdEIsZUFBZTtZQUNuQjs7WUFFQTtnQkFDSSxnQ0FBZ0M7Z0JBQ2hDLCtCQUErQjtZQUNuQyIsImZpbGUiOiJyb29tLXRpbWVsaW5lLmNvbXBvbmVudC50cyIsInNvdXJjZXNDb250ZW50IjpbIlxuICAgICAgICAgICAgOmhvc3Qge1xuICAgICAgICAgICAgICAgIGRpc3BsYXk6IGZsZXg7XG4gICAgICAgICAgICAgICAgZmxleC1kaXJlY3Rpb246IGNvbHVtbjtcbiAgICAgICAgICAgICAgICBtYXgtd2lkdGg6IDEwMCU7XG4gICAgICAgICAgICB9XG5cbiAgICAgICAgICAgIFt0aW1lbGluZV0ge1xuICAgICAgICAgICAgICAgIGdyaWQtdGVtcGxhdGUtY29sdW1uczogNHJlbSBhdXRvO1xuICAgICAgICAgICAgICAgIGdyaWQtdGVtcGxhdGUtcm93czogMy41cmVtIGF1dG87XG4gICAgICAgICAgICB9XG4gICAgICAgICJdfQ== */\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL2FwcHMvY29uY2llcmdlL3NyYy9hcHAvZGF5LXZpZXcvcm9vbS10aW1lbGluZS5jb21wb25lbnQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IjtZQUNZO2dCQUNJLGFBQWE7Z0JBQ2Isc0JBQXNCO2dCQUN0QixlQUFlO1lBQ25COztZQUVBO2dCQUNJLGdDQUFnQztnQkFDaEMsK0JBQStCO1lBQ25DOztBQUVaLDR1QkFBNHVCIiwic291cmNlc0NvbnRlbnQiOlsiXG4gICAgICAgICAgICA6aG9zdCB7XG4gICAgICAgICAgICAgICAgZGlzcGxheTogZmxleDtcbiAgICAgICAgICAgICAgICBmbGV4LWRpcmVjdGlvbjogY29sdW1uO1xuICAgICAgICAgICAgICAgIG1heC13aWR0aDogMTAwJTtcbiAgICAgICAgICAgIH1cblxuICAgICAgICAgICAgW3RpbWVsaW5lXSB7XG4gICAgICAgICAgICAgICAgZ3JpZC10ZW1wbGF0ZS1jb2x1bW5zOiA0cmVtIGF1dG87XG4gICAgICAgICAgICAgICAgZ3JpZC10ZW1wbGF0ZS1yb3dzOiAzLjVyZW0gYXV0bztcbiAgICAgICAgICAgIH1cbiAgICAgICAgIl0sInNvdXJjZVJvb3QiOiIifQ== */"]
   });
 }
