@@ -94,6 +94,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                             name="date"
                             formControlName="date"
                             [to]="end_date"
+                            [timezone]="timezone"
                             i18n
                         >
                             Date and time must be in the future
@@ -122,6 +123,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
                             [use_24hr]="use_24hr"
+                            [timezone]="timezone"
                         ></a-time-field>
                     </div>
                     <div class="flex-1 w-1/3">
@@ -136,6 +138,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                             [min]="60"
                             [step]="60"
                             [use_24hr]="use_24hr"
+                            [timezone]="timezone"
                         >
                         </a-duration-field>
                     </div>
@@ -149,7 +152,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                             [ngModel]="!!form.value.secondary_resource"
                             (ngModelChange)="
                                 form.patchValue({
-                                    secondary_resource: $event ? 'locker' : ''
+                                    secondary_resource: $event ? 'locker' : '',
                                 })
                             "
                             [ngModelOptions]="{ standalone: true }"
@@ -286,12 +289,18 @@ export class NewDeskFormDetailsComponent extends AsyncHandler {
         );
     }
 
+    public get timezone() {
+        return this._settings.get('app.desks.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+    }
+
     public get end_date() {
         return endOfDay(
             addDays(
                 Date.now(),
-                this._settings.get('app.desks.available_period') || 90
-            )
+                this._settings.get('app.desks.available_period') || 90,
+            ),
         ).valueOf();
     }
 
@@ -302,7 +311,7 @@ export class NewDeskFormDetailsComponent extends AsyncHandler {
     constructor(
         private _state: BookingFormService,
         private _org: OrganisationService,
-        private _settings: SettingsService
+        private _settings: SettingsService,
     ) {
         super();
     }

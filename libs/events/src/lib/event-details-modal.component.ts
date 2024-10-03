@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { addMinutes, format, formatDuration, getUnixTime } from 'date-fns';
+import { getUnixTime } from 'date-fns';
 
 import { CalendarEvent } from './event.class';
 import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
@@ -12,13 +12,14 @@ import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     notifyError,
     SettingsService,
-    MapsPeopleService,
+    getTimezoneOffsetString,
 } from '@placeos/common';
 import { Space } from 'libs/spaces/src/lib/space.class';
 import { getModule } from '@placeos/ts-client';
 import { MapLocateModalComponent } from 'libs/components/src/lib/map-locate-modal.component';
 import { CateringItem } from 'libs/catering/src/lib/catering-item.class';
 import { getEventMetadata } from './events.fn';
+import { DatePipe } from '@angular/common';
 
 const EMPTY_ACTIONS = [];
 
@@ -61,7 +62,18 @@ const EMPTY_ACTIONS = [];
                 <div class="sm:flex items-center justify-between w-full">
                     <div class="flex m-2">
                         <status-pill [status]="event_status">
-                            {{ period }}
+                            <div
+                                class="flex flex-col leading-tight"
+                                [class.pr-4]="timezone"
+                            >
+                                <div>{{ period }}</div>
+                                <div
+                                    class="opacity-30 text-xs"
+                                    *ngIf="timezone"
+                                >
+                                    {{ period_tz }}
+                                </div>
+                            </div>
                         </status-pill>
                     </div>
                     <div
@@ -123,11 +135,18 @@ const EMPTY_ACTIONS = [];
                     </h3>
                     <div class="flex items-center px-2 space-x-2">
                         <app-icon>event</app-icon>
-                        <div>{{ event.date | date: 'EEEE, dd LLLL y' }}</div>
+                        <div>
+                            {{ event.date | date: 'EEEE, dd LLLL y' }}
+                        </div>
                     </div>
                     <div class="flex items-center px-2 space-x-2">
                         <app-icon>schedule</app-icon>
-                        <div>{{ period }}</div>
+                        <div class="flex flex-col leading-tight">
+                            <div>{{ period }}</div>
+                            <div class="opacity-30 text-xs" *ngIf="timezone">
+                                {{ period_tz }}
+                            </div>
+                        </div>
                     </div>
                     <div class="flex items-center px-2 space-x-2">
                         <app-icon>map</app-icon>
@@ -579,6 +598,18 @@ export class EventDetailsModalComponent {
     public building: Building = new Building();
     public space: Space = new Space();
 
+    public get timezone() {
+        return this._settings.get('app.events.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+    }
+
+    public get tz() {
+        const tz = this.timezone;
+        if (!tz) return '';
+        return getTimezoneOffsetString(tz);
+    }
+
     public accept_count = this._event.attendees.reduce(
         (count, user) => (count += user.response_status === 'accepted' ? 1 : 0),
         0,
@@ -629,27 +660,37 @@ export class EventDetailsModalComponent {
         private _dialog: MatDialog,
     ) {
         this._load().then();
+        console.log('Timezone:', this.timezone);
     }
 
     public get period() {
         if (this.event?.all_day) return 'All Day';
-        const start = this.event?.date || Date.now();
-        const duration = this.event?.duration || 60;
-        const end = addMinutes(start, duration);
+        return this.formattedTime();
+    }
+
+    public get period_tz() {
+        return this.formattedTime(this.tz);
+    }
+
+    private _date: DatePipe = new DatePipe('en');
+
+    public formattedTime(tz?: string) {
+        const date = this.event.date;
+        const date_end = this.event.date_end;
+        const all_day = this.event.all_day;
+        const tz_format = this._date.transform(date, 'z', tz);
+        const start_date = this._date.transform(date, 'MMM d', tz);
+        const start_time = this._date.transform(date, this.time_format, tz);
+        const end_date = this._date.transform(date_end, 'MMM d', tz);
+        const end_time = this._date.transform(date_end, this.time_format, tz);
         const is_multiday = this.event?.duration > 24 * 60;
-        const dur = formatDuration({
-            hours: Math.floor(duration / 60),
-            minutes: duration % 60,
-        })
-            .replace(' hour', 'hr')
-            .replace(' minute', 'min');
-        return `${format(
-            start,
-            (is_multiday ? `MMM d, ` : '') + this.time_format,
-        )} - ${format(
-            end,
-            (is_multiday ? `MMM d, ` : '') + this.time_format,
-        )} ${duration < 24 * 60 ? '(' + dur + ')' : ''}`;
+
+        if (is_multiday) {
+            return `${start_date}${all_day ? '' : ', ' + start_time} - ${end_date}${all_day ? '' : ', ' + end_time}`;
+        } else if (all_day) {
+            return 'All Day';
+        }
+        return `${start_time} - ${end_time} ${'(' + tz_format + ')'}`;
     }
 
     public optionList(item: CateringItem) {

@@ -24,21 +24,25 @@ export class LevelManagementService {
     public readonly level_list = this._org.level_list;
 
     public readonly filtered_levels = combineLatest([
+        this._org.building_list,
         this.level_list,
         this._options,
     ]).pipe(
-        map(([list, options]) => {
+        map(([buildings, list, options]) => {
+            list = list.filter((_) =>
+                buildings.find((bld) => bld.id === _.parent_id),
+            );
             if (options.zone) {
                 list = list.filter((_) => _.parent_id === options.zone);
             }
             if (options.search) {
                 list = list.filter((_) =>
-                    _.name.toLowerCase().includes(options.search.toLowerCase())
+                    _.name.toLowerCase().includes(options.search.toLowerCase()),
                 );
             }
             for (const level of list) {
                 const parent = this._org.buildings.find(
-                    (bld) => bld.id === level.parent_id
+                    (bld) => bld.id === level.parent_id,
                 );
                 if (parent) {
                     (level as any).building =
@@ -46,12 +50,12 @@ export class LevelManagementService {
                 }
             }
             return list;
-        })
+        }),
     );
 
     constructor(
         private _org: OrganisationService,
-        private _dialog: MatDialog
+        private _dialog: MatDialog,
     ) {}
 
     public setFilters(options: Partial<LevelListOptions>) {
@@ -79,7 +83,7 @@ export class LevelManagementService {
                 icon: { content: 'delete_forever' },
                 confirm_text: 'Remove',
             },
-            this._dialog
+            this._dialog,
         );
         if (ref.reason !== 'done') return ref.close();
         ref.loading('Removing building...');

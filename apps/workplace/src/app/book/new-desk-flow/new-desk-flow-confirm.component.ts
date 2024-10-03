@@ -1,7 +1,13 @@
+import { DatePipe } from '@angular/common';
 import { Component, Input, Optional } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { BookingFormService } from '@placeos/bookings';
-import { AsyncHandler, SettingsService, notifyError } from '@placeos/common';
+import {
+    AsyncHandler,
+    SettingsService,
+    getTimezoneOffsetString,
+    notifyError,
+} from '@placeos/common';
 import { Desk, OrganisationService } from '@placeos/organisation';
 import { addMinutes, endOfDay } from 'date-fns';
 import { map, take } from 'rxjs/operators';
@@ -42,20 +48,16 @@ import { map, take } from 'rxjs/operators';
             <div details class="leading-6">
                 <h3>{{ booking.title || '~Untitled~' }}</h3>
                 <div class="flex items-center space-x-2">
-                    <app-icon>calendar_today</app-icon>
+                    <app-icon class="text-2xl">calendar_today</app-icon>
                     <div date>{{ booking.date | date: 'fullDate' }}</div>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <app-icon>schedule</app-icon>
-                    <div time>
-                        {{
-                            booking.all_day
-                                ? 'All Day'
-                                : (booking.date | date: time_format) +
-                                  ' - ' +
-                                  (booking.date + booking.duration * 60 * 1000
-                                      | date: time_format + ' (z)')
-                        }}
+                    <app-icon class="text-2xl">schedule</app-icon>
+                    <div class="flex flex-col leading-tight">
+                        <div time>{{ formattedTime() }}</div>
+                        <div class="text-xs opacity-30" *ngIf="timezone">
+                            {{ formattedTime(tz) }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -180,6 +182,8 @@ import { map, take } from 'rxjs/operators';
 export class NewDeskFlowConfirmComponent extends AsyncHandler {
     @Input() public show_close: boolean = false;
 
+    private _date: DatePipe = new DatePipe('en');
+
     public readonly loading = this._state.loading;
     public readonly is_group = this._state.options.pipe(map((_) => _.group));
 
@@ -201,6 +205,24 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
     };
     public readonly dismiss = (e?) => this._sheet_ref?.dismiss(e);
 
+    public formattedTime(tz?: string) {
+        const date = this.booking.date;
+        const date_end = this.booking.date_end;
+        const all_day = this.booking.all_day;
+        const tz_format = this._date.transform(date, 'z', tz);
+        const start_date = this._date.transform(date, 'MMM d', tz);
+        const start_time = this._date.transform(date, this.time_format, tz);
+        const end_date = this._date.transform(date_end, 'MMM d', tz);
+        const end_time = this._date.transform(date_end, this.time_format, tz);
+
+        if (this.is_multiday) {
+            return `${start_date}${all_day ? '' : ', ' + start_time} - ${end_date}${all_day ? '' : ', ' + end_time}`;
+        } else if (all_day) {
+            return 'All Day';
+        }
+        return `${start_time} - ${end_time} ${'(' + tz_format + ')'}`;
+    }
+
     public get end_time() {
         const end = addMinutes(
             this.booking.date,
@@ -213,8 +235,24 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
         return this._state.form.value as any;
     }
 
+    public get is_multiday() {
+        return this.booking.duration > 24 * 60;
+    }
+
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public get timezone() {
+        return this._settings.get('app.desks.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+    }
+
+    public get tz() {
+        const tz = this.timezone;
+        if (!tz) return '';
+        return getTimezoneOffsetString(tz);
     }
 
     public get assets() {

@@ -12,6 +12,7 @@ import { PanelStateService } from '../panel-state.service';
             <div
                 class="bg-cover bg-center absolute inset-0"
                 [style.background-image]="'url(' + room_image + ')'"
+                *ngIf="room_image"
             ></div>
             <div class="absolute inset-0 bg-black opacity-50"></div>
             <div name class="absolute top-4 left-4 text-4xl font-medium">
@@ -117,14 +118,14 @@ export class PanelViewDetailsComponent {
                 this.qr_code = generateQRCode(
                     custom_qr_url,
                     '#fff0',
-                    custom_qr_color || '#fff'
+                    custom_qr_color || '#fff',
                 );
             } else if (!this.qr_code) {
                 const url = `${location.origin}${location.pathname}#/checkin/${this._state.system}?user=true`;
                 this.qr_code = generateQRCode(
                     url,
                     '#fff0',
-                    custom_qr_color || '#fff'
+                    custom_qr_color || '#fff',
                 );
             }
         });

@@ -515,33 +515,33 @@ export async function validateAssetRequestsForResource(
             ),
         );
         used_ids = [...used_ids, ...asset_ids];
-        return createBooking(
-            new Booking({
-                type: 'asset-request',
-                booking_type: 'asset-request',
-                date,
-                duration,
-                all_day,
-                description: location_name,
-                user_email: host,
-                asset_id: asset_ids[0],
-                asset_ids,
-                asset_name: request.items.map((_) => _.name).join(', '),
-                title: request.items.map((_) => _.name).join(', '),
-                approved:
-                    !reset_state && booking?.approved && !request._changed,
-                rejected:
-                    !reset_state && booking?.rejected && !request._changed,
-                extension_data: {
-                    parent_id: id,
-                    request_id: request.id,
-                    location_id,
-                    request: new AssetRequest({ ...request, event: null }),
-                },
-                zones: zones || [],
-            }),
-            { ical_uid, event_id: from_booking ? '' : id },
-        );
+        const asset_data: Partial<Booking> = {
+            type: 'asset-request',
+            booking_type: 'asset-request',
+            date,
+            duration,
+            all_day,
+            description: location_name,
+            user_email: host,
+            asset_id: asset_ids[0],
+            asset_ids,
+            asset_name: request.items.map((_) => _.name).join(', '),
+            title: request.items.map((_) => _.name).join(', '),
+            approved: !reset_state && booking?.approved && !request._changed,
+            rejected: !reset_state && booking?.rejected && !request._changed,
+            extension_data: {
+                parent_id: id,
+                request_id: request.id,
+                location_id,
+                request: new AssetRequest({ ...request, event: null }),
+            },
+            zones: zones || [],
+        };
+        if (from_booking) (asset_data as any).parent_id = id;
+        return createBooking(new Booking(asset_data), {
+            ical_uid,
+            event_id: from_booking ? '' : id,
+        });
     });
     return async () => {
         await Promise.all(

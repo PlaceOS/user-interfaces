@@ -19,7 +19,6 @@ import {
     filter,
     map,
     shareReplay,
-    startWith,
     switchMap,
 } from 'rxjs/operators';
 import { OrganisationService } from '@placeos/organisation';
@@ -54,6 +53,8 @@ import { OrganisationService } from '@placeos/organisation';
                         name="date"
                         formControlName="date"
                         [to]="end_date"
+                        [use_24hr]="use_24hr"
+                        [timezone]="timezone"
                     >
                         {{ 'FORM.DATE_ERROR' | translate }}
                     </a-date-field>
@@ -78,6 +79,9 @@ import { OrganisationService } from '@placeos/organisation';
                         name="date"
                         formControlName="date"
                         [to]="end_date"
+                        [use_24hr]="use_24hr"
+                        [timezone]="timezone"
+                        [range]="1"
                     >
                         {{ 'FORM.DATE_ERROR' | translate }}
                     </a-date-field>
@@ -98,6 +102,9 @@ import { OrganisationService } from '@placeos/organisation';
                         formControlName="date_end"
                         [from]="start_date"
                         [to]="end_date"
+                        [use_24hr]="use_24hr"
+                        [timezone]="timezone"
+                        [range]="2"
                     >
                         {{ 'FORM.DATE_ERROR' | translate }}
                     </a-date-field>
@@ -118,6 +125,7 @@ import { OrganisationService } from '@placeos/organisation';
                         (ngModelChange)="form.patchValue({ date: $event })"
                         [ngModelOptions]="{ standalone: true }"
                         [use_24hr]="use_24hr"
+                        [timezone]="timezone"
                     ></a-time-field>
                 </div>
                 <div class="flex-1 w-1/3" *ngIf="allow_multiday">
@@ -132,6 +140,7 @@ import { OrganisationService } from '@placeos/organisation';
                         [from]="form?.getRawValue()?.date + 30 * 60 * 1000"
                         [use_24hr]="use_24hr"
                         [extra_info_fn]="duration_info"
+                        [timezone]="timezone"
                     ></a-time-field>
                 </div>
                 <div class="flex-1 w-1/3" *ngIf="!allow_multiday">
@@ -144,6 +153,7 @@ import { OrganisationService } from '@placeos/organisation';
                         [time]="form?.getRawValue()?.date"
                         [max]="max_duration"
                         [use_24hr]="use_24hr"
+                        [timezone]="timezone"
                     ></a-duration-field>
                 </div>
             </div>
@@ -271,6 +281,12 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
             this._settings.get('app.events.allow_multiday') ||
             this._event_form.is_multiday
         );
+    }
+
+    public get timezone() {
+        return this._settings.get('app.events.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
     }
 
     public get start_date() {

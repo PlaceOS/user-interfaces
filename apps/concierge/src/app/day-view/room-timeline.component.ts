@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import {
     addHours,
     differenceInMinutes,
@@ -15,11 +15,10 @@ import {
     AsyncHandler,
     SettingsService,
     getTimezoneDifferenceInHours,
-    getTimezoneOffsetInMinutes,
+    getTimezoneOffsetString,
     notifyError,
     notifySuccess,
     openConfirmModal,
-    padString,
 } from '@placeos/common';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -30,7 +29,6 @@ import {
 } from '@placeos/events';
 import { DatePipe } from '@angular/common';
 import { OrganisationService } from '@placeos/organisation';
-import { padLength } from 'libs/components/src/lib/media-duration.pipe';
 
 @Component({
     selector: 'room-bookings-timeline',
@@ -318,10 +316,7 @@ export class RoomBookingsTimelineComponent extends AsyncHandler {
         // Get Timezone as +/-HHMM
         const tz = this.timezone;
         if (!tz) return '';
-        const offset = getTimezoneOffsetInMinutes(tz);
-        const hours = Math.floor(Math.abs(offset) / 60);
-        const minutes = Math.abs(offset) % 60;
-        return `${offset > 0 ? '+' : '-'}${padLength(hours, 2)}${padLength(minutes, 2)}`;
+        return getTimezoneOffsetString(tz);
     }
 
     public get diff_tz() {
